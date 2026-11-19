@@ -68,8 +68,12 @@ SECTIONS
         src/sram_selection.o(.text);
         src/interrupt.o(.text);
         asm/interrupt.o(.text.enable);
+        src/interrupt.o(.text.Irq_Enable);
+        asm/interrupt.o(.text.after_080004F4);
         src/interrupt.o(.text.ack);
         asm/interrupt.o(.text.disable);
+        src/interrupt.o(.text.Irq_Disable);
+        asm/interrupt.o(.text.after_08000528);
         src/interrupt.o(.text.set);
         asm/interrupt.o(.text);
         src/interrupt.o(.text.wait);
