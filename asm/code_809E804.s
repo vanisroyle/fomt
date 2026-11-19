@@ -13981,7 +13981,7 @@ func_080AD49C: @ 0x080AD49C
 	ands r4, r1
 	strh r4, [r2, #4]
 	adds r1, r7, #0
-	bl func_08037CC4
+	bl InitializeReactionEntity
 .L080AD5A8:
 	adds r5, r0, #0
 .L080AD5AA:
