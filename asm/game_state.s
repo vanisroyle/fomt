@@ -260,7 +260,7 @@ func_08010358: @ 0x08010358
     movs r3, #0xd2
     lsls r3, r3, #6
     adds r0, r6, r3
-    bl func_0809C144
+    bl InitCursedToolProgress
     ldr r0, .L08010648 @ =0x00003494
     adds r2, r6, r0
     movs r3, #2
@@ -1752,7 +1752,7 @@ func_08010F54: @ 0x08010F54
     bl func_080A0B18
     adds r0, r4, #0
     adds r1, r6, #0
-    bl func_0803D7E4
+    bl ResetAllNpcDailySchedules
     ldr r1, .L0801121C @ =0x00001F64
     adds r4, r6, r1
     adds r0, r4, #0
@@ -2311,7 +2311,7 @@ func_08011650: @ 0x08011650
     movs r3, #0xd2
     lsls r3, r3, #6
     adds r0, r7, r3
-    bl func_0809C144
+    bl InitCursedToolProgress
     ldr r0, .L080118C0 @ =0x00003494
     adds r2, r7, r0
     movs r3, #2
