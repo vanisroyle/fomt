@@ -320,7 +320,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateGetMapWidthPixels
 	.word GameStateGetMapHeightPixels
 	.word GameStateGetMapTerrain @ 34
-	.word func_0801A8E0
+	.word GameStateRespawnActor
 	.word GameStateRemoveEntitySlot
 	.word GameStateGetEntitySlot
 	.word GameStateGetConstEntitySlot
