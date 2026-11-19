@@ -52,7 +52,6 @@ struct MapUpdateState
 EC u32 func_0800E324(Unk_0800E324 const & calendar);
 EC MapPatch & GetMapPatch(MapPatch & result, u32 const & flags, unsigned index, bool isWinter);
 EC void ApplyMapPatch(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, u32 y);
-EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapPatchTiles const gUnk_08106DAC;
 EC u32 const gUnk_08107438[6];
 EC bool HasRosterEntry(void * self);
@@ -293,5 +292,5 @@ EC SECTION(".text.080AAF3C") u32 SelectMapGraphicsId(MapUpdateState const & map)
     u32 houseLevel = map.save->house.GetUpgradeLevel();
     u32 coopLevel = map.save->coop.GetUpgradeLevel();
     u32 barnLevel = map.save->barn.GetUpgradeLevel();
-    return func_0803A8A4(map.mapId, season, houseLevel, coopLevel, barnLevel);
+    return GetMapGraphicsVariantId(map.mapId, season, houseLevel, coopLevel, barnLevel);
 }

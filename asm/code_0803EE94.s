@@ -7321,7 +7321,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r5, r4
 	ldr r0, [r0]
 	adds r0, #0x14
-	bl method_08009B20__C4Farm
+	bl HasGoldenLumberOnField__C4Farm
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	bl .L080454A8
@@ -7369,7 +7369,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r2, .L080435F8 @ =0x00001BD8
 	adds r4, r4, r2
 	adds r0, r4, #0
-	bl func_0800E4E0
+	bl GetFarmerName
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_0800E9A8
@@ -45604,7 +45604,7 @@ RunHorseRaceScreen: @ 0x080588AC
 .L080589B8: .4byte 0x00001424
 .L080589BC:
 	adds r0, r6, #0
-	bl func_08059C94
+	bl LoadHorseRaceBettingScreenGraphics
 	adds r0, r6, #0
 	movs r1, #0
 	bl func_08059FE0
@@ -46788,7 +46788,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	ldr r0, .L08059448 @ =0x0000FFFF
 	strh r0, [r1]
 	adds r0, r6, #0
-	bl func_08059C94
+	bl LoadHorseRaceBettingScreenGraphics
 	adds r0, r6, #0
 	movs r1, #1
 	bl func_08059FE0
@@ -47819,384 +47819,7 @@ UpdateHorseRaceDialogue: @ 0x08059878
 	.align 2, 0
 .L08059C90: .4byte gUnk_080FAE00
 
-	.section .text.f3.08059C94, "ax", %progbits
-	thumb_func_start func_08059C94
-func_08059C94: @ 0x08059C94
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0xa0
-	adds r7, r0, #0
-	add r1, sp, #0xc
-	movs r0, #0
-	str r0, [sp, #0xc]
-	strh r0, [r1, #4]
-	add r1, sp, #0x14
-	str r0, [sp, #0x14]
-	strh r0, [r1, #4]
-	add r2, sp, #0x1c
-	mov sb, r2
-	str r0, [sp, #0x1c]
-	strh r0, [r2, #4]
-	add r1, sp, #0x24
-	str r0, [sp, #0x24]
-	strh r0, [r1, #4]
-	movs r3, #0xd6
-	lsls r3, r3, #2
-	adds r5, r7, r3
-	ldr r1, [r5]
-	ldr r3, [r1]
-	ldrh r2, [r5, #0xc]
-	movs r4, #0xd7
-	lsls r4, r4, #2
-	adds r4, r4, r7
-	mov r8, r4
-	lsls r2, r2, #2
-	ldr r0, [r4]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #0x2c
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r4, sp, #0x2c
-	adds r0, r4, #0
-	adds r1, r4, #0
-	movs r2, #0x20
-	bl memcpy
-	add r1, sp, #0xc
-	adds r0, r4, #0
-	ldm r0!, {r2, r3, r6}
-	stm r1!, {r2, r3, r6}
-	ldm r0!, {r2, r3, r6}
-	stm r1!, {r2, r3, r6}
-	ldm r0!, {r2, r6}
-	stm r1!, {r2, r6}
-	ldr r1, [r5]
-	ldr r3, [r1]
-	ldrh r2, [r5, #0xc]
-	lsls r2, r2, #2
-	mov r5, r8
-	ldr r0, [r5]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	adds r0, r4, #0
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	adds r0, r4, #0
-	adds r1, r4, #0
-	movs r2, #0x20
-	bl memcpy
-	add r1, sp, #0xc
-	adds r0, r4, #0
-	ldm r0!, {r2, r3, r6}
-	stm r1!, {r2, r3, r6}
-	ldm r0!, {r2, r5, r6}
-	stm r1!, {r2, r5, r6}
-	ldm r0!, {r3, r5}
-	stm r1!, {r3, r5}
-	ldr r5, [sp, #0x1c]
-	movs r6, #0xc1
-	lsls r6, r6, #3
-	adds r0, r7, r6
-	ldr r1, [r0, #4]
-	bl func_080074C0
-	lsls r0, r0, #5
-	ldr r2, .L08059F98 @ =0x05000200
-	adds r1, r0, r2
-	ldr r0, [sp, #0x1c]
-	movs r2, #0
-	mov sl, r4
-	cmp r0, #0
-	beq .L08059D52
-	mov r3, sb
-	ldrh r2, [r3, #4]
-.L08059D52:
-	adds r0, r5, #0
-	bl Dma3_Copy
-	movs r4, #0
-	mov sb, r4
-	movs r6, #0
-	mov r5, r8
-	str r5, [sp, #0x98]
-	mov r0, sp
-	adds r0, #0x90
-	str r0, [sp, #0x94]
-	mov r1, sp
-	adds r1, #0x50
-	str r1, [sp, #0x9c]
-	movs r2, #0xd6
-	lsls r2, r2, #2
-	adds r5, r7, r2
-	mov r8, sl
-.L08059D76:
-	adds r0, r5, #0
-	adds r1, r6, #0
-	bl func_0805E860
-	ldr r1, [r5]
-	ldr r3, [r1]
-	ldrh r2, [r5, #0xc]
-	lsls r2, r2, #2
-	ldr r4, [sp, #0x98]
-	ldr r0, [r4]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #0x2c
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	mov r0, r8
-	mov r1, r8
-	movs r2, #0x20
-	bl memcpy
-	add r1, sp, #0xc
-	mov r0, r8
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #0x14]
-	movs r1, #0xc0
-	lsls r1, r1, #3
-	adds r0, r7, r1
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	add r0, sb
-	lsls r0, r0, #5
-	ldr r2, .L08059F9C @ =0x06010000
-	adds r1, r0, r2
-	ldr r0, [sp, #0x14]
-	movs r2, #0
-	cmp r0, #0
-	beq .L08059DD2
-	mov r3, sp
-	ldrh r2, [r3, #0x18]
-.L08059DD2:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r0, [sp, #0x14]
-	movs r1, #0
-	cmp r0, #0
-	beq .L08059DE4
-	mov r4, sp
-	ldrh r1, [r4, #0x18]
-.L08059DE4:
-	lsrs r0, r1, #5
-	add sb, r0
-	adds r6, #1
-	cmp r6, #3
-	ble .L08059D76
-	ldr r1, .L08059FA0 @ =0x06007FE0
-	movs r0, #0
-	movs r2, #0x20
-	bl Dma3_Fill
-	movs r4, #1
-	rsbs r4, r4, #0
-	ldr r5, .L08059FA4 @ =0x0600E000
-	mov r8, r5
-	movs r6, #0x80
-	lsls r6, r6, #4
-	adds r0, r4, #0
-	mov r1, r8
-	adds r2, r6, #0
-	bl Dma3_Fill
-	ldr r0, .L08059FA8 @ =0x0600E800
-	mov sb, r0
-	adds r0, r4, #0
-	mov r1, sb
-	adds r2, r6, #0
-	bl Dma3_Fill
-	ldr r1, .L08059FAC @ =0x0600F000
-	adds r0, r4, #0
-	adds r2, r6, #0
-	bl Dma3_Fill
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	movs r2, #0xf2
-	lsls r2, r2, #5
-	adds r1, r2, #0
-	mov r3, sl
-	strh r1, [r3]
-	movs r5, #0
-	strh r1, [r0]
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	ldr r4, .L08059FB0 @ =0x00005C43
-	adds r1, r4, #0
-	mov r2, sl
-	strh r1, [r2]
-	strh r1, [r0, #0xe]
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	ldr r3, .L08059FB4 @ =0x00001D41
-	adds r1, r3, #0
-	mov r4, sl
-	strh r1, [r4]
-	strh r1, [r0, #0xc]
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	ldr r2, .L08059FB8 @ =0x00005E42
-	adds r1, r2, #0
-	strh r1, [r4]
-	strh r1, [r0, #0xa]
-	ldr r0, .L08059FBC @ =gUnk_080F9F70
-	ldr r0, [r0]
-	movs r1, #0xc0
-	lsls r1, r1, #0x13
-	ldr r2, .L08059FC0 @ =gUnk_080F9F74
-	ldr r2, [r2]
-	bl Dma3_Copy
-	ldr r0, .L08059FC4 @ =0x00030003
-	mov r1, r8
-	adds r2, r6, #0
-	bl Dma3_Fill
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	strh r5, [r4]
-	strh r5, [r0, #0x1c]
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	strh r5, [r4]
-	strh r5, [r0, #0x1e]
-	movs r0, #3
-	str r0, [sp]
-	str r5, [sp, #4]
-	str r5, [sp, #8]
-	mov r0, sb
-	movs r1, #0
-	movs r2, #0
-	movs r3, #0x20
-	bl DrawMessageFrame
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	strh r5, [r4]
-	strh r5, [r0, #0x18]
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	strh r5, [r4]
-	strh r5, [r0, #0x1a]
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	strh r5, [r4]
-	strh r5, [r0, #0x14]
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	strh r5, [r4]
-	strh r5, [r0, #0x16]
-	ldr r0, .L08059FC8 @ =gUnk_080F9F78
-	ldr r0, [r0]
-	movs r1, #0xa0
-	lsls r1, r1, #0x13
-	movs r2, #0x20
-	bl Dma3_Copy
-	ldr r0, .L08059FCC @ =0x05000040
-	movs r3, #0xf8
-	lsls r3, r3, #2
-	adds r6, r3, #0
-	strh r6, [r0]
-	adds r0, #2
-	strh r5, [r0]
-	adds r0, #2
-	ldr r4, .L08059FD0 @ =0x00004218
-	mov r8, r4
-	strh r4, [r0]
-	movs r0, #0xc3
-	lsls r0, r0, #3
-	adds r4, r7, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080074C0
-	lsls r0, r0, #5
-	ldr r1, .L08059F98 @ =0x05000200
-	adds r0, r0, r1
-	strh r6, [r0]
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080074C0
-	lsls r0, r0, #5
-	ldr r2, .L08059FD4 @ =0x05000202
-	adds r0, r0, r2
-	strh r5, [r0]
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080074C0
-	lsls r0, r0, #5
-	ldr r3, .L08059FD8 @ =0x05000204
-	adds r0, r0, r3
-	mov r4, r8
-	strh r4, [r0]
-	mov sl, r5
-	movs r6, #1
-	mov r8, r6
-	movs r0, #2
-	mov sb, r0
-	add r6, sp, #0x90
-.L08059F3A:
-	ldr r0, .L08059FDC @ =gUnk_080FAE6A
-	lsls r4, r5, #1
-	adds r0, r4, r0
-	ldrh r1, [r0]
-	mov r2, r8
-	strh r2, [r6]
-	mov r0, sb
-	ldr r3, [sp, #0x94]
-	strh r0, [r3, #2]
-	ldr r0, [r6]
-	str r1, [sp]
-	mov r1, sl
-	str r1, [sp, #4]
-	mov r2, r8
-	str r2, [sp, #8]
-	add r1, sp, #0x50
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageGlyphWithColors
-	movs r3, #0xc2
-	lsls r3, r3, #3
-	adds r0, r7, r3
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	adds r1, r0, #0
-	adds r1, r1, r4
-	lsls r1, r1, #5
-	ldr r4, .L08059F9C @ =0x06010000
-	adds r1, r1, r4
-	ldr r0, [sp, #0x9c]
-	movs r2, #0x40
-	bl Dma3_Copy
-	adds r5, #1
-	cmp r5, #0x17
-	ble .L08059F3A
-	add sp, #0xa0
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08059F98: .4byte 0x05000200
-.L08059F9C: .4byte 0x06010000
-.L08059FA0: .4byte 0x06007FE0
-.L08059FA4: .4byte 0x0600E000
-.L08059FA8: .4byte 0x0600E800
-.L08059FAC: .4byte 0x0600F000
-.L08059FB0: .4byte 0x00005C43
-.L08059FB4: .4byte 0x00001D41
-.L08059FB8: .4byte 0x00005E42
-.L08059FBC: .4byte gUnk_080F9F70
-.L08059FC0: .4byte gUnk_080F9F74
-.L08059FC4: .4byte 0x00030003
-.L08059FC8: .4byte gUnk_080F9F78
-.L08059FCC: .4byte 0x05000040
-.L08059FD0: .4byte 0x00004218
-.L08059FD4: .4byte 0x05000202
-.L08059FD8: .4byte 0x05000204
-.L08059FDC: .4byte gUnk_080FAE6A
-
+	.section .text.f3.08059FE0, "ax", %progbits
 	thumb_func_start func_08059FE0
 func_08059FE0: @ 0x08059FE0
 	push {r4, r5, r6, r7, lr}
@@ -53037,233 +52660,7 @@ func_0805C96C: @ 0x0805C96C
 .L0805CEB0: .4byte 0x000013EA
 .L0805CEB4: .4byte 0x000013EE
 
-	.section .text.f3.0805CF70, "ax", %progbits
-	thumb_func_start InitMedalExchangeScreen
-InitMedalExchangeScreen: @ 0x0805CF70
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #0x18
-	adds r7, r0, #0
-	adds r4, r1, #0
-	add r1, sp, #0x14
-	movs r0, #0x1e
-	movs r2, #1
-	movs r3, #0
-	mov r8, r3
-	movs r5, #0
-	strh r0, [r1]
-	strh r2, [r1, #2]
-	adds r0, r7, #0
-	bl func_080084DC
-	ldr r0, .L0805D154 @ =vtable_unk_080E799C
-	str r0, [r7, #4]
-	str r4, [r7, #8]
-	str r5, [r7, #0xc]
-	movs r0, #4
-	bl __builtin_new
-	adds r6, r0, #0
-	add r0, sp, #0xc
-	bl TilePool_Initialize
-	add r4, sp, #0x10
-	adds r0, r4, #0
-	bl ResourcePool_Initialize
-	ldr r0, [r7, #0xc]
-	str r0, [sp]
-	add r0, sp, #0xc
-	str r0, [sp, #4]
-	str r4, [sp, #8]
-	adds r0, r6, #0
-	movs r1, #0
-	movs r2, #0x1f
-	movs r3, #0
-	bl CreateMessageWindow
-	str r0, [r7, #0x10]
-	adds r0, r4, #0
-	movs r1, #2
-	bl ResourcePool_Destroy
-	add r0, sp, #0xc
-	movs r1, #2
-	bl TilePool_Destroy
-	adds r0, r7, #0
-	adds r0, #0x14
-	movs r1, #1
-	bl AudioPlayer_Initialize
-	adds r0, r7, #0
-	adds r0, #0x18
-	movs r1, #0
-	bl AudioPlayer_Initialize
-	adds r0, r7, #0
-	adds r0, #0x1c
-	movs r1, #2
-	bl AudioPlayer_Initialize
-	adds r4, r7, #0
-	adds r4, #0x20
-	ldr r1, .L0805D158 @ =gUnk_08527094
-	adds r0, r4, #0
-	bl func_0805E6CC
-	adds r6, r7, #0
-	adds r6, #0x50
-	ldr r1, .L0805D15C @ =gUnk_08728208
-	adds r0, r6, #0
-	bl func_0805E6CC
-	adds r0, r7, #0
-	adds r0, #0x80
-	adds r1, r4, #0
-	movs r2, #0
-	movs r3, #0x80
-	lsls r3, r3, #1
-	bl func_0805E824
-	adds r0, r7, #0
-	adds r0, #0x94
-	strh r5, [r0]
-	strh r5, [r0, #2]
-	strh r5, [r0, #4]
-	strh r5, [r0, #6]
-	strh r5, [r0, #8]
-	str r5, [r0, #0xc]
-	mov r1, r8
-	strb r1, [r0, #0x10]
-	strb r1, [r0, #0x11]
-	str r5, [r0, #0x14]
-	strb r1, [r0, #0x18]
-	adds r0, #0x1c
-	strb r1, [r0]
-	adds r0, #4
-	adds r1, r4, #0
-	movs r2, #1
-	movs r3, #0x80
-	lsls r3, r3, #1
-	bl func_0805E824
-	adds r0, r7, #0
-	adds r0, #0xc8
-	strh r5, [r0]
-	strh r5, [r0, #2]
-	strh r5, [r0, #4]
-	strh r5, [r0, #6]
-	strh r5, [r0, #8]
-	str r5, [r0, #0xc]
-	mov r3, r8
-	strb r3, [r0, #0x10]
-	strb r3, [r0, #0x11]
-	str r5, [r0, #0x14]
-	strb r3, [r0, #0x18]
-	adds r0, #0x1c
-	strb r3, [r0]
-	adds r0, #4
-	adds r1, r6, #0
-	movs r2, #0
-	movs r3, #0x80
-	lsls r3, r3, #1
-	bl func_0805E824
-	adds r0, r7, #0
-	adds r0, #0xfc
-	strh r5, [r0]
-	strh r5, [r0, #2]
-	strh r5, [r0, #4]
-	strh r5, [r0, #6]
-	strh r5, [r0, #8]
-	str r5, [r0, #0xc]
-	mov r1, r8
-	strb r1, [r0, #0x10]
-	strb r1, [r0, #0x11]
-	str r5, [r0, #0x14]
-	strb r1, [r0, #0x18]
-	movs r3, #0x8c
-	lsls r3, r3, #1
-	adds r0, r7, r3
-	strb r1, [r0]
-	movs r0, #0x8e
-	lsls r0, r0, #1
-	adds r4, r7, r0
-	adds r0, r4, #0
-	bl func_08007874
-	adds r0, r4, #0
-	movs r1, #7
-	bl func_08007B54
-	str r0, [r4, #4]
-	movs r1, #0x92
-	lsls r1, r1, #1
-	adds r4, r7, r1
-	adds r0, r4, #0
-	bl ResourceHandles_Initialize
-	adds r0, r4, #0
-	bl func_0800736C
-	str r0, [r4, #4]
-	movs r3, #0x96
-	lsls r3, r3, #1
-	adds r4, r7, r3
-	adds r0, r4, #0
-	bl func_08007874
-	adds r0, r4, #0
-	movs r1, #4
-	bl func_08007B54
-	str r0, [r4, #4]
-	movs r0, #0x9a
-	lsls r0, r0, #1
-	adds r4, r7, r0
-	adds r0, r4, #0
-	bl ResourceHandles_Initialize
-	adds r0, r4, #0
-	bl func_0800736C
-	str r0, [r4, #4]
-	movs r1, #0x9e
-	lsls r1, r1, #1
-	adds r4, r7, r1
-	adds r0, r4, #0
-	bl func_08007874
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_08007B54
-	str r0, [r4, #4]
-	movs r3, #0xa2
-	lsls r3, r3, #1
-	adds r4, r7, r3
-	adds r0, r4, #0
-	bl ResourceHandles_Initialize
-	adds r0, r4, #0
-	bl func_0800736C
-	str r0, [r4, #4]
-	ldr r0, .L0805D160 @ =0x00000AEC
-	adds r1, r7, r0
-	ldr r0, .L0805D164 @ =vtable_unk_080E79A8
-	str r0, [r1]
-	str r5, [r1, #4]
-	movs r1, #0xad
-	lsls r1, r1, #4
-	adds r2, r7, r1
-	ldr r0, [r7, #8]
-	ldr r3, .L0805D168 @ =0x00002C48
-	adds r0, r0, r3
-	ldr r0, [r0]
-	lsls r0, r0, #0xd
-	lsrs r0, r0, #0xf
-	str r0, [r2]
-	ldr r1, .L0805D16C @ =0x0001869F
-	cmp r0, r1
-	ble .L0805D13C
-	str r1, [r2]
-.L0805D13C:
-	movs r1, #0xa6
-	lsls r1, r1, #1
-	adds r0, r7, r1
-	strh r5, [r0]
-	adds r0, r7, #0
-	add sp, #0x18
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0805D154: .4byte vtable_unk_080E799C
-.L0805D158: .4byte gUnk_08527094
-.L0805D15C: .4byte gUnk_08728208
-.L0805D160: .4byte 0x00000AEC
-.L0805D164: .4byte vtable_unk_080E79A8
-.L0805D168: .4byte 0x00002C48
-.L0805D16C: .4byte 0x0001869F
-
+	.section .text.f3.0805D170, "ax", %progbits
 	thumb_func_start RunMedalExchangeScreen
 RunMedalExchangeScreen: @ 0x0805D170
 	push {r4, r5, r6, r7, lr}
@@ -53923,7 +53320,7 @@ RunMedalExchangeScreen: @ 0x0805D170
 	mov r8, r4
 .L0805D6EC:
 	adds r0, r6, #0
-	bl func_0805D760
+	bl UpdateMedalExchangeDialogue
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
@@ -53977,286 +53374,6 @@ RunMedalExchangeScreen: @ 0x0805D170
 	pop {r4, r5, r6, r7}
 	pop {r1}
 	bx r1
-
-	thumb_func_start func_0805D760
-func_0805D760: @ 0x0805D760
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0xc
-	adds r7, r0, #0
-	ldr r0, [r7, #0x10]
-	mov sb, r0
-	adds r0, r7, #0
-	bl HardwareContext_GetState
-	mov r8, r0
-	adds r0, r7, #0
-	bl HardwareContext_GetOamBuffer
-	adds r6, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	adds r5, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetFrameTasks
-	adds r4, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetVBlankTasks
-	adds r1, r7, #0
-	adds r1, #0x14
-	str r4, [sp]
-	str r0, [sp, #4]
-	str r1, [sp, #8]
-	mov r0, sb
-	mov r1, r8
-	adds r2, r6, #0
-	adds r3, r5, #0
-	bl UpdateMessageWindow
-	cmp r0, #6
-	bls .L0805D7B2
-	b .L0805D9A8
-.L0805D7B2:
-	lsls r0, r0, #2
-	ldr r1, .L0805D7BC @ =.L0805D7C0
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0805D7BC: .4byte .L0805D7C0
-.L0805D7C0: @ jump table
-	.4byte .L0805D7DC @ case 0
-	.4byte .L0805D9A8 @ case 1
-	.4byte .L0805D9A8 @ case 2
-	.4byte .L0805D7FE @ case 3
-	.4byte .L0805D9A8 @ case 4
-	.4byte .L0805D9A8 @ case 5
-	.4byte .L0805D9A8 @ case 6
-.L0805D7DC:
-	ldr r1, .L0805D7F4 @ =0x00000ADC
-	adds r4, r7, r1
-	movs r3, #0
-	ldrsh r0, [r4, r3]
-	cmp r0, #0
-	bne .L0805D7F8
-	ldr r0, [r7, #0x10]
-	bl OpenMessageWindow
-	movs r0, #3
-	strh r0, [r4]
-	b .L0805D9A8
-	.align 2, 0
-.L0805D7F4: .4byte 0x00000ADC
-.L0805D7F8:
-	movs r0, #2
-	strh r0, [r4]
-	b .L0805D9A8
-.L0805D7FE:
-	ldr r4, .L0805D818 @ =0x00000ADC
-	adds r5, r7, r4
-	movs r6, #0
-	ldrsh r4, [r5, r6]
-	cmp r4, #5
-	bne .L0805D81C
-	ldr r0, [r7, #0x10]
-	bl CloseMessageWindow
-	movs r0, #1
-	strh r0, [r5]
-	b .L0805D9A8
-	.align 2, 0
-.L0805D818: .4byte 0x00000ADC
-.L0805D81C:
-	cmp r4, #4
-	bne .L0805D8A4
-	ldr r0, [r7, #0x10]
-	bl GetMessageWindowSelection
-	movs r1, #0
-	mov r8, r1
-	movs r3, #3
-	strh r3, [r5]
-	ldr r6, .L0805D840 @ =0x00000ADA
-	adds r2, r7, r6
-	movs r6, #0
-	ldrsh r1, [r2, r6]
-	cmp r1, #2
-	beq .L0805D844
-	cmp r1, #8
-	beq .L0805D870
-	b .L0805D9A8
-	.align 2, 0
-.L0805D840: .4byte 0x00000ADA
-.L0805D844:
-	cmp r0, #1
-	bne .L0805D858
-	ldr r1, .L0805D854 @ =0x00000ADE
-	adds r0, r7, r1
-	mov r4, r8
-	strh r4, [r0]
-	strh r3, [r2]
-	b .L0805D9A8
-	.align 2, 0
-.L0805D854: .4byte 0x00000ADE
-.L0805D858:
-	cmp r0, #2
-	beq .L0805D85E
-	b .L0805D9A8
-.L0805D85E:
-	ldr r6, .L0805D86C @ =0x00000ADE
-	adds r1, r7, r6
-	movs r0, #1
-	strh r0, [r1]
-	strh r4, [r2]
-	b .L0805D9A8
-	.align 2, 0
-.L0805D86C: .4byte 0x00000ADE
-.L0805D870:
-	cmp r0, #1
-	bne .L0805D88C
-	ldr r1, .L0805D888 @ =0x00000ADE
-	adds r0, r7, r1
-	mov r3, r8
-	strh r3, [r0]
-	movs r0, #5
-	strh r0, [r5]
-	movs r0, #9
-	strh r0, [r2]
-	b .L0805D9A8
-	.align 2, 0
-.L0805D888: .4byte 0x00000ADE
-.L0805D88C:
-	cmp r0, #2
-	beq .L0805D892
-	b .L0805D9A8
-.L0805D892:
-	ldr r4, .L0805D8A0 @ =0x00000ADE
-	adds r0, r7, r4
-	movs r1, #1
-	strh r1, [r0]
-	movs r0, #0xa
-	strh r0, [r2]
-	b .L0805D9A8
-	.align 2, 0
-.L0805D8A0: .4byte 0x00000ADE
-.L0805D8A4:
-	cmp r4, #3
-	beq .L0805D8AA
-	b .L0805D9A8
-.L0805D8AA:
-	movs r0, #5
-	strh r0, [r5]
-	ldr r6, .L0805D8C8 @ =0x00000ADA
-	adds r0, r7, r6
-	ldrh r0, [r0]
-	subs r0, #2
-	lsls r0, r0, #0x10
-	asrs r0, r0, #0x10
-	cmp r0, #8
-	bhi .L0805D9A8
-	lsls r0, r0, #2
-	ldr r1, .L0805D8CC @ =.L0805D8D0
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0805D8C8: .4byte 0x00000ADA
-.L0805D8CC: .4byte .L0805D8D0
-.L0805D8D0: @ jump table
-	.4byte .L0805D8F4 @ case 0
-	.4byte .L0805D928 @ case 1
-	.4byte .L0805D934 @ case 2
-	.4byte .L0805D9A8 @ case 3
-	.4byte .L0805D9A8 @ case 4
-	.4byte .L0805D99C @ case 5
-	.4byte .L0805D94C @ case 6
-	.4byte .L0805D9A8 @ case 7
-	.4byte .L0805D984 @ case 8
-.L0805D8F4:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805D914 @ =gUnk_080FB108
-	ldr r2, .L0805D918 @ =gUnk_080FB120
-	ldr r3, .L0805D91C @ =gUnk_080FB124
-	ldr r4, .L0805D920 @ =0x00000AEC
-	adds r5, r7, r4
-	movs r4, #0
-	str r4, [sp]
-	str r4, [sp, #4]
-	str r5, [sp, #8]
-	bl ConfigureMessageWindowPromptChoices
-	ldr r6, .L0805D924 @ =0x00000ADC
-	adds r1, r7, r6
-	b .L0805D968
-	.align 2, 0
-.L0805D914: .4byte gUnk_080FB108
-.L0805D918: .4byte gUnk_080FB120
-.L0805D91C: .4byte gUnk_080FB124
-.L0805D920: .4byte 0x00000AEC
-.L0805D924: .4byte 0x00000ADC
-.L0805D928:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805D930 @ =gUnk_080FB128
-	b .L0805D988
-	.align 2, 0
-.L0805D930: .4byte gUnk_080FB128
-.L0805D934:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805D944 @ =gUnk_080FB140
-	ldr r4, .L0805D948 @ =0x00000AEC
-	adds r2, r7, r4
-	bl SetMessageWindowTextSubstitutions
-	b .L0805D9A8
-	.align 2, 0
-.L0805D944: .4byte gUnk_080FB140
-.L0805D948: .4byte 0x00000AEC
-.L0805D94C:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805D970 @ =gUnk_080FB158
-	ldr r2, .L0805D974 @ =gUnk_080FB120
-	ldr r3, .L0805D978 @ =gUnk_080FB124
-	ldr r6, .L0805D97C @ =0x00000AEC
-	adds r5, r7, r6
-	movs r4, #0
-	str r4, [sp]
-	str r4, [sp, #4]
-	str r5, [sp, #8]
-	bl ConfigureMessageWindowPromptChoices
-	ldr r0, .L0805D980 @ =0x00000ADC
-	adds r1, r7, r0
-.L0805D968:
-	movs r0, #4
-	strh r0, [r1]
-	b .L0805D9A8
-	.align 2, 0
-.L0805D970: .4byte gUnk_080FB158
-.L0805D974: .4byte gUnk_080FB120
-.L0805D978: .4byte gUnk_080FB124
-.L0805D97C: .4byte 0x00000AEC
-.L0805D980: .4byte 0x00000ADC
-.L0805D984:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805D994 @ =gUnk_080FB164
-.L0805D988:
-	ldr r3, .L0805D998 @ =0x00000AEC
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	b .L0805D9A8
-	.align 2, 0
-.L0805D994: .4byte gUnk_080FB164
-.L0805D998: .4byte 0x00000AEC
-.L0805D99C:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805D9B8 @ =gUnk_080FB17C
-	ldr r4, .L0805D9BC @ =0x00000AEC
-	adds r2, r7, r4
-	bl SetMessageWindowTextSubstitutions
-.L0805D9A8:
-	add sp, #0xc
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805D9B8: .4byte gUnk_080FB17C
-.L0805D9BC: .4byte 0x00000AEC
 
 	.section .text.f3.0805DFC4, "ax", %progbits
 	thumb_func_start func_0805DFC4
@@ -56648,7 +55765,7 @@ func_0805FF14: @ 0x0805FF14
 	mov sl, r2
 	mov r0, sl
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	adds r6, r0, #0
 	add r5, sp, #0x20
 	bl strlen
@@ -59528,7 +58645,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r0, [r0]
 	ldr r1, .L080614A4 @ =0x00001BD8
 	adds r0, r0, r1
-	bl func_0800E4E0
+	bl GetFarmerName
 	adds r1, r0, #0
 	add r0, sp, #0x100
 	strh r4, [r0]
@@ -107700,7 +106817,7 @@ func_0807865C: @ 0x0807865C
 	bls .L080787DE
 	ldr r0, [r7, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	mov sb, r0
 	ldr r6, [sp, #0x8c]
 	mov r4, sb
@@ -107780,7 +106897,7 @@ func_0807865C: @ 0x0807865C
 .L080788DA:
 	ldr r0, [r7, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	mov sb, r0
 	ldr r6, [sp, #0x84]
 	mov r4, sb
@@ -111173,7 +110290,7 @@ func_0807A708: @ 0x0807A708
 	ldr r0, [r2, #8]
 	ldr r1, .L0807A790 @ =0x00001BD8
 	adds r0, r0, r1
-	bl func_0800E4E0
+	bl GetFarmerName
 	adds r0, r0, r4
 	ldrb r0, [r0]
 	strb r0, [r5]
@@ -111186,7 +110303,7 @@ func_0807A708: @ 0x0807A708
 	ldr r0, [r2, #8]
 	ldr r1, .L0807A790 @ =0x00001BD8
 	adds r0, r0, r1
-	bl func_0800E4E0
+	bl GetFarmerName
 	adds r0, r0, r4
 	ldrb r0, [r0]
 	cmp r0, #0
@@ -111206,7 +110323,7 @@ func_0807A708: @ 0x0807A708
 	mov r2, r8
 	ldr r0, [r2, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	adds r0, r0, r4
 	ldrb r0, [r0]
 	strb r0, [r5]
@@ -111218,7 +110335,7 @@ func_0807A708: @ 0x0807A708
 	mov r1, r8
 	ldr r0, [r1, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	adds r0, r0, r4
 	ldrb r0, [r0]
 	cmp r0, #0
@@ -136828,7 +135945,7 @@ sub_08087710: @ 0x08087710
 .L0808800E:
 	ldr r0, [r7, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	mov sb, r0
 	ldr r2, .L080880B4 @ =0x00003AB4
 	adds r4, r7, r2
@@ -159951,12 +159068,12 @@ func_08094844: @ 0x08094844
 	ldr r1, [r1, #4]
 	str r1, [sp]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	mov sb, r0
 	ldr r0, [r4]
 	ldr r1, .L080948D4 @ =0x00001BD8
 	adds r0, r0, r1
-	bl func_0800E4E0
+	bl GetFarmerName
 	mov sl, r0
 	ldr r0, [r4]
 	ldr r2, .L080948D8 @ =0x00001CD4

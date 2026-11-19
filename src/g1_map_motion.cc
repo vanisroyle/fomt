@@ -1,8 +1,6 @@
 #include "g1_map.hh"
 #include "utility/vec2.hh"
 
-EC u32 func_0803A8A4(u32, u32, u32, u32, u32);
-
 EC SECTION(".text.g1_080A58EC") Vec2 ClampMapCameraPosition(G1MapState const * self, int x, int y)
 {
     int old_x = self->camera.x;
@@ -29,5 +27,5 @@ EC SECTION(".text.g1_080A58EC") Vec2 ClampMapCameraPosition(G1MapState const * s
 
 EC SECTION(".text.g1_080A6420") u32 GetDefaultMapGraphicsId(G1MapState const * self)
 {
-    return func_0803A8A4(self->type, 1, 0, 0, 0);
+    return GetMapGraphicsVariantId(self->type, 1, 0, 0, 0);
 }

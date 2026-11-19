@@ -3,6 +3,7 @@
 #include "entity_actor.hh"
 #include "farm.hh"
 #include "coop.hh"
+#include "message_script.hh"
 #include "script_engine.hh"
 #include "scene.hh"
 #include "shipping_bin.hh"
@@ -421,7 +422,7 @@ struct GameStateRuntime
     SmartPtr<GameStateSceneFactory> pendingSceneFactory;
     GameStateObject * scene;
     GameStateDialogueOwner dialogue;
-    void * textVariables;
+    GameScriptTextVariables * textVariables;
     SmartPtr<GameStateTextPanel> textPanel;
     SmartPtr<GameStateTextPanel> secondaryTextPanel;
     u8 musicPlayer[0x14];
@@ -580,7 +581,6 @@ EC u32 SECTION(".text.game_state_08016D9C") GameScript_GetReturnMap()
 EC void Audio_StopAllPlayers();
 EC void AudioPlayer_Stop(void * self);
 EC u32 AudioPlayer_IsPlaying(void * self);
-EC void func_0803B6B8(void * self, u32 index, char const * text);
 EC void ClearMessageWindowSpeakerName(void * self);
 EC void ClearMessageWindowPortrait(void * self);
 EC void ClearMessageWindowIndicator(void * self);
@@ -609,7 +609,7 @@ EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
 EC void Scene_DestroyBase(GameStateScript & self, u32 flags);
 EC void func_080D7F9C(GameStateRuntime & self, i32 id, u32 value_1, u32 value_2, u32 value_3, u32 value_4);
-EC void func_080A05E8(void * self, void * value);
+EC void ActivateRosterNamedNpc(void * self, void * value);
 EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
@@ -914,7 +914,7 @@ EC void SECTION(".text.game_state_0801284C") GameScript_ClearDialogueIndicator(G
 // 0x08012ACC
 EC void SECTION(".text.game_state_08012ACC") GameScript_SetTextVariable(GameStateScript & script, u32 variableIndex, char const * text)
 {
-    func_0803B6B8(script.runtime->textVariables, variableIndex, text);
+    SetGameScriptTextVariable(*script.runtime->textVariables, variableIndex, text);
 }
 
 // 0x08012BAC
@@ -1355,7 +1355,7 @@ EC void SECTION(".text.game_state_08012AA4") GameScript_SetIntegerTextVariable(G
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
     FormatMessageInteger(value, formattedNumber, 0);
-    func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
+    SetGameScriptTextVariable(*runtime.textVariables, variableIndex, formattedNumber);
 }
 
 // 0x08012ADC
@@ -1364,7 +1364,7 @@ EC void SECTION(".text.game_state_08012ADC") GameScript_SetPaddedIntegerTextVari
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
     FormatMessageInteger(value, formattedNumber, minimumDigits);
-    func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
+    SetGameScriptTextVariable(*runtime.textVariables, variableIndex, formattedNumber);
 }
 
 // 0x08016F0C
@@ -1681,7 +1681,7 @@ EC SECTION(".text.game_state_08016CEC") void GameScript_ActivateActor(GameStateS
 EC SECTION(".text.game_state_080167DC") void GameScript_RefreshActor23(GameStateScript & script)
 {
     GameStateRuntime & runtime = *script.runtime;
-    func_080A05E8(runtime.saveData + 0x1CD4, runtime.saveData + 0x11);
+    ActivateRosterNamedNpc(runtime.saveData + 0x1CD4, runtime.saveData + 0x11);
     GameStateObject * & object = runtime.scene;
     object->vfunc_38(0x23);
     AActorEntity * entity = object->GetActor(0x23);
