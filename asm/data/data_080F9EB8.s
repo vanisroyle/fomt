@@ -2094,16 +2094,16 @@ gUnk_08103680:
 gUnk_081036A0:
 	.incbin "baserom.gba", 0x1036A0, 0x20
 
-	.global gUnk_081036C0
-gUnk_081036C0:
+	.global gCursedToolProgressThresholds
+gCursedToolProgressThresholds:
 	.incbin "baserom.gba", 0x1036C0, 0x14
 
 	.global gUnk_081036D4
 gUnk_081036D4:
 	.incbin "baserom.gba", 0x1036D4, 0x344
 
-	.global gUnk_08103A18
-gUnk_08103A18:
+	.global gFishingCatchNames
+gFishingCatchNames:
 	.incbin "baserom.gba", 0x103A18, 0xF8
 
 	.global gUnk_08103B10
