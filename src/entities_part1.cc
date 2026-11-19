@@ -184,6 +184,73 @@ EC char const vtable_unk_080E64C8[];
 EC void func_08038374(CarryEntityPart1 * self, i32 x, i32 y, u32 anim, u32 facing);
 EC void func_08020410(DogEntityPart1 * self, u32 time);
 EC Article func_0800F258(HeldItem const * self);
+EC void func_080384FC(CarryEntityPart1 * self);
+EC void func_0802F0EC(FarmerEntityPart1 * self, u32 first, u32 second);
+EC u16 func_0802D158(FarmerEntityPart1 * self);
+EC void func_0803242C(AActorEntity * self, u32 argument);
+
+inline i32 FarmerStatePart1(FarmerEntityPart1 const * self)
+{
+    return self->state;
+}
+
+struct MovementBoundsPart1;
+EC void func_080AB85C(MovementBoundsPart1 * self);
+EC void func_080AB8D0(MovementBoundsPart1 * self);
+EC void func_080AB948(MovementBoundsPart1 * self);
+EC void func_080AB9C4(MovementBoundsPart1 * self);
+
+struct MovementBoundsPart1
+{
+    i32 positive_y;
+    i32 negative_y;
+    i32 negative_x;
+    i32 positive_x;
+    STRUCT_PAD(0x10, 0x28);
+    i32 limit;
+
+    i32 GetPositiveY()
+    {
+        if (positive_y > limit)
+        {
+            func_080AB85C(this);
+            return positive_y;
+        }
+        return positive_y;
+    }
+
+    i32 GetNegativeY()
+    {
+        i32 value = negative_y;
+        if (value < -limit)
+        {
+            func_080AB8D0(this);
+            return negative_y;
+        }
+        return value;
+    }
+
+    i32 GetNegativeX()
+    {
+        i32 value = negative_x;
+        if (value < -limit)
+        {
+            func_080AB948(this);
+            return negative_x;
+        }
+        return value;
+    }
+
+    i32 GetPositiveX()
+    {
+        if (positive_x > limit)
+        {
+            func_080AB9C4(this);
+            return positive_x;
+        }
+        return positive_x;
+    }
+};
 
 inline void * EntitySoundChannelPart1(GameObject * game)
 {
@@ -216,6 +283,98 @@ inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC bool func_08024CA0(FarmerEntityPart1 const * self) ENTITY_CODE(08024CA0);
+EC bool func_08024CA0(FarmerEntityPart1 const * self)
+{
+    if (!self->vfunc_28())
+    {
+        switch (FarmerStatePart1(self))
+        {
+        case 36: case 37: case 38: case 39: case 40: case 41: case 42: return true;
+        }
+    }
+    return false;
+}
+
+EC void func_08025018(FarmerEntityPart1 * self, u32 argument) ENTITY_CODE(08025018);
+EC void func_08025018(FarmerEntityPart1 * self, u32 argument)
+{
+    self->unk_C1 = false;
+    if (!self->unk_C2)
+    {
+        if (self->unk_C0)
+        {
+            func_0802F0EC(self, 0, 0);
+            u16 anim = func_0802D158(self);
+            if (self->anim_id != anim)
+                self->SetAnim(anim);
+        }
+        func_0803242C(self, argument);
+    }
+}
+
+EC void func_08020170(AActorEntity * self, MovementBoundsPart1 * bounds) ENTITY_CODE(08020170);
+EC void func_08020170(AActorEntity * self, MovementBoundsPart1 * bounds)
+{
+    i32 old_x = self->x_q16;
+    i32 old_y = self->y_q16;
+    i32 new_x = old_x + self->x_speed_q16;
+    i32 new_y = old_y + self->y_speed_q16;
+    if (bounds != nullptr)
+    {
+        MovementBoundsPart1 * movement = bounds;
+        i32 x = old_x >> 16;
+        i32 y = old_y >> 16;
+        i32 dy = (new_y >> 16) - y;
+        i32 dx = (new_x >> 16) - x;
+        if (dy > 0 && dy > movement->GetPositiveY())
+            new_y = (y + movement->GetPositiveY()) << 16;
+        if (dy < 0 && dy < movement->GetNegativeY())
+            new_y = (y + movement->GetNegativeY()) << 16;
+        if (dx < 0 && dx < movement->GetNegativeX())
+            new_x = (x + movement->GetNegativeX()) << 16;
+        if (dx > 0 && dx > movement->GetPositiveX())
+            new_x = (x + movement->GetPositiveX()) << 16;
+    }
+    self->x_q16 = new_x;
+    self->y_q16 = new_y;
+}
+
+EC void func_080212C0(DogEntityPart1 * self) ENTITY_CODE(080212C0);
+EC void func_080212C0(DogEntityPart1 * self)
+{
+    CarryEntityPart1 * target = EntityByIdPart1(self->game_object, 75);
+    if (target != nullptr && reinterpret_cast<u8 *>(target)[0x26] != 0)
+    {
+        i32 x = self->x_q16;
+        i32 y = self->y_q16;
+        i32 offset = 8;
+        u32 map_id = self->location_map;
+        GameObject * game = self->game_object;
+        if (map_id != game->vfunc_14() && map_id != 2)
+            offset = 0;
+        UnkMap const & map = game->vfunc_34(map_id);
+        for (;;)
+        {
+            i32 delta = offset << 16;
+            switch (EntityFacingPart1(self))
+            {
+            case 0: target->x_q16 = x; target->y_q16 = y + delta; break;
+            case 1: target->x_q16 = x; target->y_q16 = y - delta; break;
+            case 2: target->x_q16 = x - delta; target->y_q16 = y; break;
+            case 3: target->x_q16 = x + delta; target->y_q16 = y; break;
+            }
+            --offset;
+            if (offset < 0)
+                break;
+            Box box = target->GetBox();
+            if (!func_080AC070(const_cast<UnkMap *>(&map), &box))
+                break;
+        }
+        func_080384FC(target);
+    }
+}
 
 EC void func_0802907C(FarmerEntityPart1 * self) ENTITY_CODE(0802907C);
 EC void func_0802907C(FarmerEntityPart1 * self)
