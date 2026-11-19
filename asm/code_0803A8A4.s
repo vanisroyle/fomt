@@ -2354,62 +2354,6 @@ func_0803BAAC: @ 0x0803BAAC
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_0803BCF8
-func_0803BCF8: @ 0x0803BCF8
-	push {r4, r5, r6, lr}
-	adds r4, r0, #0
-	ldrb r0, [r4, #0xb]
-	lsrs r0, r0, #7
-	ldrb r1, [r4, #0xc]
-	movs r2, #0x7f
-	ands r1, r2
-	lsls r5, r1, #1
-	orrs r5, r0
-	cmp r5, #0
-	bne .L0803BD32
-	ldrh r0, [r4, #0xa]
-	lsls r0, r0, #0x11
-	lsrs r0, r0, #0x18
-	adds r6, r4, #0
-	adds r6, #0x10
-	cmp r0, #1
-	beq .L0803BD26
-	adds r1, r4, #0
-	adds r1, #0x2c
-	adds r0, r6, #0
-	bl func_08009940
-.L0803BD26:
-	adds r1, r4, #0
-	adds r1, #0x44
-	adds r0, r6, #0
-	bl func_08009940
-	strb r5, [r4, #0xd]
-.L0803BD32:
-	ldrb r3, [r4, #0xb]
-	lsrs r0, r3, #7
-	ldrb r1, [r4, #0xc]
-	movs r2, #0x7f
-	ands r1, r2
-	lsls r1, r1, #1
-	orrs r1, r0
-	cmp r1, #0
-	blt .L0803BD58
-	cmp r1, #2
-	bgt .L0803BD58
-	movs r0, #0x80
-	orrs r0, r3
-	strb r0, [r4, #0xb]
-	ldrb r1, [r4, #0xc]
-	movs r0, #0x80
-	rsbs r0, r0, #0
-	ands r0, r1
-	strb r0, [r4, #0xc]
-.L0803BD58:
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
 	.section .text.0803BF14, "ax", %progbits
 	.align 2, 0
 .L0803BF14:
@@ -5263,50 +5207,7 @@ func_0803DA7C: @ 0x0803DA7C
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_0803DC64
-func_0803DC64: @ 0x0803DC64
-	push {r4, lr}
-	sub sp, #4
-	adds r2, r0, #0
-	ldr r1, .L0803DC7C @ =0x000021CA
-	adds r0, r2, r1
-	ldrb r1, [r0]
-	movs r0, #0xc
-	ands r0, r1
-	cmp r0, #0
-	beq .L0803DC80
-	movs r0, #0
-	b .L0803DCAA
-	.align 2, 0
-.L0803DC7C: .4byte 0x000021CA
-.L0803DC80:
-	mov r4, sp
-	adds r1, r2, #0
-	adds r1, #0x10
-	mov r0, sp
-	bl DecodeNpcScheduleDate
-	ldrb r0, [r4, #1]
-	ldrb r1, [r4, #2]
-	ldrb r4, [r4, #3]
-	bl IsNpcScheduleFestivalDay
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L0803DCA0
-	movs r0, #3
-	b .L0803DCAA
-.L0803DCA0:
-	cmp r4, #0
-	beq .L0803DCA8
-	movs r0, #1
-	b .L0803DCAA
-.L0803DCA8:
-	movs r0, #2
-.L0803DCAA:
-	add sp, #4
-	pop {r4}
-	pop {r1}
-	bx r1
-	.align 2, 0
+	.section .text.0803DCB4, "ax", %progbits
 .L0803DCB4:
 	.byte 0x70, 0xB5, 0x81, 0xB0, 0x05, 0x1C, 0x0A, 0x48, 0x2C, 0x18, 0x20, 0x1C
 	.byte 0x62, 0xF0, 0x60, 0xFB, 0x00, 0x28, 0x00, 0xD1, 0x89, 0xE0, 0x60, 0xF0, 0x05, 0xFF, 0x3B, 0x28

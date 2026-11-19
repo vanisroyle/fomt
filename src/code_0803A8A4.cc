@@ -95,73 +95,97 @@ ROM_TEXT(0803B6B8) Unk_0803B6FC & func_0803B6FC(Unk_0803B6FC & self, void *& own
     return self;
 }
 
-struct PACKED ALIGN(2) Unk_0803B8CC
+struct PACKED ALIGN(4) DialogWindowLayers
 {
     i16 x;
     i16 y;
-    STRUCT_PAD(0x04, 0x0B);
+    STRUCT_PAD(0x04, 0x0A);
     u16 : 7;
+    u16 layerMode : 8;
     u16 state : 8;
-    u16 : 1;
-    u8 unk_0D;
+    u8 : 1;
+    u8 animationFrames;
+    STRUCT_PAD(0x0E, 0x10);
+    u8 layerList[0x1C];
+    u8 backgroundLayer[0x18];
+    u8 foregroundLayer[0x20];
 };
 
-struct Unk_0803BDFC
+struct DialogWindow
 {
-    Unk_0803B8CC * inner;
+    DialogWindowLayers * inner;
     void const * vtable;
 };
 
-EC int func_0803BAAC(Unk_0803B8CC &, int, int, int);
-EC void func_0803BCF8(Unk_0803B8CC &);
+EC int func_0803BAAC(DialogWindowLayers &, int, int, int);
+EC void func_08009940(void *, void *);
 
-ROM_TEXT(0803BD60) void func_0803BD60(Unk_0803B8CC & self)
+ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
 {
-    func_0803BCF8(self);
-    self.state = 3;
-    self.unk_0D = 9;
+    int state = self.state;
+    if (state == 0)
+    {
+        u32 layerMode = self.layerMode;
+        if (layerMode != 1)
+            func_08009940(self.layerList, self.backgroundLayer);
+        func_08009940(self.layerList, self.foregroundLayer);
+        self.animationFrames = state;
+    }
+    int nextState = self.state;
+    if (nextState < 0)
+        return;
+    if (nextState > 2)
+        return;
+    self.state = 1;
 }
 
-ROM_TEXT(0803BD60) void func_0803BD88(Unk_0803B8CC & self)
+ROM_TEXT(0803BD60) void func_0803BD60(DialogWindowLayers & self)
+{
+    OpenDialogWindowLayers(self);
+    self.state = 3;
+    self.animationFrames = 9;
+}
+
+ROM_TEXT(0803BD60) void func_0803BD88(DialogWindowLayers & self)
 {
     if (self.state)
         self.state = 2;
 }
 
-ROM_TEXT(0803BD60) void func_0803BDB8(Unk_0803B8CC & self)
+ROM_TEXT(0803BD60) void func_0803BDB8(DialogWindowLayers & self)
 {
     if (self.state)
         self.state = 0;
 }
 
-ROM_TEXT(0803BD60) void func_0803BDE4(Unk_0803B8CC & self, int x, int y)
+ROM_TEXT(0803BD60) void func_0803BDE4(DialogWindowLayers & self, int x, int y)
 {
     self.x = x;
     self.y = y;
 }
 
-ROM_TEXT(0803BD60) void func_0803BDEC(Unk_0803B8CC & self, int x, int y)
+ROM_TEXT(0803BD60) void func_0803BDEC(DialogWindowLayers & self, int x, int y)
 {
     self.x += x;
     self.y += y;
 }
 
 EC char const vtable_unk_080E7778[];
-EC Unk_0803B8CC * func_0803B8CC(void *, int, int, int, int, int, int, int, int);
+EC DialogWindowLayers * func_0803B8CC(void *, int, int, int, int, int, int, int, int);
 EC void func_080098AC(void *, int);
 EC void func_080098DC(void *, int);
 
-ROM_TEXT(0803BD60) Unk_0803BDFC & func_0803BDFC(Unk_0803BDFC & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
+ROM_TEXT(0803BD60) DialogWindow & func_0803BDFC(DialogWindow & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
 {
     self.vtable = vtable_unk_080E7778;
     self.inner = func_0803B8CC(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
     return self;
 }
 
-ROM_TEXT(0803BD60) void func_0803BE50(Unk_0803BDFC & self, int flags)
+ROM_TEXT(0803BD60) void func_0803BE50(DialogWindow & self, int flags)
 {
     self.vtable = vtable_unk_080E7778;
-    if (Unk_0803B8CC * inner = self.inner)
+    if (DialogWindowLayers * inner = self.inner)
     {
         u8 * data = reinterpret_cast<u8 *>(inner);
         func_080098AC(data + 0x44, 2);
@@ -173,57 +197,57 @@ ROM_TEXT(0803BD60) void func_0803BE50(Unk_0803BDFC & self, int flags)
         ::operator delete(&self);
 }
 
-ROM_TEXT(0803BD60) unsigned func_0803BE9C(Unk_0803BDFC const & self)
+ROM_TEXT(0803BD60) unsigned func_0803BE9C(DialogWindow const & self)
 {
     return self.inner->state;
 }
 
-ROM_TEXT(0803BD60) int func_0803BEB0(Unk_0803BDFC & self, int arg1, int arg2, int arg3)
+ROM_TEXT(0803BD60) int func_0803BEB0(DialogWindow & self, int arg1, int arg2, int arg3)
 {
     return func_0803BAAC(*self.inner, arg1, arg2, arg3);
 }
 
-ROM_TEXT(0803BD60) void func_0803BEBC(Unk_0803BDFC & self)
+ROM_TEXT(0803BD60) void func_0803BEBC(DialogWindow & self)
 {
-    func_0803BCF8(*self.inner);
+    OpenDialogWindowLayers(*self.inner);
 }
 
-ROM_TEXT(0803BD60) void func_0803BEC8(Unk_0803BDFC & self)
+ROM_TEXT(0803BD60) void func_0803BEC8(DialogWindow & self)
 {
     func_0803BD60(*self.inner);
 }
 
-ROM_TEXT(0803BD60) void func_0803BED4(Unk_0803BDFC & self)
+ROM_TEXT(0803BD60) void func_0803BED4(DialogWindow & self)
 {
     func_0803BD88(*self.inner);
 }
 
-ROM_TEXT(0803BD60) void func_0803BEE0(Unk_0803BDFC & self)
+ROM_TEXT(0803BD60) void func_0803BEE0(DialogWindow & self)
 {
     func_0803BDB8(*self.inner);
 }
 
-ROM_TEXT(0803BD60) int func_0803BEEC(Unk_0803BDFC const & self)
+ROM_TEXT(0803BD60) int func_0803BEEC(DialogWindow const & self)
 {
     return self.inner->x;
 }
 
-ROM_TEXT(0803BD60) int func_0803BEF4(Unk_0803BDFC const & self)
+ROM_TEXT(0803BD60) int func_0803BEF4(DialogWindow const & self)
 {
     return self.inner->y;
 }
 
-ROM_TEXT(0803BD60) void func_0803BEFC(Unk_0803BDFC & self, int x, int y)
+ROM_TEXT(0803BD60) void func_0803BEFC(DialogWindow & self, int x, int y)
 {
     func_0803BDE4(*self.inner, x, y);
 }
 
-ROM_TEXT(0803BD60) void func_0803BF08(Unk_0803BDFC & self, int x, int y)
+ROM_TEXT(0803BD60) void func_0803BF08(DialogWindow & self, int x, int y)
 {
     func_0803BDEC(*self.inner, x, y);
 }
 
-struct Unk_0803BF78 : Unk_0803BDFC
+struct Unk_0803BF78 : DialogWindow
 {
     void * unk_08;
     u8 unk_0C;
@@ -628,6 +652,22 @@ ROM_TEXT(0803DECC) unsigned SelectNpcSchedule_080F3010(NpcScheduleContext const 
             return 2;
         return 3;
     }
+    return 1;
+}
+
+ROM_TEXT(0803DC64) unsigned SelectNpcSchedule_080F280C(NpcScheduleContext const & self)
+{
+    if (self.eventFlags & 0xC)
+        return 0;
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 3;
+    if (weekday == SCHEDULE_SUNDAY)
+        return 2;
     return 1;
 }
 
@@ -1145,7 +1185,7 @@ ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const 
 }
 
 EC Unk_0803BF78 & func_0803C028(Unk_0803BF78 &, void *, int, int, int, int, int);
-EC void func_0803BE50(Unk_0803BDFC &, int);
+EC void func_0803BE50(DialogWindow &, int);
 EC void func_080E0C38(void *, int);
 EC void func_080E0D70(void *, int);
 EC char const vtable_unk_080E77A4[];
@@ -1159,12 +1199,12 @@ struct Unk_0803C7A0
 EC void func_0803C7A0(Unk_0803C7A0 &, int);
 EC void func_0803C5B0(Unk_0803C7A0 &);
 
-struct Unk_0803C54C : Unk_0803BDFC
+struct Unk_0803C54C : DialogWindow
 {
     Unk_0803C7A0 menu;
 };
 
-EC Unk_0803BDFC & func_0803BDFC(Unk_0803BDFC &, int, int, int, int, int, int, int, int);
+EC DialogWindow & func_0803BDFC(DialogWindow &, int, int, int, int, int, int, int, int);
 
 EC void * func_080E0A94(void *);
 

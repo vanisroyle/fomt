@@ -289,6 +289,7 @@ SECTIONS
         asm/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);
         asm/code_0803A8A4.o(.text.0803B718);
+        src/code_0803A8A4.o(.text.0803BCF8);
         src/code_0803A8A4.o(.text.0803BD60);
         asm/code_0803A8A4.o(.text.0803BF14);
         src/code_0803A8A4.o(.text.0803BF78);
@@ -307,6 +308,8 @@ SECTIONS
         asm/code_0803A8A4.o(.text.0803D688);
         src/code_0803A8A4.o(.text.0803D7E4);
         asm/code_0803A8A4.o(.text.0803DA7C);
+        src/code_0803A8A4.o(.text.0803DC64);
+        asm/code_0803A8A4.o(.text.0803DCB4);
         src/code_0803A8A4.o(.text.0803DECC);
         asm/code_0803A8A4.o(.text.0803DFE8);
         src/code_0803A8A4.o(.text.0803E1A4);
