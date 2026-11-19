@@ -143809,7 +143809,7 @@ func_080885AC: @ 0x080885AC
 	str r2, [sp, #4]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 	b .L08088658
 .L08088614:
 	adds r0, r5, #0
@@ -150570,7 +150570,7 @@ func_0808BF8C: @ 0x0808BF8C
 	str r2, [sp, #4]
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 .L0808C084:
 	mov r8, r0
 .L0808C086:
@@ -151640,7 +151640,7 @@ func_0808C8F4: @ 0x0808C8F4
 	str r2, [sp, #4]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 	b .L0808C9A0
 .L0808C95C:
 	adds r0, r5, #0
@@ -160106,7 +160106,7 @@ func_08091280: @ 0x08091280
 	str r2, [sp, #4]
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 .L08091378:
 	mov r8, r0
 .L0809137A:
@@ -162808,7 +162808,7 @@ func_08092940: @ 0x08092940
 	str r2, [sp, #4]
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 .L08092A38:
 	mov r8, r0
 .L08092A3A:
