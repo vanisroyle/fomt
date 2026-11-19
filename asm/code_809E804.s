@@ -12693,7 +12693,7 @@ func_080AE4E4: @ 0x080AE4E4
 	adds r0, r7, #0
 	bl SetChickenFeedingTargets
 	adds r0, r7, #0
-	bl func_080B0AA0
+	bl ResetChickenFeedingRound
 	adds r0, r7, #0
 	bl LoadChickenFeedingBackground
 	adds r0, r7, #0
@@ -17147,143 +17147,7 @@ func_080B0708: @ 0x080B0708
 .L080B0930: .4byte 0x00000814
 
 
-	.section .text.080B0AA0, "ax", %progbits
-
-	thumb_func_start func_080B0AA0
-func_080B0AA0: @ 0x080B0AA0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	adds r3, r0, #0
-	ldr r0, .L080B0B94 @ =0x00000844
-	adds r1, r3, r0
-	movs r0, #0
-	str r0, [r1]
-	movs r2, #0
-	movs r5, #0
-	movs r7, #1
-	ldr r1, .L080B0B98 @ =0x00000848
-	adds r4, r3, r1
-	ldr r6, .L080B0B9C @ =0x000008E1
-	adds r6, r6, r3
-	mov r8, r6
-	movs r0, #0x8f
-	lsls r0, r0, #4
-	adds r0, r0, r3
-	mov sb, r0
-	adds r1, #0x14
-	adds r1, r1, r3
-	mov ip, r1
-.L080B0AD0:
-	str r5, [r4]
-	str r5, [r4, #0x28]
-	mov r6, ip
-	adds r6, #4
-	mov ip, r6
-	subs r6, #4
-	stm r6!, {r5}
-	mov r0, r8
-	adds r1, r0, r2
-	movs r0, #0x70
-	strb r0, [r1]
-	lsls r1, r2, #1
-	mov r6, sb
-	strh r5, [r6]
-	ldr r6, .L080B0BA0 @ =0x00000915
-	adds r0, r3, r6
-	adds r0, r0, r2
-	strb r7, [r0]
-	subs r6, #0x19
-	adds r0, r3, r6
-	adds r0, r0, r1
-	strh r5, [r0]
-	ldr r1, .L080B0BA4 @ =0x00000906
-	adds r0, r3, r1
-	adds r0, r0, r2
-	strb r5, [r0]
-	adds r6, #0x1e
-	adds r0, r3, r6
-	adds r0, r0, r2
-	strb r7, [r0]
-	adds r1, #0x19
-	adds r0, r3, r1
-	adds r0, r0, r2
-	strb r7, [r0]
-	adds r6, #0xa
-	adds r0, r3, r6
-	adds r0, r0, r2
-	strb r7, [r0]
-	adds r4, #4
-	movs r0, #2
-	add sb, r0
-	adds r2, #1
-	cmp r2, #4
-	ble .L080B0AD0
-	movs r4, #0x8e
-	lsls r4, r4, #4
-	adds r1, r3, r4
-	movs r2, #0
-	movs r0, #0x78
-	strb r0, [r1]
-	subs r6, #0x19
-	adds r1, r3, r6
-	movs r0, #0x3c
-	strb r0, [r1]
-	ldr r1, .L080B0BA8 @ =0x000008FA
-	adds r0, r3, r1
-	strb r2, [r0]
-	adds r4, #0x2c
-	adds r0, r3, r4
-	strb r2, [r0]
-	adds r6, #2
-	adds r0, r3, r6
-	strb r2, [r0]
-	ldr r0, .L080B0BAC @ =0x00000884
-	adds r1, r3, r0
-	movs r0, #2
-	str r0, [r1]
-	ldr r1, .L080B0BB0 @ =0x00000838
-	adds r0, r3, r1
-	str r2, [r0]
-	subs r4, #0xd0
-	adds r0, r3, r4
-	str r2, [r0]
-	subs r6, #0xcd
-	adds r0, r3, r6
-	str r2, [r0]
-	adds r1, #0xdc
-	adds r0, r3, r1
-	movs r1, #1
-	strb r1, [r0]
-	adds r4, #0xed
-	adds r0, r3, r4
-	strb r1, [r0]
-	adds r6, #0xea
-	adds r0, r3, r6
-	strb r2, [r0]
-	ldr r1, .L080B0BB4 @ =0x0000092B
-	adds r0, r3, r1
-	strb r2, [r0]
-	adds r4, #3
-	adds r0, r3, r4
-	strb r2, [r0]
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080B0B94: .4byte 0x00000844
-.L080B0B98: .4byte 0x00000848
-.L080B0B9C: .4byte 0x000008E1
-.L080B0BA0: .4byte 0x00000915
-.L080B0BA4: .4byte 0x00000906
-.L080B0BA8: .4byte 0x000008FA
-.L080B0BAC: .4byte 0x00000884
-.L080B0BB0: .4byte 0x00000838
-.L080B0BB4: .4byte 0x0000092B
+	.section .text.080B0BB8, "ax", %progbits
 
 	thumb_func_start func_080B0BB8
 func_080B0BB8: @ 0x080B0BB8
@@ -17530,7 +17394,7 @@ sub_080B0CC0: @ 0x080B0CC0
 	b .L080B10E8
 .L080B0DC2:
 	adds r0, r7, #0
-	bl func_080B0AA0
+	bl ResetChickenFeedingRound
 	movs r1, #0x83
 	lsls r1, r1, #3
 	adds r0, r7, r1
