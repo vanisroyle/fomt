@@ -10776,7 +10776,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D9598 @ =0x0000057C
 	add r1, sp
 	str r2, [r1]
-	bl func_08038108
+	bl IsSideSpriteLaunched
 	lsls r0, r0, #0x18
 	ldr r3, .L080D9598 @ =0x0000057C
 	add r3, sp
@@ -13401,7 +13401,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_0803880C
+	bl HasSideEntityParticles
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080DAAE6
@@ -13424,7 +13424,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_080387D8
+	bl IsSideEntityTransitionComplete
 .L080DAAB2:
 	lsls r0, r0, #0x18
 	cmp r0, #0
@@ -14607,7 +14607,7 @@ func_080DB394: @ 0x080DB394
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805FCD0
+	bl InitChildhoodMemoryScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15199,7 +15199,7 @@ func_080DB9DC: @ 0x080DB9DC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805E624
+	bl InitMedalExchangeScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -19715,7 +19715,7 @@ func_080DDC78: @ 0x080DDC78
 	movs r5, #0xff
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A320
+	bl GetSideEntitySine
 	adds r4, r0, #0
 	lsls r4, r4, #0x10
 	asrs r4, r4, #0x10
@@ -19726,7 +19726,7 @@ func_080DDC78: @ 0x080DDC78
 	lsls r1, r1, #1
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A334
+	bl GetSideEntityCosine
 	lsls r0, r0, #0x10
 	adds r1, r6, #0
 	adds r1, #0x66
@@ -27016,7 +27016,7 @@ func_080E1844: @ 0x080E1844
 	lsls r1, r0, #2
 	adds r1, r1, r0
 	lsls r1, r1, #2
-	ldr r0, .L080E1888 @ =gUnk_080FB000
+	ldr r0, .L080E1888 @ =gMedalExchangePrizes
 	adds r5, r1, r0
 	adds r0, r5, #0
 	bl strlen
@@ -27040,7 +27040,7 @@ func_080E1844: @ 0x080E1844
 	bl strcpy
 	b .L080E189A
 	.align 2, 0
-.L080E1888: .4byte gUnk_080FB000
+.L080E1888: .4byte gMedalExchangePrizes
 .L080E188C:
 	mov r1, sp
 	movs r0, #0

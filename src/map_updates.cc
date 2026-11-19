@@ -7,14 +7,14 @@
 #include "item.hh"
 #include "unknown_types.hh"
 
-struct MapTilePatch;
+struct MapPatchTiles;
 struct BacheloretteRoster;
 struct Unk_0800E324;
-struct MapTilePatchSelection
+struct MapPatch
 {
-    MapTilePatch const * tiles;
-    u32 x;
-    u32 y;
+    MapPatchTiles const * tiles;
+    unsigned tileX;
+    unsigned tileY;
 };
 
 struct MapUpdateSave
@@ -50,10 +50,10 @@ struct MapUpdateState
 };
 
 EC u32 func_0800E324(Unk_0800E324 const & calendar);
-EC MapTilePatchSelection func_0809C510(u32 const & flags, u32 patchId, bool winter);
-EC void func_080A5BD8(MapUpdateState & map, MapTilePatch const * tiles, u32 x, u32 y);
+EC MapPatch & GetMapPatch(MapPatch & result, u32 const & flags, unsigned index, bool isWinter);
+EC void func_080A5BD8(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, u32 y);
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
-EC MapTilePatch const gUnk_08106DAC;
+EC MapPatchTiles const gUnk_08106DAC;
 EC u32 const gUnk_08107438[6];
 EC bool func_080A0504(BacheloretteRoster const & roster);
 EC u32 func_080A041C(BacheloretteRoster const & roster);
@@ -64,8 +64,9 @@ EC u32 GetFirstSlotWith__C9ToolChestUi(void const * chest, u32 toolId);
 EC SECTION(".text.080AA850") void ApplySavedMapTilePatch(MapUpdateState & map, u32 patchId)
 {
     u32 season = func_0800E324(map.save->GetCalendar());
-    MapTilePatchSelection patch = func_0809C510(map.save->tilePatchFlags, patchId, season == SEASON_WINTER);
-    func_080A5BD8(map, patch.tiles, patch.x, patch.y);
+    MapPatch patch;
+    GetMapPatch(patch, map.save->tilePatchFlags, patchId, season == SEASON_WINTER);
+    func_080A5BD8(map, patch.tiles, patch.tileX, patch.tileY);
     map.tilesDirty = true;
 }
 
