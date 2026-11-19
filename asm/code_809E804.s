@@ -30183,7 +30183,7 @@ func_080AD49C: @ 0x080AD49C
 	.4byte .L080AD56C @ case 5
 .L080AD4FC:
 	adds r0, r7, #0
-	bl func_0802C210
+	bl NewItemDisplayEntity
 	b .L080AD5A8
 .L080AD504:
 	movs r0, #0x30
