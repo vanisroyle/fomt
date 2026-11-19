@@ -42,12 +42,13 @@ struct ChickenFeedingState
 };
 
 EC void AudioPlayer_StartSong(void *, u32);
-EC void func_080B34DC(void *);
+struct ChickenFeedingScene;
+EC void UpdateChickenFeedingSelectedTrough(ChickenFeedingScene &);
 
 
 EC SECTION(".text.g3_080B3A28") void HandleChickenFeedingAction(ChickenFeedingState * state)
 {
-    func_080B34DC(state);
+    UpdateChickenFeedingSelectedTrough(*reinterpret_cast<ChickenFeedingScene *>(state));
     state->spriteAction = 3;
     state->spriteAnimationDirty = 1;
     if (state->troughStates[state->selectedTrough] == 0)
