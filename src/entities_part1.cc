@@ -201,11 +201,11 @@ inline i32 GetFarmerAnimationState(FarmerEntity const * self)
     return self->state;
 }
 
-struct EntityMovementBounds;
-EC void func_080AB85C(EntityMovementBounds * self);
-EC void func_080AB8D0(EntityMovementBounds * self);
-EC void func_080AB948(EntityMovementBounds * self);
-EC void func_080AB9C4(EntityMovementBounds * self);
+struct EntityCollisionProbe;
+EC void ProbeEntityCollisionDown(EntityCollisionProbe & probe);
+EC void ProbeEntityCollisionUp(EntityCollisionProbe & probe);
+EC void ProbeEntityCollisionLeft(EntityCollisionProbe & probe);
+EC void ProbeEntityCollisionRight(EntityCollisionProbe & probe);
 
 struct EntityMovementBounds
 {
@@ -220,7 +220,7 @@ struct EntityMovementBounds
     {
         if (positive_y > limit)
         {
-            func_080AB85C(this);
+            ProbeEntityCollisionDown(*reinterpret_cast<EntityCollisionProbe *>(this));
             return positive_y;
         }
         return positive_y;
@@ -231,7 +231,7 @@ struct EntityMovementBounds
         i32 value = negative_y;
         if (value < -limit)
         {
-            func_080AB8D0(this);
+            ProbeEntityCollisionUp(*reinterpret_cast<EntityCollisionProbe *>(this));
             return negative_y;
         }
         return value;
@@ -242,7 +242,7 @@ struct EntityMovementBounds
         i32 value = negative_x;
         if (value < -limit)
         {
-            func_080AB948(this);
+            ProbeEntityCollisionLeft(*reinterpret_cast<EntityCollisionProbe *>(this));
             return negative_x;
         }
         return value;
@@ -252,7 +252,7 @@ struct EntityMovementBounds
     {
         if (positive_x > limit)
         {
-            func_080AB9C4(this);
+            ProbeEntityCollisionRight(*reinterpret_cast<EntityCollisionProbe *>(this));
             return positive_x;
         }
         return positive_x;
