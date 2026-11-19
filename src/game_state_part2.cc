@@ -208,7 +208,9 @@ struct GameStateMapOwner
     bool scenery_active;
     STRUCT_PAD(0x1061, 0x1064);
     SmartPtr<GameStateMapInteraction> timed_interaction;
-    STRUCT_PAD(0x1068, 0x107C);
+    STRUCT_PAD(0x1068, 0x1074);
+    SmartPtr<GameStateMapInteraction> seasonal_scenery;
+    SmartPtr<GameStateMapInteraction> alternate_seasonal_scenery;
     GameStateMapOverlay * map_overlay;
     STRUCT_PAD(0x1080, 0x10C8);
     bool day_update_requested;
@@ -819,6 +821,41 @@ collection:
     u32 status = game.map_data->shipping_collection_flags & 3;
     if (status == 0 && bin.HasShippedOneOfEachProduct())
         QueueShippingMilestone<0x342>(game, status);
+}
+
+static inline GameStateMapInteraction * AllocateMapInteraction()
+{
+    return static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
+}
+
+EC SECTION(".text.game_state_c2.0801F77C") void GameStateRefreshSeasonalScenery(GameStateMapOwner & owner)
+{
+    register GameStateMapOwner & game asm("r5") = owner;
+    game.seasonal_scenery = nullptr;
+    game.alternate_seasonal_scenery = nullptr;
+
+    int map = game.vtable->get_map_id(game);
+    switch (map)
+    {
+        case 7:
+            if ((static_cast<u32>(reinterpret_cast<u8 const *>(game.map_data)[4]) << 31) != 0)
+                game.alternate_seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+            if (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER)
+                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+            break;
+        case 3:
+            if (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER)
+                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+            break;
+        case 0:
+            if (reinterpret_cast<u8 const *>(game.map_data)[3] >> 7)
+                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, map);
+            break;
+        case 2:
+            if (game.map_data->farm.farm_house.IsFireplaceLighted())
+                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, map, 0x1F, false);
+            break;
+    }
 }
 
 static inline void InstallMapOverlay(GameStateMapOverlay * & overlay, GameStateMapOverlay * replacement)
