@@ -949,49 +949,49 @@ EC void SECTION(".text.game_state_08016D80") GameScript_ClearReturnLocation()
 }
 
 // 0x08014034
-EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction84(GameStateScript & script)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow15TilePatchVariant1(GameStateScript & script)
 {
     script.runtime->scene->vfunc_84();
 }
 
 // 0x0801404C
-EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction88(GameStateScript & script)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow15TilePatchVariant2(GameStateScript & script)
 {
     script.runtime->scene->vfunc_88();
 }
 
 // 0x08014064
-EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction8C(GameStateScript & script)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow3TilePatchVariant1(GameStateScript & script)
 {
     script.runtime->scene->vfunc_8C();
 }
 
 // 0x0801407C
-EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction90(GameStateScript & script)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow3TilePatchVariant2(GameStateScript & script)
 {
     script.runtime->scene->vfunc_90();
 }
 
 // 0x08014094
-EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction94(GameStateScript & script)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow2TilePatchVariant1(GameStateScript & script)
 {
     script.runtime->scene->vfunc_94();
 }
 
 // 0x080140AC
-EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction98(GameStateScript & script)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow2TilePatchVariant2(GameStateScript & script)
 {
     script.runtime->scene->vfunc_98();
 }
 
 // 0x080140C4
-EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction9C(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyMapTilePatchAtIndex(GameStateScript & script, u32 value)
 {
     script.runtime->scene->vfunc_9C(value);
 }
 
 // 0x080140DC
-EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneActionA0(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyMapTilePatchInColumn(GameStateScript & script, u32 value)
 {
     script.runtime->scene->vfunc_A0(value);
 }
@@ -1003,31 +1003,31 @@ EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction80(Game
 }
 
 // 0x08014234
-EC u32 SECTION(".text.game_state_08014234") GameScript_GetScenePropertyA4(GameStateScript & script)
+EC u32 SECTION(".text.game_state_08014234") GameScript_RemoveRecordPlayerAlbum(GameStateScript & script)
 {
     return script.runtime->scene->vfunc_A4();
 }
 
 // 0x0801424C
-EC u32 SECTION(".text.game_state_08014234") GameScript_QueryScenePropertyA8(GameStateScript & script, u32 value)
+EC u32 SECTION(".text.game_state_08014234") GameScript_SetRecordPlayerAlbum(GameStateScript & script, u32 value)
 {
     return script.runtime->scene->vfunc_A8(value);
 }
 
 // 0x080142B8
-EC void SECTION(".text.game_state_080142B8") GameScript_InvokeSceneAction118(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_080142B8") GameScript_StartMapInteraction(GameStateScript & script, u32 value)
 {
     script.runtime->scene->vfunc_118(value);
 }
 
 // 0x08016BDC
-EC void SECTION(".text.game_state_08016BDC") GameScript_InvokeSceneActionFC(GameStateScript & script)
+EC void SECTION(".text.game_state_08016BDC") GameScript_ApplyMapTilePatchAtRow20(GameStateScript & script)
 {
     script.runtime->scene->vfunc_FC();
 }
 
 // 0x08016BF4
-EC void SECTION(".text.game_state_08016BDC") GameScript_InvokeSceneAction100(GameStateScript & script)
+EC void SECTION(".text.game_state_08016BDC") GameScript_ApplyMapTilePatchAtRow23(GameStateScript & script)
 {
     script.runtime->scene->vfunc_100();
 }
@@ -1071,7 +1071,7 @@ EC void SECTION(".text.game_state_080122A0") GameScript_StopActorMovement(GameSt
 }
 
 // 0x080142D4
-EC void SECTION(".text.game_state_080142D4") GameScript_InvokeSceneAction11C(GameStateScript & script)
+EC void SECTION(".text.game_state_080142D4") GameScript_ClearMapInteraction(GameStateScript & script)
 {
     script.runtime->scene->vfunc_11C();
 }
@@ -1089,19 +1089,19 @@ EC void SECTION(".text.game_state_080146B0") GameScript_InvokeSceneAction154(Gam
 }
 
 // 0x08016BA4
-EC void SECTION(".text.game_state_08016BA4") GameScript_InvokeSceneAction10C(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08016BA4") GameScript_SetMapTileVariant(GameStateScript & script, u32 value)
 {
     script.runtime->scene->vfunc_10C(value);
 }
 
 // 0x08016BC0
-EC void SECTION(".text.game_state_08016BC0") GameScript_InvokeSceneAction110(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08016BC0") GameScript_ClearMapTileVariant(GameStateScript & script, u32 value)
 {
     script.runtime->scene->vfunc_110(value);
 }
 
 // 0x08016C10
-EC void SECTION(".text.game_state_08016C10") GameScript_InvokeSceneAction104(GameStateScript & script)
+EC void SECTION(".text.game_state_08016C10") GameScript_QueueMapEvent1D(GameStateScript & script)
 {
     script.runtime->scene->vfunc_104();
 }
