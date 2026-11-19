@@ -105656,7 +105656,7 @@ func_080785C8: @ 0x080785C8
 	movs r1, #0x98
 	movs r2, #0x50
 	adds r3, r4, #0
-	bl DrawDialogChoices
+	bl DrawClockDisplay
 .L0807864E:
 	add sp, #0x24
 	pop {r4, r5, r6, r7}
@@ -105726,7 +105726,7 @@ func_0807865C: @ 0x0807865C
 	bl TilePool_Destroy
 	adds r0, r7, #0
 	adds r0, #0x1c
-	bl func_0803C5B0
+	bl InitializeClockDisplay
 	adds r0, r7, #0
 	adds r0, #0x20
 	bl func_080756B0
