@@ -449,12 +449,12 @@ struct FestivalSceneResult
     }
 };
 
-EC FestivalSceneResult func_080AE4E4(void *);
+EC FestivalSceneResult RunChickenFeedingScene(void *);
 EC FestivalSceneResult func_080B44EC(void *);
 
 EC SECTION(".text.g3_080B3C3C") FestivalSceneResult RunChickenFeedingWrapper(MinigameWrapper * self)
 {
-    FestivalSceneResult result = func_080AE4E4(self->state);
+    FestivalSceneResult result = RunChickenFeedingScene(self->state);
     return result.Move();
 }
 
