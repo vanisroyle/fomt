@@ -161,7 +161,8 @@ struct FarmerEventStateView
 
 struct EntityGameCalendar
 {
-    STRUCT_PAD(0x00, 0x0A);
+    u32 weather;
+    STRUCT_PAD(0x04, 0x0A);
     u8 hour : 5;
 };
 
@@ -215,8 +216,18 @@ struct EntityMovementBounds
     i32 negative_y;
     i32 negative_x;
     i32 positive_x;
-    STRUCT_PAD(0x10, 0x28);
+    STRUCT_PAD(0x10, 0x14);
+    UnkMap map;
+    Box collision_box;
     i32 limit;
+    i32 horizontal_clearance;
+    i32 vertical_clearance;
+
+    EntityMovementBounds(UnkMap const & a_map, Box const & box, i32 radius, i32 extra_x = 0, i32 extra_y = 0)
+        : positive_y(radius + 1), negative_y(-radius - 1), negative_x(-radius - 1), positive_x(radius + 1),
+          map(a_map), collision_box(box), limit(radius), horizontal_clearance(extra_x), vertical_clearance(extra_y)
+    {
+    }
 
     i32 GetPositiveY()
     {
@@ -284,6 +295,178 @@ inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+struct ChickenEntityUpdateContext
+{
+    u32 unk_00;
+    bool minute_tick;
+};
+
+struct ChickenBehaviorChoice
+{
+    u8 weight;
+    u8 minimum_seconds;
+    u8 additional_seconds;
+    u8 unk_03;
+};
+
+struct ChickenBehaviorTiming
+{
+    u32 remaining_frames : 16;
+    u32 running_frames : 7;
+    u32 follow_dog : 1;
+    u32 direction_frames : 8;
+};
+
+EC ChickenBehaviorChoice const gUnk_080F09C8[2][2][2][5];
+EC u32 RollEntityMovementRandom(u32 bound);
+EC u32 ChooseWeightedEntityMovement(ChickenBehaviorChoice const * choices, u32 count);
+EC i32 RotateEntityMovementFacing(i32 facing, i32 turn);
+EC u32 func_080ABE58(i32 x, i32 y, i32 target_x, i32 target_y, EntityMovementBounds * bounds, u32 facing);
+EC void func_080ABA90(EntityMovementBounds * bounds, Box const & box, u32 argument);
+EC bool AEntity_IsAnimationFinished(AEntity * self);
+EC void AActorEntity_ApplyBoundedMovement(AActorEntity * self, EntityMovementBounds * bounds);
+
+inline u32 ChickenBehaviorDuration(ChickenBehaviorChoice const & choice, u32 frames_per_second)
+{
+    return choice.minimum_seconds * frames_per_second + RollEntityMovementRandom(choice.additional_seconds * frames_per_second);
+}
+
+// 0x080224E4
+EC void ChickenEntity_Update(ChickenEntity * self, ChickenEntityUpdateContext const * context) ENTITY_CODE(080224E4);
+EC void ChickenEntity_Update(ChickenEntity * self, ChickenEntityUpdateContext const * context)
+{
+    Chicken * const chicken = self->chicken;
+    GameObject * const game = self->game_object;
+    u32 const map_id = self->location_map;
+    if (map_id == 2 && context->minute_tick)
+    {
+        u32 before = chicken->GetCurrentOutdoorMinutes();
+        chicken->AddOutdoorMinutes(1);
+        u32 after = chicken->GetCurrentOutdoorMinutes();
+        if (before <= 179 && after > 179)
+        {
+            EntityCalendarGameVTable const * table = *reinterpret_cast<EntityCalendarGameVTable const **>(game);
+            if (table->get_calendar(game)->weather != 0 && !chicken->IsUnhappy())
+                chicken->SetUnhappy();
+        }
+        if (before <= 239 && after > 239)
+            chicken->SetFed();
+        if (before <= 299 && after > 299)
+        {
+            EntityCalendarGameVTable const * table = *reinterpret_cast<EntityCalendarGameVTable const **>(game);
+            if (table->get_calendar(game)->weather == 0)
+            {
+                if (chicken->IsUnhappy() && RollEntityMovementRandom(100) <= 29)
+                    chicken->ResetUnhappy();
+                chicken->AddAffection(1);
+            }
+        }
+    }
+    UnkMap map = game->vfunc_34(map_id);
+    Box const & loaded_box = self->GetBox();
+    Box box = loaded_box;
+    EntityMovementBounds bounds(map, box, 16);
+    AEntity * farmer = GetCarryableEntityById(game, 0);
+    AEntity * obstacle = GetCarryableEntityById(game, 74);
+    if (farmer != nullptr && farmer->location_map == map_id)
+        func_080ABA90(&bounds, farmer->GetBox(), 0);
+    if (obstacle != nullptr && obstacle->location_map == map_id)
+        func_080ABA90(&bounds, obstacle->GetBox(), 0);
+    switch (chicken->unk_24)
+    {
+    case 0:
+    {
+        AnimalBehaviorTimer * timer = reinterpret_cast<AnimalBehaviorTimer *>(&chicken->unk_28);
+        u32 remaining = timer->time;
+        if (remaining != 0)
+        {
+            i32 x_speed = self->x_speed_q16;
+            i32 y_speed = self->y_speed_q16;
+            bool blocked = false;
+            if ((x_speed < 0 && bounds.GetNegativeX() > -16) ||
+                (x_speed > 0 && bounds.GetPositiveX() < 16) ||
+                (y_speed < 0 && bounds.GetNegativeY() > -16) ||
+                (y_speed > 0 && bounds.GetPositiveY() < 16))
+                blocked = true;
+            if (blocked)
+                remaining = 0;
+            else
+                --remaining;
+        }
+        else if (AEntity_IsAnimationFinished(self))
+        {
+            u32 hour = GetEntityGameHour(game);
+            bool night_time = false;
+            if (hour < 6 || hour > 20)
+                night_time = true;
+            ChickenBehaviorChoice const * choices = gUnk_080F09C8[night_time][chicken->GetGrowthStage()][chicken->IsSick()];
+            u32 state = ChooseWeightedEntityMovement(choices, 5);
+            choices += state;
+            remaining = ChickenBehaviorDuration(*choices, 60);
+            u32 facing = self->facing;
+            u32 turn = RollEntityMovementRandom(4);
+            if (turn != 0 && turn != 3)
+                facing = RotateEntityMovementFacing(facing, turn);
+            ChickenEntity_SetAnimationState(self, state, facing);
+            timer->active = state;
+        }
+        timer->time = remaining;
+        break;
+    }
+    case 1:
+    {
+        ChickenBehaviorTiming * timer = reinterpret_cast<ChickenBehaviorTiming *>(&chicken->unk_28);
+        u32 remaining = timer->remaining_frames;
+        if (remaining != 0)
+            --remaining;
+        ChickenBehaviorTiming const status = *timer;
+        u32 running = status.running_frames;
+        if (running != 0)
+            --running;
+        u32 direction_time = timer->direction_frames;
+        if (direction_time != 0)
+            --direction_time;
+        if (remaining != 0)
+        {
+            AEntity * target;
+            if (status.follow_dog)
+                target = GetCarryableEntityById(game, 45);
+            else
+                target = farmer;
+            if (target != nullptr && target->location_map == map_id)
+            {
+                if (direction_time == 0)
+                {
+                    i32 x = self->x_q16 >> 16;
+                    i32 y = self->y_q16 >> 16;
+                    i32 target_x = target->x_q16 >> 16;
+                    i32 target_y = target->y_q16 >> 16;
+                    u32 state = 1;
+                    if (running != 0)
+                        state = 4;
+                    u32 const old_facing = self->facing;
+                    u32 facing = func_080ABE58(x, y, target_x, target_y, &bounds, old_facing);
+                    ChickenEntity_SetAnimationState(self, state, facing);
+                    direction_time = RollEntityMovementRandom(30) + 1;
+                }
+                timer->remaining_frames = remaining;
+                timer->running_frames = running;
+                timer->direction_frames = direction_time;
+                break;
+            }
+        }
+        AnimalBehaviorTimer idle;
+        idle.time = 180;
+        idle.active = 0;
+        chicken->method_0809BD20(reinterpret_cast<UnkBarnAnimal2C const *>(&idle));
+        u32 state = ChickenEntity_GetAnimationState(self);
+        ChickenEntity_SetAnimationState(self, state, self->facing);
+        break;
+    }
+    }
+    AActorEntity_ApplyBoundedMovement(self, &bounds);
+}
 
 struct FarmerActionDispatchVTable
 {
