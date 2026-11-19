@@ -14,7 +14,7 @@
  * - tools/scripts/schedule_to_c.py
  */
 
-extern "C" u32 func_0803DA24(void const *);
+extern "C" u32 SelectNpcSchedule_080F1A80(void const *);
 
 extern ScheduleInfo const ScheduleInfo_Unk_080F1A80;
 extern Schedule const * const Unk_080F1A80_Schedules[5];
@@ -68,7 +68,7 @@ extern PathPointA const Unk_080F1A80_20_Path_Points[3];
 extern PathPointA const Unk_080F1A80_21_Path_Points[5];
 extern PathPointA const Unk_080F1A80_22_Path_Points[7];
 
-ScheduleInfo const ScheduleInfo_Unk_080F1A80 = { func_0803DA24, 5, Unk_080F1A80_Schedules };
+ScheduleInfo const ScheduleInfo_Unk_080F1A80 = { SelectNpcSchedule_080F1A80, 5, Unk_080F1A80_Schedules };
 
 Schedule const * const Unk_080F1A80_Schedules[5] = {
     nullptr, &Unk_080F1A80_Schedule_1, &Unk_080F1A80_Schedule_2, &Unk_080F1A80_Schedule_3, &Unk_080F1A80_Schedule_4,
