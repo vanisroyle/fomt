@@ -117,7 +117,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r1, .L080D3E74 @ =0x00006D18
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -125,7 +125,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r2, .L080D3E78 @ =0x00006D10
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
@@ -133,7 +133,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r0, .L080D3E7C @ =0x00006D08
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -141,7 +141,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xda
 	lsls r1, r1, #7
 	adds r4, r5, r1
@@ -150,7 +150,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r2, .L080D3E80 @ =0x00006CF8
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
@@ -158,7 +158,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D3E84 @ =0x00006CF0
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -166,7 +166,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3E88 @ =0x00006CE8
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -174,7 +174,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r2, .L080D3E8C @ =0x00006CE0
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
@@ -182,7 +182,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D3E90 @ =0x00006CD8
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -190,7 +190,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3E94 @ =0x00006CD0
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -198,7 +198,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r2, .L080D3E98 @ =0x00006CC8
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
@@ -206,7 +206,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r0, .L080D3E9C @ =0x00006CC0
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -214,7 +214,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3EA0 @ =0x00006CB8
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -222,7 +222,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r2, .L080D3EA4 @ =0x00006CB0
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
@@ -230,7 +230,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D3EA8 @ =0x00006CA8
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -238,7 +238,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3EAC @ =0x00006CA0
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -246,7 +246,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r2, .L080D3EB0 @ =0x00006C98
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
@@ -254,7 +254,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D3EB4 @ =0x00006C90
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -262,7 +262,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r1, .L080D3EB8 @ =0x00006C88
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -270,7 +270,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xd9
 	lsls r2, r2, #7
 	adds r4, r5, r2
@@ -279,7 +279,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r0, .L080D3EBC @ =0x00006C78
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -287,15 +287,15 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3EC0 @ =0x00006C74
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r2, .L080D3EC4 @ =0x00006C70
 	adds r0, r5, r2
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3EC8 @ =0x00006A70
 	adds r0, r5, r1
 	ldr r1, .L080D3ECC @ =vtable_unk_080E5A28
@@ -308,7 +308,7 @@ func_080D3C78: @ 0x080D3C78
 	str r1, [r0]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -375,7 +375,7 @@ func_080D3EF4: @ 0x080D3EF4
 	movs r4, #0
 	str r4, [r5, #4]
 	adds r6, r0, #0
-	ldr r0, .L080D3FF0 @ =vtable_unk_080E5BF8
+	ldr r0, .L080D3FF0 @ =gGameSceneVtable
 	str r0, [r6]
 	str r4, [sp, #4]
 	str r1, [r6, #4]
@@ -442,13 +442,13 @@ func_080D3EF4: @ 0x080D3EF4
 	subs r5, #1
 	cmp r5, r7
 	bne .L080D3F90
-	ldr r0, .L080D4000 @ =gUnk_0300040C
+	ldr r0, .L080D4000 @ =gActiveGameScene
 	str r6, [r0]
 	ldr r0, [sp, #4]
 	cmp r0, #0
 	beq .L080D3FAE
 	movs r1, #3
-	bl func_080D4480
+	bl GameState_Destroy
 .L080D3FAE:
 	mov r1, sl
 	str r6, [r1]
@@ -482,11 +482,11 @@ func_080D3EF4: @ 0x080D3EF4
 	bx r1
 	.align 2, 0
 .L080D3FEC: .4byte 0x00000554
-.L080D3FF0: .4byte vtable_unk_080E5BF8
+.L080D3FF0: .4byte gGameSceneVtable
 .L080D3FF4: .4byte 0xFFFFF81F
 .L080D3FF8: .4byte 0x000004DC
 .L080D3FFC: .4byte 0x00000524
-.L080D4000: .4byte gUnk_0300040C
+.L080D4000: .4byte gActiveGameScene
 
 	thumb_func_start func_080D4004
 func_080D4004: @ 0x080D4004
@@ -536,7 +536,7 @@ func_080D404C: @ 0x080D404C
 	cmp r0, #0
 	beq .L080D405E
 	movs r1, #3
-	bl func_080D4480
+	bl GameState_Destroy
 .L080D405E:
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -557,20 +557,20 @@ func_080D406C: @ 0x080D406C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D40C8 @ =vtable_unk_080E5A28
 	str r0, [r5, #0x1c]
 	adds r0, r5, #0
 	adds r0, #0x10
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r1, [r5, #0xc]
 	cmp r1, #0
 	beq .L080D40B8
@@ -582,7 +582,7 @@ func_080D406C: @ 0x080D406C
 .L080D40B8:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -1037,8 +1037,8 @@ func_080D4178: @ 0x080D4178
 .L080D4478: .4byte 0x000034D8
 .L080D447C: .4byte 0x000034DC
 
-	thumb_func_start func_080D4480
-func_080D4480: @ 0x080D4480
+	thumb_func_start GameState_Destroy
+GameState_Destroy: @ 0x080D4480
 	push {r4, r5, lr}
 	adds r4, r0, #0
 	adds r5, r1, #0
@@ -6116,7 +6116,7 @@ func_080D6C58: @ 0x080D6C58
 	adds r0, r5, #0
 	adds r0, #0x24
 	ldrb r5, [r0]
-	ldr r0, .L080D6D74 @ =vtable_unk_080E5BF8
+	ldr r0, .L080D6D74 @ =gGameSceneVtable
 	str r0, [r7]
 	ldr r0, .L080D6D78 @ =0x000034F4
 	bl __builtin_new
@@ -6197,7 +6197,7 @@ func_080D6C58: @ 0x080D6C58
 	subs r5, #1
 	cmp r5, r6
 	bne .L080D6D22
-	ldr r0, .L080D6D88 @ =gUnk_0300040C
+	ldr r0, .L080D6D88 @ =gActiveGameScene
 	str r7, [r0]
 	mov r1, sl
 	str r7, [r1]
@@ -6231,12 +6231,12 @@ func_080D6C58: @ 0x080D6C58
 	bx r1
 	.align 2, 0
 .L080D6D70: .4byte 0x00000554
-.L080D6D74: .4byte vtable_unk_080E5BF8
+.L080D6D74: .4byte gGameSceneVtable
 .L080D6D78: .4byte 0x000034F4
 .L080D6D7C: .4byte 0xFFFFF81F
 .L080D6D80: .4byte 0x000004DC
 .L080D6D84: .4byte 0x00000524
-.L080D6D88: .4byte gUnk_0300040C
+.L080D6D88: .4byte gActiveGameScene
 
 	thumb_func_start func_080D6D8C
 func_080D6D8C: @ 0x080D6D8C
@@ -6246,8 +6246,8 @@ func_080D6D8C: @ 0x080D6D8C
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080D6D98
-func_080D6D98: @ 0x080D6D98
+	thumb_func_start ResourceHandleEntries_InitializeFreeList
+ResourceHandleEntries_InitializeFreeList: @ 0x080D6D98
 	push {lr}
 	adds r3, r0, #0
 	lsls r1, r1, #2
@@ -6315,10 +6315,10 @@ func_080D6DB8: @ 0x080D6DB8
 	cmp r4, #0
 	beq .L080D6E20
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	ldr r1, [r5, #4]
 	adds r0, r4, #0
-	bl func_0800745C
+	bl ResourceHandle_Retain
 	str r0, [r4, #4]
 .L080D6E20:
 	adds r5, #8
@@ -6337,7 +6337,7 @@ func_080D6DB8: @ 0x080D6DB8
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	adds r4, #8
 	cmp r4, r5
 	bne .L080D6E32
@@ -6432,8 +6432,8 @@ func_080D6ECC: @ 0x080D6ECC
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080D6EEC
-func_080D6EEC: @ 0x080D6EEC
+	thumb_func_start AllocationTreeBranch_MarkFull
+AllocationTreeBranch_MarkFull: @ 0x080D6EEC
 	push {r4, lr}
 	adds r4, r0, #0
 	adds r0, r4, #4
@@ -6494,8 +6494,8 @@ func_080D6F3C: @ 0x080D6F3C
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080D6F5C
-func_080D6F5C: @ 0x080D6F5C
+	thumb_func_start AllocationTreeBranch_MarkEmpty
+AllocationTreeBranch_MarkEmpty: @ 0x080D6F5C
 	push {r4, lr}
 	adds r4, r0, #0
 	adds r0, #0x40
@@ -6760,7 +6760,7 @@ func_080D7118: @ 0x080D7118
 	cmp r0, r1
 	bls .L080D7144
 	adds r0, r5, #0
-	bl func_080D6EEC
+	bl AllocationTreeBranch_MarkFull
 	b .L080D71A0
 	.align 2, 0
 .L080D7140: .4byte 0x000001FF
@@ -7073,7 +7073,7 @@ func_080D734C: @ 0x080D734C
 	cmp r0, r1
 	bls .L080D7378
 	adds r0, r5, #0
-	bl func_080D6F5C
+	bl AllocationTreeBranch_MarkEmpty
 	b .L080D73D6
 	.align 2, 0
 .L080D7374: .4byte 0x000001FF
@@ -7412,7 +7412,7 @@ func_080D7568: @ 0x080D7568
 	cmp r0, #0
 	beq .L080D75D2
 	adds r0, r6, #0
-	bl func_080D6EEC
+	bl AllocationTreeBranch_MarkFull
 	movs r0, #0
 	b .L080D75D6
 .L080D75D2:
@@ -7439,7 +7439,7 @@ func_080D75E0: @ 0x080D75E0
 	adds r3, #4
 .L080D75F4:
 	adds r0, r3, #0
-	bl func_08007844
+	bl AllocationBitset_FreeBlock
 	movs r0, #0
 	strb r0, [r4]
 	movs r2, #0
@@ -7590,7 +7590,7 @@ func_080D76C0: @ 0x080D76C0
 	cmp r2, #9
 	bne .L080D7704
 	adds r0, r4, #0
-	bl func_080D6F5C
+	bl AllocationTreeBranch_MarkEmpty
 .L080D7704:
 	pop {r4, r5}
 	pop {r0}
@@ -7688,7 +7688,7 @@ func_080D772C: @ 0x080D772C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r4, #8
 	cmp r4, r5
 	bne .L080D77A6
@@ -7740,7 +7740,7 @@ func_080D772C: @ 0x080D772C
 func_080D780C: @ 0x080D780C
 	push {lr}
 	ldr r0, [r0, #0xc]
-	bl func_080096F0
+	bl DisplayRegisters_Commit
 	movs r0, #0
 	pop {r1}
 	bx r1
@@ -7750,7 +7750,7 @@ func_080D780C: @ 0x080D780C
 func_080D781C: @ 0x080D781C
 	push {lr}
 	ldr r0, [r0, #0xc]
-	bl func_08009864
+	bl OamBuffer_CommitAndReset
 	movs r0, #0
 	pop {r1}
 	bx r1
@@ -7773,7 +7773,7 @@ func_080D782C: @ 0x080D782C
 	asrs r1, r1, #4
 	lsls r1, r1, #4
 	adds r1, r0, r1
-	bl func_08008FE4
+	bl DmaCommand_ExecuteRange
 	ldr r0, [r4]
 	adds r2, r0, #0
 	ldr r1, [r4, #4]
@@ -7795,7 +7795,7 @@ func_080D782C: @ 0x080D782C
 	thumb_func_start func_080D7868
 func_080D7868: @ 0x080D7868
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -7803,7 +7803,7 @@ func_080D7868: @ 0x080D7868
 	thumb_func_start func_080D7874
 func_080D7874: @ 0x080D7874
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -7811,7 +7811,7 @@ func_080D7874: @ 0x080D7874
 	thumb_func_start func_080D7880
 func_080D7880: @ 0x080D7880
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -7847,7 +7847,7 @@ func_080D78F8: @ 0x080D78F8
 	str r0, [r5]
 	movs r4, #1
 	movs r0, #1
-	bl func_08000528
+	bl Irq_Disable
 	ands r4, r0
 	strh r4, [r5, #4]
 	ldr r0, .L080D7938 @ =gUnk_03000410
@@ -7858,10 +7858,10 @@ func_080D78F8: @ 0x080D78F8
 	str r0, [r5, #0xc]
 	ldr r1, .L080D7940 @ =func_080D78E0
 	movs r0, #0
-	bl func_080D100C
+	bl Irq_SetHandler
 	str r0, [r5, #0x10]
 	movs r0, #1
-	bl func_0800050C
+	bl Irq_AcknowledgeAndEnable
 	adds r0, r5, #0
 	pop {r4, r5}
 	pop {r1}
@@ -7880,10 +7880,10 @@ func_080D7944: @ 0x080D7944
 	ldr r0, .L080D7984 @ =vtable_unk_080E5B3C
 	str r0, [r4, #0x14]
 	movs r0, #1
-	bl func_08000528
+	bl Irq_Disable
 	ldr r1, [r4, #0x10]
 	movs r0, #0
-	bl func_080D100C
+	bl Irq_SetHandler
 	ldr r0, .L080D7988 @ =vtable_unk_080E5B54
 	str r0, [r4, #0xc]
 	ldr r1, .L080D798C @ =gUnk_03000410
@@ -7892,7 +7892,7 @@ func_080D7944: @ 0x080D7944
 	ldrh r0, [r4, #4]
 	cmp r0, #0
 	beq .L080D7970
-	bl func_080004F4
+	bl Irq_Enable
 .L080D7970:
 	movs r0, #1
 	ands r5, r0
@@ -7920,21 +7920,21 @@ func_080D79CC: @ 0x080D79CC
 	adds r5, r1, #0
 	adds r4, r0, #0
 	subs r4, #0x1c
-	ldr r1, .L080D79F0 @ =vtable_unk_080E5B0C
+	ldr r1, .L080D79F0 @ =gVBlankIrqSubscriptionVtable
 	str r1, [r4, #0x30]
-	ldr r1, .L080D79F4 @ =vtable_unk_080E5B18
+	ldr r1, .L080D79F4 @ =gVBlankRootTaskListVtable
 	str r1, [r4, #8]
 	movs r1, #0
 	bl func_080D7944
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_0800959C
+	bl IrqTaskList_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D79F0: .4byte vtable_unk_080E5B0C
-.L080D79F4: .4byte vtable_unk_080E5B18
+.L080D79F0: .4byte gVBlankIrqSubscriptionVtable
+.L080D79F4: .4byte gVBlankRootTaskListVtable
 .L080D79F8:
 	.byte 0x70, 0xB5, 0x46, 0x46, 0x40, 0xB4, 0x81, 0xB0
 	.byte 0x06, 0x1C, 0x88, 0x46, 0x6D, 0x46, 0x01, 0x24, 0x01, 0x20, 0x28, 0xF7, 0x8D, 0xFD, 0x04, 0x40
@@ -7976,9 +7976,9 @@ func_080D7AD4: @ 0x080D7AD4
 	push {r4, r5, lr}
 	adds r4, r0, #0
 	adds r5, r1, #0
-	ldr r0, .L080D7AFC @ =vtable_unk_080E5B0C
+	ldr r0, .L080D7AFC @ =gVBlankIrqSubscriptionVtable
 	str r0, [r4, #0x30]
-	ldr r0, .L080D7B00 @ =vtable_unk_080E5B18
+	ldr r0, .L080D7B00 @ =gVBlankRootTaskListVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0x1c
@@ -7986,13 +7986,13 @@ func_080D7AD4: @ 0x080D7AD4
 	bl func_080D7944
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_0800959C
+	bl IrqTaskList_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D7AFC: .4byte vtable_unk_080E5B0C
-.L080D7B00: .4byte vtable_unk_080E5B18
+.L080D7AFC: .4byte gVBlankIrqSubscriptionVtable
+.L080D7B00: .4byte gVBlankRootTaskListVtable
 
 	thumb_func_start func_080D7B04
 func_080D7B04: @ 0x080D7B04
@@ -8019,7 +8019,7 @@ func_080D7B04: @ 0x080D7B04
 	thumb_func_start func_080D7B2C
 func_080D7B2C: @ 0x080D7B2C
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -8027,7 +8027,7 @@ func_080D7B2C: @ 0x080D7B2C
 	thumb_func_start func_080D7B38
 func_080D7B38: @ 0x080D7B38
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -8035,15 +8035,15 @@ func_080D7B38: @ 0x080D7B38
 	thumb_func_start func_080D7B44
 func_080D7B44: @ 0x080D7B44
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
 
 	.section ".text.code_080D7CFC"
 
-	thumb_func_start func_080D7E64
-func_080D7E64: @ 0x080D7E64
+	thumb_func_start SceneResources_Destroy
+SceneResources_Destroy: @ 0x080D7E64
 	push {r4, r5, lr}
 	adds r3, r0, #0
 	adds r5, r1, #0
@@ -8197,7 +8197,7 @@ func_080D7F60: @ 0x080D7F60
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L080D7F6E
-	bl func_08050E8C
+	bl ClearMessageWindowIndicator
 .L080D7F6E:
 	pop {r0}
 	bx r0
@@ -8210,7 +8210,7 @@ func_080D7F74: @ 0x080D7F74
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L080D7F82
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 .L080D7F82:
 	pop {r0}
 	bx r0
@@ -8223,7 +8223,7 @@ func_080D7F88: @ 0x080D7F88
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L080D7F96
-	bl func_08050E74
+	bl ClearMessageWindowSpeakerName
 .L080D7F96:
 	pop {r0}
 	bx r0
@@ -8417,7 +8417,7 @@ func_080D7F9C: @ 0x080D7F9C
 	ldr r0, [r0]
 	ldr r4, .L080D8138 @ =0x00001CD4
 	adds r0, r0, r4
-	bl func_080A0A90
+	bl AdvanceNpcScheduleDailyCounter
 .L080D8120:
 	movs r1, #0
 	mov r0, sl
@@ -8477,12 +8477,12 @@ sub_080D8178: @ 0x080D8178
 	add r0, sp, #0x10
 	movs r1, #0x1e
 	movs r2, #4
-	bl func_080091A4
+	bl KeyRepeat_Initialize
 	add r6, sp, #0x34
 	adds r0, r6, #0
 	movs r1, #0
 	movs r2, #0x20
-	bl func_08009744
+	bl OamBuffer_Initialize
 	mov r7, sl
 	adds r7, #0x10
 	movs r2, #0
@@ -8502,16 +8502,16 @@ sub_080D8178: @ 0x080D8178
 	mov r5, sl
 	adds r5, #0x68
 	adds r0, r5, #0
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	ldr r1, [r0, #8]
 	ldr r2, [r1, #0x10]
 	adds r1, r4, #0
 	bl _call_via_r2
 	adds r0, r5, #0
-	bl func_08008AF0
+	bl VBlankDispatcher_Wait
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r1, #0x87
 	lsls r1, r1, #3
 	add r1, sp
@@ -9156,7 +9156,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r2, .L080D87FC @ =0x00000544
 	add r2, sp
 	ldr r1, [r2]
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r3, .L080D8800 @ =0x0000055C
 	add r3, sp
 	ldr r5, [r3]
@@ -9168,7 +9168,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080D870A
 	movs r1, #3
-	bl func_08009324
+	bl DisplayFade_Destroy
 .L080D870A:
 	str r4, [r5]
 	movs r0, #0x68
@@ -9225,7 +9225,7 @@ sub_080D8178: @ 0x080D8178
 	add r4, sp
 	adds r0, r4, #0
 	movs r3, #0
-	bl func_0801FB7C
+	bl GameStateCreateMapObject
 	ldr r2, [r4]
 	ldr r1, .L080D8810 @ =0x0000049C
 	add r1, sp
@@ -9310,7 +9310,7 @@ sub_080D8178: @ 0x080D8178
 	add r4, sp
 	adds r0, r4, #0
 	movs r3, #1
-	bl func_0801FB7C
+	bl GameStateCreateMapObject
 	ldr r2, [r4]
 	ldr r1, .L080D88B0 @ =0x000004A4
 	add r1, sp
@@ -9427,7 +9427,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	movs r2, #0
 	bl func_080DC294
-	ldr r0, .L080D89C4 @ =gUnk_0300040C
+	ldr r0, .L080D89C4 @ =gActiveGameScene
 	ldr r2, [r0]
 	movs r3, #0xdb
 	lsls r3, r3, #2
@@ -9458,7 +9458,7 @@ sub_080D8178: @ 0x080D8178
 	b .L080D8FE8
 	.align 2, 0
 .L080D89C0: .4byte 0x00000363
-.L080D89C4: .4byte gUnk_0300040C
+.L080D89C4: .4byte gActiveGameScene
 .L080D89C8: .4byte 0x000004EC
 .L080D89CC: .4byte 0xFFFFFF00
 .L080D89D0: .4byte 0xFFFFF81F
@@ -9555,7 +9555,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	ldr r0, [r6]
 	movs r4, #0xaa
 	lsls r4, r4, #3
@@ -9564,7 +9564,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r4]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	ldr r5, .L080D8AC0 @ =0x0000055C
 	add r5, sp
 	ldr r5, [r5]
@@ -9590,7 +9590,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9633,7 +9633,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9669,7 +9669,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9721,7 +9721,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [sp, #4]
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9760,7 +9760,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9803,7 +9803,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9845,11 +9845,11 @@ sub_080D8178: @ 0x080D8178
 	lsls r5, r5, #3
 	add r5, sp
 	adds r0, r5, #0
-	bl func_0800835C
+	bl TilePool_Initialize
 	ldr r4, .L080D8D88 @ =0x0000043C
 	add r4, sp
 	adds r0, r4, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	movs r0, #1
 	str r0, [sp]
 	str r5, [sp, #4]
@@ -9858,7 +9858,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -9869,20 +9869,20 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080D8D3E
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080D8D3E:
 	str r5, [r4]
 	ldr r0, .L080D8D88 @ =0x0000043C
 	add r0, sp
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	movs r0, #0x87
 	lsls r0, r0, #3
 	add r0, sp
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 	ldr r0, [r6]
-	bl func_08050D68
+	bl FinishOpeningMessageWindow
 	ldr r0, [r6]
 	ldr r1, .L080D8D8C @ =gUnk_080F05B8
 	ldr r2, .L080D8D90 @ =gUnk_080F05C0
@@ -9893,7 +9893,7 @@ sub_080D8178: @ 0x080D8178
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080D8D74:
 	ldr r1, .L080D8D9C @ =0x0000055C
 	add r1, sp
@@ -9903,7 +9903,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D8DA0 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	b .L080D8FE8
 	.align 2, 0
 .L080D8D88: .4byte 0x0000043C
@@ -9914,7 +9914,7 @@ sub_080D8178: @ 0x080D8178
 .L080D8D9C: .4byte 0x0000055C
 .L080D8DA0: .4byte 0x00000889
 .L080D8DA4:
-	ldr r0, .L080D8E10 @ =gUnk_0300040C
+	ldr r0, .L080D8E10 @ =gActiveGameScene
 	ldr r2, [r0]
 	movs r3, #0xdb
 	lsls r3, r3, #2
@@ -9969,7 +9969,7 @@ sub_080D8178: @ 0x080D8178
 	strh r3, [r0]
 	b .L080D8F8E
 	.align 2, 0
-.L080D8E10: .4byte gUnk_0300040C
+.L080D8E10: .4byte gActiveGameScene
 .L080D8E14: .4byte 0xFFFFFF00
 .L080D8E18: .4byte 0xFFFFF81F
 .L080D8E1C: .4byte 0x0000F0FF
@@ -9997,7 +9997,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0x5c
 	strh r3, [r0]
-	ldr r0, .L080D8E68 @ =gUnk_0300040C
+	ldr r0, .L080D8E68 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	mov r1, sl
@@ -10007,7 +10007,7 @@ sub_080D8178: @ 0x080D8178
 	.align 2, 0
 .L080D8E60: .4byte 0x0000F0FF
 .L080D8E64: .4byte 0x0000FF3F
-.L080D8E68: .4byte gUnk_0300040C
+.L080D8E68: .4byte gActiveGameScene
 .L080D8E6C:
 	mov r1, sl
 	adds r1, #0xe8
@@ -10069,12 +10069,12 @@ sub_080D8178: @ 0x080D8178
 .L080D8EE4:
 	movs r1, #0
 .L080D8EE6:
-	ldr r0, .L080D8EF0 @ =gUnk_0300040C
+	ldr r0, .L080D8EF0 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	b .L080D8F8A
 	.align 2, 0
-.L080D8EF0: .4byte gUnk_0300040C
+.L080D8EF0: .4byte gActiveGameScene
 .L080D8EF4:
 	mov r1, sl
 	adds r1, #0xe8
@@ -10098,7 +10098,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0x5c
 	strh r3, [r0]
-	ldr r0, .L080D8F38 @ =gUnk_0300040C
+	ldr r0, .L080D8F38 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	mov r1, sl
@@ -10108,7 +10108,7 @@ sub_080D8178: @ 0x080D8178
 	.align 2, 0
 .L080D8F30: .4byte 0x0000F0FF
 .L080D8F34: .4byte 0x0000FF3F
-.L080D8F38: .4byte gUnk_0300040C
+.L080D8F38: .4byte gActiveGameScene
 .L080D8F3C:
 	mov r1, sl
 	adds r1, #0xe8
@@ -10132,7 +10132,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0x5c
 	strh r3, [r0]
-	ldr r0, .L080D8FA0 @ =gUnk_0300040C
+	ldr r0, .L080D8FA0 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r2, r0, #0
 	adds r2, #8
@@ -10159,7 +10159,7 @@ sub_080D8178: @ 0x080D8178
 	.align 2, 0
 .L080D8F98: .4byte 0x0000F0FF
 .L080D8F9C: .4byte 0x0000FF3F
-.L080D8FA0: .4byte gUnk_0300040C
+.L080D8FA0: .4byte gActiveGameScene
 .L080D8FA4: .4byte 0x00002C4C
 .L080D8FA8:
 	mov r1, sl
@@ -10183,7 +10183,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0x5c
 	strh r3, [r0]
-	ldr r0, .L080D902C @ =gUnk_0300040C
+	ldr r0, .L080D902C @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	mov r1, sl
@@ -10194,7 +10194,7 @@ sub_080D8178: @ 0x080D8178
 	bl func_080D7F3C
 .L080D8FE8:
 	add r0, sp, #0x10
-	bl func_08009268
+	bl KeyRepeat_Poll
 	movs r3, #0xaa
 	lsls r3, r3, #3
 	add r3, sp
@@ -10224,7 +10224,7 @@ sub_080D8178: @ 0x080D8178
 	.align 2, 0
 .L080D9024: .4byte 0x0000F0FF
 .L080D9028: .4byte 0x0000FF3F
-.L080D902C: .4byte gUnk_0300040C
+.L080D902C: .4byte gActiveGameScene
 .L080D9030: .4byte 0x000004CC
 .L080D9034: .4byte 0x000004F4
 .L080D9038: .4byte .L080D903C
@@ -10264,7 +10264,7 @@ sub_080D8178: @ 0x080D8178
 	add r7, sp
 	ldr r7, [r7]
 	ldr r0, [r7]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -10346,7 +10346,7 @@ sub_080D8178: @ 0x080D8178
 	mov r6, sl
 	adds r6, #0x6c
 	subs r0, #0x4c
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	ldr r1, [r5, #4]
 	str r0, [sp]
 	ldr r4, [r1, #0x2c]
@@ -10367,7 +10367,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0x6c
 	subs r0, #0x50
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	str r4, [sp]
 	str r0, [sp, #4]
 	ldr r0, .L080D91EC @ =0x0000056C
@@ -10380,7 +10380,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r4, .L080D91F0 @ =0x00000544
 	add r4, sp
 	ldr r3, [r4]
-	bl func_0803C00C
+	bl UpdatePauseMenuWindowWithAudio
 	b .L080D93E8
 	.align 2, 0
 .L080D91EC: .4byte 0x0000056C
@@ -10392,7 +10392,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0x6c
 	subs r0, #0x44
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	str r4, [sp]
 	str r0, [sp, #4]
 	ldr r6, .L080D9218 @ =0x0000056C
@@ -10413,7 +10413,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0x6c
 	subs r0, #0x44
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	str r4, [sp]
 	str r0, [sp, #4]
 	ldr r0, .L080D9280 @ =0x0000056C
@@ -10426,7 +10426,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r4, .L080D9284 @ =0x00000544
 	add r4, sp
 	ldr r3, [r4]
-	bl func_08050D3C
+	bl UpdateMessageWindow
 .L080D924C:
 	mov r0, sl
 	adds r0, #0xe8
@@ -10445,7 +10445,7 @@ sub_080D8178: @ 0x080D8178
 	mov r5, sl
 	adds r5, #0x6c
 	subs r0, #0x4c
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	ldr r1, [r6, #4]
 	str r0, [sp]
 	ldr r4, [r1, #0x2c]
@@ -10469,7 +10469,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0x6c
 	subs r0, #0x44
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	str r4, [sp]
 	str r0, [sp, #4]
 	ldr r7, .L080D92BC @ =0x0000056C
@@ -10482,7 +10482,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r4, .L080D92C0 @ =0x00000544
 	add r4, sp
 	ldr r3, [r4]
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	b .L080D93E8
 	.align 2, 0
 .L080D92BC: .4byte 0x0000056C
@@ -10534,12 +10534,12 @@ sub_080D8178: @ 0x080D8178
 	movs r0, #0x89
 	lsls r0, r0, #3
 	add r0, sp
-	bl func_080091E8
+	bl KeyRepeat_InitializeWithHeldKeys
 	mov r4, sl
 	adds r4, #0x6c
 	mov r0, sl
 	adds r0, #0x68
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	str r4, [sp]
 	str r0, [sp, #4]
 	ldr r6, .L080D9354 @ =0x0000056C
@@ -10555,7 +10555,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r7, .L080D9358 @ =0x00000544
 	add r7, sp
 	ldr r3, [r7]
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	b .L080D93E8
 	.align 2, 0
 .L080D9350: .4byte 0xFFFFFF00
@@ -10566,7 +10566,7 @@ sub_080D8178: @ 0x080D8178
 	add r1, sp
 	ldr r1, [r1]
 	ldr r0, [r1]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -10586,7 +10586,7 @@ sub_080D8178: @ 0x080D8178
 	mov r5, sl
 	adds r5, #0x6c
 	subs r0, #0x4c
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	ldr r1, [r6, #4]
 	str r0, [sp]
 	ldr r4, [r1, #0x2c]
@@ -10616,7 +10616,7 @@ sub_080D8178: @ 0x080D8178
 	mov r5, sl
 	adds r5, #0x6c
 	subs r0, #0x4c
-	bl func_08008AE0
+	bl VBlankDispatcher_GetTasks
 	ldr r1, [r6, #4]
 	str r0, [sp]
 	ldr r4, [r1, #0x2c]
@@ -10703,7 +10703,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0x4b
 	bl _call_via_r2
 	adds r3, r0, #0
-	ldr r0, .L080D9594 @ =gUnk_0300040C
+	ldr r0, .L080D9594 @ =gActiveGameScene
 	ldr r4, [r0]
 	movs r2, #0xde
 	lsls r2, r2, #2
@@ -10776,7 +10776,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D9598 @ =0x0000057C
 	add r1, sp
 	str r2, [r1]
-	bl func_08038108
+	bl IsSideSpriteLaunched
 	lsls r0, r0, #0x18
 	ldr r3, .L080D9598 @ =0x0000057C
 	add r3, sp
@@ -10811,7 +10811,7 @@ sub_080D8178: @ 0x080D8178
 	.align 2, 0
 .L080D958C: .4byte 0x000004AC
 .L080D9590: .4byte 0x00000564
-.L080D9594: .4byte gUnk_0300040C
+.L080D9594: .4byte gActiveGameScene
 .L080D9598: .4byte 0x0000057C
 .L080D959C:
 	movs r0, #4
@@ -10880,7 +10880,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D962C @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	bl .L080DAAE6
 	.align 2, 0
 .L080D9628: .4byte 0x0000055C
@@ -10890,7 +10890,7 @@ sub_080D8178: @ 0x080D8178
 	add r6, sp
 	ldr r6, [r6]
 	ldr r0, [r6]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -10992,7 +10992,7 @@ sub_080D8178: @ 0x080D8178
 	add r4, sp
 	ldr r4, [r4]
 	ldr r0, [r4]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -11093,7 +11093,7 @@ sub_080D8178: @ 0x080D8178
 	add r7, sp
 	ldr r7, [r7]
 	ldr r0, [r7]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -11229,11 +11229,11 @@ sub_080D8178: @ 0x080D8178
 	lsls r5, r5, #3
 	add r5, sp
 	adds r0, r5, #0
-	bl func_0800835C
+	bl TilePool_Initialize
 	ldr r4, .L080D9970 @ =0x0000043C
 	add r4, sp
 	adds r0, r4, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	movs r0, #1
 	str r0, [sp]
 	str r5, [sp, #4]
@@ -11242,7 +11242,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -11253,20 +11253,20 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080D994A
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080D994A:
 	str r5, [r4]
 	ldr r0, .L080D9970 @ =0x0000043C
 	add r0, sp
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	movs r0, #0x87
 	lsls r0, r0, #3
 	add r0, sp
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 	ldr r0, [r6]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r0, #0xc
 	bl .L080DA858
 	.align 2, 0
@@ -11275,7 +11275,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0xac
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080D9986
 	bl .L080DAAE6
@@ -11290,7 +11290,7 @@ sub_080D8178: @ 0x080D8178
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	movs r0, #6
 	bl .L080DAABA
 	.align 2, 0
@@ -11303,7 +11303,7 @@ sub_080D8178: @ 0x080D8178
 	add r2, sp
 	ldr r2, [r2]
 	ldr r0, [r2]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -11316,7 +11316,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0xac
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #6
 	bne .L080D9A00
 	add r0, sp, #0x10
@@ -11328,14 +11328,14 @@ sub_080D8178: @ 0x080D8178
 	bl .L080DAAE6
 .L080D99F0:
 	ldr r0, [r4]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #0xa
 	bl .L080DA804
 	.align 2, 0
 .L080D99FC: .4byte 0x0000055C
 .L080D9A00:
 	ldr r0, [r4]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #2
 	beq .L080D9AAC
 	cmp r0, #2
@@ -11361,7 +11361,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D9AA0 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	movs r0, #0xb
 	movs r5, #0xab
 	lsls r5, r5, #3
@@ -11421,7 +11421,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D9B34 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	movs r0, #0xb
 	movs r4, #0xab
 	lsls r4, r4, #3
@@ -11488,7 +11488,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D9C0C @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	movs r0, #0xb
 	movs r2, #0xab
 	lsls r2, r2, #3
@@ -11586,14 +11586,14 @@ sub_080D8178: @ 0x080D8178
 .L080D9C18: .4byte vtable_unk_080E5D54
 .L080D9C1C:
 	ldr r0, [r4]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #0xa
 	bl .L080DA804
 .L080D9C28:
 	mov r4, sl
 	adds r4, #0xac
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #0
 	beq .L080D9C3A
 	bl .L080DAAE6
@@ -11605,7 +11605,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080D9C4C
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080D9C4C:
 	str r5, [r4]
 	movs r0, #0x10
@@ -11617,7 +11617,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -11645,7 +11645,7 @@ sub_080D8178: @ 0x080D8178
 	add r5, sp
 	ldr r5, [r5]
 	ldr r0, [r5]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -11699,7 +11699,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [sp, #4]
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -11746,7 +11746,7 @@ sub_080D8178: @ 0x080D8178
 	add r5, sp
 	str r3, [r5]
 	ldr r0, [r4]
-	bl func_0803C540
+	bl GetPauseMenuSelection
 	cmp r0, #6
 	bls .L080D9D7E
 	b .L080DA0E4
@@ -12170,7 +12170,7 @@ sub_080D8178: @ 0x080D8178
 	bl .L080DAAE6
 .L080DA0F4:
 	ldr r0, [r7]
-	bl func_0803C544
+	bl DisablePauseMenuSelection
 	ldr r1, .L080DA114 @ =0x0000055C
 	add r1, sp
 	ldr r1, [r1]
@@ -12178,7 +12178,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080DA118 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	movs r0, #9
 	bl .L080DAADC
 	.align 2, 0
@@ -12303,7 +12303,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	mov r0, sl
 	adds r0, #0xb4
 	ldr r0, [r0]
@@ -12314,7 +12314,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r4]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r0, #0
 	b .L080DA790
 	.align 2, 0
@@ -12326,7 +12326,7 @@ sub_080D8178: @ 0x080D8178
 	add r6, sp
 	ldr r6, [r6]
 	ldr r0, [r6]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -12351,7 +12351,7 @@ sub_080D8178: @ 0x080D8178
 .L080DA270: .4byte 0x0000055C
 .L080DA274: .4byte 0x000004DC
 .L080DA278:
-	ldr r4, .L080DA33C @ =gUnk_0300040C
+	ldr r4, .L080DA33C @ =gActiveGameScene
 	ldr r1, [r4]
 	adds r0, r1, #0
 	adds r0, #8
@@ -12423,7 +12423,7 @@ sub_080D8178: @ 0x080D8178
 	add r3, sp
 	str r1, [r3]
 	str r2, [r3, #4]
-	ldr r4, .L080DA33C @ =gUnk_0300040C
+	ldr r4, .L080DA33C @ =gActiveGameScene
 	mov r8, r4
 	movs r3, #0x96
 	lsls r3, r3, #3
@@ -12459,7 +12459,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r6, .L080DA340 @ =0x000004FC
 	b .L080DA3A6
 	.align 2, 0
-.L080DA33C: .4byte gUnk_0300040C
+.L080DA33C: .4byte gActiveGameScene
 .L080DA340: .4byte 0x000004FC
 .L080DA344:
 	adds r4, r5, #0
@@ -12481,7 +12481,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [r3]
 	str r2, [r3, #4]
 	adds r6, r4, #0
-	ldr r4, .L080DA3B8 @ =gUnk_0300040C
+	ldr r4, .L080DA3B8 @ =gActiveGameScene
 	mov r8, r4
 	movs r3, #0x96
 	lsls r3, r3, #3
@@ -12524,7 +12524,7 @@ sub_080D8178: @ 0x080D8178
 	b .L080DA44E
 	.align 2, 0
 .L080DA3B4: .4byte 0x00000504
-.L080DA3B8: .4byte gUnk_0300040C
+.L080DA3B8: .4byte gActiveGameScene
 .L080DA3BC:
 	movs r7, #0xac
 	lsls r7, r7, #1
@@ -12546,7 +12546,7 @@ sub_080D8178: @ 0x080D8178
 	add r3, sp
 	str r1, [r3]
 	str r2, [r3, #4]
-	ldr r7, .L080DA434 @ =gUnk_0300040C
+	ldr r7, .L080DA434 @ =gActiveGameScene
 	mov r8, r7
 	movs r3, #0x96
 	lsls r3, r3, #3
@@ -12590,7 +12590,7 @@ sub_080D8178: @ 0x080D8178
 	b .L080DA44E
 	.align 2, 0
 .L080DA430: .4byte 0x0000050C
-.L080DA434: .4byte gUnk_0300040C
+.L080DA434: .4byte gActiveGameScene
 .L080DA438:
 	movs r1, #0x96
 	lsls r1, r1, #3
@@ -12600,7 +12600,7 @@ sub_080D8178: @ 0x080D8178
 	add r0, sp
 	str r3, [r0]
 	str r3, [r1, #4]
-	ldr r6, .L080DA464 @ =gUnk_0300040C
+	ldr r6, .L080DA464 @ =gActiveGameScene
 	mov r8, r6
 	adds r3, r1, #0
 .L080DA44E:
@@ -12615,7 +12615,7 @@ sub_080D8178: @ 0x080D8178
 	bl LoadById__12ScriptEngineii
 	b .L080DAAE6
 	.align 2, 0
-.L080DA464: .4byte gUnk_0300040C
+.L080DA464: .4byte gActiveGameScene
 .L080DA468:
 	mov r4, sl
 	adds r4, #0xac
@@ -12626,7 +12626,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r5, r0
 	beq .L080DA47E
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DA47E:
 	str r5, [r4]
 .L080DA480:
@@ -12736,7 +12736,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	mov r0, sl
 	adds r0, #0xb4
 	ldr r0, [r0]
@@ -12747,7 +12747,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r2]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r0, #0
 	b .L080DA804
 	.align 2, 0
@@ -12758,7 +12758,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0xac
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080DA594
 	b .L080DAAE6
@@ -12768,7 +12768,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0xac
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #0
 	beq .L080DA5A6
 	b .L080DAAE6
@@ -12780,7 +12780,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080DA5B8
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DA5B8:
 	str r5, [r4]
 	b .L080DA78E
@@ -12788,7 +12788,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0xac
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080DA5CC
 	b .L080DAAE6
@@ -12800,7 +12800,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0xac
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #6
 	bls .L080DA5E2
 	b .L080DAAE6
@@ -12827,14 +12827,14 @@ sub_080D8178: @ 0x080D8178
 	add r7, sp
 	ldr r7, [r7]
 	str r0, [r7]
-	ldr r0, .L080DA628 @ =gUnk_0300040C
+	ldr r0, .L080DA628 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	movs r1, #4
 	bl Push__12ScriptEnginei
 	b .L080DAAE6
 	.align 2, 0
-.L080DA628: .4byte gUnk_0300040C
+.L080DA628: .4byte gActiveGameScene
 .L080DA62C:
 	movs r1, #2
 	adds r0, r4, #0
@@ -12846,14 +12846,14 @@ sub_080D8178: @ 0x080D8178
 	add r0, sp
 	ldr r0, [r0]
 	str r1, [r0]
-	ldr r0, .L080DA650 @ =gUnk_0300040C
+	ldr r0, .L080DA650 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	movs r1, #5
 	bl Push__12ScriptEnginei
 	b .L080DAAE6
 	.align 2, 0
-.L080DA650: .4byte gUnk_0300040C
+.L080DA650: .4byte gActiveGameScene
 .L080DA654:
 	movs r0, #0x40
 	ands r0, r4
@@ -12864,14 +12864,14 @@ sub_080D8178: @ 0x080D8178
 	add r2, sp
 	ldr r2, [r2]
 	str r1, [r2]
-	ldr r0, .L080DA674 @ =gUnk_0300040C
+	ldr r0, .L080DA674 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	movs r1, #0
 	bl Push__12ScriptEnginei
 	b .L080DAAE6
 	.align 2, 0
-.L080DA674: .4byte gUnk_0300040C
+.L080DA674: .4byte gActiveGameScene
 .L080DA678:
 	movs r0, #0x80
 	ands r0, r4
@@ -12882,14 +12882,14 @@ sub_080D8178: @ 0x080D8178
 	add r3, sp
 	ldr r3, [r3]
 	str r1, [r3]
-	ldr r0, .L080DA698 @ =gUnk_0300040C
+	ldr r0, .L080DA698 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	movs r1, #1
 	bl Push__12ScriptEnginei
 	b .L080DAAE6
 	.align 2, 0
-.L080DA698: .4byte gUnk_0300040C
+.L080DA698: .4byte gActiveGameScene
 .L080DA69C:
 	movs r0, #0x20
 	ands r0, r4
@@ -12900,14 +12900,14 @@ sub_080D8178: @ 0x080D8178
 	add r4, sp
 	ldr r4, [r4]
 	str r1, [r4]
-	ldr r0, .L080DA6BC @ =gUnk_0300040C
+	ldr r0, .L080DA6BC @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	movs r1, #2
 	bl Push__12ScriptEnginei
 	b .L080DAAE6
 	.align 2, 0
-.L080DA6BC: .4byte gUnk_0300040C
+.L080DA6BC: .4byte gActiveGameScene
 .L080DA6C0:
 	movs r0, #0x10
 	ands r4, r0
@@ -12920,20 +12920,20 @@ sub_080D8178: @ 0x080D8178
 	add r5, sp
 	ldr r5, [r5]
 	str r1, [r5]
-	ldr r0, .L080DA6E4 @ =gUnk_0300040C
+	ldr r0, .L080DA6E4 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	movs r1, #3
 	bl Push__12ScriptEnginei
 	b .L080DAAE6
 	.align 2, 0
-.L080DA6E4: .4byte gUnk_0300040C
+.L080DA6E4: .4byte gActiveGameScene
 .L080DA6E8:
 	ldr r6, .L080DA72C @ =0x0000055C
 	add r6, sp
 	ldr r6, [r6]
 	ldr r0, [r6]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -12971,7 +12971,7 @@ sub_080D8178: @ 0x080D8178
 	add r2, sp
 	ldr r2, [r2]
 	ldr r0, [r2]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -13029,22 +13029,22 @@ sub_080DA76C: @ 0x080DA76C
 	mov r5, sl
 	adds r5, #0xac
 	ldr r0, [r5]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #6
 	bne .L080DA7AC
 	b .L080DAAE6
 .L080DA7AC:
-	ldr r0, .L080DA7C4 @ =gUnk_0300040C
+	ldr r0, .L080DA7C4 @ =gActiveGameScene
 	ldr r4, [r0]
 	adds r4, #8
 	ldr r0, [r5]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl Push__12ScriptEnginei
 	b .L080DAA88
 	.align 2, 0
-.L080DA7C4: .4byte gUnk_0300040C
+.L080DA7C4: .4byte gActiveGameScene
 .L080DA7C8:
 	ldr r7, .L080DA7DC @ =0x00000564
 	add r7, sp
@@ -13137,7 +13137,7 @@ sub_080DA76C: @ 0x080DA76C
 	add r0, sp
 	ldr r2, .L080DA8C4 @ =0x05000002
 	movs r3, #2
-	bl func_08008F60
+	bl DmaCommand_InitializeFill
 	movs r0, #0x87
 	lsls r0, r0, #3
 	add r0, sp
@@ -13401,7 +13401,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_0803880C
+	bl HasSideEntityParticles
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080DAAE6
@@ -13424,7 +13424,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_080387D8
+	bl IsSideEntityTransitionComplete
 .L080DAAB2:
 	lsls r0, r0, #0x18
 	cmp r0, #0
@@ -13443,7 +13443,7 @@ sub_080DA76C: @ 0x080DA76C
 .L080DAACC:
 	mov r0, sl
 	adds r0, #0xbc
-	bl func_08008CD0
+	bl AudioPlayer_IsPlaying
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080DAAE6
@@ -13498,7 +13498,7 @@ sub_080DA76C: @ 0x080DA76C
 	movs r2, #0xa0
 	lsls r2, r2, #0x13
 	movs r3, #2
-	bl func_08008F60
+	bl DmaCommand_InitializeFill
 	movs r6, #0x87
 	lsls r6, r6, #3
 	add r6, sp
@@ -13782,7 +13782,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r0, [r6]
 	lsrs r1, r2, #0x1b
 	adds r0, #8
-	bl func_0803D240
+	bl SetClockHourTiles
 	ldr r7, .L080DAE48 @ =0x000004CC
 	add r7, sp
 	ldrb r1, [r7, #1]
@@ -13836,7 +13836,7 @@ sub_080DA76C: @ 0x080DA76C
 	mov r0, r8
 	adds r0, #8
 	adds r1, r4, #0
-	bl func_0803D0F0
+	bl SetClockDayAndWeekdayTiles
 	ldrb r1, [r7, #1]
 	lsls r1, r1, #0x1e
 	ldrb r0, [r5, #0x11]
@@ -13847,7 +13847,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r0, [r6]
 	adds r0, #8
 	adds r1, r2, #0
-	bl func_0803D080
+	bl SetClockSeasonTiles
 .L080DADEE:
 	ldr r0, [r6]
 	mov r1, sb
@@ -13867,7 +13867,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r1, [r2]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r3, #0xaa
 	lsls r3, r3, #3
 	add r3, sp
@@ -13882,7 +13882,7 @@ sub_080DA76C: @ 0x080DA76C
 	beq .L080DAE54
 	ldr r0, [r6]
 	adds r0, #8
-	bl func_0803D440
+	bl HideClockToolIcon
 	b .L080DAE90
 	.align 2, 0
 .L080DAE3C: .4byte 0x00000544
@@ -13917,7 +13917,7 @@ sub_080DA76C: @ 0x080DA76C
 	lsrs r1, r1, #0x10
 	ldr r0, [r6]
 	adds r0, #8
-	bl func_0803D404
+	bl SetClockToolIcon
 .L080DAE90:
 	ldr r1, .L080DAFA8 @ =0x00000574
 	add r1, sp
@@ -13929,7 +13929,7 @@ sub_080DA76C: @ 0x080DA76C
 	add r2, sp
 	ldr r2, [r2]
 	ldr r0, [r2]
-	bl func_080093AC
+	bl DisplayFade_Update
 .L080DAEA8:
 	movs r3, #0xab
 	lsls r3, r3, #3
@@ -13940,7 +13940,7 @@ sub_080DA76C: @ 0x080DA76C
 	beq .L080DAEB8
 	b .L080DB0BC
 .L080DAEB8:
-	ldr r0, .L080DAFB0 @ =gUnk_0300040C
+	ldr r0, .L080DAFB0 @ =gActiveGameScene
 	ldr r1, [r0]
 	movs r5, #0xde
 	lsls r5, r5, #2
@@ -13986,7 +13986,7 @@ sub_080DA76C: @ 0x080DA76C
 	add r1, sp
 	ldr r1, [r1]
 	ldr r0, [r1]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -14069,7 +14069,7 @@ sub_080DA76C: @ 0x080DA76C
 .L080DAFA4: .4byte 0x00001BD8
 .L080DAFA8: .4byte 0x00000574
 .L080DAFAC: .4byte 0x0000055C
-.L080DAFB0: .4byte gUnk_0300040C
+.L080DAFB0: .4byte gActiveGameScene
 .L080DAFB4: .4byte 0x00000564
 .L080DAFB8: .4byte 0x000004D4
 .L080DAFBC:
@@ -14294,7 +14294,7 @@ func_080DB0EC: @ 0x080DB0EC
 	cmp r0, #0
 	beq .L080DB164
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DB164:
 	adds r0, r4, #0
 	adds r0, #0xa8
@@ -14324,16 +14324,16 @@ func_080DB0EC: @ 0x080DB0EC
 	cmp r0, #0
 	beq .L080DB1A0
 	movs r1, #3
-	bl func_08009324
+	bl DisplayFade_Destroy
 .L080DB1A0:
 	adds r0, r4, #0
 	adds r0, #0x6c
 	movs r1, #2
-	bl func_080098DC
+	bl TaskList_Destroy
 	adds r0, r4, #0
 	adds r0, #0x68
 	movs r1, #2
-	bl func_08008A68
+	bl VBlankDispatcher_Destroy
 	ldr r1, [r4, #4]
 	ldr r0, [r4]
 	cmp r0, r1
@@ -14607,7 +14607,7 @@ func_080DB394: @ 0x080DB394
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805FCD0
+	bl InitChildhoodMemoryScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -14786,7 +14786,7 @@ func_080DB6CC: @ 0x080DB6CC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_080A3744
+	bl InitializeSpriteFeedingSceneWrapper
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15081,7 +15081,7 @@ func_080DB8FC: @ 0x080DB8FC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805218C
+	bl InitializeFestivalResultsController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15141,7 +15141,7 @@ func_080DB96C: @ 0x080DB96C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_08057DD8
+	bl InitializeFrisbeeController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15199,7 +15199,7 @@ func_080DB9DC: @ 0x080DB9DC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805E624
+	bl InitMedalExchangeScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15259,7 +15259,7 @@ func_080DBA4C: @ 0x080DBA4C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_0805CEB8
+	bl InitHorseRaceScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -16367,7 +16367,7 @@ func_080DC288: @ 0x080DC288
 func_080DC294: @ 0x080DC294
 	push {r4, lr}
 	adds r4, r0, #0
-	ldr r0, .L080DC2B0 @ =gUnk_0300040C
+	ldr r0, .L080DC2B0 @ =gActiveGameScene
 	ldr r0, [r0]
 	adds r0, #8
 	bl LoadById__12ScriptEngineii
@@ -16377,7 +16377,7 @@ func_080DC294: @ 0x080DC294
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080DC2B0: .4byte gUnk_0300040C
+.L080DC2B0: .4byte gActiveGameScene
 
 	thumb_func_start func_080DC2B4
 func_080DC2B4: @ 0x080DC2B4
@@ -16563,7 +16563,7 @@ func_080DC404: @ 0x080DC404
 .L080DC41C:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -16867,15 +16867,15 @@ func_080DC724: @ 0x080DC724
 	adds r4, r1, #0
 	adds r0, #0x8c
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r5, #0
 	adds r0, #0x48
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r5, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DC760 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -16911,7 +16911,7 @@ func_080DC764: @ 0x080DC764
 .L080DC782:
 	adds r0, r4, #4
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r4, #0x48
 	cmp r4, r5
 	bne .L080DC782
@@ -16919,15 +16919,15 @@ func_080DC764: @ 0x080DC764
 	adds r0, r6, #0
 	adds r0, #0x8c
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r6, #0
 	adds r0, #0x48
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r6, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DC7C8 @ =vtable_unk_080E65E0
 	str r0, [r6, #4]
 	movs r0, #1
@@ -17315,7 +17315,7 @@ func_080DCB40: @ 0x080DCB40
 	thumb_func_start func_080DCB4C
 func_080DCB4C: @ 0x080DCB4C
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17323,7 +17323,7 @@ func_080DCB4C: @ 0x080DCB4C
 	thumb_func_start func_080DCB58
 func_080DCB58: @ 0x080DCB58
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17331,7 +17331,7 @@ func_080DCB58: @ 0x080DCB58
 	thumb_func_start func_080DCB64
 func_080DCB64: @ 0x080DCB64
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17339,7 +17339,7 @@ func_080DCB64: @ 0x080DCB64
 	thumb_func_start func_080DCB70
 func_080DCB70: @ 0x080DCB70
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17388,7 +17388,7 @@ func_080DCB7C: @ 0x080DCB7C
 	strb r0, [r4]
 	adds r0, r5, #0
 	mov r3, sl
-	bl func_080A4A00
+	bl InitializeAnimatedMapSpriteSinglePalette
 	movs r0, #0xc8
 	lsls r0, r0, #0xf
 	str r0, [r5, #0x40]
@@ -17430,7 +17430,7 @@ func_080DCB7C: @ 0x080DCB7C
 .L080DCC1E:
 	add r0, sp, #0xc
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	movs r2, #0
 	str r2, [sp, #0x60]
 	add r7, sp, #0xc
@@ -17495,7 +17495,7 @@ func_080DCB7C: @ 0x080DCB7C
 	strb r0, [r3]
 	adds r0, r7, #0
 	mov r3, sl
-	bl func_080A4A00
+	bl InitializeAnimatedMapSpriteSinglePalette
 	lsls r0, r5, #0x10
 	str r0, [r7, #0x40]
 	adds r0, r7, #0
@@ -17534,7 +17534,7 @@ func_080DCB7C: @ 0x080DCB7C
 .L080DCD04:
 	add r0, sp, #0xc
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r2, [sp, #0x60]
 	adds r2, #1
 	str r2, [sp, #0x60]
@@ -17642,7 +17642,7 @@ func_080DCDB0: @ 0x080DCDB0
 .L080DCDD4:
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r4, #0x50
 	cmp r4, r5
 	bne .L080DCDD4
@@ -17679,7 +17679,7 @@ func_080DCDB0: @ 0x080DCDB0
 	beq .L080DCE2A
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r4, #0
 	bl __builtin_delete
 .L080DCE2A:
@@ -17688,7 +17688,7 @@ func_080DCDB0: @ 0x080DCDB0
 	beq .L080DCE3E
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r4, #0
 	bl __builtin_delete
 .L080DCE3E:
@@ -17746,7 +17746,7 @@ func_080DCE94: @ 0x080DCE94
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCEBC @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -17769,7 +17769,7 @@ func_080DCEC0: @ 0x080DCEC0
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCEE8 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -17821,7 +17821,7 @@ func_080DCF20: @ 0x080DCF20
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCF48 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -17989,7 +17989,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD090 @ =vtable_unk_080E76A4
 	b .L080DD2AA
 	.align 2, 0
@@ -18004,7 +18004,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r2, #0x10
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD0B0 @ =vtable_unk_080E768C
 	b .L080DD2AA
 	.align 2, 0
@@ -18020,7 +18020,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD0D8 @ =vtable_unk_080E7674
 	b .L080DD2AA
 	.align 2, 0
@@ -18037,7 +18037,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD100 @ =vtable_unk_080E765C
 	b .L080DD2AA
 	.align 2, 0
@@ -18054,7 +18054,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD15C @ =vtable_unk_080E7644
 	str r0, [r5, #0x4c]
 	ldr r0, [r7, #4]
@@ -18098,7 +18098,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD1D0 @ =vtable_unk_080E762C
 	str r0, [r5, #0x4c]
 	ldr r0, [r7, #4]
@@ -18153,7 +18153,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD1F8 @ =vtable_unk_080E7614
 	b .L080DD2AA
 	.align 2, 0
@@ -18170,7 +18170,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD220 @ =vtable_unk_080E75FC
 	b .L080DD2AA
 	.align 2, 0
@@ -18187,7 +18187,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD248 @ =vtable_unk_080E75E4
 	b .L080DD2AA
 	.align 2, 0
@@ -18204,7 +18204,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD270 @ =vtable_unk_080E75CC
 	b .L080DD2AA
 	.align 2, 0
@@ -18218,7 +18218,7 @@ func_080DCFE0: @ 0x080DCFE0
 	mov r1, r8
 	ldr r2, .L080DD28C @ =0x000008FD
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD290 @ =vtable_unk_080E75B4
 	b .L080DD2AA
 	.align 2, 0
@@ -18232,7 +18232,7 @@ func_080DCFE0: @ 0x080DCFE0
 	mov r1, r8
 	movs r2, #0x15
 	movs r3, #0
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD314 @ =vtable_unk_080E759C
 .L080DD2AA:
 	str r0, [r5, #0x4c]
@@ -18406,7 +18406,7 @@ func_080DD3D4: @ 0x080DD3D4
 	thumb_func_start func_080DD404
 func_080DD404: @ 0x080DD404
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18478,10 +18478,10 @@ func_080DD460: @ 0x080DD460
 	beq .L080DD48C
 	adds r0, r4, #0
 	movs r1, #0xcf
-	bl func_0803A350
+	bl PlaySideEntitySong
 .L080DD48C:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #6
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -18532,7 +18532,7 @@ func_080DD460: @ 0x080DD460
 	thumb_func_start func_080DD4E4
 func_080DD4E4: @ 0x080DD4E4
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18623,7 +18623,7 @@ func_080DD540: @ 0x080DD540
 	thumb_func_start func_080DD588
 func_080DD588: @ 0x080DD588
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18888,7 +18888,7 @@ func_080DD5E4: @ 0x080DD5E4
 	thumb_func_start func_080DD788
 func_080DD788: @ 0x080DD788
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19005,7 +19005,7 @@ func_080DD7E4: @ 0x080DD7E4
 	thumb_func_start func_080DD860
 func_080DD860: @ 0x080DD860
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19123,7 +19123,7 @@ func_080DD8BC: @ 0x080DD8BC
 	thumb_func_start func_080DD938
 func_080DD938: @ 0x080DD938
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19229,7 +19229,7 @@ func_080DD9CC: @ 0x080DD9CC
 	b .L080DDBD6
 .L080DD9F8:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #0x1e
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -19287,7 +19287,7 @@ func_080DD9CC: @ 0x080DD9CC
 .L080DDA62:
 	adds r0, r5, #0
 	movs r1, #0xce
-	bl func_0803A350
+	bl PlaySideEntitySong
 	b .L080DDBD6
 .L080DDA6C:
 	adds r2, r5, #0
@@ -19513,7 +19513,7 @@ func_080DD9CC: @ 0x080DD9CC
 	thumb_func_start func_080DDC18
 func_080DDC18: @ 0x080DDC18
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19610,7 +19610,7 @@ func_080DDC78: @ 0x080DDC78
 	cmp r5, #1
 	bne .L080DDCEE
 	movs r0, #4
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #8
 	movs r2, #0x80
 	lsls r2, r2, #1
@@ -19628,7 +19628,7 @@ func_080DDC78: @ 0x080DDC78
 	b .L080DDD04
 .L080DDCEE:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r1, r0, #4
 	subs r1, r1, r0
 	lsls r1, r1, #2
@@ -19639,7 +19639,7 @@ func_080DDC78: @ 0x080DDC78
 	adds r4, r0, #0
 .L080DDD04:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #2
 	adds r0, #0xc
 	adds r1, r6, #0
@@ -19715,7 +19715,7 @@ func_080DDC78: @ 0x080DDC78
 	movs r5, #0xff
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A320
+	bl GetSideEntitySine
 	adds r4, r0, #0
 	lsls r4, r4, #0x10
 	asrs r4, r4, #0x10
@@ -19726,7 +19726,7 @@ func_080DDC78: @ 0x080DDC78
 	lsls r1, r1, #1
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A334
+	bl GetSideEntityCosine
 	lsls r0, r0, #0x10
 	adds r1, r6, #0
 	adds r1, #0x66
@@ -19821,7 +19821,7 @@ func_080DDC78: @ 0x080DDC78
 	thumb_func_start func_080DDE68
 func_080DDE68: @ 0x080DDE68
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19912,7 +19912,7 @@ func_080DDEC4: @ 0x080DDEC4
 	thumb_func_start func_080DDF0C
 func_080DDF0C: @ 0x080DDF0C
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20003,7 +20003,7 @@ func_080DDF68: @ 0x080DDF68
 	thumb_func_start func_080DDFB0
 func_080DDFB0: @ 0x080DDFB0
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20092,7 +20092,7 @@ func_080DE00C: @ 0x080DE00C
 	thumb_func_start func_080DE050
 func_080DE050: @ 0x080DE050
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20210,7 +20210,7 @@ func_080DE0AC: @ 0x080DE0AC
 	thumb_func_start func_080DE128
 func_080DE128: @ 0x080DE128
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20752,9 +20752,9 @@ func_080DE298: @ 0x080DE298
 	bl __builtin_new
 	adds r4, r0, #0
 	add r0, sp, #0x10
-	bl func_0800835C
+	bl TilePool_Initialize
 	add r0, sp, #0x14
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	add r1, sp, #0x14
 	movs r0, #1
 	str r0, [sp]
@@ -20765,7 +20765,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -20774,24 +20774,24 @@ func_080DE298: @ 0x080DE298
 	cmp r0, #0
 	beq .L080DE82A
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DE82A:
 	str r4, [r5]
 	add r0, sp, #0x14
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	add r0, sp, #0x10
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 	b .L080DE88E
 .L080DE83E:
 	movs r0, #4
 	bl __builtin_new
 	adds r4, r0, #0
 	add r0, sp, #0x10
-	bl func_0800835C
+	bl TilePool_Initialize
 	add r0, sp, #0x14
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	add r0, sp, #0x14
 	str r5, [sp]
 	add r1, sp, #0x10
@@ -20801,7 +20801,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -20810,24 +20810,24 @@ func_080DE298: @ 0x080DE298
 	cmp r0, #0
 	beq .L080DE87C
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DE87C:
 	str r4, [r5]
 	add r0, sp, #0x14
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	add r0, sp, #0x10
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 .L080DE88E:
 	ldr r0, [r6]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	bne .L080DE89C
 	bl .L080E007C
 .L080DE89C:
 	ldr r0, [r6]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -20842,7 +20842,7 @@ func_080DE298: @ 0x080DE298
 	bne .L080DE8BE
 	bl .L080E007C
 .L080DE8BE:
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -20885,7 +20885,7 @@ func_080DE298: @ 0x080DE298
 	bl .L080E007C
 .L080DE90E:
 	movs r2, #0x40
-	bl func_08050DB4
+	bl SetMessageWindowTextSpeed
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -20930,7 +20930,7 @@ func_080DE298: @ 0x080DE298
 	bl .L080E007C
 .L080DE964:
 	movs r2, #0
-	bl func_08050DB4
+	bl SetMessageWindowTextSpeed
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -20976,7 +20976,7 @@ func_080DE298: @ 0x080DE298
 .L080DE9BC:
 	movs r2, #0x80
 	lsls r2, r2, #1
-	bl func_08050DB4
+	bl SetMessageWindowTextSpeed
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -21087,7 +21087,7 @@ func_080DE298: @ 0x080DE298
 	str r1, [sp, #4]
 	str r1, [sp, #8]
 	adds r1, r6, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -21227,7 +21227,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	adds r1, r5, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	b .L080DEBAC
 	.align 2, 0
 .L080DEB9C: .4byte gUnk_080F19A0
@@ -21236,7 +21236,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	adds r1, r5, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 .L080DEBAC:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -21412,7 +21412,7 @@ func_080DE298: @ 0x080DE298
 .L080DECE6:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	b .L080DED00
 .L080DECF0:
 	str r5, [sp]
@@ -21421,7 +21421,7 @@ func_080DE298: @ 0x080DE298
 	str r0, [sp, #8]
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 .L080DED00:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -21508,7 +21508,7 @@ func_080DE298: @ 0x080DE298
 	str r1, [sp, #0xc]
 	adds r1, r3, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -21623,7 +21623,7 @@ func_080DE298: @ 0x080DE298
 	str r3, [sp, #0xc]
 	adds r1, r5, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DEE92
 	.align 2, 0
 .L080DEE80: .4byte gUnk_080F19A0
@@ -21633,7 +21633,7 @@ func_080DE298: @ 0x080DE298
 	str r1, [sp, #8]
 	str r1, [sp, #0xc]
 	adds r1, r5, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080DEE92:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -21774,7 +21774,7 @@ func_080DE298: @ 0x080DE298
 	str r3, [sp, #0xc]
 	adds r1, r5, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DEFC2
 	.align 2, 0
 .L080DEF9C: .4byte gUnk_080F19A0
@@ -21786,7 +21786,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	adds r1, r5, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DEFC2
 .L080DEFB4:
 	str r1, [sp]
@@ -21794,7 +21794,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	adds r1, r5, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080DEFC2:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -21962,7 +21962,7 @@ func_080DE298: @ 0x080DE298
 	str r3, [sp, #0xc]
 	adds r1, r6, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DF12A
 	.align 2, 0
 .L080DF0FC: .4byte gUnk_080F19A0
@@ -21980,7 +21980,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	adds r1, r6, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DF12A
 .L080DF11C:
 	str r5, [sp]
@@ -21988,7 +21988,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	adds r1, r6, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080DF12A:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -22184,7 +22184,7 @@ func_080DE298: @ 0x080DE298
 	adds r0, r4, #0
 	adds r1, r7, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DF2E0
 	.align 2, 0
 .L080DF298: .4byte gUnk_080F19A0
@@ -22214,7 +22214,7 @@ func_080DE298: @ 0x080DE298
 .L080DF2C4:
 	adds r0, r4, #0
 	adds r1, r7, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DF2E0
 .L080DF2CE:
 	str r6, [sp]
@@ -22224,7 +22224,7 @@ func_080DE298: @ 0x080DE298
 	str r0, [sp, #0xc]
 	adds r0, r4, #0
 	adds r1, r7, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080DF2E0:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -22345,7 +22345,7 @@ func_080DE298: @ 0x080DE298
 	add r0, r8
 	ldr r0, [r0]
 	adds r2, r5, #0
-	bl func_08009378
+	bl DisplayFade_StartOut
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -22459,7 +22459,7 @@ func_080DE298: @ 0x080DE298
 	add r0, r8
 	ldr r0, [r0]
 	adds r2, r6, #0
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -22481,10 +22481,10 @@ func_080DE298: @ 0x080DE298
 	mov r5, r8
 	adds r5, #4
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r4, r0, #0
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	ldrh r0, [r0]
 	movs r2, #0xe0
 	lsls r2, r2, #4
@@ -22494,11 +22494,11 @@ func_080DE298: @ 0x080DE298
 	cmp r6, #1
 	bne .L080DF4FC
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r4, r0, #0
 	adds r4, #0x50
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r0, #0x50
 	ldrh r0, [r0]
 	movs r1, #0x80
@@ -22508,11 +22508,11 @@ func_080DE298: @ 0x080DE298
 .L080DF4F8: .4byte 0x000003A1
 .L080DF4FC:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r4, r0, #0
 	adds r4, #0x50
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r0, #0x50
 	ldrh r0, [r0]
 	movs r1, #0xc0
@@ -22733,7 +22733,7 @@ func_080DE298: @ 0x080DE298
 	movs r0, #0xdd
 	lsls r0, r0, #2
 	add r0, r8
-	bl func_08008BE0
+	bl AudioPlayer_Stop
 	bl .L080E0080
 .L080DF6BE:
 	ldr r0, [r4]
@@ -22774,7 +22774,7 @@ func_080DE298: @ 0x080DE298
 	beq .L080DF712
 .L080DF700:
 	ldr r0, [r4]
-	bl func_08008CD0
+	bl AudioPlayer_IsPlaying
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080DF6BE
@@ -22798,16 +22798,16 @@ func_080DE298: @ 0x080DE298
 	beq .L080DF740
 	bl .L080E0080
 .L080DF730:
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	bl .L080E0080
 .L080DF738:
-	bl func_08008B88
+	bl AudioPlayer_StartSongIfStoppedOrChanged
 	bl .L080E0080
 .L080DF740:
-	bl func_08008BB0
+	bl AudioPlayer_StartOrResumeSong
 	bl .L080E0080
 .L080DF748:
-	bl func_08008DE8
+	bl Audio_StopAllPlayers
 	bl .L080E0080
 .L080DF750:
 	mov r5, r8
@@ -24063,7 +24063,7 @@ func_080E0094: @ 0x080E0094
 	adds r0, r6, #0
 	bl func_08008724
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	movs r3, #0x82
 	lsls r3, r3, #5
@@ -24071,7 +24071,7 @@ func_080E0094: @ 0x080E0094
 	strh r1, [r2]
 	strh r1, [r0]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -24496,7 +24496,7 @@ func_080E0094: @ 0x080E0094
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	ldr r0, [sp, #0x94]
-	bl func_080AD724
+	bl InitializeMapSceneOwner
 	ldr r0, [sp, #0x10]
 	ldr r1, [sp, #0x94]
 	str r1, [sp, #0x68]
@@ -24529,10 +24529,10 @@ func_080E0094: @ 0x080E0094
 	bl __builtin_new
 	adds r4, r0, #0
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	movs r3, #0xdc
 	lsls r3, r3, #2
 	adds r5, r7, r3
@@ -24543,12 +24543,12 @@ func_080E0094: @ 0x080E0094
 	cmp r0, #0
 	beq .L080E0448
 	movs r1, #3
-	bl func_08009324
+	bl DisplayFade_Destroy
 .L080E0448:
 	str r4, [r5]
 .L080E044A:
 	mov r0, sl
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	movs r4, #0xd9
 	lsls r4, r4, #2
 	adds r6, r7, r4
@@ -24556,7 +24556,7 @@ func_080E0094: @ 0x080E0094
 	cmp r0, #1
 	beq .L080E04B2
 	mov r0, sl
-	bl func_080088DC
+	bl HardwareContext_GetState
 	ldrh r0, [r0, #8]
 	movs r1, #8
 	ands r0, r1
@@ -24566,7 +24566,7 @@ func_080E0094: @ 0x080E0094
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	ldr r0, [r5]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -24579,11 +24579,11 @@ func_080E0094: @ 0x080E0094
 	ldr r0, [r4]
 	cmp r0, #0
 	beq .L080E04A2
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #1
 	beq .L080E04B2
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #2
 	beq .L080E04B2
 .L080E04A2:
@@ -24591,7 +24591,7 @@ func_080E0094: @ 0x080E0094
 	ldr r1, .L080E053C @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	movs r0, #1
 	str r0, [r6]
 .L080E04B2:
@@ -24602,7 +24602,7 @@ func_080E0094: @ 0x080E0094
 	cmp r0, #0
 	beq .L080E0518
 	mov r0, sl
-	bl func_080088DC
+	bl HardwareContext_GetState
 	ldrh r2, [r0, #8]
 	movs r0, #9
 	rsbs r0, r0, #0
@@ -24616,18 +24616,18 @@ func_080E0094: @ 0x080E0094
 	mov sb, r4
 	add r5, sp, #0x14
 	adds r0, r5, #0
-	bl func_080091E8
+	bl KeyRepeat_InitializeWithHeldKeys
 	mov r0, sl
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	mov r8, r0
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r6, r0, #0
 	mov r0, sl
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	mov r0, sl
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	movs r3, #0xe0
 	lsls r3, r3, #2
 	adds r1, r7, r3
@@ -24638,7 +24638,7 @@ func_080E0094: @ 0x080E0094
 	adds r1, r5, #0
 	mov r2, r8
 	adds r3, r6, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 .L080E0518:
 	movs r6, #0
 	movs r4, #0xd9
@@ -24701,7 +24701,7 @@ func_080E0094: @ 0x080E0094
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	ldr r0, [r0]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -24725,7 +24725,7 @@ func_080E0094: @ 0x080E0094
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080E05E4
 	b .L080E075E
@@ -24740,7 +24740,7 @@ func_080E0094: @ 0x080E0094
 	lsls r3, r3, #2
 	adds r4, r7, r3
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #0
 	beq .L080E0600
 	b .L080E075E
@@ -24752,7 +24752,7 @@ func_080E0094: @ 0x080E0094
 	cmp r0, #0
 	beq .L080E0612
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E0612:
 	str r5, [r4]
 	b .L080E0728
@@ -24762,7 +24762,7 @@ func_080E0094: @ 0x080E0094
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080E062A
 	b .L080E075E
@@ -24777,13 +24777,13 @@ func_080E0094: @ 0x080E0094
 	lsls r1, r1, #2
 	adds r4, r7, r1
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #6
 	bne .L080E0646
 	b .L080E075E
 .L080E0646:
 	ldr r0, [r4]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r1, r0, #0
 	adds r0, r7, #0
 	bl func_080E09E4
@@ -24796,7 +24796,7 @@ func_080E0094: @ 0x080E0094
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	ldr r0, [r0]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -24810,20 +24810,20 @@ func_080E0094: @ 0x080E0094
 	movs r0, #1
 	strb r0, [r1]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	ldrh r2, [r0]
 	ldr r1, .L080E06B4 @ =0x0000F0FF
 	ands r1, r2
 	strh r1, [r0]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r0, #0x50
 	ldrh r2, [r0]
 	ldr r1, .L080E06B8 @ =0x0000FF3F
 	ands r1, r2
 	strh r1, [r0]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r0, #0x4c
 	strh r4, [r0]
 	movs r1, #0xd9
@@ -24839,7 +24839,7 @@ func_080E0094: @ 0x080E0094
 	lsls r2, r2, #2
 	adds r0, r7, r2
 	ldr r0, [r0]
-	bl func_080094A4
+	bl DisplayFade_GetSpeed
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
 	rsbs r1, r0, #0
@@ -24923,7 +24923,7 @@ func_080E0094: @ 0x080E0094
 	cmp r6, #0
 	bne .L080E077C
 	mov r0, sl
-	bl func_080088DC
+	bl HardwareContext_GetState
 	add r1, sp, #0x70
 	str r0, [sp, #0x70]
 	movs r3, #0xda
@@ -24943,7 +24943,7 @@ func_080E0094: @ 0x080E0094
 	b .L080E08A8
 .L080E078A:
 	mov r0, sl
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r2, r0, #0
 	ldr r5, .L080E07D4 @ =0x000003A1
 	adds r0, r7, r5
@@ -24958,7 +24958,7 @@ func_080E0094: @ 0x080E0094
 	movs r2, #0xa0
 	lsls r2, r2, #0x13
 	movs r3, #2
-	bl func_08008F60
+	bl DmaCommand_InitializeFill
 	mov r0, sp
 	adds r0, #0xc
 	str r0, [sp, #0x90]
@@ -25099,16 +25099,16 @@ func_080E0094: @ 0x080E0094
 	b .L080E08E0
 .L080E08A8:
 	mov r0, sl
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r5, r0, #0
 	mov r0, sl
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r4, r0, #0
 	mov r0, sl
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	str r6, [sp, #0xc]
 	str r5, [sp, #0x10]
 	str r4, [sp, #0x14]
@@ -25126,7 +25126,7 @@ func_080E0094: @ 0x080E0094
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	ldr r0, [r0]
-	bl func_080093AC
+	bl DisplayFade_Update
 	mov r0, sl
 	bl func_080087C8
 	b .L080E044A
@@ -25171,7 +25171,7 @@ func_080E0908: @ 0x080E0908
 	cmp r0, #0
 	beq .L080E0942
 	movs r1, #3
-	bl func_08009324
+	bl DisplayFade_Destroy
 .L080E0942:
 	movs r1, #0xdb
 	lsls r1, r1, #2
@@ -25180,7 +25180,7 @@ func_080E0908: @ 0x080E0908
 	cmp r0, #0
 	beq .L080E0954
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E0954:
 	movs r1, #0xda
 	lsls r1, r1, #2
@@ -25212,10 +25212,10 @@ func_080E0908: @ 0x080E0908
 	bl _._13AScriptEngine
 	adds r0, r4, #4
 	movs r1, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -25227,7 +25227,7 @@ func_080E0908: @ 0x080E0908
 	thumb_func_start func_080E09B0
 func_080E09B0: @ 0x080E09B0
 	push {lr}
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -25342,7 +25342,7 @@ func_080E0A08: @ 0x080E0A08
 	thumb_func_start func_080E0A7C
 func_080E0A7C: @ 0x080E0A7C
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -25350,7 +25350,7 @@ func_080E0A7C: @ 0x080E0A7C
 	thumb_func_start func_080E0A88
 func_080E0A88: @ 0x080E0A88
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -25367,7 +25367,7 @@ func_080E0A94: @ 0x080E0A94
 	adds r4, r7, #0
 	adds r4, #0x30
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -25521,13 +25521,13 @@ func_080E0A94: @ 0x080E0A94
 	adds r0, r5, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r5, #0
 	bl __builtin_delete
 .L080E0C08:
@@ -25613,7 +25613,7 @@ func_080E0C38: @ 0x080E0C38
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	cmp r5, r4
 	bne .L080E0C9C
 .L080E0CB2:
@@ -25631,13 +25631,13 @@ func_080E0C38: @ 0x080E0C38
 	adds r0, r4, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r4, #0
 	bl __builtin_delete
 	b .L080E0CBA
@@ -25648,25 +25648,25 @@ func_080E0C38: @ 0x080E0C38
 	adds r0, r4, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r4, #0
 	bl __builtin_delete
 .L080E0D0E:
 	mov r0, sl
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	mov r0, sb
 	ldr r1, [r0, #4]
 	bl func_080073E0
 	mov r0, sb
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r0, .L080E0D4C @ =vtable_unk_080E5A28
 	str r0, [r6]
 	movs r0, #1
@@ -25695,7 +25695,7 @@ func_080E0D50: @ 0x080E0D50
 	ldr r1, [r0, #0x10]
 	ldr r2, [r0, #0x14]
 	adds r0, r3, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #0
 	pop {r1}
 	bx r1
@@ -25703,7 +25703,7 @@ func_080E0D50: @ 0x080E0D50
 	thumb_func_start func_080E0D64
 func_080E0D64: @ 0x080E0D64
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -25717,7 +25717,7 @@ func_080E0D70: @ 0x080E0D70
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r0, #0xce
 	lsls r0, r0, #2
 	adds r4, r6, r0
@@ -25726,12 +25726,12 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xc7
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r0, #0xc5
 	lsls r0, r0, #2
 	adds r4, r6, r0
@@ -25740,12 +25740,12 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xbf
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r0, #0xbd
 	lsls r0, r0, #2
 	adds r4, r6, r0
@@ -25754,12 +25754,12 @@ func_080E0D70: @ 0x080E0D70
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0xb6
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r0, #0xb4
 	lsls r0, r0, #2
 	adds r4, r6, r0
@@ -25768,12 +25768,12 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xad
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r0, #0xaa
 	lsls r0, r0, #2
 	adds r4, r6, r0
@@ -25782,12 +25782,12 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xc8
 	lsls r1, r1, #1
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r0, #0xc2
 	lsls r0, r0, #1
 	adds r4, r6, r0
@@ -25796,11 +25796,11 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r6, #0
 	adds r0, #0x68
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	adds r4, r6, #0
 	adds r4, #0x60
 	ldr r1, [r4, #4]
@@ -25808,7 +25808,7 @@ func_080E0D70: @ 0x080E0D70
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r0, .L080E0E7C @ =vtable_unk_080E5A28
 	str r0, [r6, #0x30]
 	str r0, [r6]
@@ -25926,7 +25926,7 @@ func_080E0F48: @ 0x080E0F48
 	lsls r1, r1, #4
 	adds r1, r4, r1
 	adds r0, r4, #0
-	bl func_08009094
+	bl DmaCommand_ExecuteCpuRange
 	ldr r0, [r5]
 	lsls r0, r0, #4
 	adds r0, #4
@@ -26030,7 +26030,7 @@ func_080E0F90: @ 0x080E0F90
 	thumb_func_start func_080E1018
 func_080E1018: @ 0x080E1018
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -26038,7 +26038,7 @@ func_080E1018: @ 0x080E1018
 	thumb_func_start func_080E1024
 func_080E1024: @ 0x080E1024
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -26046,7 +26046,7 @@ func_080E1024: @ 0x080E1024
 	thumb_func_start func_080E1030
 func_080E1030: @ 0x080E1030
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -26106,7 +26106,7 @@ func_080E105C: @ 0x080E105C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, [r5]
 	bl __builtin_delete
 	cmp r6, r5
@@ -26142,7 +26142,7 @@ func_080E105C: @ 0x080E105C
 	thumb_func_start func_080E10E0
 func_080E10E0: @ 0x080E10E0
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -26205,19 +26205,19 @@ func_080E1148: @ 0x080E1148
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080E1188 @ =vtable_unk_080E5A28
 	str r0, [r5, #0x10]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -26305,7 +26305,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	cmp r7, r4
 	bne .L080E121C
 .L080E1232:
@@ -26314,7 +26314,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xa0
 	lsls r2, r2, #3
 	adds r0, r6, r2
@@ -26342,13 +26342,13 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xa0
 	lsls r2, r2, #3
 	adds r0, r6, r2
@@ -26363,7 +26363,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0x9e
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26372,7 +26372,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0x9d
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26381,7 +26381,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0x9c
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26390,7 +26390,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0x9b
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26399,7 +26399,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r2, #0x9a
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26408,7 +26408,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x99
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26417,7 +26417,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0x98
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26426,7 +26426,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r2, #0x97
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26435,7 +26435,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x96
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26444,7 +26444,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0x95
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26453,7 +26453,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0x94
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26462,7 +26462,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0x93
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26471,7 +26471,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0x92
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26480,7 +26480,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r2, #0x91
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26489,7 +26489,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x90
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26498,7 +26498,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0x8f
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26507,7 +26507,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0x8e
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26516,7 +26516,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0x8d
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26525,7 +26525,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xe8
 	lsls r2, r2, #1
 	adds r1, r6, r2
@@ -26554,11 +26554,11 @@ func_080E11EC: @ 0x080E11EC
 	cmp r0, #0
 	beq .L080E1474
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E1474:
 	adds r0, r6, #0
 	mov r1, sl
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3, r4, r5}
 	mov r8, r3
 	mov sb, r4
@@ -26617,7 +26617,7 @@ func_080E14B8: @ 0x080E14B8
 	ldr r0, [r3, #0x14]
 	mov r1, sp
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r5, sp, #8
 	mov r0, sp
 	bl strlen
@@ -26758,7 +26758,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	cmp r6, r4
 	bne .L080E15FC
 .L080E1612:
@@ -26767,7 +26767,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xcb
 	lsls r1, r1, #3
 	adds r0, r7, r1
@@ -26782,7 +26782,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xc9
 	lsls r0, r0, #3
 	adds r4, r7, r0
@@ -26791,7 +26791,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0xc8
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26800,7 +26800,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc7
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26809,7 +26809,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xc6
 	lsls r0, r0, #3
 	adds r4, r7, r0
@@ -26818,7 +26818,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xc5
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26827,7 +26827,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc4
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26836,7 +26836,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xc3
 	lsls r0, r0, #3
 	adds r4, r7, r0
@@ -26845,7 +26845,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0xc2
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26854,7 +26854,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc1
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26863,7 +26863,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xc0
 	lsls r0, r0, #3
 	adds r4, r7, r0
@@ -26872,7 +26872,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xbf
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26881,7 +26881,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r2, #0xbe
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26890,7 +26890,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xbd
 	lsls r0, r0, #3
 	adds r4, r7, r0
@@ -26899,7 +26899,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0xbc
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26908,7 +26908,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xbb
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26917,7 +26917,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xba
 	lsls r0, r0, #3
 	adds r4, r7, r0
@@ -26926,7 +26926,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xb9
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26935,7 +26935,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r2, #0xb8
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26944,7 +26944,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xd0
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -26973,11 +26973,11 @@ func_080E15C0: @ 0x080E15C0
 	cmp r0, #0
 	beq .L080E180A
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E180A:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3}
 	mov r8, r3
 	pop {r4, r5, r6, r7}
@@ -27016,7 +27016,7 @@ func_080E1844: @ 0x080E1844
 	lsls r1, r0, #2
 	adds r1, r1, r0
 	lsls r1, r1, #2
-	ldr r0, .L080E1888 @ =gUnk_080FB000
+	ldr r0, .L080E1888 @ =gMedalExchangePrizes
 	adds r5, r1, r0
 	adds r0, r5, #0
 	bl strlen
@@ -27040,7 +27040,7 @@ func_080E1844: @ 0x080E1844
 	bl strcpy
 	b .L080E189A
 	.align 2, 0
-.L080E1888: .4byte gUnk_080FB000
+.L080E1888: .4byte gMedalExchangePrizes
 .L080E188C:
 	mov r1, sp
 	movs r0, #0
@@ -27072,7 +27072,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0x9e
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -27081,7 +27081,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x9a
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -27090,7 +27090,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0x96
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -27099,7 +27099,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x92
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -27108,7 +27108,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0x8e
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -27117,7 +27117,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080E1960 @ =vtable_unk_080E5A28
 	str r0, [r5, #0x50]
 	str r0, [r5, #0x20]
@@ -27125,11 +27125,11 @@ func_080E18A4: @ 0x080E18A4
 	cmp r0, #0
 	beq .L080E1948
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E1948:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -27231,11 +27231,11 @@ func_080E19F8: @ 0x080E19F8
 	cmp r0, #0
 	beq .L080E1A12
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E1A12:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -27350,7 +27350,7 @@ func_080E1A70: @ 0x080E1A70
 	cmp r1, r0
 	bgt .L080E1B32
 	ldr r0, [r7]
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r4, r0, #0
 	movs r0, #0
 	ldrsh r2, [r5, r0]
@@ -27369,7 +27369,7 @@ func_080E1A70: @ 0x080E1A70
 	add r6, sp, #0x10
 	adds r0, r6, #0
 	movs r3, #0x10
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r4]
 	cmp r2, #0x7f
 	bhi .L080E1B32
@@ -27444,7 +27444,7 @@ func_080E1A70: @ 0x080E1A70
 	cmp r1, r0
 	bgt .L080E1BE6
 	ldr r0, [r7]
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r4, r0, #0
 	movs r0, #0
 	ldrsh r2, [r6, r0]
@@ -27462,7 +27462,7 @@ func_080E1A70: @ 0x080E1A70
 	add r5, sp, #0x18
 	adds r0, r5, #0
 	movs r3, #5
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r4]
 	cmp r2, #0x7f
 	bhi .L080E1BE6
@@ -27610,7 +27610,7 @@ func_080E1C70: @ 0x080E1C70
 	cmp r1, r0
 	bgt .L080E1D2A
 	ldr r0, [r7]
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r4, r0, #0
 	movs r0, #0
 	ldrsh r2, [r5, r0]
@@ -27628,7 +27628,7 @@ func_080E1C70: @ 0x080E1C70
 	add r6, sp, #0x10
 	adds r0, r6, #0
 	movs r3, #5
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r4]
 	cmp r2, #0x7f
 	bhi .L080E1D2A
@@ -27778,7 +27778,7 @@ func_080E1DD4: @ 0x080E1DD4
 .L080E1E12:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -27811,7 +27811,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	cmp r6, r4
 	bne .L080E1E48
 .L080E1E5E:
@@ -27837,7 +27837,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	cmp r6, r4
 	bne .L080E1E7C
 .L080E1E92:
@@ -27848,7 +27848,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r0, .L080E1F94 @ =0x000040C0
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -27856,7 +27856,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080E1F98 @ =0x000040B8
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -27864,7 +27864,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r0, .L080E1F9C @ =0x000040B0
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -27872,7 +27872,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080E1FA0 @ =0x00003FA4
 	adds r2, r5, r1
 	ldr r1, [r2]
@@ -27907,7 +27907,7 @@ func_080E1E28: @ 0x080E1E28
 	lsls r1, r1, #1
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r0, .L080E1FA8 @ =vtable_unk_080E5A28
 	str r0, [r5, #0x54]
 	str r0, [r5, #0x24]
@@ -27948,7 +27948,7 @@ func_080E1E28: @ 0x080E1E28
 .L080E1F6C:
 	adds r0, r5, #0
 	mov r1, sb
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3, r4}
 	mov r8, r3
 	mov sb, r4
@@ -27980,37 +27980,37 @@ func_080E1FAC: @ 0x080E1FAC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, [r5, #0xc]
 	cmp r0, #0
 	beq .L080E2008
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E2008:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -28075,7 +28075,7 @@ func_080E2018: @ 0x080E2018
 .L080E2082:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -28199,7 +28199,7 @@ func_080E211C: @ 0x080E211C
 .L080E215A:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -30006,7 +30006,7 @@ func_080E2DC8: @ 0x080E2DC8
 	str r0, [r0, #0xc]
 	adds r0, r6, #0
 	adds r0, #0x14
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r4, r6, #0
 	adds r4, #0x18
 	str r5, [r4, #4]
@@ -30806,14 +30806,14 @@ func_080E3504: @ 0x080E3504
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080E35D8 @ =vtable_unk_080E5A28
 	str r0, [r5, #4]
 	adds r0, r5, #0
@@ -30833,21 +30833,21 @@ func_080E3504: @ 0x080E3504
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r5, #0
 	bl __builtin_delete
 .L080E358C:
 	adds r0, r6, #0
 	adds r0, #0x80
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r1, [r6, #0x7c]
 	cmp r1, #0
 	beq .L080E35AE
@@ -30876,7 +30876,7 @@ func_080E3504: @ 0x080E3504
 	str r0, [r6, #0x10]
 	adds r0, r6, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -30902,10 +30902,10 @@ func_080E35E8: @ 0x080E35E8
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x39
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -30916,7 +30916,7 @@ func_080E35E8: @ 0x080E35E8
 func_080E3610: @ 0x080E3610
 	push {lr}
 	subs r0, #8
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	lsls r0, r0, #0x18
@@ -30937,10 +30937,10 @@ func_080E3628: @ 0x080E3628
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -30958,10 +30958,10 @@ func_080E3650: @ 0x080E3650
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -30988,10 +30988,10 @@ func_080E3678: @ 0x080E3678
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x3a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -31017,7 +31017,7 @@ func_080E36B4: @ 0x080E36B4
 	lsls r1, r1, #1
 	adds r5, r0, r1
 	adds r0, r5, #0
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	bne .L080E3726
 	movs r0, #1
@@ -31029,7 +31029,7 @@ func_080E36B4: @ 0x080E36B4
 	str r6, [sp, #4]
 	str r6, [sp, #8]
 	adds r0, r5, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	b .L080E3726
 	.align 2, 0
 .L080E36F4: .4byte gUnk_08100588
@@ -31040,11 +31040,11 @@ func_080E36B4: @ 0x080E36B4
 	lsls r1, r1, #1
 	adds r4, r0, r1
 	adds r0, r4, #0
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	bne .L080E3726
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L080E3720
 	cmp r0, #2
@@ -31078,10 +31078,10 @@ func_080E3734: @ 0x080E3734
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -31092,7 +31092,7 @@ func_080E3734: @ 0x080E3734
 func_080E375C: @ 0x080E375C
 	push {lr}
 	subs r0, #8
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	lsls r0, r0, #0x18
@@ -31111,10 +31111,10 @@ func_080E3774: @ 0x080E3774
 	adds r4, r4, r0
 	ldr r1, .L080E3794 @ =gUnk_081005D8
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -31141,10 +31141,10 @@ func_080E379C: @ 0x080E379C
 	adds r4, r5, r0
 	ldr r1, .L080E37D8 @ =gUnk_081005EC
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x3a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0xea
 	lsls r2, r2, #1
 	adds r1, r5, r2
@@ -31190,7 +31190,7 @@ func_080E37DC: @ 0x080E37DC
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080E384E
 	.align 2, 0
 .L080E3820: .4byte gUnk_0810058C
@@ -31205,7 +31205,7 @@ func_080E37DC: @ 0x080E37DC
 	movs r2, #0xe4
 	lsls r2, r2, #1
 	adds r0, r1, r2
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L080E3848
 	cmp r0, #2
@@ -31232,7 +31232,7 @@ func_080E3858: @ 0x080E3858
 func_080E385C: @ 0x080E385C
 	push {lr}
 	subs r0, #8
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	pop {r1}
 	bx r1
 
@@ -31240,7 +31240,7 @@ func_080E385C: @ 0x080E385C
 func_080E3868: @ 0x080E3868
 	push {lr}
 	subs r0, #8
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	pop {r1}
 	bx r1
 
@@ -31363,7 +31363,7 @@ func_080E3920: @ 0x080E3920
 	thumb_func_start func_080E392C
 func_080E392C: @ 0x080E392C
 	push {lr}
-	bl func_080D035C
+	bl Joybus_UpdateTransfers
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -31535,7 +31535,7 @@ func_080E3A5C: @ 0x080E3A5C
 	adds r0, r1, #0
 	lsls r1, r2, #0x18
 	lsrs r1, r1, #0x18
-	bl func_080D0644
+	bl Joybus_QueueWordExchange
 	pop {r0}
 	bx r0
 
@@ -31802,7 +31802,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc8
 	lsls r2, r2, #2
 	adds r4, r5, r2
@@ -31811,7 +31811,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xc6
 	lsls r0, r0, #2
 	adds r4, r5, r0
@@ -31820,7 +31820,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xc4
 	lsls r1, r1, #2
 	adds r4, r5, r1
@@ -31829,7 +31829,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc2
 	lsls r2, r2, #2
 	adds r4, r5, r2
@@ -31838,7 +31838,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xc0
 	lsls r0, r0, #2
 	adds r4, r5, r0
@@ -31847,7 +31847,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xbe
 	lsls r1, r1, #2
 	adds r4, r5, r1
@@ -31856,7 +31856,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r2, #0xbc
 	lsls r2, r2, #2
 	adds r4, r5, r2
@@ -31865,7 +31865,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xba
 	lsls r0, r0, #2
 	adds r4, r5, r0
@@ -31874,7 +31874,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0xb8
 	lsls r1, r1, #2
 	adds r4, r5, r1
@@ -31883,7 +31883,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0x94
 	lsls r2, r2, #1
 	adds r0, r5, r2
@@ -31898,7 +31898,7 @@ func_080E3C3C: @ 0x080E3C3C
 	str r4, [r0]
 	subs r0, #0x18
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r1, [r5, #0x7c]
 	cmp r1, #0
 	beq .L080E3D5E
@@ -31926,7 +31926,7 @@ func_080E3C3C: @ 0x080E3C3C
 	str r4, [r5, #0x10]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -32102,28 +32102,28 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3EAC:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32144,7 +32144,7 @@ func_080E3E9C: @ 0x080E3E9C
 	bne .L080E3F38
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32152,7 +32152,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F16:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32160,7 +32160,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F26:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080E3F38
@@ -32299,14 +32299,14 @@ func_080E3F40: @ 0x080E3F40
 	ldrsb r0, [r3, r0]
 	adds r1, #2
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	b .L080E4040
 .L080E4034:
 	movs r0, #4
 	ldrsb r0, [r3, r0]
 	mov r1, sp
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 .L080E4040:
 	add r5, sp, #0x20
 	mov r0, sp
@@ -32376,7 +32376,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xd2
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32385,7 +32385,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xce
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32394,7 +32394,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xca
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32403,7 +32403,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xc6
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32412,7 +32412,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xc2
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32421,7 +32421,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xbe
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32430,7 +32430,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xba
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32439,7 +32439,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r1, r5, #0
 	adds r1, #0x80
 	ldr r0, .L080E418C @ =vtable_unk_080E5A28
@@ -32450,11 +32450,11 @@ func_080E40A0: @ 0x080E40A0
 	cmp r0, #0
 	beq .L080E4178
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E4178:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -32505,7 +32505,7 @@ func_080E41B0: @ 0x080E41B0
 .L080E41DA:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -32526,7 +32526,7 @@ func_080E41E8: @ 0x080E41E8
 .L080E4200:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -32548,7 +32548,7 @@ func_080E4210: @ 0x080E4210
 .L080E4228:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -32557,7 +32557,7 @@ func_080E4210: @ 0x080E4210
 	thumb_func_start func_080E4238
 func_080E4238: @ 0x080E4238
 	push {lr}
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -32797,7 +32797,7 @@ func_080E43B8: @ 0x080E43B8
 .L080E43EC:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080A4B6C
+	bl DestroyMapBuffers
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -32910,7 +32910,7 @@ func_080E44B8: @ 0x080E44B8
 	adds r4, r1, #0
 	adds r0, r5, #4
 	movs r1, #2
-	bl func_080AC85C
+	bl DestroyMapSceneContents
 	ldr r0, .L080E44E0 @ =vtable_unk_080E61A0
 	str r0, [r5]
 	movs r0, #1
@@ -32943,7 +32943,7 @@ func_080E44E4: @ 0x080E44E4
 	adds r1, r4, #0
 	movs r2, #5
 	movs r3, #0x1b
-	bl func_080324BC
+	bl InitializeSideActorSpriteLayers
 	add sp, #0x10
 	pop {r4}
 	pop {r1}
@@ -33008,12 +33008,12 @@ func_080E4564: @ 0x080E4564
 	ldr r1, .L080E481C @ =0x0000082C
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r1, #0x82
 	lsls r1, r1, #4
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r1, #0xfd
 	lsls r1, r1, #3
 	adds r0, r5, r1
@@ -33323,11 +33323,11 @@ func_080E4564: @ 0x080E4564
 	cmp r0, #0
 	beq .L080E480A
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E480A:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -33363,76 +33363,76 @@ func_080E4860: @ 0x080E4860
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
 	bl func_08007C28
 	adds r0, r6, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #1
 	ands r0, r5
 	cmp r0, #0
@@ -33836,7 +33836,7 @@ func_080E4940: @ 0x080E4940
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	cmp r6, r4
 	bne .L080E4C48
 .L080E4C5E:
@@ -33888,7 +33888,7 @@ func_080E4940: @ 0x080E4940
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	cmp r6, r4
 	bne .L080E4CE6
 .L080E4CFC:
@@ -33899,7 +33899,7 @@ func_080E4940: @ 0x080E4940
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r0, .L080E4D4C @ =0x0000071C
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -33907,7 +33907,7 @@ func_080E4940: @ 0x080E4940
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0xe3
 	lsls r1, r1, #3
 	adds r0, r5, r1
@@ -33915,11 +33915,11 @@ func_080E4940: @ 0x080E4940
 	cmp r0, #0
 	beq .L080E4D36
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E4D36:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -33941,12 +33941,12 @@ func_080E4D50: @ 0x080E4D50
 	ldr r1, .L080E4F00 @ =0x00000594
 	adds r0, r4, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r1, #0xb1
 	lsls r1, r1, #3
 	adds r0, r4, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	ldr r1, .L080E4F04 @ =0x00000554
 	adds r0, r4, r1
 	ldr r0, [r0]
@@ -34120,11 +34120,11 @@ func_080E4D50: @ 0x080E4D50
 	cmp r0, #0
 	beq .L080E4EF2
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E4EF2:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -34155,62 +34155,62 @@ func_080E4F34: @ 0x080E4F34
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
 	bl func_08007C28
 	adds r0, r6, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #1
 	ands r0, r5
 	cmp r0, #0
@@ -34235,11 +34235,11 @@ func_080E4FF0: @ 0x080E4FF0
 	lsls r1, r1, #4
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	ldr r1, .L080E5254 @ =0x00000824
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	ldr r1, .L080E5258 @ =0x000007EC
 	adds r0, r5, r1
 	ldr r0, [r0]
@@ -34495,11 +34495,11 @@ func_080E4FF0: @ 0x080E4FF0
 	cmp r0, #0
 	beq .L080E5240
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E5240:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -34594,83 +34594,83 @@ func_080E5324: @ 0x080E5324
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
 	bl func_08007C28
 	adds r0, r6, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #1
 	ands r0, r5
 	cmp r0, #0
@@ -34705,7 +34705,7 @@ func_080E542C: @ 0x080E542C
 	str r0, [r5]
 	movs r4, #4
 	movs r0, #4
-	bl func_08000528
+	bl Irq_Disable
 	ands r4, r0
 	strh r4, [r5, #4]
 	ldr r0, .L080E546C @ =gUnk_03000414
@@ -34716,10 +34716,10 @@ func_080E542C: @ 0x080E542C
 	str r0, [r5, #0xc]
 	ldr r1, .L080E5474 @ =func_080E5418
 	movs r0, #2
-	bl func_080D100C
+	bl Irq_SetHandler
 	str r0, [r5, #0x10]
 	movs r0, #4
-	bl func_0800050C
+	bl Irq_AcknowledgeAndEnable
 	adds r0, r5, #0
 	pop {r4, r5}
 	pop {r1}
@@ -34738,10 +34738,10 @@ func_080E5478: @ 0x080E5478
 	ldr r0, .L080E54B8 @ =vtable_unk_080E857C
 	str r0, [r4, #0x14]
 	movs r0, #4
-	bl func_08000528
+	bl Irq_Disable
 	ldr r1, [r4, #0x10]
 	movs r0, #2
-	bl func_080D100C
+	bl Irq_SetHandler
 	ldr r0, .L080E54BC @ =vtable_unk_080E8594
 	str r0, [r4, #0xc]
 	ldr r1, .L080E54C0 @ =gUnk_03000414
@@ -34750,7 +34750,7 @@ func_080E5478: @ 0x080E5478
 	ldrh r0, [r4, #4]
 	cmp r0, #0
 	beq .L080E54A4
-	bl func_080004F4
+	bl Irq_Enable
 .L080E54A4:
 	movs r0, #1
 	ands r0, r5
@@ -35341,7 +35341,7 @@ func_080E5898: @ 0x080E5898
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	cmp r6, r4
 	bne .L080E58C4
 .L080E58DA:
@@ -35366,7 +35366,7 @@ func_080E5898: @ 0x080E5898
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	cmp r6, r4
 	bne .L080E58F6
 .L080E590C:
@@ -35378,7 +35378,7 @@ func_080E5898: @ 0x080E5898
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #0xa7
 	lsls r0, r0, #2
 	adds r4, r5, r0
@@ -35387,7 +35387,7 @@ func_080E5898: @ 0x080E5898
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0x85
 	lsls r1, r1, #2
 	adds r2, r5, r1
@@ -35423,7 +35423,7 @@ func_080E596C: @ 0x080E596C
 	adds r5, r1, #0
 	adds r0, #0x80
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r1, [r4, #0x7c]
 	cmp r1, #0
 	beq .L080E5992
@@ -35452,7 +35452,7 @@ func_080E596C: @ 0x080E596C
 	str r0, [r4, #0x10]
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -35462,7 +35462,7 @@ func_080E596C: @ 0x080E596C
 	thumb_func_start func_080E59C0
 func_080E59C0: @ 0x080E59C0
 	push {lr}
-	bl func_080A4B6C
+	bl DestroyMapBuffers
 	pop {r0}
 	bx r0
 .align 2, 0

@@ -76,7 +76,7 @@ func_0801004C: @ 0x0801004C
 .L080100DE:
     mov r0, sp
     movs r1, #2
-    bl func_08008A68
+    bl VBlankDispatcher_Destroy
     adds r0, r7, #0
     add sp, #0x1c
     pop {r4, r5, r6, r7}
@@ -91,40 +91,7 @@ func_0801004C: @ 0x0801004C
     .byte 0x40, 0x18, 0x70, 0x47, 0x0C, 0x04, 0x00, 0x03, 0x19, 0x20, 0x70, 0x47, 0x01, 0x48, 0x00, 0x68
     .byte 0x08, 0x30, 0x70, 0x47, 0x0C, 0x04, 0x00, 0x03
 
-    thumb_func_start func_08010158
-func_08010158: @ 0x08010158
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    ldr r0, .L08010198 @ =vtable_unk_080E5BF8
-    str r0, [r4]
-    ldr r1, .L0801019C @ =gUnk_0300040C
-    movs r0, #0
-    str r0, [r1]
-    movs r1, #0xde
-    lsls r1, r1, #2
-    adds r0, r4, r1
-    movs r1, #2
-    bl func_080D7E64
-    adds r0, r4, #0
-    adds r0, #8
-    movs r1, #2
-    bl _._13AScriptEngine
-    ldr r0, [r4, #4]
-    cmp r0, #0
-    beq .L0801018A
-    movs r1, #3
-    bl func_080D4480
-.L0801018A:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl func_080007EC
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08010198: .4byte vtable_unk_080E5BF8
-.L0801019C: .4byte gUnk_0300040C
+    .section .text.tail, "ax"
 .L080101A0:
     .byte 0xF0, 0xB5, 0x47, 0x46, 0x80, 0xB4, 0x06, 0x1C, 0x88, 0x46, 0x2A, 0x48, 0x30, 0x60, 0x09, 0x68
     .byte 0x00, 0x24, 0x40, 0x46, 0x04, 0x60, 0x71, 0x60, 0x30, 0x1C, 0x08, 0x30, 0x2F, 0xF0, 0x22, 0xFB
