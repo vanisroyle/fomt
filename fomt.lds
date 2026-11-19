@@ -925,6 +925,7 @@ SECTIONS
         *(SORT_BY_NAME(.text.message_window.*));
         *(SORT_BY_NAME(.text.festival_results.*));
         asm/code_0803EE94.o(.text.after_festival_scores);
+        *(SORT_BY_NAME(.text.animal_festival.*));
         *(SORT_BY_NAME(.text.f3.*));
         asm/code_0803EE94.o(.text.after_f3);
 
@@ -1148,7 +1149,10 @@ SECTIONS
         src/entity_movement.o(.text.080AB788);
         src/entity_movement.o(.text.080AB7A4);
         src/entity_movement.o(.text.080AB82C);
-        asm/code_809E804.o(.text.080AB85C);
+        src/entity_movement.o(.text.080AB85C);
+        src/entity_movement.o(.text.080AB8D0);
+        src/entity_movement.o(.text.080AB948);
+        src/entity_movement.o(.text.080AB9C4);
         src/entity_movement.o(.text.080ABA3C);
         asm/code_809E804.o(.text.080ABA90);
         src/entity_movement.o(.text.080ABBA0);
@@ -1210,11 +1214,14 @@ SECTIONS
         asm/code_809E804.o(.text.080AE4E4);
         src/chicken_feeding.o(.text.080AE6C0);
         src/chicken_feeding.o(.text.080AE6CC);
-        asm/code_809E804.o(.text.080AE7D0);
+        src/chicken_feeding.o(.text.080AE7D0);
+        asm/code_809E804.o(.text.080AE894);
         src/chicken_feeding.o(.text.080B0934);
         src/chicken_feeding.o(.text.080B0970);
         src/chicken_feeding.o(.text.080B09B0);
         asm/code_809E804.o(.text.080B0AA0);
+        src/chicken_feeding.o(.text.080B1D34);
+        asm/code_809E804.o(.text.080B1D94);
         src/chicken_feeding.o(.text.080B34DC);
         asm/code_809E804.o(.text.080B3518);
         src/g3_chicken_festival.o(.text.g3_080B3948);
