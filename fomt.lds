@@ -1474,6 +1474,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CD950);
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
+        src/g5_navigation.o(.text.g5_080CDB08);
+        asm/code_080C8360.o(.text.g5_after_080CDB08);
         src/g5_navigation.o(.text.g5_080CDD7C);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);
@@ -1508,6 +1510,7 @@ SECTIONS
         src/g5_runtime.o(.text.g5_080D035C);
         src/g5_runtime.o(.text.g5_requests);
         asm/code_080D035C.o(.text.g5_0490);
+        src/g5_buffer_exchange.o(.text.g5_080D0558);
         src/g5_runtime.o(.text.g5_transfer);
         asm/code_080D035C.o(.text.g5_after_transfer);
         src/g5_runtime.o(.text.g5_080D0644);

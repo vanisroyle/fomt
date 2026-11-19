@@ -31546,7 +31546,7 @@ func_080E3A6C: @ 0x080E3A6C
 	adds r1, r2, #0
 	adds r2, r3, #0
 	ldr r3, [sp, #4]
-	bl func_080D0558
+	bl Joybus_QueueBufferExchange
 	pop {r0}
 	bx r0
 	.align 2, 0
