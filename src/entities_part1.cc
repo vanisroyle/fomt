@@ -51,14 +51,6 @@ EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
 EC void func_0802A588(AEntity * self);
 
-struct EntityAnimationState
-{
-    STRUCT_PAD(0x00, 0x0E);
-    u16 frames;
-    i16 count;
-};
-
-EC bool func_0805E894(EntityAnimationState * state);
 EC bool func_080AC070(void * map, Box const * box);
 
 struct BarnAnimalEntity : AActorEntity
@@ -1287,9 +1279,9 @@ EC bool AEntity_IsAnimationFinished(AEntity * self)
     if (self->unk_10.Get() != nullptr)
     {
         bool result = false;
-        EntityAnimationState * state = reinterpret_cast<EntityAnimationState *>(&self->unk_10.Get()->sprite_animator);
-        bool active = state->frames != 0 && state->count != 0;
-        if (!active || func_0805E894(state))
+        SpriteAnimator * state = &self->unk_10.Get()->sprite_animator;
+        bool active = state->remaining_q8 != 0 && state->speed_q8 != 0;
+        if (!active || WillSpriteAnimationLoop(state))
             result = true;
         return result;
     }
