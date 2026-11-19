@@ -191,16 +191,28 @@ struct GameStateEntitySlotVtable
 
 struct GameStateSpriteCacheEntry
 {
-    STRUCT_PAD(0x0, 0x81);
+    STRUCT_PAD(0x0, 0x80);
+    i8 resourceIndex;
     bool active;
     STRUCT_PAD(0x82, 0x84);
+};
+
+struct GameStateSpriteCacheResource
+{
+    STRUCT_PAD(0, 8);
+    u8 spriteSlot;
+    i8 paletteIndex;
+    u8 flags;
+    STRUCT_PAD(0xB, 0xC);
 };
 
 struct GameStateSpriteCache
 {
     u8 slot_ids[32];
     GameStateSpriteCacheEntry entries[22];
-    STRUCT_PAD(0xB78, 0xC18);
+    GameStateSpriteCacheResource resources[13];
+    u8 assignedResources;
+    STRUCT_PAD(0xC15, 0xC18);
 };
 
 struct GameStatePackedSpriteArchive
@@ -251,7 +263,84 @@ struct GameStateMapOwner
 EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
 EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
     GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
-EC i32 func_080AC96C(GameStateSpriteCache & cache, u32 slot);
+EC SECTION(".text.080AC96C") i32 AssignMapSceneSpriteCacheSlot(GameStateSpriteCache & inputCache, u32 slot)
+{
+    register GameStateSpriteCache * receivedCache asm("r0") = &inputCache;
+    register u32 receivedPaletteIndex asm("r1") = slot;
+    register GameStateSpriteCache * cache asm("r4");
+    register u32 paletteIndex asm("r5");
+    asm ("add %0, %2, #0\n\tadd %1, %3, #0" : "=l" (cache), "=l" (paletteIndex) : "l" (receivedCache), "l" (receivedPaletteIndex));
+    register u32 entryOffset asm("r0") = paletteIndex * sizeof(GameStateSpriteCacheEntry);
+    asm ("" : "+l" (entryOffset));
+    register u8 * entryBase asm("r0") = reinterpret_cast<u8 *>(cache) + entryOffset;
+    asm ("" : "+l" (entryBase));
+    register i8 * resourceIndex asm("r6") = reinterpret_cast<i8 *>(entryBase);
+    asm ("" : "+l" (resourceIndex));
+    resourceIndex += offsetof(GameStateSpriteCache, entries) + offsetof(GameStateSpriteCacheEntry, resourceIndex);
+    asm ("" : "+l" (resourceIndex));
+    register unsigned invertedIndex asm("r0") = ~static_cast<u8>(*resourceIndex) << 24;
+    asm ("" : "+l" (invertedIndex));
+    u32 alreadyAssigned = invertedIndex >> 31;
+    asm ("" : "+l" (alreadyAssigned));
+    register GameStateSpriteCacheResource * resource asm("r1");
+    asm volatile ("" : : "X" (&&getSlot), "X" (&&capacityReached));
+    if (!alreadyAssigned)
+        goto assignResource;
+    {
+        register i32 index asm("r2") = *resourceIndex;
+        asm ("" : "+l" (index));
+        register u32 resourcesOffset asm("r0") = offsetof(GameStateSpriteCache, resources);
+        asm ("" : "+l" (resourcesOffset));
+        register u8 * resources asm("r1") = reinterpret_cast<u8 *>(cache) + resourcesOffset;
+        asm ("" : "+l" (resources));
+        register i32 offset asm("r0") = index * sizeof(GameStateSpriteCacheResource);
+        asm ("" : "+l" (offset));
+        resource = reinterpret_cast<GameStateSpriteCacheResource *>(resources + offset);
+        asm ("" : "+l" (resource));
+    }
+getSlot:
+    return resource->spriteSlot;
+assignResource:
+    {
+        register unsigned counterOffset asm("r0") = offsetof(GameStateSpriteCache, assignedResources);
+        asm ("" : "+l" (counterOffset));
+        register u8 * counter asm("r2") = reinterpret_cast<u8 *>(cache) + counterOffset;
+        asm ("" : "+l" (counter));
+        register u32 nextIndex asm("r3") = *counter;
+        asm ("" : "+l" (nextIndex));
+        u32 capacity = ARRAY_COUNT(cache->resources);
+        if (nextIndex < capacity)
+            goto slotAvailable;
+        goto capacityReached;
+    slotAvailable:
+        register u32 newIndex asm("r1") = nextIndex;
+        asm ("" : "+l" (newIndex));
+        *counter = newIndex + 1;
+        register unsigned resourcesOffset asm("r0") = offsetof(GameStateSpriteCache, resources);
+        asm ("" : "+l" (resourcesOffset));
+        register u8 * resources asm("r2") = reinterpret_cast<u8 *>(cache) + resourcesOffset;
+        asm ("" : "+l" (resources));
+        register unsigned offset asm("r0") = newIndex * sizeof(GameStateSpriteCacheResource);
+        asm ("" : "+l" (offset));
+        resource = reinterpret_cast<GameStateSpriteCacheResource *>(resources + offset);
+        asm ("" : "+l" (resource));
+        register i32 previousPalette asm("r0") = resource->paletteIndex;
+        asm ("" : "+l" (previousPalette));
+        if (previousPalette != static_cast<i32>(paletteIndex))
+        {
+            resource->paletteIndex = paletteIndex;
+            resource->flags = alreadyAssigned;
+        }
+        register i32 previousResource asm("r0") = *resourceIndex;
+        asm ("" : "+l" (previousResource));
+        if (previousResource == static_cast<i32>(nextIndex))
+            goto getSlot;
+        *resourceIndex = nextIndex;
+        goto getSlot;
+    }
+capacityReached:
+    return -1;
+}
 
 EC void ApplyMapRow15PatchA(GameStateMapView & view);
 EC void ApplyMapRow15PatchB(GameStateMapView & view);
@@ -383,6 +472,497 @@ EC SECTION(".text.game_state_c2.0801A8C0") u32 GameStateGetTimeOfDayBand(GameSta
     if (hour > 17)
         return 2;
     return 1;
+}
+
+EC AEntity * InitializeScheduledNpc01(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc02(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc03(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc04(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc05(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc06(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc07(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc08(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc09(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc10(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc11(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc12(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc13(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc14(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc15(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc16(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc17(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc18(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc19(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc20(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc21(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc22(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc23(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc24(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc26(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc27(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeCarpenterNpc(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc29(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc30(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeUnscheduledNpcOne(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeUnscheduledNpcTwo(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeUnscheduledNpcThree(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc34(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc25(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+
+EC AEntity * SpawnFarmer(GameStateMapOwner &, GameStateMapData *) asm("NewFarmerMapEntity");
+EC AEntity * SpawnSoldier(void *, GameStateMapOwner &, u32, void *, Farm &) asm("func_08033928");
+EC bool ShouldSpawnDog(void const *) asm("func_0800F190");
+EC u32 DogPlacementState(void const *) asm("func_0800F204");
+EC AEntity * InitDog(void *, GameStateMapOwner &, void *, void *) asm("DogEntity_Init");
+EC AEntity * InitHorse(void *, GameStateMapOwner &, Horse *) asm("HorseEntity_Init");
+
+EC AEntity * MakeArrivalNpc(void *, GameStateMapOwner &, void *, u32) asm("InitializeArrivalReactionNpc");
+EC AEntity * MakeChicken(void *, GameStateMapOwner &, Chicken *) asm("ChickenEntity_Init");
+EC AEntity * MakeCow(void *, GameStateMapOwner &, Cow *) asm("CowEntity_Init");
+EC AEntity * MakeSheep(void *, GameStateMapOwner &, Sheep *) asm("SheepEntity_Init");
+EC AEntity * MakeEgg(void *, GameStateMapOwner &, Location const &) asm("InitializeReactionEntity");
+EC AEntity * MakeTimedReaction(void *, GameStateMapOwner &, void *) asm("InitializeTimedReactionEntity");
+EC AEntity * MakePickupSprite(void *, GameStateMapOwner &, void *) asm("InitializeLaunchedSideSprite");
+EC AEntity * MakeSpecialFieldActor(void *, GameStateMapOwner &, void *) asm("func_080398A4");
+EC AEntity * MakeActiveSceneEffect(GameStateMapOwner &, void *) asm("CreateActiveSideEffectEntity");
+EC AEntity * MakeUpdateEffect(void *, GameStateMapOwner &, void *) asm("InitializeSideEffectEntity");
+EC AEntity * MakeRecordedActor(void *, GameStateMapOwner &, void *) asm("InitializeRecordedSideActor");
+EC void * FindArrivalNpc(void *) asm("GetActiveScheduleNpc");
+EC void * FindDayNpc(void *, u32) asm("GetNpcScheduleDaySlot");
+EC void * FindNightNpc(void *, u32) asm("GetNpcScheduleNightSlot");
+EC void * FindCurrentNpc(void *) asm("GetNpcScheduleCurrentSlot");
+EC void * FindPreviousNpc(void *) asm("GetNpcSchedulePreviousSlot");
+EC AEntity * MakeDayNpc(GameStateMapOwner &, void *, u32) asm("func_08037A5C");
+EC AEntity * MakeNightNpc(GameStateMapOwner &, void *, u32) asm("func_08037AD0");
+EC AEntity * MakeCurrentNpc(GameStateMapOwner &, void *) asm("CreateMovingNpcVariantSeven");
+EC AEntity * MakePreviousNpc(GameStateMapOwner &, void *) asm("CreateMovingNpcVariantSix");
+EC u32 ChickenPlacementIndex(void const *) asm("func_0800F344");
+EC u8 HeldArticleByte(void const *) asm("func_0800F258");
+EC u32 GetHeldArticleId(u8 const *) asm("GetId__C7Article");
+EC bool CanSpawnTimedReaction(void const *) asm("func_0800E934");
+EC bool CanSpawnPickupSprite(void const *) asm("func_0800E940");
+EC void * FindHouseShelf(FarmHouse &) asm("GetShelf__9FarmHouse");
+EC u32 FindShelfArticle(void const *, u32) asm("GetFirstSlotWith__C5ShelfUi");
+EC u32 FindRucksackArticle(void const *, u32) asm("GetFirstSlotWithArticle__C8RucksackUi");
+struct GameStateGlobal;
+extern GameStateGlobal * gActiveGameScene;
+
+EC SECTION(".text.game_state_c2.0801A8E0") void GameStateRespawnActor(GameStateMapOwner & owner, u32 entity_slot)
+{
+    register GameStateMapOwner & game = owner;
+    register u32 slot = entity_slot;
+    AEntity ** entries = owner.entities;
+    AEntity * & entry = entries[entity_slot];
+    if (entry)
+    {
+        delete entry;
+        entry = nullptr;
+    }
+    register AEntity * actor asm("r5") = nullptr;
+    switch (slot)
+    {
+        case 0:
+            actor = SpawnFarmer(game, game.map_data);
+            break;
+        case 43:
+        {
+            register GameStateMapData ** map = &game.map_data;
+            register u8 * state = reinterpret_cast<u8 *>(*map);
+            if (state[0x219C] & 0x10)
+                break;
+            register u8 * placement = state + 0x1C2C;
+            if (!ShouldSpawnDog(placement) && DogPlacementState(placement) == 2)
+                break;
+            void * storage = ::operator new(0x44);
+            u8 * current_state = reinterpret_cast<u8 *>(*map);
+            actor = InitDog(storage, game, current_state + 0x1C70, current_state + 0x1CCC);
+            break;
+        }
+        case 44:
+            if (!(reinterpret_cast<u8 *>(game.map_data)[0x219A] & 2) && !(reinterpret_cast<u8 *>(game.map_data)[0x21A1] & 4))
+                if (Horse * horse = game.map_data->farm.GetHorse())
+                    actor = InitHorse(::operator new(0x40), game, horse);
+            break;
+        case 46: case 47: case 48: case 49: case 50: case 51: case 52: case 53:
+        {
+            u32 index = slot - 46;
+            void * placement = reinterpret_cast<u8 *>(game.map_data) + 0x1C2C;
+            if (!ShouldSpawnDog(placement) && DogPlacementState(placement) == 3 && ChickenPlacementIndex(placement) == index)
+                break;
+            if (index == game.map_data->farm.coop.GetUnkEnt() || index >= game.map_data->farm.coop.GetCapacity())
+                break;
+            if (Chicken * chicken = game.map_data->farm.coop.GetChicken(index))
+                actor = MakeChicken(::operator new(0x3C), game, chicken);
+            break;
+        }
+        case 54: case 55: case 56: case 57: case 58: case 59: case 60: case 61:
+        case 62: case 63: case 64: case 65: case 66: case 67: case 68: case 69:
+        {
+            register u32 index = slot - 54;
+            register u32 sheep_index asm("r9") = index;
+            asm("" : : "r"(sheep_index));
+            register GameStateMapData ** map = &game.map_data;
+            if (index == (*map)->farm.barn.method_0800D058() || index >= (*map)->farm.barn.GetCapacity())
+                break;
+            register Cow * cow = (*map)->farm.barn.GetCow(index);
+            if (cow)
+                actor = MakeCow(::operator new(0x3C), game, cow);
+            else if (Sheep * sheep = (*map)->farm.barn.GetSheep(sheep_index))
+                actor = MakeSheep(::operator new(0x3C), game, sheep);
+            break;
+        }
+        case 76: case 77: case 78: case 79: case 80: case 81: case 82: case 83:
+        {
+            u32 index = slot - 76;
+            if (index < game.map_data->farm.coop.GetCapacity())
+                if (Coop::Egg const * egg = game.map_data->farm.coop.GetEgg(index))
+                    actor = MakeEgg(::operator new(0x18), game, egg->location);
+            break;
+        }
+        case 75:
+        {
+            if (!CanSpawnPickupSprite(reinterpret_cast<u8 *>(game.map_data) + 0x1BD8))
+                break;
+            void * placement = reinterpret_cast<u8 *>(game.map_data) + 0x1C2C;
+            if (!ShouldSpawnDog(placement) && DogPlacementState(placement) == 1)
+            {
+                u8 held_article = HeldArticleByte(placement);
+                if (GetHeldArticleId(&held_article) == 0x35)
+                    break;
+            }
+            GameStateMapData ** state = &game.map_data;
+            register u32 found = FindRucksackArticle(reinterpret_cast<u8 *>(*state) + 0x1C38, 0x35);
+            if (found != static_cast<u32>(-1))
+                break;
+            void * shelf = FindHouseShelf((*state)->farm.farm_house);
+            if (shelf && FindShelfArticle(shelf, 0x35) != found)
+                break;
+            void * storage = ::operator new(0x2C);
+            actor = MakePickupSprite(storage, game, reinterpret_cast<u8 *>(*state) + 0x1CCC);
+            break;
+        }
+        case 74:
+        {
+            if (!CanSpawnTimedReaction(reinterpret_cast<u8 *>(game.map_data) + 0x1BD8))
+                break;
+            void * placement = reinterpret_cast<u8 *>(game.map_data) + 0x1C2C;
+            if (!ShouldSpawnDog(placement) && DogPlacementState(placement) == 4)
+                break;
+            actor = MakeTimedReaction(::operator new(0x1C), game, reinterpret_cast<u8 *>(game.map_data) + 0x1CA0);
+            break;
+        }
+        case 36:
+            actor = SpawnSoldier(::operator new(0x44), game, 0, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 37:
+            actor = SpawnSoldier(::operator new(0x44), game, 1, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 38:
+            actor = SpawnSoldier(::operator new(0x44), game, 2, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 39:
+            actor = SpawnSoldier(::operator new(0x44), game, 3, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 40:
+            actor = SpawnSoldier(::operator new(0x44), game, 4, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 41:
+            actor = SpawnSoldier(::operator new(0x44), game, 5, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 42:
+            actor = SpawnSoldier(::operator new(0x44), game, 6, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 1:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc01(storage, game, state + 0x1D44, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 2:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc02(storage, game, state + 0x1D58, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 3:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc03(storage, game, state + 0x1D6C, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 4:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc04(storage, game, state + 0x1D84, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 5:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc05(storage, game, state + 0x1D98, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 6:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc06(storage, game, state + 0x1DAC, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 7:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc07(storage, game, state + 0x1DC4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 8:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc08(storage, game, state + 0x1DD8, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 9:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc09(storage, game, state + 0x1DEC, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 10:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc10(storage, game, state + 0x1E00, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 11:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc11(storage, game, state + 0x1E14, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 12:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc12(storage, game, state + 0x1E28, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 13:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc13(storage, game, state + 0x1E40, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 14:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc14(storage, game, state + 0x1E54, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 15:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc15(storage, game, state + 0x1E68, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 16:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc16(storage, game, state + 0x1E7C, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 17:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc17(storage, game, state + 0x1E90, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 18:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc18(storage, game, state + 0x1EA4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 19:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc19(storage, game, state + 0x1EB8, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 20:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc20(storage, game, state + 0x1ED0, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 21:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc21(storage, game, state + 0x1EE4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 22:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc22(storage, game, state + 0x1EFC, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 23:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc23(storage, game, state + 0x1F10, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 24:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc24(storage, game, state + 0x1F24, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 25:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc26(storage, game, state + 0x1F38, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 26:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc27(storage, game, state + 0x1F50, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 27:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeCarpenterNpc(storage, game, state + 0x1F64, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 28:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc29(storage, game, state + 0x1F7C, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 29:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc30(storage, game, state + 0x1F90, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 30:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeUnscheduledNpcOne(storage, game, state + 0x1FA4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 31:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeUnscheduledNpcTwo(storage, game, state + 0x1FB8, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 32:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeUnscheduledNpcThree(storage, game, state + 0x1FD0, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 33:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc34(storage, game, state + 0x1FE4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 34:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc25(storage, game, state + 0x1FFC, reinterpret_cast<u32>(state));
+            break;
+        }
+
+        case 35:
+        {
+            void * npc = FindArrivalNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4);
+            if (npc)
+                actor = MakeArrivalNpc(::operator new(0x4C), game, npc, reinterpret_cast<u32>(game.map_data));
+            break;
+        }
+        case 84:
+            actor = MakeActiveSceneEffect(game, reinterpret_cast<u8 *>(game.map_data) + 0x3494);
+            break;
+        case 45:
+            actor = MakeSpecialFieldActor(::operator new(0x54), game, reinterpret_cast<u8 *>(game.map_data) + 0x34DC);
+            break;
+        case 70: case 71: case 72: case 73:
+        {
+            register u32 index asm("r5") = slot - 70;
+            asm("" : : "l"(index));
+            u8 * records = reinterpret_cast<u8 *>(gActiveGameScene) + 0x524;
+            actor = MakeRecordedActor(::operator new(0x34), game, records + index * 12);
+            break;
+        }
+        case 85: case 86: case 87:
+        {
+            u32 index = slot - 85;
+            actor = MakeDayNpc(game, FindDayNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, index), index);
+            break;
+        }
+        case 88: case 89: case 90:
+        {
+            u32 index = slot - 88;
+            actor = MakeNightNpc(game, FindNightNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, index), index);
+            break;
+        }
+        case 91:
+            actor = MakeCurrentNpc(game, FindCurrentNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4));
+            break;
+        case 92:
+            actor = MakePreviousNpc(game, FindPreviousNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4));
+            break;
+        case 93:
+            actor = MakeUpdateEffect(::operator new(0x1C), game, reinterpret_cast<u8 *>(game.map_data) + 0x214C);
+            break;
+    }
+    asm("" : : "l"(actor));
+    if (actor)
+    {
+        register AEntity ** entries asm("r0") = game.entities;
+        register u32 offset asm("r1") = slot * sizeof(*entries);
+        asm("" : "=l"(entries) : "0"(entries));
+        *reinterpret_cast<AEntity **>(reinterpret_cast<u8 *>(entries) + offset) = actor;
+        actor->vfunc_10();
+    }
 }
 
 EC SECTION(".text.game_state_c2.0801C0E0") void GameStateRequestDayUpdate(GameStateMapOwner & game, bool skip_events)
@@ -1372,7 +1952,7 @@ EC SECTION(".text.game_state_c2.0801FCB4") i32 GameStateGetCachedSpriteSlot(Game
     i32 sprite_slot = cached - 0x10;
     if (sprite_slot < 0)
     {
-        sprite_slot = func_080AC96C(cache, slot);
+        sprite_slot = AssignMapSceneSpriteCacheSlot(cache, slot);
         cached = sprite_slot + 0x10;
     }
     return sprite_slot;
