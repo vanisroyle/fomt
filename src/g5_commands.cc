@@ -5,7 +5,7 @@
 EC void * func_080D3BC0(u32);
 EC void func_080E586C(CommandList *);
 EC void func_080073E0(void *, u32);
-EC void func_08007184(void *, u32);
+EC void ResourceHandles_Destroy(void *, u32);
 EC void func_08007C28(void *, u32);
 EC void func_080079E8(void *, u32);
 EC u8 vtable_unk_080E85CC[];
@@ -79,7 +79,7 @@ EC SECTION(".text.g5_080CE3DC") void DestroyPagedPanelDrawCommands(u8 * self, u3
     *(void **) (self + 0x1c) = vtable_unk_080E5A28;
     u32 * palette = (u32 *) (self + 0x14);
     func_080073E0(palette, palette[1]);
-    func_08007184(palette, 2);
+    ResourceHandles_Destroy(palette, 2);
     u32 * tiles = (u32 *) (self + 0xc);
     func_08007C28(tiles, tiles[1]);
     func_080079E8(tiles, 2);
@@ -111,7 +111,7 @@ struct TileCommand { u8 data[0x20]; };
 struct NumberCommand { u8 data[0x1c]; };
 EC DrawCommand * func_0804EA58(void *, void *, u16, u32, u32, u16, u32);
 EC DrawCommand * func_0804EE64(void *, u32, void *, u16, u16, u32);
-EC DrawCommand * func_08008940(void *);
+EC DrawCommand * HardwareContext_GetFrameTasks(void *);
 
 EC SECTION(".text.g5_080CAE60") void QueuePanelTileDraw(u8 * self, void * destination, u16 tile, u32 width, u32 height, u16 palette, u32 stride) // 0x080CAE60
 {
@@ -133,7 +133,7 @@ EC SECTION(".text.g5_080CE480") void QueuePagedPanelTileDraw(u8 * self, void * d
 {
     DrawCommand * command = func_0804EA58(new TileCommand, destination, tile, width, height, palette, stride);
     InsertCommand(CommandIterator(((CommandList *) (self + 0xc0))->sentinel), command);
-    DrawCommand * owner = func_08008940(*(void **) self);
+    DrawCommand * owner = HardwareContext_GetFrameTasks(*(void **) self);
     owner->vtable->add(owner, command);
 }
 
@@ -141,6 +141,6 @@ EC SECTION(".text.g5_080CE480") void QueuePagedPanelNumberDraw(u8 * self, u32 va
 {
     DrawCommand * command = func_0804EE64(new NumberCommand, value, destination, style, palette, stride);
     InsertCommand(CommandIterator(((CommandList *) (self + 0xc0))->sentinel), command);
-    DrawCommand * owner = func_08008940(*(void **) self);
+    DrawCommand * owner = HardwareContext_GetFrameTasks(*(void **) self);
     owner->vtable->add(owner, command);
 }
