@@ -1,5 +1,6 @@
 #include "prelude.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 struct MessageWindow;
@@ -29,7 +30,9 @@ struct ChickenFeedingScene
     STRUCT_PAD(0x708, 0x810);
     u32 messageAudio;
     u32 effectsTrack;
-    STRUCT_PAD(0x818, 0x838);
+    STRUCT_PAD(0x818, 0x81C);
+    u32 feedingRewardTrack;
+    STRUCT_PAD(0x820, 0x838);
     u32 phase;
     u32 inputPhase;
     u32 resultPhase;
@@ -41,7 +44,7 @@ struct ChickenFeedingScene
     ChickenFeedingResource resources[11];
     u8 spriteY;
     u8 chickenY[5];
-    STRUCT_PAD(0x8E6, 0x8F0);
+    u16 chickenDelay[5];
     u16 chickenOffsets[5];
     u8 actionTimer;
     STRUCT_PAD(0x8FB, 0x8FC);
@@ -818,4 +821,308 @@ EC SECTION(".text.080B1D34") void RunChickenFeedingTransition(ChickenFeedingScen
         }
         while (*phase == 2);
     }
+}
+
+EC SECTION(".text.080B36B4") void UpdateChickenFeedingChickens(ChickenFeedingScene & feedingScene)
+{
+    register ChickenFeedingScene * initialScene asm("r5") = &feedingScene;
+    asm ("" : "+l" (initialScene));
+    int chickenIndex = 0;
+    ChickenFeedingScene * scene = initialScene;
+    do
+    {
+        register unsigned resetOffset asm("r1") = offsetof(ChickenFeedingScene, resetChickenTimer);
+        asm ("" : "+l" (resetOffset));
+        register u8 * resetFlags asm("r0") = reinterpret_cast<u8 *>(scene) + resetOffset;
+        asm ("" : "+l" (resetFlags));
+        register u8 * reset asm("r6");
+        asm ("add %0, %1, %2" : "=l" (reset) : "l" (resetFlags), "l" (chickenIndex) : "cc");
+        if (*reset)
+        {
+            register int delayRange asm("r4") = 180;
+            asm ("" : "+l" (delayRange));
+            register unsigned randomSample asm("r0") = static_cast<u16>(rand());
+            asm ("" : "+l" (randomSample));
+            register int delay asm("r1") = randomSample;
+            asm ("" : "+l" (delay));
+            delay *= delayRange;
+            asm ("" : "+l" (delay));
+            delay >>= 16;
+            asm ("" : "+l" (delay));
+            register unsigned chickenOffset asm("r2") = chickenIndex * sizeof(u16);
+            asm ("" : "+l" (chickenOffset));
+            register unsigned delayOffset asm("r3") = offsetof(ChickenFeedingScene, chickenDelay);
+            asm ("" : "+l" (delayOffset));
+            register u8 * delays asm("r0") = reinterpret_cast<u8 *>(scene) + delayOffset;
+            asm ("" : "+l" (delays));
+            register u16 * timer asm("r0") = reinterpret_cast<u16 *>(delays + chickenOffset);
+            asm ("" : "+l" (timer));
+            register unsigned clear asm("r2") = 0;
+            asm ("" : "+l" (clear));
+            *timer = delay + 180;
+            *reset = clear;
+        }
+        unsigned wordOffset = chickenIndex * sizeof(u32);
+        asm ("" : : "l" (wordOffset));
+        register unsigned phaseField asm("r4") = offsetof(ChickenFeedingScene, chickenPhase);
+        asm ("" : "+l" (phaseField));
+        register u8 * phases asm("r1") = reinterpret_cast<u8 *>(scene) + phaseField;
+        asm ("" : "+l" (phases));
+        switch (*reinterpret_cast<u32 *>(phases + wordOffset))
+        {
+        case 3:
+        {
+            register unsigned yOffset asm("r6") = offsetof(ChickenFeedingScene, chickenY);
+            asm ("" : "+l" (yOffset));
+            register u8 * yBase asm("r0") = reinterpret_cast<u8 *>(scene) + yOffset;
+            asm ("" : "+l" (yBase));
+            register u8 * y asm("r1");
+            asm ("add %0, %1, %2" : "=l" (y) : "l" (yBase), "l" (chickenIndex) : "cc");
+            unsigned currentY = *y;
+            if (currentY > 112)
+                *y = currentY - 1;
+            if (*y != 112)
+                break;
+            register unsigned chickenPhaseField asm("r1") = offsetof(ChickenFeedingScene, chickenPhase);
+            asm ("" : "+l" (chickenPhaseField));
+            register u32 * chickenPhaseEntry asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(scene) + chickenPhaseField);
+            asm ("" : "+l" (chickenPhaseEntry));
+            chickenPhaseEntry += chickenIndex;
+            register unsigned one asm("r3") = 1;
+            asm ("" : "+l" (one));
+            *chickenPhaseEntry = one;
+            register unsigned chickenReactionField asm("r2") = offsetof(ChickenFeedingScene, chickenReaction);
+            asm ("" : "+l" (chickenReactionField));
+            register u32 * chickenReactionEntry asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(scene) + chickenReactionField);
+            asm ("" : "+l" (chickenReactionEntry));
+            chickenReactionEntry += chickenIndex;
+            *chickenReactionEntry = 2;
+            register unsigned resetChickenTimerField asm("r4") = offsetof(ChickenFeedingScene, resetChickenTimer);
+            asm ("" : "+l" (resetChickenTimerField));
+            register u8 * resetChickenTimerEntry asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + resetChickenTimerField);
+            asm ("" : "+l" (resetChickenTimerEntry));
+            asm ("add %0, %0, %1" : "+l" (resetChickenTimerEntry) : "l" (chickenIndex) : "cc");
+            register unsigned zero asm("r2") = 0;
+            asm ("" : "+l" (zero));
+            *resetChickenTimerEntry = one;
+            register unsigned halfwordIndex asm("r1") = chickenIndex * sizeof(u16);
+            asm ("" : "+l" (halfwordIndex));
+            register unsigned chickenOffsetsField asm("r6") = offsetof(ChickenFeedingScene, chickenOffsets);
+            asm ("" : "+l" (chickenOffsetsField));
+            register u16 * chickenOffsetsEntry asm("r0") = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(scene) + chickenOffsetsField);
+            asm ("" : "+l" (chickenOffsetsEntry));
+            asm ("add %0, %0, %1" : "+l" (chickenOffsetsEntry) : "l" (halfwordIndex) : "cc");
+            *chickenOffsetsEntry = zero;
+            register unsigned refreshChickenField asm("r1") = offsetof(ChickenFeedingScene, refreshChicken);
+            asm ("" : "+l" (refreshChickenField));
+            register u8 * refreshChickenEntry asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + refreshChickenField);
+            asm ("" : "+l" (refreshChickenEntry));
+            asm ("add %0, %0, %1" : "+l" (refreshChickenEntry) : "l" (chickenIndex) : "cc");
+            *refreshChickenEntry = one;
+            register unsigned refreshReactionField asm("r2") = offsetof(ChickenFeedingScene, refreshReaction);
+            asm ("" : "+l" (refreshReactionField));
+            register u8 * refreshReactionEntry asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + refreshReactionField);
+            asm ("" : "+l" (refreshReactionEntry));
+            asm ("add %0, %0, %1" : "+l" (refreshReactionEntry) : "l" (chickenIndex) : "cc");
+            *refreshReactionEntry = one;
+            break;
+        }
+        case 4:
+        {
+            register unsigned yOffset asm("r3") = offsetof(ChickenFeedingScene, chickenY);
+            asm ("" : "+l" (yOffset));
+            register u8 * y asm("r1") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + yOffset);
+            asm ("" : "+l" (y));
+            y += chickenIndex;
+            asm ("" : "+l" (y));
+            if (++*y != 168)
+                break;
+            register unsigned phaseField asm("r6") = offsetof(ChickenFeedingScene, chickenPhase);
+            asm ("" : "+l" (phaseField));
+            register u32 * phase asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(scene) + phaseField);
+            asm ("" : "+l" (phase));
+            phase += chickenIndex;
+            *phase = 5;
+            register unsigned reactionField asm("r1") = offsetof(ChickenFeedingScene, chickenReaction);
+            asm ("" : "+l" (reactionField));
+            register u32 * reaction asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(scene) + reactionField);
+            asm ("" : "+l" (reaction));
+            reaction += chickenIndex;
+            register unsigned refresh asm("r2") = 1;
+            asm ("" : "+l" (refresh));
+            *reaction = refresh;
+            yOffset += offsetof(ChickenFeedingScene, missedFeedings) - offsetof(ChickenFeedingScene, chickenY);
+            asm ("" : "+l" (yOffset));
+            register u8 * misses asm("r1") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + yOffset);
+            asm ("" : "+l" (misses));
+            ++*misses;
+            register unsigned refreshOffset asm("r4") = offsetof(ChickenFeedingScene, refreshChicken);
+            asm ("" : "+l" (refreshOffset));
+            register u8 * refreshChicken asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + refreshOffset);
+            asm ("" : "+l" (refreshChicken));
+            refreshChicken += chickenIndex;
+            asm ("" : "+l" (refreshChicken));
+            *refreshChicken = refresh;
+            phaseField += offsetof(ChickenFeedingScene, refreshReaction) - offsetof(ChickenFeedingScene, chickenPhase);
+            asm ("" : "+l" (phaseField));
+            register u8 * refreshReaction asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + phaseField);
+            asm ("" : "+l" (refreshReaction));
+            refreshReaction += chickenIndex;
+            asm ("" : "+l" (refreshReaction));
+            *refreshReaction = refresh;
+            register unsigned soundOffset asm("r1") = offsetof(ChickenFeedingScene, effectsTrack);
+            asm ("" : "+l" (soundOffset));
+            register u8 * audio asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + soundOffset);
+            asm ("" : "+l" (audio));
+            AudioPlayer_StartSong(audio, 0xc7);
+            break;
+        }
+        case 6:
+        {
+            register unsigned timerIndex asm("r1") = chickenIndex * sizeof(u16);
+            asm ("" : "+l" (timerIndex));
+            register unsigned timerOffset asm("r2") = offsetof(ChickenFeedingScene, chickenTimers);
+            asm ("" : "+l" (timerOffset));
+            register u8 * timers asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + timerOffset);
+            asm ("" : "+l" (timers));
+            register u16 * timer asm("r2") = reinterpret_cast<u16 *>(timers + timerIndex);
+            asm ("" : "+l" (timer));
+            register unsigned ticks asm("r1") = *timer + 1;
+            asm ("" : "+l" (ticks));
+            register unsigned clearTimer asm("r3") = 0;
+            asm ("" : "+l" (clearTimer));
+            *timer = ticks;
+            if (static_cast<u16>(ticks) == 300)
+            {
+                *timer = clearTimer;
+                register unsigned phaseField asm("r3") = offsetof(ChickenFeedingScene, chickenPhase);
+                asm ("" : "+l" (phaseField));
+                register u32 * phase asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(scene) + phaseField);
+                asm ("" : "+l" (phase));
+                phase += chickenIndex;
+                *phase = 3;
+                register unsigned refreshOffset asm("r4") = offsetof(ChickenFeedingScene, refreshChicken);
+                asm ("" : "+l" (refreshOffset));
+                register u8 * refresh asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + refreshOffset);
+                asm ("" : "+l" (refresh));
+                refresh += chickenIndex;
+                asm ("" : "+l" (refresh));
+                *refresh = 1;
+            }
+            break;
+        }
+        case 1:
+        {
+            unsigned slotOffset = chickenIndex * sizeof(u16);
+            asm ("" : : "l" (slotOffset));
+            register unsigned timerField asm("r6") = offsetof(ChickenFeedingScene, chickenOffsets);
+            asm ("" : "+l" (timerField));
+            register u8 * timers asm("r0") = reinterpret_cast<u8 *>(scene) + timerField;
+            asm ("" : "+l" (timers));
+            register u16 * timer asm("r3") = reinterpret_cast<u16 *>(timers + slotOffset);
+            asm ("" : "+l" (timer));
+            register unsigned ticks asm("r1") = *timer + 1;
+            asm ("" : "+l" (ticks));
+            register unsigned clearedFlagLow asm("r0") = 0;
+            asm ("" : "+l" (clearedFlagLow));
+            register unsigned clearedFlag asm("ip") = clearedFlagLow;
+            asm ("" : "+h" (clearedFlag));
+            register unsigned clearedTimerLow asm("r6") = 0;
+            asm ("" : "+l" (clearedTimerLow));
+            register unsigned clearedTimer asm("r8") = clearedTimerLow;
+            asm ("" : "+h" (clearedTimer));
+            *timer = ticks;
+            if (static_cast<u16>(ticks) == (scene->chickenDelay[chickenIndex] >> 1))
+            {
+                register unsigned zero asm("r0") = clearedTimer;
+                asm ("" : "+l" (zero));
+                *timer = zero;
+                scene->chickenPhase[chickenIndex] = 2;
+                register unsigned animationOffset asm("r2") = offsetof(ChickenFeedingScene, chickenEffect);
+                asm ("" : "+l" (animationOffset));
+                register u32 * animation asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(scene) + animationOffset);
+                asm ("" : "+l" (animation));
+                animation += chickenIndex;
+                *animation = 1;
+                register unsigned refreshOffset asm("r3") = offsetof(ChickenFeedingScene, refreshChicken);
+                asm ("" : "+l" (refreshOffset));
+                register u8 * refresh asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + refreshOffset);
+                asm ("" : "+l" (refresh));
+                refresh += chickenIndex;
+                asm ("" : "+l" (refresh));
+                *refresh = 1;
+            }
+            {
+                register unsigned effectOffset asm("r4") = offsetof(ChickenFeedingScene, refreshEffect);
+                asm ("" : "+l" (effectOffset));
+                register u8 * effectBase asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + effectOffset);
+                asm ("" : "+l" (effectBase));
+                register u8 * effect asm("r2") = effectBase + chickenIndex;
+                asm ("" : "+l" (effect));
+                if (*effect)
+                {
+                    register unsigned feedingCountOffset asm("r6") = offsetof(ChickenFeedingScene, feedingCount);
+                    asm ("" : "+l" (feedingCountOffset));
+                    register u8 * feedingCount asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + feedingCountOffset);
+                    asm ("" : "+l" (feedingCount));
+                    ++*feedingCount;
+                    register unsigned zeroFlag asm("r1") = clearedFlag;
+                    asm ("" : "+l" (zeroFlag));
+                    *effect = zeroFlag;
+                    if (*feedingCount > 5)
+                    {
+                        register unsigned soundOffset asm("r2") = offsetof(ChickenFeedingScene, feedingRewardTrack);
+                        asm ("" : "+l" (soundOffset));
+                        register u8 * audio asm("r0") = reinterpret_cast<u8 *>(reinterpret_cast<u8 *>(scene) + soundOffset);
+                        asm ("" : "+l" (audio));
+                        AudioPlayer_StartSong(audio, 0xbc);
+                    }
+                }
+            }
+            break;
+        }
+        case 2:
+        {
+            unsigned slotOffset = chickenIndex * sizeof(u16);
+            asm ("" : : "l" (slotOffset));
+            register unsigned timerField asm("r3") = offsetof(ChickenFeedingScene, chickenOffsets);
+            asm ("" : "+l" (timerField));
+            register u8 * timers asm("r0") = reinterpret_cast<u8 *>(scene) + timerField;
+            asm ("" : "+l" (timers));
+            register u16 * timer asm("r3") = reinterpret_cast<u16 *>(timers + slotOffset);
+            asm ("" : "+l" (timer));
+            register unsigned ticks asm("r1") = *timer + 1;
+            asm ("" : "+l" (ticks));
+            register unsigned clearedTimerLow asm("r6") = 0;
+            asm ("" : "+l" (clearedTimerLow));
+            register unsigned clearedTimer asm("r8") = clearedTimerLow;
+            asm ("" : "+h" (clearedTimer));
+            *timer = ticks;
+            if (static_cast<u16>(ticks) == (scene->chickenDelay[chickenIndex] >> 1))
+            {
+                register unsigned zero asm("r0") = clearedTimer;
+                asm ("" : "+l" (zero));
+                *timer = zero;
+                scene->chickenPhase[chickenIndex] = 4;
+                register unsigned animationOffset asm("r2") = offsetof(ChickenFeedingScene, chickenEffect);
+                asm ("" : "+l" (animationOffset));
+                register u32 * animation asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(scene) + animationOffset);
+                asm ("" : "+l" (animation));
+                animation += chickenIndex;
+                *animation = 2;
+                register unsigned refreshOffset asm("r3") = offsetof(ChickenFeedingScene, refreshChicken);
+                asm ("" : "+l" (refreshOffset));
+                register u8 * refresh asm("r0") = reinterpret_cast<u8 *>(scene) + refreshOffset;
+                asm ("" : "+l" (refresh));
+                refresh += chickenIndex;
+                asm ("" : "+l" (refresh));
+                *refresh = 1;
+                register unsigned soundOffset asm("r4") = offsetof(ChickenFeedingScene, effectsTrack);
+                asm ("" : "+l" (soundOffset));
+                AudioPlayer_StartSong(reinterpret_cast<u8 *>(scene) + soundOffset, 0xa6);
+            }
+            break;
+        }
+        }
+    } while (++chickenIndex < 5);
 }
