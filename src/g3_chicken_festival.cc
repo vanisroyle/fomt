@@ -76,7 +76,7 @@ EC void func_080007EC(void *, u32);
 EC void func_08008B6C(void *, u32);
 EC void func_080B0934(void *);
 EC void func_080B0970(void *);
-EC void func_08050D8C(void *, char const *);
+EC void SetMessageWindowText(void *, char const *);
 EC u16 gUnk_08107ACC[4][6];
 EC u8 gUnk_08107AFC[];
 EC char gUnk_08107B28[], gUnk_08107B5C[], gUnk_08107C18[];
@@ -245,11 +245,11 @@ EC SECTION(".text.g3_080BA574") void ShowFestivalInstructionPage(u8 * state, u32
 {
     switch (page)
     {
-    case 1: func_08050D8C(*(void **) (state + 0x718), gUnk_08107B28); break;
-    case 2: func_08050D8C(*(void **) (state + 0x718), gUnk_08107B5C); break;
-    case 3: func_08050D8C(*(void **) (state + 0x718), gUnk_08107C18); break;
-    case 4: func_08050D8C(*(void **) (state + 0x718), gUnk_08107CB0); break;
-    case 5: func_08050D8C(*(void **) (state + 0x718), gUnk_08107CE0); break;
+    case 1: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107B28); break;
+    case 2: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107B5C); break;
+    case 3: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107C18); break;
+    case 4: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107CB0); break;
+    case 5: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107CE0); break;
     }
 }
 
