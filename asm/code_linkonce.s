@@ -15141,7 +15141,7 @@ func_080DB96C: @ 0x080DB96C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl InitializeAnimalFestivalController
+	bl InitializeFrisbeeController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -27369,7 +27369,7 @@ func_080E1A70: @ 0x080E1A70
 	add r6, sp, #0x10
 	adds r0, r6, #0
 	movs r3, #0x10
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r4]
 	cmp r2, #0x7f
 	bhi .L080E1B32
@@ -27462,7 +27462,7 @@ func_080E1A70: @ 0x080E1A70
 	add r5, sp, #0x18
 	adds r0, r5, #0
 	movs r3, #5
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r4]
 	cmp r2, #0x7f
 	bhi .L080E1BE6
@@ -27628,7 +27628,7 @@ func_080E1C70: @ 0x080E1C70
 	add r6, sp, #0x10
 	adds r0, r6, #0
 	movs r3, #5
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r4]
 	cmp r2, #0x7f
 	bhi .L080E1D2A

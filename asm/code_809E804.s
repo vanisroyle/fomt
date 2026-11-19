@@ -15678,7 +15678,7 @@ func_080AE894: @ 0x080AE894
 	ldr r0, [sp, #0xc0]
 	movs r1, #0xd0
 	movs r2, #8
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x7c]
 	ldr r1, [sp, #0x80]
 	str r0, [r4]
@@ -22892,7 +22892,7 @@ func_080B2114: @ 0x080B2114
 	str r0, [sp, #0xc]
 	add r0, sp, #0x78
 	movs r1, #0x78
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x78]
 	ldr r1, [sp, #0x7c]
 	b .L080B253C
@@ -22916,7 +22916,7 @@ func_080B2114: @ 0x080B2114
 	add r0, sp, #0x80
 	movs r1, #0xb8
 	movs r2, #0x8d
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x80]
 	ldr r1, [sp, #0x84]
 .L080B253C:
@@ -41625,7 +41625,7 @@ func_080BD064: @ 0x080BD064
 	ldr r0, [sp, #0xa0]
 	movs r1, #0xd0
 	movs r2, #8
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x54]
 	ldr r1, [sp, #0x58]
 	str r0, [r4]
@@ -47420,7 +47420,7 @@ func_080BF764: @ 0x080BF764
 	str r0, [sp, #0xc]
 	add r0, sp, #0x80
 	movs r1, #0x68
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x80]
 	ldr r1, [sp, #0x84]
 	b .L080BFF8E
@@ -47444,7 +47444,7 @@ func_080BF764: @ 0x080BF764
 	add r0, sp, #0x88
 	movs r1, #0xb8
 	movs r2, #0x8d
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x88]
 	ldr r1, [sp, #0x8c]
 .L080BFF8E:
@@ -50613,7 +50613,7 @@ func_080C16D4: @ 0x080C16D4
 	ldr r0, [sp, #0xc0]
 	movs r1, #0xd0
 	movs r2, #8
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x54]
 	ldr r1, [sp, #0x58]
 	str r0, [r4]
@@ -60547,7 +60547,7 @@ func_080C608C: @ 0x080C608C
 	str r0, [sp, #0xc]
 	add r0, sp, #0x84
 	movs r1, #0x78
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x84]
 	ldr r1, [sp, #0x88]
 	b .L080C677C
@@ -60571,7 +60571,7 @@ func_080C608C: @ 0x080C608C
 	add r0, sp, #0x8c
 	movs r1, #0xc8
 	movs r2, #0x8d
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	add r0, sp, #0x8c
 	ldr r1, [r0, #4]
 	ldr r0, [r0]
