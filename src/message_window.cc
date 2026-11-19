@@ -158,6 +158,37 @@ struct MessagePortraitClips
     MessagePortraitClip * entries;
 };
 
+struct PACKED MessageGraphicsFlags
+{
+    u32 screenBase : 5;
+    u32 firstTile : 10;
+    u32 palette : 4;
+    u32 spritePalette : 4;
+    u32 unused : 9;
+};
+struct MessageWindowGraphics
+{
+    u32 unknown[3];
+    MessageGraphicsFlags flags;
+};
+struct MessageGraphicsFrame
+{
+    u32 unknown[4];
+    const void * palette;
+    u32 tail[3];
+};
+struct MessageWindowGraphicsScratch
+{
+    u32 fill;
+    MessageGraphicsFrame frame;
+    MessagePortraitResources resources;
+};
+
+EC void DrawMessageFrame(u16 *, u32, u32, u32, u32, u32, u32);
+EC const void * gUnk_080F9F78;
+EC const u8 gUnk_08728208[];
+EC void func_0805E790(MessageGraphicsFrame *, MessagePortraitResources *, u32);
+
 EC void func_0805E6CC(MessagePortraitResources *, void const *);
 EC u8 const gUnk_0852D984[];
 EC void func_0805E860(void *, u32);
@@ -884,4 +915,40 @@ EC SECTION(".text.message_rendering.0804EF20") bool RunMessageTileCopyCommand(Me
     }
     CpuFastSet(source, destination, command->tileCount * 8);
     return false;
+}
+
+inline void FillMessageGraphicsMap(void * destination, u32 count, u32 pattern, u32 & fill)
+{
+    fill = pattern;
+    CpuFastSet(&fill, destination, count | 0x1000000);
+}
+
+inline void LoadMessageFramePalette(u32 bank)
+{
+    CpuFastSet(gUnk_080F9F78, (void *) (0x5000000 + bank * 32), 8);
+}
+
+EC SECTION(".text.message_rendering.0804F19C") u32 LoadMessageWindowGraphics(MessageWindowGraphics * graphics)
+{
+    MessageWindowGraphicsScratch scratch;
+    u16 tile = ((graphics->flags.firstTile + 3) & 0x3ff) | (graphics->flags.palette << 12);
+    u32 pattern = tile | (tile << 16);
+    FillMessageGraphicsMap((void *) (0x6000000 + graphics->flags.screenBase * 0x800), 0xa0, pattern, scratch.fill);
+    DrawMessageFrame((u16 *) (0x6000000 + graphics->flags.screenBase * 0x800), 16, 0, 14, 3, graphics->flags.firstTile, graphics->flags.palette);
+    DrawMessageFrame((u16 *) (0x6000000 + graphics->flags.screenBase * 0x800), 0, 3, 30, 7, graphics->flags.firstTile, graphics->flags.palette);
+    LoadMessageFramePalette(graphics->flags.palette);
+    register MessagePortraitResources * resources asm("r4") = &scratch.resources;
+    func_0805E6CC(resources, gUnk_08728208);
+    func_0805E790(&scratch.frame, resources, 0);
+    CpuFastSet(scratch.frame.palette, (void *) (0x5000200 + graphics->flags.spritePalette * 32), 8);
+    scratch.resources.vtable = (const u32 *) vtable_unk_080E5A28;
+    return 0;
+}
+
+EC SECTION(".text.message_window.08050E98") u32 ClearMessageWindowButtonMask(MessageWindow * window, u32 mask)
+{
+    MessageWindowState * state = window->state;
+    u32 previous = state->inputFlags.buttons;
+    state->inputFlags.buttons = previous & ~mask;
+    return previous;
 }

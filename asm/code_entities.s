@@ -2869,7 +2869,7 @@ func_0802B260: @ 0x0802B260
     add r4, sp, #8
     strb r5, [r4]
     movs r2, #0
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     mov r1, sb
     adds r1, #0xcc
     str r5, [r1]
@@ -2907,7 +2907,7 @@ func_0802B260: @ 0x0802B260
     strb r7, [r0]
     add r0, sp, #0x18
     movs r2, #0
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     ldr r1, [sp, #0x64]
     strh r7, [r1]
     strh r7, [r1, #2]

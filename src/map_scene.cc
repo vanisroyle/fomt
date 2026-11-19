@@ -38,7 +38,7 @@ struct SpriteAnimationClipHeader;
 
 struct MapSceneAnimationSlot
 {
-    STRUCT_PAD(0x00, 0x04);
+    void const * methods;
     SpriteAnimationClipHeader const * clips;
     STRUCT_PAD(0x08, 0x30);
 };
@@ -115,7 +115,6 @@ struct MapSceneOwner
 };
 
 EC void * func_080CFB28(u8 *);
-EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapData const * GetMapData(u32 graphicsId);
 EC void func_080CFFC0(MapUpdateState & map, int column, int row, u32 const & value);
 EC void ApplyMapBuildingDoorPatch(G1MapState * map, u32 useUpperPosition);
@@ -296,6 +295,9 @@ struct MapSceneContents
 };
 
 EC ResourceHandleOwner * ResourceHandles_Initialize(ResourceHandleOwner *);
+EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
+EC void func_080073E0(ResourceHandleOwner *, u32);
+EC u8 vtable_unk_080E5A28[];
 EC u32 func_0800736C(ResourceHandleOwner *);
 EC u8 func_080074C0(ResourceHandleOwner *);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void const *);
@@ -494,6 +496,147 @@ EC SECTION(".text.080AC674") MapSceneContents * InitializeMapSceneContents(MapSc
     }
     return contents;
 }
+
+EC SECTION(".text.080AC85C") void DestroyMapSceneContents(MapSceneContents * inputContents, unsigned flags)
+{
+    register MapSceneContents * receivedContents asm("r0") = inputContents;
+    register MapSceneContents * contents asm("r5");
+    register unsigned receivedFlags asm("r1") = flags;
+    unsigned destructionFlags;
+    asm ("add %0, %2, #0\n\tadd %1, %3, #0" : "=l" (contents), "=l" (destructionFlags) : "l" (receivedContents), "l" (receivedFlags));
+    register unsigned index asm("r6") = 0;
+    asm ("" : "+l" (index));
+    register MapSceneEntity ** entry asm("r4") = contents->entities;
+    asm ("" : "+l" (entry));
+    do
+    {
+        register MapSceneEntity * entity asm("r1") = *entry;
+        asm ("" : "+l" (entity));
+        if (entity)
+            entity->methods->destroy(*entity, 3);
+        ++entry;
+        asm ("" : "+l" (entry));
+        ++index;
+    }
+    while (index < 100);
+    register unsigned effectOffset asm("r1") = offsetof(MapSceneContents, effect);
+    asm ("" : "+l" (effectOffset));
+    register MapSceneEffectSlot * effectSlot asm("r0") = reinterpret_cast<MapSceneEffectSlot *>(reinterpret_cast<u8 *>(contents) + effectOffset);
+    asm ("" : "+l" (effectSlot));
+    register MapSceneEffect * effect asm("r1") = effectSlot->effect;
+    asm ("" : "+l" (effect));
+    if (effect)
+        effect->methods[2](*effect, 3);
+    register unsigned queueOffset asm("r2") = offsetof(MapSceneContents, tileEffects);
+    asm ("" : "+l" (queueOffset));
+    register MapTileEffectQueue ** queueSlot asm("r0") = reinterpret_cast<MapTileEffectQueue **>(reinterpret_cast<u8 *>(contents) + queueOffset);
+    asm ("" : "+l" (queueSlot));
+    MapTileEffectQueue * queue = *queueSlot;
+    if (queue)
+        func_080AB2E4(queue, 3);
+    register unsigned overlayOffset asm("r1") = offsetof(MapSceneContents, overlay);
+    asm ("" : "+l" (overlayOffset));
+    register MapSceneOverlay ** overlaySlot asm("r0") = reinterpret_cast<MapSceneOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
+    asm ("" : "+l" (overlaySlot));
+    MapSceneOverlay * overlay = *overlaySlot;
+    if (overlay)
+        DestroyFixedSpriteOverlay(overlay, 3);
+    register unsigned animationOffset asm("r2") = offsetof(MapSceneContents, animations) + 12 * sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    register MapSceneAnimationSlot * animation asm("r0") = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    register void const * animationMethods asm("r1") = vtable_unk_080E5A28;
+    asm ("" : "+l" (animationMethods));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    animationOffset -= sizeof(MapSceneAnimationSlot);
+    asm ("" : "+l" (animationOffset));
+    animation = reinterpret_cast<MapSceneAnimationSlot *>(reinterpret_cast<u8 *>(contents) + animationOffset);
+    asm ("" : "+l" (animation));
+    animation->methods = animationMethods;
+    register MapSceneResourceSlot * first asm("r6") = contents->resources;
+    asm ("" : "+l" (first));
+    if (first)
+    {
+        register unsigned endOffset asm("r1") = offsetof(MapSceneContents, resourceFlags);
+        asm ("" : "+l" (endOffset));
+        register MapSceneResourceSlot * resource asm("r4") = reinterpret_cast<MapSceneResourceSlot *>(reinterpret_cast<u8 *>(contents) + endOffset);
+        asm ("" : "+l" (resource));
+        while (first != resource)
+        {
+            --resource;
+            asm ("" : "+l" (resource));
+            func_080073E0(reinterpret_cast<ResourceHandleOwner *>(resource), resource->handle);
+            ResourceHandles_Destroy(reinterpret_cast<ResourceHandleOwner *>(resource), 2);
+        }
+    }
+    MapUpdateState * map = contents->map;
+    if (map)
+    {
+        typedef void (* Destroy)(MapUpdateState *, unsigned);
+        (*reinterpret_cast<Destroy const **>(reinterpret_cast<u8 *>(map) + 0x90))[2](map, 3);
+    }
+    register unsigned deleteBit asm("r0") = 1;
+    unsigned shouldDelete;
+    asm ("and %0, %2" : "=l" (shouldDelete) : "0" (deleteBit), "l" (destructionFlags));
+    if (shouldDelete)
+        operator delete(contents);
+}
+
 EC MapSceneEntity * NewItemDisplayEntity(MapScene *);
 EC MapSceneEntity * InitializeReactionEntity(void *, MapScene *, Location const &);
 EC void InitializeMapSceneActor(void *, MapScene *, ActorLocation const &, u32, u32)
@@ -810,7 +953,7 @@ EC SECTION(".text.080AD69C") MapSceneTerrainGrid & GetMapSceneTerrainGrid(MapSce
         asm ("" : "+l" (current));
         u32 currentMap = current->mapId;
         asm ("" : "+l" (currentMap));
-        u32 graphicsId = currentMap == mapId ? current->graphicsId : func_0803A8A4(mapId, 1, 0, 0, 0);
+        u32 graphicsId = currentMap == mapId ? current->graphicsId : GetMapGraphicsVariantId(mapId, 1, 0, 0, 0);
         register MapData const * data asm("r0") = GetMapData(graphicsId);
         asm ("" : "+l" (data));
         register unsigned width asm("r6") = data->width;
@@ -1238,12 +1381,12 @@ EC SECTION(".text.080ADBA8") void CenterMapScrollOnPixel(MapScene & scene, int x
 
 EC SECTION(".text.080ADA84") u32 GetDefaultMapPixelHeight(MapScene const &, u32 mapId)
 {
-    return GetMapData(func_0803A8A4(mapId, 1, 0, 0, 0))->height * 8;
+    return GetMapData(GetMapGraphicsVariantId(mapId, 1, 0, 0, 0))->height * 8;
 }
 
 EC SECTION(".text.080ADAA8") u32 GetDefaultMapPixelWidth(MapScene const &, u32 mapId)
 {
-    return GetMapData(func_0803A8A4(mapId, 1, 0, 0, 0))->width * 8;
+    return GetMapData(GetMapGraphicsVariantId(mapId, 1, 0, 0, 0))->width * 8;
 }
 
 EC SECTION(".text.080ADB54") void ClearMapSceneEntitySlot(MapScene & scene, u32 index)
