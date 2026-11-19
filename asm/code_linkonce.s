@@ -13770,7 +13770,7 @@ sub_080DA76C: @ 0x080DA76C
 	lsls r1, r1, #1
 	mov r0, r8
 	adds r0, #8
-	bl func_0803D340
+	bl SetClockMinuteTiles
 	ldr r1, [r7]
 	lsls r1, r1, #0xb
 	ldr r0, [r5, #0x10]
@@ -13857,7 +13857,7 @@ sub_080DA76C: @ 0x080DA76C
 	movs r1, #1
 	ands r1, r2
 	adds r0, #8
-	bl func_0803D2E8
+	bl SetClockColonVisible
 .L080DAE02:
 	ldr r0, [r6]
 	movs r2, #0xaa
