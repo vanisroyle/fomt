@@ -27,7 +27,10 @@ loader's original VRAM allocation. The tiles retain the original decoded size.
 `assets/graphics/boot-logo.map.bin` is the decoded 32x20 little-endian u16 GBA
 tilemap. Its entries have a 10-bit tile number and horizontal/vertical flip
 bits. Only palette bank zero is valid for this 16-color background. Preserve
-the map size; tiles may be shared by many visible cells. A read-only assembled
+the map size; tiles may be shared by many visible cells. Only fully loaded tiles
+(indices 0..350) may be referenced. Tile 351 has only two bytes loaded; its
+remaining bytes retain prior VRAM contents and cannot safely be displayed.
+A read-only assembled
 preview is generated at `build/assets/boot-logo-preview.png` (256x160, including
 the rightmost two off-screen columns). Edit the tile sheet, **not** the preview.
 

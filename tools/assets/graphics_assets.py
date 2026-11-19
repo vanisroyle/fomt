@@ -74,7 +74,7 @@ def validate_map(raw, tiles):
     if len(raw) != 32 * 20 * 2:
         raise ValueError("preserve the 32x20 tilemap (1280 bytes)")
     for (entry,) in struct.iter_unpack("<H", raw):
-        if entry >> 12 or entry & 1023 >= math.ceil(len(tiles) / 32):
+        if entry >> 12 or entry & 1023 >= len(tiles) // 32:
             raise ValueError("tilemap references an unavailable tile or palette bank")
 
 

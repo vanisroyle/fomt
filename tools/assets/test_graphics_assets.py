@@ -125,6 +125,15 @@ class GraphicsTests(unittest.TestCase):
         self.assertFalse(graphics.growth_safe(rom, part))
         self.assertEqual(graphics.pack_part(rom, part, b"same", b"same"), (bytes(8), None))
 
+    def test_map_rejects_partial_and_unloaded_tiles(self):
+        tiles = bytes(351 * 32 + 2)
+        graphics.validate_map(struct.pack("<H", 350) + bytes(1278), tiles)
+        for tile in (351, 352):
+            with self.subTest(tile=tile), self.assertRaisesRegex(ValueError, "unavailable tile"):
+                graphics.validate_map(struct.pack("<H", tile) + bytes(1278), tiles)
+        with self.assertRaisesRegex(ValueError, "unavailable tile"):
+            graphics.validate_map(bytes(1280), b"")
+
     def test_extraction_preserves_edits_and_build_is_deterministic(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
