@@ -2381,7 +2381,7 @@ func_0802A7E0: @ 0x0802A7E0
     adds r0, r7, #5
     strh r0, [r1, #6]
     adds r0, r5, #0
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     lsls r0, r0, #0x18
     movs r1, #1
     cmp r0, #0
@@ -2607,7 +2607,7 @@ func_0802AEA4: @ 0x0802AEA4
     add r4, sp, #0x14
     mov r0, sp
     adds r1, r4, #0
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802AEE2
@@ -5404,7 +5404,7 @@ func_0802CDCC: @ 0x0802CDCC
     add r4, sp, #0x44
     mov r0, sp
     adds r1, r4, #0
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802D098
@@ -5440,7 +5440,7 @@ func_0802CDCC: @ 0x0802CDCC
     adds r4, r6, r4
     strh r4, [r1, #6]
     mov r0, sp
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -7609,7 +7609,7 @@ func_0802E0FC: @ 0x0802E0FC
     add r6, sp, #0x44
     mov r0, r8
     adds r1, r6, #0
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r2, #1
     mov sl, r2
     mov r3, sl
@@ -7641,7 +7641,7 @@ func_0802E0FC: @ 0x0802E0FC
     adds r0, r4, #5
     strh r0, [r1, #6]
     mov r0, r8
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     mov r1, sl
     eors r0, r1
     lsls r0, r0, #0x18

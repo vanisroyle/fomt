@@ -178,6 +178,54 @@ EC void SetMessageWindowStatePortrait(MessageWindowState *, u32);
 EC void SetMessageWindowStateSpeakerName(MessageWindowState *, const char *);
 EC void SetMessageWindowStateIndicator(MessageWindowState *, u32);
 
+struct MessagePortraitClipSet
+{
+    MessagePortraitClip clips[4];
+};
+
+static inline void ClearMessagePortraitClipLength(MessagePortraitClip * clip, unsigned zero)
+{
+    asm ("strh %1, [%2, #4]" : "=m" (clip->length) : "l" (zero), "l" (clip));
+}
+
+EC SECTION(".text.080ADC00") MessagePortraitClips * CreateMessagePortraitClips(MessagePortraitClips * owner)
+{
+    register MessagePortraitClipSet * set asm("r2") =
+        static_cast<MessagePortraitClipSet *>(operator new(sizeof(MessagePortraitClipSet)));
+    asm ("" : "+l" (set));
+    register unsigned zero asm("r0") = 0;
+    asm ("" : "+l" (zero));
+    set->clips[0].keyframes = reinterpret_cast<void *>(zero);
+    ClearMessagePortraitClipLength(set->clips, zero);
+    register MessagePortraitClip * clip asm("r1") = set->clips;
+    asm ("" : "+l" (clip));
+    ++clip;
+    asm ("" : "+l" (clip));
+    set->clips[1].keyframes = reinterpret_cast<void *>(zero);
+    ClearMessagePortraitClipLength(clip, zero);
+    ++clip;
+    asm ("" : "+l" (clip));
+    set->clips[2].keyframes = reinterpret_cast<void *>(zero);
+    ClearMessagePortraitClipLength(clip, zero);
+    ++clip;
+    asm ("" : "+l" (clip));
+    set->clips[3].keyframes = reinterpret_cast<void *>(zero);
+    ClearMessagePortraitClipLength(clip, zero);
+    owner->entries = set->clips;
+    return owner;
+}
+
+EC SECTION(".text.080ADD08") MessagePortraitClipSet & CopyMessagePortraitClips(MessagePortraitClipSet & output, MessagePortraitClips const & owner)
+{
+    register MessagePortraitClipSet * original asm("r0") = &output;
+    register MessagePortraitClipSet * destination asm("r2") = original;
+    asm ("" : "+l" (destination) : "l" (original));
+    register MessagePortraitClipSet const * source asm("r1") = reinterpret_cast<MessagePortraitClipSet const *>(owner.entries);
+    asm ("" : "+l" (source));
+    *destination = *source;
+    return *original;
+}
+
 EC SECTION(".text.080ADC84") void DestroyMessagePortraitClips(MessagePortraitClips * clips, unsigned flags)
 {
     __builtin_delete(clips->entries);

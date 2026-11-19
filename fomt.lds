@@ -1195,6 +1195,8 @@ SECTIONS
         src/map_updates.o(.text.080AAF28);
         src/map_updates.o(.text.080AAF3C);
         asm/code_809E804.o(.text.080AAF9C);
+        src/map_scene.o(.text.080AB380);
+        asm/code_809E804.o(.text.080AB410);
         src/entity_movement.o(.text.080AB788);
         src/entity_movement.o(.text.080AB7A4);
         src/entity_movement.o(.text.080AB82C);
@@ -1203,12 +1205,15 @@ SECTIONS
         src/entity_movement.o(.text.080AB948);
         src/entity_movement.o(.text.080AB9C4);
         src/entity_movement.o(.text.080ABA3C);
-        asm/code_809E804.o(.text.080ABA90);
+        src/entity_movement.o(.text.080ABA90);
         src/entity_movement.o(.text.080ABBA0);
         src/entity_movement.o(.text.080ABBC4);
         src/entity_movement.o(.text.080ABBEC);
         src/entity_movement.o(.text.080ABC14);
         asm/code_809E804.o(.text.080ABC40);
+        src/entity_movement.o(.text.080AC070);
+        asm/code_809E804.o(.text.080AC124);
+        src/map_scene.o(.text.080AD8C4);
         src/map_scene.o(.text.080AD938);
         src/map_scene.o(.text.080AD944);
         src/map_scene.o(.text.080AD950);
@@ -1239,7 +1244,7 @@ SECTIONS
         src/map_scene.o(.text.080ADA84);
         src/map_scene.o(.text.080ADAA8);
         src/map_scene.o(.text.080ADACC);
-        asm/code_809E804.o(.text.080ADAFC);
+        src/map_scene.o(.text.080ADAFC);
         src/map_scene.o(.text.080ADB24);
         asm/code_809E804.o(.text.080ADB3C);
         src/map_scene.o(.text.080ADB54);
@@ -1249,9 +1254,12 @@ SECTIONS
         src/map_scene.o(.text.080ADB94);
         src/map_scene.o(.text.080ADB9C);
         src/map_scene.o(.text.080ADBA8);
-        asm/code_809E804.o(.text.080ADBB4);
+        src/map_scene.o(.text.080ADBB4);
+        src/message_window.o(.text.080ADC00);
+        asm/code_809E804.o(.text.080ADC30);
         src/message_window.o(.text.080ADC84);
         asm/code_809E804.o(.text.080ADCA4);
+        src/message_window.o(.text.080ADD08);
         src/message_window.o(.text.080ADD20);
         src/message_script.o(.text.080ADD44);
         src/message_script.o(.text.080ADD5C);
@@ -1272,7 +1280,8 @@ SECTIONS
         src/chicken_feeding.o(.text.080B1D34);
         asm/code_809E804.o(.text.080B1D94);
         src/chicken_feeding.o(.text.080B34DC);
-        asm/code_809E804.o(.text.080B3518);
+        src/chicken_feeding.o(.text.080B3518);
+        asm/code_809E804.o(.text.080B36B4);
         src/g3_chicken_festival.o(.text.g3_080B3948);
         asm/code_809E804.o(.text.g3_after_080B3948);
         src/g3_state.o(.text.g3_080B3990);

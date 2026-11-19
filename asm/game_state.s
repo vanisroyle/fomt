@@ -13348,7 +13348,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r0]
     cmp r0, #0
     beq .L08018080
-    bl func_080AB380
+    bl UpdateMapTileEffectQueue
 .L08018080:
     movs r6, #0
     ldr r5, .L080180B4 @ =0x0000106C
@@ -20098,7 +20098,7 @@ func_0801E67C: @ 0x0801E67C
     bl _call_via_r2
     mov r0, sp
     adds r1, r4, #0
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0801E7DE

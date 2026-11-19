@@ -1878,7 +1878,7 @@ func_0803726C: @ 0x0803726C
     mov r0, sb
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08037310:
     ldr r0, [r7]
     ldr r1, [r0]
@@ -1900,7 +1900,7 @@ func_0803726C: @ 0x0803726C
     mov r0, sb
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08037340:
     adds r2, r7, #0
     adds r2, #0x34
@@ -1921,7 +1921,7 @@ func_0803726C: @ 0x0803726C
     mov r0, sb
     adds r1, r2, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L0803736A:
     ldrh r4, [r7, #0x3e]
     cmp r4, #0
@@ -5736,7 +5736,7 @@ func_08039A60: @ 0x08039A60
     mov r0, r8
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08039C38:
     ldr r0, [r7]
     ldr r1, [r0]
@@ -5758,7 +5758,7 @@ func_08039A60: @ 0x08039A60
     mov r0, r8
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08039C68:
     ldr r0, [r7, #0x34]
     ldr r0, [r0, #0xc]
