@@ -175,49 +175,6 @@ func_080233B4: @ 0x080233B4
     pop {r1}
     bx r1
 
-    .section .text.entities_part1.08020080, "ax", %progbits
-    thumb_func_start func_08020080
-func_08020080: @ 0x08020080
-    push {r4, r5, lr}
-    adds r3, r0, #0
-    movs r4, #0
-    movs r5, #0
-    cmp r1, #0
-    beq .L080200B8
-    adds r0, #0x20
-    ldrb r0, [r0]
-    adds r2, r0, #0
-    cmp r0, #1
-    beq .L080200AE
-    cmp r0, #1
-    bgt .L080200A0
-    cmp r0, #0
-    beq .L080200AA
-    b .L080200B8
-.L080200A0:
-    cmp r2, #2
-    beq .L080200B2
-    cmp r2, #3
-    beq .L080200B6
-    b .L080200B8
-.L080200AA:
-    adds r5, r1, #0
-    b .L080200B8
-.L080200AE:
-    rsbs r5, r1, #0
-    b .L080200B8
-.L080200B2:
-    rsbs r4, r1, #0
-    b .L080200B8
-.L080200B6:
-    adds r4, r1, #0
-.L080200B8:
-    str r4, [r3, #0x18]
-    str r5, [r3, #0x1c]
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
 
     .section .text.entities_part1.080200C4, "ax", %progbits
@@ -536,45 +493,6 @@ func_08020310: @ 0x08020310
     .byte 0x91, 0xFA, 0x01, 0x20, 0x30, 0x40, 0x00, 0x28, 0x02, 0xD0, 0x28, 0x1C, 0xE0, 0xF7, 0x04, 0xF9
     .byte 0x02, 0xB0, 0x70, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0xC8, 0x64, 0x0E, 0x08, 0x50, 0x62, 0x0E, 0x08
 
-    .section .text.entities_part1.08020410, "ax", %progbits
-    thumb_func_start func_08020410
-func_08020410: @ 0x08020410
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    adds r5, r1, #0
-    ldr r0, [r4, #0x34]
-    ldr r0, [r0, #0x20]
-    cmp r0, #5
-    bne .L08020426
-    adds r0, r4, #0
-    bl func_080212C0
-.L08020426:
-    lsls r1, r5, #0x10
-    lsrs r1, r1, #0x10
-    ldr r2, .L08020458 @ =0xFFFF0000
-    ldr r0, [sp]
-    ands r0, r2
-    orrs r0, r1
-    ldr r1, .L0802045C @ =0xFF00FFFF
-    ands r0, r1
-    str r0, [sp]
-    ldr r0, [r4, #0x34]
-    mov r1, sp
-    bl method_0809BB48__3DogPC15UnkBarnAnimal2C
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r2, [r0]
-    adds r0, r4, #0
-    movs r1, #0
-    bl func_080211E4
-    add sp, #4
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08020458: .4byte 0xFFFF0000
-.L0802045C: .4byte 0xFF00FFFF
 
     .section .text.entities_part1.08020460.tail, "ax", %progbits
 .L08020474:
@@ -2193,6 +2111,9 @@ func_0802110C: @ 0x0802110C
     .align 2, 0
 .L0802112C: .4byte gUnk_080F0908
 
+
+
+
     .section .text.entities_part1.08021130, "ax", %progbits
     thumb_func_start func_08021130
 func_08021130: @ 0x08021130
@@ -2281,9 +2202,6 @@ func_08021130: @ 0x08021130
     pop {r1}
     bx r1
     .align 2, 0
-
-
-
     .section .text.entities_part1.080212C0, "ax", %progbits
     thumb_func_start func_080212C0
 func_080212C0: @ 0x080212C0
@@ -2837,86 +2755,9 @@ func_080216BC: @ 0x080216BC
     .byte 0x29, 0xFD, 0x41, 0x69, 0xA0, 0x31, 0x09, 0x68, 0xB1, 0xF0, 0x22, 0xFD, 0x00, 0x06, 0x00, 0x28
     .byte 0x03, 0xD1, 0x20, 0x1C, 0x29, 0x1C, 0x10, 0xF0, 0xA9, 0xFA, 0x30, 0xBC, 0x01, 0xBC, 0x00, 0x47
 
-    .section .text.entities_part1.08021EE0, "ax", %progbits
-    thumb_func_start func_08021EE0
-func_08021EE0: @ 0x08021EE0
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    ldr r0, [r4, #0x34]
-    bl GetGrowthStage__C5Horse
-    adds r5, r0, #0
-    cmp r5, #1
-    bne .L08021F2A
-    ldr r1, .L08021F34 @ =0xFFFF0000
-    ldr r0, [sp]
-    ands r0, r1
-    movs r1, #0x78
-    orrs r0, r1
-    ldr r1, .L08021F38 @ =0xFF00FFFF
-    ands r0, r1
-    str r0, [sp]
-    ldr r0, [r4, #0x34]
-    mov r1, sp
-    bl method_0809BC24__5HorsePC15UnkBarnAnimal2C
-    adds r0, r4, #0
-    bl func_080220D4
-    adds r1, r0, #0
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r2, [r0]
-    adds r0, r4, #0
-    bl func_08022048
-    adds r0, r4, #0
-    adds r0, #0x3e
-    strb r5, [r0]
-    ldr r0, [r4, #0x34]
-    bl SetHasPlayedToday__3Pet
-.L08021F2A:
-    add sp, #4
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08021F34: .4byte 0xFFFF0000
-.L08021F38: .4byte 0xFF00FFFF
 
-    .section .text.entities_part1.08021F3C, "ax", %progbits
-    thumb_func_start func_08021F3C
-func_08021F3C: @ 0x08021F3C
-    push {r4, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    adds r1, r4, #0
-    adds r1, #0x3e
-    movs r0, #0
-    strb r0, [r1]
-    ldr r1, .L08021F80 @ =0xFFFF0000
-    ldr r0, [sp]
-    ands r0, r1
-    movs r1, #0x78
-    orrs r0, r1
-    ldr r1, .L08021F84 @ =0xFF00FFFF
-    ands r0, r1
-    str r0, [sp]
-    ldr r0, [r4, #0x34]
-    mov r1, sp
-    bl method_0809BC24__5HorsePC15UnkBarnAnimal2C
-    adds r0, r4, #0
-    bl func_080220D4
-    adds r1, r0, #0
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r2, [r0]
-    adds r0, r4, #0
-    bl func_08022048
-    add sp, #4
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08021F80: .4byte 0xFFFF0000
-.L08021F84: .4byte 0xFF00FFFF
+
+
 
     .section .text.entities_part1.08021FAC, "ax", %progbits
     thumb_func_start func_08021FAC
@@ -3000,8 +2841,6 @@ func_08021FAC: @ 0x08021FAC
     pop {r1}
     bx r1
     .align 2, 0
-
-
     .section .text.entities_part1.080220D4.tail, "ax", %progbits
 .L08022100:
     .byte 0x10, 0xB5, 0x81, 0xB0, 0x04, 0x1C, 0x62, 0x6B, 0x10, 0x6A, 0x02, 0x28, 0x1A, 0xD1, 0x0F, 0x49
@@ -4844,6 +4683,7 @@ func_08024C74: @ 0x08024C74
     bx lr
     .align 2, 0
 
+
     .section .text.entities_part1.08024CA0, "ax", %progbits
     thumb_func_start func_08024CA0
 func_08024CA0: @ 0x08024CA0
@@ -4873,7 +4713,6 @@ func_08024CA0: @ 0x08024CA0
     pop {r1}
     bx r1
     .align 2, 0
-
     .section .text.entities_part1.08024CD0, "ax", %progbits
     thumb_func_start func_08024CD0
 func_08024CD0: @ 0x08024CD0
@@ -6671,6 +6510,7 @@ func_08025A40: @ 0x08025A40
     bx r0
     .align 2, 0
 
+
     .section .text.entities_part1.08025AFC, "ax", %progbits
     thumb_func_start func_08025AFC
 func_08025AFC: @ 0x08025AFC
@@ -6686,7 +6526,6 @@ func_08025AFC: @ 0x08025AFC
     pop {r1}
     bx r1
     .align 2, 0
-
     .section .text.entities_part1.08025B10, "ax", %progbits
     thumb_func_start func_08025B10
 func_08025B10: @ 0x08025B10

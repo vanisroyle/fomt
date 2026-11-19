@@ -83,8 +83,82 @@ EC u32 func_0802405C(BarnEntityPart1 * self, u32 state);
 EC u32 func_08023400(AEntity * self, u32 state);
 EC u32 func_080240BC(AEntity * self, u32 state);
 EC void func_08032384(AEntity * self, u32 effect, u32 argument);
+EC void func_080212C0(DogEntityPart1 * self);
+EC u32 func_08021264(DogEntityPart1 * self);
+EC u32 func_080220D4(HorseEntityPart1 * self);
+EC void func_080211E4(DogEntityPart1 * self, u32 state, u32 facing);
+EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing);
+
+struct AnimalTimerPart1
+{
+    u32 time : 16;
+    u32 active : 8;
+    u32 unused : 8;
+};
+
+inline i32 EntityFacingPart1(AActorEntity const * self)
+{
+    return self->facing;
+}
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC void func_08021F3C(HorseEntityPart1 * self) ENTITY_CODE(08021F3C);
+EC void func_08021F3C(HorseEntityPart1 * self)
+{
+    self->suppress_effect = false;
+    AnimalTimerPart1 timer;
+    timer.time = 120;
+    timer.active = 0;
+    self->horse->method_0809BC24(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
+    func_08022048(self, func_080220D4(self), self->facing);
+}
+
+EC void func_08021EE0(HorseEntityPart1 * self) ENTITY_CODE(08021EE0);
+EC void func_08021EE0(HorseEntityPart1 * self)
+{
+    if (self->horse->GetGrowthStage() == 1)
+    {
+        AnimalTimerPart1 timer;
+        timer.time = 120;
+        timer.active = 0;
+        self->horse->method_0809BC24(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
+        func_08022048(self, func_080220D4(self), self->facing);
+        self->suppress_effect = true;
+        self->horse->SetHasPlayedToday();
+    }
+}
+
+EC void func_08020410(DogEntityPart1 * self, u32 time) ENTITY_CODE(08020410);
+EC void func_08020410(DogEntityPart1 * self, u32 time)
+{
+    if (self->dog->unk_20 == 5)
+        func_080212C0(self);
+    AnimalTimerPart1 timer;
+    timer.time = time;
+    timer.active = 0;
+    self->dog->method_0809BB48(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
+    func_080211E4(self, 0, self->facing);
+}
+
+EC void func_08020080(AActorEntity * self, i32 speed) ENTITY_CODE(08020080);
+EC void func_08020080(AActorEntity * self, i32 speed)
+{
+    i32 x = 0;
+    i32 y = 0;
+    if (speed != 0)
+    {
+        switch (EntityFacingPart1(self))
+        {
+        case 0: y = speed; break;
+        case 1: y = -speed; break;
+        case 2: x = -speed; break;
+        case 3: x = speed; break;
+        }
+    }
+    self->x_speed_q16 = x;
+    self->y_speed_q16 = y;
+}
 
 EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(08022048);
 EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing)
