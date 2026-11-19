@@ -20211,7 +20211,7 @@ func_0801EE00: @ 0x0801EE00
     lsls r2, r2, #0x10
     asrs r2, r2, #0x10
     add r0, sp, #0xc
-    bl func_080AC5D0
+    bl AreEntityFootTilesMarked
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18

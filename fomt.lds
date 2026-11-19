@@ -1261,6 +1261,7 @@ SECTIONS
         asm/code_809E804.o(.text.080ABC40);
         src/entity_movement.o(.text.080AC070);
         asm/code_809E804.o(.text.080AC124);
+        src/entity_movement.o(.text.080AC5D0);
         src/map_scene.o(.text.080AC674);
         src/map_scene.o(.text.080AC85C);
         src/game_state_part2.o(.text.080AC96C);
