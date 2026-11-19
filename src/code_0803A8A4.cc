@@ -234,7 +234,7 @@ struct DialogWindowTilemapTask
     unsigned paletteBank : 4;
 };
 
-EC void func_08051320(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
+EC void DrawMessageFrame(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
     unsigned firstTile, unsigned paletteBank);
 EC u16 const * const gUnk_080F9F78;
 
@@ -273,7 +273,7 @@ ROM_TEXT(0803B840) bool RunDialogWindowTilemapTask(DialogWindowTilemapTask & tas
     asm("" : "+r"(source) : "m"(repeatedTile));
     CpuFastSet(source, screen, FillMode | FillWords);
 
-    func_08051320(reinterpret_cast<u16 *>(VideoRam + task.screenBlock * ScreenBlockBytes),
+    DrawMessageFrame(reinterpret_cast<u16 *>(VideoRam + task.screenBlock * ScreenBlockBytes),
         task.left, 0, task.width, task.height, task.firstTile, task.paletteBank);
 
     register unsigned paletteBank asm("r1") = task.paletteBank;
