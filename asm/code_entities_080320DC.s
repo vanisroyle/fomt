@@ -479,7 +479,7 @@ func_08032690: @ 0x08032690
     adds r3, r2, r3
     str r4, [sp]
     ldr r2, [sp, #0x40]
-    bl func_0803AE58
+    bl DrawFixedSpriteOverlay
 .L080328F0:
     add sp, #0x50
     pop {r3, r4, r5}
@@ -642,7 +642,7 @@ func_08032BB4: @ 0x08032BB4
     strb r6, [r4, #1]
     ldr r0, [sp, #0x70]
     adds r1, r4, #0
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08032CA0
@@ -1120,7 +1120,7 @@ func_08032BB4: @ 0x08032BB4
     strb r0, [r4, #1]
     ldr r0, [sp, #0x70]
     adds r1, r4, #0
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0803303A
@@ -1198,7 +1198,7 @@ func_08032BB4: @ 0x08032BB4
     strb r0, [r4, #1]
     ldr r0, [sp, #0x70]
     adds r1, r4, #0
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080330D4
@@ -1409,7 +1409,7 @@ func_080330F4: @ 0x080330F4
     strb r3, [r4, #2]
     ldr r0, [sp, #0x90]
     adds r1, r4, #0
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08033272
@@ -1506,7 +1506,7 @@ func_080330F4: @ 0x080330F4
     ldr r0, [sp, #0x90]
     adds r1, r4, #0
     str r2, [sp, #0x68]
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     ldr r2, [sp, #0x68]
     cmp r0, #0

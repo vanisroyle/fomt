@@ -13,12 +13,12 @@ EC void func_080CECE8(void *);
 EC void func_080CE790(void *);
 EC u8 vtable_unk_080E85DC[];
 EC u8 vtable_unk_080E85E8[];
-EC void func_080A4A94(void *);
+EC void InitializeMapBuffers(void *);
 EC void __9FieldPlot(void *);
 
 EC SECTION(".text.g5_080CFB28") void * func_080CFB28(u8 * self)
 {
-    func_080A4A94(self);
+    InitializeMapBuffers(self);
     *(void **) (self + 0x90) = vtable_unk_080E85E8;
     u8 * plot = self + 0x94;
     for (int i = 83; i != -1; plot += 4, --i)
