@@ -1107,13 +1107,13 @@ EC void SECTION(".text.game_state_08016C10") GameScript_InvokeSceneAction104(Gam
 }
 
 // 0x08016C2C
-EC void SECTION(".text.game_state_08016C2C") GameScript_InvokeSpecialActorActionA(GameStateScript & script)
+EC void SECTION(".text.game_state_08016C2C") GameScript_CreateSpecialActorEffectSprite(GameStateScript & script)
 {
     CreateSideEntityEffectSprite(script.runtime->scene->GetActor(0x5D));
 }
 
 // 0x08016C6C
-EC void SECTION(".text.game_state_08016C6C") GameScript_InvokeSpecialActorActionB(GameStateScript & script)
+EC void SECTION(".text.game_state_08016C6C") GameScript_ClearSpecialActorEffectSprite(GameStateScript & script)
 {
     ClearSideEntityEffectSprite(script.runtime->scene->GetActor(0x5D));
 }
@@ -1191,7 +1191,7 @@ EC void SECTION(".text.game_state_08016E7C") GameScript_InvokePlayerAction6C(Gam
 }
 
 // 0x08016C48
-EC void SECTION(".text.game_state_08016C48") GameScript_BeginSpecialActorActionA(GameStateScript & script)
+EC void SECTION(".text.game_state_08016C48") GameScript_StartSpecialActorTransition(GameStateScript & script)
 {
     GameStateRuntime & runtime = *script.runtime;
     BeginSideEntityTransition(runtime.scene->GetActor(0x5D));
@@ -1199,7 +1199,7 @@ EC void SECTION(".text.game_state_08016C48") GameScript_BeginSpecialActorActionA
 }
 
 // 0x08016C88
-EC void SECTION(".text.game_state_08016C88") GameScript_BeginSpecialActorActionB(GameStateScript & script)
+EC void SECTION(".text.game_state_08016C88") GameScript_CreateSpecialActorParticles(GameStateScript & script)
 {
     GameStateRuntime & runtime = *script.runtime;
     CreateSideEntityParticleSprites(runtime.scene->GetActor(0x5D));
