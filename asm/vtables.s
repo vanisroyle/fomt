@@ -311,12 +311,12 @@ vtable_unk_080E5EC4: @ game object
 	.word func_080179CC @ 08
 	.word func_08017C30 @ 0C
 	.word func_080182C8 @ 10
-	.word 0x0801FD59
-	.word 0x0801FD51
-	.word 0x0801FD49
-	.word func_0801FD6C
-	.word func_0801FD60 @ 20
-	.word func_0801FD3C
+	.word GameStateGetMapViewId
+	.word GameStateGetCameraX
+	.word GameStateGetCameraY
+	.word GameStateSetCameraCenter
+	.word GameStatePanCamera @ 20
+	.word GameStateIsCameraIdle
 	.word func_08019F7C
 	.word func_08019FE8
 	.word func_0801A054 @ 30
@@ -338,18 +338,18 @@ vtable_unk_080E5EC4: @ game object
 	.word 0x0801FC01
 	.word 0x0801FBF5
 	.word 0x0801FBE9
-	.word func_0801DD78
-	.word func_0801DD18
-	.word func_0801DD24
-	.word func_0801DD30
-	.word 0x0801DD3D
-	.word 0x0801DD49
-	.word 0x0801DD55
-	.word 0x0801DD61
-	.word 0x0801DD6D
+	.word GameStateStartMapViewTimer
+	.word GameStateApplyRow15TilePatchVariant1
+	.word GameStateApplyRow15TilePatchVariant2
+	.word GameStateApplyRow3TilePatchVariant1
+	.word GameStateApplyRow3TilePatchVariant2
+	.word GameStateApplyRow2TilePatchVariant1
+	.word GameStateApplyRow2TilePatchVariant2
+	.word GameStateApplyMapTilePatchAtIndex
+	.word GameStateApplyMapTilePatchInColumn
 	.word 0x0801DD85
 	.word 0x0801DE55
-	.word func_0801DE24
+	.word GameStateApplyMapTilePatchWithAlternateRow
 	.word func_08017C00
 	.word func_08019BEC
 	.word func_08019B90
@@ -369,12 +369,12 @@ vtable_unk_080E5EC4: @ game object
 	.word 0x0801CFB9
 	.word 0x0801C3DD
 	.word 0x0801C3E1
-	.word 0x0801DE31
-	.word func_0801DE3C
-	.word func_0801DE48
+	.word GameStateApplyMapTilePatchAtRow20
+	.word GameStateApplyMapTilePatchAtRow23
+	.word GameStateQueueMapEvent1D
 	.word func_0801DEB4
-	.word func_0801DDCC
-	.word func_0801DDF8
+	.word GameStateSetMapTileVariant
+	.word GameStateClearMapTileVariant
 	.word func_0801DCD4
 	.word func_0801DC24
 	.word func_0801DCA8
@@ -958,19 +958,23 @@ vtable_unk_080E7A28:
 
 	.global vtable_unk_080E7A38
 vtable_unk_080E7A38:
-	.incbin "baserom.gba", 0xE7A38, 0x10
+	.incbin "baserom.gba", 0xE7A38, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A48
 vtable_unk_080E7A48:
-	.incbin "baserom.gba", 0xE7A48, 0x10
+	.incbin "baserom.gba", 0xE7A48, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A58
 vtable_unk_080E7A58:
-	.incbin "baserom.gba", 0xE7A58, 0x10
+	.incbin "baserom.gba", 0xE7A58, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A68
 vtable_unk_080E7A68:
-	.incbin "baserom.gba", 0xE7A68, 0x10
+	.incbin "baserom.gba", 0xE7A68, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A78
 vtable_unk_080E7A78:
