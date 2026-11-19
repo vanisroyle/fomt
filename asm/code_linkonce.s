@@ -18112,7 +18112,7 @@ func_080DCFE0: @ 0x080DCFE0
 	lsls r2, r2, #0x1c
 	asrs r2, r2, #0x1c
 	adds r0, r5, #0
-	bl func_0803A144
+	bl SelectActivitySpriteAnimationPair
 	adds r1, r5, #0
 	adds r1, #0x78
 	movs r2, #0
@@ -19312,7 +19312,7 @@ func_080DD9CC: @ 0x080DD9CC
 	lsls r2, r2, #0x18
 	asrs r2, r2, #0x18
 	adds r0, r5, #0
-	bl func_0803A144
+	bl SelectActivitySpriteAnimationPair
 	adds r0, r5, #0
 	adds r0, #0x68
 	movs r2, #0
@@ -26657,7 +26657,7 @@ func_080E14B8: @ 0x080E14B8
 	movs r0, #0xd
 	adds r5, r1, #0
 	muls r5, r0, r5
-	ldr r0, .L080E1574 @ =gUnk_080FA796
+	ldr r0, .L080E1574 @ =gHorseRaceOpponentNames
 	adds r5, r5, r0
 	adds r0, r5, #0
 	bl strlen
@@ -26680,7 +26680,7 @@ func_080E14B8: @ 0x080E14B8
 	bl strcpy
 	b .L080E15B6
 	.align 2, 0
-.L080E1574: .4byte gUnk_080FA796
+.L080E1574: .4byte gHorseRaceOpponentNames
 .L080E1578:
 	add r1, sp, #8
 	movs r0, #0

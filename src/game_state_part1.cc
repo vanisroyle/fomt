@@ -597,7 +597,7 @@ EC void func_080D7F08(GameStateRuntime & self);
 EC void FormatMessageInteger(i32 value, char * text, u32 digits);
 EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
 EC void func_08032384(AActorEntity & self, u32 value, bool enabled);
-EC u32 func_08033B24(AActorEntity & self);
+EC u32 IsSpriteWorkerOutOfTasks(AActorEntity & self);
 EC void CloseMessageWindow(void * self);
 EC void func_080D7F88(GameStateRuntime & self);
 EC void func_080D7F74(GameStateRuntime & self);
@@ -1516,7 +1516,7 @@ EC u32 SECTION(".text.game_state_08015920") GameScript_GetFarmActorProperty(Game
     {
         AActorEntity * entity = runtime.scene->GetActor(actorId);
         if (entity != nullptr)
-            return func_08033B24(*entity);
+            return IsSpriteWorkerOutOfTasks(*entity);
     }
     return 0;
 }
