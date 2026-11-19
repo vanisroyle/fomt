@@ -92,45 +92,6 @@ func_0809C510: @ 0x0809C510
     .align 2, 0
 .L0809C5B0: .4byte gUnk_081036D4
 
-	.section .text.0809C600, "ax", %progbits
-    thumb_func_start func_0809C600
-func_0809C600: @ 0x0809C600
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r5, r0, #0
-    mov r0, sp
-    strh r1, [r0]
-    adds r0, r5, #4
-    ldr r4, [r5]
-    lsls r4, r4, #1
-    adds r4, #4
-    adds r4, r5, r4
-    adds r1, r4, #0
-    mov r2, sp
-    bl func_080E3DB4
-    cmp r0, r4
-    bne .L0809C63C
-    mov r2, sp
-    ldr r0, [r5]
-    adds r3, r0, #0
-    cmp r0, #2
-    bhi .L0809C63C
-    lsls r0, r0, #1
-    adds r0, #4
-    adds r1, r5, r0
-    cmp r1, #0
-    beq .L0809C638
-    ldrh r0, [r2]
-    strh r0, [r1]
-.L0809C638:
-    adds r0, r3, #1
-    str r0, [r5]
-.L0809C63C:
-    add sp, #4
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-
 	.section .text.0809C6BC, "ax", %progbits
     thumb_func_start func_0809C6BC
 func_0809C6BC: @ 0x0809C6BC
