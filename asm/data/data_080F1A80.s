@@ -245,9 +245,62 @@ gPopuriScheduleInfo:
 gUnk_080F280C:
 	.incbin "baserom.gba", 0xF280C, 0x1B4
 
-	.global gUnk_080F29C0
-gUnk_080F29C0:
-	.incbin "baserom.gba", 0xF29C0, 0x138
+	.global gChildScheduleInfo
+gChildScheduleInfo:
+	.4byte SelectChildSchedule
+	.4byte 6, .LChildSchedules
+.LChildSchedules: @ In ChildSchedule order.
+	.4byte 0
+	.4byte .LChildRegularSchedule
+	.4byte .LChildLateMorningSchedule
+	.4byte .LChildHomeAllDaySchedule
+	.4byte .LChildWalkingAgeSchedule
+	.4byte .LChildAutumn13Schedule
+
+.LChildRegularSchedule:
+	.2byte 4, 0
+	.4byte .LChildRegularEntries
+.LChildLateMorningSchedule:
+	.2byte 4, 0
+	.4byte .LChildLateMorningEntries
+.LChildHomeAllDaySchedule:
+	.2byte 1, 0
+	.4byte .LChildHomeAllDayEntries
+.LChildWalkingAgeSchedule:
+	.2byte 3, 0
+	.4byte .LChildWalkingAgeEntries
+.LChildAutumn13Schedule:
+	.2byte 2, 0
+	.4byte .LChildAutumn13Entries
+
+	@ Time is minutes since 06:00; route indices refer to the original path records.
+	.macro child_schedule_entry time, path
+	.2byte \time, 0
+	.4byte .LChildPaths + (\path * 12)
+	.endm
+
+.LChildRegularEntries:
+	child_schedule_entry 0, 0
+	child_schedule_entry 180, 1
+	child_schedule_entry 720, 0
+	child_schedule_entry 840, 1
+.LChildLateMorningEntries:
+	child_schedule_entry 0, 0
+	child_schedule_entry 300, 1
+	child_schedule_entry 720, 0
+	child_schedule_entry 840, 1
+.LChildHomeAllDayEntries:
+	child_schedule_entry 0, 1
+.LChildWalkingAgeEntries:
+	child_schedule_entry 0, 2
+	child_schedule_entry 300, 3
+	child_schedule_entry 720, 1
+.LChildAutumn13Entries:
+	child_schedule_entry 0, 0
+	child_schedule_entry 180, 1
+
+.LChildPaths:
+	.incbin "baserom.gba", 0xF2A7C, 0x7C
 
 	.global gCliffScheduleInfo
 gCliffScheduleInfo:
