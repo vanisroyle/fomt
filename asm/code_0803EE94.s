@@ -5417,7 +5417,7 @@ func_0803F8DC: @ 0x0803F8DC
 	rsbs r1, r3, #0
 	orrs r1, r3
 	lsrs r1, r1, #0x1f
-	bl func_08013D04
+	bl GameScript_QueueModeFlagScene
 	bl .L0804168A
 .L0804259C:
 	movs r2, #0xda

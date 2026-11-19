@@ -447,6 +447,47 @@ struct GameStateSceneFactoryOwner
 
 extern u8 const vtable_unk_080E5E74[];
 extern u8 const vtable_unk_080E5D74[];
+extern u8 const vtable_unk_080E5E44[];
+extern u8 const vtable_unk_080E5C24[];
+extern u8 const vtable_unk_080E5C14[];
+
+struct GameStateLocatedSceneAction
+{
+    GameStateLocatedSceneAction()
+        : vtable(vtable_unk_080E5E44), stateFlag(false), location(MAP_NONE, 0, 0) {}
+
+    void const * vtable;
+    bool stateFlag;
+    Location location;
+};
+
+struct GameStateModeFlagSceneAction : public GameStateLocatedSceneAction
+{
+    GameStateModeFlagSceneAction(u8 * saveData, u32 modeFlags)
+    {
+        vtable = vtable_unk_080E5C24;
+        this->saveData = saveData;
+        this->modeFlags = modeFlags;
+    }
+
+    u8 * saveData;
+    u32 modeFlags;
+};
+
+struct GameStateModeFlagSceneFactory
+{
+    GameStateModeFlagSceneFactory(u32 modeFlags, u8 * saveData)
+        : vtable(vtable_unk_080E5C14), saveData(saveData)
+    {
+        action = new GameStateModeFlagSceneAction(saveData, modeFlags);
+        this->modeFlags = modeFlags;
+    }
+
+    void const * vtable;
+    u8 * saveData;
+    GameStateModeFlagSceneAction * action;
+    u32 modeFlags;
+};
 
 struct GameScriptSceneFactory
 {
@@ -499,6 +540,15 @@ struct GameStateScript
     u32 vtable;
     GameStateRuntime * runtime;
 };
+
+// 0x08013D04
+EC void SECTION(".text.game_state_08013D04") GameScript_QueueModeFlagScene(GameStateScript & script, u8 modeEnabled)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(
+        new GameStateModeFlagSceneFactory(modeEnabled ? 2 : 0, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
 
 // 0x08014C34
 EC void SECTION(".text.game_state_08014C34") GameScript_CreateHorseActor(GameStateScript & script, u32 kind, u32 ageYears, u32 mapId, i32 x, i32 y)
