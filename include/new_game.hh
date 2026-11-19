@@ -162,6 +162,7 @@ EC void NewGameChoiceDialog_Update(NewGameChoiceDialogTask * self);
 EC void NewGameMenu_UpdateDescription(NewGameMenuTask * self);
 EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self);
 EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite);
+EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source);
 EC void NewGameMenu_UpdateMessage(char * self);
 EC NewGameSceneTaskOwner * NewGameMenuScene_Initialize(NewGameSceneTaskOwner * self);
 EC NewGameSceneTaskOwner * NewGameMenuScene_InitializeWithTransition(NewGameSceneTaskOwner * self, void * gameData, NewGameSceneTransitionOwner & transitionOwner);

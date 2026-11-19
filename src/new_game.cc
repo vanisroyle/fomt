@@ -35,6 +35,20 @@ extern char gNameEntrySceneConfirmationPrompt[] __asm__("gUnk_080E8C2C");
 extern char gNameEntrySceneConfirmationYes[] __asm__("gUnk_080E8C44");
 extern char gNameEntrySceneConfirmationNo[] __asm__("gUnk_080E8C48");
 
+EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source) SECTION(".text.func_08003E88");
+EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source)
+{
+    // Options 0 and 1 share the cursor's first visual row.
+    if (option == 1)
+        option = 0;
+    NewGameOamSprite sprite = source;
+    sprite.attributes.y += 8 + (option * 2 + 1) * 8;
+    sprite.attributes.x += 16;
+    static_cast<NewGameOamSpriteBuffer *>(HardwareContext_GetOamBuffer(self))->WriteSprite(6, sprite);
+}
+
+EC void func_08003E88(NewGameMenuTask * self, int option, NewGameOamSprite source) ALIAS(NewGameMenu_PositionCursorSprite);
+
 EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite) SECTION(".text.func_08003DF0");
 EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite)
 {

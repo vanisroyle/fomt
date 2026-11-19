@@ -736,58 +736,6 @@ func_08003C80: @ 0x08003C80
 .L08003DE8: .4byte gUnk_080E8704
 .L08003DEC: .4byte 0x00002D28
 
-    .section .text.after_08003DF0,"ax",%progbits
-
-    thumb_func_start func_08003E88
-func_08003E88: @ 0x08003E88
-    push {r4, r5, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r4, r1, #0
-    cmp r4, #1
-    bne .L08003E96
-    movs r4, #0
-.L08003E96:
-    str r2, [sp]
-    str r3, [sp, #4]
-    mov r0, sp
-    ldrb r1, [r0]
-    adds r1, #8
-    lsls r0, r4, #1
-    adds r0, #1
-    lsls r0, r0, #3
-    adds r1, r1, r0
-    lsls r1, r1, #0x18
-    lsrs r1, r1, #0x18
-    ldr r0, .L08003EE0 @ =0xFFFFFF00
-    ldr r2, [sp]
-    ands r2, r0
-    orrs r2, r1
-    lsls r1, r2, #7
-    lsrs r1, r1, #0x17
-    adds r1, #0x10
-    ldr r0, .L08003EE4 @ =0x000001FF
-    ands r1, r0
-    lsls r1, r1, #0x10
-    ldr r0, .L08003EE8 @ =0xFE00FFFF
-    ands r0, r2
-    orrs r0, r1
-    str r0, [sp]
-    adds r0, r5, #0
-    bl HardwareContext_GetOamBuffer
-    mov r2, sp
-    ldr r1, [sp]
-    str r1, [r0, #0x34]
-    ldrh r1, [r2, #4]
-    strh r1, [r0, #0x38]
-    add sp, #8
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08003EE0: .4byte 0xFFFFFF00
-.L08003EE4: .4byte 0x000001FF
-.L08003EE8: .4byte 0xFE00FFFF
 
     .section .text.after_08003EEC,"ax",%progbits
     thumb_func_start func_08003F9C
