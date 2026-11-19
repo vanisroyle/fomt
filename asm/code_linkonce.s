@@ -30792,7 +30792,7 @@ func_080E3504: @ 0x080E3504
 	cmp r0, #0
 	beq .L080E3518
 	movs r1, #3
-	bl func_080CE3DC
+	bl DestroyPagedPanelDrawCommands
 .L080E3518:
 	adds r0, r6, #0
 	adds r0, #0x90
@@ -31347,7 +31347,7 @@ func_080E3910: @ 0x080E3910
 	thumb_func_start func_080E3914
 func_080E3914: @ 0x080E3914
 	push {lr}
-	bl func_080D0340
+	bl StopJoybus
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -31355,7 +31355,7 @@ func_080E3914: @ 0x080E3914
 	thumb_func_start func_080E3920
 func_080E3920: @ 0x080E3920
 	push {lr}
-	bl func_080D02F0
+	bl StartJoybus
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -31564,7 +31564,7 @@ func_080E3A8C: @ 0x080E3A8C
 	push {lr}
 	adds r0, r1, #0
 	adds r1, r2, #0
-	bl func_080D0444
+	bl SetJoybusHandshakeWords
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -34689,7 +34689,7 @@ func_080E5418: @ 0x080E5418
 	ldr r0, .L080E5428 @ =gUnk_03000414
 	ldr r0, [r0]
 	ldr r0, [r0]
-	bl func_080CA6F4
+	bl HandleMenuBg1ScanlineInterrupt
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -35407,7 +35407,7 @@ func_080E5898: @ 0x080E5898
 .L080E5956:
 	adds r0, r5, #0
 	mov r1, r8
-	bl func_080CADF0
+	bl DestroyPanelDrawCommands
 	pop {r3}
 	mov r8, r3
 	pop {r4, r5, r6, r7}
