@@ -16253,12 +16253,12 @@ func_080A6660: @ 0x080A6660
 	adds r0, r6, #0
 	adds r1, r5, #0
 	adds r2, r7, #0
-	bl func_0809D8D4
+	bl GetMineTileState
 	adds r4, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
 	adds r2, r7, #0
-	bl func_0809E0AC
+	bl GetMineTileGraphics
 	lsls r1, r5, #1
 	adds r1, #2
 	lsls r2, r7, #1
@@ -16270,13 +16270,13 @@ func_080A6660: @ 0x080A6660
 	adds r5, #1
 .L080A6AF2:
 	adds r0, r6, #0
-	bl func_0809D8A4
+	bl GetMineFloorWidth
 	cmp r5, r0
 	blo .L080A6AC8
 	mov r7, sb
 .L080A6AFE:
 	adds r0, r6, #0
-	bl func_0809D8B8
+	bl GetMineFloorHeight
 	cmp r7, r0
 	blo .L080A6AC0
 	bl .L080A746E
@@ -24245,7 +24245,7 @@ func_080AA850: @ 0x080AA850
 .L080AA872:
 	mov r0, sp
 	adds r2, r6, #0
-	bl func_0809C510
+	bl GetMapPatch
 	ldr r1, [sp]
 	ldr r2, [sp, #4]
 	ldr r3, [sp, #8]
