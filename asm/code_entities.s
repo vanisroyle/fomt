@@ -1808,99 +1808,7 @@ func_08029F30: @ 0x08029F30
     bx r0
     .align 2, 0
 
-    thumb_func_start func_0802A400
-func_0802A400: @ 0x0802A400
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    adds r6, r0, #0
-    adds r7, r1, #0
-    adds r0, #0xa4
-    movs r1, #0
-    mov r8, r1
-    movs r2, #1
-    mov sb, r2
-    mov r1, sb
-    strb r1, [r0]
-    subs r0, #0x1c
-    strb r1, [r0]
-    mov r2, r8
-    strb r2, [r0, #1]
-    movs r1, #0xa8
-    lsls r1, r1, #0xd
-    mov r2, r8
-    str r2, [r0, #4]
-    str r2, [r0, #8]
-    str r1, [r0, #0x14]
-    ldr r5, [r6, #0x10]
-    cmp r5, #0
-    beq .L0802A46A
-    adds r0, r7, #0
-    bl GetIconId__C4Food
-    adds r4, r0, #0
-    lsls r4, r4, #0x10
-    lsrs r4, r4, #0x10
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    adds r2, r4, #0
-    bl func_0805E850
-    adds r0, r5, #0
-    adds r0, #0xc8
-    mov r1, sb
-    strb r1, [r0]
-    adds r0, #2
-    mov r2, r8
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-.L0802A46A:
-    ldr r5, [r6, #0x14]
-    adds r0, r7, #0
-    bl GetStaminaGain__C4Food
-    adds r4, r0, #0
-    adds r0, r7, #0
-    bl GetFatigueGain__C4Food
-    adds r2, r0, #0
-    ldr r3, [r5, #0x64]
-    adds r0, r6, #0
-    adds r1, r4, #0
-    bl _call_via_r3
-    adds r0, r7, #0
-    bl IsDrink__C4Food
-    cmp r0, #0
-    bne .L0802A498
-    adds r1, r6, #0
-    adds r1, #0x3c
-    movs r0, #0x36
-    b .L0802A49E
-.L0802A498:
-    adds r1, r6, #0
-    adds r1, #0x3c
-    movs r0, #0x37
-.L0802A49E:
-    strb r0, [r1]
-    adds r0, r6, #0
-    adds r0, #0xc0
-    movs r1, #1
-    strb r1, [r0]
-    movs r1, #0xa3
-    lsls r1, r1, #1
-    adds r0, r6, #0
-    bl SetAnim__12AActorEntityUi
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
+    .section .text.entities_part2.0802A4C0,"ax",%progbits
 
     thumb_func_start func_0802A4C0
 func_0802A4C0: @ 0x0802A4C0
@@ -2540,217 +2448,7 @@ func_0802A7E0: @ 0x0802A7E0
     pop {r1}
     bx r1
 
-    thumb_func_start func_0802AA84
-func_0802AA84: @ 0x0802AA84
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0xc
-    mov r8, r0
-    movs r0, #0
-    mov sb, r0
-    mov r1, r8
-    ldr r0, [r1, #0x34]
-    ldr r1, .L0802AAD8 @ =0x00001C34
-    adds r5, r0, r1
-    adds r0, r5, #0
-    bl IsEmpty__C9ToolStack
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0802AACA
-    mov r0, r8
-    ldr r4, [r0, #0x34]
-    ldr r1, .L0802AADC @ =0x00001BD8
-    adds r4, r4, r1
-    adds r0, r5, #0
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    add r1, sp, #8
-    strb r0, [r1]
-    movs r0, #0
-    bl WateringCan_GetEffectiveLevel
-    mov sb, r0
-.L0802AACA:
-    mov r1, r8
-    ldr r0, [r1, #0x34]
-    ldr r1, .L0802AAE0 @ =0x00001C38
-    adds r7, r0, r1
-    movs r6, #0
-    b .L0802AB1E
-    .align 2, 0
-.L0802AAD8: .4byte 0x00001C34
-.L0802AADC: .4byte 0x00001BD8
-.L0802AAE0: .4byte 0x00001C38
-.L0802AAE4:
-    adds r0, r7, #0
-    adds r1, r6, #0
-    bl GetToolAt__C8RucksackUi
-    adds r5, r0, #0
-    bl IsEmpty__C9ToolStack
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0802AB1C
-    mov r0, r8
-    ldr r4, [r0, #0x34]
-    ldr r1, .L0802AB90 @ =0x00001BD8
-    adds r4, r4, r1
-    adds r0, r5, #0
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    mov r1, sp
-    adds r1, #9
-    strb r0, [r1]
-    mov r0, sb
-    bl WateringCan_GetEffectiveLevel
-    mov sb, r0
-.L0802AB1C:
-    adds r6, #1
-.L0802AB1E:
-    adds r0, r7, #0
-    bl GetSize__C8Rucksack
-    cmp r6, r0
-    blo .L0802AAE4
-    mov r1, r8
-    ldr r0, [r1, #0x34]
-    movs r1, #0xe0
-    lsls r1, r1, #2
-    adds r7, r0, r1
-    movs r6, #0
-.L0802AB34:
-    adds r0, r7, #0
-    adds r1, r6, #0
-    bl GetToolStackAt__C9ToolChestUi
-    adds r5, r0, #0
-    bl IsEmpty__C9ToolStack
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0802AB6C
-    mov r0, r8
-    ldr r4, [r0, #0x34]
-    ldr r1, .L0802AB90 @ =0x00001BD8
-    adds r4, r4, r1
-    adds r0, r5, #0
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    mov r1, sp
-    adds r1, #0xa
-    strb r0, [r1]
-    mov r0, sb
-    bl WateringCan_GetEffectiveLevel
-    mov sb, r0
-.L0802AB6C:
-    adds r6, #1
-    cmp r6, #0x3f
-    bls .L0802AB34
-    ldr r1, .L0802AB94 @ =gUnk_080F11B4
-    mov r0, sp
-    movs r2, #7
-    bl memcpy
-    mov r0, sp
-    add r0, sb
-    ldrb r0, [r0]
-    add sp, #0xc
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0802AB90: .4byte 0x00001BD8
-.L0802AB94: .4byte gUnk_080F11B4
-
-    thumb_func_start func_0802AB98
-func_0802AB98: @ 0x0802AB98
-    push {r4, lr}
-    adds r3, r0, #0
-    adds r0, r1, #0
-    cmp r2, #1
-    beq .L0802ABB6
-    cmp r2, #1
-    bgt .L0802ABAC
-    cmp r2, #0
-    beq .L0802ABCC
-    b .L0802AC1A
-.L0802ABAC:
-    cmp r2, #2
-    beq .L0802ABE6
-    cmp r2, #3
-    beq .L0802ABFE
-    b .L0802AC1A
-.L0802ABB6:
-    movs r2, #0xa
-    ldrsh r1, [r0, r2]
-    movs r4, #0xe
-    ldrsh r2, [r0, r4]
-    subs r0, r1, #4
-    strh r0, [r3]
-    adds r0, r2, #0
-    subs r0, #0x14
-    strh r0, [r3, #2]
-    adds r1, #4
-    b .L0802AC12
-.L0802ABCC:
-    movs r2, #0xa
-    ldrsh r1, [r0, r2]
-    movs r4, #0xe
-    ldrsh r2, [r0, r4]
-    subs r0, r1, #4
-    strh r0, [r3]
-    subs r0, r2, #6
-    strh r0, [r3, #2]
-    adds r1, #4
-    strh r1, [r3, #4]
-    adds r2, #0x12
-    strh r2, [r3, #6]
-    b .L0802AC24
-.L0802ABE6:
-    movs r2, #0xa
-    ldrsh r1, [r0, r2]
-    movs r4, #0xe
-    ldrsh r2, [r0, r4]
-    adds r0, r1, #0
-    subs r0, #0x14
-    strh r0, [r3]
-    adds r0, r2, #0
-    subs r0, #0xe
-    strh r0, [r3, #2]
-    adds r1, #4
-    b .L0802AC12
-.L0802ABFE:
-    movs r2, #0xa
-    ldrsh r1, [r0, r2]
-    movs r4, #0xe
-    ldrsh r2, [r0, r4]
-    subs r0, r1, #4
-    strh r0, [r3]
-    adds r0, r2, #0
-    subs r0, #0xe
-    strh r0, [r3, #2]
-    adds r1, #0x14
-.L0802AC12:
-    strh r1, [r3, #4]
-    adds r2, #2
-    strh r2, [r3, #6]
-    b .L0802AC24
-.L0802AC1A:
-    movs r0, #0
-    strh r0, [r3]
-    strh r0, [r3, #2]
-    strh r0, [r3, #4]
-    strh r0, [r3, #6]
-.L0802AC24:
-    adds r0, r3, #0
-    pop {r4}
-    pop {r2}
-    bx r2
+    .section .text.entities_part2.0802AC2C,"ax",%progbits
 
     thumb_func_start func_0802AC2C
 func_0802AC2C: @ 0x0802AC2C
@@ -2781,7 +2479,7 @@ func_0802AC2C: @ 0x0802AC2C
     ldrb r2, [r0]
     mov r0, sp
     mov r1, sb
-    bl func_0802AB98
+    bl GetFarmerInteractionBox
     ldr r0, [sp]
     ldr r1, [sp, #4]
     str r0, [sp, #8]
@@ -5436,88 +5134,6 @@ func_0802C2E0: @ 0x0802C2E0
     pop {r3}
     mov r8, r3
     pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_0802C860
-func_0802C860: @ 0x0802C860
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r6, r0, #0
-    adds r1, r6, #0
-    adds r1, #0x3c
-    movs r0, #0xa
-    strb r0, [r1]
-    adds r1, #1
-    movs r0, #0x14
-    strb r0, [r1]
-    adds r0, r6, #0
-    bl ShowFarmerToolDisplay
-    ldr r0, [r6]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L0802C8A4
-.L0802C892:
-    ldr r0, [r4]
-    bl func_08008CD0
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802C8E8
-    adds r4, #4
-    cmp r4, r5
-    bne .L0802C892
-.L0802C8A4:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L0802C8A8:
-    movs r1, #0xbc
-    bl func_08008B6C
-    ldr r4, [r6, #0x38]
-    adds r0, r4, #0
-    adds r0, #0x5c
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    mov r1, sp
-    strb r0, [r1]
-    mov r0, sp
-    bl GetId__C4Tool
-    cmp r0, #0x4d
-    bne .L0802C8EC
-    ldr r4, [r6, #0x14]
-    movs r5, #2
-    rsbs r5, r5, #0
-    adds r0, r6, #0
-    bl FarmerEntity_GetToolFatiguePenalty
-    adds r2, r0, #0
-    ldr r3, [r4, #0x64]
-    adds r0, r6, #0
-    adds r1, r5, #0
-    bl _call_via_r3
-    b .L0802C900
-.L0802C8E8:
-    ldr r0, [r4]
-    b .L0802C8A8
-.L0802C8EC:
-    ldr r4, [r6, #0x14]
-    adds r0, r6, #0
-    bl FarmerEntity_GetToolFatiguePenalty
-    adds r2, r0, #0
-    ldr r3, [r4, #0x64]
-    adds r0, r6, #0
-    movs r1, #0
-    bl _call_via_r3
-.L0802C900:
-    add sp, #4
-    pop {r4, r5, r6}
     pop {r0}
     bx r0
 
@@ -8384,7 +8000,7 @@ func_0802DE94: @ 0x0802DE94
     cmp r0, #0xe
     bne .L0802E0EC
     adds r0, r6, #0
-    bl func_0802C860
+    bl BeginFarmerToolDisplay
     b .L0802E0F2
 .L0802E0EC:
     adds r0, r6, #0
@@ -8504,7 +8120,7 @@ func_0802E0FC: @ 0x0802E0FC
     ldrb r2, [r4]
     add r0, sp, #0x2c
     adds r1, r7, #0
-    bl func_0802AB98
+    bl GetFarmerInteractionBox
     ldr r0, [sp, #0x2c]
     ldr r1, [sp, #0x30]
     str r0, [sp, #0x34]
@@ -11585,7 +11201,7 @@ func_0802F0EC: @ 0x0802F0EC
     ldrb r2, [r4]
     add r0, sp, #0x4c
     mov r1, sl
-    bl func_0802AB98
+    bl GetFarmerInteractionBox
     ldr r0, [sp, #0x4c]
     ldr r1, [sp, #0x50]
     str r0, [sp, #0x54]
@@ -15173,7 +14789,7 @@ sub_08030E0A: @ 0x08030E0A
     ldr r7, [sp, #0x13c]
     strb r0, [r7]
     mov r0, sl
-    bl func_0802AA84
+    bl GetFarmerWateringCanCapacity
     adds r1, r0, #0
     mov r2, sl
     ldr r0, [r2, #0x38]

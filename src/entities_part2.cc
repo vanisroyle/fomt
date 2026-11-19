@@ -1,5 +1,6 @@
 #include "farmer_entity_layout.hh"
 #include "entity_sound_channel.hh"
+#include "farm_house.hh"
 
 #define ENTITY_CODE(addr) SECTION(".text.entities_part2." #addr)
 
@@ -40,6 +41,8 @@ struct FarmerIconGameVTable
 };
 
 EC void func_0805E850(SpriteAnimator * animator, void * sprites, u32 animation);
+EC void func_0803260C(FarmerIconGraphics * graphics);
+EC u32 func_0805E8F0(SpriteAnimator * animator);
 
 inline void * FarmerItemSprites(FarmerIconGraphics * graphics)
 {
@@ -57,6 +60,42 @@ inline void RestartFarmerIcon(FarmerIconState * state)
     *flags = 0;
     ++flags;
     *flags = 1;
+}
+
+struct FarmerActionVTable
+{
+    STRUCT_PAD(0x00, 0x64);
+    bool (*change_stamina_and_fatigue)(FarmerEntity * farmer, i32 stamina, i32 fatigue);
+};
+
+EC i32 IsDrink__C4Food(Food const * food);
+
+EC void BeginFarmerEatingAnimation(FarmerEntity * farmer, Food const * food) ENTITY_CODE(0802A400);
+EC void BeginFarmerEatingAnimation(FarmerEntity * farmer, Food const * food)
+{
+    farmer->item_animation_override = true;
+    ThrownItemMotion * item = &farmer->thrown_item;
+    item->active = true;
+    item->display_mode = 0;
+    item->Launch(0, 0, 21 * 65536);
+    FarmerIconGraphics * graphics = static_cast<FarmerIconGraphics *>(farmer->unk_10.Get());
+    if (graphics != nullptr)
+    {
+        u16 animation = food->GetIconId();
+        void * sprites = FarmerItemSprites(graphics);
+        func_0805E850(&graphics->icon_animator, sprites, animation);
+        RestartFarmerIcon(&graphics->icon_state);
+    }
+    FarmerActionVTable const * actions = reinterpret_cast<FarmerActionVTable const **>(farmer)[5];
+    i32 stamina = food->GetStaminaGain();
+    i32 fatigue = food->GetFatigueGain();
+    actions->change_stamina_and_fatigue(farmer, stamina, fatigue);
+    if (!IsDrink__C4Food(food))
+        farmer->state = 54;
+    else
+        farmer->state = 55;
+    farmer->unk_C0 = true;
+    farmer->SetAnim(0x146);
 }
 
 EC void ShowFarmerToolDisplay(FarmerEntity * farmer) ENTITY_CODE(0802A510);
@@ -82,6 +121,66 @@ EC void CancelFarmerItemDisplay(FarmerEntity * farmer) ENTITY_CODE(0802A7D8);
 EC void CancelFarmerItemDisplay(FarmerEntity * farmer)
 {
     farmer->thrown_item.active = false;
+}
+
+struct FarmerToolInventory
+{
+    STRUCT_PAD(0x00, 0x380);
+    ToolChest tool_chest;
+    STRUCT_PAD(0x400, 0x1BD8);
+    Farmer farmer;
+};
+
+EC u32 WateringCan_GetEffectiveLevel(u32 minimum, Tool const * tool);
+EC u8 const gUnk_080F11B4[7];
+
+EC u32 GetFarmerWateringCanCapacity(FarmerEntity const * farmer) ENTITY_CODE(0802AA84);
+EC u32 GetFarmerWateringCanCapacity(FarmerEntity const * farmer)
+{
+    u32 level = 0;
+    FarmerToolInventory const * inventory = reinterpret_cast<FarmerToolInventory const *>(farmer->game_state);
+    ToolStack const * held_tool = &inventory->farmer.unk_5C;
+    if (!held_tool->IsEmpty())
+    {
+        Tool tool = func_0800E550(reinterpret_cast<FarmerToolInventory const *>(farmer->game_state)->farmer, held_tool->GetTool());
+        level = WateringCan_GetEffectiveLevel(0, &tool);
+    }
+    Rucksack const * rucksack = &reinterpret_cast<FarmerToolInventory const *>(farmer->game_state)->farmer.rucksack;
+    for (u32 slot = 0; slot < rucksack->GetSize(); ++slot)
+    {
+        ToolStack const * stack = &rucksack->GetToolAt(slot);
+        if (!stack->IsEmpty())
+        {
+            Tool tool = func_0800E550(reinterpret_cast<FarmerToolInventory const *>(farmer->game_state)->farmer, stack->GetTool());
+            level = WateringCan_GetEffectiveLevel(level, &tool);
+        }
+    }
+    ToolChest const * chest = &reinterpret_cast<FarmerToolInventory const *>(farmer->game_state)->tool_chest;
+    for (u32 slot = 0; slot < ToolChest::CAPACITY; ++slot)
+    {
+        ToolStack const * stack = chest->GetToolStackAt(slot);
+        if (!stack->IsEmpty())
+        {
+            Tool tool = func_0800E550(reinterpret_cast<FarmerToolInventory const *>(farmer->game_state)->farmer, stack->GetTool());
+            level = WateringCan_GetEffectiveLevel(level, &tool);
+        }
+    }
+    u8 capacities[7];
+    memcpy(capacities, gUnk_080F11B4, sizeof(capacities));
+    return capacities[level];
+}
+
+EC Box GetFarmerInteractionBox(FarmerEntity const * farmer, i32 facing) ENTITY_CODE(0802AB98);
+EC Box GetFarmerInteractionBox(FarmerEntity const * farmer, i32 facing)
+{
+    switch (facing)
+    {
+    case 1: return Box(-4, -20, 4, 2, farmer->x_q16 >> 16, farmer->y_q16 >> 16);
+    case 0: return Box(-4, -6, 4, 18, farmer->x_q16 >> 16, farmer->y_q16 >> 16);
+    case 2: return Box(-20, -14, 4, 2, farmer->x_q16 >> 16, farmer->y_q16 >> 16);
+    case 3: return Box(-4, -14, 20, 2, farmer->x_q16 >> 16, farmer->y_q16 >> 16);
+    default: return Box(0, 0);
+    }
 }
 
 EC FarmerEntity * FarmerEntity_Init(FarmerEntity * farmer, GameObject * game, void * state);
@@ -193,9 +292,6 @@ EC void BeginItemDisplayStateTwo(ItemDisplayEntity * display)
     display->active = true;
 }
 
-EC void func_0803260C(FarmerIconGraphics * graphics);
-EC u32 func_0805E8F0(SpriteAnimator * animator);
-
 EC void TickItemDisplayIcon(FarmerIconGraphics * graphics) ENTITY_CODE(0802BFA0);
 EC void TickItemDisplayIcon(FarmerIconGraphics * graphics)
 {
@@ -222,6 +318,33 @@ EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game)
 EC void FarmerEntityInitNoOp(FarmerEntity * farmer) ENTITY_CODE(0802C2DC);
 EC void FarmerEntityInitNoOp(FarmerEntity * farmer)
 {
+}
+
+EC u32 FarmerEntity_GetToolFatiguePenalty(FarmerEntity * farmer);
+
+EC void BeginFarmerToolDisplay(FarmerEntity * farmer) ENTITY_CODE(0802C860);
+EC void BeginFarmerToolDisplay(FarmerEntity * farmer)
+{
+    u8 * state = &farmer->state;
+    *state++ = 10;
+    *state = 20;
+    ShowFarmerToolDisplay(farmer);
+    func_08008B6C(FindEntitySoundChannel(farmer->game_object), 188);
+    Farmer const * model = farmer->farmer;
+    Tool tool = func_0800E550(*model, model->unk_5C.GetTool());
+    if (tool.GetId() == TOOL_TELEPORT_STONE)
+    {
+        FarmerActionVTable const * actions = reinterpret_cast<FarmerActionVTable const **>(farmer)[5];
+        i32 stamina = -2;
+        u32 fatigue = FarmerEntity_GetToolFatiguePenalty(farmer);
+        actions->change_stamina_and_fatigue(farmer, stamina, fatigue);
+    }
+    else
+    {
+        FarmerActionVTable const * actions = reinterpret_cast<FarmerActionVTable const **>(farmer)[5];
+        u32 fatigue = FarmerEntity_GetToolFatiguePenalty(farmer);
+        actions->change_stamina_and_fatigue(farmer, 0, fatigue);
+    }
 }
 
 EC void TickFarmerToolCharge(FarmerEntity * farmer) ENTITY_CODE(0802C908);
