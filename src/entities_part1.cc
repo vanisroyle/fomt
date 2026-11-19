@@ -266,6 +266,16 @@ EC u32 func_0800F344(HeldItem const * self);
 EC void func_08010014(void * self, Location const & location);
 EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 state);
 EC void __builtin_delete(void * ptr);
+EC void * __builtin_new(size_t size);
+EC UnknownEntityThing * func_0802B260(void * memory, FarmerEntity * self);
+EC bool func_0809C694(void * flags, u32 flag);
+
+struct FarmerEventStateView
+{
+    STRUCT_PAD(0x00, 0x2171);
+    u8 unk_2171_0 : 3;
+    u8 unk_2171_3 : 2;
+};
 
 struct EntityGameCalendar
 {
@@ -400,7 +410,46 @@ inline void LaunchFarmerHeldItem(FarmerEntity * self)
 }
 
 
+inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
+{
+    return func_080AC070(map, &box);
+}
+
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+// 0x08025294
+EC bool FarmerEntity_IsAdjacentBoxClear(FarmerEntity const * self, void * map, i32 facing, Box const * box) ENTITY_CODE(08025294);
+EC bool FarmerEntity_IsAdjacentBoxClear(FarmerEntity const * self, void * map, i32 facing, Box const * box)
+{
+    Box bounds(-1, -1, 689, 401, 272, 176);
+    if (((bounds.x1 - box->x2) & (box->x1 - bounds.x2) & (bounds.y1 - box->y2) & (box->y1 - bounds.y2)) < 0)
+    {
+        switch (facing)
+        {
+        case 0: if (!IsEntityCollisionBoxBlocked(map, box->Moved(0, box->y2 - box->y1 + 16))) return true; break;
+        case 1: if (!IsEntityCollisionBoxBlocked(map, box->Moved(0, -(box->y2 - box->y1 + 16)))) return true; break;
+        case 2: if (!IsEntityCollisionBoxBlocked(map, box->Moved(-(box->x2 - box->x1 + 16), 0))) return true; break;
+        case 3: if (!IsEntityCollisionBoxBlocked(map, box->Moved(box->x2 - box->x1 + 16, 0))) return true; break;
+        }
+    }
+    return false;
+}
+
+// 0x08024B9C
+EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self) ENTITY_CODE(08024B9C);
+EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self)
+{
+    u32 priority = 2;
+    if (self->location_map == 19)
+    {
+        FarmerEventStateView * events = reinterpret_cast<FarmerEventStateView *>(self->game_state);
+        u32 event_state = events->unk_2171_3;
+        if (event_state == 1 || func_0809C694(reinterpret_cast<u8 *>(events) + 0x214C, 74))
+            priority = 1;
+    }
+    self->unk_21 = priority;
+    return func_0802B260(__builtin_new(0x284), self);
+}
 
 // 0x080233B4
 EC u32 CowEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state) ENTITY_CODE(080233B4);
