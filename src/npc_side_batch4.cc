@@ -330,3 +330,83 @@ EC u32 HasThirtySideEntityItems(SideEntityItemCounter * self)
         active = 1;
     return active;
 }
+
+struct SideActorRecord
+{
+    ActorLocation location;
+    u16 animation;
+    u16 sprite_value;
+};
+
+struct RecordedSideActor : AActorEntity
+{
+    RecordedSideActor();
+    SideActorRecord * record;
+};
+
+EC UnknownEntityThing * InitializeSideActorSprite(UnknownEntityThing * self, AActorEntity * actor);
+EC UnknownEntityThing * CreateRecordedSideActorSprite(AActorEntity * self) NPC_SIDE_CODE(080329B4);
+EC UnknownEntityThing * CreateRecordedSideActorSprite(AActorEntity * self)
+{
+    struct Storage { u8 bytes[0x8C]; };
+    return InitializeSideActorSprite(reinterpret_cast<UnknownEntityThing *>(new Storage), self);
+}
+
+EC u32 GetRecordedSideActorValue(RecordedSideActor * self) NPC_SIDE_CODE(080329CC);
+EC u32 GetRecordedSideActorValue(RecordedSideActor * self)
+{
+    return self->record->sprite_value;
+}
+
+EC void SetRecordedSideActorValue(RecordedSideActor * self, u32 value) NPC_SIDE_CODE(080329D4);
+EC void SetRecordedSideActorValue(RecordedSideActor * self, u32 value)
+{
+    self->record->sprite_value = value;
+}
+
+EC bool WillSideActorSpriteLoop(UnknownEntityThing * self) NPC_SIDE_CODE(08032A58);
+EC bool WillSideActorSpriteLoop(UnknownEntityThing * self)
+{
+    return WillSpriteAnimationLoop(&self->sprite_animator);
+}
+
+EC void RefreshSideActorSpriteClip(UnknownEntityThing * self, u32 clip_id) NPC_SIDE_CODE(08032B04);
+EC void RefreshSideActorSpriteClip(UnknownEntityThing * self, u32 clip_id)
+{
+    SetSpriteAnimatorClip(&self->sprite_animator, clip_id);
+    self->unk_44 = 1;
+    self->unk_46 = 0;
+    self->unk_47 = 1;
+}
+
+EC u32 GetSideActorUpdateTimer(AActorEntity * self) NPC_SIDE_CODE(08032B28);
+EC u32 GetSideActorUpdateTimer(AActorEntity * self)
+{
+    return self->unk_24;
+}
+
+EC u32 IsSideActorUpdateTimerExpired(AActorEntity * self) NPC_SIDE_CODE(08032B2C);
+EC u32 IsSideActorUpdateTimerExpired(AActorEntity * self)
+{
+    u32 expired = 0;
+    if (self->unk_24 == 0)
+        expired = 1;
+    return expired;
+}
+
+EC void SideActorIdleNoOp() NPC_SIDE_CODE(08032B40);
+EC void SideActorIdleNoOp()
+{
+}
+
+EC u32 GetSideActorBaseAnimation(AActorEntity * self) NPC_SIDE_CODE(08032B58);
+EC u32 GetSideActorBaseAnimation(AActorEntity * self)
+{
+    return self->anim_id;
+}
+
+EC u32 GetSideActorFacing(AActorEntity * self) NPC_SIDE_CODE(08032B80);
+EC u32 GetSideActorFacing(AActorEntity * self)
+{
+    return self->facing;
+}
