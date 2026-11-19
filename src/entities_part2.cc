@@ -464,6 +464,65 @@ EC u32 GetItemDisplayStateAnimation(ItemDisplayEntity const * display)
     return animation;
 }
 
+enum
+{
+    FACING_DOWN = 0,
+    FACING_UP = 1,
+    FACING_LEFT = 2,
+    FACING_RIGHT = 3,
+};
+
+EC void BeginItemDisplayThrow(ItemDisplayEntity * display) ENTITY_CODE(0802BE68);
+EC void BeginItemDisplayThrow(ItemDisplayEntity * display)
+{
+    const i32 throw_speed = 109226;
+    register i32 facing asm("r2") = display->facing;
+    ThrownItemMotion * motion;
+    register i32 velocity asm("r1");
+    switch (facing)
+    {
+    case FACING_LEFT:
+        motion = &display->thrown_item;
+        velocity = -throw_speed;
+        facing = 0;
+        motion->x_velocity = velocity;
+        asm volatile("" : : : "memory");
+        motion->y_velocity = facing;
+        goto reset_vertical_velocity;
+    case FACING_RIGHT:
+        motion = &display->thrown_item;
+        velocity = throw_speed;
+        facing = 0;
+        motion->x_velocity = velocity;
+        motion->y_velocity = facing;
+        goto reset_vertical_velocity;
+    case FACING_UP:
+        motion = &display->thrown_item;
+        facing = 0;
+        velocity = -throw_speed;
+        goto set_y_velocity;
+    case FACING_DOWN:
+        motion = &display->thrown_item;
+        velocity = throw_speed;
+        goto set_y_velocity;
+    default:
+        goto start_animation;
+    }
+set_y_velocity:
+    motion->x_velocity = facing;
+    motion->y_velocity = velocity;
+reset_vertical_velocity:
+    motion->z_velocity = facing;
+start_animation:
+    u8 * state = reinterpret_cast<u8 *>(display) + 0x34;
+    int throwing = 1;
+    *state = throwing;
+    bool * restart = reinterpret_cast<bool *>(state + 0x24);
+    *restart = throwing;
+    display->SetAnim(static_cast<u16>(GetItemDisplayStateAnimation(display)));
+    display->active = throwing;
+}
+
 EC void BeginItemDisplayStateTwo(ItemDisplayEntity * display) ENTITY_CODE(0802BEFC);
 EC void BeginItemDisplayStateTwo(ItemDisplayEntity * display)
 {
@@ -591,10 +650,6 @@ enum
     INPUT_R = 1 << 8,
     INPUT_L = 1 << 9,
     TURN_INPUT_MASK = INPUT_A | INPUT_B | INPUT_RIGHT | INPUT_LEFT | INPUT_UP | INPUT_DOWN | INPUT_R | INPUT_L,
-    FACING_DOWN = 0,
-    FACING_UP = 1,
-    FACING_LEFT = 2,
-    FACING_RIGHT = 3,
     FARMER_TURN_STATE = 24,
 };
 

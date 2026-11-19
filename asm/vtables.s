@@ -445,7 +445,9 @@ vtable_unk_080E65E0:
 
 	.global vtable_unk_080E65F4
 vtable_unk_080E65F4:
-	.incbin "baserom.gba", 0xE65F4, 0x50
+	.incbin "baserom.gba", 0xE65F4, 0x48
+	.4byte BeginItemDisplayThrow
+	.incbin "baserom.gba", 0xE6640, 0x4
 
 	.global vtable_unk_080E6644
 vtable_unk_080E6644:
