@@ -175,6 +175,106 @@ EC SECTION(".text.080AAF10") MapTileCacheNode * GetFirstMapTileCacheNode(MapTile
     return iterator;
 }
 
+struct SavedMapPatchRecord
+{
+    u32 words[4];
+};
+
+EC u32 GetMapStateBit(u8 *, u32, u32);
+EC void func_080A1CBC(SavedMapPatchRecord &, u8 *, unsigned);
+EC void func_080AA9C8(MapUpdateState &, SavedMapPatchRecord const &);
+EC u8 const gUnk_08107450[][2];
+
+static inline MapTileCache & GetMapTileCacheForRefresh(MapUpdateState * map)
+{
+    register MapUpdateState * base asm("r0") = map;
+    asm ("" : "+l" (base));
+    register MapTileCache * cache asm("r0") = reinterpret_cast<MapTileCache *>(reinterpret_cast<u8 *>(base) + 0x9C);
+    asm ("" : "+l" (cache));
+    return *cache;
+}
+
+EC SECTION(".text.080AACB8") void RefreshMapTileCacheForState(MapUpdateState & state)
+{
+    register MapUpdateState * map asm("r5") = &state;
+    asm ("" : "+l" (map));
+    register unsigned season asm("r8") = func_0800E324(state.save->GetCalendar());
+    asm ("" : "+h" (season));
+    unsigned mapId = reinterpret_cast<u32 *>(map)[1];
+    register u32 firstTile asm("r1");
+    register MapTileCache * cache asm("r0");
+    switch (mapId)
+    {
+    case 14:
+        cache = &GetMapTileCacheForRefresh(map);
+        firstTile = 968;
+        goto resetCache;
+    case 15:
+        cache = &GetMapTileCacheForRefresh(map);
+        firstTile = 996;
+        goto resetCache;
+    case 8:
+        cache = &GetMapTileCacheForRefresh(map);
+        firstTile = 704;
+        goto resetCache;
+    case 4: ResetMapTileCache(GetMapTileCacheForRefresh(map), 998, 12); break;
+    case 10:
+    case 12:
+        cache = &GetMapTileCacheForRefresh(map);
+        firstTile = 992;
+        goto resetCache;
+    case 11:
+    case 13:
+        cache = &GetMapTileCacheForRefresh(map);
+        firstTile = 692;
+    resetCache:
+        ResetMapTileCache(*cache, firstTile, 9);
+        break;
+    case 0:
+        ResetMapTileCache(GetMapTileCacheForRefresh(map), 0, 0);
+        if (season == 2)
+            break;
+        return;
+    default:
+        ResetMapTileCache(GetMapTileCacheForRefresh(map), 0, 0);
+        return;
+    }
+
+    u8 * patches = reinterpret_cast<u8 *>(map->save) + 0x34C8;
+    register u8 const * ranges asm("r0") = &gUnk_08107450[0][0];
+    asm ("" : "+l" (ranges));
+    register unsigned seasonIndex asm("r2") = season;
+    asm ("" : "+l" (seasonIndex));
+    register unsigned rangeOffset asm("r1") = seasonIndex * sizeof(gUnk_08107450[0]);
+    asm ("" : "+l" (rangeOffset));
+    register u8 const * startIndex asm("r2");
+    asm ("add %0, %1, %2" : "=l" (startIndex) : "l" (rangeOffset), "l" (ranges) : "cc");
+    ++ranges;
+    asm ("" : "+l" (ranges));
+    register u8 const * endIndex asm("r1");
+    asm ("add %0, %1, %2" : "=l" (endIndex) : "l" (rangeOffset), "l" (ranges) : "cc");
+    unsigned end = *endIndex;
+    unsigned index = *startIndex;
+    SavedMapPatchRecord patch;
+    while (index < end)
+    {
+        if (static_cast<u8>(GetMapStateBit(patches, index, season)))
+        {
+            func_080A1CBC(patch, patches, index);
+            func_080AA9C8(*map, patch);
+        }
+        ++index;
+    }
+    for (index = 96; index < 116; ++index)
+    {
+        if (static_cast<u8>(GetMapStateBit(patches, index, season)))
+        {
+            func_080A1CBC(patch, patches, index);
+            func_080AA9C8(*map, patch);
+        }
+    }
+}
+
 EC SECTION(".text.080AAF1C") MapTileCacheNode * GetEndMapTileCacheNode(MapTileCache const & cache)
 {
     MapTileCacheNode * iterator = cache.index.header;
