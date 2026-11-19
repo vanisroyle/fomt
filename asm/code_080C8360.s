@@ -7265,68 +7265,6 @@ func_080CBDD4: @ 0x080CBDD4
 .L080CC0AC: .4byte 0x0600F080
 .L080CC0B0: .4byte 0x0600F082
 
-	thumb_func_start func_080CC0B4
-func_080CC0B4: @ 0x080CC0B4
-	push {r4, r5, r6, lr}
-	mov r6, r8
-	push {r6}
-	sub sp, #0x10
-	adds r4, r0, #0
-	movs r1, #0xa0
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	bl ClearUiEntry
-	ldr r0, .L080CC128 @ =gInventorySpecialSlotCountPosition
-	ldr r0, [r0]
-	str r0, [sp, #0xc]
-	add r2, sp, #0xc
-	mov r8, r2
-	ldrb r1, [r2, #1]
-	lsls r1, r1, #6
-	add r0, sp, #0xc
-	ldrb r0, [r0]
-	lsls r0, r0, #1
-	ldr r2, .L080CC12C @ =0x0600F000
-	adds r0, r0, r2
-	adds r1, r1, r0
-	movs r0, #2
-	str r0, [sp]
-	movs r6, #0
-	str r6, [sp, #4]
-	movs r5, #0x20
-	str r5, [sp, #8]
-	adds r0, r4, #0
-	movs r2, #0x54
-	movs r3, #2
-	bl QueuePanelTileDraw
-	mov r0, r8
-	ldrb r1, [r0, #1]
-	lsls r1, r1, #6
-	add r0, sp, #0xc
-	ldrb r0, [r0]
-	lsls r0, r0, #1
-	ldr r2, .L080CC130 @ =0x0600F080
-	adds r0, r0, r2
-	adds r1, r1, r0
-	movs r0, #1
-	str r0, [sp]
-	str r6, [sp, #4]
-	str r5, [sp, #8]
-	adds r0, r4, #0
-	movs r2, #0x54
-	movs r3, #2
-	bl QueuePanelTileDraw
-	add sp, #0x10
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080CC128: .4byte gInventorySpecialSlotCountPosition
-.L080CC12C: .4byte 0x0600F000
-.L080CC130: .4byte 0x0600F080
-
 .section .text.g5_080CC15C, "ax"
 
 	thumb_func_start func_080CC15C
@@ -9707,52 +9645,6 @@ func_080CD14C: @ 0x080CD14C
 	.byte 0x20, 0x23, 0xFD, 0xF7, 0x1B, 0xFD, 0x04, 0xB0, 0x08, 0xBC, 0x98, 0x46, 0xF0, 0xBC, 0x01, 0xBC
 	.byte 0x00, 0x47, 0x00, 0x00, 0x5C, 0x78, 0x11, 0x08, 0x00, 0xFF, 0xFF, 0xFF, 0x80, 0xF0, 0x00, 0x06
 	.byte 0x82, 0xF0, 0x00, 0x06
-
-	thumb_func_start func_080CD4D4
-func_080CD4D4: @ 0x080CD4D4
-	push {r4, lr}
-	sub sp, #0x10
-	adds r4, r0, #0
-	movs r1, #0xa0
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	bl ClearUiEntry
-	ldr r0, .L080CD528 @ =gInventorySpecialSlotCountPosition
-	ldr r1, [r0]
-	adds r0, r1, #0
-	adds r0, #0xf
-	lsls r0, r0, #0x18
-	lsrs r0, r0, #0x18
-	ldr r2, .L080CD52C @ =0xFFFFFF00
-	ands r1, r2
-	orrs r1, r0
-	str r1, [sp, #0xc]
-	add r0, sp, #0xc
-	ldrb r1, [r0, #1]
-	lsls r1, r1, #6
-	ldrb r0, [r0]
-	lsls r0, r0, #1
-	ldr r2, .L080CD530 @ =0x0600F080
-	adds r0, r0, r2
-	adds r1, r1, r0
-	movs r0, #1
-	str r0, [sp]
-	movs r0, #0
-	str r0, [sp, #4]
-	movs r0, #0x20
-	str r0, [sp, #8]
-	adds r0, r4, #0
-	movs r2, #0x54
-	movs r3, #2
-	bl QueuePanelTileDraw
-	add sp, #0x10
-	pop {r4}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080CD528: .4byte gInventorySpecialSlotCountPosition
-.L080CD52C: .4byte 0xFFFFFF00
-.L080CD530: .4byte 0x0600F080
 
 .section .text.g5_080CD578, "ax"
 

@@ -143606,7 +143606,7 @@ func_08088688: @ 0x08088688
 	b .L08088B8C
 .L08088822:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, r8
@@ -143949,7 +143949,7 @@ func_08088688: @ 0x08088688
 	ldr r0, [sp, #0xc]
 	str r0, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -144144,7 +144144,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r0, [sp, #0x10]
 	str r0, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sl
@@ -144225,7 +144225,7 @@ func_08088BA0: @ 0x08088BA0
 	movs r1, #1
 	bl AddAmount__9FoodStackUi
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sl
@@ -145808,7 +145808,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r0, [r1]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
@@ -145934,7 +145934,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r0, [r1]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L08089EBC
 .L08089C8E:
 	ldr r0, [sp, #0x1c]
@@ -146392,7 +146392,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r0, [r1]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -146897,7 +146897,7 @@ func_0808A4C0: @ 0x0808A4C0
 	ldr r0, [r0]
 	bl func_0800F390
 	ldr r0, [r5, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L0808A552
 .L0808A4DC:
 	cmp r6, #8
@@ -148112,7 +148112,7 @@ func_0808AC28: @ 0x0808AC28
 	b .L0808AF78
 .L0808AF18:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r2, [r7, #0x78]
 	mov r8, r2
 	adds r0, r7, #0
@@ -148329,7 +148329,7 @@ func_0808AC28: @ 0x0808AC28
 	b .L0808B158
 .L0808B0FE:
 	ldr r0, [r7, #0x7c]
-	bl func_080CD4D4
+	bl InventoryMenu_ClearRightSpecialSlotCount
 	ldr r4, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
@@ -148631,7 +148631,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r1, r5, #0
 	bl DrawInventorySlotCount
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L0808BA4A
 .L0808B39A:
 	mov r1, sl
@@ -148722,7 +148722,7 @@ func_0808B16C: @ 0x0808B16C
 	b .L0808B4C8
 .L0808B466:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r1, [r7, #0x78]
 	mov r8, r1
 	adds r0, r7, #0
@@ -149628,7 +149628,7 @@ func_0808BC14: @ 0x0808BC14
 	ldr r0, [r0]
 	bl func_0800F390
 	ldr r0, [r5, #0x7c]
-	bl func_080CD4D4
+	bl InventoryMenu_ClearRightSpecialSlotCount
 	b .L0808BCC2
 	.align 2, 0
 .L0808BC64: .4byte 0x00001BD8
@@ -151437,7 +151437,7 @@ func_0808C9D0: @ 0x0808C9D0
 	b .L0808CEB0
 .L0808CB6A:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
@@ -151755,7 +151755,7 @@ func_0808C9D0: @ 0x0808C9D0
 	movs r2, #2
 	bl memcpy
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -151935,7 +151935,7 @@ func_0808CEC4: @ 0x0808CEC4
 	movs r2, #2
 	bl memcpy
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
@@ -152014,7 +152014,7 @@ func_0808CEC4: @ 0x0808CEC4
 	movs r1, #1
 	bl AddAmount__12ArticleStackUi
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
@@ -153512,7 +153512,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r0, [r2]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
@@ -153600,7 +153600,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r0, [r1]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L0808E0B4
 .L0808DEC6:
 	ldr r2, [sp, #0x18]
@@ -153984,7 +153984,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r0, [r2]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -154481,7 +154481,7 @@ func_0808E65C: @ 0x0808E65C
 	ldr r0, [r0]
 	bl func_0800F390
 	ldr r0, [r5, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L0808E6F4
 .L0808E678:
 	cmp r6, #8
@@ -156024,7 +156024,7 @@ func_0808F080: @ 0x0808F080
 	b .L0808F6C2
 .L0808F36C:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r2, [r7, #0x78]
 	mov r8, r2
 	adds r0, r7, #0
@@ -156406,7 +156406,7 @@ func_0808F080: @ 0x0808F080
 	bl GetTool__C9ToolStack
 	adds r5, r0, #0
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -156687,7 +156687,7 @@ func_0808F784: @ 0x0808F784
 	adds r1, r4, #0
 	bl DrawRightInventorySlotCount
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	bl .L080908B0
 .L0808F956:
 	movs r3, #0x82
@@ -156774,7 +156774,7 @@ func_0808F784: @ 0x0808F784
 	movs r2, #2
 	bl memcpy
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r3, [r7, #0x7c]
 	mov r8, r3
 	adds r0, r7, #0
