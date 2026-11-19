@@ -894,9 +894,9 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803B0A8);
         asm/code_0803A8A4.o(.text.0803B128);
         src/code_0803A8A4.o(.text.0803B2A8);
-        asm/code_0803A8A4.o(.text.0803B368);
+        src/map_overlay_draw.o(.text.0803B368);
         src/code_0803A8A4.o(.text.0803B454);
-        asm/code_0803A8A4.o(.text.0803B4DC);
+        src/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);
         asm/code_0803A8A4.o(.text.0803B718);
         src/code_0803A8A4.o(.text.0803B840);
@@ -1172,6 +1172,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A4B6C);
         src/g1_map_animation.o(.text.g1_080A4BEC);
         asm/g1_npc.o(.text.g1_after_b5_080A4BEC);
+        src/g1_map_dma.o(.text.g1_080A5670);
         src/g1_map_location.o(.text.g1_080A56DC);
         asm/g1_npc.o(.text.g1_after_b4_080A56DC);
         src/g1_map_motion.o(.text.g1_080A58EC);
@@ -1235,8 +1236,10 @@ SECTIONS
         src/map_updates.o(.text.080AAF28);
         src/map_updates.o(.text.080AAF3C);
         asm/code_809E804.o(.text.080AAF9C);
+        src/map_scene.o(.text.080AB2E4);
         src/map_scene.o(.text.080AB380);
         asm/code_809E804.o(.text.080AB410);
+        src/map_scene.o(.text.080AB68C);
         src/entity_movement.o(.text.080AB788);
         src/entity_movement.o(.text.080AB7A4);
         src/entity_movement.o(.text.080AB82C);
@@ -1261,7 +1264,7 @@ SECTIONS
         asm/code_809E804.o(.text.080ACC10);
         src/map_scene.o(.text.080AD3B0);
         src/map_scene.o(.text.080AD49C);
-        asm/code_809E804.o(.text.080AD5D8);
+        src/map_scene.o(.text.080AD5D8);
         src/map_scene.o(.text.080AD69C);
         src/map_scene.o(.text.080AD724);
         asm/code_809E804.o(.text.080AD774);
@@ -1328,7 +1331,8 @@ SECTIONS
         src/chicken_feeding.o(.text.080B0934);
         src/chicken_feeding.o(.text.080B0970);
         src/chicken_feeding.o(.text.080B09B0);
-        asm/code_809E804.o(.text.080B0AA0);
+        src/chicken_feeding.o(.text.080B0AA0);
+        asm/code_809E804.o(.text.080B0BB8);
         src/chicken_feeding.o(.text.080B1B40);
         src/chicken_feeding.o(.text.080B1D34);
         asm/code_809E804.o(.text.080B1D94);
