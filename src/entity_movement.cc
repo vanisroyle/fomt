@@ -25,16 +25,175 @@ struct EntityCollisionProbe
     int up;
     int left;
     int right;
-    bool downClear;
-    bool upClear;
-    bool leftClear;
-    bool rightClear;
+    u8 downClear;
+    u8 upClear;
+    u8 leftClear;
+    u8 rightClear;
     EntityCollisionGrid grid;
     ProbeRectangle bounds;
     int step;
     int horizontalLookahead;
     int verticalLookahead;
 };
+
+EC void func_080AC124(EntityCollisionGrid const &, ProbeRectangle const &, int *, int *, int *, int *);
+EC u32 func_080AC070(EntityCollisionGrid const &, ProbeRectangle const &);
+
+EC SECTION(".text.080AB85C") void ProbeEntityCollisionDown(EntityCollisionProbe & probe)
+{
+    probe.down = probe.step;
+    register EntityCollisionGrid const * grid asm("r8") = &probe.grid;
+    asm ("" : "+h" (grid));
+    register ProbeRectangle const * bounds asm("r6") = &probe.bounds;
+    asm ("" : "+l" (bounds));
+    func_080AC124(*grid, *bounds, &probe.down, nullptr, nullptr, nullptr);
+
+    u32 clear;
+    if (probe.verticalLookahead)
+    {
+        register int offset asm("r3") = probe.down + probe.verticalLookahead;
+        asm ("" : "+l" (offset));
+        register int left asm("r4") = probe.bounds.left;
+        asm ("" : "+l" (left));
+        register int top asm("r1") = bounds->top;
+        asm ("" : "+l" (top));
+        register int right asm("r5") = bounds->right;
+        asm ("" : "+l" (right));
+        register int bottom asm("r6") = bounds->bottom;
+        asm ("" : "+l" (bottom));
+        ProbeRectangle shifted;
+        register ProbeRectangle * destination asm("r2") = &shifted;
+        asm ("" : "+l" (destination));
+        register ProbeRectangle * firstEdge asm("r0") = destination;
+        asm ("" : "+l" (firstEdge));
+        firstEdge->left = left;
+        destination->top = offset + top;
+        destination->right = right;
+        destination->bottom = offset + bottom;
+        clear = func_080AC070(*grid, *destination) ^ 1;
+    }
+    else
+        clear = 0;
+    probe.downClear = clear;
+}
+
+EC SECTION(".text.080AB8D0") void ProbeEntityCollisionUp(EntityCollisionProbe & probe)
+{
+    probe.up = -probe.step;
+    register EntityCollisionGrid const * grid asm("r8") = &probe.grid;
+    asm ("" : "+h" (grid));
+    register ProbeRectangle const * bounds asm("r6") = &probe.bounds;
+    asm ("" : "+l" (bounds));
+    func_080AC124(*grid, *bounds, nullptr, &probe.up, nullptr, nullptr);
+
+    u32 clear;
+    if (probe.verticalLookahead)
+    {
+        register int offset asm("r3") = probe.up - probe.verticalLookahead;
+        asm ("" : "+l" (offset));
+        register int left asm("r4") = probe.bounds.left;
+        asm ("" : "+l" (left));
+        register int top asm("r1") = bounds->top;
+        asm ("" : "+l" (top));
+        register int right asm("r5") = bounds->right;
+        asm ("" : "+l" (right));
+        register int bottom asm("r6") = bounds->bottom;
+        asm ("" : "+l" (bottom));
+        ProbeRectangle shifted;
+        register ProbeRectangle * destination asm("r2") = &shifted;
+        asm ("" : "+l" (destination));
+        register ProbeRectangle * firstEdge asm("r0") = destination;
+        asm ("" : "+l" (firstEdge));
+        firstEdge->left = left;
+        destination->top = offset + top;
+        destination->right = right;
+        destination->bottom = offset + bottom;
+        clear = func_080AC070(*grid, *destination) ^ 1;
+    }
+    else
+        clear = 0;
+    probe.upClear = clear;
+}
+
+EC SECTION(".text.080AB948") void ProbeEntityCollisionLeft(EntityCollisionProbe & probe)
+{
+    probe.left = -probe.step;
+    register EntityCollisionGrid const * grid asm("r8") = &probe.grid;
+    asm ("" : "+h" (grid));
+    register ProbeRectangle const * bounds asm("r6") = &probe.bounds;
+    asm ("" : "+l" (bounds));
+    func_080AC124(*grid, *bounds, nullptr, nullptr, &probe.left, nullptr);
+
+    u32 clear;
+    if (probe.horizontalLookahead)
+    {
+        register int offset asm("r1") = probe.left - probe.horizontalLookahead;
+        asm ("" : "+l" (offset));
+        register int left asm("r2") = probe.bounds.left;
+        asm ("" : "+l" (left));
+        register int top asm("r4") = bounds->top;
+        asm ("" : "+l" (top));
+        register int right asm("r5") = bounds->right;
+        asm ("" : "+l" (right));
+        register int bottom asm("r6") = bounds->bottom;
+        asm ("" : "+l" (bottom));
+        ProbeRectangle shifted;
+        register ProbeRectangle * destination asm("r3") = &shifted;
+        asm ("" : "+l" (destination));
+        left = offset + left;
+        asm ("" : "+l" (left));
+        register ProbeRectangle * firstEdge asm("r0") = destination;
+        asm ("" : "+l" (firstEdge));
+        firstEdge->left = left;
+        destination->top = top;
+        destination->right = offset + right;
+        destination->bottom = bottom;
+        clear = func_080AC070(*grid, *destination) ^ 1;
+    }
+    else
+        clear = 0;
+    probe.leftClear = clear;
+}
+
+EC SECTION(".text.080AB9C4") void ProbeEntityCollisionRight(EntityCollisionProbe & probe)
+{
+    probe.right = probe.step;
+    register EntityCollisionGrid const * grid asm("r8") = &probe.grid;
+    asm ("" : "+h" (grid));
+    register ProbeRectangle const * bounds asm("r6") = &probe.bounds;
+    asm ("" : "+l" (bounds));
+    func_080AC124(*grid, *bounds, nullptr, nullptr, nullptr, &probe.right);
+
+    u32 clear;
+    if (probe.horizontalLookahead)
+    {
+        register int offset asm("r1") = probe.right + probe.horizontalLookahead;
+        asm ("" : "+l" (offset));
+        register int left asm("r2") = probe.bounds.left;
+        asm ("" : "+l" (left));
+        register int top asm("r4") = bounds->top;
+        asm ("" : "+l" (top));
+        register int right asm("r5") = bounds->right;
+        asm ("" : "+l" (right));
+        register int bottom asm("r6") = bounds->bottom;
+        asm ("" : "+l" (bottom));
+        ProbeRectangle shifted;
+        register ProbeRectangle * destination asm("r3") = &shifted;
+        asm ("" : "+l" (destination));
+        left = offset + left;
+        asm ("" : "+l" (left));
+        register ProbeRectangle * firstEdge asm("r0") = destination;
+        asm ("" : "+l" (firstEdge));
+        firstEdge->left = left;
+        destination->top = top;
+        destination->right = offset + right;
+        destination->bottom = bottom;
+        clear = func_080AC070(*grid, *destination) ^ 1;
+    }
+    else
+        clear = 0;
+    probe.rightClear = clear;
+}
 
 EC SECTION(".text.080ABA3C") EntityCollisionProbe * InitializeEntityCollisionProbe(EntityCollisionProbe * probe)
 {

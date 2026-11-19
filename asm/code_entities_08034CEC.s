@@ -1284,7 +1284,7 @@ func_08037118: @ 0x08037118
     cmp r1, r0
     ble .L08037162
     adds r0, r4, #0
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
     ldr r0, [r4]
     b .L08037164
 .L08037162:
@@ -1297,7 +1297,7 @@ func_08037118: @ 0x08037118
     cmp r1, r0
     ble .L0803717A
     adds r0, r4, #0
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
     ldr r0, [r4]
     b .L0803717C
 .L0803717A:
@@ -1314,7 +1314,7 @@ func_08037118: @ 0x08037118
     cmn r1, r0
     bge .L08037198
     adds r0, r4, #0
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
     ldr r0, [r4, #4]
     b .L0803719A
 .L08037198:
@@ -1327,7 +1327,7 @@ func_08037118: @ 0x08037118
     cmn r1, r0
     bge .L080371B0
     adds r0, r4, #0
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
     ldr r0, [r4, #4]
     b .L080371B2
 .L080371B0:
@@ -1345,7 +1345,7 @@ func_08037118: @ 0x08037118
     cmn r1, r0
     bge .L080371D0
     adds r0, r4, #0
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
     ldr r0, [r4, #8]
     b .L080371D2
 .L080371D0:
@@ -1358,7 +1358,7 @@ func_08037118: @ 0x08037118
     cmn r1, r0
     bge .L080371E8
     adds r0, r4, #0
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
     ldr r0, [r4, #8]
     b .L080371EA
 .L080371E8:
@@ -1377,7 +1377,7 @@ func_08037118: @ 0x08037118
     cmp r1, r0
     ble .L0803720A
     adds r0, r4, #0
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
     ldr r0, [r4, #0xc]
     b .L0803720C
 .L0803720A:
@@ -1390,7 +1390,7 @@ func_08037118: @ 0x08037118
     cmp r1, r0
     ble .L08037222
     adds r0, r4, #0
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
     ldr r0, [r4, #0xc]
     b .L08037224
 .L08037222:
@@ -1553,7 +1553,7 @@ func_0803726C: @ 0x0803726C
     cmn r1, r0
     bge .L0803738A
     add r0, sp, #0xc
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
     ldr r0, [sp, #0x14]
     b .L0803738C
 .L0803738A:
@@ -1569,7 +1569,7 @@ func_0803726C: @ 0x0803726C
     cmp r1, r0
     ble .L080373A6
     add r0, sp, #0xc
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
     ldr r0, [sp, #0x18]
     b .L080373A8
 .L080373A6:
@@ -1585,7 +1585,7 @@ func_0803726C: @ 0x0803726C
     cmn r1, r0
     bge .L080373C2
     add r0, sp, #0xc
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
     ldr r0, [sp, #0x10]
     b .L080373C4
 .L080373C2:
@@ -1601,7 +1601,7 @@ func_0803726C: @ 0x0803726C
     cmp r1, r0
     ble .L080373DE
     add r0, sp, #0xc
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
     ldr r0, [sp, #0xc]
     b .L080373E0
 .L080373DE:
@@ -5825,7 +5825,7 @@ func_0803A180: @ 0x0803A180
     cmp r1, r0
     ble .L0803A226
     adds r0, r3, #0
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
     ldr r0, [sp, #0xc]
     b .L0803A228
 .L0803A226:
@@ -5843,7 +5843,7 @@ func_0803A180: @ 0x0803A180
     cmn r1, r0
     bge .L0803A244
     adds r0, r3, #0
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
     ldr r1, [sp, #0x10]
 .L0803A244:
     movs r0, #1
@@ -5860,7 +5860,7 @@ func_0803A180: @ 0x0803A180
     cmn r1, r0
     bge .L0803A264
     adds r0, r3, #0
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
     ldr r1, [sp, #0x14]
 .L0803A264:
     movs r0, #1
@@ -5877,7 +5877,7 @@ func_0803A180: @ 0x0803A180
     cmp r1, r0
     ble .L0803A286
     adds r0, r3, #0
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
     ldr r0, [sp, #0x18]
     b .L0803A288
 .L0803A286:

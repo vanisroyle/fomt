@@ -569,40 +569,40 @@ struct MineFloor
     u8 unk_627;
 };
 
-ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(MineFloor const &, unsigned value)
+ROM_TEXT(0809D418) unsigned GetSpringMineDigWeightRow(MineFloor const &, unsigned floor)
 {
     unsigned row = 0;
-    if (value == 0)
+    if (floor == 0)
         goto done;
-    if (value <= 9)
+    if (floor <= 9)
         return 1;
-    if (value <= 99)
+    if (floor <= 99)
     {
         row = 2;
-        for (unsigned bound = 20; bound <= 99 && value >= bound; bound += 20)
+        for (unsigned bound = 20; bound <= 99 && floor >= bound; bound += 20)
             ++row;
         return row;
     }
-    if (value == 100)
+    if (floor == 100)
         return 7;
-    if (value <= 249)
+    if (floor <= 249)
     {
         row = 8;
-        for (unsigned bound = 130; bound <= 249 && value >= bound; bound += 30)
+        for (unsigned bound = 130; bound <= 249 && floor >= bound; bound += 30)
             ++row;
         return row;
     }
     row = 14;
-    if (value > 254)
+    if (floor > 254)
         goto done;
     row = 13;
 done:
     return row;
 }
 
-ROM_TEXT(0809D418) unsigned func_0809D470(MineFloor const &, unsigned value)
+ROM_TEXT(0809D418) unsigned GetSpringMineRockWeightRow(MineFloor const &, unsigned floor)
 {
-    switch (value)
+    switch (floor)
     {
     case 20:
         return 12;
@@ -624,27 +624,27 @@ ROM_TEXT(0809D418) unsigned func_0809D470(MineFloor const &, unsigned value)
         return 20;
     }
 
-    unsigned result = value;
+    unsigned result = floor;
     if (result <= 10)
         goto done;
     result = 11;
-    if (value <= 19)
+    if (floor <= 19)
         goto done;
     result = 13;
-    if (value <= 29)
+    if (floor <= 29)
         goto done;
     result = 15;
-    if (value <= 39)
+    if (floor <= 39)
         goto done;
     result = 19;
-    if (value > 230)
+    if (floor > 230)
         goto done;
     result = 17;
 done:
     return result;
 }
 
-ROM_TEXT(0809D79C) unsigned GetAlternateMineFloorChanceRow(MineFloor const &, unsigned floor)
+ROM_TEXT(0809D79C) unsigned GetLakeMineDigWeightRow(MineFloor const &, unsigned floor)
 {
     unsigned row = floor;
     unsigned lastFloorInGroup;
@@ -682,9 +682,9 @@ done:
     return row;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D7D8(MineFloor const &, unsigned value)
+ROM_TEXT(0809D7D8) unsigned GetLakeMineRockWeightRow(MineFloor const &, unsigned floor)
 {
-    switch (value)
+    switch (floor)
     {
         case 255: return 55;
         case 30:
@@ -706,15 +706,15 @@ ROM_TEXT(0809D7D8) unsigned func_0809D7D8(MineFloor const &, unsigned value)
         case 160:
         case 180: return 43;
     }
-    if (value <= 20)
-        return value;
-    if (value > 250)
+    if (floor <= 20)
+        return floor;
+    if (floor > 250)
         return 54;
-    if (value <= 99)
-        return value % 10 + 20;
-    if (value > 199)
-        return value % 10 + 43;
-    return value % 10 + 32;
+    if (floor <= 99)
+        return floor % 10 + 20;
+    if (floor > 199)
+        return floor % 10 + 43;
+    return floor % 10 + 32;
 }
 
 ROM_TEXT(0809D7D8) u32 GetMineFloorKind(MineFloor const & self)
