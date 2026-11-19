@@ -84,6 +84,7 @@ struct GameStateMapData
 struct GameStateMapOwner;
 struct GameStateVaseDisplay;
 struct GameStatePackedSpriteArchive;
+struct MapTileEffectQueue;
 
 struct GameStateMapOverlay
 {
@@ -222,7 +223,8 @@ struct GameStateMapOwner
     GameStateSpriteCache sprite_cache;
     GameStatePackedSpriteArchive sprite_archives[13];
     GameStateMapEffect * map_effect;
-    STRUCT_PAD(0x1028, 0x1038);
+    MapTileEffectQueue * tile_effects;
+    STRUCT_PAD(0x102C, 0x1038);
     GameStateMapData * map_data;
     bool entities_enabled;
     STRUCT_PAD(0x103D, 0x1040);
@@ -965,6 +967,89 @@ EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameSt
         func_080AA6D0(*view, x * 2 + 34, y * 2 + 22, plot, adjacent);
     }
     return result;
+}
+
+EC void QueueDebrisEffect(MapTileEffectQueue *, int, int, u32) asm("func_080AB68C");
+EC int GetFieldDebrisQuadrant(FieldPlot const &) asm("GameStateVariant_GetColumn");
+
+EC SECTION(".text.game_state_c2.0801CDBC") u32 GameStateStrikeFieldDebris(GameStateMapOwner & game, int column, int row, int tool_strength)
+{
+    register int strength asm("sl") = tool_strength;
+    register u32 data_offset asm("r3") = 0x1038;
+    asm("" : "+l"(data_offset) : "h"(strength));
+    register GameStateMapData ** data_slot asm("r0") = reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(&game) + data_offset);
+    register GameStateMapData * state asm("r3") = *data_slot;
+    register u32 field_offset asm("r0") = 0x9DC;
+    asm("" : "+l"(field_offset) : "l"(state));
+    register u8 * field asm("r3") = reinterpret_cast<u8 *>(state) + field_offset;
+    register int index asm("r0") = row * Farm::FIELD_WIDTH;
+    index = column + index;
+    register FieldPlot & plot asm("r4") = *reinterpret_cast<FieldPlot *>(field + index * sizeof(FieldPlot));
+    register int x = column;
+    register int y asm("r8") = row;
+    register int result asm("r9");
+    if (plot.method_0800A78C())
+    {
+        register int quadrant asm("r0") = GetFieldDebrisQuadrant(plot);
+        if (quadrant == 1)
+            goto shift_left;
+        asm("" : "+l"(quadrant));
+        if (quadrant <= 1)
+            goto top_left;
+        if (quadrant == 2)
+            goto shift_up;
+        if (quadrant == 3)
+            goto shift_up_and_left;
+        goto top_left;
+    shift_left:
+        --x;
+        goto top_left;
+    shift_up:
+        {
+            register int back asm("r1") = -1;
+            asm("" : "+l"(back));
+            y += back;
+        }
+        goto top_left;
+    shift_up_and_left:
+        --x;
+        {
+            register int back asm("r2") = -1;
+            asm("" : "+l"(back));
+            y += back;
+        }
+    top_left:
+        result = GameStateDamageFieldDebris(game, x, y, strength);
+        register int east asm("r5") = x + 1;
+        GameStateDamageFieldDebris(game, east, y, strength);
+        register int south asm("r4") = y + 1;
+        GameStateDamageFieldDebris(game, x, south, strength);
+        GameStateDamageFieldDebris(game, east, south, strength);
+    }
+    else
+        result = GameStateDamageFieldDebris(game, x, y, strength);
+    if (game.vtable->get_map_id(game) == 2)
+    {
+        register int effect asm("r3") = result;
+        asm("" : "+l"(effect));
+        if (effect == 1)
+            goto small_debris;
+        asm("" : "+l"(effect));
+        if (effect <= 1)
+            goto done;
+        if (effect == 2)
+            goto stump;
+        goto done;
+    small_debris:
+        game.map_data->farm.method_08009B68(1);
+        QueueDebrisEffect(game.tile_effects, x * 16 + 280, y * 16 + 187, 4);
+        goto done;
+    stump:
+        game.map_data->farm.method_08009B68(6);
+        QueueDebrisEffect(game.tile_effects, x * 16 + 288, y * 16 + 208, 7);
+    }
+done:
+    return 0;
 }
 
 EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
