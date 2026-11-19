@@ -9858,7 +9858,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -10776,7 +10776,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D9598 @ =0x0000057C
 	add r1, sp
 	str r2, [r1]
-	bl func_08038108
+	bl IsSideSpriteLaunched
 	lsls r0, r0, #0x18
 	ldr r3, .L080D9598 @ =0x0000057C
 	add r3, sp
@@ -11242,7 +11242,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -13401,7 +13401,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_0803880C
+	bl HasSideEntityParticles
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080DAAE6
@@ -13424,7 +13424,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_080387D8
+	bl IsSideEntityTransitionComplete
 .L080DAAB2:
 	lsls r0, r0, #0x18
 	cmp r0, #0
@@ -13782,7 +13782,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r0, [r6]
 	lsrs r1, r2, #0x1b
 	adds r0, #8
-	bl func_0803D240
+	bl SetClockHourTiles
 	ldr r7, .L080DAE48 @ =0x000004CC
 	add r7, sp
 	ldrb r1, [r7, #1]
@@ -13836,7 +13836,7 @@ sub_080DA76C: @ 0x080DA76C
 	mov r0, r8
 	adds r0, #8
 	adds r1, r4, #0
-	bl func_0803D0F0
+	bl SetClockDayAndWeekdayTiles
 	ldrb r1, [r7, #1]
 	lsls r1, r1, #0x1e
 	ldrb r0, [r5, #0x11]
@@ -14607,7 +14607,7 @@ func_080DB394: @ 0x080DB394
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805FCD0
+	bl InitChildhoodMemoryScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15081,7 +15081,7 @@ func_080DB8FC: @ 0x080DB8FC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805218C
+	bl InitializeFestivalResultsController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15199,7 +15199,7 @@ func_080DB9DC: @ 0x080DB9DC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805E624
+	bl InitMedalExchangeScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15259,7 +15259,7 @@ func_080DBA4C: @ 0x080DBA4C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_0805CEB8
+	bl InitHorseRaceScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -18481,7 +18481,7 @@ func_080DD460: @ 0x080DD460
 	bl func_0803A350
 .L080DD48C:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #6
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -19229,7 +19229,7 @@ func_080DD9CC: @ 0x080DD9CC
 	b .L080DDBD6
 .L080DD9F8:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #0x1e
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -19610,7 +19610,7 @@ func_080DDC78: @ 0x080DDC78
 	cmp r5, #1
 	bne .L080DDCEE
 	movs r0, #4
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #8
 	movs r2, #0x80
 	lsls r2, r2, #1
@@ -19628,7 +19628,7 @@ func_080DDC78: @ 0x080DDC78
 	b .L080DDD04
 .L080DDCEE:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r1, r0, #4
 	subs r1, r1, r0
 	lsls r1, r1, #2
@@ -19639,7 +19639,7 @@ func_080DDC78: @ 0x080DDC78
 	adds r4, r0, #0
 .L080DDD04:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #2
 	adds r0, #0xc
 	adds r1, r6, #0
@@ -19715,7 +19715,7 @@ func_080DDC78: @ 0x080DDC78
 	movs r5, #0xff
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A320
+	bl GetSideEntitySine
 	adds r4, r0, #0
 	lsls r4, r4, #0x10
 	asrs r4, r4, #0x10
@@ -19726,7 +19726,7 @@ func_080DDC78: @ 0x080DDC78
 	lsls r1, r1, #1
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A334
+	bl GetSideEntityCosine
 	lsls r0, r0, #0x10
 	adds r1, r6, #0
 	adds r1, #0x66
@@ -20765,7 +20765,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -20801,7 +20801,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -27016,7 +27016,7 @@ func_080E1844: @ 0x080E1844
 	lsls r1, r0, #2
 	adds r1, r1, r0
 	lsls r1, r1, #2
-	ldr r0, .L080E1888 @ =gUnk_080FB000
+	ldr r0, .L080E1888 @ =gMedalExchangePrizes
 	adds r5, r1, r0
 	adds r0, r5, #0
 	bl strlen
@@ -27040,7 +27040,7 @@ func_080E1844: @ 0x080E1844
 	bl strcpy
 	b .L080E189A
 	.align 2, 0
-.L080E1888: .4byte gUnk_080FB000
+.L080E1888: .4byte gMedalExchangePrizes
 .L080E188C:
 	mov r1, sp
 	movs r0, #0

@@ -8,6 +8,7 @@
 #include "item.hh"
 #include "farmer.hh"
 #include "farmer_entity_layout.hh"
+#include "entity_sound_channel.hh"
 #include "shipping_bin.hh"
 #include "coop.hh"
 #include <stdlib.h>
@@ -51,14 +52,6 @@ EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
 EC void func_0802A588(AEntity * self);
 
-struct EntityAnimationState
-{
-    STRUCT_PAD(0x00, 0x0E);
-    u16 frames;
-    i16 count;
-};
-
-EC bool func_0805E894(EntityAnimationState * state);
 EC bool func_080AC070(void * map, Box const * box);
 
 struct BarnAnimalEntity : AActorEntity
@@ -102,22 +95,8 @@ struct AnimalBehaviorTimer
     u32 unused : 8;
 };
 
-struct EntitySoundChannels
-{
-    void ** begin;
-    void ** end;
-};
-
 EC bool FarmerEntity_IsUsingCursedTool(FarmerEntity * self);
 
-struct EntitySoundGameVTable
-{
-    STRUCT_PAD(0x00, 0x14C);
-    EntitySoundChannels const * (*get_channels)(GameObject * game);
-};
-
-EC bool AudioPlayer_IsPlaying(void * channel);
-EC void AudioPlayer_StartSong(void * channel, u16 sound);
 EC void CancelFarmerItemDisplay(FarmerEntity * self);
 EC void ShowFarmerToolDisplay(FarmerEntity * self);
 EC void func_0800F4C0(HeldItem * self);
@@ -155,7 +134,7 @@ inline CarryableActorEntity * GetCarryableEntityById(GameObject * game, u32 id)
 
 EC char const vtable_unk_080E6428[];
 EC char const vtable_unk_080E64C8[];
-EC void func_08038374(CarryableActorEntity * self, i32 x, i32 y, u32 anim, u32 facing);
+EC void StartLaunchedSpriteMovement(CarryableActorEntity * self, i32 x, i32 y, u32 anim, u32 facing);
 EC void DogEntity_ResetBehavior(DogEntity * self, u32 time);
 EC Article func_0800F258(HeldItem const * self);
 EC u32 ChickenEntity_GetStateSpeed(AEntity * self, u32 value);
@@ -211,7 +190,7 @@ struct FarmerGameStateView
     STRUCT_PAD(0x14, 0x54);
     ShippingBin shipping_bin;
 };
-EC void func_080384FC(CarryableActorEntity * self);
+EC void StopLaunchedSpriteMovement(CarryableActorEntity * self);
 EC FarmerEntity * InitFarmerMapActor(FarmerEntity * self, GameObject * game, void * state);
 EC void FarmerEntityInitNoOp(FarmerEntity * self);
 EC char const vtable_unk_080E6658[];
@@ -281,20 +260,6 @@ struct EntityMovementBounds
         return positive_x;
     }
 };
-
-inline void * FindEntitySoundChannel(GameObject * game)
-{
-    EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
-    EntitySoundChannels const * channels = table->get_channels(game);
-    void ** it = channels->begin;
-    void ** end = channels->end;
-    for (; it != end; ++it)
-    {
-        if (!AudioPlayer_IsPlaying(*it))
-            return *it;
-    }
-    return end[-1];
-}
 
 inline i32 GetEntityFacing(AActorEntity const * self)
 {
@@ -734,8 +699,8 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->motion = 0;
     self->tool_state = 15;
     self->tool_level = 0;
-    self->unk_41 = false;
-    self->unk_42 = false;
+    self->tool_charge_limit = 0;
+    self->tool_charge_ticks = 0;
     self->unk_44 = 0;
     self->held_anim.Init();
     self->unk_78 = false;
@@ -746,16 +711,16 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->thrown_item.Init();
     self->item_animation_override = true;
     self->unk_A6 = 0;
-    self->unk_A8 = -1;
-    self->unk_AC = -1;
-    self->unk_B0 = false;
-    self->unk_B1 = false;
-    self->unk_B2 = 100;
+    self->last_discarded_item_kind = -1;
+    self->last_discarded_item_id = -1;
+    self->last_discard_special = false;
+    self->target_cow_slot = 0;
+    self->interaction_target_slot = 100;
     self->unk_B3 = false;
     self->unk_B4 = false;
-    self->unk_C0 = false;
+    self->consume_animation_active = false;
     self->unk_C1 = false;
-    self->unk_C2 = false;
+    self->update_paused = false;
     self->exhaustion_state = 0;
     self->unk_C4 = false;
     self->unk_C5 = false;
@@ -842,9 +807,9 @@ EC void func_08025018(FarmerEntity * self, u32 argument) ENTITY_CODE(08025018);
 EC void func_08025018(FarmerEntity * self, u32 argument)
 {
     self->unk_C1 = false;
-    if (!self->unk_C2)
+    if (!self->update_paused)
     {
-        if (self->unk_C0)
+        if (self->consume_animation_active)
         {
             func_0802F0EC(self, 0, 0);
             u16 anim = func_0802D158(self);
@@ -915,7 +880,7 @@ EC void DogEntity_PlaceCarriedTarget(DogEntity * self)
             if (!func_080AC070(const_cast<UnkMap *>(&map), &box))
                 break;
         }
-        func_080384FC(target);
+        StopLaunchedSpriteMovement(target);
     }
 }
 
@@ -953,7 +918,7 @@ EC DogEntity * DogEntity_Init(DogEntity * self, GameObject * game, Dog * dog, vo
         if (target != nullptr)
         {
             if (target->location_map == self->location_map)
-                func_08038374(target, self->x_q16, self->y_q16, self->anim_id, self->facing);
+                StartLaunchedSpriteMovement(target, self->x_q16, self->y_q16, self->anim_id, self->facing);
             else
                 DogEntity_ResetBehavior(self, 0);
         }
@@ -1468,9 +1433,9 @@ EC bool AEntity_IsAnimationFinished(AEntity * self)
     if (self->unk_10.Get() != nullptr)
     {
         bool result = false;
-        EntityAnimationState * state = reinterpret_cast<EntityAnimationState *>(&self->unk_10.Get()->sprite_animator);
-        bool active = state->frames != 0 && state->count != 0;
-        if (!active || func_0805E894(state))
+        SpriteAnimator * state = &self->unk_10.Get()->sprite_animator;
+        bool active = state->remaining_q8 != 0 && state->speed_q8 != 0;
+        if (!active || WillSpriteAnimationLoop(state))
             result = true;
         return result;
     }
