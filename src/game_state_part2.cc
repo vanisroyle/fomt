@@ -276,7 +276,7 @@ EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 b
 EC u32 func_0800E324(Unk_0800E324 const & clock);
 EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
 EC u8 * GameScript_GetSoundPlayers(GameStateScript & script);
-EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
+EC void GameScript_QueueSceneEvent(GameStateScript & script, GameStateScriptEvent const & event, i32 queue);
 EC void func_0801F3E4(GameStateMapOwner & game);
 EC bool SaveData_CollectShippingValue(GameStateMapData & state);
 EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
@@ -618,7 +618,7 @@ EC SECTION(".text.game_state_c2.0801D948") void GameStateDisableEntities(GameSta
 
 EC SECTION(".text.game_state_c2.0801D9A8") void GameStateQueueScriptEvent(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue)
 {
-    func_08012B24(*game.script, event, queue);
+    GameScript_QueueSceneEvent(*game.script, event, queue);
 }
 
 EC SECTION(".text.game_state_c2.0801DB44") GameStateAudioList * GameStateGetAudioList(GameStateMapOwner & game)

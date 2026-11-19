@@ -9,6 +9,7 @@
 #include "bachelorette.hh"
 
 #include <stdlib.h>
+#include <new>
 
 struct PACKED GameStateHeader
 {
@@ -442,6 +443,101 @@ struct GameStateScript
     GameStateRuntime * runtime;
 };
 
+extern u8 const gTaskNodeVtable[];
+extern u8 const gTaskListVtable[];
+extern u8 const vtable_unk_080E5BD8[];
+extern u8 const vtable_unk_080E5AF0[];
+extern u8 const vtable_unk_080E5AE0[];
+extern u8 const vtable_unk_080E5AD0[];
+EC void TaskNode_Destroy(void * node, u32 flags);
+EC void TaskList_Destroy(void * list, u32 flags);
+EC void TaskList_Append(void * list, void * node);
+
+struct GameStateFrameTaskNode
+{
+    GameStateFrameTaskNode()
+    {
+        vtable = gTaskNodeVtable;
+        previous = nullptr;
+        next = nullptr;
+    }
+
+    GameStateFrameTaskNode ** previous;
+    GameStateFrameTaskNode * next;
+    void const * vtable;
+};
+
+template <u8 const * TaskVtable> struct GameStateFrameTask
+{
+    explicit GameStateFrameTask(void * taskContext)
+    {
+        node.vtable = TaskVtable;
+        context = taskContext;
+    }
+
+    ~GameStateFrameTask() { TaskNode_Destroy(&node, 2); }
+
+    GameStateFrameTaskNode node;
+    void * context;
+};
+
+struct GameStateFrameTaskListNode : public GameStateFrameTaskNode
+{
+    GameStateFrameTaskListNode() { vtable = gTaskListVtable; }
+};
+
+struct GameStateFrameTaskEndNode : public GameStateFrameTaskNode
+{
+    GameStateFrameTaskEndNode() { vtable = vtable_unk_080E5BD8; }
+};
+
+struct GameStateFrameTaskList
+{
+    GameStateFrameTaskList() : first(&sentinel)
+    {
+        sentinel.previous = &first;
+        sentinel.next = &sentinel;
+    }
+
+    ~GameStateFrameTaskList() { TaskList_Destroy(this, 2); }
+
+    GameStateFrameTaskListNode node;
+    GameStateFrameTaskNode * first;
+    GameStateFrameTaskEndNode sentinel;
+};
+
+struct GameStateFrameTaskDispatch
+{
+    GameStateFrameTaskNode ** previous;
+    GameStateFrameTaskNode * next;
+
+    virtual bool Run();
+    virtual ~GameStateFrameTaskDispatch();
+    virtual void Append(void * node);
+    virtual void Remove(void * node);
+};
+
+EC GameStateFrameTaskDispatch & VBlankDispatcher_GetTasks(void * dispatcher);
+EC void VBlankDispatcher_Wait(void * dispatcher);
+
+// 0x08011CD8
+EC void SECTION(".text.game_state_08011CD8") GameState_RunVBlankFrameTasks(GameStateRuntime & runtime, void * oamBuffer)
+{
+    u8 * hardware = reinterpret_cast<u8 *>(&runtime);
+    GameStateFrameTask<vtable_unk_080E5AF0> display(hardware + 0x10);
+    GameStateFrameTask<vtable_unk_080E5AE0> oam(oamBuffer);
+    GameStateFrameTask<vtable_unk_080E5AD0> dma(hardware);
+    GameStateFrameTaskList tasks;
+    TaskList_Append(&tasks, hardware + 0x6C);
+    TaskList_Append(&tasks, &display);
+    TaskList_Append(&tasks, &dma);
+    TaskList_Append(&tasks, &oam);
+    void * dispatcher = hardware + 0x68;
+    VBlankDispatcher_GetTasks(dispatcher).Append(&tasks);
+    VBlankDispatcher_Wait(dispatcher);
+    VBlankDispatcher_GetTasks(dispatcher).Remove(&tasks);
+}
+
 // 0x08013E6C
 EC void SECTION(".text.game_state_08013E6C") GameScript_QueueSceneVariant2E(GameStateScript & script)
 {
@@ -559,6 +655,30 @@ struct GameStateScriptEngine : public ScriptEngine
     virtual int OnCall(int id);
 };
 
+struct GameStateScriptEvent
+{
+    GameStateScriptEvent(u32 id, u32 argument) : id(id), argument(argument) {}
+
+    u32 id;
+    u32 argument;
+};
+
+template <u32 Capacity> struct GameStateScriptEventQueue
+{
+    void Push(GameStateScriptEvent const & event)
+    {
+        if (count < Capacity)
+        {
+            u32 offset = sizeof(count) + count * sizeof(GameStateScriptEvent);
+            new (reinterpret_cast<u8 *>(this) + offset) GameStateScriptEvent(event);
+            count++;
+        }
+    }
+
+    u32 count;
+    GameStateScriptEvent events[Capacity];
+};
+
 struct GameStateGlobal
 {
     GameStateGlobal();
@@ -567,9 +687,31 @@ struct GameStateGlobal
     GameStateScriptEngine engine;
     STRUCT_PAD(0x364, 0x36C);
     GameStateGlobalStatus status;
+    GameStateScriptEventQueue<2> smallEventQueue;
+    GameStateScriptEventQueue<40> largeEventQueue;
+    GameStateScriptEventQueue<1> singleEventQueue;
 };
 
 extern GameStateGlobal * gActiveGameScene;
+
+// 0x08012B24
+EC void SECTION(".text.game_state_08012B24") GameScript_QueueSceneEvent(GameStateScript & script, GameStateScriptEvent const & event, i32 queue)
+{
+    GameStateGlobal & game = *gActiveGameScene;
+    GameStateScriptEventQueue<2> & small = game.smallEventQueue;
+    switch (queue)
+    {
+    case 0:
+        small.Push(event);
+        break;
+    case 1:
+        game.largeEventQueue.Push(event);
+        break;
+    case 2:
+        game.singleEventQueue.Push(event);
+        break;
+    }
+}
 
 // 0x08016D9C
 EC u32 SECTION(".text.game_state_08016D9C") GameScript_GetReturnMap()
