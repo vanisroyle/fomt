@@ -191,16 +191,28 @@ struct GameStateEntitySlotVtable
 
 struct GameStateSpriteCacheEntry
 {
-    STRUCT_PAD(0x0, 0x81);
+    STRUCT_PAD(0x0, 0x80);
+    i8 resourceIndex;
     bool active;
     STRUCT_PAD(0x82, 0x84);
+};
+
+struct GameStateSpriteCacheResource
+{
+    STRUCT_PAD(0, 8);
+    u8 spriteSlot;
+    i8 paletteIndex;
+    u8 flags;
+    STRUCT_PAD(0xB, 0xC);
 };
 
 struct GameStateSpriteCache
 {
     u8 slot_ids[32];
     GameStateSpriteCacheEntry entries[22];
-    STRUCT_PAD(0xB78, 0xC18);
+    GameStateSpriteCacheResource resources[13];
+    u8 assignedResources;
+    STRUCT_PAD(0xC15, 0xC18);
 };
 
 struct GameStatePackedSpriteArchive
@@ -251,7 +263,84 @@ struct GameStateMapOwner
 EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
 EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
     GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
-EC i32 func_080AC96C(GameStateSpriteCache & cache, u32 slot);
+EC SECTION(".text.080AC96C") i32 AssignMapSceneSpriteCacheSlot(GameStateSpriteCache & inputCache, u32 slot)
+{
+    register GameStateSpriteCache * receivedCache asm("r0") = &inputCache;
+    register u32 receivedPaletteIndex asm("r1") = slot;
+    register GameStateSpriteCache * cache asm("r4");
+    register u32 paletteIndex asm("r5");
+    asm ("add %0, %2, #0\n\tadd %1, %3, #0" : "=l" (cache), "=l" (paletteIndex) : "l" (receivedCache), "l" (receivedPaletteIndex));
+    register u32 entryOffset asm("r0") = paletteIndex * sizeof(GameStateSpriteCacheEntry);
+    asm ("" : "+l" (entryOffset));
+    register u8 * entryBase asm("r0") = reinterpret_cast<u8 *>(cache) + entryOffset;
+    asm ("" : "+l" (entryBase));
+    register i8 * resourceIndex asm("r6") = reinterpret_cast<i8 *>(entryBase);
+    asm ("" : "+l" (resourceIndex));
+    resourceIndex += offsetof(GameStateSpriteCache, entries) + offsetof(GameStateSpriteCacheEntry, resourceIndex);
+    asm ("" : "+l" (resourceIndex));
+    register unsigned invertedIndex asm("r0") = ~static_cast<u8>(*resourceIndex) << 24;
+    asm ("" : "+l" (invertedIndex));
+    u32 alreadyAssigned = invertedIndex >> 31;
+    asm ("" : "+l" (alreadyAssigned));
+    register GameStateSpriteCacheResource * resource asm("r1");
+    asm volatile ("" : : "X" (&&getSlot), "X" (&&capacityReached));
+    if (!alreadyAssigned)
+        goto assignResource;
+    {
+        register i32 index asm("r2") = *resourceIndex;
+        asm ("" : "+l" (index));
+        register u32 resourcesOffset asm("r0") = offsetof(GameStateSpriteCache, resources);
+        asm ("" : "+l" (resourcesOffset));
+        register u8 * resources asm("r1") = reinterpret_cast<u8 *>(cache) + resourcesOffset;
+        asm ("" : "+l" (resources));
+        register i32 offset asm("r0") = index * sizeof(GameStateSpriteCacheResource);
+        asm ("" : "+l" (offset));
+        resource = reinterpret_cast<GameStateSpriteCacheResource *>(resources + offset);
+        asm ("" : "+l" (resource));
+    }
+getSlot:
+    return resource->spriteSlot;
+assignResource:
+    {
+        register unsigned counterOffset asm("r0") = offsetof(GameStateSpriteCache, assignedResources);
+        asm ("" : "+l" (counterOffset));
+        register u8 * counter asm("r2") = reinterpret_cast<u8 *>(cache) + counterOffset;
+        asm ("" : "+l" (counter));
+        register u32 nextIndex asm("r3") = *counter;
+        asm ("" : "+l" (nextIndex));
+        u32 capacity = ARRAY_COUNT(cache->resources);
+        if (nextIndex < capacity)
+            goto slotAvailable;
+        goto capacityReached;
+    slotAvailable:
+        register u32 newIndex asm("r1") = nextIndex;
+        asm ("" : "+l" (newIndex));
+        *counter = newIndex + 1;
+        register unsigned resourcesOffset asm("r0") = offsetof(GameStateSpriteCache, resources);
+        asm ("" : "+l" (resourcesOffset));
+        register u8 * resources asm("r2") = reinterpret_cast<u8 *>(cache) + resourcesOffset;
+        asm ("" : "+l" (resources));
+        register unsigned offset asm("r0") = newIndex * sizeof(GameStateSpriteCacheResource);
+        asm ("" : "+l" (offset));
+        resource = reinterpret_cast<GameStateSpriteCacheResource *>(resources + offset);
+        asm ("" : "+l" (resource));
+        register i32 previousPalette asm("r0") = resource->paletteIndex;
+        asm ("" : "+l" (previousPalette));
+        if (previousPalette != static_cast<i32>(paletteIndex))
+        {
+            resource->paletteIndex = paletteIndex;
+            resource->flags = alreadyAssigned;
+        }
+        register i32 previousResource asm("r0") = *resourceIndex;
+        asm ("" : "+l" (previousResource));
+        if (previousResource == static_cast<i32>(nextIndex))
+            goto getSlot;
+        *resourceIndex = nextIndex;
+        goto getSlot;
+    }
+capacityReached:
+    return -1;
+}
 
 EC void ApplyMapRow15PatchA(GameStateMapView & view);
 EC void ApplyMapRow15PatchB(GameStateMapView & view);
@@ -1863,7 +1952,7 @@ EC SECTION(".text.game_state_c2.0801FCB4") i32 GameStateGetCachedSpriteSlot(Game
     i32 sprite_slot = cached - 0x10;
     if (sprite_slot < 0)
     {
-        sprite_slot = func_080AC96C(cache, slot);
+        sprite_slot = AssignMapSceneSpriteCacheSlot(cache, slot);
         cached = sprite_slot + 0x10;
     }
     return sprite_slot;
