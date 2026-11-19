@@ -43,6 +43,7 @@ struct ChickenEntityPart1 : AActorEntity
 };
 
 EC u16 const gUnk_080F09AC[];
+EC u16 const gUnk_080F0908[];
 EC u16 const gUnk_080F0A68[];
 EC u16 const gUnk_080F0C3C[];
 EC u16 const gUnk_080F0E34[];
@@ -399,6 +400,26 @@ inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC bool func_08025AFC(AEntity const * self) ENTITY_CODE(08025AFC);
+EC bool func_08025AFC(AEntity const * self)
+{
+    i32 map = self->location_map;
+    if (map <= 8)
+        return true;
+    return false;
+}
+
+EC u32 func_0802110C(DogEntityPart1 * self, u32 state) ENTITY_CODE(0802110C);
+EC u32 func_0802110C(DogEntityPart1 * self, u32 state)
+{
+    u32 offset = state;
+    u16 const * table = gUnk_080F0908;
+    offset *= 2;
+    if (self->dog->GetGrowthStage() == 1)
+        offset += 26;
+    return *reinterpret_cast<u16 const *>(reinterpret_cast<u8 const *>(table) + offset);
+}
 
 EC void func_08024A80(FarmerEntityPart1 * self, u32 flags) ENTITY_CODE(08024A80);
 EC void func_08024A80(FarmerEntityPart1 * self, u32 flags)

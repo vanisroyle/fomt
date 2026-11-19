@@ -1852,26 +1852,6 @@ func_080204CC: @ 0x080204CC
 .L08021104: .4byte 0xFFFF0000
 .L08021108: .4byte 0xFF00FFFF
 
-    .section .text.entities_part1.0802110C, "ax", %progbits
-    thumb_func_start func_0802110C
-func_0802110C: @ 0x0802110C
-    push {r4, r5, lr}
-    adds r4, r1, #0
-    ldr r5, .L0802112C @ =gUnk_080F0908
-    lsls r4, r4, #1
-    ldr r0, [r0, #0x34]
-    bl GetGrowthStage__C3Dog
-    cmp r0, #1
-    bne .L08021120
-    adds r4, #0x1a
-.L08021120:
-    adds r0, r4, r5
-    ldrh r0, [r0]
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0802112C: .4byte gUnk_080F0908
 
 
 
@@ -4735,21 +4715,6 @@ func_0802536C: @ 0x0802536C
 
 
 
-    .section .text.entities_part1.08025AFC, "ax", %progbits
-    thumb_func_start func_08025AFC
-func_08025AFC: @ 0x08025AFC
-    push {lr}
-    ldrh r0, [r0, #4]
-    cmp r0, #8
-    ble .L08025B08
-    movs r0, #0
-    b .L08025B0A
-.L08025B08:
-    movs r0, #1
-.L08025B0A:
-    pop {r1}
-    bx r1
-    .align 2, 0
 
     .section .text.entities_part1.08025B64, "ax", %progbits
     thumb_func_start func_08025B64
