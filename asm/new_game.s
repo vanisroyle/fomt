@@ -1048,7 +1048,7 @@ func_08003F9C: @ 0x08003F9C
     ldr r0, [r5, #8]
     adds r1, r7, #0
     ldr r2, [sp, #4]
-    bl func_080115B0
+    bl SaveData_WriteToStorage
     cmp r0, #0
     bne .L08004052
     adds r1, r6, #0
