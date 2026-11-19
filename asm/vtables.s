@@ -350,7 +350,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateRemoveRecordPlayerAlbum
 	.word GameStateSetRecordPlayerAlbum
 	.word GameStateApplyMapTilePatchWithAlternateRow
-	.word func_08017C00
+	.word GameMap_IsInteriorOrForced
 	.word func_08019BEC
 	.word GameStateRefreshMapDaylight
 	.word func_0801EAA0

@@ -316,7 +316,7 @@ func_080A6660: @ 0x080A6660
 .L080A6964:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6976
@@ -332,7 +332,7 @@ func_080A6660: @ 0x080A6660
 .L080A6988:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A699A
@@ -604,7 +604,7 @@ func_080A6660: @ 0x080A6660
 .L080A6BD4:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6BE6
@@ -617,7 +617,7 @@ func_080A6660: @ 0x080A6660
 .L080A6BF0:
 	mov r3, sb
 	ldr r0, [r3]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6C02
@@ -1632,7 +1632,7 @@ func_080A6660: @ 0x080A6660
 .L080A7428:
 	mov r3, sb
 	ldr r0, [r3]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080A746E
@@ -1652,7 +1652,7 @@ func_080A6660: @ 0x080A6660
 	bl ApplyMapPatch
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080A746E
