@@ -1080,7 +1080,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r1, .L080403A8 @ =0x000034D8
 	adds r0, r0, r1
-	bl func_0809C5EC
+	bl ClearPendingScriptEvents
 	bl .L08045572
 	.align 2, 0
 .L080403A8: .4byte 0x000034D8
@@ -6372,7 +6372,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r2, #0xb2
 	lsls r2, r2, #6
 	adds r0, r0, r2
-	bl func_0809CDCC
+	bl HasCaughtEveryFish
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	adds r2, r5, #0
@@ -6389,7 +6389,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r6, #0xb2
 	lsls r6, r6, #6
 	adds r0, r0, r6
-	bl func_0809CDEC
+	bl GetTotalFishCaught
 	adds r4, r0, #0
 	adds r2, r5, #0
 	adds r2, #0x24
@@ -11429,7 +11429,7 @@ func_080455D8: @ 0x080455D8
 	ldr r0, [r4]
 	ldr r2, .L08045600 @ =0x0000214C
 	adds r0, r0, r2
-	bl func_0809C694
+	bl IsSelectedScriptEvent
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08045604
@@ -11516,7 +11516,7 @@ func_08045638: @ 0x08045638
 .L08045692:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C694
+	bl IsSelectedScriptEvent
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080456A2
@@ -11524,7 +11524,7 @@ func_08045638: @ 0x08045638
 .L080456A2:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C6B0
+	bl DeselectScriptEvent
 	b .L080458F8
 .L080456AC:
 	cmp r6, #0
@@ -11542,7 +11542,7 @@ func_08045638: @ 0x08045638
 .L080456C4:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C6AC
+	bl SelectScriptEvent
 	b .L080458F8
 .L080456CE:
 	cmp r6, #0
@@ -11567,13 +11567,13 @@ func_08045638: @ 0x08045638
 	blo .L080456CE
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C694
+	bl IsSelectedScriptEvent
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0804570C
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C6B0
+	bl DeselectScriptEvent
 .L0804570C:
 	cmp r6, #0
 	beq .L08045712
@@ -27432,7 +27432,7 @@ func_08048FFC: @ 0x08048FFC
 	mov r2, r8
 	lsls r1, r2, #0x10
 	lsrs r1, r1, #0x10
-	bl func_0809C600
+	bl AddPendingScriptEvent
 	b .L0804E0E6
 	.align 2, 0
 .L0804E0CC: .4byte 0x0000214C
@@ -27446,7 +27446,7 @@ func_08048FFC: @ 0x08048FFC
 	mov r2, r8
 	lsls r1, r2, #0x10
 	lsrs r1, r1, #0x10
-	bl func_0809C644
+	bl RemovePendingScriptEvent
 .L0804E0E6:
 	add sp, #8
 	pop {r3, r4}
@@ -30148,8 +30148,9 @@ func_0804F288: @ 0x0804F288
 .L0804F694: .4byte gUnk_08728320
 .L0804F698: .4byte 0x00000534
 
-	thumb_func_start func_0804F69C
-func_0804F69C: @ 0x0804F69C
+	.section .text.message_window.0804F69C
+	thumb_func_start DestroyMessageWindowState
+DestroyMessageWindowState: @ 0x0804F69C
 	push {r4, r5, r6, r7, lr}
 	adds r6, r0, #0
 	adds r7, r1, #0
@@ -30266,8 +30267,9 @@ func_0804F69C: @ 0x0804F69C
 .L0804F79C: .4byte 0x00000504
 .L0804F7A0: .4byte vtable_unk_080E5A28
 
-	thumb_func_start func_0804F7A4
-func_0804F7A4: @ 0x0804F7A4
+	.section .text.message_window.0804F7A4
+	thumb_func_start UpdateMessageWindowState
+UpdateMessageWindowState: @ 0x0804F7A4
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -30650,7 +30652,7 @@ func_0804F7A4: @ 0x0804F7A4
 	lsls r6, r6, #1
 	adds r1, r7, r6
 	ldr r1, [r1]
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	add r4, sp, #0x58
 	ldrb r3, [r4]
 	adds r3, #0x73
@@ -31801,132 +31803,9 @@ sub_08050342: @ 0x08050342
 	.align 2, 0
 .L08050398: .4byte vtable_unk_080E78F0
 
-	thumb_func_start func_0805039C
-func_0805039C: @ 0x0805039C
-	push {r4, r5, r6, lr}
-	adds r4, r0, #0
-	ldr r6, [r4, #8]
-	cmp r6, #0
-	bne .L080503D0
-	adds r0, #0xd0
-	bl func_0804F0E0
-	ldr r0, [r4, #4]
-	adds r5, r4, #0
-	adds r5, #0x20
-	cmp r0, #1
-	beq .L080503C2
-	movs r0, #0x98
-	lsls r0, r0, #1
-	adds r1, r4, r0
-	adds r0, r5, #0
-	bl func_08009940
-.L080503C2:
-	movs r0, #0xa4
-	lsls r0, r0, #1
-	adds r1, r4, r0
-	adds r0, r5, #0
-	bl func_08009940
-	strb r6, [r4, #0xc]
-.L080503D0:
-	ldr r0, [r4, #8]
-	cmp r0, #0
-	blt .L080503DE
-	cmp r0, #2
-	bgt .L080503DE
-	movs r0, #1
-	str r0, [r4, #8]
-.L080503DE:
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080503E4
-func_080503E4: @ 0x080503E4
-	push {r4, lr}
-	adds r4, r0, #0
-	bl func_0805039C
-	movs r0, #3
-	str r0, [r4, #8]
-	movs r0, #9
-	strb r0, [r4, #0xc]
-	pop {r4}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080503FC
-func_080503FC: @ 0x080503FC
-	push {lr}
-	adds r1, r0, #0
-	ldr r0, [r1, #8]
-	cmp r0, #0
-	beq .L0805040A
-	movs r0, #2
-	str r0, [r1, #8]
-.L0805040A:
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_08050410
-func_08050410: @ 0x08050410
-	push {lr}
-	adds r1, r0, #0
-	ldr r0, [r1, #8]
-	cmp r0, #0
-	beq .L0805041E
-	movs r0, #0
-	str r0, [r1, #8]
-.L0805041E:
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_08050424
-func_08050424: @ 0x08050424
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	adds r5, r0, #0
-	adds r7, r1, #0
-	adds r6, r3, #0
-	lsls r2, r2, #0x10
-	lsrs r2, r2, #0x10
-	mov r8, r2
-	ldr r0, [r5, #8]
-	cmp r0, #0
-	blt .L08050454
-	cmp r0, #2
-	bgt .L08050448
-	adds r0, r5, #0
-	bl func_080503E4
-	b .L08050454
-.L08050448:
-	cmp r0, #6
-	bgt .L08050454
-	adds r0, r5, #0
-	adds r0, #0xd0
-	bl func_0804F0E0
-.L08050454:
-	adds r4, r5, #0
-	adds r4, #0xec
-	adds r0, r4, #0
-	adds r1, r7, #0
-	adds r2, r6, #0
-	bl func_080ADD5C
-	adds r0, r4, #0
-	mov r1, r8
-	bl func_080ADD74
-	movs r0, #4
-	str r0, [r5, #8]
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050478
-func_08050478: @ 0x08050478
+	.section .text.message_window.08050478
+	thumb_func_start SetMessageWindowStateChoices
+SetMessageWindowStateChoices: @ 0x08050478
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -31948,7 +31827,7 @@ func_08050478: @ 0x08050478
 	cmp r0, #2
 	bgt .L080504A8
 	adds r0, r4, #0
-	bl func_080503E4
+	bl CompleteMessageWindowOpening
 	b .L080504B4
 .L080504A8:
 	cmp r0, #6
@@ -32075,7 +31954,7 @@ func_08050478: @ 0x08050478
 .L0805059C:
 	adds r0, r5, #0
 	movs r1, #6
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	mov r1, sp
 	strb r0, [r1]
 	adds r0, r4, #0
@@ -32085,7 +31964,7 @@ func_08050478: @ 0x08050478
 .L080505B2:
 	adds r0, r5, #0
 	movs r1, #5
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	mov r1, sp
 	adds r1, #1
 	strb r0, [r1]
@@ -32096,7 +31975,7 @@ func_08050478: @ 0x08050478
 .L080505CA:
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	mov r1, sp
 	adds r1, #2
 	strb r0, [r1]
@@ -32107,7 +31986,7 @@ func_08050478: @ 0x08050478
 .L080505E2:
 	adds r0, r5, #0
 	movs r1, #3
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	mov r1, sp
 	adds r1, #3
 	strb r0, [r1]
@@ -32118,7 +31997,7 @@ func_08050478: @ 0x08050478
 .L080505FA:
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	add r1, sp, #4
 	strb r0, [r1]
 	adds r0, r4, #0
@@ -32127,7 +32006,7 @@ func_08050478: @ 0x08050478
 	bl func_080507F8
 	adds r0, r5, #0
 	movs r1, #1
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	mov r1, sp
 	adds r1, #5
 	strb r0, [r1]
@@ -32167,8 +32046,9 @@ func_08050478: @ 0x08050478
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_08050664
-func_08050664: @ 0x08050664
+	.section .text.message_window.08050664
+	thumb_func_start SetMessageWindowStatePromptChoices
+SetMessageWindowStatePromptChoices: @ 0x08050664
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -32285,7 +32165,7 @@ func_08050664: @ 0x08050664
 	bne .L08050798
 	movs r0, #7
 	movs r1, #4
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	mov r1, sp
 	adds r1, #1
 	strb r0, [r1]
@@ -32296,7 +32176,7 @@ func_08050664: @ 0x08050664
 .L08050750:
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	mov r1, sp
 	adds r1, #2
 	strb r0, [r1]
@@ -32307,7 +32187,7 @@ func_08050664: @ 0x08050664
 .L08050768:
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	mov r1, sp
 	adds r1, #3
 	strb r0, [r1]
@@ -32317,7 +32197,7 @@ func_08050664: @ 0x08050664
 	bl func_080507F8
 	adds r0, r4, #0
 	movs r1, #1
-	bl func_080507D0
+	bl GetMessageChoicePosition
 	add r1, sp, #4
 	strb r0, [r1]
 	adds r0, r5, #0
@@ -32355,31 +32235,7 @@ func_08050664: @ 0x08050664
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080507D0
-func_080507D0: @ 0x080507D0
-	push {lr}
-	adds r2, r0, #0
-	cmp r2, #7
-	bls .L080507DA
-	movs r2, #0
-.L080507DA:
-	subs r0, r1, #1
-	cmp r0, #5
-	bls .L080507E2
-	movs r1, #1
-.L080507E2:
-	lsls r0, r2, #1
-	adds r0, r0, r2
-	lsls r0, r0, #1
-	adds r0, r0, r1
-	ldr r1, .L080507F4 @ =gUnk_080F9F3C
-	adds r0, r0, r1
-	ldrb r0, [r0]
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080507F4: .4byte gUnk_080F9F3C
-
+	.section .text.message_window.080507F8
 	thumb_func_start func_080507F8
 func_080507F8: @ 0x080507F8
 	push {r4, r5, r6, r7, lr}
@@ -32437,6 +32293,7 @@ func_080507F8: @ 0x080507F8
 	.align 2, 0
 .L08050864: .4byte vtable_unk_080E78F0
 
+	.section .text.message_window.08050868
 	thumb_func_start func_08050868
 func_08050868: @ 0x08050868
 	push {lr}
@@ -32760,8 +32617,9 @@ func_08050868: @ 0x08050868
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_08050AD8
-func_08050AD8: @ 0x08050AD8
+	.section .text.message_window.08050AD8
+	thumb_func_start SetMessageWindowStatePortrait
+SetMessageWindowStatePortrait: @ 0x08050AD8
 	push {r4, r5, lr}
 	adds r4, r0, #0
 	adds r5, r1, #0
@@ -32772,7 +32630,7 @@ func_08050AD8: @ 0x08050AD8
 	blo .L08050AF2
 .L08050AEA:
 	adds r0, r4, #0
-	bl func_08050B3C
+	bl ClearMessageWindowStatePortrait
 	b .L08050B36
 .L08050AF2:
 	movs r0, #0xee
@@ -32815,21 +32673,9 @@ func_08050AD8: @ 0x08050AD8
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_08050B3C
-func_08050B3C: @ 0x08050B3C
-	movs r1, #0xee
-	lsls r1, r1, #1
-	adds r0, r0, r1
-	ldrb r2, [r0]
-	movs r1, #2
-	rsbs r1, r1, #0
-	ands r1, r2
-	strb r1, [r0]
-	bx lr
-	.align 2, 0
-
-	thumb_func_start func_08050B50
-func_08050B50: @ 0x08050B50
+	.section .text.message_window.08050B50
+	thumb_func_start SetMessageWindowStateSpeakerName
+SetMessageWindowStateSpeakerName: @ 0x08050B50
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -32851,7 +32697,7 @@ func_08050B50: @ 0x08050B50
 	cmp r0, #0xb
 	bls .L08050B7E
 	mov r0, r8
-	bl func_08050C18
+	bl ClearMessageWindowStateSpeakerName
 	b .L08050C06
 .L08050B7E:
 	adds r7, r4, #0
@@ -32935,58 +32781,7 @@ func_08050B50: @ 0x08050B50
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_08050C18
-func_08050C18: @ 0x08050C18
-	movs r1, #0xf8
-	lsls r1, r1, #1
-	adds r0, r0, r1
-	ldrb r2, [r0]
-	movs r1, #2
-	rsbs r1, r1, #0
-	ands r1, r2
-	strb r1, [r0]
-	bx lr
-	.align 2, 0
-
-	thumb_func_start func_08050C2C
-func_08050C2C: @ 0x08050C2C
-	push {lr}
-	adds r2, r0, #0
-	adds r3, r1, #0
-	ldr r1, .L08050C44 @ =0x00000504
-	adds r0, r2, r1
-	ldrh r0, [r0, #0x20]
-	cmp r3, r0
-	blo .L08050C48
-	adds r0, r2, #0
-	bl func_08050C64
-	b .L08050C5C
-	.align 2, 0
-.L08050C44: .4byte 0x00000504
-.L08050C48:
-	movs r1, #0xa0
-	lsls r1, r1, #3
-	adds r0, r2, r1
-	movs r1, #1
-	strb r1, [r0]
-	ldr r1, .L08050C60 @ =0x00000534
-	adds r0, r2, r1
-	adds r1, r3, #0
-	bl func_0805E860
-.L08050C5C:
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08050C60: .4byte 0x00000534
-
-	thumb_func_start func_08050C64
-func_08050C64: @ 0x08050C64
-	movs r1, #0xa0
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	movs r1, #0
-	strb r1, [r0]
-	bx lr
+	.section .text.message_window.08050C70
 .L08050C70:
 	.byte 0x10, 0xB5, 0x83, 0xB0, 0x04, 0x1C, 0x02, 0xAA, 0x00, 0x20, 0x10, 0x70, 0x68, 0x46, 0x12, 0x1A
 	.byte 0x00, 0x21, 0x82, 0xF0, 0xFF, 0xFE, 0x68, 0x46, 0x02, 0x30, 0x01, 0x22, 0x02, 0x70, 0x69, 0x46
@@ -32994,6 +32789,7 @@ func_08050C64: @ 0x08050C64
 	.byte 0x0C, 0xC8, 0x0C, 0xC1, 0x20, 0x1C, 0x03, 0xB0, 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
 	.byte 0x03, 0x21, 0x02, 0x48, 0x02, 0x40, 0x0A, 0x43, 0x10, 0x1C, 0x70, 0x47, 0x00, 0xFF, 0xFF, 0xFF
 
+	.section .text.message_window.08050CC0
 	thumb_func_start func_08050CC0
 func_08050CC0: @ 0x08050CC0
 	push {r4, r5, r6, r7, lr}
@@ -33032,255 +32828,7 @@ func_08050CC0: @ 0x08050CC0
 	.align 2, 0
 .L08050D08: .4byte 0x00000554
 
-	thumb_func_start func_08050D0C
-func_08050D0C: @ 0x08050D0C
-	push {r4, r5, lr}
-	adds r4, r0, #0
-	adds r5, r1, #0
-	ldr r0, [r4]
-	cmp r0, #0
-	beq .L08050D1E
-	movs r1, #3
-	bl func_0804F69C
-.L08050D1E:
-	movs r0, #1
-	ands r0, r5
-	cmp r0, #0
-	beq .L08050D2C
-	adds r0, r4, #0
-	bl __builtin_delete
-.L08050D2C:
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_08050D34
-func_08050D34: @ 0x08050D34
-	ldr r0, [r0]
-	ldr r0, [r0, #8]
-	bx lr
-	.align 2, 0
-
-	thumb_func_start func_08050D3C
-func_08050D3C: @ 0x08050D3C
-	push {r4, r5, r6, lr}
-	sub sp, #0xc
-	ldr r4, [sp, #0x1c]
-	ldr r5, [sp, #0x20]
-	ldr r6, [sp, #0x24]
-	ldr r0, [r0]
-	str r4, [sp]
-	str r5, [sp, #4]
-	str r6, [sp, #8]
-	bl func_0804F7A4
-	add sp, #0xc
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-
-	thumb_func_start func_08050D5C
-func_08050D5C: @ 0x08050D5C
-	push {lr}
-	ldr r0, [r0]
-	bl func_0805039C
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050D68
-func_08050D68: @ 0x08050D68
-	push {lr}
-	ldr r0, [r0]
-	bl func_080503E4
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050D74
-func_08050D74: @ 0x08050D74
-	push {lr}
-	ldr r0, [r0]
-	bl func_080503FC
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050D80
-func_08050D80: @ 0x08050D80
-	push {lr}
-	ldr r0, [r0]
-	bl func_08050410
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050D8C
-func_08050D8C: @ 0x08050D8C
-	push {lr}
-	ldr r0, [r0]
-	movs r2, #0x80
-	lsls r2, r2, #1
-	movs r3, #0
-	bl func_08050424
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_08050DA0
-func_08050DA0: @ 0x08050DA0
-	push {lr}
-	adds r3, r2, #0
-	ldr r0, [r0]
-	movs r2, #0x80
-	lsls r2, r2, #1
-	bl func_08050424
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_08050DB4
-func_08050DB4: @ 0x08050DB4
-	push {lr}
-	lsls r2, r2, #0x10
-	lsrs r2, r2, #0x10
-	ldr r0, [r0]
-	movs r3, #0
-	bl func_08050424
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_08050DC8
-func_08050DC8: @ 0x08050DC8
-	push {lr}
-	lsls r2, r2, #0x10
-	lsrs r2, r2, #0x10
-	ldr r0, [r0]
-	bl func_08050424
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050DD8
-func_08050DD8: @ 0x08050DD8
-	ldr r2, [r0]
-	ldrb r0, [r2, #0xd]
-	movs r1, #0
-	strb r1, [r2, #0xd]
-	bx lr
-	.align 2, 0
-
-	thumb_func_start func_08050DE4
-func_08050DE4: @ 0x08050DE4
-	ldr r2, [r0]
-	ldrb r0, [r2, #0xd]
-	movs r1, #1
-	strb r1, [r2, #0xd]
-	bx lr
-	.align 2, 0
-
-	thumb_func_start func_08050DF0
-func_08050DF0: @ 0x08050DF0
-	push {lr}
-	ldr r1, [r0]
-	ldr r0, [r1, #8]
-	cmp r0, #6
-	beq .L08050E04
-	movs r2, #0xac
-	lsls r2, r2, #1
-	adds r0, r1, r2
-	ldr r0, [r0]
-	b .L08050E06
-.L08050E04:
-	movs r0, #0
-.L08050E06:
-	pop {r1}
-	bx r1
-	.align 2, 0
-
-	thumb_func_start func_08050E0C
-func_08050E0C: @ 0x08050E0C
-	push {r4, r5, r6, r7, lr}
-	sub sp, #0x10
-	ldr r4, [sp, #0x24]
-	ldr r5, [sp, #0x28]
-	ldr r6, [sp, #0x2c]
-	ldr r7, [sp, #0x30]
-	ldr r0, [r0]
-	str r4, [sp]
-	str r5, [sp, #4]
-	str r6, [sp, #8]
-	str r7, [sp, #0xc]
-	bl func_08050478
-	add sp, #0x10
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_08050E30
-func_08050E30: @ 0x08050E30
-	push {r4, r5, r6, lr}
-	sub sp, #0xc
-	ldr r4, [sp, #0x1c]
-	ldr r5, [sp, #0x20]
-	ldr r6, [sp, #0x24]
-	ldr r0, [r0]
-	str r4, [sp]
-	str r5, [sp, #4]
-	str r6, [sp, #8]
-	bl func_08050664
-	add sp, #0xc
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_08050E50
-func_08050E50: @ 0x08050E50
-	push {lr}
-	ldr r0, [r0]
-	bl func_08050AD8
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050E5C
-func_08050E5C: @ 0x08050E5C
-	push {lr}
-	ldr r0, [r0]
-	bl func_08050B3C
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050E68
-func_08050E68: @ 0x08050E68
-	push {lr}
-	ldr r0, [r0]
-	bl func_08050B50
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050E74
-func_08050E74: @ 0x08050E74
-	push {lr}
-	ldr r0, [r0]
-	bl func_08050C18
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050E80
-func_08050E80: @ 0x08050E80
-	push {lr}
-	ldr r0, [r0]
-	bl func_08050C2C
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_08050E8C
-func_08050E8C: @ 0x08050E8C
-	push {lr}
-	ldr r0, [r0]
-	bl func_08050C64
-	pop {r0}
-	bx r0
-
+	.section .text.message_window.08050E98
 	thumb_func_start func_08050E98
 func_08050E98: @ 0x08050E98
 	push {r4, lr}
@@ -37658,7 +37206,7 @@ func_08053634: @ 0x08053634
 	mov r1, r8
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	cmp r0, #6
 	bls .L08053686
 	b .L0805394C
@@ -37686,7 +37234,7 @@ func_08053634: @ 0x08053634
 	cmp r0, #0
 	bne .L080536CC
 	ldr r0, [r7, #0x10]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r0, #3
 	strh r0, [r4]
 	b .L0805394C
@@ -37704,7 +37252,7 @@ func_08053634: @ 0x08053634
 	cmp r0, #5
 	bne .L080536F0
 	ldr r0, [r7, #0x10]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #1
 	strh r0, [r4]
 	b .L0805394C
@@ -37714,7 +37262,7 @@ func_08053634: @ 0x08053634
 	cmp r0, #4
 	bne .L08053784
 	ldr r0, [r7, #0x10]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	movs r3, #0
 	movs r5, #3
 	strh r5, [r4]
@@ -37849,28 +37397,28 @@ func_08053634: @ 0x08053634
 .L08053824:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L08053830 @ =gUnk_080FA3C0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0805394C
 	.align 2, 0
 .L08053830: .4byte gUnk_080FA3C0
 .L08053834:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L08053840 @ =gUnk_080FA458
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0805394C
 	.align 2, 0
 .L08053840: .4byte gUnk_080FA458
 .L08053844:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L08053850 @ =gUnk_080FA49C
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0805394C
 	.align 2, 0
 .L08053850: .4byte gUnk_080FA49C
 .L08053854:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805386C @ =gUnk_080FA510
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r3, .L08053870 @ =0x00002328
 	adds r1, r7, r3
 	movs r0, #9
@@ -37885,7 +37433,7 @@ func_08053634: @ 0x08053634
 .L08053878:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L08053894 @ =gUnk_080FA614
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r0, .L08053898 @ =0x00002328
 	adds r1, r7, r0
 	movs r0, #9
@@ -37909,7 +37457,7 @@ func_08053634: @ 0x08053634
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	ldr r6, .L080538C8 @ =0x0000232C
 	adds r1, r7, r6
 	b .L08053904
@@ -37921,14 +37469,14 @@ func_08053634: @ 0x08053634
 .L080538CC:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L080538D8 @ =gUnk_080FA670
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0805394C
 	.align 2, 0
 .L080538D8: .4byte gUnk_080FA670
 .L080538DC:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L080538E8 @ =gUnk_080FA684
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0805394C
 	.align 2, 0
 .L080538E8: .4byte gUnk_080FA684
@@ -37942,7 +37490,7 @@ func_08053634: @ 0x08053634
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	ldr r0, .L08053918 @ =0x0000232C
 	adds r1, r7, r0
 .L08053904:
@@ -37957,7 +37505,7 @@ func_08053634: @ 0x08053634
 .L0805391C:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L08053928 @ =gUnk_080FA6AC
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0805394C
 	.align 2, 0
 .L08053928: .4byte gUnk_080FA6AC
@@ -37966,7 +37514,7 @@ func_08053634: @ 0x08053634
 	ldr r1, .L0805393C @ =gUnk_080FA6E0
 	ldr r3, .L08053940 @ =0x000023A0
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	b .L0805394C
 	.align 2, 0
 .L0805393C: .4byte gUnk_080FA6E0
@@ -37974,7 +37522,7 @@ func_08053634: @ 0x08053634
 .L08053944:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805395C @ =gUnk_080FA6F4
-	bl func_08050D8C
+	bl SetMessageWindowText
 .L0805394C:
 	add sp, #0xc
 	pop {r3, r4}
@@ -47957,7 +47505,7 @@ func_080588AC: @ 0x080588AC
 	str r4, [sp, #4]
 	ldr r0, [r6, #0x10]
 	movs r1, #0x75
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r4, #0
 	add r0, sp, #8
 	mov sl, r0
@@ -48808,7 +48356,7 @@ func_080588AC: @ 0x080588AC
 	cmp r0, #0
 	bne .L08059060
 	ldr r0, [r6, #0x10]
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r7, .L0805905C @ =0x00001424
 	adds r1, r6, r7
 	movs r0, #0x16
@@ -48820,7 +48368,7 @@ func_080588AC: @ 0x080588AC
 .L08059060:
 	ldr r0, [r6, #0x10]
 	movs r1, #0x75
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L08059070 @ =0x00001424
 	adds r1, r6, r0
 	b .L08059338
@@ -48839,7 +48387,7 @@ func_080588AC: @ 0x080588AC
 	movs r0, #0
 	strb r0, [r1]
 	ldr r0, [r6, #0x10]
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r3, .L0805909C @ =0x00001424
 	adds r1, r6, r3
 	b .L08059338
@@ -49319,7 +48867,7 @@ func_080588AC: @ 0x080588AC
 	b .L08059712
 .L080594C0:
 	ldr r0, [r6, #0x10]
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r3, .L080594D4 @ =0x00001429
 	adds r0, r6, r3
 	strb r4, [r0]
@@ -49519,7 +49067,7 @@ func_080588AC: @ 0x080588AC
 	ble .L08059712
 	ldr r0, [r6, #0x10]
 	movs r1, #0x75
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r3, .L08059688 @ =0x00001429
 	adds r0, r6, r3
 	strb r4, [r0]
@@ -49808,7 +49356,7 @@ func_08059878: @ 0x08059878
 	mov r1, r8
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	cmp r0, #6
 	bls .L080598CA
 	b .L08059C82
@@ -49835,7 +49383,7 @@ func_08059878: @ 0x08059878
 	cmp r0, #0
 	bne .L08059910
 	ldr r0, [r7, #0x10]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r0, #3
 	strb r0, [r4]
 	b .L08059C82
@@ -49852,7 +49400,7 @@ func_08059878: @ 0x08059878
 	cmp r5, #5
 	bne .L08059930
 	ldr r0, [r7, #0x10]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #1
 	strb r0, [r4]
 	b .L08059C82
@@ -49862,7 +49410,7 @@ func_08059878: @ 0x08059878
 	cmp r5, #4
 	bne .L080599DE
 	ldr r0, [r7, #0x10]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	movs r6, #0
 	movs r3, #3
 	strb r3, [r4]
@@ -50086,7 +49634,7 @@ func_08059878: @ 0x08059878
 	movs r3, #0xa7
 	lsls r3, r3, #5
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r4, .L08059B3C @ =0x00001424
 	adds r1, r7, r4
 	movs r0, #0x10
@@ -50104,7 +49652,7 @@ func_08059878: @ 0x08059878
 	movs r3, #0xa7
 	lsls r3, r3, #5
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r4, .L08059B64 @ =0x00001424
 	adds r1, r7, r4
 	movs r0, #0x11
@@ -50122,7 +49670,7 @@ func_08059878: @ 0x08059878
 	movs r3, #0xa7
 	lsls r3, r3, #5
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r4, .L08059B90 @ =0x0000149E
 	adds r1, r7, r4
 	movs r0, #0x78
@@ -50141,7 +49689,7 @@ func_08059878: @ 0x08059878
 	movs r4, #0xa7
 	lsls r4, r4, #5
 	adds r2, r7, r4
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L08059BC0 @ =0x0000149E
 	adds r1, r7, r0
 	movs r0, #0x3c
@@ -50163,7 +49711,7 @@ func_08059878: @ 0x08059878
 	movs r3, #0xa7
 	lsls r3, r3, #5
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r4, .L08059BF4 @ =0x0000149E
 	adds r1, r7, r4
 	movs r0, #0xff
@@ -50197,7 +49745,7 @@ func_08059878: @ 0x08059878
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r5, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	ldr r0, .L08059C30 @ =0x00001429
 	adds r1, r7, r0
 	movs r0, #4
@@ -50227,7 +49775,7 @@ func_08059878: @ 0x08059878
 	movs r3, #0xa7
 	lsls r3, r3, #5
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	b .L08059C82
 	.align 2, 0
 .L08059C5C: .4byte gUnk_080FAD94
@@ -50238,7 +49786,7 @@ func_08059878: @ 0x08059878
 	movs r4, #0xa7
 	lsls r4, r4, #5
 	adds r2, r7, r4
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	b .L08059C82
 	.align 2, 0
 .L08059C70: .4byte gUnk_080FADDC
@@ -50248,7 +49796,7 @@ func_08059878: @ 0x08059878
 	movs r3, #0xa7
 	lsls r3, r3, #5
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 .L08059C82:
 	add sp, #0xc
 	pop {r3, r4}
@@ -56887,7 +56435,7 @@ func_0805D170: @ 0x0805D170
 	str r4, [sp, #4]
 	ldr r0, [r6, #0x10]
 	movs r1, #0x75
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	add r7, sp, #8
 	add r0, sp, #0x14
 	mov sl, r0
@@ -57598,7 +57146,7 @@ func_0805D760: @ 0x0805D760
 	mov r1, r8
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	cmp r0, #6
 	bls .L0805D7B2
 	b .L0805D9A8
@@ -57626,7 +57174,7 @@ func_0805D760: @ 0x0805D760
 	cmp r0, #0
 	bne .L0805D7F8
 	ldr r0, [r7, #0x10]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r0, #3
 	strh r0, [r4]
 	b .L0805D9A8
@@ -57644,7 +57192,7 @@ func_0805D760: @ 0x0805D760
 	cmp r4, #5
 	bne .L0805D81C
 	ldr r0, [r7, #0x10]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #1
 	strh r0, [r5]
 	b .L0805D9A8
@@ -57654,7 +57202,7 @@ func_0805D760: @ 0x0805D760
 	cmp r4, #4
 	bne .L0805D8A4
 	ldr r0, [r7, #0x10]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	movs r1, #0
 	mov r8, r1
 	movs r3, #3
@@ -57766,7 +57314,7 @@ func_0805D760: @ 0x0805D760
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r5, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	ldr r6, .L0805D924 @ =0x00000ADC
 	adds r1, r7, r6
 	b .L0805D968
@@ -57787,7 +57335,7 @@ func_0805D760: @ 0x0805D760
 	ldr r1, .L0805D944 @ =gUnk_080FB140
 	ldr r4, .L0805D948 @ =0x00000AEC
 	adds r2, r7, r4
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	b .L0805D9A8
 	.align 2, 0
 .L0805D944: .4byte gUnk_080FB140
@@ -57803,7 +57351,7 @@ func_0805D760: @ 0x0805D760
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r5, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	ldr r0, .L0805D980 @ =0x00000ADC
 	adds r1, r7, r0
 .L0805D968:
@@ -57822,7 +57370,7 @@ func_0805D760: @ 0x0805D760
 .L0805D988:
 	ldr r3, .L0805D998 @ =0x00000AEC
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	b .L0805D9A8
 	.align 2, 0
 .L0805D994: .4byte gUnk_080FB164
@@ -57832,7 +57380,7 @@ func_0805D760: @ 0x0805D760
 	ldr r1, .L0805D9B8 @ =gUnk_080FB17C
 	ldr r4, .L0805D9BC @ =0x00000AEC
 	adds r2, r7, r4
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 .L0805D9A8:
 	add sp, #0xc
 	pop {r3, r4}
@@ -61460,7 +61008,7 @@ func_0805F5F4: @ 0x0805F5F4
 	mov r1, r8
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	cmp r0, #6
 	bls .L0805F646
 	b .L0805FB9C
@@ -61488,9 +61036,9 @@ func_0805F5F4: @ 0x0805F5F4
 	cmp r0, #0
 	bne .L0805F694
 	ldr r0, [r7, #0x10]
-	bl func_08050E74
+	bl ClearMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r0, #3
 	strh r0, [r4]
 	b .L0805FB9C
@@ -61514,7 +61062,7 @@ func_0805F5F4: @ 0x0805F5F4
 	cmp r0, #5
 	bne .L0805F6C0
 	ldr r0, [r7, #0x10]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #1
 	strh r0, [r4]
 	b .L0805FB9C
@@ -61524,7 +61072,7 @@ func_0805F5F4: @ 0x0805F5F4
 	cmp r0, #6
 	bne .L0805F6CC
 	ldr r0, [r7, #0x10]
-	bl func_08050D74
+	bl CloseMessageWindow
 	b .L0805FB9C
 .L0805F6CC:
 	cmp r0, #3
@@ -61579,12 +61127,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F760:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F788 @ =gUnk_080FB234
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F78C @ =gUnk_080FB23C
 	ldr r3, .L0805F790 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805F794 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61603,12 +61151,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F79C:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F7C4 @ =gUnk_080FB27C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F7C8 @ =gUnk_080FB284
 	ldr r3, .L0805F7CC @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805F7D0 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61627,12 +61175,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F7D8:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F800 @ =gUnk_080FB234
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F804 @ =gUnk_080FB2D0
 	ldr r3, .L0805F808 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805F80C @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61651,7 +61199,7 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F814:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F824 @ =gUnk_080FB27C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F828 @ =gUnk_080FB2F4
 	b .L0805FB70
@@ -61661,7 +61209,7 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F82C:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F83C @ =gUnk_080FB300
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F840 @ =gUnk_080FB308
 	b .L0805FB70
@@ -61671,12 +61219,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F844:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F868 @ =gUnk_080FB234
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F86C @ =gUnk_080FB398
 	ldr r3, .L0805F870 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r1, .L0805F874 @ =0x00006426
 	adds r0, r7, r1
 	movs r1, #6
@@ -61694,12 +61242,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F87C:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F8A4 @ =gUnk_080FB27C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F8A8 @ =gUnk_080FB3CC
 	ldr r3, .L0805F8AC @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805F8B0 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61718,12 +61266,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F8B8:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F8E0 @ =gUnk_080FB300
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F8E4 @ =gUnk_080FB420
 	ldr r3, .L0805F8E8 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805F8EC @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61742,12 +61290,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F8F4:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F91C @ =gUnk_080FB27C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F920 @ =gUnk_080FB46C
 	ldr r3, .L0805F924 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805F928 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61766,12 +61314,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F930:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F958 @ =gUnk_080FB300
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F95C @ =gUnk_080FB484
 	ldr r3, .L0805F960 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805F964 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61790,7 +61338,7 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F96C:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F97C @ =gUnk_080FB234
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F980 @ =gUnk_080FB4D4
 	b .L0805FB70
@@ -61800,12 +61348,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F984:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F9AC @ =gUnk_080FB51C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F9B0 @ =gUnk_080FB520
 	ldr r3, .L0805F9B4 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805F9B8 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61830,12 +61378,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805F9CC:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F9F4 @ =gUnk_080FB53C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805F9F8 @ =gUnk_080FB544
 	ldr r3, .L0805F9FC @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805FA00 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61854,12 +61402,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FA08:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FA30 @ =gUnk_080FB53C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FA34 @ =gUnk_080FB578
 	ldr r3, .L0805FA38 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805FA3C @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61878,7 +61426,7 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FA44:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FA54 @ =gUnk_080FB53C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FA58 @ =gUnk_080FB5D4
 	b .L0805FB70
@@ -61888,12 +61436,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FA5C:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FA84 @ =gUnk_080FB300
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FA88 @ =gUnk_080FB634
 	ldr r3, .L0805FA8C @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805FA90 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61912,12 +61460,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FA98:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FAC0 @ =gUnk_080FB300
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FAC4 @ =gUnk_080FB6C0
 	ldr r3, .L0805FAC8 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805FACC @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61936,7 +61484,7 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FAD4:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FAE4 @ =gUnk_080FB300
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FAE8 @ =gUnk_080FB710
 	b .L0805FB70
@@ -61946,12 +61494,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FAEC:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FB14 @ =gUnk_080FB53C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FB18 @ =gUnk_080FB738
 	ldr r3, .L0805FB1C @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805FB20 @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61970,12 +61518,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FB28:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FB50 @ =gUnk_080FB53C
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FB54 @ =gUnk_080FB754
 	ldr r3, .L0805FB58 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r0, .L0805FB5C @ =0x00006426
 	adds r1, r7, r0
 	movs r0, #6
@@ -61994,13 +61542,13 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FB64:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FB7C @ =gUnk_080FB300
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FB80 @ =gUnk_080FB7A0
 .L0805FB70:
 	ldr r3, .L0805FB84 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	b .L0805FB9C
 	.align 2, 0
 .L0805FB7C: .4byte gUnk_080FB300
@@ -62009,12 +61557,12 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FB88:
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FBAC @ =gUnk_080FB300
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r0, [r7, #0x10]
 	ldr r1, .L0805FBB0 @ =gUnk_080FB7F0
 	ldr r3, .L0805FBB4 @ =0x00006428
 	adds r2, r7, r3
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 .L0805FB9C:
 	add sp, #0xc
 	pop {r3, r4}
@@ -83758,14 +83306,14 @@ func_08069F14: @ 0x08069F14
 	adds r0, r7, r1
 .L0806A168:
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L0806A17C
 .L0806A170:
 	movs r2, #0x9a
 	lsls r2, r2, #1
 	adds r0, r7, r2
 	movs r1, #0
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L0806A17C:
 	movs r0, #0
 	mov r8, r0
@@ -88382,7 +87930,7 @@ sub_0806C492: @ 0x0806C492
 	mov r1, r8
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	mov r8, r0
 	ldr r0, [sp, #0x60]
 	ldr r1, [r0]
@@ -88840,7 +88388,7 @@ sub_0806C492: @ 0x0806C492
 	movs r4, #0x9a
 	lsls r4, r4, #1
 	adds r0, r7, r4
-	bl func_08050D5C
+	bl OpenMessageWindow
 	ldr r5, .L0806C884 @ =0x00004174
 	adds r1, r7, r5
 	movs r0, #1
@@ -88859,7 +88407,7 @@ sub_0806C492: @ 0x0806C492
 	movs r6, #0x9a
 	lsls r6, r6, #1
 	adds r0, r7, r6
-	bl func_08050D5C
+	bl OpenMessageWindow
 	ldr r0, .L0806C8AC @ =0x00004174
 	adds r1, r7, r0
 	movs r0, #4
@@ -88931,7 +88479,7 @@ sub_0806C492: @ 0x0806C492
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	b .L0806C95C
 	.align 2, 0
 .L0806C938: .4byte gUnk_080FB9E4
@@ -88948,7 +88496,7 @@ sub_0806C492: @ 0x0806C492
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 .L0806C95C:
 	ldr r6, .L0806C970 @ =0x00004174
 	adds r1, r7, r6
@@ -88977,7 +88525,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, .L0806C998 @ =gUnk_080FBA08
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0806C9BC
 	.align 2, 0
 .L0806C998: .4byte gUnk_080FBA08
@@ -88986,7 +88534,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r2, r2, #1
 	adds r0, r7, r2
 	ldr r1, .L0806C9AC @ =gUnk_080FBA3C
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0806C9BC
 	.align 2, 0
 .L0806C9AC: .4byte gUnk_080FBA3C
@@ -88995,7 +88543,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r3, r3, #1
 	adds r0, r7, r3
 	ldr r1, .L0806C9C4 @ =gUnk_080FBA70
-	bl func_08050D8C
+	bl SetMessageWindowText
 .L0806C9BC:
 	ldr r4, .L0806C9C8 @ =0x00004174
 	adds r1, r7, r4
@@ -89022,7 +88570,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r5, r5, #1
 	adds r0, r7, r5
 	ldr r1, .L0806C9F0 @ =gUnk_080FBAA8
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0806CA14
 	.align 2, 0
 .L0806C9F0: .4byte gUnk_080FBAA8
@@ -89031,7 +88579,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r6, r6, #1
 	adds r0, r7, r6
 	ldr r1, .L0806CA04 @ =gUnk_080FBAE0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0806CA14
 	.align 2, 0
 .L0806CA04: .4byte gUnk_080FBAE0
@@ -89040,7 +88588,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, .L0806CA1C @ =gUnk_080FBB14
-	bl func_08050D8C
+	bl SetMessageWindowText
 .L0806CA14:
 	ldr r2, .L0806CA20 @ =0x00004174
 	adds r1, r7, r2
@@ -89061,7 +88609,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r3, r3, #1
 	adds r0, r7, r3
 	ldr r1, .L0806CA40 @ =gUnk_080FBB4C
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L0806CA50
 	.align 2, 0
 .L0806CA40: .4byte gUnk_080FBB4C
@@ -89070,7 +88618,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r4, r4, #1
 	adds r0, r7, r4
 	ldr r1, .L0806CA58 @ =gUnk_080FBB80
-	bl func_08050D8C
+	bl SetMessageWindowText
 .L0806CA50:
 	ldr r5, .L0806CA5C @ =0x00004174
 	adds r1, r7, r5
@@ -89084,7 +88632,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r6, r6, #1
 	adds r0, r7, r6
 	ldr r1, .L0806CA74 @ =gUnk_080FBBB8
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r0, .L0806CA78 @ =0x00004174
 	adds r1, r7, r0
 	movs r0, #2
@@ -89109,7 +88657,7 @@ sub_0806C492: @ 0x0806C492
 	movs r4, #0x9a
 	lsls r4, r4, #1
 	adds r0, r7, r4
-	bl func_08050D74
+	bl CloseMessageWindow
 	b .L0806CDEA
 	.align 2, 0
 .L0806CAA0: .4byte 0x00004174
@@ -89136,7 +88684,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r6, r6, #1
 	adds r4, r7, r6
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L0806CAD8
 	cmp r0, #2
@@ -89145,7 +88693,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CAD8:
 	ldr r1, .L0806CAE8 @ =gUnk_080FBBEC
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r0, .L0806CAEC @ =0x00004174
 	adds r1, r7, r0
 	movs r0, #8
@@ -89156,7 +88704,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CAF0:
 	ldr r1, .L0806CB00 @ =gUnk_080FBC18
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r2, .L0806CB04 @ =0x00004174
 	adds r1, r7, r2
 	movs r0, #6
@@ -89169,7 +88717,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r3, r3, #1
 	adds r4, r7, r3
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L0806CB1E
 	cmp r0, #2
@@ -89178,7 +88726,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CB1E:
 	ldr r1, .L0806CB30 @ =gUnk_080FBBEC
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r4, .L0806CB34 @ =0x00004174
 	adds r1, r7, r4
 	movs r0, #8
@@ -89189,7 +88737,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CB38:
 	ldr r1, .L0806CB48 @ =gUnk_080FBC48
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r5, .L0806CB4C @ =0x00004174
 	adds r1, r7, r5
 	movs r0, #6
@@ -89202,7 +88750,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r6, r6, #1
 	adds r4, r7, r6
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L0806CB66
 	cmp r0, #2
@@ -89211,7 +88759,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CB66:
 	ldr r1, .L0806CB78 @ =gUnk_080FBBEC
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r0, .L0806CB7C @ =0x00004174
 	adds r1, r7, r0
 	movs r0, #8
@@ -89222,7 +88770,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CB80:
 	ldr r1, .L0806CB90 @ =gUnk_080FBC70
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r2, .L0806CB94 @ =0x00004174
 	adds r1, r7, r2
 	movs r0, #6
@@ -89258,7 +88806,7 @@ sub_0806C492: @ 0x0806C492
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	ldr r6, .L0806CBE0 @ =0x00004174
 	adds r1, r7, r6
 	movs r0, #5
@@ -89279,7 +88827,7 @@ sub_0806C492: @ 0x0806C492
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	ldr r2, .L0806CC10 @ =0x00004174
 	adds r1, r7, r2
 	movs r0, #5
@@ -89300,7 +88848,7 @@ sub_0806C492: @ 0x0806C492
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	ldr r4, .L0806CC40 @ =0x00004174
 	adds r1, r7, r4
 	movs r0, #5
@@ -89333,7 +88881,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r6, r6, #1
 	adds r4, r7, r6
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L0806CC78
 	cmp r0, #2
@@ -89342,7 +88890,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CC78:
 	ldr r1, .L0806CC88 @ =gUnk_080FBCB8
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r0, .L0806CC8C @ =0x00004174
 	adds r1, r7, r0
 	movs r0, #7
@@ -89353,7 +88901,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CC90:
 	ldr r1, .L0806CCA0 @ =gUnk_080FBC18
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r2, .L0806CCA4 @ =0x00004174
 	adds r1, r7, r2
 	movs r0, #6
@@ -89366,7 +88914,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r3, r3, #1
 	adds r4, r7, r3
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L0806CCBE
 	cmp r0, #2
@@ -89375,7 +88923,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CCBE:
 	ldr r1, .L0806CCD0 @ =gUnk_080FBCE0
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r4, .L0806CCD4 @ =0x00004174
 	adds r1, r7, r4
 	movs r0, #7
@@ -89386,7 +88934,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CCD8:
 	ldr r1, .L0806CCE8 @ =gUnk_080FBC48
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r5, .L0806CCEC @ =0x00004174
 	adds r1, r7, r5
 	movs r0, #6
@@ -89399,7 +88947,7 @@ sub_0806C492: @ 0x0806C492
 	lsls r6, r6, #1
 	adds r4, r7, r6
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L0806CD06
 	cmp r0, #2
@@ -89408,7 +88956,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CD06:
 	ldr r1, .L0806CD18 @ =gUnk_080FBCE0
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r0, .L0806CD1C @ =0x00004174
 	adds r1, r7, r0
 	movs r0, #7
@@ -89419,7 +88967,7 @@ sub_0806C492: @ 0x0806C492
 .L0806CD20:
 	ldr r1, .L0806CD30 @ =gUnk_080FBC70
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r2, .L0806CD34 @ =0x00004174
 	adds r1, r7, r2
 	movs r0, #6
@@ -89438,7 +88986,7 @@ sub_0806C492: @ 0x0806C492
 	movs r5, #0x9a
 	lsls r5, r5, #1
 	adds r0, r7, r5
-	bl func_08050D74
+	bl CloseMessageWindow
 	b .L0806CDEA
 	.align 2, 0
 .L0806CD54: .4byte 0x00004174
@@ -89453,7 +89001,7 @@ sub_0806C492: @ 0x0806C492
 	movs r1, #0x9a
 	lsls r1, r1, #1
 	adds r0, r7, r1
-	bl func_08050D74
+	bl CloseMessageWindow
 	ldr r0, [r7, #0x10]
 	str r0, [r7, #0x14]
 	movs r0, #1
@@ -91593,7 +91141,7 @@ func_0806DD9C: @ 0x0806DD9C
 	mov r1, r8
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	cmp r0, #6
 	bhi .L0806DEA4
 	lsls r0, r0, #2
@@ -91619,7 +91167,7 @@ func_0806DD9C: @ 0x0806DD9C
 	cmp r0, #0
 	bne .L0806DE34
 	ldr r0, [r7, #0xc]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r0, #3
 	strh r0, [r4]
 	b .L0806DEA4
@@ -91637,7 +91185,7 @@ func_0806DD9C: @ 0x0806DD9C
 	cmp r0, #5
 	bne .L0806DE54
 	ldr r0, [r7, #0xc]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #1
 	b .L0806DEA2
 	.align 2, 0
@@ -91646,7 +91194,7 @@ func_0806DD9C: @ 0x0806DD9C
 	cmp r0, #4
 	bne .L0806DE84
 	ldr r0, [r7, #0xc]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r1, r0, #0
 	movs r0, #5
 	strh r0, [r5]
@@ -91680,7 +91228,7 @@ func_0806DD9C: @ 0x0806DD9C
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	movs r0, #4
 .L0806DEA2:
 	strh r0, [r5]
@@ -99731,7 +99279,7 @@ func_080713B8: @ 0x080713B8
 	lsls r4, r4, #6
 	adds r0, r0, r4
 	adds r1, r6, #0
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	ldr r1, [sp, #0x108]
 	adds r1, #1
 	str r1, [sp, #0x14c]
@@ -99753,7 +99301,7 @@ func_080713B8: @ 0x080713B8
 	ldr r0, [r7]
 	adds r0, r0, r4
 	ldr r1, [sp, #0x108]
-	bl func_0809CE30
+	bl GetKingFishIconId
 	adds r2, r0, #0
 	lsls r2, r2, #0x10
 	lsrs r2, r2, #0x10
@@ -100014,7 +99562,7 @@ func_080713B8: @ 0x080713B8
 	lsls r4, r4, #6
 	adds r0, r0, r4
 	ldr r1, [sp, #0x110]
-	bl func_0809CE7C
+	bl GetFishingCatchName
 	adds r5, r0, #0
 	bl strlen
 	adds r4, r0, #0
@@ -100326,7 +99874,7 @@ func_080713B8: @ 0x080713B8
 	lsls r7, r7, #6
 	adds r0, r0, r7
 	ldr r1, [sp, #0x110]
-	bl func_0809CE24
+	bl GetLongestFishLength
 	adds r4, r0, #0
 	cmp r4, #0
 	beq .L08072220
@@ -100408,7 +99956,7 @@ func_080713B8: @ 0x080713B8
 	lsls r1, r1, #6
 	adds r0, r0, r1
 	ldr r1, [sp, #0x110]
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	ldr r2, [sp, #0x10c]
 	ldr r1, [r2, #0x18]
 	adds r1, r1, r4
@@ -112190,7 +111738,7 @@ func_08077DD8: @ 0x08077DD8
 	add r1, sp, #0xc
 	mov r2, r8
 	adds r3, r6, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	add sp, #0x30
 	pop {r3, r4}
 	mov r8, r3
@@ -112781,7 +112329,7 @@ func_08078044: @ 0x08078044
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	str r4, [r5]
 .L080782AA:
 	add sp, #0x2c
@@ -120430,7 +119978,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xe
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r6, .L0807C2D8 @ =0x000006A4
 	adds r1, r7, r6
 	bl .L0807CF36
@@ -120649,7 +120197,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xe
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r6, .L0807C4C0 @ =0x000006A4
 	adds r1, r7, r6
 	bl .L0807CF36
@@ -120717,7 +120265,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0xe
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r5, .L0807C560 @ =0x000006A4
 	adds r1, r7, r5
 	bl .L0807CF36
@@ -120961,7 +120509,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xe
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r6, .L0807C778 @ =0x000006A4
 	adds r1, r7, r6
 	bl .L0807CF36
@@ -121021,7 +120569,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xf
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r6, .L0807C7FC @ =0x000006A4
 	adds r1, r7, r6
 	movs r0, #3
@@ -121229,7 +120777,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xe
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L0807C9BC
 	.align 2, 0
 .L0807C9A4: .4byte gUnk_080FDB9C
@@ -121241,7 +120789,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r6, r6, #2
 	adds r0, r7, r6
 	movs r1, #0x11
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L0807C9BC:
 	ldr r0, .L0807C9CC @ =0x000006A4
 	adds r1, r7, r0
@@ -121381,10 +120929,10 @@ sub_0807C194: @ 0x0807C194
 	str r0, [sp, #4]
 	str r0, [sp, #8]
 	adds r0, r4, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	adds r0, r4, #0
 	movs r1, #0xf
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L0807CB0C @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #8
@@ -121508,7 +121056,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0xe
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L0807CCF8
 	.align 2, 0
 .L0807CC00: .4byte gUnk_080FDC00
@@ -121625,7 +121173,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0xf
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L0807CCF8:
 	movs r2, #0xd5
 	lsls r2, r2, #3
@@ -121787,7 +121335,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r6, r6, #2
 	adds r0, r7, r6
 	movs r1, #0xf
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #0xd5
 	lsls r0, r0, #3
 	adds r1, r7, r0
@@ -121817,7 +121365,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0xe
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r5, .L0807CEA4 @ =0x000006A4
 	adds r1, r7, r5
 	b .L0807CF36
@@ -121839,7 +121387,7 @@ sub_0807C194: @ 0x0807C194
 	movs r1, #0xd2
 	lsls r1, r1, #2
 	adds r0, r7, r1
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r2, .L0807CED0 @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #0
@@ -121889,7 +121437,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0xe
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L0807CF32:
 	ldr r4, .L0807CF40 @ =0x000006A4
 	adds r1, r7, r4
@@ -121913,7 +121461,7 @@ sub_0807C194: @ 0x0807C194
 	lsls r6, r6, #2
 	adds r4, r7, r6
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r5, r0, #0
 	cmp r5, #1
 	beq .L0807CF6A
@@ -121948,7 +121496,7 @@ sub_0807C194: @ 0x0807C194
 	bl func_080CABA0
 	adds r0, r4, #0
 	movs r1, #0xf
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r4, .L0807CFCC @ =0x000006A4
 	adds r1, r7, r4
 	movs r0, #7
@@ -121965,7 +121513,7 @@ sub_0807C194: @ 0x0807C194
 .L0807CFCC: .4byte 0x000006A4
 .L0807CFD0:
 	adds r0, r4, #0
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r1, .L0807CFE8 @ =0x000006A4
 	adds r0, r7, r1
 	movs r1, #1
@@ -123153,7 +122701,7 @@ func_0807D218: @ 0x0807D218
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0x46
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #0xe1
 	lsls r0, r0, #3
 	adds r1, r7, r0
@@ -123180,7 +122728,7 @@ func_0807D218: @ 0x0807D218
 	lsls r2, r2, #2
 	adds r0, r7, r2
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L0807DA7C
 	.align 2, 0
 .L0807DA60: .4byte 0x0000070C
@@ -123193,7 +122741,7 @@ func_0807D218: @ 0x0807D218
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0x46
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L0807DA7C:
 	movs r4, #0xe1
 	lsls r4, r4, #3
@@ -123229,7 +122777,7 @@ func_0807D218: @ 0x0807D218
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r4, #0xe1
 	lsls r4, r4, #3
 	adds r1, r7, r4
@@ -123250,7 +122798,7 @@ func_0807D218: @ 0x0807D218
 	movs r2, #0xd2
 	lsls r2, r2, #2
 	adds r0, r7, r2
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	movs r3, #0xe1
 	lsls r3, r3, #3
 	adds r1, r7, r3
@@ -123428,7 +122976,7 @@ func_0807D218: @ 0x0807D218
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0x44
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r1, #0xe1
 	lsls r1, r1, #3
 	adds r0, r7, r1
@@ -124210,7 +123758,7 @@ func_0807DE3C: @ 0x0807DE3C
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0x44
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	mov r4, sb
 	mov r0, r8
 	str r4, [r0]
@@ -124250,7 +123798,7 @@ func_0807DE3C: @ 0x0807DE3C
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0x44
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r4, .L0807E384 @ =0x0000070C
 	adds r0, r7, r4
 	mov r1, sb
@@ -124273,7 +123821,7 @@ func_0807DE3C: @ 0x0807DE3C
 	lsls r2, r2, #2
 	adds r0, r7, r2
 	movs r1, #0x46
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	mov r3, sb
 	mov r4, r8
 	str r3, [r4]
@@ -124995,7 +124543,7 @@ func_0807E558: @ 0x0807E558
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0x79
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r1, r7, r2
@@ -125180,7 +124728,7 @@ func_0807E558: @ 0x0807E558
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0x7d
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #0xe1
 	lsls r0, r0, #3
 	adds r1, r7, r0
@@ -125216,7 +124764,7 @@ func_0807E558: @ 0x0807E558
 	lsls r2, r2, #2
 	adds r0, r7, r2
 	movs r1, #0x79
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r3, #0xe1
 	lsls r3, r3, #3
 	adds r1, r7, r3
@@ -125251,7 +124799,7 @@ func_0807E558: @ 0x0807E558
 	lsls r2, r2, #2
 	adds r0, r7, r2
 	movs r1, #0x79
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r3, #0xe1
 	lsls r3, r3, #3
 	adds r1, r7, r3
@@ -125272,7 +124820,7 @@ func_0807E558: @ 0x0807E558
 	movs r1, #0xd2
 	lsls r1, r1, #2
 	adds r0, r7, r1
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r1, r7, r2
@@ -125397,7 +124945,7 @@ func_0807E558: @ 0x0807E558
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0x79
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L0807ED3C
 	.align 2, 0
 .L0807ED24: .4byte gUnk_080FE1E8
@@ -125409,7 +124957,7 @@ func_0807E558: @ 0x0807E558
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0x7a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L0807ED3C:
 	movs r1, #0xe1
 	lsls r1, r1, #3
@@ -126294,7 +125842,7 @@ func_0807EF90: @ 0x0807EF90
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0x55
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #1
 	str r2, [r4]
 	b .L0807F456
@@ -126314,7 +125862,7 @@ func_0807EF90: @ 0x0807EF90
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0x53
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #3
 	str r0, [r4]
 .L0807F456:
@@ -126346,7 +125894,7 @@ func_0807EF90: @ 0x0807EF90
 	movs r1, #0xd2
 	lsls r1, r1, #2
 	adds r0, r7, r1
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r2, [sp, #0xec]
 	str r2, [r4]
 	movs r0, #1
@@ -126402,7 +125950,7 @@ func_0807EF90: @ 0x0807EF90
 	lsls r6, r6, #2
 	adds r0, r7, r6
 	movs r1, #0x54
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #1
 	str r0, [r4]
 	b .L0807F54E
@@ -127403,7 +126951,7 @@ func_0807F8C8: @ 0x0807F8C8
 	lsls r3, r3, #2
 	adds r0, r6, r3
 	movs r1, #0x74
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r5, #0xe1
 	lsls r5, r5, #3
 	adds r1, r6, r5
@@ -127504,7 +127052,7 @@ func_0807F8C8: @ 0x0807F8C8
 	lsls r2, r2, #2
 	adds r0, r6, r2
 	movs r1, #0x74
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r3, #0xe1
 	lsls r3, r3, #3
 	adds r1, r6, r3
@@ -127799,7 +127347,7 @@ func_0807F8C8: @ 0x0807F8C8
 	lsls r3, r3, #2
 	adds r0, r6, r3
 	movs r1, #0x73
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r4, #0xe1
 	lsls r4, r4, #3
 	adds r1, r6, r4
@@ -127912,7 +127460,7 @@ func_0807F8C8: @ 0x0807F8C8
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #0x74
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r1, r6, r2
@@ -127939,7 +127487,7 @@ func_0807F8C8: @ 0x0807F8C8
 	lsls r4, r4, #2
 	adds r0, r6, r4
 	movs r1, #0x73
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L080801AC
 	.align 2, 0
 .L08080190: .4byte 0x0000070C
@@ -127952,7 +127500,7 @@ func_0807F8C8: @ 0x0807F8C8
 	lsls r5, r5, #2
 	adds r0, r6, r5
 	movs r1, #0x74
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L080801AC:
 	movs r0, #0xe1
 	lsls r0, r0, #3
@@ -127988,7 +127536,7 @@ func_0807F8C8: @ 0x0807F8C8
 	lsls r3, r3, #2
 	adds r0, r6, r3
 	movs r1, #0x72
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r4, #0xe1
 	lsls r4, r4, #3
 	adds r1, r6, r4
@@ -128009,7 +127557,7 @@ func_0807F8C8: @ 0x0807F8C8
 	movs r1, #0xd2
 	lsls r1, r1, #2
 	adds r0, r6, r1
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r1, r6, r2
@@ -128178,7 +127726,7 @@ func_0807F8C8: @ 0x0807F8C8
 	lsls r3, r3, #2
 	adds r0, r6, r3
 	movs r1, #0x73
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r4, #0xe1
 	lsls r4, r4, #3
 	adds r0, r6, r4
@@ -128833,7 +128381,7 @@ func_08080540: @ 0x08080540
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0x8c
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L08080904 @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #1
@@ -129076,7 +128624,7 @@ func_08080540: @ 0x08080540
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0x8a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L08080B0C @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #1
@@ -129112,7 +128660,7 @@ func_08080540: @ 0x08080540
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0x8a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L08080B6C @ =0x000006A4
 	adds r1, r7, r0
 	movs r0, #4
@@ -129143,7 +128691,7 @@ func_08080540: @ 0x08080540
 	movs r3, #0xd2
 	lsls r3, r3, #2
 	adds r0, r7, r3
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r4, .L08080B98 @ =0x000006A4
 	adds r1, r7, r4
 	movs r0, #0
@@ -129264,7 +128812,7 @@ func_08080540: @ 0x08080540
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0x8a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r4, .L08080CAC @ =0x000006A4
 	adds r1, r7, r4
 	movs r0, #2
@@ -129323,7 +128871,7 @@ func_08080540: @ 0x08080540
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0x8a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L08080D24 @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #1
@@ -130146,7 +129694,7 @@ func_0808114C: @ 0x0808114C
 	lsls r2, r2, #2
 	adds r0, r6, r2
 	movs r1, #0x90
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L080813AC @ =0x000006A4
 	adds r1, r6, r0
 	movs r0, #3
@@ -130221,7 +129769,7 @@ func_0808114C: @ 0x0808114C
 	lsls r2, r2, #2
 	adds r0, r6, r2
 	movs r1, #0x90
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L08081448 @ =0x000006A4
 	adds r1, r6, r0
 	movs r0, #3
@@ -130493,7 +130041,7 @@ func_0808114C: @ 0x0808114C
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #0x90
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L0808169C @ =0x000006A4
 	adds r1, r6, r2
 	movs r0, #3
@@ -130538,7 +130086,7 @@ func_0808114C: @ 0x0808114C
 	lsls r2, r2, #2
 	adds r0, r6, r2
 	movs r1, #0x8d
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L08081708 @ =0x000006A4
 	adds r1, r6, r0
 	movs r0, #5
@@ -130694,7 +130242,7 @@ func_0808114C: @ 0x0808114C
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #0x8e
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L0808184C @ =0x000006A4
 	adds r1, r6, r2
 	movs r0, #2
@@ -130734,7 +130282,7 @@ func_0808114C: @ 0x0808114C
 	movs r2, #0xd2
 	lsls r2, r2, #2
 	adds r0, r6, r2
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r0, .L080818A0 @ =0x000006A4
 	adds r1, r6, r0
 	movs r0, #0
@@ -130837,7 +130385,7 @@ func_0808114C: @ 0x0808114C
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #0x8e
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L08081994 @ =0x000006A4
 	adds r1, r6, r2
 	movs r0, #2
@@ -131637,7 +131185,7 @@ func_08081BBC: @ 0x08081BBC
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0x9d
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #1
 	str r2, [r4]
 	b .L08082002
@@ -131657,7 +131205,7 @@ func_08081BBC: @ 0x08081BBC
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0x99
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #3
 	str r0, [r4]
 .L08082002:
@@ -131689,7 +131237,7 @@ func_08081BBC: @ 0x08081BBC
 	movs r1, #0xd2
 	lsls r1, r1, #2
 	adds r0, r7, r1
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r2, [sp, #0xec]
 	str r2, [r4]
 	movs r0, #1
@@ -131735,7 +131283,7 @@ func_08081BBC: @ 0x08081BBC
 	lsls r6, r6, #2
 	adds r0, r7, r6
 	movs r1, #0x9a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #1
 	str r0, [r4]
 	b .L080820E2
@@ -133105,7 +132653,7 @@ func_08082A9C: @ 0x08082A9C
 	lsls r1, r1, #2
 	adds r0, r4, r1
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L08082B5C @ =0x000006A4
 	adds r1, r4, r0
 	movs r0, #3
@@ -133151,7 +132699,7 @@ func_08082A9C: @ 0x08082A9C
 	lsls r1, r1, #2
 	adds r0, r4, r1
 	movs r1, #0xa9
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L08082BCC @ =0x000006A4
 	adds r1, r4, r0
 	movs r0, #5
@@ -133179,7 +132727,7 @@ func_08082A9C: @ 0x08082A9C
 	lsls r1, r1, #2
 	adds r0, r4, r1
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L08082C10 @ =0x000006A4
 	adds r1, r4, r0
 	movs r0, #2
@@ -133773,7 +133321,7 @@ sub_08082F50: @ 0x08082F50
 	lsls r2, r2, #2
 	adds r0, r7, r2
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r3, .L080831B8 @ =0x000006A4
 	adds r1, r7, r3
 	movs r0, #0xb
@@ -133881,7 +133429,7 @@ sub_08082F50: @ 0x08082F50
 	lsls r6, r6, #2
 	adds r0, r7, r6
 	movs r1, #0xa9
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #0xa9
 	lsls r0, r0, #2
 	adds r1, r7, r0
@@ -133944,7 +133492,7 @@ sub_08082F50: @ 0x08082F50
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r6, .L08083314 @ =0x000006A4
 	adds r1, r7, r6
 	b .L08083764
@@ -133981,7 +133529,7 @@ sub_08082F50: @ 0x08082F50
 	movs r4, #0xd2
 	lsls r4, r4, #2
 	adds r0, r7, r4
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r5, .L08083364 @ =0x000006A4
 	adds r1, r7, r5
 	movs r0, #0
@@ -134012,9 +133560,9 @@ sub_08082F50: @ 0x08082F50
 	str r0, [sp, #0xc]
 	adds r0, r4, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	adds r0, r4, #0
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r2, .L080833AC @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #6
@@ -134037,7 +133585,7 @@ sub_08082F50: @ 0x08082F50
 	lsls r6, r6, #2
 	adds r4, r7, r6
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L080833D6
 	cmp r0, #2
@@ -134051,7 +133599,7 @@ sub_08082F50: @ 0x08082F50
 	bl func_080CABA0
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, [r7, #0x10]
 	lsls r0, r0, #2
 	adds r0, r0, r7
@@ -134188,7 +133736,7 @@ sub_08082F50: @ 0x08082F50
 	bl func_080CABA0
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r1, .L08083524 @ =0x000006A4
 	adds r0, r7, r1
 	str r5, [r0]
@@ -134274,7 +133822,7 @@ sub_08082F50: @ 0x08082F50
 	lsls r2, r2, #2
 	adds r0, r7, r2
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r3, .L080835E4 @ =0x000006A4
 	adds r1, r7, r3
 	b .L08083764
@@ -134445,7 +133993,7 @@ sub_08082F50: @ 0x08082F50
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r4, .L08083774 @ =0x000006A4
 	adds r1, r7, r4
 .L08083764:
@@ -134722,7 +134270,7 @@ sub_08082F50: @ 0x08082F50
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r5, .L080839E8 @ =0x000006A4
 	adds r1, r7, r5
 	movs r0, #0xb
@@ -136298,7 +135846,7 @@ func_08084228: @ 0x08084228
 	lsls r4, r4, #2
 	adds r0, r6, r4
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r5, #0xe1
 	lsls r5, r5, #3
 	adds r1, r6, r5
@@ -136448,7 +135996,7 @@ func_08084228: @ 0x08084228
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r1, r6, r2
@@ -136492,7 +136040,7 @@ func_08084228: @ 0x08084228
 	lsls r1, r1, #2
 	adds r0, r6, r1
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r1, r6, r2
@@ -136516,7 +136064,7 @@ func_08084228: @ 0x08084228
 	lsls r3, r3, #2
 	adds r0, r6, r3
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r4, #0xe1
 	lsls r4, r4, #3
 	adds r1, r6, r4
@@ -136534,7 +136082,7 @@ func_08084228: @ 0x08084228
 	lsls r5, r5, #2
 	adds r0, r6, r5
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r7, #0xe1
 	lsls r7, r7, #3
 	adds r1, r6, r7
@@ -136721,7 +136269,7 @@ func_08084228: @ 0x08084228
 	lsls r4, r4, #2
 	adds r0, r6, r4
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r7, #0xe1
 	lsls r7, r7, #3
 	adds r4, r6, r7
@@ -136802,7 +136350,7 @@ func_08084228: @ 0x08084228
 	movs r7, #0xd2
 	lsls r7, r7, #2
 	adds r0, r6, r7
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	movs r0, #0xe1
 	lsls r0, r0, #3
 	adds r1, r6, r0
@@ -136823,7 +136371,7 @@ func_08084228: @ 0x08084228
 	movs r2, #0xd2
 	lsls r2, r2, #2
 	adds r0, r6, r2
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	movs r3, #0xe1
 	lsls r3, r3, #3
 	adds r1, r6, r3
@@ -136844,7 +136392,7 @@ func_08084228: @ 0x08084228
 	movs r5, #0xd2
 	lsls r5, r5, #2
 	adds r0, r6, r5
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	movs r7, #0xe1
 	lsls r7, r7, #3
 	adds r0, r6, r7
@@ -136890,7 +136438,7 @@ func_08084228: @ 0x08084228
 	lsls r5, r5, #2
 	adds r4, r6, r5
 	adds r0, r4, #0
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r0, [r6, #0x10]
 	lsls r0, r0, #2
 	adds r0, r0, r6
@@ -136909,7 +136457,7 @@ func_08084228: @ 0x08084228
 	str r0, [sp, #0xc]
 	adds r0, r4, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080851FA
 	.align 2, 0
 .L080851DC: .4byte gUnk_080FFACC
@@ -136924,7 +136472,7 @@ func_08084228: @ 0x08084228
 	str r0, [sp, #0xc]
 	adds r0, r4, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080851FA:
 	movs r0, #0xe1
 	lsls r0, r0, #3
@@ -136949,7 +136497,7 @@ func_08084228: @ 0x08084228
 	adds r2, r2, r6
 	mov sb, r2
 	mov r0, sb
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	mov sl, r0
 	cmp r0, #1
 	beq .L08085238
@@ -137032,7 +136580,7 @@ func_08084228: @ 0x08084228
 	bl func_080CABA0
 	mov r0, sb
 	movs r1, #0xad
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r4, #0xe1
 	lsls r4, r4, #3
 	adds r1, r6, r4
@@ -137056,7 +136604,7 @@ func_08084228: @ 0x08084228
 	bl func_080CABA0
 	mov r0, sb
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #0xe1
 	lsls r0, r0, #3
 	adds r1, r6, r0
@@ -137078,7 +136626,7 @@ func_08084228: @ 0x08084228
 	lsls r2, r2, #2
 	adds r4, r6, r2
 	adds r0, r4, #0
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r1, .L0808536C @ =gUnk_080FFAE0
 	ldr r2, .L08085370 @ =gUnk_080FFAE8
 	movs r0, #0
@@ -137088,7 +136636,7 @@ func_08084228: @ 0x08084228
 	str r0, [sp, #0xc]
 	adds r0, r4, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	movs r3, #0xe1
 	lsls r3, r3, #3
 	adds r1, r6, r3
@@ -137111,7 +136659,7 @@ func_08084228: @ 0x08084228
 	lsls r7, r7, #2
 	adds r5, r6, r7
 	adds r0, r5, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	mov r8, r0
 	cmp r0, #1
 	beq .L0808539A
@@ -137165,7 +136713,7 @@ func_08084228: @ 0x08084228
 	bl func_080CABA0
 	adds r0, r5, #0
 	movs r1, #0xad
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r3, #0xe1
 	lsls r3, r3, #3
 	adds r1, r6, r3
@@ -137190,7 +136738,7 @@ func_08084228: @ 0x08084228
 	bl func_080CABA0
 	adds r0, r5, #0
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r7, #0xe1
 	lsls r7, r7, #3
 	adds r1, r6, r7
@@ -137213,7 +136761,7 @@ func_08084228: @ 0x08084228
 	lsls r2, r2, #2
 	adds r0, r6, r2
 	movs r1, #0xac
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r3, #0xe1
 	lsls r3, r3, #3
 	adds r0, r6, r3
@@ -140636,7 +140184,7 @@ sub_08086DFA: @ 0x08086DFA
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r5, .L08086F54 @ =0x000006A4
 	adds r1, r7, r5
 	bl .L08087F4E
@@ -140813,7 +140361,7 @@ sub_08086DFA: @ 0x08086DFA
 	lsls r6, r6, #2
 	adds r0, r7, r6
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, .L080870DC @ =0x000006A4
 	adds r1, r7, r0
 	bl .L08087F4E
@@ -140899,7 +140447,7 @@ sub_08086DFA: @ 0x08086DFA
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r5, .L08087198 @ =0x000006A4
 	adds r1, r7, r5
 	bl .L08087F4E
@@ -141151,7 +140699,7 @@ sub_08086DFA: @ 0x08086DFA
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r6, .L080873C0 @ =0x000006A4
 	adds r1, r7, r6
 	bl .L08087F4E
@@ -141191,7 +140739,7 @@ sub_08086DFA: @ 0x08086DFA
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0xb5
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L08087424 @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #4
@@ -141589,7 +141137,7 @@ sub_08087710: @ 0x08087710
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r6, .L08087760 @ =0x000006A4
 	adds r1, r7, r6
 	movs r0, #0xb
@@ -141728,10 +141276,10 @@ sub_08087710: @ 0x08087710
 	str r0, [sp, #4]
 	str r0, [sp, #8]
 	adds r0, r4, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	adds r0, r4, #0
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L080878A4 @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #0xa
@@ -141989,7 +141537,7 @@ sub_08087710: @ 0x08087710
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L0808814C
 	.align 2, 0
 .L08087AB4: .4byte gUnk_080FFF84
@@ -142107,7 +141655,7 @@ sub_08087710: @ 0x08087710
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L08087BC0 @ =0x000006A4
 	adds r1, r7, r2
 	b .L08087F4E
@@ -142142,7 +141690,7 @@ sub_08087710: @ 0x08087710
 	lsls r6, r6, #2
 	adds r0, r7, r6
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #0xa9
 	lsls r0, r0, #2
 	adds r1, r7, r0
@@ -142440,7 +141988,7 @@ sub_08087710: @ 0x08087710
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0xd5
 	lsls r2, r2, #3
 	adds r1, r7, r2
@@ -142471,7 +142019,7 @@ sub_08087710: @ 0x08087710
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r6, .L08087EBC @ =0x000006A4
 	adds r1, r7, r6
 	b .L08087F4E
@@ -142493,7 +142041,7 @@ sub_08087710: @ 0x08087710
 	movs r2, #0xd2
 	lsls r2, r2, #2
 	adds r0, r7, r2
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r3, .L08087EE8 @ =0x000006A4
 	adds r1, r7, r3
 	movs r0, #0
@@ -142543,7 +142091,7 @@ sub_08087710: @ 0x08087710
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	movs r1, #0xb4
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r4, .L08087F58 @ =0x000006A4
 .L08087F4C:
 	adds r1, r7, r4
@@ -142567,7 +142115,7 @@ sub_08087710: @ 0x08087710
 	lsls r6, r6, #2
 	adds r4, r7, r6
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L08087F82
 	cmp r0, #2
@@ -142704,7 +142252,7 @@ sub_08087710: @ 0x08087710
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	movs r1, #0xb5
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r2, .L080880C4 @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #9
@@ -142725,7 +142273,7 @@ sub_08087710: @ 0x08087710
 .L080880C4: .4byte 0x000006A4
 .L080880C8:
 	adds r0, r4, #0
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r4, .L080880E0 @ =0x000006A4
 	adds r0, r7, r4
 	movs r1, #1
@@ -143420,7 +142968,7 @@ func_080885AC: @ 0x080885AC
 	adds r1, r7, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	b .L0808867C
 .L0808866E:
 	adds r0, r5, #0
@@ -143428,7 +142976,7 @@ func_080885AC: @ 0x080885AC
 	ldr r1, .L08088684 @ =gUnk_08100030
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 .L0808867C:
 	add sp, #8
 	pop {r4, r5, r6, r7}
@@ -143923,7 +143471,7 @@ func_08088688: @ 0x08088688
 	ldr r1, .L08088ACC @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r3, #0x84
 	lsls r3, r3, #1
 	adds r0, r7, r3
@@ -144006,7 +143554,7 @@ func_08088688: @ 0x08088688
 	ldr r1, .L08088B84 @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -144181,7 +143729,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r1, .L08088CF4 @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -144264,7 +143812,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r1, .L08088DB0 @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r0, r7, r2
@@ -144631,7 +144179,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r1, .L080890F8 @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r4, #0x84
 	lsls r4, r4, #1
 	adds r0, r7, r4
@@ -144765,7 +144313,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r1, .L08089224 @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r4, #0x84
 	lsls r4, r4, #1
 	adds r0, r7, r4
@@ -144884,7 +144432,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r1, .L08089334 @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r3, #0x84
 	lsls r3, r3, #1
 	adds r1, r7, r3
@@ -145105,7 +144653,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r1, .L08089520 @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r4, #0x84
 	lsls r4, r4, #1
 	adds r0, r7, r4
@@ -145259,7 +144807,7 @@ sub_080895C2: @ 0x080895C2
 	ldr r1, .L08089674 @ =gUnk_08100034
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r4, #0x84
 	lsls r4, r4, #1
 	adds r0, r7, r4
@@ -146815,7 +146363,7 @@ func_0808A2F4: @ 0x0808A2F4
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r5, r0
@@ -146891,7 +146439,7 @@ func_0808A2F4: @ 0x0808A2F4
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 .L0808A49E:
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r5, r0
@@ -147567,7 +147115,7 @@ func_0808A55C: @ 0x0808A55C
 	str r3, [sp, #4]
 	str r3, [sp, #8]
 	str r3, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -147587,7 +147135,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808AA94:
 	adds r0, r7, #0
 	adds r0, #0x80
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L0808AAA6
 	cmp r0, #2
@@ -147618,7 +147166,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808AAD2:
 	adds r0, r7, #0
 	adds r0, #0x80
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	bne .L0808AAE8
 	ldr r0, [r6]
@@ -147926,7 +147474,7 @@ func_0808AC28: @ 0x0808AC28
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r4, #0x84
 	lsls r4, r4, #1
 	adds r1, r7, r4
@@ -148535,7 +148083,7 @@ func_0808B16C: @ 0x0808B16C
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r4, #0x84
 	lsls r4, r4, #1
 	adds r1, r7, r4
@@ -149487,7 +149035,7 @@ func_0808BA60: @ 0x0808BA60
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r5, r1
@@ -149557,7 +149105,7 @@ func_0808BA60: @ 0x0808BA60
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r5, r0
@@ -149580,7 +149128,7 @@ func_0808BA60: @ 0x0808BA60
 	str r6, [sp]
 	str r6, [sp, #4]
 	str r6, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r5, r1
@@ -149600,7 +149148,7 @@ func_0808BA60: @ 0x0808BA60
 	str r6, [sp]
 	str r6, [sp, #4]
 	str r6, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r5, r0
@@ -150152,7 +149700,7 @@ func_0808BF8C: @ 0x0808BF8C
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	b .L0808C0AA
 .L0808C09C:
 	adds r0, r6, #0
@@ -150160,7 +149708,7 @@ func_0808BF8C: @ 0x0808BF8C
 	ldr r1, .L0808C0B8 @ =gUnk_081000B0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 .L0808C0AA:
 	add sp, #0xc
 	pop {r3, r4}
@@ -150679,7 +150227,7 @@ func_0808C0BC: @ 0x0808C0BC
 .L0808C50E:
 	adds r0, r7, #0
 	adds r0, #0x80
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	bne .L0808C524
 	ldr r0, [r4]
@@ -151251,7 +150799,7 @@ func_0808C8F4: @ 0x0808C8F4
 	adds r1, r7, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	b .L0808C9C4
 .L0808C9B6:
 	adds r0, r5, #0
@@ -151259,7 +150807,7 @@ func_0808C8F4: @ 0x0808C8F4
 	ldr r1, .L0808C9CC @ =gUnk_081000D0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 .L0808C9C4:
 	add sp, #0xc
 	pop {r4, r5, r6, r7}
@@ -151738,7 +151286,7 @@ func_0808C9D0: @ 0x0808C9D0
 	ldr r1, .L0808CE04 @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r4, #0x84
 	lsls r4, r4, #1
 	adds r1, r7, r4
@@ -151812,7 +151360,7 @@ func_0808C9D0: @ 0x0808C9D0
 	ldr r1, .L0808CEA8 @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -151972,7 +151520,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r1, .L0808D000 @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -152053,7 +151601,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r1, .L0808D0BC @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r3, #0x84
 	lsls r3, r3, #1
 	adds r0, r7, r3
@@ -152403,7 +151951,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r1, .L0808D3E4 @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -152514,7 +152062,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r1, .L0808D4E4 @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r3, #0x84
 	lsls r3, r3, #1
 	adds r0, r7, r3
@@ -152616,7 +152164,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r1, .L0808D5D0 @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r3, #0x84
 	lsls r3, r3, #1
 	adds r1, r7, r3
@@ -152826,7 +152374,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r1, .L0808D7A8 @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -152973,7 +152521,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r1, .L0808D8F4 @ =gUnk_081000D4
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -154451,7 +153999,7 @@ func_0808E444: @ 0x0808E444
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r5, r0
@@ -154475,7 +154023,7 @@ func_0808E444: @ 0x0808E444
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 .L0808E63A:
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r5, r0
@@ -155152,7 +154700,7 @@ func_0808E6FC: @ 0x0808E6FC
 	str r3, [sp, #4]
 	str r3, [sp, #8]
 	str r3, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -155172,7 +154720,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808EC34:
 	adds r0, r7, #0
 	adds r0, #0x80
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L0808EC46
 	cmp r0, #2
@@ -155203,7 +154751,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808EC72:
 	adds r0, r7, #0
 	adds r0, #0x80
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	bne .L0808EC88
 	ldr r0, [r6]
@@ -155690,7 +155238,7 @@ func_0808EF68: @ 0x0808EF68
 	mov r1, sb
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	b .L0808F06C
 .L0808F05E:
 	adds r0, r6, #0
@@ -155698,7 +155246,7 @@ func_0808EF68: @ 0x0808EF68
 	ldr r1, .L0808F07C @ =gUnk_08100144
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 .L0808F06C:
 	add sp, #4
 	pop {r3, r4}
@@ -155838,7 +155386,7 @@ func_0808F080: @ 0x0808F080
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r4, #0x84
 	lsls r4, r4, #1
 	adds r0, r7, r4
@@ -156190,7 +155738,7 @@ func_0808F080: @ 0x0808F080
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r3, #0x84
 	lsls r3, r3, #1
 	adds r0, r7, r3
@@ -156617,7 +156165,7 @@ func_0808F784: @ 0x0808F784
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r3, #0x84
 	lsls r3, r3, #1
 	adds r0, r7, r3
@@ -158457,7 +158005,7 @@ func_080908CC: @ 0x080908CC
 	ldr r1, [r1]
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r6, r0
@@ -159688,7 +159236,7 @@ func_08091280: @ 0x08091280
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	b .L0809139E
 .L08091390:
 	adds r0, r6, #0
@@ -159696,7 +159244,7 @@ func_08091280: @ 0x08091280
 	ldr r1, .L080913AC @ =gUnk_08100168
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 .L0809139E:
 	add sp, #0xc
 	pop {r3, r4}
@@ -160388,10 +159936,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L0809198C @ =gUnk_0810017C
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
@@ -160437,10 +159985,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L080919F8 @ =gUnk_081001A4
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xaa
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
@@ -160504,10 +160052,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091A90 @ =gUnk_081001D4
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
@@ -160524,10 +160072,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091ABC @ =gUnk_08100208
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
@@ -160595,10 +160143,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091B60 @ =gUnk_081001A4
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
@@ -160683,10 +160231,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091C30 @ =gUnk_081001D4
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
@@ -160703,10 +160251,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091C5C @ =gUnk_08100208
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
@@ -160769,10 +160317,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091CE8 @ =gUnk_08100224
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
@@ -160842,10 +160390,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091D8C @ =gUnk_08100224
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
@@ -160947,10 +160495,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091E84 @ =gUnk_08100224
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
@@ -160999,10 +160547,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r1, .L08091EFC @ =gUnk_0810026C
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -161114,10 +160662,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08091FEC @ =gUnk_0810029C
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0x86
 	lsls r2, r2, #1
 	adds r0, r7, r2
@@ -161159,10 +160707,10 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x80
 	ldr r1, .L08092048 @ =gUnk_08100314
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #1
 	str r0, [sp, #0x54]
 	movs r2, #0x84
@@ -161531,10 +161079,10 @@ func_0809152C: @ 0x0809152C
 	lsls r0, r0, #1
 	adds r1, r7, r0
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	bl .L0809178A
 .L08092352:
 	adds r0, r7, #0
@@ -161547,7 +161095,7 @@ func_0809152C: @ 0x0809152C
 	adds r4, r7, #0
 	adds r4, #0x80
 	adds r0, r4, #0
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r1, .L08092390 @ =gUnk_081003DC
 	ldr r2, .L08092394 @ =gUnk_081003E0
 	movs r0, #0
@@ -161557,7 +161105,7 @@ func_0809152C: @ 0x0809152C
 	str r0, [sp, #0xc]
 	adds r0, r4, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -161578,7 +161126,7 @@ func_0809152C: @ 0x0809152C
 	adds r4, r7, #0
 	adds r4, #0x80
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L080923BC
 	cmp r0, #2
@@ -161659,10 +161207,10 @@ func_0809152C: @ 0x0809152C
 	ldr r1, .L08092480 @ =gUnk_0810026C
 .L08092456:
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0xa8
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r1, #0x86
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -161687,7 +161235,7 @@ func_0809152C: @ 0x0809152C
 .L08092492:
 	adds r0, r7, #0
 	adds r0, #0x80
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	ldr r1, [sp, #0x60]
 	ldr r0, [r1]
 	ldr r1, [r0, #4]
@@ -162390,7 +161938,7 @@ func_08092940: @ 0x08092940
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	b .L08092A5E
 .L08092A50:
 	adds r0, r6, #0
@@ -162398,7 +161946,7 @@ func_08092940: @ 0x08092940
 	ldr r1, .L08092A6C @ =gUnk_081003F0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 .L08092A5E:
 	add sp, #0xc
 	pop {r3, r4}
@@ -162492,10 +162040,10 @@ func_08092A70: @ 0x08092A70
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r5, r2
@@ -162512,10 +162060,10 @@ func_08092A70: @ 0x08092A70
 	str r6, [sp, #4]
 	str r6, [sp, #8]
 	adds r0, r4, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r5, r0
@@ -162536,10 +162084,10 @@ func_08092A70: @ 0x08092A70
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r5, r2
@@ -162568,10 +162116,10 @@ func_08092A70: @ 0x08092A70
 	str r0, [sp, #4]
 	str r0, [sp, #8]
 	adds r0, r4, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r5, r1
@@ -162588,10 +162136,10 @@ func_08092A70: @ 0x08092A70
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x45
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r0, r5, r2
@@ -162647,10 +162195,10 @@ func_08092A70: @ 0x08092A70
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r5, r0
@@ -162675,10 +162223,10 @@ func_08092A70: @ 0x08092A70
 	str r0, [sp, #4]
 	str r0, [sp, #8]
 	adds r0, r4, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r5, r2
@@ -163123,10 +162671,10 @@ func_08092D64: @ 0x08092D64
 	ldr r1, .L080930B4 @ =gUnk_08100460
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #1
 	mov sl, r2
 	movs r0, #0x84
@@ -163158,7 +162706,7 @@ func_08092D64: @ 0x08092D64
 	adds r4, r7, #0
 	adds r4, #0x80
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r5, r0, #0
 	cmp r5, #1
 	beq .L080930DA
@@ -163170,10 +162718,10 @@ func_08092D64: @ 0x08092D64
 	ldr r1, .L08093104 @ =gUnk_08100490
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	ldr r0, [r6]
 	ldr r1, [r0, #4]
 	adds r0, r7, #0
@@ -163191,10 +162739,10 @@ func_08092D64: @ 0x08092D64
 	ldr r1, .L08093124 @ =gUnk_081004BC
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x43
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	mov r2, r8
 	str r5, [r2]
 	b .L08092F56
@@ -163210,7 +162758,7 @@ func_08092D64: @ 0x08092D64
 .L08093134:
 	adds r0, r7, #0
 	adds r0, #0x80
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 	mov r0, sl
 	cmp r0, #0
 	beq .L0809317C
@@ -163446,7 +162994,7 @@ func_08093308: @ 0x08093308
 	lsls r1, r1, #1
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	movs r1, #0xe4
 	lsls r1, r1, #1
 	adds r0, r5, r1
@@ -163562,10 +163110,10 @@ func_08093364: @ 0x08093364
 	lsls r2, r2, #1
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08050D5C
+	bl OpenMessageWindow
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r3, #0xe6
 	lsls r3, r3, #1
 	adds r0, r7, r3
@@ -163576,7 +163124,7 @@ func_08093364: @ 0x08093364
 	bl func_0809FE3C
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_08050E68
+	bl SetMessageWindowSpeakerName
 	ldr r1, .L08093588 @ =func_080D0704
 	movs r0, #7
 	bl func_080D100C
@@ -163638,7 +163186,7 @@ func_08093364: @ 0x08093364
 	adds r2, r2, r7
 	mov r8, r2
 	mov r0, r8
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	movs r3, #0xec
 	lsls r3, r3, #1
 	adds r1, r7, r3
@@ -163667,7 +163215,7 @@ func_08093364: @ 0x08093364
 	mov r1, sb
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	movs r3, #0xee
 	lsls r3, r3, #1
 	adds r1, r7, r3
@@ -163739,10 +163287,10 @@ func_08093364: @ 0x08093364
 	adds r4, r7, r0
 	ldr r1, .L080935F0 @ =gUnk_08100610
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L08093626
 	.align 2, 0
 .L080935F0: .4byte gUnk_08100610
@@ -163752,10 +163300,10 @@ func_08093364: @ 0x08093364
 	adds r4, r7, r1
 	ldr r1, .L0809360C @ =gUnk_08100638
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x3a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	b .L08093626
 	.align 2, 0
 .L0809360C: .4byte gUnk_08100638
@@ -163765,10 +163313,10 @@ func_08093364: @ 0x08093364
 	adds r4, r7, r2
 	ldr r1, .L08093640 @ =gUnk_08100678
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x3a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L08093626:
 	movs r3, #0xfa
 	lsls r3, r3, #2
@@ -163802,10 +163350,10 @@ func_08093364: @ 0x08093364
 	adds r4, r7, r0
 	ldr r1, .L08093694 @ =gUnk_081006C4
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r1, #1
 	movs r2, #0xfa
 	lsls r2, r2, #2
@@ -163847,10 +163395,10 @@ func_08093364: @ 0x08093364
 	str r0, [sp, #4]
 	str r0, [sp, #8]
 	adds r0, r4, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	adds r0, r4, #0
 	movs r1, #0x39
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r1, #3
 	movs r2, #0xfa
 	lsls r2, r2, #2
@@ -163877,7 +163425,7 @@ func_08093364: @ 0x08093364
 	lsls r2, r2, #1
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r2, r0, #0
 	cmp r2, #1
 	beq .L0809371E
@@ -163898,10 +163446,10 @@ func_08093364: @ 0x08093364
 .L08093732:
 	ldr r1, .L08093754 @ =gUnk_08100758
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x3a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r1, #7
 	movs r2, #0xfa
 	lsls r2, r2, #2
@@ -163992,10 +163540,10 @@ func_08093364: @ 0x08093364
 	adds r4, r7, r2
 	ldr r1, .L08093918 @ =gUnk_08100790
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x39
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r1, #7
 	movs r3, #0xfa
 	lsls r3, r3, #2
@@ -164142,7 +163690,7 @@ func_08093364: @ 0x08093364
 	lsls r2, r2, #1
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	bne .L08093A14
 	ldr r0, [r7, #8]
@@ -164155,10 +163703,10 @@ func_08093364: @ 0x08093364
 	bne .L080939A8
 	ldr r1, .L08093994 @ =gUnk_08100610
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r1, #7
 	movs r3, #0xfa
 	lsls r3, r3, #2
@@ -164180,10 +163728,10 @@ func_08093364: @ 0x08093364
 .L08093998:
 	ldr r1, .L080939C8 @ =gUnk_08100610
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 .L080939A8:
 	movs r1, #7
 	movs r3, #0xfa
@@ -168050,7 +167598,7 @@ func_080958C0: @ 0x080958C0
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L08095A8C @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	movs r7, #2
 	b .L08095D10
 	.align 2, 0
@@ -168206,7 +167754,7 @@ func_080958C0: @ 0x080958C0
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L08095BD0 @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	movs r7, #9
 	b .L08095D10
 	.align 2, 0
@@ -168346,7 +167894,7 @@ func_080958C0: @ 0x080958C0
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L08095CF8 @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r0, [sp]
 	ldr r1, .L08095CFC @ =0x00000889
 	adds r0, #0xc
@@ -168687,7 +168235,7 @@ func_08095D80: @ 0x08095D80
 .L08095F9E:
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	b .L08095FB6
 	.align 2, 0
 .L08095FA8: .4byte gUnk_08100DE4
@@ -168695,7 +168243,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L08095FFC @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 .L08095FB6:
 	adds r0, r6, #0
 	bl func_080088CC
@@ -168807,7 +168355,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L080960A4 @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L08096278
 	.align 2, 0
 .L080960A4: .4byte gUnk_08100AC0
@@ -168970,7 +168518,7 @@ func_08095D80: @ 0x08095D80
 	adds r1, r5, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	movs r0, #4
 	mov sl, r0
 	b .L08096278
@@ -169002,7 +168550,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L0809623C @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	movs r1, #1
 	str r1, [sp, #8]
 	movs r2, #5
@@ -169692,13 +169240,13 @@ func_080962F0: @ 0x080962F0
 	adds r1, r5, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	b .L080967D0
 .L080967C6:
 	adds r0, r7, #0
 	adds r0, #0x80
 	ldr r1, .L08096838 @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 .L080967D0:
 	adds r0, r7, #0
 	bl func_080088CC
@@ -169886,7 +169434,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r7, #0
 	adds r0, #0x80
 	ldr r1, .L08096970 @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r7, #0
 	adds r0, #0x94
 	b .L08096A82
@@ -169914,7 +169462,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r7, #0
 	adds r0, #0x80
 	ldr r1, .L080969AC @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r7, #0
 	adds r0, #0x94
 	movs r1, #0xc6
@@ -170020,7 +169568,7 @@ func_080962F0: @ 0x080962F0
 	ble .L08096A68
 .L08096A72:
 	adds r0, r2, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	movs r0, #1
 	str r0, [sp, #0xa8]
 	movs r1, #3
@@ -171221,7 +170769,7 @@ func_080972AC: @ 0x080972AC
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L08097410 @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	b .L08097584
 	.align 2, 0
 .L08097410: .4byte gUnk_08100AC0
@@ -171368,7 +170916,7 @@ func_080972AC: @ 0x080972AC
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L08097548 @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	movs r7, #7
 	b .L08097584
 	.align 2, 0
@@ -172303,7 +171851,7 @@ func_08097AE4: @ 0x08097AE4
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L08097C94 @ =gUnk_08100AC0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	ldr r0, [sp, #4]
 	adds r0, #0xc
 	ldr r1, .L08097C98 @ =0x00000889
@@ -172448,7 +171996,7 @@ func_08097D38: @ 0x08097D38
 	bne .L08097E08
 	adds r0, r6, #0
 	adds r0, #0x80
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r1, r0, #0
 	movs r0, #3
 	strb r0, [r4]
@@ -172549,7 +172097,7 @@ func_08097D38: @ 0x08097D38
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	ldr r2, .L08097E88 @ =0x000033D2
 	adds r1, r6, r2
 	b .L08097FCC
@@ -172568,7 +172116,7 @@ func_08097D38: @ 0x08097D38
 	str r4, [sp]
 	str r4, [sp, #4]
 	str r4, [sp, #8]
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	b .L08097FC8
 	.align 2, 0
 .L08097EA4: .4byte gUnk_08100E74
@@ -172585,7 +172133,7 @@ func_08097D38: @ 0x08097D38
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	ldr r2, .L08097EDC @ =0x000033D2
 	adds r1, r6, r2
 	b .L08097FCC
@@ -172636,7 +172184,7 @@ func_08097D38: @ 0x08097D38
 	adds r2, r6, r1
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	ldr r2, .L08097F54 @ =0x000033D2
 	adds r1, r6, r2
 	movs r0, #3
@@ -172664,7 +172212,7 @@ func_08097D38: @ 0x08097D38
 .L08097F6E:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_08050DA0
+	bl SetMessageWindowTextSubstitutions
 	b .L08097FFE
 	.align 2, 0
 .L08097F78: .4byte gUnk_08100F44
@@ -172680,7 +172228,7 @@ func_08097D38: @ 0x08097D38
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	ldr r2, .L08097FAC @ =0x000033D2
 	adds r1, r6, r2
 	b .L08097FCC
@@ -172700,7 +172248,7 @@ func_08097D38: @ 0x08097D38
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L08097FC8:
 	ldr r0, .L08097FE0 @ =0x000033D2
 	adds r1, r6, r0
@@ -172724,7 +172272,7 @@ func_08097D38: @ 0x08097D38
 	adds r1, r5, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 .L08097FFE:
 	add sp, #0x10
 	pop {r4, r5, r6}
