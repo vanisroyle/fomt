@@ -9993,7 +9993,7 @@ func_080A37A8: @ 0x080A37A8
 	bl _call_via_r2
 .L080A389E:
 	adds r0, r6, #0
-	bl func_080BC8F0
+	bl G3GetWrappedFlagB30
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080A38B0
@@ -10002,7 +10002,7 @@ func_080A37A8: @ 0x080A37A8
 .L080A38B0:
 	ldr r4, [r5, #4]
 	adds r0, r6, #0
-	bl func_080BC8F0
+	bl G3GetWrappedFlagB30
 	strb r0, [r4, #0xc]
 	ldr r1, [r5, #4]
 	mov r0, sb
@@ -10125,7 +10125,7 @@ func_080A3900: @ 0x080A3900
 	bl _call_via_r2
 .L080A39A6:
 	mov r0, sp
-	bl func_080B3C78
+	bl G3GetWrappedFlag92C
 	adds r4, r0, #0
 	lsls r4, r4, #0x18
 	lsrs r4, r4, #0x18
@@ -10137,7 +10137,7 @@ func_080A3900: @ 0x080A3900
 	strb r4, [r0, #0xc]
 	ldr r4, [r5, #8]
 	mov r0, sp
-	bl func_080B3C84
+	bl G3GetWrappedValue910
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_08011498
@@ -34660,7 +34660,7 @@ func_080AF814: @ 0x080AF814
 	adds r0, r7, r1
 	ldr r4, [r0]
 	adds r0, r7, #0
-	bl func_080B3990
+	bl G3GetBankedSelectionValue
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -35096,7 +35096,7 @@ func_080AF814: @ 0x080AF814
 	ldr r4, [r0]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x60]
-	bl func_080B39F4
+	bl G3GetSlotValue85C
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -35546,7 +35546,7 @@ func_080AF814: @ 0x080AF814
 	ldr r4, [r0]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x60]
-	bl func_080B39D8
+	bl G3GetSlotValue848
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -36032,7 +36032,7 @@ func_080AF814: @ 0x080AF814
 	ldr r4, [r0]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x60]
-	bl func_080B39BC
+	bl G3GetSlotValue870
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -37198,7 +37198,7 @@ func_080B0BB8: @ 0x080B0BB8
 	bl func_08050D3C
 	ldr r4, [r6]
 	adds r0, r7, #0
-	bl func_080B3A10
+	bl G3GetSelectionValue934
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -42917,90 +42917,15 @@ func_080B3948: @ 0x080B3948
 .L080B3988: .4byte 0x0000085C
 .L080B398C: .4byte 0x00000906
 
-	thumb_func_start func_080B3990
-func_080B3990: @ 0x080B3990
-	ldr r2, .L080B39B4 @ =gUnk_08107882
-	ldr r3, .L080B39B8 @ =0x00000844
-	adds r1, r0, r3
-	ldr r1, [r1]
-	lsls r1, r1, #1
-	adds r1, r1, r2
-	movs r2, #0x93
-	lsls r2, r2, #4
-	adds r0, r0, r2
-	ldr r2, [r0]
-	movs r0, #0x54
-	muls r0, r2, r0
-	ldrh r1, [r1]
-	adds r0, r0, r1
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x10
-	bx lr
-	.align 2, 0
-.L080B39B4: .4byte gUnk_08107882
-.L080B39B8: .4byte 0x00000844
+	.section .text.g3_after_080B3990, "ax", %progbits
 
-	thumb_func_start func_080B39BC
-func_080B39BC: @ 0x080B39BC
-	ldr r2, .L080B39D4 @ =gUnk_0810788A
-	lsls r1, r1, #2
-	movs r3, #0x87
-	lsls r3, r3, #4
-	adds r0, r0, r3
-	adds r0, r0, r1
-	ldr r0, [r0]
-	lsls r0, r0, #1
-	adds r0, r0, r2
-	ldrh r0, [r0]
-	bx lr
-	.align 2, 0
-.L080B39D4: .4byte gUnk_0810788A
+	.section .text.g3_after_080B39BC, "ax", %progbits
 
-	thumb_func_start func_080B39D8
-func_080B39D8: @ 0x080B39D8
-	ldr r2, .L080B39EC @ =gUnk_08107890
-	lsls r1, r1, #2
-	ldr r3, .L080B39F0 @ =0x00000848
-	adds r0, r0, r3
-	adds r0, r0, r1
-	ldr r0, [r0]
-	lsls r0, r0, #1
-	adds r0, r0, r2
-	ldrh r0, [r0]
-	bx lr
-	.align 2, 0
-.L080B39EC: .4byte gUnk_08107890
-.L080B39F0: .4byte 0x00000848
+	.section .text.g3_after_080B39D8, "ax", %progbits
 
-	thumb_func_start func_080B39F4
-func_080B39F4: @ 0x080B39F4
-	ldr r2, .L080B3A08 @ =gUnk_0810789A
-	lsls r1, r1, #2
-	ldr r3, .L080B3A0C @ =0x0000085C
-	adds r0, r0, r3
-	adds r0, r0, r1
-	ldr r0, [r0]
-	lsls r0, r0, #1
-	adds r0, r0, r2
-	ldrh r0, [r0]
-	bx lr
-	.align 2, 0
-.L080B3A08: .4byte gUnk_0810789A
-.L080B3A0C: .4byte 0x0000085C
+	.section .text.g3_after_080B39F4, "ax", %progbits
 
-	thumb_func_start func_080B3A10
-func_080B3A10: @ 0x080B3A10
-	ldr r1, .L080B3A20 @ =gUnk_081078A0
-	ldr r2, .L080B3A24 @ =0x00000934
-	adds r0, r0, r2
-	ldr r0, [r0]
-	lsls r0, r0, #1
-	adds r0, r0, r1
-	ldrh r0, [r0]
-	bx lr
-	.align 2, 0
-.L080B3A20: .4byte gUnk_081078A0
-.L080B3A24: .4byte 0x00000934
+	.section .text.g3_after_080B3A10, "ax", %progbits
 
 	thumb_func_start func_080B3A28
 func_080B3A28: @ 0x080B3A28
@@ -43293,22 +43218,9 @@ func_080B3C3C: @ 0x080B3C3C
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_080B3C78
-func_080B3C78: @ 0x080B3C78
-	push {lr}
-	ldr r0, [r0, #4]
-	bl func_080AE4D8
-	pop {r1}
-	bx r1
+	.section .text.g3_after_080B3C78, "ax", %progbits
 
-	thumb_func_start func_080B3C84
-func_080B3C84: @ 0x080B3C84
-	ldr r0, [r0, #4]
-	movs r1, #0x91
-	lsls r1, r1, #4
-	adds r0, r0, r1
-	ldr r0, [r0]
-	bx lr
+	.section .text.g3_after_080B3C84, "ax", %progbits
 
 	thumb_func_start func_080B3C90
 func_080B3C90: @ 0x080B3C90
@@ -44266,14 +44178,7 @@ func_080B3CC8: @ 0x080B3CC8
 .L080B44D8: .4byte 0x0000072C
 .L080B44DC: .4byte 0x0000073C
 
-	thumb_func_start func_080B44E0
-func_080B44E0: @ 0x080B44E0
-	movs r1, #0xb3
-	lsls r1, r1, #4
-	adds r0, r0, r1
-	ldrb r0, [r0]
-	bx lr
-	.align 2, 0
+	.section .text.g3_after_080B44E0, "ax", %progbits
 
 	thumb_func_start func_080B44EC
 func_080B44EC: @ 0x080B44EC
@@ -44284,7 +44189,7 @@ func_080B44EC: @ 0x080B44EC
 	mov r8, r0
 	adds r4, r1, #0
 	adds r0, r4, #0
-	bl func_080B45E4
+	bl G3RequestPrimaryDisplayUpdate
 	adds r0, r4, #0
 	bl func_08008918
 	mov r1, sp
@@ -44398,13 +44303,7 @@ func_080B44EC: @ 0x080B44EC
 	.align 2, 0
 .L080B45E0: .4byte 0x00000B32
 
-	thumb_func_start func_080B45E4
-func_080B45E4: @ 0x080B45E4
-	push {lr}
-	bl func_08008724
-	pop {r0}
-	bx r0
-	.align 2, 0
+	.section .text.g3_after_080B45E4, "ax", %progbits
 
 	thumb_func_start func_080B45F0
 func_080B45F0: @ 0x080B45F0
@@ -55286,25 +55185,25 @@ func_080B9AC0: @ 0x080B9AC0
 	adds r0, r2, #0
 	adds r0, #0x6c
 	adds r0, r4, r0
-	bl func_080BA1F4
+	bl G3IgnoreActorCallback0
 	b .L080B9B42
 .L080B9B14:
 	adds r0, r2, #0
 	adds r0, #0x6c
 	adds r0, r4, r0
-	bl func_080BA1F8
+	bl G3IgnoreActorCallback1
 	b .L080B9B42
 .L080B9B20:
 	adds r0, r2, #0
 	adds r0, #0x6c
 	adds r0, r4, r0
-	bl func_080BA1FC
+	bl G3IgnoreActorCallback2
 	b .L080B9B42
 .L080B9B2C:
 	adds r0, r2, #0
 	adds r0, #0x6c
 	adds r0, r4, r0
-	bl func_080BA200
+	bl G3IgnoreActorCallback3
 	b .L080B9B42
 .L080B9B38:
 	adds r0, r2, #0
@@ -56244,25 +56143,13 @@ func_080BA1A4: @ 0x080BA1A4
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080BA1F4
-func_080BA1F4: @ 0x080BA1F4
-	bx lr
-	.align 2, 0
+	.section .text.g3_after_080BA1F4, "ax", %progbits
 
-	thumb_func_start func_080BA1F8
-func_080BA1F8: @ 0x080BA1F8
-	bx lr
-	.align 2, 0
+	.section .text.g3_after_080BA1F8, "ax", %progbits
 
-	thumb_func_start func_080BA1FC
-func_080BA1FC: @ 0x080BA1FC
-	bx lr
-	.align 2, 0
+	.section .text.g3_after_080BA1FC, "ax", %progbits
 
-	thumb_func_start func_080BA200
-func_080BA200: @ 0x080BA200
-	bx lr
-	.align 2, 0
+	.section .text.g3_after_080BA200, "ax", %progbits
 
 	thumb_func_start func_080BA204
 func_080BA204: @ 0x080BA204
@@ -61386,13 +61273,7 @@ func_080BC8C0: @ 0x080BC8C0
 	.align 2, 0
 .L080BC8EC: .4byte vtable_unk_080E8528
 
-	thumb_func_start func_080BC8F0
-func_080BC8F0: @ 0x080BC8F0
-	push {lr}
-	ldr r0, [r0, #4]
-	bl func_080B44E0
-	pop {r1}
-	bx r1
+	.section .text.g3_after_080BC8F0, "ax", %progbits
 
 	thumb_func_start func_080BC8FC
 func_080BC8FC: @ 0x080BC8FC
@@ -61830,14 +61711,7 @@ func_080BC938: @ 0x080BC938
 .L080BCCCC: .4byte 0x00000614
 .L080BCCD0: .4byte 0x0000061C
 
-	thumb_func_start func_080BCCD4
-func_080BCCD4: @ 0x080BCCD4
-	movs r1, #0xc2
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	ldrb r0, [r0]
-	bx lr
-	.align 2, 0
+	.section .text.g3_after_080BCCD4, "ax", %progbits
 
 	thumb_func_start func_080BCCE0
 func_080BCCE0: @ 0x080BCCE0
@@ -61850,7 +61724,7 @@ func_080BCCE0: @ 0x080BCCE0
 	str r0, [sp, #0x1c]
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_080BCEBC
+	bl G3RequestSecondaryDisplayUpdate
 	adds r0, r7, #0
 	bl func_08008918
 	add r1, sp, #0xc
@@ -62054,13 +61928,7 @@ func_080BCCE0: @ 0x080BCCE0
 .L080BCEB4: .4byte 0x00000889
 .L080BCEB8: .4byte 0x0000057C
 
-	thumb_func_start func_080BCEBC
-func_080BCEBC: @ 0x080BCEBC
-	push {lr}
-	bl func_08008724
-	pop {r0}
-	bx r0
-	.align 2, 0
+	.section .text.g3_after_080BCEBC, "ax", %progbits
 
 	thumb_func_start func_080BCEC8
 func_080BCEC8: @ 0x080BCEC8
@@ -70158,7 +70026,7 @@ func_080C0D44: @ 0x080C0D44
 func_080C0D74: @ 0x080C0D74
 	push {lr}
 	ldr r0, [r0, #4]
-	bl func_080BCCD4
+	bl G3GetFlag610
 	pop {r1}
 	bx r1
 
