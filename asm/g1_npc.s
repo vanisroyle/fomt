@@ -7079,7 +7079,7 @@ func_080A220C: @ 0x080A220C
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0xf
-	bl func_08050CC0
+	bl CreateMessageWindow
 	str r0, [r7, #0x10]
 	adds r0, r4, #0
 	movs r1, #2
