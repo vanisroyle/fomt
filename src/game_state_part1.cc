@@ -362,16 +362,16 @@ struct GameStateGlobal
     GameStateGlobalStatus status;
 };
 
-extern GameStateGlobal * gUnk_0300040C;
+extern GameStateGlobal * gActiveGameScene;
 
 EC u32 SECTION(".text.game_state_08016D9C") func_08016D9C()
 {
-    return gUnk_0300040C->status.GetValue();
+    return gActiveGameScene->status.GetValue();
 }
 
-EC void func_08008DE8();
-EC void func_08008BE0(void * self);
-EC u32 func_08008CD0(void * self);
+EC void Audio_StopAllPlayers();
+EC void AudioPlayer_Stop(void * self);
+EC u32 AudioPlayer_IsPlaying(void * self);
 EC void func_0803B6B8(void * self, u32 index, char const * text);
 EC void ClearMessageWindowSpeakerName(void * self);
 EC void ClearMessageWindowPortrait(void * self);
@@ -380,10 +380,10 @@ EC void func_080323C8(AActorEntity & self);
 EC void func_08032308(AActorEntity & self, u32 target, i32 speed);
 EC void func_0803233C(AActorEntity & self, u32 target, i32 speed);
 EC void func_080323E0(AActorEntity & self, u32 value);
-EC void func_080387B8(void * self);
-EC void func_080387EC(void * self);
-EC void func_080387C8(void * self);
-EC void func_080387FC(void * self);
+EC void CreateSideEntityEffectSprite(void * self);
+EC void ClearSideEntityEffectSprite(void * self);
+EC void BeginSideEntityTransition(void * self);
+EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
 EC void func_0804EC84(i32 value, char * text, u32 digits);
 EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
@@ -396,23 +396,23 @@ EC void func_080D7F60(GameStateRuntime & self);
 EC void SetMessageWindowSpeakerName(void * self, const char * name);
 EC void SetMessageWindowPortrait(void * self, u32 value);
 EC u32 func_0809FE3C(void * self, u32 value);
-EC void func_08033B84(AActorEntity & self, u32 map, i32 x, i32 y);
+EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
-EC void func_080007EC(GameStateScript & self, u32 flags);
+EC void Scene_DestroyBase(GameStateScript & self, u32 flags);
 EC void func_080D7F9C(GameStateRuntime & self, i32 id, u32 value_1, u32 value_2, u32 value_3, u32 value_4);
 EC void func_080A05E8(void * self, void * value);
-EC void func_08008B6C(void * self, u16 amount);
-EC void func_08008B88(void * self, u16 amount);
-EC void func_08008BB0(void * self, u16 amount);
+EC void AudioPlayer_StartSong(void * self, u16 amount);
+EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
+EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 
 EC void SECTION(".text.game_state_08012454") func_08012454(GameStateScript & self)
 {
-    func_08008BE0(self.runtime->music);
+    AudioPlayer_Stop(self.runtime->music);
 }
 
 EC void SECTION(".text.game_state_080124C4") func_080124C4()
 {
-    func_08008DE8();
+    Audio_StopAllPlayers();
 }
 
 EC void SECTION(".text.game_state_0801274C") func_0801274C(GameStateScript & self)
@@ -465,12 +465,12 @@ EC SECTION(".text.game_state_0801468C") u8 * func_0801468C(GameStateScript & sel
 
 EC u32 SECTION(".text.game_state_080167CC") func_080167CC(GameStateScript & self)
 {
-    return func_08008CD0(self.runtime->music);
+    return AudioPlayer_IsPlaying(self.runtime->music);
 }
 
 EC void SECTION(".text.game_state_08016D80") func_08016D80()
 {
-    GameStateGlobalStatus & status = gUnk_0300040C->status;
+    GameStateGlobalStatus & status = gActiveGameScene->status;
     status.unk_00 = 0;
     status.unk_04 = 0x234;
 }
@@ -610,12 +610,12 @@ EC void SECTION(".text.game_state_08016C10") func_08016C10(GameStateScript & sel
 
 EC void SECTION(".text.game_state_08016C2C") func_08016C2C(GameStateScript & self)
 {
-    func_080387B8(self.runtime->object->vfunc_40(0x5D));
+    CreateSideEntityEffectSprite(self.runtime->object->vfunc_40(0x5D));
 }
 
 EC void SECTION(".text.game_state_08016C6C") func_08016C6C(GameStateScript & self)
 {
-    func_080387EC(self.runtime->object->vfunc_40(0x5D));
+    ClearSideEntityEffectSprite(self.runtime->object->vfunc_40(0x5D));
 }
 
 EC void SECTION(".text.game_state_08016EF0") func_08016EF0(GameStateScript & self, u32 value)
@@ -681,14 +681,14 @@ EC void SECTION(".text.game_state_08016E7C") func_08016E7C(GameStateScript & sel
 EC void SECTION(".text.game_state_08016C48") func_08016C48(GameStateScript & self)
 {
     GameStateRuntime & runtime = *self.runtime;
-    func_080387C8(runtime.object->vfunc_40(0x5D));
+    BeginSideEntityTransition(runtime.object->vfunc_40(0x5D));
     runtime.command = 0x1C;
 }
 
 EC void SECTION(".text.game_state_08016C88") func_08016C88(GameStateScript & self)
 {
     GameStateRuntime & runtime = *self.runtime;
-    func_080387FC(runtime.object->vfunc_40(0x5D));
+    CreateSideEntityParticleSprites(runtime.object->vfunc_40(0x5D));
     runtime.command = 0x1B;
 }
 
@@ -806,7 +806,7 @@ EC void SECTION(".text.game_state_0801238C") func_0801238C(GameStateScript & sel
 EC void SECTION(".text.game_state_08012B04") func_08012B04(GameStateScript & self, int id, int value)
 {
     GameStateRuntime & runtime = *self.runtime;
-    gUnk_0300040C->engine.LoadById(id, value);
+    gActiveGameScene->engine.LoadById(id, value);
     func_080D7F3C(runtime);
 }
 
@@ -1051,7 +1051,7 @@ EC void SECTION(".text.game_state_0801223C") func_0801223C(GameStateScript & sel
         i32 current_y = reinterpret_cast<i16 const *>(&entity->y_q16)[1];
         current_x += x;
         current_y += y;
-        func_08033B84(*entity, reinterpret_cast<u8 *>(entity)[0x30], current_x, current_y);
+        ShowSpriteWorkerEffect(*entity, reinterpret_cast<u8 *>(entity)[0x30], current_x, current_y);
     }
 }
 
@@ -1059,7 +1059,7 @@ EC void SECTION(".text.game_state_08016D48") func_08016D48(GameStateScript & sel
 {
     GameStateRuntime & runtime = *self.runtime;
     AActorEntity * entity = runtime.object->vfunc_40(0);
-    GameStateGlobalStatus & status = gUnk_0300040C->status;
+    GameStateGlobalStatus & status = gActiveGameScene->status;
     u16 map = entity->location_map;
     u8 * state = runtime.state;
     status.unk_00 = 1;
@@ -1083,9 +1083,9 @@ EC void SECTION(".text.game_state_08016F60") func_08016F60(GameStateScript & sel
 EC SECTION(".text.game_state_08011FE8") void func_08011FE8(GameStateScript & self, u32 flags)
 {
     self.unk_00 = reinterpret_cast<u32>(vtable_unk_080E5E64);
-    gUnk_0300040C->engine.ClearUnk();
+    gActiveGameScene->engine.ClearUnk();
     delete self.runtime;
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 EC SECTION(".text.game_state_08012064") void func_08012064(GameStateScript & self, i32 id, u32 value_2, u32 value_3, u32 value_4)
@@ -1125,7 +1125,7 @@ EC SECTION(".text.game_state_08012464") void func_08012464(GameStateScript & sel
     {
         do
         {
-            if (!(u8) func_08008CD0(*current))
+            if (!(u8) AudioPlayer_IsPlaying(*current))
             {
                 music = *current;
                 goto play;
@@ -1139,13 +1139,13 @@ play:
     switch (mode)
     {
     case 0:
-        func_08008B6C(music, amount);
+        AudioPlayer_StartSong(music, amount);
         break;
     case 1:
-        func_08008B88(music, amount);
+        AudioPlayer_StartSongIfStoppedOrChanged(music, amount);
         break;
     case 2:
-        func_08008BB0(music, amount);
+        AudioPlayer_StartOrResumeSong(music, amount);
         break;
     }
 }
