@@ -90,7 +90,7 @@ struct MapScene
     MapSceneEffectSlot effect;
 };
 
-EC void func_080AB68C(MapTileEffectQueue *, int, int, u32);
+EC void ScheduleMapTileEffect(MapTileEffectQueue *, int, int, u32);
 EC i32 AssignMapSceneSpriteCacheSlot(GameStateSpriteCache &, u32);
 
 struct MapSceneTerrainSource
@@ -1058,7 +1058,7 @@ EC SECTION(".text.080AD8C4") void QueueMapSceneTileEffect(MapScene & scene, int 
     asm ("" : "+l" (pixelY));
     offsetY += 56;
     asm ("" : "+l" (offsetY));
-    func_080AB68C(queue, pixelX, pixelY + offsetY, effect);
+    ScheduleMapTileEffect(queue, pixelX, pixelY + offsetY, effect);
 }
 
 EC SECTION(".text.080ADAFC") i32 GetMapSceneCachedSpriteSlot(MapScene & scene, u32 slot)
@@ -1100,9 +1100,14 @@ struct MapTileEffect
 
 struct MapTileEffectState
 {
-    STRUCT_PAD(0, 8);
+    STRUCT_PAD(0, 5);
+    u8 assetsChanged;
+    u8 effectQueued;
+    STRUCT_PAD(7, 8);
     MapTileEffectAssets assets[10];
-    STRUCT_PAD(0x350, 0x368);
+    STRUCT_PAD(0x350, 0x364);
+    u8 lastQueuedType;
+    STRUCT_PAD(0x365, 0x368);
     MapTileEffect effects[16];
 };
 
@@ -1112,6 +1117,122 @@ struct MapTileEffectQueue
 };
 
 EC void func_08007C28(MapTileEffectResource &, u32);
+EC u32 func_08007B54(MapTileEffectResource *, u32);
+
+EC SECTION(".text.080AB68C") void ScheduleMapTileEffect(MapTileEffectQueue * queue, int x, int y, u32 type)
+{
+    register int pixelY asm("r5") = y;
+    register u32 effectType asm("r2") = type;
+    MapTileEffectState * state = queue->state;
+    register unsigned index asm("r4") = 0;
+    do
+    {
+        register unsigned offset asm("r0") = index * sizeof(MapTileEffect);
+        register unsigned effectsOffset asm("r3") = offsetof(MapTileEffectState, effects);
+        offset += effectsOffset;
+        asm ("" : "+l" (offset));
+        register MapTileEffect * effect asm("r3") = reinterpret_cast<MapTileEffect *>(reinterpret_cast<u8 *>(state) + offset);
+        if (effect->active)
+            goto nextEffect;
+        {
+            effect->x = x;
+            effect->y = pixelY;
+            effect->active = 1;
+            effect->frames = 12;
+            effect->type = effectType;
+            register unsigned stride asm("r0") = sizeof(MapTileEffectAssets);
+            asm ("" : "+l" (stride));
+            stride *= effectType;
+            register u8 * assetBase asm("r0");
+            asm ("add %0, %1, %2" : "=l" (assetBase) : "l" (stride), "l" (state) : "cc");
+            register unsigned active asm("r0") = assetBase[offsetof(MapTileEffectState, assets)];
+            register unsigned typeOffset asm("r1") = offsetof(MapTileEffectState, lastQueuedType);
+            asm ("" : "+l" (typeOffset));
+            register u8 * lastType asm("sb") = reinterpret_cast<u8 *>(state) + typeOffset;
+            asm ("" : "+h" (lastType));
+            if (!active)
+            {
+                register unsigned tileCount asm("r1");
+                switch (effectType)
+                {
+                case 1:
+                case 2:
+                    tileCount = 2;
+                    break;
+                case 0:
+                default:
+                    tileCount = 3;
+                    break;
+                case 6:
+                case 7:
+                    tileCount = 5;
+                    break;
+                case 8:
+                    tileCount = 4;
+                    break;
+                case 9:
+                    tileCount = 6;
+                    break;
+                }
+                asm ("" : "+l" (tileCount));
+                register unsigned assetStride asm("r0") = sizeof(MapTileEffectAssets);
+                asm ("" : "+l" (assetStride));
+                register unsigned assetOffset asm("r5") = effectType;
+                assetOffset *= assetStride;
+                asm ("" : "+l" (assetOffset));
+                register u8 * assetAddress asm("r5");
+                asm ("add %0, %1, %2" : "=l" (assetAddress) : "l" (assetOffset), "l" (state) : "cc");
+                assetAddress += offsetof(MapTileEffectState, assets);
+                asm ("" : "+l" (assetAddress));
+                register unsigned allocationCount asm("r8") = tileCount;
+                register unsigned resourceIndex asm("r6") = 0;
+                register unsigned secondTypeOffset asm("r3") = offsetof(MapTileEffectState, lastQueuedType);
+                asm ("" : "+l" (secondTypeOffset));
+                lastType = reinterpret_cast<u8 *>(state) + secondTypeOffset;
+                asm ("" : "+h" (lastType));
+                MapTileEffectAssets * assets = reinterpret_cast<MapTileEffectAssets *>(assetAddress);
+                register MapTileEffectResource * resource asm("r4") = assets->resources;
+                asm ("" : "+l" (resource));
+                do
+                {
+                    register u32 previousHandle asm("r1") = resource->handle;
+                    register MapTileEffectResource * releaseResource asm("r0") = resource;
+                    asm ("" : "+l" (releaseResource));
+                    volatile u32 savedType = effectType;
+                    func_08007C28(*releaseResource, previousHandle);
+                    register u32 handle asm("r0") = func_08007B54(resource, allocationCount);
+                    resource->handle = handle;
+                    register u32 negatedHandle asm("r1") = -handle;
+                    asm ("" : "+l" (negatedHandle));
+                    negatedHandle |= handle;
+                    effectType = savedType;
+                    asm ("" : "+l" (effectType));
+                    if (static_cast<i32>(negatedHandle) >= 0)
+                        goto markAssetChange;
+                    ++resource;
+                    ++resourceIndex;
+                } while (resourceIndex <= 1);
+                assets->active = 1;
+                assets->loaded = 1;
+            markAssetChange:
+                {
+                    register unsigned changed asm("r0") = 1;
+                    asm ("" : "+l" (changed));
+                    state->assetsChanged = changed;
+                }
+            }
+            register unsigned queued asm("r0") = 1;
+            asm ("" : "+l" (queued));
+            state->effectQueued = queued;
+            *lastType = effectType;
+            goto done;
+        }
+    nextEffect:
+        ++index;
+    } while (index <= 15);
+done:
+    return;
+}
 
 EC SECTION(".text.080AB380") void UpdateMapTileEffectQueue(MapTileEffectQueue & queue)
 {
