@@ -426,7 +426,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020774
     add r0, sp, #0x14
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
     ldr r0, [sp, #0x14]
     b .L08020776
 .L08020774:
@@ -439,7 +439,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020788
     add r0, sp, #0x14
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
 .L08020788:
     add r1, sp, #0x24
     ldrb r0, [r1]
@@ -455,7 +455,7 @@ func_080204CC: @ 0x080204CC
     cmn r1, r0
     bge .L080207AA
     add r0, sp, #0x14
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
     ldr r0, [sp, #0x18]
     b .L080207AC
 .L080207AA:
@@ -468,7 +468,7 @@ func_080204CC: @ 0x080204CC
     cmn r0, r1
     bge .L080207BE
     add r0, sp, #0x14
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
 .L080207BE:
     movs r3, #0x25
     add r3, sp
@@ -486,7 +486,7 @@ func_080204CC: @ 0x080204CC
     cmn r1, r0
     bge .L080207E4
     add r0, sp, #0x14
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
     ldr r0, [sp, #0x1c]
     b .L080207E6
 .L080207E4:
@@ -499,7 +499,7 @@ func_080204CC: @ 0x080204CC
     cmn r0, r1
     bge .L080207F8
     add r0, sp, #0x14
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
 .L080207F8:
     movs r1, #0x26
     add r1, sp
@@ -517,7 +517,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L0802081E
     add r0, sp, #0x14
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
     ldr r0, [sp, #0x20]
     b .L08020820
 .L0802081E:
@@ -530,7 +530,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020832
     add r0, sp, #0x14
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
 .L08020832:
     movs r7, #0x27
     add r7, sp
@@ -625,7 +625,7 @@ func_080204CC: @ 0x080204CC
     cmn r1, r0
     bge .L080208FA
     add r0, sp, #0x14
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
     ldr r1, [sp, #0x1c]
 .L080208FA:
     movs r0, #0x10
@@ -640,7 +640,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020918
     add r0, sp, #0x14
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
     ldr r0, [sp, #0x20]
     b .L0802091A
 .L08020918:
@@ -656,7 +656,7 @@ func_080204CC: @ 0x080204CC
     cmn r1, r0
     bge .L08020932
     add r0, sp, #0x14
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
     ldr r1, [sp, #0x18]
 .L08020932:
     movs r0, #0x10
@@ -671,7 +671,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020950
     add r0, sp, #0x14
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
     ldr r0, [sp, #0x14]
     b .L08020952
 .L08020950:
@@ -1899,489 +1899,6 @@ func_080204CC: @ 0x080204CC
     .byte 0x00, 0xF0, 0x08, 0xF8, 0x20, 0x1C, 0x29, 0x1C, 0x0F, 0xF0, 0xA8, 0xFF, 0x30, 0xBC, 0x01, 0xBC
     .byte 0x00, 0x47, 0x00, 0x00
 
-    .section .text.entities_part1.080224E4, "ax", %progbits
-    thumb_func_start func_080224E4
-func_080224E4: @ 0x080224E4
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x74
-    mov sb, r0
-    ldr r7, [r0, #0x34]
-    ldr r0, [r0]
-    mov r8, r0
-    mov r2, sb
-    ldrh r2, [r2, #4]
-    str r2, [sp, #0x64]
-    cmp r2, #2
-    bne .L080225A6
-    ldrb r0, [r1, #4]
-    cmp r0, #0
-    beq .L080225A6
-    adds r0, r7, #0
-    bl GetCurrentOutdoorMinutes__C9Livestock
-    adds r5, r0, #0
-    adds r0, r7, #0
-    movs r1, #1
-    bl AddOutdoorMinutes__9LivestockUi
-    adds r0, r7, #0
-    bl GetCurrentOutdoorMinutes__C9Livestock
-    adds r4, r0, #0
-    cmp r5, #0xb3
-    bhi .L08022552
-    cmp r4, #0xb3
-    bls .L08022552
-    mov r3, r8
-    ldr r0, [r3]
-    movs r6, #0xa2
-    lsls r6, r6, #1
-    adds r0, r0, r6
-    ldr r1, [r0]
-    mov r0, r8
-    bl _call_via_r1
-    ldr r0, [r0]
-    cmp r0, #0
-    beq .L08022552
-    adds r0, r7, #0
-    bl IsUnhappy__C9Livestock
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08022552
-    adds r0, r7, #0
-    bl SetUnhappy__9Livestock
-.L08022552:
-    cmp r5, #0xef
-    bhi .L08022560
-    cmp r4, #0xef
-    bls .L08022560
-    adds r0, r7, #0
-    bl SetFed__7Chicken
-.L08022560:
-    ldr r0, .L08022670 @ =0x0000012B
-    cmp r5, r0
-    bhi .L080225A6
-    cmp r4, r0
-    bls .L080225A6
-    mov r1, r8
-    ldr r0, [r1]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r0, r0, r2
-    ldr r1, [r0]
-    mov r0, r8
-    bl _call_via_r1
-    ldr r0, [r0]
-    cmp r0, #0
-    bne .L080225A6
-    adds r0, r7, #0
-    bl IsUnhappy__C9Livestock
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802259E
-    movs r0, #0x64
-    bl RollEntityMovementRandom
-    cmp r0, #0x1d
-    bhi .L0802259E
-    adds r0, r7, #0
-    bl ResetUnhappy__9Livestock
-.L0802259E:
-    adds r0, r7, #0
-    movs r1, #1
-    bl AddAffection__6Animali
-.L080225A6:
-    mov r3, r8
-    ldr r1, [r3]
-    add r0, sp, #8
-    ldr r3, [r1, #0x34]
-    mov r1, r8
-    ldr r2, [sp, #0x64]
-    bl _call_via_r3
-    mov r6, sb
-    ldr r1, [r6, #0x14]
-    add r0, sp, #0x48
-    ldr r2, [r1, #0xc]
-    mov r1, sb
-    bl _call_via_r2
-    ldr r0, [sp, #0x48]
-    ldr r1, [sp, #0x4c]
-    str r0, [sp, #0x6c]
-    str r1, [sp, #0x70]
-    add r4, sp, #0x14
-    movs r1, #0x10
-    mov sl, r1
-    movs r5, #0
-    movs r1, #0x11
-    str r1, [sp, #0x14]
-    movs r0, #0x11
-    rsbs r0, r0, #0
-    str r0, [r4, #4]
-    str r0, [r4, #8]
-    str r1, [r4, #0xc]
-    add r1, sp, #0x28
-    add r0, sp, #8
-    ldm r0!, {r2, r3, r6}
-    stm r1!, {r2, r3, r6}
-    ldr r0, [sp, #0x6c]
-    ldr r1, [sp, #0x70]
-    str r0, [sp, #0x34]
-    str r1, [sp, #0x38]
-    mov r1, sl
-    str r1, [r4, #0x28]
-    str r5, [r4, #0x2c]
-    str r5, [r4, #0x30]
-    mov r2, r8
-    ldr r0, [r2]
-    ldr r2, [r0, #0x40]
-    mov r0, r8
-    movs r1, #0
-    bl _call_via_r2
-    adds r6, r0, #0
-    mov r3, r8
-    ldr r0, [r3]
-    ldr r2, [r0, #0x40]
-    mov r0, r8
-    movs r1, #0x4a
-    bl _call_via_r2
-    adds r5, r0, #0
-    cmp r6, #0
-    beq .L0802263E
-    ldrh r0, [r6, #4]
-    ldr r1, [sp, #0x64]
-    cmp r0, r1
-    bne .L0802263E
-    ldr r1, [r6, #0x14]
-    add r4, sp, #0x50
-    adds r0, r4, #0
-    ldr r2, [r1, #0xc]
-    adds r1, r6, #0
-    bl _call_via_r2
-    add r0, sp, #0x14
-    adds r1, r4, #0
-    movs r2, #0
-    bl func_080ABA90
-.L0802263E:
-    cmp r5, #0
-    beq .L08022662
-    ldrh r0, [r5, #4]
-    ldr r2, [sp, #0x64]
-    cmp r0, r2
-    bne .L08022662
-    ldr r1, [r5, #0x14]
-    add r4, sp, #0x58
-    adds r0, r4, #0
-    ldr r2, [r1, #0xc]
-    adds r1, r5, #0
-    bl _call_via_r2
-    add r0, sp, #0x14
-    adds r1, r4, #0
-    movs r2, #0
-    bl func_080ABA90
-.L08022662:
-    ldr r0, [r7, #0x24]
-    cmp r0, #0
-    beq .L08022674
-    cmp r0, #1
-    bne .L0802266E
-    b .L080227B4
-.L0802266E:
-    b .L08022894
-    .align 2, 0
-.L08022670: .4byte 0x0000012B
-.L08022674:
-    movs r3, #0x28
-    adds r3, r3, r7
-    mov sl, r3
-    ldrh r4, [r7, #0x28]
-    cmp r4, #0
-    beq .L08022706
-    mov r6, sb
-    ldr r5, [r6, #0x18]
-    ldr r6, [r6, #0x1c]
-    movs r7, #0
-    cmp r5, #0
-    bge .L080226A4
-    ldr r1, [sp, #0x1c]
-    ldr r0, [sp, #0x3c]
-    cmn r1, r0
-    bge .L0802269C
-    add r0, sp, #0x14
-    bl func_080AB948
-    ldr r1, [sp, #0x1c]
-.L0802269C:
-    movs r0, #0x10
-    rsbs r0, r0, #0
-    cmp r1, r0
-    bgt .L080226F8
-.L080226A4:
-    cmp r5, #0
-    ble .L080226C0
-    ldr r1, [sp, #0x20]
-    ldr r0, [sp, #0x3c]
-    cmp r1, r0
-    ble .L080226BA
-    add r0, sp, #0x14
-    bl func_080AB9C4
-    ldr r0, [sp, #0x20]
-    b .L080226BC
-.L080226BA:
-    adds r0, r1, #0
-.L080226BC:
-    cmp r0, #0xf
-    ble .L080226F8
-.L080226C0:
-    cmp r6, #0
-    bge .L080226DC
-    ldr r1, [sp, #0x18]
-    ldr r0, [sp, #0x3c]
-    cmn r1, r0
-    bge .L080226D4
-    add r0, sp, #0x14
-    bl func_080AB8D0
-    ldr r1, [sp, #0x18]
-.L080226D4:
-    movs r0, #0x10
-    rsbs r0, r0, #0
-    cmp r1, r0
-    bgt .L080226F8
-.L080226DC:
-    cmp r6, #0
-    ble .L080226FA
-    ldr r1, [sp, #0x14]
-    ldr r0, [sp, #0x3c]
-    cmp r1, r0
-    ble .L080226F2
-    add r0, sp, #0x14
-    bl func_080AB85C
-    ldr r0, [sp, #0x14]
-    b .L080226F4
-.L080226F2:
-    adds r0, r1, #0
-.L080226F4:
-    cmp r0, #0xf
-    bgt .L080226FA
-.L080226F8:
-    movs r7, #1
-.L080226FA:
-    cmp r7, #0
-    beq .L08022702
-    movs r4, #0
-    b .L080227AA
-.L08022702:
-    subs r4, #1
-    b .L080227AA
-.L08022706:
-    mov r0, sb
-    bl AEntity_IsAnimationFinished
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080227AA
-    mov r1, r8
-    ldr r0, [r1]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r0, r0, r2
-    ldr r1, [r0]
-    mov r0, r8
-    bl _call_via_r1
-    ldrb r0, [r0, #0xa]
-    lsls r0, r0, #0x1b
-    lsrs r0, r0, #0x1b
-    movs r6, #0
-    subs r0, #6
-    cmp r0, #0xe
-    bls .L08022734
-    movs r6, #1
-.L08022734:
-    adds r0, r7, #0
-    bl GetGrowthStage__C7Chicken
-    adds r5, r0, #0
-    adds r0, r7, #0
-    bl IsSick__C9Livestock
-    lsls r4, r6, #2
-    adds r4, r4, r6
-    lsls r4, r4, #4
-    lsls r1, r5, #2
-    adds r1, r1, r5
-    lsls r1, r1, #3
-    ldr r2, .L080227B0 @ =gUnk_080F09C8
-    adds r1, r1, r2
-    adds r4, r4, r1
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-    lsls r1, r0, #2
-    adds r1, r1, r0
-    lsls r1, r1, #2
-    adds r4, r4, r1
-    adds r0, r4, #0
-    movs r1, #5
-    bl ChooseWeightedEntityMovement
-    adds r6, r0, #0
-    lsls r0, r6, #2
-    adds r4, r4, r0
-    movs r5, #0x3c
-    ldrb r0, [r4, #2]
-    muls r0, r5, r0
-    bl RollEntityMovementRandom
-    ldrb r1, [r4, #1]
-    muls r1, r5, r1
-    adds r4, r1, r0
-    mov r0, sb
-    adds r0, #0x20
-    ldrb r5, [r0]
-    movs r0, #4
-    bl RollEntityMovementRandom
-    adds r1, r0, #0
-    cmp r1, #0
-    beq .L0802279C
-    cmp r1, #3
-    beq .L0802279C
-    adds r0, r5, #0
-    bl RotateEntityMovementFacing
-    adds r5, r0, #0
-.L0802279C:
-    mov r0, sb
-    adds r1, r6, #0
-    adds r2, r5, #0
-    bl ChickenEntity_SetAnimationState
-    mov r3, sl
-    strb r6, [r3, #2]
-.L080227AA:
-    mov r6, sl
-    strh r4, [r6]
-    b .L08022894
-    .align 2, 0
-.L080227B0: .4byte gUnk_080F09C8
-.L080227B4:
-    adds r0, r7, #0
-    adds r0, #0x28
-    str r0, [sp, #0x68]
-    ldrh r1, [r7, #0x28]
-    mov sl, r1
-    cmp r1, #0
-    beq .L080227C8
-    movs r2, #1
-    rsbs r2, r2, #0
-    add sl, r2
-.L080227C8:
-    ldr r1, [r7, #0x28]
-    lsls r0, r1, #9
-    lsrs r5, r0, #0x19
-    cmp r5, #0
-    beq .L080227D4
-    subs r5, #1
-.L080227D4:
-    ldr r3, [sp, #0x68]
-    ldrb r4, [r3, #3]
-    cmp r4, #0
-    beq .L080227DE
-    subs r4, #1
-.L080227DE:
-    mov r0, sl
-    cmp r0, #0
-    beq .L08022868
-    lsls r0, r1, #8
-    cmp r0, #0
-    bge .L080227FC
-    mov r1, r8
-    ldr r0, [r1]
-    ldr r2, [r0, #0x40]
-    mov r0, r8
-    movs r1, #0x2d
-    bl _call_via_r2
-    adds r1, r0, #0
-    b .L080227FE
-.L080227FC:
-    adds r1, r6, #0
-.L080227FE:
-    cmp r1, #0
-    beq .L08022868
-    ldrh r0, [r1, #4]
-    ldr r2, [sp, #0x64]
-    cmp r0, r2
-    bne .L08022868
-    cmp r4, #0
-    bne .L0802284E
-    mov r3, sb
-    movs r0, #0xa
-    ldrsh r6, [r3, r0]
-    movs r2, #0xe
-    ldrsh r4, [r3, r2]
-    movs r3, #0xa
-    ldrsh r2, [r1, r3]
-    movs r0, #0xe
-    ldrsh r3, [r1, r0]
-    movs r7, #1
-    cmp r5, #0
-    beq .L08022828
-    movs r7, #4
-.L08022828:
-    mov r0, sb
-    adds r0, #0x20
-    ldrb r0, [r0]
-    add r1, sp, #0x14
-    str r1, [sp]
-    str r0, [sp, #4]
-    adds r0, r6, #0
-    adds r1, r4, #0
-    bl func_080ABE58
-    adds r2, r0, #0
-    mov r0, sb
-    adds r1, r7, #0
-    bl ChickenEntity_SetAnimationState
-    movs r0, #0x1e
-    bl RollEntityMovementRandom
-    adds r4, r0, #1
-.L0802284E:
-    mov r3, sl
-    ldr r2, [sp, #0x68]
-    strh r3, [r2]
-    movs r0, #0x7f
-    ands r5, r0
-    ldrb r1, [r2, #2]
-    movs r0, #0x80
-    rsbs r0, r0, #0
-    ands r0, r1
-    orrs r0, r5
-    strb r0, [r2, #2]
-    strb r4, [r2, #3]
-    b .L08022894
-.L08022868:
-    ldr r1, .L080228AC @ =0xFFFF0000
-    ldr r0, [sp, #0x60]
-    ands r0, r1
-    movs r1, #0xb4
-    orrs r0, r1
-    ldr r1, .L080228B0 @ =0xFF00FFFF
-    ands r0, r1
-    str r0, [sp, #0x60]
-    add r1, sp, #0x60
-    adds r0, r7, #0
-    bl method_0809BD20__7ChickenPC15UnkBarnAnimal2C
-    mov r0, sb
-    bl ChickenEntity_GetAnimationState
-    adds r1, r0, #0
-    mov r0, sb
-    adds r0, #0x20
-    ldrb r2, [r0]
-    mov r0, sb
-    bl ChickenEntity_SetAnimationState
-.L08022894:
-    mov r0, sb
-    add r1, sp, #0x14
-    bl AActorEntity_ApplyBoundedMovement
-    add sp, #0x74
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080228AC: .4byte 0xFFFF0000
-.L080228B0: .4byte 0xFF00FFFF
 
 
     .section .text.entities_part1.080229A4.tail, "ax", %progbits
@@ -4171,370 +3688,6 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
-
-
-
-
-
-
-
-    .section .text.entities_part1.08025B64, "ax", %progbits
-    thumb_func_start func_08025B64
-func_08025B64: @ 0x08025B64
-    push {r4, r5, r6, lr}
-    sub sp, #0x28
-    adds r6, r0, #0
-    cmp r1, #0x22
-    bhi .L08025C08
-    lsls r0, r1, #2
-    ldr r1, .L08025B78 @ =.L08025B7C
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L08025B78: .4byte .L08025B7C
-.L08025B7C: @ jump table
-    .4byte .L08025C08 @ case 0
-    .4byte .L08025C08 @ case 1
-    .4byte .L08025CB2 @ case 2
-    .4byte .L08025C12 @ case 3
-    .4byte .L08025C20 @ case 4
-    .4byte .L08025C28 @ case 5
-    .4byte .L08025C32 @ case 6
-    .4byte .L08025C3C @ case 7
-    .4byte .L08025C46 @ case 8
-    .4byte .L08025C4E @ case 9
-    .4byte .L08025C68 @ case 10
-    .4byte .L08025CCE @ case 11
-    .4byte .L08025CF8 @ case 12
-    .4byte .L08025D04 @ case 13
-    .4byte .L08025D0E @ case 14
-    .4byte .L08025D1A @ case 15
-    .4byte .L08025D26 @ case 16
-    .4byte .L08025D32 @ case 17
-    .4byte .L08025D3C @ case 18
-    .4byte .L08025D48 @ case 19
-    .4byte .L08025D54 @ case 20
-    .4byte .L08025D60 @ case 21
-    .4byte .L08025D6A @ case 22
-    .4byte .L08025D76 @ case 23
-    .4byte .L08025D82 @ case 24
-    .4byte .L08025D8E @ case 25
-    .4byte .L08025D98 @ case 26
-    .4byte .L08025DA4 @ case 27
-    .4byte .L08025DB0 @ case 28
-    .4byte .L08025DBC @ case 29
-    .4byte .L08025DC6 @ case 30
-    .4byte .L08025DD2 @ case 31
-    .4byte .L08025DDE @ case 32
-    .4byte .L08025DEA @ case 33
-    .4byte .L08025E0C @ case 34
-.L08025C08:
-    adds r1, r6, #0
-    adds r1, #0x3c
-    movs r0, #0
-    strb r0, [r1]
-    b .L08025E2E
-.L08025C12:
-    ldr r0, [r6, #0x14]
-    adds r0, #0x80
-    ldr r1, [r0]
-    adds r0, r6, #0
-    bl _call_via_r1
-    b .L08025E2E
-.L08025C20:
-    add r4, sp, #8
-    adds r0, r4, #0
-    movs r1, #5
-    b .L08025C56
-.L08025C28:
-    mov r4, sp
-    adds r4, #9
-    adds r0, r4, #0
-    movs r1, #0xd
-    b .L08025C56
-.L08025C32:
-    mov r4, sp
-    adds r4, #0xa
-    adds r0, r4, #0
-    movs r1, #0x15
-    b .L08025C56
-.L08025C3C:
-    mov r4, sp
-    adds r4, #0xb
-    adds r0, r4, #0
-    movs r1, #0x1d
-    b .L08025C56
-.L08025C46:
-    add r4, sp, #0xc
-    adds r0, r4, #0
-    movs r1, #0x25
-    b .L08025C56
-.L08025C4E:
-    mov r4, sp
-    adds r4, #0xd
-    adds r0, r4, #0
-    movs r1, #0x2d
-.L08025C56:
-    bl __4ToolUi
-    adds r0, r6, #0
-    adds r1, r4, #0
-    bl func_0802720C
-    b .L08025E2E
-.L08025C64:
-    ldr r0, [r4]
-    b .L08025CAA
-.L08025C68:
-    mov r4, sp
-    adds r4, #0xe
-    adds r0, r4, #0
-    movs r1, #0x4d
-    bl __4ToolUi
-    adds r0, r6, #0
-    adds r1, r4, #0
-    bl func_0802720C
-    ldr r0, [r6]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L08025CA6
-.L08025C94:
-    ldr r0, [r4]
-    bl AudioPlayer_IsPlaying
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08025C64
-    adds r4, #4
-    cmp r4, r5
-    bne .L08025C94
-.L08025CA6:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L08025CAA:
-    movs r1, #0xb6
-    bl AudioPlayer_StartSong
-    b .L08025E2E
-.L08025CB2:
-    bl rand
-    adds r1, r0, #0
-    cmp r0, #0
-    bge .L08025CBE
-    adds r1, #0xf
-.L08025CBE:
-    asrs r1, r1, #4
-    lsls r1, r1, #4
-    subs r1, r0, r1
-    adds r1, #5
-    adds r0, r6, #0
-    bl func_0802771C
-    b .L08025E2E
-.L08025CCE:
-    ldr r5, [r6, #0x14]
-    add r4, sp, #4
-    adds r0, r4, #0
-    movs r1, #0x36
-    bl __4FoodUi
-    ldrb r1, [r4]
-    mov r0, sp
-    adds r0, #5
-    ldrb r0, [r0]
-    lsls r0, r0, #8
-    orrs r0, r1
-    mov r1, sp
-    adds r1, #6
-    ldrb r1, [r1]
-    lsls r1, r1, #0x10
-    orrs r1, r0
-    mov r0, sp
-    bl __12RucksackItemG4Food
-    b .L08025DFE
-.L08025CF8:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0xf
-    adds r0, r4, #0
-    movs r1, #0x11
-    b .L08025DF2
-.L08025D04:
-    ldr r5, [r6, #0x14]
-    add r4, sp, #0x10
-    adds r0, r4, #0
-    movs r1, #0x12
-    b .L08025DF2
-.L08025D0E:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x11
-    adds r0, r4, #0
-    movs r1, #0x13
-    b .L08025DF2
-.L08025D1A:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x12
-    adds r0, r4, #0
-    movs r1, #0x14
-    b .L08025DF2
-.L08025D26:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x13
-    adds r0, r4, #0
-    movs r1, #0x15
-    b .L08025DF2
-.L08025D32:
-    ldr r5, [r6, #0x14]
-    add r4, sp, #0x14
-    adds r0, r4, #0
-    movs r1, #0x16
-    b .L08025DF2
-.L08025D3C:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x15
-    adds r0, r4, #0
-    movs r1, #0x17
-    b .L08025DF2
-.L08025D48:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x16
-    adds r0, r4, #0
-    movs r1, #0x18
-    b .L08025DF2
-.L08025D54:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x17
-    adds r0, r4, #0
-    movs r1, #0x19
-    b .L08025DF2
-.L08025D60:
-    ldr r5, [r6, #0x14]
-    add r4, sp, #0x18
-    adds r0, r4, #0
-    movs r1, #0x1a
-    b .L08025DF2
-.L08025D6A:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x19
-    adds r0, r4, #0
-    movs r1, #0x1b
-    b .L08025DF2
-.L08025D76:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x1a
-    adds r0, r4, #0
-    movs r1, #0x1c
-    b .L08025DF2
-.L08025D82:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x1b
-    adds r0, r4, #0
-    movs r1, #0x1d
-    b .L08025DF2
-.L08025D8E:
-    ldr r5, [r6, #0x14]
-    add r4, sp, #0x1c
-    adds r0, r4, #0
-    movs r1, #0x1e
-    b .L08025DF2
-.L08025D98:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x1d
-    adds r0, r4, #0
-    movs r1, #0x1f
-    b .L08025DF2
-.L08025DA4:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x1e
-    adds r0, r4, #0
-    movs r1, #0x20
-    b .L08025DF2
-.L08025DB0:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x1f
-    adds r0, r4, #0
-    movs r1, #0x21
-    b .L08025DF2
-.L08025DBC:
-    ldr r5, [r6, #0x14]
-    add r4, sp, #0x20
-    adds r0, r4, #0
-    movs r1, #0x22
-    b .L08025DF2
-.L08025DC6:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x21
-    adds r0, r4, #0
-    movs r1, #0x23
-    b .L08025DF2
-.L08025DD2:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x22
-    adds r0, r4, #0
-    movs r1, #0x24
-    b .L08025DF2
-.L08025DDE:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x23
-    adds r0, r4, #0
-    movs r1, #0x25
-    b .L08025DF2
-.L08025DEA:
-    ldr r5, [r6, #0x14]
-    add r4, sp, #0x24
-    adds r0, r4, #0
-    movs r1, #0x26
-.L08025DF2:
-    bl __7ArticleUi
-    ldrb r1, [r4]
-    mov r0, sp
-    bl __12RucksackItemG7Article
-.L08025DFE:
-    ldr r3, [r5, #0x5c]
-    adds r0, r6, #0
-    mov r1, sp
-    movs r2, #0
-    bl _call_via_r3
-    b .L08025E2E
-.L08025E0C:
-    ldr r5, [r6, #0x14]
-    mov r4, sp
-    adds r4, #0x25
-    adds r0, r4, #0
-    movs r1, #0x33
-    bl __7ArticleUi
-    ldrb r1, [r4]
-    mov r0, sp
-    bl __12RucksackItemG7Article
-    ldr r3, [r5, #0x5c]
-    adds r0, r6, #0
-    mov r1, sp
-    movs r2, #0
-    bl _call_via_r3
-.L08025E2E:
-    add sp, #0x28
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
 
 

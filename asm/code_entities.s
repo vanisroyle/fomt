@@ -3092,7 +3092,7 @@ func_0802B260: @ 0x0802B260
     strb r4, [r0]
     mov r0, sb
     movs r2, #6
-    bl func_08032560
+    bl InitializePrioritizedSideActorSprite
     ldr r0, .L0802B3A8 @ =vtable_unk_080E6708
     mov r1, sb
     str r0, [r1, #4]
@@ -11641,7 +11641,7 @@ sub_0802FBFC: @ 0x0802FBFC
 .L0803034C:
     ldr r1, [r4]
     mov r0, sl
-    bl func_08025B64
+    bl FarmerEntity_PerformAction
     bl .L08031F0E
     .align 2, 0
 .L08030358: .4byte 0x000003FF

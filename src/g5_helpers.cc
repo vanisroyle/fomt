@@ -86,3 +86,13 @@ EC SECTION(".text.g5_080CF050") u32 GetInventoryCursorPage(u32 * self) // 0x080C
 {
     return self[0x80 / 4];
 }
+
+EC SECTION(".text.g5_080CD994") void InventoryMenu_GetSpecialSlotCountPosition(DrawingPosition * position, void * panel) // 0x080CD994
+{
+    *position = gInventorySpecialSlotCountPosition;
+}
+
+EC SECTION(".text.g5_080CD994") void InventoryMenu_GetSlotCountPosition(DrawingPosition * position, void * panel, u32 slot) // 0x080CD9A0
+{
+    *position = gInventorySlotCountPositions[slot];
+}
