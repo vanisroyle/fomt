@@ -801,7 +801,7 @@ struct NpcScheduleRoster
     Npc npc_228;
     Npc npc_23C;
     Npc npc_250;
-    Npc npc_264;
+    Npc ann;
     STRUCT_PAD(0x278, 0x27C);
     Npc npc_27C;
     Npc npc_290;
@@ -838,7 +838,7 @@ EC ScheduleInfo const gUnk_080F5D94;
 EC ScheduleInfo const gUnk_080F6DE8;
 EC ScheduleInfo const gCliffScheduleInfo;
 EC ScheduleInfo const gUnk_080F42F0;
-EC ScheduleInfo const gUnk_080F43DC;
+EC ScheduleInfo const gAnnScheduleInfo;
 EC ScheduleInfo const gUnk_080F6FF8;
 EC ScheduleInfo const gCarpenterScheduleInfo;
 EC ScheduleInfo const gUnk_080F2DC0;
@@ -875,7 +875,7 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_228, gUnk_080F6DE8, context);
     ResetNpcDailySchedule(self.npc_23C, gCliffScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_250, gUnk_080F42F0, context);
-    ResetNpcDailySchedule(self.npc_264, gUnk_080F43DC, context);
+    ResetNpcDailySchedule(self.ann, gAnnScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_27C, gUnk_080F6FF8, context);
     ResetNpcDailySchedule(self.npc_290, gCarpenterScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_2A8, gUnk_080F2DC0, context);
@@ -919,6 +919,17 @@ struct PACKED EventScheduleFlags
     u32 unk_217A_3 : 2;
 };
 
+union PACKED BacheloretteScheduleEvents
+{
+    u8 bytes[2];
+    struct PACKED
+    {
+        u16 : 7;
+        u16 ann : 2;
+        u16 : 7;
+    } states;
+};
+
 struct NpcScheduleContext
 {
     STRUCT_PAD(0x0000, 0x0008);
@@ -933,12 +944,14 @@ struct NpcScheduleContext
     Bachelorette npc_1E28;
     STRUCT_PAD(0x1E40, 0x1EB8);
     Bachelorette karen;
-    STRUCT_PAD(0x1ED0, 0x2148);
+    STRUCT_PAD(0x1ED0, 0x1F38);
+    Bachelorette ann;
+    STRUCT_PAD(0x1F50, 0x2148);
     u8 marriedScheduleVariant;
     STRUCT_PAD(0x2149, 0x215A);
     u8 unk_215A;
-    STRUCT_PAD(0x215B, 0x216C);
-    u8 spouseScheduleEvent;
+    STRUCT_PAD(0x215B, 0x216B);
+    BacheloretteScheduleEvents marriageScheduleEvents;
     STRUCT_PAD(0x216D, 0x2174);
     u32 unk_2174;
     union
@@ -957,8 +970,7 @@ struct NpcScheduleContext
     u8 : 3;
     STRUCT_PAD(0x2188, 0x21A2);
     u8 unk_21A2;
-    STRUCT_PAD(0x21A3, 0x21A4);
-    u8 karenWinterEvent;
+    BacheloretteScheduleEvents winterScheduleEvents;
     STRUCT_PAD(0x21A5, 0x21CA);
     u8 eventFlags;
 };
@@ -1205,7 +1217,7 @@ ROM_TEXT(0803DFE8) unsigned SelectKarenSchedule(NpcScheduleContext const & self)
             if (day == 13)
                 return KAREN_SCHEDULE_MARRIED_AUTUMN_13;
         }
-        if ((static_cast<u32>(self.spouseScheduleEvent) << 27 >> 30) == 1)
+        if ((static_cast<u32>(self.marriageScheduleEvents.bytes[1]) << 27 >> 30) == 1)
             return KAREN_SCHEDULE_MARRIED_EVENT_OVERRIDE;
         unsigned marriedVariant = self.marriedScheduleVariant;
         uintptr_t activeNpc = reinterpret_cast<uintptr_t>(GetActiveRosterNpc(const_cast<u8 *>(self.unk_1CD4)));
@@ -1249,7 +1261,7 @@ ROM_TEXT(0803DFE8) unsigned SelectKarenSchedule(NpcScheduleContext const & self)
     }
     Bachelorette const * karen = GetRosterBacheloretteById(reinterpret_cast<G1NpcRoster *>(roster), KAREN_NPC_ID);
     if (season == SEASON_WINTER && day == 14 && spouseNpcId == 0 && karen && karen->GetLove() > 9999
-        && (static_cast<u32>(self.karenWinterEvent) << 25 >> 30) != 2)
+        && (static_cast<u32>(self.winterScheduleEvents.bytes[1]) << 25 >> 30) != 2)
         return KAREN_SCHEDULE_WINTER_14;
     if (IsNpcScheduleFestivalDay(season, day))
         return KAREN_SCHEDULE_FESTIVAL;
@@ -1280,6 +1292,127 @@ ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F42F0(NpcScheduleContext const 
     if (season == SEASON_AUTUMN && day == 5 && event != 25)
         return 3;
     return 1;
+}
+
+enum AnnSchedule
+{
+    ANN_SCHEDULE_ABSENT,
+    ANN_SCHEDULE_CLEAR_WEATHER,
+    ANN_SCHEDULE_OTHER_WEATHER,
+    ANN_SCHEDULE_AFTER_RIVAL_EVENTS_CLEAR,
+    ANN_SCHEDULE_AFTER_RIVAL_EVENTS_OTHER_WEATHER,
+    ANN_SCHEDULE_AUTUMN_5,
+    ANN_SCHEDULE_FESTIVAL,
+    ANN_SCHEDULE_WINTER_14,
+    ANN_SCHEDULE_MARRIED_ACTIVE_NPC,
+    ANN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT,
+    ANN_SCHEDULE_MARRIED,
+    ANN_SCHEDULE_MARRIED_VARIANT,
+    ANN_SCHEDULE_MARRIED_ACTIVE_NPC_FESTIVAL_OR_STORM,
+    ANN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_FESTIVAL_OR_STORM,
+    ANN_SCHEDULE_MARRIED_FESTIVAL_OR_STORM,
+    ANN_SCHEDULE_MARRIED_VARIANT_FESTIVAL_OR_STORM,
+    ANN_SCHEDULE_MARRIED_AUTUMN_9,
+    ANN_SCHEDULE_MARRIED_AUTUMN_13,
+    ANN_SCHEDULE_MARRIED_EVENT_OVERRIDE,
+};
+
+enum { ANN_NPC_ID = 25 };
+
+ROM_TEXT(0803E264) unsigned SelectAnnSchedule(NpcScheduleContext const & self)
+{
+    // Preserve the original register allocation around the schedule helper calls.
+    register NpcScheduleContext const * context asm("r5") = &self;
+    asm("" : "+r"(context));
+    if (static_cast<i32>(static_cast<u32>(context->eventFlags) << 25) < 0)
+        return ANN_SCHEDULE_ABSENT;
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, context->calendar);
+    register unsigned season asm("r8") = date.season;
+    register unsigned day asm("r6") = date.day;
+    asm("" : "+r"(season), "+r"(day));
+    unsigned spouseNpcId = GetRosterMarriageCandidate(context->unk_1CD4);
+    if (season == SEASON_AUTUMN && day == 5)
+    {
+        if (spouseNpcId != ANN_NPC_ID)
+            return ANN_SCHEDULE_AUTUMN_5;
+        goto married;
+    }
+    if (spouseNpcId == ANN_NPC_ID)
+    {
+married:
+        if (season == SEASON_AUTUMN)
+        {
+            if (day == 9)
+                return ANN_SCHEDULE_MARRIED_AUTUMN_9;
+            if (day == 13)
+                return ANN_SCHEDULE_MARRIED_AUTUMN_13;
+        }
+        if (context->marriageScheduleEvents.states.ann == 1)
+            return ANN_SCHEDULE_MARRIED_EVENT_OVERRIDE;
+        register unsigned marriedVariant asm("r4") = context->marriedScheduleVariant;
+        asm("" : "+r"(marriedVariant));
+        uintptr_t activeNpc = reinterpret_cast<uintptr_t>(GetActiveRosterNpc(const_cast<u8 *>(context->unk_1CD4)));
+        unsigned hasActiveNpc = ((0u - activeNpc) | activeNpc) >> 31;
+        register unsigned hasActiveNpcOnFestival asm("r9") = hasActiveNpc;
+        asm("" : "+r"(hasActiveNpcOnFestival) : "r"(hasActiveNpc));
+        if (IsNpcScheduleFestivalDay(season, day))
+            goto festivalOrStorm;
+        {
+            register unsigned weather asm("r0") = context->weather;
+            asm("" : "+r"(weather));
+            if (weather == 3)
+                goto festivalOrStorm;
+            asm("" : "+r"(weather));
+            if (weather != 4)
+                goto normalMarriedDay;
+        }
+festivalOrStorm:
+        {
+            if (hasActiveNpcOnFestival)
+            {
+                if (marriedVariant)
+                    return ANN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_FESTIVAL_OR_STORM;
+                return ANN_SCHEDULE_MARRIED_ACTIVE_NPC_FESTIVAL_OR_STORM;
+            }
+            if (marriedVariant)
+                return ANN_SCHEDULE_MARRIED_VARIANT_FESTIVAL_OR_STORM;
+            return ANN_SCHEDULE_MARRIED_FESTIVAL_OR_STORM;
+        }
+normalMarriedDay:
+        if (hasActiveNpc)
+        {
+            if (marriedVariant)
+                return ANN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT;
+            return ANN_SCHEDULE_MARRIED_ACTIVE_NPC;
+        }
+        if (marriedVariant)
+            return ANN_SCHEDULE_MARRIED_VARIANT;
+        return ANN_SCHEDULE_MARRIED;
+    }
+    if (context->ann.GetRivalEventCount() > 4)
+    {
+        if (IsNpcScheduleFestivalDay(season, day))
+            goto festival;
+        if (context->weather == 0)
+            return ANN_SCHEDULE_AFTER_RIVAL_EVENTS_CLEAR;
+        return ANN_SCHEDULE_AFTER_RIVAL_EVENTS_OTHER_WEATHER;
+    }
+    {
+        Bachelorette const * ann = GetRosterBacheloretteById(
+            reinterpret_cast<G1NpcRoster *>(const_cast<u8 *>(context->unk_1CD4)), ANN_NPC_ID);
+        if (season == SEASON_WINTER && day == 14 && spouseNpcId == 0 && ann && ann->GetLove() > 9999
+            && context->winterScheduleEvents.states.ann != 2)
+            return ANN_SCHEDULE_WINTER_14;
+    }
+    if (IsNpcScheduleFestivalDay(season, day))
+    {
+festival:
+        return ANN_SCHEDULE_FESTIVAL;
+    }
+    if (context->weather == 0)
+        return ANN_SCHEDULE_CLEAR_WEATHER;
+    return ANN_SCHEDULE_OTHER_WEATHER;
 }
 
 ROM_TEXT(0803E40C) unsigned SelectNpcSchedule_080F4974(NpcScheduleContext const & self)
