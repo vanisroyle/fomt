@@ -316,7 +316,7 @@ func_080A6660: @ 0x080A6660
 .L080A6964:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6976
@@ -332,7 +332,7 @@ func_080A6660: @ 0x080A6660
 .L080A6988:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A699A
@@ -604,7 +604,7 @@ func_080A6660: @ 0x080A6660
 .L080A6BD4:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6BE6
@@ -617,7 +617,7 @@ func_080A6660: @ 0x080A6660
 .L080A6BF0:
 	mov r3, sb
 	ldr r0, [r3]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6C02
@@ -1632,7 +1632,7 @@ func_080A6660: @ 0x080A6660
 .L080A7428:
 	mov r3, sb
 	ldr r0, [r3]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080A746E
@@ -1652,7 +1652,7 @@ func_080A6660: @ 0x080A6660
 	bl ApplyMapPatch
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080A746E
@@ -12337,7 +12337,7 @@ func_080AC85C: @ 0x080AC85C
 	cmp r0, #0
 	beq .L080AC8B8
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AC8B8:
 	movs r2, #0xff
 	lsls r2, r2, #4
@@ -12556,7 +12556,7 @@ func_080AC9EC: @ 0x080AC9EC
 	cmp r0, #0
 	beq .L080ACA6A
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080ACA6A:
 	str r4, [r5]
 	ldr r0, .L080ACAEC @ =0x00001028
@@ -13772,7 +13772,7 @@ func_080AD3B0: @ 0x080AD3B0
 	cmp r0, #0
 	beq .L080AD3F2
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AD3F2:
 	str r5, [r4]
 	ldr r0, .L080AD498 @ =0x00001028
@@ -13807,7 +13807,7 @@ func_080AD3B0: @ 0x080AD3B0
 	cmp r0, #0
 	beq .L080AD43E
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AD43E:
 	str r4, [r5]
 	movs r0, #4
@@ -13981,7 +13981,7 @@ func_080AD49C: @ 0x080AD49C
 	ands r4, r1
 	strh r4, [r2, #4]
 	adds r1, r7, #0
-	bl func_08037CC4
+	bl InitializeReactionEntity
 .L080AD5A8:
 	adds r5, r0, #0
 .L080AD5AA:
@@ -14422,113 +14422,7 @@ func_080AD8C4: @ 0x080AD8C4
 	.align 2, 0
 .L080AD934: .4byte 0x00001028
 
-	thumb_func_start func_080AD938
-func_080AD938: @ 0x080AD938
-	push {lr}
-	ldr r0, [r0, #4]
-	bl func_080CFFC0
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD944
-func_080AD944: @ 0x080AD944
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapBuildingDoorPatch
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD950
-func_080AD950: @ 0x080AD950
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapRow17PatchB
-	movs r0, #0
-	pop {r1}
-	bx r1
-	.align 2, 0
-
-	thumb_func_start func_080AD960
-func_080AD960: @ 0x080AD960
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapRow17PatchA
-	movs r0, #0
-	pop {r1}
-	bx r1
-	.align 2, 0
-
-	thumb_func_start func_080AD970
-func_080AD970: @ 0x080AD970
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapIndexedFixturePatch
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD97C
-func_080AD97C: @ 0x080AD97C
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapIndexedOverlayPatch
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD988
-func_080AD988: @ 0x080AD988
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapRow2PatchB
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD994
-func_080AD994: @ 0x080AD994
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapRow2PatchA
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD9A0
-func_080AD9A0: @ 0x080AD9A0
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapRow3PatchB
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD9AC
-func_080AD9AC: @ 0x080AD9AC
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapRow3PatchA
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD9B8
-func_080AD9B8: @ 0x080AD9B8
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapRow15PatchB
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD9C4
-func_080AD9C4: @ 0x080AD9C4
-	push {lr}
-	ldr r0, [r0, #4]
-	bl ApplyMapRow15PatchA
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AD9D0
-func_080AD9D0: @ 0x080AD9D0
-	push {lr}
-	ldr r0, [r0, #4]
-	bl StartMapTransitionDelay
-	pop {r0}
-	bx r0
+	.section .text.080AD9DC, "ax", %progbits
 .L080AD9DC:
 	.byte 0x01, 0x49, 0x40, 0x18
 	.byte 0x70, 0x47, 0x00, 0x00, 0xF4, 0x0F, 0x00, 0x00, 0x01, 0x49, 0x40, 0x18, 0x70, 0x47, 0x00, 0x00
@@ -14543,44 +14437,7 @@ func_080AD9D0: @ 0x080AD9D0
 	.byte 0x70, 0x47, 0x00, 0x00, 0xB4, 0x0D, 0x00, 0x00, 0x01, 0x49, 0x40, 0x18, 0x00, 0x68, 0x70, 0x47
 	.byte 0x24, 0x10, 0x00, 0x00
 
-	thumb_func_start func_080ADA84
-func_080ADA84: @ 0x080ADA84
-	push {lr}
-	sub sp, #4
-	adds r0, r1, #0
-	movs r1, #0
-	str r1, [sp]
-	movs r1, #1
-	movs r2, #0
-	movs r3, #0
-	bl func_0803A8A4
-	bl GetMapData
-	ldrh r0, [r0, #0x22]
-	lsls r0, r0, #3
-	add sp, #4
-	pop {r1}
-	bx r1
-	.align 2, 0
-
-	thumb_func_start func_080ADAA8
-func_080ADAA8: @ 0x080ADAA8
-	push {lr}
-	sub sp, #4
-	adds r0, r1, #0
-	movs r1, #0
-	str r1, [sp]
-	movs r1, #1
-	movs r2, #0
-	movs r3, #0
-	bl func_0803A8A4
-	bl GetMapData
-	ldrh r0, [r0, #0x20]
-	lsls r0, r0, #3
-	add sp, #4
-	pop {r1}
-	bx r1
-	.align 2, 0
-
+	.section .text.080ADACC, "ax", %progbits
 	thumb_func_start func_080ADACC
 func_080ADACC: @ 0x080ADACC
 	push {r4, r5, lr}
@@ -14635,54 +14492,7 @@ func_080ADAFC: @ 0x080ADAFC
 	.byte 0x40, 0x18, 0x00, 0x68, 0x70, 0x47, 0x00, 0x00, 0x08, 0x30, 0x89, 0x00, 0x40, 0x18, 0x00, 0x68
 	.byte 0x70, 0x47, 0x00, 0x00
 
-	thumb_func_start func_080ADB54
-func_080ADB54: @ 0x080ADB54
-	push {r4, lr}
-	adds r0, #8
-	lsls r1, r1, #2
-	adds r4, r0, r1
-	ldr r1, [r4]
-	cmp r1, #0
-	beq .L080ADB72
-	ldr r0, [r1, #0x14]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-	movs r0, #0
-	str r0, [r4]
-.L080ADB72:
-	pop {r4}
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080ADB78
-func_080ADB78: @ 0x080ADB78
-	push {lr}
-	ldr r0, [r0, #4]
-	bl IsMapTransitionIdle
-	pop {r1}
-	bx r1
-.L080ADB84:
-	.byte 0x40, 0x68, 0x0E, 0x21, 0x40, 0x5E, 0x70, 0x47, 0x40, 0x68, 0x0A, 0x21
-	.byte 0x40, 0x5E, 0x70, 0x47, 0x40, 0x68, 0x00, 0x68, 0x70, 0x47, 0x00, 0x00
-
-	thumb_func_start func_080ADB9C
-func_080ADB9C: @ 0x080ADB9C
-	push {lr}
-	ldr r0, [r0, #4]
-	bl func_080A59BC
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080ADBA8
-func_080ADBA8: @ 0x080ADBA8
-	push {lr}
-	ldr r0, [r0, #4]
-	bl func_080A5960
-	pop {r0}
-	bx r0
-
+	.section .text.080ADBB4, "ax", %progbits
 	thumb_func_start func_080ADBB4
 func_080ADBB4: @ 0x080ADBB4
 	push {r4, lr}
@@ -14855,41 +14665,7 @@ func_080ADD20: @ 0x080ADD20
 .L080ADD3C: .4byte gUnk_0852D984
 .L080ADD40: .4byte vtable_unk_080E5A28
 
-	thumb_func_start func_080ADD44
-func_080ADD44: @ 0x080ADD44
-	movs r2, #0
-	str r2, [r0]
-	movs r3, #0
-	movs r1, #0x80
-	lsls r1, r1, #1
-	strh r1, [r0, #4]
-	strh r2, [r0, #6]
-	str r2, [r0, #8]
-	str r2, [r0, #0xc]
-	str r2, [r0, #0x10]
-	strb r3, [r0, #0x14]
-	bx lr
-
-	thumb_func_start func_080ADD5C
-func_080ADD5C: @ 0x080ADD5C
-	str r1, [r0, #8]
-	str r2, [r0, #0xc]
-	movs r3, #0
-	str r3, [r0, #0x10]
-	strb r3, [r0, #0x14]
-	rsbs r2, r1, #0
-	orrs r2, r1
-	lsrs r2, r2, #0x1f
-	str r2, [r0]
-	strh r3, [r0, #6]
-	bx lr
-	.align 2, 0
-
-	thumb_func_start func_080ADD74
-func_080ADD74: @ 0x080ADD74
-	strh r1, [r0, #4]
-	bx lr
-
+	.section .text.080ADD78, "ax", %progbits
 	thumb_func_start func_080ADD78
 func_080ADD78: @ 0x080ADD78
 	push {r4, r5, r6, r7, lr}

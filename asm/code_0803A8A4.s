@@ -506,56 +506,8 @@ func_0803AB30: @ 0x0803AB30
 	.align 2, 0
 .L0803AC74: .4byte 0x0000091A
 
-	thumb_func_start func_0803AC78
-func_0803AC78: @ 0x0803AC78
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	adds r6, r0, #0
-	mov r8, r1
-	ldr r0, [r6]
-	ldr r2, [r0]
-	adds r4, r6, #0
-	adds r4, #0x88
-	adds r1, r6, #0
-	adds r1, #0x8c
-	ldrb r1, [r1]
-	ldr r2, [r2, #0x4c]
-	bl _call_via_r2
-	adds r0, r6, #4
-	cmp r0, #0
-	beq .L0803ACBE
-	adds r5, r4, #0
-	cmp r0, r5
-	beq .L0803ACBE
-	adds r7, r0, #0
-.L0803ACA4:
-	subs r5, #0x2c
-	adds r4, r5, #0
-	adds r4, #0x20
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	cmp r7, r5
-	bne .L0803ACA4
-.L0803ACBE:
-	movs r0, #1
-	mov r1, r8
-	ands r0, r1
-	cmp r0, #0
-	beq .L0803ACCE
-	adds r0, r6, #0
-	bl __builtin_delete
-.L0803ACCE:
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.0803ACD8
+	.align 2, 0
 	thumb_func_start func_0803ACD8
 func_0803ACD8: @ 0x0803ACD8
 	push {r4, r5, r6, r7, lr}
@@ -1071,74 +1023,8 @@ func_0803AEA0: @ 0x0803AEA0
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_0803B0A8
-func_0803B0A8: @ 0x0803B0A8
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	adds r7, r0, #0
-	mov r8, r1
-	ldr r0, [r7]
-	ldr r2, [r0]
-	adds r1, r7, #0
-	adds r1, #0xd4
-	ldrb r1, [r1]
-	ldr r2, [r2, #0x4c]
-	bl _call_via_r2
-	adds r2, r7, #0
-	adds r2, #0xe8
-	ldr r1, [r2]
-	lsls r0, r1, #3
-	subs r0, r0, r1
-	lsls r0, r0, #2
-	adds r0, #4
-	adds r2, r2, r0
-	adds r0, r7, #0
-	adds r0, #0xec
-	cmp r0, r2
-	beq .L0803B0E0
-.L0803B0DA:
-	adds r0, #0x1c
-	cmp r0, r2
-	bne .L0803B0DA
-.L0803B0E0:
-	adds r2, r7, #4
-	ldr r1, [r7, #4]
-	lsls r0, r1, #2
-	adds r0, r0, r1
-	lsls r0, r0, #3
-	adds r0, #4
-	adds r6, r2, r0
-	adds r5, r2, #4
-	cmp r5, r6
-	beq .L0803B10E
-.L0803B0F4:
-	adds r4, r5, #0
-	adds r4, #0x20
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	adds r5, #0x28
-	cmp r5, r6
-	bne .L0803B0F4
-.L0803B10E:
-	movs r0, #1
-	mov r1, r8
-	ands r0, r1
-	cmp r0, #0
-	beq .L0803B11E
-	adds r0, r7, #0
-	bl __builtin_delete
-.L0803B11E:
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.0803B128
+	.align 2, 0
 	thumb_func_start func_0803B128
 func_0803B128: @ 0x0803B128
 	push {r4, r5, r6, r7, lr}
@@ -1747,76 +1633,10 @@ func_0803B718: @ 0x0803B718
 .L0803B838: .4byte vtable_unk_080E7728
 .L0803B83C: .4byte 0x000003A1
 
-	thumb_func_start func_0803B840
-func_0803B840: @ 0x0803B840
-	push {r4, r5, lr}
-	sub sp, #0x10
-	adds r4, r0, #0
-	ldrh r2, [r4, #0x1c]
-	lsls r2, r2, #0x11
-	lsrs r2, r2, #0x16
-	adds r2, #3
-	ldr r1, .L0803B8C0 @ =0x000003FF
-	adds r0, r1, #0
-	ands r2, r0
-	ldr r0, [r4, #0x1c]
-	lsls r0, r0, #0xd
-	lsrs r0, r0, #0x1c
-	lsls r0, r0, #0xc
-	orrs r2, r0
-	lsls r0, r2, #0x10
-	orrs r2, r0
-	ldrb r1, [r4, #0x1c]
-	lsls r1, r1, #0x1b
-	lsrs r1, r1, #0x10
-	movs r5, #0xc0
-	lsls r5, r5, #0x13
-	adds r1, r1, r5
-	str r2, [sp, #0xc]
-	add r0, sp, #0xc
-	ldr r2, .L0803B8C4 @ =0x010000A0
-	bl CpuFastSet
-	ldrb r0, [r4, #0x1c]
-	lsls r0, r0, #0x1b
-	lsrs r0, r0, #0x10
-	adds r0, r0, r5
-	ldr r1, [r4, #0xc]
-	ldr r3, [r4, #0x14]
-	ldr r2, [r4, #0x18]
-	str r2, [sp]
-	ldrh r2, [r4, #0x1c]
-	lsls r2, r2, #0x11
-	lsrs r2, r2, #0x16
-	str r2, [sp, #4]
-	ldr r2, [r4, #0x1c]
-	lsls r2, r2, #0xd
-	lsrs r2, r2, #0x1c
-	str r2, [sp, #8]
-	movs r2, #0
-	bl func_08051320
-	ldr r1, [r4, #0x1c]
-	lsls r1, r1, #0xd
-	lsrs r1, r1, #0x1c
-	ldr r0, .L0803B8C8 @ =gUnk_080F9F78
-	ldr r0, [r0]
-	lsls r1, r1, #5
-	movs r2, #0xa0
-	lsls r2, r2, #0x13
-	adds r1, r1, r2
-	movs r2, #8
-	bl CpuFastSet
-	movs r0, #0
-	add sp, #0x10
-	pop {r4, r5}
-	pop {r1}
-	bx r1
+	.section .text.0803B8CC, "ax", %progbits
 	.align 2, 0
-.L0803B8C0: .4byte 0x000003FF
-.L0803B8C4: .4byte 0x010000A0
-.L0803B8C8: .4byte gUnk_080F9F78
-
-	thumb_func_start func_0803B8CC
-func_0803B8CC: @ 0x0803B8CC
+	thumb_func_start InitializeDialogWindowLayers
+InitializeDialogWindowLayers: @ 0x0803B8CC
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -1996,7 +1816,7 @@ func_0803B8CC: @ 0x0803B8CC
 	mov r6, ip
 	str r0, [r6, #0x44]
 	str r0, [r2, #4]
-	ldr r0, .L0803BAA0 @ =vtable_unk_080E7758
+	ldr r0, .L0803BAA0 @ =gDialogWindowTilemapTaskVtable
 	str r0, [r2, #8]
 	ldr r0, [sp, #4]
 	str r0, [r2, #0xc]
@@ -2045,7 +1865,7 @@ func_0803B8CC: @ 0x0803B8CC
 .L0803BA94: .4byte gUnk_080F9F74
 .L0803BA98: .4byte gUnk_080F9F70
 .L0803BA9C: .4byte vtable_unk_080E7768
-.L0803BAA0: .4byte vtable_unk_080E7758
+.L0803BAA0: .4byte gDialogWindowTilemapTaskVtable
 .L0803BAA4: .4byte 0xFFFF801F
 .L0803BAA8: .4byte 0xFFF87FFF
 

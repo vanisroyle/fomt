@@ -8327,7 +8327,7 @@ func_080A3900: @ 0x080A3900
 	bl GetChickenFeedingScore
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_08011498
+	bl GameProgress_RaiseHalfCounter
 	ldr r0, [r5, #4]
 	mov r1, r8
 	str r1, [r5, #4]
@@ -8450,7 +8450,7 @@ func_080A39FC: @ 0x080A39FC
 	bl func_080C0D80
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_08011464
+	bl SaveProgress_RaiseWordCounter
 	ldr r0, [r5, #4]
 	mov r1, r8
 	str r1, [r5, #4]
@@ -8573,7 +8573,7 @@ func_080A3AF8: @ 0x080A3AF8
 	bl func_080C7F0C
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080114C8
+	bl SaveProgress_RaiseByteCounter
 	ldr r0, [r5, #4]
 	mov r1, r8
 	str r1, [r5, #4]
@@ -9513,7 +9513,7 @@ func_080A3F4C: @ 0x080A3F4C
 	cmp r0, #0
 	bne .L080A4456
 	mov r0, sb
-	bl func_08010F04
+	bl SaveProgress_GetFlagE
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A445A
