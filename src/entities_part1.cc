@@ -887,7 +887,7 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->unk_44 = 0;
     self->held_anim.Init();
     self->unk_78 = false;
-    self->unk_79 = false;
+    self->pet_interaction_flags = 0;
     self->unk_7A = false;
     self->icon = 0xFFFF;
     self->unk_80 = 0;

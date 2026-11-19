@@ -1285,6 +1285,197 @@ cancel_cycle:
     farmer->state = cycling;
 }
 
+EC u32 FarmerHeldItemIsEmptyRaw(HeldItem const *) asm("func_0800F190");
+
+EC void HandleFarmerPetInteractionInput(FarmerEntity * farmer, FarmerInputState const * input) ENTITY_CODE(0802DBF0);
+EC void HandleFarmerPetInteractionInput(FarmerEntity * farmer, FarmerInputState const * input)
+{
+    enum { FARMER_STATE_PET_INTERACTION = 0x16 };
+    struct
+    {
+        u32 food_storage;
+        FarmerHeldItemKeyWord held;
+        FarmerHeldItemKeyWord pressed;
+    } locals;
+    register u32 clear asm("r2") = 0;
+    asm volatile("" : "+r"(clear));
+    locals.held.word = clear;
+    locals.pressed.word = clear;
+    if (input)
+    {
+        locals.held.word = input->held;
+        locals.pressed.word = input->pressed;
+    }
+    asm volatile("" : : "m"(locals.held), "m"(locals.pressed));
+    register void ** channel asm("r4");
+    register void ** end asm("r5");
+    register u32 hand_empty asm("r1");
+    void * player;
+    if (farmer->exhaustion_state)
+        goto reset;
+    {
+        register volatile u8 * held_bytes asm("r0") = locals.held.bytes;
+        register u32 held_high asm("r1") = held_bytes[1];
+        asm volatile("" : "+r"(held_high));
+        register u32 button_l asm("r5") = INPUT_L >> 8;
+        asm volatile("" : "+r"(button_l));
+        register u32 held_l asm("r0") = button_l & held_high;
+        if (!held_l)
+            goto interact_with_both_pets;
+
+        register u32 pressed asm("r2") = locals.pressed.word;
+        asm volatile("" : "+r"(pressed));
+        register u32 vertical asm("r1") = ((pressed << 25) >> 31) | ((pressed << 26) >> 31);
+        if (vertical)
+        {
+            {
+                register u32 empty_status asm("r0") = FarmerHeldItemIsEmptyRaw(&farmer->farmer->unk_54) << 24;
+                asm volatile("" : "+r"(empty_status));
+                hand_empty = empty_status >> 24;
+            }
+            if (!hand_empty)
+                goto holding_item;
+            farmer->state = FARMER_STATE_PET_INTERACTION;
+            farmer->pet_interaction_flags = 1;
+            GameObject * game = farmer->game_object;
+            EntitySoundGameVTable const * methods = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+            EntitySoundChannels const * channels = methods->get_channels(game);
+            channel = channels->begin;
+            end = channels->end;
+            for (; channel != end; ++channel)
+            {
+                if (!AudioPlayer_IsPlaying(*channel))
+                    goto play_available;
+            }
+            goto play_last;
+        }
+        register u32 down asm("r1") = (pressed << 24) >> 31;
+        register u32 right asm("r0") = (pressed << 27) >> 31;
+        register u32 horizontal asm("r1") = down | right;
+        if (horizontal)
+        {
+            {
+                register u32 empty_status asm("r0") = FarmerHeldItemIsEmptyRaw(&farmer->farmer->unk_54) << 24;
+                asm volatile("" : "+r"(empty_status));
+                hand_empty = empty_status >> 24;
+            }
+            if (!hand_empty)
+                goto holding_item;
+            farmer->state = FARMER_STATE_PET_INTERACTION;
+            farmer->pet_interaction_flags = button_l;
+            GameObject * game = farmer->game_object;
+            EntitySoundGameVTable const * methods = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+            EntitySoundChannels const * channels = methods->get_channels(game);
+            channel = channels->begin;
+            end = channels->end;
+            for (; channel != end; ++channel)
+            {
+                if (!AudioPlayer_IsPlaying(*channel))
+                    goto play_available;
+            }
+            goto play_last;
+        }
+        register volatile u8 * pressed_bytes asm("r3") = locals.pressed.bytes;
+        register u32 pressed_low asm("r1") = pressed_bytes[0];
+        asm volatile("" : "+r"(pressed_low));
+        register u32 button_a asm("r4") = INPUT_A;
+        asm volatile("" : "+r"(button_a));
+        register u32 pressed_a asm("r0") = button_a & pressed_low;
+        if (pressed_a)
+        {
+            if (func_0800F190(&farmer->farmer->unk_54))
+                FarmerEntity_CycleHeldItemWithFeedback(farmer, true);
+            else
+                FarmerEntity_CycleHeldItem(farmer, true);
+            return;
+        }
+        register u32 pressed_b asm("r0") = button_l & pressed_low;
+        asm volatile("" : "+r"(pressed_b));
+        register u32 pressed_b_shifted asm("r0") = pressed_b << 24;
+        asm volatile("" : : "r"(pressed_b_shifted));
+        clear = pressed_b_shifted >> 24;
+        if (!clear)
+            goto press_r;
+        if (func_0800F190(&farmer->farmer->unk_54))
+        {
+            FarmerEntity_CycleTool(farmer, false);
+            return;
+        }
+        if (!func_0800F388(&farmer->farmer->unk_54) && func_0800F204(&farmer->farmer->unk_54) == HeldItem::KIND_FOOD)
+        {
+            Food * food = reinterpret_cast<Food *>(&locals.food_storage);
+            CopyHeldFood(food, &farmer->farmer->unk_54);
+            FarmerActionVTable const * actions = reinterpret_cast<FarmerActionVTable const **>(farmer)[5];
+            i32 stamina = food->GetStaminaGain();
+            i32 fatigue = food->GetFatigueGain();
+            actions->change_stamina_and_fatigue(farmer, stamina, fatigue);
+            if (!HeldFoodIsDrink(food))
+            {
+                farmer->state = 0xF;
+                AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 0x65);
+            }
+            else
+            {
+                farmer->state = 0x10;
+                AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 0x66);
+            }
+            CancelFarmerItemDisplay(farmer);
+            func_0800F390(&farmer->farmer->unk_54);
+            return;
+        }
+        farmer->state = 0;
+        return;
+press_r:
+        {
+            register u32 pressed_high asm("r1") = pressed_bytes[1];
+            asm volatile("" : "+r"(pressed_high));
+            register u32 pressed_r asm("r0") = button_a & pressed_high;
+            if (pressed_r)
+                goto reset;
+            return;
+        }
+    }
+reset:
+    farmer->state = clear;
+    return;
+play_available:
+    player = *channel;
+    goto play;
+interact_with_both_pets:
+    {
+        register u32 empty_status asm("r0") = FarmerHeldItemIsEmptyRaw(&farmer->farmer->unk_54) << 24;
+        asm volatile("" : "+r"(empty_status));
+        hand_empty = empty_status >> 24;
+    }
+    if (!hand_empty)
+        goto holding_item;
+    farmer->state = FARMER_STATE_PET_INTERACTION;
+    farmer->pet_interaction_flags = 3;
+    {
+        GameObject * game = farmer->game_object;
+        EntitySoundGameVTable const * methods = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+        EntitySoundChannels const * channels = methods->get_channels(game);
+        channel = channels->begin;
+        end = channels->end;
+        for (; channel != end; ++channel)
+        {
+            if (!AudioPlayer_IsPlaying(*channel))
+                goto play_available;
+        }
+    }
+play_last:
+    {
+        register void ** last_channel asm("r0") = end - 1;
+        player = *last_channel;
+    }
+    goto play;
+play:
+    AudioPlayer_StartSong(player, 0x67);
+    return;
+holding_item:
+    farmer->state = hand_empty;
+}
+
 EC void FarmerEntity_StoreHeldItem(FarmerEntity *);
 EC void func_0802C2E0(FarmerEntity *);
 
