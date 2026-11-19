@@ -2,6 +2,7 @@
 #define G1_MAP_RESOURCES_HH
 
 #include "prelude.h"
+#include "sprite_animation.hh"
 
 struct G1MapGraphics;
 
@@ -41,6 +42,14 @@ struct G1MapResourceData
     void const * data;
     u16 size;
     u16 reserved;
+};
+
+struct G1AnimatedMapSpriteResource : public G1MapSpriteResource
+{
+    SpriteAnimator animator;
+    u8 refresh_frame;
+    bool mode;
+    bool dirty;
 };
 
 #endif

@@ -944,7 +944,7 @@ func_0803AEA0: @ 0x0803AEA0
 	mov r1, sp
 	ldr r2, [sp, #0x5c]
 	mov r3, sb
-	bl func_0803B454
+	bl InitMapOverlayParticle
 	adds r2, r6, #0
 	adds r2, #0xe8
 	ldr r1, [r2]
@@ -1200,108 +1200,7 @@ func_0803B128: @ 0x0803B128
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_0803B2A8
-func_0803B2A8: @ 0x0803B2A8
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0xc
-	adds r4, r0, #0
-	adds r0, #0xe4
-	ldrb r2, [r0]
-	lsls r1, r2, #4
-	ldr r0, .L0803B2D8 @ =gUnk_080F1948
-	adds r1, r1, r0
-	mov sl, r1
-	movs r7, #0
-	movs r0, #0
-	mov r8, r0
-	cmp r2, #0
-	beq .L0803B2D0
-	cmp r2, #1
-	beq .L0803B2DC
-.L0803B2D0:
-	movs r1, #2
-	str r1, [sp]
-	b .L0803B2E0
-	.align 2, 0
-.L0803B2D8: .4byte gUnk_080F1948
-.L0803B2DC:
-	movs r0, #3
-	str r0, [sp]
-.L0803B2E0:
-	ldr r0, [r4]
-	ldr r1, [r0]
-	ldr r1, [r1, #0x18]
-	bl _call_via_r1
-	str r0, [sp, #4]
-	ldr r0, [r4]
-	ldr r1, [r0]
-	ldr r1, [r1, #0x1c]
-	bl _call_via_r1
-	str r0, [sp, #8]
-	adds r0, r4, #0
-	adds r0, #0xe8
-	ldr r0, [r0]
-	mov sb, r0
-	movs r6, #0
-	cmp r6, sb
-	bhs .L0803B356
-	adds r4, #0xec
-	lsls r0, r7, #3
-	mov r1, sl
-	adds r5, r0, r1
-.L0803B30E:
-	adds r0, r4, #0
-	bl func_0805E8F0
-	lsls r0, r0, #0x1d
-	cmp r0, #0
-	bge .L0803B324
-	adds r0, r4, #0
-	ldr r1, [sp, #4]
-	ldr r2, [sp, #8]
-	bl func_0803B474
-.L0803B324:
-	movs r0, #1
-	add r8, r0
-	ldr r1, [sp]
-	cmp r8, r1
-	blo .L0803B33E
-	adds r5, #8
-	adds r7, #1
-	cmp r7, #1
-	bls .L0803B33A
-	mov r5, sl
-	movs r7, #0
-.L0803B33A:
-	movs r0, #0
-	mov r8, r0
-.L0803B33E:
-	ldr r0, [r4, #0x14]
-	ldr r1, [r5]
-	adds r0, r0, r1
-	str r0, [r4, #0x14]
-	ldr r0, [r4, #0x18]
-	ldr r1, [r5, #4]
-	adds r0, r0, r1
-	str r0, [r4, #0x18]
-	adds r4, #0x1c
-	adds r6, #1
-	cmp r6, sb
-	blo .L0803B30E
-.L0803B356:
-	add sp, #0xc
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
+	.section .text.0803B368, "ax", %progbits
 	thumb_func_start func_0803B368
 func_0803B368: @ 0x0803B368
 	push {r4, r5, r6, r7, lr}

@@ -1,9 +1,8 @@
 #include "prelude.h"
 #include "gbasvc.h"
+#include "g5_irq.hh"
 
 EC void Irq_Dispatch();
-EC void Irq_SetHandler(u32 irq_index, void (*handler)());
-EC u16 Irq_SetDispatchFlags(u32 irq_index, u16 irq_mask);
 EC u16 Irq_Disable(u16 irq_mask);
 extern u8 const Irq_ApplyMaskArm[]; // 0x03000A1C
 

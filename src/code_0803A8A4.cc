@@ -6,6 +6,7 @@
 #include "gbasvc.h"
 #include "npc.hh"
 #include "schedule_info.hh"
+#include "sprite_animation.hh"
 #include "unknown_types.hh"
 
 #include <algorithm>
@@ -13,6 +14,29 @@
 #include <string.h>
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
+
+struct MapOverlayScene;
+
+struct MapOverlaySceneVtable
+{
+    STRUCT_PAD(0x00, 0x18);
+    int (*getCameraX)(MapOverlayScene *);
+    int (*getCameraY)(MapOverlayScene *);
+    STRUCT_PAD(0x20, 0x4C);
+    void (*releasePalette)(MapOverlayScene *, unsigned);
+};
+
+struct MapOverlayScene
+{
+    MapOverlaySceneVtable const * vtable;
+};
+
+struct MapOverlayParticle
+{
+    SpriteAnimator animation;
+    u32 xQ16;
+    u32 yQ16;
+};
 
 struct GameStateMapOverlay
 {
@@ -22,26 +46,79 @@ struct GameStateMapOverlay
         OverlayTileAllocation tiles;
     };
 
-    struct Placement
-    {
-        STRUCT_PAD(0x00, 0x1C);
-    };
-
-    OverlaySpriteResources * resources;
+    MapOverlayScene * scene;
     struct FrameList
     {
         unsigned count;
         Frame entries[5];
     } frames;
-    unsigned paletteCount;
-    u8 paletteIds[16];
-    STRUCT_PAD(0xE4, 0xE8);
-    struct PlacementList
+    OverlayPaletteTable palettes;
+    u8 kind;
+    u8 unk_E5;
+    u8 drawHalf;
+    STRUCT_PAD(0xE7, 0xE8);
+    struct ParticleList
     {
         unsigned count;
-        Placement entries[32];
-    } placements;
+        MapOverlayParticle entries[32];
+    } particles;
 };
+
+struct MapOverlayParticleMotion
+{
+    i32 dxQ16;
+    i32 dyQ16;
+};
+
+EC MapOverlayParticleMotion const gMapOverlayParticleMotion[][2];
+EC void ResetMapOverlayParticle(MapOverlayParticle &, int cameraX, int cameraY);
+
+ROM_TEXT(0803B2A8) void UpdateGameStateMapOverlay(GameStateMapOverlay & overlay)
+{
+    unsigned kind = overlay.kind;
+    MapOverlayParticleMotion const * motion = gMapOverlayParticleMotion[kind];
+    unsigned motionIndex = 0;
+    unsigned particlesInGroup = 0;
+    unsigned groupSize;
+    switch (kind)
+    {
+    case 0:
+    default: groupSize = 2; break;
+    case 1: groupSize = 3; break;
+    }
+
+    int cameraX = overlay.scene->vtable->getCameraX(overlay.scene);
+    int cameraY = overlay.scene->vtable->getCameraY(overlay.scene);
+    unsigned count = overlay.particles.count;
+    unsigned index = 0;
+    if (index >= count)
+        return;
+
+    MapOverlayParticle * particle = overlay.particles.entries;
+    // Preserve the scaled index and address addition in the original Thumb code.
+    MapOverlayParticleMotion const * step = reinterpret_cast<MapOverlayParticleMotion const *>(
+        motionIndex * sizeof(MapOverlayParticleMotion) + reinterpret_cast<uintptr_t>(motion));
+    do
+    {
+        if (static_cast<i32>(AdvanceSpriteAnimator(&particle->animation) << (31 - SpriteAnimator::LOOP_FLAG_BIT)) < 0)
+            ResetMapOverlayParticle(*particle, cameraX, cameraY);
+
+        if (++particlesInGroup >= groupSize)
+        {
+            ++step;
+            if (++motionIndex >= ARRAY_COUNT(gMapOverlayParticleMotion[0]))
+            {
+                step = motion;
+                motionIndex = 0;
+            }
+            particlesInGroup = 0;
+        }
+        particle->xQ16 += step->dxQ16;
+        particle->yQ16 += step->dyQ16;
+        ++particle;
+        ++index;
+    } while (index < count);
+}
 
 EC void func_08007C28(OverlayTileAllocation *, u32);
 EC void TileHeapOwner_Destroy(OverlayTileAllocation *, unsigned);
@@ -84,12 +161,12 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
 
 ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
 {
-    overlay->resources->vtable->releasePalette(overlay->resources, overlay->paletteIds[0]);
+    overlay->scene->vtable->releasePalette(overlay->scene, overlay->palettes.ids[0]);
 
-    // The original compiler emitted this traversal even though placements own no tiles.
-    GameStateMapOverlay::PlacementList & placements = overlay->placements;
-    GameStateMapOverlay::Placement * placementsEnd = placements.entries + placements.count;
-    for (GameStateMapOverlay::Placement * placement = placements.entries; placement != placementsEnd; ++placement)
+    // The original compiler emitted this traversal even though particles own no tiles.
+    GameStateMapOverlay::ParticleList & particles = overlay->particles;
+    MapOverlayParticle * particlesEnd = particles.entries + particles.count;
+    for (MapOverlayParticle * particle = particles.entries; particle != particlesEnd; ++particle)
     {
     }
 
@@ -105,36 +182,22 @@ ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay
         __builtin_delete(overlay);
 }
 
-struct Unk_0803B454
+ROM_TEXT(0803B454) MapOverlayParticle & InitMapOverlayParticle(MapOverlayParticle & particle,
+    SpriteAnimator const & animation, int cameraX, int cameraY)
 {
-    u8 unk_00[16];
-    u16 unk_10;
-    u16 unk_12;
-};
-
-struct Unk_0803B474 : Unk_0803B454
-{
-    u32 x;
-    u32 y;
-};
-
-EC void func_0803B474(Unk_0803B474 &, int, int);
-
-ROM_TEXT(0803B454) Unk_0803B474 & func_0803B454(Unk_0803B474 & self, Unk_0803B454 const & source, int x, int y)
-{
-    static_cast<Unk_0803B454 &>(self) = source;
-    func_0803B474(self, x, y);
-    return self;
+    particle.animation = animation;
+    ResetMapOverlayParticle(particle, cameraX, cameraY);
+    return particle;
 }
 
-ROM_TEXT(0803B454) void func_0803B474(Unk_0803B474 & self, int x, int y)
+ROM_TEXT(0803B454) void ResetMapOverlayParticle(MapOverlayParticle & particle, int cameraX, int cameraY)
 {
-    self.x = (static_cast<u32>(x) + rand() % 240) << 16;
-    self.y = (static_cast<u32>(y) + rand() % 160) << 16;
+    particle.xQ16 = (static_cast<u32>(cameraX) + rand() % 240) << 16;
+    particle.yQ16 = (static_cast<u32>(cameraY) + rand() % 160) << 16;
     int sample = rand();
     int variation = 0x90;
     variation &= sample;
-    self.unk_10 = variation + 0x60;
+    particle.animation.speed_q8 = variation + 0x60;
 }
 
 struct Unk_0803B4B0

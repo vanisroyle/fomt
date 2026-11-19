@@ -891,6 +891,8 @@ SECTIONS
         asm/code_0803A8A4.o(.text.0803AEA0);
         src/code_0803A8A4.o(.text.0803B0A8);
         asm/code_0803A8A4.o(.text.0803B128);
+        src/code_0803A8A4.o(.text.0803B2A8);
+        asm/code_0803A8A4.o(.text.0803B368);
         src/code_0803A8A4.o(.text.0803B454);
         asm/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);
@@ -1118,6 +1120,10 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1A4C);
         src/g1_map.o(.text.g1_080A1C94);
         asm/g1_npc.o(.text.g1_after_b2_080A1C94);
+        src/g1_map_forage.o(.text.g1_080A1CBC);
+        asm/g1_npc.o(.text.g1_after_b6_080A1CBC);
+        src/g1_map_forage.o(.text.g1_080A1D20);
+        asm/g1_npc.o(.text.g1_after_b6_080A1D20);
         src/g1_map.o(.text.g1_080A1EA8);
         asm/g1_npc.o(.text.g1_after_b2_080A1EA8);
         src/g1_npc.o(.text.g1_080A1ED4);
@@ -1150,6 +1156,10 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b5_080A47B4);
         src/g1_map_resources.o(.text.g1_080A4944);
         asm/g1_npc.o(.text.g1_after_b5_080A4944);
+        src/g1_map_resources.o(.text.g1_080A49A0);
+        asm/g1_npc.o(.text.g1_after_b6_080A49A0);
+        src/g1_map_resources.o(.text.g1_080A4A00);
+        asm/g1_npc.o(.text.g1_after_b6_080A4A00);
         src/g1_map_buffers.o(.text.g1_080A4A94);
         asm/g1_npc.o(.text.g1_after_b4_080A4A94);
         src/g1_map_buffers.o(.text.g1_080A4B6C);
@@ -1465,14 +1475,17 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CCD48);
         src/g5_drawing.o(.text.g5_080CD4D4);
         src/g5_helpers.o(.text.g5_080CD534);
-        asm/code_080C8360.o(.text.g5_080CD578);
+        src/g5_initialization.o(.text.g5_080CD578);
+        asm/code_080C8360.o(.text.g5_after_080CD578);
         src/g5_context.o(.text.g5_080CD8A0);
         src/g5_navigation.o(.text.g5_080CD938);
         src/g5_objects.o(.text.g5_080CD950);
         src/g5_helpers.o(.text.g5_080CD994);
+        src/g5_initialization.o(.text.g5_080CD9B0);
         asm/code_080C8360.o(.text.g5_after_080CD950);
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
+        src/g5_navigation.o(.text.g5_080CDD7C);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);
         src/g5_positions.o(.text.g5_080CE120);
@@ -1490,6 +1503,7 @@ SECTIONS
         src/g5_panels.o(.text.g5_080CEB5C);
         src/g5_panels.o(.text.g5_080CEB80);
         asm/code_080C8360.o(.text.g5_after_080CEB80);
+        src/g5_initialization.o(.text.g5_080CEC00);
         src/g5_objects.o(.text.g5_080CEC84);
         src/g5_panels.o(.text.g5_080CECD0);
         asm/code_080C8360.o(.text.g5_after_080CECD0);
@@ -1498,6 +1512,8 @@ SECTIONS
         src/g5_item_text.o(.text.g5_080CFA38);
         src/g5_panels.o(.text.g5_080CFB28);
         asm/code_080C8360.o(.text.g5_after_080CFB28);
+        src/g5_map_graphics.o(.text.g5_080CFB5C);
+        asm/code_080C8360.o(.text.g5_after_080CFB5C);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
         src/g5_runtime.o(.text.g5_080D035C);
@@ -1505,6 +1521,7 @@ SECTIONS
         asm/code_080D035C.o(.text.g5_0490);
         src/g5_runtime.o(.text.g5_transfer);
         asm/code_080D035C.o(.text.g5_after_transfer);
+        src/g5_runtime.o(.text.g5_080D0644);
         src/g5_runtime.o(.text.g5_queries);
         asm/code_080D035C.o(.text.g5_06DC);
         src/g5_runtime.o(.text.g5_080D0704);
@@ -1515,6 +1532,7 @@ SECTIONS
         src/g5_records.o(.text.g5_080D0C78);
         src/g5_encoding.o(.text.g5_080D0CD4);
         asm/code_080D0C68.o(.text.g5_after_080D0CD4);
+        src/g5_irq.o(.text.g5_080D100C);
         asm/code_080D102C.o(.text);
 
         src/m4a_1.o(.text);

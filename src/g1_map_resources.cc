@@ -7,6 +7,7 @@ EC u32 func_08007B54(G1MapTileOwner *, u32);
 EC u32 func_08007D4C(G1MapTileOwner *, u32);
 EC void func_08007C28(G1MapTileOwner *, u32);
 EC void TileHeapOwner_Destroy(G1MapTileOwner *, u32);
+EC char const vtable_unk_080E681C[];
 
 EC SECTION(".text.g1_080A46AC") G1MapSpriteResource * InitializeMapSpriteResource(G1MapSpriteResource * self, G1MapGraphics * graphics, u32 tile_count, u32 const * palette_ids, u32 palette_count)
 {
@@ -105,4 +106,26 @@ EC SECTION(".text.g1_080A4944") void LoadMapSpriteResourcePalettes(G1MapSpriteRe
             while (i < count);
         }
     }
+}
+
+EC SECTION(".text.g1_080A49A0") G1AnimatedMapSpriteResource * InitializeAnimatedMapSpriteResource(G1AnimatedMapSpriteResource * self, SpriteAnimationSource const * bank, u32 clip, G1MapGraphics * graphics, u32 tiles, u32 const * palettes, u32 palette_count, bool mode)
+{
+    InitializeMapSpriteResource(self, graphics, tiles, palettes, palette_count);
+    self->vtable = vtable_unk_080E681C;
+    InitSpriteAnimator(&self->animator, bank, clip, 256);
+    self->refresh_frame = 1;
+    self->mode = mode;
+    self->dirty = false;
+    return self;
+}
+
+EC SECTION(".text.g1_080A4A00") G1AnimatedMapSpriteResource * InitializeAnimatedMapSpriteSinglePalette(G1AnimatedMapSpriteResource * self, SpriteAnimationSource const * bank, u32 clip, G1MapGraphics * graphics, u32 tiles, u32 palette, bool mode)
+{
+    InitializeMapSpriteSinglePalette(self, graphics, tiles, palette);
+    self->vtable = vtable_unk_080E681C;
+    InitSpriteAnimator(&self->animator, bank, clip, 256);
+    self->refresh_frame = 1;
+    self->mode = mode;
+    self->dirty = false;
+    return self;
 }
