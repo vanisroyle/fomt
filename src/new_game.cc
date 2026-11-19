@@ -12,16 +12,16 @@ extern char vtable_unk_080E5AB4[];
 
 EC void * __builtin_new(size_t size);
 EC NewGameState * func_08005A58(void * self, void * param, u32 value);
-EC void func_080007EC(void * self, int flags);
+EC void Scene_DestroyBase(void * self, int flags);
 EC NewGameState * func_080041DC(void * self, void * param, void * owner);
 EC NewGameState * func_08004EFC(void * self, void * a, void * b, u32 c, u32 d);
 EC void DestroyMessageWindow(void * self, int flags);
 EC void func_080086BC(void * self, int flags);
-EC void * func_080088DC(void * self);
-EC void * func_08008920(void * self);
-EC void * func_08008918(void * self);
-EC void * func_08008940(void * self);
-EC void * func_0800894C(void * self);
+EC void * HardwareContext_GetState(void * self);
+EC void * HardwareContext_GetOamBuffer(void * self);
+EC void * HardwareContext_GetDisplayRegisters(void * self);
+EC void * HardwareContext_GetFrameTasks(void * self);
+EC void * HardwareContext_GetVBlankTasks(void * self);
 EC unsigned int UpdateMessageWindow(void * self, void * a, void * b, void * c, void * d, void * e, void * f);
 EC int GetMessageWindowPhase(void * self);
 EC void OpenMessageWindow(void * self);
@@ -42,11 +42,11 @@ EC void func_08006ED8(NewGameNameState * self)
         return;
     int previous = GetMessageWindowPhase(self->resource);
     void * resource = self->resource;
-    void * a = func_080088DC(self);
-    void * b = func_08008920(self);
-    void * c = func_08008918(self);
-    void * d = func_08008940(self);
-    void * e = func_0800894C(self);
+    void * a = HardwareContext_GetState(self);
+    void * b = HardwareContext_GetOamBuffer(self);
+    void * c = HardwareContext_GetDisplayRegisters(self);
+    void * d = HardwareContext_GetFrameTasks(self);
+    void * e = HardwareContext_GetVBlankTasks(self);
     void * f = &self->unk_45F0;
     switch (UpdateMessageWindow(resource, a, b, c, d, e, f))
     {
@@ -97,11 +97,11 @@ EC void func_08005800(NewGameChoiceState * self)
 {
     int previous = GetMessageWindowPhase(self->resource);
     void * resource = self->resource;
-    void * a = func_080088DC(self);
-    void * b = func_08008920(self);
-    void * c = func_08008918(self);
-    void * d = func_08008940(self);
-    void * e = func_0800894C(self);
+    void * a = HardwareContext_GetState(self);
+    void * b = HardwareContext_GetOamBuffer(self);
+    void * c = HardwareContext_GetDisplayRegisters(self);
+    void * d = HardwareContext_GetFrameTasks(self);
+    void * e = HardwareContext_GetVBlankTasks(self);
     void * f = &self->unk_1A30;
     switch (UpdateMessageWindow(resource, a, b, c, d, e, f))
     {
@@ -183,7 +183,7 @@ EC void func_08006858(NewGameNameState * self)
 {
     if (self->unk_463C == 0)
     {
-        NewGameSpriteList * list = static_cast<NewGameSpriteList *>(func_08008920(self));
+        NewGameSpriteList * list = static_cast<NewGameSpriteList *>(HardwareContext_GetOamBuffer(self));
         u32 const & attributes = self->cursor_attributes;
         unsigned int index = list->count;
         if (index < 128)
@@ -194,7 +194,7 @@ EC void func_08006858(NewGameNameState * self)
             list->count = index + 1;
         }
     }
-    NewGameSpriteList * list = static_cast<NewGameSpriteList *>(func_08008920(self));
+    NewGameSpriteList * list = static_cast<NewGameSpriteList *>(HardwareContext_GetOamBuffer(self));
     u32 const & attributes = self->marker_attributes;
     unsigned int index = list->count;
     if (index < 128)
@@ -209,11 +209,11 @@ EC void func_08006858(NewGameNameState * self)
 EC void func_08003C28(char * self) SECTION(".text.func_08003C28");
 EC void func_08003C28(char * self)
 {
-    void * a = func_080088DC(self);
-    void * b = func_08008920(self);
-    void * c = func_08008918(self);
-    void * d = func_08008940(self);
-    void * e = func_0800894C(self);
+    void * a = HardwareContext_GetState(self);
+    void * b = HardwareContext_GetOamBuffer(self);
+    void * c = HardwareContext_GetDisplayRegisters(self);
+    void * d = HardwareContext_GetFrameTasks(self);
+    void * e = HardwareContext_GetVBlankTasks(self);
     void * first = self + 0x10;
     void * last = self + 0x14;
     UpdateMessageWindow(first, a, b, c, d, e, last);
@@ -298,7 +298,7 @@ EC void func_08004BDC(NewGameScene * self, int flags)
 {
     self->vtable = vtable_unk_080E5A68;
     delete self->state;
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 EC void * func_08004C48(void ** self) SECTION(".text.func_08004C48");
@@ -312,7 +312,7 @@ EC void func_08004C54(void ** self, int flags) SECTION(".text.func_08004C54");
 EC void func_08004C54(void ** self, int flags)
 {
     *self = vtable_unk_080E5A88;
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 EC void func_080059D0(NewGameScene * self, int flags) SECTION(".text.func_080059D0");
@@ -320,7 +320,7 @@ EC void func_080059D0(NewGameScene * self, int flags)
 {
     self->vtable = vtable_unk_080E5AA4;
     delete self->state;
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 EC NewGameScene * func_08007078(NewGameScene * self, void * param, u32 value) SECTION(".text.func_08007078");
@@ -336,7 +336,7 @@ EC void func_080070A4(NewGameScene * self, int flags)
 {
     self->vtable = vtable_unk_080E5AC0;
     delete self->state;
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 EC void func_08008724(void * self);

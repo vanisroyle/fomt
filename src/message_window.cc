@@ -31,7 +31,7 @@ struct MessageWindow { MessageWindowState * state; };
 
 EC void __builtin_delete(void *);
 EC void func_0804F0E0(void *);
-EC void func_08009940(void *, void *);
+EC void TaskList_Append(void *, void *);
 EC void func_080ADD5C(void *, const char *, const void *);
 EC void func_080ADD74(void *, u16);
 EC u32 func_080ADD20();
@@ -175,8 +175,8 @@ EC SECTION(".text.message_window.0805039C") void BeginMessageWindowOpening(Messa
         u32 style = window->style;
         void * commands = (u8 *) window + 0x20;
         if (style != 1)
-            func_08009940(commands, (u8 *) window + 0x130);
-        func_08009940(commands, (u8 *) window + 0x148);
+            TaskList_Append(commands, (u8 *) window + 0x130);
+        TaskList_Append(commands, (u8 *) window + 0x148);
         window->animationFrame = 0;
     }
     if (window->phase < 0) return;

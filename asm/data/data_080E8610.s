@@ -7,8 +7,8 @@ init_array:
 	@ "bad_alloc"
 	.incbin "baserom.gba", 0xE8620, 0x0C
 
-	.global gUnk_080E862C
-gUnk_080E862C:
+	.global gSaveHeaderSignature
+gSaveHeaderSignature:
 	.incbin "baserom.gba", 0xE862C, 0x58
 
 	.global gUnk_080E8684
