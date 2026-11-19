@@ -249,7 +249,6 @@ EC u8 * func_0801468C(GameStateScript & script);
 EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
 EC void func_0801F3E4(GameStateMapOwner & game);
 EC bool func_0801140C(GameStateMapData & state);
-EC bool func_0801C0F8(GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result);
 EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
 EC void func_080123CC(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
 EC void func_080AA6D0(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * adjacent);
@@ -390,11 +389,37 @@ EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameSt
     return result;
 }
 
+EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
+    GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result)
+{
+    bool found = false;
+    if (location.GetMap() == 2)
+    {
+        u32 origin_x = 34;
+        u32 origin_y = 22;
+        u32 tile_x = location.GetX() / 8;
+        u32 tile_y = location.GetY() / 8;
+        if (tile_x < origin_x || tile_y < origin_y || tile_x > 119 || tile_y > 71)
+            goto done;
+
+        u32 plot_x = (tile_x - origin_x) / 2;
+        u32 plot_y = (tile_y - origin_y) / 2;
+        result.plot = &game.map_data->farm.field.PlotAt(plot_x, plot_y);
+        result.tile_x = plot_x * 2 + origin_x;
+        result.tile_y = plot_y * 2 + origin_y;
+        result.plot_x = plot_x;
+        result.plot_y = plot_y;
+        found = true;
+    }
+done:
+    return found;
+}
+
 EC SECTION(".text.game_state_c2.0801D88C") GameStatePlotPlacement GameStateCheckFarmPlotPlacement(
     GameStateMapOwner & game, Location const & location, Article const & article)
 {
     GameStateFarmPlot result;
-    if (func_0801C0F8(game, location, result))
+    if (GameStateFindFarmPlot(game, location, result))
     {
         if (result.plot->method_0800A6C8(article))
             return GAME_STATE_PLOT_CAN_PLACE;

@@ -19169,90 +19169,7 @@ sub_0801B464: @ 0x0801B464
     .byte 0x82, 0x31, 0x01, 0x20, 0x08, 0x70, 0x30, 0xB0, 0x38, 0xBC, 0x98, 0x46, 0xA1, 0x46, 0xAA, 0x46
     .byte 0xF0, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0x1F, 0xFC, 0xFF, 0xFF, 0x32, 0x6A, 0x00, 0x00
     .byte 0x2C, 0x0C, 0x00, 0x03, 0x29, 0x25, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF
-    .section .text.game_state_c2.0801C0F8, "ax", %progbits
-
-    thumb_func_start func_0801C0F8
-func_0801C0F8: @ 0x0801C0F8
-    push {r4, r5, r6, r7, lr}
-    adds r6, r0, #0
-    adds r3, r1, #0
-    adds r4, r2, #0
-    movs r7, #0
-    ldrh r0, [r3]
-    lsls r0, r0, #0x16
-    lsrs r0, r0, #0x16
-    cmp r0, #2
-    bne .L0801C182
-    ldrb r1, [r3, #1]
-    lsrs r1, r1, #2
-    ldrh r0, [r3, #2]
-    ldr r5, .L0801C18C @ =0x000003FF
-    ands r0, r5
-    lsls r0, r0, #6
-    orrs r0, r1
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x10
-    cmp r0, #0
-    bge .L0801C124
-    adds r0, #7
-.L0801C124:
-    asrs r2, r0, #3
-    ldrb r1, [r3, #3]
-    lsrs r1, r1, #2
-    ldrh r0, [r3, #4]
-    ands r0, r5
-    lsls r0, r0, #6
-    orrs r0, r1
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x10
-    cmp r0, #0
-    bge .L0801C13C
-    adds r0, #7
-.L0801C13C:
-    asrs r0, r0, #3
-    cmp r2, #0x22
-    blo .L0801C182
-    cmp r0, #0x16
-    blo .L0801C182
-    cmp r2, #0x77
-    bhi .L0801C182
-    cmp r0, #0x47
-    bhi .L0801C182
-    adds r3, r2, #0
-    subs r3, #0x22
-    lsrs r3, r3, #1
-    adds r2, r0, #0
-    subs r2, #0x16
-    lsrs r2, r2, #1
-    ldr r1, .L0801C190 @ =0x00001038
-    adds r0, r6, r1
-    ldr r1, [r0]
-    ldr r0, .L0801C194 @ =0x000009DC
-    adds r1, r1, r0
-    movs r0, #0x2b
-    muls r0, r2, r0
-    adds r0, r3, r0
-    lsls r0, r0, #2
-    adds r1, r1, r0
-    str r1, [r4]
-    lsls r0, r3, #1
-    adds r0, #0x22
-    strh r0, [r4, #4]
-    lsls r0, r2, #1
-    adds r0, #0x16
-    strh r0, [r4, #6]
-    strh r3, [r4, #8]
-    strh r2, [r4, #0xa]
-    movs r7, #1
-.L0801C182:
-    adds r0, r7, #0
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801C18C: .4byte 0x000003FF
-.L0801C190: .4byte 0x00001038
-.L0801C194: .4byte 0x000009DC
+    .section .text.game_state_c2.0801C198, "ax", %progbits
 
     thumb_func_start func_0801C198
 func_0801C198: @ 0x0801C198
@@ -19399,7 +19316,7 @@ func_0801C29C: @ 0x0801C29C
     strh r6, [r0, #0xa]
     adds r0, r5, #0
     add r2, sp, #4
-    bl func_0801C0F8
+    bl GameStateFindFarmPlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0801C2C6
