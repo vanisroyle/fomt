@@ -5172,7 +5172,7 @@ func_0803DA7C: @ 0x0803DA7C
 	ldrb r6, [r0]
 	ldr r1, .L0803DB24 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5626,7 +5626,7 @@ func_0803DFE8: @ 0x0803DFE8
 	ldrb r6, [r0]
 	ldr r1, .L0803E0A0 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5878,7 +5878,7 @@ func_0803E264: @ 0x0803E264
 	ldrb r4, [r0]
 	ldr r1, .L0803E334 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r7, r1, #0x1f
@@ -6084,7 +6084,7 @@ func_0803E4A0: @ 0x0803E4A0
 .L0803E514:
 	ldr r1, .L0803E548 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -6345,7 +6345,7 @@ func_0803E780: @ 0x0803E780
 .L0803E7F4:
 	ldr r1, .L0803E828 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -6628,16 +6628,16 @@ func_0803ECC0: @ 0x0803ECC0
 	ldr r0, .L0803ED28 @ =0x00001F64
 	adds r4, r5, r0
 	adds r0, r4, #0
-	bl func_0809EB68
+	bl GetNpcTimedEventId
 	cmp r0, #0
 	beq .L0803EDA4
 	adds r0, r4, #0
-	bl func_0809EB70
+	bl IsNpcTimedEventReady
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L0803EDA4
 	adds r0, r4, #0
-	bl func_0809EB8C
+	bl IsNpcTimedEventNew
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L0803EDA4
@@ -6645,7 +6645,7 @@ func_0803ECC0: @ 0x0803ECC0
 	cmp r0, #1
 	bls .L0803EDA4
 	adds r0, r4, #0
-	bl func_0809EB68
+	bl GetNpcTimedEventId
 	cmp r0, #0xd
 	bhi .L0803EDA4
 	lsls r0, r0, #2

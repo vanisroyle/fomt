@@ -288,7 +288,7 @@ func_08010358: @ 0x08010358
     strb r1, [r0]
     ldr r1, .L08010654 @ =0x000034C8
     adds r0, r3, r1
-    bl func_080A1A48
+    bl NpcScheduleNoOp
     ldr r2, [sp, #0x48]
     ldr r3, .L08010658 @ =0x000034D8
     adds r0, r2, r3
@@ -1518,7 +1518,7 @@ func_08010F54: @ 0x08010F54
     cmp r0, #0
     bne .L08011056
     adds r0, r4, #0
-    bl func_080A1480
+    bl GetNpcScheduleContext
     adds r4, r0, #0
     mov ip, r4
     movs r3, #0xc8
@@ -1762,14 +1762,14 @@ func_08010F54: @ 0x08010F54
     ldr r1, .L0801121C @ =0x00001F64
     adds r4, r6, r1
     adds r0, r4, #0
-    bl func_0809EB70
+    bl IsNpcTimedEventReady
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080111EA
     b .L08011328
 .L080111EA:
     adds r0, r4, #0
-    bl func_0809EB68
+    bl GetNpcTimedEventId
     cmp r0, #0xd
     bls .L080111F6
     b .L08011318
@@ -1900,7 +1900,7 @@ func_08010F54: @ 0x08010F54
 .L08011318:
     ldr r5, .L08011324 @ =0x00001F64
     adds r0, r6, r5
-    bl func_0809EBD4
+    bl ClearNpcTimedEvent
     b .L0801132E
     .align 2, 0
 .L08011324: .4byte 0x00001F64
@@ -1911,12 +1911,12 @@ func_08010F54: @ 0x08010F54
     ldr r0, .L08011354 @ =0x00001DAC
     adds r4, r6, r0
     adds r0, r4, #0
-    bl func_0809ECE0
+    bl IsNpcMilestoneEventReady
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080113AA
     adds r0, r4, #0
-    bl func_0809ECD8
+    bl GetNpcMilestoneEventId
     cmp r0, #0x24
     beq .L08011378
     cmp r0, #0x24
@@ -2401,7 +2401,7 @@ func_08011650: @ 0x08011650
     bne .L0801180A
     ldr r1, .L080118C4 @ =0x000034C8
     adds r0, r7, r1
-    bl func_080A1A48
+    bl NpcScheduleNoOp
     ldr r2, .L080118C8 @ =0x000034D8
     adds r0, r7, r2
     bl func_0809C4E4
@@ -21479,7 +21479,7 @@ func_0801DD30: @ 0x0801DD30
 func_0801DD78: @ 0x0801DD78
     push {lr}
     ldr r0, [r0, #4]
-    bl func_080A601C
+    bl StartMapTransitionDelay
     pop {r0}
     bx r0
 .L0801DD84:
@@ -24485,7 +24485,7 @@ func_0801FD0C: @ 0x0801FD0C
 func_0801FD3C: @ 0x0801FD3C
     push {lr}
     ldr r0, [r0, #4]
-    bl func_080A5A9C
+    bl IsMapTransitionIdle
     pop {r1}
     bx r1
 .L0801FD48:

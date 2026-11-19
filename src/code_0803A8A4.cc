@@ -421,7 +421,7 @@ EC ScheduleInfo const gUnk_080F597C;
 EC ScheduleInfo const gUnk_080F6B10;
 EC ScheduleInfo const gUnk_080F4974;
 EC ScheduleInfo const gUnk_080F29C0;
-EC Npc * func_080A0A04(NpcScheduleRoster &);
+EC Npc * GetActiveScheduleNpc(NpcScheduleRoster &);
 EC void func_0803D688(Npc &, ScheduleInfo const &, void const *);
 
 ROM_TEXT(0803D7E4) void func_0803D7E4(NpcScheduleRoster & self, void const * context)
@@ -458,7 +458,7 @@ ROM_TEXT(0803D7E4) void func_0803D7E4(NpcScheduleRoster & self, void const * con
     func_0803D688(self.npc_310, gUnk_080F6B10, context);
     func_0803D688(self.npc_328, gUnk_080F4974, context);
 
-    if (Npc * npc = func_080A0A04(self))
+    if (Npc * npc = GetActiveScheduleNpc(self))
         func_0803D688(*npc, gUnk_080F29C0, context);
 }
 
@@ -852,8 +852,8 @@ ROM_TEXT(0803EA5C) unsigned func_0803EB9C(ScriptEventContext const & self)
     return 1;
 }
 
-EC unsigned func_0809ECD8(void const *);
-EC bool func_0809ECE0(void const *);
+EC unsigned GetNpcMilestoneEventId(void const *);
+EC bool IsNpcMilestoneEventReady(void const *);
 
 ROM_TEXT(0803EA5C) unsigned func_0803EC44(ScriptEventContext const & self)
 {
@@ -867,7 +867,7 @@ ROM_TEXT(0803EA5C) unsigned func_0803EC44(ScriptEventContext const & self)
     if (func_0803D644(season, day))
         return 4;
     void const * npc = self.unk_1DAC;
-    if (func_0809ECD8(npc) != 0 && !func_0809ECE0(npc))
+    if (GetNpcMilestoneEventId(npc) != 0 && !IsNpcMilestoneEventReady(npc))
         return 5;
     if (weekday == 4)
     {
