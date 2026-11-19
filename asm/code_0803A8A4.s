@@ -719,44 +719,7 @@ func_0803ACD8: @ 0x0803ACD8
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_0803AE58
-func_0803AE58: @ 0x0803AE58
-	push {r4, r5, r6, lr}
-	mov r6, r8
-	push {r6}
-	sub sp, #0x14
-	ldr r5, [sp, #0x28]
-	movs r4, #0x2c
-	muls r4, r5, r4
-	adds r4, #4
-	adds r4, r0, r4
-	ldrh r5, [r4, #0x28]
-	mov r8, r5
-	movs r5, #0x80
-	lsls r5, r5, #8
-	ldr r6, [r0]
-	adds r0, #0x88
-	str r5, [sp]
-	str r4, [sp, #4]
-	str r6, [sp, #8]
-	mov r4, r8
-	str r4, [sp, #0xc]
-	str r0, [sp, #0x10]
-	adds r0, r1, #0
-	adds r1, r2, #0
-	adds r2, r3, #0
-	movs r3, #0xaa
-	ldr r4, .L0803AE9C @ =func_030004DC
-	bl _call_via_r4
-	add sp, #0x14
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0803AE9C: .4byte func_030004DC
-
+	.section .text.0803AEA0, "ax", %progbits
 	thumb_func_start func_0803AEA0
 func_0803AEA0: @ 0x0803AEA0
 	push {r4, r5, r6, r7, lr}
