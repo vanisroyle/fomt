@@ -1415,7 +1415,7 @@ func_080204CC: @ 0x080204CC
     ldrb r0, [r4]
     str r0, [sp]
     ldr r0, [sp, #0xe8]
-    bl func_08038374
+    bl StartLaunchedSpriteMovement
     b .L080210A0
 .L08020DBA:
     mov r0, sl

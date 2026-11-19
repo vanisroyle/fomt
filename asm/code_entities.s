@@ -9416,7 +9416,7 @@ func_0802E0FC: @ 0x0802E0FC
     bne .L0802E602
     adds r0, r5, #0
     adds r1, r4, #0
-    bl func_08037EB4
+    bl SetNpcReaction
     movs r0, #0xe
     ldr r3, [sp, #0x7c]
     strb r0, [r3]

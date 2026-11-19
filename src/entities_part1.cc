@@ -256,7 +256,7 @@ inline CarryEntityPart1 * EntityByIdPart1(GameObject * game, u32 id)
 
 EC char const vtable_unk_080E6428[];
 EC char const vtable_unk_080E64C8[];
-EC void func_08038374(CarryEntityPart1 * self, i32 x, i32 y, u32 anim, u32 facing);
+EC void StartLaunchedSpriteMovement(CarryEntityPart1 * self, i32 x, i32 y, u32 anim, u32 facing);
 EC void func_08020410(DogEntityPart1 * self, u32 time);
 EC Article func_0800F258(HeldItem const * self);
 EC u32 func_080229A4(AEntity * self, u32 value);
@@ -297,7 +297,7 @@ struct FarmerGameStatePart1
     STRUCT_PAD(0x14, 0x54);
     ShippingBin shipping_bin;
 };
-EC void func_080384FC(CarryEntityPart1 * self);
+EC void StopLaunchedSpriteMovement(CarryEntityPart1 * self);
 EC void func_0802B908(FarmerEntityPart1 * self, GameObject * game, void * state);
 EC void func_0802C2DC(FarmerEntityPart1 * self);
 EC char const vtable_unk_080E6658[];
@@ -717,7 +717,7 @@ EC void func_080212C0(DogEntityPart1 * self)
             if (!func_080AC070(const_cast<UnkMap *>(&map), &box))
                 break;
         }
-        func_080384FC(target);
+        StopLaunchedSpriteMovement(target);
     }
 }
 
@@ -753,7 +753,7 @@ EC DogEntityPart1 * func_08020310(DogEntityPart1 * self, GameObject * game, Dog 
         if (target != nullptr)
         {
             if (target->location_map == self->location_map)
-                func_08038374(target, self->x_q16, self->y_q16, self->anim_id, self->facing);
+                StartLaunchedSpriteMovement(target, self->x_q16, self->y_q16, self->anim_id, self->facing);
             else
                 func_08020410(self, 0);
         }

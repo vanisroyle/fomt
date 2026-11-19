@@ -15,7 +15,8 @@ struct MovingNpcEntity : AActorEntity
 {
     MovingNpcEntity();
     virtual void ChooseMovement();
-    STRUCT_PAD(0x30, 0x3C);
+    ActorLocation * saved_location;
+    Box movement_bounds;
     u16 animation;
     u16 timer;
     u8 hidden;
@@ -136,13 +137,17 @@ struct NpcReactionSprite
     u8 reaction_timer;
 };
 
-struct LaunchedSideSprite
+struct LaunchedSideSprite : AEntity
 {
-    STRUCT_PAD(0x00, 0x1C);
+    LaunchedSideSprite();
+    Location * destination;
     i32 height_q16;
     i32 rise_speed;
     u8 variant;
     u8 launched;
+    u8 moving;
+    u8 padding;
+    u16 animation;
 };
 
 EC u16 const gUnk_080F15A4[];
@@ -226,6 +231,7 @@ struct SideEntityEffects
 {
     STRUCT_PAD(0x00, 0x0C);
     TransitionSideSprite * transition_sprite;
+    void * particles;
 };
 
 EC i16 const gUnk_080F16D2[];
@@ -385,4 +391,86 @@ EC u32 HasSideEntityParticles(AEntity * self)
     else
         present = func_080390D0(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
     return present;
+}
+
+EC u32 GetNpcVariantThreeSpeed(AEntity * self, u32 state) NPC_EXTRA_CODE(080378FC);
+EC u32 GetNpcVariantThreeSpeed(AEntity * self, u32 state)
+{
+    switch (state)
+    {
+    case 0: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 12: default: return 0;
+    case 1: return 0x8000;
+    case 2: case 11: return 0x10000;
+    }
+}
+
+EC void StopLaunchedSpriteMovement(LaunchedSideSprite * self) NPC_EXTRA_CODE(080384FC);
+EC void StopLaunchedSpriteMovement(LaunchedSideSprite * self)
+{
+    if (self->animation != 49)
+    {
+        UnknownEntityThing * sprite = self->unk_10.Get();
+        if (sprite != nullptr)
+        {
+            func_0805E860(&sprite->sprite_animator, 49);
+            sprite->unk_44 = 1;
+            sprite->unk_46 = 0;
+            sprite->unk_47 = 1;
+        }
+        self->animation = 49;
+    }
+    self->moving = 0;
+}
+
+EC void UpdateLaunchedSpriteAnimation(UnknownEntityThing * self) NPC_EXTRA_CODE(08038580);
+EC void UpdateLaunchedSpriteAnimation(UnknownEntityThing * self)
+{
+    if (self->unk_47 == 0)
+    {
+        if (i32(func_0805E8F0(&self->sprite_animator) << 30) < 0)
+            self->unk_44 = 1;
+    }
+    else
+        self->unk_47 = 0;
+}
+
+
+
+EC void * func_08037EF0(void * sprite, AEntity * self);
+EC void * CreateTimedReactionSprite(AEntity * self) NPC_EXTRA_CODE(08037E9C);
+EC void * CreateTimedReactionSprite(AEntity * self)
+{
+    struct Storage { u8 bytes[0x58]; };
+    return func_08037EF0(new Storage, self);
+}
+
+struct ReactiveNpcEntity : AEntity
+{
+    ReactiveNpcEntity();
+    void * reaction_state;
+};
+
+EC void func_0800FFF4(void * state, u32 reaction);
+EC void SetNpcReaction(ReactiveNpcEntity * self, u8 const * reaction) NPC_EXTRA_CODE(08037EB4);
+EC void SetNpcReaction(ReactiveNpcEntity * self, u8 const * reaction)
+{
+    func_0800FFF4(self->reaction_state, *reaction);
+    if (self->unk_10.Get() != nullptr)
+        StartNpcReactionTimer(reinterpret_cast<NpcReactionSprite *>(self->unk_10.Get()));
+}
+
+EC void SetNpcMovementBounds(MovingNpcEntity * self, Box const * bounds) NPC_EXTRA_CODE(08037244);
+EC void SetNpcMovementBounds(MovingNpcEntity * self, Box const * bounds)
+{
+    self->movement_bounds = *bounds;
+}
+
+EC void func_08038398(LaunchedSideSprite * self, i32 x, i32 y);
+EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x_q16, i32 y_q16, i32 target_x, i32 target_y) NPC_EXTRA_CODE(08038374);
+EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x_q16, i32 y_q16, i32 target_x, i32 target_y)
+{
+    self->moving = 1;
+    self->x_q16 = x_q16;
+    self->y_q16 = y_q16;
+    func_08038398(self, target_x, target_y);
 }
