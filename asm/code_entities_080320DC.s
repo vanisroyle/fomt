@@ -89,170 +89,6 @@ func_0803242C: @ 0x0803242C
 
     .section .text.npc_side.080324BC, "ax", %progbits
 
-    thumb_func_start func_080324BC
-func_080324BC: @ 0x080324BC
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0xc
-    adds r7, r0, #0
-    adds r4, r1, #0
-    adds r5, r2, #0
-    mov sb, r3
-    add r0, sp, #0x34
-    ldrb r0, [r0]
-    mov r8, r0
-    str r4, [r7]
-    ldr r0, .L0803255C @ =vtable_unk_080E68B4
-    str r0, [r7, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x68]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldrh r2, [r4, #0x22]
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    adds r2, r2, r0
-    ldr r3, [r4]
-    adds r0, r7, #0
-    adds r0, #8
-    str r5, [sp]
-    mov r5, sb
-    str r5, [sp, #4]
-    add r5, sp, #8
-    mov r6, r8
-    strb r6, [r5]
-    bl func_080A4A00
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x6c]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldr r3, [r4]
-    adds r0, r7, #0
-    adds r0, #0x48
-    movs r2, #2
-    str r2, [sp]
-    movs r2, #0xe
-    str r2, [sp, #4]
-    movs r2, #0
-    strb r2, [r5]
-    movs r2, #0
-    bl func_080A4A00
-    adds r0, r7, #0
-    adds r0, #0x88
-    movs r1, #0
-    add r2, sp, #0x28
-    ldrb r2, [r2]
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-    adds r0, #1
-    ldr r3, [sp, #0x2c]
-    lsls r6, r3, #2
-    strb r6, [r0]
-    adds r0, #1
-    add r5, sp, #0x30
-    ldrb r5, [r5]
-    strb r5, [r0]
-    adds r0, r7, #0
-    add sp, #0xc
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0803255C: .4byte vtable_unk_080E68B4
-
-    thumb_func_start func_08032560
-func_08032560: @ 0x08032560
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0x14
-    adds r7, r0, #0
-    adds r5, r1, #0
-    adds r4, r2, #0
-    mov sb, r3
-    ldr r6, [sp, #0x30]
-    add r0, sp, #0x40
-    ldrb r0, [r0]
-    mov r8, r0
-    str r5, [r7]
-    ldr r0, .L08032608 @ =vtable_unk_080E68B4
-    str r0, [r7, #4]
-    ldr r0, [r5]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x68]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldrh r2, [r5, #0x22]
-    adds r0, r5, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    adds r2, r2, r0
-    ldr r3, [r5]
-    adds r0, r7, #0
-    adds r0, #8
-    str r4, [sp]
-    mov r4, sb
-    str r4, [sp, #4]
-    str r6, [sp, #8]
-    add r4, sp, #0xc
-    mov r6, r8
-    strb r6, [r4]
-    bl func_080A49A0
-    ldr r0, [r5]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x6c]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldr r3, [r5]
-    adds r0, r7, #0
-    adds r0, #0x48
-    movs r2, #2
-    str r2, [sp]
-    movs r2, #0xe
-    str r2, [sp, #4]
-    add r4, sp, #8
-    movs r2, #0
-    strb r2, [r4]
-    movs r2, #0
-    bl func_080A4A00
-    adds r0, r7, #0
-    adds r0, #0x88
-    movs r1, #0
-    add r2, sp, #0x34
-    ldrb r2, [r2]
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-    adds r0, #1
-    ldr r3, [sp, #0x38]
-    lsls r3, r3, #2
-    str r3, [sp, #0x10]
-    strb r3, [r0]
-    adds r0, #1
-    add r6, sp, #0x3c
-    ldrb r6, [r6]
-    strb r6, [r0]
-    adds r0, r7, #0
-    add sp, #0x14
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08032608: .4byte vtable_unk_080E68B4
-
     .section .text.npc_side.0803260C, "ax", %progbits
 
     thumb_func_start func_0803260C
@@ -643,7 +479,7 @@ func_08032690: @ 0x08032690
     adds r3, r2, r3
     str r4, [sp]
     ldr r2, [sp, #0x40]
-    bl func_0803AE58
+    bl DrawFixedSpriteOverlay
 .L080328F0:
     add sp, #0x50
     pop {r3, r4, r5}
@@ -658,49 +494,6 @@ func_08032690: @ 0x08032690
 
     .section .text.npc_side.0803295C, "ax", %progbits
 
-    thumb_func_start func_0803295C
-func_0803295C: @ 0x0803295C
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L080329AC @ =vtable_unk_080E6828
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x30]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C12AActorEntity
-    mov r0, sp
-    ldm r0!, {r1, r2}
-    stm r4!, {r1, r2}
-    ldrh r1, [r5, #0x22]
-    ldr r0, [r5, #0x30]
-    strh r1, [r0, #8]
-    ldr r0, .L080329B0 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L08032994
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08032994:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L080329A2
-    adds r0, r5, #0
-    bl __builtin_delete
-.L080329A2:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080329AC: .4byte vtable_unk_080E6828
-.L080329B0: .4byte __vt_7AEntity
     .section .text.npc_side.080329DC, "ax", %progbits
 
     thumb_func_start func_080329DC
@@ -849,7 +642,7 @@ func_08032BB4: @ 0x08032BB4
     strb r6, [r4, #1]
     ldr r0, [sp, #0x70]
     adds r1, r4, #0
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08032CA0
@@ -1327,7 +1120,7 @@ func_08032BB4: @ 0x08032BB4
     strb r0, [r4, #1]
     ldr r0, [sp, #0x70]
     adds r1, r4, #0
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0803303A
@@ -1405,7 +1198,7 @@ func_08032BB4: @ 0x08032BB4
     strb r0, [r4, #1]
     ldr r0, [sp, #0x70]
     adds r1, r4, #0
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080330D4
@@ -1616,7 +1409,7 @@ func_080330F4: @ 0x080330F4
     strb r3, [r4, #2]
     ldr r0, [sp, #0x90]
     adds r1, r4, #0
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08033272
@@ -1713,7 +1506,7 @@ func_080330F4: @ 0x080330F4
     ldr r0, [sp, #0x90]
     adds r1, r4, #0
     str r2, [sp, #0x68]
-    bl func_0809E968
+    bl HasNpcEventSlot
     lsls r0, r0, #0x18
     ldr r2, [sp, #0x68]
     cmp r0, #0
@@ -2341,19 +2134,6 @@ func_08033784: @ 0x08033784
 
     .section .text.npc_side.08033914, "ax", %progbits
 
-    thumb_func_start func_08033914
-func_08033914: @ 0x08033914
-    movs r1, #0xc0
-    lsls r1, r1, #9
-    adds r0, #1
-    muls r0, r1, r0
-    lsrs r0, r0, #8
-    movs r1, #0x80
-    lsls r1, r1, #8
-    adds r0, r0, r1
-    bx lr
-    .align 2, 0
-
     .section .text.npc_side.08033928, "ax", %progbits
 
     thumb_func_start func_08033928
@@ -2453,7 +2233,7 @@ func_08033928: @ 0x08033928
     adds r1, r0, #0
     adds r0, r4, #0
     bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
-    bl func_08033914
+    bl ComputeSpriteWorkSpeed
     mov r8, r0
     b .L08033A08
 .L08033A06:
@@ -2476,14 +2256,6 @@ func_08033928: @ 0x08033928
     pop {r4, r5, r6, r7}
     pop {r1}
     bx r1
-    thumb_func_start func_08033A2C
-func_08033A2C: @ 0x08033A2C
-    .byte 0x70, 0xb5, 0x82, 0xb0, 0x05, 0x1c, 0x0e, 0x1c, 0x10, 0x48, 0x68, 0x61, 0x6c, 0x6b, 0x68, 0x46
-    .byte 0x29, 0x1c, 0xfe, 0xf7, 0x97, 0xfb, 0x20, 0x1c, 0x69, 0x46, 0x6a, 0xf0, 0x8f, 0xfc, 0x0c, 0x48
-    .byte 0x68, 0x61, 0x29, 0x69, 0x00, 0x29, 0x05, 0xd0, 0x48, 0x68, 0x82, 0x68, 0x08, 0x1c, 0x03, 0x21
-    .byte 0x9f, 0xf0, 0x5a, 0xff, 0x01, 0x20, 0x30, 0x40, 0x00, 0x28, 0x02, 0xd0, 0x28, 0x1c, 0xcc, 0xf7
-    .byte 0xcd, 0xfd, 0x02, 0xb0, 0x70, 0xbc, 0x01, 0xbc, 0x00, 0x47, 0x00, 0x00, 0xc8, 0x68, 0x0e, 0x08
-    .byte 0x50, 0x62, 0x0e, 0x08
     .section .text.npc_side.08033B10, "ax", %progbits
 
     .section .text.npc_side.08033B24, "ax", %progbits
@@ -2539,102 +2311,770 @@ func_08033B24: @ 0x08033B24
 
     .section .text.npc_side.08033B94, "ax", %progbits
 
-.L08033B94:
-    .byte 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0xAB, 0xB0
-    .byte 0x07, 0x1C, 0x0A, 0x1C, 0x78, 0x6B, 0x80, 0x46, 0x39, 0x68, 0x8A, 0x46, 0xC0, 0x69, 0x05, 0x28
-    .byte 0x12, 0xD8, 0x80, 0x00, 0x01, 0x49, 0x40, 0x18, 0x00, 0x68, 0x87, 0x46, 0xC0, 0x3B, 0x03, 0x08
-    .byte 0xD8, 0x3B, 0x03, 0x08, 0x64, 0x3C, 0x03, 0x08, 0x94, 0x3C, 0x03, 0x08, 0xFC, 0x3D, 0x03, 0x08
-    .byte 0x54, 0x40, 0x03, 0x08, 0x78, 0x40, 0x03, 0x08, 0x10, 0x79, 0x00, 0x28, 0x00, 0xD1, 0x97, 0xE2
-    .byte 0x40, 0x46, 0x6A, 0xF0, 0x3B, 0xFD, 0x03, 0x28, 0x00, 0xD1, 0x91, 0xE2, 0x40, 0x46, 0x6A, 0xF0
-    .byte 0x39, 0xFD, 0x00, 0x28, 0x00, 0xD1, 0x8B, 0xE2, 0x52, 0x46, 0x10, 0x68, 0xA2, 0x23, 0x5B, 0x00
-    .byte 0xC0, 0x18, 0x01, 0x68, 0x50, 0x46, 0x9F, 0xF0, 0x83, 0xFE, 0x02, 0x1C, 0x91, 0x7A, 0x1F, 0x20
-    .byte 0x08, 0x40, 0x06, 0x28, 0x00, 0xD0, 0x7B, 0xE2, 0x50, 0x89, 0x40, 0x05, 0x80, 0x0E, 0x39, 0x1C
-    .byte 0x30, 0x31, 0x09, 0x78, 0x01, 0x31, 0x88, 0x42, 0x00, 0xD0, 0x71, 0xE2, 0x10, 0x68, 0x03, 0x38
-    .byte 0x01, 0x28, 0x13, 0xD9, 0xB4, 0x22, 0x52, 0x00, 0x08, 0x23, 0x5B, 0x42, 0x38, 0x1C, 0x02, 0x21
-    .byte 0xEC, 0xF7, 0x1A, 0xF9, 0x12, 0xA9, 0x40, 0x46, 0x6A, 0xF0, 0xC2, 0xFD, 0x80, 0x23, 0x1B, 0x02
-    .byte 0x38, 0x1C, 0x01, 0x21, 0x00, 0x22, 0x00, 0xF0, 0x93, 0xFA, 0x59, 0xE2, 0x40, 0x46, 0x6A, 0xF0
-    .byte 0x7D, 0xFD, 0x55, 0xE2, 0xB8, 0x88, 0x02, 0x28, 0x0E, 0xD0, 0xB4, 0x22, 0x52, 0x00, 0x08, 0x23
-    .byte 0x5B, 0x42, 0x38, 0x1C, 0x02, 0x21, 0xEC, 0xF7, 0xFF, 0xF8, 0x80, 0x23, 0x1B, 0x02, 0x38, 0x1C
-    .byte 0x01, 0x21, 0x00, 0x22, 0x00, 0xF0, 0x7C, 0xFA, 0x0E, 0x24, 0x38, 0x5F, 0x77, 0x28, 0x00, 0xDC
-    .byte 0x3E, 0xE2, 0xE9, 0xE1, 0x45, 0x46, 0x20, 0x35, 0x25, 0x95, 0x46, 0x46, 0x30, 0x8C, 0x00, 0x28
-    .byte 0x00, 0xD0, 0xA7, 0xE0, 0x38, 0x1C, 0x00, 0xF0, 0x4B, 0xFE, 0x00, 0x06, 0x00, 0x28, 0x00, 0xD0
-    .byte 0x2E, 0xE2, 0xE8, 0x78, 0x00, 0x28, 0x04, 0xD0, 0x01, 0x38, 0xE8, 0x70, 0x00, 0x06, 0x00, 0x28
-    .byte 0x06, 0xD1, 0x38, 0x1C, 0x00, 0xF0, 0xCC, 0xFA, 0x00, 0x06, 0x00, 0x28, 0x00, 0xD0, 0x1F, 0xE2
-    .byte 0x0F, 0x4D, 0x28, 0x1C, 0x05, 0x21, 0x77, 0xF0, 0xA9, 0xFD, 0x84, 0x00, 0x64, 0x19, 0x00, 0x26
-    .byte 0x25, 0x99, 0x88, 0x70, 0x3C, 0x25, 0xA0, 0x78, 0x68, 0x43, 0x77, 0xF0, 0x4D, 0xFD, 0x61, 0x78
-    .byte 0x69, 0x43, 0x09, 0x18, 0x25, 0x9A, 0x11, 0x80, 0xBC, 0x88, 0x13, 0xA8, 0x06, 0x80, 0x46, 0x80
-    .byte 0x81, 0x46, 0x11, 0x2C, 0x25, 0xD0, 0x11, 0x2C, 0x04, 0xDC, 0x02, 0x2C, 0x05, 0xD0, 0x2C, 0xE0
-    .byte 0x3C, 0x14, 0x0F, 0x08, 0x25, 0x2C, 0x0F, 0xD0, 0x27, 0xE0, 0x48, 0x20, 0x77, 0xF0, 0x34, 0xFD
-    .byte 0x80, 0x30, 0x4B, 0x46, 0x18, 0x80, 0x48, 0x20, 0x77, 0xF0, 0x2E, 0xFD, 0x94, 0x25, 0x6D, 0x00
-    .byte 0x40, 0x19, 0x4E, 0x46, 0x70, 0x80, 0x18, 0xE0, 0x68, 0x20, 0x77, 0xF0, 0x25, 0xFD, 0x48, 0x30
-    .byte 0x49, 0x46, 0x08, 0x80, 0x30, 0x20, 0x77, 0xF0, 0x1F, 0xFD, 0x60, 0x30, 0x4A, 0x46, 0x50, 0x80
-    .byte 0x0B, 0xE0, 0x40, 0x20, 0x77, 0xF0, 0x18, 0xFD, 0x90, 0x30, 0x4B, 0x46, 0x18, 0x80, 0x30, 0x20
-    .byte 0x77, 0xF0, 0x12, 0xFD, 0x70, 0x30, 0x4D, 0x46, 0x68, 0x80, 0x38, 0x1C, 0x20, 0x30, 0x00, 0x78
-    .byte 0x80, 0x46, 0x56, 0x46, 0x31, 0x68, 0x02, 0xA8, 0x4B, 0x6B, 0x51, 0x46, 0x22, 0x1C, 0x9F, 0xF0
-    .byte 0xCB, 0xFD, 0x79, 0x69, 0x14, 0xA8, 0xCA, 0x68, 0x39, 0x1C, 0x9F, 0xF0, 0xC3, 0xFD, 0x14, 0x98
-    .byte 0x15, 0x99, 0x29, 0x90, 0x2A, 0x91, 0x05, 0xAC, 0x20, 0x21, 0x8A, 0x46, 0x00, 0x25, 0x21, 0x21
-    .byte 0x05, 0x91, 0x21, 0x20, 0x40, 0x42, 0x60, 0x60, 0xA0, 0x60, 0xE1, 0x60, 0x0A, 0xA9, 0x02, 0xA8
-    .byte 0x4C, 0xC8, 0x4C, 0xC1, 0x29, 0x98, 0x2A, 0x99, 0x0D, 0x90, 0x0E, 0x91, 0x51, 0x46, 0xA1, 0x62
-    .byte 0xE5, 0x62, 0x25, 0x63, 0x0A, 0x22, 0xB8, 0x5E, 0x0E, 0x23, 0xF9, 0x5E, 0x4D, 0x46, 0x00, 0x26
-    .byte 0xAA, 0x5F, 0x13, 0xAB, 0x02, 0x25, 0x5B, 0x5F, 0x00, 0x94, 0x46, 0x46, 0x01, 0x96, 0x77, 0xF0
-    .byte 0x2F, 0xFF, 0x02, 0x1C, 0x25, 0x98, 0x81, 0x78, 0x80, 0x23, 0x1B, 0x02, 0x38, 0x1C, 0x00, 0xF0
-    .byte 0xC7, 0xF9, 0x8D, 0xE1, 0x01, 0x38, 0x41, 0x46, 0x08, 0x84, 0x89, 0xE1, 0x42, 0x46, 0x20, 0x32
-    .byte 0x26, 0x92, 0x3C, 0x1C, 0x30, 0x34, 0x20, 0x78, 0xB9, 0x6B, 0xC0, 0x00, 0x09, 0x18, 0x89, 0x46
-    .byte 0xF9, 0x6B, 0x48, 0x46, 0x52, 0x46, 0xFF, 0xF7, 0xB5, 0xFC, 0x06, 0x1C, 0xBD, 0x88, 0x0A, 0x20
-    .byte 0x3B, 0x5E, 0x27, 0x93, 0x0E, 0x22, 0xB9, 0x5E, 0x28, 0x91, 0x16, 0xA8, 0x03, 0x80, 0x41, 0x80
-    .byte 0xAE, 0x42, 0x08, 0xD1, 0xFA, 0x6B, 0x17, 0xA8, 0x49, 0x46, 0x53, 0x46, 0xFF, 0xF7, 0xF8, 0xFC
-    .byte 0x17, 0x98, 0x16, 0x90, 0x27, 0xE0, 0x11, 0x2D, 0x1D, 0xD0, 0x11, 0x2D, 0x02, 0xDC, 0x02, 0x2D
-    .byte 0x03, 0xD0, 0x1E, 0xE0, 0x25, 0x2D, 0x10, 0xD0, 0x1B, 0xE0, 0x11, 0x2E, 0x07, 0xD0, 0x25, 0x2E
-    .byte 0x17, 0xD1, 0x18, 0xA8, 0xD5, 0xF7, 0x3A, 0xFE, 0x18, 0x98, 0x16, 0x90, 0x13, 0xE0, 0x19, 0xA8
-    .byte 0xD5, 0xF7, 0x3A, 0xFE, 0x19, 0x98, 0x16, 0x90, 0x0D, 0xE0, 0x1A, 0xA8, 0xD8, 0xF7, 0xEC, 0xFF
-    .byte 0x1A, 0x98, 0x16, 0x90, 0x07, 0xE0, 0x1B, 0xA8, 0xD8, 0xF7, 0x64, 0xFB, 0x1B, 0x98, 0x16, 0x90
-    .byte 0x01, 0xE0, 0x8D, 0x26, 0xB6, 0x00, 0x8D, 0x20, 0x80, 0x00, 0x86, 0x42, 0x77, 0xD0, 0x16, 0xAB
-    .byte 0x00, 0x22, 0x98, 0x5E, 0x27, 0x99, 0x40, 0x1A, 0x00, 0x28, 0x00, 0xDA, 0x40, 0x42, 0x07, 0x28
-    .byte 0x6D, 0xDC, 0x5A, 0x23, 0x6B, 0x44, 0x00, 0x22, 0x98, 0x5E, 0x28, 0x99, 0x40, 0x1A, 0x00, 0x28
-    .byte 0x00, 0xDA, 0x40, 0x42, 0x07, 0x28, 0x62, 0xDC, 0x38, 0x1C, 0x00, 0xF0, 0x39, 0xFD, 0x00, 0x06
-    .byte 0x01, 0x0E, 0x00, 0x29, 0x00, 0xD0, 0x1B, 0xE1, 0xAE, 0x42, 0x19, 0xD1, 0x38, 0x1C, 0x00, 0xF0
-    .byte 0x45, 0xFA, 0x00, 0x06, 0x00, 0x28, 0x00, 0xD1, 0xBE, 0xE0, 0x08, 0x49, 0x1C, 0x98, 0x08, 0x40
-    .byte 0x3C, 0x21, 0x08, 0x43, 0x1C, 0x90, 0x1C, 0xA9, 0x40, 0x46, 0x6A, 0xF0, 0x79, 0xFC, 0x38, 0x1C
-    .byte 0x20, 0x30, 0x02, 0x78, 0x38, 0x1C, 0x04, 0x21, 0xE3, 0xE0, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF
-    .byte 0x02, 0x24, 0x1D, 0xA8, 0x01, 0x80, 0x41, 0x80, 0x80, 0x46, 0x11, 0x2D, 0x1C, 0xD0, 0x11, 0x2D
-    .byte 0x02, 0xDC, 0x02, 0x2D, 0x03, 0xD0, 0x1C, 0xE0, 0x25, 0x2D, 0x10, 0xD0, 0x19, 0xE0, 0x11, 0x2E
-    .byte 0x07, 0xD0, 0x25, 0x2E, 0x15, 0xD1, 0x25, 0x24, 0x1E, 0xA8, 0xD8, 0xF7, 0x8D, 0xFF, 0x1E, 0x98
-    .byte 0x0E, 0xE0, 0x11, 0x24, 0x1F, 0xA8, 0xD8, 0xF7, 0x05, 0xFB, 0x1F, 0x98, 0x08, 0xE0, 0x20, 0xA8
-    .byte 0xD5, 0xF7, 0xC4, 0xFD, 0x20, 0x98, 0x03, 0xE0, 0x21, 0xA8, 0xD5, 0xF7, 0xC5, 0xFD, 0x21, 0x98
-    .byte 0x1D, 0x90, 0x43, 0x46, 0x00, 0x25, 0x5A, 0x5F, 0x1D, 0xA8, 0x02, 0x26, 0x83, 0x5F, 0x38, 0x1C
-    .byte 0x21, 0x1C, 0xEB, 0xF7, 0x81, 0xFF, 0x38, 0x1C, 0x20, 0x30, 0x02, 0x78, 0x38, 0x1C, 0x00, 0x21
-    .byte 0x00, 0x23, 0x00, 0xF0, 0xFD, 0xF8, 0x00, 0x20, 0x26, 0x99, 0x08, 0x80, 0xC0, 0xE0, 0x26, 0x9A
-    .byte 0x10, 0x88, 0x00, 0x28, 0x5A, 0xD1, 0x38, 0x1C, 0x00, 0xF0, 0xD2, 0xFC, 0x00, 0x06, 0x00, 0x28
-    .byte 0x00, 0xD0, 0xB5, 0xE0, 0x21, 0x78, 0xB8, 0x6B, 0xC9, 0x00, 0x40, 0x18, 0xF9, 0x6B, 0x52, 0x46
-    .byte 0xFF, 0xF7, 0xE8, 0xFA, 0x00, 0x06, 0x00, 0x28, 0x56, 0xD0, 0x40, 0x46, 0x6A, 0xF0, 0x4E, 0xFB
-    .byte 0x01, 0x1C, 0x40, 0x46, 0x6A, 0xF0, 0x52, 0xFB, 0xFF, 0xF7, 0xA4, 0xFC, 0x06, 0x1C, 0x16, 0xAC
-    .byte 0x00, 0x23, 0xE1, 0x5E, 0x25, 0x1C, 0x02, 0x22, 0xA8, 0x5E, 0x28, 0x9B, 0xC0, 0x1A, 0x27, 0x9C
-    .byte 0x09, 0x1B, 0x00, 0x29, 0x00, 0xDA, 0x49, 0x42, 0x00, 0x28, 0x00, 0xDA, 0x40, 0x42, 0x08, 0x18
-    .byte 0xC1, 0x0F, 0x40, 0x18, 0x40, 0x10, 0x00, 0x04, 0x31, 0x1C, 0x9C, 0xF0, 0x65, 0xFF, 0x23, 0xAB
-    .byte 0x18, 0x60, 0xB4, 0x22, 0x22, 0xA8, 0x02, 0x60, 0x19, 0x68, 0x8A, 0x42, 0x00, 0xD9, 0x18, 0x1C
-    .byte 0x00, 0x68, 0x77, 0xF0, 0xB9, 0xFB, 0x26, 0x99, 0x08, 0x80, 0x38, 0x1C, 0x20, 0x30, 0x04, 0x78
-    .byte 0x02, 0xA8, 0x77, 0xF0, 0x0B, 0xFD, 0x16, 0xA8, 0x00, 0x23, 0xC2, 0x5E, 0x02, 0x21, 0x6B, 0x5E
-    .byte 0x02, 0xAD, 0x00, 0x95, 0x01, 0x94, 0x27, 0x98, 0x28, 0x99, 0x77, 0xF0, 0x01, 0xFE, 0x02, 0x1C
-    .byte 0x38, 0x1C, 0x01, 0x21, 0x33, 0x1C, 0x00, 0xF0, 0x9B, 0xF8, 0x61, 0xE0, 0x01, 0x38, 0x26, 0x9E
-    .byte 0x30, 0x80, 0x5D, 0xE0, 0x41, 0x46, 0x08, 0x8C, 0x00, 0x28, 0x09, 0xD1, 0x38, 0x1C, 0x00, 0xF0
-    .byte 0x6F, 0xFC, 0x00, 0x06, 0x00, 0x28, 0x53, 0xD1, 0x38, 0x1C, 0x00, 0xF0, 0x35, 0xF9, 0x4F, 0xE0
-    .byte 0x01, 0x38, 0x42, 0x46, 0x10, 0x84, 0x4B, 0xE0, 0x0A, 0x23, 0xF9, 0x5E, 0xB4, 0x20, 0x40, 0x00
-    .byte 0x81, 0x42, 0x2A, 0xD1, 0xF8, 0x69, 0x00, 0x28, 0x07, 0xDB, 0x80, 0x23, 0x1B, 0x02, 0x38, 0x1C
-    .byte 0x01, 0x21, 0x01, 0x22, 0x00, 0xF0, 0x74, 0xF8, 0x3A, 0xE0, 0x0E, 0x24, 0x39, 0x5F, 0x08, 0x20
-    .byte 0x40, 0x42, 0x81, 0x42, 0x34, 0xDC, 0x40, 0x46, 0x6A, 0xF0, 0x58, 0xFB, 0x24, 0xA9, 0x40, 0x46
-    .byte 0x6A, 0xF0, 0x8A, 0xFB, 0x38, 0x1C, 0x30, 0x30, 0x01, 0x78, 0x02, 0xA8, 0x6A, 0xF0, 0xA2, 0xFB
-    .byte 0x38, 0x1C, 0x02, 0xA9, 0xFE, 0xF7, 0x2A, 0xF8, 0x38, 0x1C, 0x20, 0x30, 0x02, 0x78, 0x38, 0x1C
-    .byte 0x00, 0x21, 0x00, 0x23, 0x00, 0xF0, 0x54, 0xF8, 0x1A, 0xE0, 0xBA, 0x69, 0x00, 0x23, 0x05, 0x48
-    .byte 0x81, 0x42, 0x00, 0xDC, 0x01, 0x23, 0x18, 0x1C, 0x00, 0x28, 0x05, 0xD0, 0x00, 0x2A, 0x05, 0xDD
-    .byte 0x0E, 0xE0, 0x00, 0x00, 0x67, 0x01, 0x00, 0x00, 0x00, 0x2A, 0x09, 0xDB, 0x02, 0x22, 0x00, 0x28
-    .byte 0x00, 0xD0, 0x03, 0x22, 0x80, 0x23, 0x1B, 0x02, 0x38, 0x1C, 0x01, 0x21, 0x00, 0xF0, 0x38, 0xF8
-    .byte 0x3C, 0x1C, 0x42, 0x34, 0x20, 0x78, 0x00, 0x28, 0x0E, 0xD0, 0x38, 0x1C, 0x40, 0x30, 0x01, 0x78
-    .byte 0x38, 0x1C, 0x00, 0xF0, 0x91, 0xF8, 0x01, 0x1C, 0x78, 0x8C, 0x88, 0x42, 0x02, 0xD0, 0x38, 0x1C
-    .byte 0xFE, 0xF7, 0x3E, 0xF8, 0x00, 0x20, 0x20, 0x70, 0xF9, 0x69, 0x00, 0x29, 0x02, 0xD0, 0xF8, 0x68
-    .byte 0x40, 0x18, 0xF8, 0x60, 0xB9, 0x69, 0x00, 0x29, 0x02, 0xD0, 0xB8, 0x68, 0x40, 0x18, 0xB8, 0x60
-    .byte 0xB8, 0x8C, 0x00, 0x28, 0x01, 0xD0, 0x01, 0x38, 0x00, 0xE0, 0xF8, 0x8C, 0xB8, 0x84, 0x3C, 0x69
-    .byte 0x00, 0x2C, 0x04, 0xD0, 0x60, 0x68, 0xC1, 0x68, 0x20, 0x1C, 0x9F, 0xF0, 0xD1, 0xFB, 0x2B, 0xB0
-    .byte 0x38, 0xBC, 0x98, 0x46, 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
+    thumb_func_start UpdateSpriteWorkerState
+UpdateSpriteWorkerState: @ 0x08033B94
+    push	{r4, r5, r6, r7, lr}
+    mov	r7, sl
+    mov	r6, r9
+    mov	r5, r8
+    push	{r5, r6, r7}
+    sub	sp, #172
+    adds	r7, r0, #0
+    adds	r2, r1, #0
+    ldr	r0, [r7, #52]
+    mov	r8, r0
+    ldr	r1, [r7, #0]
+    mov	sl, r1
+    ldr	r0, [r0, #28]
+    cmp	r0, #5
+    bhi .L08033BD8
+    lsls	r0, r0, #2
+    ldr	r1, .L08033BBC
+    adds	r0, r0, r1
+    ldr	r0, [r0, #0]
+    mov	pc, r0
+.L08033BBC:
+    .4byte .L08033BC0
+.L08033BC0:
+    .4byte .L08033BD8
+    .4byte .L08033C64
+    .4byte .L08033C94
+    .4byte .L08033DFC
+    .4byte .L08034054
+    .4byte .L08034078
+.L08033BD8:
+    ldrb	r0, [r2, #4]
+    cmp	r0, #0
+    bne .L08033BE0
+    b .L08034110
+.L08033BE0:
+    mov	r0, r8
+    bl GetCurrentTask__C13HarvestSprite
+    cmp	r0, #3
+    bne .L08033BEC
+    b .L08034110
+.L08033BEC:
+    mov	r0, r8
+    bl GetWorkDaysLeft__C13HarvestSprite
+    cmp	r0, #0
+    bne .L08033BF8
+    b .L08034110
+.L08033BF8:
+    mov	r2, sl
+    ldr	r0, [r2, #0]
+    movs	r3, #162
+    lsls	r3, r3, #1
+    adds	r0, r0, r3
+    ldr	r1, [r0, #0]
+    mov	r0, sl
+    bl _call_via_r1
+    adds	r2, r0, #0
+    ldrb	r1, [r2, #10]
+    movs	r0, #31
+    ands	r0, r1
+    cmp	r0, #6
+    beq .L08033C18
+    b .L08034110
+.L08033C18:
+    ldrh	r0, [r2, #10]
+    lsls	r0, r0, #21
+    lsrs	r0, r0, #26
+    adds	r1, r7, #0
+    adds	r1, #48
+    ldrb	r1, [r1, #0]
+    adds	r1, #1
+    cmp	r0, r1
+    beq .L08033C2C
+    b .L08034110
+.L08033C2C:
+    ldr	r0, [r2, #0]
+    subs	r0, #3
+    cmp	r0, #1
+    bls .L08033C5C
+    movs	r2, #180
+    lsls	r2, r2, #1
+    movs	r3, #8
+    negs	r3, r3
+    adds	r0, r7, #0
+    movs	r1, #2
+    bl SetLocation__7AEntityUiii
+    add	r1, sp, #72
+    mov	r0, r8
+    bl method_0809E7D0__13HarvestSprite
+    movs	r3, #128
+    lsls	r3, r3, #8
+    adds	r0, r7, #0
+    movs	r1, #1
+    movs	r2, #0
+    bl func_08034180
+    b .L08034110
+.L08033C5C:
+    mov	r0, r8
+    bl TaskDayUpdate__13HarvestSprite
+    b .L08034110
+.L08033C64:
+    ldrh	r0, [r7, #4]
+    cmp	r0, #2
+    beq .L08033C88
+    movs	r2, #180
+    lsls	r2, r2, #1
+    movs	r3, #8
+    negs	r3, r3
+    adds	r0, r7, #0
+    movs	r1, #2
+    bl SetLocation__7AEntityUiii
+    movs	r3, #128
+    lsls	r3, r3, #8
+    adds	r0, r7, #0
+    movs	r1, #1
+    movs	r2, #0
+    bl func_08034180
+.L08033C88:
+    movs	r4, #14
+    ldrsh	r0, [r7, r4]
+    cmp	r0, #119
+    bgt .L08033C92
+    b .L08034110
+.L08033C92:
+    b .L08034068
+.L08033C94:
+    mov	r5, r8
+    adds	r5, #32
+    str	r5, [sp, #148]
+    mov	r6, r8
+    ldrh	r0, [r6, #32]
+    cmp	r0, #0
+    beq .L08033CA4
+    b .L08033DF4
+.L08033CA4:
+    adds	r0, r7, #0
+    bl func_08034940
+    lsls	r0, r0, #24
+    cmp	r0, #0
+    beq .L08033CB2
+    b .L08034110
+.L08033CB2:
+    ldrb	r0, [r5, #3]
+    cmp	r0, #0
+    beq .L08033CC2
+    subs	r0, #1
+    strb	r0, [r5, #3]
+    lsls	r0, r0, #24
+    cmp	r0, #0
+    bne .L08033CD0
+.L08033CC2:
+    adds	r0, r7, #0
+    bl func_08034260
+    lsls	r0, r0, #24
+    cmp	r0, #0
+    beq .L08033CD0
+    b .L08034110
+.L08033CD0:
+    ldr	r5, .L08033D10
+    adds	r0, r5, #0
+    movs	r1, #5
+    bl ChooseWeightedEntityMovement
+    lsls	r4, r0, #2
+    adds	r4, r4, r5
+    movs	r6, #0
+    ldr	r1, [sp, #148]
+    strb	r0, [r1, #2]
+    movs	r5, #60
+    ldrb	r0, [r4, #2]
+    muls	r0, r5
+    bl RollEntityMovementRandom
+    ldrb	r1, [r4, #1]
+    muls	r1, r5
+    adds	r1, r1, r0
+    ldr	r2, [sp, #148]
+    strh	r1, [r2, #0]
+    ldrh	r4, [r7, #4]
+    add	r0, sp, #76
+    strh	r6, [r0, #0]
+    strh	r6, [r0, #2]
+    mov	r9, r0
+    cmp	r4, #17
+    beq .L08033D52
+    cmp	r4, #17
+    bgt .L08033D14
+    cmp	r4, #2
+    beq .L08033D1A
+    b .L08033D6A
+.L08033D10:
+    .4byte 0x080F143C
+.L08033D14:
+    cmp	r4, #37
+    beq .L08033D38
+    b .L08033D6A
+.L08033D1A:
+    movs	r0, #72
+    bl RollEntityMovementRandom
+    adds	r0, #128
+    mov	r3, r9
+    strh	r0, [r3, #0]
+    movs	r0, #72
+    bl RollEntityMovementRandom
+    movs	r5, #148
+    lsls	r5, r5, #1
+    adds	r0, r0, r5
+    mov	r6, r9
+    strh	r0, [r6, #2]
+    b .L08033D6A
+.L08033D38:
+    movs	r0, #104
+    bl RollEntityMovementRandom
+    adds	r0, #72
+    mov	r1, r9
+    strh	r0, [r1, #0]
+    movs	r0, #48
+    bl RollEntityMovementRandom
+    adds	r0, #96
+    mov	r2, r9
+    strh	r0, [r2, #2]
+    b .L08033D6A
+.L08033D52:
+    movs	r0, #64
+    bl RollEntityMovementRandom
+    adds	r0, #144
+    mov	r3, r9
+    strh	r0, [r3, #0]
+    movs	r0, #48
+    bl RollEntityMovementRandom
+    adds	r0, #112
+    mov	r5, r9
+    strh	r0, [r5, #2]
+.L08033D6A:
+    adds	r0, r7, #0
+    adds	r0, #32
+    ldrb	r0, [r0, #0]
+    mov	r8, r0
+    mov	r6, sl
+    ldr	r1, [r6, #0]
+    add	r0, sp, #8
+    ldr	r3, [r1, #52]
+    mov	r1, sl
+    adds	r2, r4, #0
+    bl _call_via_r3
+    ldr	r1, [r7, #20]
+    add	r0, sp, #80
+    ldr	r2, [r1, #12]
+    adds	r1, r7, #0
+    bl _call_via_r2
+    ldr	r0, [sp, #80]
+    ldr	r1, [sp, #84]
+    str	r0, [sp, #164]
+    str	r1, [sp, #168]
+    add	r4, sp, #20
+    movs	r1, #32
+    mov	sl, r1
+    movs	r5, #0
+    movs	r1, #33
+    str	r1, [sp, #20]
+    movs	r0, #33
+    negs	r0, r0
+    str	r0, [r4, #4]
+    str	r0, [r4, #8]
+    str	r1, [r4, #12]
+    add	r1, sp, #40
+    add	r0, sp, #8
+    ldmia	r0!, {r2, r3, r6}
+    stmia	r1!, {r2, r3, r6}
+    ldr	r0, [sp, #164]
+    ldr	r1, [sp, #168]
+    str	r0, [sp, #52]
+    str	r1, [sp, #56]
+    mov	r1, sl
+    str	r1, [r4, #40]
+    str	r5, [r4, #44]
+    str	r5, [r4, #48]
+    movs	r2, #10
+    ldrsh	r0, [r7, r2]
+    movs	r3, #14
+    ldrsh	r1, [r7, r3]
+    mov	r5, r9
+    movs	r6, #0
+    ldrsh	r2, [r5, r6]
+    add	r3, sp, #76
+    movs	r5, #2
+    ldrsh	r3, [r3, r5]
+    str	r4, [sp, #0]
+    mov	r6, r8
+    str	r6, [sp, #4]
+    bl func_080ABC40
+    adds	r2, r0, #0
+    ldr	r0, [sp, #148]
+    ldrb	r1, [r0, #2]
+    movs	r3, #128
+    lsls	r3, r3, #8
+    adds	r0, r7, #0
+    bl func_08034180
+    b .L08034110
+.L08033DF4:
+    subs	r0, #1
+    mov	r1, r8
+    strh	r0, [r1, #32]
+    b .L08034110
+.L08033DFC:
+    mov	r2, r8
+    adds	r2, #32
+    str	r2, [sp, #152]
+    adds	r4, r7, #0
+    adds	r4, #48
+    ldrb	r0, [r4, #0]
+    ldr	r1, [r7, #56]
+    lsls	r0, r0, #3
+    adds	r1, r1, r0
+    mov	r9, r1
+    ldr	r1, [r7, #60]
+    mov	r0, r9
+    mov	r2, sl
+    bl func_08033784
+    adds	r6, r0, #0
+    ldrh	r5, [r7, #4]
+    movs	r0, #10
+    ldrsh	r3, [r7, r0]
+    str	r3, [sp, #156]
+    movs	r2, #14
+    ldrsh	r1, [r7, r2]
+    str	r1, [sp, #160]
+    add	r0, sp, #88
+    strh	r3, [r0, #0]
+    strh	r1, [r0, #2]
+    cmp	r6, r5
+    bne .L08033E46
+    ldr	r2, [r7, #60]
+    add	r0, sp, #92
+    mov	r1, r9
+    mov	r3, sl
+    bl GetSpriteWorkTargetCoordinates
+    ldr	r0, [sp, #92]
+    str	r0, [sp, #88]
+    b .L08033E96
+.L08033E46:
+    cmp	r5, #17
+    beq .L08033E86
+    cmp	r5, #17
+    bgt .L08033E54
+    cmp	r5, #2
+    beq .L08033E5A
+    b .L08033E92
+.L08033E54:
+    cmp	r5, #37
+    beq .L08033E7A
+    b .L08033E92
+.L08033E5A:
+    cmp	r6, #17
+    beq .L08033E6E
+    cmp	r6, #37
+    bne .L08033E92
+    add	r0, sp, #96
+    bl smethod_08009ADC__4Farm
+    ldr	r0, [sp, #96]
+    str	r0, [sp, #88]
+    b .L08033E96
+.L08033E6E:
+    add	r0, sp, #100
+    bl smethod_08009AE8__4Farm
+    ldr	r0, [sp, #100]
+    str	r0, [sp, #88]
+    b .L08033E96
+.L08033E7A:
+    add	r0, sp, #104
+    bl method_0800CE58__4Barn
+    ldr	r0, [sp, #104]
+    str	r0, [sp, #88]
+    b .L08033E96
+.L08033E86:
+    add	r0, sp, #108
+    bl method_0800C554__4Coop
+    ldr	r0, [sp, #108]
+    str	r0, [sp, #88]
+    b .L08033E96
+.L08033E92:
+    movs	r6, #141
+    lsls	r6, r6, #2
+.L08033E96:
+    movs	r0, #141
+    lsls	r0, r0, #2
+    cmp	r6, r0
+    beq .L08033F8E
+    add	r3, sp, #88
+    movs	r2, #0
+    ldrsh	r0, [r3, r2]
+    ldr	r1, [sp, #156]
+    subs	r0, r0, r1
+    cmp	r0, #0
+    bge .L08033EAE
+    negs	r0, r0
+.L08033EAE:
+    cmp	r0, #7
+    bgt .L08033F8E
+    movs	r3, #90
+    add	r3, sp
+    movs	r2, #0
+    ldrsh	r0, [r3, r2]
+    ldr	r1, [sp, #160]
+    subs	r0, r0, r1
+    cmp	r0, #0
+    bge .L08033EC4
+    negs	r0, r0
+.L08033EC4:
+    cmp	r0, #7
+    bgt .L08033F8E
+    adds	r0, r7, #0
+    bl func_08034940
+    lsls	r0, r0, #24
+    lsrs	r1, r0, #24
+    cmp	r1, #0
+    beq .L08033ED8
+    b .L08034110
+.L08033ED8:
+    cmp	r6, r5
+    bne .L08033F10
+    adds	r0, r7, #0
+    bl func_0803436C
+    lsls	r0, r0, #24
+    cmp	r0, #0
+    bne .L08033EEA
+    b .L08034068
+.L08033EEA:
+    ldr	r1, .L08033F0C
+    ldr	r0, [sp, #112]
+    ands	r0, r1
+    movs	r1, #60
+    orrs	r0, r1
+    str	r0, [sp, #112]
+    add	r1, sp, #112
+    mov	r0, r8
+    bl method_0809E7F0__13HarvestSpritePC15UnkBarnAnimal2C
+    adds	r0, r7, #0
+    adds	r0, #32
+    ldrb	r2, [r0, #0]
+    adds	r0, r7, #0
+    movs	r1, #4
+    b .L080340D2
+    movs	r0, r0
+.L08033F0C:
+    .4byte 0xFFFF0000
+.L08033F10:
+    movs r4, #2
+    add	r0, sp, #116
+    strh	r1, [r0, #0]
+    strh	r1, [r0, #2]
+    mov	r8, r0
+    cmp	r5, #17
+    beq .L08033F58
+    cmp	r5, #17
+    bgt .L08033F28
+    cmp	r5, #2
+    beq .L08033F2E
+    b .L08033F62
+.L08033F28:
+    cmp	r5, #37
+    beq .L08033F4E
+    b .L08033F62
+.L08033F2E:
+    cmp	r6, #17
+    beq .L08033F42
+    cmp	r6, #37
+    bne .L08033F62
+    movs	r4, #37
+    add	r0, sp, #120
+    bl method_0800CE58__4Barn
+    ldr	r0, [sp, #120]
+    b .L08033F60
+.L08033F42:
+    movs	r4, #17
+    add	r0, sp, #124
+    bl method_0800C554__4Coop
+    ldr	r0, [sp, #124]
+    b .L08033F60
+.L08033F4E:
+    add	r0, sp, #128
+    bl smethod_08009ADC__4Farm
+    ldr	r0, [sp, #128]
+    b .L08033F60
+.L08033F58:
+    add	r0, sp, #132
+    bl smethod_08009AE8__4Farm
+    ldr	r0, [sp, #132]
+.L08033F60:
+    str	r0, [sp, #116]
+.L08033F62:
+    mov	r3, r8
+    movs	r5, #0
+    ldrsh	r2, [r3, r5]
+    add	r0, sp, #116
+    movs	r6, #2
+    ldrsh	r3, [r0, r6]
+    adds	r0, r7, #0
+    adds	r1, r4, #0
+    bl SetLocation__7AEntityUiii
+    adds	r0, r7, #0
+    adds	r0, #32
+    ldrb	r2, [r0, #0]
+    adds	r0, r7, #0
+    movs	r1, #0
+    movs	r3, #0
+    bl func_08034180
+    movs	r0, #0
+    ldr	r1, [sp, #152]
+    strh	r0, [r1, #0]
+    b .L08034110
+.L08033F8E:
+    ldr	r2, [sp, #152]
+    ldrh	r0, [r2, #0]
+    cmp	r0, #0
+    bne .L0803404C
+    adds	r0, r7, #0
+    bl func_08034940
+    lsls	r0, r0, #24
+    cmp	r0, #0
+    beq .L08033FA4
+    b .L08034110
+.L08033FA4:
+    ldrb	r1, [r4, #0]
+    ldr	r0, [r7, #56]
+    lsls	r1, r1, #3
+    adds	r0, r0, r1
+    ldr	r1, [r7, #60]
+    mov	r2, sl
+    bl func_08033584
+    lsls	r0, r0, #24
+    cmp	r0, #0
+    beq .L08034068
+    mov	r0, r8
+    bl GetCurrentTask__C13HarvestSprite
+    adds	r1, r0, #0
+    mov	r0, r8
+    bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
+    bl ComputeSpriteWorkSpeed
+    adds	r6, r0, #0
+    add	r4, sp, #88
+    movs	r3, #0
+    ldrsh	r1, [r4, r3]
+    adds	r5, r4, #0
+    movs	r2, #2
+    ldrsh	r0, [r5, r2]
+    ldr	r3, [sp, #160]
+    subs	r0, r0, r3
+    ldr	r4, [sp, #156]
+    subs	r1, r1, r4
+    cmp	r1, #0
+    bge .L08033FE8
+    negs	r1, r1
+.L08033FE8:
+    cmp	r0, #0
+    bge .L08033FEE
+    negs	r0, r0
+.L08033FEE:
+    adds	r0, r1, r0
+    lsrs	r1, r0, #31
+    adds	r0, r0, r1
+    asrs	r0, r0, #1
+    lsls	r0, r0, #16
+    adds	r1, r6, #0
+    bl __divsi3
+    add	r3, sp, #140
+    str	r0, [r3, #0]
+    movs	r2, #180
+    add	r0, sp, #136
+    str	r2, [r0, #0]
+    ldr	r1, [r3, #0]
+    cmp	r2, r1
+    bls .L08034010
+    adds	r0, r3, #0
+.L08034010:
+    ldr	r0, [r0, #0]
+    bl RollEntityMovementRandom
+    ldr	r1, [sp, #152]
+    strh	r0, [r1, #0]
+    adds	r0, r7, #0
+    adds	r0, #32
+    ldrb	r4, [r0, #0]
+    add	r0, sp, #8
+    bl InitializeEntityCollisionProbe
+    add	r0, sp, #88
+    movs	r3, #0
+    ldrsh	r2, [r0, r3]
+    movs	r1, #2
+    ldrsh	r3, [r5, r1]
+    add	r5, sp, #8
+    str	r5, [sp, #0]
+    str	r4, [sp, #4]
+    ldr	r0, [sp, #156]
+    ldr	r1, [sp, #160]
+    bl func_080ABC40
+    adds	r2, r0, #0
+    adds	r0, r7, #0
+    movs	r1, #1
+    adds	r3, r6, #0
+    bl func_08034180
+    b .L08034110
+.L0803404C:
+    subs	r0, #1
+    ldr	r6, [sp, #152]
+    strh	r0, [r6, #0]
+    b .L08034110
+.L08034054:
+    mov	r1, r8
+    ldrh	r0, [r1, #32]
+    cmp	r0, #0
+    bne .L08034070
+    adds	r0, r7, #0
+    bl func_08034940
+    lsls	r0, r0, #24
+    cmp	r0, #0
+    bne .L08034110
+.L08034068:
+    adds	r0, r7, #0
+    bl ChooseSpriteWorkerNextTask
+    b .L08034110
+.L08034070:
+    subs	r0, #1
+    mov	r2, r8
+    strh	r0, [r2, #32]
+    b .L08034110
+.L08034078:
+    movs	r3, #10
+    ldrsh	r1, [r7, r3]
+    movs	r0, #180
+    lsls	r0, r0, #1
+    cmp	r1, r0
+    bne .L080340DA
+    ldr	r0, [r7, #28]
+    cmp	r0, #0
+    blt .L0803409A
+    movs	r3, #128
+    lsls	r3, r3, #8
+    adds	r0, r7, #0
+    movs	r1, #1
+    movs	r2, #1
+    bl func_08034180
+    b .L08034110
+.L0803409A:
+    movs	r4, #14
+    ldrsh	r1, [r7, r4]
+    movs	r0, #8
+    negs	r0, r0
+    cmp	r1, r0
+    bgt .L08034110
+    mov	r0, r8
+    bl TaskDayUpdate__13HarvestSprite
+    add	r1, sp, #144
+    mov	r0, r8
+    bl method_0809E7C8__13HarvestSprite
+    adds	r0, r7, #0
+    adds	r0, #48
+    ldrb	r1, [r0, #0]
+    add	r0, sp, #8
+    bl func_0809E804
+    adds	r0, r7, #0
+    add	r1, sp, #8
+    bl SetLocation__12AActorEntityRC13ActorLocation
+    adds	r0, r7, #0
+    adds	r0, #32
+    ldrb	r2, [r0, #0]
+    adds	r0, r7, #0
+    movs	r1, #0
+.L080340D2:
+    movs	r3, #0
+    bl func_08034180
+    b .L08034110
+.L080340DA:
+    ldr	r2, [r7, #24]
+    movs	r3, #0
+    ldr	r0, .L080340F4
+    cmp	r1, r0
+    bgt .L080340E6
+    movs	r3, #1
+.L080340E6:
+    adds	r0, r3, #0
+    cmp	r0, #0
+    beq .L080340F8
+    cmp	r2, #0
+    ble .L080340FC
+    b .L08034110
+    movs	r0, r0
+.L080340F4:
+    .4byte 0x00000167
+.L080340F8:
+    cmp	r2, #0
+    blt .L08034110
+.L080340FC:
+    movs	r2, #2
+    cmp	r0, #0
+    beq .L08034104
+    movs	r2, #3
+.L08034104:
+    movs	r3, #128
+    lsls	r3, r3, #8
+    adds	r0, r7, #0
+    movs	r1, #1
+    bl func_08034180
+.L08034110:
+    adds	r4, r7, #0
+    adds	r4, #66
+    ldrb	r0, [r4, #0]
+    cmp	r0, #0
+    beq .L08034138
+    adds	r0, r7, #0
+    adds	r0, #64
+    ldrb	r1, [r0, #0]
+    adds	r0, r7, #0
+    bl GetSpriteTaskAnimation
+    adds	r1, r0, #0
+    ldrh	r0, [r7, #34]
+    cmp	r0, r1
+    beq .L08034134
+    adds	r0, r7, #0
+    bl SetAnim__12AActorEntityUi
+.L08034134:
+    movs	r0, #0
+    strb	r0, [r4, #0]
+.L08034138:
+    ldr	r1, [r7, #28]
+    cmp	r1, #0
+    beq .L08034144
+    ldr	r0, [r7, #12]
+    adds	r0, r0, r1
+    str	r0, [r7, #12]
+.L08034144:
+    ldr	r1, [r7, #24]
+    cmp	r1, #0
+    beq .L08034150
+    ldr	r0, [r7, #8]
+    adds	r0, r0, r1
+    str	r0, [r7, #8]
+.L08034150:
+    ldrh	r0, [r7, #36]
+    cmp	r0, #0
+    beq .L0803415A
+    subs	r0, #1
+    b .L0803415C
+.L0803415A:
+    ldrh	r0, [r7, #38]
+.L0803415C:
+    strh	r0, [r7, #36]
+    ldr	r4, [r7, #16]
+    cmp	r4, #0
+    beq .L0803416E
+    ldr	r0, [r4, #4]
+    ldr	r1, [r0, #12]
+    adds	r0, r4, #0
+    bl _call_via_r1
+.L0803416E:
+    add	sp, #172
+    pop	{r3, r4, r5}
+    mov	r8, r3
+    mov	r9, r4
+    mov	sl, r5
+    pop	{r4, r5, r6, r7}
+    pop	{r0}
+    bx	r0
+    .short 0x0000
+
+    .section .text.npc_side.08034180, "ax", %progbits
 
     thumb_func_start func_08034180
 func_08034180: @ 0x08034180
@@ -2815,72 +3255,7 @@ func_08034260: @ 0x08034260
     .align 2, 0
 .L080342D4: .4byte 0xFFFF0000
 
-    thumb_func_start func_080342D8
-func_080342D8: @ 0x080342D8
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r5, r0, #0
-    ldr r0, [r5, #0x34]
-    bl GetFriendship__C3Npc
-    bl RollSpriteWorkChance
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080342FA
-    adds r0, r5, #0
-    bl func_08034260
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08034356
-.L080342FA:
-    movs r0, #0xb4
-    bl RollEntityMovementRandom
-    lsls r0, r0, #0x10
-    lsrs r0, r0, #0x10
-    ldr r2, .L08034360 @ =0xFFFF0000
-    ldr r1, [sp]
-    ands r1, r2
-    orrs r1, r0
-    ldr r0, .L08034364 @ =0xFF00FFFF
-    ands r1, r0
-    str r1, [sp]
-    ldr r4, [r5, #0x34]
-    adds r0, r4, #0
-    bl GetCurrentTask__C13HarvestSprite
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
-    adds r1, r0, #0
-    movs r0, #0x80
-    lsls r0, r0, #1
-    subs r0, r0, r1
-    bl RollEntityMovementRandom
-    lsrs r0, r0, #6
-    adds r0, #2
-    lsls r0, r0, #0x18
-    ldr r2, .L08034368 @ =0x00FFFFFF
-    ldr r1, [sp]
-    ands r1, r2
-    orrs r1, r0
-    str r1, [sp]
-    ldr r0, [r5, #0x34]
-    mov r1, sp
-    bl method_0809E7D8__13HarvestSpritePC15UnkBarnAnimal2C
-    adds r0, r5, #0
-    adds r0, #0x20
-    ldrb r2, [r0]
-    adds r0, r5, #0
-    movs r1, #0
-    movs r3, #0
-    bl func_08034180
-.L08034356:
-    add sp, #4
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08034360: .4byte 0xFFFF0000
-.L08034364: .4byte 0xFF00FFFF
-.L08034368: .4byte 0x00FFFFFF
+    .section .text.npc_side.0803436C, "ax", %progbits
 
     thumb_func_start func_0803436C
 func_0803436C: @ 0x0803436C
@@ -3738,7 +4113,7 @@ func_08034A14: @ 0x08034A14
     strb r6, [r0]
     mov r0, r8
     movs r2, #3
-    bl func_080324BC
+    bl InitializeSideActorSpriteLayers
     ldr r0, .L08034A98 @ =vtable_unk_080E6904
     mov r1, r8
     str r0, [r1, #4]
@@ -3781,26 +4156,145 @@ func_08034A14: @ 0x08034A14
 .L08034A9C: .4byte gUnk_080F14F0
     .section .text.npc_side.08034AE8, "ax", %progbits
 
-    thumb_func_start func_08034AE8
-func_08034AE8: @ 0x08034AE8
-    .byte 0xf0, 0xb5, 0x57, 0x46, 0x4e, 0x46, 0x45, 0x46, 0xe0, 0xb4, 0x8f, 0xb0, 0x05, 0x1c, 0x0c, 0x1c
-    .byte 0xfd, 0xf7, 0xca, 0xfd, 0x28, 0x1c, 0xd0, 0x30, 0x00, 0x88, 0x00, 0x28, 0x71, 0xd0, 0x0d, 0xab
-    .byte 0x20, 0x68, 0xa1, 0x68, 0x0d, 0x90, 0x59, 0x60, 0x28, 0x1c, 0xcc, 0x30, 0x00, 0x22, 0x81, 0x5e
-    .byte 0x02, 0x30, 0x00, 0x26, 0x82, 0x5f, 0x0c, 0x26, 0xa0, 0x5f, 0x09, 0x1a, 0x89, 0x46, 0x0e, 0x21
-    .byte 0x60, 0x5e, 0x10, 0x1a, 0x80, 0x46, 0x80, 0x20, 0x00, 0x02, 0x84, 0x1a, 0x2e, 0x1c, 0x8c, 0x36
-    .byte 0x9a, 0x46, 0x28, 0x1c, 0xb4, 0x30, 0x01, 0x68, 0x0b, 0x68, 0x82, 0x89, 0x04, 0x30, 0x92, 0x00
-    .byte 0x00, 0x68, 0x80, 0x18, 0x02, 0x88, 0x05, 0xa8, 0x1b, 0x69, 0x9e, 0xf0, 0xe1, 0xfe, 0x05, 0xaf
-    .byte 0x52, 0x46, 0x53, 0x68, 0x32, 0x68, 0x28, 0x1c, 0x90, 0x30, 0x41, 0x68, 0x48, 0x42, 0x08, 0x43
-    .byte 0x00, 0x28, 0x13, 0xda, 0xb0, 0x89, 0x29, 0x1c, 0x9c, 0x31, 0x00, 0x94, 0x3c, 0x1c, 0x01, 0x94
-    .byte 0x02, 0x92, 0x03, 0x90, 0x04, 0x91, 0x18, 0x1c, 0x49, 0x46, 0x42, 0x46, 0x55, 0x23, 0x02, 0x4c
-    .byte 0x9e, 0xf0, 0xc8, 0xfe, 0x03, 0xe0, 0x00, 0x00, 0xdc, 0x04, 0x00, 0x03, 0x00, 0x20, 0x00, 0x28
-    .byte 0x27, 0xd0, 0x30, 0x1c, 0x3c, 0x30, 0x01, 0x78, 0x05, 0x1c, 0x00, 0x29, 0x21, 0xd0, 0x50, 0x46
-    .byte 0x01, 0x68, 0x3a, 0x1c, 0x08, 0x32, 0x30, 0x1c, 0x6f, 0xf0, 0x2c, 0xfe, 0x30, 0x1c, 0x3d, 0x30
-    .byte 0x00, 0x78, 0x00, 0x28, 0x06, 0xd0, 0x39, 0x1c, 0x10, 0x31, 0x30, 0x1c, 0x01, 0x22, 0x6f, 0xf0
-    .byte 0xbd, 0xfe, 0x0c, 0xe0, 0x34, 0x1c, 0x3e, 0x34, 0x20, 0x78, 0x00, 0x28, 0x07, 0xd1, 0x39, 0x1c
-    .byte 0x10, 0x31, 0x30, 0x1c, 0x01, 0x22, 0x6f, 0xf0, 0xb1, 0xfe, 0x01, 0x20, 0x20, 0x70, 0x00, 0x20
-    .byte 0x28, 0x70, 0x0f, 0xb0, 0x38, 0xbc, 0x98, 0x46, 0xa1, 0x46, 0xaa, 0x46, 0xf0, 0xbc, 0x01, 0xbc
-    .byte 0x00, 0x47, 0x00, 0x00
+    thumb_func_start DrawSpriteWorkerEffectLayer
+DrawSpriteWorkerEffectLayer: @ 0x08034AE8
+    push	{r4, r5, r6, r7, lr}
+    mov	r7, sl
+    mov	r6, r9
+    mov	r5, r8
+    push	{r5, r6, r7}
+    sub	sp, #60
+    adds	r5, r0, #0
+    adds	r4, r1, #0
+    bl func_08032690
+    adds	r0, r5, #0
+    adds	r0, #208
+    ldrh	r0, [r0, #0]
+    cmp	r0, #0
+    beq .L08034BEA
+    add	r3, sp, #52
+    ldr	r0, [r4, #0]
+    ldr	r1, [r4, #8]
+    str	r0, [sp, #52]
+    str	r1, [r3, #4]
+    adds	r0, r5, #0
+    adds	r0, #204
+    movs	r2, #0
+    ldrsh	r1, [r0, r2]
+    adds	r0, #2
+    movs	r6, #0
+    ldrsh	r2, [r0, r6]
+    movs	r6, #12
+    ldrsh	r0, [r4, r6]
+    subs	r1, r1, r0
+    mov	r9, r1
+    movs	r1, #14
+    ldrsh	r0, [r4, r1]
+    subs	r0, r2, r0
+    mov	r8, r0
+    movs	r0, #128
+    lsls	r0, r0, #8
+    subs	r4, r0, r2
+    adds	r6, r5, #0
+    adds	r6, #140
+    mov	sl, r3
+    adds	r0, r5, #0
+    adds	r0, #180
+    ldr	r1, [r0, #0]
+    ldr	r3, [r1, #0]
+    ldrh	r2, [r0, #12]
+    adds	r0, #4
+    lsls	r2, r2, #2
+    ldr	r0, [r0, #0]
+    adds	r0, r0, r2
+    ldrh	r2, [r0, #0]
+    add	r0, sp, #20
+    ldr	r3, [r3, #16]
+    bl _call_via_r3
+    add	r7, sp, #20
+    mov	r2, sl
+    ldr	r3, [r2, #4]
+    ldr	r2, [r6, #0]
+    adds	r0, r5, #0
+    adds	r0, #144
+    ldr	r1, [r0, #4]
+    negs	r0, r1
+    orrs	r0, r1
+    cmp	r0, #0
+    bge .L08034B94
+    ldrh	r0, [r6, #12]
+    adds	r1, r5, #0
+    adds	r1, #156
+    str	r4, [sp, #0]
+    adds	r4, r7, #0
+    str	r4, [sp, #4]
+    str	r2, [sp, #8]
+    str	r0, [sp, #12]
+    str	r1, [sp, #16]
+    adds	r0, r3, #0
+    mov	r1, r9
+    mov	r2, r8
+    movs	r3, #85
+    ldr	r4, .L08034B90
+    bl _call_via_r4
+    b .L08034B96
+    movs	r0, r0
+.L08034B90:
+    .4byte func_030004DC
+.L08034B94:
+    movs	r0, #0
+.L08034B96:
+    cmp	r0, #0
+    beq .L08034BEA
+    adds	r0, r6, #0
+    adds	r0, #60
+    ldrb	r1, [r0, #0]
+    adds	r5, r0, #0
+    cmp	r1, #0
+    beq .L08034BEA
+    mov	r0, sl
+    ldr	r1, [r0, #0]
+    adds	r2, r7, #0
+    adds	r2, #8
+    adds	r0, r6, #0
+    bl func_080A480C
+    adds	r0, r6, #0
+    adds	r0, #61
+    ldrb	r0, [r0, #0]
+    cmp	r0, #0
+    beq .L08034BCC
+    adds	r1, r7, #0
+    adds	r1, #16
+    adds	r0, r6, #0
+    movs	r2, #1
+    bl func_080A4944
+    b .L08034BE6
+.L08034BCC:
+    adds	r4, r6, #0
+    adds	r4, #62
+    ldrb	r0, [r4, #0]
+    cmp	r0, #0
+    bne .L08034BE6
+    adds	r1, r7, #0
+    adds	r1, #16
+    adds	r0, r6, #0
+    movs	r2, #1
+    bl func_080A4944
+    movs	r0, #1
+    strb	r0, [r4, #0]
+.L08034BE6:
+    movs	r0, #0
+    strb	r0, [r5, #0]
+.L08034BEA:
+    add	sp, #60
+    pop	{r3, r4, r5}
+    mov	r8, r3
+    mov	r9, r4
+    mov	sl, r5
+    pop	{r4, r5, r6, r7}
+    pop	{r0}
+    bx	r0
+    .short 0x0000
 
     .section .text.npc_side.08034C40, "ax", %progbits
 

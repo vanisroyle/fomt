@@ -41,9 +41,9 @@ struct ActivityAnimationNpc : AActorEntity
     u32 animations[5];
 };
 
-EC UnknownEntityThing * func_080324BC(UnknownEntityThing * self, AActorEntity * actor, u32 layer, u32 animation, u32 priority, u32 palette, u32 flags, bool visible);
+EC UnknownEntityThing * InitializeSideActorSpriteLayers(UnknownEntityThing * self, AActorEntity * actor, u32 layer, u32 animation, u32 priority, u32 palette, u32 flags, bool visible);
 EC void func_08034F00(AActorEntity * self, i32 reason);
-EC void func_08036E70(AActorEntity * self);
+EC void RefreshArrivalReactionAnimations(AActorEntity * self);
 EC void ClearSpriteWorkPause(SpriteWorkerEntity * self);
 EC u16 const gUnk_080F14B8[];
 
@@ -51,7 +51,7 @@ EC UnknownEntityThing * CreateScheduledNpc34Sprite(AActorEntity * self) NPC_EXTR
 EC UnknownEntityThing * CreateScheduledNpc34Sprite(AActorEntity * self)
 {
     struct Storage { u8 bytes[0x8C]; };
-    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 4, 27, 1, 0, 0, false);
+    return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 4, 27, 1, 0, 0, false);
 }
 
 EC void RefreshArrivalReactionNpc(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036EF0);
@@ -59,7 +59,7 @@ EC void RefreshArrivalReactionNpc(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        func_08036E70(self);
+        RefreshArrivalReactionAnimations(self);
 }
 
 EC void * GetArrivalReactionNpcRecord(ActivityAnimationNpc * self) NPC_EXTRA_CODE(08037004);

@@ -20,13 +20,25 @@ struct ChickenFeedingScene
     ChickenFeedingActor * chickens[5];
     STRUCT_PAD(0x62C, 0x6F4);
     ChickenFeedingActor * troughs[5];
-    STRUCT_PAD(0x708, 0x884);
+    STRUCT_PAD(0x708, 0x814);
+    u32 effectsTrack;
+    STRUCT_PAD(0x818, 0x838);
+    u32 phase;
+    STRUCT_PAD(0x83C, 0x844);
+    int movementState;
+    STRUCT_PAD(0x848, 0x884);
     int selectedTrough;
     ChickenFeedingResource resources[11];
     u8 spriteY;
-    STRUCT_PAD(0x8E1, 0x90E);
+    STRUCT_PAD(0x8E1, 0x8FA);
+    u8 actionTimer;
+    STRUCT_PAD(0x8FB, 0x90E);
     u8 targetFeedings;
-    STRUCT_PAD(0x90F, 0x92C);
+    STRUCT_PAD(0x90F, 0x914);
+    u8 actionReady;
+    STRUCT_PAD(0x915, 0x929);
+    u8 refreshSprite;
+    STRUCT_PAD(0x92A, 0x92C);
     u8 success;
     STRUCT_PAD(0x92D, 0x930);
     u32 difficultyIndex;
@@ -38,6 +50,84 @@ EC void func_08008724(ChickenFeedingScene & scene);
 EC void func_08007C28(ChickenFeedingResource & resource, u32 handle);
 EC u32 func_08007B54(ChickenFeedingResource & resource, int capacity);
 EC u8 const gUnk_0810787C[5];
+EC u8 const gUnk_0872FC34[], gUnk_0872FE6C[], gUnk_0872FEF8[], gUnk_08731940[];
+EC void Dma3_Fill(u32, void *, u32);
+EC void Dma3_Copy(void const *, void *, u32);
+EC void Unpack(void const *, void *);
+EC void * HardwareContext_GetDisplayRegisters(ChickenFeedingScene *);
+EC void AudioPlayer_StartSong(void *, u32);
+EC void func_080AF814(ChickenFeedingScene &);
+EC void func_080087C8(ChickenFeedingScene &);
+
+struct ChickenFeedingDisplayRegisters
+{
+    u16 displayControl;
+    STRUCT_PAD(2, 0xa);
+    u16 bg1Control;
+    u16 bg2Control;
+};
+
+EC SECTION(".text.080AE7D0") void LoadChickenFeedingBackground(ChickenFeedingScene & scene)
+{
+    register ChickenFeedingScene * state asm("sb") = &scene;
+    asm ("" : "+h" (state));
+    Dma3_Fill(0, reinterpret_cast<void *>(0x06007fe0), 0x20);
+
+    register u32 emptyTile asm("r5") = ~0u;
+    asm ("" : "+l" (emptyTile));
+    register void * bg1Map asm("r8") = reinterpret_cast<void *>(0x0600f000);
+    asm ("" : "+h" (bg1Map));
+    register u32 mapBytes asm("r6") = 0x800;
+    asm ("" : "+l" (mapBytes));
+    Dma3_Fill(emptyTile, bg1Map, mapBytes);
+    register void * bg2Map asm("r4") = reinterpret_cast<void *>(0x0600f800);
+    asm ("" : "+l" (bg2Map));
+    Dma3_Fill(emptyTile, bg2Map, mapBytes);
+
+    Unpack(gUnk_0872FC34, bg2Map);
+    Unpack(gUnk_0872FE6C, bg1Map);
+    Unpack(gUnk_0872FEF8, reinterpret_cast<void *>(0x06000000));
+    Dma3_Copy(gUnk_08731940, reinterpret_cast<void *>(0x05000000), 0x200);
+
+    u16 control;
+    register ChickenFeedingDisplayRegisters * display asm("r0");
+    register u16 * temporary asm("r2");
+    register u32 setting asm("r3");
+    register u32 bits asm("r1");
+
+    display = static_cast<ChickenFeedingDisplayRegisters *>(HardwareContext_GetDisplayRegisters(state));
+    asm ("" : "+l" (display));
+    temporary = &control;
+    asm ("" : "+l" (temporary));
+    setting = 0x1640;
+    asm ("" : "+l" (setting));
+    bits = setting;
+    asm ("" : "+l" (bits));
+    *temporary = bits;
+    display->displayControl = bits;
+
+    display = static_cast<ChickenFeedingDisplayRegisters *>(HardwareContext_GetDisplayRegisters(state));
+    asm ("" : "+l" (display));
+    temporary = &control;
+    asm ("" : "+l" (temporary));
+    setting = 0x1e41;
+    asm ("" : "+l" (setting));
+    bits = setting;
+    asm ("" : "+l" (bits));
+    *temporary = bits;
+    display->bg1Control = bits;
+
+    display = static_cast<ChickenFeedingDisplayRegisters *>(HardwareContext_GetDisplayRegisters(state));
+    asm ("" : "+l" (display));
+    temporary = &control;
+    asm ("" : "+l" (temporary));
+    setting = 0x1f42;
+    asm ("" : "+l" (setting));
+    bits = setting;
+    asm ("" : "+l" (bits));
+    *temporary = bits;
+    display->bg2Control = bits;
+}
 
 static inline void ResetFeedingResource(ChickenFeedingResource & resource, int capacity)
 {
@@ -158,4 +248,157 @@ EC SECTION(".text.080B34DC") void UpdateChickenFeedingSelectedTrough(ChickenFeed
         }
     }
     scene.selectedTrough = 5;
+}
+
+EC u32 HardwareContext_GetRepeatedKeys(ChickenFeedingScene *);
+EC u32 HardwareContext_GetHeldKeys(ChickenFeedingScene *);
+EC u32 HardwareContext_GetPressedKeys(ChickenFeedingScene *);
+EC void HandleChickenFeedingAction(ChickenFeedingScene *);
+EC void ToggleFeedingPause(ChickenFeedingScene *);
+
+EC SECTION(".text.080B3518") void HandleChickenFeedingInput(ChickenFeedingScene & scene)
+{
+    HardwareContext_GetRepeatedKeys(&scene);
+    unsigned held = HardwareContext_GetHeldKeys(&scene);
+    register unsigned pressed asm("r8") = HardwareContext_GetPressedKeys(&scene);
+    asm ("" : "+h" (pressed));
+    switch (scene.movementState)
+    {
+    case 1:
+    case 2:
+        if (!(held & 0x30))
+        {
+            UpdateChickenFeedingSelectedTrough(scene);
+            if (scene.selectedTrough != 5)
+            {
+                scene.movementState = 0;
+                scene.refreshSprite = 1;
+            }
+        }
+        else if ((held & 0x20) && scene.movementState != 1)
+        {
+            scene.movementState = 1;
+            scene.refreshSprite = 1;
+        }
+        else if ((held & 0x10) && scene.movementState != 2)
+        {
+            scene.movementState = 2;
+            scene.refreshSprite = 1;
+        }
+        break;
+    case 0:
+        if ((held & 1) && scene.actionReady)
+            HandleChickenFeedingAction(&scene);
+        if (scene.movementState == 0)
+        {
+            if (held & 0x20)
+            {
+                scene.movementState = 1;
+                scene.refreshSprite = 1;
+            }
+            else if (held & 0x10)
+            {
+                scene.movementState = 2;
+                scene.refreshSprite = 1;
+            }
+        }
+        break;
+    case 3:
+    {
+        register unsigned timerOffset asm("r1") = offsetof(ChickenFeedingScene, actionTimer);
+        asm ("" : "+l" (timerOffset));
+        register u8 * timer asm("r2") = reinterpret_cast<u8 *>(&scene) + timerOffset;
+        asm ("" : "+l" (timer));
+        register unsigned nextTimer asm("r0") = *timer + 1;
+        asm ("" : "+l" (nextTimer));
+        register unsigned reset asm("r3") = 0;
+        asm ("" : "+l" (reset));
+        *timer = nextTimer;
+        if (static_cast<u8>(nextTimer) > 30)
+        {
+            scene.movementState = reset;
+            timerOffset += offsetof(ChickenFeedingScene, refreshSprite) - offsetof(ChickenFeedingScene, actionTimer);
+            asm ("" : "+l" (timerOffset));
+            register u8 * refresh asm("r0") = reinterpret_cast<u8 *>(&scene) + timerOffset;
+            asm ("" : "+l" (refresh));
+            register unsigned actionButton asm("r1") = 1;
+            asm ("" : "+l" (actionButton));
+            *refresh = actionButton;
+            *timer = reset;
+            register unsigned actionHeld asm("r0") = held;
+            asm ("" : "+l" (actionHeld));
+            if (actionHeld & actionButton)
+            {
+                register unsigned readyOffset asm("r2") = offsetof(ChickenFeedingScene, actionReady);
+                asm ("" : "+l" (readyOffset));
+                register u8 * ready asm("r0") = reinterpret_cast<u8 *>(&scene) + readyOffset;
+                asm ("" : "+l" (ready));
+                *ready = reset;
+            }
+        }
+        break;
+    }
+    }
+    register unsigned readyOffset asm("r0") = offsetof(ChickenFeedingScene, actionReady);
+    asm ("" : "+l" (readyOffset));
+    register u8 * actionReady asm("r1") = reinterpret_cast<u8 *>(&scene) + readyOffset;
+    asm ("" : "+l" (actionReady));
+    if (!*actionReady)
+    {
+        register unsigned actionButton asm("r0") = 1;
+        asm ("" : "+l" (actionButton));
+        register unsigned actionHeld asm("r7") = held;
+        actionHeld &= actionButton;
+        asm ("" : "+l" (actionHeld));
+        if (!actionHeld)
+            *actionReady = actionButton;
+    }
+    if (scene.movementState == 1 && scene.spriteY > 73)
+        scene.spriteY -= 2;
+    else if (scene.movementState == 2 && scene.spriteY <= 166)
+        scene.spriteY += 2;
+    if (pressed & 8)
+        ToggleFeedingPause(&scene);
+}
+
+EC SECTION(".text.080B1D34") void RunChickenFeedingTransition(ChickenFeedingScene & scene)
+{
+    register int frames asm("r6") = 0;
+    asm ("" : "+l" (frames));
+    register ChickenFeedingDisplayRegisters * display asm("r0") =
+        static_cast<ChickenFeedingDisplayRegisters *>(HardwareContext_GetDisplayRegisters(&scene));
+    asm ("" : "+l" (display));
+    u16 control;
+    register u16 * temporary asm("r2") = &control;
+    asm ("" : "+l" (temporary));
+    register u32 setting asm("r3") = 0x1640;
+    asm ("" : "+l" (setting));
+    register u32 bits asm("r1") = setting;
+    asm ("" : "+l" (bits));
+    *temporary = bits;
+    display->displayControl = bits;
+
+    func_080AF814(scene);
+    AudioPlayer_StartSong(&scene.effectsTrack, 0xbb);
+    register unsigned phaseOffset asm("r3") = offsetof(ChickenFeedingScene, phase);
+    asm ("" : "+l" (phaseOffset));
+    register u32 const * initialPhase asm("r0") =
+        reinterpret_cast<u32 const *>(reinterpret_cast<u8 *>(&scene) + phaseOffset);
+    asm ("" : "+l" (initialPhase));
+    if (*initialPhase == 2)
+    {
+        register u32 * phase asm("r5") =
+            reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(&scene) + phaseOffset);
+        asm ("" : "+l" (phase));
+        u32 nextPhase = 3;
+        asm ("" : "+l" (nextPhase));
+        do
+        {
+            func_080087C8(scene);
+            func_080AF814(scene);
+            if (++frames > 120)
+                *phase = nextPhase;
+        }
+        while (*phase == 2);
+    }
 }

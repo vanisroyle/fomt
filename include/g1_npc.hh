@@ -73,9 +73,21 @@ struct G1NpcEventSlot
     u32 extra;
 };
 
-struct G1NamedNpcState
+struct PACKED G1NamedNpcVariant
 {
-    u8 npc_and_name[0x26];
+    u32 kind : 2;
+    u32 counter : 5;
+    u32 : 1;
+};
+
+struct G1NamedNpcState : public Npc
+{
+    G1NamedNpcState();
+    G1NamedNpcState(G1NamedNpcVariant const & variant, ActorLocation const & location);
+
+    char name[16];
+    G1NamedNpcVariant variant_flags;
+    u8 age_days;
     u32 flag : 1;
 };
 

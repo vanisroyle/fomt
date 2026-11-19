@@ -52,7 +52,7 @@ EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
 EC void func_0802A588(AEntity * self);
 
-EC bool func_080AC070(void * map, Box const * box);
+EC bool DoesEntityCollisionRectangleHitSolidTile(void * map, Box const * box);
 
 struct BarnAnimalEntity : AActorEntity
 {
@@ -149,7 +149,7 @@ struct ScriptEventSelection;
 EC bool IsSelectedScriptEvent(ScriptEventSelection const & events, u16 eventId);
 EC u32 func_08022320(u32 growth_stage);
 EC u32 func_08022334(u32 growth_stage);
-EC void func_080324BC(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
+EC void InitializeSideActorSpriteLayers(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
 EC char const vtable_unk_080E64B4[];
 
 struct FarmerEventStateView
@@ -204,11 +204,11 @@ inline i32 GetFarmerAnimationState(FarmerEntity const * self)
     return self->state;
 }
 
-struct EntityMovementBounds;
-EC void func_080AB85C(EntityMovementBounds * self);
-EC void func_080AB8D0(EntityMovementBounds * self);
-EC void func_080AB948(EntityMovementBounds * self);
-EC void func_080AB9C4(EntityMovementBounds * self);
+struct EntityCollisionProbe;
+EC void ProbeEntityCollisionDown(EntityCollisionProbe & probe);
+EC void ProbeEntityCollisionUp(EntityCollisionProbe & probe);
+EC void ProbeEntityCollisionLeft(EntityCollisionProbe & probe);
+EC void ProbeEntityCollisionRight(EntityCollisionProbe & probe);
 
 struct EntityMovementBounds
 {
@@ -233,7 +233,7 @@ struct EntityMovementBounds
     {
         if (positive_y > limit)
         {
-            func_080AB85C(this);
+            ProbeEntityCollisionDown(*reinterpret_cast<EntityCollisionProbe *>(this));
             return positive_y;
         }
         return positive_y;
@@ -244,7 +244,7 @@ struct EntityMovementBounds
         i32 value = negative_y;
         if (value < -limit)
         {
-            func_080AB8D0(this);
+            ProbeEntityCollisionUp(*reinterpret_cast<EntityCollisionProbe *>(this));
             return negative_y;
         }
         return value;
@@ -255,7 +255,7 @@ struct EntityMovementBounds
         i32 value = negative_x;
         if (value < -limit)
         {
-            func_080AB948(this);
+            ProbeEntityCollisionLeft(*reinterpret_cast<EntityCollisionProbe *>(this));
             return negative_x;
         }
         return value;
@@ -265,7 +265,7 @@ struct EntityMovementBounds
     {
         if (positive_x > limit)
         {
-            func_080AB9C4(this);
+            ProbeEntityCollisionRight(*reinterpret_cast<EntityCollisionProbe *>(this));
             return positive_x;
         }
         return positive_x;
@@ -291,19 +291,19 @@ inline void LaunchFarmerHeldItem(FarmerEntity * self)
 
 inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 {
-    return func_080AC070(map, &box);
+    return DoesEntityCollisionRectangleHitSolidTile(map, &box);
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
 
 inline u32 Map_IsEntityCollisionBoxClear(void * map, Box const & box)
 {
-    return !func_080AC070(map, &box);
+    return !DoesEntityCollisionRectangleHitSolidTile(map, &box);
 }
 
 inline u32 Map_GetEntityCollisionFlag(void * map, Box const & box)
 {
-    return func_080AC070(map, &box);
+    return DoesEntityCollisionRectangleHitSolidTile(map, &box);
 }
 
 struct MapCollisionEscapeOffset
@@ -375,7 +375,7 @@ EC u32 RollEntityMovementRandom(u32 bound);
 EC u32 ChooseWeightedEntityMovement(ChickenBehaviorChoice const * choices, u32 count);
 EC i32 RotateEntityMovementFacing(i32 facing, i32 turn);
 EC u32 func_080ABE58(i32 x, i32 y, i32 target_x, i32 target_y, EntityMovementBounds * bounds, u32 facing);
-EC void func_080ABA90(EntityMovementBounds * bounds, Box const & box, u32 argument);
+EC void ConstrainEntityMovementAgainstRectangle(EntityMovementBounds * bounds, Box const & box, u32 argument);
 EC bool AEntity_IsAnimationFinished(AEntity * self);
 EC void AActorEntity_ApplyBoundedMovement(AActorEntity * self, EntityMovementBounds * bounds);
 
@@ -422,9 +422,9 @@ EC void ChickenEntity_Update(ChickenEntity * self, ChickenEntityUpdateContext co
     AEntity * farmer = GetCarryableEntityById(game, 0);
     AEntity * obstacle = GetCarryableEntityById(game, 74);
     if (farmer != nullptr && farmer->location_map == map_id)
-        func_080ABA90(&bounds, farmer->GetBox(), 0);
+        ConstrainEntityMovementAgainstRectangle(&bounds, farmer->GetBox(), 0);
     if (obstacle != nullptr && obstacle->location_map == map_id)
-        func_080ABA90(&bounds, obstacle->GetBox(), 0);
+        ConstrainEntityMovementAgainstRectangle(&bounds, obstacle->GetBox(), 0);
     switch (chicken->unk_24)
     {
     case 0:
@@ -668,7 +668,7 @@ EC u32 FarmerEntity_FindVerticalClearStep(FarmerEntity const * self, void * map,
             i16 * bottom = &shifted.y2;
             *top += delta;
             *bottom += delta;
-            if (!func_080AC070(map, &shifted))
+            if (!DoesEntityCollisionRectangleHitSolidTile(map, &shifted))
                 break;
             ++step;
         } while (step <= max_steps);
@@ -691,7 +691,7 @@ EC u32 FarmerEntity_FindHorizontalClearStep(FarmerEntity const * self, void * ma
             i16 * right = &shifted.x2;
             *left += delta;
             *right += delta;
-            if (!func_080AC070(map, &shifted))
+            if (!DoesEntityCollisionRectangleHitSolidTile(map, &shifted))
                 break;
             ++step;
         } while (step <= max_steps);
@@ -705,7 +705,7 @@ EC UnknownEntityThing * ChickenEntitySprite_Init(UnknownEntityThing * self, AAct
 {
     u32 size = func_08022320(growth_stage);
     u32 variant = func_08022334(growth_stage);
-    func_080324BC(self, entity, 5, 13, size, variant, 0, false);
+    InitializeSideActorSpriteLayers(self, entity, 5, 13, size, variant, 0, false);
     reinterpret_cast<void const **>(self)[1] = vtable_unk_080E64B4;
     return self;
 }
@@ -1112,7 +1112,7 @@ EC void DogEntity_PlaceCarriedTarget(DogEntity * self)
             if (offset < 0)
                 break;
             Box box = target->GetBox();
-            if (!func_080AC070(const_cast<UnkMap *>(&map), &box))
+            if (!DoesEntityCollisionRectangleHitSolidTile(const_cast<UnkMap *>(&map), &box))
                 break;
         }
         StopLaunchedSpriteMovement(target);

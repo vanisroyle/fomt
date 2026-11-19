@@ -303,7 +303,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #1
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020670:
     cmp r7, #0
     beq .L08020694
@@ -320,7 +320,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020694:
     adds r0, r6, #0
     bl DogEntity_GetAnimationState
@@ -379,7 +379,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #1
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020714:
     cmp r7, #0
     beq .L08020738
@@ -396,7 +396,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020738:
     ldr r7, [sp, #0xf8]
     ldrb r0, [r7]
@@ -426,7 +426,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020774
     add r0, sp, #0x14
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
     ldr r0, [sp, #0x14]
     b .L08020776
 .L08020774:
@@ -439,7 +439,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020788
     add r0, sp, #0x14
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
 .L08020788:
     add r1, sp, #0x24
     ldrb r0, [r1]
@@ -455,7 +455,7 @@ func_080204CC: @ 0x080204CC
     cmn r1, r0
     bge .L080207AA
     add r0, sp, #0x14
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
     ldr r0, [sp, #0x18]
     b .L080207AC
 .L080207AA:
@@ -468,7 +468,7 @@ func_080204CC: @ 0x080204CC
     cmn r0, r1
     bge .L080207BE
     add r0, sp, #0x14
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
 .L080207BE:
     movs r3, #0x25
     add r3, sp
@@ -486,7 +486,7 @@ func_080204CC: @ 0x080204CC
     cmn r1, r0
     bge .L080207E4
     add r0, sp, #0x14
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
     ldr r0, [sp, #0x1c]
     b .L080207E6
 .L080207E4:
@@ -499,7 +499,7 @@ func_080204CC: @ 0x080204CC
     cmn r0, r1
     bge .L080207F8
     add r0, sp, #0x14
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
 .L080207F8:
     movs r1, #0x26
     add r1, sp
@@ -517,7 +517,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L0802081E
     add r0, sp, #0x14
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
     ldr r0, [sp, #0x20]
     b .L08020820
 .L0802081E:
@@ -530,7 +530,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020832
     add r0, sp, #0x14
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
 .L08020832:
     movs r7, #0x27
     add r7, sp
@@ -625,7 +625,7 @@ func_080204CC: @ 0x080204CC
     cmn r1, r0
     bge .L080208FA
     add r0, sp, #0x14
-    bl func_080AB948
+    bl ProbeEntityCollisionLeft
     ldr r1, [sp, #0x1c]
 .L080208FA:
     movs r0, #0x10
@@ -640,7 +640,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020918
     add r0, sp, #0x14
-    bl func_080AB9C4
+    bl ProbeEntityCollisionRight
     ldr r0, [sp, #0x20]
     b .L0802091A
 .L08020918:
@@ -656,7 +656,7 @@ func_080204CC: @ 0x080204CC
     cmn r1, r0
     bge .L08020932
     add r0, sp, #0x14
-    bl func_080AB8D0
+    bl ProbeEntityCollisionUp
     ldr r1, [sp, #0x18]
 .L08020932:
     movs r0, #0x10
@@ -671,7 +671,7 @@ func_080204CC: @ 0x080204CC
     cmp r1, r0
     ble .L08020950
     add r0, sp, #0x14
-    bl func_080AB85C
+    bl ProbeEntityCollisionDown
     ldr r0, [sp, #0x14]
     b .L08020952
 .L08020950:
@@ -3054,7 +3054,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r2, r2, r5
     strh r2, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3092,7 +3092,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     strh r2, [r1, #4]
     strh r5, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3133,7 +3133,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     mov r0, ip
     strh r0, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3178,7 +3178,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r0, r0, r5
     strh r0, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18

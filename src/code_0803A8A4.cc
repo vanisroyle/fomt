@@ -2,6 +2,7 @@
 
 #include "bachelorette.hh"
 #include "farm_house.hh"
+#include "fixed_sprite_overlay.hh"
 #include "gbasvc.h"
 #include "npc.hh"
 #include "schedule_info.hh"
@@ -12,41 +13,6 @@
 #include <string.h>
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
-
-struct OverlaySpriteResources;
-
-struct OverlaySpriteResourceVtable
-{
-    STRUCT_PAD(0x00, 0x4C);
-    void (*releasePalette)(OverlaySpriteResources *, unsigned);
-};
-
-struct OverlaySpriteResources
-{
-    OverlaySpriteResourceVtable const * vtable;
-};
-
-struct OverlayTileAllocation
-{
-    STRUCT_PAD(0x00, 0x04);
-    u32 handle;
-};
-
-struct FixedSpriteOverlay
-{
-    struct Frame
-    {
-        STRUCT_PAD(0x00, 0x20);
-        OverlayTileAllocation tiles;
-        u16 baseTile;
-    };
-
-    OverlaySpriteResources * resources;
-    Frame frames[3];
-    unsigned paletteCount;
-    u8 paletteIds[16];
-    STRUCT_PAD(0x9C, 0xA0);
-};
 
 struct GameStateMapOverlay
 {
@@ -92,7 +58,7 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
     OverlaySpriteResourceVtable const * vtable = resources->vtable;
     register FixedSpriteOverlay::Frame * end asm("r4") = overlay->frames + 3;
     asm("" : "+r"(end) : "r"(resources), "r"(vtable));
-    vtable->releasePalette(resources, overlay->paletteIds[0]);
+    vtable->releasePalette(resources, overlay->palettes.ids[0]);
 
     register FixedSpriteOverlay::Frame * firstFrame asm("r0") = overlay->frames;
     asm("" : "+r"(firstFrame));
@@ -234,7 +200,7 @@ struct DialogWindowTilemapTask
     unsigned paletteBank : 4;
 };
 
-EC void func_08051320(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
+EC void DrawMessageFrame(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
     unsigned firstTile, unsigned paletteBank);
 EC u16 const * const gUnk_080F9F78;
 
@@ -273,7 +239,7 @@ ROM_TEXT(0803B840) bool RunDialogWindowTilemapTask(DialogWindowTilemapTask & tas
     asm("" : "+r"(source) : "m"(repeatedTile));
     CpuFastSet(source, screen, FillMode | FillWords);
 
-    func_08051320(reinterpret_cast<u16 *>(VideoRam + task.screenBlock * ScreenBlockBytes),
+    DrawMessageFrame(reinterpret_cast<u16 *>(VideoRam + task.screenBlock * ScreenBlockBytes),
         task.left, 0, task.width, task.height, task.firstTile, task.paletteBank);
 
     register unsigned paletteBank asm("r1") = task.paletteBank;
@@ -827,7 +793,7 @@ struct NpcScheduleRoster
     Npc npc_1A8;
     Npc npc_1BC;
     Npc npc_1D0;
-    Npc npc_1E4;
+    Npc karen;
     STRUCT_PAD(0x1F8, 0x1FC);
     Npc npc_1FC;
     Npc npc_210;
@@ -866,11 +832,11 @@ EC ScheduleInfo const gUnk_080F33B8;
 EC ScheduleInfo const gUnk_080F61FC;
 EC ScheduleInfo const gUnk_080F3408;
 EC ScheduleInfo const gUnk_080F3FD8;
-EC ScheduleInfo const gUnk_080F35E4;
+EC ScheduleInfo const gKarenScheduleInfo;
 EC ScheduleInfo const gUnk_080F3010;
 EC ScheduleInfo const gUnk_080F5D94;
 EC ScheduleInfo const gUnk_080F6DE8;
-EC ScheduleInfo const gUnk_080F2AF8;
+EC ScheduleInfo const gCliffScheduleInfo;
 EC ScheduleInfo const gUnk_080F42F0;
 EC ScheduleInfo const gUnk_080F43DC;
 EC ScheduleInfo const gUnk_080F6FF8;
@@ -903,11 +869,11 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_1A8, gUnk_080F61FC, context);
     ResetNpcDailySchedule(self.npc_1BC, gUnk_080F3408, context);
     ResetNpcDailySchedule(self.npc_1D0, gUnk_080F3FD8, context);
-    ResetNpcDailySchedule(self.npc_1E4, gUnk_080F35E4, context);
+    ResetNpcDailySchedule(self.karen, gKarenScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_1FC, gUnk_080F3010, context);
     ResetNpcDailySchedule(self.npc_210, gUnk_080F5D94, context);
     ResetNpcDailySchedule(self.npc_228, gUnk_080F6DE8, context);
-    ResetNpcDailySchedule(self.npc_23C, gUnk_080F2AF8, context);
+    ResetNpcDailySchedule(self.npc_23C, gCliffScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_250, gUnk_080F42F0, context);
     ResetNpcDailySchedule(self.npc_264, gUnk_080F43DC, context);
     ResetNpcDailySchedule(self.npc_27C, gUnk_080F6FF8, context);
@@ -965,16 +931,24 @@ struct NpcScheduleContext
     u32 unk_1DAC[2];
     STRUCT_PAD(0x1DB4, 0x1E28);
     Bachelorette npc_1E28;
-    STRUCT_PAD(0x1E40, 0x215A);
+    STRUCT_PAD(0x1E40, 0x1EB8);
+    Bachelorette karen;
+    STRUCT_PAD(0x1ED0, 0x2148);
+    u8 marriedScheduleVariant;
+    STRUCT_PAD(0x2149, 0x215A);
     u8 unk_215A;
-    STRUCT_PAD(0x215B, 0x2174);
+    STRUCT_PAD(0x215B, 0x216C);
+    u8 spouseScheduleEvent;
+    STRUCT_PAD(0x216D, 0x2174);
     u32 unk_2174;
     union
     {
         u32 unk_2178;
         EventScheduleFlags scheduleFlags;
     };
-    STRUCT_PAD(0x217C, 0x2186);
+    STRUCT_PAD(0x217C, 0x2181);
+    u8 cliffEventStates;
+    STRUCT_PAD(0x2182, 0x2186);
     u8 : 5;
     u8 unk_2186_5 : 2;
     u8 : 1;
@@ -983,7 +957,9 @@ struct NpcScheduleContext
     u8 : 3;
     STRUCT_PAD(0x2188, 0x21A2);
     u8 unk_21A2;
-    STRUCT_PAD(0x21A3, 0x21CA);
+    STRUCT_PAD(0x21A3, 0x21A4);
+    u8 karenWinterEvent;
+    STRUCT_PAD(0x21A5, 0x21CA);
     u8 eventFlags;
 };
 
@@ -1009,6 +985,75 @@ ROM_TEXT(0803D7E4) unsigned SelectNpcSchedule_080F1A80(void const * context)
         return 1;
     }
     return 2;
+}
+
+enum CliffSchedule
+{
+    CLIFF_SCHEDULE_ABSENT,
+    CLIFF_SCHEDULE_REGULAR,
+    CLIFF_SCHEDULE_WORKING,
+    CLIFF_SCHEDULE_EMPLOYED_SATURDAY,
+    CLIFF_SCHEDULE_FESTIVAL,
+    CLIFF_SCHEDULE_STORY_OVERRIDE,
+};
+
+ROM_TEXT(0803DDE8) unsigned SelectCliffSchedule(NpcScheduleContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 6)) < 0)
+        return CLIFF_SCHEDULE_ABSENT;
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned year = date.year;
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+
+    // Retain the register used by both offsets and the original flag extraction.
+    register unsigned flagOffset asm("r1") = offsetof(NpcScheduleContext, cliffEventStates);
+    asm("" : "+r"(flagOffset));
+    unsigned departureState = static_cast<u32>(reinterpret_cast<u8 const *>(&self)[flagOffset]) << 26;
+    asm("" : "+r"(departureState) : "r"(flagOffset));
+    if ((departureState >> 30) == 2)
+        return CLIFF_SCHEDULE_ABSENT;
+    flagOffset -= offsetof(NpcScheduleContext, cliffEventStates) - offsetof(NpcScheduleContext, unk_2174) - 1;
+    asm("" : "+r"(flagOffset));
+    register u8 const * wineryEventByte asm("r0") = reinterpret_cast<u8 const *>(&self) + flagOffset;
+    asm("" : "+r"(wineryEventByte));
+    if (static_cast<i32>(static_cast<u32>(*wineryEventByte) << (31 - 4)) >= 0)
+    {
+        if (year > 1)
+            return CLIFF_SCHEDULE_ABSENT;
+        if (year == 1 && season == SEASON_WINTER)
+        {
+            register unsigned winterDay asm("r0") = day;
+            asm("" : "+r"(winterDay));
+            if (winterDay > 28)
+                return CLIFF_SCHEDULE_ABSENT;
+        }
+    }
+    unsigned storyState = static_cast<u32>(self.cliffEventStates) << 30;
+    asm("" : "+r"(storyState));
+    if ((storyState >> 30) == 1)
+        return CLIFF_SCHEDULE_STORY_OVERRIDE;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return CLIFF_SCHEDULE_FESTIVAL;
+    if (year != 1 || season != SEASON_AUTUMN || day != 15)
+        goto regularSchedule;
+    if (static_cast<i32>(static_cast<u32>(reinterpret_cast<u8 const *>(&self.unk_2174)[1]) << (31 - 4)) >= 0)
+        goto regularSchedule;
+workingSchedule:
+    return CLIFF_SCHEDULE_WORKING;
+regularSchedule:
+    unsigned schedule;
+    if ((self.unk_2174 & 0x61000) == 0x41000)
+    {
+        if (weekday != SCHEDULE_SATURDAY)
+            goto workingSchedule;
+        schedule = CLIFF_SCHEDULE_EMPLOYED_SATURDAY;
+    }
+    else
+        schedule = CLIFF_SCHEDULE_REGULAR;
+    return schedule;
 }
 
 ROM_TEXT(0803DECC) unsigned SelectNpcSchedule_080F2DC0(NpcScheduleContext const & self)
@@ -1103,6 +1148,122 @@ ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F3FD8(NpcScheduleContext const 
         return 1;
     }
     return 2;
+}
+
+enum KarenSchedule
+{
+    KAREN_SCHEDULE_ABSENT,
+    KAREN_SCHEDULE_CLEAR_WEATHER,
+    KAREN_SCHEDULE_OTHER_WEATHER,
+    KAREN_SCHEDULE_SUNDAY,
+    KAREN_SCHEDULE_TUESDAY_CLEAR,
+    KAREN_SCHEDULE_TUESDAY_OTHER_WEATHER,
+    KAREN_SCHEDULE_AFTER_RIVAL_EVENTS,
+    KAREN_SCHEDULE_AFTER_RIVAL_EVENTS_SUNDAY,
+    KAREN_SCHEDULE_FESTIVAL,
+    KAREN_SCHEDULE_WINTER_14,
+    KAREN_SCHEDULE_AFTER_RIVAL_EVENTS_FESTIVAL,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_SUNDAY_TUESDAY,
+    KAREN_SCHEDULE_MARRIED,
+    KAREN_SCHEDULE_MARRIED_VARIANT,
+    KAREN_SCHEDULE_MARRIED_VARIANT_SUNDAY_TUESDAY,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_FESTIVAL_OR_STORM,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_FESTIVAL_OR_STORM,
+    KAREN_SCHEDULE_MARRIED_FESTIVAL_OR_STORM,
+    KAREN_SCHEDULE_MARRIED_VARIANT_FESTIVAL_OR_STORM,
+    KAREN_SCHEDULE_MARRIED_AUTUMN_9,
+    KAREN_SCHEDULE_MARRIED_AUTUMN_13,
+    KAREN_SCHEDULE_MARRIED_EVENT_OVERRIDE,
+};
+
+enum { KAREN_NPC_ID = 19 };
+
+struct G1NpcRoster;
+
+EC u8 * GetActiveRosterNpc(u8 *);
+EC Bachelorette * GetRosterBacheloretteById(G1NpcRoster *, u32);
+
+ROM_TEXT(0803DFE8) unsigned SelectKarenSchedule(NpcScheduleContext const & self)
+{
+    if (self.eventFlags & 0xC)
+        return KAREN_SCHEDULE_ABSENT;
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    u8 * roster = const_cast<u8 *>(self.unk_1CD4);
+    unsigned spouseNpcId = GetRosterMarriageCandidate(roster);
+    if (spouseNpcId == KAREN_NPC_ID)
+    {
+        if (season == SEASON_AUTUMN)
+        {
+            if (day == 9)
+                return KAREN_SCHEDULE_MARRIED_AUTUMN_9;
+            if (day == 13)
+                return KAREN_SCHEDULE_MARRIED_AUTUMN_13;
+        }
+        if ((static_cast<u32>(self.spouseScheduleEvent) << 27 >> 30) == 1)
+            return KAREN_SCHEDULE_MARRIED_EVENT_OVERRIDE;
+        unsigned marriedVariant = self.marriedScheduleVariant;
+        uintptr_t activeNpc = reinterpret_cast<uintptr_t>(GetActiveRosterNpc(const_cast<u8 *>(self.unk_1CD4)));
+        // Keep the original branchless non-null test.
+        unsigned hasActiveNpc = ((0u - activeNpc) | activeNpc) >> 31;
+        if (IsNpcScheduleFestivalDay(season, day) || self.weather == 3 || self.weather == 4)
+        {
+            if (hasActiveNpc)
+            {
+                if (marriedVariant)
+                    return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_FESTIVAL_OR_STORM;
+                return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_FESTIVAL_OR_STORM;
+            }
+            if (marriedVariant)
+                return KAREN_SCHEDULE_MARRIED_VARIANT_FESTIVAL_OR_STORM;
+            return KAREN_SCHEDULE_MARRIED_FESTIVAL_OR_STORM;
+        }
+        if (marriedVariant && (weekday == SCHEDULE_SUNDAY || weekday == SCHEDULE_TUESDAY))
+        {
+            if (hasActiveNpc)
+                return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_SUNDAY_TUESDAY;
+            return KAREN_SCHEDULE_MARRIED_VARIANT_SUNDAY_TUESDAY;
+        }
+        if (hasActiveNpc)
+        {
+            if (marriedVariant)
+                return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT;
+            return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC;
+        }
+        if (marriedVariant)
+            return KAREN_SCHEDULE_MARRIED_VARIANT;
+        return KAREN_SCHEDULE_MARRIED;
+    }
+    if (self.karen.GetRivalEventCount() > 4)
+    {
+        if (IsNpcScheduleFestivalDay(season, day))
+            return KAREN_SCHEDULE_AFTER_RIVAL_EVENTS_FESTIVAL;
+        if (weekday == SCHEDULE_SUNDAY)
+            return KAREN_SCHEDULE_AFTER_RIVAL_EVENTS_SUNDAY;
+        return KAREN_SCHEDULE_AFTER_RIVAL_EVENTS;
+    }
+    Bachelorette const * karen = GetRosterBacheloretteById(reinterpret_cast<G1NpcRoster *>(roster), KAREN_NPC_ID);
+    if (season == SEASON_WINTER && day == 14 && spouseNpcId == 0 && karen && karen->GetLove() > 9999
+        && (static_cast<u32>(self.karenWinterEvent) << 25 >> 30) != 2)
+        return KAREN_SCHEDULE_WINTER_14;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return KAREN_SCHEDULE_FESTIVAL;
+    if (weekday == SCHEDULE_SUNDAY)
+        return KAREN_SCHEDULE_SUNDAY;
+    if (weekday == SCHEDULE_TUESDAY)
+    {
+        if (self.weather == 0)
+            return KAREN_SCHEDULE_TUESDAY_CLEAR;
+        return KAREN_SCHEDULE_TUESDAY_OTHER_WEATHER;
+    }
+    if (self.weather == 0)
+        return KAREN_SCHEDULE_CLEAR_WEATHER;
+    return KAREN_SCHEDULE_OTHER_WEATHER;
 }
 
 ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F42F0(NpcScheduleContext const & self)
