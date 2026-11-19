@@ -115,7 +115,6 @@ struct MapSceneOwner
 };
 
 EC void * func_080CFB28(u8 *);
-EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapData const * GetMapData(u32 graphicsId);
 EC void func_080CFFC0(MapUpdateState & map, int column, int row, u32 const & value);
 EC void ApplyMapBuildingDoorPatch(G1MapState * map, u32 useUpperPosition);
@@ -954,7 +953,7 @@ EC SECTION(".text.080AD69C") MapSceneTerrainGrid & GetMapSceneTerrainGrid(MapSce
         asm ("" : "+l" (current));
         u32 currentMap = current->mapId;
         asm ("" : "+l" (currentMap));
-        u32 graphicsId = currentMap == mapId ? current->graphicsId : func_0803A8A4(mapId, 1, 0, 0, 0);
+        u32 graphicsId = currentMap == mapId ? current->graphicsId : GetMapGraphicsVariantId(mapId, 1, 0, 0, 0);
         register MapData const * data asm("r0") = GetMapData(graphicsId);
         asm ("" : "+l" (data));
         register unsigned width asm("r6") = data->width;
@@ -1382,12 +1381,12 @@ EC SECTION(".text.080ADBA8") void CenterMapScrollOnPixel(MapScene & scene, int x
 
 EC SECTION(".text.080ADA84") u32 GetDefaultMapPixelHeight(MapScene const &, u32 mapId)
 {
-    return GetMapData(func_0803A8A4(mapId, 1, 0, 0, 0))->height * 8;
+    return GetMapData(GetMapGraphicsVariantId(mapId, 1, 0, 0, 0))->height * 8;
 }
 
 EC SECTION(".text.080ADAA8") u32 GetDefaultMapPixelWidth(MapScene const &, u32 mapId)
 {
-    return GetMapData(func_0803A8A4(mapId, 1, 0, 0, 0))->width * 8;
+    return GetMapData(GetMapGraphicsVariantId(mapId, 1, 0, 0, 0))->width * 8;
 }
 
 EC SECTION(".text.080ADB54") void ClearMapSceneEntitySlot(MapScene & scene, u32 index)
