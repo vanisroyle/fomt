@@ -473,6 +473,57 @@ enum
     FACING_RIGHT = 3,
 };
 
+struct FarmerPedometerEvent
+{
+    u32 id;
+    u32 argument;
+};
+
+typedef void (*FarmerPedometerEventDispatch)(GameObject *, FarmerPedometerEvent const *, u32);
+
+struct FarmerPedometerGameVTable
+{
+    STRUCT_PAD(0, 0x140);
+    FarmerPedometerEventDispatch dispatch_event;
+};
+
+#define SEND_PEDOMETER_MILESTONE(id_value) \
+    { \
+        GameObject * game = farmer->game_object; \
+        FarmerPedometerEventDispatch const * method = &(*reinterpret_cast<FarmerPedometerGameVTable const **>(game))->dispatch_event; \
+        FarmerPedometerEvent event; \
+        FarmerPedometerEvent * args = &event; \
+        u32 event_id = id_value; \
+        u32 argument = 0; \
+        args->id = event_id; \
+        args->argument = argument; \
+        FarmerPedometerEventDispatch dispatch = *method; \
+        dispatch(game, args, 1); \
+        return; \
+    }
+
+EC void TickFarmerPedometer(FarmerEntity * farmer) ENTITY_CODE(0802AD80);
+EC void TickFarmerPedometer(FarmerEntity * farmer)
+{
+    u32 previous_step_count = func_0800E958(*farmer->farmer);
+    func_0800ED8C(*farmer->farmer);
+    if (previous_step_count == func_0800E958(*farmer->farmer))
+        return;
+
+    switch (func_0800E958(*farmer->farmer))
+    {
+    case 10000: SEND_PEDOMETER_MILESTONE(0x336)
+    case 100000: SEND_PEDOMETER_MILESTONE(0x337)
+    case 1000000: SEND_PEDOMETER_MILESTONE(0x338)
+    case 10000000: SEND_PEDOMETER_MILESTONE(0x339)
+    case 100000000: SEND_PEDOMETER_MILESTONE(0x33A)
+    case 1000000000: SEND_PEDOMETER_MILESTONE(0x33B)
+    default: return;
+    }
+}
+
+#undef SEND_PEDOMETER_MILESTONE
+
 struct FarmerStepPosition
 {
     i16 x;
