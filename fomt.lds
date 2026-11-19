@@ -985,7 +985,7 @@ SECTIONS
         src/bachelorette.o(.text);
         src/harvest_sprite.o(.text);
 
-        asm/g1_npc.o(.text.g1_start);
+        src/g1_sprite_location.o(.text.g1_0809E804);
         src/g1_events.o(.text.g1_0809E8E4);
         asm/g1_npc.o(.text.g1_after_b2_0809E8E4);
         src/g1_schedule_extra.o(.text.g1_0809E968);
