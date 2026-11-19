@@ -61663,6 +61663,248 @@ InitLivestockReport: @ 0x08062E9C
 	pop {r1}
 	bx r1
 
+	.equ .Llivestock_tilemap_ptr, 0x18
+	.equ .Llivestock_game_data_ptr, 0x58C
+	.equ .Llivestock_panel_ptr, 4
+	.equ .Llivestock_portrait_queue, 0x594
+	.equ .Llivestock_name_queue, 0x5A4
+	.equ .Llivestock_queue_begin, 0
+	.equ .Llivestock_queue_end, 4
+	.equ .Llivestock_queue_capacity_end, 0xC
+	.equ .Llivestock_upload_entry_shift, 4
+	.equ .Llivestock_upload_entry_bytes, (1 << .Llivestock_upload_entry_shift)
+	.equ .Llivestock_first_row, 5
+	.equ .Llivestock_trophy_above_row, 2
+	.equ .Llivestock_lower_row_offset, 2
+	.equ .Llivestock_tilemap_stride, 32
+	.equ .Llivestock_tile_row_byte_shift, 6
+	.equ .Llivestock_tile_pixel_shift, 3
+	.equ .Llivestock_portrait_x_pixels, 8
+	.equ .Llivestock_trophy_column, 1
+	.equ .Llivestock_heart_column, 5
+	.equ .Llivestock_name_column, 3
+	.equ .Llivestock_mood_column, 16
+	.equ .Llivestock_season_column, 17
+	.equ .Llivestock_number_column, 26
+	.equ .Llivestock_unit_column, 27
+	.equ .Llivestock_trophy_tile, 0xA0
+	.equ .Llivestock_heart_tile, 0xA4
+	.equ .Llivestock_first_name_tile, 0x180
+	.equ .Llivestock_name_slot_mask, 3
+	.equ .Llivestock_name_tile_width, 12
+	.equ .Llivestock_name_tile_height, 2
+	.equ .Llivestock_bg_tile_vram, 0x06000000
+	.equ .Llivestock_bytes_per_tile_shift, 5
+	.equ .Llivestock_digit_tile, 0x120
+	.equ .Llivestock_year_tile, 0x98
+	.equ .Llivestock_day_tile, 0x9C
+	.equ .Llivestock_first_season_tile, 0x68
+	.equ .Llivestock_season_tile_width, 6
+	.equ .Llivestock_season_tile_height, 2
+	.equ .Llivestock_date_season_mask, 3
+	.equ .Llivestock_date_day_shift, 2
+	.equ .Llivestock_date_day_mask, 0x1F
+	.equ .Llivestock_current_date, 0x11
+	.equ .Llivestock_current_time, 0x12
+	.equ .Llivestock_time_hour_bits, 5
+	.equ .Llivestock_day_start_hour, 6
+	.equ .Llivestock_days_per_season, 30
+	.equ .Llivestock_days_per_year, (4 * .Llivestock_days_per_season)
+
+	.equ .Llivestock_sp_tile_palette, 0x0
+	.equ .Llivestock_sp_tile_stride, 0x4
+	.equ .Llivestock_sp_portrait, 0x8
+	.equ .Llivestock_sp_portrait_x, 0xC
+	.equ .Llivestock_sp_portrait_tiles, 0x10
+	.equ .Llivestock_sp_portrait_palette, 0x14
+	.equ .Llivestock_sp_name_upload, 0x18
+	.equ .Llivestock_name_upload_source, 4
+	.equ .Llivestock_name_upload_vram, 8
+	.equ .Llivestock_name_upload_bytes, 0xC
+	.equ .Llivestock_sp_name_upload_bytes, (.Llivestock_sp_name_upload + .Llivestock_name_upload_bytes)
+	.equ .Llivestock_sp_portrait_count, 0x28
+	.equ .Llivestock_sp_name_upload_count, 0x30
+	.equ .Llivestock_sp_birthday, 0x38
+	.equ .Llivestock_sp_report, 0x3C
+	.equ .Llivestock_sp_row_index, 0x40
+	.equ .Llivestock_sp_animal, 0x44
+	.equ .Llivestock_sp_portrait_ptr, 0x48
+	.equ .Llivestock_sp_panel, 0x4C
+	.equ .Llivestock_sp_lower_tile_row, 0x54
+	.equ .Llivestock_sp_pixel_y, 0x58
+	.equ .Llivestock_sp_upper_tile_row_byte_offset, 0x5C
+	.equ .Llivestock_sp_birthday_ptr, 0x60
+	.equ .Llivestock_sp_portrait_old_end, 0x64
+	.equ .Llivestock_sp_new_buffer, 0x68
+	.equ .Llivestock_sp_frame_size, 0x6C
+	.equ .Llivestock_sp_arg_portrait_palette, 0x8C
+
+	@ Grow by max(size, 1), copy the records, then append the new one.
+	@ r6 = list, r1 = old end. The portrait path also prepares row coordinates.
+	.macro GrowLivestockReportUploadQueue queue, count_slot
+	.ifc \queue,portrait
+	str r1, [sp, #.Llivestock_sp_portrait_old_end]
+	.else
+	mov sl, r1
+	.endif
+	movs r0, #1
+	str r0, [sp, #(\count_slot + 4)]
+	ldr r1, [r6, #.Llivestock_queue_begin]
+	.ifc \queue,portrait
+	ldr r3, [sp, #.Llivestock_sp_portrait_old_end]
+	subs r0, r3, r1
+	.else
+	mov r4, sl
+	subs r0, r4, r1
+	.endif
+	asrs r4, r0, #.Llivestock_upload_entry_shift
+	str r4, [sp, #\count_slot]
+	add r2, sp, #(\count_slot + 4)
+	add r0, sp, #\count_slot
+	cmp r4, #1
+	bhs .Llivestock_grow_use_growth\@
+	adds r0, r2, #0
+.Llivestock_grow_use_growth\@:
+	ldr r0, [r0]
+	adds r0, r4, r0
+	cmp r0, #0
+	beq .Llivestock_grow_empty_buffer\@
+	lsls r4, r0, #.Llivestock_upload_entry_shift
+	adds r0, r4, #0
+	bl malloc
+	mov sb, r4
+	cmp r0, #0
+	bne .Llivestock_grow_reload_begin\@
+	mov r0, sb
+	bl func_080D3BC0
+.Llivestock_grow_reload_begin\@:
+	ldr r1, [r6, #.Llivestock_queue_begin]
+	b .Llivestock_grow_copy_entries\@
+.Llivestock_grow_empty_buffer\@:
+	movs r0, #0
+	mov sb, r0
+.Llivestock_grow_copy_entries\@:
+	adds r5, r0, #0
+	str r5, [sp, #.Llivestock_sp_new_buffer]
+	adds r2, r1, #0
+	adds r3, r5, #0
+	.ifc \queue,portrait
+	mov r4, sl
+	lsls r4, r4, #.Llivestock_tile_pixel_shift
+	str r4, [sp, #.Llivestock_sp_pixel_y]
+	mov r5, sl
+	adds r5, #.Llivestock_lower_row_offset
+	str r5, [sp, #.Llivestock_sp_lower_tile_row]
+	add r7, sp, #.Llivestock_sp_name_upload
+	mov r8, r7
+	mov r0, sl
+	lsls r0, r0, #.Llivestock_tile_row_byte_shift
+	str r0, [sp, #.Llivestock_sp_upper_tile_row_byte_offset]
+	mov r1, sp
+	adds r1, #.Llivestock_sp_birthday
+	str r1, [sp, #.Llivestock_sp_birthday_ptr]
+	ldr r4, [sp, #.Llivestock_sp_portrait_old_end]
+	cmp r2, r4
+	.else
+	cmp r2, sl
+	.endif
+	beq .Llivestock_grow_append_entries\@
+.Llivestock_grow_copy_next_entry\@:
+	cmp r3, #0
+	beq .Llivestock_grow_advance_entry\@
+	adds r0, r3, #0
+	adds r1, r2, #0
+	ldm r1!, {r4, r5, r7}
+	stm r0!, {r4, r5, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Llivestock_grow_advance_entry\@:
+	adds r2, #.Llivestock_upload_entry_bytes
+	adds r3, #.Llivestock_upload_entry_bytes
+	.ifc \queue,portrait
+	ldr r5, [sp, #.Llivestock_sp_portrait_old_end]
+	cmp r2, r5
+	.else
+	cmp r2, sl
+	.endif
+	bne .Llivestock_grow_copy_next_entry\@
+.Llivestock_grow_append_entries\@:
+	adds r5, r3, #0
+	ldr r0, [sp, #(\count_slot + 4)]
+	cmp r0, #1
+	bne .Llivestock_grow_append_multiple\@
+	cmp r5, #0
+	beq .Llivestock_grow_advance_single_entry\@
+	adds r0, r5, #0
+	.ifc \queue,portrait
+	ldr r1, [sp, #.Llivestock_sp_portrait_ptr]
+	.else
+	mov r1, r8
+	.endif
+	ldm r1!, {r2, r3, r7}
+	stm r0!, {r2, r3, r7}
+	.ifc \queue,portrait
+	ldr r1, [r1]
+	.else
+	ldr r1, [sp, #.Llivestock_sp_name_upload_bytes]
+	.endif
+	str r1, [r0]
+.Llivestock_grow_advance_single_entry\@:
+	adds r5, #.Llivestock_upload_entry_bytes
+	b .Llivestock_grow_release_old_entries\@
+.Llivestock_grow_append_multiple\@:
+	adds r3, r0, #0
+	adds r2, r5, #0
+	cmp r3, #0
+	beq .Llivestock_grow_finish_append\@
+.Llivestock_grow_append_next_entry\@:
+	cmp r2, #0
+	beq .Llivestock_grow_advance_inserted_entry\@
+	adds r0, r2, #0
+	.ifc \queue,portrait
+	ldr r1, [sp, #.Llivestock_sp_portrait_ptr]
+	.else
+	mov r1, r8
+	.endif
+	ldm r1!, {r4, r5, r7}
+	stm r0!, {r4, r5, r7}
+	.ifc \queue,portrait
+	ldr r1, [r1]
+	.else
+	ldr r1, [sp, #.Llivestock_sp_name_upload_bytes]
+	.endif
+	str r1, [r0]
+.Llivestock_grow_advance_inserted_entry\@:
+	subs r3, #1
+	adds r2, #.Llivestock_upload_entry_bytes
+	cmp r3, #0
+	bne .Llivestock_grow_append_next_entry\@
+.Llivestock_grow_finish_append\@:
+	adds r5, r2, #0
+.Llivestock_grow_release_old_entries\@:
+	ldr r2, [r6, #.Llivestock_queue_end]
+	ldr r1, [r6, #.Llivestock_queue_begin]
+	adds r0, r1, #0
+	cmp r1, r2
+	beq .Llivestock_grow_free_old_buffer\@
+.Llivestock_grow_walk_old_entries\@:
+	adds r0, #.Llivestock_upload_entry_bytes
+	cmp r0, r2
+	bne .Llivestock_grow_walk_old_entries\@
+.Llivestock_grow_free_old_buffer\@:
+	cmp r1, #0
+	beq .Llivestock_grow_publish_queue\@
+	adds r0, r1, #0
+	bl free
+.Llivestock_grow_publish_queue\@:
+	ldr r0, [sp, #.Llivestock_sp_new_buffer]
+	add r0, sb
+	ldr r1, [sp, #.Llivestock_sp_new_buffer]
+	str r1, [r6, #.Llivestock_queue_begin]
+	str r5, [r6, #.Llivestock_queue_end]
+	str r0, [r6, #.Llivestock_queue_capacity_end]
+	.endm
+
 	.section .text.f3.08063EB8, "ax", %progbits
 	thumb_func_start AddLivestockReportRow
 AddLivestockReportRow: @ 0x08063EB8
@@ -61671,576 +61913,341 @@ AddLivestockReportRow: @ 0x08063EB8
 	mov r6, sb
 	mov r5, r8
 	push {r5, r6, r7}
-	sub sp, #0x6c
-	str r0, [sp, #0x3c]
-	str r1, [sp, #0x40]
-	str r2, [sp, #0x44]
-	ldr r1, [sp, #0x8c]
-	ldr r2, [sp, #0x40]
+	sub sp, #.Llivestock_sp_frame_size
+	str r0, [sp, #.Llivestock_sp_report]
+	str r1, [sp, #.Llivestock_sp_row_index]
+	str r2, [sp, #.Llivestock_sp_animal]
+	ldr r1, [sp, #.Llivestock_sp_arg_portrait_palette]
+	ldr r2, [sp, #.Llivestock_sp_row_index]
 	lsls r0, r2, #2
-	adds r4, r0, r2
-	adds r5, r4, #5
+	adds r4, r0, r2 @ Each animal occupies five tile rows.
+	adds r5, r4, #.Llivestock_first_row
 	mov sl, r5
-	add r0, sp, #8
-	lsls r2, r5, #3
+	add r0, sp, #.Llivestock_sp_portrait
+	lsls r2, r5, #.Llivestock_tile_pixel_shift
 	strh r2, [r0]
-	movs r0, #8
-	str r0, [sp, #0xc]
-	str r3, [sp, #0x10]
-	str r1, [sp, #0x14]
-	ldr r7, [sp, #0x3c]
-	ldr r0, .L08063F28 @ =0x00000594
+	movs r0, #.Llivestock_portrait_x_pixels
+	str r0, [sp, #.Llivestock_sp_portrait_x]
+	str r3, [sp, #.Llivestock_sp_portrait_tiles]
+	str r1, [sp, #.Llivestock_sp_portrait_palette]
+	ldr r7, [sp, #.Llivestock_sp_report]
+	ldr r0, .L08063F28 @ =.Llivestock_portrait_queue
 	adds r6, r7, r0
 	mov r1, sp
-	adds r1, #8
-	str r1, [sp, #0x48]
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
+	adds r1, #.Llivestock_sp_portrait
+	str r1, [sp, #.Llivestock_sp_portrait_ptr]
+	ldr r1, [r6, #.Llivestock_queue_end]
+	ldr r0, [r6, #.Llivestock_queue_capacity_end]
 	cmp r1, r0
-	beq .L08063F2C
+	beq .Llivestock_grow_portrait_queue
 	cmp r1, #0
-	beq .L08063F08
+	beq .Llivestock_portrait_appended
 	adds r0, r1, #0
-	add r1, sp, #8
+	add r1, sp, #.Llivestock_sp_portrait
 	ldm r1!, {r3, r5, r7}
 	stm r0!, {r3, r5, r7}
 	ldr r1, [r1]
 	str r1, [r0]
-.L08063F08:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	str r2, [sp, #0x58]
-	adds r4, #7
-	str r4, [sp, #0x54]
-	add r0, sp, #0x18
+.Llivestock_portrait_appended:
+	ldr r0, [r6, #.Llivestock_queue_end]
+	adds r0, #.Llivestock_upload_entry_bytes
+	str r0, [r6, #.Llivestock_queue_end]
+	str r2, [sp, #.Llivestock_sp_pixel_y]
+	adds r4, #(.Llivestock_first_row + .Llivestock_lower_row_offset)
+	str r4, [sp, #.Llivestock_sp_lower_tile_row]
+	add r0, sp, #.Llivestock_sp_name_upload
 	mov r8, r0
 	mov r1, sl
-	lsls r1, r1, #6
-	str r1, [sp, #0x5c]
+	lsls r1, r1, #.Llivestock_tile_row_byte_shift
+	str r1, [sp, #.Llivestock_sp_upper_tile_row_byte_offset]
 	mov r2, sp
-	adds r2, #0x38
-	str r2, [sp, #0x60]
-	b .L08064012
+	adds r2, #.Llivestock_sp_birthday
+	str r2, [sp, #.Llivestock_sp_birthday_ptr]
+	b .Llivestock_draw_trophy
 	.align 2, 0
-.L08063F28: .4byte 0x00000594
-.L08063F2C:
-	str r1, [sp, #0x64]
-	movs r0, #1
-	str r0, [sp, #0x2c]
-	ldr r1, [r6]
-	ldr r3, [sp, #0x64]
-	subs r0, r3, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x28]
-	add r2, sp, #0x2c
-	add r0, sp, #0x28
-	cmp r4, #1
-	bhs .L08063F46
-	adds r0, r2, #0
-.L08063F46:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08063F66
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L08063F62
-	mov r0, sb
-	bl func_080D3BC0
-.L08063F62:
-	ldr r1, [r6]
-	b .L08063F6A
-.L08063F66:
-	movs r0, #0
-	mov sb, r0
-.L08063F6A:
-	adds r5, r0, #0
-	str r5, [sp, #0x68]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	mov r4, sl
-	lsls r4, r4, #3
-	str r4, [sp, #0x58]
-	mov r5, sl
-	adds r5, #2
-	str r5, [sp, #0x54]
-	add r7, sp, #0x18
-	mov r8, r7
-	mov r0, sl
-	lsls r0, r0, #6
-	str r0, [sp, #0x5c]
-	mov r1, sp
-	adds r1, #0x38
-	str r1, [sp, #0x60]
-	ldr r4, [sp, #0x64]
-	cmp r2, r4
-	beq .L08063FAE
-.L08063F94:
-	cmp r3, #0
-	beq .L08063FA4
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063FA4:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #0x64]
-	cmp r2, r5
-	bne .L08063F94
-.L08063FAE:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x2c]
-	cmp r0, #1
-	bne .L08063FCA
-	cmp r5, #0
-	beq .L08063FC6
-	adds r0, r5, #0
-	ldr r1, [sp, #0x48]
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063FC6:
-	adds r5, #0x10
-	b .L08063FEC
-.L08063FCA:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08063FEA
-.L08063FD2:
-	cmp r2, #0
-	beq .L08063FE2
-	adds r0, r2, #0
-	ldr r1, [sp, #0x48]
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063FE2:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08063FD2
-.L08063FEA:
-	adds r5, r2, #0
-.L08063FEC:
-	ldr r2, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063FFC
-.L08063FF6:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L08063FF6
-.L08063FFC:
-	cmp r1, #0
-	beq .L08064006
-	adds r0, r1, #0
-	bl free
-.L08064006:
-	ldr r0, [sp, #0x68]
-	add r0, sb
-	ldr r1, [sp, #0x68]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L08064012:
-	ldr r2, [sp, #0x3c]
-	ldr r2, [r2, #4]
-	str r2, [sp, #0x4c]
-	ldr r0, [sp, #0x44]
+.L08063F28: .4byte .Llivestock_portrait_queue
+.Llivestock_grow_portrait_queue:
+	GrowLivestockReportUploadQueue portrait, .Llivestock_sp_portrait_count
+.Llivestock_draw_trophy:
+	ldr r2, [sp, #.Llivestock_sp_report]
+	ldr r2, [r2, #.Llivestock_panel_ptr]
+	str r2, [sp, #.Llivestock_sp_panel]
+	ldr r0, [sp, #.Llivestock_sp_animal]
 	bl IsFestivalWinner__C6Animal
 	lsls r0, r0, #0x18
 	cmp r0, #0
-	beq .L08064044
+	beq .Llivestock_draw_hearts
 	mov r1, sl
-	subs r1, #2
-	ldr r3, [sp, #0x4c]
-	ldr r0, [r3, #0x18]
-	lsls r1, r1, #6
+	subs r1, #.Llivestock_trophy_above_row
+	ldr r3, [sp, #.Llivestock_sp_panel]
+	ldr r0, [r3, #.Llivestock_tilemap_ptr]
+	lsls r1, r1, #.Llivestock_tile_row_byte_shift
 	adds r0, r0, r1
-	adds r0, #2
+	adds r0, #(.Llivestock_trophy_column * 2)
 	movs r1, #1
-	str r1, [sp]
-	movs r1, #0x20
-	str r1, [sp, #4]
-	movs r1, #0xa0
+	str r1, [sp, #.Llivestock_sp_tile_palette]
+	movs r1, #.Llivestock_tilemap_stride
+	str r1, [sp, #.Llivestock_sp_tile_stride]
+	movs r1, #.Llivestock_trophy_tile
 	movs r2, #2
 	movs r3, #2
 	bl FillMessageTilemapRect
-.L08064044:
-	ldr r0, [sp, #0x44]
+.Llivestock_draw_hearts:
+	ldr r0, [sp, #.Llivestock_sp_animal]
 	bl GetLivestockReportHeartCount
 	adds r6, r0, #0
 	movs r4, #0
 	cmp r4, r6
-	bhs .L0806407A
-	movs r5, #0xa
-.L08064054:
-	ldr r7, [sp, #0x4c]
-	ldr r0, [r7, #0x18]
-	ldr r2, [sp, #0x54]
-	lsls r1, r2, #6
+	bhs .Llivestock_draw_name
+	movs r5, #(.Llivestock_heart_column * 2)
+.Llivestock_draw_next_heart:
+	ldr r7, [sp, #.Llivestock_sp_panel]
+	ldr r0, [r7, #.Llivestock_tilemap_ptr]
+	ldr r2, [sp, #.Llivestock_sp_lower_tile_row]
+	lsls r1, r2, #.Llivestock_tile_row_byte_shift
 	adds r0, r0, r1
 	adds r0, r0, r5
 	movs r1, #2
-	str r1, [sp]
-	movs r1, #0x20
-	str r1, [sp, #4]
-	movs r1, #0xa4
+	str r1, [sp, #.Llivestock_sp_tile_palette]
+	movs r1, #.Llivestock_tilemap_stride
+	str r1, [sp, #.Llivestock_sp_tile_stride]
+	movs r1, #.Llivestock_heart_tile
 	movs r2, #1
 	movs r3, #1
 	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r4, #1
 	cmp r4, r6
-	blo .L08064054
-.L0806407A:
+	blo .Llivestock_draw_next_heart
+	@ Each row keeps its rendered name in RAM. Four slots rotate in VRAM.
+.Llivestock_draw_name:
 	movs r5, #0
-	add r3, sp, #0x58
+	add r3, sp, #.Llivestock_sp_pixel_y
 	ldrh r4, [r3]
 	mov r3, r8
 	strh r4, [r3]
-	ldr r0, [sp, #0x44]
+	ldr r0, [sp, #.Llivestock_sp_animal]
 	bl GetName__C6Animal
 	adds r2, r0, #0
-	ldr r0, [sp, #0x3c]
-	ldr r1, [sp, #0x40]
+	ldr r0, [sp, #.Llivestock_sp_report]
+	ldr r1, [sp, #.Llivestock_sp_row_index]
 	bl RenderLivestockReportName
 	mov r4, r8
-	str r0, [r4, #4]
-	movs r0, #3
-	ldr r7, [sp, #0x40]
+	str r0, [r4, #.Llivestock_name_upload_source]
+	movs r0, #.Llivestock_name_slot_mask
+	ldr r7, [sp, #.Llivestock_sp_row_index]
 	ands r0, r7
 	lsls r4, r0, #1
 	adds r4, r4, r0
-	lsls r4, r4, #3
-	movs r0, #0xc0
+	lsls r4, r4, #3 @ name upload slot * width * height
+	movs r0, #(.Llivestock_first_name_tile >> 1)
 	lsls r0, r0, #1
 	adds r4, r4, r0
-	ldr r1, [sp, #0x4c]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x5c]
+	ldr r1, [sp, #.Llivestock_sp_panel]
+	ldr r0, [r1, #.Llivestock_tilemap_ptr]
+	ldr r2, [sp, #.Llivestock_sp_upper_tile_row_byte_offset]
 	adds r0, r0, r2
-	adds r0, #6
-	str r5, [sp]
-	movs r1, #0x20
-	str r1, [sp, #4]
+	adds r0, #(.Llivestock_name_column * 2)
+	str r5, [sp, #.Llivestock_sp_tile_palette]
+	movs r1, #.Llivestock_tilemap_stride
+	str r1, [sp, #.Llivestock_sp_tile_stride]
 	adds r1, r4, #0
-	movs r2, #0xc
-	movs r3, #2
+	movs r2, #.Llivestock_name_tile_width
+	movs r3, #.Llivestock_name_tile_height
 	bl FillMessageTilemapRect
-	lsls r4, r4, #5
-	movs r0, #0xc0
+	lsls r4, r4, #.Llivestock_bytes_per_tile_shift
+	movs r0, #(.Llivestock_bg_tile_vram >> 19)
 	lsls r0, r0, #0x13
 	adds r4, r4, r0
 	mov r3, r8
-	str r4, [r3, #8]
-	movs r0, #0xc0
+	str r4, [r3, #.Llivestock_name_upload_vram]
+	movs r0, #((.Llivestock_name_tile_width * .Llivestock_name_tile_height << .Llivestock_bytes_per_tile_shift) >> 2)
 	lsls r0, r0, #2
-	str r0, [r3, #0xc]
-	ldr r4, [sp, #0x3c]
-	ldr r5, .L080640FC @ =0x000005A4
+	str r0, [r3, #.Llivestock_name_upload_bytes]
+	ldr r4, [sp, #.Llivestock_sp_report]
+	ldr r5, .L080640FC @ =.Llivestock_name_queue
 	adds r6, r4, r5
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
+	ldr r1, [r6, #.Llivestock_queue_end]
+	ldr r0, [r6, #.Llivestock_queue_capacity_end]
 	cmp r1, r0
-	beq .L08064100
+	beq .Llivestock_grow_name_queue
 	cmp r1, #0
-	beq .L080640F4
+	beq .Llivestock_name_upload_appended
 	adds r0, r1, #0
 	mov r1, r8
 	ldm r1!, {r2, r3, r7}
 	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x24]
+	ldr r1, [sp, #.Llivestock_sp_name_upload_bytes]
 	str r1, [r0]
-.L080640F4:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L080641C6
+.Llivestock_name_upload_appended:
+	ldr r0, [r6, #.Llivestock_queue_end]
+	adds r0, #.Llivestock_upload_entry_bytes
+	str r0, [r6, #.Llivestock_queue_end]
+	b .Llivestock_draw_mood_and_age
 	.align 2, 0
-.L080640FC: .4byte 0x000005A4
-.L08064100:
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #0x34]
-	ldr r1, [r6]
-	mov r4, sl
-	subs r0, r4, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x30]
-	add r2, sp, #0x34
-	add r0, sp, #0x30
-	cmp r4, #1
-	bhs .L0806411A
-	adds r0, r2, #0
-.L0806411A:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0806413A
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L08064136
-	mov r0, sb
-	bl func_080D3BC0
-.L08064136:
-	ldr r1, [r6]
-	b .L0806413E
-.L0806413A:
-	movs r0, #0
-	mov sb, r0
-.L0806413E:
-	adds r5, r0, #0
-	str r5, [sp, #0x68]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .L08064162
-.L0806414A:
-	cmp r3, #0
-	beq .L0806415A
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806415A:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .L0806414A
-.L08064162:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x34]
-	cmp r0, #1
-	bne .L0806417E
-	cmp r5, #0
-	beq .L0806417A
-	adds r0, r5, #0
-	mov r1, r8
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x24]
-	str r1, [r0]
-.L0806417A:
-	adds r5, #0x10
-	b .L080641A0
-.L0806417E:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L0806419E
-.L08064186:
-	cmp r2, #0
-	beq .L08064196
-	adds r0, r2, #0
-	mov r1, r8
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x24]
-	str r1, [r0]
-.L08064196:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08064186
-.L0806419E:
-	adds r5, r2, #0
-.L080641A0:
-	ldr r2, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L080641B0
-.L080641AA:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L080641AA
-.L080641B0:
-	cmp r1, #0
-	beq .L080641BA
-	adds r0, r1, #0
-	bl free
-.L080641BA:
-	ldr r0, [sp, #0x68]
-	add r0, sb
-	ldr r1, [sp, #0x68]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L080641C6:
-	ldr r2, [sp, #0x4c]
-	ldr r4, [r2, #0x18]
-	ldr r3, [sp, #0x5c]
+.L080640FC: .4byte .Llivestock_name_queue
+.Llivestock_grow_name_queue:
+	GrowLivestockReportUploadQueue name, .Llivestock_sp_name_upload_count
+.Llivestock_draw_mood_and_age:
+	ldr r2, [sp, #.Llivestock_sp_panel]
+	ldr r4, [r2, #.Llivestock_tilemap_ptr]
+	ldr r3, [sp, #.Llivestock_sp_upper_tile_row_byte_offset]
 	adds r4, r4, r3
-	adds r4, #0x20
-	ldr r0, [sp, #0x44]
+	adds r4, #(.Llivestock_mood_column * 2)
+	ldr r0, [sp, #.Llivestock_sp_animal]
 	bl GetLivestockReportMoodTile
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
 	movs r6, #0
-	str r6, [sp]
-	movs r5, #0x20
-	str r5, [sp, #4]
+	str r6, [sp, #.Llivestock_sp_tile_palette]
+	movs r5, #.Llivestock_tilemap_stride
+	str r5, [sp, #.Llivestock_sp_tile_stride]
 	adds r0, r4, #0
 	movs r2, #8
 	movs r3, #2
 	bl FillMessageTilemapRect
-	ldr r0, [sp, #0x44]
+	ldr r0, [sp, #.Llivestock_sp_animal]
 	bl GetAge__C6Animal
-	movs r1, #0x78
+	movs r1, #.Llivestock_days_per_year
 	bl __udivsi3
-	ldr r4, [sp, #0x4c]
-	ldr r1, [r4, #0x18]
-	ldr r7, [sp, #0x5c]
+	ldr r4, [sp, #.Llivestock_sp_panel]
+	ldr r1, [r4, #.Llivestock_tilemap_ptr]
+	ldr r7, [sp, #.Llivestock_sp_upper_tile_row_byte_offset]
 	adds r1, r1, r7
-	adds r1, #0x34
-	movs r2, #0x90
+	adds r1, #(.Llivestock_number_column * 2)
+	movs r2, #(.Llivestock_digit_tile >> 1)
 	lsls r2, r2, #1
-	str r5, [sp]
+	str r5, [sp, #.Llivestock_sp_tile_palette]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r0, [r4, #0x18]
+	ldr r0, [r4, #.Llivestock_tilemap_ptr]
 	adds r0, r0, r7
-	adds r0, #0x36
-	str r6, [sp]
-	str r5, [sp, #4]
-	movs r1, #0x98
+	adds r0, #(.Llivestock_unit_column * 2)
+	str r6, [sp, #.Llivestock_sp_tile_palette]
+	str r5, [sp, #.Llivestock_sp_tile_stride]
+	movs r1, #.Llivestock_year_tile
 	movs r2, #2
 	movs r3, #2
 	bl FillMessageTilemapRect
 	movs r5, #0
-	ldr r0, [sp, #0x3c]
-	ldr r1, .L08064258 @ =0x0000058C
+	ldr r0, [sp, #.Llivestock_sp_report]
+	ldr r1, .L08064258 @ =.Llivestock_game_data_ptr
 	adds r4, r0, r1
 	ldr r0, [r4]
-	ldrb r0, [r0, #0x12]
-	lsls r0, r0, #0x1b
-	lsrs r0, r0, #0x1b
-	cmp r0, #5
-	bhi .L0806423A
+	ldrb r0, [r0, #.Llivestock_current_time]
+	lsls r0, r0, #(32 - .Llivestock_time_hour_bits)
+	lsrs r0, r0, #(32 - .Llivestock_time_hour_bits)
+	cmp r0, #(.Llivestock_day_start_hour - 1)
+	bhi .Llivestock_subtract_age_from_date
 	movs r5, #1
-.L0806423A:
-	ldr r0, [sp, #0x44]
+	@ The birthday uses the animal's age in days, plus one before 6 AM.
+	@ Subtract whole seasons and days, borrowing a season if necessary.
+.Llivestock_subtract_age_from_date:
+	ldr r0, [sp, #.Llivestock_sp_animal]
 	bl GetAge__C6Animal
 	ldr r1, [r4]
 	adds r4, r0, r5
-	ldrb r0, [r1, #0x11]
-	ldr r2, [sp, #0x60]
+	ldrb r0, [r1, #.Llivestock_current_date]
+	ldr r2, [sp, #.Llivestock_sp_birthday_ptr]
 	strb r0, [r2]
-	add r6, sp, #0x38
-	cmp r4, #0x1d
-	bhi .L0806425C
+	add r6, sp, #.Llivestock_sp_birthday
+	cmp r4, #(.Llivestock_days_per_season - 1)
+	bhi .Llivestock_split_age_into_seasons_and_days
 	adds r5, r4, #0
 	movs r3, #0
-	b .L08064270
+	b .Llivestock_subtract_days
 	.align 2, 0
-.L08064258: .4byte 0x0000058C
-.L0806425C:
+.L08064258: .4byte .Llivestock_game_data_ptr
+.Llivestock_split_age_into_seasons_and_days:
 	adds r0, r4, #0
-	movs r1, #0x1e
+	movs r1, #.Llivestock_days_per_season
 	bl __umodsi3
 	adds r5, r0, #0
 	adds r0, r4, #0
-	movs r1, #0x1e
+	movs r1, #.Llivestock_days_per_season
 	bl __udivsi3
 	adds r3, r0, #0
-.L08064270:
+.Llivestock_subtract_days:
 	ldrb r0, [r6]
 	lsls r1, r0, #0x19
 	lsrs r1, r1, #0x1b
 	adds r2, r5, #0
-	subs r2, #0x1e
+	subs r2, #.Llivestock_days_per_season
 	subs r2, r1, r2
-	cmp r2, #0x1d
-	bhi .L08064284
+	cmp r2, #(.Llivestock_days_per_season - 1)
+	bhi .Llivestock_subtract_day_without_borrow
 	adds r3, #1
-	b .L08064286
-.L08064284:
-	subs r2, #0x1e
-.L08064286:
+	b .Llivestock_pack_birthday
+.Llivestock_subtract_day_without_borrow:
+	subs r2, #.Llivestock_days_per_season
+.Llivestock_pack_birthday:
 	lsls r0, r0, #0x1e
 	lsrs r0, r0, #0x1e
 	movs r4, #4
 	rsbs r4, r4, #0
 	subs r0, r0, r3
-	movs r1, #3
+	movs r1, #.Llivestock_date_season_mask
 	ands r0, r1
 	ldrb r1, [r6]
 	ands r4, r1
 	orrs r4, r0
-	movs r0, #0x1f
+	movs r0, #.Llivestock_date_day_mask
 	ands r2, r0
-	lsls r1, r2, #2
-	movs r0, #0x7d
+	lsls r1, r2, #.Llivestock_date_day_shift
+	movs r0, #((.Llivestock_date_day_mask << .Llivestock_date_day_shift) + 1)
 	rsbs r0, r0, #0
 	ands r4, r0
 	orrs r4, r1
 	strb r4, [r6]
-	ldr r3, [sp, #0x4c]
-	ldr r0, [r3, #0x18]
-	ldr r5, [sp, #0x54]
-	lsls r6, r5, #6
+	ldr r3, [sp, #.Llivestock_sp_panel]
+	ldr r0, [r3, #.Llivestock_tilemap_ptr]
+	ldr r5, [sp, #.Llivestock_sp_lower_tile_row]
+	lsls r6, r5, #.Llivestock_tile_row_byte_shift
 	adds r0, r0, r6
-	adds r0, #0x22
+	adds r0, #(.Llivestock_season_column * 2)
 	lsls r2, r4, #0x1e
 	lsrs r2, r2, #0x1e
 	lsls r1, r2, #1
 	adds r1, r1, r2
 	lsls r1, r1, #0x12
-	movs r7, #0xd0
+	movs r7, #(.Llivestock_first_season_tile << 1)
 	lsls r7, r7, #0xf
 	adds r1, r1, r7
 	lsrs r1, r1, #0x10
 	movs r2, #0
 	mov r8, r2
-	str r2, [sp]
-	movs r5, #0x20
-	str r5, [sp, #4]
-	movs r2, #6
-	movs r3, #2
+	str r2, [sp, #.Llivestock_sp_tile_palette]
+	movs r5, #.Llivestock_tilemap_stride
+	str r5, [sp, #.Llivestock_sp_tile_stride]
+	movs r2, #.Llivestock_season_tile_width
+	movs r3, #.Llivestock_season_tile_height
 	bl FillMessageTilemapRect
 	lsls r4, r4, #0x19
 	lsrs r4, r4, #0x1b
 	adds r4, #1
-	ldr r3, [sp, #0x4c]
-	ldr r1, [r3, #0x18]
+	ldr r3, [sp, #.Llivestock_sp_panel]
+	ldr r1, [r3, #.Llivestock_tilemap_ptr]
 	adds r1, r1, r6
-	adds r1, #0x34
-	movs r2, #0x90
+	adds r1, #(.Llivestock_number_column * 2)
+	movs r2, #(.Llivestock_digit_tile >> 1)
 	lsls r2, r2, #1
-	str r5, [sp]
+	str r5, [sp, #.Llivestock_sp_tile_palette]
 	adds r0, r4, #0
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r4, [sp, #0x4c]
-	ldr r0, [r4, #0x18]
+	ldr r4, [sp, #.Llivestock_sp_panel]
+	ldr r0, [r4, #.Llivestock_tilemap_ptr]
 	adds r0, r0, r6
-	adds r0, #0x36
+	adds r0, #(.Llivestock_unit_column * 2)
 	mov r7, r8
-	str r7, [sp]
-	str r5, [sp, #4]
-	movs r1, #0x9c
+	str r7, [sp, #.Llivestock_sp_tile_palette]
+	str r5, [sp, #.Llivestock_sp_tile_stride]
+	movs r1, #.Llivestock_day_tile
 	movs r2, #2
 	movs r3, #2
 	bl FillMessageTilemapRect
-	add sp, #0x6c
+	add sp, #.Llivestock_sp_frame_size
 	pop {r3, r4, r5}
 	mov r8, r3
 	mov sb, r4
@@ -62249,6 +62256,8 @@ AddLivestockReportRow: @ 0x08063EB8
 	pop {r0}
 	bx r0
 	.align 2, 0
+
+	.purgem GrowLivestockReportUploadQueue
 
 	.section .text.f3.080645F0, "ax", %progbits
 	thumb_func_start func_080645F0
