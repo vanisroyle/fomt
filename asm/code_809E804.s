@@ -32796,76 +32796,7 @@ func_080B9E1C: @ 0x080B9E1C
 
 	.section .text.g3_after_080BA200, "ax", %progbits
 
-	thumb_func_start func_080BA204
-func_080BA204: @ 0x080BA204
-	push {lr}
-	adds r1, r0, #0
-	ldrb r0, [r1, #0x1c]
-	cmp r0, #1
-	bls .L080BA27C
-	cmp r0, #2
-	beq .L080BA27C
-	cmp r0, #9
-	bne .L080BA224
-	ldr r2, .L080BA220 @ =0xFFFFFCB0
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA220: .4byte 0xFFFFFCB0
-.L080BA224:
-	cmp r0, #0x13
-	bne .L080BA238
-	ldr r2, .L080BA234 @ =0xFFFFFA00
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA234: .4byte 0xFFFFFA00
-.L080BA238:
-	cmp r0, #0x1d
-	bne .L080BA24C
-	ldr r2, .L080BA248 @ =0xFFFFF800
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA248: .4byte 0xFFFFF800
-.L080BA24C:
-	cmp r0, #0x27
-	bne .L080BA260
-	ldr r2, .L080BA25C @ =0xFFFFFA00
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA25C: .4byte 0xFFFFFA00
-.L080BA260:
-	cmp r0, #0x31
-	bne .L080BA274
-	ldr r2, .L080BA270 @ =0xFFFFFCB0
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA270: .4byte 0xFFFFFCB0
-.L080BA274:
-	cmp r0, #0x39
-	beq .L080BA27C
-	cmp r0, #0x39
-	bls .L080BA280
-.L080BA27C:
-	ldrh r0, [r1, #0x20]
-.L080BA27E:
-	strh r0, [r1, #0x2a]
-.L080BA280:
-	pop {r0}
-	bx r0
+	.section .text.g3_after_080BA204, "ax", %progbits
 
 	.section .text.g3_after_080BA284, "ax", %progbits
 

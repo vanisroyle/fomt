@@ -521,7 +521,7 @@ EC void UpdateFestivalChickenAction2(FestivalChicken *);
 EC void UpdateFestivalChickenAction4(FestivalChicken *);
 EC void UpdateFestivalChickenIdle(FestivalChicken *);
 EC void UpdateFestivalChickenAction3(FestivalChicken *);
-EC void func_080BA204(FestivalChicken *);
+EC void UpdateFestivalCheerHop(FestivalChicken *);
 
 EC SECTION(".text.g3_080B9AC0") void UpdateFestivalChickenMovement(ChickenFestivalCombat * state)
 {
@@ -534,7 +534,7 @@ EC SECTION(".text.g3_080B9AC0") void UpdateFestivalChickenMovement(ChickenFestiv
         case 4: UpdateFestivalChickenAction4(&state->chickens[i]); break;
         case 0: UpdateFestivalChickenIdle(&state->chickens[i]); break;
         case 3: UpdateFestivalChickenAction3(&state->chickens[i]); break;
-        case 5: func_080BA204(&state->chickens[i]); break;
+        case 5: UpdateFestivalCheerHop(&state->chickens[i]); break;
         }
     }
 }
@@ -1353,6 +1353,28 @@ EC SECTION(".text.g3_080BA0C4") void ChooseFestivalMovementDecision(FestivalChic
             else chicken->movementDecision = 3;
         }
     }
+}
+
+EC SECTION(".text.g3_080BA204") void UpdateFestivalCheerHop(FestivalChicken * chicken)
+{
+    if (chicken->actionFrames <= 1)
+        chicken->displayY = chicken->y;
+    else if (chicken->actionFrames == 2)
+        chicken->displayY = chicken->y;
+    else if (chicken->actionFrames == 9)
+        chicken->displayY = chicken->y - 0x350;
+    else if (chicken->actionFrames == 19)
+        chicken->displayY = chicken->y - 0x600;
+    else if (chicken->actionFrames == 29)
+        chicken->displayY = chicken->y - 0x800;
+    else if (chicken->actionFrames == 39)
+        chicken->displayY = chicken->y - 0x600;
+    else if (chicken->actionFrames == 49)
+        chicken->displayY = chicken->y - 0x350;
+    else if (chicken->actionFrames == 57)
+        chicken->displayY = chicken->y;
+    else if (chicken->actionFrames > 57)
+        chicken->displayY = chicken->y;
 }
 
 EC SECTION(".text.g3_080BB890") u16 GetFestivalCrowdAnimation(FestivalCrowdAnimation * state, i32 group, i32 participant, i32 pose)
