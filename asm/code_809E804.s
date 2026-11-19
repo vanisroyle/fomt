@@ -9619,87 +9619,7 @@ func_080AB2E4: @ 0x080AB2E4
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080AB380
-func_080AB380: @ 0x080AB380
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #4
-	ldr r0, [r0]
-	mov r8, r0
-	movs r3, #0
-	movs r4, #0
-	movs r2, #0
-	movs r5, #0
-	movs r1, #0xda
-	lsls r1, r1, #2
-	add r1, r8
-.L080AB39A:
-	ldrb r0, [r1, #4]
-	cmp r0, #0
-	beq .L080AB3B2
-	adds r3, #1
-	ldrb r0, [r1, #5]
-	cmp r0, #1
-	bls .L080AB3AE
-	subs r0, #1
-	strb r0, [r1, #5]
-	b .L080AB3B2
-.L080AB3AE:
-	strb r5, [r1, #4]
-	adds r4, #1
-.L080AB3B2:
-	adds r1, #8
-	adds r2, #1
-	cmp r2, #0xf
-	bls .L080AB39A
-	cmp r3, #0
-	beq .L080AB404
-	cmp r4, r3
-	bne .L080AB404
-	movs r1, #0
-.L080AB3C4:
-	movs r0, #0x54
-	muls r0, r1, r0
-	adds r0, #8
-	mov r2, r8
-	adds r5, r2, r0
-	ldrb r0, [r5]
-	adds r7, r1, #1
-	cmp r0, #0
-	beq .L080AB3FE
-	movs r6, #0
-	movs r2, #0
-	adds r4, r5, #0
-	adds r4, #0x48
-.L080AB3DE:
-	lsls r0, r6, #3
-	adds r0, r0, r5
-	adds r0, #0x44
-	ldr r1, [r4]
-	str r2, [sp]
-	bl func_08007C28
-	ldr r2, [sp]
-	str r2, [r4]
-	adds r4, #8
-	adds r6, #1
-	cmp r6, #1
-	bls .L080AB3DE
-	movs r0, #0
-	strb r0, [r5]
-	strb r0, [r5, #1]
-.L080AB3FE:
-	adds r1, r7, #0
-	cmp r1, #9
-	bls .L080AB3C4
-.L080AB404:
-	add sp, #4
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.080AB410, "ax", %progbits
 	thumb_func_start func_080AB410
 func_080AB410: @ 0x080AB410
 	push {r4, r5, r6, r7, lr}
@@ -12093,7 +12013,7 @@ func_080ACAF0: @ 0x080ACAF0
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L080ACB14
-	bl func_080AB380
+	bl UpdateMapTileEffectQueue
 .L080ACB14:
 	ldr r0, .L080ACB58 @ =0x0000102C
 	adds r1, r6, r0

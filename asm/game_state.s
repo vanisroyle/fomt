@@ -13348,7 +13348,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r0]
     cmp r0, #0
     beq .L08018080
-    bl func_080AB380
+    bl UpdateMapTileEffectQueue
 .L08018080:
     movs r6, #0
     ldr r5, .L080180B4 @ =0x0000106C

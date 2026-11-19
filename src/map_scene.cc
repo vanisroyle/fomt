@@ -130,6 +130,123 @@ EC SECTION(".text.080ADAFC") i32 GetMapSceneCachedSpriteSlot(MapScene & scene, u
     return spriteSlot;
 }
 
+struct MapTileEffectResource
+{
+    u32 metadata;
+    u32 handle;
+};
+
+struct MapTileEffectAssets
+{
+    u8 active;
+    u8 loaded;
+    STRUCT_PAD(2, 0x44);
+    MapTileEffectResource resources[2];
+};
+
+struct MapTileEffect
+{
+    i16 x;
+    i16 y;
+    u8 active;
+    u8 frames;
+    u8 type;
+    u8 padding;
+};
+
+struct MapTileEffectState
+{
+    STRUCT_PAD(0, 8);
+    MapTileEffectAssets assets[10];
+    STRUCT_PAD(0x350, 0x368);
+    MapTileEffect effects[16];
+};
+
+struct MapTileEffectQueue
+{
+    MapTileEffectState * state;
+};
+
+EC void func_08007C28(MapTileEffectResource &, u32);
+
+EC SECTION(".text.080AB380") void UpdateMapTileEffectQueue(MapTileEffectQueue & queue)
+{
+    register MapTileEffectState * state asm("r8") = queue.state;
+    asm ("" : "+h" (state));
+    unsigned active = 0;
+    unsigned expired = 0;
+    unsigned index = 0;
+    register unsigned inactive asm("r5") = 0;
+    asm ("" : "+l" (inactive));
+    MapTileEffect * effect = state->effects;
+    do
+    {
+        if (effect->active)
+        {
+            ++active;
+            if (effect->frames > 1)
+                --effect->frames;
+            else
+            {
+                effect->active = inactive;
+                ++expired;
+            }
+        }
+        ++effect;
+    }
+    while (++index < 16);
+
+    if (active != 0 && expired == active)
+    {
+        unsigned type = 0;
+        do
+        {
+            register unsigned offset asm("r0") = sizeof(MapTileEffectAssets);
+            asm ("" : "+l" (offset));
+            offset *= type;
+            asm ("" : "+l" (offset));
+            offset += offsetof(MapTileEffectState, assets);
+            asm ("" : "+l" (offset));
+            register MapTileEffectState * base asm("r2") = state;
+            asm ("" : "=l" (base) : "0" (base));
+            register MapTileEffectAssets * assets asm("r5") = reinterpret_cast<MapTileEffectAssets *>(reinterpret_cast<u8 *>(base) + offset);
+            asm ("" : "+l" (assets));
+            register unsigned loaded asm("r0") = assets->active;
+            asm ("" : "+l" (loaded));
+            unsigned nextType = type + 1;
+            asm ("" : "+l" (nextType));
+            if (loaded)
+            {
+                register unsigned resource asm("r6") = 0;
+                asm ("" : "+l" (resource));
+                u32 zero = 0;
+                asm ("" : "+l" (zero) : "l" (resource));
+                u32 * handle = &assets->resources[0].handle;
+                do
+                {
+                    asm ("" : : "l" (resource));
+                    register unsigned resourceOffset asm("r0") = resource * sizeof(MapTileEffectResource);
+                    asm ("" : "+l" (resourceOffset));
+                    register u8 * record asm("r0");
+                    asm ("add %0, %1, %2" : "=l" (record) : "l" (resourceOffset), "l" (assets) : "cc");
+                    func_08007C28(*reinterpret_cast<MapTileEffectResource *>(record + offsetof(MapTileEffectAssets, resources)), *handle);
+                    *handle = zero;
+                    handle += sizeof(MapTileEffectResource) / sizeof(u32);
+                    ++resource;
+                    asm ("" : "+l" (resource));
+                }
+                while (resource < 2);
+                register unsigned reset asm("r0") = 0;
+                asm ("" : "+l" (reset));
+                assets->active = reset;
+                assets->loaded = reset;
+            }
+            type = nextType;
+        }
+        while (type < 10);
+    }
+}
+
 EC u8 const gUnk_081074F6[27];
 EC u8 const * func_080E0E80(u8 const *, u8 const *, unsigned const *, unsigned, unsigned);
 
