@@ -18776,7 +18776,7 @@ func_080DD5E4: @ 0x080DD5E4
 	str r4, [sp, #4]
 	mov r2, sb
 	mov r3, r8
-	bl func_080ABE58
+	bl ChooseEntityFacingAwayFromPoint
 	adds r1, r0, #0
 	str r1, [r5, #0x50]
 	adds r6, r5, #0

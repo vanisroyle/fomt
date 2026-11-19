@@ -995,7 +995,7 @@ func_080204CC: @ 0x080204CC
     str r4, [sp]
     mov r4, sb
     str r4, [sp, #4]
-    bl func_080ABE58
+    bl ChooseEntityFacingAwayFromPoint
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2

@@ -411,7 +411,7 @@ EC ChickenBehaviorChoice const gUnk_080F09C8[2][2][2][5];
 EC u32 RollEntityMovementRandom(u32 bound);
 EC u32 ChooseWeightedEntityMovement(ChickenBehaviorChoice const * choices, u32 count);
 EC i32 RotateEntityMovementFacing(i32 facing, i32 turn);
-EC u32 func_080ABE58(i32 x, i32 y, i32 target_x, i32 target_y, EntityMovementBounds * bounds, u32 facing);
+EC u32 ChooseEntityFacingAwayFromPoint(i32 x, i32 y, i32 target_x, i32 target_y, EntityCollisionProbe * probe, u32 facing);
 EC void ConstrainEntityMovementAgainstRectangle(EntityMovementBounds * bounds, Box const & box, u32 argument);
 EC bool AEntity_IsAnimationFinished(AEntity * self);
 EC void AActorEntity_ApplyBoundedMovement(AActorEntity * self, EntityMovementBounds * bounds);
@@ -535,7 +535,8 @@ EC void ChickenEntity_Update(ChickenEntity * self, ChickenEntityUpdateContext co
                     if (running != 0)
                         state = 4;
                     u32 const old_facing = self->facing;
-                    u32 facing = func_080ABE58(x, y, target_x, target_y, &bounds, old_facing);
+                    u32 facing = ChooseEntityFacingAwayFromPoint(x, y, target_x, target_y,
+                        reinterpret_cast<EntityCollisionProbe *>(&bounds), old_facing);
                     ChickenEntity_SetAnimationState(self, state, facing);
                     direction_time = RollEntityMovementRandom(30) + 1;
                 }

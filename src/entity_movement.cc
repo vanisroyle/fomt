@@ -567,6 +567,277 @@ struct EntityTerrainGrid
     u16 height;
 };
 
+EC SECTION(".text.080ABE58") u32 ChooseEntityFacingAwayFromPoint(
+    int x, int y, int targetX, int targetY, EntityCollisionProbe * probe, u32 currentFacing)
+{
+    int bestFacings[4];
+    register int deltaX asm("r2") = targetX - x;
+    asm ("" : "+l" (deltaX));
+    volatile int dx = deltaX;
+    register int deltaY asm("r3") = targetY - y;
+    asm ("" : "+l" (deltaY));
+    register int dy asm("sl") = deltaY;
+    asm ("" : "+h" (dy));
+    register int absX asm("r1") = deltaX;
+    asm ("" : "+l" (absX));
+    if (deltaX < 0)
+        absX = -deltaX;
+    asm ("" : "+l" (absX));
+    register int absY asm("r0") = dy;
+    asm ("" : "+l" (absY));
+    if (absY < 0)
+        absY = -absY;
+    asm ("" : "+l" (absY));
+    register int neutralAxis asm("r2") = 0;
+    asm ("" : "+l" (neutralAxis));
+    volatile int axisPreference = neutralAxis;
+    register int doubleX asm("r2") = 2 * absX;
+    register int doubleY asm("r3") = 2 * absY;
+    asm ("" : "+l" (doubleX), "+l" (doubleY));
+    if (doubleX > doubleY + absY)
+    {
+        register int horizontalAxis asm("r5") = 1;
+        asm ("" : "+l" (horizontalAxis));
+        axisPreference = horizontalAxis;
+    }
+    else
+    {
+        register int tripleX asm("r0") = doubleX + absX;
+        asm ("" : "+l" (tripleX));
+        if (tripleX < doubleY)
+            axisPreference = -1;
+    }
+    register int initialBestScore asm("r1") = 0x7fffffff;
+    asm ("" : "+l" (initialBestScore));
+    volatile int bestScore = initialBestScore;
+    register unsigned initialCount asm("r2") = 0;
+    asm ("" : "+l" (initialCount));
+    volatile unsigned bestCount = initialCount;
+    register int firstTurn asm("r5") = 0;
+    asm ("" : "+l" (firstTurn));
+    volatile int turn = firstTurn;
+    do
+    {
+        int offset = turn;
+        register int facing asm("r5") = RotateEntityMovementFacing(currentFacing, offset);
+        asm ("" : "+l" (facing));
+        register unsigned away asm("r8") = 1;
+        asm ("" : "+h" (away));
+        register unsigned weighted asm("sb") = 0;
+        asm ("" : "+h" (weighted));
+        register unsigned blocked asm("r1") = 1;
+        asm ("" : "+l" (blocked));
+        register unsigned directionBlocked asm("r6");
+        switch (facing)
+        {
+        case 0:
+        {
+            register unsigned awayFlag asm("r0") = 0;
+            asm ("" : "+l" (awayFlag));
+            register int verticalDelta asm("r2") = dy;
+            asm ("" : "+l" (verticalDelta));
+            if (verticalDelta <= 0)
+                awayFlag = 1;
+            asm ("" : "+l" (awayFlag));
+            away = awayFlag;
+            weighted = axisPreference < 0;
+            directionBlocked = 0;
+            asm ("" : "+l" (directionBlocked));
+            register int distance asm("r1") = probe->down;
+            asm ("" : "+l" (distance));
+            register int limit asm("r0") = probe->step;
+            asm ("" : "+l" (limit));
+            register int remaining asm("r0");
+            if (distance > limit)
+            {
+                ProbeEntityCollisionDown(*probe);
+                remaining = probe->down;
+                asm ("" : "+l" (remaining));
+            }
+            else
+            {
+                remaining = distance;
+                asm ("" : "+l" (remaining) : "l" (distance));
+            }
+            asm ("" : "+l" (remaining));
+            if (remaining == 0)
+            {
+                if (static_cast<volatile EntityCollisionProbe *>(probe)->down > probe->step)
+                    ProbeEntityCollisionDown(*probe);
+                if (!probe->downClear)
+                    directionBlocked = 1;
+            }
+            goto setBlocked;
+        }
+        case 1:
+        {
+            away = dy >= 0;
+            register unsigned axisWeight asm("r2") = static_cast<unsigned>(axisPreference) >> 31;
+            asm ("" : "+l" (axisWeight));
+            weighted = axisWeight;
+            directionBlocked = 0;
+            register int distance asm("r1") = probe->up;
+            asm ("" : "+l" (distance));
+            register int limit asm("r0") = probe->step;
+            asm ("" : "+l" (limit));
+            register int remaining asm("r0");
+            if (distance < -limit)
+            {
+                ProbeEntityCollisionUp(*probe);
+                remaining = probe->up;
+                asm ("" : "+l" (remaining));
+            }
+            else
+            {
+                remaining = distance;
+            }
+            if (remaining == 0)
+            {
+                if (static_cast<volatile EntityCollisionProbe *>(probe)->up < -probe->step)
+                    ProbeEntityCollisionUp(*probe);
+                if (!probe->upClear)
+                    directionBlocked = 1;
+            }
+            goto setBlocked;
+        }
+        case 2:
+        {
+            register int horizontalDelta asm("r1") = dx;
+            asm ("" : "+l" (horizontalDelta));
+            register unsigned awayFlag asm("r0") = static_cast<unsigned>(~horizontalDelta) >> 31;
+            asm ("" : "+l" (awayFlag));
+            away = awayFlag;
+            register unsigned axisWeight asm("r0") = 0;
+            register int axis asm("r2") = axisPreference;
+            if (axis > 0)
+                axisWeight = 1;
+            weighted = axisWeight;
+            directionBlocked = 0;
+            asm ("" : "+l" (directionBlocked));
+            register int distance asm("r1") = probe->left;
+            register int limit asm("r0") = probe->step;
+            asm ("" : "+l" (limit));
+            register int remaining asm("r0");
+            if (distance < -limit)
+            {
+                ProbeEntityCollisionLeft(*probe);
+                remaining = probe->left;
+                asm ("" : "+l" (remaining));
+            }
+            else
+            {
+                remaining = distance;
+                asm ("" : "+l" (remaining) : "l" (distance));
+            }
+            if (remaining == 0)
+            {
+                if (static_cast<volatile EntityCollisionProbe *>(probe)->left < -probe->step)
+                    ProbeEntityCollisionLeft(*probe);
+                if (!probe->leftClear)
+                    directionBlocked = 1;
+            }
+            goto setBlocked;
+        }
+        case 3:
+        {
+            register unsigned awayFlag asm("r0") = 0;
+            register int horizontalDelta asm("r1") = dx;
+            if (horizontalDelta <= 0)
+                awayFlag = 1;
+            away = awayFlag;
+            register unsigned axisWeight asm("r0") = 0;
+            asm ("" : "+l" (axisWeight));
+            register int axis asm("r2") = axisPreference;
+            asm ("" : "+l" (axis));
+            if (axis > 0)
+                axisWeight = 1;
+            weighted = axisWeight;
+            directionBlocked = 0;
+            register int distance asm("r1") = probe->right;
+            register int limit asm("r0") = probe->step;
+            register int remaining asm("r0");
+            if (distance > limit)
+            {
+                ProbeEntityCollisionRight(*probe);
+                remaining = probe->right;
+                asm ("" : "+l" (remaining));
+            }
+            else
+            {
+                remaining = distance;
+            }
+            if (remaining == 0)
+            {
+                if (static_cast<volatile EntityCollisionProbe *>(probe)->right > probe->step)
+                    ProbeEntityCollisionRight(*probe);
+                if (!probe->rightClear)
+                    directionBlocked = 1;
+            }
+            goto setBlocked;
+        }
+        default: goto computeScore;
+        }
+    setBlocked:
+        asm ("" : "+l" (directionBlocked));
+        blocked = directionBlocked;
+    computeScore:
+        asm ("" : "+l" (blocked), "+l" (facing));
+        register int penalty asm("r3") = 1;
+        asm ("" : "+l" (penalty));
+        if (away)
+            penalty -= 2;
+        asm ("" : "+l" (penalty));
+        register int blockedCost asm("r1");
+        register unsigned blockedBits asm("r0");
+        asm ("neg %0, %2\n\torr %0, %2\n\tasr %1, %0, #31\n\tmovs %0, #8\n\tand %1, %0"
+             : "=&l" (blockedBits), "=l" (blockedCost) : "1" (blocked) : "cc");
+        register int turnCost asm("r2");
+        asm ("cmp %1, #2\n\tbgt 1f\n\tcmp %1, #1\n\tbge 2f\n\tcmp %1, #0\n\tbne 1f\n\tmovs %0, #0\n\tb 3f\n"
+             "2:\n\tmovs %0, #1\n\tb 3f\n1:\n\tmovs %0, #2\n3:" : "=l" (turnCost) : "l" (offset) : "cc");
+        register int score asm("r0") = weighted ? blockedCost + penalty * 2 : blockedCost + penalty;
+        asm ("" : "+l" (score));
+        score += turnCost;
+        asm ("" : "+l" (score));
+        if (score == bestScore)
+        {
+            register unsigned count asm("r2") = bestCount;
+            asm ("" : "+l" (count));
+            bestFacings[count] = facing;
+            bestCount = count + 1;
+        }
+        else if (score < bestScore)
+        {
+            bestFacings[0] = facing;
+            register unsigned newCount asm("r2") = 1;
+            asm ("" : "+l" (newCount));
+            bestCount = newCount;
+            bestScore = score;
+        }
+        register int nextTurn asm("r5") = turn + 1;
+        asm ("" : "+l" (nextTurn));
+        turn = nextTurn;
+        if (nextTurn > 3)
+            break;
+    } while (true);
+    register int * choices asm("r4") = bestFacings;
+    asm ("" : "+l" (choices));
+    unsigned count = bestCount;
+    register unsigned byteOffset asm("r0");
+    if (count > 1)
+    {
+        byteOffset = RollEntityMovementRandom(count) * sizeof(int);
+        asm ("" : "+l" (byteOffset));
+    }
+    else
+    {
+        byteOffset = 0;
+        asm ("" : "+l" (byteOffset));
+    }
+    register const int * selected asm("r0");
+    asm ("add %0, %1, %2" : "=l" (selected) : "l" (choices), "l" (byteOffset) : "cc");
+    return *selected;
+}
+
 struct EntityMovementRect
 {
     i16 left;
