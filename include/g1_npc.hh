@@ -2,6 +2,7 @@
 #define G1_NPC_HH
 
 #include "prelude.h"
+#include "npc.hh"
 
 struct G1RosterFlags
 {
@@ -11,20 +12,65 @@ struct G1RosterFlags
     u8 flags : 3;
 };
 
-struct G1NpcEventState
+struct G1ConstructionFlags
 {
-    u8 npc[0x14];
     u32 event_id : 4;
     u32 remaining_days : 3;
-    u32 new_event : 1;
-    u32 location_flag : 1;
+    bool new_event : 1;
+    bool location_flag : 1;
 };
 
-struct G1NpcMilestoneState
+struct G1NpcEventState : public Npc
 {
-    u8 npc[0x14];
+    G1NpcEventState(ActorLocation const & location);
+
+    union
+    {
+        G1ConstructionFlags bits;
+        u16 event_flags;
+        u8 event_bytes[2];
+    };
+};
+
+struct G1MilestoneFlags
+{
     u32 event_id : 6;
     u32 remaining_days : 3;
+    bool completed_first : 1;
+    bool completed_second : 1;
+    bool completed_third : 1;
+    bool completed_fourth : 1;
+    bool completed_fifth : 1;
+    bool completed_sixth : 1;
+};
+
+struct G1NpcMilestoneState : public Npc
+{
+    G1NpcMilestoneState(ActorLocation const & location);
+
+    union
+    {
+        G1MilestoneFlags bits;
+        u16 event_flags;
+        u8 event_bytes[2];
+    };
+};
+
+struct G1NpcInteractionState : public Npc
+{
+    G1NpcInteractionState(ActorLocation const & location);
+
+    u16 completed_interactions;
+    u8 available_interactions;
+};
+
+struct G1NpcEventSlot
+{
+    u32 kind : 4;
+    u32 : 4;
+    u32 value : 16;
+    u32 : 8;
+    u32 extra;
 };
 
 struct G1NamedNpcState

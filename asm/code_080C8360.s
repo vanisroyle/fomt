@@ -14179,7 +14179,7 @@ func_080CFBAC: @ 0x080CFBAC
 	push {r5, r6, r7}
 	sub sp, #0xc
 	str r0, [sp, #4]
-	bl func_080A5CC0
+	bl ReloadMapTilemaps
 	ldr r1, [sp, #4]
 	ldr r0, [r1, #4]
 	cmp r0, #0x3e
