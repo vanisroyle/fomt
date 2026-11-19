@@ -100,17 +100,61 @@ struct AnimalTimerPart1
 
 struct ThrownItemPart1
 {
-    u32 unk_00;
+    bool active;
+    bool unk_01;
+    STRUCT_PAD(0x02, 0x04);
     i32 x_speed;
     i32 y_speed;
-    STRUCT_PAD(0x0C, 0x14);
+    i32 unk_0C;
+    i32 unk_10;
     i32 z_speed;
+    i32 unk_18;
+
+    void Init()
+    {
+        active = false;
+        unk_01 = false;
+        x_speed = 0;
+        y_speed = 0;
+        unk_0C = 0;
+        unk_10 = 0;
+        z_speed = 0;
+        unk_18 = 0;
+    }
 
     void Launch(i32 x, i32 y, i32 z)
     {
         x_speed = x;
         y_speed = y;
         z_speed = z;
+    }
+};
+
+EC char const gUnk_080F0E80[];
+EC void __12RucksackItem(RucksackItem * self);
+
+struct FarmerHeldAnimationPart1
+{
+    void const * data;
+    u16 frame;
+    STRUCT_PAD(0x06, 0x08);
+    RucksackItem item;
+    bool unk_0C;
+    bool unk_0D;
+    STRUCT_PAD(0x0E, 0x10);
+    i32 remaining;
+    bool unk_14;
+    STRUCT_PAD(0x15, 0x18);
+
+    void Init()
+    {
+        data = gUnk_080F0E80;
+        frame = 0;
+        __12RucksackItem(&item);
+        unk_0C = false;
+        unk_0D = false;
+        remaining = 59;
+        unk_14 = false;
     }
 };
 
@@ -123,12 +167,40 @@ struct FarmerEntityPart1 : AActorEntity
     u8 state;
     u8 unk_3D;
     u8 motion;
-    STRUCT_PAD(0x3F, 0x88);
+    u8 tool_state;
+    u8 tool_level;
+    bool unk_41;
+    bool unk_42;
+    u8 unk_43;
+    u16 unk_44;
+    STRUCT_PAD(0x46, 0x60);
+    FarmerHeldAnimationPart1 held_anim;
+    bool unk_78;
+    bool unk_79;
+    bool unk_7A;
+    u8 unk_7B;
+    u16 icon;
+    u16 unk_7E;
+    i32 unk_80;
+    STRUCT_PAD(0x84, 0x88);
     ThrownItemPart1 thrown_item;
-    STRUCT_PAD(0xA0, 0xC0);
+    bool unk_A4;
+    u8 unk_A5;
+    u16 unk_A6;
+    i32 unk_A8;
+    i32 unk_AC;
+    bool unk_B0;
+    bool unk_B1;
+    u8 unk_B2;
+    bool unk_B3;
+    bool unk_B4;
+    STRUCT_PAD(0xB5, 0xC0);
     bool unk_C0;
     bool unk_C1;
     bool unk_C2;
+    u8 exhaustion_state;
+    bool unk_C4;
+    bool unk_C5;
 };
 
 struct SoundChannelsPart1
@@ -200,6 +272,9 @@ struct FarmerGameStatePart1
     ShippingBin shipping_bin;
 };
 EC void func_080384FC(CarryEntityPart1 * self);
+EC void func_0802B908(FarmerEntityPart1 * self, GameObject * game, void * state);
+EC void func_0802C2DC(FarmerEntityPart1 * self);
+EC char const vtable_unk_080E6658[];
 EC void func_0802F0EC(FarmerEntityPart1 * self, u32 first, u32 second);
 EC u16 func_0802D158(FarmerEntityPart1 * self);
 EC void func_0803242C(AActorEntity * self, u32 argument);
@@ -298,6 +373,105 @@ inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC void func_08024C74(FarmerEntityPart1 * self) ENTITY_CODE(08024C74);
+EC void func_08024C74(FarmerEntityPart1 * self)
+{
+    self->state = 0;
+    self->motion = 0;
+    self->unk_A6 = 0;
+}
+
+EC bool func_08025068(FarmerEntityPart1 * self, i32 stamina, i32 fatigue) ENTITY_CODE(08025068);
+EC bool func_08025068(FarmerEntityPart1 * self, i32 stamina, i32 fatigue)
+{
+    if (reinterpret_cast<u8 const *>(self->game_state)[0x34C4])
+        return false;
+    if (self->unk_10.Get() != nullptr)
+        reinterpret_cast<u8 *>(self->unk_10.Get())[0x281] = true;
+    u32 old_stamina = func_0800E4F0(*self->farmer);
+    u32 max_stamina = func_0800E51C(*self->farmer);
+    func_0800E9E4(*self->farmer, stamina);
+    u32 new_stamina = func_0800E4F0(*self->farmer);
+    u32 old_fatigue = func_0800E4FC(*self->farmer);
+    func_0800EA68(*self->farmer, fatigue);
+    u32 new_fatigue = func_0800E4FC(*self->farmer);
+    if (stamina > 0 || fatigue < 0)
+    {
+        switch (self->exhaustion_state)
+        {
+        case 36: if (new_stamina > max_stamina / 2) self->exhaustion_state = 0; break;
+        case 37: if (new_stamina > max_stamina / 5) self->exhaustion_state = 0; break;
+        case 38: if (new_stamina > max_stamina / 20) self->exhaustion_state = 0; break;
+        case 39: if (new_stamina != 0) self->exhaustion_state = 0; break;
+        case 40: if (new_fatigue <= 49) self->exhaustion_state = 0; break;
+        case 41: if (new_fatigue <= 79) self->exhaustion_state = 0; break;
+        case 42: if (new_fatigue != 100) self->exhaustion_state = 0; break;
+        }
+    }
+    if (old_fatigue != 100 && new_fatigue == 100)
+    {
+        self->exhaustion_state = 42;
+        return true;
+    }
+    if (old_fatigue <= 79 && new_fatigue > 79)
+        self->exhaustion_state = 41;
+    else if (old_fatigue <= 49 && new_fatigue > 49)
+        self->exhaustion_state = 40;
+    else if (old_stamina != 0 && new_stamina == 0)
+        self->exhaustion_state = 39;
+    else if (old_stamina > max_stamina / 20 && new_stamina <= max_stamina / 20)
+        self->exhaustion_state = 38;
+    else if (old_stamina > max_stamina / 5 && new_stamina <= max_stamina / 5)
+        self->exhaustion_state = 37;
+    else if (old_stamina > max_stamina / 2 && new_stamina <= max_stamina / 2)
+        self->exhaustion_state = 36;
+    return false;
+}
+
+EC FarmerEntityPart1 * func_08024974(FarmerEntityPart1 * self, GameObject * game, void * state) ENTITY_CODE(08024974);
+EC FarmerEntityPart1 * func_08024974(FarmerEntityPart1 * self, GameObject * game, void * state)
+{
+    func_0802B908(self, game, state);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6658;
+    self->game_state = state;
+    self->farmer = reinterpret_cast<Farmer *>(reinterpret_cast<u8 *>(state) + 0x1BD8);
+    self->state = 0;
+    self->unk_3D = 0;
+    self->motion = 0;
+    self->tool_state = 15;
+    self->tool_level = 0;
+    self->unk_41 = false;
+    self->unk_42 = false;
+    self->unk_44 = 0;
+    self->held_anim.Init();
+    self->unk_78 = false;
+    self->unk_79 = false;
+    self->unk_7A = false;
+    self->icon = 0xFFFF;
+    self->unk_80 = 0;
+    self->thrown_item.Init();
+    self->unk_A4 = true;
+    self->unk_A6 = 0;
+    self->unk_A8 = -1;
+    self->unk_AC = -1;
+    self->unk_B0 = false;
+    self->unk_B1 = false;
+    self->unk_B2 = 100;
+    self->unk_B3 = false;
+    self->unk_B4 = false;
+    self->unk_C0 = false;
+    self->unk_C1 = false;
+    self->unk_C2 = false;
+    self->exhaustion_state = 0;
+    self->unk_C4 = false;
+    self->unk_C5 = false;
+    func_0802C2DC(self);
+    u16 anim = func_0802D158(self);
+    if (self->anim_id != anim)
+        self->SetAnim(anim);
+    return self;
+}
 
 EC u32 func_08025B10(FarmerEntityPart1 * self) ENTITY_CODE(08025B10);
 EC u32 func_08025B10(FarmerEntityPart1 * self)
