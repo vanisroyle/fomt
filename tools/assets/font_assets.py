@@ -1,0 +1,383 @@
+"""Editable fixed-slot FOMT fonts and a minimal monochrome PNG codec."""
+
+import argparse
+import binascii
+import hashlib
+import math
+from pathlib import Path
+import re
+import struct
+import unicodedata
+import zlib
+
+import fomt_assets as fa
+
+
+COLUMNS = 32
+FONTS = {"small": (0x4F90CC, 487, 8), "large": (0x4FA9A0, 6922, 16)}
+MAPS = {"single": (0x4FA7A0, 256, 487), "double": (0x523290, 7938, 6922)}
+SIGNATURE = b"\x89PNG\r\n\x1a\n"
+
+
+def png_chunk(tag, data):
+    return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", binascii.crc32(tag + data) & 0xFFFFFFFF)
+
+
+def write_png(rows):
+    if not rows or not rows[0] or any(len(row) != len(rows[0]) for row in rows):
+        raise ValueError("PNG must have nonempty equal-width rows")
+    width = len(rows[0])
+    raw = bytearray()
+    for row in rows:
+        packed = bytearray((width + 7) // 8)
+        for x, pixel in enumerate(row):
+            if pixel not in (0, 1):
+                raise ValueError("PNG pixels must be 0 (white) or 1 (black)")
+            packed[x // 8] |= pixel << (7 - x % 8)
+        raw.extend(b"\0" + packed)
+    header = struct.pack(">IIBBBBB", width, len(rows), 1, 3, 0, 0, 0)
+    return (SIGNATURE + png_chunk(b"IHDR", header) + png_chunk(b"PLTE", b"\xff\xff\xff\0\0\0")
+            + png_chunk(b"IDAT", zlib.compress(raw)) + png_chunk(b"IEND", b""))
+
+
+def paeth(a, b, c):
+    p = a + b - c
+    distances = (abs(p - a), abs(p - b), abs(p - c))
+    return (a, b, c)[distances.index(min(distances))]
+
+
+def read_png(data):
+    if not data.startswith(SIGNATURE):
+        raise ValueError("not a PNG")
+    pos = len(SIGNATURE)
+    header = None
+    palette = None
+    compressed = bytearray()
+    ended = False
+    while pos < len(data):
+        if pos + 12 > len(data):
+            raise ValueError("truncated PNG chunk")
+        size = struct.unpack_from(">I", data, pos)[0]
+        tag = data[pos + 4:pos + 8]
+        payload = data[pos + 8:pos + 8 + size]
+        if pos + size + 12 > len(data):
+            raise ValueError("truncated PNG payload")
+        crc = struct.unpack_from(">I", data, pos + 8 + size)[0]
+        if binascii.crc32(tag + payload) & 0xFFFFFFFF != crc:
+            raise ValueError("PNG CRC mismatch")
+        if tag == b"IHDR":
+            if header is not None or size != 13 or pos != 8:
+                raise ValueError("invalid PNG IHDR")
+            header = struct.unpack(">IIBBBBB", payload)
+        elif tag == b"PLTE":
+            if not size or size % 3:
+                raise ValueError("invalid PNG palette")
+            palette = [tuple(payload[i:i + 3]) for i in range(0, size, 3)]
+        elif tag == b"IDAT":
+            compressed.extend(payload)
+        elif tag == b"IEND":
+            ended = True
+            pos += 12 + size
+            break
+        elif tag == b"tRNS":
+            raise ValueError("transparent PNGs are unsupported; flatten to black/white")
+        elif not tag[0] & 32:
+            raise ValueError(f"unsupported critical PNG chunk {tag!r}")
+        pos += 12 + size
+    if header is None or not ended or pos != len(data):
+        raise ValueError("incomplete PNG or trailing data")
+    width, height, depth, color, compression, filtering, interlace = header
+    if (not 0 < width <= 4096 or not 0 < height <= 8192 or color not in (0, 3)
+            or depth not in (1, 2, 4, 8) or compression or filtering or interlace):
+        raise ValueError("use noninterlaced grayscale/indexed 1/2/4/8-bit PNG (max 4096x8192)")
+    if color == 3 and palette is None:
+        raise ValueError("indexed PNG needs a palette")
+    stride = (width * depth + 7) // 8
+    expected = height * (stride + 1)
+    inflater = zlib.decompressobj()
+    try:
+        raw = inflater.decompress(compressed, expected + 1)
+    except zlib.error as error:
+        raise ValueError(f"invalid PNG compression: {error}") from error
+    if len(raw) != expected or not inflater.eof or inflater.unused_data:
+        raise ValueError("PNG decompressed size does not match dimensions")
+    rows = []
+    previous = bytearray(stride)
+    mask = (1 << depth) - 1
+    for y in range(height):
+        start = y * (stride + 1)
+        filter_type = raw[start]
+        if filter_type > 4:
+            raise ValueError("invalid PNG filter")
+        scan = bytearray(raw[start + 1:start + 1 + stride])
+        for i in range(stride):
+            a = scan[i - 1] if i else 0
+            b = previous[i]
+            c = previous[i - 1] if i else 0
+            predictor = (0, a, b, (a + b) // 2, paeth(a, b, c))[filter_type]
+            scan[i] = (scan[i] + predictor) & 255
+        row = bytearray()
+        for x in range(width):
+            sample = (scan[x * depth // 8] >> (8 - depth - x * depth % 8)) & mask
+            if color == 0:
+                rgb = (sample * 255 // mask,) * 3
+            else:
+                if sample >= len(palette):
+                    raise ValueError("PNG palette index out of range")
+                rgb = palette[sample]
+            if rgb not in ((0, 0, 0), (255, 255, 255)):
+                raise ValueError("PNG must use only opaque black/white pixels (no antialiasing)")
+            row.append(int(rgb == (0, 0, 0)))
+        rows.append(row)
+        previous = scan
+    return rows
+
+
+def to_sheet(data, count, width):
+    stride = width // 8
+    if len(data) != count * 12 * stride:
+        raise ValueError("font binary size does not match fixed slot")
+    rows = [bytearray(COLUMNS * width) for _ in range(math.ceil(count / COLUMNS) * 12)]
+    for glyph in range(count):
+        for y in range(12):
+            for x in range(width):
+                byte = data[glyph * 12 * stride + y * stride + x // 8]
+                rows[glyph // COLUMNS * 12 + y][glyph % COLUMNS * width + x] = (byte >> (7 - x % 8)) & 1
+    return rows
+
+
+def from_sheet(rows, count, width):
+    height = math.ceil(count / COLUMNS) * 12
+    if len(rows) != height or any(len(row) != COLUMNS * width for row in rows):
+        raise ValueError(f"font sheet must be exactly {COLUMNS * width}x{height}; slot cannot grow")
+    output = bytearray(count * 12 * (width // 8))
+    for glyph in range(COLUMNS * math.ceil(count / COLUMNS)):
+        for y in range(12):
+            for x in range(width):
+                pixel = rows[glyph // COLUMNS * 12 + y][glyph % COLUMNS * width + x]
+                if pixel not in (0, 1):
+                    raise ValueError("nonbinary font pixel")
+                if glyph >= count:
+                    if pixel:
+                        raise ValueError("unused sheet cells must stay white; no additional glyph slots")
+                else:
+                    output[glyph * 12 * (width // 8) + y * (width // 8) + x // 8] |= pixel << (7 - x % 8)
+    return bytes(output)
+
+
+def codes(kind):
+    if kind == "single":
+        return list(range(256))
+    return [(lead << 8) | trail for lead in [*range(0x81, 0xA0), *range(0xE0, 0xEB)]
+            for trail in range(0x40, 0xFD)]
+
+
+def map_text(kind, values):
+    digits = 2 if kind == "single" else 4
+    return "# Game code (hex) = glyph index (decimal), -1 means unmapped\n" + "".join(
+        f"{code:0{digits}X} = {value}\n" for code, value in zip(codes(kind), values))
+
+
+def read_map(path, kind):
+    values = {}
+    allowed = set(codes(kind))
+    for line, text in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
+        text = text.split("#", 1)[0].strip()
+        if not text:
+            continue
+        match = re.fullmatch(r"([0-9a-fA-F]{2,4})\s*=\s*(-?\d+)", text)
+        if not match:
+            fa.fail(path, line, "expected HEX_CODE = DECIMAL_GLYPH_INDEX")
+        code, index = int(match[1], 16), int(match[2])
+        if code not in allowed or code in values:
+            fa.fail(path, line, "invalid or duplicate game code")
+        if not -1 <= index < MAPS[kind][2]:
+            fa.fail(path, line, f"glyph index must be -1..{MAPS[kind][2] - 1}; fixed slot cannot grow")
+        values[code] = index
+    if set(values) != allowed:
+        raise ValueError(f"{path}: preserve all {len(allowed)} code rows, including -1 entries")
+    return values
+
+
+def original_rom(path):
+    rom = path.read_bytes()
+    if hashlib.sha1(rom).hexdigest() != fa.SHA1:
+        raise ValueError(f"{path}: expected original US ROM (SHA-1 {fa.SHA1})")
+    return rom
+
+
+def extract(rom_path, assets, force=False):
+    rom = original_rom(rom_path)
+    root = assets / "fonts"
+    for name, (offset, count, width) in FONTS.items():
+        path = root / (name + ".png")
+        if force or not path.exists():
+            data = rom[offset:offset + count * 12 * (width // 8)]
+            fa.write_missing(path, write_png(to_sheet(data, count, width)), force)
+    for kind, (offset, count, _) in MAPS.items():
+        values = struct.unpack_from(f"<{count}h", rom, offset)
+        fa.write_missing(root / (kind + ".map"), map_text(kind, values).encode(), force)
+
+
+def build_data(assets):
+    root = assets / "fonts"
+    result = {}
+    for name, (_, count, width) in FONTS.items():
+        path = root / (name + ".png")
+        try:
+            result[name] = from_sheet(read_png(path.read_bytes()), count, width)
+        except ValueError as error:
+            raise ValueError(f"{path}: {error}") from error
+    for kind in MAPS:
+        values = read_map(root / (kind + ".map"), kind)
+        result[kind] = struct.pack(
+            f"<{len(values)}h", *(values[code] for code in codes(kind)))
+    return result
+
+
+def build(assets, output):
+    data = build_data(assets)
+    for name, raw in data.items():
+        fa.write_changed(output / ("font-" + name + ".bin"), raw)
+    digest = hashlib.sha256(b"".join(data.values())).hexdigest()
+    fa.write_changed(output / "fonts.stamp", (digest + "\n").encode())
+    print("Built fonts: 487 small / 6922 large glyphs; fixed slots unchanged")
+
+
+def safe_codes(single):
+    return [code for code, index in single.items() if index == -1 and code > 0x1F
+            and code != 0xFF and not 0x81 <= code <= 0x9F and not 0xE0 <= code <= 0xEA]
+
+
+def vietnamese_letters():
+    letters = set("ĂÂĐÊÔƠƯăâđêôơư")
+    for base in "AaĂăÂâEeÊêIiOoÔôƠơUuƯưYy":
+        for tone in "\u0300\u0301\u0303\u0309\u0323":
+            letters.add(unicodedata.normalize("NFC", base + tone))
+    return sorted(letters)
+
+
+def glyph_for(raw, single, double):
+    code = int.from_bytes(raw, "big")
+    return single.get(code, -1) if len(raw) == 1 else double.get(code, -1) if len(raw) == 2 else -1
+
+
+def capacity(assets):
+    single = read_map(assets / "fonts/single.map", "single")
+    double = read_map(assets / "fonts/double.map", "double")
+    missing = []
+    for char in vietnamese_letters():
+        try:
+            index = glyph_for(char.encode("cp932"), single, double)
+        except UnicodeEncodeError:
+            index = -1
+        if index < 0:
+            missing.append(char)
+    unused = sorted(set(range(487)) - set(single.values()))
+    print(f"Unmapped single-byte table entries: {list(single.values()).count(-1)}")
+    print(f"Safe unused single-byte text codes: {len(safe_codes(single))} "
+          + " ".join(f"{c:02X}" for c in safe_codes(single)))
+    print(f"Unreferenced small-font slots: {len(unused)}")
+    print(f"Vietnamese non-ASCII precomposed letters (both cases): {len(vietnamese_letters())}; "
+          f"missing from CP932/current maps: {len(missing)}")
+    print("Full Vietnamese set fits: " + ("yes" if len(missing) <= min(len(unused), len(safe_codes(single))) else "no"))
+
+
+def sample(rom_path, assets, text, placeholders=False):
+    text = unicodedata.normalize("NFC", text)
+    root = assets / "fonts"
+    single = read_map(root / "single.map", "single")
+    double = read_map(root / "double.map", "double")
+    fa.write_missing(assets / "charmap.txt", b"# Unicode overrides\n")
+    mapping = fa.charmap(assets / "charmap.txt")
+    missing = []
+    for char in dict.fromkeys(text):
+        if char.isspace():
+            continue
+        try:
+            raw = mapping.get(char) or char.encode("cp932")
+        except UnicodeEncodeError:
+            raw = b""
+        if glyph_for(raw, single, double) < 0:
+            if char in mapping:
+                raise ValueError(f"existing charmap assignment for {char!r} is unmapped; fix it first")
+            missing.append(char)
+    reserved = {int.from_bytes(raw, "big") for raw in mapping.values()}
+    available = [code for code in safe_codes(single) if code not in reserved]
+    data = from_sheet(read_png((root / "small.png").read_bytes()), 487, 8)
+    rom = original_rom(rom_path)
+    original = rom[0x4F90CC:0x4FA7A0]
+    # Unmapped cells with hand-drawn edits are reserved for their author.
+    slots = [i for i in range(487) if i not in single.values()
+             and data[i * 12:i * 12 + 12] == original[i * 12:i * 12 + 12]]
+    if len(missing) > min(len(available), len(slots)):
+        raise ValueError(f"need {len(missing)} codes/slots; only {len(available)} safe codes and {len(slots)} untouched free slots; no edits made")
+    assignments = list(zip(missing, available, slots))
+    map_path = root / "single.map"
+    map_source = map_path.read_text(encoding="utf-8")
+    additions = []
+    pixels = bytearray(data)
+    for char, code, slot in assignments:
+        pattern = rf"(?mi)^({code:02x}\s*=\s*)-1(?=\s*(?:#|$))"
+        map_source, count = re.subn(pattern, lambda m: m[1] + str(slot), map_source)
+        if count != 1:
+            raise ValueError("cannot update map row safely")
+        additions.append(f"U+{ord(char):04X} = {code:02X}\n")
+        if placeholders:
+            base = unicodedata.normalize("NFD", char)[0]
+            if base in "Đđ":
+                base = "D" if base == "Đ" else "d"
+            index = single.get(ord(base), -1) if ord(base) < 128 else -1
+            pixels[slot * 12:slot * 12 + 12] = data[index * 12:index * 12 + 12] if index >= 0 else bytes(12)
+            pixels[slot * 12] |= 0x18
+            pixels[slot * 12 + 1] |= 0x08
+        print(f"Assign {char} U+{ord(char):04X} -> {code:02X}, small glyph {slot}")
+    if not assignments:
+        print("All characters already have mapped glyphs; no files changed")
+        return
+    old_charmap = (assets / "charmap.txt").read_text(encoding="utf-8")
+    fa.write_changed(map_path, map_source.encode("utf-8"))
+    separator = "" if old_charmap.endswith("\n") else "\n"
+    fa.write_changed(assets / "charmap.txt", (old_charmap + separator + "".join(additions)).encode("utf-8"))
+    if placeholders:
+        fa.write_changed(root / "small.png", write_png(to_sheet(bytes(pixels), 487, 8)))
+    print("Assignments added. " + ("Placeholder accents need artist review." if placeholders else "Draw the assigned cells in small.png."))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=("extract", "build", "roundtrip", "capacity", "sample"))
+    parser.add_argument("--rom", type=Path, default=Path("baserom.gba"))
+    parser.add_argument("--assets", type=Path, default=Path("assets"))
+    parser.add_argument("--output", type=Path, default=Path("build/assets"))
+    parser.add_argument("--force", action="store_true")
+    parser.add_argument("--text", default="Xin chào Việt Nam!")
+    parser.add_argument("--placeholders", action="store_true")
+    args = parser.parse_args()
+    try:
+        if args.force and args.command != "extract":
+            raise ValueError("--force is only valid with extract")
+        if args.command in ("extract", "build", "sample"):
+            extract(args.rom, args.assets, args.force)
+        if args.command == "extract":
+            print("Extracted fonts (existing edits preserved)" if not args.force else "Re-extracted fonts (overwritten)")
+        elif args.command == "build":
+            build(args.assets, args.output)
+        elif args.command == "capacity":
+            capacity(args.assets)
+        elif args.command == "sample":
+            sample(args.rom, args.assets, args.text, args.placeholders)
+        else:
+            rom = original_rom(args.rom)
+            data = build_data(args.assets)
+            for name, raw in data.items():
+                offset = (FONTS[name] if name in FONTS else MAPS[name])[0]
+                if raw != rom[offset:offset + len(raw)]:
+                    raise ValueError(f"{name}: font round-trip mismatch")
+            print("Font roundtrip: 487/487 small + 6922/6922 large glyphs and both maps byte-identical (188360 bytes)")
+    except (OSError, ValueError) as error:
+        parser.exit(1, f"error: {error}\n")
+
+
+if __name__ == "__main__":
+    main()

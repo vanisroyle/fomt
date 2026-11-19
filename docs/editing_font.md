@@ -1,0 +1,156 @@
+# Editing the dialogue fonts
+
+Use the existing Python 3 / ARM build tools; no Python packages are needed.
+`make extract` creates missing script **and font** assets. Normal extraction and
+builds never overwrite existing assets. `make extract FORCE=1` is the explicit,
+destructive restore of all extracted assets, including text and charmap.
+Font-only restore: `python3 tools/assets/font_assets.py extract --force`.
+Keep all extracted PNGs/maps under ignored `assets/`; never commit them or ROMs.
+
+## Sheets and code maps
+
+| Editable file under assets/fonts/ | Layout | ROM slot |
+|---|---|---|
+| `small.png` | 487 8x12 glyphs; 32 columns, 256x192 sheet | 0x4F90CC, 5844 bytes |
+| `single.map` | 256 signed-16 code-to-small-glyph entries | 0x4FA7A0, 512 bytes |
+| `large.png` | 6922 16x12 glyphs; 32 columns, 512x2604 sheet | 0x4FA9A0, 166128 bytes |
+| `double.map` | 7938 signed-16 code-to-large-glyph entries | 0x523290, 15876 bytes |
+
+Glyph N is at column `N % 32`, row `N // 32` (zero-based). There are no gutters
+or grid pixels. In an image editor enable a grid at 8x12 / 16x12 and nearest
+neighbor zoom. Black is ink, white is transparent background in-game. Retain the
+exact dimensions, and leave unused last-row cells white. Export a **noninterlaced
+indexed or grayscale PNG, 1/2/4/8-bit, opaque pure black and white**. RGB/RGBA,
+transparency, antialiasing, resizing and extra glyph cells are rejected clearly.
+All five PNG row filters are supported. The writer exports a 1-bit indexed PNG.
+
+Stored glyphs are 1bpp, MSB-left within each byte, twelve rows per glyph. Each
+large row is two bytes: left eight pixels first, then right eight (not a big-
+endian 16-bit word). ARM IWRAM routines 0x0300085C / 0x03000714 expand these
+into 4bpp padded/shadowed tiles. This step does not change their renderer or the
+separate calendar/clock fonts.
+
+Map lines are `HEX_CODE = DECIMAL_GLYPH_INDEX`, with optional `#` comments:
+
+```text
+7F = -1
+```
+
+Change `-1` to a small index 0..486 to map a single byte; double-byte entries
+take -1 or large indices 0..6921. Keep **all** rows, including unmapped entries.
+Double-byte keys enumerate the game's 81..9F/E0..EA lead bytes and 40..FC trail
+bytes, including 7F trail slots; this is the game's indexing, not strict CP932.
+Negative values other than -1, duplicate/missing keys and oversized indices are
+errors. New glyph counts and tagged half-width mappings are not implemented.
+
+## Adding a letter manually
+
+1. Find a safe unused code in `single.map` (see capacity limits below).
+2. Find an unused glyph index: it must not appear as any nonnegative value in
+   `single.map`. Do not reuse a cell another translator has drawn/reserved.
+3. Draw the 8x12 glyph in `small.png`, and set that code's map entry to its index.
+4. Add the Unicode assignment to `assets/charmap.txt`, e.g. `U+1EA1 = 7F` for ạ.
+   This example assumes you have mapped 7F to your drawn glyph; assigning bytes
+   in charmap alone does not install graphics.
+5. Type NFC/precomposed UTF-8 text into `assets/text/NNNN.txt` using the format in
+   [editing_text.md](editing_text.md). Run `make -j8 fomt.gba`.
+
+Overrides are encoded before CP932. Decomposed sequences should be normalized
+to NFC before editing: the script encoder does not silently normalize text.
+Inspect your output in-game: accents, line spacing and text-box widths are not
+automatically checked. Very tall accents must fit inside twelve source rows.
+Unmodified assets must still pass `make -j8 compare`; edited ones intentionally
+have a different ROM hash. Generated font binaries live in `build/assets/` and
+are included at the original labels, so neither scripts nor the suffix move.
+
+## Capacity of the original US fonts
+
+Run `python3 tools/assets/font_assets.py capacity` against your current maps.
+For the original maps:
+
+* **98** single-byte entries are -1, but only **23** are safe ordinary text codes:
+  **7F, 80, A0, EB..FE**. The other unmapped entries are 00..1F controls/NUL,
+  **81..9F/E0..EA Shift-JIS lead bytes**, and FF (substitution prefix). Do not
+  steal those leads: the streaming parser first tries the single-byte glyph and
+  only accumulates another byte when it fails. Mapping a lead breaks existing
+  Japanese/full-width sequences that begin with it.
+* 158 mapped single-byte entries reference **157 distinct small glyphs**;
+  **330 of 487 small glyph slots are unreferenced by the single-byte table**.
+  These are unreferenced, not necessarily blank artwork. Double-byte entries
+  currently reference the separate large font, not these small slots. The
+  hardcoded B1..C3 alternate glyphs live elsewhere and are not allocation codes.
+* Vietnamese has **134 non-ASCII precomposed letters across both cases**:
+  12 vowel bases x 6 tone states x 2 cases, minus the 12 ASCII vowel forms,
+  plus Đ/đ. **All 134 are absent from CP932**; the existing CP932-to-glyph route
+  therefore cannot address them as those Unicode letters. This is an encoding
+  coverage count, not an assertion that no existing bitmap resembles a letter.
+* Thus the full set **does not fit in safe single-byte codes** (111 short),
+  although glyph storage has ample room. Even all 98 -1 entries would not fit.
+  The ASCII consonants/base vowels already work. A short selected sample does
+  fit, but this is not yet a complete Vietnamese translation encoding.
+
+### Proposed next decoder change — NOT implemented
+
+`func_080D0D28` in `asm/code_080D0C68.s` loads a double-byte table entry and
+unconditionally sets width class `r6 = 2`. Positive indices then use the large
+24-byte glyph path; the half-width path uses class 1 and 12-byte small glyphs.
+The result class also controls text advance. `GetShiftJisGlyphIndex` at
+0x080D0CD4 (`src/g5_encoding.cc`, formerly func_080D0CD4) is only a code-to-table
+index calculation; it has no width convention. Therefore **no current double-
+byte map value selects an 8px small glyph**. Negative entries return failure;
+putting a small index in the double map simply selects the wrong large glyph.
+
+Smallest semantic extension: reserve positive bit 14 (`0x4000`) in double-map
+values to mean `0x4000 | small_index`. Immediately after the double table load,
+detect this bit, clear it from r5, and set r6=1; otherwise retain r6=2. Keep -1
+unmapped by testing positivity before interpreting flags. Existing large
+indices max at 6921, so bit 14 is free; tagged values remain positive s16. Both
+draw calls and width-only queries must see the same class. Update the map
+validator/sample allocator to support these tags, then allocate unused valid
+double-byte codes rather than stealing lead bytes. No change to the Shift-JIS
+index formula is required.
+
+This semantic patch must **not expand the existing assembly in place**: doing
+so shifts code/data with raw pointer dependencies. Use a fixed-size branch to
+an appended Thumb helper/trampoline and return to the original instruction
+stream, or a size-matched replacement after an instruction budget audit. That
+placement detail remains to be designed/tested; no runtime patch is in this PR.
+
+## Optional sample assignment
+
+```sh
+python3 tools/assets/font_assets.py sample --text 'Xin chào Việt Nam!' --placeholders
+# Put that same UTF-8 text in an assets/text/NNNN.txt entry, then:
+make -j8 fomt.gba
+```
+
+The command normalizes its input to NFC, checks available capacity before
+editing, allocates safe codes and unreferenced small glyph slots, updates only
+the selected -1 map entries, and appends charmap assignments. Existing charmap
+assignments, map comments and other pixels are retained. Hand-edited unmapped
+cells (different from original ROM) are reserved and skipped. Repeating the
+same command is a no-op. Capacity exhaustion leaves existing assets unchanged.
+
+Without `--placeholders`, it does not alter the sheet; draw the reported cells
+yourself. With the flag it copies each base ASCII letter and adds a simple
+top accent marker. These are **readable placeholders, not correct Vietnamese
+typography** (all accents intentionally share a marker). Review/redraw them.
+The command does not edit script text automatically or implement the proposed
+double-byte extension; requesting the full Vietnamese set fails safely.
+
+## Verification
+
+```sh
+make assets-test
+python3 tools/assets/font_assets.py roundtrip
+make clean && make -j8 compare
+python3 tools/assets/check_font_rom.py
+```
+
+Roundtrip compares all font and map bytes to the original ROM. The opt-in ROM
+check requires pristine extracted assets and compare-OK `fomt.gba`, toggles one
+PNG pixel and verifies exactly one expected ROM byte changes, then builds a
+Unicode/charmap/map/glyph sample and parses it through the built script table.
+It restores its edits in `finally` and finishes with compare; a local sample
+ROM is retained at `build/assets/font-sample.gba`. This synthetic long/short
+pipeline check is not an emulator rendering test.

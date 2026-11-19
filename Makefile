@@ -96,12 +96,23 @@ $(BUILD_DIR)/assets/scripts.s: FORCE
 
 $(BUILD_DIR)/asm/data/data_080F1A80.o $(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/scripts.s
 
+FONT_BINS := $(addprefix $(BUILD_DIR)/assets/font-,small.bin large.bin single.bin double.bin)
+
+$(BUILD_DIR)/assets/fonts.stamp: FORCE
+	@$(PYTHON) tools/assets/font_assets.py build
+
+$(FONT_BINS): $(BUILD_DIR)/assets/fonts.stamp
+	@test -f $@
+
+$(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/fonts.stamp $(FONT_BINS)
+
 ifneq (,$(and $(filter extract,$(MAKECMDGOALS)),$(filter-out extract clean assets-test,$(MAKECMDGOALS))))
 $(error run `make extract` on its own, then build in a separate make invocation)
 endif
 
 extract:
 	@$(PYTHON) tools/assets/fomt_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
+	@$(PYTHON) tools/assets/font_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
 
 assets-test:
 	@$(PYTHON) -m unittest discover -s tools/assets -p 'test_*.py'
