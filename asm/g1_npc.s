@@ -6254,7 +6254,7 @@ func_080A32A4: @ 0x080A32A4
 	adds r0, r6, #0
 	movs r1, #0x11
 	movs r2, #1
-	bl func_080A3588
+	bl DrawCalendarNumber
 	str r4, [sp]
 	adds r0, r6, #0
 	movs r1, #0x41
@@ -6335,7 +6335,7 @@ func_080A32A4: @ 0x080A32A4
 	adds r1, r7, #0
 	mov r2, r8
 	adds r2, #0x2a
-	bl func_080A3588
+	bl DrawCalendarNumber
 .L080A3566:
 	adds r4, #1
 	adds r7, #0x22
@@ -6355,85 +6355,7 @@ func_080A32A4: @ 0x080A32A4
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080A3588
-func_080A3588: @ 0x080A3588
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #4
-	mov sl, r0
-	adds r7, r1, #0
-	mov sb, r2
-	adds r6, r3, #0
-	ldr r4, [sp, #0x24]
-	movs r0, #0
-	mov r8, r0
-	cmp r4, #1
-	ble .L080A35BE
-	subs r4, #1
-	movs r5, #0xa
-	cmp r4, #1
-	ble .L080A35BA
-.L080A35AE:
-	lsls r0, r5, #2
-	adds r0, r0, r5
-	lsls r5, r0, #1
-	subs r4, #1
-	cmp r4, #1
-	bgt .L080A35AE
-.L080A35BA:
-	adds r4, r5, #0
-	b .L080A3602
-.L080A35BE:
-	movs r4, #1
-.L080A35C0:
-	cmp r4, #1
-	bne .L080A35C8
-	movs r0, #1
-	mov r8, r0
-.L080A35C8:
-	adds r0, r6, #0
-	adds r1, r4, #0
-	bl __divsi3
-	adds r5, r0, #0
-	cmp r5, #0
-	bne .L080A35DC
-	mov r0, r8
-	cmp r0, #0
-	beq .L080A35F0
-.L080A35DC:
-	ldr r0, [sp, #0x28]
-	str r0, [sp]
-	mov r0, sl
-	adds r1, r7, #0
-	mov r2, sb
-	adds r3, r5, #0
-	bl func_080A3618
-	movs r0, #1
-	mov r8, r0
-.L080A35F0:
-	adds r7, #0x10
-	adds r0, r5, #0
-	muls r0, r4, r0
-	subs r6, r6, r0
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __divsi3
-	adds r4, r0, #0
-.L080A3602:
-	cmp r4, #0
-	bgt .L080A35C0
-	add sp, #4
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
+    .section .text.g1_after_b9_080A3588, "ax", %progbits
 
 	thumb_func_start func_080A3618
 func_080A3618: @ 0x080A3618
