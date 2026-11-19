@@ -32910,7 +32910,7 @@ func_080E44B8: @ 0x080E44B8
 	adds r4, r1, #0
 	adds r0, r5, #4
 	movs r1, #2
-	bl func_080AC85C
+	bl DestroyMapSceneContents
 	ldr r0, .L080E44E0 @ =vtable_unk_080E61A0
 	str r0, [r5]
 	movs r0, #1
