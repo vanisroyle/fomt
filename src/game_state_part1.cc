@@ -510,7 +510,7 @@ EC void ClearSideEntityEffectSprite(void * self);
 EC void BeginSideEntityTransition(void * self);
 EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
-EC void func_0804EC84(i32 value, char * text, u32 digits);
+EC void FormatMessageInteger(i32 value, char * text, u32 digits);
 EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
 EC void func_08032384(AActorEntity & self, u32 value, bool enabled);
 EC u32 func_08033B24(AActorEntity & self);
@@ -1245,7 +1245,7 @@ EC void SECTION(".text.game_state_08012AA4") GameScript_SetIntegerTextVariable(G
 {
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
-    func_0804EC84(value, formattedNumber, 0);
+    FormatMessageInteger(value, formattedNumber, 0);
     func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
 }
 
@@ -1254,7 +1254,7 @@ EC void SECTION(".text.game_state_08012ADC") GameScript_SetPaddedIntegerTextVari
 {
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
-    func_0804EC84(value, formattedNumber, minimumDigits);
+    FormatMessageInteger(value, formattedNumber, minimumDigits);
     func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
 }
 
