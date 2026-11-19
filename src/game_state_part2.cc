@@ -261,7 +261,7 @@ struct GameStateMapOwner
     SmartPtr<GameStateMapInteraction> alternate_seasonal_scenery;
     GameStateMapOverlay * map_overlay;
     GameStateFieldObject field_objects[4];
-    STRUCT_PAD(0x10B0, 0x10C8);
+    GameStateVaseDisplay * transition_icons[6];
     bool day_update_requested;
     bool skip_day_update_events;
 };
@@ -2710,5 +2710,288 @@ EC SECTION(".text.game_state_c2.0801FD0C") void GameStateRemoveEntitySlot(GameSt
     {
         delete entity;
         entity = nullptr;
+    }
+}
+
+struct GameStateTransitionSpriteRecord
+{
+    u8 kind : 2;
+    STRUCT_PAD(1, 2);
+    u16 map : 10;
+    STRUCT_PAD(4, 8);
+    u16 icon;
+    STRUCT_PAD(0xA, 0xC);
+};
+
+struct GameStateTransitionWork
+{
+    GameStateVaseClip clip;
+    u32 refresh_music;
+    u32 slot;
+    u32 kind;
+    AEntity ** actor_begin;
+    AEntity ** actor_end;
+    GameStateTransitionSpriteRecord const * records;
+};
+
+EC void LoadMapAtLocation(GameStateMapView &, Location const &, u32, u32, u32);
+EC void Dma3_Copy(void const *, void *, u32);
+EC void DestroyFixedSpriteOverlay(GameStateMapEffect *, u32);
+EC GameStateMapEffect * CreateFixedSpriteOverlay(void *, GameStateMapOwner &) asm("func_0803AB30");
+EC void DestroyMapTileEffectQueue(MapTileEffectQueue *, u32);
+EC MapTileEffectQueue * CreateMapTileEffectQueue(void *, GameStateMapOwner &, u32) asm("func_080AAFC8");
+EC bool HasPendingScriptEvents(void const *);
+EC u32 GameScript_IsMusicActive(GameStateScript &);
+
+EC SECTION(".text.game_state_c2.08019BEC") void GameStateTransitionMap(GameStateMapOwner & owner, Location const & target, u32 refresh_music)
+{
+    GameStateMapOwner & game = owner;
+    register Location const & location asm("r8") = target;
+    GameStateTransitionWork work;
+    work.refresh_music = static_cast<u8>(refresh_music);
+    register AEntity ** first asm("r4") = game.entities;
+    register AEntity ** last asm("r5") = game.entities + 100;
+    asm("" : "+l"(first), "+l"(last));
+    for (AEntity ** actor = first; actor != last; ++actor)
+        if (*actor)
+            (*actor)->vfunc_14();
+
+    register GameStateTransitionSpriteRecord const * source asm("sl") =
+        reinterpret_cast<GameStateTransitionSpriteRecord const *>(reinterpret_cast<u8 *>(gActiveGameScene) + 0x4DC);
+    register u32 index asm("r5") = 0;
+    asm("" : "+l"(index) : "h"(source));
+    register AEntity ** actor_begin asm("r2") = game.entities;
+    asm("" : "+l"(actor_begin));
+    work.actor_begin = actor_begin;
+    register u32 end_offset asm("r3") = offsetof(GameStateMapOwner, entities) + sizeof(game.entities);
+    asm volatile("" : "+l"(end_offset), "=m"(work.actor_begin) : "m"(work.actor_begin));
+    register AEntity ** actor_tail asm("r3") = reinterpret_cast<AEntity **>(reinterpret_cast<u8 *>(&game) + end_offset);
+    asm("" : "+l"(actor_tail));
+    work.actor_end = actor_tail;
+    register u32 overlay_offset asm("r0") = offsetof(GameStateMapOwner, map_overlay);
+    asm("" : "+l"(overlay_offset));
+    register GameStateMapOverlay ** overlay_addr asm("r0") = reinterpret_cast<GameStateMapOverlay **>(overlay_offset + reinterpret_cast<u32>(&game));
+    asm("" : "+l"(overlay_addr));
+    register GameStateMapOverlay ** overlay_slot asm("r9") = overlay_addr;
+    register GameStateVaseDisplay * empty asm("r6") = nullptr;
+    register u32 icons_offset asm("r1") = offsetof(GameStateMapOwner, transition_icons);
+    asm("" : "+l"(icons_offset) : "l"(empty), "h"(overlay_slot));
+    register GameStateVaseDisplay ** icons asm("r4") = reinterpret_cast<GameStateVaseDisplay **>(reinterpret_cast<u32>(&game) + icons_offset);
+    {
+    clear_icons:
+        GameStateVaseDisplay * previous = *icons;
+        if (empty != previous && previous)
+            previous->vtable->destroy(previous, 3);
+        *icons++ = empty;
+        switch (++index)
+        {
+        case 6 ... 0xFFFFFFFFU: break;
+        default: goto clear_icons;
+        }
+    }
+
+    register Location const * pos asm("r2") = &location;
+    asm("" : "+l"(pos));
+    if (pos->GetMap() != 2)
+    {
+        GameStateMapView * view = game.map_view;
+        if (view->id == 2 && game.farm_terrain)
+            Dma3_Copy(view->expanded_terrain, const_cast<TerrainInfo *>(game.farm_terrain), 0xB000);
+    }
+    LoadMapAtLocation(*game.map_view, location, game.daylight_band, game.daylight_amount, 30 - game.daylight_amount);
+
+    {
+        register unsigned offset asm("r0") = offsetof(GameStateMapOwner, map_effect);
+        asm("" : "+l"(offset) : "l"(&game));
+        register GameStateMapEffect ** slot asm("r4") = reinterpret_cast<GameStateMapEffect **>(reinterpret_cast<u8 *>(&game) + offset);
+        register GameStateMapEffect * empty asm("r5") = nullptr;
+        register GameStateMapEffect * previous asm("r0") = *slot;
+        if (empty != previous && previous)
+            DestroyFixedSpriteOverlay(previous, 3);
+        *slot = empty;
+    }
+    {
+        register GameStateMapOverlay ** slot asm("r4") = overlay_slot;
+        register GameStateMapOverlay * empty asm("r5") = nullptr;
+        register GameStateMapOverlay * previous asm("r0") = *slot;
+        if (empty != previous && previous)
+            DestroyGameStateMapOverlay(previous, 3);
+        *slot = empty;
+    }
+    {
+        register unsigned offset asm("r1") = offsetof(GameStateMapOwner, tile_effects);
+        asm("" : "+l"(offset) : "l"(&game));
+        register MapTileEffectQueue ** slot asm("r4") = reinterpret_cast<MapTileEffectQueue **>(reinterpret_cast<u8 *>(&game) + offset);
+        register MapTileEffectQueue * empty asm("r5") = nullptr;
+        register MapTileEffectQueue * previous asm("r0") = *slot;
+        if (empty != previous && previous)
+            DestroyMapTileEffectQueue(previous, 3);
+        *slot = empty;
+    }
+
+    register u32 first_slot asm("r2") = 0;
+    asm("" : "+l"(first_slot));
+    work.slot = first_slot;
+    register GameStateTransitionSpriteRecord const * initial asm("r3") = source;
+    asm("" : "+l"(initial));
+    work.records = initial;
+    {
+    restore_icons:
+        GameStateTransitionSpriteRecord const * record = work.records;
+        work.kind = record->kind;
+        if (work.kind == 1 && record->map == game.vtable->get_map_id(game))
+        {
+            register u32 offset asm("r2") = offsetof(GameStateMapOwner, transition_icons);
+            asm("" : "+l"(offset));
+            register GameStateVaseDisplay ** base asm("r2") = reinterpret_cast<GameStateVaseDisplay **>(offset + reinterpret_cast<u32>(&game));
+            asm("" : "+l"(base));
+            register GameStateVaseDisplay ** slot asm("r9") = base;
+            asm("" : "+h"(slot));
+            register u32 index asm("r3") = work.slot;
+            asm("" : "+l"(index));
+            register u32 step asm("r0") = index * sizeof(*slot);
+            asm("" : "+l"(step));
+            slot = reinterpret_cast<GameStateVaseDisplay **>(reinterpret_cast<u32>(slot) + step);
+            register GameStateVaseDisplay * replacement asm("r6") =
+                static_cast<GameStateVaseDisplay *>(::operator new(sizeof(GameStateVaseDisplay)));
+            register GameStatePackedSpriteArchive const * archive asm("r5") = game.vtable->get_vase_archive(game);
+            register u32 icon asm("sl") = work.records->icon;
+            InitGameStateVaseDisplay(replacement, game, 2, 0x1B);
+            replacement->vtable = &vtable_unk_080E602C;
+            register u32 frame_offset asm("r1") = offsetof(GameStateVaseDisplay, frame);
+            asm("" : "+l"(frame_offset));
+            register GameStateVaseFrame * dest asm("r1") = reinterpret_cast<GameStateVaseFrame *>(frame_offset + reinterpret_cast<u32>(replacement));
+            asm("" : "+l"(dest));
+            register GameStateVaseFrame * frame asm("r8") = dest;
+            register GameStateVaseArchiveVtable const * methods asm("r4") = GetVaseArchiveVtable(archive);
+            register GameStateVaseClip * clip asm("r0") = &work.clip;
+            asm("" : "+l"(clip) : "l"(methods));
+            methods->get_clip(clip, archive, icon);
+            register u32 frame_index asm("r2") = work.clip.keyframes->frame;
+            asm("" : "+l"(frame_index));
+            register GameStateVaseFrame * output asm("r0") = frame;
+            asm("" : "+l"(output) : "l"(frame_index));
+            methods->decode(output, archive, frame_index);
+            register u8 * active asm("r0") = reinterpret_cast<u8 *>(&replacement->active);
+            asm("" : "+l"(active));
+            register u8 kind asm("r2");
+            asm(
+                ".ifnes \"%1\", \"[sp, #0x14]\"\n\t"
+                ".error \"Transition sprite kind must be at sp + 20\"\n\t"
+                ".endif\n\t"
+                "mov %0, sp\n\t"
+                "ldrb %0, [%0, #20]"
+                : "=l"(kind) : "m"(work.kind), "l"(active));
+            asm("" : "+l"(kind) : "l"(active));
+            *active = kind;
+            register GameStateVaseDisplay ** dest_slot asm("r4") = slot;
+            asm("" : "+l"(dest_slot));
+            register GameStateVaseDisplay * previous asm("r1") = *dest_slot;
+            if (replacement != previous && previous)
+                previous->vtable->destroy(previous, 3);
+            *dest_slot = replacement;
+        }
+        register GameStateTransitionSpriteRecord const * next asm("r3") = work.records;
+        asm("" : "+l"(next));
+        work.records = next + 1;
+        switch (++work.slot)
+        {
+        case 6 ... 0xFFFFFFFFU: break;
+        default: goto restore_icons;
+        }
+    }
+
+    {
+        register GameStateMapEffect * result asm("r0") = CreateFixedSpriteOverlay(::operator new(0xA0), game);
+        register u32 offset asm("r1") = offsetof(GameStateMapOwner, map_effect);
+        asm("" : "+l"(offset) : "l"(result));
+        register GameStateMapEffect ** slot asm("r5") = reinterpret_cast<GameStateMapEffect **>(reinterpret_cast<u8 *>(&game) + offset);
+        asm("" : "+l"(slot) : "l"(result));
+        register GameStateMapEffect * camera asm("r4") = result;
+        register GameStateMapEffect * previous asm("r0") = *slot;
+        if (camera != previous && previous)
+            DestroyFixedSpriteOverlay(previous, 3);
+        *slot = camera;
+    }
+    if (!GetMapData(game.map_view->map)->is_interior)
+    {
+        register i32 map asm("r1") = game.map_view->id;
+        register u32 offset asm("r2") = offsetof(GameStateMapOwner, map_data);
+        asm("" : "+l"(offset), "+l"(map));
+        register GameStateMapData ** address asm("r0") = reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(&game) + offset);
+        asm("" : "+l"(address) : "l"(map));
+        register GameStateMapData * state asm("r0") = *address;
+        asm("" : "+l"(state) : "l"(map));
+        register u32 * weather_record asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(state) + 8);
+        asm("" : "+l"(weather_record) : "l"(map));
+        register u32 weather asm("r0");
+        if (map == 46) goto rain;
+        if (map <= 46) goto earlier;
+        if (map == 47) goto snow;
+        goto current_weather;
+    earlier:
+        switch (map)
+        {
+        case 44 ... 0x7FFFFFFF: break;
+        default: goto current_weather;
+        }
+        weather = 0;
+        goto selected;
+    rain:
+        weather = 1;
+        goto selected;
+    snow:
+        weather = 2;
+        goto selected;
+    current_weather:
+        weather = *weather_record;
+    selected:
+        switch (weather)
+        {
+            case 1: GameStateCreateMapOverlay(game, 1); break;
+            case 2: GameStateCreateMapOverlay(game, 0); break;
+        }
+    }
+    void * storage = ::operator new(4);
+    {
+        register MapTileEffectQueue * result asm("r0") = CreateMapTileEffectQueue(storage, game, game.map_view->map);
+        register u32 offset asm("r3") = offsetof(GameStateMapOwner, tile_effects);
+        asm("" : "+l"(offset) : "l"(result));
+        register MapTileEffectQueue ** slot asm("r5") = reinterpret_cast<MapTileEffectQueue **>(reinterpret_cast<u8 *>(&game) + offset);
+        asm("" : "+l"(slot) : "l"(result));
+        register MapTileEffectQueue * effects asm("r4") = result;
+        register MapTileEffectQueue * previous asm("r0") = *slot;
+        if (effects != previous && previous)
+            DestroyMapTileEffectQueue(previous, 3);
+        *slot = effects;
+    }
+    GameStateRefreshMapScenery(game);
+    GameStateRefreshVase(game);
+    GameStateRefreshTimedMapInteraction(game);
+    GameStateRefreshPairedScenery(game);
+    GameStateRefreshSeasonalScenery(game);
+    GameStateRelocateObstructedFarmAnimals(game);
+
+    register AEntity ** actor asm("r4") = work.actor_begin;
+    register AEntity ** end asm("r5") = work.actor_end;
+    asm("" : "+l"(actor), "+l"(end));
+    for (; actor != end; ++actor)
+    {
+        register AEntity * entity asm("r2") = *actor;
+        asm("" : "+l"(entity));
+        if (entity)
+            entity->vfunc_10();
+    }
+    if (work.refresh_music && (!HasPendingScriptEvents(reinterpret_cast<u8 *>(game.map_data) + 0x214C) ||
+        !static_cast<u8>(GameScript_IsMusicActive(*game.script))))
+        GameStateRefreshMapMusic(game);
+    if (!GetMapData(game.map_view->map)->is_interior)
+    {
+        register u32 offset asm("r1") = offsetof(GameStateMapOwner, clock);
+        asm("" : : "l"(offset));
+        register GameStateClock const ** address asm("r0") = reinterpret_cast<GameStateClock const **>(reinterpret_cast<u8 *>(&game) + offset);
+        asm("" : "+l"(address));
+        GameStateClock const * clock = *address;
+        func_0801A13C(game, clock->hour, clock->minute, true);
     }
 }

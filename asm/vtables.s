@@ -351,7 +351,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateSetRecordPlayerAlbum
 	.word GameStateApplyMapTilePatchWithAlternateRow
 	.word GameMap_IsInteriorOrForced
-	.word func_08019BEC
+	.word GameStateTransitionMap
 	.word GameStateRefreshMapDaylight
 	.word func_0801EAA0
 	.word GameStateHoeFarmPlot
