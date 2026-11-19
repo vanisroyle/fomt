@@ -1259,7 +1259,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040506
 	bl .L08045572
 .L08040506:
-	bl func_080125EC
+	bl GameScript_CloseDialoguePanels
 	bl .L08045572
 .L0804050E:
 	movs r2, #0xd5
@@ -5452,7 +5452,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080425DA
 	bl .L0804168A
 .L080425DA:
-	bl func_08013E6C
+	bl GameScript_QueueCondition2E
 	bl .L0804168A
 .L080425E2:
 	movs r6, #0xda
@@ -5475,7 +5475,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042608
 	bl .L0804168A
 .L08042608:
-	bl func_08013EF8
+	bl GameScript_QueueCondition2F
 	bl .L0804168A
 .L08042610:
 	adds r6, r5, #0
@@ -6345,7 +6345,7 @@ func_0803F8DC: @ 0x0803F8DC
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	ldr r0, [r0]
-	bl func_08010E68
+	bl SaveData_HaveAllAnimalsHighAffection
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	adds r2, r5, #0
@@ -27421,7 +27421,7 @@ func_08048FFC: @ 0x08048FFC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L0804E0B4
-	bl func_080125EC
+	bl GameScript_CloseDialoguePanels
 .L0804E0B4:
 	movs r2, #0xd4
 	lsls r2, r2, #2

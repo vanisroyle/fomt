@@ -1343,8 +1343,9 @@ func_08010358: @ 0x08010358
 
     .section .text.game_state_08010E68, "ax", %progbits
 
-    thumb_func_start func_08010E68
-func_08010E68: @ 0x08010E68
+
+    thumb_func_start SaveData_HaveAllAnimalsHighAffection
+SaveData_HaveAllAnimalsHighAffection: @ 0x08010E68
     push {r4, r5, r6, r7, lr}
     adds r6, r0, #0
     movs r7, #1
@@ -1422,7 +1423,6 @@ func_08010E68: @ 0x08010E68
     pop {r1}
     bx r1
     .align 2, 0
-
     .section .text.game_state_08010F0C, "ax", %progbits
 
     .section .text.game_state_08010F14, "ax", %progbits
@@ -3497,61 +3497,6 @@ func_080124D0: @ 0x080124D0
     bx r0
     .align 2, 0
 
-    thumb_func_start func_080125EC
-func_080125EC: @ 0x080125EC
-    push {r4, r5, r6, lr}
-    ldr r4, [r0, #4]
-    adds r5, r4, #0
-    adds r5, #0xb4
-    movs r6, #0
-    ldr r1, [r5]
-    cmp r6, r1
-    beq .L0801260C
-    cmp r1, #0
-    beq .L0801260C
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801260C:
-    str r6, [r5]
-    adds r5, r4, #0
-    adds r5, #0xb8
-    movs r6, #0
-    ldr r1, [r5]
-    cmp r6, r1
-    beq .L0801262A
-    cmp r1, #0
-    beq .L0801262A
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801262A:
-    str r6, [r5]
-    adds r5, r4, #0
-    adds r5, #0xac
-    movs r6, #0
-    ldr r0, [r5]
-    cmp r6, r0
-    beq .L08012642
-    cmp r0, #0
-    beq .L08012642
-    movs r1, #3
-    bl func_08050D0C
-.L08012642:
-    str r6, [r5]
-    ldrh r1, [r4, #0x10]
-    ldr r0, .L08012654 @ =0x0000FEFF
-    ands r0, r1
-    strh r0, [r4, #0x10]
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012654: .4byte 0x0000FEFF
 
     .section .text.game_state_0801268C, "ax", %progbits
 
@@ -6437,8 +6382,8 @@ func_08013DC8: @ 0x08013DC8
 .L08013E64: .4byte vtable_unk_080E5E74
 .L08013E68: .4byte vtable_unk_080E5C54
 
-    thumb_func_start func_08013E6C
-func_08013E6C: @ 0x08013E6C
+    thumb_func_start GameScript_QueueCondition2E
+GameScript_QueueCondition2E: @ 0x08013E6C
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -6506,9 +6451,10 @@ func_08013E6C: @ 0x08013E6C
     .align 2, 0
 .L08013EF0: .4byte vtable_unk_080E5E74
 .L08013EF4: .4byte vtable_unk_080E5D74
+    .section .text.game_state_08013EF8, "ax", %progbits
 
-    thumb_func_start func_08013EF8
-func_08013EF8: @ 0x08013EF8
+    thumb_func_start GameScript_QueueCondition2F
+GameScript_QueueCondition2F: @ 0x08013EF8
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -6578,6 +6524,7 @@ func_08013EF8: @ 0x08013EF8
     bx r0
     .align 2, 0
 .L08013F84: .4byte vtable_unk_080E5E74
+    .section .text.game_state_08013F88, "ax", %progbits
 
     thumb_func_start func_08013F88
 func_08013F88: @ 0x08013F88

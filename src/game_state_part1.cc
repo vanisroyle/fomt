@@ -330,18 +330,48 @@ struct GameStateAudioList
     u32 reserved;
 };
 
+struct GameStateTextPanel
+{
+    u32 reserved;
+    virtual ~GameStateTextPanel();
+};
+
+EC void func_08050D0C(void * dialogue, u32 mode);
+
+struct GameStateDialogueOwner
+{
+    ~GameStateDialogueOwner()
+    {
+        if (inner != nullptr)
+            func_08050D0C(inner, 3);
+    }
+
+    void operator=(void * dialogue)
+    {
+        if (dialogue != inner)
+            if (inner != nullptr)
+                func_08050D0C(inner, 3);
+        inner = dialogue;
+    }
+
+    void * Get() const { return inner; }
+    void * inner;
+};
+
 struct GameStateRuntime
 {
-    STRUCT_PAD(0x00, 0x8C);
+    STRUCT_PAD(0x00, 0x10);
+    u16 flags;
+    STRUCT_PAD(0x12, 0x8C);
     u8 * saveData;
     STRUCT_PAD(0x90, 0x9C);
     u32 pendingCommand;
     STRUCT_PAD(0xA0, 0xA8);
     GameStateObject * scene;
-    void * dialogue;
+    GameStateDialogueOwner dialogue;
     void * textVariables;
-    void * textPanel;
-    void * secondaryTextPanel;
+    SmartPtr<GameStateTextPanel> textPanel;
+    SmartPtr<GameStateTextPanel> secondaryTextPanel;
     u8 musicPlayer[0x14];
     GameStateAudioList soundPlayers;
     u16 pendingArgument;
@@ -356,6 +386,17 @@ struct GameStateScript
     u32 vtable;
     GameStateRuntime * runtime;
 };
+
+// 0x080125EC
+EC void SECTION(".text.game_state_080125EC") GameScript_CloseDialoguePanels(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.textPanel = nullptr;
+    runtime.secondaryTextPanel = nullptr;
+    runtime.dialogue = nullptr;
+    runtime.flags &= ~0x100;
+}
+
 
 
 struct GameStateShippingView
@@ -622,7 +663,7 @@ EC void SECTION(".text.game_state_080124C4") GameScript_ResetAudio()
 // 0x0801274C
 EC void SECTION(".text.game_state_0801274C") GameScript_ResetDialogueValue(GameStateScript & script)
 {
-    void * actor = script.runtime->dialogue;
+    void * actor = script.runtime->dialogue.Get();
     if (actor != nullptr)
         func_08050E74(actor);
 }
@@ -630,7 +671,7 @@ EC void SECTION(".text.game_state_0801274C") GameScript_ResetDialogueValue(GameS
 // 0x0801278C
 EC void SECTION(".text.game_state_0801278C") GameScript_ResetAlternateDialogueValue(GameStateScript & script)
 {
-    void * actor = script.runtime->dialogue;
+    void * actor = script.runtime->dialogue.Get();
     if (actor != nullptr)
         func_08050E5C(actor);
 }
@@ -638,7 +679,7 @@ EC void SECTION(".text.game_state_0801278C") GameScript_ResetAlternateDialogueVa
 // 0x0801284C
 EC void SECTION(".text.game_state_0801284C") GameScript_InvokeDialogueAction(GameStateScript & script)
 {
-    void * actor = script.runtime->dialogue;
+    void * actor = script.runtime->dialogue.Get();
     if (actor != nullptr)
         func_08050E8C(actor);
 }
@@ -1134,9 +1175,9 @@ EC void SECTION(".text.game_state_080123A4") GameScript_WaitForScene(GameStateSc
 EC void SECTION(".text.game_state_080126BC") GameScript_StartDialogueWithDefaultFlags(GameStateScript & script, u32 messageId)
 {
     GameStateRuntime & runtime = *script.runtime;
-    if (runtime.dialogue != nullptr)
+    if (runtime.dialogue.Get() != nullptr)
     {
-        func_08050DC8(runtime.dialogue, messageId, 0x40, runtime.textVariables);
+        func_08050DC8(runtime.dialogue.Get(), messageId, 0x40, runtime.textVariables);
         runtime.pendingCommand = 0x11;
     }
 }
@@ -1202,9 +1243,9 @@ EC void SECTION(".text.game_state_080120E4") GameScript_SetActorFacing(GameState
 EC void SECTION(".text.game_state_08012658") GameScript_ResetDialogue(GameStateScript & script)
 {
     GameStateRuntime & runtime = *script.runtime;
-    if (runtime.dialogue != nullptr)
+    if (runtime.dialogue.Get() != nullptr)
     {
-        func_08050D74(runtime.dialogue);
+        func_08050D74(runtime.dialogue.Get());
         func_080D7F88(runtime);
         func_080D7F74(runtime);
         func_080D7F60(runtime);
@@ -1216,9 +1257,9 @@ EC void SECTION(".text.game_state_08012658") GameScript_ResetDialogue(GameStateS
 EC void SECTION(".text.game_state_0801268C") GameScript_StartDialogue(GameStateScript & script, u32 messageId, u32 flags)
 {
     GameStateRuntime & runtime = *script.runtime;
-    if (runtime.dialogue != nullptr)
+    if (runtime.dialogue.Get() != nullptr)
     {
-        func_08050DC8(runtime.dialogue, messageId, (u16) flags, runtime.textVariables);
+        func_08050DC8(runtime.dialogue.Get(), messageId, (u16) flags, runtime.textVariables);
         runtime.pendingCommand = 0x10;
     }
 }
@@ -1320,23 +1361,23 @@ EC u32 SECTION(".text.game_state_080114C8") SaveProgress_RaiseByteCounter(GameSt
 EC void SECTION(".text.game_state_08012720") GameScript_SetDialogueValue(GameStateScript & script, u32 value)
 {
     GameStateRuntime & runtime = *script.runtime;
-    if (runtime.dialogue != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
-        func_08050E68(runtime.dialogue, value);
+    if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
+        func_08050E68(runtime.dialogue.Get(), value);
 }
 
 // 0x08012760
 EC void SECTION(".text.game_state_08012760") GameScript_SetAlternateDialogueValue(GameStateScript & script, u32 value)
 {
     GameStateRuntime & runtime = *script.runtime;
-    if (runtime.dialogue != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0))
-        func_08050E50(runtime.dialogue, value);
+    if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0))
+        func_08050E50(runtime.dialogue.Get(), value);
 }
 
 // 0x080126E4
 EC void SECTION(".text.game_state_080126E4") GameScript_SetMappedDialogueValue(GameStateScript & script, u32 value)
 {
     GameStateRuntime & runtime = *script.runtime;
-    void * actor = runtime.dialogue;
+    void * actor = runtime.dialogue.Get();
     if (actor != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
         func_08050E68(actor, func_0809FE3C(runtime.saveData + 0x1CD4, value));
 }
