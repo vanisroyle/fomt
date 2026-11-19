@@ -594,7 +594,7 @@ func_0803ACD8: @ 0x0803ACD8
 	adds r2, r2, r4
 	mov r0, sp
 	adds r1, r7, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r6, sp
 	str r6, [sp, #0x18]
 	ldr r1, [r5, #4]
@@ -1188,7 +1188,7 @@ func_0803B128: @ 0x0803B128
 	mov r0, sp
 	adds r1, r4, #0
 	adds r3, r6, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sl, sp
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
@@ -1666,27 +1666,27 @@ func_0803B718: @ 0x0803B718
 	adds r1, #4
 	adds r0, r5, r1
 	movs r1, #0
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xde
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xdf
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xe0
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #3
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xe1
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #4
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xe2
 	lsls r1, r1, #2
 	adds r0, r5, r1
@@ -1914,7 +1914,7 @@ func_0803B8CC: @ 0x0803B8CC
 	mov r0, sb
 	str r0, [r6, #0x10]
 	str r0, [r2, #4]
-	ldr r0, .L0803BA8C @ =vtable_unk_080E5BB4
+	ldr r0, .L0803BA8C @ =gTaskListVtable
 	str r0, [r2, #8]
 	adds r1, r2, #0
 	adds r1, #0x10
@@ -2040,7 +2040,7 @@ func_0803B8CC: @ 0x0803B8CC
 .L0803BA80: .4byte 0x000003FF
 .L0803BA84: .4byte 0xFFF801FF
 .L0803BA88: .4byte 0xFFFF807F
-.L0803BA8C: .4byte vtable_unk_080E5BB4
+.L0803BA8C: .4byte gTaskListVtable
 .L0803BA90: .4byte vtable_unk_080E5BD8
 .L0803BA94: .4byte gUnk_080F9F74
 .L0803BA98: .4byte gUnk_080F9F70
@@ -2049,8 +2049,8 @@ func_0803B8CC: @ 0x0803B8CC
 .L0803BAA4: .4byte 0xFFFF801F
 .L0803BAA8: .4byte 0xFFF87FFF
 
-	thumb_func_start func_0803BAAC
-func_0803BAAC: @ 0x0803BAAC
+	thumb_func_start UpdateDialogWindowLayers
+UpdateDialogWindowLayers: @ 0x0803BAAC
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -2354,62 +2354,6 @@ func_0803BAAC: @ 0x0803BAAC
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_0803BCF8
-func_0803BCF8: @ 0x0803BCF8
-	push {r4, r5, r6, lr}
-	adds r4, r0, #0
-	ldrb r0, [r4, #0xb]
-	lsrs r0, r0, #7
-	ldrb r1, [r4, #0xc]
-	movs r2, #0x7f
-	ands r1, r2
-	lsls r5, r1, #1
-	orrs r5, r0
-	cmp r5, #0
-	bne .L0803BD32
-	ldrh r0, [r4, #0xa]
-	lsls r0, r0, #0x11
-	lsrs r0, r0, #0x18
-	adds r6, r4, #0
-	adds r6, #0x10
-	cmp r0, #1
-	beq .L0803BD26
-	adds r1, r4, #0
-	adds r1, #0x2c
-	adds r0, r6, #0
-	bl func_08009940
-.L0803BD26:
-	adds r1, r4, #0
-	adds r1, #0x44
-	adds r0, r6, #0
-	bl func_08009940
-	strb r5, [r4, #0xd]
-.L0803BD32:
-	ldrb r3, [r4, #0xb]
-	lsrs r0, r3, #7
-	ldrb r1, [r4, #0xc]
-	movs r2, #0x7f
-	ands r1, r2
-	lsls r1, r1, #1
-	orrs r1, r0
-	cmp r1, #0
-	blt .L0803BD58
-	cmp r1, #2
-	bgt .L0803BD58
-	movs r0, #0x80
-	orrs r0, r3
-	strb r0, [r4, #0xb]
-	ldrb r1, [r4, #0xc]
-	movs r0, #0x80
-	rsbs r0, r0, #0
-	ands r0, r1
-	strb r0, [r4, #0xc]
-.L0803BD58:
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
 	.section .text.0803BF14, "ax", %progbits
 	.align 2, 0
 .L0803BF14:
@@ -2443,7 +2387,7 @@ func_0803C028: @ 0x0803C028
 	ldr r3, [sp, #0x98]
 	ldr r5, [sp, #0x9c]
 	ldr r2, [sp, #0x94]
-	bl func_0803BEB0
+	bl UpdateDialogWindow
 	str r0, [sp, #0x48]
 	cmp r0, #0
 	bge .L0803C04E
@@ -2504,7 +2448,7 @@ func_0803C028: @ 0x0803C028
 	beq .L0803C0B2
 	adds r0, r5, #0
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L0803C0B2:
 	ldr r0, .L0803C0C4 @ =gUnk_080F1A34
 	ldrb r1, [r7, #0xc]
@@ -2526,7 +2470,7 @@ func_0803C028: @ 0x0803C028
 	beq .L0803C0DC
 	adds r0, r5, #0
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L0803C0DC:
 	ldrb r0, [r7, #0xd]
 	cmp r0, #0
@@ -3083,7 +3027,7 @@ func_0803C5B0: @ 0x0803C5B0
 	adds r4, r7, #0
 	adds r4, #0x60
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -3181,7 +3125,7 @@ func_0803C5B0: @ 0x0803C5B0
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r5, #4]
@@ -3288,8 +3232,8 @@ func_0803C5B0: @ 0x0803C5B0
 .L0803C79C: .4byte gClockFont
 
 	.section .text.0803C7C8, "ax", %progbits
-	thumb_func_start func_0803C7C8
-func_0803C7C8: @ 0x0803C7C8
+	thumb_func_start DrawDialogChoices
+DrawDialogChoices: @ 0x0803C7C8
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -4639,48 +4583,7 @@ func_0803D240: @ 0x0803D240
 	.byte 0xFF, 0xF7, 0xDE, 0xFD, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x12, 0x06, 0x12, 0x0E, 0x08, 0x30
 	.byte 0xFF, 0xF7, 0x3C, 0xFC, 0x01, 0xBC, 0x00, 0x47
 
-	thumb_func_start func_0803D4D8
-func_0803D4D8: @ 0x0803D4D8
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #4
-	adds r5, r0, #0
-	mov r8, r1
-	adds r1, r2, #0
-	adds r7, r3, #0
-	ldr r3, [sp, #0x1c]
-	adds r2, r7, #0
-	bl func_0803BEB0
-	adds r6, r0, #0
-	cmp r6, #3
-	bne .L0803D51C
-	ldr r0, [r5, #4]
-	ldr r1, [r0, #0x1c]
-	adds r0, r5, #0
-	bl _call_via_r1
-	adds r4, r0, #0
-	ldr r0, [r5, #4]
-	ldr r1, [r0, #0x20]
-	adds r0, r5, #0
-	bl _call_via_r1
-	adds r2, r0, #0
-	adds r0, r5, #0
-	adds r0, #8
-	str r7, [sp]
-	adds r1, r4, #0
-	mov r3, r8
-	bl func_0803C7C8
-.L0803D51C:
-	adds r0, r6, #0
-	add sp, #4
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-
+	.section .text.0803D52C, "ax", %progbits
 	thumb_func_start DecodeNpcScheduleDate
 DecodeNpcScheduleDate: @ 0x0803D52C
 	push {r4, r5, r6, r7, lr}
@@ -5263,50 +5166,7 @@ func_0803DA7C: @ 0x0803DA7C
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_0803DC64
-func_0803DC64: @ 0x0803DC64
-	push {r4, lr}
-	sub sp, #4
-	adds r2, r0, #0
-	ldr r1, .L0803DC7C @ =0x000021CA
-	adds r0, r2, r1
-	ldrb r1, [r0]
-	movs r0, #0xc
-	ands r0, r1
-	cmp r0, #0
-	beq .L0803DC80
-	movs r0, #0
-	b .L0803DCAA
-	.align 2, 0
-.L0803DC7C: .4byte 0x000021CA
-.L0803DC80:
-	mov r4, sp
-	adds r1, r2, #0
-	adds r1, #0x10
-	mov r0, sp
-	bl DecodeNpcScheduleDate
-	ldrb r0, [r4, #1]
-	ldrb r1, [r4, #2]
-	ldrb r4, [r4, #3]
-	bl IsNpcScheduleFestivalDay
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L0803DCA0
-	movs r0, #3
-	b .L0803DCAA
-.L0803DCA0:
-	cmp r4, #0
-	beq .L0803DCA8
-	movs r0, #1
-	b .L0803DCAA
-.L0803DCA8:
-	movs r0, #2
-.L0803DCAA:
-	add sp, #4
-	pop {r4}
-	pop {r1}
-	bx r1
-	.align 2, 0
+	.section .text.0803DCB4, "ax", %progbits
 .L0803DCB4:
 	.byte 0x70, 0xB5, 0x81, 0xB0, 0x05, 0x1C, 0x0A, 0x48, 0x2C, 0x18, 0x20, 0x1C
 	.byte 0x62, 0xF0, 0x60, 0xFB, 0x00, 0x28, 0x00, 0xD1, 0x89, 0xE0, 0x60, 0xF0, 0x05, 0xFF, 0x3B, 0x28
