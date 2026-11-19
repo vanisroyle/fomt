@@ -131,7 +131,7 @@ struct TileTransferQueue;
 struct OamBuffer;
 
 EC int UpdateDialogWindowLayers(DialogWindowLayers &, BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *);
-EC void func_08009940(void *, void *);
+EC void TaskList_Append(void *, void *);
 
 ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
 {
@@ -140,8 +140,8 @@ ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
     {
         u32 layerMode = self.layerMode;
         if (layerMode != 1)
-            func_08009940(self.layerList, self.backgroundLayer);
-        func_08009940(self.layerList, self.foregroundLayer);
+            TaskList_Append(self.layerList, self.backgroundLayer);
+        TaskList_Append(self.layerList, self.foregroundLayer);
         self.animationFrames = state;
     }
     int nextState = self.state;
@@ -185,8 +185,8 @@ ROM_TEXT(0803BD60) void func_0803BDEC(DialogWindowLayers & self, int x, int y)
 
 EC char const vtable_unk_080E7778[];
 EC DialogWindowLayers * func_0803B8CC(void *, int, int, int, int, int, int, int, int);
-EC void func_080098AC(void *, int);
-EC void func_080098DC(void *, int);
+EC void TaskNode_Destroy(void *, int);
+EC void TaskList_Destroy(void *, int);
 
 ROM_TEXT(0803BD60) DialogWindow & func_0803BDFC(DialogWindow & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
 {
@@ -201,9 +201,9 @@ ROM_TEXT(0803BD60) void func_0803BE50(DialogWindow & self, int flags)
     if (DialogWindowLayers * inner = self.inner)
     {
         u8 * data = reinterpret_cast<u8 *>(inner);
-        func_080098AC(data + 0x44, 2);
-        func_080098AC(data + 0x2C, 2);
-        func_080098DC(data + 0x10, 2);
+        TaskNode_Destroy(data + 0x44, 2);
+        TaskNode_Destroy(data + 0x2C, 2);
+        TaskList_Destroy(data + 0x10, 2);
         ::operator delete(inner);
     }
     if (flags & 1)

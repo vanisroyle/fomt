@@ -594,7 +594,7 @@ func_0803ACD8: @ 0x0803ACD8
 	adds r2, r2, r4
 	mov r0, sp
 	adds r1, r7, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r6, sp
 	str r6, [sp, #0x18]
 	ldr r1, [r5, #4]
@@ -1188,7 +1188,7 @@ func_0803B128: @ 0x0803B128
 	mov r0, sp
 	adds r1, r4, #0
 	adds r3, r6, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sl, sp
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
@@ -1666,27 +1666,27 @@ func_0803B718: @ 0x0803B718
 	adds r1, #4
 	adds r0, r5, r1
 	movs r1, #0
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xde
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xdf
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xe0
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #3
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xe1
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #4
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xe2
 	lsls r1, r1, #2
 	adds r0, r5, r1
@@ -1914,7 +1914,7 @@ func_0803B8CC: @ 0x0803B8CC
 	mov r0, sb
 	str r0, [r6, #0x10]
 	str r0, [r2, #4]
-	ldr r0, .L0803BA8C @ =vtable_unk_080E5BB4
+	ldr r0, .L0803BA8C @ =gTaskListVtable
 	str r0, [r2, #8]
 	adds r1, r2, #0
 	adds r1, #0x10
@@ -2040,7 +2040,7 @@ func_0803B8CC: @ 0x0803B8CC
 .L0803BA80: .4byte 0x000003FF
 .L0803BA84: .4byte 0xFFF801FF
 .L0803BA88: .4byte 0xFFFF807F
-.L0803BA8C: .4byte vtable_unk_080E5BB4
+.L0803BA8C: .4byte gTaskListVtable
 .L0803BA90: .4byte vtable_unk_080E5BD8
 .L0803BA94: .4byte gUnk_080F9F74
 .L0803BA98: .4byte gUnk_080F9F70
@@ -2448,7 +2448,7 @@ func_0803C028: @ 0x0803C028
 	beq .L0803C0B2
 	adds r0, r5, #0
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L0803C0B2:
 	ldr r0, .L0803C0C4 @ =gUnk_080F1A34
 	ldrb r1, [r7, #0xc]
@@ -2470,7 +2470,7 @@ func_0803C028: @ 0x0803C028
 	beq .L0803C0DC
 	adds r0, r5, #0
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L0803C0DC:
 	ldrb r0, [r7, #0xd]
 	cmp r0, #0
@@ -3027,7 +3027,7 @@ func_0803C5B0: @ 0x0803C5B0
 	adds r4, r7, #0
 	adds r4, #0x60
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -3125,7 +3125,7 @@ func_0803C5B0: @ 0x0803C5B0
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r5, #4]
