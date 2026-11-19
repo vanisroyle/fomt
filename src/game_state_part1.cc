@@ -461,7 +461,7 @@ struct GameStateSceneContainerFactory
     void * argument;
 };
 
-EC GameStateSceneContainerFactory & func_0803B6FC(GameStateSceneContainerFactory & self, GameStateSceneFactoryOwner factory, void * argument);
+EC GameStateSceneContainerFactory & InitializeScriptSceneFactory(GameStateSceneContainerFactory & self, GameStateSceneFactoryOwner factory, void * argument);
 
 // 0x08013EF8
 EC void SECTION(".text.game_state_08013EF8") GameScript_QueueSceneVariant2F(GameStateScript & script, void * argument)
@@ -470,7 +470,7 @@ EC void SECTION(".text.game_state_08013EF8") GameScript_QueueSceneVariant2F(Game
     GameScriptSceneSpec spec;
     spec.variant = 0x2F;
     GameStateSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
-    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(&func_0803B6FC(*new GameStateSceneContainerFactory, factory, argument));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(&InitializeScriptSceneFactory(*new GameStateSceneContainerFactory, factory, argument));
     runtime.pendingCommand = 0x18;
 }
 
