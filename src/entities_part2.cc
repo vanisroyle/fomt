@@ -1,6 +1,7 @@
 #include "farmer_entity_layout.hh"
 #include "entity_sound_channel.hh"
 #include "farm_house.hh"
+#include "sprite_animation.hh"
 
 #define ENTITY_CODE(addr) SECTION(".text.entities_part2." #addr)
 
@@ -553,41 +554,21 @@ EC bool IsFarmerState7Or45(FarmerEntity const * farmer)
     return matches;
 }
 
-struct SpriteAnimationFrame
+EC u32 SumSpriteAnimationFrameDelays(SpriteAnimationSource const * source, u32 animation) ENTITY_CODE(08032090);
+EC u32 SumSpriteAnimationFrameDelays(SpriteAnimationSource const * source, u32 animation)
 {
-    u16 sprite_index;
-    u16 delay;
-};
-
-struct SpriteAnimationFrames
-{
-    SpriteAnimationFrame const * frames;
-    u16 count;
-
-    u16 Count() const { return frames != nullptr ? count : 0; }
-};
-
-struct ActorSpriteAnimations
-{
-    virtual ~ActorSpriteAnimations();
-    virtual SpriteAnimationFrames GetFrames(u32 animation);
-};
-
-EC u32 SumSpriteAnimationFrameDelays(ActorSpriteAnimations * sprite, u32 animation) ENTITY_CODE(08032090);
-EC u32 SumSpriteAnimationFrameDelays(ActorSpriteAnimations * sprite, u32 animation)
-{
-    SpriteAnimationFrames loaded = sprite->GetFrames(animation);
-    SpriteAnimationFrames frames = loaded;
-    SpriteAnimationFrames * sequence = &frames;
+    SpriteAnimationClip loaded = source->GetClip(animation);
+    SpriteAnimationClip clip = loaded;
+    SpriteAnimationClip * sequence = &clip;
     u32 total_delay = 0;
     u32 frame = 0;
-    u32 count = sequence->Count();
+    u32 count = static_cast<u16>(sequence->GetLength());
     if (frame < count)
     {
-        SpriteAnimationFrame const * next = sequence->frames;
+        SpriteKeyframe const * next = sequence->keyframes;
         do
         {
-            total_delay += (next++)->delay;
+            total_delay += (next++)->duration;
             ++frame;
         } while (frame < count);
     }
