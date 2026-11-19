@@ -19,6 +19,7 @@ FONTS = {"small": (0x4F90CC, 487, 8), "large": (0x4FA9A0, 6922, 16)}
 MAPS = {"single": (0x4FA7A0, 256, 487), "double": (0x523290, 7938, 6922)}
 SIGNATURE = b"\x89PNG\r\n\x1a\n"
 SPECIAL_CODES = frozenset((0xB1, 0xB2, 0xB3, 0xB4, 0xB6, 0xB7, *range(0xBB, 0xC4)))
+MAP_ROW = re.compile(r"([0-9a-fA-F]{2,4})\s*=\s*(-?\d+)")
 
 
 def png_chunk(tag, data):
@@ -187,7 +188,7 @@ def read_map(path, kind):
         text = text.split("#", 1)[0].strip()
         if not text:
             continue
-        match = re.fullmatch(r"([0-9a-fA-F]{2,4})\s*=\s*(-?\d+)", text)
+        match = MAP_ROW.fullmatch(text)
         if not match:
             fa.fail(path, line, "expected HEX_CODE = DECIMAL_GLYPH_INDEX")
         code, index = int(match[1], 16), int(match[2])
@@ -199,6 +200,21 @@ def read_map(path, kind):
     if set(values) != allowed:
         raise ValueError(f"{path}: preserve all {len(allowed)} code rows, including -1 entries")
     return values
+
+
+def assign_map_row(source, code, slot):
+    rows = source.splitlines(keepends=True)
+    matches = 0
+    for i, row in enumerate(rows):
+        text = (row[1:] if i == 0 and row.startswith("\ufeff") else row).split("#", 1)[0].strip()
+        match = MAP_ROW.fullmatch(text)
+        if match and int(match[1], 16) == code and int(match[2]) == -1:
+            start = row.index(text) + match.start(2)
+            rows[i] = row[:start] + str(slot) + row[start + len(match[2]):]
+            matches += 1
+    if matches != 1:
+        raise ValueError("cannot update map row safely")
+    return "".join(rows)
 
 
 def original_rom(path):
@@ -407,16 +423,12 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
         raise ValueError(f"need {len(missing)} codes/slots; only {len(available)} safe codes and {len(slots)} untouched free slots; no edits made")
     assignments = list(zip(missing, available, slots))
     map_path = root / (kind + ".map")
-    map_source = map_path.read_text(encoding="utf-8")
+    map_source = map_path.read_bytes().decode("utf-8")
     additions = []
     pixels = bytearray(data)
     small = from_sheet(read_png((root / "small.png").read_bytes()), 487, 8) if reclaim_large and placeholders else data
     for char, code, slot in assignments:
-        digits = 4 if reclaim_large else 2
-        pattern = rf"(?mi)^({code:0{digits}x}\s*=\s*)-1(?=\s*(?:#|$))"
-        map_source, matches = re.subn(pattern, lambda m: m[1] + str(slot), map_source)
-        if matches != 1:
-            raise ValueError("cannot update map row safely")
+        map_source = assign_map_row(map_source, code, slot)
         raw = code.to_bytes(2 if reclaim_large else 1, "big")
         additions.append(f"U+{ord(char):04X} = {raw.hex(' ').upper()}\n")
         if placeholders:

@@ -233,6 +233,24 @@ class FontTests(unittest.TestCase):
                 font.sample(Path("unused"), self.root, "ạ", placeholders=True, reclaim_large=True)
         self.assertTrue(all(p.read_bytes() == raw for p, raw in before.items()))
 
+    def test_sample_rewrites_all_accepted_single_map_row_spellings(self):
+        self.sample_fixture()
+        path = self.root / "fonts/single.map"
+        original = path.read_text()
+        for row in ("  A0 = -1", "\t0a0\t= -01 # keep", "  00a0 = -001  # keep",
+                    "00A0 = -٠١ # keep"):
+            with self.subTest(row=row):
+                source = "\ufeff" + original.replace("A0 = -1", row)
+                path.write_text(source)
+                (self.root / "charmap.txt").write_text("# preserve\n")
+                self.assertEqual(font.read_map(path, "single")[0xA0], -1)
+                with (patch.object(font, "original_rom", return_value=bytes(0x4FA7A0)),
+                      patch.object(font, "safe_codes", return_value=[0xA0])):
+                    font.sample(Path("unused"), self.root, "ạ")
+                self.assertEqual(font.read_map(path, "single")[0xA0], 2)
+                expected = source.replace(row, row.replace(row.split("=", 1)[1].split("#", 1)[0].strip(), "2"))
+                self.assertEqual(path.read_text(), expected)
+
 
 if __name__ == "__main__":
     unittest.main()
