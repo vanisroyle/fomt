@@ -94,6 +94,7 @@ SECTIONS
         asm/game_state.o(.text);
         src/entity.o(.text);
         src/code_entity_08020018.o(.text);
+        *(SORT_BY_NAME(.text.entities_part1.*));
         asm/code_entities.o(.text);
         src/entity_actor.o(.text);
         asm/code_entities_080320DC.o(.text);
