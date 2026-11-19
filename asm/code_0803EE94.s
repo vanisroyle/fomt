@@ -9732,7 +9732,7 @@ func_0803F8DC: @ 0x0803F8DC
 	beq .L080448FA
 	adds r0, r1, #0
 	adds r1, r3, #0
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	bl .L08045166
 .L080448FA:
@@ -19076,7 +19076,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049BCC:
 	movs r1, #0
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #0
@@ -19109,7 +19109,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049C10:
 	movs r1, #4
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #4
@@ -19146,7 +19146,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049C5C:
 	movs r1, #3
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #3
@@ -19183,7 +19183,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049CA8:
 	movs r1, #1
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #1
@@ -19220,7 +19220,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049CF4:
 	movs r1, #0
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #0
@@ -19257,7 +19257,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049D40:
 	movs r1, #2
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #2

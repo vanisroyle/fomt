@@ -380,6 +380,8 @@ struct GameStateRuntime
     GameStateActorEntity * waitActor;
     STRUCT_PAD(0xE8, 0xF4);
     virtual ~GameStateRuntime();
+
+    void * GetTextVariables() const { return textVariables; }
 };
 
 struct GameStateScript
@@ -531,6 +533,63 @@ EC void func_08008BF8(void * self, u32 speed);
 
 EC Bachelorette const * func_080A0878(void * data, u32 characterId);
 EC void SetMessageWindowIndicator(void * dialogue, u32 level);
+EC void ConfigureMessageWindowChoices(void * dialogue, char const * first, char const * second, char const * third, char const * fourth, char const * fifth, char const * sixth, void const * substitutions);
+
+// 0x080128D0
+EC void SECTION(".text.game_state_080128D0") GameScript_StartChoices(GameStateScript & script, char const * first, char const * second, char const * third, char const * fourth, char const * fifth, char const * sixth)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr && first != nullptr && second != nullptr)
+    {
+        if (third == nullptr)
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, nullptr, nullptr, nullptr, nullptr, runtime.GetTextVariables());
+        else if (fourth == nullptr)
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, third, nullptr, nullptr, nullptr, runtime.GetTextVariables());
+        else if (fifth == nullptr)
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, third, fourth, nullptr, nullptr, runtime.GetTextVariables());
+        else if (sixth == nullptr)
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, third, fourth, fifth, nullptr, runtime.GetTextVariables());
+        else
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, third, fourth, fifth, sixth, runtime.GetTextVariables());
+        runtime.pendingCommand = 0x14;
+    }
+}
+
+// 0x08016AFC
+EC i32 SECTION(".text.game_state_08016AFC") GameScript_GetFarmAnimalEventIndex(GameStateScript & script, u32 kind)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    i32 index;
+    u32 eventFlag;
+    switch (kind)
+    {
+    case 0:
+        if ((runtime.saveData[0x219A] & 2) != 0 || (runtime.saveData[0x21A1] & 4) != 0)
+            goto firstAnimal;
+    default:
+        index = -1;
+        break;
+    case 4:
+    {
+        eventFlag = runtime.saveData[0x219C] & 0x10;
+        index = -1;
+        if (eventFlag != 0)
+        {
+        firstAnimal:
+            index = 0;
+        }
+        break;
+    }
+    case 1:
+    case 2:
+        index = reinterpret_cast<Barn const *>(runtime.saveData + 0x5F0)->method_0800D058();
+        break;
+    case 3:
+        index = reinterpret_cast<Coop const *>(runtime.saveData + 0x410)->GetUnkEnt();
+        break;
+    }
+    return index;
+}
 
 
 // 0x08016834
