@@ -333,6 +333,138 @@ EC FarmerEntity * InitFarmerMapActor(FarmerEntity * farmer, GameObject * game, v
     return farmer;
 }
 
+struct FarmerTerrainGrid
+{
+    u32 const * properties;
+    u8 const * indices;
+    u16 width;
+    u16 height;
+};
+
+struct FarmerTerrainGameVTable
+{
+    STRUCT_PAD(0x00, 0x34);
+    FarmerTerrainGrid (*get_terrain)(GameObject *, u32);
+};
+
+struct FarmerTerrainActorVTable
+{
+    STRUCT_PAD(0x00, 0x0C);
+    Box (*get_bounds)(AEntity const *);
+};
+
+EC bool func_080AC070(FarmerTerrainGrid const * grid, Box const * bounds);
+
+EC bool IsFarmerOnSpecialTerrain(FarmerEntity * farmer) ENTITY_CODE(0802AEA4);
+EC bool IsFarmerOnSpecialTerrain(FarmerEntity * farmer)
+{
+    GameObject * game = farmer->game_object;
+    register u32 map asm("r6") = farmer->location_map;
+    FarmerTerrainGameVTable const * table = *reinterpret_cast<FarmerTerrainGameVTable const **>(game);
+    FarmerTerrainGrid terrain = table->get_terrain(game, map);
+    FarmerTerrainGrid * view = &terrain;
+    FarmerTerrainActorVTable const * actor = reinterpret_cast<FarmerTerrainActorVTable const **>(farmer)[5];
+    Box original = actor->get_bounds(farmer);
+    Box bounds = original;
+    Box const * box = &bounds;
+
+    {
+        if (func_080AC070(&terrain, box))
+            goto found;
+        register u32 range asm("r1") = map - 0x34;
+        asm volatile("" : : "r"(range));
+        if (range > 0x1ff)
+            goto missing;
+
+        u32 columns;
+        register u32 const * tile asm("r0");
+        register u32 const * properties asm("r2");
+        {
+            i32 contact_x = box->x1;
+            asm volatile("" : : "r"(contact_x));
+            register u32 x asm("r6") = contact_x / 8;
+            register u32 y asm("r0") = box->y1 / 8;
+            properties = view->properties;
+            columns = view->width;
+            if (properties != nullptr && x <= columns && y <= view->height)
+            {
+                u8 const * indirect = view->indices;
+                u32 index = y * columns + x;
+                if (indirect)
+                    index = indirect[index];
+                tile = properties + index;
+            }
+            else
+                tile = nullptr;
+        }
+        if (tile != nullptr && (*tile & 0x1fffc))
+            goto found;
+        {
+            i32 contact_x = box->x1;
+            asm volatile("" : : "r"(contact_x));
+            register u32 x asm("r6") = contact_x / 8;
+            register u32 y asm("r0") = (box->y2 - 1) / 8;
+            properties = view->properties;
+            if (properties != nullptr && x <= columns && y <= view->height)
+            {
+                u8 const * indirect = view->indices;
+                u32 index = y * columns + x;
+                if (indirect)
+                    index = indirect[index];
+                tile = properties + index;
+            }
+            else
+                tile = nullptr;
+        }
+        if (tile != nullptr && (*tile & 0x1fffc))
+            goto found;
+        {
+            i32 contact_x = (box->x2 - 1);
+            asm volatile("" : : "r"(contact_x));
+            register u32 x asm("r6") = contact_x / 8;
+            register u32 y asm("r0") = box->y1 / 8;
+            asm volatile("" : : "r"(properties));
+            if (properties != nullptr && x <= columns && y <= view->height)
+            {
+                u8 const * indirect = view->indices;
+                u32 index = y * columns + x;
+                if (indirect)
+                    index = indirect[index];
+                tile = properties + index;
+            }
+            else
+                tile = nullptr;
+        }
+        if (tile != nullptr && (*tile & 0x1fffc))
+            goto found;
+        {
+            i32 contact_x = (box->x2 - 1);
+            asm volatile("" : : "r"(contact_x));
+            register u32 x asm("r6") = contact_x / 8;
+            register u32 y asm("r0") = (box->y2 - 1) / 8;
+            register u32 const * last_properties asm("r4") = properties;
+            if (last_properties != nullptr && x <= columns && y <= view->height)
+            {
+                u8 const * indirect = view->indices;
+                u32 index = y * columns + x;
+                if (indirect)
+                    tile = last_properties + indirect[index];
+                else
+                    tile = properties + index;
+            }
+            else
+                tile = nullptr;
+        }
+        if (tile != nullptr && (*tile & 0x1fffc))
+            goto found;
+        goto missing;
+    }
+found:
+    return true;
+missing:
+    return false;
+}
+
 struct ItemDisplayEntity : AActorEntity
 {
     ItemDisplayEntity();
