@@ -678,3 +678,39 @@ EC SECTION(".text.message_rendering.0804F178") bool ShouldMessageTextAdvance(Mes
 {
     return gate->ready && gate->IsEnabled();
 }
+
+EC SECTION(".text.message_rendering.0804E9D0") void CopyMessageTiles(MessageTileSize size, void * destination, const void * source)
+{
+    CpuFastSet(source, destination, ((size.width * size.height * 32u) >> 2) & 0x1fffff);
+}
+
+EC SECTION(".text.message_rendering.0804ED7C") MessageNumberCommand * InitializeLargeMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
+{
+    command->state = 0;
+    command->unknown_04 = 0;
+    command->vtable = vtable_unk_080E7858;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804EDF8") MessageNumberCommand * InitializeTallMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
+{
+    command->state = 0;
+    command->unknown_04 = 0;
+    command->vtable = vtable_unk_080E7848;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804F058") void ResetMessageTextColumn(MessageTextCursor * cursor)
+{
+    cursor->column = 0;
+}

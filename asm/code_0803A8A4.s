@@ -1793,7 +1793,7 @@ func_0803B840: @ 0x0803B840
 	lsrs r2, r2, #0x1c
 	str r2, [sp, #8]
 	movs r2, #0
-	bl func_08051320
+	bl DrawMessageFrame
 	ldr r1, [r4, #0x1c]
 	lsls r1, r1, #0xd
 	lsrs r1, r1, #0x1c
