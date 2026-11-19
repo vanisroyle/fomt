@@ -413,6 +413,149 @@ EC bool SECTION(".text.func_08008CD0") func_08008CD0(HardwareMusicPlayer * self)
     return (self->player->status >> 31) ^ 1;
 }
 
+EC SECTION(".text.func_08008D3C") MusicPlayer * func_08008D3C(u16 song)
+{
+    HardwareMusicPlayer result;
+    func_08008B54(&result, gSongTable[song].ms);
+    return result.player;
+}
+
+EC void SECTION(".text.func_08008D84") func_08008D84()
+{
+    m4aSoundVSyncOn();
+}
+
+EC void SECTION(".text.func_08008D90") func_08008D90()
+{
+    m4aSoundVSyncOff();
+}
+
+EC bool SECTION(".text.func_08008D9C") func_08008D9C()
+{
+    return *reinterpret_cast<u32 volatile *>(0x040000C4) >> 31;
+}
+
+EC void SECTION(".text.func_08008DA8") func_08008DA8(u16 song)
+{
+    m4aSongNumStart(song);
+}
+
+EC void SECTION(".text.func_08008DB8") func_08008DB8(u16 song)
+{
+    m4aSongNumStartOrChange(song);
+}
+
+EC void SECTION(".text.func_08008DE8") func_08008DE8()
+{
+    m4aMPlayAllStop();
+}
+
+inline u32 HardwareDmaControl(u32 src, u32 dst, u32 size)
+{
+    if (size != 0 && ((src | dst | size) & 1) == 0)
+    {
+        if (((src | dst | size) & 3) == 0)
+            return u16(size / 4) | 0x84000000;
+        return u16(size / 2) | 0x80000000;
+    }
+    return 0;
+}
+
+EC void func_080D0EBC(void const *, void *, u32, void volatile *);
+
+EC void SECTION(".text.func_08008EB8") func_08008EB8(u32 value, void * dst, u32 size)
+{
+    if (dst != nullptr)
+    {
+        u32 control = HardwareDmaControl(0, u32(dst), size) | 0x01000000;
+        func_080D0EBC(&value, dst, control,
+            reinterpret_cast<void volatile *>(0x040000D4));
+    }
+}
+
+struct HardwareDmaCommand
+{
+    u32 fill;
+    u32 src;
+    void * dst;
+    u32 control;
+};
+
+EC SECTION(".text.func_08008F0C") HardwareDmaCommand * func_08008F0C(
+    HardwareDmaCommand * self, void const * src, void * dst, u32 size)
+{
+    u32 control = src != nullptr && dst != nullptr ? HardwareDmaControl(u32(src), u32(dst), size) : 0;
+    self->fill = 0;
+    self->src = u32(src);
+    self->dst = dst;
+    self->control = control;
+    return self;
+}
+
+EC SECTION(".text.func_08008F60") HardwareDmaCommand * func_08008F60(
+    HardwareDmaCommand * self, u32 value, void * dst, u32 size)
+{
+    u32 control = dst != nullptr ? HardwareDmaControl(0, u32(dst), size) | 0x01000000 : 0;
+    self->fill = 1;
+    self->src = value;
+    self->dst = dst;
+    self->control = control;
+    return self;
+}
+
+struct HardwareKeys
+{
+    u16 current;
+    u16 pad;
+    u16 pressed;
+};
+
+EC u32 SECTION(".text.func_0800912C") func_0800912C()
+{
+    return ~*reinterpret_cast<u16 volatile *>(0x04000130) & 0x3FF;
+}
+
+EC SECTION(".text.func_08009140") HardwareKeys * func_08009140(HardwareKeys * self)
+{
+    self->current = func_0800912C();
+    return self;
+}
+
+EC SECTION(".text.func_08009154") HardwareKeys * func_08009154(HardwareKeys * self, u32 keys)
+{
+    self->current = keys;
+    return self;
+}
+
+EC u32 SECTION(".text.func_08009158") func_08009158(HardwareKeys * self)
+{
+    u32 keys = func_0800912C();
+    self->current = keys;
+    return keys;
+}
+
+EC SECTION(".text.func_08009168") HardwareKeys * func_08009168(HardwareKeys * self)
+{
+    func_08009140(self);
+    self->pressed = self->current;
+    return self;
+}
+
+EC SECTION(".text.func_0800917C") HardwareKeys * func_0800917C(HardwareKeys * self, u32 keys)
+{
+    func_08009154(self, keys);
+    self->pressed = self->current;
+    return self;
+}
+
+EC u32 SECTION(".text.func_08009190") func_08009190(HardwareKeys * self)
+{
+    u16 previous = self->current;
+    u32 pressed = func_08009158(self) & ~previous;
+    self->pressed = pressed;
+    return pressed;
+}
+
 EC void func_08007184(Unk_hardware_H * self) ALIAS(_._14Unk_hardware_H);
 
 EC void func_080071BC(Unk_hardware_H * self, unsigned int from, unsigned int count)
