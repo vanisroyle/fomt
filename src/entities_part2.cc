@@ -38,6 +38,7 @@ struct FarmerIconGameVTable
 {
     STRUCT_PAD(0x00, 0x64);
     void * (*get_item_sprites)(GameObject * game);
+    void * (*get_actor_sprites)(GameObject * game);
 };
 
 EC void func_0805E850(SpriteAnimator * animator, void * sprites, u32 animation);
@@ -227,6 +228,41 @@ struct ItemDisplayEntity : AActorEntity
     }
 };
 
+struct ItemDisplayGraphics : FarmerIconGraphics
+{
+    u16 icon;
+};
+
+EC ItemDisplayGraphics * func_0802BF2C(ItemDisplayGraphics * graphics, ItemDisplayEntity * display);
+
+EC ItemDisplayGraphics * NewItemDisplayGraphics(ItemDisplayEntity * display) ENTITY_CODE(0802BA10);
+EC ItemDisplayGraphics * NewItemDisplayGraphics(ItemDisplayEntity * display)
+{
+    return func_0802BF2C(static_cast<ItemDisplayGraphics *>(::operator new(sizeof(ItemDisplayGraphics))), display);
+}
+
+EC void func_0802BA74(ItemDisplayEntity * display);
+EC void func_0803242C(AActorEntity * display, u32 argument);
+EC u32 GetItemDisplayStateAnimation(ItemDisplayEntity const * display) ENTITY_CODE(0802BC48);
+
+EC void TickItemDisplayEntity(ItemDisplayEntity * display, u32 argument) ENTITY_CODE(0802BA28);
+EC void TickItemDisplayEntity(ItemDisplayEntity * display, u32 argument)
+{
+    if (!display->restart)
+    {
+        if (display->active)
+        {
+            func_0802BA74(display);
+            u32 animation = static_cast<u16>(GetItemDisplayStateAnimation(display));
+            if (display->anim_id != animation)
+                display->SetAnim(animation);
+        }
+    }
+    else
+        display->restart = false;
+    func_0803242C(display, argument);
+}
+
 EC char const vtable_unk_080E671C[];
 EC char const vtable_unk_080E65F4[];
 
@@ -255,7 +291,6 @@ EC ItemDisplayEntity * InitItemDisplayEntity(ItemDisplayEntity * display, GameOb
     return display;
 }
 
-EC u32 GetItemDisplayStateAnimation(ItemDisplayEntity const * display) ENTITY_CODE(0802BC48);
 EC u32 GetItemDisplayStateAnimation(ItemDisplayEntity const * display)
 {
     u32 animation = FARMER_IDLE_ANIMATION;
@@ -313,6 +348,55 @@ EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game) ENTITY_CODE(0802C
 EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game)
 {
     return InitItemDisplayEntity(static_cast<ItemDisplayEntity *>(::operator new(sizeof(ItemDisplayEntity))), game);
+}
+
+template<bool remember_icon>
+inline void SetItemDisplayGraphicsIconFlags(FarmerIconState * state, u32 animation)
+{
+    u8 * flags = reinterpret_cast<u8 *>(state);
+    int zero = 0;
+    int enabled = 1;
+    *flags = enabled;
+    flags += 2;
+    *flags = zero;
+    ++flags;
+    *flags = enabled;
+    ++flags;
+    if (remember_icon)
+        *reinterpret_cast<u16 *>(flags) = animation;
+}
+
+EC void SetItemDisplayGraphicsIcon(ItemDisplayGraphics * graphics, u32 animation) ENTITY_CODE(0802C228);
+EC void SetItemDisplayGraphicsIcon(ItemDisplayGraphics * graphics, u32 animation)
+{
+    void * sprites = FarmerItemSprites(graphics);
+    func_0805E850(&graphics->icon_animator, sprites, animation);
+    SetItemDisplayGraphicsIconFlags<true>(&graphics->icon_state, animation);
+}
+
+EC void SetFarmerEffectIcon(FarmerIconGraphics * graphics, u32 animation) ENTITY_CODE(0802C264);
+EC void SetFarmerEffectIcon(FarmerIconGraphics * graphics, u32 animation)
+{
+    AEntity * entity = *reinterpret_cast<AEntity **>(graphics);
+    GameObject * game = entity->game_object;
+    FarmerIconGameVTable const * table = *reinterpret_cast<FarmerIconGameVTable const **>(game);
+    void * sprites = table->get_actor_sprites(game);
+    func_0805E850(&graphics->icon_animator, sprites, animation);
+    SetItemDisplayGraphicsIconFlags<false>(&graphics->icon_state, animation);
+}
+
+EC void SetFarmerHeldItemIcon(FarmerIconGraphics * graphics, u32 animation) ENTITY_CODE(0802C29C);
+EC void SetFarmerHeldItemIcon(FarmerIconGraphics * graphics, u32 animation)
+{
+    void * sprites = FarmerItemSprites(graphics);
+    func_0805E850(&graphics->icon_animator, sprites, animation);
+    SetItemDisplayGraphicsIconFlags<false>(&graphics->icon_state, animation);
+}
+
+EC bool IsItemDisplayActive(ItemDisplayEntity const * display) ENTITY_CODE(0802C2D4);
+EC bool IsItemDisplayActive(ItemDisplayEntity const * display)
+{
+    return display->active;
 }
 
 EC void FarmerEntityInitNoOp(FarmerEntity * farmer) ENTITY_CODE(0802C2DC);
