@@ -1,5 +1,6 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
+    .include "build/assets/vietnamese-mode.inc"
 
 .L080D0C68:
 	.byte 0x01, 0x70, 0x00, 0x21, 0x41, 0x70, 0x82, 0x70
@@ -154,10 +155,17 @@ func_080D0D28: @ 0x080D0D28
 	blt .L080D0E58
 	ldr r1, .L080D0E7C @ =gUnk_08523290
 	lsls r0, r0, #1
+	.if VIETNAMESE_FONT
+	ldr r2, .LViGlyphLookup
+	bx r2
+.LViGlyphLookup:
+	.4byte gVietnameseGlyphLookup
+	.else
 	adds r0, r0, r1
 	movs r1, #0
 	ldrsh r5, [r0, r1]
 	movs r6, #2
+	.endif
 .L080D0E58:
 	cmp r4, #0
 	beq .L080D0EAE
