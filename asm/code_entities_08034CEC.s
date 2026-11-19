@@ -1163,45 +1163,7 @@ func_08035C04: @ 0x08035C04
 .L08035CB0: .4byte 0x00000247
 .L08035CB4: .4byte 0x0000024B
 
-    thumb_func_start func_08035CB8
-func_08035CB8: @ 0x08035CB8
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    bl func_08034F00
-    cmp r4, #1
-    ble .L08035CCC
-    adds r0, r5, #0
-    bl func_08035C04
-.L08035CCC:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08035CD4
-func_08035CD4: @ 0x08035CD4
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    bl func_08035C04
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #5
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08035D04, "ax", %progbits
 
     thumb_func_start func_08035D04
 func_08035D04: @ 0x08035D04
@@ -1726,45 +1688,7 @@ func_08036084: @ 0x08036084
 .L08036130: .4byte 0x0000082F
 .L08036134: .4byte 0x00000833
 
-    thumb_func_start func_08036138
-func_08036138: @ 0x08036138
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    bl func_08034F00
-    cmp r4, #1
-    ble .L0803614C
-    adds r0, r5, #0
-    bl func_08036084
-.L0803614C:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08036154
-func_08036154: @ 0x08036154
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    bl func_08036084
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #5
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036184, "ax", %progbits
 
     thumb_func_start func_08036184
 func_08036184: @ 0x08036184
@@ -2184,45 +2108,7 @@ func_08036430: @ 0x08036430
 .L080364DC: .4byte 0x000006AD
 .L080364E0: .4byte 0x000006B1
 
-    thumb_func_start func_080364E4
-func_080364E4: @ 0x080364E4
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    bl func_08034F00
-    cmp r4, #1
-    ble .L080364F8
-    adds r0, r5, #0
-    bl func_08036430
-.L080364F8:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08036500
-func_08036500: @ 0x08036500
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    bl func_08036430
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #5
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036530, "ax", %progbits
 
     thumb_func_start func_08036530
 func_08036530: @ 0x08036530
@@ -2383,45 +2269,7 @@ func_080365CC: @ 0x080365CC
 .L08036678: .4byte 0x00000894
 .L0803667C: .4byte 0x00000898
 
-    thumb_func_start func_08036680
-func_08036680: @ 0x08036680
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    bl func_08034F00
-    cmp r4, #1
-    ble .L08036694
-    adds r0, r5, #0
-    bl func_080365CC
-.L08036694:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_0803669C
-func_0803669C: @ 0x0803669C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    bl func_080365CC
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #5
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.080366CC, "ax", %progbits
 
     thumb_func_start func_080366CC
 func_080366CC: @ 0x080366CC
@@ -3043,6 +2891,8 @@ func_08036B80: @ 0x08036B80
     bx r1
     .align 2, 0
 
+    .section .text.npc_extra.08036BB0, "ax", %progbits
+
     thumb_func_start func_08036BB0
 func_08036BB0: @ 0x08036BB0
     push {r4, r5, r6, lr}
@@ -3124,6 +2974,8 @@ func_08036BF8: @ 0x08036BF8
     pop {r0}
     bx r0
     .align 2, 0
+
+
 
     thumb_func_start func_08036C48
 func_08036C48: @ 0x08036C48

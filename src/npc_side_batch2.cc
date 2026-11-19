@@ -434,8 +434,6 @@ EC void UpdateLaunchedSpriteAnimation(UnknownEntityThing * self)
         self->unk_47 = 0;
 }
 
-
-
 EC void * func_08037EF0(void * sprite, AEntity * self);
 EC void * CreateTimedReactionSprite(AEntity * self) NPC_EXTRA_CODE(08037E9C);
 EC void * CreateTimedReactionSprite(AEntity * self)
@@ -473,4 +471,74 @@ EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x_q16, i32 y_
     self->x_q16 = x_q16;
     self->y_q16 = y_q16;
     func_08038398(self, target_x, target_y);
+}
+
+EC void func_08034F00(AActorEntity * self, i32 reason);
+
+EC void func_08035C04(AActorEntity * self);
+EC void RefreshScheduledNpcVariantOne(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08035CB8);
+EC void RefreshScheduledNpcVariantOne(AActorEntity * self, i32 reason)
+{
+    func_08034F00(self, reason);
+    if (reason > 1)
+        func_08035C04(self);
+}
+
+EC UnknownEntityThing * CreateScheduledNpcVariantOneSprite(AActorEntity * self) NPC_EXTRA_CODE(08035CD4);
+EC UnknownEntityThing * CreateScheduledNpcVariantOneSprite(AActorEntity * self)
+{
+    func_08035C04(self);
+    struct Storage { u8 bytes[0x8C]; };
+    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
+}
+
+EC void func_08036084(AActorEntity * self);
+EC void RefreshScheduledNpcVariantTwo(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036138);
+EC void RefreshScheduledNpcVariantTwo(AActorEntity * self, i32 reason)
+{
+    func_08034F00(self, reason);
+    if (reason > 1)
+        func_08036084(self);
+}
+
+EC UnknownEntityThing * CreateScheduledNpcVariantTwoSprite(AActorEntity * self) NPC_EXTRA_CODE(08036154);
+EC UnknownEntityThing * CreateScheduledNpcVariantTwoSprite(AActorEntity * self)
+{
+    func_08036084(self);
+    struct Storage { u8 bytes[0x8C]; };
+    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
+}
+
+EC void func_08036430(AActorEntity * self);
+EC void RefreshScheduledNpcVariantThree(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(080364E4);
+EC void RefreshScheduledNpcVariantThree(AActorEntity * self, i32 reason)
+{
+    func_08034F00(self, reason);
+    if (reason > 1)
+        func_08036430(self);
+}
+
+EC UnknownEntityThing * CreateScheduledNpcVariantThreeSprite(AActorEntity * self) NPC_EXTRA_CODE(08036500);
+EC UnknownEntityThing * CreateScheduledNpcVariantThreeSprite(AActorEntity * self)
+{
+    func_08036430(self);
+    struct Storage { u8 bytes[0x8C]; };
+    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
+}
+
+EC void func_080365CC(AActorEntity * self);
+EC void RefreshScheduledNpcVariantFour(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036680);
+EC void RefreshScheduledNpcVariantFour(AActorEntity * self, i32 reason)
+{
+    func_08034F00(self, reason);
+    if (reason > 1)
+        func_080365CC(self);
+}
+
+EC UnknownEntityThing * CreateScheduledNpcVariantFourSprite(AActorEntity * self) NPC_EXTRA_CODE(0803669C);
+EC UnknownEntityThing * CreateScheduledNpcVariantFourSprite(AActorEntity * self)
+{
+    func_080365CC(self);
+    struct Storage { u8 bytes[0x8C]; };
+    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }
