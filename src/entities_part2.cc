@@ -453,7 +453,7 @@ EC void BeginFarmerToolDisplay(FarmerEntity * farmer)
     *state++ = 10;
     *state = 20;
     ShowFarmerToolDisplay(farmer);
-    func_08008B6C(FindEntitySoundChannel(farmer->game_object), 188);
+    AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 188);
     Farmer const * model = farmer->farmer;
     Tool tool = func_0800E550(*model, model->unk_5C.GetTool());
     if (tool.GetId() == TOOL_TELEPORT_STONE)
@@ -482,7 +482,7 @@ EC void TickFarmerToolCharge(FarmerEntity * farmer)
             u32 level = farmer->tool_level + 1;
             farmer->tool_level = level;
             if (static_cast<u8>(level) == 5)
-                func_08008B6C(FindEntitySoundChannel(farmer->game_object), 184);
+                AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 184);
         }
     }
 }
