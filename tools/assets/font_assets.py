@@ -498,7 +498,7 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False, half
             if char in mapping:
                 raise ValueError(f"existing charmap assignment for {char!r} is unmapped; fix it first")
             missing.append(char)
-        elif halfwidth and char in mapping and double.get(int.from_bytes(raw, "big"), -1) < 0x4000:
+        elif halfwidth and char in mapping and len(raw) == 2 and double.get(int.from_bytes(raw, "big"), -1) < 0x4000:
             raise ValueError(f"existing assignment for {char!r} is not tagged; restore or migrate it before --halfwidth")
     reserved = {int.from_bytes(raw, "big") for raw in mapping.values()}
     for raw in mapping.values():

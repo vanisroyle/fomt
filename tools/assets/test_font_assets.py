@@ -317,6 +317,37 @@ class FontTests(unittest.TestCase):
         single = font.read_map(self.root / "fonts/single.map", "single")
         self.assertEqual(single[mapping["ạ"][0]], 3)
 
+    def test_halfwidth_preserves_existing_single_byte_assignments(self):
+        self.large_fixture()
+        single = font.read_map(self.root / "fonts/single.map", "single")
+        with (patch.object(font, "original_rom", return_value=bytes(0x527094)),
+              patch.object(font, "rom_maps", return_value={"single": single, "double": {}}),
+              patch.object(font, "script_usage", return_value=(set(), 0))):
+            font.sample(Path("unused"), self.root, "ạ", placeholders=True)
+            single_before = (self.root / "fonts/single.map").read_bytes()
+            pixels_before = (self.root / "fonts/small.png").read_bytes()
+            mapping_before = font.fa.charmap(self.root / "charmap.txt")
+            font.sample(Path("unused"), self.root, "ạậ", halfwidth=True)
+            mapping = font.fa.charmap(self.root / "charmap.txt")
+            self.assertEqual(mapping["ạ"], mapping_before["ạ"])
+            self.assertEqual(len(mapping["ạ"]), 1)
+            self.assertEqual(len(mapping["ậ"]), 2)
+            self.assertEqual((self.root / "fonts/single.map").read_bytes(), single_before)
+            old = font.from_sheet(font.read_png(pixels_before), 487, 8)
+            new = font.from_sheet(font.read_png((self.root / "fonts/small.png").read_bytes()), 487, 8)
+            slot = font.read_map(self.root / "fonts/single.map", "single")[mapping["ạ"][0]]
+            self.assertEqual(new[slot * 12:slot * 12 + 12], old[slot * 12:slot * 12 + 12])
+            before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+            for text in ("ạậ", ""):
+                font.sample(Path("unused"), self.root, text, halfwidth=True)
+            self.assertTrue(all(p.read_bytes() == data for p, data in before.items()))
+
+    def test_halfwidth_still_rejects_existing_fullwidth_assignments(self):
+        self.large_fixture()
+        (self.root / "charmap.txt").write_text("U+1EA1 = 88 9F\n")
+        with self.assertRaisesRegex(ValueError, "not tagged"):
+            font.sample(Path("unused"), self.root, "ạ", halfwidth=True)
+
     def test_halfwidth_allocation_tags_protects_slots_and_requires_build_flag(self):
         self.large_fixture()
         path = self.root / "fonts/double.map"
