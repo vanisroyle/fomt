@@ -506,56 +506,8 @@ func_0803AB30: @ 0x0803AB30
 	.align 2, 0
 .L0803AC74: .4byte 0x0000091A
 
-	thumb_func_start func_0803AC78
-func_0803AC78: @ 0x0803AC78
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	adds r6, r0, #0
-	mov r8, r1
-	ldr r0, [r6]
-	ldr r2, [r0]
-	adds r4, r6, #0
-	adds r4, #0x88
-	adds r1, r6, #0
-	adds r1, #0x8c
-	ldrb r1, [r1]
-	ldr r2, [r2, #0x4c]
-	bl _call_via_r2
-	adds r0, r6, #4
-	cmp r0, #0
-	beq .L0803ACBE
-	adds r5, r4, #0
-	cmp r0, r5
-	beq .L0803ACBE
-	adds r7, r0, #0
-.L0803ACA4:
-	subs r5, #0x2c
-	adds r4, r5, #0
-	adds r4, #0x20
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	cmp r7, r5
-	bne .L0803ACA4
-.L0803ACBE:
-	movs r0, #1
-	mov r1, r8
-	ands r0, r1
-	cmp r0, #0
-	beq .L0803ACCE
-	adds r0, r6, #0
-	bl __builtin_delete
-.L0803ACCE:
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.0803ACD8
+	.align 2, 0
 	thumb_func_start func_0803ACD8
 func_0803ACD8: @ 0x0803ACD8
 	push {r4, r5, r6, r7, lr}
@@ -923,7 +875,7 @@ func_0803AEA0: @ 0x0803AEA0
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r3, [sp, #0x64]
 	adds r3, #1
 	str r3, [sp, #0x64]
@@ -1071,74 +1023,8 @@ func_0803AEA0: @ 0x0803AEA0
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_0803B0A8
-func_0803B0A8: @ 0x0803B0A8
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	adds r7, r0, #0
-	mov r8, r1
-	ldr r0, [r7]
-	ldr r2, [r0]
-	adds r1, r7, #0
-	adds r1, #0xd4
-	ldrb r1, [r1]
-	ldr r2, [r2, #0x4c]
-	bl _call_via_r2
-	adds r2, r7, #0
-	adds r2, #0xe8
-	ldr r1, [r2]
-	lsls r0, r1, #3
-	subs r0, r0, r1
-	lsls r0, r0, #2
-	adds r0, #4
-	adds r2, r2, r0
-	adds r0, r7, #0
-	adds r0, #0xec
-	cmp r0, r2
-	beq .L0803B0E0
-.L0803B0DA:
-	adds r0, #0x1c
-	cmp r0, r2
-	bne .L0803B0DA
-.L0803B0E0:
-	adds r2, r7, #4
-	ldr r1, [r7, #4]
-	lsls r0, r1, #2
-	adds r0, r0, r1
-	lsls r0, r0, #3
-	adds r0, #4
-	adds r6, r2, r0
-	adds r5, r2, #4
-	cmp r5, r6
-	beq .L0803B10E
-.L0803B0F4:
-	adds r4, r5, #0
-	adds r4, #0x20
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	adds r5, #0x28
-	cmp r5, r6
-	bne .L0803B0F4
-.L0803B10E:
-	movs r0, #1
-	mov r1, r8
-	ands r0, r1
-	cmp r0, #0
-	beq .L0803B11E
-	adds r0, r7, #0
-	bl __builtin_delete
-.L0803B11E:
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.0803B128
+	.align 2, 0
 	thumb_func_start func_0803B128
 func_0803B128: @ 0x0803B128
 	push {r4, r5, r6, r7, lr}
@@ -1747,76 +1633,10 @@ func_0803B718: @ 0x0803B718
 .L0803B838: .4byte vtable_unk_080E7728
 .L0803B83C: .4byte 0x000003A1
 
-	thumb_func_start func_0803B840
-func_0803B840: @ 0x0803B840
-	push {r4, r5, lr}
-	sub sp, #0x10
-	adds r4, r0, #0
-	ldrh r2, [r4, #0x1c]
-	lsls r2, r2, #0x11
-	lsrs r2, r2, #0x16
-	adds r2, #3
-	ldr r1, .L0803B8C0 @ =0x000003FF
-	adds r0, r1, #0
-	ands r2, r0
-	ldr r0, [r4, #0x1c]
-	lsls r0, r0, #0xd
-	lsrs r0, r0, #0x1c
-	lsls r0, r0, #0xc
-	orrs r2, r0
-	lsls r0, r2, #0x10
-	orrs r2, r0
-	ldrb r1, [r4, #0x1c]
-	lsls r1, r1, #0x1b
-	lsrs r1, r1, #0x10
-	movs r5, #0xc0
-	lsls r5, r5, #0x13
-	adds r1, r1, r5
-	str r2, [sp, #0xc]
-	add r0, sp, #0xc
-	ldr r2, .L0803B8C4 @ =0x010000A0
-	bl CpuFastSet
-	ldrb r0, [r4, #0x1c]
-	lsls r0, r0, #0x1b
-	lsrs r0, r0, #0x10
-	adds r0, r0, r5
-	ldr r1, [r4, #0xc]
-	ldr r3, [r4, #0x14]
-	ldr r2, [r4, #0x18]
-	str r2, [sp]
-	ldrh r2, [r4, #0x1c]
-	lsls r2, r2, #0x11
-	lsrs r2, r2, #0x16
-	str r2, [sp, #4]
-	ldr r2, [r4, #0x1c]
-	lsls r2, r2, #0xd
-	lsrs r2, r2, #0x1c
-	str r2, [sp, #8]
-	movs r2, #0
-	bl func_08051320
-	ldr r1, [r4, #0x1c]
-	lsls r1, r1, #0xd
-	lsrs r1, r1, #0x1c
-	ldr r0, .L0803B8C8 @ =gUnk_080F9F78
-	ldr r0, [r0]
-	lsls r1, r1, #5
-	movs r2, #0xa0
-	lsls r2, r2, #0x13
-	adds r1, r1, r2
-	movs r2, #8
-	bl CpuFastSet
-	movs r0, #0
-	add sp, #0x10
-	pop {r4, r5}
-	pop {r1}
-	bx r1
+	.section .text.0803B8CC, "ax", %progbits
 	.align 2, 0
-.L0803B8C0: .4byte 0x000003FF
-.L0803B8C4: .4byte 0x010000A0
-.L0803B8C8: .4byte gUnk_080F9F78
-
-	thumb_func_start func_0803B8CC
-func_0803B8CC: @ 0x0803B8CC
+	thumb_func_start InitializeDialogWindowLayers
+InitializeDialogWindowLayers: @ 0x0803B8CC
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -1996,7 +1816,7 @@ func_0803B8CC: @ 0x0803B8CC
 	mov r6, ip
 	str r0, [r6, #0x44]
 	str r0, [r2, #4]
-	ldr r0, .L0803BAA0 @ =vtable_unk_080E7758
+	ldr r0, .L0803BAA0 @ =gDialogWindowTilemapTaskVtable
 	str r0, [r2, #8]
 	ldr r0, [sp, #4]
 	str r0, [r2, #0xc]
@@ -2045,7 +1865,7 @@ func_0803B8CC: @ 0x0803B8CC
 .L0803BA94: .4byte gUnk_080F9F74
 .L0803BA98: .4byte gUnk_080F9F70
 .L0803BA9C: .4byte vtable_unk_080E7768
-.L0803BAA0: .4byte vtable_unk_080E7758
+.L0803BAA0: .4byte gDialogWindowTilemapTaskVtable
 .L0803BAA4: .4byte 0xFFFF801F
 .L0803BAA8: .4byte 0xFFF87FFF
 
@@ -2365,15 +2185,9 @@ UpdateDialogWindowLayers: @ 0x0803BAAC
 	.byte 0xC1, 0x61, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x58, 0x77, 0x0E, 0x08, 0xFF, 0x03, 0x00, 0x00
 	.byte 0x1F, 0x80, 0xFF, 0xFF, 0xFF, 0x7F, 0xF8, 0xFF
 
-	.section .text.0803BFF0, "ax", %progbits
-	.align 2, 0
-.L0803BFF0:
-	.byte 0x30, 0xB5, 0x83, 0xB0, 0x06, 0x9C, 0x07, 0x9D, 0x00, 0x94, 0x01, 0x95, 0x00, 0x24, 0x02, 0x94
-	.byte 0x00, 0xF0, 0x12, 0xF8, 0x03, 0xB0, 0x30, 0xBC, 0x02, 0xBC, 0x08, 0x47
-
 	.section .text.0803C028, "ax", %progbits
-	thumb_func_start func_0803C028
-func_0803C028: @ 0x0803C028
+	thumb_func_start UpdatePauseMenuWindow
+UpdatePauseMenuWindow: @ 0x0803C028
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -2450,7 +2264,7 @@ func_0803C028: @ 0x0803C028
 	movs r1, #0xcb
 	bl AudioPlayer_StartSong
 .L0803C0B2:
-	ldr r0, .L0803C0C4 @ =gUnk_080F1A34
+	ldr r0, .L0803C0C4 @ =gPauseMenuTabLabels
 	ldrb r1, [r7, #0xc]
 	lsls r1, r1, #2
 	adds r1, r1, r0
@@ -2460,7 +2274,7 @@ func_0803C028: @ 0x0803C028
 	strb r0, [r7, #0xe]
 	b .L0803C0DC
 	.align 2, 0
-.L0803C0C4: .4byte gUnk_080F1A34
+.L0803C0C4: .4byte gPauseMenuTabLabels
 .L0803C0C8:
 	movs r0, #1
 	ands r3, r0
@@ -2513,7 +2327,7 @@ func_0803C028: @ 0x0803C028
 	ldr r2, [r0, #0x10]
 	adds r0, r3, #0
 	bl _call_via_r2
-	ldr r1, .L0803C4D4 @ =gUnk_080F1A34
+	ldr r1, .L0803C4D4 @ =gPauseMenuTabLabels
 	ldrb r0, [r7, #0xc]
 	lsls r0, r0, #2
 	adds r0, r0, r1
@@ -2817,7 +2631,7 @@ func_0803C028: @ 0x0803C028
 	adds r6, #0x74
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	add r0, sp, #0x38
 	strh r4, [r0]
 	strh r5, [r0, #2]
@@ -2827,7 +2641,7 @@ func_0803C028: @ 0x0803C028
 	adds r1, r6, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 .L0803C3B0:
 	mov r0, r8
 	adds r0, #0x30
@@ -2975,7 +2789,7 @@ func_0803C028: @ 0x0803C028
 	b .L0803C4F8
 	.align 2, 0
 .L0803C4D0: .4byte 0x05000200
-.L0803C4D4: .4byte gUnk_080F1A34
+.L0803C4D4: .4byte gPauseMenuTabLabels
 .L0803C4D8: .4byte 0x06010000
 .L0803C4DC: .4byte 0x000001FF
 .L0803C4E0: .4byte 0xFE00FFFF
@@ -3923,8 +3737,8 @@ DrawDialogChoices: @ 0x0803C7C8
 .L0803CD44: .4byte 0x06010000
 .L0803CD48: .4byte 0x000003FF
 
-	thumb_func_start func_0803CD4C
-func_0803CD4C: @ 0x0803CD4C
+	thumb_func_start SetClockDateAndTimeTiles
+SetClockDateAndTimeTiles: @ 0x0803CD4C
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -4323,266 +4137,6 @@ func_0803CD4C: @ 0x0803CD4C
 	bx r0
 	.align 2, 0
 
-	.section .text.0803D0F0, "ax", %progbits
-	thumb_func_start func_0803D0F0
-func_0803D0F0: @ 0x0803D0F0
-	push {r4, r5, r6, r7, lr}
-	sub sp, #0x20
-	adds r4, r1, #0
-	adds r6, r2, #0
-	ldr r7, [r0]
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __udivsi3
-	adds r5, r0, #0
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __umodsi3
-	adds r4, r0, #0
-	cmp r5, #0
-	ble .L0803D130
-	lsls r1, r5, #5
-	ldr r0, .L0803D12C @ =gClockFont
-	adds r1, r1, r0
-	adds r0, r7, #0
-	adds r0, #0xc4
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #0xc6
-	lsls r0, r0, #1
-	adds r1, r7, r0
-	b .L0803D14C
-	.align 2, 0
-.L0803D12C: .4byte gClockFont
-.L0803D130:
-	mov r0, sp
-	movs r1, #0
-	movs r2, #0x20
-	bl memset
-	adds r0, r7, #0
-	adds r0, #0xc4
-	mov r1, sp
-	movs r2, #0x20
-	bl memcpy
-	movs r2, #0xc6
-	lsls r2, r2, #1
-	adds r1, r7, r2
-.L0803D14C:
-	movs r0, #1
-	strb r0, [r1]
-	lsls r1, r4, #5
-	ldr r0, .L0803D178 @ =gClockFont
-	adds r1, r1, r0
-	adds r0, r7, #0
-	adds r0, #0xe4
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #0xc6
-	lsls r0, r0, #1
-	adds r1, r7, r0
-	movs r0, #1
-	strb r0, [r1]
-	cmp r6, #6
-	bhi .L0803D19C
-	lsls r0, r6, #2
-	ldr r1, .L0803D17C @ =.L0803D180
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0803D178: .4byte gClockFont
-.L0803D17C: .4byte .L0803D180
-.L0803D180: @ jump table
-	.4byte .L0803D19C @ case 0
-	.4byte .L0803D1A8 @ case 1
-	.4byte .L0803D1B4 @ case 2
-	.4byte .L0803D1C0 @ case 3
-	.4byte .L0803D1CC @ case 4
-	.4byte .L0803D1D8 @ case 5
-	.4byte .L0803D1E4 @ case 6
-.L0803D19C:
-	movs r0, #0x60
-	str r0, [sp]
-	movs r0, #0x61
-	str r0, [sp, #4]
-	movs r0, #0x62
-	b .L0803D1EE
-.L0803D1A8:
-	movs r0, #0x63
-	str r0, [sp]
-	movs r0, #0x64
-	str r0, [sp, #4]
-	movs r0, #0x65
-	b .L0803D1EE
-.L0803D1B4:
-	movs r0, #0x66
-	str r0, [sp]
-	movs r0, #0x67
-	str r0, [sp, #4]
-	movs r0, #0x68
-	b .L0803D1EE
-.L0803D1C0:
-	movs r0, #0x69
-	str r0, [sp]
-	movs r0, #0x6a
-	str r0, [sp, #4]
-	movs r0, #0x6b
-	b .L0803D1EE
-.L0803D1CC:
-	movs r0, #0x6c
-	str r0, [sp]
-	movs r0, #0x6d
-	str r0, [sp, #4]
-	movs r0, #0x6e
-	b .L0803D1EE
-.L0803D1D8:
-	movs r0, #0x6f
-	str r0, [sp]
-	movs r0, #0x70
-	str r0, [sp, #4]
-	movs r0, #0x71
-	b .L0803D1EE
-.L0803D1E4:
-	movs r0, #0x72
-	str r0, [sp]
-	movs r0, #0x73
-	str r0, [sp, #4]
-	movs r0, #0x74
-.L0803D1EE:
-	str r0, [sp, #8]
-	movs r1, #0xd4
-	lsls r1, r1, #1
-	adds r0, r7, r1
-	ldr r1, [sp]
-	lsls r1, r1, #5
-	ldr r5, .L0803D23C @ =gClockFont
-	adds r1, r1, r5
-	movs r2, #0x20
-	bl memcpy
-	movs r2, #0xac
-	lsls r2, r2, #2
-	adds r6, r7, r2
-	movs r4, #1
-	strb r4, [r6]
-	ldr r1, [sp, #4]
-	lsls r1, r1, #5
-	adds r1, r1, r5
-	subs r2, #0xe8
-	adds r0, r7, r2
-	movs r2, #0x20
-	bl memcpy
-	strb r4, [r6]
-	ldr r1, [sp, #8]
-	lsls r1, r1, #5
-	adds r1, r1, r5
-	movs r2, #0xf4
-	lsls r2, r2, #1
-	adds r0, r7, r2
-	movs r2, #0x20
-	bl memcpy
-	strb r4, [r6]
-	add sp, #0x20
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0803D23C: .4byte gClockFont
-
-	thumb_func_start func_0803D240
-func_0803D240: @ 0x0803D240
-	push {r4, r5, r6, r7, lr}
-	sub sp, #0x20
-	adds r5, r1, #0
-	ldr r6, [r0]
-	movs r1, #0x1e
-	cmp r5, #0xb
-	bhi .L0803D250
-	movs r1, #0x1c
-.L0803D250:
-	lsls r1, r1, #5
-	ldr r0, .L0803D2A4 @ =gClockFont
-	adds r1, r1, r0
-	movs r2, #0x82
-	lsls r2, r2, #1
-	adds r0, r6, r2
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #0xc6
-	lsls r0, r0, #1
-	adds r1, r6, r0
-	movs r0, #1
-	strb r0, [r1]
-	movs r4, #0xc
-	adds r7, r1, #0
-	cmp r5, #0xc
-	beq .L0803D27C
-	adds r4, r5, #0
-	cmp r4, #0xb
-	bls .L0803D27C
-	subs r4, #0xc
-.L0803D27C:
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __udivsi3
-	adds r5, r0, #0
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __umodsi3
-	adds r4, r0, #0
-	cmp r5, #0
-	ble .L0803D2A8
-	lsls r1, r5, #5
-	ldr r0, .L0803D2A4 @ =gClockFont
-	adds r1, r1, r0
-	movs r2, #0xa2
-	lsls r2, r2, #1
-	adds r0, r6, r2
-	b .L0803D2BA
-	.align 2, 0
-.L0803D2A4: .4byte gClockFont
-.L0803D2A8:
-	mov r0, sp
-	movs r1, #0
-	movs r2, #0x20
-	bl memset
-	movs r1, #0xa2
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	mov r1, sp
-.L0803D2BA:
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #1
-	strb r0, [r7]
-	lsls r1, r4, #5
-	ldr r0, .L0803D2E4 @ =gClockFont
-	adds r1, r1, r0
-	movs r2, #0xb2
-	lsls r2, r2, #1
-	adds r0, r6, r2
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #1
-	strb r0, [r7]
-	add sp, #0x20
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0803D2E4: .4byte gClockFont
-
-	.section .text.0803D464, "ax", %progbits
-	.align 2, 0
-.L0803D464:
-	.byte 0x00, 0xB5, 0x08, 0x30, 0xFF, 0xF7, 0xEA, 0xFF, 0x01, 0xBC, 0x00, 0x47
-	.byte 0x00, 0xB5, 0x08, 0x30, 0xFF, 0xF7, 0xC6, 0xFF, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x08, 0x30
-	.byte 0xFF, 0xF7, 0x8E, 0xFF, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x08, 0x30, 0xFF, 0xF7, 0x58, 0xFF
-	.byte 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x09, 0x06, 0x09, 0x0E, 0x08, 0x30, 0xFF, 0xF7, 0x24, 0xFF
-	.byte 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x08, 0x30, 0xFF, 0xF7, 0xCA, 0xFE, 0x01, 0xBC, 0x00, 0x47
-	.byte 0x00, 0xB5, 0x08, 0x30, 0xFF, 0xF7, 0x1C, 0xFE, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x08, 0x30
-	.byte 0xFF, 0xF7, 0xDE, 0xFD, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x12, 0x06, 0x12, 0x0E, 0x08, 0x30
-	.byte 0xFF, 0xF7, 0x3C, 0xFC, 0x01, 0xBC, 0x00, 0x47
-
 	.section .text.0803D52C, "ax", %progbits
 	thumb_func_start DecodeNpcScheduleDate
 DecodeNpcScheduleDate: @ 0x0803D52C
@@ -4936,7 +4490,7 @@ func_0803DA7C: @ 0x0803DA7C
 	mov sb, r4
 	ldr r1, .L0803DACC @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r4, r0, #0
 	cmp r4, #3
 	bne .L0803DB6A
@@ -4968,7 +4522,7 @@ func_0803DA7C: @ 0x0803DA7C
 	ldrb r6, [r0]
 	ldr r1, .L0803DB24 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5083,7 +4637,7 @@ func_0803DA7C: @ 0x0803DA7C
 	ldr r1, .L0803DBF8 @ =0x00001CD4
 	adds r0, r5, r1
 	movs r1, #3
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803DC04
 	mov r1, r8
@@ -5343,7 +4897,7 @@ func_0803DFE8: @ 0x0803DFE8
 	ldr r1, .L0803E040 @ =0x00001CD4
 	adds r4, r5, r1
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r6, r0, #0
 	cmp r6, #0x13
 	bne .L0803E0EA
@@ -5379,7 +4933,7 @@ func_0803DFE8: @ 0x0803DFE8
 	ldrb r6, [r0]
 	ldr r1, .L0803E0A0 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5477,7 +5031,7 @@ func_0803DFE8: @ 0x0803DFE8
 .L0803E11A:
 	adds r0, r4, #0
 	movs r1, #0x13
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	mov r1, r8
 	cmp r1, #3
 	bne .L0803E158
@@ -5578,7 +5132,7 @@ func_0803E264: @ 0x0803E264
 	ldrb r6, [r4, #2]
 	ldr r1, .L0803E2B4 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r4, r0, #0
 	mov r0, r8
 	cmp r0, #2
@@ -5631,7 +5185,7 @@ func_0803E264: @ 0x0803E264
 	ldrb r4, [r0]
 	ldr r1, .L0803E334 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r7, r1, #0x1f
@@ -5713,7 +5267,7 @@ func_0803E264: @ 0x0803E264
 	ldr r1, .L0803E3D4 @ =0x00001CD4
 	adds r0, r5, r1
 	movs r1, #0x19
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	mov r1, r8
 	cmp r1, #3
 	bne .L0803E3E0
@@ -5805,7 +5359,7 @@ func_0803E4A0: @ 0x0803E4A0
 	ldr r0, .L0803E4F0 @ =0x00001CD4
 	adds r4, r5, r0
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	mov r8, r0
 	cmp r0, #0xc
 	bne .L0803E56E
@@ -5837,7 +5391,7 @@ func_0803E4A0: @ 0x0803E4A0
 .L0803E514:
 	ldr r1, .L0803E548 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5917,7 +5471,7 @@ func_0803E4A0: @ 0x0803E4A0
 .L0803E5A8:
 	adds r0, r4, #0
 	movs r1, #0xc
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803E5E8
 	cmp r6, #0xe
@@ -6008,7 +5562,7 @@ func_0803E780: @ 0x0803E780
 	ldr r0, .L0803E7D0 @ =0x00001CD4
 	adds r4, r5, r0
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	mov r8, r0
 	cmp r0, #0x15
 	bne .L0803E84E
@@ -6040,7 +5594,7 @@ func_0803E780: @ 0x0803E780
 .L0803E7F4:
 	ldr r1, .L0803E828 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -6114,7 +5668,7 @@ func_0803E780: @ 0x0803E780
 .L0803E87E:
 	adds r0, r4, #0
 	movs r1, #0x15
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803E8BC
 	cmp r6, #0xe

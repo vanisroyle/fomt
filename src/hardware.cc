@@ -2,6 +2,7 @@
 #include "m4a.h"
 #include "gbasvc.h"
 #include "unknown_inlines.hh"
+#include <stdlib.h>
 
 union ResourceHandleEntry
 {
@@ -156,7 +157,7 @@ EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner 
 }
 
 // 0x08007510
-EC u16 SECTION(".text.handle_count") ResourceHandle_GetRefCount(ResourceHandleOwner * self, u32 handle)
+EC u32 SECTION(".text.handle_count") ResourceHandle_GetRefCount(ResourceHandleOwner * self, u32 handle)
 {
     ResourceHandleRegistry * registry = gResourceHandleRegistry;
     if (handle != 0)
@@ -172,15 +173,90 @@ EC u16 SECTION(".text.handle_count") ResourceHandle_GetRefCount(ResourceHandleOw
     return 0;
 }
 
+struct ResourceHandleValue
+{
+    ResourceHandleOwner owner;
+    u32 handle;
+};
+
+struct ResourcePoolStorage
+{
+    ResourceHandleValue * begin;
+    ResourceHandleValue * end;
+    ResourceHandleValue * allocated_begin;
+    ResourceHandleValue * capacity_end;
+    ResourceHandleValue * cursor;
+};
+
 struct ResourcePool
 {
-    void * storage;
+    ResourcePoolStorage * storage;
 };
 
 // 0x0800770C
 EC SECTION(".text.ResourcePool_Initialize") ResourcePool * ResourcePool_Initialize(ResourcePool * self)
 {
     self->storage = nullptr;
+    return self;
+}
+
+EC void func_080073E0(ResourceHandleOwner *, u32);
+EC u32 func_0800736C(ResourceHandleOwner *);
+EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
+
+// 0x08007714
+EC void SECTION(".text.ResourcePool_Destroy") ResourcePool_Destroy(ResourcePool * self, u32 destructor_flags)
+{
+    if (self->storage != nullptr)
+    {
+        ResourcePoolStorage * storage = self->storage;
+        ResourceHandleValue * end = storage->end;
+        for (ResourceHandleValue * value = storage->begin; value != end; ++value)
+        {
+            func_080073E0(&value->owner, value->handle);
+            ResourceHandles_Destroy(&value->owner, 2);
+        }
+        if (storage->begin != nullptr)
+            free(storage->begin);
+        delete storage;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+// 0x08007770
+EC SECTION(".text.ResourcePool_Acquire") ResourceHandleValue * ResourcePool_Acquire(ResourceHandleValue * self, ResourcePool const * pool)
+{
+    if (pool->storage != nullptr)
+    {
+        ResourcePoolStorage * storage = pool->storage;
+        ResourceHandleValue * end = storage->end;
+        ResourceHandleValue * next = storage->cursor;
+        if (next != end)
+        {
+            ResourceHandleValue * start = next;
+            do
+            {
+                ResourceHandleValue * candidate = next;
+                if (++next == end)
+                    next = storage->begin;
+                if (ResourceHandle_GetRefCount(&candidate->owner, candidate->handle) == 1)
+                {
+                    storage->cursor = next;
+                    next = candidate;
+                    break;
+                }
+            }
+            while (next != start);
+        }
+        ResourceHandles_Initialize(&self->owner);
+        self->handle = ResourceHandle_Retain(&self->owner, next->handle);
+    }
+    else
+    {
+        ResourceHandles_Initialize(&self->owner);
+        self->handle = func_0800736C(&self->owner);
+    }
     return self;
 }
 
@@ -234,6 +310,135 @@ EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(Alloc
     self->empty = 1;
 }
 
+struct TileHeapOwner {};
+
+struct TileHeapState
+{
+    u32 allocated_mask[8];
+    u8 entry_pool[0x804];
+    AllocationTree tree;
+    u16 allocated_count;
+    u16 next_generation;
+    u32 owner_count;
+    u16 reserved_start;
+    u16 reserved_count;
+};
+
+extern TileHeapState * gTileHeapState; // 0x03000408
+
+// 0x080079E8
+EC void SECTION(".text.TileHeapOwner_Destroy") TileHeapOwner_Destroy(TileHeapOwner * self, u32 destructor_flags)
+{
+    TileHeapState * heap = gTileHeapState;
+    if (--heap->owner_count == 0)
+    {
+        if (heap != nullptr)
+            delete heap;
+        gTileHeapState = nullptr;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+struct TileHandleValue
+{
+    TileHeapOwner owner;
+    u32 handle;
+};
+
+struct TilePoolBucket
+{
+    TileHandleValue * begin;
+    TileHandleValue * end;
+    TileHandleValue * allocated_begin;
+    TileHandleValue * capacity_end;
+    TileHandleValue * cursor;
+};
+
+struct TilePoolStorage
+{
+    TilePoolBucket buckets[8];
+};
+
+struct TilePool
+{
+    TilePoolStorage * storage;
+};
+
+// 0x0800835C
+EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self)
+{
+    self->storage = nullptr;
+}
+
+EC TileHeapOwner * func_08007874(TileHeapOwner *);
+EC void func_08007C28(TileHeapOwner *, u32);
+EC u32 func_08007E24(TileHeapOwner *, u32);
+EC u32 func_08007CD8(TileHeapOwner *, u32);
+EC u32 func_08007B54(TileHeapOwner *, u32);
+
+// 0x08008364
+EC void SECTION(".text.TilePool_Destroy") TilePool_Destroy(TilePool * self, u32 destructor_flags)
+{
+    if (self->storage != nullptr)
+    {
+        TilePoolStorage * storage = self->storage;
+        TilePoolBucket * bucket = storage->buckets + 8;
+        while (storage->buckets != bucket)
+        {
+            --bucket;
+            TileHandleValue * end = bucket->end;
+            for (TileHandleValue * value = bucket->begin; value != end; ++value)
+            {
+                func_08007C28(&value->owner, value->handle);
+                TileHeapOwner_Destroy(&value->owner, 2);
+            }
+            if (bucket->begin != nullptr)
+                free(bucket->begin);
+        }
+        delete storage;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+// 0x080083D0
+EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHandleValue * self, TilePool const * pool, u32 order)
+{
+    TilePoolStorage * storage = pool->storage;
+    if (storage != nullptr)
+    {
+        TilePoolBucket * bucket = reinterpret_cast<TilePoolBucket *>(order * sizeof(TilePoolBucket) + u32(storage));
+        TileHandleValue * end = bucket->end;
+        TileHandleValue * next = bucket->cursor;
+        if (next != end)
+        {
+            TileHandleValue * start = next;
+            do
+            {
+                TileHandleValue * candidate = next;
+                if (++next == end)
+                    next = bucket->begin;
+                if (func_08007E24(&candidate->owner, candidate->handle) == 1)
+                {
+                    bucket->cursor = next;
+                    next = candidate;
+                    break;
+                }
+            }
+            while (next != start);
+        }
+        func_08007874(&self->owner);
+        self->handle = func_08007CD8(&self->owner, next->handle);
+    }
+    else
+    {
+        func_08007874(&self->owner);
+        self->handle = func_08007B54(&self->owner, order);
+    }
+    return self;
+}
+
 struct HardwareContextState
 {
     u16 held_keys;
@@ -252,6 +457,7 @@ struct HardwareContextState
 struct HardwareContext
 {
     HardwareContextState * state;
+    void const * vtable;
 };
 
 EC u32 KeyRepeat_Poll(void *);
@@ -359,6 +565,17 @@ struct AudioPlayer
 };
 
 EC MusicPlayer * Audio_GetPlayerByIndex(u32 index);
+
+extern u8 const _M4aNumMusicPlayers[];
+
+// 0x08008B24
+EC SECTION(".text.Audio_GetPlayerByIndex") MusicPlayer * Audio_GetPlayerByIndex(u32 index)
+{
+    u16 player_count = u32(_M4aNumMusicPlayers);
+    if (index >= player_count)
+        index %= player_count;
+    return gMusicPlayerTable[index].music_player;
+}
 
 // 0x08008B54
 EC SECTION(".text.AudioPlayer_Initialize") AudioPlayer * AudioPlayer_Initialize(AudioPlayer * self, u8 index)
@@ -510,6 +727,17 @@ inline u32 Dma_BuildCopyControl(u32 source, u32 destination, u32 byte_count)
 
 EC void Dma_ExecuteTransfer(void const *, void *, u32, void volatile *);
 
+// 0x08008E64
+EC void SECTION(".text.Dma3_Copy") Dma3_Copy(void const * source, void * destination, u32 byte_count)
+{
+    if (source != nullptr && destination != nullptr)
+    {
+        void const * transfer_source = source;
+        u32 control = Dma_BuildCopyControl(u32(transfer_source), u32(destination), byte_count);
+        Dma_ExecuteTransfer(transfer_source, destination, control, reinterpret_cast<void volatile *>(0x040000D4));
+    }
+}
+
 // 0x08008EB8
 EC void SECTION(".text.Dma3_Fill") Dma3_Fill(u32 fill_value, void * destination, u32 byte_count)
 {
@@ -528,6 +756,24 @@ struct DmaCommand
     void * destination;
     u32 control_flags;
 };
+
+// 0x08008FE4
+EC void SECTION(".text.DmaCommand_ExecuteRange") DmaCommand_ExecuteRange(DmaCommand const * begin, DmaCommand const * end)
+{
+    DmaCommand const * limit = end;
+    void volatile * channel = reinterpret_cast<void volatile *>(0x040000D4);
+    for (DmaCommand const * command = begin; command != limit; ++command)
+    {
+        void const * source = reinterpret_cast<void const *>(command->source_or_fill_value);
+        u32 fill_value;
+        if (command->is_fill == 1)
+        {
+            fill_value = u32(source);
+            source = &fill_value;
+        }
+        Dma_ExecuteTransfer(source, command->destination, command->control_flags, channel);
+    }
+}
 
 // 0x08008F0C
 EC SECTION(".text.DmaCommand_InitializeCopy") DmaCommand * DmaCommand_InitializeCopy(
@@ -1093,7 +1339,184 @@ EC void SECTION(".text.TaskList_SwapHeads") TaskList_SwapHeads(TaskList * self, 
     *other_last = end;
 }
 
-EC void ResourceHandles_Destroy(ResourceHandleOwner * self) ALIAS(_._19ResourceHandleOwner);
+EC void ResourceHandles_Destroy(ResourceHandleOwner * self, u32 destructor_flags) ALIAS(_._19ResourceHandleOwner);
+
+struct BootDmaChannel
+{
+    u32 source;
+    u32 destination;
+    u16 count;
+    u16 volatile control;
+};
+
+inline void Boot_StopDmaChannel(BootDmaChannel * channel)
+{
+    u16 volatile * registers = reinterpret_cast<u16 volatile *>(channel);
+    registers[5] = registers[5] & 0xC5FF;
+    registers[5] = registers[5] & 0x7FFF;
+    (void)registers[5];
+}
+
+// 0x08000240
+EC void SECTION(".text.Boot_SoftResetFromKeys") Boot_SoftResetFromKeys()
+{
+    Irq_Disable(0xFFFF);
+    *reinterpret_cast<u16 volatile *>(0x04000000) = 0x80;
+    *reinterpret_cast<u8 volatile *>(0x04000084) = 0;
+    while ((0xF & ~*reinterpret_cast<u16 volatile *>(0x04000130)) != 0) {}
+    Boot_StopDmaChannel(reinterpret_cast<BootDmaChannel *>(0x040000B0));
+    Boot_StopDmaChannel(reinterpret_cast<BootDmaChannel *>(0x040000BC));
+    Boot_StopDmaChannel(reinterpret_cast<BootDmaChannel *>(0x040000C8));
+    Boot_StopDmaChannel(reinterpret_cast<BootDmaChannel *>(0x040000D4));
+    SoftReset(0xFF);
+    for (;;) {}
+}
+
+struct DmaTransferQueue
+{
+    DmaCommand * Begin() const { return begin; }
+    DmaCommand * End() const { return end; }
+    DmaCommand * begin;
+    DmaCommand * end;
+    u32 allocation_state;
+    DmaCommand * capacity_end;
+};
+
+struct VBlankIrqSubscription
+{
+    u8 storage[0x14];
+    void const * vtable;
+};
+
+struct VBlankRootTaskList
+{
+    TaskList tasks;
+    VBlankIrqSubscription irq_subscription;
+};
+
+struct VBlankRuntime
+{
+    TaskNode audio_update;
+    TaskList pending_tasks;
+    TaskNode audio_vblank;
+    VBlankRootTaskList root;
+    bool restore_audio_dma;
+};
+
+struct VBlankDispatcher
+{
+    VBlankRuntime * state;
+};
+
+struct HardwareRuntime
+{
+    KeyRepeatState keys;
+    DmaTransferQueue dma_queue;
+    DisplayRegisterBuffer display;
+    OamBuffer oam;
+    VBlankDispatcher vblank;
+    TaskList frame_tasks;
+};
+
+extern void const * gHardwareContextVtable[]; // 0x080E5B00
+extern void const * gVBlankIrqSubscriptionVtable[]; // 0x080E5B0C
+extern TaskVtable gVBlankRootTaskListVtable; // 0x080E5B18
+extern TaskVtable gDisplayFadeTaskVtable; // 0x080E5B80
+EC void func_080D7944(VBlankIrqSubscription *, u32);
+
+// 0x08008A68
+EC void SECTION(".text.VBlankDispatcher_Destroy") VBlankDispatcher_Destroy(VBlankDispatcher * self, u32 destructor_flags)
+{
+    VBlankRuntime * state = self->state;
+    if (state != nullptr)
+    {
+        if (state->restore_audio_dma)
+            Audio_DisableVBlankDma();
+        VBlankRootTaskList * root = &state->root;
+        root->irq_subscription.vtable = gVBlankIrqSubscriptionVtable;
+        root->tasks.node.vtable = &gVBlankRootTaskListVtable;
+        func_080D7944(&root->irq_subscription, 0);
+        IrqTaskList_Destroy(&root->tasks, 2);
+        TaskNode_Destroy(&state->audio_vblank, 2);
+        IrqTaskList_Destroy(&state->pending_tasks, 2);
+        TaskNode_Destroy(&state->audio_update, 2);
+        delete state;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+// 0x080086BC
+EC void SECTION(".text.HardwareContext_Destroy") HardwareContext_Destroy(HardwareContext * self, u32 destructor_flags)
+{
+    self->vtable = gHardwareContextVtable;
+    if (self->state != nullptr)
+    {
+        HardwareRuntime * state = reinterpret_cast<HardwareRuntime *>(self->state);
+        TaskList_Destroy(&state->frame_tasks, 2);
+        VBlankDispatcher_Destroy(&state->vblank, 2);
+        DmaTransferQueue * queue = &state->dma_queue;
+        DmaCommand * end = queue->End();
+        DmaCommand * command = queue->Begin();
+        while (command != end)
+            ++command;
+        if (queue->Begin() != nullptr)
+            free(queue->Begin());
+        delete state;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+struct DisplayFadeTask
+{
+    TaskNode node;
+    DisplayFade fade;
+};
+
+// 0x080094B8
+EC void SECTION(".text.DisplayFadeTask_Destroy") DisplayFadeTask_Destroy(DisplayFadeTask * self, u32 destructor_flags)
+{
+    self->node.vtable = &gDisplayFadeTaskVtable;
+    DisplayFade_Destroy(&self->fade, 2);
+    TaskNode_Destroy(&self->node, destructor_flags);
+}
+
+// 0x08009094
+EC void SECTION(".text.DmaCommand_ExecuteCpuRange") DmaCommand_ExecuteCpuRange(DmaCommand const * begin, DmaCommand const * end)
+{
+    DmaCommand const * limit = end;
+    for (DmaCommand const * command = begin; command != limit; ++command)
+    {
+        u8 const * source = reinterpret_cast<u8 const *>(command->source_or_fill_value);
+        u32 fill_value;
+        if (command->is_fill == 1)
+        {
+            fill_value = u32(source);
+            source = reinterpret_cast<u8 const *>(&fill_value);
+        }
+        u32 control = command->control_flags;
+        u8 * destination = static_cast<u8 *>(command->destination);
+        if (control & 0x04000000)
+        {
+            u32 count = control & 0xFFFF;
+            u32 tail = count & 7;
+            count -= tail;
+            if (count != 0 || tail == 0)
+            {
+                CpuFastSet(source, destination, control - tail);
+                u32 byte_count = count * 4;
+                destination += byte_count;
+                if (!(control & 0x01000000))
+                    source += byte_count;
+            }
+            if (tail != 0)
+                CpuSet(source, destination, control - count);
+        }
+        else
+            CpuSet(source, destination, control);
+    }
+}
 
 // 0x080071BC
 EC void ResourceHandles_ReserveRange(ResourceHandleOwner * self, unsigned int first_index, unsigned int entry_count)

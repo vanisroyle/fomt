@@ -1,7 +1,9 @@
 #include "prelude.h"
 
 #include "actor.hh"
+#include "furniture.hh"
 #include "item.hh"
+#include "rucksack.hh"
 
 #include <new>
 #include <string.h>
@@ -543,6 +545,12 @@ enum MineOutcome
 {
     MINE_OUTCOME_NONE,
     MINE_OUTCOME_STAIRS,
+    MINE_OUTCOME_CURSED_SICKLE = 4,
+    MINE_OUTCOME_CURSED_HOE,
+    MINE_OUTCOME_CURSED_AXE,
+    MINE_OUTCOME_CURSED_HAMMER,
+    MINE_OUTCOME_CURSED_WATERING_CAN,
+    MINE_OUTCOME_CURSED_FISHING_ROD,
 };
 
 struct MineFloor
@@ -555,11 +563,10 @@ struct MineFloor
         u16 digOutcome : 6;
     };
     Tile tiles[28][28];
-    u32 unk_624_0 : 1;
-    u32 : 9;
-    u32 unk_625_2 : 1;
-    u32 unk_625_3 : 1;
-    u32 unk_625_4 : 1;
+    u8 kappaJewelFlags;
+    u8 sharedJewelFlags;
+    u8 goddessJewelFlags;
+    u8 unk_627;
 };
 
 ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(MineFloor const &, unsigned value)
@@ -738,7 +745,14 @@ ROM_TEXT(0809D7D8) unsigned GetMineTileState(MineFloor const & self, unsigned x,
     return self.tiles[y][x].state;
 }
 
-struct MineRewardContext;
+struct MineRewardContext
+{
+    STRUCT_PAD(0x0000, 0x0380);
+    ToolChest toolChest;
+    u8 padAfterToolChest[0x1C38 - 0x0380 - sizeof(ToolChest)];
+    Rucksack rucksack;
+};
+
 EC int ResolveMineOutcome(MineFloor &, unsigned, MineRewardContext *);
 
 ROM_TEXT(0809D8E8) int DigMineTile(MineFloor & mine, int x, int y, MineRewardContext * context)
@@ -791,6 +805,63 @@ ROM_TEXT(0809D9B4) int BreakMineRock(MineFloor & mine, unsigned x, unsigned y, M
     return result;
 }
 
+ROM_TEXT(0809DF2C) bool HasCursedMineTool(MineFloor const &, unsigned outcome, MineRewardContext const & context)
+{
+    bool found = false;
+    int toolId = TOOL_NONE;
+    switch (outcome)
+    {
+    case MINE_OUTCOME_CURSED_SICKLE: toolId = TOOL_CURSED_SICKLE; break;
+    case MINE_OUTCOME_CURSED_HOE: toolId = TOOL_CURSED_HOE; break;
+    case MINE_OUTCOME_CURSED_AXE: toolId = TOOL_CURSED_AXE; break;
+    case MINE_OUTCOME_CURSED_HAMMER: toolId = TOOL_CURSED_HAMMER; break;
+    case MINE_OUTCOME_CURSED_WATERING_CAN: toolId = TOOL_CURSED_WATERING_CAN; break;
+    case MINE_OUTCOME_CURSED_FISHING_ROD: toolId = TOOL_CURSED_FISHING_ROD; break;
+    }
+    if (toolId < NUM_TOOLS)
+    {
+        if (context.rucksack.GetFirstSlotWithTool(toolId) != static_cast<u32>(-1))
+            found = true;
+        if (context.toolChest.GetFirstSlotWith(toolId) != static_cast<u32>(-1))
+            found = true;
+    }
+    return found;
+}
+
+ROM_TEXT(0809DFAC) u8 CountHarvestGoddessJewels(MineFloor const & mine)
+{
+    // The first three Goddess jewel flags share a byte with other mine rewards.
+    unsigned bits = mine.sharedJewelFlags;
+    u8 count = (bits << 26) >> 31;
+    if (static_cast<i32>(bits << (31 - 6)) < 0) ++count;
+    if (bits >> 7) ++count;
+    bits = mine.goddessJewelFlags;
+    if ((bits << 31) != 0) ++count;
+    if (static_cast<i32>(bits << (31 - 1)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 2)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 3)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 4)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 5)) < 0) ++count;
+    return count;
+}
+
+ROM_TEXT(0809E02C) u8 CountKappaJewels(MineFloor const & mine)
+{
+    // Bit 0 holds a different reward; the last two Kappa jewels use the next byte.
+    unsigned bits = mine.kappaJewelFlags;
+    u8 count = (bits << 30) >> 31;
+    if (static_cast<i32>(bits << (31 - 2)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 3)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 4)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 5)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 6)) < 0) ++count;
+    if (bits >> 7) ++count;
+    bits = mine.sharedJewelFlags;
+    if ((bits << 31) != 0) ++count;
+    if (static_cast<i32>(bits << (31 - 1)) < 0) ++count;
+    return count;
+}
+
 struct MineTileGraphics;
 EC MineTileGraphics const gMineSoilTiles;
 EC MineTileGraphics const gMineDugSoilTiles;
@@ -814,20 +885,20 @@ ROM_TEXT(0809E0AC) MineTileGraphics const * GetMineTileGraphics(MineFloor const 
 
 ROM_TEXT(0809E174) bool func_0809E174(MineFloor const & self)
 {
-    return self.unk_624_0;
+    return (static_cast<u32>(self.kappaJewelFlags) << 31) >> 31;
 }
 
 ROM_TEXT(0809E174) bool func_0809E184(MineFloor const & self)
 {
-    return self.unk_625_2;
+    return (static_cast<u32>(self.sharedJewelFlags) << (31 - 2)) >> 31;
 }
 
 ROM_TEXT(0809E174) bool func_0809E194(MineFloor const & self)
 {
-    return self.unk_625_3;
+    return (static_cast<u32>(self.sharedJewelFlags) << (31 - 3)) >> 31;
 }
 
 ROM_TEXT(0809E174) bool func_0809E1A4(MineFloor const & self)
 {
-    return self.unk_625_4;
+    return (static_cast<u32>(self.sharedJewelFlags) << (31 - 4)) >> 31;
 }

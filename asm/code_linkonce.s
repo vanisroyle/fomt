@@ -125,7 +125,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r2, .L080D3E78 @ =0x00006D10
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
@@ -141,7 +141,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xda
 	lsls r1, r1, #7
 	adds r4, r5, r1
@@ -158,7 +158,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D3E84 @ =0x00006CF0
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -166,7 +166,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3E88 @ =0x00006CE8
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -182,7 +182,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D3E90 @ =0x00006CD8
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -190,7 +190,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3E94 @ =0x00006CD0
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -198,7 +198,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r2, .L080D3E98 @ =0x00006CC8
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
@@ -214,7 +214,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3EA0 @ =0x00006CB8
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -230,7 +230,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D3EA8 @ =0x00006CA8
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -238,7 +238,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3EAC @ =0x00006CA0
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -254,7 +254,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D3EB4 @ =0x00006C90
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
@@ -270,7 +270,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xd9
 	lsls r2, r2, #7
 	adds r4, r5, r2
@@ -287,7 +287,7 @@ func_080D3C78: @ 0x080D3C78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3EC0 @ =0x00006C74
 	adds r0, r5, r1
 	movs r1, #2
@@ -295,7 +295,7 @@ func_080D3C78: @ 0x080D3C78
 	ldr r2, .L080D3EC4 @ =0x00006C70
 	adds r0, r5, r2
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080D3EC8 @ =0x00006A70
 	adds r0, r5, r1
 	ldr r1, .L080D3ECC @ =vtable_unk_080E5A28
@@ -308,7 +308,7 @@ func_080D3C78: @ 0x080D3C78
 	str r1, [r0]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -564,7 +564,7 @@ func_080D406C: @ 0x080D406C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080D40C8 @ =vtable_unk_080E5A28
 	str r0, [r5, #0x1c]
 	adds r0, r5, #0
@@ -582,7 +582,7 @@ func_080D406C: @ 0x080D406C
 .L080D40B8:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -7688,7 +7688,7 @@ func_080D772C: @ 0x080D772C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r4, #8
 	cmp r4, r5
 	bne .L080D77A6
@@ -7920,9 +7920,9 @@ func_080D79CC: @ 0x080D79CC
 	adds r5, r1, #0
 	adds r4, r0, #0
 	subs r4, #0x1c
-	ldr r1, .L080D79F0 @ =vtable_unk_080E5B0C
+	ldr r1, .L080D79F0 @ =gVBlankIrqSubscriptionVtable
 	str r1, [r4, #0x30]
-	ldr r1, .L080D79F4 @ =vtable_unk_080E5B18
+	ldr r1, .L080D79F4 @ =gVBlankRootTaskListVtable
 	str r1, [r4, #8]
 	movs r1, #0
 	bl func_080D7944
@@ -7933,8 +7933,8 @@ func_080D79CC: @ 0x080D79CC
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D79F0: .4byte vtable_unk_080E5B0C
-.L080D79F4: .4byte vtable_unk_080E5B18
+.L080D79F0: .4byte gVBlankIrqSubscriptionVtable
+.L080D79F4: .4byte gVBlankRootTaskListVtable
 .L080D79F8:
 	.byte 0x70, 0xB5, 0x46, 0x46, 0x40, 0xB4, 0x81, 0xB0
 	.byte 0x06, 0x1C, 0x88, 0x46, 0x6D, 0x46, 0x01, 0x24, 0x01, 0x20, 0x28, 0xF7, 0x8D, 0xFD, 0x04, 0x40
@@ -7976,9 +7976,9 @@ func_080D7AD4: @ 0x080D7AD4
 	push {r4, r5, lr}
 	adds r4, r0, #0
 	adds r5, r1, #0
-	ldr r0, .L080D7AFC @ =vtable_unk_080E5B0C
+	ldr r0, .L080D7AFC @ =gVBlankIrqSubscriptionVtable
 	str r0, [r4, #0x30]
-	ldr r0, .L080D7B00 @ =vtable_unk_080E5B18
+	ldr r0, .L080D7B00 @ =gVBlankRootTaskListVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0x1c
@@ -7991,8 +7991,8 @@ func_080D7AD4: @ 0x080D7AD4
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D7AFC: .4byte vtable_unk_080E5B0C
-.L080D7B00: .4byte vtable_unk_080E5B18
+.L080D7AFC: .4byte gVBlankIrqSubscriptionVtable
+.L080D7B00: .4byte gVBlankRootTaskListVtable
 
 	thumb_func_start func_080D7B04
 func_080D7B04: @ 0x080D7B04
@@ -8417,7 +8417,7 @@ func_080D7F9C: @ 0x080D7F9C
 	ldr r0, [r0]
 	ldr r4, .L080D8138 @ =0x00001CD4
 	adds r0, r0, r4
-	bl func_080A0A90
+	bl AdvanceNpcScheduleDailyCounter
 .L080D8120:
 	movs r1, #0
 	mov r0, sl
@@ -9225,7 +9225,7 @@ sub_080D8178: @ 0x080D8178
 	add r4, sp
 	adds r0, r4, #0
 	movs r3, #0
-	bl func_0801FB7C
+	bl GameStateCreateMapObject
 	ldr r2, [r4]
 	ldr r1, .L080D8810 @ =0x0000049C
 	add r1, sp
@@ -9310,7 +9310,7 @@ sub_080D8178: @ 0x080D8178
 	add r4, sp
 	adds r0, r4, #0
 	movs r3, #1
-	bl func_0801FB7C
+	bl GameStateCreateMapObject
 	ldr r2, [r4]
 	ldr r1, .L080D88B0 @ =0x000004A4
 	add r1, sp
@@ -9555,7 +9555,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	ldr r0, [r6]
 	movs r4, #0xaa
 	lsls r4, r4, #3
@@ -9564,7 +9564,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r4]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	ldr r5, .L080D8AC0 @ =0x0000055C
 	add r5, sp
 	ldr r5, [r5]
@@ -9590,7 +9590,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9633,7 +9633,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9669,7 +9669,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9721,7 +9721,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [sp, #4]
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9760,7 +9760,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9803,7 +9803,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9845,7 +9845,7 @@ sub_080D8178: @ 0x080D8178
 	lsls r5, r5, #3
 	add r5, sp
 	adds r0, r5, #0
-	bl func_0800835C
+	bl TilePool_Initialize
 	ldr r4, .L080D8D88 @ =0x0000043C
 	add r4, sp
 	adds r0, r4, #0
@@ -9858,7 +9858,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -9875,12 +9875,12 @@ sub_080D8178: @ 0x080D8178
 	ldr r0, .L080D8D88 @ =0x0000043C
 	add r0, sp
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	movs r0, #0x87
 	lsls r0, r0, #3
 	add r0, sp
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 	ldr r0, [r6]
 	bl FinishOpeningMessageWindow
 	ldr r0, [r6]
@@ -10380,7 +10380,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r4, .L080D91F0 @ =0x00000544
 	add r4, sp
 	ldr r3, [r4]
-	bl func_0803C00C
+	bl UpdatePauseMenuWindowWithAudio
 	b .L080D93E8
 	.align 2, 0
 .L080D91EC: .4byte 0x0000056C
@@ -11229,7 +11229,7 @@ sub_080D8178: @ 0x080D8178
 	lsls r5, r5, #3
 	add r5, sp
 	adds r0, r5, #0
-	bl func_0800835C
+	bl TilePool_Initialize
 	ldr r4, .L080D9970 @ =0x0000043C
 	add r4, sp
 	adds r0, r4, #0
@@ -11242,7 +11242,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -11259,12 +11259,12 @@ sub_080D8178: @ 0x080D8178
 	ldr r0, .L080D9970 @ =0x0000043C
 	add r0, sp
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	movs r0, #0x87
 	lsls r0, r0, #3
 	add r0, sp
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 	ldr r0, [r6]
 	bl OpenMessageWindow
 	movs r0, #0xc
@@ -11617,7 +11617,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -11699,7 +11699,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [sp, #4]
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -11746,7 +11746,7 @@ sub_080D8178: @ 0x080D8178
 	add r5, sp
 	str r3, [r5]
 	ldr r0, [r4]
-	bl func_0803C540
+	bl GetPauseMenuSelection
 	cmp r0, #6
 	bls .L080D9D7E
 	b .L080DA0E4
@@ -12170,7 +12170,7 @@ sub_080D8178: @ 0x080D8178
 	bl .L080DAAE6
 .L080DA0F4:
 	ldr r0, [r7]
-	bl func_0803C544
+	bl DisablePauseMenuSelection
 	ldr r1, .L080DA114 @ =0x0000055C
 	add r1, sp
 	ldr r1, [r1]
@@ -12303,7 +12303,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	mov r0, sl
 	adds r0, #0xb4
 	ldr r0, [r0]
@@ -12314,7 +12314,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r4]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r0, #0
 	b .L080DA790
 	.align 2, 0
@@ -12736,7 +12736,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	mov r0, sl
 	adds r0, #0xb4
 	ldr r0, [r0]
@@ -12747,7 +12747,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r2]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r0, #0
 	b .L080DA804
 	.align 2, 0
@@ -13782,7 +13782,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r0, [r6]
 	lsrs r1, r2, #0x1b
 	adds r0, #8
-	bl func_0803D240
+	bl SetClockHourTiles
 	ldr r7, .L080DAE48 @ =0x000004CC
 	add r7, sp
 	ldrb r1, [r7, #1]
@@ -13836,7 +13836,7 @@ sub_080DA76C: @ 0x080DA76C
 	mov r0, r8
 	adds r0, #8
 	adds r1, r4, #0
-	bl func_0803D0F0
+	bl SetClockDayAndWeekdayTiles
 	ldrb r1, [r7, #1]
 	lsls r1, r1, #0x1e
 	ldrb r0, [r5, #0x11]
@@ -13867,7 +13867,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r1, [r2]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r3, #0xaa
 	lsls r3, r3, #3
 	add r3, sp
@@ -13882,7 +13882,7 @@ sub_080DA76C: @ 0x080DA76C
 	beq .L080DAE54
 	ldr r0, [r6]
 	adds r0, #8
-	bl func_0803D440
+	bl HideClockToolIcon
 	b .L080DAE90
 	.align 2, 0
 .L080DAE3C: .4byte 0x00000544
@@ -13917,7 +13917,7 @@ sub_080DA76C: @ 0x080DA76C
 	lsrs r1, r1, #0x10
 	ldr r0, [r6]
 	adds r0, #8
-	bl func_0803D404
+	bl SetClockToolIcon
 .L080DAE90:
 	ldr r1, .L080DAFA8 @ =0x00000574
 	add r1, sp
@@ -14333,7 +14333,7 @@ func_080DB0EC: @ 0x080DB0EC
 	adds r0, r4, #0
 	adds r0, #0x68
 	movs r1, #2
-	bl func_08008A68
+	bl VBlankDispatcher_Destroy
 	ldr r1, [r4, #4]
 	ldr r0, [r4]
 	cmp r0, r1
@@ -15081,7 +15081,7 @@ func_080DB8FC: @ 0x080DB8FC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805218C
+	bl InitializeFestivalResultsController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15259,7 +15259,7 @@ func_080DBA4C: @ 0x080DBA4C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_0805CEB8
+	bl InitHorseRaceScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -18406,7 +18406,7 @@ func_080DD3D4: @ 0x080DD3D4
 	thumb_func_start func_080DD404
 func_080DD404: @ 0x080DD404
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18478,10 +18478,10 @@ func_080DD460: @ 0x080DD460
 	beq .L080DD48C
 	adds r0, r4, #0
 	movs r1, #0xcf
-	bl func_0803A350
+	bl PlaySideEntitySong
 .L080DD48C:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #6
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -18532,7 +18532,7 @@ func_080DD460: @ 0x080DD460
 	thumb_func_start func_080DD4E4
 func_080DD4E4: @ 0x080DD4E4
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18623,7 +18623,7 @@ func_080DD540: @ 0x080DD540
 	thumb_func_start func_080DD588
 func_080DD588: @ 0x080DD588
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18888,7 +18888,7 @@ func_080DD5E4: @ 0x080DD5E4
 	thumb_func_start func_080DD788
 func_080DD788: @ 0x080DD788
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19005,7 +19005,7 @@ func_080DD7E4: @ 0x080DD7E4
 	thumb_func_start func_080DD860
 func_080DD860: @ 0x080DD860
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19123,7 +19123,7 @@ func_080DD8BC: @ 0x080DD8BC
 	thumb_func_start func_080DD938
 func_080DD938: @ 0x080DD938
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19229,7 +19229,7 @@ func_080DD9CC: @ 0x080DD9CC
 	b .L080DDBD6
 .L080DD9F8:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #0x1e
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -19287,7 +19287,7 @@ func_080DD9CC: @ 0x080DD9CC
 .L080DDA62:
 	adds r0, r5, #0
 	movs r1, #0xce
-	bl func_0803A350
+	bl PlaySideEntitySong
 	b .L080DDBD6
 .L080DDA6C:
 	adds r2, r5, #0
@@ -19513,7 +19513,7 @@ func_080DD9CC: @ 0x080DD9CC
 	thumb_func_start func_080DDC18
 func_080DDC18: @ 0x080DDC18
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19610,7 +19610,7 @@ func_080DDC78: @ 0x080DDC78
 	cmp r5, #1
 	bne .L080DDCEE
 	movs r0, #4
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #8
 	movs r2, #0x80
 	lsls r2, r2, #1
@@ -19628,7 +19628,7 @@ func_080DDC78: @ 0x080DDC78
 	b .L080DDD04
 .L080DDCEE:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r1, r0, #4
 	subs r1, r1, r0
 	lsls r1, r1, #2
@@ -19639,7 +19639,7 @@ func_080DDC78: @ 0x080DDC78
 	adds r4, r0, #0
 .L080DDD04:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #2
 	adds r0, #0xc
 	adds r1, r6, #0
@@ -19821,7 +19821,7 @@ func_080DDC78: @ 0x080DDC78
 	thumb_func_start func_080DDE68
 func_080DDE68: @ 0x080DDE68
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19912,7 +19912,7 @@ func_080DDEC4: @ 0x080DDEC4
 	thumb_func_start func_080DDF0C
 func_080DDF0C: @ 0x080DDF0C
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20003,7 +20003,7 @@ func_080DDF68: @ 0x080DDF68
 	thumb_func_start func_080DDFB0
 func_080DDFB0: @ 0x080DDFB0
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20092,7 +20092,7 @@ func_080DE00C: @ 0x080DE00C
 	thumb_func_start func_080DE050
 func_080DE050: @ 0x080DE050
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20210,7 +20210,7 @@ func_080DE0AC: @ 0x080DE0AC
 	thumb_func_start func_080DE128
 func_080DE128: @ 0x080DE128
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20752,7 +20752,7 @@ func_080DE298: @ 0x080DE298
 	bl __builtin_new
 	adds r4, r0, #0
 	add r0, sp, #0x10
-	bl func_0800835C
+	bl TilePool_Initialize
 	add r0, sp, #0x14
 	bl ResourcePool_Initialize
 	add r1, sp, #0x14
@@ -20765,7 +20765,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -20779,17 +20779,17 @@ func_080DE298: @ 0x080DE298
 	str r4, [r5]
 	add r0, sp, #0x14
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	add r0, sp, #0x10
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 	b .L080DE88E
 .L080DE83E:
 	movs r0, #4
 	bl __builtin_new
 	adds r4, r0, #0
 	add r0, sp, #0x10
-	bl func_0800835C
+	bl TilePool_Initialize
 	add r0, sp, #0x14
 	bl ResourcePool_Initialize
 	add r0, sp, #0x14
@@ -20801,7 +20801,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -20815,10 +20815,10 @@ func_080DE298: @ 0x080DE298
 	str r4, [r5]
 	add r0, sp, #0x14
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	add r0, sp, #0x10
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 .L080DE88E:
 	ldr r0, [r6]
 	bl GetMessageWindowPhase
@@ -25212,7 +25212,7 @@ func_080E0908: @ 0x080E0908
 	bl _._13AScriptEngine
 	adds r0, r4, #4
 	movs r1, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	adds r0, r4, #0
 	adds r1, r5, #0
 	bl Scene_DestroyBase
@@ -25527,7 +25527,7 @@ func_080E0A94: @ 0x080E0A94
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r5, #0
 	bl __builtin_delete
 .L080E0C08:
@@ -25613,7 +25613,7 @@ func_080E0C38: @ 0x080E0C38
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	cmp r5, r4
 	bne .L080E0C9C
 .L080E0CB2:
@@ -25637,7 +25637,7 @@ func_080E0C38: @ 0x080E0C38
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r4, #0
 	bl __builtin_delete
 	b .L080E0CBA
@@ -25654,7 +25654,7 @@ func_080E0C38: @ 0x080E0C38
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r4, #0
 	bl __builtin_delete
 .L080E0D0E:
@@ -25726,7 +25726,7 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xc7
 	lsls r1, r1, #2
 	adds r0, r6, r1
@@ -25740,7 +25740,7 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xbf
 	lsls r1, r1, #2
 	adds r0, r6, r1
@@ -25768,7 +25768,7 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xad
 	lsls r1, r1, #2
 	adds r0, r6, r1
@@ -25782,7 +25782,7 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xc8
 	lsls r1, r1, #1
 	adds r0, r6, r1
@@ -25796,7 +25796,7 @@ func_080E0D70: @ 0x080E0D70
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r6, #0
 	adds r0, #0x68
 	movs r1, #2
@@ -25926,7 +25926,7 @@ func_080E0F48: @ 0x080E0F48
 	lsls r1, r1, #4
 	adds r1, r4, r1
 	adds r0, r4, #0
-	bl func_08009094
+	bl DmaCommand_ExecuteCpuRange
 	ldr r0, [r5]
 	lsls r0, r0, #4
 	adds r0, #4
@@ -26106,7 +26106,7 @@ func_080E105C: @ 0x080E105C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, [r5]
 	bl __builtin_delete
 	cmp r6, r5
@@ -26212,12 +26212,12 @@ func_080E1148: @ 0x080E1148
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080E1188 @ =vtable_unk_080E5A28
 	str r0, [r5, #0x10]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -26314,7 +26314,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xa0
 	lsls r2, r2, #3
 	adds r0, r6, r2
@@ -26348,7 +26348,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xa0
 	lsls r2, r2, #3
 	adds r0, r6, r2
@@ -26372,7 +26372,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0x9d
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26390,7 +26390,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0x9b
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26408,7 +26408,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x99
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26417,7 +26417,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0x98
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26435,7 +26435,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x96
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26453,7 +26453,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0x94
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26471,7 +26471,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0x92
 	lsls r1, r1, #3
 	adds r4, r6, r1
@@ -26489,7 +26489,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x90
 	lsls r0, r0, #3
 	adds r4, r6, r0
@@ -26507,7 +26507,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0x8e
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -26525,7 +26525,7 @@ func_080E11EC: @ 0x080E11EC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xe8
 	lsls r2, r2, #1
 	adds r1, r6, r2
@@ -26558,7 +26558,7 @@ func_080E11EC: @ 0x080E11EC
 .L080E1474:
 	adds r0, r6, #0
 	mov r1, sl
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3, r4, r5}
 	mov r8, r3
 	mov sb, r4
@@ -26767,7 +26767,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xcb
 	lsls r1, r1, #3
 	adds r0, r7, r1
@@ -26782,7 +26782,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xc9
 	lsls r0, r0, #3
 	adds r4, r7, r0
@@ -26800,7 +26800,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc7
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26818,7 +26818,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xc5
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26827,7 +26827,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc4
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26854,7 +26854,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc1
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26872,7 +26872,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xbf
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26890,7 +26890,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xbd
 	lsls r0, r0, #3
 	adds r4, r7, r0
@@ -26908,7 +26908,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xbb
 	lsls r2, r2, #3
 	adds r4, r7, r2
@@ -26926,7 +26926,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xb9
 	lsls r1, r1, #3
 	adds r4, r7, r1
@@ -26944,7 +26944,7 @@ func_080E15C0: @ 0x080E15C0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xd0
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -26977,7 +26977,7 @@ func_080E15C0: @ 0x080E15C0
 .L080E180A:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3}
 	mov r8, r3
 	pop {r4, r5, r6, r7}
@@ -27081,7 +27081,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x9a
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -27099,7 +27099,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0x92
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -27117,7 +27117,7 @@ func_080E18A4: @ 0x080E18A4
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080E1960 @ =vtable_unk_080E5A28
 	str r0, [r5, #0x50]
 	str r0, [r5, #0x20]
@@ -27129,7 +27129,7 @@ func_080E18A4: @ 0x080E18A4
 .L080E1948:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -27235,7 +27235,7 @@ func_080E19F8: @ 0x080E19F8
 .L080E1A12:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -27778,7 +27778,7 @@ func_080E1DD4: @ 0x080E1DD4
 .L080E1E12:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -27837,7 +27837,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	cmp r6, r4
 	bne .L080E1E7C
 .L080E1E92:
@@ -27856,7 +27856,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080E1F98 @ =0x000040B8
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
@@ -27872,7 +27872,7 @@ func_080E1E28: @ 0x080E1E28
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, .L080E1FA0 @ =0x00003FA4
 	adds r2, r5, r1
 	ldr r1, [r2]
@@ -27948,7 +27948,7 @@ func_080E1E28: @ 0x080E1E28
 .L080E1F6C:
 	adds r0, r5, #0
 	mov r1, sb
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3, r4}
 	mov r8, r3
 	mov sb, r4
@@ -27987,7 +27987,7 @@ func_080E1FAC: @ 0x080E1FAC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -28001,7 +28001,7 @@ func_080E1FAC: @ 0x080E1FAC
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, [r5, #0xc]
 	cmp r0, #0
 	beq .L080E2008
@@ -28010,7 +28010,7 @@ func_080E1FAC: @ 0x080E1FAC
 .L080E2008:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -28075,7 +28075,7 @@ func_080E2018: @ 0x080E2018
 .L080E2082:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -28199,7 +28199,7 @@ func_080E211C: @ 0x080E211C
 .L080E215A:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -30813,7 +30813,7 @@ func_080E3504: @ 0x080E3504
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r0, .L080E35D8 @ =vtable_unk_080E5A28
 	str r0, [r5, #4]
 	adds r0, r5, #0
@@ -30840,7 +30840,7 @@ func_080E3504: @ 0x080E3504
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r0, r5, #0
 	bl __builtin_delete
 .L080E358C:
@@ -30876,7 +30876,7 @@ func_080E3504: @ 0x080E3504
 	str r0, [r6, #0x10]
 	adds r0, r6, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -31363,7 +31363,7 @@ func_080E3920: @ 0x080E3920
 	thumb_func_start func_080E392C
 func_080E392C: @ 0x080E392C
 	push {lr}
-	bl func_080D035C
+	bl Joybus_UpdateTransfers
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -31802,7 +31802,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc8
 	lsls r2, r2, #2
 	adds r4, r5, r2
@@ -31820,7 +31820,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xc4
 	lsls r1, r1, #2
 	adds r4, r5, r1
@@ -31829,7 +31829,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xc2
 	lsls r2, r2, #2
 	adds r4, r5, r2
@@ -31847,7 +31847,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xbe
 	lsls r1, r1, #2
 	adds r4, r5, r1
@@ -31865,7 +31865,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xba
 	lsls r0, r0, #2
 	adds r4, r5, r0
@@ -31883,7 +31883,7 @@ func_080E3C3C: @ 0x080E3C3C
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0x94
 	lsls r2, r2, #1
 	adds r0, r5, r2
@@ -31926,7 +31926,7 @@ func_080E3C3C: @ 0x080E3C3C
 	str r4, [r5, #0x10]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -32102,28 +32102,28 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3EAC:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32144,7 +32144,7 @@ func_080E3E9C: @ 0x080E3E9C
 	bne .L080E3F38
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32152,7 +32152,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F16:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32160,7 +32160,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F26:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080E3F38
@@ -32385,7 +32385,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xce
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32403,7 +32403,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xc6
 	lsls r0, r0, #1
 	adds r4, r5, r0
@@ -32439,7 +32439,7 @@ func_080E40A0: @ 0x080E40A0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r1, r5, #0
 	adds r1, #0x80
 	ldr r0, .L080E418C @ =vtable_unk_080E5A28
@@ -32454,7 +32454,7 @@ func_080E40A0: @ 0x080E40A0
 .L080E4178:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -33327,7 +33327,7 @@ func_080E4564: @ 0x080E4564
 .L080E480A:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -33363,76 +33363,76 @@ func_080E4860: @ 0x080E4860
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
 	bl func_08007C28
 	adds r0, r6, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #1
 	ands r0, r5
 	cmp r0, #0
@@ -33919,7 +33919,7 @@ func_080E4940: @ 0x080E4940
 .L080E4D36:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -34124,7 +34124,7 @@ func_080E4D50: @ 0x080E4D50
 .L080E4EF2:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -34155,62 +34155,62 @@ func_080E4F34: @ 0x080E4F34
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
 	bl func_08007C28
 	adds r0, r6, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #1
 	ands r0, r5
 	cmp r0, #0
@@ -34499,7 +34499,7 @@ func_080E4FF0: @ 0x080E4FF0
 .L080E5240:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -34594,83 +34594,83 @@ func_080E5324: @ 0x080E5324
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
 	bl func_08007C28
 	adds r0, r6, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #1
 	ands r0, r5
 	cmp r0, #0
@@ -35366,7 +35366,7 @@ func_080E5898: @ 0x080E5898
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	cmp r6, r4
 	bne .L080E58F6
 .L080E590C:
@@ -35387,7 +35387,7 @@ func_080E5898: @ 0x080E5898
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0x85
 	lsls r1, r1, #2
 	adds r2, r5, r1
@@ -35452,7 +35452,7 @@ func_080E596C: @ 0x080E596C
 	str r0, [r4, #0x10]
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0

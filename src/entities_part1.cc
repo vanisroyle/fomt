@@ -8,6 +8,7 @@
 #include "item.hh"
 #include "farmer.hh"
 #include "farmer_entity_layout.hh"
+#include "entity_sound_channel.hh"
 #include "shipping_bin.hh"
 #include "coop.hh"
 #include <stdlib.h>
@@ -94,22 +95,8 @@ struct AnimalBehaviorTimer
     u32 unused : 8;
 };
 
-struct EntitySoundChannels
-{
-    void ** begin;
-    void ** end;
-};
-
 EC bool FarmerEntity_IsUsingCursedTool(FarmerEntity * self);
 
-struct EntitySoundGameVTable
-{
-    STRUCT_PAD(0x00, 0x14C);
-    EntitySoundChannels const * (*get_channels)(GameObject * game);
-};
-
-EC bool AudioPlayer_IsPlaying(void * channel);
-EC void AudioPlayer_StartSong(void * channel, u16 sound);
 EC void CancelFarmerItemDisplay(FarmerEntity * self);
 EC void ShowFarmerToolDisplay(FarmerEntity * self);
 EC void func_0800F4C0(HeldItem * self);
@@ -271,20 +258,6 @@ struct EntityMovementBounds
         return positive_x;
     }
 };
-
-inline void * FindEntitySoundChannel(GameObject * game)
-{
-    EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
-    EntitySoundChannels const * channels = table->get_channels(game);
-    void ** it = channels->begin;
-    void ** end = channels->end;
-    for (; it != end; ++it)
-    {
-        if (!AudioPlayer_IsPlaying(*it))
-            return *it;
-    }
-    return end[-1];
-}
 
 inline i32 GetEntityFacing(AActorEntity const * self)
 {
@@ -664,8 +637,8 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->motion = 0;
     self->tool_state = 15;
     self->tool_level = 0;
-    self->unk_41 = false;
-    self->unk_42 = false;
+    self->tool_charge_limit = 0;
+    self->tool_charge_ticks = 0;
     self->unk_44 = 0;
     self->held_anim.Init();
     self->unk_78 = false;
@@ -676,16 +649,16 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->thrown_item.Init();
     self->item_animation_override = true;
     self->unk_A6 = 0;
-    self->unk_A8 = -1;
-    self->unk_AC = -1;
-    self->unk_B0 = false;
-    self->unk_B1 = false;
-    self->unk_B2 = 100;
+    self->last_discarded_item_kind = -1;
+    self->last_discarded_item_id = -1;
+    self->last_discard_special = false;
+    self->target_cow_slot = 0;
+    self->interaction_target_slot = 100;
     self->unk_B3 = false;
     self->unk_B4 = false;
-    self->unk_C0 = false;
+    self->consume_animation_active = false;
     self->unk_C1 = false;
-    self->unk_C2 = false;
+    self->update_paused = false;
     self->exhaustion_state = 0;
     self->unk_C4 = false;
     self->unk_C5 = false;
@@ -772,9 +745,9 @@ EC void func_08025018(FarmerEntity * self, u32 argument) ENTITY_CODE(08025018);
 EC void func_08025018(FarmerEntity * self, u32 argument)
 {
     self->unk_C1 = false;
-    if (!self->unk_C2)
+    if (!self->update_paused)
     {
-        if (self->unk_C0)
+        if (self->consume_animation_active)
         {
             func_0802F0EC(self, 0, 0);
             u16 anim = func_0802D158(self);
