@@ -779,9 +779,11 @@ vtable_unk_080E76BC:
 vtable_unk_080E76D4:
 	.incbin "baserom.gba", 0xE76D4, 0x14
 
-	.global vtable_unk_080E76E8
-vtable_unk_080E76E8:
-	.incbin "baserom.gba", 0xE76E8, 0x10
+	.global gGameScriptTextVariablesVTable
+gGameScriptTextVariablesVTable:
+	.4byte 0, 0
+	.4byte DestroyGameScriptTextVariables
+	.4byte ResolveGameScriptTextVariable
 
 	.global vtable_unk_080E76F8
 vtable_unk_080E76F8:
