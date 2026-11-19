@@ -1,31 +1,31 @@
 #include "g5_inventory.hh"
 
-EC void func_08050EBC(void *, u32);
-EC void func_08050E98(void *, u32);
+EC void SetMessageWindowButtonMask(void *, u32);
+EC void ClearMessageWindowButtonMask(void *, u32);
 EC void SetMessageWindowText(void *, const char *);
 EC void SetMessageWindowTextOptions(void *, const char *, u16, const void *);
 
 EC SECTION(".text.g5_buttons") void func_080CABA0(u8 * self, u32 value)
 {
     void * buttons = self + 0x348;
-    func_08050EBC(buttons, 4);
-    func_08050EBC(buttons, 8);
-    func_08050EBC(buttons, 1);
-    func_08050EBC(buttons, 2);
-    func_08050EBC(buttons, 16);
-    func_08050EBC(buttons, 32);
+    SetMessageWindowButtonMask(buttons, 4);
+    SetMessageWindowButtonMask(buttons, 8);
+    SetMessageWindowButtonMask(buttons, 1);
+    SetMessageWindowButtonMask(buttons, 2);
+    SetMessageWindowButtonMask(buttons, 16);
+    SetMessageWindowButtonMask(buttons, 32);
     SetMessageWindowText(buttons, (const char *) value);
 }
 
 EC SECTION(".text.g5_buttons") void func_080CABEC(u8 * self, u32 value)
 {
     void * buttons = self + 0x348;
-    func_08050E98(buttons, 4);
-    func_08050E98(buttons, 8);
-    func_08050E98(buttons, 1);
-    func_08050E98(buttons, 2);
-    func_08050E98(buttons, 16);
-    func_08050E98(buttons, 32);
+    ClearMessageWindowButtonMask(buttons, 4);
+    ClearMessageWindowButtonMask(buttons, 8);
+    ClearMessageWindowButtonMask(buttons, 1);
+    ClearMessageWindowButtonMask(buttons, 2);
+    ClearMessageWindowButtonMask(buttons, 16);
+    ClearMessageWindowButtonMask(buttons, 32);
     SetMessageWindowTextOptions(buttons, (const char *) value, 0, 0);
 }
 
