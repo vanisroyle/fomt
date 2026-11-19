@@ -357,6 +357,34 @@ EC Box DogEntity_GetCollisionBox(DogEntity const * self)
     return Box(x, y, 14, 9);
 }
 
+// 0x080213A4
+EC bool DogEntity_IsBehaviorOverrideInactive(DogEntity const * self) ENTITY_CODE(080213A4);
+EC bool DogEntity_IsBehaviorOverrideInactive(DogEntity const * self)
+{
+    return !self->override_state;
+}
+
+// 0x08024574
+EC Box func_08024574(i32 x, i32 y) ENTITY_CODE(08024574);
+EC Box func_08024574(i32 x, i32 y)
+{
+    return Box(x, y, 14, 9);
+}
+
+// 0x08024588
+EC Box func_08024588(i32 x, i32 y) ENTITY_CODE(08024588);
+EC Box func_08024588(i32 x, i32 y)
+{
+    return Box(x, y, 14, 9);
+}
+
+// 0x080245CC
+EC Box func_080245CC(i32 x, i32 y) ENTITY_CODE(080245CC);
+EC Box func_080245CC(i32 x, i32 y)
+{
+    return Box(-7, -9, 7, 5, x, y);
+}
+
 struct ChickenEntityUpdateContext
 {
     u32 unk_00;
