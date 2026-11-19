@@ -2,6 +2,117 @@
 
 #include <stdlib.h>
 
+struct RaceHelpTileSize
+{
+    u16 width, height;
+};
+
+EC void FillRaceHelpTiles(RaceHelpTileSize size, void * pixels, u32 color) asm("FillMessageTiles");
+EC void DrawRaceHelpText(RaceHelpTileSize size, void * pixels, u32 x, u32 y,
+    char const * text, u32 foreground, u32 background) asm("DrawMessageTileStringWithColors");
+EC void Dma3_Fill(u32 value, void * destination, u32 bytes);
+EC void Dma3_Copy(void const * source, void * destination, u32 bytes);
+
+struct RaceHelpLine
+{
+    char const * text;
+};
+
+EC RaceHelpLine const gHorseRaceHelpLines[] asm("gUnk_080FAFC8");
+
+EC SECTION(".text.f3.0805A3F0") void LoadHorseRaceHelpTextTiles()
+{
+    enum
+    {
+        TILE_COLUMNS = 32,
+        TILEMAP_ROWS = 22,
+        TILEMAP_SIDE = 32,
+        LABEL_TILE_ROWS = 2,
+        TILE_BYTES = 32,
+        HELP_TILE_VRAM = 0x06008000,
+        HELP_TILEMAP_VRAM = 0x0600F800,
+        PALETTE_BANK_2 = 2 << 12
+    };
+    struct
+    {
+        u32 padding;
+        u32 pixels[TILE_COLUMNS * LABEL_TILE_ROWS * TILE_BYTES / sizeof(u32)];
+        RaceHelpTileSize fill_size, draw_size;
+    } work;
+    Dma3_Fill(0, reinterpret_cast<void *>(HELP_TILE_VRAM), 0x2C00);
+    u16 * tilemap = reinterpret_cast<u16 *>(HELP_TILEMAP_VRAM);
+    Dma3_Fill(0, tilemap, TILEMAP_SIDE * TILEMAP_SIDE * sizeof(u16));
+
+    // Register constraints preserve the original stack slots and Thumb instruction order.
+    register u32 y asm("r2") = 0;
+    asm ("" : : "r" (y));
+    register RaceHelpLine const * line asm("r8") = gHorseRaceHelpLines;
+    register u32 palette_bits asm("r1") = PALETTE_BANK_2;
+    asm ("" : "+r" (palette_bits));
+    register u32 tile_base asm("r5") = palette_bits;
+    asm ("" : "+r" (tile_base));
+    do
+    {
+        u32 x = 0;
+        register u32 row_offset asm("r1") = y * TILE_COLUMNS * sizeof(u16);
+        asm ("" : "+r" (row_offset));
+        u32 tile = y * TILE_COLUMNS;
+        ++y;
+        tile += tile_base;
+        u16 * row = reinterpret_cast<u16 *>(row_offset + reinterpret_cast<uintptr_t>(tilemap));
+        do
+        {
+            *row = tile;
+            ++tile;
+            ++row;
+        } while (++x < TILE_COLUMNS);
+    } while (y < TILEMAP_ROWS);
+
+    register RaceHelpLine const * next_line asm("r1") = line;
+    if (next_line->text != nullptr)
+    {
+        RaceHelpTileSize * fill_size = &work.fill_size;
+        register u32 tile_columns asm("r0") = TILE_COLUMNS;
+        asm ("" : "+r" (tile_columns));
+        register u32 columns asm("r10") = tile_columns;
+        asm ("" : "+r" (columns));
+        u32 tile_rows = LABEL_TILE_ROWS;
+        register u32 rows asm("r9") = tile_rows;
+        asm ("" : "+r" (rows));
+        u32 * pixels = work.pixels;
+        u16 * vram_tiles = reinterpret_cast<u16 *>(HELP_TILE_VRAM);
+        register RaceHelpTileSize * draw_size asm("r4") = &work.draw_size;
+        asm ("" : : "r" (draw_size));
+        do
+        {
+            u32 width = columns;
+            fill_size->width = width;
+            register u32 height asm("r1") = rows;
+            asm ("" : : "r" (height));
+            fill_size->height = height;
+            FillRaceHelpTiles(*fill_size, pixels, 0);
+            register RaceHelpLine const * cursor asm("r0") = line;
+            cursor++;
+            line = cursor;
+            asm ("" : : "r" (line));
+            // Keep the original post-increment load.
+            --cursor;
+            RaceHelpLine entry = *cursor++;
+            asm ("" : : "r" (cursor));
+            draw_size->width = columns;
+            draw_size->height = rows;
+            DrawRaceHelpText(*draw_size, pixels, 0, 0, entry.text, 0, 1);
+            Dma3_Copy(pixels, vram_tiles, sizeof(work.pixels));
+            u32 stride = sizeof(work.pixels);
+            vram_tiles = reinterpret_cast<u16 *>(reinterpret_cast<uintptr_t>(vram_tiles) + stride);
+            next_line = line;
+            asm ("" : "+r" (next_line));
+            if (!next_line->text)
+                break;
+        } while (true);
+    }
+}
+
 struct RaceGlyph
 {
     i16 x;

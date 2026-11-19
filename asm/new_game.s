@@ -38,7 +38,7 @@ func_08003788: @ 0x08003788
     ldr r0, [r0]
     mov r1, sp
     movs r2, #0
-    bl func_0804EC84
+    bl FormatMessageInteger
     ldr r2, .L08003B24 @ =gUnk_080E874C
     mov r8, r2
     adds r0, r6, #0
@@ -147,7 +147,7 @@ func_08003788: @ 0x08003788
     adds r0, #1
     mov r1, sp
     movs r2, #0
-    bl func_0804EC84
+    bl FormatMessageInteger
     ldr r2, .L08003B2C @ =gUnk_080E8758
     mov r8, r2
     adds r0, r6, #0
@@ -1624,7 +1624,7 @@ func_08004570: @ 0x08004570
     movs r1, #0
     movs r2, #0
     movs r3, #0x1e
-    bl func_08051320
+    bl DrawMessageFrame
     add r1, sp, #0xc
     movs r2, #0xea
     lsls r2, r2, #5
@@ -2746,7 +2746,7 @@ func_08004EFC: @ 0x08004EFC
     adds r0, #1
     mov r1, sb
     movs r2, #2
-    bl func_0804EC84
+    bl FormatMessageInteger
     mov r1, r8
     lsls r0, r1, #0x1e
     lsrs r0, r0, #0x1e
@@ -3072,7 +3072,7 @@ func_08005278: @ 0x08005278
     movs r1, #0
     movs r2, #0
     movs r3, #0x1e
-    bl func_08051320
+    bl DrawMessageFrame
     ldr r1, .L080054A4 @ =0x06FFC000
     movs r0, #0
     movs r2, #0x20
@@ -4082,7 +4082,7 @@ func_08005CDC: @ 0x08005CDC
     movs r1, #0
     movs r2, #0
     movs r3, #0x1e
-    bl func_08051320
+    bl DrawMessageFrame
     movs r0, #1
     rsbs r0, r0, #0
     ldr r4, .L08005EE4 @ =0x0600C000
