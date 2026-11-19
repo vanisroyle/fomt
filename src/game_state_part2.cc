@@ -1141,6 +1141,97 @@ EC void ReadLooseItemInfo(GameStateLooseItemInfo &, GameStateLooseItemStore cons
 EC void RefreshLooseItemTile(GameStateMapView &, u32, GameStateLooseItemTile const &, u32, u32)
     asm("func_080A5F78");
 
+struct GameStateLooseItemInteraction
+{
+    bool removed;
+    i32 effect;
+    i32 x, y;
+    bool changed;
+};
+
+EC bool ApplyLooseItemInteraction(Farm &, GameStateLooseItemStore &, int, u32, u32, bool,
+    GameStateLooseItemInteraction &) asm("func_080174C8");
+
+EC SECTION(".text.game_state_c2.0801D104") bool GameStateBreakLooseItem(GameStateMapOwner & game, Location const & location,
+    u32 strength, bool heavyTool, GameStateLooseItemInteraction & result)
+{
+    GameStateMapData ** data_slot = &game.map_data;
+    GameStateMapData * state = *data_slot;
+    GameStateLooseItemStore & items = *reinterpret_cast<GameStateLooseItemStore *>(reinterpret_cast<u8 *>(state) + 0x34C8);
+    register u32 season asm("r8") = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+    GameStateLooseItemRect bounds;
+    u8 const * bytes = reinterpret_cast<u8 const *>(&location);
+    u16 const * words = reinterpret_cast<u16 const *>(&location);
+    register u32 low_x asm("r0") = bytes[1] >> 2;
+    asm("" : "=l"(low_x) : "0"(low_x));
+    register u32 high_x asm("r1") = words[1];
+    asm("" : "=l"(high_x) : "0"(high_x), "l"(low_x));
+    register u32 mask asm("r3") = 0x3FF;
+    asm("" : "=l"(mask) : "0"(mask), "l"(high_x));
+    high_x = mask & high_x;
+    asm("" : "=l"(high_x) : "0"(high_x), "l"(mask));
+    register int x asm("r1") = static_cast<i16>((high_x << 6) | low_x);
+    register u32 low_y asm("r2") = bytes[3] >> 2;
+    register u32 high_y asm("r0") = words[2];
+    asm("" : "=l"(high_y) : "0"(high_y), "l"(low_y));
+    high_y = mask & high_y;
+    asm("" : "=l"(high_y) : "0"(high_y), "l"(mask));
+    register int y asm("r0") = static_cast<i16>((high_y << 6) | low_y);
+    register GameStateLooseItemRect * rect asm("r2") = &bounds;
+    asm("" : "=l"(rect) : "0"(rect), "l"(x), "l"(y));
+    rect->left = x;
+    rect->top = y;
+    rect->right = x + 1;
+    rect->bottom = y + 1;
+
+    register int index asm("r4") = FindLooseItem(items, location.GetMap(), *rect, season);
+    if (index != -1)
+    {
+        GameStateLooseItemInfo record;
+        ReadLooseItemInfo(record, items, index);
+        register GameStateLooseItemInfo * info asm("r6") = &record;
+        asm("" : : "l"(info));
+        register GameStateMapData * current = *data_slot;
+        register Farm * farm = &current->farm;
+        register u32 store_offset = 0x34C8;
+        register GameStateLooseItemStore * current_items = reinterpret_cast<GameStateLooseItemStore *>(reinterpret_cast<u8 *>(current) + store_offset);
+        ApplyLooseItemInteraction(*farm, *current_items, index, season, strength, heavyTool, result);
+        if (result.removed)
+        {
+            u32 map = location.GetMap();
+            register GameStateMapView * active_view asm("r1") = game.map_view;
+            register u32 map_id asm("r2") = active_view->id;
+            register GameStateMapView * view asm("r5") = active_view;
+            if (map == map_id)
+            {
+                register int width asm("r3");
+                register int height asm("r4");
+                switch (result.effect)
+                {
+                case 4: width = 2; height = 2; break;
+                case 7: width = 4; asm("" : "+l"(width)); goto tall;
+                case 6: width = 4; asm("" : "+l"(width)); goto tall;
+                case 9: width = 6; tall: height = 4; break;
+                default: goto miss;
+                }
+                register int pixel_x asm("r0") = info->x;
+                asm("" : "=l"(pixel_x) : "0"(pixel_x));
+                register int tile_x asm("r1") = pixel_x / 8;
+                register int tile_y asm("r0") = info->y / 8;
+                asm("" : : "l"(tile_x), "l"(tile_y), "l"(width), "l"(height));
+                GameStateLooseItemTile origin;
+                register GameStateLooseItemTile * tile = &origin;
+                tile->x = tile_x;
+                tile->y = tile_y;
+                RefreshLooseItemTile(*view, 1, *tile, width, height);
+            }
+        }
+        return true;
+    }
+miss:
+    return false;
+}
+
 EC SECTION(".text.game_state_c2.0801D6AC") RucksackItem GameStateCollectLooseItem(
     GameStateMapOwner & game, Location const & location)
 {
