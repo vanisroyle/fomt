@@ -12,6 +12,7 @@ BACKGROUND = (0x74A9C0, 0x3970, (0x1DC4,))
 PALETTE = (0x74E330, 0x200, (0x1DC8,))
 MAPS = ((0x74A1D8, 0x3DC, ()), (0x74A5B4, 0x21C, ()),
         (0x74A7D0, 0xF4, ()), (0x74A8C4, 0xFC, ()))
+LOGO_LOADED_COLORS = (144, 255)  # intro_scene.s copies 0xE0 bytes from color 144 to OBJ palette
 ITEMS = {"title-logo": 0, "title-start": 1, "title-continue": 5, "title-copyright": 9}
 RESOURCE_NON_POINTER_STREAMS = ((0x5275D0, 0x21C4), (0x7180E0, 0x29F8))
 
@@ -172,6 +173,9 @@ def build(rom, assets, output, g):
         rows, colors = indexed_png.read((root / f"{name}.png").read_bytes())
         raw = g.sheet_tiles(rows, size, bpp)
         color_bytes = g.palette_bytes(colors, resource[pal:pal + pal_size])
+        if name == "title-logo" and color_bytes[:LOGO_LOADED_COLORS[0] * 2] != resource[pal:pal + LOGO_LOADED_COLORS[0] * 2]:
+            raise ValueError(f"{name}.png: the game loads only palette colors "
+                             f"{LOGO_LOADED_COLORS[0]}-{LOGO_LOADED_COLORS[1]}; colors below that must stay unchanged")
         rebuilt[start:start + size] = raw
         rebuilt[pal:pal + pal_size] = color_bytes
         previews[f"{name}-preview.png"] = sprite_preview(raw, g.palette_rgb(color_bytes), bpp, objects)
