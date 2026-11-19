@@ -5,6 +5,7 @@
 #include "entity.hh"
 #include "farm.hh"
 #include "farmer.hh"
+#include "rucksack_item.hh"
 #include "utility/vec2.hh"
 
 struct GameStateAudioList;
@@ -2994,4 +2995,419 @@ EC SECTION(".text.game_state_c2.08019BEC") void GameStateTransitionMap(GameState
         GameStateClock const * clock = *address;
         func_0801A13C(game, clock->hour, clock->minute, true);
     }
+}
+
+struct AudioPlayer;
+struct GameStateAudioList
+{
+    AudioPlayer ** begin;
+    AudioPlayer ** end;
+};
+
+struct GameStateDropDisplay
+{
+    GameStateMapInteraction * sprite;
+    Vec2 position;
+    u8 terrain_blocked;
+    u8 height;
+    u8 frame;
+};
+
+struct GameStateDropMethods
+{
+    STRUCT_PAD(0, 0x34);
+    void (*describe_terrain)(UnkMap *, GameStateMapOwner &, u32);
+    STRUCT_PAD(0x38, 0x140);
+    void (*queue)(GameStateMapOwner &, GameStateScriptEvent const &, u32);
+    STRUCT_PAD(0x144, 0x14C);
+    GameStateAudioList * (*sounds)(GameStateMapOwner &);
+};
+
+struct GameStateDropPlayerMethods
+{
+    STRUCT_PAD(0, 0x5C);
+    void (*receive)(AEntity *, RucksackItem const &, u32);
+};
+
+struct GameStateDropWork
+{
+    u32 outgoing_layer;
+    u32 outgoing_palette;
+    bool outgoing_start;
+    STRUCT_PAD(9, 12);
+    UnkMap terrain;
+    u32 food;
+    u32 event[2];
+    u8 article;
+    STRUCT_PAD(0x1D, 0x20);
+    i16 position[2];
+    u32 blocked;
+    u32 queued_event;
+    u8 * start_ptr;
+    i16 * position_ptr;
+};
+
+EC u32 IsDropTile(UnkMap const &, int, int) asm("func_080AC5D0");
+EC i32 GetSpecialDropType(Location const &) asm("func_080A45A8");
+EC bool AudioPlayer_IsPlaying(AudioPlayer *);
+EC void AudioPlayer_StartSong(AudioPlayer *, u32);
+EC void SaveProgress_SetFlagE(GameStateMapData &);
+EC void TrackDroppedItem(void *, Location const &, void *) asm("func_080A1484");
+EC void ReadDropFood(Food *, RucksackItem const &) asm("GetFood__C12RucksackItem");
+EC void InitDropFood(Food *, u32) asm("__4FoodUi");
+EC void InitDropItem(RucksackItem *, u32) asm("__12RucksackItemG4Food");
+EC u8 ReadDropArticle(RucksackItem const &) asm("GetArticle__C12RucksackItem");
+
+// The layer, palette and start arguments are already in the caller's stack slots.
+EC GameStateMapInteraction * InitializePreparedDropSprite(GameStateMapInteraction *, GameStatePackedSpriteArchive const *,
+    u32, GameStateMapOwner &) asm("InitializeAnimatedMapSpriteSinglePalette");
+
+static inline void * DropTemporary(GameStateDropWork & work)
+{
+    register void * frame asm("r0");
+    asm volatile("add %0, sp, #12" : "=l"(frame));
+    return frame;
+}
+
+static inline void SetDropSprite(GameStateDropDisplay & display, GameStateMapInteraction * sprite)
+{
+    GameStateMapInteraction * previous = display.sprite;
+    if (sprite != previous && previous)
+        delete previous;
+    display.sprite = sprite;
+}
+
+EC SECTION(".text.game_state_c2.0801EE00") u32 GameStateDisplayDroppedItem(GameStateMapOwner & owner, Location const & location, RucksackItem const & item)
+{
+    register GameStateMapOwner & game asm("sl") = owner;
+    register Location const & target asm("r9") = location;
+    register RucksackItem const & dropped_item asm("r7") = item;
+    GameStateDropWork work;
+    register GameStateDropMethods const * methods asm("r1") = reinterpret_cast<GameStateDropMethods const *>(owner.vtable);
+    asm("" : "+l"(methods));
+    register Location const * pos asm("r0") = &target;
+    asm("" : "+l"(pos) : "l"(methods));
+    register u32 map asm("r2") = pos->GetMap();
+    asm("" : "+l"(map) : "l"(methods));
+    register UnkMap * terrain asm("r0");
+    asm("add %0, sp, #12" : "=l"(terrain));
+    asm("" : "+l"(terrain) : "l"(map));
+    methods->describe_terrain(terrain, game, map);
+    register i32 x_coord asm("r1") = target.GetX();
+    asm("" : "+l"(x_coord));
+    register i32 y_coord asm("r2") = target.GetY();
+    asm("" : "+l"(y_coord) : "l"(x_coord));
+    UnkMap const * drop_terrain = static_cast<UnkMap *>(DropTemporary(work));
+    work.blocked = static_cast<u8>(IsDropTile(*drop_terrain, x_coord, y_coord) ^ 1);
+    register u32 no_event asm("r3") = 0;
+    asm("" : "+l"(no_event) : "m"(work.blocked));
+    work.queued_event = no_event;
+    register u32 track asm("r6") = 1;
+    asm("" : "+l"(track));
+    register u8 * position_base asm("r4");
+    asm("mov %0, sp" : "=l"(position_base) : "m"(work.blocked));
+    register i16 * position asm("r4") = reinterpret_cast<i16 *>(position_base + 0x28);
+    asm("" : "+l"(position));
+    work.position_ptr = position;
+    register u8 * args_base asm("r0");
+    asm("mov %0, sp" : "=l"(args_base) : "m"(work.position_ptr));
+    register u8 * start asm("r0") = args_base + 8;
+    asm("" : "+l"(start));
+    work.start_ptr = start;
+    asm volatile("" : : "m"(work.start_ptr));
+    asm volatile("" : "+m"(work.blocked));
+    register u32 blocked asm("r1") = work.blocked;
+    asm("" : "+l"(blocked));
+    if (!blocked)
+    {
+        register GameStateMapOwner * sound_owner asm("r2") = &game;
+        asm("" : "+l"(sound_owner));
+        register GameStateDropMethods const * methods asm("r0") = reinterpret_cast<GameStateDropMethods const *>(sound_owner->vtable);
+        asm("" : "+l"(methods));
+        register u32 offset asm("r3") = offsetof(GameStateDropMethods, sounds);
+        asm("" : "+l"(offset) : "l"(methods));
+        register GameStateAudioList * (**entry)(GameStateMapOwner &) asm("r0") =
+            reinterpret_cast<GameStateAudioList * (**)(GameStateMapOwner &)>(reinterpret_cast<u32>(methods) + offset);
+        asm("" : "+l"(entry));
+        GameStateAudioList * sounds = (*entry)(game);
+        register AudioPlayer ** current asm("r4") = sounds->begin;
+        register AudioPlayer ** end asm("r5") = sounds->end;
+        AudioPlayer * selected;
+        for (; current != end; ++current)
+        {
+            if (!AudioPlayer_IsPlaying(*current))
+            {
+                selected = *current;
+                goto play_sound;
+            }
+        }
+        register AudioPlayer * last asm("r0");
+        asm("sub %0, %1, #4\n\tldr %0, [%0]" : "=l"(last) : "l"(end) : "memory");
+        selected = last;
+    play_sound:
+        AudioPlayer_StartSong(selected, 0x6D);
+        switch (GetSpecialDropType(target))
+        {
+        case 4:
+            if (dropped_item.GetKind() == RucksackItem::KIND_FOOD)
+            {
+                Food * food = reinterpret_cast<Food *>(DropTemporary(work));
+                ReadDropFood(food, dropped_item);
+                if (static_cast<Food *>(DropTemporary(work))->GetId() == 0xA0)
+                    SaveProgress_SetFlagE(*game.map_data);
+            }
+            break;
+        case 6:
+        {
+            register u32 eligible asm("r5") = 0;
+            if (dropped_item.GetKind() == RucksackItem::KIND_FOOD)
+            {
+                Food * food = reinterpret_cast<Food *>(DropTemporary(work));
+                ReadDropFood(food, dropped_item);
+                if (static_cast<Food *>(DropTemporary(work))->GetId() > 0xE)
+                {
+                    register Food * copy asm("r4") = reinterpret_cast<Food *>(&work.terrain.unk_04);
+                    ReadDropFood(copy, dropped_item);
+                    if (copy->GetId() <= 0x14)
+                        eligible = 1;
+                }
+            }
+            if (eligible)
+            {
+                register GameStateMapOwner * owner asm("r4") = &game;
+                asm("" : "+l"(owner));
+                register AEntity * player asm("r6") = owner->entities[0];
+                register GameStateDropPlayerMethods const * methods asm("r8") = *reinterpret_cast<GameStateDropPlayerMethods const **>(
+                    reinterpret_cast<u8 *>(player) + 0x14);
+                register RucksackItem * accepted asm("r5") = reinterpret_cast<RucksackItem *>(&work.terrain.unk_08);
+                register Food * gift asm("r4") = reinterpret_cast<Food *>(&work.food);
+                InitDropFood(gift, 0x15);
+                register u32 low asm("r1") = *reinterpret_cast<u8 const *>(gift);
+                asm("" : "+l"(low));
+                register u8 const * middle_byte asm("r0") = reinterpret_cast<u8 const *>(&work.food) + 1;
+                asm("" : "+l"(middle_byte));
+                register u32 middle asm("r0") = *middle_byte;
+                asm("" : "+l"(middle));
+                register u32 two_bytes asm("r0") = (middle << 8) | low;
+                asm("" : "+l"(two_bytes));
+                register u8 const * high_byte asm("r1") = reinterpret_cast<u8 const *>(&work.food) + 2;
+                asm("" : "+l"(high_byte));
+                register u32 high asm("r1") = *high_byte;
+                asm("" : "+l"(high));
+                InitDropItem(accepted, (high << 16) | two_bytes);
+                register GameStateDropPlayerMethods const * player_methods asm("r1") = methods;
+                asm("" : "+l"(player_methods));
+                player_methods->receive(player, *accepted, 0);
+                track = 0;
+            }
+            break;
+        }
+        case 2:
+        {
+            register u32 event_id asm("r2") = 0x23B;
+            asm("" : "+l"(event_id));
+            work.queued_event = event_id;
+            track = 0;
+            break;
+        }
+        case 0:
+            if (dropped_item.GetKind() == RucksackItem::KIND_FOOD)
+            {
+                Food * food = reinterpret_cast<Food *>(DropTemporary(work));
+                ReadDropFood(food, dropped_item);
+                if (static_cast<Food *>(DropTemporary(work))->GetId() == 2)
+                {
+                    register u32 event_id asm("r3") = 0x23C;
+                    asm("" : "+l"(event_id));
+                    work.queued_event = event_id;
+                    track = 0;
+                }
+            }
+            break;
+        }
+    }
+    register u32 queued_event asm("r4") = work.queued_event;
+    asm("" : "+l"(queued_event));
+    if (queued_event)
+    {
+        register GameStateMapOwner * owner asm("r1") = &game;
+        asm("" : "+l"(owner));
+        register GameStateDropMethods const * methods asm("r0") = reinterpret_cast<GameStateDropMethods const *>(owner->vtable);
+        register u32 offset asm("r2") = offsetof(GameStateDropMethods, queue);
+        asm("" : "+l"(offset) : "l"(methods));
+        register void (**entry)(GameStateMapOwner &, GameStateScriptEvent const &, u32) asm("r0") =
+            reinterpret_cast<void (**)(GameStateMapOwner &, GameStateScriptEvent const &, u32)>(reinterpret_cast<u32>(methods) + offset);
+        asm("" : "+l"(entry));
+        register GameStateScriptEvent * event asm("r1") = reinterpret_cast<GameStateScriptEvent *>(work.event);
+        asm("" : "+l"(event) : "l"(entry));
+        register u32 zero asm("r2") = 0;
+        asm("" : "+l"(zero) : "l"(event));
+        work.event[0] = queued_event;
+        event->argument = zero;
+        (*entry)(game, *event, zero);
+    }
+    if (track)
+    {
+        register u8 * state asm("r2") = reinterpret_cast<u8 *>(game.map_data);
+        register u32 item_offset asm("r3") = 0x1CD4;
+        asm("" : "+l"(item_offset) : "l"(state));
+        register void * items asm("r0") = state + item_offset;
+        asm("" : "+l"(items));
+        register u32 events_offset asm("r4") = 0x214C;
+        asm("" : "+l"(events_offset) : "l"(items), "l"(state));
+        TrackDroppedItem(items, target, state + events_offset);
+    }
+    register u32 icon asm("r5");
+    if (dropped_item.IsWrapped())
+        goto wrapped;
+    else
+    {
+        switch (dropped_item.GetKind())
+        {
+        default:
+        case RucksackItem::KIND_FOOD:
+        {
+            Food * food = reinterpret_cast<Food *>(DropTemporary(work));
+            ReadDropFood(food, dropped_item);
+            register Food * icon_food asm("r0") = static_cast<Food *>(DropTemporary(work));
+            asm("" : "+l"(icon_food));
+            icon = static_cast<u16>(icon_food->GetIconId());
+            break;
+        }
+        case RucksackItem::KIND_ARTICLE:
+        {
+            register u8 raw_article asm("r0") = ReadDropArticle(dropped_item);
+            register Article * article asm("r4") = reinterpret_cast<Article *>(&work.article);
+            asm("" : "+l"(article) : "l"(raw_article));
+            *reinterpret_cast<u8 *>(article) = raw_article;
+            if (article->GetId() == 0x1B)
+                goto special_article;
+            icon = static_cast<u16>(article->GetIconId());
+            break;
+        }
+        }
+    }
+    goto display_drop;
+special_article:
+    {
+        register Location const * island asm("r1") = &target;
+        asm("" : "+l"(island));
+        i32 map = island->GetMap();
+        asm("" : "+l"(map));
+        icon = 3;
+        asm("" : "+l"(icon));
+        if (map <= 8) icon = 4;
+        goto display_drop;
+    }
+wrapped:
+    icon = 0x160;
+display_drop:
+    register Location const * xs asm("r2") = &target;
+    asm("" : "+l"(xs));
+    register u32 low_x asm("r0") = reinterpret_cast<u8 const *>(xs)[1] >> 2;
+    asm("" : "+l"(low_x) : "l"(xs));
+    register u32 high_x asm("r2") = reinterpret_cast<u16 const *>(xs)[1];
+    asm("" : "+l"(high_x) : "l"(low_x));
+    register u32 mask asm("r3") = 0x3FF;
+    asm("" : "+l"(mask) : "l"(high_x));
+    register u32 x asm("r2") = ((high_x & mask) << 6) | low_x;
+    asm("" : "+l"(x));
+    register Location const * ys asm("r4") = &target;
+    asm("" : "+l"(ys));
+    register u32 low_y asm("r1") = reinterpret_cast<u8 const *>(ys)[3] >> 2;
+    asm("" : "+l"(low_y) : "l"(ys));
+    register u32 high_y asm("r0") = reinterpret_cast<u16 const *>(ys)[2];
+    asm("" : "+l"(high_y) : "l"(low_y), "l"(mask));
+    register i32 y asm("r0") = static_cast<i16>(((high_y & mask) << 6) | low_y);
+    asm("" : "+l"(y));
+    register i16 * destination asm("r1") = work.position;
+    asm("" : "+l"(destination) : "l"(y), "l"(x));
+    destination[0] = x;
+    register i16 * position_ptr asm("r1") = work.position_ptr;
+    asm("" : "+l"(position_ptr) : "l"(y));
+    position_ptr[1] = y;
+    register GameStateMapOwner * archive_owner asm("r2") = &game;
+    asm("" : "+l"(archive_owner));
+    register GameStatePackedSpriteArchive const * result asm("r0") = archive_owner->vtable->get_vase_archive(game);
+    asm("" : "+l"(result));
+
+    register GameStateDropDisplay * display asm("r4") =
+        reinterpret_cast<GameStateDropDisplay *>(reinterpret_cast<u8 *>(&game) + 0x102C);
+    asm("" : "+l"(display) : "l"(result));
+    register GameStatePackedSpriteArchive const * archive asm("r6") = result;
+    u32 clip = icon;
+    register u32 position_bits asm("r0");
+    asm("ldr %0, %1" : "=l"(position_bits) : "m"(*reinterpret_cast<u32 *>(work.position)), "l"(display), "l"(archive), "l"(clip));
+    *reinterpret_cast<u32 *>(&display->position) = position_bits;
+    register GameStateMapInteraction * empty asm("r5") = nullptr;
+    asm("" : "+l"(empty) : "l"(display), "l"(clip), "l"(archive));
+    register GameStateMapInteraction * previous asm("r1") = display->sprite;
+    asm("" : "+l"(previous));
+    if (empty != previous)
+    {
+        asm volatile("cmp %0, #0\n\tbeq 0f" : : "l"(previous) : "cc");
+        delete previous;
+        asm volatile("0:" : : : "memory");
+    }
+    display->sprite = empty;
+    register u8 const * blocked_ptr asm("r3") = reinterpret_cast<u8 const *>(&work.blocked);
+    asm("" : "+l"(blocked_ptr));
+    register u8 blocked_byte asm("r3") = *blocked_ptr;
+    asm("" : "+l"(blocked_byte));
+    display->terrain_blocked = blocked_byte;
+    register u32 sprite_state asm("r5") = work.blocked;
+    asm("" : "+l"(sprite_state) : "l"(display), "l"(clip), "l"(archive));
+    if (sprite_state)
+    {
+        register GameStateMapInteraction * sprite asm("r0") = AllocateMapInteraction();
+        asm volatile(
+            ".ifnes \"%1\", \"[sp, #0x34]\"\n\t"
+            ".error \"Drop sprite arguments must start at sp\"\n\t"
+            ".endif\n\t"
+            "movs r1, #2\n\tstr r1, [sp]\n\t"
+            "movs r1, #3\n\tstr r1, [sp, #4]\n\t"
+            "movs r1, #0\n\tldr r2, %1\n\tstrb r1, [r2]"
+            : "+l"(sprite) : "m"(work.start_ptr) : "r1", "r2", "memory");
+        register GameStatePackedSpriteArchive const * archive_arg asm("r1") = archive;
+        asm("" : "+l"(archive_arg) : "l"(sprite));
+        register u32 clip_arg asm("r2") = clip;
+        asm("" : "+l"(clip_arg) : "l"(archive_arg), "l"(sprite));
+        register GameStateMapOwner * owner_arg asm("r3") = &game;
+        asm("" : "+l"(owner_arg) : "l"(clip_arg), "l"(archive_arg), "l"(sprite));
+        register GameStateMapInteraction * next asm("r5") = InitializePreparedDropSprite(sprite, archive_arg, clip_arg, *owner_arg);
+        asm("" : "+l"(next), "+l"(display));
+        register GameStateMapInteraction * old asm("r1");
+        asm("ldr %0, [%1]" : "=l"(old) : "l"(display), "l"(next) : "memory");
+        if (next != old)
+        {
+            asm volatile("cmp %0, #0\n\tbeq 0f" : : "l"(old) : "cc");
+            delete old;
+            asm volatile("0:" : : : "memory");
+        }
+        asm("str %1, [%0]" : : "l"(display), "l"(next) : "memory");
+        register u32 frame asm("r1") = 0;
+        asm("" : "+l"(frame));
+        register u32 height asm("r0") = 16;
+        asm("" : "+l"(height) : "l"(frame));
+        display->height = height;
+        display->frame = frame;
+        return height;
+    }
+    register GameStateMapInteraction * sprite asm("r0") = AllocateMapInteraction();
+    asm volatile(
+        ".ifnes \"%1\", \"[sp, #0x34]\"\n\t"
+        ".error \"Drop sprite arguments must start at sp\"\n\t"
+        ".endif\n\t"
+        "movs r1, #2\n\tstr r1, [sp]\n\t"
+        "movs r1, #3\n\tstr r1, [sp, #4]\n\t"
+        "ldr r3, %1\n\tstrb %2, [r3]"
+        : "+l"(sprite) : "m"(work.start_ptr), "l"(sprite_state) : "r1", "r3", "memory");
+    register GameStatePackedSpriteArchive const * archive_arg asm("r1") = archive;
+    asm("" : "+l"(archive_arg) : "l"(sprite));
+    register u32 clip_arg asm("r2") = 0x1A9;
+    asm("" : "+l"(clip_arg) : "l"(archive_arg), "l"(sprite));
+    register GameStateMapOwner * owner_arg asm("r3") = &game;
+    asm("" : "+l"(owner_arg) : "l"(clip_arg), "l"(archive_arg), "l"(sprite));
+    SetDropSprite(*display, InitializePreparedDropSprite(sprite, archive_arg, clip_arg, *owner_arg));
+    return 0;
 }
