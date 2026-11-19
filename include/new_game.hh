@@ -183,5 +183,6 @@ EC u8 NewGameChoiceDialogScene_GetResult(NewGameChoiceDialogScene * self);
 EC void NameEntryScene_Reset(NameEntrySceneTask * self);
 EC void NameEntryScene_DeleteCharacter(NameEntrySceneTask * self, u8 characterIndex);
 EC char * NameEntryScene_GetName(NameEntryScene * self);
+EC char * NameEntrySceneTask_GetEnteredName(NameEntrySceneTask * self);
 
 #endif // NEW_GAME_HH

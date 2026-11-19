@@ -417,6 +417,12 @@ EC char * NameEntryScene_GetName(NameEntryScene * self)
     return self->task->enteredName;
 }
 
+EC char * NameEntrySceneTask_GetEnteredName(NameEntrySceneTask * self) SECTION(".text.func_0800711C");
+EC char * NameEntrySceneTask_GetEnteredName(NameEntrySceneTask * self)
+{
+    return self->enteredName;
+}
+
 EC void func_08006ED8(NameEntrySceneTask * self) ALIAS(NameEntryScene_UpdateConfirmationDialog);
 EC void func_08005800(NewGameChoiceDialogTask * self) ALIAS(NewGameChoiceDialog_Update);
 EC void func_08003EEC(NewGameMenuTask * self) ALIAS(NewGameMenu_UpdateDescription);

@@ -137,7 +137,7 @@ SECTIONS
         src/new_game.o(.text.func_080070A4);
         asm/new_game.o(.text.after_080070A4);
         src/new_game.o(.text.func_08007110);
-        asm/new_game.o(.text.after_08007110);
+        src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
         asm/hardware.o(.text.handle_alloc);
         src/hardware.o(.text.handle_retain);
