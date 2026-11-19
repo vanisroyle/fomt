@@ -1065,6 +1065,7 @@ SECTIONS
         src/g5_drawing.o(.text.g5_080CD4D4);
         src/g5_helpers.o(.text.g5_080CD534);
         asm/code_080C8360.o(.text.g5_080CD578);
+        src/g5_context.o(.text.g5_080CD8A0);
         src/g5_navigation.o(.text.g5_080CD938);
         src/g5_objects.o(.text.g5_080CD950);
         src/g5_helpers.o(.text.g5_080CD994);
@@ -1073,6 +1074,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);
+        src/g5_positions.o(.text.g5_080CE120);
         src/g5_helpers.o(.text.g5_080CE184);
         asm/code_080C8360.o(.text.g5_080CE19C);
         src/g5_panels.o(.text.g5_080CE19C);

@@ -1,6 +1,7 @@
 #include "prelude.h"
 #include "g5_graphics.hh"
 #include "g5_inventory.hh"
+#include "g5_context.hh"
 
 EC void Dma3_Fill(u32, void *, u32);
 EC void DrawTallMessageNumber(void *, void *, u32, u32, u32);
@@ -10,7 +11,6 @@ EC void ClearMessageWindowButtonMask(void *, u32);
 EC void func_080CDDD4(void *);
 EC void func_080CECE8(void *);
 EC void func_080CE790(void *);
-EC void func_080CD8A0(void *);
 EC u8 vtable_unk_080E85DC[];
 EC u8 vtable_unk_080E85E8[];
 EC void func_080A4A94(void *);
@@ -61,7 +61,7 @@ EC SECTION(".text.g5_080CE294") void func_080CE2C4(void ** self)
         func_080CECE8(self[0x90 / 4]);
     if (self[0x94 / 4] != nullptr)
         func_080CE790(self[0x94 / 4]);
-    func_080CD8A0(self);
+    InventoryMenu_UpdateMessageWindow((u8 *) self);
 }
 
 EC SECTION(".text.g5_080CEB80") u32 NextInventoryPage(u8 * self) // 0x080CEB80

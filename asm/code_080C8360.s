@@ -10037,76 +10037,6 @@ func_080CD620: @ 0x080CD620
 .L080CD898: .4byte 0x06000380
 .L080CD89C: .4byte 0x05000020
 
-	thumb_func_start func_080CD8A0
-func_080CD8A0: @ 0x080CD8A0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0xc
-	adds r7, r0, #0
-	movs r0, #0x80
-	adds r0, r0, r7
-	mov r8, r0
-	bl GetMessageWindowPhase
-	adds r1, r7, #0
-	adds r1, #0x84
-	str r0, [r1]
-	adds r0, r7, #0
-	bl HardwareContext_GetState
-	mov sb, r0
-	adds r0, r7, #0
-	bl HardwareContext_GetOamBuffer
-	adds r6, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	adds r5, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetFrameTasks
-	adds r4, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetVBlankTasks
-	adds r1, r7, #0
-	adds r1, #0xc
-	str r4, [sp]
-	str r0, [sp, #4]
-	str r1, [sp, #8]
-	mov r0, r8
-	mov r1, sb
-	adds r2, r6, #0
-	adds r3, r5, #0
-	bl UpdateMessageWindow
-	adds r1, r7, #0
-	adds r1, #0x88
-	str r0, [r1]
-	ldr r2, [r7, #0x78]
-	cmp r2, #0
-	beq .L080CD914
-	movs r1, #0x84
-	lsls r1, r1, #2
-	adds r0, r2, r1
-	ldr r0, [r0]
-	ldr r1, [r0, #0xc]
-	adds r0, r2, #0
-	bl _call_via_r1
-.L080CD914:
-	ldr r4, [r7, #0x7c]
-	cmp r4, #0
-	beq .L080CD928
-	adds r0, r7, #0
-	bl HardwareContext_GetOamBuffer
-	adds r1, r0, #0
-	adds r0, r4, #0
-	bl func_080CC58C
-.L080CD928:
-	add sp, #0xc
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
 
 .section .text.g5_after_080CD950, "ax"
 
@@ -10590,7 +10520,7 @@ func_080CDDD4: @ 0x080CDDD4
 	ldr r2, [r7, #4]
 	add r5, sp, #0x4c
 	adds r0, r5, #0
-	bl func_080CE120
+	bl InventoryMenu_GetSelectionPosition
 	ldrb r0, [r5]
 	movs r2, #0x54
 	adds r2, r2, r7
@@ -11017,59 +10947,6 @@ func_080CDDD4: @ 0x080CDDD4
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080CE120
-func_080CE120: @ 0x080CE120
-	push {r4, lr}
-	sub sp, #0x10
-	adds r4, r0, #0
-	cmp r2, #0
-	beq .L080CE13A
-	cmp r2, #9
-	beq .L080CE14A
-	cmp r2, #8
-	bgt .L080CE166
-	ldr r1, [r1, #0x78]
-	cmp r1, #0
-	beq .L080CE176
-	b .L080CE15A
-.L080CE13A:
-	ldr r1, [r1, #0x78]
-	cmp r1, #0
-	beq .L080CE176
-	mov r0, sp
-	bl GetInventorySpecialSlotPosition
-	ldr r3, [sp]
-	b .L080CE176
-.L080CE14A:
-	ldr r1, [r1, #0x7c]
-	cmp r1, #0
-	beq .L080CE176
-	add r0, sp, #4
-	bl GetRightInventorySpecialSlotPosition
-	ldr r3, [sp, #4]
-	b .L080CE176
-.L080CE15A:
-	subs r2, #1
-	add r0, sp, #8
-	bl GetInventorySlotPosition
-	ldr r3, [sp, #8]
-	b .L080CE176
-.L080CE166:
-	ldr r1, [r1, #0x7c]
-	cmp r1, #0
-	beq .L080CE176
-	subs r2, #0xa
-	add r0, sp, #0xc
-	bl GetRightInventorySlotPosition
-	ldr r3, [sp, #0xc]
-.L080CE176:
-	str r3, [r4]
-	adds r0, r4, #0
-	add sp, #0x10
-	pop {r4}
-	pop {r1}
-	bx r1
-	.align 2, 0
 
 .section .text.g5_080CE19C, "ax"
 

@@ -1,7 +1,7 @@
 #ifndef G5_NAVIGATION_HH
 #define G5_NAVIGATION_HH
 
-#include "prelude.h"
+#include "g5_inventory.hh"
 
 // Slots 0..8 belong to the left panel and 9..17 to the right panel.
 // Each panel can disable its special slot and limit its selectable entries.
@@ -38,5 +38,7 @@ struct InventoryNavigation
 EC int InventoryMenu_GetPanelSlotLimit(InventoryNavigationPanel * panel); // 0x080CD938
 EC bool InventoryMenu_IsSpecialSlotEnabled(InventoryNavigationPanel * panel); // 0x080CD944
 EC void InventoryMenu_SetSelection(InventoryNavigation * navigation, int slot); // 0x080CDDAC
+// Coordinates are defined only when the selected panel exists.
+EC G5Position * InventoryMenu_GetSelectionPosition(G5Position * position, InventoryNavigationOwner * owner, int slot); // 0x080CE120
 
 #endif

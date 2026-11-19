@@ -165599,7 +165599,7 @@ func_080958C0: @ 0x080958C0
 	bl func_08099144
 .L08095D30:
 	adds r0, r6, #0
-	bl func_080CD8A0
+	bl InventoryMenu_UpdateMessageWindow
 	adds r0, r6, #0
 	bl func_08097D38
 	mov r3, sl
@@ -166260,7 +166260,7 @@ func_08095D80: @ 0x08095D80
 	adds r3, r4, #0
 	bl func_08099144
 	adds r0, r6, #0
-	bl func_080CD8A0
+	bl InventoryMenu_UpdateMessageWindow
 	ldr r2, [sp, #0x18]
 	cmp r2, #0
 	bne .L080962A4
@@ -167307,7 +167307,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r7, #0
 	bl func_08099ACC
 	adds r0, r7, #0
-	bl func_080CD8A0
+	bl InventoryMenu_UpdateMessageWindow
 	adds r0, r7, #0
 	bl func_08097D38
 	ldr r2, [sp, #0xc0]
@@ -168626,7 +168626,7 @@ func_080972AC: @ 0x080972AC
 	bl func_08099144
 .L080975A4:
 	adds r0, r6, #0
-	bl func_080CD8A0
+	bl InventoryMenu_UpdateMessageWindow
 	adds r0, r6, #0
 	bl func_08097D38
 	mov r0, sl
@@ -169571,7 +169571,7 @@ func_08097AE4: @ 0x08097AE4
 	bl func_08099144
 .L08097CEA:
 	adds r0, r6, #0
-	bl func_080CD8A0
+	bl InventoryMenu_UpdateMessageWindow
 	adds r0, r6, #0
 	bl func_08097D38
 	cmp r4, #0
