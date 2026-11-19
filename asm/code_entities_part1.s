@@ -177,6 +177,7 @@ func_080233B4: @ 0x080233B4
 
 
 
+
     .section .text.entities_part1.080200C4, "ax", %progbits
     thumb_func_start func_080200C4
 func_080200C4: @ 0x080200C4
@@ -235,7 +236,6 @@ func_080200C4: @ 0x080200C4
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
     .section .text.entities_part1.08020170, "ax", %progbits
     thumb_func_start func_08020170
 func_08020170: @ 0x08020170
@@ -6123,204 +6123,11 @@ func_0802536C: @ 0x0802536C
     pop {r0}
     bx r0
 
-    .section .text.entities_part1.080257D0, "ax", %progbits
-    thumb_func_start func_080257D0
-func_080257D0: @ 0x080257D0
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    lsls r1, r1, #0x18
-    cmp r1, #0
-    bne .L080257E6
-    ldr r0, [r4, #0x38]
-    bl func_0800EB3C
-    b .L080257EC
-.L080257E2:
-    ldr r0, [r4]
-    b .L0802582C
-.L080257E6:
-    ldr r0, [r4, #0x38]
-    bl func_0800EBC4
-.L080257EC:
-    cmp r0, #0
-    beq .L08025832
-    adds r1, r4, #0
-    adds r1, #0x3c
-    movs r0, #0x13
-    strb r0, [r1]
-    adds r0, r4, #0
-    bl func_0802A7D8
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L08025828
-.L08025816:
-    ldr r0, [r4]
-    bl func_08008CD0
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080257E2
-    adds r4, #4
-    cmp r4, r5
-    bne .L08025816
-.L08025828:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L0802582C:
-    movs r1, #0x6b
-    bl func_08008B6C
-.L08025832:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
 
-    .section .text.entities_part1.08025838, "ax", %progbits
-    thumb_func_start func_08025838
-func_08025838: @ 0x08025838
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    lsls r1, r1, #0x18
-    cmp r1, #0
-    bne .L0802584E
-    ldr r0, [r4, #0x38]
-    bl func_0800EB3C
-    b .L08025854
-.L0802584A:
-    ldr r0, [r4]
-    b .L08025894
-.L0802584E:
-    ldr r0, [r4, #0x38]
-    bl func_0800EBC4
-.L08025854:
-    cmp r0, #0
-    beq .L0802589A
-    adds r0, r4, #0
-    bl func_0802A588
-    adds r1, r4, #0
-    adds r1, #0x3c
-    movs r0, #0x14
-    strb r0, [r1]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L08025890
-.L0802587E:
-    ldr r0, [r4]
-    bl func_08008CD0
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802584A
-    adds r4, #4
-    cmp r4, r5
-    bne .L0802587E
-.L08025890:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L08025894:
-    movs r1, #0x6b
-    bl func_08008B6C
-.L0802589A:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
 
-    .section .text.entities_part1.080258A0, "ax", %progbits
-    thumb_func_start func_080258A0
-func_080258A0: @ 0x080258A0
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    ldr r1, [r4, #0x38]
-    adds r1, #0x54
-    mov r0, sp
-    bl func_0800F294
-    mov r0, sp
-    bl IsEmpty__C12RucksackItem
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08025932
-    ldr r0, [r4, #0x38]
-    adds r0, #0x60
-    bl GetFirstFreeItemSlot__C8Rucksack
-    adds r1, r0, #0
-    movs r0, #1
-    rsbs r0, r0, #0
-    cmp r1, r0
-    beq .L0802592A
-    ldr r0, [r4, #0x38]
-    adds r0, #0x60
-    bl GetItemAt__8RucksackUi
-    ldr r1, [sp]
-    str r1, [r0]
-    ldr r0, [r4, #0x38]
-    adds r0, #0x54
-    bl func_0800F390
-    adds r1, r4, #0
-    adds r1, #0x3c
-    movs r0, #0x12
-    strb r0, [r1]
-    adds r0, r4, #0
-    bl func_0802A7D8
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L0802591A
-.L08025908:
-    ldr r0, [r4]
-    bl func_08008CD0
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08025926
-    adds r4, #4
-    cmp r4, r5
-    bne .L08025908
-.L0802591A:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L0802591E:
-    movs r1, #0x6b
-    bl func_08008B6C
-    b .L0802593A
-.L08025926:
-    ldr r0, [r4]
-    b .L0802591E
-.L0802592A:
-    adds r1, r4, #0
-    adds r1, #0x3c
-    movs r0, #4
-    b .L08025938
-.L08025932:
-    adds r1, r4, #0
-    adds r1, #0x3c
-    movs r0, #0
-.L08025938:
-    strb r0, [r1]
-.L0802593A:
-    add sp, #4
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
+
+
+
 
     .section .text.entities_part1.08025944, "ax", %progbits
     thumb_func_start func_08025944
@@ -6409,108 +6216,6 @@ func_08025944: @ 0x08025944
     pop {r1}
     bx r1
     .align 2, 0
-
-    .section .text.entities_part1.08025A40, "ax", %progbits
-    thumb_func_start func_08025A40
-func_08025A40: @ 0x08025A40
-    push {r4, r5, r6, lr}
-    adds r5, r0, #0
-    lsls r1, r1, #0x18
-    lsrs r4, r1, #0x18
-    bl func_08025944
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08025A92
-    ldr r0, [r5]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r6, [r0, #4]
-    adds r5, #0x3c
-    cmp r4, r6
-    beq .L08025A7E
-.L08025A6C:
-    ldr r0, [r4]
-    bl func_08008CD0
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08025A8E
-    adds r4, #4
-    cmp r4, r6
-    bne .L08025A6C
-.L08025A7E:
-    subs r0, r6, #4
-    ldr r0, [r0]
-.L08025A82:
-    movs r1, #0xc7
-    bl func_08008B6C
-    movs r0, #0
-    strb r0, [r5]
-    b .L08025AF4
-.L08025A8E:
-    ldr r0, [r4]
-    b .L08025A82
-.L08025A92:
-    cmp r4, #0
-    bne .L08025AA2
-    ldr r0, [r5, #0x38]
-    bl func_0800EC4C
-    b .L08025AA8
-.L08025A9E:
-    ldr r0, [r4]
-    b .L08025AEE
-.L08025AA2:
-    ldr r0, [r5, #0x38]
-    bl func_0800ECB0
-.L08025AA8:
-    cmp r0, #0
-    beq .L08025AF4
-    adds r1, r5, #0
-    adds r1, #0x3c
-    movs r0, #0x15
-    strb r0, [r1]
-    adds r1, #1
-    movs r0, #0x14
-    strb r0, [r1]
-    adds r0, r5, #0
-    bl func_0802A510
-    ldr r0, [r5]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L08025AEA
-.L08025AD8:
-    ldr r0, [r4]
-    bl func_08008CD0
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08025A9E
-    adds r4, #4
-    cmp r4, r5
-    bne .L08025AD8
-.L08025AEA:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L08025AEE:
-    movs r1, #0xbc
-    bl func_08008B6C
-.L08025AF4:
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-
     .section .text.entities_part1.08025AFC, "ax", %progbits
     thumb_func_start func_08025AFC
 func_08025AFC: @ 0x08025AFC

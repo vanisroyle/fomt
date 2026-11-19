@@ -6,6 +6,7 @@
 #include "cow.hh"
 #include "sheep.hh"
 #include "item.hh"
+#include "farmer.hh"
 #include <stdlib.h>
 
 struct DogEntityPart1 : AActorEntity
@@ -96,12 +97,139 @@ struct AnimalTimerPart1
     u32 unused : 8;
 };
 
+struct FarmerEntityPart1 : AActorEntity
+{
+    FarmerEntityPart1();
+    u32 unk_30;
+    void * game_state;
+    Farmer * farmer;
+    u8 state;
+    u8 unk_3D;
+    u8 motion;
+    STRUCT_PAD(0x3F, 0xC0);
+    bool unk_C0;
+    bool unk_C1;
+    bool unk_C2;
+};
+
+struct SoundChannelsPart1
+{
+    void ** begin;
+    void ** end;
+};
+
+EC bool func_08025944(FarmerEntityPart1 * self);
+
+struct SoundGameVTablePart1
+{
+    STRUCT_PAD(0x00, 0x14C);
+    SoundChannelsPart1 const * (*get_channels)(GameObject * game);
+};
+
+EC bool func_08008CD0(void * channel);
+EC void func_08008B6C(void * channel, u16 sound);
+EC void func_0802A7D8(FarmerEntityPart1 * self);
+EC void func_0802A510(FarmerEntityPart1 * self);
+
+inline void * EntitySoundChannelPart1(GameObject * game)
+{
+    SoundGameVTablePart1 const * table = *reinterpret_cast<SoundGameVTablePart1 const **>(game);
+    SoundChannelsPart1 const * channels = table->get_channels(game);
+    void ** it = channels->begin;
+    void ** end = channels->end;
+    for (; it != end; ++it)
+    {
+        if (!func_08008CD0(*it))
+            return *it;
+    }
+    return end[-1];
+}
+
 inline i32 EntityFacingPart1(AActorEntity const * self)
 {
     return self->facing;
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC void func_08025A40(FarmerEntityPart1 * self, bool next) ENTITY_CODE(08025A40);
+EC void func_08025A40(FarmerEntityPart1 * self, bool next)
+{
+    if (func_08025944(self))
+    {
+        func_08008B6C(EntitySoundChannelPart1(self->game_object), 199);
+        self->state = 0;
+    }
+    else
+    {
+        u32 result;
+        if (!next)
+            result = func_0800EC4C(*self->farmer);
+        else
+            result = func_0800ECB0(*self->farmer);
+        if (result != 0)
+        {
+            self->state = 21;
+            self->unk_3D = 20;
+            func_0802A510(self);
+            func_08008B6C(EntitySoundChannelPart1(self->game_object), 188);
+        }
+    }
+}
+
+EC void func_080258A0(FarmerEntityPart1 * self) ENTITY_CODE(080258A0);
+EC void func_080258A0(FarmerEntityPart1 * self)
+{
+    RucksackItem item = func_0800F294(&self->farmer->unk_54);
+    if (!item.IsEmpty())
+    {
+        u32 slot = self->farmer->rucksack.GetFirstFreeItemSlot();
+        if (slot != u32(-1))
+        {
+            self->farmer->rucksack.GetItemAt(slot) = item;
+            func_0800F390(&self->farmer->unk_54);
+            self->state = 18;
+            func_0802A7D8(self);
+            func_08008B6C(EntitySoundChannelPart1(self->game_object), 107);
+        }
+        else
+            self->state = 4;
+    }
+    else
+        self->state = 0;
+}
+
+EC void func_08025838(FarmerEntityPart1 * self, bool next) ENTITY_CODE(08025838);
+EC void func_08025838(FarmerEntityPart1 * self, bool next)
+{
+    u32 result;
+    if (!next)
+        result = func_0800EB3C(*self->farmer);
+    else
+        result = func_0800EBC4(*self->farmer);
+    if (result != 0)
+    {
+        func_0802A588(self);
+        self->state = 20;
+        func_08008B6C(EntitySoundChannelPart1(self->game_object), 107);
+    }
+}
+
+EC void func_080257D0(FarmerEntityPart1 * self, bool next) ENTITY_CODE(080257D0);
+EC void func_080257D0(FarmerEntityPart1 * self, bool next)
+{
+    u32 result;
+    if (!next)
+        result = func_0800EB3C(*self->farmer);
+    else
+        result = func_0800EBC4(*self->farmer);
+    if (result != 0)
+    {
+        self->state = 19;
+        func_0802A7D8(self);
+        func_08008B6C(EntitySoundChannelPart1(self->game_object), 107);
+    }
+}
 
 EC void func_08021F3C(HorseEntityPart1 * self) ENTITY_CODE(08021F3C);
 EC void func_08021F3C(HorseEntityPart1 * self)
