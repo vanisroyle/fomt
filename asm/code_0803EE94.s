@@ -30148,125 +30148,6 @@ func_0804F288: @ 0x0804F288
 .L0804F694: .4byte gUnk_08728320
 .L0804F698: .4byte 0x00000534
 
-	.section .text.message_window.0804F69C
-	thumb_func_start DestroyMessageWindowState
-DestroyMessageWindowState: @ 0x0804F69C
-	push {r4, r5, r6, r7, lr}
-	adds r6, r0, #0
-	adds r7, r1, #0
-	movs r0, #0xa9
-	lsls r0, r0, #3
-	adds r4, r6, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080073E0
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_08007184
-	ldr r1, .L0804F79C @ =0x00000504
-	adds r0, r6, r1
-	ldr r5, .L0804F7A0 @ =vtable_unk_080E5A28
-	str r5, [r0]
-	movs r0, #0xf4
-	lsls r0, r0, #1
-	adds r4, r6, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080073E0
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_08007184
-	movs r1, #0xf2
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	movs r1, #2
-	bl func_080ADC84
-	movs r0, #0xea
-	lsls r0, r0, #1
-	adds r4, r6, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	movs r1, #0xc8
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	str r5, [r0]
-	subs r1, #0x30
-	adds r0, r6, r1
-	str r5, [r0]
-	subs r1, #0x18
-	adds r0, r6, r1
-	movs r1, #2
-	bl func_080098AC
-	movs r1, #0x98
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	movs r1, #2
-	bl func_080098AC
-	movs r1, #0x90
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	movs r1, #2
-	bl func_080098AC
-	adds r0, r6, #0
-	adds r0, #0xd0
-	movs r1, #2
-	bl func_080E105C
-	adds r0, r6, #0
-	adds r0, #0xc0
-	movs r1, #2
-	bl func_080098AC
-	adds r1, r6, #0
-	adds r1, #0x3c
-	ldr r0, [r6, #0x3c]
-	lsls r0, r0, #4
-	adds r0, #4
-	adds r1, r1, r0
-	adds r0, r6, #0
-	adds r0, #0x40
-	cmp r0, r1
-	beq .L0804F756
-.L0804F750:
-	adds r0, #0x10
-	cmp r0, r1
-	bne .L0804F750
-.L0804F756:
-	adds r0, r6, #0
-	adds r0, #0x20
-	movs r1, #2
-	bl func_080098DC
-	adds r4, r6, #0
-	adds r4, #0x18
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	subs r4, #8
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080073E0
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_08007184
-	movs r0, #1
-	ands r0, r7
-	cmp r0, #0
-	beq .L0804F794
-	adds r0, r6, #0
-	bl __builtin_delete
-.L0804F794:
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0804F79C: .4byte 0x00000504
-.L0804F7A0: .4byte vtable_unk_080E5A28
-
 	.section .text.message_window.0804F7A4
 	thumb_func_start UpdateMessageWindowState
 UpdateMessageWindowState: @ 0x0804F7A4
@@ -31803,249 +31684,6 @@ sub_08050342: @ 0x08050342
 	.align 2, 0
 .L08050398: .4byte vtable_unk_080E78F0
 
-	.section .text.message_window.08050478
-	thumb_func_start SetMessageWindowStateChoices
-SetMessageWindowStateChoices: @ 0x08050478
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x10
-	adds r4, r0, #0
-	str r1, [sp, #8]
-	str r2, [sp, #0xc]
-	mov sb, r3
-	ldr r0, [sp, #0x30]
-	mov sl, r0
-	ldr r1, [sp, #0x34]
-	mov r8, r1
-	ldr r7, [sp, #0x38]
-	ldr r0, [r4, #8]
-	cmp r0, #0
-	blt .L080504B4
-	cmp r0, #2
-	bgt .L080504A8
-	adds r0, r4, #0
-	bl CompleteMessageWindowOpening
-	b .L080504B4
-.L080504A8:
-	cmp r0, #6
-	bgt .L080504B4
-	adds r0, r4, #0
-	adds r0, #0xd0
-	bl func_0804F0E0
-.L080504B4:
-	movs r5, #4
-	movs r6, #0xc
-	cmp r7, #0
-	bne .L080504D6
-	movs r5, #3
-	mov r2, r8
-	cmp r2, #0
-	bne .L080504D6
-	movs r5, #2
-	mov r0, sl
-	cmp r0, #0
-	bne .L080504D6
-	movs r6, #0x1a
-	mov r1, sb
-	rsbs r0, r1, #0
-	orrs r0, r1
-	lsrs r5, r0, #0x1f
-.L080504D6:
-	cmp r5, #4
-	bhi .L080504FC
-	lsls r0, r5, #2
-	ldr r1, .L080504E4 @ =.L080504E8
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L080504E4: .4byte .L080504E8
-.L080504E8: @ jump table
-	.4byte .L08050548 @ case 0
-	.4byte .L08050536 @ case 1
-	.4byte .L08050522 @ case 2
-	.4byte .L0805050E @ case 3
-	.4byte .L080504FE @ case 4
-.L080504FC:
-	movs r5, #0
-.L080504FE:
-	cmp r7, #0
-	beq .L0805050C
-	adds r0, r7, #0
-	bl strlen
-	cmp r0, r6
-	bls .L0805050E
-.L0805050C:
-	ldr r7, .L08050580 @ =gUnk_080F9F3C
-.L0805050E:
-	mov r2, r8
-	cmp r2, #0
-	beq .L0805051E
-	mov r0, r8
-	bl strlen
-	cmp r0, r6
-	bls .L08050522
-.L0805051E:
-	ldr r0, .L08050580 @ =gUnk_080F9F3C
-	mov r8, r0
-.L08050522:
-	mov r1, sl
-	cmp r1, #0
-	beq .L08050532
-	mov r0, sl
-	bl strlen
-	cmp r0, r6
-	bls .L08050536
-.L08050532:
-	ldr r2, .L08050580 @ =gUnk_080F9F3C
-	mov sl, r2
-.L08050536:
-	mov r0, sb
-	cmp r0, #0
-	beq .L08050544
-	bl strlen
-	cmp r0, r6
-	bls .L08050548
-.L08050544:
-	ldr r1, .L08050580 @ =gUnk_080F9F3C
-	mov sb, r1
-.L08050548:
-	ldr r2, [sp, #0xc]
-	cmp r2, #0
-	beq .L08050558
-	adds r0, r2, #0
-	bl strlen
-	cmp r0, r6
-	bls .L0805055C
-.L08050558:
-	ldr r0, .L08050580 @ =gUnk_080F9F3C
-	str r0, [sp, #0xc]
-.L0805055C:
-	ldr r1, [sp, #8]
-	cmp r1, #0
-	beq .L0805056C
-	adds r0, r1, #0
-	bl strlen
-	cmp r0, r6
-	bls .L08050570
-.L0805056C:
-	ldr r2, .L08050580 @ =gUnk_080F9F3C
-	str r2, [sp, #8]
-.L08050570:
-	cmp r5, #4
-	bhi .L0805062A
-	lsls r0, r5, #2
-	ldr r1, .L08050584 @ =.L08050588
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L08050580: .4byte gUnk_080F9F3C
-.L08050584: .4byte .L08050588
-.L08050588: @ jump table
-	.4byte .L080505FA @ case 0
-	.4byte .L080505E2 @ case 1
-	.4byte .L080505CA @ case 2
-	.4byte .L080505B2 @ case 3
-	.4byte .L0805059C @ case 4
-.L0805059C:
-	adds r0, r5, #0
-	movs r1, #6
-	bl GetMessageChoicePosition
-	mov r1, sp
-	strb r0, [r1]
-	adds r0, r4, #0
-	adds r2, r7, #0
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-.L080505B2:
-	adds r0, r5, #0
-	movs r1, #5
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #1
-	strb r0, [r1]
-	adds r0, r4, #0
-	mov r2, r8
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-.L080505CA:
-	adds r0, r5, #0
-	movs r1, #4
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #2
-	strb r0, [r1]
-	adds r0, r4, #0
-	mov r2, sl
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-.L080505E2:
-	adds r0, r5, #0
-	movs r1, #3
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #3
-	strb r0, [r1]
-	adds r0, r4, #0
-	mov r2, sb
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-.L080505FA:
-	adds r0, r5, #0
-	movs r1, #2
-	bl GetMessageChoicePosition
-	add r1, sp, #4
-	strb r0, [r1]
-	adds r0, r4, #0
-	ldr r2, [sp, #0xc]
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-	adds r0, r5, #0
-	movs r1, #1
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #5
-	strb r0, [r1]
-	adds r0, r4, #0
-	ldr r2, [sp, #8]
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-	b .L0805062C
-.L0805062A:
-	movs r5, #0
-.L0805062C:
-	movs r1, #0xae
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	str r5, [r0]
-	movs r2, #0xac
-	lsls r2, r2, #1
-	adds r1, r4, r2
-	movs r0, #1
-	str r0, [r1]
-	movs r0, #6
-	str r0, [r4, #8]
-	movs r1, #0xe0
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	adds r2, #8
-	adds r1, r4, r2
-	movs r2, #0
-	bl func_0805E850
-	add sp, #0x10
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
 	.section .text.message_window.08050664
 	thumb_func_start SetMessageWindowStatePromptChoices
 SetMessageWindowStatePromptChoices: @ 0x08050664
@@ -32150,7 +31788,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	mov r1, sp
 	adds r2, r7, #0
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 	cmp r4, #6
 	beq .L08050750
 	cmp r4, #6
@@ -32172,7 +31810,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	adds r0, r5, #0
 	adds r2, r6, #0
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 .L08050750:
 	adds r0, r4, #0
 	movs r1, #3
@@ -32183,7 +31821,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	adds r0, r5, #0
 	mov r2, sb
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 .L08050768:
 	adds r0, r4, #0
 	movs r1, #2
@@ -32194,7 +31832,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	adds r0, r5, #0
 	mov r2, sl
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 	adds r0, r4, #0
 	movs r1, #1
 	bl GetMessageChoicePosition
@@ -32203,7 +31841,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	adds r0, r5, #0
 	ldr r2, [sp, #8]
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 	b .L0805079A
 .L08050798:
 	movs r4, #5
@@ -32236,8 +31874,8 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	bx r0
 
 	.section .text.message_window.080507F8
-	thumb_func_start func_080507F8
-func_080507F8: @ 0x080507F8
+	thumb_func_start DrawMessageChoiceText
+DrawMessageChoiceText: @ 0x080507F8
 	push {r4, r5, r6, r7, lr}
 	mov r7, r8
 	push {r7}

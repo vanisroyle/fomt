@@ -1,11 +1,40 @@
 #include "prelude.h"
 #include <new>
+#include <string.h>
 
 struct PACKED MessageWindowFlags
 {
     u8 visible : 1;
     u8 dirty : 1;
     u8 unused : 6;
+};
+
+struct MessageTileSize
+{
+    u16 width, height;
+    MessageTileSize(u16 w, u16 h) : width(w), height(h) {}
+};
+
+struct MessageGlyphTile
+{
+    void * pixels;
+    u32 allocation[2];
+    u8 dirty;
+    u8 padding[3];
+};
+
+// Three rotating rows of seven 32x16-pixel tiles hold 28 half-width columns.
+struct MessageTextCursor
+{
+    void * vtable;
+    void * fontPalette;
+    MessageGlyphTile * rows[3];
+    u16 column; // Half-width character cells, modulo 28.
+    u16 row;    // Visible line, modulo 3.
+    u8 firstRow;
+    u8 needsClear;
+    u8 changed;
+    u8 printedNonSpace;
 };
 
 // The public dialogue handle owns a separately allocated text-window state.
@@ -16,20 +45,38 @@ struct MessageWindowState
     i32 phase;
     u8 animationFrame;
     u8 instantText;
-    u8 unknown_0e[0x158 - 0xe];
+    u8 unknown_0e[0xd0 - 0xe];
+    MessageTextCursor textCursor;
+    u8 textParser[0x158 - 0xec];
     u32 selection;
-    u8 unknown_15c[0x1dc - 0x15c];
+    u32 choiceLayout;
+    u8 unknown_160[0x1dc - 0x160];
     MessageWindowFlags portraitFlags;
     u8 unknown_1dd[3];
     u32 portraitId;
     u8 portraitResource[0xc];
     MessageWindowFlags speakerNameFlags;
-    u8 unknown_1f1[0x500 - 0x1f1];
+    u8 unknown_1f1[3];
+    struct { u32 fontPalette; u8 pixels[0x100]; } speakerNameTiles[3];
     u8 indicatorVisible;
 };
 struct MessageWindow { MessageWindowState * state; };
 
 EC void __builtin_delete(void *);
+EC void func_0804E7A0(MessageTileSize, void *, u32);
+EC void func_0804E8F0(MessageTileSize, void *, u32, u32, const char *);
+EC void DrawMessageChoiceText(MessageWindowState *, const u8 &, const char *, const void *);
+EC u32 GetMessageChoicePosition(u32, u32);
+EC void func_0805E850(void *, void *, u32);
+EC void func_080073E0(void *, u32);
+EC void func_08007184(void *, u32);
+EC void func_080ADC84(void *, u32);
+EC void func_08007C28(void *, u32);
+EC void func_080079E8(void *, u32);
+EC void func_080098AC(void *, u32);
+EC void func_080E105C(void *, u32);
+EC void func_080098DC(void *, u32);
+EC u8 vtable_unk_080E5A28[];
 EC void func_0804F0E0(void *);
 EC void func_08009940(void *, void *);
 EC void func_080ADD5C(void *, const char *, const void *);
@@ -260,4 +307,98 @@ EC SECTION(".text.message_window.08050D0C") void DestroyMessageWindow(MessageWin
         DestroyMessageWindowState(self->state, 3);
     if (deleteFlags & 1)
         operator delete(self);
+}
+
+EC SECTION(".text.message_window.08050478") void SetMessageWindowStateChoices(MessageWindowState * window, const char * first, const char * second, const char * third, const char * fourth, const char * fifth, const char * sixth, const void * substitutions) // 0x08050478
+{
+    if (window->phase >= 0)
+    {
+        if (window->phase <= 2) CompleteMessageWindowOpening(window);
+        else if (window->phase <= 6) func_0804F0E0(&window->textCursor);
+    }
+    u32 layout = 4;
+    u32 lineWidth = 12;
+    if (sixth == nullptr)
+    {
+        layout = 3;
+        if (fifth == nullptr)
+        {
+            layout = 2;
+            if (fourth == nullptr)
+            {
+                lineWidth = 26;
+                layout = ((u32) third | -(u32) third) >> 31;
+            }
+        }
+    }
+    switch (layout)
+    {
+    default: layout = 0;
+    case 4: if (sixth == nullptr || strlen(sixth) > lineWidth) sixth = (const char *) gUnk_080F9F3C;
+    case 3: if (fifth == nullptr || strlen(fifth) > lineWidth) fifth = (const char *) gUnk_080F9F3C;
+    case 2: if (fourth == nullptr || strlen(fourth) > lineWidth) fourth = (const char *) gUnk_080F9F3C;
+    case 1: if (third == nullptr || strlen(third) > lineWidth) third = (const char *) gUnk_080F9F3C;
+    case 0:
+        if (second == nullptr || strlen(second) > lineWidth) second = (const char *) gUnk_080F9F3C;
+        if (first == nullptr || strlen(first) > lineWidth) first = (const char *) gUnk_080F9F3C;
+    }
+    switch (layout)
+    {
+    case 4:
+    { u8 sixthPosition = GetMessageChoicePosition(layout, 6);
+        DrawMessageChoiceText(window, sixthPosition, sixth, substitutions); }
+    case 3:
+    { u8 fifthPosition = GetMessageChoicePosition(layout, 5);
+        DrawMessageChoiceText(window, fifthPosition, fifth, substitutions); }
+    case 2:
+    { u8 fourthPosition = GetMessageChoicePosition(layout, 4);
+        DrawMessageChoiceText(window, fourthPosition, fourth, substitutions); }
+    case 1:
+    { u8 thirdPosition = GetMessageChoicePosition(layout, 3);
+        DrawMessageChoiceText(window, thirdPosition, third, substitutions); }
+    case 0:
+    { u8 secondPosition = GetMessageChoicePosition(layout, 2);
+        DrawMessageChoiceText(window, secondPosition, second, substitutions);
+        u8 firstPosition = GetMessageChoicePosition(layout, 1);
+        DrawMessageChoiceText(window, firstPosition, first, substitutions);
+        break; }
+    default: layout = 0;
+    }
+    window->choiceLayout = layout;
+    window->selection = 1;
+    window->phase = 6;
+    func_0805E850((u8 *) window + 0x1c0, (u8 *) window + 0x160, 0);
+}
+
+EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(MessageWindowState * window, u32 flags) // 0x0804F69C
+{
+    register void * resource asm("r4") = (u8 *) window + 0x548;
+    func_080073E0(resource, *((u32 *) resource + 1));
+    func_08007184(resource, 2);
+    *(void **) ((u8 *) window + 0x504) = vtable_unk_080E5A28;
+    resource = (u8 *) window + 0x1e8;
+    func_080073E0(resource, *((u32 *) resource + 1));
+    func_08007184(resource, 2);
+    func_080ADC84((u8 *) window + 0x1e4, 2);
+    resource = (u8 *) window + 0x1d4;
+    func_08007C28(resource, *((u32 *) resource + 1));
+    func_080079E8(resource, 2);
+    *(void **) ((u8 *) window + 0x190) = vtable_unk_080E5A28;
+    *(void **) ((u8 *) window + 0x160) = vtable_unk_080E5A28;
+    func_080098AC((u8 *) window + 0x148, 2);
+    func_080098AC((u8 *) window + 0x130, 2);
+    func_080098AC((u8 *) window + 0x120, 2);
+    func_080E105C(&window->textCursor, 2);
+    func_080098AC((u8 *) window + 0xc0, 2);
+    u8 * end = (u8 *) window + 0x3c;
+    end += *(u32 *) end * 16 + 4;
+    for (u8 * transfer = (u8 *) window + 0x40; transfer != end; transfer += 16) {}
+    func_080098DC((u8 *) window + 0x20, 2);
+    resource = (u8 *) window + 0x18;
+    func_08007C28(resource, *((u32 *) resource + 1));
+    func_080079E8(resource, 2);
+    resource = (u8 *) window + 0x10;
+    func_080073E0(resource, *((u32 *) resource + 1));
+    func_08007184(resource, 2);
+    if (flags & 1) operator delete(window);
 }
