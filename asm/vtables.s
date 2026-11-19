@@ -805,9 +805,11 @@ vtable_unk_080E7738:
 vtable_unk_080E7748:
 	.incbin "baserom.gba", 0xE7748, 0x10
 
-	.global vtable_unk_080E7758
-vtable_unk_080E7758:
-	.incbin "baserom.gba", 0xE7758, 0x10
+	.global gDialogWindowTilemapTaskVtable
+gDialogWindowTilemapTaskVtable:
+	.4byte 0, 0
+	.4byte RunDialogWindowTilemapTask
+	.4byte func_080E0A7C
 
 	.global vtable_unk_080E7768
 vtable_unk_080E7768:
