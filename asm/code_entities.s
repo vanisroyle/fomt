@@ -3680,7 +3680,7 @@ func_0802BFE4: @ 0x0802BFE4
     str r2, [sp]
     ldr r2, [sp, #0x54]
     adds r3, r7, #0
-    bl func_0803AE58
+    bl DrawFixedSpriteOverlay
 .L0802C09C:
     mov r3, sl
     ldr r0, [r3, #0x14]

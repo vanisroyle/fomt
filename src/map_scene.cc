@@ -5,6 +5,7 @@
 
 struct MapUpdateState;
 struct G1MapState;
+struct Location;
 struct MapSceneEntity;
 
 struct MapSceneFrame
@@ -129,7 +130,7 @@ EC void StartMapTransitionDelay(u8 * self);
 EC bool IsMapTransitionIdle(u8 * self);
 EC void DestroyFixedSpriteOverlay(MapSceneOverlay *, unsigned);
 EC void func_080AB2E4(MapTileEffectQueue *, unsigned);
-EC void func_080A56DC(MapUpdateState *, unsigned, unsigned, unsigned, unsigned);
+EC void LoadMapAtLocation(G1MapState *, Location const *, void *, void *, void *);
 EC MapSceneOverlay * func_0803AB30(void *, MapScene *);
 EC MapTileEffectQueue * func_080AAFC8(void *, MapScene *, unsigned);
 EC void UpdateMapTileEffectQueue(MapTileEffectQueue &);
@@ -262,7 +263,6 @@ struct MapSceneStartPosition
     u16 yAndPadding;
 };
 
-EC void LoadMapSceneAtPosition(MapUpdateState *, MapSceneStartPosition const &, unsigned, unsigned, unsigned) asm("func_080A56DC");
 EC void func_080AC674(void *, void **);
 EC void func_080AD49C(MapScene &, unsigned);
 EC u8 vtable_unk_080E8440[];
@@ -320,7 +320,7 @@ EC SECTION(".text.080AC9EC") MapScene * ConstructMapScene(void * memory, void **
     asm ("" : "+l" (clearedY));
     position->yAndPadding = clearedY;
     asm ("" : "+l" (map), "+l" (position));
-    LoadMapSceneAtPosition(map, *position, 0, 0, 30);
+    LoadMapAtLocation(reinterpret_cast<G1MapState *>(map), reinterpret_cast<Location const *>(position), 0, 0, reinterpret_cast<void *>(30));
 
     register MapSceneOverlay * overlay asm("r0") = func_0803AB30(operator new(0xA0), scene);
     asm ("" : "+l" (overlay));
@@ -366,7 +366,7 @@ EC SECTION(".text.080AC9EC") MapScene * ConstructMapScene(void * memory, void **
     return scene;
 }
 
-EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, unsigned mapId)
+EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, Location const * location)
 {
     MapSceneEntity ** entry = scene.entities;
     MapSceneEntity ** end = entry + 100;
@@ -400,7 +400,7 @@ EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, unsi
     if (emptyQueue != *queueSlot && *queueSlot)
         func_080AB2E4(*queueSlot, 3);
     *queueSlot = emptyQueue;
-    func_080A56DC(scene.map, mapId, 0, 0, 30);
+    LoadMapAtLocation(reinterpret_cast<G1MapState *>(scene.map), location, 0, 0, reinterpret_cast<void *>(30));
     register MapSceneOverlay * overlay asm("r0") = func_0803AB30(operator new(0xA0), &scene);
     asm ("" : "+l" (overlay));
     register MapSceneOverlay ** targetOverlay asm("r5") = &scene.overlay;

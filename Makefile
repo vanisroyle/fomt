@@ -131,6 +131,7 @@ $(BUILD_DIR)/%.o: %.s
 
 # overrides for matching
 $(BUILD_DIR)/src/m4a.o: CC1 := $(OLD_CC1)
+$(BUILD_DIR)/src/fixed_sprite_overlay_draw.o: CXXFLAGS += -mlong-calls
 
 clean:
 	@echo "RM $(ROM) $(ELF) $(MAP) $(BUILD_DIR)"

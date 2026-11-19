@@ -389,7 +389,7 @@ func_080C85A0: @ 0x080C85A0
 	add r1, sp, #0x14
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E5AC
+	bl DrawMessageGlyphWithColors
 	ldr r0, [sp, #0x130]
 	adds r1, r5, #0
 	movs r2, #0x40
@@ -2552,7 +2552,7 @@ func_080C96C4: @ 0x080C96C4
 	movs r1, #0x10
 	movs r2, #4
 	adds r3, r4, #0
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r5]
 	cmp r2, #0x7f
 	bhi .L080C972A
@@ -3260,7 +3260,7 @@ func_080C96C4: @ 0x080C96C4
 	add r4, sp, #0x88
 	adds r0, r4, #0
 	ldr r3, [sp, #0xc8]
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r5]
 	cmp r2, #0x7f
 	bhi .L080C9C64
@@ -7892,7 +7892,7 @@ func_080CC58C: @ 0x080CC58C
 	adds r1, r6, #0
 	adds r2, r5, #0
 	mov r3, r8
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r1, [sp, #0x20]
 	ldrb r2, [r1]
 	cmp r2, #0x7f
@@ -7967,7 +7967,7 @@ func_080CC58C: @ 0x080CC58C
 	adds r1, r5, #0
 	adds r2, r4, #0
 	adds r3, r6, #0
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x20]
 	ldrb r2, [r0]
 	cmp r2, #0x7f
