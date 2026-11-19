@@ -1138,14 +1138,14 @@ private:
 
 inline void * operator new(size_t, GameStateMapHandle * storage) { return storage; }
 
-EC GameStateSavedMapView * func_080A6474(GameStateSavedMapView * view, GameStateMapData & state);
+EC GameStateSavedMapView * InitializeWorldMapBuffers(GameStateSavedMapView * view, GameStateMapData & state);
 EC GameStateMapObject * func_080175B4(GameStateMapObject * map, GameStateMapData & state, GameStateScript * script,
     GameStateSavedMapView * & view, bool restore_events);
 
 EC SECTION(".text.game_state_c2.0801FB7C") GameStateMapHandle * GameStateCreateMapObject(
     GameStateMapHandle * result, GameStateMapData & state, GameStateScript * script, bool restore_events)
 {
-    GameStateSavedMapView * view = func_080A6474(
+    GameStateSavedMapView * view = InitializeWorldMapBuffers(
         static_cast<GameStateSavedMapView *>(::operator new(sizeof(GameStateSavedMapView))), state);
     GameStateMapHandle map(func_080175B4(
         static_cast<GameStateMapObject *>(::operator new(sizeof(GameStateMapOwner))), state, script, view, restore_events));

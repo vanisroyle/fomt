@@ -1978,7 +1978,7 @@ func_08010F54: @ 0x08010F54
 .L080113CC:
     ldr r1, .L08011404 @ =0x000034C8
     adds r0, r6, r1
-    bl func_080A1A4C
+    bl InitializeMapAvailability
     ldr r5, .L08011408 @ =0x000034DC
     adds r0, r6, r5
     bl func_0809C0D4
@@ -11972,13 +11972,13 @@ func_080174C8: @ 0x080174C8
     beq .L08017542
     adds r0, r6, #0
     adds r1, r7, #0
-    bl func_080A1FC4
+    bl SubtractMapAvailabilityCount
     ldr r0, [r5]
     cmp r0, #0x12
     beq .L08017542
     adds r0, r6, #0
     adds r1, r7, #0
-    bl func_080A1EF4
+    bl GetMapAvailabilityCount
     cmp r0, #0
     bne .L080175A0
 .L08017542:
@@ -12227,7 +12227,7 @@ func_080175B4: @ 0x080175B4
     str r0, [sp]
     adds r0, r4, #0
     mov r1, r8
-    bl func_080A56DC
+    bl LoadMapAtLocation
     ldr r0, [r7, #4]
     ldr r0, [r0]
     cmp r0, #2
@@ -16824,7 +16824,7 @@ func_08019BEC: @ 0x08019BEC
     subs r1, r1, r3
     str r1, [sp]
     mov r1, r8
-    bl func_080A56DC
+    bl LoadMapAtLocation
     ldr r0, .L08019E14 @ =0x00001024
     adds r4, r7, r0
     movs r5, #0
