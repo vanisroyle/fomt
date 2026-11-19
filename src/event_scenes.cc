@@ -194,6 +194,254 @@ EC SECTION(".text.f3.0805ED4C") ChildhoodMemoryScreen * InitChildhoodMemoryScree
     display->background_scroll[background][axis] = 0; \
 }
 
+struct OamBuffer;
+struct FrameTaskList;
+struct VBlankTaskList;
+
+EC HardwareContextState * HardwareContext_GetState(ChildhoodMemoryScreenLayout *);
+EC OamBuffer * HardwareContext_GetOamBuffer(ChildhoodMemoryScreenLayout *);
+EC FrameTaskList * HardwareContext_GetFrameTasks(ChildhoodMemoryScreenLayout *);
+EC VBlankTaskList * HardwareContext_GetVBlankTasks(ChildhoodMemoryScreenLayout *);
+EC u32 UpdateMessageWindow(MessageWindow *, HardwareContextState *, OamBuffer *,
+    SceneDisplayRegisters *, FrameTaskList *, VBlankTaskList *, AudioPlayer *);
+EC void ClearMessageWindowSpeakerName(MessageWindow *);
+EC void OpenMessageWindow(MessageWindow *);
+EC void CloseMessageWindow(MessageWindow *);
+EC void SetMessageWindowSpeakerName(MessageWindow *, char const *);
+EC void SetMessageWindowTextSubstitutions(MessageWindow *, char const *, void const *);
+
+EC char const gChildhoodMemorySpeakerMother[];
+EC char const gChildhoodMemoryTripOpening[];
+EC char const gChildhoodMemorySpeakerFather[];
+EC char const gChildhoodMemoryFishingInvite[];
+EC char const gChildhoodMemoryLostChild[];
+EC char const gChildhoodMemoryLostChildReaction[];
+EC char const gChildhoodMemorySpeakerOldMan[];
+EC char const gChildhoodMemoryFoundChild[];
+EC char const gChildhoodMemoryThankYou[];
+EC char const gChildhoodMemoryCountryTrip[];
+EC char const gChildhoodMemoryFarmInvite[];
+EC char const gChildhoodMemoryFarmInviteReaction[];
+EC char const gChildhoodMemoryWelcomeToFarm[];
+EC char const gChildhoodMemoryFarmPlay[];
+EC char const gChildhoodMemorySpeakerUnseenGirl[];
+EC char const gChildhoodMemoryCallingOut[];
+EC char const gChildhoodMemorySurprise[];
+EC char const gChildhoodMemorySpeakerGirl[];
+EC char const gChildhoodMemoryCheckingOnChild[];
+EC char const gChildhoodMemoryPlayInvite[];
+EC char const gChildhoodMemoryTellMeAboutYourself[];
+EC char const gChildhoodMemoryFarmFarewell[];
+EC char const gChildhoodMemoryLetterRequest[];
+EC char const gChildhoodMemoryFarmAddress[];
+EC char const gChildhoodMemoryLeavingReaction[];
+EC char const gChildhoodMemoryPromiseToReturn[];
+EC char const gChildhoodMemoryMadeAFriend[];
+EC char const gChildhoodMemoryWaitingForLetter[];
+
+EC SECTION(".text.f3.0805F5F4") void UpdateChildhoodMemoryDialogue(ChildhoodMemoryScreenLayout * self)
+{
+    enum
+    {
+        WINDOW_CLOSED = 0, WINDOW_TEXT_COMPLETE = 3,
+        OPEN_REQUESTED = 0, CLOSING = 1, IDLE = 2, PREPARE_TEXT = 3,
+        CLOSE_AFTER_LINE = 5, REOPEN_FOR_NEXT_LINE = 6,
+    };
+    enum
+    {
+        TRIP_OPENING = 0,
+        FISHING_INVITE = 1,
+        LOST_CHILD = 2,
+        LOST_CHILD_REACTION = 3,
+        FOUND_CHILD = 4,
+        THANK_YOU = 5,
+        COUNTRY_TRIP = 6,
+        FARM_INVITE = 7,
+        FARM_INVITE_REACTION = 9,
+        WELCOME_TO_FARM = 10,
+        FARM_PLAY = 11,
+        CALLING_OUT = 14,
+        SURPRISE = 15,
+        CHECKING_ON_CHILD = 16,
+        PLAY_INVITE = 17,
+        TELL_ME_ABOUT_YOURSELF = 18,
+        FARM_FAREWELL = 19,
+        LETTER_REQUEST = 20,
+        FARM_ADDRESS = 21,
+        LEAVING_REACTION = 22,
+        PROMISE_TO_RETURN = 23,
+        MADE_A_FRIEND = 24,
+        WAITING_FOR_LETTER = 25,
+    };
+
+    MessageWindow * window = self->dialogue;
+    HardwareContextState * hardware_state = HardwareContext_GetState(self);
+    OamBuffer * sprites = HardwareContext_GetOamBuffer(self);
+    SceneDisplayRegisters * display = HardwareContext_GetDisplayRegisters(self);
+    FrameTaskList * frame_tasks = HardwareContext_GetFrameTasks(self);
+    VBlankTaskList * vblank_tasks = HardwareContext_GetVBlankTasks(self);
+
+    register AudioPlayer * dialogue_audio asm("r1") = &self->dialogue_audio;
+    asm ("" : "+r" (dialogue_audio));
+
+    switch (UpdateMessageWindow(window, hardware_state, sprites, display,
+        frame_tasks, vblank_tasks, dialogue_audio))
+    {
+    case WINDOW_CLOSED:
+        if (self->dialogue_phase == OPEN_REQUESTED)
+        {
+            ClearMessageWindowSpeakerName(self->dialogue);
+            OpenMessageWindow(self->dialogue);
+            self->dialogue_phase = PREPARE_TEXT;
+        }
+        else if (self->dialogue_phase == REOPEN_FOR_NEXT_LINE)
+            self->dialogue_phase = OPEN_REQUESTED;
+        else
+            self->dialogue_phase = IDLE;
+        return;
+    case WINDOW_TEXT_COMPLETE:
+        if (self->dialogue_phase == CLOSE_AFTER_LINE)
+        {
+            CloseMessageWindow(self->dialogue);
+            self->dialogue_phase = CLOSING;
+        }
+        else if (self->dialogue_phase == REOPEN_FOR_NEXT_LINE)
+            CloseMessageWindow(self->dialogue);
+        else if (self->dialogue_phase == PREPARE_TEXT)
+        {
+            self->dialogue_phase = CLOSE_AFTER_LINE;
+            // The scene cues select the next line when a conversation pauses for animation.
+            switch (self->dialogue_line)
+            {
+            case TRIP_OPENING:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerMother);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryTripOpening, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = FISHING_INVITE;
+                break;
+            case FISHING_INVITE:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerFather);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryFishingInvite, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = LOST_CHILD;
+                break;
+            case LOST_CHILD:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerMother);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryLostChild, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = LOST_CHILD_REACTION;
+                break;
+            case LOST_CHILD_REACTION:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerFather);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryLostChildReaction, &self->farmer_name);
+                break;
+            case FOUND_CHILD:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerOldMan);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryFoundChild, &self->farmer_name);
+                break;
+            case THANK_YOU:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerMother);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryThankYou, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = COUNTRY_TRIP;
+                break;
+            case COUNTRY_TRIP:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerFather);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryCountryTrip, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = FARM_INVITE;
+                break;
+            case FARM_INVITE:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerOldMan);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryFarmInvite, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = FARM_INVITE_REACTION;
+                break;
+            case FARM_INVITE_REACTION:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerFather);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryFarmInviteReaction, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = WELCOME_TO_FARM;
+                break;
+            case WELCOME_TO_FARM:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerOldMan);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryWelcomeToFarm, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = FARM_PLAY;
+                break;
+            case FARM_PLAY:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerMother);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryFarmPlay, &self->farmer_name);
+                break;
+            case CALLING_OUT:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerUnseenGirl);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryCallingOut, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = SURPRISE;
+                break;
+            case SURPRISE:
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemorySurprise, &self->farmer_name);
+                break;
+            case CHECKING_ON_CHILD:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerGirl);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryCheckingOnChild, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = PLAY_INVITE;
+                break;
+            case PLAY_INVITE:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerGirl);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryPlayInvite, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = TELL_ME_ABOUT_YOURSELF;
+                break;
+            case TELL_ME_ABOUT_YOURSELF:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerGirl);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryTellMeAboutYourself, &self->farmer_name);
+                break;
+            case FARM_FAREWELL:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerOldMan);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryFarmFarewell, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = LETTER_REQUEST;
+                break;
+            case LETTER_REQUEST:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerOldMan);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryLetterRequest, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = FARM_ADDRESS;
+                break;
+            case FARM_ADDRESS:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerOldMan);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryFarmAddress, &self->farmer_name);
+                break;
+            case LEAVING_REACTION:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerGirl);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryLeavingReaction, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = PROMISE_TO_RETURN;
+                break;
+            case PROMISE_TO_RETURN:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerGirl);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryPromiseToReturn, &self->farmer_name);
+                self->dialogue_phase = REOPEN_FOR_NEXT_LINE;
+                self->dialogue_line = MADE_A_FRIEND;
+                break;
+            case MADE_A_FRIEND:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerOldMan);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryMadeAFriend, &self->farmer_name);
+                break;
+            case WAITING_FOR_LETTER:
+                SetMessageWindowSpeakerName(self->dialogue, gChildhoodMemorySpeakerOldMan);
+                SetMessageWindowTextSubstitutions(self->dialogue, gChildhoodMemoryWaitingForLetter, &self->farmer_name);
+                break;
+            }
+        }
+        return;
+    case 1: case 2: case 4: case 5: case 6:
+        return;
+    }
+}
+
 EC SECTION(".text.f3.0805FBB8") void LoadChildhoodMemoryGraphics(ChildhoodMemoryScreenLayout * screen)
 {
     register ChildhoodMemoryScreenLayout * self asm("r6") = screen;

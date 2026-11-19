@@ -1362,31 +1362,509 @@ struct EntityMovement
     int maxDistance;
 };
 
-EC void func_080AC388(EntityTerrainGrid & terrain, EntityMovementRect const & bounds,
-    int * positiveY, int * negativeY, int * negativeX, int * positiveX);
+EC SECTION(".text.080AC388") void ClampEntityMovementToBlockedTiles(EntityTerrainGrid & grid,
+    EntityMovementRect const & rectangle, int * down, int * up, int * volatile left, int * volatile right)
+{
+    struct ScanFrame
+    {
+        EntityMovementRect const * rectangle;
+        int * down;
+        int * up;
+        int firstY;
+        int endY;
+        int downLimit;
+        int lastRow;
+        int upLimit;
+        int rightLimit;
+        int leftFirstRowOffset;
+        int previousRow;
+        int scanProgress;
+    };
+    volatile ScanFrame frame;
+    register EntityTerrainGrid const * collisionGrid asm("r4") = &grid;
+    asm ("" : "+l" (collisionGrid));
+    register EntityMovementRect const * bounds asm("r1") = &rectangle;
+    register int * downRequest asm("r2") = down;
+    register int * upRequest asm("r3") = up;
+    asm ("" : "+l" (bounds), "+l" (downRequest), "+l" (upRequest));
+    frame.rectangle = bounds;
+    frame.down = downRequest;
+    frame.up = upRequest;
+    register i16 leftEdge asm("r0") = bounds->left;
+    asm ("" : "+l" (leftEdge));
+    register int firstX asm("r6") = static_cast<int>(leftEdge) >> 3;
+    asm ("" : "+l" (firstX));
+    register int rightOffset asm("r2") = offsetof(EntityMovementRect, right);
+    asm ("" : "+l" (rightOffset));
+    register int endX asm("r0");
+    asm ("ldrsh %0, [%1, %2]" : "=l" (endX) : "l" (bounds), "l" (rightOffset));
+    endX = (endX + 7) >> 3;
+    asm ("" : "+l" (endX));
+    register int endColumn asm("sl") = endX;
+    asm ("" : "+h" (endColumn));
+    frame.firstY = bounds->top >> 3;
+    register int bottomOffset asm("r3") = offsetof(EntityMovementRect, bottom);
+    asm ("" : "+l" (bottomOffset));
+    register int bottom asm("r1");
+    asm ("ldrsh %0, [%1, %2]" : "=l" (bottom) : "l" (bounds), "l" (bottomOffset));
+    asm ("" : "+l" (bottom));
+    register int endY asm("r0") = (bottom + 7) >> 3;
+    asm ("" : "+l" (endY));
+    frame.endY = endY;
+    register u32 const * flagsLow asm("r7") = collisionGrid->tileProperties;
+    asm ("" : "+l" (flagsLow));
+    register u32 const * flags asm("ip") = flagsLow;
+    asm ("" : "+h" (flags));
+    register int widthLow asm("r0") = collisionGrid->width;
+    asm ("" : "+l" (widthLow));
+    register int width asm("r8") = widthLow;
+    asm ("" : "+h" (width));
+    register u8 const * indicesLow asm("r2") = collisionGrid->tileIndices;
+    asm ("" : "+l" (indicesLow));
+    register u8 const * indices asm("sb") = indicesLow;
+    asm ("" : "+h" (indices));
+
+    {
+        register int * requested asm("r3") = frame.down;
+        asm ("" : "+l" (requested));
+        if (!requested)
+            goto doneDown;
+        register int requestedLimit asm("r7") = *requested;
+        asm ("" : "+l" (requestedLimit));
+        frame.downLimit = requestedLimit;
+        register int edgeTile asm("r2") = frame.endY;
+        asm ("" : "+l" (edgeTile));
+        register int edgePixels asm("r0") = edgeTile * 8;
+        asm ("" : "+l" (edgePixels));
+        register int distance asm("r5") = edgePixels - bottom;
+        asm ("" : "+l" (distance));
+        if (distance >= requestedLimit)
+            goto doneDown;
+        register int lastRow asm("r0") = collisionGrid->height - 1;
+        asm ("" : "+l" (lastRow));
+        frame.lastRow = lastRow;
+        frame.scanProgress = edgeTile;
+        register int rowOffset asm("r4");
+        if (edgeTile > lastRow)
+            goto blockedDown;
+        rowOffset = width;
+        asm ("" : "+l" (rowOffset));
+        rowOffset *= edgeTile;
+        asm ("" : "+l" (rowOffset));
+        do
+        {
+            register int column asm("r3") = firstX;
+            asm ("" : "+l" (column));
+            if (firstX < endColumn)
+            {
+                register unsigned cell asm("r0") = firstX + rowOffset;
+                asm ("" : "+l" (cell));
+                register unsigned tileOffset asm("r2") = cell * sizeof(u32);
+                asm ("" : "+l" (tileOffset));
+                register u8 const * indexBase asm("r7") = indices;
+                asm ("" : "+l" (indexBase));
+                register u8 const * indexRow asm("r0");
+                asm ("add %0, %1, %2" : "=l" (indexRow) : "l" (rowOffset), "l" (indexBase) : "cc");
+                register u8 const * index asm("r1");
+                asm ("add %0, %1, %2" : "=l" (index) : "l" (firstX), "l" (indexRow) : "cc");
+                do
+                {
+                    register u8 const * indexTable asm("r0") = indices;
+                    asm ("" : "+l" (indexTable));
+                    register u32 const * tile asm("r0");
+                    if (indexTable)
+                    {
+                        tile = flags + *index;
+                        asm ("" : "+l" (tile));
+                    }
+                    else
+                    {
+                        register u32 const * directFlags asm("r7") = flags;
+                        asm ("" : "+l" (directFlags));
+                        tile = reinterpret_cast<u32 const *>(reinterpret_cast<u8 const *>(directFlags) + tileOffset);
+                        asm ("" : "+l" (tile));
+                    }
+                    if (*tile << 31)
+                        goto blockedDown;
+                    tileOffset += sizeof(u32);
+                    index += 1;
+                    ++column;
+                    asm ("" : "+l" (tileOffset), "+l" (index), "+l" (column));
+                } while (column < endColumn);
+            }
+            distance += 8;
+            asm ("" : "+l" (distance));
+            register int maxDistance asm("r0") = frame.downLimit;
+            asm ("" : "+l" (maxDistance));
+            if (distance >= maxDistance)
+                goto doneDown;
+            rowOffset += width;
+            register int nextRow asm("r1") = frame.scanProgress + 1;
+            asm ("" : "+l" (nextRow));
+            frame.scanProgress = nextRow;
+            register int rowLimit asm("r2") = frame.lastRow;
+            asm ("" : "+l" (rowLimit));
+            if (nextRow > rowLimit)
+                break;
+        } while (true);
+    blockedDown:
+        register int * result asm("r3") = frame.down;
+        asm ("" : "+l" (result));
+        *result = distance;
+    }
+doneDown:
+    ;
+    {
+        register int * requested;
+        asm ("ldr %0, %1" : "=&l" (requested) : "m" (frame.up) : "r0", "r1", "r2", "r3", "r4", "r5", "r6");
+        if (!requested)
+            goto doneUp;
+        register int requestedLimit asm("r0") = *requested;
+        asm ("" : "+l" (requestedLimit));
+        frame.upLimit = requestedLimit;
+        register int edgeTile asm("r2") = frame.firstY;
+        asm ("" : "+l" (edgeTile));
+        register int edgePixels asm("r1") = edgeTile * 8;
+        asm ("" : "+l" (edgePixels));
+        register EntityMovementRect const * scanBounds asm("r3") = frame.rectangle;
+        asm ("" : "+l" (scanBounds));
+        register int edgeOffset asm("r7") = offsetof(EntityMovementRect, top);
+        asm ("" : "+l" (edgeOffset));
+        register int pixelEdge asm("r0");
+        asm ("ldrsh %0, [%1, %2]" : "=l" (pixelEdge) : "l" (scanBounds), "l" (edgeOffset));
+        register int distance asm("r1") = edgePixels - pixelEdge;
+        asm ("" : "+l" (distance));
+        frame.scanProgress = distance;
+        register int initialLimit asm("r0") = frame.upLimit;
+        asm ("" : "+l" (initialLimit));
+        if (distance <= initialLimit)
+            goto doneUp;
+        register int row asm("r5") = edgeTile;
+        asm ("" : "+l" (row));
+        row -= 1;
+        asm ("" : "+l" (row));
+        if (row < 0)
+            goto blockedUp;
+        {
+            register int rowOffset asm("r4") = width;
+            asm ("" : "+l" (rowOffset));
+            rowOffset *= row;
+            asm ("" : "+l" (rowOffset));
+            register int previousRow asm("r1") = width;
+            asm ("" : "+l" (previousRow));
+            previousRow = -previousRow;
+            asm ("" : "+l" (previousRow));
+            frame.previousRow = previousRow;
+            do
+            {
+                register int column asm("r3") = firstX;
+                asm ("" : "+l" (column));
+                if (firstX < endColumn)
+                {
+                    register unsigned cell asm("r0") = firstX + rowOffset;
+                    asm ("" : "+l" (cell));
+                    register unsigned tileOffset asm("r1") = cell * sizeof(u32);
+                    asm ("" : "+l" (tileOffset));
+                    register u8 const * indexBase asm("r2") = indices;
+                    asm ("" : "+l" (indexBase));
+                    register u8 const * indexRow asm("r0");
+                    asm ("add %0, %1, %2" : "=l" (indexRow) : "l" (rowOffset), "l" (indexBase) : "cc");
+                    register u8 const * index asm("r2");
+                    asm ("add %0, %1, %2" : "=l" (index) : "l" (firstX), "l" (indexRow) : "cc");
+                    do
+                    {
+                        register u8 const * indexTable;
+                        asm ("mov %0, %1" : "=&l" (indexTable) : "h" (indices) : "r0");
+                        register u32 const * tile asm("r0");
+                        if (indexTable)
+                        {
+                            tile = flags + *index;
+                            asm ("" : "+l" (tile));
+                        }
+                        else
+                        {
+                            register u32 const * directFlags asm("r7") = flags;
+                            asm ("" : "+l" (directFlags));
+                            tile = reinterpret_cast<u32 const *>(reinterpret_cast<u8 const *>(directFlags) + tileOffset);
+                            asm ("" : "+l" (tile));
+                        }
+                        if (*tile << 31)
+                            goto blockedUp;
+                        tileOffset += sizeof(u32);
+                        index += 1;
+                        ++column;
+                        asm ("" : "+l" (tileOffset), "+l" (index), "+l" (column));
+                    } while (column < endColumn);
+                }
+                register int remaining asm("r0") = frame.scanProgress - 8;
+                asm ("" : "+l" (remaining));
+                frame.scanProgress = remaining;
+                register int maxDistance asm("r1") = frame.upLimit;
+                asm ("" : "+l" (maxDistance));
+                if (remaining <= maxDistance)
+                    goto doneUp;
+                register int rowStep asm("r2") = frame.previousRow;
+                asm ("" : "+l" (rowStep));
+                rowOffset += rowStep;
+                --row;
+                asm ("" : "+l" (row));
+            } while (row >= 0);
+        }
+    blockedUp:
+        register int blockedDistance asm("r3") = frame.scanProgress;
+        asm ("" : "+l" (blockedDistance));
+        register int * result asm("r7") = frame.up;
+        asm ("" : "+l" (result));
+        *result = blockedDistance;
+    }
+doneUp:
+    ;
+    {
+        register int * requested asm("r0") = left;
+        asm ("" : "+l" (requested));
+        if (!requested)
+            goto doneLeft;
+        register int requestedLimit asm("r1") = *requested;
+        asm ("" : "+l" (requestedLimit));
+        frame.scanProgress = requestedLimit;
+        register int edgePixels asm("r1") = firstX * 8;
+        asm ("" : "+l" (edgePixels));
+        register EntityMovementRect const * scanBounds asm("r2") = frame.rectangle;
+        asm ("" : "+l" (scanBounds));
+        register int edgeOffset asm("r3") = offsetof(EntityMovementRect, left);
+        asm ("" : "+l" (edgeOffset));
+        register int pixelEdge asm("r0");
+        asm ("ldrsh %0, [%1, %2]" : "=l" (pixelEdge) : "l" (scanBounds), "l" (edgeOffset));
+        register int distance asm("r5") = edgePixels - pixelEdge;
+        asm ("" : "+l" (distance));
+        register int initialLimit asm("r7") = frame.scanProgress;
+        asm ("" : "+l" (initialLimit));
+        if (distance <= initialLimit)
+            goto doneLeft;
+        register int column asm("r4") = firstX - 1;
+        asm ("" : "+l" (column));
+        if (column < 0)
+            goto blockedLeft;
+        {
+            register int firstRow asm("r1") = frame.firstY;
+            asm ("" : "+l" (firstRow));
+            register int scaledRow asm("r0") = firstRow * sizeof(u32);
+            asm ("" : "+l" (scaledRow));
+            register int rowWidth asm("r2") = width;
+            asm ("" : "+l" (rowWidth));
+            rowWidth *= scaledRow;
+            asm ("" : "+l" (rowWidth));
+            frame.leftFirstRowOffset = rowWidth;
+            do
+            {
+                register int row asm("r3") = frame.firstY;
+                asm ("" : "+l" (row));
+                register int innerLimit asm("r6") = frame.endY;
+                asm ("" : "+l" (innerLimit));
+                if (row < innerLimit)
+                {
+                    register unsigned columnOffset asm("r0") = column * sizeof(u32);
+                    asm ("" : "+l" (columnOffset));
+                    register unsigned firstRowOffset asm("r7") = frame.leftFirstRowOffset;
+                    asm ("" : "+l" (firstRowOffset));
+                    register unsigned tileOffset asm("r2");
+                    asm ("add %0, %1, %2" : "=l" (tileOffset) : "l" (firstRowOffset), "l" (columnOffset) : "cc");
+                    register int indexRow asm("r1") = width;
+                    asm ("" : "+l" (indexRow));
+                    indexRow *= row;
+                    asm ("" : "+l" (indexRow));
+                    register u8 const * indexBase asm("r6") = indices;
+                    asm ("" : "+l" (indexBase));
+                    register u8 const * indexColumn asm("r0");
+                    asm ("add %0, %1, %2" : "=l" (indexColumn) : "l" (column), "l" (indexBase) : "cc");
+                    register u8 const * index asm("r1");
+                    asm ("add %0, %1, %2" : "=l" (index) : "l" (indexRow), "l" (indexColumn) : "cc");
+                    register unsigned strideWidth asm("r7") = width;
+                    asm ("" : "+l" (strideWidth));
+                    register unsigned flagStride asm("r6");
+                    asm ("lsl %0, %1, #2" : "=l" (flagStride) : "l" (strideWidth) : "cc");
+                    do
+                    {
+                        register u8 const * indexTable asm("r0") = indices;
+                        asm ("" : "+l" (indexTable));
+                        register u32 const * tile asm("r0");
+                        if (indexTable)
+                        {
+                            tile = flags + *index;
+                            asm ("" : "+l" (tile));
+                        }
+                        else
+                        {
+                            register u32 const * directFlags asm("r7") = flags;
+                            asm ("" : "+l" (directFlags));
+                            tile = reinterpret_cast<u32 const *>(reinterpret_cast<u8 const *>(directFlags) + tileOffset);
+                            asm ("" : "+l" (tile));
+                        }
+                        if (*tile << 31)
+                            goto blockedLeft;
+                        tileOffset += flagStride;
+                        index += width;
+                        ++row;
+                        asm ("" : "+l" (tileOffset), "+l" (index), "+l" (row));
+                    } while (row < frame.endY);
+                }
+                distance -= 8;
+                asm ("" : "+l" (distance));
+                register int maxDistance asm("r1") = frame.scanProgress;
+                asm ("" : "+l" (maxDistance));
+                if (distance <= maxDistance)
+                    goto doneLeft;
+                --column;
+                asm ("" : "+l" (column));
+            } while (column >= 0);
+        }
+    blockedLeft:
+        register int * result asm("r2") = left;
+        asm ("" : "+l" (result));
+        *result = distance;
+    }
+doneLeft:
+    ;
+    {
+        register int * requested asm("r3") = right;
+        asm ("" : "+l" (requested));
+        if (!requested)
+            goto doneRight;
+        register int requestedLimit asm("r6") = *requested;
+        asm ("" : "+l" (requestedLimit));
+        frame.rightLimit = requestedLimit;
+        register int edgeTile asm("r7") = endColumn;
+        asm ("" : "+l" (edgeTile));
+        register int edgePixels asm("r1");
+        asm ("lsl %0, %1, #3" : "=l" (edgePixels) : "l" (edgeTile) : "cc");
+        register EntityMovementRect const * scanBounds asm("r2") = frame.rectangle;
+        asm ("" : "+l" (scanBounds));
+        register int edgeOffset asm("r3") = offsetof(EntityMovementRect, right);
+        asm ("" : "+l" (edgeOffset));
+        register int pixelEdge asm("r0");
+        asm ("ldrsh %0, [%1, %2]" : "=l" (pixelEdge) : "l" (scanBounds), "l" (edgeOffset));
+        register int distance asm("r5") = edgePixels - pixelEdge;
+        asm ("" : "+l" (distance));
+        if (distance >= requestedLimit)
+            goto doneRight;
+        register int lastColumn asm("r6") = width;
+        asm ("" : "+l" (lastColumn));
+        --lastColumn;
+        asm ("" : "+l" (lastColumn));
+        frame.scanProgress = lastColumn;
+        register int column asm("r4") = endColumn;
+        asm ("" : "+l" (column));
+        if (column > lastColumn)
+            goto blockedRight;
+        {
+            register int firstRow asm("r7") = frame.firstY;
+            asm ("" : "+l" (firstRow));
+            register int scaledRow asm("r0");
+            asm ("lsl %0, %1, #2" : "=l" (scaledRow) : "l" (firstRow) : "cc");
+            register int rowWidth asm("r1") = width;
+            asm ("" : "+l" (rowWidth));
+            rowWidth *= scaledRow;
+            asm ("" : "+l" (rowWidth));
+            register int rightFirstRowOffset asm("sl") = rowWidth;
+            asm ("" : "+h" (rightFirstRowOffset));
+            do
+            {
+                register int row asm("r2") = frame.firstY;
+                asm ("" : "+l" (row));
+                register int innerLimit asm("r3") = frame.endY;
+                asm ("" : "+l" (innerLimit));
+                if (row < innerLimit)
+                {
+                    register unsigned columnOffset asm("r0") = column * sizeof(u32);
+                    asm ("" : "+l" (columnOffset));
+                    register unsigned firstRowOffset asm("r6") = rightFirstRowOffset;
+                    asm ("" : "+l" (firstRowOffset));
+                    register unsigned tileOffset asm("r3");
+                    asm ("add %0, %1, %2" : "=l" (tileOffset) : "l" (firstRowOffset), "l" (columnOffset) : "cc");
+                    register int indexRow asm("r1") = width;
+                    asm ("" : "+l" (indexRow));
+                    indexRow *= row;
+                    asm ("" : "+l" (indexRow));
+                    register u8 const * indexBase asm("r7") = indices;
+                    asm ("" : "+l" (indexBase));
+                    register u8 const * indexColumn asm("r0");
+                    asm ("add %0, %1, %2" : "=l" (indexColumn) : "l" (column), "l" (indexBase) : "cc");
+                    register u8 const * index asm("r1");
+                    asm ("add %0, %1, %2" : "=l" (index) : "l" (indexRow), "l" (indexColumn) : "cc");
+                    register unsigned strideWidth asm("r0") = width;
+                    asm ("" : "+l" (strideWidth));
+                    register unsigned flagStride asm("r6") = strideWidth * sizeof(u32);
+                    asm ("" : "+l" (flagStride));
+                    do
+                    {
+                        register u8 const * indexTable;
+                        asm ("mov %0, %1" : "=&l" (indexTable) : "h" (indices) : "r0");
+                        register u32 const * tile asm("r0");
+                        if (indexTable)
+                        {
+                            tile = flags + *index;
+                            asm ("" : "+l" (tile));
+                        }
+                        else
+                        {
+                            register u32 const * directFlags asm("r7") = flags;
+                            asm ("" : "+l" (directFlags));
+                            tile = reinterpret_cast<u32 const *>(reinterpret_cast<u8 const *>(directFlags) + tileOffset);
+                            asm ("" : "+l" (tile));
+                        }
+                        if (*tile << 31)
+                            goto blockedRight;
+                        tileOffset += flagStride;
+                        index += width;
+                        ++row;
+                        asm ("" : "+l" (tileOffset), "+l" (index), "+l" (row));
+                    } while (row < frame.endY);
+                }
+                distance += 8;
+                asm ("" : "+l" (distance));
+                register int maxDistance asm("r1") = frame.rightLimit;
+                asm ("" : "+l" (maxDistance));
+                if (distance >= maxDistance)
+                    goto doneRight;
+                ++column;
+                asm ("" : "+l" (column));
+                register int columnLimit asm("r2") = frame.scanProgress;
+                asm ("" : "+l" (columnLimit));
+                if (column > columnLimit)
+                    break;
+            } while (true);
+        }
+    blockedRight:
+        register int * result asm("r3") = right;
+        asm ("" : "+l" (result));
+        *result = distance;
+    }
+doneRight:
+    ;
+}
 
 EC SECTION(".text.080ABBA0") void ResetEntityMovementPositiveY(EntityMovement & movement)
 {
     movement.positiveY = movement.maxDistance;
-    func_080AC388(movement.terrain, movement.bounds, &movement.positiveY, 0, 0, 0);
+    ClampEntityMovementToBlockedTiles(movement.terrain, movement.bounds, &movement.positiveY, 0, 0, 0);
 }
 
 EC SECTION(".text.080ABBC4") void ResetEntityMovementNegativeY(EntityMovement & movement)
 {
     movement.negativeY = -movement.maxDistance;
-    func_080AC388(movement.terrain, movement.bounds, 0, &movement.negativeY, 0, 0);
+    ClampEntityMovementToBlockedTiles(movement.terrain, movement.bounds, 0, &movement.negativeY, 0, 0);
 }
 
 EC SECTION(".text.080ABBEC") void ResetEntityMovementNegativeX(EntityMovement & movement)
 {
     movement.negativeX = -movement.maxDistance;
-    func_080AC388(movement.terrain, movement.bounds, 0, 0, &movement.negativeX, 0);
+    ClampEntityMovementToBlockedTiles(movement.terrain, movement.bounds, 0, 0, &movement.negativeX, 0);
 }
 
 EC SECTION(".text.080ABC14") void ResetEntityMovementPositiveX(EntityMovement & movement)
 {
     movement.positiveX = movement.maxDistance;
-    func_080AC388(movement.terrain, movement.bounds, 0, 0, 0, &movement.positiveX);
+    ClampEntityMovementToBlockedTiles(movement.terrain, movement.bounds, 0, 0, 0, &movement.positiveX);
 }
 
 EC SECTION(".text.080ABC40") int ChooseEntityFacingTowardPoint(
