@@ -1059,7 +1059,7 @@ EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameSt
     return result;
 }
 
-EC void QueueDebrisEffect(MapTileEffectQueue *, int, int, u32) asm("func_080AB68C");
+EC void QueueDebrisEffect(MapTileEffectQueue *, int, int, u32) asm("ScheduleMapTileEffect");
 EC int GetFieldDebrisQuadrant(FieldPlot const &) asm("GameStateVariant_GetColumn");
 
 EC SECTION(".text.game_state_c2.0801C874") u32 GameStateStrikeFieldPlots(

@@ -9178,7 +9178,7 @@ sub_080D8178: @ 0x080D8178
 	add r7, sp
 	ldr r7, [r7]
 	ldr r1, [r7]
-	bl func_0803B4B0
+	bl InitializeGameScriptTextVariables
 	movs r1, #0xad
 	lsls r1, r1, #3
 	add r1, sp
@@ -18112,7 +18112,7 @@ func_080DCFE0: @ 0x080DCFE0
 	lsls r2, r2, #0x1c
 	asrs r2, r2, #0x1c
 	adds r0, r5, #0
-	bl func_0803A144
+	bl SelectActivitySpriteAnimationPair
 	adds r1, r5, #0
 	adds r1, #0x78
 	movs r2, #0
@@ -19312,7 +19312,7 @@ func_080DD9CC: @ 0x080DD9CC
 	lsls r2, r2, #0x18
 	asrs r2, r2, #0x18
 	adds r0, r5, #0
-	bl func_0803A144
+	bl SelectActivitySpriteAnimationPair
 	adds r0, r5, #0
 	adds r0, #0x68
 	movs r2, #0
@@ -20348,8 +20348,8 @@ func_080DE1B4: @ 0x080DE1B4
 	.align 2, 0
 .L080DE21C: .4byte vtable_unk_080E65E0
 
-	thumb_func_start func_080DE220
-func_080DE220: @ 0x080DE220
+	thumb_func_start DestroyGameScriptTextVariables
+DestroyGameScriptTextVariables: @ 0x080DE220
 	push {lr}
 	adds r2, r0, #0
 	ldr r0, .L080DE23C @ =vtable_unk_080E76F8
