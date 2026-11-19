@@ -72,10 +72,15 @@ struct NewGameNameState
 
 struct NewGameChoiceState
 {
-    STRUCT_PAD(0x0000, 0x1A74);
+    STRUCT_PAD(0x0000, 0x1A2C);
+    void * resource;
+    u32 unk_1A30;
+    STRUCT_PAD(0x1A34, 0x1A74);
     u8 unk_1A74;
     u8 unk_1A75;
     u8 choice;
+    void MarkReady() { unk_1A75 = 1; }
+    void Select(bool value) { choice = value; }
 };
 
 struct NewGameMenuState

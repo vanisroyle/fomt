@@ -22,7 +22,71 @@ EC void * func_08008920(void * self);
 EC void * func_08008918(void * self);
 EC void * func_08008940(void * self);
 EC void * func_0800894C(void * self);
-EC void func_08050D3C(void * self, void * a, void * b, void * c, void * d, void * e, void * f);
+EC unsigned int func_08050D3C(void * self, void * a, void * b, void * c, void * d, void * e, void * f);
+EC int func_08050D34(void * self);
+EC void func_08050D5C(void * self);
+EC void func_08050D74(void * self);
+EC unsigned int func_08050DF0(void * self);
+EC void func_08050E30(void * self, char const * a, char const * b, char const * c, u32 d, u32 e, u32 f);
+extern char gUnk_080E8998[];
+extern char gUnk_080E89A4[];
+extern char gUnk_080E89A8[];
+
+EC void func_08005800(NewGameChoiceState * self) SECTION(".text.func_08005800");
+EC void func_08005800(NewGameChoiceState * self)
+{
+    int previous = func_08050D34(self->resource);
+    void * resource = self->resource;
+    void * a = func_080088DC(self);
+    void * b = func_08008920(self);
+    void * c = func_08008918(self);
+    void * d = func_08008940(self);
+    void * e = func_0800894C(self);
+    void * f = &self->unk_1A30;
+    switch (func_08050D3C(resource, a, b, c, d, e, f))
+    {
+    case 0:
+        if (self->unk_1A75 != 0)
+            self->unk_1A74 = 1;
+        func_08050D5C(self->resource);
+        break;
+    case 1: break;
+    case 2: break;
+    case 3:
+        switch (previous)
+        {
+        case 4: case 5: break;
+        default:
+            func_08050D74(self->resource);
+            break;
+        case 1:
+            func_08050E30(self->resource, gUnk_080E8998, gUnk_080E89A4, gUnk_080E89A8, 0, 0, 0);
+            break;
+        case 6:
+            switch (func_08050DF0(self->resource))
+            {
+            case 0: break;
+            case 1:
+                self->MarkReady();
+                self->Select(true);
+                break;
+            case 2:
+                self->MarkReady();
+                self->Select(false);
+                break;
+            case 3: break;
+            case 4: break;
+            case 5: break;
+            case 6: break;
+            }
+            break;
+        }
+        break;
+    case 4: break;
+    case 5: break;
+    case 6: break;
+    }
+}
 EC void func_08050DC8(void * self, char const * text, int a, int b);
 
 extern char gUnk_080E8770[];
