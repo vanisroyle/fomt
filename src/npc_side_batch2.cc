@@ -236,7 +236,7 @@ struct SideEntityEffects
 
 EC i16 const gUnk_080F16D2[];
 EC void func_08038DF0(SideEntityEffects * self);
-EC void func_08038EB8(SideEntityEffects * self);
+EC void ClearSideTransitionSprite(SideEntityEffects * self);
 EC void func_08038EE0(SideEntityEffects * self);
 
 EC void LaunchSideSprite(LaunchedSideSprite * self, u8 variant) NPC_EXTRA_CODE(080380EC);
@@ -306,7 +306,7 @@ EC void ClearSideEntityEffectSprite(AEntity * self) NPC_EXTRA_CODE(080387EC);
 EC void ClearSideEntityEffectSprite(AEntity * self)
 {
     if (self->unk_10.Get() != nullptr)
-        func_08038EB8(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+        ClearSideTransitionSprite(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
 }
 
 EC void CreateSideEntityParticleSprites(AEntity * self) NPC_EXTRA_CODE(080387FC);

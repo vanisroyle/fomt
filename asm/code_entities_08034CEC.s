@@ -2589,6 +2589,8 @@ func_08037A5C: @ 0x08037A5C
 .L08037AC8: .4byte 0x0000071C
 .L08037ACC: .4byte vtable_unk_080E72E4
 
+    .section .text.npc_extra.08037AD0, "ax", %progbits
+
     thumb_func_start func_08037AD0
 func_08037AD0: @ 0x08037AD0
     push {r4, r5, r6, lr}
@@ -4554,27 +4556,7 @@ func_08038DF0: @ 0x08038DF0
 
     .section .text.npc_extra.08038EB8, "ax", %progbits
 
-    thumb_func_start func_08038EB8
-func_08038EB8: @ 0x08038EB8
-    push {r4, r5, r6, lr}
-    adds r5, r0, #0
-    adds r5, #0xc
-    movs r6, #0
-    ldr r4, [r0, #0xc]
-    cmp r6, r4
-    beq .L08038ED8
-    cmp r4, #0
-    beq .L08038ED8
-    adds r0, r4, #0
-    movs r1, #2
-    bl func_080A47B4
-    adds r0, r4, #0
-    bl __builtin_delete
-.L08038ED8:
-    str r6, [r5]
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
+    .section .text.npc_extra.08038EE0, "ax", %progbits
 
     thumb_func_start func_08038EE0
 func_08038EE0: @ 0x08038EE0
@@ -6503,38 +6485,7 @@ func_08039E98: @ 0x08039E98
     pop {r1}
     bx r1
 
-    thumb_func_start func_08039F50
-func_08039F50: @ 0x08039F50
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    ldr r0, .L08039F8C @ =vtable_unk_080E76BC
-    str r0, [r4, #0x4c]
-    ldr r1, [r4, #0x48]
-    cmp r1, #0
-    beq .L08039F6C
-    ldr r0, [r1, #0x24]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08039F6C:
-    adds r0, r4, #0
-    adds r0, #8
-    movs r1, #2
-    bl func_080A47B4
-    movs r0, #1
-    ands r0, r5
-    cmp r0, #0
-    beq .L08039F84
-    adds r0, r4, #0
-    bl __builtin_delete
-.L08039F84:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08039F8C: .4byte vtable_unk_080E76BC
+    .section .text.npc_extra.08039F90, "ax", %progbits
 
     thumb_func_start func_08039F90
 func_08039F90: @ 0x08039F90
@@ -6755,6 +6706,8 @@ func_08039F90: @ 0x08039F90
     pop {r0}
     bx r0
 
+    .section .text.npc_extra.0803A144, "ax", %progbits
+
     thumb_func_start func_0803A144
 func_0803A144: @ 0x0803A144
     push {r4, lr}
@@ -6786,6 +6739,8 @@ func_0803A144: @ 0x0803A144
     bx r1
     .align 2, 0
 .L0803A17C: .4byte gUnk_080F16C2
+
+    .section .text.npc_extra.0803A180, "ax", %progbits
 
     thumb_func_start func_0803A180
 func_0803A180: @ 0x0803A180
@@ -7010,43 +6965,7 @@ func_0803A180: @ 0x0803A180
 
     .section .text.npc_extra.0803A350, "ax", %progbits
 
-    thumb_func_start func_0803A350
-func_0803A350: @ 0x0803A350
-    push {r4, r5, r6, lr}
-    adds r6, r1, #0
-    ldr r0, [r0]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L0803A382
-.L0803A36C:
-    ldr r0, [r4]
-    bl AudioPlayer_IsPlaying
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0803A37C
-    ldr r0, [r4]
-    b .L0803A386
-.L0803A37C:
-    adds r4, #4
-    cmp r4, r5
-    bne .L0803A36C
-.L0803A382:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L0803A386:
-    lsls r1, r6, #0x10
-    lsrs r1, r1, #0x10
-    bl AudioPlayer_StartSong
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
+    .section .text.npc_extra.0803A394, "ax", %progbits
 
     thumb_func_start func_0803A394
 func_0803A394: @ 0x0803A394

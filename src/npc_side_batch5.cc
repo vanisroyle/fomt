@@ -18,7 +18,11 @@ struct SpriteWorkerEntity : AActorEntity
 {
     SpriteWorkerEntity();
     u8 sprite_id;
-    STRUCT_PAD(0x31, 0x41);
+    STRUCT_PAD(0x31, 0x34);
+    void * record;
+    void * work_targets;
+    u32 work_context;
+    u8 work_state;
     u8 work_pause;
     u8 work_active;
 };
@@ -260,4 +264,184 @@ EC RecordedEffectEntity * InitializeTimedReactionEntity(RecordedEffectEntity * s
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E73FC;
     self->record = record;
     return self;
+}
+
+struct SideActorRecord
+{
+    ActorLocation location;
+    u16 animation;
+    u16 sprite_value;
+};
+
+struct RecordedSideActor : AActorEntity
+{
+    RecordedSideActor();
+    SideActorRecord * record;
+};
+
+struct SpriteWorkerEffect : UnknownEntityThing
+{
+    STRUCT_PAD(0x8C, 0xB4);
+    SpriteAnimator effect_animator;
+    u8 effect_visible;
+    u8 effect_offset;
+    u8 effect_flip;
+    u8 effect_restart;
+    i16 effect_x;
+    i16 effect_y;
+    u16 effect_timer;
+};
+
+struct AudioPlayer;
+struct SideEntityAudioPlayers
+{
+    AudioPlayer ** begin;
+    AudioPlayer ** end;
+};
+
+struct SideEntityAudioProvider;
+struct SideEntityAudioProviderVTable
+{
+    STRUCT_PAD(0x00, 0x14C);
+    SideEntityAudioPlayers * (*get_players)(SideEntityAudioProvider *);
+};
+
+struct SideEntityAudioProvider
+{
+    SideEntityAudioProviderVTable * vtable;
+};
+
+EC void func_080A47B4(void * self, u32 flags);
+
+struct OwnedTransitionSprite
+{
+    STRUCT_PAD(0x00, 0x54);
+    ~OwnedTransitionSprite() { func_080A47B4(this, 2); }
+};
+
+struct SideTransitionOwner
+{
+    STRUCT_PAD(0x00, 0x0C);
+    SmartPtr<OwnedTransitionSprite> sprite;
+};
+
+struct OwnedActivityOverlay
+{
+    STRUCT_PAD(0x00, 0x24);
+    virtual ~OwnedActivityOverlay();
+};
+
+struct ActivityRenderSprite
+{
+    STRUCT_PAD(0x00, 0x08);
+    u8 renderer[0x40];
+    OwnedActivityOverlay * overlay;
+    void const * vtable;
+};
+
+EC u8 const vtable_unk_080E6828[];
+EC u8 const vtable_unk_080E76BC[];
+EC void vfunc_14__7AEntity(AEntity * self);
+EC void SetChangedLocation__3Npc(void * record);
+EC SpriteWorkerEffect * func_08034A14(SpriteWorkerEffect * self, SpriteWorkerEntity * actor);
+EC void func_0803260C(UnknownEntityThing * self);
+EC bool AudioPlayer_IsPlaying(AudioPlayer * self);
+EC void AudioPlayer_StartSong(AudioPlayer * self, u16 song);
+
+EC RecordedSideActor * InitializeRecordedSideActor(RecordedSideActor * self, GameObject * game, SideActorRecord * record) NPC_SIDE_CODE(08032934);
+EC RecordedSideActor * InitializeRecordedSideActor(RecordedSideActor * self, GameObject * game, SideActorRecord * record)
+{
+    InitializeActorBase(self, game, record->location, 2, record->animation);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6828;
+    self->record = record;
+    return self;
+}
+
+EC SpriteWorkerEffect * CreateSpriteWorkerSprite(SpriteWorkerEntity * actor) NPC_SIDE_CODE(08033A80);
+EC SpriteWorkerEffect * CreateSpriteWorkerSprite(SpriteWorkerEntity * actor)
+{
+    struct Storage { u8 bytes[0xD4]; };
+    SpriteWorkerEffect * sprite = func_08034A14(reinterpret_cast<SpriteWorkerEffect *>(new Storage), actor);
+    i32 overlay = -1;
+    switch (actor->work_state)
+    {
+    case 2: overlay = 8; break;
+    case 3: overlay = 5; break;
+    }
+    if (overlay >= 0)
+    {
+        SetSpriteAnimatorClip(&sprite->sprite_animator_70, overlay);
+        sprite->unk_84 = 1;
+        sprite->unk_86 = 0;
+        sprite->unk_87 = 1;
+        u32 mode = 2;
+        sprite->unk_8A_0 = mode;
+    }
+    return sprite;
+}
+
+EC void RefreshSpriteWorkerRecord(SpriteWorkerEntity * self) NPC_SIDE_CODE(08033B10);
+EC void RefreshSpriteWorkerRecord(SpriteWorkerEntity * self)
+{
+    vfunc_14__7AEntity(self);
+    SetChangedLocation__3Npc(self->record);
+}
+
+EC void UpdateSpriteWorkerEffect(SpriteWorkerEffect * self) NPC_SIDE_CODE(08034AA0);
+EC void UpdateSpriteWorkerEffect(SpriteWorkerEffect * self)
+{
+    func_0803260C(self);
+    if (self->effect_timer != 0)
+    {
+        if (self->effect_restart == 0)
+        {
+            if (i32(AdvanceSpriteAnimator(&self->effect_animator) << 30) < 0)
+                self->effect_visible = 1;
+        }
+        else
+            self->effect_restart = 0;
+        self->effect_timer--;
+    }
+}
+
+
+
+
+EC void PlaySideEntitySong(AEntity * self, u32 song) NPC_EXTRA_CODE(0803A350);
+EC void PlaySideEntitySong(AEntity * self, u32 song)
+{
+    SideEntityAudioProvider * game = reinterpret_cast<SideEntityAudioProvider *>(self->game_object);
+    SideEntityAudioPlayers * players = game->vtable->get_players(game);
+    AudioPlayer ** current = players->begin;
+    AudioPlayer ** end = players->end;
+    AudioPlayer * player;
+    while (current != end)
+    {
+        if (!AudioPlayer_IsPlaying(*current))
+        {
+            player = *current;
+            goto play;
+        }
+        current++;
+    }
+    player = end[-1];
+play:
+    AudioPlayer_StartSong(player, song);
+}
+
+EC void ClearSideTransitionSprite(SideTransitionOwner * self) NPC_EXTRA_CODE(08038EB8);
+EC void ClearSideTransitionSprite(SideTransitionOwner * self)
+{
+    SmartPtr<OwnedTransitionSprite> * sprite = &self->sprite;
+    *sprite = nullptr;
+}
+
+EC void DestroyActivityRenderSprite(ActivityRenderSprite * self, u32 flags) NPC_EXTRA_CODE(08039F50);
+EC void DestroyActivityRenderSprite(ActivityRenderSprite * self, u32 flags)
+{
+    self->vtable = vtable_unk_080E76BC;
+    delete self->overlay;
+    func_080A47B4(self->renderer, 2);
+    if (flags & 1)
+        delete reinterpret_cast<u8 *>(self);
 }
