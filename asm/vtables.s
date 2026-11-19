@@ -393,7 +393,7 @@ vtable_unk_080E5EC4: @ game object
 	.word 0x0801F519
 	.word GameStateSetVaseArticle
 	.word func_0801EE00
-	.word func_0801F924
+	.word GameStateShipProduct
 	.word 0x0801C551
 	.word 0x0801C69D
 
