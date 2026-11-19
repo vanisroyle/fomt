@@ -285,23 +285,23 @@ struct ClockDisplay
 
 EC u8 const gClockFont[][0x20];
 
-ROM_TEXT(0803D080) void SetClockSeasonTiles(ClockDisplay & self, int season)
+ROM_TEXT(0803D080) void SetClockSeasonTiles(ClockDisplay & self, Season season)
 {
     ClockDisplayData & inner = *self.inner;
-    u32 tiles[2];
+    u32 seasonTileIds[2];
     switch (season)
     {
     case SEASON_SPRING:
-    default: tiles[0] = 11; tiles[1] = 12; break;
-    case SEASON_SUMMER: tiles[0] = 13; tiles[1] = 14; break;
-    case SEASON_AUTUMN: tiles[0] = 15; tiles[1] = 16; break;
-    case SEASON_WINTER: tiles[0] = 17; tiles[1] = 18; break;
+    default: seasonTileIds[0] = 11; seasonTileIds[1] = 12; break;
+    case SEASON_SUMMER: seasonTileIds[0] = 13; seasonTileIds[1] = 14; break;
+    case SEASON_AUTUMN: seasonTileIds[0] = 15; seasonTileIds[1] = 16; break;
+    case SEASON_WINTER: seasonTileIds[0] = 17; seasonTileIds[1] = 18; break;
     }
     memcpy(inner.seasonFirstTiles,
-           reinterpret_cast<u8 const *>(reinterpret_cast<uintptr_t>(gClockFont) + tiles[0] * sizeof(inner.seasonFirstTiles)),
+           gClockFont[seasonTileIds[0]],
            sizeof(inner.seasonFirstTiles));
     inner.dateTilesDirty = 1;
-    u8 const * secondTile = reinterpret_cast<u8 const *>(reinterpret_cast<uintptr_t>(gClockFont) + tiles[1] * sizeof(inner.seasonSecondTiles));
+    u8 const * secondTile = gClockFont[seasonTileIds[1]];
     memcpy(inner.seasonSecondTiles, secondTile, sizeof(inner.seasonSecondTiles));
     inner.dateTilesDirty = 1;
 }
@@ -751,7 +751,7 @@ ROM_TEXT(0803E620) unsigned SelectNpcSchedule_080F597C(NpcScheduleContext const 
         return 2;
     unsigned maxYear = 200;
     unsigned calendarYear = self.calendar.yearCycle * 7 + self.calendar.yearInCycle;
-    if (std::min(maxYear, calendarYear) <= 1 && season == 0 && day <= 2)
+    if (std::min(maxYear, calendarYear) <= 1 && season == SEASON_SPRING && day <= 2)
         return 0;
     return 1;
 }
@@ -1002,7 +1002,7 @@ ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F81BC(NpcScheduleContext const 
     u8 festival = IsNpcScheduleFestivalDay(season, day);
     if (festival != 0)
         return 5;
-    if (season == 2 && day == 30)
+    if (season == SEASON_AUTUMN && day == 30)
     {
         switch ((static_cast<u32>(self.unk_21A2) << 26) >> 30)
         {
