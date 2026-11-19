@@ -117,13 +117,26 @@ struct DialogWindow
     void const * vtable;
 };
 
-EC int func_0803BAAC(DialogWindowLayers &, int, int, int);
+enum DialogWindowState
+{
+    DIALOG_WINDOW_CLOSED,
+    DIALOG_WINDOW_OPENING,
+    DIALOG_WINDOW_CLOSING,
+    DIALOG_WINDOW_OPEN,
+};
+
+struct BackgroundVideoState;
+struct DialogLayerRenderer;
+struct TileTransferQueue;
+struct OamBuffer;
+
+EC int UpdateDialogWindowLayers(DialogWindowLayers &, BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *);
 EC void func_08009940(void *, void *);
 
 ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
 {
     int state = self.state;
-    if (state == 0)
+    if (state == DIALOG_WINDOW_CLOSED)
     {
         u32 layerMode = self.layerMode;
         if (layerMode != 1)
@@ -134,28 +147,28 @@ ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
     int nextState = self.state;
     if (nextState < 0)
         return;
-    if (nextState > 2)
+    if (nextState > DIALOG_WINDOW_CLOSING)
         return;
-    self.state = 1;
+    self.state = DIALOG_WINDOW_OPENING;
 }
 
 ROM_TEXT(0803BD60) void func_0803BD60(DialogWindowLayers & self)
 {
     OpenDialogWindowLayers(self);
-    self.state = 3;
+    self.state = DIALOG_WINDOW_OPEN;
     self.animationFrames = 9;
 }
 
 ROM_TEXT(0803BD60) void func_0803BD88(DialogWindowLayers & self)
 {
     if (self.state)
-        self.state = 2;
+        self.state = DIALOG_WINDOW_CLOSING;
 }
 
 ROM_TEXT(0803BD60) void func_0803BDB8(DialogWindowLayers & self)
 {
     if (self.state)
-        self.state = 0;
+        self.state = DIALOG_WINDOW_CLOSED;
 }
 
 ROM_TEXT(0803BD60) void func_0803BDE4(DialogWindowLayers & self, int x, int y)
@@ -202,9 +215,10 @@ ROM_TEXT(0803BD60) unsigned func_0803BE9C(DialogWindow const & self)
     return self.inner->state;
 }
 
-ROM_TEXT(0803BD60) int func_0803BEB0(DialogWindow & self, int arg1, int arg2, int arg3)
+ROM_TEXT(0803BD60) int UpdateDialogWindow(DialogWindow & self, BackgroundVideoState * video,
+    DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
 {
-    return func_0803BAAC(*self.inner, arg1, arg2, arg3);
+    return UpdateDialogWindowLayers(*self.inner, video, layerRenderer, tileTransfers);
 }
 
 ROM_TEXT(0803BD60) void func_0803BEBC(DialogWindow & self)
@@ -1199,10 +1213,33 @@ struct Unk_0803C7A0
 EC void func_0803C7A0(Unk_0803C7A0 &, int);
 EC void func_0803C5B0(Unk_0803C7A0 &);
 
-struct Unk_0803C54C : DialogWindow
+struct DialogChoiceWindow : DialogWindow
 {
     Unk_0803C7A0 menu;
 };
+
+struct DialogChoiceWindowVtable
+{
+    STRUCT_PAD(0, 0x1C);
+    int (* getX)(DialogChoiceWindow &);
+    int (* getY)(DialogChoiceWindow &);
+};
+
+EC void DrawDialogChoices(Unk_0803C7A0 &, int x, int y, OamBuffer *, DialogLayerRenderer *);
+
+ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBuffer * oam,
+    BackgroundVideoState * video, DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
+{
+    // Preserve the original register allocation for the window state.
+    register int state asm("r6") = UpdateDialogWindow(self, video, layerRenderer, tileTransfers);
+    if (state == DIALOG_WINDOW_OPEN)
+    {
+        int x = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getX(self);
+        int y = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getY(self);
+        DrawDialogChoices(self.menu, x, y, oam, layerRenderer);
+    }
+    return state;
+}
 
 EC DialogWindow & func_0803BDFC(DialogWindow &, int, int, int, int, int, int, int, int);
 
@@ -1233,7 +1270,7 @@ ROM_TEXT(0803C00C) Unk_0803BF78 & func_0803C00C(Unk_0803BF78 & self, void * arg1
     return func_0803C028(self, arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
-ROM_TEXT(0803C518) Unk_0803C54C & func_0803C54C(Unk_0803C54C & self, int arg1, int arg2, int arg3, int arg4)
+ROM_TEXT(0803C518) DialogChoiceWindow & func_0803C54C(DialogChoiceWindow & self, int arg1, int arg2, int arg3, int arg4)
 {
     func_0803BDFC(self, 128, 136, 112, 24, arg1, arg2, arg3, arg4);
     self.vtable = vtable_unk_080E77E0;
@@ -1241,7 +1278,7 @@ ROM_TEXT(0803C518) Unk_0803C54C & func_0803C54C(Unk_0803C54C & self, int arg1, i
     return self;
 }
 
-ROM_TEXT(0803C518) void func_0803C588(Unk_0803C54C & self, int flags)
+ROM_TEXT(0803C518) void func_0803C588(DialogChoiceWindow & self, int flags)
 {
     self.vtable = vtable_unk_080E77E0;
     func_0803C7A0(self.menu, 2);

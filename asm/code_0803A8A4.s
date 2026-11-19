@@ -2049,8 +2049,8 @@ func_0803B8CC: @ 0x0803B8CC
 .L0803BAA4: .4byte 0xFFFF801F
 .L0803BAA8: .4byte 0xFFF87FFF
 
-	thumb_func_start func_0803BAAC
-func_0803BAAC: @ 0x0803BAAC
+	thumb_func_start UpdateDialogWindowLayers
+UpdateDialogWindowLayers: @ 0x0803BAAC
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -2387,7 +2387,7 @@ func_0803C028: @ 0x0803C028
 	ldr r3, [sp, #0x98]
 	ldr r5, [sp, #0x9c]
 	ldr r2, [sp, #0x94]
-	bl func_0803BEB0
+	bl UpdateDialogWindow
 	str r0, [sp, #0x48]
 	cmp r0, #0
 	bge .L0803C04E
@@ -3232,8 +3232,8 @@ func_0803C5B0: @ 0x0803C5B0
 .L0803C79C: .4byte gClockFont
 
 	.section .text.0803C7C8, "ax", %progbits
-	thumb_func_start func_0803C7C8
-func_0803C7C8: @ 0x0803C7C8
+	thumb_func_start DrawDialogChoices
+DrawDialogChoices: @ 0x0803C7C8
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -4583,48 +4583,7 @@ func_0803D240: @ 0x0803D240
 	.byte 0xFF, 0xF7, 0xDE, 0xFD, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x12, 0x06, 0x12, 0x0E, 0x08, 0x30
 	.byte 0xFF, 0xF7, 0x3C, 0xFC, 0x01, 0xBC, 0x00, 0x47
 
-	thumb_func_start func_0803D4D8
-func_0803D4D8: @ 0x0803D4D8
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #4
-	adds r5, r0, #0
-	mov r8, r1
-	adds r1, r2, #0
-	adds r7, r3, #0
-	ldr r3, [sp, #0x1c]
-	adds r2, r7, #0
-	bl func_0803BEB0
-	adds r6, r0, #0
-	cmp r6, #3
-	bne .L0803D51C
-	ldr r0, [r5, #4]
-	ldr r1, [r0, #0x1c]
-	adds r0, r5, #0
-	bl _call_via_r1
-	adds r4, r0, #0
-	ldr r0, [r5, #4]
-	ldr r1, [r0, #0x20]
-	adds r0, r5, #0
-	bl _call_via_r1
-	adds r2, r0, #0
-	adds r0, r5, #0
-	adds r0, #8
-	str r7, [sp]
-	adds r1, r4, #0
-	mov r3, r8
-	bl func_0803C7C8
-.L0803D51C:
-	adds r0, r6, #0
-	add sp, #4
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-
+	.section .text.0803D52C, "ax", %progbits
 	thumb_func_start DecodeNpcScheduleDate
 DecodeNpcScheduleDate: @ 0x0803D52C
 	push {r4, r5, r6, r7, lr}
