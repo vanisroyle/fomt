@@ -37,3 +37,33 @@ EC SECTION(".text.080ADD74") void SetMessageScriptRate(MessageScript & script, u
 {
     script.frameRate = rate;
 }
+
+EC SECTION(".text.080ADF40") int AdvanceMessageScriptClock(MessageScript & script)
+{
+    register MessageScript * state asm("r2") = &script;
+    asm ("" : "+l" (state));
+    register int frame asm("r0") = state->framePosition;
+    asm ("" : "+l" (frame));
+    register int previous asm("r5") = frame;
+    asm ("" : "+l" (previous));
+    frame = state->frameRate;
+    asm ("" : "+l" (frame));
+    register int position asm("r1") = previous + frame;
+    asm ("" : "+l" (position));
+    register int elapsedPosition asm("r4") = position;
+    asm ("" : "+l" (elapsedPosition));
+    frame = position & 0xff;
+    register int remainder asm("r3") = 0;
+    asm ("" : "+l" (frame), "+l" (remainder));
+    if (frame != 0)
+        remainder = position;
+    state->framePosition = remainder;
+    frame = elapsedPosition;
+    asm ("" : "+l" (frame));
+    register int nextFrame asm("r1") = frame >> 8;
+    frame = previous;
+    asm ("" : "+l" (frame), "+l" (nextFrame));
+    frame = nextFrame - (frame >> 8);
+    asm ("" : "+l" (frame));
+    return frame;
+}

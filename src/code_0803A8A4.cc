@@ -2,6 +2,7 @@
 
 #include "bachelorette.hh"
 #include "farm_house.hh"
+#include "gbasvc.h"
 #include "npc.hh"
 #include "schedule_info.hh"
 #include "unknown_types.hh"
@@ -221,6 +222,69 @@ ROM_TEXT(0803B6B8) Unk_0803B6FC & func_0803B6FC(Unk_0803B6FC & self, void *& own
     return self;
 }
 
+struct DialogWindowTilemapTask
+{
+    STRUCT_PAD(0x00, 0x0C);
+    int left;
+    int top;
+    unsigned width;
+    unsigned height;
+    unsigned screenBlock : 5;
+    unsigned firstTile : 10;
+    unsigned paletteBank : 4;
+};
+
+EC void func_08051320(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
+    unsigned firstTile, unsigned paletteBank);
+EC u16 const * const gUnk_080F9F78;
+
+ROM_TEXT(0803B840) bool RunDialogWindowTilemapTask(DialogWindowTilemapTask & task)
+{
+    enum
+    {
+        VideoRam = 0x06000000,
+        BackgroundPaletteRam = 0x05000000,
+        ScreenBlockBytes = 0x800,
+        PaletteBankBytes = 32,
+        FillWords = 32 * 10 / 2,
+        FillMode = 1 << 24,
+        TileIndexMask = 0x3FF,
+        CenterTileOffset = 3,
+    };
+
+    // Keep the original Thumb register allocation for the VRAM fill and palette copy.
+    register unsigned tile asm("r2") = task.firstTile + CenterTileOffset;
+    asm("" : "+r"(tile));
+    register unsigned mask asm("r1") = TileIndexMask;
+    asm("" : "+r"(mask) : "r"(tile));
+    register unsigned tileMask asm("r0") = mask;
+    asm("" : "+r"(tileMask));
+    tile = (tile & tileMask) | (task.paletteBank << 12);
+    register unsigned highHalf asm("r0") = tile << 16;
+    asm("" : "+r"(highHalf) : "r"(tile));
+    tile |= highHalf;
+
+    register unsigned screenOffset asm("r1") = task.screenBlock * ScreenBlockBytes;
+    asm("" : "+r"(screenOffset) : "r"(tile));
+    register u16 * screen asm("r1") = reinterpret_cast<u16 *>(VideoRam + screenOffset);
+    asm("" : "+r"(screen) : "r"(tile));
+    u32 repeatedTile = tile;
+    register u32 * source asm("r0") = &repeatedTile;
+    asm("" : "+r"(source) : "m"(repeatedTile));
+    CpuFastSet(source, screen, FillMode | FillWords);
+
+    func_08051320(reinterpret_cast<u16 *>(VideoRam + task.screenBlock * ScreenBlockBytes),
+        task.left, 0, task.width, task.height, task.firstTile, task.paletteBank);
+
+    register unsigned paletteBank asm("r1") = task.paletteBank;
+    asm("" : "+r"(paletteBank));
+    register u16 const * palette asm("r0") = gUnk_080F9F78;
+    asm("" : "+r"(palette) : "r"(paletteBank));
+    CpuFastSet(palette, reinterpret_cast<u16 *>(BackgroundPaletteRam + paletteBank * PaletteBankBytes),
+        PaletteBankBytes / sizeof(u32));
+    return false;
+}
+
 struct PACKED ALIGN(4) DialogWindowLayers
 {
     i16 x;
@@ -234,7 +298,7 @@ struct PACKED ALIGN(4) DialogWindowLayers
     STRUCT_PAD(0x0E, 0x10);
     u8 layerList[0x1C];
     u8 backgroundLayer[0x18];
-    u8 foregroundLayer[0x20];
+    DialogWindowTilemapTask tilemapTask;
 };
 
 struct DialogWindow
@@ -267,7 +331,7 @@ ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
         u32 layerMode = self.layerMode;
         if (layerMode != 1)
             TaskList_Append(self.layerList, self.backgroundLayer);
-        TaskList_Append(self.layerList, self.foregroundLayer);
+        TaskList_Append(self.layerList, &self.tilemapTask);
         self.animationFrames = state;
     }
     int nextState = self.state;
@@ -310,14 +374,14 @@ ROM_TEXT(0803BD60) void func_0803BDEC(DialogWindowLayers & self, int x, int y)
 }
 
 EC char const vtable_unk_080E7778[];
-EC DialogWindowLayers * func_0803B8CC(void *, int, int, int, int, int, int, int, int);
+EC DialogWindowLayers * InitializeDialogWindowLayers(void *, int, int, int, int, int, int, int, int);
 EC void TaskNode_Destroy(void *, int);
 EC void TaskList_Destroy(void *, int);
 
 ROM_TEXT(0803BD60) DialogWindow & func_0803BDFC(DialogWindow & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
 {
     self.vtable = vtable_unk_080E7778;
-    self.inner = func_0803B8CC(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
+    self.inner = InitializeDialogWindowLayers(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
     return self;
 }
 
