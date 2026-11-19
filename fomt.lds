@@ -1220,6 +1220,7 @@ SECTIONS
         src/g1_npc.o(.text.g1_080A6640);
         asm/g1_npc.o(.text.g1_after_080A6640);
         asm/code_809E804.o(.text);
+        src/game_state_part2.o(.text.080AA6D0);
         src/map_updates.o(.text.080AA850);
         src/map_updates.o(.text.080AA89C);
         src/map_updates.o(.text.080AA8BC);
