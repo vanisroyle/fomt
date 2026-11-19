@@ -142,8 +142,8 @@ gUnk_080FA71C:
 gUnk_080FA728:
 	.incbin "baserom.gba", 0xFA728, 0x6E
 
-	.global gUnk_080FA796
-gUnk_080FA796:
+	.global gHorseRaceOpponentNames
+gHorseRaceOpponentNames:
 	.incbin "baserom.gba", 0xFA796, 0x208
 
 	.global gUnk_080FA99E
@@ -238,21 +238,26 @@ gUnk_080FADDC:
 gUnk_080FAE00:
 	.incbin "baserom.gba", 0xFAE00, 0x6A
 
-	.global gUnk_080FAE6A
-gUnk_080FAE6A:
-	.incbin "baserom.gba", 0xFAE6A, 0x32
+	.global gHorseRaceBettingGlyphCodes
+gHorseRaceBettingGlyphCodes:
+	.2byte '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', 'x', 'G'
+	.2byte 'Y', 'o', 'u', 'r', ' ', 'm', 'e', 'd', 'a', 'l', 's', 0
 
-	.global gUnk_080FAE9C
-gUnk_080FAE9C:
-	.incbin "baserom.gba", 0xFAE9C, 0x1C
+	.global gHorseRaceBettingTableHeader
+gHorseRaceBettingTableHeader:
+	.asciz "Race  Winning Ticket    "
+	.zero 3
 
-	.global gUnk_080FAEB8
-gUnk_080FAEB8:
-	.incbin "baserom.gba", 0xFAEB8, 0xC
+	.global gHorseRaceEnterLabel
+gHorseRaceEnterLabel:
+	.asciz "   Enter"
+	.zero 3
 
-	.global gUnk_080FAEC4
-gUnk_080FAEC4:
-	.incbin "baserom.gba", 0xFAEC4, 0x104
+	.global gHorseRaceMedalsToWinLabel
+gHorseRaceMedalsToWinLabel:
+	.asciz "  Medals to Win     "
+	.zero 3
+	.incbin "baserom.gba", 0xFAEDC, 0xEC
 
 	.global gUnk_080FAFC8
 gUnk_080FAFC8:
@@ -266,36 +271,36 @@ gMedalExchangePrizes:
 gUnk_080FB0F0:
 	.incbin "baserom.gba", 0xFB0F0, 0x18
 
-	.global gUnk_080FB108
-gUnk_080FB108:
+	.global gAskToExchangeMedals
+gAskToExchangeMedals:
 	.incbin "baserom.gba", 0xFB108, 0x18
 
-	.global gUnk_080FB120
-gUnk_080FB120:
+	.global gMedalDialogueYes
+gMedalDialogueYes:
 	.incbin "baserom.gba", 0xFB120, 0x4
 
-	.global gUnk_080FB124
-gUnk_080FB124:
+	.global gMedalDialogueNo
+gMedalDialogueNo:
 	.incbin "baserom.gba", 0xFB124, 0x4
 
-	.global gUnk_080FB128
-gUnk_080FB128:
+	.global gMedalExchangeFarewell
+gMedalExchangeFarewell:
 	.incbin "baserom.gba", 0xFB128, 0x18
 
-	.global gUnk_080FB140
-gUnk_080FB140:
+	.global gMedalExchangeKeepBrowsing
+gMedalExchangeKeepBrowsing:
 	.incbin "baserom.gba", 0xFB140, 0x18
 
-	.global gUnk_080FB158
-gUnk_080FB158:
+	.global gConfirmMedalExchangePrize
+gConfirmMedalExchangePrize:
 	.incbin "baserom.gba", 0xFB158, 0xC
 
-	.global gUnk_080FB164
-gUnk_080FB164:
+	.global gMedalExchangeLeaving
+gMedalExchangeLeaving:
 	.incbin "baserom.gba", 0xFB164, 0x18
 
-	.global gUnk_080FB17C
-gUnk_080FB17C:
+	.global gMedalExchangeNotEnoughMedals
+gMedalExchangeNotEnoughMedals:
 	.incbin "baserom.gba", 0xFB17C, 0x2A
 
 	.global gUnk_080FB1A6

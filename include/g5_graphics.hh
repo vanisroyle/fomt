@@ -48,5 +48,6 @@ EC void QueuePanelNumberDraw(u8 * panel, u32 value, void * destination, u16 styl
 EC void DestroyPagedPanelDrawCommands(u8 * panel, u32 flags); // 0x080CE3DC
 EC void QueuePagedPanelTileDraw(u8 * panel, void * destination, u16 tile, u32 width, u32 height, u16 palette, u32 stride); // 0x080CE480
 EC void QueuePagedPanelNumberDraw(u8 * panel, u32 value, void * destination, u16 style, u16 palette, u32 stride); // 0x080CE510
+EC void MapGraphics_LoadPaletteBuffer(u8 * renderer, u32 unused, u32 buffer_index); // 0x080CFB5C
 
 #endif
