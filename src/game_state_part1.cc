@@ -5,6 +5,7 @@
 #include "coop.hh"
 #include "script_engine.hh"
 #include "scene.hh"
+#include "shipping_bin.hh"
 
 #include <stdlib.h>
 
@@ -354,6 +355,64 @@ struct GameStateScript
     u32 vtable;
     GameStateRuntime * runtime;
 };
+
+
+struct GameStateShippingView
+{
+    ShippingBin & GetShippingBin() { return shippingBin; }
+
+    STRUCT_PAD(0x00, 0x54);
+    ShippingBin shippingBin;
+    u8 reserved[0x1AA8 - 0x54 - sizeof(ShippingBin)];
+    u8 earnings[0x34C5 - 0x1AA8];
+    u8 doubleShippingValue;
+};
+
+struct GameStateMapQuery
+{
+    struct MapContext
+    {
+        u32 reserved;
+        u32 mapId;
+    };
+
+    u32 vtable;
+    MapContext * context;
+    STRUCT_PAD(0x08, 0x103C);
+    u8 forceInterior;
+};
+
+EC MapData const * GetMapData(u32 mapId);
+EC void func_0809ABD8(void * earnings, u32 amount);
+
+// 0x0801140C
+EC bool SECTION(".text.game_state_0801140C") SaveData_CollectShippingValue(GameStateShippingView & save)
+{
+    ShippingBin & shipping = save.GetShippingBin();
+    u32 amount = shipping.GetValueShipped();
+    void * earnings = save.earnings;
+    func_0809ABD8(earnings, amount);
+    u8 & doubled = save.doubleShippingValue;
+    if (doubled != 0)
+    {
+        func_0809ABD8(earnings, amount);
+        doubled = 0;
+    }
+    shipping.ResetValueShipped();
+    return amount != 0;
+}
+
+
+// 0x08017C00
+EC u32 SECTION(".text.game_state_08017C00") GameMap_IsInteriorOrForced(GameStateMapQuery & query)
+{
+    if (query.forceInterior != 0)
+        goto interior;
+    if (!GetMapData(query.context->mapId)->is_interior)
+        return 0;
+interior:
+    return 1;
+}
 
 
 struct GameStateGlobalStatus

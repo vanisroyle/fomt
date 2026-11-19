@@ -2005,42 +2005,6 @@ func_08010F54: @ 0x08010F54
 .L08011408: .4byte 0x000034DC
 
 
-    thumb_func_start func_0801140C
-func_0801140C: @ 0x0801140C
-    push {r4, r5, r6, r7, lr}
-    adds r4, r0, #0
-    adds r7, r4, #0
-    adds r7, #0x54
-    adds r0, r7, #0
-    bl GetValueShipped__C11ShippingBin
-    adds r5, r0, #0
-    ldr r0, .L08011450 @ =0x00001AA8
-    adds r6, r4, r0
-    adds r0, r6, #0
-    adds r1, r5, #0
-    bl func_0809ABD8
-    ldr r0, .L08011454 @ =0x000034C5
-    adds r4, r4, r0
-    ldrb r0, [r4]
-    cmp r0, #0
-    beq .L0801143E
-    adds r0, r6, #0
-    adds r1, r5, #0
-    bl func_0809ABD8
-    movs r0, #0
-    strb r0, [r4]
-.L0801143E:
-    adds r0, r7, #0
-    bl ResetValueShipped__11ShippingBin
-    rsbs r0, r5, #0
-    orrs r0, r5
-    lsrs r0, r0, #0x1f
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08011450: .4byte 0x00001AA8
-.L08011454: .4byte 0x000034C5
     .section .text.game_state_08011464, "ax", %progbits
 
     .section .text.game_state_08011498, "ax", %progbits
@@ -3177,8 +3141,10 @@ func_08011DC4: @ 0x08011DC4
 
     .section .text.game_state_08012028, "ax", %progbits
 
-    thumb_func_start func_08012028
-func_08012028: @ 0x08012028
+
+
+    thumb_func_start GameScript_RunRuntime
+GameScript_RunRuntime: @ 0x08012028
     push {r4, lr}
     sub sp, #0xc
     adds r4, r0, #0
@@ -3208,8 +3174,6 @@ func_08012028: @ 0x08012028
     pop {r1}
     bx r1
     .align 2, 0
-
-
     .section .text.game_state_080120C4, "ax", %progbits
 
     .section .text.game_state_080120E4, "ax", %progbits
@@ -13282,33 +13246,8 @@ func_080179CC: @ 0x080179CC
 .L08017BF8: .4byte 0x00001058
 .L08017BFC: .4byte vtable_unk_080E61A0
 
-    thumb_func_start func_08017C00
-func_08017C00: @ 0x08017C00
-    push {lr}
-    adds r1, r0, #0
-    ldr r2, .L08017C24 @ =0x0000103C
-    adds r0, r1, r2
-    ldrb r0, [r0]
-    cmp r0, #0
-    bne .L08017C28
-    ldr r0, [r1, #4]
-    ldr r0, [r0, #4]
-    bl GetMapData
-    adds r0, #0x24
-    ldrb r0, [r0]
-    cmp r0, #0
-    bne .L08017C28
-    movs r0, #0
-    b .L08017C2A
-    .align 2, 0
-.L08017C24: .4byte 0x0000103C
-.L08017C28:
-    movs r0, #1
-.L08017C2A:
-    pop {r1}
-    bx r1
-    .align 2, 0
 
+    .section .text.game_state_08017C30, "ax", %progbits
     thumb_func_start func_08017C30
 func_08017C30: @ 0x08017C30
     push {r4, r5, r6, r7, lr}
@@ -21298,7 +21237,7 @@ func_0801DCD4: @ 0x0801DCD4
     bl GetValueShipped__C11ShippingBin
     adds r6, r0, #0
     ldr r0, [r5]
-    bl func_0801140C
+    bl SaveData_CollectShippingValue
     ldr r1, [r4]
     movs r0, #0xa0
     lsls r0, r0, #1
