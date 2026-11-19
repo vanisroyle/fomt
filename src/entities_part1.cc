@@ -8,6 +8,7 @@
 #include "item.hh"
 #include "farmer.hh"
 #include "shipping_bin.hh"
+#include "coop.hh"
 #include <stdlib.h>
 
 struct DogEntityPart1 : AActorEntity
@@ -38,6 +39,7 @@ struct ChickenEntityPart1 : AActorEntity
     ChickenEntityPart1();
     u32 unk_30;
     Chicken * chicken;
+    u8 state;
 };
 
 EC u16 const gUnk_080F09AC[];
@@ -257,6 +259,30 @@ EC char const vtable_unk_080E64C8[];
 EC void func_08038374(CarryEntityPart1 * self, i32 x, i32 y, u32 anim, u32 facing);
 EC void func_08020410(DogEntityPart1 * self, u32 time);
 EC Article func_0800F258(HeldItem const * self);
+EC u32 func_080229A4(AEntity * self, u32 value);
+EC Box func_0803240C(AActorEntity const * self);
+EC u32 func_0800F344(HeldItem const * self);
+EC void func_08010014(void * self, Location const & location);
+EC u32 func_08022980(ChickenEntityPart1 * self, u32 state);
+EC void __builtin_delete(void * ptr);
+
+struct CalendarPart1
+{
+    STRUCT_PAD(0x00, 0x0A);
+    u8 hour : 5;
+};
+
+struct CalendarVTablePart1
+{
+    STRUCT_PAD(0x00, 0x144);
+    CalendarPart1 const * (*get_calendar)(GameObject * game);
+};
+
+inline u32 EntityGameHourPart1(GameObject * game)
+{
+    CalendarVTablePart1 const * table = *reinterpret_cast<CalendarVTablePart1 const **>(game);
+    return table->get_calendar(game)->hour;
+}
 EC Food func_0800F20C(HeldItem const * self);
 EC bool func_0800F388(HeldItem const * self);
 EC void func_0800F528(HeldItem * self);
@@ -373,6 +399,82 @@ inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC void func_08024A80(FarmerEntityPart1 * self, u32 flags) ENTITY_CODE(08024A80);
+EC void func_08024A80(FarmerEntityPart1 * self, u32 flags)
+{
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6658;
+    func_0800EB34(*self->farmer, self->AActorEntity::GetLocation());
+    HeldItem * held = &self->farmer->unk_54;
+    if (!func_0800F190(held))
+    {
+        switch (func_0800F204(held))
+        {
+        default:
+        case HeldItem::KIND_FOOD:
+        case HeldItem::KIND_5: break;
+        case HeldItem::KIND_ARTICLE:
+        {
+            Article article = func_0800F258(held);
+            if (article.GetId() == 53)
+                *reinterpret_cast<Location *>(reinterpret_cast<u8 *>(self->game_state) + 0x1CCC) = self->AEntity::GetLocation();
+            break;
+        }
+        case HeldItem::KIND_2:
+            reinterpret_cast<Actor *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C70)->SetLocation(self->AActorEntity::GetLocation());
+            break;
+        case HeldItem::KIND_3:
+        {
+            Coop * coop = reinterpret_cast<Coop *>(reinterpret_cast<u8 *>(self->game_state) + 0x410);
+            Chicken * chicken = coop->GetChicken(func_0800F344(held));
+            if (chicken != nullptr)
+                chicken->SetLocation(self->AActorEntity::GetLocation());
+            break;
+        }
+        case HeldItem::KIND_4:
+            func_08010014(reinterpret_cast<u8 *>(self->game_state) + 0x1CA0, self->AEntity::GetLocation());
+            break;
+        }
+    }
+    self->AEntity::~AEntity();
+    if (flags & 1)
+        __builtin_delete(self);
+}
+
+EC Box func_08024BFC(FarmerEntityPart1 const * self) ENTITY_CODE(08024BFC);
+EC Box func_08024BFC(FarmerEntityPart1 const * self)
+{
+    if (reinterpret_cast<CarryEntityPart1 *>(const_cast<FarmerEntityPart1 *>(self))->vfunc_40())
+    {
+        Box const & box = Box(-7, -9, 7, 5, self->GetQ16X() >> 16, self->GetQ16Y() >> 16);
+        return box;
+    }
+    Box const & box = func_0803240C(self);
+    return box;
+}
+
+EC void func_080228B4(ChickenEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(080228B4);
+EC void func_080228B4(ChickenEntityPart1 * self, u32 state, u32 facing)
+{
+    u32 anim = func_08022980(self, state);
+    if (self->anim_id != anim)
+        self->SetAnim(anim);
+    if (self->facing != facing)
+        self->SetAnimFacing(facing);
+    func_08020080(self, func_080229A4(self, state));
+    if (state != self->state)
+    {
+        i32 effect = -1;
+        u32 sleep = self->chicken->GetGrowthStage() == 0 ? 0 : 3;
+        if (state == sleep && u32(EntityGameHourPart1(self->game_object) - 6) > 14)
+            effect = 8;
+        if (effect >= 0)
+            func_08032384(self, effect, 1);
+        else
+            func_080323C8(self);
+    }
+    self->state = state;
+}
 
 EC void func_08024C74(FarmerEntityPart1 * self) ENTITY_CODE(08024C74);
 EC void func_08024C74(FarmerEntityPart1 * self)
