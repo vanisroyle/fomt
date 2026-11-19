@@ -1,0 +1,10 @@
+.*
+!.clang-format
+
+*.dump
+*.elf
+*.gba
+*.map
+*.sav
+
+build/
