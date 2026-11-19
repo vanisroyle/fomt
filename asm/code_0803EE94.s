@@ -56173,8 +56173,8 @@ func_0805CF3C: @ 0x0805CF3C
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_0805CF70
-func_0805CF70: @ 0x0805CF70
+	thumb_func_start InitMedalExchangeScreen
+InitMedalExchangeScreen: @ 0x0805CF70
 	push {r4, r5, r6, r7, lr}
 	mov r7, r8
 	push {r7}
@@ -56399,8 +56399,8 @@ func_0805CF70: @ 0x0805CF70
 .L0805D168: .4byte 0x00002C48
 .L0805D16C: .4byte 0x0001869F
 
-	thumb_func_start func_0805D170
-func_0805D170: @ 0x0805D170
+	thumb_func_start RunMedalExchangeScreen
+RunMedalExchangeScreen: @ 0x0805D170
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -58715,93 +58715,6 @@ func_0805DFC4: @ 0x0805DFC4
 .L0805E61C: .4byte 0xFFFFFF00
 .L0805E620: .4byte 0xFFFFFC00
 
-	thumb_func_start func_0805E624
-func_0805E624: @ 0x0805E624
-	push {r4, r5, r6, lr}
-	adds r4, r0, #0
-	adds r6, r1, #0
-	adds r5, r2, #0
-	ldr r0, .L0805E650 @ =vtable_unk_080E79B8
-	str r0, [r4]
-	ldr r0, .L0805E654 @ =0x00000AF4
-	bl __builtin_new
-	adds r1, r5, #0
-	bl func_0805CF70
-	str r0, [r4, #4]
-	ldr r1, [r6]
-	movs r0, #0
-	str r0, [r6]
-	str r1, [r4, #8]
-	adds r0, r4, #0
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0805E650: .4byte vtable_unk_080E79B8
-.L0805E654: .4byte 0x00000AF4
-
-	thumb_func_start func_0805E658
-func_0805E658: @ 0x0805E658
-	push {r4, r5, lr}
-	adds r4, r0, #0
-	adds r5, r1, #0
-	ldr r0, .L0805E694 @ =vtable_unk_080E79B8
-	str r0, [r4]
-	ldr r1, [r4, #8]
-	cmp r1, #0
-	beq .L0805E674
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L0805E674:
-	ldr r1, [r4, #4]
-	cmp r1, #0
-	beq .L0805E686
-	ldr r0, [r1, #4]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L0805E686:
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl Scene_DestroyBase
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805E694: .4byte vtable_unk_080E79B8
-
-	thumb_func_start func_0805E698
-func_0805E698: @ 0x0805E698
-	push {r4, r5, lr}
-	sub sp, #4
-	adds r5, r0, #0
-	adds r4, r1, #0
-	ldr r1, [r4, #4]
-	mov r0, sp
-	bl func_0805D170
-	ldr r1, [sp]
-	cmp r1, #0
-	beq .L0805E6BA
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L0805E6BA:
-	ldr r1, [r4, #8]
-	movs r0, #0
-	str r0, [r4, #8]
-	str r1, [r5]
-	adds r0, r5, #0
-	add sp, #4
-	pop {r4, r5}
-	pop {r1}
-	bx r1
-
 	.section .text.f3.0805E790, "ax", %progbits
 	thumb_func_start GetSpriteAnimationDataFrame
 	.global func_0805E790
@@ -59364,8 +59277,8 @@ func_0805EC24: @ 0x0805EC24
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_0805ED4C
-func_0805ED4C: @ 0x0805ED4C
+	thumb_func_start InitChildhoodMemoryScreen
+InitChildhoodMemoryScreen: @ 0x0805ED4C
 	push {r4, r5, r6, lr}
 	mov r6, r8
 	push {r6}
@@ -59471,8 +59384,8 @@ func_0805ED4C: @ 0x0805ED4C
 .L0805EE3C: .4byte 0x00001BD8
 .L0805EE40: .4byte 0x0000642C
 
-	thumb_func_start func_0805EE44
-func_0805EE44: @ 0x0805EE44
+	thumb_func_start RunChildhoodMemoryScreen
+RunChildhoodMemoryScreen: @ 0x0805EE44
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -59510,7 +59423,7 @@ func_0805EE44: @ 0x0805EE44
 	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	adds r0, r5, #0
-	bl func_0805FBB8
+	bl LoadChildhoodMemoryGraphics
 	adds r0, r5, #0
 	adds r0, #0x18
 	movs r1, #0x25
@@ -60386,7 +60299,7 @@ func_0805EE44: @ 0x0805EE44
 	str r4, [sp, #0x38]
 .L0805F59E:
 	adds r0, r5, #0
-	bl func_0805F5F4
+	bl UpdateChildhoodMemoryDialogue
 	ldr r7, [sp, #0x38]
 	cmp r7, #0
 	bne .L0805F5AC
@@ -60429,8 +60342,8 @@ func_0805EE44: @ 0x0805EE44
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_0805F5F4
-func_0805F5F4: @ 0x0805F5F4
+	thumb_func_start UpdateChildhoodMemoryDialogue
+UpdateChildhoodMemoryDialogue: @ 0x0805F5F4
 	push {r4, r5, r6, r7, lr}
 	mov r7, sb
 	mov r6, r8
@@ -61030,8 +60943,8 @@ func_0805F5F4: @ 0x0805F5F4
 .L0805FBB0: .4byte gUnk_080FB7F0
 .L0805FBB4: .4byte 0x00006428
 
-	thumb_func_start func_0805FBB8
-func_0805FBB8: @ 0x0805FBB8
+	thumb_func_start LoadChildhoodMemoryGraphics
+LoadChildhoodMemoryGraphics: @ 0x0805FBB8
 	push {r4, r5, r6, lr}
 	sub sp, #4
 	adds r6, r0, #0
@@ -61148,93 +61061,7 @@ func_0805FBB8: @ 0x0805FBB8
 .L0805FCC8: .4byte 0x00001C41
 .L0805FCCC: .4byte gUnk_080FB1E4
 
-	thumb_func_start func_0805FCD0
-func_0805FCD0: @ 0x0805FCD0
-	push {r4, r5, r6, lr}
-	adds r4, r0, #0
-	adds r6, r1, #0
-	adds r5, r2, #0
-	ldr r0, .L0805FCFC @ =vtable_unk_080E79F8
-	str r0, [r4]
-	ldr r0, .L0805FD00 @ =0x00006430
-	bl __builtin_new
-	adds r1, r5, #0
-	bl func_0805ED4C
-	str r0, [r4, #4]
-	ldr r1, [r6]
-	movs r0, #0
-	str r0, [r6]
-	str r1, [r4, #8]
-	adds r0, r4, #0
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0805FCFC: .4byte vtable_unk_080E79F8
-.L0805FD00: .4byte 0x00006430
-
-	thumb_func_start func_0805FD04
-func_0805FD04: @ 0x0805FD04
-	push {r4, r5, lr}
-	adds r4, r0, #0
-	adds r5, r1, #0
-	ldr r0, .L0805FD40 @ =vtable_unk_080E79F8
-	str r0, [r4]
-	ldr r1, [r4, #8]
-	cmp r1, #0
-	beq .L0805FD20
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L0805FD20:
-	ldr r1, [r4, #4]
-	cmp r1, #0
-	beq .L0805FD32
-	ldr r0, [r1, #4]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L0805FD32:
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl Scene_DestroyBase
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805FD40: .4byte vtable_unk_080E79F8
-
-	thumb_func_start func_0805FD44
-func_0805FD44: @ 0x0805FD44
-	push {r4, r5, lr}
-	sub sp, #4
-	adds r5, r0, #0
-	adds r4, r1, #0
-	ldr r1, [r4, #4]
-	mov r0, sp
-	bl func_0805EE44
-	ldr r1, [sp]
-	cmp r1, #0
-	beq .L0805FD66
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L0805FD66:
-	ldr r1, [r4, #8]
-	movs r0, #0
-	str r0, [r4, #8]
-	str r1, [r5]
-	adds r0, r5, #0
-	add sp, #4
-	pop {r4, r5}
-	pop {r1}
-	bx r1
-
+	.section .text.f3.0805FD78, "ax", %progbits
 	thumb_func_start func_0805FD78
 func_0805FD78: @ 0x0805FD78
 	push {r4, r5, r6, lr}
