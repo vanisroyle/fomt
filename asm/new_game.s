@@ -4849,7 +4849,7 @@ func_0800637C: @ 0x0800637C
     str r3, [sp, #8]
     adds r1, r4, #0
     movs r2, #0
-    bl func_0804E7DC
+    bl FillMessagePixelRect
     ldr r0, .L08006414 @ =0x0000461C
     adds r1, r5, r0
     add r0, sp, #0x20

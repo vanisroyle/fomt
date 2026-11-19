@@ -21,6 +21,19 @@ struct ItemStorageScriptContext
     u8 * game;
 };
 
+EC SECTION(".text.item_storage_ui.0804E0F8") u32 CanReceiveStoredTool(ItemStorageScriptContext * context, u32 toolId)
+{
+    const ToolStack & held = *(ToolStack *) (context->game + 0x1c34);
+    if (held.IsEmpty()) return 1;
+    bool available = false;
+    Tool tool = held.GetTool();
+    if (tool.GetId() == toolId) available = held.GetAmount() != 99;
+    if (available) return 1;
+    if (((Rucksack *) (context->game + 0x1c38))->GetAvailableSpaceForTool(toolId)) return 1;
+    if (((ToolChest *) (context->game + 0x380))->GetAvailableSpaceFor(toolId)) return 1;
+    return 0;
+}
+
 EC SECTION(".text.item_storage_ui.0804E17C") u32 CanReceiveStoredFood(ItemStorageScriptContext * context, u32 foodId) // 0x0804E17C
 {
     if (func_0800F190((HeldItem *) (context->game + 0x1c2c))) return 1;

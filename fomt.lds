@@ -751,8 +751,8 @@ SECTIONS
         *(SORT_BY_NAME(.text.message_rendering.*));
         *(SORT_BY_NAME(.text.message_window.*));
         *(SORT_BY_NAME(.text.festival_results.*));
-        asm/code_0803EE94.o(.text.after_festival_scores);
-        *(SORT_BY_NAME(.text.animal_festival.*));
+        *(SORT_BY_NAME(.text.frisbee.*));
+        *(SORT_BY_NAME(.text.horse_race.*));
         *(SORT_BY_NAME(.text.f3.*));
         asm/code_0803EE94.o(.text.after_f3);
 

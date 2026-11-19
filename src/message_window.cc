@@ -56,6 +56,18 @@ struct MessageNumberCommand
     u32 stride;
 };
 
+struct MessageTileCopyCommand
+{
+    u32 state;
+    u32 unknown_04;
+    void * vtable;
+    u32 * source;
+    u32 * destination;
+    u16 tileCount : 14;
+    u16 alternate : 1;
+    u16 masked : 1;
+};
+
 struct MessageTilemapRectCommand
 {
     u32 state;
@@ -105,8 +117,8 @@ struct MessageTextAdvanceGate
 
 EC void __builtin_delete(void *);
 EC void FillMessageTiles(MessageTileSize, void *, u32);
-EC u32 func_0804E4AC(MessageTileSize, void *, u32, u32, u32);
-EC u32 func_0804E5AC(MessageTileSize, void *, u32, u32, u32, u32, u32);
+EC u32 DrawMessageGlyph(MessageTileSize, void *, u32, u32, u32);
+EC u32 DrawMessageGlyphWithColors(MessageTileSize, void *, u32, u32, u32, u32, u32);
 EC void DrawMessageTileString(MessageTileSize, void *, u32, u32, const char *);
 EC void DrawMessageChoiceText(MessageWindowState *, const u8 &, const char *, const void *);
 EC u32 GetMessageChoicePosition(u32, u32);
@@ -469,7 +481,7 @@ EC SECTION(".text.message_rendering.0804E8F0") void DrawMessageTileString(Messag
     while (byte != 0 && x < lineWidth)
     {
         code |= byte;
-        switch (func_0804E4AC(size, pixels, x, y, code))
+        switch (DrawMessageGlyph(size, pixels, x, y, code))
         {
         case 1: code = 0; x += 8; break;
         case 2: code = 0; x += 16; break;
@@ -490,7 +502,7 @@ EC SECTION(".text.message_rendering.0804E958") void DrawMessageTileStringWithCol
     while (byte != 0 && x < lineWidth)
     {
         code |= byte;
-        switch (func_0804E5AC(size, pixels, x, y, code, foreground, background))
+        switch (DrawMessageGlyphWithColors(size, pixels, x, y, code, foreground, background))
         {
         case 1: code = 0; x += 8; break;
         case 2: code = 0; x += 16; break;
@@ -713,4 +725,32 @@ EC SECTION(".text.message_rendering.0804EDF8") MessageNumberCommand * Initialize
 EC SECTION(".text.message_rendering.0804F058") void ResetMessageTextColumn(MessageTextCursor * cursor)
 {
     cursor->column = 0;
+}
+
+EC SECTION(".text.message_rendering.0804EF20") bool RunMessageTileCopyCommand(MessageTileCopyCommand * command)
+{
+    u32 * source = command->source;
+    u32 * destination = command->destination;
+    if (command->masked)
+    {
+        u32 * end = destination + command->tileCount * 8;
+        u32 alternate = command->alternate ^ 1;
+        command->alternate = alternate;
+        u32 mask = 0x0f0f0f0f << (alternate * 4);
+        u32 inverse = ~mask;
+        do
+        {
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+        } while (destination != end);
+        return true;
+    }
+    CpuFastSet(source, destination, command->tileCount * 8);
+    return false;
 }
