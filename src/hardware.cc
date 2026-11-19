@@ -1,4 +1,5 @@
 #include "prelude.h"
+#include "m4a.h"
 
 union Unk_hardware_ent_080D6D98
 {
@@ -294,6 +295,122 @@ EC void * func_08008AE0(void ** self);
 EC SECTION(".text.func_0800894C") void * func_0800894C(HardwareDisplay * self)
 {
     return func_08008AE0(reinterpret_cast<void **>(self->state->unk_490));
+}
+
+EC SECTION(".text.func_08008AE0") void * func_08008AE0(void ** self)
+{
+    return static_cast<u8 *>(*self) + 0xC;
+}
+
+EC void func_08000568(u16 flags);
+
+EC void SECTION(".text.func_08008AF0") func_08008AF0(void * self)
+{
+    func_08000568(1);
+}
+
+EC void SECTION(".text.func_08008AFC") func_08008AFC()
+{
+    m4aSoundInit();
+    m4aSoundVSyncOff();
+}
+
+EC bool SECTION(".text.func_08008B0C") func_08008B0C()
+{
+    m4aSoundVSync();
+    return true;
+}
+
+EC bool SECTION(".text.func_08008B18") func_08008B18()
+{
+    m4aSoundMain();
+    return true;
+}
+
+struct HardwareMusicPlayer
+{
+    MusicPlayer * player;
+};
+
+EC MusicPlayer * func_08008B24(u32 index);
+
+EC SECTION(".text.func_08008B54") HardwareMusicPlayer * func_08008B54(HardwareMusicPlayer * self, u8 index)
+{
+    self->player = func_08008B24(index);
+    return self;
+}
+
+EC void SECTION(".text.func_08008B6C") func_08008B6C(HardwareMusicPlayer * self, u16 song)
+{
+    m4aMPlayStart(self->player, gSongTable[song].song);
+}
+
+EC void SECTION(".text.func_08008B88") func_08008B88(HardwareMusicPlayer * self, u16 song)
+{
+    Song * target = gSongTable[song].song;
+    MusicPlayer * player = self->player;
+    if (player->song != target || i32(player->status) < 0)
+        m4aMPlayStart(player, target);
+}
+
+EC void SECTION(".text.func_08008BB0") func_08008BB0(HardwareMusicPlayer * self, u16 song)
+{
+    Song * target = gSongTable[song].song;
+    MusicPlayer * player = self->player;
+    if (player->song != target)
+        m4aMPlayStart(player, target);
+    else if (i32(player->status) < 0)
+        m4aMPlayContinue(player);
+}
+
+EC void SECTION(".text.func_08008BE0") func_08008BE0(HardwareMusicPlayer * self)
+{
+    m4aMPlayStop(self->player);
+}
+
+EC void SECTION(".text.func_08008BF8") func_08008BF8(HardwareMusicPlayer * self, u16 speed)
+{
+    m4aMPlayFadeOut(self->player, speed);
+}
+
+EC void SECTION(".text.func_08008C28") func_08008C28(HardwareMusicPlayer * self, u16 tempo)
+{
+    m4aMPlayTempoControl(self->player, tempo);
+}
+
+EC void SECTION(".text.func_08008C38") func_08008C38(HardwareMusicPlayer * self, u16 volume, u16 tracks)
+{
+    m4aMPlayVolumeControl(self->player, tracks, volume);
+}
+
+EC void SECTION(".text.func_08008C54") func_08008C54(HardwareMusicPlayer * self, i16 pitch, u16 tracks)
+{
+    m4aMPlayPitchControl(self->player, tracks, pitch);
+}
+
+EC void SECTION(".text.func_08008C70") func_08008C70(HardwareMusicPlayer * self, i8 pan, u16 tracks)
+{
+    m4aMPlayPanpotControl(self->player, tracks, pan);
+}
+
+EC void SECTION(".text.func_08008C8C") func_08008C8C(HardwareMusicPlayer * self, u8 depth, u16 tracks)
+{
+    m4aMPlayModDepthSet(self->player, tracks, depth);
+}
+
+EC void SECTION(".text.func_08008CA8") func_08008CA8(HardwareMusicPlayer * self, u8 speed, u16 tracks)
+{
+    m4aMPlayLFOSpeedSet(self->player, tracks, speed);
+}
+
+EC void SECTION(".text.func_08008CC4") func_08008CC4(HardwareMusicPlayer * self)
+{
+    m4aMPlayImmInit(self->player);
+}
+
+EC bool SECTION(".text.func_08008CD0") func_08008CD0(HardwareMusicPlayer * self)
+{
+    return (self->player->status >> 31) ^ 1;
 }
 
 EC void func_08007184(Unk_hardware_H * self) ALIAS(_._14Unk_hardware_H);

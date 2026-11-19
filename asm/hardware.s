@@ -2257,48 +2257,14 @@ func_08008A68: @ 0x08008A68
 .L08008AD8: .4byte vtable_unk_080E5B0C
 .L08008ADC: .4byte vtable_unk_080E5B18
 
-    thumb_func_start func_08008AE0
-func_08008AE0: @ 0x08008AE0
-    ldr r0, [r0]
-    adds r0, #0xc
-    bx lr
-    .align 2, 0
+    .section .text.after_08008AE0, "ax"
 .L08008AE8:
     .byte 0x00, 0x68, 0x0C, 0x30, 0x70, 0x47, 0x00, 0x00
 
-    thumb_func_start func_08008AF0
-func_08008AF0: @ 0x08008AF0
-    push {lr}
-    movs r0, #1
-    bl func_08000568
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_08008AFC
-func_08008AFC: @ 0x08008AFC
-    push {lr}
-    bl m4aSoundInit
-    bl m4aSoundVSyncOff
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08008B0C
-func_08008B0C: @ 0x08008B0C
-    push {lr}
-    bl m4aSoundVSync
-    movs r0, #1
-    pop {r1}
-    bx r1
-
-    thumb_func_start func_08008B18
-func_08008B18: @ 0x08008B18
-    push {lr}
-    bl m4aSoundMain
-    movs r0, #1
-    pop {r1}
-    bx r1
-
+    .section .text.after_08008AF0, "ax"
+    .section .text.after_08008AFC, "ax"
+    .section .text.after_08008B0C, "ax"
+    .section .text.after_08008B18, "ax"
     thumb_func_start func_08008B24
 func_08008B24: @ 0x08008B24
     push {lr}
@@ -2324,217 +2290,29 @@ func_08008B24: @ 0x08008B24
 .L08008B4C: .4byte 0x00000005
 .L08008B50: .4byte gMusicPlayerTable
 
-    thumb_func_start func_08008B54
-func_08008B54: @ 0x08008B54
-    push {r4, lr}
-    adds r4, r0, #0
-    lsls r0, r1, #0x18
-    lsrs r0, r0, #0x18
-    bl func_08008B24
-    str r0, [r4]
-    adds r0, r4, #0
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
-    thumb_func_start func_08008B6C
-func_08008B6C: @ 0x08008B6C
-    push {lr}
-    lsls r1, r1, #0x10
-    ldr r0, [r0]
-    ldr r2, .L08008B84 @ =gSongTable
-    lsrs r1, r1, #0xd
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl m4aMPlayStart
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08008B84: .4byte gSongTable
-
-    thumb_func_start func_08008B88
-func_08008B88: @ 0x08008B88
-    push {lr}
-    lsls r1, r1, #0x10
-    ldr r2, .L08008BAC @ =gSongTable
-    lsrs r1, r1, #0xd
-    adds r1, r1, r2
-    ldr r1, [r1]
-    ldr r2, [r0]
-    ldr r0, [r2]
-    cmp r0, r1
-    bne .L08008BA2
-    ldr r0, [r2, #4]
-    cmp r0, #0
-    bge .L08008BA8
-.L08008BA2:
-    adds r0, r2, #0
-    bl m4aMPlayStart
-.L08008BA8:
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08008BAC: .4byte gSongTable
-
-    thumb_func_start func_08008BB0
-func_08008BB0: @ 0x08008BB0
-    push {lr}
-    lsls r1, r1, #0x10
-    ldr r2, .L08008BCC @ =gSongTable
-    lsrs r1, r1, #0xd
-    adds r1, r1, r2
-    ldr r1, [r1]
-    ldr r2, [r0]
-    ldr r0, [r2]
-    cmp r0, r1
-    beq .L08008BD0
-    adds r0, r2, #0
-    bl m4aMPlayStart
-    b .L08008BDC
-    .align 2, 0
-.L08008BCC: .4byte gSongTable
-.L08008BD0:
-    ldr r0, [r2, #4]
-    cmp r0, #0
-    bge .L08008BDC
-    adds r0, r2, #0
-    bl m4aMPlayContinue
-.L08008BDC:
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_08008BE0
-func_08008BE0: @ 0x08008BE0
-    push {lr}
-    ldr r0, [r0]
-    bl m4aMPlayStop
-    pop {r0}
-    bx r0
+    .section .text.after_08008B54, "ax"
+    .section .text.after_08008B6C, "ax"
+    .section .text.after_08008B88, "ax"
+    .section .text.after_08008BB0, "ax"
+    .section .text.after_08008BE0, "ax"
 .L08008BEC:
     .byte 0x00, 0xB5, 0x00, 0x68
     .byte 0xC9, 0xF0, 0x22, 0xFC, 0x01, 0xBC, 0x00, 0x47
 
-    thumb_func_start func_08008BF8
-func_08008BF8: @ 0x08008BF8
-    push {lr}
-    lsls r1, r1, #0x10
-    lsrs r1, r1, #0x10
-    ldr r0, [r0]
-    bl m4aMPlayFadeOut
-    pop {r0}
-    bx r0
+    .section .text.after_08008BF8, "ax"
 .L08008C08:
     .byte 0x00, 0xB5, 0x09, 0x04, 0x09, 0x0C, 0x00, 0x68
     .byte 0xC9, 0xF0, 0x36, 0xFC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x09, 0x04, 0x09, 0x0C, 0x00, 0x68
     .byte 0xC9, 0xF0, 0x3E, 0xFC, 0x01, 0xBC, 0x00, 0x47
 
-    thumb_func_start func_08008C28
-func_08008C28: @ 0x08008C28
-    push {lr}
-    lsls r1, r1, #0x10
-    lsrs r1, r1, #0x10
-    ldr r0, [r0]
-    bl m4aMPlayTempoControl
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_08008C38
-func_08008C38: @ 0x08008C38
-    push {lr}
-    adds r3, r1, #0
-    adds r1, r2, #0
-    lsls r3, r3, #0x10
-    lsrs r3, r3, #0x10
-    lsls r1, r1, #0x10
-    lsrs r1, r1, #0x10
-    ldr r0, [r0]
-    adds r2, r3, #0
-    bl m4aMPlayVolumeControl
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08008C54
-func_08008C54: @ 0x08008C54
-    push {lr}
-    adds r3, r1, #0
-    adds r1, r2, #0
-    lsls r1, r1, #0x10
-    lsrs r1, r1, #0x10
-    ldr r0, [r0]
-    lsls r3, r3, #0x10
-    asrs r3, r3, #0x10
-    adds r2, r3, #0
-    bl m4aMPlayPitchControl
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08008C70
-func_08008C70: @ 0x08008C70
-    push {lr}
-    adds r3, r1, #0
-    adds r1, r2, #0
-    lsls r1, r1, #0x10
-    lsrs r1, r1, #0x10
-    ldr r0, [r0]
-    lsls r3, r3, #0x18
-    asrs r3, r3, #0x18
-    adds r2, r3, #0
-    bl m4aMPlayPanpotControl
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08008C8C
-func_08008C8C: @ 0x08008C8C
-    push {lr}
-    adds r3, r1, #0
-    adds r1, r2, #0
-    lsls r3, r3, #0x18
-    lsrs r3, r3, #0x18
-    lsls r1, r1, #0x10
-    lsrs r1, r1, #0x10
-    ldr r0, [r0]
-    adds r2, r3, #0
-    bl m4aMPlayModDepthSet
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08008CA8
-func_08008CA8: @ 0x08008CA8
-    push {lr}
-    adds r3, r1, #0
-    adds r1, r2, #0
-    lsls r3, r3, #0x18
-    lsrs r3, r3, #0x18
-    lsls r1, r1, #0x10
-    lsrs r1, r1, #0x10
-    ldr r0, [r0]
-    adds r2, r3, #0
-    bl m4aMPlayLFOSpeedSet
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08008CC4
-func_08008CC4: @ 0x08008CC4
-    push {lr}
-    ldr r0, [r0]
-    bl m4aMPlayImmInit
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_08008CD0
-func_08008CD0: @ 0x08008CD0
-    ldr r0, [r0]
-    ldr r0, [r0, #4]
-    lsrs r0, r0, #0x1f
-    movs r1, #1
-    eors r0, r1
-    bx lr
+    .section .text.after_08008C28, "ax"
+    .section .text.after_08008C38, "ax"
+    .section .text.after_08008C54, "ax"
+    .section .text.after_08008C70, "ax"
+    .section .text.after_08008C8C, "ax"
+    .section .text.after_08008CA8, "ax"
+    .section .text.after_08008CC4, "ax"
+    .section .text.after_08008CD0, "ax"
 .L08008CDC:
     .byte 0x00, 0x68, 0x80, 0x88
     .byte 0x70, 0x47, 0x00, 0x00, 0x00, 0x68, 0x00, 0x7A, 0x70, 0x47, 0x00, 0x00, 0x00, 0x68, 0x40, 0x7A
