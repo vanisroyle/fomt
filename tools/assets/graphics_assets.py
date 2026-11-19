@@ -1,4 +1,4 @@
-"""Editable boot-logo graphics and a conservative custom-Unpack inventory."""
+"""Editable logo/title graphics and a conservative custom-Unpack inventory."""
 
 import argparse
 from collections import Counter, defaultdict
@@ -7,11 +7,13 @@ import json
 import math
 from pathlib import Path
 import struct
+import sys
 
 import fomt_assets as fa
 from font_assets import original_rom
 import indexed_png
 import unpack_codec as codec
+import title_graphics as title
 
 
 START, END = 0x527094, 0x75B9F8
@@ -27,7 +29,7 @@ def palette_rgb(raw):
 
 def palette_bytes(palette, original):
     if len(palette) * 2 != len(original):
-        raise ValueError("preserve exactly 16 palette entries and their indices")
+        raise ValueError(f"preserve exactly {len(original) // 2} palette entries and their indices")
     values = []
     for rgb, (old,) in zip(palette, struct.iter_unpack("<H", original)):
         values.append((old & 0x8000) | sum(((v * 31 + 127) // 255) << shift for v, shift in zip(rgb, (0, 5, 10))))
@@ -93,13 +95,14 @@ def preview(tiles, tilemap):
 
 
 def extract(rom, assets, force=False):
+    title.extract(rom, assets, sys.modules[__name__], force)
     data = logo_data(rom)
     root = assets / "graphics"
     fa.write_missing(root / "boot-logo.png", indexed_png.write(tile_sheet(data["tiles"]), palette_rgb(data["palette"])), force)
     fa.write_missing(root / "boot-logo.map.bin", data["map"], force)
 
 
-def growth_safe(rom, part):
+def growth_safe(rom, part, non_pointer_streams=()):
     offset, size, known = part
     address = struct.pack("<I", 0x08000000 + offset)
     found, pos = [], 0
@@ -111,15 +114,21 @@ def growth_safe(rom, part):
         pos += 1
     if tuple(found) != known:
         return False
+    encoded_ranges = []
+    for start, span in non_pointer_streams:
+        _, _, _, consumed = codec.decode_stream(rom[start:start + span])
+        encoded_ranges.append((start + 4, start + consumed))
     for end in range(3, len(rom)):
         if rom[end] == 8:
             value = struct.unpack_from("<I", rom, end - 3)[0]
             if 0x08000000 + offset < value < 0x08000000 + offset + size:
+                if any(start <= end - 3 and end < stop for start, stop in encoded_ranges):
+                    continue
                 return False
     return True
 
 
-def pack_part(rom, part, raw, original, compressed=True):
+def pack_part(rom, part, raw, original, compressed=True, non_pointer_streams=()):
     offset, size, _ = part
     slot = rom[offset:offset + size]
     if raw == original:
@@ -127,7 +136,7 @@ def pack_part(rom, part, raw, original, compressed=True):
     packed = codec.encode(raw) if compressed else raw
     if len(packed) <= size:
         return packed + slot[len(packed):], None
-    if not growth_safe(rom, part):
+    if not growth_safe(rom, part, non_pointer_streams):
         raise ValueError(f"graphics at 0x{offset:X} grew beyond {size} bytes; non-symbolic/interior references prevent safe relocation")
     return slot, packed
 
@@ -161,7 +170,8 @@ def build(rom, assets, output):
         fa.write_changed(output / name, raw)
     fa.write_changed(output / "graphics-layout.json", (json.dumps(layout, indent=2) + "\n").encode())
     fa.write_changed(output / "boot-logo-preview.png", indexed_png.write(preview(data["tiles"], data["map"]), palette))
-    digest = hashlib.sha256(b"".join(products.values())).hexdigest()
+    title_products = title.build(rom, assets, output, sys.modules[__name__])
+    digest = hashlib.sha256(b"".join(products.values()) + title_products).hexdigest()
     fa.write_changed(output / "graphics.stamp", (digest + "\n").encode())
 
 
@@ -185,6 +195,10 @@ def inventory(rom):
 
 def roundtrip(rom, output):
     streams = inventory(rom)
+    identified = {TILES[0], TILEMAP[0], title.RESOURCE[0], title.BACKGROUND[0], *(part[0] for part in title.MAPS)}
+    located = {item["offset"] for item in streams}
+    if not identified <= located:
+        raise ValueError("an identified graphics stream is missing from the inventory")
     exact = 0
     for item in streams:
         offset, size = item["offset"], item["packed_bytes"]
@@ -197,6 +211,7 @@ def roundtrip(rom, output):
     print(f"Unpack inventory: {len(streams)} valid aligned candidates; {sum(bool(s['references']) for s in streams)} have aligned ROM pointers")
     print(f"Unpack formats (atom/LZSS/diff): {dict(sorted(Counter(s['format'] for s in streams).items()))}")
     print(f"Unpack encoder roundtrip: {len(streams)}/{len(streams)} streams; greedy byte-identical: {exact}/{len(streams)}")
+    print(f"Identified editable Unpack streams: {len(identified)}/{len(streams)} (boot logo 2; title OBJ container 1; background tiles 1; background maps 4)")
 
 
 def main():
@@ -206,6 +221,7 @@ def main():
     parser.add_argument("--assets", type=Path, default=Path("assets"))
     parser.add_argument("--output", type=Path, default=Path("build/assets"))
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--previews", type=Path, help="copy title previews to an existing review directory")
     args = parser.parse_args()
     try:
         if args.force and args.command != "extract":
@@ -215,6 +231,8 @@ def main():
             extract(rom, args.assets, args.force)
         elif args.command == "build":
             build(rom, args.assets, args.output)
+            if args.previews:
+                title.review_previews(args.output, args.previews)
         else:
             roundtrip(rom, args.output)
     except (OSError, ValueError) as error:

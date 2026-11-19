@@ -569,17 +569,15 @@ gUnk_08743058:
 gUnk_08747A14:
 	.incbin "baserom.gba", 0x747A14, 0x60
 
-	.global gUnk_08747A74
-gUnk_08747A74:
-	.incbin "baserom.gba", 0x747A74, 0x2F4C
+	.include "build/assets/graphics-title-resource.s"
+	.include "build/assets/graphics-title-map-0.s"
+	.include "build/assets/graphics-title-map-1.s"
+	.include "build/assets/graphics-title-map-2.s"
+	.include "build/assets/graphics-title-map-3.s"
 
-	.global gUnk_0874A9C0
-gUnk_0874A9C0:
-	.incbin "baserom.gba", 0x74A9C0, 0x3970
+	.include "build/assets/graphics-title-background.s"
 
-	.global gUnk_0874E330
-gUnk_0874E330:
-	.incbin "baserom.gba", 0x74E330, 0x200
+	.include "build/assets/graphics-title-palette.s"
 
 	.global gUnk_0874E530
 gUnk_0874E530:

@@ -15,6 +15,14 @@ import unpack_codec as codec
 
 
 class GraphicsTests(unittest.TestCase):
+    def setUp(self):
+        extract = patch.object(graphics.title, "extract")
+        build = patch.object(graphics.title, "build", return_value=b"")
+        extract.start()
+        build.start()
+        self.addCleanup(extract.stop)
+        self.addCleanup(build.stop)
+
     def test_encoder_empty_literals_runs_and_overlapping_matches(self):
         rng = random.Random(29)
         cases = [b"", b"a", b"ab", b"a" * 4096, b"ab" * 500, bytes(range(256)) * 30,
