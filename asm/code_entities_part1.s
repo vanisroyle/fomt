@@ -412,78 +412,7 @@ func_08020170: @ 0x08020170
     .byte 0x70, 0x47, 0x00, 0x00, 0x70, 0x47, 0x00, 0x00, 0x70, 0x47, 0x00, 0x00, 0x05, 0x20, 0x70, 0x47
     .byte 0x05, 0x20, 0x70, 0x47, 0x70, 0x47, 0x00, 0x00, 0x70, 0x47, 0x00, 0x00, 0x70, 0x47, 0x00, 0x00
 
-    .section .text.entities_part1.08020310, "ax", %progbits
-    thumb_func_start func_08020310
-func_08020310: @ 0x08020310
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0xc
-    adds r6, r0, #0
-    adds r7, r1, #0
-    adds r4, r2, #0
-    adds r5, r3, #0
-    add r0, sp, #4
-    adds r1, r4, #0
-    bl __5ActorRC5Actor
-    movs r3, #0xd0
-    lsls r3, r3, #2
-    adds r0, r6, #0
-    adds r1, r7, #0
-    add r2, sp, #4
-    bl func_08020038
-    ldr r0, .L08020378 @ =vtable_unk_080E64C8
-    str r0, [r6, #0x14]
-    str r4, [r6, #0x34]
-    str r5, [r6, #0x38]
-    adds r1, r6, #0
-    adds r1, #0x40
-    movs r0, #0
-    strb r0, [r1]
-    ldr r0, [r4, #0x20]
-    cmp r0, #5
-    bne .L08020384
-    ldr r0, [r7]
-    ldr r2, [r0, #0x40]
-    adds r0, r7, #0
-    movs r1, #0x4b
-    bl _call_via_r2
-    adds r4, r0, #0
-    cmp r4, #0
-    beq .L08020384
-    ldrh r0, [r4, #4]
-    ldrh r1, [r6, #4]
-    cmp r0, r1
-    bne .L0802037C
-    ldr r1, [r6, #8]
-    ldr r2, [r6, #0xc]
-    ldrh r3, [r6, #0x22]
-    adds r0, r6, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    str r0, [sp]
-    adds r0, r4, #0
-    bl func_08038374
-    b .L08020384
-    .align 2, 0
-.L08020378: .4byte vtable_unk_080E64C8
-.L0802037C:
-    adds r0, r6, #0
-    movs r1, #0
-    bl func_08020410
-.L08020384:
-    adds r0, r6, #0
-    bl func_08021264
-    adds r1, r0, #0
-    adds r0, r6, #0
-    adds r0, #0x20
-    ldrb r2, [r0]
-    adds r0, r6, #0
-    bl func_080211E4
-    adds r0, r6, #0
-    add sp, #0xc
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.entities_part1.08020310.tail, "ax", %progbits
 .L080203A4:
     .byte 0x70, 0xB5, 0x82, 0xB0, 0x05, 0x1C, 0x0E, 0x1C, 0x16, 0x48, 0x68, 0x61
     .byte 0x28, 0x1C, 0x40, 0x30, 0x00, 0x78, 0x00, 0x28, 0x07, 0xD0, 0x3C, 0x21, 0x68, 0x5E, 0x00, 0x04
@@ -2358,66 +2287,7 @@ func_080212C0: @ 0x080212C0
     .byte 0x11, 0x78, 0x04, 0x20, 0x40, 0x42, 0x08, 0x40, 0x18, 0x43, 0x10, 0x70, 0x40, 0x46, 0x04, 0xB0
     .byte 0x08, 0xBC, 0x98, 0x46, 0x70, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
 
-    .section .text.entities_part1.080216BC, "ax", %progbits
-    thumb_func_start func_080216BC
-func_080216BC: @ 0x080216BC
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r6, r0, #0
-    adds r4, r1, #0
-    adds r5, r2, #0
-    mov r0, sp
-    adds r1, r5, #0
-    bl __5ActorRC5Actor
-    ldr r3, .L08021734 @ =0x00000782
-    adds r0, r6, #0
-    adds r1, r4, #0
-    mov r2, sp
-    bl func_08020038
-    ldr r0, .L08021738 @ =vtable_unk_080E6428
-    str r0, [r6, #0x14]
-    str r5, [r6, #0x34]
-    adds r1, r6, #0
-    adds r1, #0x3d
-    movs r0, #0
-    strb r0, [r1]
-    ldr r0, [r4]
-    ldr r2, [r0, #0x40]
-    adds r0, r4, #0
-    movs r1, #0
-    bl _call_via_r2
-    adds r2, r0, #0
-    movs r0, #0
-    cmp r2, #0
-    beq .L0802170E
-    ldr r0, [r2, #0x14]
-    ldr r1, [r0, #0x40]
-    adds r0, r2, #0
-    bl _call_via_r1
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-    rsbs r0, r0, #0
-    lsrs r0, r0, #0x1f
-.L0802170E:
-    adds r1, r6, #0
-    adds r1, #0x3e
-    strb r0, [r1]
-    adds r0, r6, #0
-    bl func_080220D4
-    adds r1, r0, #0
-    adds r0, r6, #0
-    adds r0, #0x20
-    ldrb r2, [r0]
-    adds r0, r6, #0
-    bl func_08022048
-    adds r0, r6, #0
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08021734: .4byte 0x00000782
-.L08021738: .4byte vtable_unk_080E6428
+    .section .text.entities_part1.080216BC.tail, "ax", %progbits
 .L0802173C:
     .byte 0x70, 0xB5, 0x82, 0xB0
     .byte 0x05, 0x1C, 0x0E, 0x1C, 0x16, 0x48, 0x68, 0x61, 0x28, 0x1C, 0x3D, 0x30, 0x00, 0x78, 0x00, 0x28
@@ -12130,47 +12000,6 @@ func_08028B50: @ 0x08028B50
     bx r0
     .align 2, 0
 
-    .section .text.entities_part1.0802907C, "ax", %progbits
-    thumb_func_start func_0802907C
-func_0802907C: @ 0x0802907C
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r5, r0, #0
-    ldr r0, [r5, #0x34]
-    ldr r1, .L080290D0 @ =0x00001C2C
-    adds r4, r0, r1
-    adds r0, r4, #0
-    bl func_0800F190
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L080290C6
-    adds r0, r4, #0
-    bl func_0800F204
-    cmp r0, #1
-    bne .L080290B8
-    adds r0, r4, #0
-    bl func_0800F258
-    mov r1, sp
-    strb r0, [r1]
-    mov r0, sp
-    bl GetId__C7Article
-    cmp r0, #0x35
-    bne .L080290B8
-    ldr r0, [r5, #0x38]
-    bl func_0800ED2C
-.L080290B8:
-    ldr r0, [r5, #0x38]
-    adds r0, #0x54
-    bl func_0800F390
-    adds r0, r5, #0
-    bl func_0802A7D8
-.L080290C6:
-    add sp, #4
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080290D0: .4byte 0x00001C2C
 
     .section .text.entities_part1.080290D4, "ax", %progbits
     thumb_func_start func_080290D4

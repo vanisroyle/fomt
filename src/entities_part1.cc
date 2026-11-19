@@ -160,6 +160,31 @@ struct AnimalTimerPairPart1
     u32 unknown;
 };
 
+struct CarryEntityPart1 : AActorEntity
+{
+    CarryEntityPart1();
+    virtual void vfunc_3C();
+    virtual bool vfunc_40();
+};
+
+struct EntityGameVTablePart1
+{
+    STRUCT_PAD(0x00, 0x40);
+    CarryEntityPart1 * (*get_entity)(GameObject * game, u32 id);
+};
+
+inline CarryEntityPart1 * EntityByIdPart1(GameObject * game, u32 id)
+{
+    EntityGameVTablePart1 const * table = *reinterpret_cast<EntityGameVTablePart1 const **>(game);
+    return table->get_entity(game, id);
+}
+
+EC char const vtable_unk_080E6428[];
+EC char const vtable_unk_080E64C8[];
+EC void func_08038374(CarryEntityPart1 * self, i32 x, i32 y, u32 anim, u32 facing);
+EC void func_08020410(DogEntityPart1 * self, u32 time);
+EC Article func_0800F258(HeldItem const * self);
+
 inline void * EntitySoundChannelPart1(GameObject * game)
 {
     SoundGameVTablePart1 const * table = *reinterpret_cast<SoundGameVTablePart1 const **>(game);
@@ -191,6 +216,61 @@ inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC void func_0802907C(FarmerEntityPart1 * self) ENTITY_CODE(0802907C);
+EC void func_0802907C(FarmerEntityPart1 * self)
+{
+    HeldItem * item = reinterpret_cast<HeldItem *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C2C);
+    if (!func_0800F190(item))
+    {
+        if (func_0800F204(item) == HeldItem::KIND_ARTICLE)
+        {
+            Article article = func_0800F258(item);
+            if (article.GetId() == 53)
+                func_0800ED2C(*self->farmer);
+        }
+        func_0800F390(&self->farmer->unk_54);
+        func_0802A7D8(self);
+    }
+}
+
+EC DogEntityPart1 * func_08020310(DogEntityPart1 * self, GameObject * game, Dog * dog, void * object) ENTITY_CODE(08020310);
+EC DogEntityPart1 * func_08020310(DogEntityPart1 * self, GameObject * game, Dog * dog, void * object)
+{
+    Actor location(*dog);
+    func_08020038(self, game, &location.location, 0x340);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E64C8;
+    self->dog = dog;
+    self->unk_38 = object;
+    self->override_state = false;
+    if (dog->unk_20 == 5)
+    {
+        CarryEntityPart1 * target = EntityByIdPart1(game, 75);
+        if (target != nullptr)
+        {
+            if (target->location_map == self->location_map)
+                func_08038374(target, self->x_q16, self->y_q16, self->anim_id, self->facing);
+            else
+                func_08020410(self, 0);
+        }
+    }
+    func_080211E4(self, func_08021264(self), self->facing);
+    return self;
+}
+
+EC HorseEntityPart1 * func_080216BC(HorseEntityPart1 * self, GameObject * game, Horse * horse) ENTITY_CODE(080216BC);
+EC HorseEntityPart1 * func_080216BC(HorseEntityPart1 * self, GameObject * game, Horse * horse)
+{
+    Actor location(*horse);
+    func_08020038(self, game, &location.location, 0x782);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6428;
+    self->horse = horse;
+    self->override_state = false;
+    CarryEntityPart1 * target = EntityByIdPart1(game, 0);
+    self->suppress_effect = target && target->vfunc_40();
+    func_08022048(self, func_080220D4(self), self->facing);
+    return self;
+}
 
 EC void func_080221F0(HorseEntityPart1 * self, Location const * target) ENTITY_CODE(080221F0);
 EC void func_080221F0(HorseEntityPart1 * self, Location const * target)
