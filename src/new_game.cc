@@ -23,6 +23,64 @@ EC void * func_08008918(void * self);
 EC void * func_08008940(void * self);
 EC void * func_0800894C(void * self);
 EC void func_08050D3C(void * self, void * a, void * b, void * c, void * d, void * e, void * f);
+EC void func_08050DC8(void * self, char const * text, int a, int b);
+
+extern char gUnk_080E8770[];
+extern char gUnk_080E877C[];
+extern char gUnk_080E878C[];
+extern char gUnk_080E87A4[];
+extern char gUnk_080E87FC[];
+extern char gUnk_080E8828[];
+extern char gUnk_080E8878[];
+extern char gUnk_080E86C0[];
+
+EC void func_08003EEC(NewGameMenuState * self) SECTION(".text.func_08003EEC");
+EC void func_08003EEC(NewGameMenuState * self)
+{
+    char const * text = nullptr;
+    switch (self->selection)
+    {
+    case 0:
+        text = self->values[0] != 0 ? gUnk_080E8770 : gUnk_080E877C;
+        break;
+    case 1:
+        text = !self->names[self->values[1]].Empty() ? self->names[self->values[1]].Get() : gUnk_080E878C;
+        break;
+    case 2: text = gUnk_080E87A4; break;
+    case 3: text = gUnk_080E87FC; break;
+    case 4: text = gUnk_080E8828; break;
+    case 5: text = gUnk_080E8878; break;
+    }
+    func_08050DC8(reinterpret_cast<char *>(self) + 0x10, text != nullptr ? text : gUnk_080E86C0, 0, 0);
+}
+
+EC void func_08006858(NewGameNameState * self) SECTION(".text.func_08006858");
+EC void func_08006858(NewGameNameState * self)
+{
+    if (self->unk_463C == 0)
+    {
+        NewGameSpriteList * list = static_cast<NewGameSpriteList *>(func_08008920(self));
+        u32 const & attributes = self->cursor_attributes;
+        unsigned int index = list->count;
+        if (index < 128)
+        {
+            NewGameSprite & sprite = list->At(index);
+            sprite.attributes = attributes;
+            sprite.attr2 = self->cursor_attr2;
+            list->count = index + 1;
+        }
+    }
+    NewGameSpriteList * list = static_cast<NewGameSpriteList *>(func_08008920(self));
+    u32 const & attributes = self->marker_attributes;
+    unsigned int index = list->count;
+    if (index < 128)
+    {
+        NewGameSprite & sprite = list->At(index);
+        sprite.attributes = attributes;
+        sprite.attr2 = self->marker_attr2;
+        list->count = index + 1;
+    }
+}
 
 EC void func_08003C28(char * self) SECTION(".text.func_08003C28");
 EC void func_08003C28(char * self)

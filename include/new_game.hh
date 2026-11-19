@@ -50,9 +50,15 @@ struct NewGameNameState
     u32 page;
     i8 column;
     i8 row;
-    STRUCT_PAD(0x4606, 0x4610);
+    STRUCT_PAD(0x4606, 0x4608);
+    u32 cursor_attributes;
+    u16 cursor_attr2;
+    STRUCT_PAD(0x460E, 0x4610);
     u8 length;
-    STRUCT_PAD(0x4611, 0x461C);
+    STRUCT_PAD(0x4611, 0x4614);
+    u32 marker_attributes;
+    u16 marker_attr2;
+    STRUCT_PAD(0x461A, 0x461C);
     char name[12];
     u8 unk_4628;
     char trimmed_name[13];
@@ -70,6 +76,40 @@ struct NewGameChoiceState
     u8 unk_1A74;
     u8 unk_1A75;
     u8 choice;
+};
+
+struct NewGameMenuState
+{
+    struct String
+    {
+        char text[128];
+        bool Empty() const { return text[0] == 0; }
+        char const * Get() const { return text; }
+    };
+
+    STRUCT_PAD(0x00, 0x80);
+    u32 selection;
+    u8 values[6];
+    STRUCT_PAD(0x8A, 0x98);
+    String names[2];
+};
+
+struct NewGameSprite
+{
+    u32 attributes;
+    u16 attr2;
+};
+
+struct NewGameSpriteList
+{
+    u8 count;
+    STRUCT_PAD(0x01, 0x04);
+    NewGameSprite entries[128];
+
+    NewGameSprite & At(unsigned int index)
+    {
+        return *reinterpret_cast<NewGameSprite *>(reinterpret_cast<char *>(this) + (index * 8 + 4));
+    }
 };
 
 struct NewGameChoiceScene
