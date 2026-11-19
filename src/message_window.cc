@@ -22,11 +22,9 @@ struct MessageTileSize
     MessageTileSize(u16 w, u16 h) : width(w), height(h) {}
 };
 
-EC void FillMessageTiles(MessageTileSize, void *, u32);
-
 struct MessageGlyphTile
 {
-    void * pixels;
+    void * tileBuffer; // Four-byte header followed by 4bpp glyph pixels.
     u32 allocation[2];
     u8 dirty;
     u8 padding[3];
@@ -36,7 +34,7 @@ struct MessageGlyphTile
 struct MessageTextCursor
 {
     void * vtable;
-    void * fontPalette;
+    void * fontPalette; // Shared resource handle for the glyph tiles.
     MessageGlyphTile * rows[3];
     u16 column; // Half-width character cells, modulo 28.
     u16 row;    // Visible line, modulo 3.
@@ -48,7 +46,8 @@ struct MessageTextCursor
 
 struct MessageNumberCommand
 {
-    u32 links[2];
+    u32 state;
+    u32 unknown_04;
     void * vtable;
     u32 value;
     u16 * tilemap;
@@ -59,7 +58,8 @@ struct MessageNumberCommand
 
 struct MessageTilemapRectCommand
 {
-    u32 links[2];
+    u32 state;
+    u32 unknown_04;
     void * vtable;
     u16 * tilemap;
     u16 palette;
@@ -255,7 +255,7 @@ EC SECTION(".text.message_window.0805039C") void BeginMessageWindowOpening(Messa
 {
     if (window->phase == 0)
     {
-    ClearMessageTextCursor(&window->textCursor);
+        ClearMessageTextCursor(&window->textCursor);
         u32 style = window->style;
         void * commands = (u8 *) window + 0x20;
         if (style != 1)
@@ -354,7 +354,7 @@ EC SECTION(".text.message_window.08050478") void SetMessageWindowStateChoices(Me
         else if (window->phase <= 6) ClearMessageTextCursor(&window->textCursor);
     }
     u32 layout = 4;
-    u32 lineWidth = 12;
+    u32 lineWidth = 12; // Choice widths are limits in encoded bytes.
     if (sixth == nullptr)
     {
         layout = 3;
@@ -509,8 +509,8 @@ EC SECTION(".text.message_rendering.0804E9F4") void FillMessageTilemapRect(u16 *
 
 EC SECTION(".text.message_rendering.0804EA58") MessageTilemapRectCommand * InitializeMessageTilemapRectCommand(MessageTilemapRectCommand * command, u16 * tilemap, u16 firstTile, u32 width, u32 height, u16 palette, u32 stride) // 0x0804EA58
 {
-    command->links[0] = 0;
-    command->links[1] = 0;
+    command->state = 0;
+    command->unknown_04 = 0;
     command->vtable = vtable_unk_080E7868;
     command->tilemap = tilemap;
     command->firstTile = firstTile;
@@ -599,8 +599,8 @@ EC SECTION(".text.message_rendering.0804EE30") void DrawSmallMessageNumber(u32 v
 
 EC SECTION(".text.message_rendering.0804EE64") MessageNumberCommand * InitializeSmallMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride) // 0x0804EE64
 {
-    command->links[0] = 0;
-    command->links[1] = 0;
+    command->state = 0;
+    command->unknown_04 = 0;
     command->vtable = vtable_unk_080E7838;
     command->value = value;
     command->tilemap = tilemap;
