@@ -1,5 +1,179 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
+    .section .text.entities_part1.08025248, "ax", %progbits
+    thumb_func_start func_08025248
+func_08025248: @ 0x08025248
+    push {r4, r5, r6, r7, lr}
+    mov r7, r8
+    push {r7}
+    sub sp, #8
+    mov r8, r1
+    adds r6, r3, #0
+    ldr r7, [sp, #0x20]
+    ldr r0, [r2]
+    ldr r1, [r2, #4]
+    str r0, [sp]
+    str r1, [sp, #4]
+    movs r5, #1
+    cmp r5, r7
+    bhi .L08025286
+    mov r4, sp
+.L08025266:
+    ldrh r0, [r4, #2]
+    adds r0, r0, r6
+    strh r0, [r4, #2]
+    ldrh r0, [r4, #6]
+    adds r0, r0, r6
+    strh r0, [r4, #6]
+    mov r0, r8
+    mov r1, sp
+    bl func_080AC070
+    lsls r0, r0, #0x18
+    cmp r0, #0
+    beq .L08025286
+    adds r5, #1
+    cmp r5, r7
+    bls .L08025266
+.L08025286:
+    adds r0, r5, #0
+    add sp, #8
+    pop {r3}
+    mov r8, r3
+    pop {r4, r5, r6, r7}
+    pop {r1}
+    bx r1
+    .section .text.entities_part1.080251FC, "ax", %progbits
+    thumb_func_start func_080251FC
+func_080251FC: @ 0x080251FC
+    push {r4, r5, r6, r7, lr}
+    mov r7, r8
+    push {r7}
+    sub sp, #8
+    mov r8, r1
+    adds r6, r3, #0
+    ldr r7, [sp, #0x20]
+    ldr r0, [r2]
+    ldr r1, [r2, #4]
+    str r0, [sp]
+    str r1, [sp, #4]
+    movs r5, #1
+    cmp r5, r7
+    bhi .L0802523A
+    mov r4, sp
+.L0802521A:
+    ldrh r0, [r4]
+    adds r0, r0, r6
+    strh r0, [r4]
+    ldrh r0, [r4, #4]
+    adds r0, r0, r6
+    strh r0, [r4, #4]
+    mov r0, r8
+    mov r1, sp
+    bl func_080AC070
+    lsls r0, r0, #0x18
+    cmp r0, #0
+    beq .L0802523A
+    adds r5, #1
+    cmp r5, r7
+    bls .L0802521A
+.L0802523A:
+    adds r0, r5, #0
+    add sp, #8
+    pop {r3}
+    mov r8, r3
+    pop {r4, r5, r6, r7}
+    pop {r1}
+    bx r1
+    .section .text.entities_part1.0802405C, "ax", %progbits
+    thumb_func_start func_0802405C
+func_0802405C: @ 0x0802405C
+    push {r4, r5, r6, r7, lr}
+    adds r5, r0, #0
+    adds r4, r1, #0
+    movs r6, #0
+    ldr r0, [r5, #0x34]
+    bl IsPregnant__C10BarnAnimal
+    lsls r0, r0, #0x18
+    cmp r0, #0
+    beq .L0802407C
+    ldr r0, [r5, #0x34]
+    bl GetDaysPregnant__C10BarnAnimal
+    rsbs r1, r0, #0
+    orrs r1, r0
+    lsrs r6, r1, #0x1f
+.L0802407C:
+    ldr r7, .L0802408C @ =gUnk_080F0E34
+    lsls r4, r4, #1
+    cmp r6, #0
+    beq .L08024090
+    adds r0, r4, #0
+    adds r0, #0x2a
+    b .L080240B0
+    .align 2, 0
+.L0802408C: .4byte gUnk_080F0E34
+.L08024090:
+    ldr r0, [r5, #0x34]
+    bl IsSheared__C5Sheep
+    lsls r0, r0, #0x18
+    cmp r0, #0
+    beq .L080240A2
+    adds r0, r4, #0
+    adds r0, #0x1c
+    b .L080240B0
+.L080240A2:
+    ldr r0, [r5, #0x34]
+    bl GetGrowthStage__C5Sheep
+    lsls r1, r0, #3
+    subs r1, r1, r0
+    lsls r1, r1, #1
+    adds r0, r4, r1
+.L080240B0:
+    adds r0, r7, r0
+    ldrh r0, [r0]
+    pop {r4, r5, r6, r7}
+    pop {r1}
+    bx r1
+    .align 2, 0
+    .section .text.entities_part1.080233B4, "ax", %progbits
+    thumb_func_start func_080233B4
+func_080233B4: @ 0x080233B4
+    push {r4, r5, r6, r7, lr}
+    adds r4, r0, #0
+    adds r5, r1, #0
+    movs r6, #0
+    ldr r0, [r4, #0x34]
+    bl IsPregnant__C10BarnAnimal
+    lsls r0, r0, #0x18
+    cmp r0, #0
+    beq .L080233D4
+    ldr r0, [r4, #0x34]
+    bl GetDaysPregnant__C10BarnAnimal
+    rsbs r1, r0, #0
+    orrs r1, r0
+    lsrs r6, r1, #0x1f
+.L080233D4:
+    ldr r7, .L080233E4 @ =gUnk_080F0C3C
+    lsls r5, r5, #1
+    cmp r6, #0
+    beq .L080233E8
+    adds r0, r5, #0
+    adds r0, #0x2a
+    b .L080233F6
+    .align 2, 0
+.L080233E4: .4byte gUnk_080F0C3C
+.L080233E8:
+    ldr r0, [r4, #0x34]
+    bl GetGrowthStage__C3Cow
+    lsls r1, r0, #3
+    subs r1, r1, r0
+    lsls r1, r1, #1
+    adds r0, r5, r1
+.L080233F6:
+    adds r0, r7, r0
+    ldrh r0, [r0]
+    pop {r4, r5, r6, r7}
+    pop {r1}
+    bx r1
 
     .section .text.entities_part1.08020080, "ax", %progbits
     thumb_func_start func_08020080
@@ -44,6 +218,7 @@ func_08020080: @ 0x08020080
     pop {r0}
     bx r0
     .align 2, 0
+
 
     .section .text.entities_part1.080200C4, "ax", %progbits
     thumb_func_start func_080200C4
@@ -2174,54 +2349,6 @@ func_080211E4: @ 0x080211E4
     pop {r0}
     bx r0
 
-    .section .text.entities_part1.08021264, "ax", %progbits
-    thumb_func_start func_08021264
-func_08021264: @ 0x08021264
-    push {lr}
-    adds r2, r0, #0
-    ldr r0, [r2, #0x34]
-    ldr r0, [r0, #0x20]
-    cmp r0, #6
-    bhi .L0802129C
-    lsls r0, r0, #2
-    ldr r1, .L0802127C @ =.L08021280
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0802127C: .4byte .L08021280
-.L08021280: @ jump table
-    .4byte .L080212A0 @ case 0
-    .4byte .L080212A8 @ case 1
-    .4byte .L080212A8 @ case 2
-    .4byte .L080212A8 @ case 3
-    .4byte .L0802129C @ case 4
-    .4byte .L080212A8 @ case 5
-    .4byte .L080212AC @ case 6
-.L0802129C:
-    movs r0, #3
-    b .L080212BC
-.L080212A0:
-    ldr r0, [r2, #0x34]
-    adds r0, #0x26
-    ldrb r0, [r0]
-    b .L080212BC
-.L080212A8:
-    movs r0, #2
-    b .L080212BC
-.L080212AC:
-    ldr r0, [r2, #0x34]
-    adds r0, #0x26
-    ldrb r0, [r0]
-    movs r1, #2
-    cmp r0, #0
-    beq .L080212BA
-    movs r1, #0xb
-.L080212BA:
-    adds r0, r1, #0
-.L080212BC:
-    pop {r1}
-    bx r1
 
     .section .text.entities_part1.080212C0, "ax", %progbits
     thumb_func_start func_080212C0
@@ -4035,46 +4162,6 @@ func_08023308: @ 0x08023308
     bx r0
     .align 2, 0
 
-    .section .text.entities_part1.080233B4, "ax", %progbits
-    thumb_func_start func_080233B4
-func_080233B4: @ 0x080233B4
-    push {r4, r5, r6, r7, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    movs r6, #0
-    ldr r0, [r4, #0x34]
-    bl IsPregnant__C10BarnAnimal
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080233D4
-    ldr r0, [r4, #0x34]
-    bl GetDaysPregnant__C10BarnAnimal
-    rsbs r1, r0, #0
-    orrs r1, r0
-    lsrs r6, r1, #0x1f
-.L080233D4:
-    ldr r7, .L080233E4 @ =gUnk_080F0C3C
-    lsls r5, r5, #1
-    cmp r6, #0
-    beq .L080233E8
-    adds r0, r5, #0
-    adds r0, #0x2a
-    b .L080233F6
-    .align 2, 0
-.L080233E4: .4byte gUnk_080F0C3C
-.L080233E8:
-    ldr r0, [r4, #0x34]
-    bl GetGrowthStage__C3Cow
-    lsls r1, r0, #3
-    subs r1, r1, r0
-    lsls r1, r1, #1
-    adds r0, r5, r1
-.L080233F6:
-    adds r0, r7, r0
-    ldrh r0, [r0]
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
 
     .section .text.entities_part1.08023400.tail, "ax", %progbits
 .L08023414:
@@ -4356,56 +4443,6 @@ func_08023FB0: @ 0x08023FB0
     bx r0
     .align 2, 0
 
-    .section .text.entities_part1.0802405C, "ax", %progbits
-    thumb_func_start func_0802405C
-func_0802405C: @ 0x0802405C
-    push {r4, r5, r6, r7, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    movs r6, #0
-    ldr r0, [r5, #0x34]
-    bl IsPregnant__C10BarnAnimal
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802407C
-    ldr r0, [r5, #0x34]
-    bl GetDaysPregnant__C10BarnAnimal
-    rsbs r1, r0, #0
-    orrs r1, r0
-    lsrs r6, r1, #0x1f
-.L0802407C:
-    ldr r7, .L0802408C @ =gUnk_080F0E34
-    lsls r4, r4, #1
-    cmp r6, #0
-    beq .L08024090
-    adds r0, r4, #0
-    adds r0, #0x2a
-    b .L080240B0
-    .align 2, 0
-.L0802408C: .4byte gUnk_080F0E34
-.L08024090:
-    ldr r0, [r5, #0x34]
-    bl IsSheared__C5Sheep
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080240A2
-    adds r0, r4, #0
-    adds r0, #0x1c
-    b .L080240B0
-.L080240A2:
-    ldr r0, [r5, #0x34]
-    bl GetGrowthStage__C5Sheep
-    lsls r1, r0, #3
-    subs r1, r1, r0
-    lsls r1, r1, #1
-    adds r0, r4, r1
-.L080240B0:
-    adds r0, r7, r0
-    ldrh r0, [r0]
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
 
     .section .text.entities_part1.080240BC.tail, "ax", %progbits
 .L080240D0:
@@ -4493,175 +4530,7 @@ func_0802405C: @ 0x0802405C
     .byte 0x10, 0x1C, 0xAF, 0xF0, 0xA5, 0xF9, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0xCB, 0x1F, 0x03, 0x80
     .byte 0x13, 0x1C, 0x09, 0x3B, 0x43, 0x80, 0x07, 0x31, 0x81, 0x80, 0x05, 0x32, 0xC2, 0x80, 0x70, 0x47
 
-    .section .text.entities_part1.080245E0, "ax", %progbits
-    thumb_func_start func_080245E0
-func_080245E0: @ 0x080245E0
-    push {lr}
-    subs r0, #0x32
-    cmp r0, #0x13
-    bhi .L080246B6
-    lsls r0, r0, #2
-    ldr r1, .L080245F4 @ =.L080245F8
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L080245F4: .4byte .L080245F8
-.L080245F8: @ jump table
-    .4byte .L08024648 @ case 0
-    .4byte .L0802464C @ case 1
-    .4byte .L08024650 @ case 2
-    .4byte .L08024654 @ case 3
-    .4byte .L08024658 @ case 4
-    .4byte .L0802465C @ case 5
-    .4byte .L08024660 @ case 6
-    .4byte .L08024664 @ case 7
-    .4byte .L08024668 @ case 8
-    .4byte .L0802466C @ case 9
-    .4byte .L08024670 @ case 10
-    .4byte .L08024674 @ case 11
-    .4byte .L08024678 @ case 12
-    .4byte .L0802467C @ case 13
-    .4byte .L08024680 @ case 14
-    .4byte .L08024684 @ case 15
-    .4byte .L08024688 @ case 16
-    .4byte .L0802468C @ case 17
-    .4byte .L08024690 @ case 18
-    .4byte .L080246B2 @ case 19
-.L08024648:
-    movs r0, #0
-    b .L080246B8
-.L0802464C:
-    movs r0, #1
-    b .L080246B8
-.L08024650:
-    movs r0, #2
-    b .L080246B8
-.L08024654:
-    movs r0, #3
-    b .L080246B8
-.L08024658:
-    movs r0, #4
-    b .L080246B8
-.L0802465C:
-    movs r0, #5
-    b .L080246B8
-.L08024660:
-    movs r0, #6
-    b .L080246B8
-.L08024664:
-    movs r0, #7
-    b .L080246B8
-.L08024668:
-    movs r0, #8
-    b .L080246B8
-.L0802466C:
-    movs r0, #9
-    b .L080246B8
-.L08024670:
-    movs r0, #0xa
-    b .L080246B8
-.L08024674:
-    movs r0, #0xb
-    b .L080246B8
-.L08024678:
-    movs r0, #0xc
-    b .L080246B8
-.L0802467C:
-    movs r0, #0xd
-    b .L080246B8
-.L08024680:
-    movs r0, #0xe
-    b .L080246B8
-.L08024684:
-    movs r0, #0x14
-    b .L080246B8
-.L08024688:
-    movs r0, #0xf
-    b .L080246B8
-.L0802468C:
-    movs r0, #0x10
-    b .L080246B8
-.L08024690:
-    bl rand
-    movs r1, #0xfa
-    lsls r1, r1, #2
-    bl __modsi3
-    movs r1, #0xa
-    bl __divsi3
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-    cmp r0, #4
-    bhi .L080246AE
-    movs r0, #0x12
-    b .L080246B8
-.L080246AE:
-    movs r0, #0x11
-    b .L080246B8
-.L080246B2:
-    movs r0, #0x13
-    b .L080246B8
-.L080246B6:
-    movs r0, #0x15
-.L080246B8:
-    pop {r1}
-    bx r1
 
-    .section .text.entities_part1.080246BC, "ax", %progbits
-    thumb_func_start func_080246BC
-func_080246BC: @ 0x080246BC
-    push {r4, lr}
-    adds r4, r0, #0
-    adds r0, r1, #0
-    bl GetId__C4Tool
-    subs r0, #0x20
-    cmp r0, #7
-    bhi .L0802471C
-    lsls r0, r0, #2
-    ldr r1, .L080246D8 @ =.L080246DC
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L080246D8: .4byte .L080246DC
-.L080246DC: @ jump table
-    .4byte .L080246FC @ case 0
-    .4byte .L08024700 @ case 1
-    .4byte .L08024704 @ case 2
-    .4byte .L08024708 @ case 3
-    .4byte .L0802470C @ case 4
-    .4byte .L08024710 @ case 5
-    .4byte .L08024710 @ case 6
-    .4byte .L08024714 @ case 7
-.L080246FC:
-    movs r0, #0
-    b .L08024716
-.L08024700:
-    movs r0, #1
-    b .L08024716
-.L08024704:
-    movs r0, #2
-    b .L08024716
-.L08024708:
-    movs r0, #3
-    b .L08024716
-.L0802470C:
-    movs r0, #4
-    b .L08024716
-.L08024710:
-    movs r0, #5
-    b .L08024716
-.L08024714:
-    movs r0, #6
-.L08024716:
-    cmp r0, r4
-    bls .L0802471C
-    adds r4, r0, #0
-.L0802471C:
-    adds r0, r4, #0
-    pop {r4}
-    pop {r1}
-    bx r1
 
     .section .text.entities_part1.08024724, "ax", %progbits
     thumb_func_start func_08024724
@@ -6054,91 +5923,7 @@ func_08025068: @ 0x08025068
     bx r1
     .align 2, 0
 
-    .section .text.entities_part1.080251FC, "ax", %progbits
-    thumb_func_start func_080251FC
-func_080251FC: @ 0x080251FC
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    mov r8, r1
-    adds r6, r3, #0
-    ldr r7, [sp, #0x20]
-    ldr r0, [r2]
-    ldr r1, [r2, #4]
-    str r0, [sp]
-    str r1, [sp, #4]
-    movs r5, #1
-    cmp r5, r7
-    bhi .L0802523A
-    mov r4, sp
-.L0802521A:
-    ldrh r0, [r4]
-    adds r0, r0, r6
-    strh r0, [r4]
-    ldrh r0, [r4, #4]
-    adds r0, r0, r6
-    strh r0, [r4, #4]
-    mov r0, r8
-    mov r1, sp
-    bl func_080AC070
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802523A
-    adds r5, #1
-    cmp r5, r7
-    bls .L0802521A
-.L0802523A:
-    adds r0, r5, #0
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
 
-    .section .text.entities_part1.08025248, "ax", %progbits
-    thumb_func_start func_08025248
-func_08025248: @ 0x08025248
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    mov r8, r1
-    adds r6, r3, #0
-    ldr r7, [sp, #0x20]
-    ldr r0, [r2]
-    ldr r1, [r2, #4]
-    str r0, [sp]
-    str r1, [sp, #4]
-    movs r5, #1
-    cmp r5, r7
-    bhi .L08025286
-    mov r4, sp
-.L08025266:
-    ldrh r0, [r4, #2]
-    adds r0, r0, r6
-    strh r0, [r4, #2]
-    ldrh r0, [r4, #6]
-    adds r0, r0, r6
-    strh r0, [r4, #6]
-    mov r0, r8
-    mov r1, sp
-    bl func_080AC070
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08025286
-    adds r5, #1
-    cmp r5, r7
-    bls .L08025266
-.L08025286:
-    adds r0, r5, #0
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
 
     .section .text.entities_part1.08025294, "ax", %progbits
     thumb_func_start func_08025294

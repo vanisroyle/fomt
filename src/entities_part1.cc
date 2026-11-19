@@ -3,6 +3,10 @@
 #include "horse.hh"
 #include "chicken.hh"
 #include "barn_animal.hh"
+#include "cow.hh"
+#include "sheep.hh"
+#include "item.hh"
+#include <stdlib.h>
 
 struct DogEntityPart1 : AActorEntity
 {
@@ -27,6 +31,8 @@ struct ChickenEntityPart1 : AActorEntity
 
 EC u16 const gUnk_080F09AC[];
 EC u16 const gUnk_080F0A68[];
+EC u16 const gUnk_080F0C3C[];
+EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
 EC void func_0802A588(AEntity * self);
 
@@ -38,6 +44,7 @@ struct AnimStatePart1
 };
 
 EC bool func_0805E894(AnimStatePart1 * state);
+EC bool func_080AC070(void * map, Box const * box);
 
 struct BarnEntityPart1 : AActorEntity
 {
@@ -47,6 +54,78 @@ struct BarnEntityPart1 : AActorEntity
 };
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC u32 func_080246BC(u32 minimum, Tool const * tool) ENTITY_CODE(080246BC);
+EC u32 func_080246BC(u32 minimum, Tool const * tool)
+{
+    u32 level;
+    switch (tool->GetId())
+    {
+    case 32: level = 0; break;
+    case 33: level = 1; break;
+    case 34: level = 2; break;
+    case 35: level = 3; break;
+    case 36: level = 4; break;
+    case 37:
+    case 38: level = 5; break;
+    case 39: level = 6; break;
+    default: return minimum;
+    }
+    if (level > minimum)
+        minimum = level;
+    return minimum;
+}
+
+EC u32 func_080245E0(u32 value) ENTITY_CODE(080245E0);
+EC u32 func_080245E0(u32 value)
+{
+    switch (value)
+    {
+    case 50: return 0;
+    case 51: return 1;
+    case 52: return 2;
+    case 53: return 3;
+    case 54: return 4;
+    case 55: return 5;
+    case 56: return 6;
+    case 57: return 7;
+    case 58: return 8;
+    case 59: return 9;
+    case 60: return 10;
+    case 61: return 11;
+    case 62: return 12;
+    case 63: return 13;
+    case 64: return 14;
+    case 65: return 20;
+    case 66: return 15;
+    case 67: return 16;
+    case 68:
+    {
+        u8 chance = rand() % 1000 / 10;
+        if (chance <= 4)
+            return 18;
+        return 17;
+    }
+    case 69: return 19;
+    default: return 21;
+    }
+}
+
+EC u32 func_08021264(DogEntityPart1 * self) ENTITY_CODE(08021264);
+EC u32 func_08021264(DogEntityPart1 * self)
+{
+    switch (self->dog->unk_20)
+    {
+    default: return 3;
+    case 0: return self->dog->unk_24.a.unk_02;
+    case 1:
+    case 2:
+    case 3:
+    case 5: return 2;
+    case 6: return self->dog->unk_24.a.unk_02 ? 11 : 2;
+    }
+}
+
 
 EC bool func_08020060(AEntity * self) ENTITY_CODE(08020060);
 EC bool func_08020060(AEntity * self)
