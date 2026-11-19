@@ -52,7 +52,7 @@ EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
 EC void func_0802A588(AEntity * self);
 
-EC bool func_080AC070(void * map, Box const * box);
+EC bool DoesEntityCollisionRectangleHitSolidTile(void * map, Box const * box);
 
 struct BarnAnimalEntity : AActorEntity
 {
@@ -149,7 +149,7 @@ struct ScriptEventSelection;
 EC bool IsSelectedScriptEvent(ScriptEventSelection const & events, u16 eventId);
 EC u32 func_08022320(u32 growth_stage);
 EC u32 func_08022334(u32 growth_stage);
-EC void func_080324BC(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
+EC void InitializeSideActorSpriteLayers(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
 EC char const vtable_unk_080E64B4[];
 
 struct FarmerEventStateView
@@ -291,10 +291,71 @@ inline void LaunchFarmerHeldItem(FarmerEntity * self)
 
 inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 {
-    return func_080AC070(map, &box);
+    return DoesEntityCollisionRectangleHitSolidTile(map, &box);
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+inline u32 Map_IsEntityCollisionBoxClear(void * map, Box const & box)
+{
+    return !DoesEntityCollisionRectangleHitSolidTile(map, &box);
+}
+
+inline u32 Map_GetEntityCollisionFlag(void * map, Box const & box)
+{
+    return DoesEntityCollisionRectangleHitSolidTile(map, &box);
+}
+
+struct MapCollisionEscapeOffset
+{
+    i16 x;
+    i16 y;
+
+    MapCollisionEscapeOffset() : x(), y() {}
+    MapCollisionEscapeOffset(i16 const & a_x, i16 const & a_y) : x(a_x), y(a_y) {}
+};
+
+// 0x08024724
+EC MapCollisionEscapeOffset Map_FindCollisionEscapeOffset(void * map, Box const & box) ENTITY_CODE(08024724);
+EC MapCollisionEscapeOffset Map_FindCollisionEscapeOffset(void * map, Box const & box)
+{
+    u32 const blocked = Map_GetEntityCollisionFlag(map, box);
+    if (blocked)
+    {
+        i32 const negative_y = ~((box.y2 - 1) & 7);
+        i32 const positive_y = 8 - (box.y1 & 7);
+        i32 const negative_x = ~((box.x2 - 1) & 7);
+        i32 const positive_x = 8 - (box.x1 & 7);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(0, negative_y)))
+            return MapCollisionEscapeOffset(0, negative_y);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(0, positive_y)))
+            return MapCollisionEscapeOffset(0, positive_y);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(negative_x, 0)))
+            return MapCollisionEscapeOffset(negative_x, 0);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(positive_x, 0)))
+            return MapCollisionEscapeOffset(positive_x, 0);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(negative_x, negative_y)))
+            return MapCollisionEscapeOffset(negative_x, negative_y);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(positive_x, negative_y)))
+            return MapCollisionEscapeOffset(positive_x, negative_y);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(negative_x, positive_y)))
+            return MapCollisionEscapeOffset(negative_x, positive_y);
+        u32 const positive_diagonal_clear = Map_IsEntityCollisionBoxClear(map, box.Moved(positive_x, positive_y));
+        if (positive_diagonal_clear)
+            return MapCollisionEscapeOffset(positive_x, positive_y);
+        return MapCollisionEscapeOffset();
+    }
+    return MapCollisionEscapeOffset();
+}
+
+// 0x080215FC
+EC Box DogEntity_GetCollisionBox(DogEntity const * self) ENTITY_CODE(080215FC);
+EC Box DogEntity_GetCollisionBox(DogEntity const * self)
+{
+    i32 const x = self->x_q16 >> 16;
+    i32 const y = self->y_q16 >> 16;
+    return Box(x, y, 14, 9);
+}
 
 struct ChickenEntityUpdateContext
 {
@@ -323,7 +384,7 @@ EC u32 RollEntityMovementRandom(u32 bound);
 EC u32 ChooseWeightedEntityMovement(ChickenBehaviorChoice const * choices, u32 count);
 EC i32 RotateEntityMovementFacing(i32 facing, i32 turn);
 EC u32 func_080ABE58(i32 x, i32 y, i32 target_x, i32 target_y, EntityMovementBounds * bounds, u32 facing);
-EC void func_080ABA90(EntityMovementBounds * bounds, Box const & box, u32 argument);
+EC void ConstrainEntityMovementAgainstRectangle(EntityMovementBounds * bounds, Box const & box, u32 argument);
 EC bool AEntity_IsAnimationFinished(AEntity * self);
 EC void AActorEntity_ApplyBoundedMovement(AActorEntity * self, EntityMovementBounds * bounds);
 
@@ -370,9 +431,9 @@ EC void ChickenEntity_Update(ChickenEntity * self, ChickenEntityUpdateContext co
     AEntity * farmer = GetCarryableEntityById(game, 0);
     AEntity * obstacle = GetCarryableEntityById(game, 74);
     if (farmer != nullptr && farmer->location_map == map_id)
-        func_080ABA90(&bounds, farmer->GetBox(), 0);
+        ConstrainEntityMovementAgainstRectangle(&bounds, farmer->GetBox(), 0);
     if (obstacle != nullptr && obstacle->location_map == map_id)
-        func_080ABA90(&bounds, obstacle->GetBox(), 0);
+        ConstrainEntityMovementAgainstRectangle(&bounds, obstacle->GetBox(), 0);
     switch (chicken->unk_24)
     {
     case 0:
@@ -616,7 +677,7 @@ EC u32 FarmerEntity_FindVerticalClearStep(FarmerEntity const * self, void * map,
             i16 * bottom = &shifted.y2;
             *top += delta;
             *bottom += delta;
-            if (!func_080AC070(map, &shifted))
+            if (!DoesEntityCollisionRectangleHitSolidTile(map, &shifted))
                 break;
             ++step;
         } while (step <= max_steps);
@@ -639,7 +700,7 @@ EC u32 FarmerEntity_FindHorizontalClearStep(FarmerEntity const * self, void * ma
             i16 * right = &shifted.x2;
             *left += delta;
             *right += delta;
-            if (!func_080AC070(map, &shifted))
+            if (!DoesEntityCollisionRectangleHitSolidTile(map, &shifted))
                 break;
             ++step;
         } while (step <= max_steps);
@@ -653,7 +714,7 @@ EC UnknownEntityThing * ChickenEntitySprite_Init(UnknownEntityThing * self, AAct
 {
     u32 size = func_08022320(growth_stage);
     u32 variant = func_08022334(growth_stage);
-    func_080324BC(self, entity, 5, 13, size, variant, 0, false);
+    InitializeSideActorSpriteLayers(self, entity, 5, 13, size, variant, 0, false);
     reinterpret_cast<void const **>(self)[1] = vtable_unk_080E64B4;
     return self;
 }
@@ -1060,7 +1121,7 @@ EC void DogEntity_PlaceCarriedTarget(DogEntity * self)
             if (offset < 0)
                 break;
             Box box = target->GetBox();
-            if (!func_080AC070(const_cast<UnkMap *>(&map), &box))
+            if (!DoesEntityCollisionRectangleHitSolidTile(const_cast<UnkMap *>(&map), &box))
                 break;
         }
         StopLaunchedSpriteMovement(target);

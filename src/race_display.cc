@@ -147,7 +147,12 @@ struct HorseRaceState
     STRUCT_PAD(0, 0x738);
     RaceGlyph glyphs[148];
     i16 glyph_count;
-    STRUCT_PAD(0xBDA, 0x13FE);
+    STRUCT_PAD(0xBDA, 0xBEA);
+    u16 tilemap_work[0x800 / sizeof(u16)];
+    u16 bg1_scroll_x, bg2_scroll_x, bg3_scroll_x;
+    u16 bg1_last_tile_scroll, bg2_last_tile_scroll, bg3_last_tile_scroll;
+    i16 bg1_pattern_phase, bg2_pattern_phase, bg3_pattern_phase;
+    STRUCT_PAD(0x13FC, 0x13FE);
     i16 selected_racer;
     STRUCT_PAD(0x1400, 0x140E);
     u8 player_is_racing;
@@ -313,3 +318,203 @@ EC SECTION(".text.f3.0805A4DC") void UpdateRaceDisplayGlyphs(HorseRaceState * se
         ++racer;
     } while (rows_left >= 0);
 }
+
+enum
+{
+    COURSE_REPEAT_COLUMNS = 6,
+    COURSE_ROWS = 32,
+    TILEMAP_COLUMNS = 32,
+    BG_TILE_BYTES = 32,
+    BG_SCREEN_BLOCK_BYTES = 0x800,
+    VRAM = 0x06000000,
+    BG_PALETTE_RAM = 0x05000000,
+    COURSE_START_X = 0x600,
+    BG3_COURSE_SCREEN_BLOCK = 25,
+    BG2_COURSE_SCREEN_BLOCK = 27,
+    BG1_COURSE_SCREEN_BLOCK = 29,
+    BG_MOSAIC = 1 << 6,
+    BG_SIZE_64X32 = 1 << 14,
+};
+
+struct CourseDisplayShadow
+{
+    u16 control;
+    STRUCT_PAD(2, 8);
+    u16 bg_control[4];
+    u16 scroll[4][2];
+};
+
+EC CourseDisplayShadow * HardwareContext_GetDisplayRegisters(HorseRaceState *);
+EC void Unpack(void const *, void *);
+
+EC u8 const gHorseRaceCourseBg3Pattern[] asm("gUnk_0872F11C");
+EC u8 const gHorseRaceCourseBg2Pattern[] asm("gUnk_0872F1BC");
+EC u8 const gHorseRaceCourseBg1Pattern[] asm("gUnk_0872F1EC");
+EC u8 const gHorseRaceCourseBg2AlternatePattern[] asm("gUnk_0872FBFC");
+EC u8 const gHorseRaceCourseBackgroundTiles[] asm("gUnk_0872F21C");
+EC u16 const gHorseRaceCourseBackgroundPalette[] asm("gUnk_0872FA9C");
+
+// The register constraints and stack scratch preserve the original Thumb codegen.
+#define WRITE_COURSE_DISPLAY(field, value) { \
+    CourseDisplayShadow * display = HardwareContext_GetDisplayRegisters(self); \
+    volatile u16 * scratch = &work.display_value; \
+    register u32 setting asm("r3") = (value); \
+    asm ("" : : "r" (setting)); \
+    register u32 output asm("r1") = setting; \
+    *scratch = output; \
+    display->field = output; \
+}
+
+#define CLEAR_COURSE_Y(bg) { \
+    CourseDisplayShadow * display = HardwareContext_GetDisplayRegisters(self); \
+    volatile u16 * scratch = &work.display_value; \
+    *scratch = zero; \
+    display->scroll[bg][1] = zero; \
+}
+
+#define UNPACK_COURSE_PATTERN(asset, offset, reg) { \
+    u8 const * compressed = (asset); \
+    register uintptr_t destination_offset asm(reg) = offsetof(HorseRaceState, tilemap_work) + offset * sizeof(u16); \
+    asm ("" : : "r" (destination_offset)); \
+    Unpack(compressed, reinterpret_cast<u8 *>(self) + destination_offset); \
+}
+
+EC SECTION(".text.f3.0805AB08") void LoadHorseRaceCourseGraphics(HorseRaceState * course)
+{
+    HorseRaceState * self = course;
+    const uintptr_t bg1_map = VRAM + BG1_COURSE_SCREEN_BLOCK * BG_SCREEN_BLOCK_BYTES;
+    const uintptr_t bg2_map = VRAM + BG2_COURSE_SCREEN_BLOCK * BG_SCREEN_BLOCK_BYTES;
+    const uintptr_t bg3_map = VRAM + BG3_COURSE_SCREEN_BLOCK * BG_SCREEN_BLOCK_BYTES;
+    const unsigned pattern_bytes = COURSE_REPEAT_COLUMNS * sizeof(u16);
+    const unsigned map_bytes = 2 * BG_SCREEN_BLOCK_BYTES;
+    const unsigned bg2_alternate_column = 18;
+    const unsigned bg2_pattern_offset = 0x100 / sizeof(u16);
+    const unsigned bg1_pattern_offset = 0x200 / sizeof(u16);
+    const unsigned bg2_alternate_offset = 0x300 / sizeof(u16);
+    struct
+    {
+        u16 display_value;
+        STRUCT_PAD(2, 4);
+        uintptr_t bg3_source;
+        uintptr_t bg2_alternate_source;
+        uintptr_t bg1_source;
+        int next_row;
+    } volatile work;
+
+    // Blank tile 1023 fills the unused parts of the course maps.
+    Dma3_Fill(0, reinterpret_cast<void *>(VRAM + 1023 * BG_TILE_BYTES), BG_TILE_BYTES);
+    Dma3_Fill(~0u, reinterpret_cast<void *>(bg3_map), map_bytes);
+    Dma3_Fill(~0u, reinterpret_cast<void *>(bg2_map), map_bytes);
+    Dma3_Fill(~0u, reinterpret_cast<void *>(bg1_map), map_bytes);
+    UNPACK_COURSE_PATTERN(gHorseRaceCourseBg3Pattern, 0, "r2");
+    UNPACK_COURSE_PATTERN(gHorseRaceCourseBg2Pattern, bg2_pattern_offset, "r3");
+    UNPACK_COURSE_PATTERN(gHorseRaceCourseBg1Pattern, bg1_pattern_offset, "r2");
+    UNPACK_COURSE_PATTERN(gHorseRaceCourseBg2AlternatePattern, bg2_alternate_offset, "r3");
+    Unpack(gHorseRaceCourseBackgroundTiles, reinterpret_cast<void *>(VRAM));
+    Dma3_Copy(gHorseRaceCourseBackgroundPalette, reinterpret_cast<void *>(BG_PALETTE_RAM), 256 * sizeof(u16));
+    WRITE_COURSE_DISPLAY(control, (1 << 6) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12));
+    WRITE_COURSE_DISPLAY(bg_control[3], BG_SIZE_64X32 | BG_MOSAIC | (BG3_COURSE_SCREEN_BLOCK << 8) | 3);
+    WRITE_COURSE_DISPLAY(bg_control[2], BG_SIZE_64X32 | BG_MOSAIC | (BG2_COURSE_SCREEN_BLOCK << 8) | 2);
+    WRITE_COURSE_DISPLAY(bg_control[1], BG_SIZE_64X32 | BG_MOSAIC | (BG1_COURSE_SCREEN_BLOCK << 8) | 1);
+
+    // Repeat six-tile patterns across the first screen block of each layer.
+    int row = 0;
+    do
+    {
+        int column = 0;
+        unsigned pattern_row = row * 2;
+        unsigned screen_row = row * TILEMAP_COLUMNS * sizeof(u16);
+        register int next_row asm("r3") = row + 1;
+        work.next_row = next_row;
+        pattern_row += row;
+        pattern_row *= 4;
+        register uintptr_t bg2_alternate_source asm("r1") =
+            offsetof(HorseRaceState, tilemap_work) + bg2_alternate_offset * sizeof(u16);
+        asm ("" : "+r" (bg2_alternate_source));
+        bg2_alternate_source = pattern_row + bg2_alternate_source;
+        work.bg2_alternate_source = bg2_alternate_source;
+        register uintptr_t bg1_pattern asm("r2") = offsetof(HorseRaceState, tilemap_work) + bg1_pattern_offset * sizeof(u16);
+        asm ("" : "+r" (bg1_pattern));
+        bg1_pattern = pattern_row + bg1_pattern;
+        work.bg1_source = bg1_pattern;
+        register uintptr_t bg1_entry asm("r6") = bg1_map + screen_row;
+        uintptr_t bg2_entry = bg2_map + screen_row;
+        uintptr_t bg3_entry = bg3_map + screen_row;
+        register uintptr_t bg3_pattern asm("r3") = offsetof(HorseRaceState, tilemap_work);
+        asm ("" : "+r" (bg3_pattern));
+        bg3_pattern = pattern_row + bg3_pattern;
+        work.bg3_source = bg3_pattern;
+        uintptr_t bg2_pattern = offsetof(HorseRaceState, tilemap_work) + bg2_pattern_offset * sizeof(u16);
+        bg2_pattern += pattern_row;
+        uintptr_t bg2_source = bg2_pattern;
+        do
+        {
+            register uintptr_t bg3_source asm("r2") = work.bg3_source;
+            Dma3_Copy(reinterpret_cast<u8 *>(self) + bg3_source,
+                reinterpret_cast<void *>(bg3_entry), pattern_bytes);
+            register int copy_column asm("r3") = column;
+            asm ("" : "+r" (copy_column));
+            if (copy_column != bg2_alternate_column)
+            {
+                register uintptr_t default_source asm("r1") = bg2_source;
+                asm ("" : : "r" (default_source), "r" (self));
+                Dma3_Copy(reinterpret_cast<u8 *>(self) + default_source,
+                    reinterpret_cast<void *>(bg2_entry), pattern_bytes);
+            }
+            else
+            {
+                register uintptr_t source asm("r2") = work.bg2_alternate_source;
+                Dma3_Copy(reinterpret_cast<u8 *>(self) + source,
+                    reinterpret_cast<void *>(bg2_map + bg2_alternate_column * sizeof(u16) + screen_row), pattern_bytes);
+            }
+            register uintptr_t bg1_source asm("r3") = work.bg1_source;
+            Dma3_Copy(reinterpret_cast<u8 *>(self) + bg1_source,
+                reinterpret_cast<void *>(bg1_entry), pattern_bytes);
+            bg1_entry += pattern_bytes;
+            bg2_entry += pattern_bytes;
+            bg3_entry += pattern_bytes;
+            register int column_step asm("r0") = COURSE_REPEAT_COLUMNS;
+            asm ("" : : "r" (column_step));
+            column += column_step;
+            register int next_column asm("r1") = column;
+            asm ("" : "+r" (next_column));
+            if (next_column >= TILEMAP_COLUMNS - 2)
+                break;
+        } while (true);
+        row = work.next_row;
+    } while (row < COURSE_ROWS);
+
+    u16 zero = 0;
+    uintptr_t bg1_scroll = offsetof(HorseRaceState, bg1_scroll_x);
+    u16 * scroll_destination =
+        reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg1_scroll);
+    u32 starting_x = COURSE_START_X >> 3;
+    starting_x <<= 3;
+    *scroll_destination = starting_x;
+    register uintptr_t bg2_scroll asm("r3") = offsetof(HorseRaceState, bg2_scroll_x);
+    *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg2_scroll) = starting_x;
+    bg1_scroll += offsetof(HorseRaceState, bg3_scroll_x) - offsetof(HorseRaceState, bg1_scroll_x);
+    *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg1_scroll) = starting_x;
+    bg2_scroll += offsetof(HorseRaceState, bg1_last_tile_scroll) - offsetof(HorseRaceState, bg2_scroll_x);
+    *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg2_scroll) = zero;
+    register uintptr_t bg2_last asm("r1") = offsetof(HorseRaceState, bg2_last_tile_scroll);
+    *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg2_last) = zero;
+    bg1_scroll += offsetof(HorseRaceState, bg3_last_tile_scroll) - offsetof(HorseRaceState, bg3_scroll_x);
+    *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg1_scroll) = zero;
+    bg2_scroll += offsetof(HorseRaceState, bg1_pattern_phase) - offsetof(HorseRaceState, bg1_last_tile_scroll);
+    scroll_destination = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg2_scroll);
+    *scroll_destination = zero;
+    bg2_last += offsetof(HorseRaceState, bg2_pattern_phase) - offsetof(HorseRaceState, bg2_last_tile_scroll);
+    scroll_destination = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg2_last);
+    *scroll_destination = zero;
+    bg1_scroll += offsetof(HorseRaceState, bg3_pattern_phase) - offsetof(HorseRaceState, bg3_last_tile_scroll);
+    scroll_destination = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + bg1_scroll);
+    *scroll_destination = zero;
+    CLEAR_COURSE_Y(1);
+    CLEAR_COURSE_Y(2);
+    CLEAR_COURSE_Y(3);
+}
+
+#undef UNPACK_COURSE_PATTERN
+#undef CLEAR_COURSE_Y
+#undef WRITE_COURSE_DISPLAY

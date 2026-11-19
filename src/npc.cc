@@ -11,10 +11,10 @@ Npc::Npc(ActorLocation const & a_location)
     met = false;
     unk_10 = 0;
     anim_id = NO_ANIM;
-    unk_0C_0 = 0;
-    unk_0C_5 = 0;
-    unk_0D_2 = 0;
-    unk_0D_7 = 0;
+    schedule_index = 0;
+    schedule_path_index = 0;
+    path_point_index = 0;
+    path_point_elapsed_ticks = 0;
 }
 
 ActorLocation Npc::GetLocation() const

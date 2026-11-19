@@ -37,7 +37,80 @@ struct EntityCollisionProbe
 };
 
 EC void func_080AC124(EntityCollisionGrid const &, ProbeRectangle const &, int *, int *, int *, int *);
-EC u32 func_080AC070(EntityCollisionGrid const &, ProbeRectangle const &);
+
+EC SECTION(".text.080AC070") u32 DoesEntityCollisionRectangleHitSolidTile(EntityCollisionGrid const & grid, ProbeRectangle const & rectangle)
+{
+    volatile int firstX = rectangle.left >> 3;
+    register int endX asm("r8") = (rectangle.right + 7) >> 3;
+    asm ("" : "+h" (endX));
+    int firstY = rectangle.top >> 3;
+    register int endY asm("sl") = (rectangle.bottom + 7) >> 3;
+    asm ("" : "+h" (endY));
+    u32 const * flags = grid.tileFlags;
+    asm ("" : "+l" (flags));
+    register unsigned width asm("sb") = grid.width;
+    asm ("" : "+h" (width));
+    register u8 const * indices asm("ip");
+    int y;
+    if (!flags)
+        goto solid;
+    {
+        register int x asm("r1") = firstX;
+        asm ("" : "+l" (x));
+        if (x < 0 || static_cast<unsigned>(endX) > width || firstY < 0)
+            goto solid;
+    }
+    register unsigned height asm("r4");
+    height = grid.height;
+    asm ("" : "+l" (height));
+    if (endY > static_cast<int>(height))
+        goto solid;
+    indices = grid.tileIndices;
+    asm ("" : "+h" (indices));
+    y = firstY;
+    if (y < endY)
+    {
+        unsigned row = y * width;
+        do
+        {
+            register int x asm("r2") = firstX;
+            asm ("" : "+l" (x));
+            if (x < endX)
+            {
+                register unsigned cell asm("r0");
+                asm ("add %0, %1, %2" : "=l" (cell) : "l" (x), "l" (row) : "cc");
+                register unsigned tileOffset asm("r4") = cell * sizeof(u32);
+                asm ("" : "+l" (tileOffset));
+                register u8 const * indexBase asm("r1") = indices;
+                asm ("" : "+l" (indexBase));
+                register u8 const * indexRow asm("r0");
+                asm ("add %0, %1, %2" : "=l" (indexRow) : "l" (row), "l" (indexBase) : "cc");
+                register u8 const * index asm("r3");
+                asm ("add %0, %1, %2" : "=l" (index) : "l" (x), "l" (indexRow) : "cc");
+                do
+                {
+                    u32 const * tile = indices ? flags + *index
+                        : reinterpret_cast<u32 const *>(reinterpret_cast<u8 const *>(flags) + tileOffset);
+                    asm ("" : "+l" (tile));
+                    u32 bits = *tile;
+                    if (bits << 31)
+                        goto solid;
+                    if (static_cast<i32>(bits << 30) < 0)
+                        goto solid;
+                    tileOffset += sizeof(u32);
+                    ++index;
+                    asm ("" : "+l" (tileOffset), "+l" (index));
+                }
+                while (++x < endX);
+            }
+            row += width;
+        }
+        while (++y < endY);
+    }
+    return 0;
+solid:
+    return 1;
+}
 
 EC SECTION(".text.080AB85C") void ProbeEntityCollisionDown(EntityCollisionProbe & probe)
 {
@@ -70,7 +143,7 @@ EC SECTION(".text.080AB85C") void ProbeEntityCollisionDown(EntityCollisionProbe 
         destination->top = offset + top;
         destination->right = right;
         destination->bottom = offset + bottom;
-        clear = func_080AC070(*grid, *destination) ^ 1;
+        clear = DoesEntityCollisionRectangleHitSolidTile(*grid, *destination) ^ 1;
     }
     else
         clear = 0;
@@ -108,7 +181,7 @@ EC SECTION(".text.080AB8D0") void ProbeEntityCollisionUp(EntityCollisionProbe & 
         destination->top = offset + top;
         destination->right = right;
         destination->bottom = offset + bottom;
-        clear = func_080AC070(*grid, *destination) ^ 1;
+        clear = DoesEntityCollisionRectangleHitSolidTile(*grid, *destination) ^ 1;
     }
     else
         clear = 0;
@@ -148,7 +221,7 @@ EC SECTION(".text.080AB948") void ProbeEntityCollisionLeft(EntityCollisionProbe 
         destination->top = top;
         destination->right = offset + right;
         destination->bottom = bottom;
-        clear = func_080AC070(*grid, *destination) ^ 1;
+        clear = DoesEntityCollisionRectangleHitSolidTile(*grid, *destination) ^ 1;
     }
     else
         clear = 0;
@@ -188,11 +261,121 @@ EC SECTION(".text.080AB9C4") void ProbeEntityCollisionRight(EntityCollisionProbe
         destination->top = top;
         destination->right = offset + right;
         destination->bottom = bottom;
-        clear = func_080AC070(*grid, *destination) ^ 1;
+        clear = DoesEntityCollisionRectangleHitSolidTile(*grid, *destination) ^ 1;
     }
     else
         clear = 0;
     probe.rightClear = clear;
+}
+
+EC SECTION(".text.080ABA90") void ConstrainEntityMovementAgainstRectangle(EntityCollisionProbe & probe, ProbeRectangle const & obstacle, unsigned markBlocked)
+{
+    if (probe.bounds.left < obstacle.right && obstacle.left < probe.bounds.right)
+    {
+        int gap = probe.bounds.bottom - obstacle.top;
+        if (gap <= 0)
+        {
+            register int current asm("r1") = probe.down;
+            register int step asm("r0") = probe.step;
+            asm ("" : "+l" (current), "+l" (step));
+            register int travel asm("r0");
+            if (current > step)
+            {
+                ProbeEntityCollisionDown(probe);
+                travel = probe.down;
+                asm ("" : "+l" (travel));
+            }
+            else
+            {
+                travel = current;
+                asm ("" : "+l" (travel));
+            }
+            if (gap + travel > 0)
+            {
+                probe.down = -gap;
+                if (markBlocked == 1)
+                    probe.downClear = 0;
+            }
+        }
+        gap = probe.bounds.top - obstacle.bottom;
+        if (gap >= 0)
+        {
+            register int current asm("r1") = probe.up;
+            register int step asm("r0") = probe.step;
+            asm ("" : "+l" (current), "+l" (step));
+            register int travel asm("r0");
+            if (current < -step)
+            {
+                ProbeEntityCollisionUp(probe);
+                travel = probe.up;
+                asm ("" : "+l" (travel));
+            }
+            else
+            {
+                travel = current;
+                asm ("" : "+l" (travel));
+            }
+            if (gap + travel < 0)
+            {
+                probe.up = -gap;
+                if (markBlocked == 1)
+                    probe.upClear = 0;
+            }
+        }
+    }
+    if (probe.bounds.top < obstacle.bottom && obstacle.top < probe.bounds.bottom)
+    {
+        int gap = probe.bounds.left - obstacle.right;
+        if (gap >= 0)
+        {
+            register int current asm("r1") = probe.left;
+            register int step asm("r0") = probe.step;
+            asm ("" : "+l" (current), "+l" (step));
+            register int travel asm("r0");
+            if (current < -step)
+            {
+                ProbeEntityCollisionLeft(probe);
+                travel = probe.left;
+                asm ("" : "+l" (travel));
+            }
+            else
+            {
+                travel = current;
+                asm ("" : "+l" (travel));
+            }
+            if (gap + travel < 0)
+            {
+                probe.left = -gap;
+                if (markBlocked == 1)
+                    probe.leftClear = 0;
+            }
+        }
+        gap = probe.bounds.right - obstacle.left;
+        if (gap <= 0)
+        {
+            register int current asm("r1") = probe.right;
+            register int step asm("r0") = probe.step;
+            asm ("" : "+l" (current), "+l" (step));
+            register int travel asm("r0");
+            if (current > step)
+            {
+                ProbeEntityCollisionRight(probe);
+                travel = probe.right;
+                asm ("" : "+l" (travel));
+            }
+            else
+            {
+                travel = current;
+                asm ("" : "+l" (travel));
+            }
+            if (gap + travel > 0)
+            {
+                probe.right = -gap;
+                if (markBlocked == 1)
+                    probe.rightClear = 0;
+            }
+        }
+    }
 }
 
 EC SECTION(".text.080ABA3C") EntityCollisionProbe * InitializeEntityCollisionProbe(EntityCollisionProbe * probe)

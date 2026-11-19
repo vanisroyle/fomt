@@ -16,7 +16,7 @@ struct ArrivalReactionNpc : AActorEntity
 };
 
 EC u8 const gUnk_080F6B10[];
-EC u8 const gUnk_080F29C0[];
+EC u8 const gChildScheduleInfo[];
 
 EC u8 const vtable_unk_080E6A18[];
 EC AActorEntity * InitializeUnscheduledNpcOne(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08036CAC);
@@ -58,47 +58,47 @@ EC u8 const vtable_unk_080E6918[];
 EC ArrivalReactionNpc * InitializeArrivalReactionNpc(ArrivalReactionNpc * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08036E2C);
 EC ArrivalReactionNpc * InitializeArrivalReactionNpc(ArrivalReactionNpc * self, GameObject * game, Npc * npc, u32 schedule_context)
 {
-    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F29C0, 615, 623, 995);
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gChildScheduleInfo, 615, 623, 995);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6918;
     self->arrival_timer = 0;
     return self;
 }
 
-EC UnknownEntityThing * func_080324BC(UnknownEntityThing * self, AActorEntity * actor, u32 layer, u32 animation, u32 priority, u32 palette, u32 flags, bool visible);
+EC UnknownEntityThing * InitializeSideActorSpriteLayers(UnknownEntityThing * self, AActorEntity * actor, u32 layer, u32 animation, u32 priority, u32 palette, u32 flags, bool visible);
 
 EC UnknownEntityThing * CreateChildNpcSprite(AActorEntity * self) NPC_EXTRA_CODE(0803753C);
 EC UnknownEntityThing * CreateChildNpcSprite(AActorEntity * self)
 {
     struct Storage { u8 bytes[0x8C]; };
-    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 9, 0, 7, 0, false);
+    return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 9, 0, 7, 0, false);
 }
 
 EC UnknownEntityThing * CreateNpcVariantTwoSprite(AActorEntity * self) NPC_EXTRA_CODE(080376E4);
 EC UnknownEntityThing * CreateNpcVariantTwoSprite(AActorEntity * self)
 {
     struct Storage { u8 bytes[0x8C]; };
-    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 4, 12, 2, 12, 0, false);
+    return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 4, 12, 2, 12, 0, false);
 }
 
 EC UnknownEntityThing * CreateNpcVariantThreeSprite(AActorEntity * self) NPC_EXTRA_CODE(0803788C);
 EC UnknownEntityThing * CreateNpcVariantThreeSprite(AActorEntity * self)
 {
     struct Storage { u8 bytes[0x8C]; };
-    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 27, 0, 8, 0, false);
+    return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 27, 0, 8, 0, false);
 }
 
 EC UnknownEntityThing * CreateNpcVariantFourSprite(AActorEntity * self) NPC_EXTRA_CODE(080379D8);
 EC UnknownEntityThing * CreateNpcVariantFourSprite(AActorEntity * self)
 {
     struct Storage { u8 bytes[0x8C]; };
-    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 27, 0, 8, 0, false);
+    return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 27, 0, 8, 0, false);
 }
 
 EC UnknownEntityThing * CreateNpcVariantFiveSprite(AActorEntity * self) NPC_EXTRA_CODE(08039A30);
 EC UnknownEntityThing * CreateNpcVariantFiveSprite(AActorEntity * self)
 {
     struct Storage { u8 bytes[0x8C]; };
-    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 27, 0, 8, 0, false);
+    return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 27, 0, 8, 0, false);
 }
 
 struct NpcActivityState

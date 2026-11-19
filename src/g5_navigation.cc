@@ -1,33 +1,46 @@
-#include "prelude.h"
+#include "g5_navigation.hh"
 
-struct InventoryNavigationPanel
-{
-    u8 pad_00[0x27c];
-    bool enabled;
-    u8 pad_27d[0x1b];
-    int last_slot;
-};
-struct InventoryNavigationOwner
-{
-    u8 pad_00[0x78];
-    InventoryNavigationPanel * left_panel;
-    InventoryNavigationPanel * right_panel;
-};
-struct InventoryNavigation
-{
-    InventoryNavigationOwner * owner;
-    int selected_slot;
-    int previous_slot;
-    int left_last_slot;
-    int right_last_slot;
-
-    void UpdateLimits()
-    {
-        left_last_slot = owner->left_panel->last_slot;
-        right_last_slot = owner->right_panel->last_slot + 9;
-    }
-};
 EC int const gUnk_0811788C[][4];
+
+EC SECTION(".text.g5_080CDD7C") int InventoryMenu_SwitchSelectionPanel(InventoryNavigation * navigation) // 0x080CDD7C
+{
+    register int next_slot asm("r3") = 10;
+    asm ("" : "+l" (next_slot));
+    int selected_slot = navigation->selected_slot;
+    InventoryNavigationPanel * panel;
+    if (selected_slot <= 8)
+        panel = navigation->owner->right_panel;
+    else
+    {
+        panel = navigation->owner->left_panel;
+        next_slot = 1;
+    }
+    if (panel == nullptr)
+        next_slot = selected_slot;
+    if (next_slot != navigation->selected_slot)
+    {
+        navigation->previous_slot = navigation->selected_slot;
+        navigation->selected_slot = next_slot;
+    }
+    return next_slot;
+}
+
+EC SECTION(".text.g5_080CD938") int InventoryMenu_GetPanelSlotLimit(InventoryNavigationPanel * panel) // 0x080CD938
+{
+    return panel->last_slot;
+}
+
+EC SECTION(".text.g5_080CD938") bool InventoryMenu_IsSpecialSlotEnabled(InventoryNavigationPanel * panel) // 0x080CD944
+{
+    return panel->enabled;
+}
+
+EC SECTION(".text.g5_080CDDAC") void InventoryMenu_SetSelection(InventoryNavigation * navigation, int slot) // 0x080CDDAC
+{
+    navigation->UpdateLimits();
+    navigation->previous_slot = navigation->selected_slot;
+    navigation->selected_slot = slot;
+}
 
 EC SECTION(".text.g5_080CDA44") int MoveInventorySelectionDown(InventoryNavigation * self) // 0x080CDA44
 {
@@ -79,4 +92,3 @@ EC SECTION(".text.g5_080CDA44") int MoveInventorySelectionDown(InventoryNavigati
     }
     return next_slot;
 }
-

@@ -14786,7 +14786,7 @@ func_080DB6CC: @ 0x080DB6CC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_080A3744
+	bl InitializeSpriteFeedingSceneWrapper
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -16867,15 +16867,15 @@ func_080DC724: @ 0x080DC724
 	adds r4, r1, #0
 	adds r0, #0x8c
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r5, #0
 	adds r0, #0x48
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r5, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DC760 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -16911,7 +16911,7 @@ func_080DC764: @ 0x080DC764
 .L080DC782:
 	adds r0, r4, #4
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r4, #0x48
 	cmp r4, r5
 	bne .L080DC782
@@ -16919,15 +16919,15 @@ func_080DC764: @ 0x080DC764
 	adds r0, r6, #0
 	adds r0, #0x8c
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r6, #0
 	adds r0, #0x48
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r6, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DC7C8 @ =vtable_unk_080E65E0
 	str r0, [r6, #4]
 	movs r0, #1
@@ -17315,7 +17315,7 @@ func_080DCB40: @ 0x080DCB40
 	thumb_func_start func_080DCB4C
 func_080DCB4C: @ 0x080DCB4C
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17323,7 +17323,7 @@ func_080DCB4C: @ 0x080DCB4C
 	thumb_func_start func_080DCB58
 func_080DCB58: @ 0x080DCB58
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17331,7 +17331,7 @@ func_080DCB58: @ 0x080DCB58
 	thumb_func_start func_080DCB64
 func_080DCB64: @ 0x080DCB64
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17339,7 +17339,7 @@ func_080DCB64: @ 0x080DCB64
 	thumb_func_start func_080DCB70
 func_080DCB70: @ 0x080DCB70
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17430,7 +17430,7 @@ func_080DCB7C: @ 0x080DCB7C
 .L080DCC1E:
 	add r0, sp, #0xc
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	movs r2, #0
 	str r2, [sp, #0x60]
 	add r7, sp, #0xc
@@ -17534,7 +17534,7 @@ func_080DCB7C: @ 0x080DCB7C
 .L080DCD04:
 	add r0, sp, #0xc
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r2, [sp, #0x60]
 	adds r2, #1
 	str r2, [sp, #0x60]
@@ -17642,7 +17642,7 @@ func_080DCDB0: @ 0x080DCDB0
 .L080DCDD4:
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r4, #0x50
 	cmp r4, r5
 	bne .L080DCDD4
@@ -17679,7 +17679,7 @@ func_080DCDB0: @ 0x080DCDB0
 	beq .L080DCE2A
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r4, #0
 	bl __builtin_delete
 .L080DCE2A:
@@ -17688,7 +17688,7 @@ func_080DCDB0: @ 0x080DCDB0
 	beq .L080DCE3E
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r4, #0
 	bl __builtin_delete
 .L080DCE3E:
@@ -17746,7 +17746,7 @@ func_080DCE94: @ 0x080DCE94
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCEBC @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -17769,7 +17769,7 @@ func_080DCEC0: @ 0x080DCEC0
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCEE8 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -17821,7 +17821,7 @@ func_080DCF20: @ 0x080DCF20
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCF48 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -17989,7 +17989,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD090 @ =vtable_unk_080E76A4
 	b .L080DD2AA
 	.align 2, 0
@@ -18004,7 +18004,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r2, #0x10
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD0B0 @ =vtable_unk_080E768C
 	b .L080DD2AA
 	.align 2, 0
@@ -18020,7 +18020,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD0D8 @ =vtable_unk_080E7674
 	b .L080DD2AA
 	.align 2, 0
@@ -18037,7 +18037,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD100 @ =vtable_unk_080E765C
 	b .L080DD2AA
 	.align 2, 0
@@ -18054,7 +18054,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD15C @ =vtable_unk_080E7644
 	str r0, [r5, #0x4c]
 	ldr r0, [r7, #4]
@@ -18098,7 +18098,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD1D0 @ =vtable_unk_080E762C
 	str r0, [r5, #0x4c]
 	ldr r0, [r7, #4]
@@ -18153,7 +18153,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD1F8 @ =vtable_unk_080E7614
 	b .L080DD2AA
 	.align 2, 0
@@ -18170,7 +18170,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD220 @ =vtable_unk_080E75FC
 	b .L080DD2AA
 	.align 2, 0
@@ -18187,7 +18187,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD248 @ =vtable_unk_080E75E4
 	b .L080DD2AA
 	.align 2, 0
@@ -18204,7 +18204,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD270 @ =vtable_unk_080E75CC
 	b .L080DD2AA
 	.align 2, 0
@@ -18218,7 +18218,7 @@ func_080DCFE0: @ 0x080DCFE0
 	mov r1, r8
 	ldr r2, .L080DD28C @ =0x000008FD
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD290 @ =vtable_unk_080E75B4
 	b .L080DD2AA
 	.align 2, 0
@@ -18232,7 +18232,7 @@ func_080DCFE0: @ 0x080DCFE0
 	mov r1, r8
 	movs r2, #0x15
 	movs r3, #0
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD314 @ =vtable_unk_080E759C
 .L080DD2AA:
 	str r0, [r5, #0x4c]
@@ -24496,7 +24496,7 @@ func_080E0094: @ 0x080E0094
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	ldr r0, [sp, #0x94]
-	bl func_080AD724
+	bl InitializeMapSceneOwner
 	ldr r0, [sp, #0x10]
 	ldr r1, [sp, #0x94]
 	str r1, [sp, #0x68]
@@ -31535,7 +31535,7 @@ func_080E3A5C: @ 0x080E3A5C
 	adds r0, r1, #0
 	lsls r1, r2, #0x18
 	lsrs r1, r1, #0x18
-	bl func_080D0644
+	bl Joybus_QueueWordExchange
 	pop {r0}
 	bx r0
 
@@ -32797,7 +32797,7 @@ func_080E43B8: @ 0x080E43B8
 .L080E43EC:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080A4B6C
+	bl DestroyMapBuffers
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -32943,7 +32943,7 @@ func_080E44E4: @ 0x080E44E4
 	adds r1, r4, #0
 	movs r2, #5
 	movs r3, #0x1b
-	bl func_080324BC
+	bl InitializeSideActorSpriteLayers
 	add sp, #0x10
 	pop {r4}
 	pop {r1}
@@ -35462,7 +35462,7 @@ func_080E596C: @ 0x080E596C
 	thumb_func_start func_080E59C0
 func_080E59C0: @ 0x080E59C0
 	push {lr}
-	bl func_080A4B6C
+	bl DestroyMapBuffers
 	pop {r0}
 	bx r0
 .align 2, 0

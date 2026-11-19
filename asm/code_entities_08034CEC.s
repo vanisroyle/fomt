@@ -958,87 +958,6 @@ func_08035A48: @ 0x08035A48
 
     .section .text.npc_extra.08035C04, "ax", %progbits
 
-    thumb_func_start func_08035C04
-func_08035C04: @ 0x08035C04
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L08035C48 @ =0x0000022F
-    ldr r0, .L08035C4C @ =0x00000233
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L08035C50 @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #3
-    bne .L08035C94
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L08035C94
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08035C42
-    ldr r2, .L08035C54 @ =0x0000216B
-    adds r0, r5, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x19
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L08035C5C
-.L08035C42:
-    ldr r7, .L08035C58 @ =0x0000023F
-    b .L08035C94
-    .align 2, 0
-.L08035C48: .4byte 0x0000022F
-.L08035C4C: .4byte 0x00000233
-.L08035C50: .4byte 0x00001CD4
-.L08035C54: .4byte 0x0000216B
-.L08035C58: .4byte 0x0000023F
-.L08035C5C:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L08035C94
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L08035C94
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08035C94
-    ldr r7, .L08035CB0 @ =0x00000247
-    ldr r0, .L08035CB4 @ =0x0000024B
-    mov r8, r0
-.L08035C94:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08035CB0: .4byte 0x00000247
-.L08035CB4: .4byte 0x0000024B
-
     .section .text.npc_extra.08035D04, "ax", %progbits
 
     .section .text.npc_extra.08035D70, "ax", %progbits
@@ -1059,87 +978,6 @@ func_08035C04: @ 0x08035C04
 
     .section .text.npc_extra.08036084, "ax", %progbits
 
-    thumb_func_start func_08036084
-func_08036084: @ 0x08036084
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L080360C8 @ =0x00000813
-    ldr r0, .L080360CC @ =0x00000817
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L080360D0 @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #0xc
-    bne .L08036114
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L08036114
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L080360C2
-    ldr r2, .L080360D4 @ =0x0000216C
-    adds r0, r5, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x19
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L080360DC
-.L080360C2:
-    ldr r7, .L080360D8 @ =0x00000827
-    b .L08036114
-    .align 2, 0
-.L080360C8: .4byte 0x00000813
-.L080360CC: .4byte 0x00000817
-.L080360D0: .4byte 0x00001CD4
-.L080360D4: .4byte 0x0000216C
-.L080360D8: .4byte 0x00000827
-.L080360DC:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L08036114
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L08036114
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08036114
-    ldr r7, .L08036130 @ =0x0000082F
-    ldr r0, .L08036134 @ =0x00000833
-    mov r8, r0
-.L08036114:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08036130: .4byte 0x0000082F
-.L08036134: .4byte 0x00000833
-
     .section .text.npc_extra.08036184, "ax", %progbits
 
     .section .text.npc_extra.080361EC, "ax", %progbits
@@ -1156,173 +994,11 @@ func_08036084: @ 0x08036084
 
     .section .text.npc_extra.08036430, "ax", %progbits
 
-    thumb_func_start func_08036430
-func_08036430: @ 0x08036430
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L08036474 @ =0x00000691
-    ldr r0, .L08036478 @ =0x00000695
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L0803647C @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #0x13
-    bne .L080364C0
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L080364C0
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0803646E
-    ldr r2, .L08036480 @ =0x0000216C
-    adds r0, r5, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x1b
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L08036488
-.L0803646E:
-    ldr r7, .L08036484 @ =0x000006A1
-    b .L080364C0
-    .align 2, 0
-.L08036474: .4byte 0x00000691
-.L08036478: .4byte 0x00000695
-.L0803647C: .4byte 0x00001CD4
-.L08036480: .4byte 0x0000216C
-.L08036484: .4byte 0x000006A1
-.L08036488:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L080364C0
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L080364C0
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080364C0
-    ldr r7, .L080364DC @ =0x000006AD
-    ldr r0, .L080364E0 @ =0x000006B1
-    mov r8, r0
-.L080364C0:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080364DC: .4byte 0x000006AD
-.L080364E0: .4byte 0x000006B1
-
     .section .text.npc_extra.08036530, "ax", %progbits
 
     .section .text.npc_extra.08036590, "ax", %progbits
 
     .section .text.npc_extra.080365CC, "ax", %progbits
-
-    thumb_func_start func_080365CC
-func_080365CC: @ 0x080365CC
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L08036610 @ =0x00000884
-    ldr r0, .L08036614 @ =0x00000888
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L08036618 @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #0x15
-    bne .L0803665C
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L0803665C
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0803660A
-    ldr r2, .L0803661C @ =0x0000216C
-    adds r0, r5, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x1d
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L08036624
-.L0803660A:
-    ldr r7, .L08036620 @ =0x0000089C
-    b .L0803665C
-    .align 2, 0
-.L08036610: .4byte 0x00000884
-.L08036614: .4byte 0x00000888
-.L08036618: .4byte 0x00001CD4
-.L0803661C: .4byte 0x0000216C
-.L08036620: .4byte 0x0000089C
-.L08036624:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L0803665C
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L0803665C
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0803665C
-    ldr r7, .L08036678 @ =0x00000894
-    ldr r0, .L0803667C @ =0x00000898
-    mov r8, r0
-.L0803665C:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08036678: .4byte 0x00000894
-.L0803667C: .4byte 0x00000898
 
     .section .text.npc_extra.080366CC, "ax", %progbits
 
@@ -1362,7 +1038,6 @@ func_08036768: @ 0x08036768
 .L080367A0: .4byte 0x0000027B
 .L080367A4: .4byte 0x00002181
 .L080367A8: .4byte 0x0000027F
-
 
     .section .text.npc_extra.080367F8, "ax", %progbits
 
@@ -1507,6 +1182,8 @@ func_08036BB0: @ 0x08036BB0
     bx r0
     .align 2, 0
 
+    .section .text.npc_extra.08036BF8, "ax", %progbits
+
     thumb_func_start func_08036BF8
 func_08036BF8: @ 0x08036BF8
     push {r4, r5, r6, r7, lr}
@@ -1563,140 +1240,13 @@ func_08036BF8: @ 0x08036BF8
     .section .text.npc_extra.08036E00, "ax", %progbits
     .section .text.npc_extra.08036E70, "ax", %progbits
 
-    thumb_func_start func_08036E70
-func_08036E70: @ 0x08036E70
-    push {r4, r5, r6, r7, lr}
-    adds r4, r0, #0
-    ldr r0, [r4, #0x34]
-    ldr r1, .L08036EA0 @ =0x00001CD4
-    adds r0, r0, r1
-    bl GetActiveRosterNpc
-    adds r6, r0, #0
-    cmp r0, #0
-    beq .L08036EE0
-    ldr r5, .L08036EA4 @ =0x00000267
-    ldr r7, .L08036EA8 @ =0x0000026F
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L08036EAC
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08036ED0
-    movs r5, #0xc
-    b .L08036ED0
-    .align 2, 0
-.L08036EA0: .4byte 0x00001CD4
-.L08036EA4: .4byte 0x00000267
-.L08036EA8: .4byte 0x0000026F
-.L08036EAC:
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08036EC0
-    ldr r5, .L08036EBC @ =0x00000277
-    b .L08036ED0
-    .align 2, 0
-.L08036EBC: .4byte 0x00000277
-.L08036EC0:
-    adds r0, r6, #0
-    bl HasNamedNpcFlag
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08036ED0
-    ldr r5, .L08036EE8 @ =0x0000026B
-    ldr r7, .L08036EEC @ =0x00000273
-.L08036ED0:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcIdleAnimation
-.L08036EE0:
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08036EE8: .4byte 0x0000026B
-.L08036EEC: .4byte 0x00000273
     .section .text.npc_extra.08036F0C, "ax", %progbits
 
-    thumb_func_start func_08036F0C
-func_08036F0C: @ 0x08036F0C
-    .byte 0x30, 0xb5, 0x84, 0xb0, 0x05, 0x1c, 0x68, 0x6b, 0x10, 0x49, 0x40, 0x18, 0x69, 0xf0, 0x34, 0xfa
-    .byte 0x04, 0x1c, 0x00, 0x2c, 0x1c, 0xd0, 0x28, 0x1c, 0xff, 0xf7, 0xa4, 0xff, 0x20, 0x1c, 0x67, 0xf0
-    .byte 0xd9, 0xfd, 0x00, 0x06, 0x01, 0x24, 0x00, 0x28, 0x00, 0xd0, 0x04, 0x24, 0x8c, 0x20, 0xc9, 0xf7
-    .byte 0x4b, 0xfb, 0x00, 0x22, 0x00, 0x92, 0x01, 0x94, 0x02, 0x92, 0x03, 0xa9, 0x0a, 0x70, 0x29, 0x1c
-    .byte 0x04, 0x22, 0x1b, 0x23, 0xfb, 0xf7, 0xb4, 0xfa, 0x03, 0xe0, 0x00, 0x00, 0xd4, 0x1c, 0x00, 0x00
-    .byte 0x00, 0x20, 0x04, 0xb0, 0x30, 0xbc, 0x02, 0xbc, 0x08, 0x47, 0x00, 0x00
-    thumb_func_start func_08036F68
-func_08036F68: @ 0x08036F68
-    .byte 0xf0, 0xb5, 0x84, 0xb0, 0x04, 0x1c, 0x0e, 0x1c, 0x20, 0x69, 0x00, 0x28, 0x3d, 0xd0, 0x60, 0x6b
-    .byte 0x0b, 0x49, 0x40, 0x18, 0x69, 0xf0, 0x02, 0xfa, 0x00, 0x28, 0x36, 0xd0, 0x67, 0xf0, 0xa8, 0xfd
-    .byte 0x3b, 0x28, 0x32, 0xd8, 0x20, 0x1c, 0xfe, 0xf7, 0xa7, 0xfd, 0x00, 0x06, 0x00, 0x28, 0x2c, 0xd0
-    .byte 0x20, 0x1c, 0x48, 0x30, 0x01, 0x88, 0x05, 0x1c, 0x00, 0x29, 0x03, 0xd0, 0x48, 0x1e, 0x23, 0xe0
-    .byte 0xd4, 0x1c, 0x00, 0x00, 0x69, 0x46, 0x06, 0x48, 0x8c, 0xc8, 0x8c, 0xc1, 0x00, 0x68, 0x08, 0x60
-    .byte 0x9a, 0xf0, 0x14, 0xf9, 0x64, 0x21, 0x99, 0xf0, 0x87, 0xff, 0x00, 0x23, 0x6a, 0x46, 0x04, 0xe0
-    .byte 0x14, 0x15, 0x0f, 0x08, 0x40, 0x1a, 0x04, 0x32, 0x01, 0x33, 0x03, 0x2b, 0x06, 0xd8, 0x11, 0x78
-    .byte 0x88, 0x42, 0xf7, 0xd2, 0x51, 0x88, 0x20, 0x1c, 0xfe, 0xf7, 0x92, 0xfc, 0x9a, 0xf0, 0xfe, 0xf8
-    .byte 0x78, 0x21, 0x99, 0xf0, 0x71, 0xff, 0x78, 0x30, 0x28, 0x80, 0x20, 0x1c, 0x31, 0x1c, 0xfd, 0xf7
-    .byte 0x5d, 0xff, 0x04, 0xb0, 0xf0, 0xbc, 0x01, 0xbc, 0x00, 0x47, 0x00, 0x00
     .section .text.npc_extra.08037008, "ax", %progbits
 
     .section .text.npc_extra.08037048, "ax", %progbits
 
-    thumb_func_start func_08037048
-func_08037048: @ 0x08037048
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L08037090 @ =vtable_unk_080E7328
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x30]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C12AActorEntity
-    mov r0, sp
-    ldm r0!, {r1, r2}
-    stm r4!, {r1, r2}
-    ldr r0, .L08037094 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L0803707A
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0803707A:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L08037088
-    adds r0, r5, #0
-    bl __builtin_delete
-.L08037088:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08037090: .4byte vtable_unk_080E7328
-.L08037094: .4byte __vt_7AEntity
-
     .section .text.npc_extra.080370D8, "ax", %progbits
-.L080370D8:
-    .byte 0x10, 0xB5, 0x00, 0x69, 0x00, 0x28, 0x16, 0xD0
-    .byte 0x00, 0x24, 0x02, 0x1C, 0x30, 0x32, 0x00, 0x21, 0xD0, 0x89, 0x00, 0x28, 0x04, 0xD0, 0x10, 0x20
-    .byte 0x11, 0x5E, 0x48, 0x42, 0x08, 0x43, 0xC1, 0x0F, 0x00, 0x29, 0x05, 0xD0, 0x10, 0x1C, 0x27, 0xF0
-    .byte 0xC9, 0xFB, 0x00, 0x06, 0x00, 0x28, 0x00, 0xD0, 0x01, 0x24, 0x20, 0x1C, 0x00, 0xE0, 0x01, 0x20
-    .byte 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
-
     .section .text.npc_extra.08037118, "ax", %progbits
 
     thumb_func_start func_08037118
@@ -1946,7 +1496,7 @@ func_0803726C: @ 0x0803726C
     mov r0, sb
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08037310:
     ldr r0, [r7]
     ldr r1, [r0]
@@ -1968,7 +1518,7 @@ func_0803726C: @ 0x0803726C
     mov r0, sb
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08037340:
     adds r2, r7, #0
     adds r2, #0x34
@@ -1989,7 +1539,7 @@ func_0803726C: @ 0x0803726C
     mov r0, sb
     adds r1, r2, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L0803736A:
     ldrh r4, [r7, #0x3e]
     cmp r4, #0
@@ -2653,55 +2203,6 @@ func_08037AD0: @ 0x08037AD0
     .section .text.npc_extra.08037CDC, "ax", %progbits
     .section .text.npc_extra.08037D08, "ax", %progbits
 
-    thumb_func_start func_08037D08
-func_08037D08: @ 0x08037D08
-    push {r4, r5, r6, r7, lr}
-    sub sp, #8
-    adds r7, r0, #0
-    adds r4, r1, #0
-    str r4, [r7]
-    ldr r0, .L08037D68 @ =vtable_unk_080E7478
-    str r0, [r7, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r5, r0, #0
-    ldr r1, [r4]
-    adds r4, r7, #0
-    adds r4, #8
-    adds r0, r4, #0
-    movs r2, #2
-    movs r3, #0xa
-    bl func_080A4740
-    ldr r0, .L08037D6C @ =vtable_unk_080E602C
-    str r0, [r4, #0x24]
-    adds r6, r7, #0
-    adds r6, #0x30
-    ldr r4, [r5]
-    mov r0, sp
-    ldr r3, [r4, #0xc]
-    adds r1, r5, #0
-    movs r2, #0x7d
-    bl _call_via_r3
-    ldr r0, [sp]
-    ldrh r2, [r0]
-    adds r0, r6, #0
-    ldr r3, [r4, #0x10]
-    adds r1, r5, #0
-    bl _call_via_r3
-    adds r1, r7, #0
-    adds r1, #0x50
-    movs r0, #1
-    strb r0, [r1]
-    adds r0, r7, #0
-    add sp, #8
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037D68: .4byte vtable_unk_080E7478
-.L08037D6C: .4byte vtable_unk_080E602C
     .section .text.npc_extra.08037D74, "ax", %progbits
 
     thumb_func_start func_08037D74
@@ -2777,7 +2278,7 @@ func_08037D74: @ 0x08037D74
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L08037E0C:
@@ -2790,102 +2291,7 @@ func_08037D74: @ 0x08037D74
 
     .section .text.npc_extra.08037E48, "ax", %progbits
 
-    thumb_func_start func_08037E48
-func_08037E48: @ 0x08037E48
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L08037E94 @ =vtable_unk_080E73FC
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x18]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C7AEntity
-    adds r0, r4, #0
-    mov r1, sp
-    bl ItemCollection_SetExtraItems
-    ldr r0, .L08037E98 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L08037E7C
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08037E7C:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L08037E8A
-    adds r0, r5, #0
-    bl __builtin_delete
-.L08037E8A:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08037E94: .4byte vtable_unk_080E73FC
-.L08037E98: .4byte __vt_7AEntity
-
     .section .text.npc_extra.08037EF0, "ax", %progbits
-
-    thumb_func_start func_08037EF0
-func_08037EF0: @ 0x08037EF0
-    push {r4, r5, r6, r7, lr}
-    sub sp, #8
-    adds r7, r0, #0
-    adds r4, r1, #0
-    str r4, [r7]
-    ldr r0, .L08037F58 @ =vtable_unk_080E7430
-    str r0, [r7, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r5, r0, #0
-    ldr r1, [r4]
-    adds r4, r7, #0
-    adds r4, #8
-    adds r0, r4, #0
-    movs r2, #2
-    movs r3, #8
-    bl func_080A4740
-    ldr r0, .L08037F5C @ =vtable_unk_080E602C
-    str r0, [r4, #0x24]
-    adds r6, r7, #0
-    adds r6, #0x30
-    ldr r4, [r5]
-    mov r0, sp
-    ldr r3, [r4, #0xc]
-    adds r1, r5, #0
-    movs r2, #0x35
-    bl _call_via_r3
-    ldr r0, [sp]
-    ldrh r2, [r0]
-    adds r0, r6, #0
-    ldr r3, [r4, #0x10]
-    adds r1, r5, #0
-    bl _call_via_r3
-    adds r1, r7, #0
-    adds r1, #0x50
-    movs r2, #0
-    movs r0, #1
-    strb r0, [r1]
-    adds r0, r7, #0
-    adds r0, #0x54
-    strb r2, [r0]
-    adds r0, r7, #0
-    add sp, #8
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037F58: .4byte vtable_unk_080E7430
-.L08037F5C: .4byte vtable_unk_080E602C
 
     .section .text.npc_extra.08037F7C, "ax", %progbits
 
@@ -2968,7 +2374,7 @@ func_08037F7C: @ 0x08037F7C
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L0803801C:
@@ -2978,103 +2384,6 @@ func_08037F7C: @ 0x08037F7C
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
-    thumb_func_start func_08038028
-func_08038028: @ 0x08038028
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r6, r0, #0
-    adds r5, r1, #0
-    adds r4, r2, #0
-    bl __7AEntityP10GameObjectRC8Location
-    ldr r0, .L08038094 @ =vtable_unk_080E73B4
-    str r0, [r6, #0x14]
-    str r4, [r6, #0x18]
-    movs r0, #0
-    str r0, [r6, #0x1c]
-    adds r1, r6, #0
-    adds r1, #0x25
-    strb r0, [r1]
-    adds r1, #1
-    strb r0, [r1]
-    movs r0, #0x31
-    strh r0, [r6, #0x28]
-    ldr r0, [r5]
-    ldr r2, [r0, #0x40]
-    adds r0, r5, #0
-    movs r1, #0x2b
-    bl _call_via_r2
-    adds r4, r0, #0
-    cmp r4, #0
-    beq .L08038088
-    ldrh r0, [r4, #4]
-    ldrh r1, [r6, #4]
-    cmp r0, r1
-    bne .L08038088
-    adds r0, r4, #0
-    bl DogEntity_IsCarryingTarget
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08038088
-    ldr r1, [r4, #8]
-    ldr r2, [r4, #0xc]
-    ldrh r3, [r4, #0x22]
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    str r0, [sp]
-    adds r0, r6, #0
-    bl StartLaunchedSpriteMovement
-.L08038088:
-    adds r0, r6, #0
-    add sp, #4
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08038094: .4byte vtable_unk_080E73B4
-
-    thumb_func_start func_08038098
-func_08038098: @ 0x08038098
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L080380E4 @ =vtable_unk_080E73B4
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x18]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C7AEntity
-    adds r0, r4, #0
-    mov r1, sp
-    movs r2, #6
-    bl memcpy
-    ldr r0, .L080380E8 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L080380CE
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080380CE:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L080380DC
-    adds r0, r5, #0
-    bl __builtin_delete
-.L080380DC:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080380E4: .4byte vtable_unk_080E73B4
-.L080380E8: .4byte __vt_7AEntity
 
     .section .text.npc_extra.08038110, "ax", %progbits
 
@@ -3472,40 +2781,6 @@ func_08038398: @ 0x08038398
 
     .section .text.npc_extra.0803853C, "ax", %progbits
 
-    thumb_func_start func_0803853C
-func_0803853C: @ 0x0803853C
-    push {r4, r5, r6, lr}
-    sub sp, #0xc
-    adds r6, r0, #0
-    adds r4, r1, #0
-    str r4, [r6]
-    ldr r0, .L0803857C @ =vtable_unk_080E73E8
-    str r0, [r6, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldr r3, [r4]
-    adds r0, r6, #0
-    adds r0, #8
-    ldrh r2, [r4, #0x28]
-    movs r4, #2
-    str r4, [sp]
-    movs r4, #7
-    str r4, [sp, #4]
-    add r5, sp, #8
-    movs r4, #0
-    strb r4, [r5]
-    bl func_080A4A00
-    adds r0, r6, #0
-    add sp, #0xc
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0803857C: .4byte vtable_unk_080E73E8
-
     .section .text.npc_extra.080385B0, "ax", %progbits
 
     thumb_func_start func_080385B0
@@ -3665,7 +2940,7 @@ func_080385B0: @ 0x080385B0
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0803870A
 .L080386F0:
     adds r4, r6, #0
@@ -3677,7 +2952,7 @@ func_080385B0: @ 0x080385B0
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0803870A:
@@ -3698,7 +2973,7 @@ func_080385B0: @ 0x080385B0
     str r5, [sp]
     ldr r2, [sp, #0x3c]
     ldr r3, [sp, #0x40]
-    bl func_0803AE58
+    bl DrawFixedSpriteOverlay
 .L08038730:
     add sp, #0x50
     pop {r3, r4, r5}
@@ -3748,7 +3023,7 @@ func_08038820: @ 0x08038820
     adds r1, r4, #0
     movs r2, #6
     movs r3, #0x1b
-    bl func_080A4740
+    bl InitializeMapSpriteSinglePalette
     ldr r0, .L080388A0 @ =vtable_unk_080E602C
     str r0, [r6, #0x24]
     movs r1, #0x28
@@ -3822,7 +3097,7 @@ func_08038820: @ 0x08038820
 .L080388FC:
     adds r0, r4, #0
     movs r1, #2
-    bl func_080A47B4
+    bl DestroyMapSpriteResource
     adds r4, #0x50
     cmp r4, r5
     bne .L080388FC
@@ -4145,7 +3420,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08038B7E
 .L08038B68:
     ldrb r0, [r5, #2]
@@ -4155,7 +3430,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r5, #2]
 .L08038B7E:
@@ -4248,7 +3523,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L08038C30:
@@ -4323,7 +3598,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #0
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L08038CC8:
@@ -4435,7 +3710,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08038DC2
 .L08038DA8:
     adds r4, r6, #0
@@ -4447,7 +3722,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L08038DC2:
@@ -4476,83 +3751,6 @@ func_08038A70: @ 0x08038A70
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
-    thumb_func_start func_08038DF0
-func_08038DF0: @ 0x08038DF0
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    mov r8, r0
-    movs r0, #0x54
-    bl __builtin_new
-    adds r7, r0, #0
-    mov r1, r8
-    ldr r0, [r1]
-    ldr r4, [r0]
-    ldr r0, [r4]
-    ldr r1, [r0, #0x70]
-    adds r0, r4, #0
-    bl _call_via_r1
-    adds r5, r0, #0
-    adds r0, r7, #0
-    adds r1, r4, #0
-    movs r2, #6
-    movs r3, #0x1b
-    bl func_080A4740
-    ldr r0, .L08038E8C @ =vtable_unk_080E602C
-    str r0, [r7, #0x24]
-    adds r6, r7, #0
-    adds r6, #0x28
-    ldr r4, [r5]
-    mov r0, sp
-    ldr r3, [r4, #0xc]
-    adds r1, r5, #0
-    movs r2, #0
-    bl _call_via_r3
-    ldr r0, [sp]
-    ldrh r2, [r0]
-    adds r0, r6, #0
-    ldr r3, [r4, #0x10]
-    adds r1, r5, #0
-    bl _call_via_r3
-    adds r1, r7, #0
-    adds r1, #0x48
-    movs r2, #0
-    movs r0, #1
-    strb r0, [r1]
-    movs r0, #0x90
-    lsls r0, r0, #0x11
-    str r0, [r7, #0x4c]
-    adds r0, r7, #0
-    adds r0, #0x50
-    strb r2, [r0]
-    adds r0, #1
-    strb r2, [r0]
-    mov r5, r8
-    adds r5, #0xc
-    adds r6, r7, #0
-    mov r0, r8
-    ldr r4, [r0, #0xc]
-    cmp r6, r4
-    beq .L08038E7E
-    cmp r4, #0
-    beq .L08038E7E
-    adds r0, r4, #0
-    movs r1, #2
-    bl func_080A47B4
-    adds r0, r4, #0
-    bl __builtin_delete
-.L08038E7E:
-    str r6, [r5]
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08038E8C: .4byte vtable_unk_080E602C
 
     .section .text.npc_extra.08038EB8, "ax", %progbits
 
@@ -4677,7 +3875,7 @@ func_08038EE0: @ 0x08038EE0
 .L08038FCC:
     add r0, sp, #0xc
     movs r1, #2
-    bl func_080A47B4
+    bl DestroyMapSpriteResource
     b .L08039064
     .align 2, 0
 .L08038FD8: .4byte vtable_unk_080E681C
@@ -4747,7 +3945,7 @@ func_08038EE0: @ 0x08038EE0
 .L0803905C:
     add r0, sp, #0xc
     movs r1, #2
-    bl func_080A47B4
+    bl DestroyMapSpriteResource
 .L08039064:
     movs r1, #0xa2
     lsls r1, r1, #1
@@ -4806,15 +4004,6 @@ func_08038EE0: @ 0x08038EE0
 .L080390CC: .4byte vtable_unk_080E681C
 
     .section .text.npc_extra.080390D0, "ax", %progbits
-
-    thumb_func_start func_080390D0
-func_080390D0: @ 0x080390D0
-    ldr r1, [r0, #0x10]
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-    bx lr
-    .align 2, 0
 
     .section .text.npc_extra.080390DC, "ax", %progbits
     .section .text.npc_extra.08039134, "ax", %progbits
@@ -5862,6 +5051,8 @@ func_080398A4: @ 0x080398A4
 .L080399B8: .4byte vtable_unk_080E749C
 .L080399BC: .4byte vtable_unk_080E748C
 
+    .section .text.npc_extra.080399C0, "ax", %progbits
+
     thumb_func_start func_080399C0
 func_080399C0: @ 0x080399C0
     push {r4, r5, r6, r7, lr}
@@ -6154,7 +5345,7 @@ func_08039A60: @ 0x08039A60
     mov r0, r8
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08039C38:
     ldr r0, [r7]
     ldr r1, [r0]
@@ -6176,7 +5367,7 @@ func_08039A60: @ 0x08039A60
     mov r0, r8
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08039C68:
     ldr r0, [r7, #0x34]
     ldr r0, [r0, #0xc]
@@ -6293,197 +5484,7 @@ func_08039A60: @ 0x08039A60
 
     .section .text.npc_extra.08039DA8, "ax", %progbits
 
-    thumb_func_start func_08039DA8
-func_08039DA8: @ 0x08039DA8
-    push {r4, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    ldr r0, [r4, #0x34]
-    ldr r0, [r0, #0xc]
-    cmp r0, #1
-    beq .L08039E00
-    movs r0, #0x78
-    bl RollEntityMovementRandom
-    adds r0, #0xf0
-    lsls r0, r0, #0x10
-    lsrs r0, r0, #0x10
-    ldr r2, .L08039E08 @ =0xFFFF0000
-    ldr r1, [sp]
-    ands r1, r2
-    orrs r1, r0
-    ldr r0, .L08039E0C @ =0xFF80FFFF
-    ands r1, r0
-    movs r0, #0xf0
-    lsls r0, r0, #0xe
-    orrs r1, r0
-    ldr r0, .L08039E10 @ =0xFF7FFFFF
-    ands r1, r0
-    ldr r0, .L08039E14 @ =0x00FFFFFF
-    ands r1, r0
-    str r1, [sp]
-    ldr r0, [r4, #0x34]
-    mov r1, sp
-    bl func_0809C0C8
-    ldr r0, [r4, #0x34]
-    movs r1, #0xf
-    bl func_0809C068
-    adds r0, r4, #0
-    movs r1, #2
-    movs r2, #0
-    bl func_08032384
-    adds r0, r4, #0
-    movs r1, #0xaa
-    bl AEntity_PlayAnimationSound
-.L08039E00:
-    add sp, #4
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08039E08: .4byte 0xFFFF0000
-.L08039E0C: .4byte 0xFF80FFFF
-.L08039E10: .4byte 0xFF7FFFFF
-.L08039E14: .4byte 0x00FFFFFF
-
-    thumb_func_start func_08039E18
-func_08039E18: @ 0x08039E18
-    push {r4, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    ldr r0, [r4, #0x34]
-    ldr r0, [r0, #0xc]
-    cmp r0, #1
-    beq .L08039E72
-    movs r0, #0x78
-    bl RollEntityMovementRandom
-    adds r0, #0xf0
-    lsls r0, r0, #0x10
-    lsrs r0, r0, #0x10
-    ldr r2, .L08039E7C @ =0xFFFF0000
-    ldr r1, [sp]
-    ands r1, r2
-    orrs r1, r0
-    ldr r0, .L08039E80 @ =0xFF80FFFF
-    ands r1, r0
-    movs r0, #0xf0
-    lsls r0, r0, #0xe
-    orrs r1, r0
-    movs r0, #0x80
-    lsls r0, r0, #0x10
-    orrs r1, r0
-    ldr r0, .L08039E84 @ =0x00FFFFFF
-    ands r1, r0
-    str r1, [sp]
-    ldr r0, [r4, #0x34]
-    mov r1, sp
-    bl func_0809C0C8
-    ldr r0, [r4, #0x34]
-    movs r1, #4
-    bl func_0809C068
-    adds r0, r4, #0
-    movs r1, #2
-    movs r2, #0
-    bl func_08032384
-    adds r0, r4, #0
-    movs r1, #0xaa
-    bl AEntity_PlayAnimationSound
-.L08039E72:
-    add sp, #4
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08039E7C: .4byte 0xFFFF0000
-.L08039E80: .4byte 0xFF80FFFF
-.L08039E84: .4byte 0x00FFFFFF
     .section .text.npc_extra.08039E98, "ax", %progbits
-
-    thumb_func_start func_08039E98
-func_08039E98: @ 0x08039E98
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0x14
-    adds r7, r0, #0
-    adds r6, r1, #0
-    adds r5, r2, #0
-    mov sb, r3
-    ldr r0, .L08039F30 @ =vtable_unk_080E76BC
-    str r0, [r7, #0x4c]
-    str r6, [r7]
-    movs r4, #0
-    strh r5, [r7, #4]
-    ldr r0, [r6]
-    ldr r1, [r0, #0x68]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r7, #0
-    adds r0, #8
-    movs r2, #3
-    str r2, [sp]
-    movs r2, #0x1b
-    str r2, [sp, #4]
-    add r2, sp, #8
-    strb r4, [r2]
-    adds r2, r5, #0
-    adds r3, r6, #0
-    bl func_080A4A00
-    mov r0, sb
-    cmp r0, #1
-    bne .L08039F3C
-    movs r0, #0x4c
-    bl __builtin_new
-    adds r5, r0, #0
-    ldr r0, [r6]
-    ldr r1, [r0, #0x68]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r4, r0, #0
-    adds r0, r5, #0
-    adds r1, r6, #0
-    movs r2, #2
-    movs r3, #0xf
-    bl func_080A4740
-    ldr r0, .L08039F34 @ =vtable_unk_080E602C
-    str r0, [r5, #0x24]
-    movs r1, #0x28
-    adds r1, r1, r5
-    mov r8, r1
-    ldr r6, [r4]
-    add r0, sp, #0xc
-    ldr r3, [r6, #0xc]
-    adds r1, r4, #0
-    ldr r2, .L08039F38 @ =0x0000091A
-    bl _call_via_r3
-    ldr r0, [sp, #0xc]
-    ldrh r2, [r0]
-    mov r0, r8
-    ldr r3, [r6, #0x10]
-    adds r1, r4, #0
-    bl _call_via_r3
-    adds r0, r5, #0
-    adds r0, #0x48
-    mov r1, sb
-    strb r1, [r0]
-    b .L08039F3E
-    .align 2, 0
-.L08039F30: .4byte vtable_unk_080E76BC
-.L08039F34: .4byte vtable_unk_080E602C
-.L08039F38: .4byte 0x0000091A
-.L08039F3C:
-    movs r5, #0
-.L08039F3E:
-    str r5, [r7, #0x48]
-    adds r0, r7, #0
-    add sp, #0x14
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
 
     .section .text.npc_extra.08039F90, "ax", %progbits
 
@@ -6609,7 +5610,7 @@ func_08039F90: @ 0x08039F90
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0803A0A4
 .L0803A08A:
     adds r4, r6, #0
@@ -6621,7 +5622,7 @@ func_08039F90: @ 0x08039F90
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0803A0A4:
@@ -6693,7 +5694,7 @@ func_08039F90: @ 0x08039F90
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L0803A134:
@@ -7151,7 +6152,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A554 @ =0x000009B6
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A558 @ =vtable_unk_080E76A4
 .L0803A508:
     str r0, [r4, #0x4c]
@@ -7204,7 +6205,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     movs r2, #0x10
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A574 @ =vtable_unk_080E768C
     b .L0803A508
     .align 2, 0
@@ -7216,7 +6217,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A590 @ =0x000003DB
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A594 @ =vtable_unk_080E7674
     b .L0803A508
     .align 2, 0
@@ -7229,7 +6230,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A5B0 @ =0x00000806
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A5B4 @ =vtable_unk_080E765C
     b .L0803A508
     .align 2, 0
@@ -7242,7 +6243,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A600 @ =0x00000202
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A604 @ =vtable_unk_080E7644
     str r0, [r4, #0x4c]
     movs r1, #0
@@ -7280,7 +6281,7 @@ func_0803A394: @ 0x0803A394
     movs r2, #0xa9
     lsls r2, r2, #2
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A66C @ =vtable_unk_080E762C
     str r0, [r5, #0x4c]
     movs r4, #0
@@ -7328,7 +6329,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A688 @ =0x0000087B
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A68C @ =vtable_unk_080E7614
     b .L0803A508
     .align 2, 0
@@ -7341,7 +6342,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A6A8 @ =0x0000065C
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A6AC @ =vtable_unk_080E75FC
     b .L0803A508
     .align 2, 0
@@ -7354,7 +6355,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A6C8 @ =0x000008F9
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A6CC @ =vtable_unk_080E75E4
     b .L0803A508
     .align 2, 0
@@ -7367,7 +6368,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A6E8 @ =0x000009A9
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A6EC @ =vtable_unk_080E75CC
     b .L0803A508
     .align 2, 0
@@ -7380,7 +6381,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A708 @ =0x000008FD
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A70C @ =vtable_unk_080E75B4
     b .L0803A508
     .align 2, 0
@@ -7393,7 +6394,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     movs r2, #0x15
     movs r3, #0
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A794 @ =vtable_unk_080E759C
     str r0, [r5, #0x4c]
     movs r4, #0
