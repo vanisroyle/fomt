@@ -2696,7 +2696,7 @@ func_08033928: @ 0x08033928
     ldr r2, [r0]
     add r0, sp, #4
     adds r1, r4, #0
-    bl func_080A03B8
+    bl GetRosterNpcLocation
     ldr r1, .L080339A8 @ =gUnk_080F14E2
     lsls r0, r6, #1
     adds r0, r0, r1
@@ -2715,7 +2715,7 @@ func_08033928: @ 0x08033928
     strb r6, [r0]
     adds r0, r4, #0
     adds r1, r6, #0
-    bl func_080A099C
+    bl GetRosterHarvestSpriteByIndexConst
     str r0, [r7, #0x34]
     movs r0, #0x87
     lsls r0, r0, #3

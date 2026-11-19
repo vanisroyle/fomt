@@ -4579,7 +4579,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r3, .L08041ED4 @ =0x00001CD4
 	adds r0, r0, r3
-	bl func_080A0878
+	bl GetRosterBacheloretteByIdConst
 	movs r2, #0
 	cmp r0, #0
 	bne .L08041ECA
@@ -4622,7 +4622,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r2, .L08041F28 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0878
+	bl GetRosterBacheloretteByIdConst
 	cmp r0, #0
 	bne .L08041F1E
 	bl .L08045572
@@ -4664,7 +4664,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r2, .L08041F7C @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0878
+	bl GetRosterBacheloretteByIdConst
 	cmp r0, #0
 	bne .L08041F72
 	bl .L08045572
@@ -5499,7 +5499,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r3, .L08042650 @ =0x00001CD4
 	adds r0, r0, r3
-	bl func_080A0930
+	bl GetRosterHarvestSpriteByIdConst
 	movs r2, #3
 	cmp r0, #0
 	bne .L08042646
@@ -5532,7 +5532,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r3, .L08042694 @ =0x00001CD4
 	adds r0, r0, r3
-	bl func_080A0930
+	bl GetRosterHarvestSpriteByIdConst
 	movs r2, #0
 	cmp r0, #0
 	bne .L0804268A
@@ -5575,7 +5575,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r3, .L080426EC @ =0x00001CD4
 	adds r0, r0, r3
-	bl func_080A0930
+	bl GetRosterHarvestSpriteByIdConst
 	movs r2, #0
 	cmp r0, #0
 	bne .L080426E0
@@ -5609,7 +5609,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r3, .L08042734 @ =0x00001CD4
 	adds r0, r0, r3
-	bl func_080A0930
+	bl GetRosterHarvestSpriteByIdConst
 	movs r2, #0
 	cmp r0, #0
 	bne .L08042726
@@ -5653,7 +5653,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r3, .L0804279C @ =0x00001CD4
 	adds r0, r0, r3
-	bl func_080A0930
+	bl GetRosterHarvestSpriteByIdConst
 	movs r1, #0
 	cmp r0, #0
 	beq .L08042788
@@ -5715,7 +5715,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r3, .L08042804 @ =0x00001CD4
 	adds r0, r0, r3
-	bl func_080A0930
+	bl GetRosterHarvestSpriteByIdConst
 	cmp r0, #0
 	bne .L080427F8
 	bl .L08045572
@@ -5745,7 +5745,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r2, .L08042840 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0930
+	bl GetRosterHarvestSpriteByIdConst
 	cmp r0, #0
 	bne .L08042836
 	bl .L08045572
@@ -6482,7 +6482,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r4]
 	ldr r1, .L08042E70 @ =0x00001CD4
 	adds r0, r0, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r6, r0, #0
 	cmp r6, #0
 	beq .L08042E50
@@ -6676,7 +6676,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r4]
 	ldr r1, .L08042FE8 @ =0x00001CD4
 	adds r0, r0, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	subs r0, #3
 	movs r2, #0xda
 	lsls r2, r2, #1
@@ -11383,7 +11383,7 @@ func_08045584: @ 0x08045584
 	ldr r0, [r0]
 	ldr r2, .L080455B8 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0878
+	bl GetRosterBacheloretteByIdConst
 	adds r4, r0, #0
 	cmp r4, #0
 	beq .L080455CE
@@ -11442,7 +11442,7 @@ func_080455D8: @ 0x080455D8
 	ldr r1, .L08045620 @ =0x00001CD4
 	adds r0, r0, r1
 	adds r1, r6, #0
-	bl func_080A0878
+	bl GetRosterBacheloretteByIdConst
 	cmp r0, #0
 	beq .L0804562C
 	cmp r5, #0
@@ -11493,7 +11493,7 @@ func_08045638: @ 0x08045638
 	ldr r2, .L08045688 @ =0x00001CD4
 	adds r0, r0, r2
 	ldr r1, [sp, #8]
-	bl func_080A0878
+	bl GetRosterBacheloretteByIdConst
 	adds r4, r0, #0
 	cmp r4, #0
 	bne .L08045676
@@ -62958,13 +62958,13 @@ func_0805FF14: @ 0x0805FF14
 	ldr r0, [r4]
 	adds r1, r7, #0
 	adds r0, r0, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	str r0, [sp, #0x1d4]
 	ldr r0, [r4]
 	adds r2, r7, #0
 	adds r0, r0, r2
 	ldr r1, [sp, #0x1d4]
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	str r0, [sp, #0x1d8]
 	ldr r0, [sp, #0x1d4]
 	subs r0, #3
@@ -71851,7 +71851,7 @@ sub_08065B14: @ 0x08065B14
 	ldr r7, .L08065B5C @ =0x00001CD4
 	adds r0, r0, r7
 	ldr r1, [sp, #0xf8]
-	bl func_080A031C
+	bl GetRosterHarvestSpriteByIndex
 	str r0, [sp, #0xfc]
 	ldr r0, [sp, #0xf8]
 	adds r0, #1
@@ -104349,7 +104349,7 @@ func_08075450: @ 0x08075450
 	ldr r1, .L08075498 @ =0x00001CD4
 	adds r0, r0, r1
 	adds r1, r4, #0
-	bl func_080A031C
+	bl GetRosterHarvestSpriteByIndex
 	cmp r0, #0
 	beq .L08075482
 	adds r1, r7, #0
@@ -121519,7 +121519,7 @@ func_0807DE3C: @ 0x0807DE3C
 	ldr r2, .L0807E324 @ =0x00001CD4
 	adds r0, r0, r2
 	adds r1, r6, #0
-	bl func_080A0A54
+	bl AddNpcScheduleCounter7
 	ldr r0, [r7, #8]
 	ldr r3, .L0807E328 @ =0x00001AA8
 	adds r0, r0, r3
@@ -123746,7 +123746,7 @@ func_0807EF90: @ 0x0807EF90
 	ldr r6, .L0807F514 @ =0x00001CD4
 	adds r0, r0, r6
 	movs r1, #1
-	bl func_080A0A1C
+	bl AddNpcScheduleCounter6
 .L0807F4D6:
 	ldr r0, [r7, #8]
 	ldr r1, .L0807F518 @ =0x00001AA8
@@ -160119,7 +160119,7 @@ func_08092CD0: @ 0x08092CD0
 	ldr r1, .L08092D60 @ =0x00001CD4
 	adds r0, r0, r1
 	movs r1, #1
-	bl func_080A0A54
+	bl AddNpcScheduleCounter7
 	add sp, #4
 	pop {r4, r5, r6}
 	pop {r0}
