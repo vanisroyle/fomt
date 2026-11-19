@@ -81,8 +81,8 @@ struct MapScene
     MapUpdateState * map;
     MapSceneEntity * entities[100];
     STRUCT_PAD(0x198, 0x1BC);
-    MapSceneObjectPalette objectPalettes[16];
-    STRUCT_PAD(0x9FC, 0xDB0);
+    MapSceneObjectPalette objectPalettes[22];
+    STRUCT_PAD(0xD14, 0xDB0);
     MapSceneAnimationSlot animations[13];
     STRUCT_PAD(0x1020, 0x1024);
     MapSceneOverlay * overlay;
@@ -930,6 +930,57 @@ EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, Loca
         }
         while (entry != end);
     }
+}
+
+EC SECTION(".text.080AD5D8") unsigned ReserveMapSceneObjectPaletteSlot(MapScene & scene, unsigned paletteKind)
+{
+    unsigned slot;
+    u8 * flagAddress;
+    switch (paletteKind)
+    {
+    case 0:
+        return 0;
+    case 1:
+    case 2:
+    case 4:
+        return 1;
+    case 3:
+    case 5:
+        return 2;
+    case 14:
+        return 3;
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+        return 4;
+    case 6:
+    case 7:
+    case 8:
+    case 26:
+        return 5;
+    }
+
+    goto search;
+reserveSlot:
+    *reinterpret_cast<bool *>(flagAddress) = true;
+    return slot;
+search:
+    slot = 6;
+    flagAddress = reinterpret_cast<u8 *>(&scene.objectPalettes)
+        + 6 * sizeof(MapSceneObjectPalette) + offsetof(MapSceneObjectPalette, flag);
+    do
+    {
+        if (!*reinterpret_cast<bool *>(flagAddress))
+            goto reserveSlot;
+        flagAddress += sizeof(MapSceneObjectPalette);
+        ++slot;
+        asm ("" : "+l" (slot));
+        unsigned endSlot = ARRAY_COUNT(scene.objectPalettes);
+        if (slot >= endSlot)
+            break;
+    } while (true);
+    return ARRAY_COUNT(scene.objectPalettes) - 1;
 }
 
 EC SECTION(".text.080AD69C") MapSceneTerrainGrid & GetMapSceneTerrainGrid(MapSceneTerrainGrid & result, MapScene const & scene, u32 requestedMap)
