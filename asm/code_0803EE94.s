@@ -143719,7 +143719,7 @@ func_080884F4: @ 0x080884F4
 .L08088558:
 	ldr r0, [r6, #0x7c]
 	adds r1, r5, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 .L08088560:
 	adds r5, #1
 	cmp r5, #7
@@ -143738,7 +143738,7 @@ func_08088574: @ 0x08088574
 	adds r4, r0, #0
 	adds r0, #0x94
 	ldr r0, [r0]
-	bl func_080CEB80
+	bl NextInventoryPage
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_080884F4
@@ -143753,7 +143753,7 @@ func_08088590: @ 0x08088590
 	adds r4, r0, #0
 	adds r0, #0x94
 	ldr r0, [r0]
-	bl func_080CEBC0
+	bl PreviousInventoryPage
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_080884F4
@@ -143794,7 +143794,7 @@ func_080885AC: @ 0x080885AC
 	ldr r4, [r0]
 	adds r0, r5, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -143819,7 +143819,7 @@ func_080885AC: @ 0x080885AC
 	ldr r4, [r0]
 	adds r0, r5, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	lsls r4, r4, #3
 	adds r6, r4, r0
 	movs r0, #0x82
@@ -143900,10 +143900,10 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -143930,10 +143930,10 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	add r5, sp, #0x10
 	movs r1, #0x80
 	lsls r1, r1, #1
@@ -143942,7 +143942,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
@@ -143980,16 +143980,16 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
 	add r4, sp, #0x18
 	ldr r0, [r7, #0x78]
-	bl func_080CB2FC
+	bl GetLeftInventorySpecialUiEntry
 	ldm r0!, {r1, r2, r3}
 	stm r4!, {r1, r2, r3}
 	movs r1, #0
@@ -144013,7 +144013,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x1c]
 	ldr r3, [sp, #0x20]
@@ -144035,7 +144035,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r4, #0
@@ -144044,7 +144044,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144063,7 +144063,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x1c]
 	ldr r3, [sp, #0x20]
@@ -144085,7 +144085,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144096,7 +144096,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	ldr r2, [sp, #0x28]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	str r0, [sp, #0x30]
 	movs r1, #0x82
 	lsls r1, r1, #1
@@ -144181,10 +144181,10 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	b .L08088B8C
 	.align 2, 0
 .L0808894C: .4byte gUnk_086678A0
@@ -144193,7 +144193,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r1, sl
 	ldr r0, [r1]
@@ -144203,7 +144203,7 @@ func_08088688: @ 0x08088688
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L08088B8C
 .L08088978:
 	ldr r0, [r4]
@@ -144317,7 +144317,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sb
 	bl GetIconId__C4Food
@@ -144414,7 +144414,7 @@ func_08088688: @ 0x08088688
 	adds r0, r7, #0
 	mov r1, r8
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sb
 	bl GetIconId__C4Food
@@ -144481,7 +144481,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	adds r0, #0x90
 	ldr r0, [r0]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
@@ -144544,7 +144544,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sl
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	str r0, [sp, #0x38]
 	add r6, sp, #0xc
 	movs r0, #0x82
@@ -144601,7 +144601,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [sp, #0x34]
 	bl sub_080895C2
@@ -144682,7 +144682,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r1, sb
 	ldr r0, [r1]
@@ -144718,10 +144718,10 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -144730,10 +144730,10 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	ldm r0!, {r1, r2, r3}
 	stm r4!, {r1, r2, r3}
 	add r4, sp, #0x10
@@ -144745,7 +144745,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144756,7 +144756,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144783,7 +144783,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144793,7 +144793,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144806,7 +144806,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x1c]
 	ldr r3, [sp, #0x20]
@@ -144818,10 +144818,10 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	bl .L08089AC0
 .L08088EC8:
 	adds r0, r6, #0
@@ -144833,7 +144833,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144846,7 +144846,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144856,17 +144856,17 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	b .L08088F6E
 .L08088F22:
 	ldr r4, [r5]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144876,7 +144876,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144886,7 +144886,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x1c]
 	ldr r3, [sp, #0x20]
@@ -144899,7 +144899,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #8]
 	ldr r3, [sp, #0xc]
@@ -144917,7 +144917,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -144930,7 +144930,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sl
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sb, r0
 	add r4, sp, #8
 	movs r2, #0x82
@@ -144964,7 +144964,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -145001,7 +145001,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r5, #0
 	bl GetIconId__C4Food
@@ -145033,7 +145033,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r2, [sp, #0x44]
 	ldr r0, [r2]
@@ -145107,7 +145107,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -145120,15 +145120,15 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r6, #0
 	bl GetIconId__C4Food
@@ -145242,7 +145242,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -145267,7 +145267,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #0x10
 	bl GetIconId__C4Food
@@ -145285,7 +145285,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #0xc
 	bl GetIconId__C4Food
@@ -145342,7 +145342,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -145355,15 +145355,15 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sb
@@ -145373,11 +145373,11 @@ func_08088BA0: @ 0x08088BA0
 	adds r2, #0x90
 	str r2, [sp, #0x50]
 	ldr r0, [r2]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	str r0, [sp, #0x4c]
 	ldr r3, [sp, #0x50]
 	str r3, [sp, #0x5c]
@@ -145403,7 +145403,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -145431,7 +145431,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -145466,7 +145466,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r5, #0
 	add r1, sp, #4
@@ -145484,7 +145484,7 @@ func_08088BA0: @ 0x08088BA0
 	bl func_080CB304
 	ldr r1, [sp, #0x50]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r1, r7, #0
 	adds r1, #0x94
 	ldr r1, [r1]
@@ -145508,7 +145508,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r3, sb
 	ldr r0, [r3]
@@ -145548,7 +145548,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -145587,13 +145587,13 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r4, [sp, #0x50]
 	ldr r0, [r4]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r1, r7, #0
 	adds r1, #0x94
 	ldr r1, [r1]
@@ -145607,7 +145607,7 @@ func_08088BA0: @ 0x08088BA0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r6, #0
 	mov r1, r8
@@ -145741,7 +145741,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -145766,7 +145766,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #0x10
 	bl GetIconId__C4Food
@@ -145782,7 +145782,7 @@ sub_080895C2: @ 0x080895C2
 	bl func_080CB304
 	ldr r1, [sp, #0x5c]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r1, r7, #0
 	adds r1, #0x94
 	ldr r1, [r1]
@@ -145796,7 +145796,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #0xc
 	bl GetIconId__C4Food
@@ -145822,7 +145822,7 @@ sub_080895C2: @ 0x080895C2
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sl
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov r8, r0
 	movs r4, #0x82
 	lsls r4, r4, #1
@@ -145875,13 +145875,13 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	ldr r2, [sp, #0x50]
 	ldr r0, [r2]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r3, [sp, #0x58]
 	ldr r1, [r3]
 	adds r1, #0xbc
@@ -145894,7 +145894,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	mov r1, sb
@@ -145940,7 +145940,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r6, r0, #0
 	adds r0, r5, #0
 	add r1, sp, #4
@@ -145960,7 +145960,7 @@ sub_080895C2: @ 0x080895C2
 	bl func_080CC728
 	ldr r1, [sp, #0x50]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r2, [sp, #0x58]
 	ldr r1, [r2]
 	b .L0808996E
@@ -146019,7 +146019,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, r8
@@ -146028,10 +146028,10 @@ sub_080895C2: @ 0x080895C2
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	ldr r3, [sp, #0x50]
 	ldr r0, [r3]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r4, [sp, #0x58]
 	ldr r1, [r4]
 .L0808996E:
@@ -146046,10 +146046,10 @@ sub_080895C2: @ 0x080895C2
 	ldr r1, [sp, #0x2c]
 .L0808997E:
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	b .L08089AC0
 .L0808998E:
 	ldr r0, [r6]
@@ -146076,7 +146076,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, r8
@@ -146085,10 +146085,10 @@ sub_080895C2: @ 0x080895C2
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	ldr r1, [sp, #0x50]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r2, [sp, #0x58]
 	ldr r1, [r2]
 	adds r1, #0xbc
@@ -146099,7 +146099,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 .L08089A0A:
@@ -146110,7 +146110,7 @@ sub_080895C2: @ 0x080895C2
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L08089AC0
 .L08089A20:
 	ldr r0, [r6]
@@ -146127,7 +146127,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	add r3, sp, #0x14
 	mov r8, r3
@@ -146151,7 +146151,7 @@ sub_080895C2: @ 0x080895C2
 	bl func_080CC728
 	ldr r2, [sp, #0x50]
 	ldr r0, [r2]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r3, [sp, #0x58]
 	ldr r1, [r3]
 	adds r1, #0xbc
@@ -146162,7 +146162,7 @@ sub_080895C2: @ 0x080895C2
 	adds r0, r7, #0
 	ldr r1, [sp, #0x2c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	mov r1, sb
@@ -146222,7 +146222,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r2, [r0]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov r8, r0
 	add r4, sp, #8
 	movs r1, #0x82
@@ -146265,7 +146265,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, r8
@@ -146274,7 +146274,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L08089EE4
 .L08089B92:
 	ldr r0, [r6]
@@ -146340,7 +146340,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #4
 	bl GetIconId__C4Food
@@ -146402,7 +146402,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -146416,7 +146416,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r2, [r0]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov r8, r0
 	add r4, sp, #8
 	movs r0, #0x82
@@ -146456,7 +146456,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -146469,15 +146469,15 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, r8
@@ -146486,7 +146486,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L08089EE4
 .L08089D78:
 	ldr r0, [r6]
@@ -146520,7 +146520,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -146549,7 +146549,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sb
 	bl GetIconId__C4Food
@@ -146568,7 +146568,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #4
 	bl GetIconId__C4Food
@@ -146614,7 +146614,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -146627,16 +146627,16 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 .L08089EBC:
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #4
 	bl GetIconId__C4Food
@@ -146667,11 +146667,11 @@ func_08089AD8: @ 0x08089AD8
 	adds r4, r7, #0
 	adds r4, #0x90
 	ldr r0, [r4]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	str r0, [sp, #0x24]
 	movs r1, #0x82
 	lsls r1, r1, #1
@@ -146787,7 +146787,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r4, [r0]
 	ldr r1, [sp, #0x34]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0808A01A
 	b .L0808A2D8
@@ -146796,7 +146796,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [sp, #0x28]
 	bl GetIconId__C4Food
@@ -146852,7 +146852,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r4, [r0]
 	ldr r1, [sp, #0x34]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0808A0AA
 	b .L0808A2D8
@@ -146861,7 +146861,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [sp, #0x28]
 	bl GetIconId__C4Food
@@ -146889,7 +146889,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -146927,7 +146927,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -146981,7 +146981,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [sp, #0x30]
 	bl GetIconId__C4Food
@@ -147003,14 +147003,14 @@ func_08089AD8: @ 0x08089AD8
 	ldr r4, [r0]
 	ldr r1, [sp, #0x34]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	bne .L0808A2D8
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [sp, #0x2c]
 	bl GetIconId__C4Food
@@ -147058,7 +147058,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -147071,10 +147071,10 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -147082,14 +147082,14 @@ func_08089AD8: @ 0x08089AD8
 	ldr r4, [r0]
 	ldr r1, [sp, #0x34]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	bne .L0808A2D8
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [sp, #0x2c]
 	bl GetIconId__C4Food
@@ -147105,7 +147105,7 @@ func_08089AD8: @ 0x08089AD8
 .L0808A2D8:
 	ldr r1, [sp, #0x34]
 	ldr r0, [r1]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	add sp, #0x38
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -147189,10 +147189,10 @@ func_0808A2F4: @ 0x0808A2F4
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	adds r1, r0, #0
 	movs r2, #0
 	ldr r0, [r1, #4]
@@ -147216,7 +147216,7 @@ func_0808A2F4: @ 0x0808A2F4
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -147293,10 +147293,10 @@ func_0808A2F4: @ 0x0808A2F4
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	adds r1, r0, #0
 	movs r2, #0
 	ldr r0, [r1, #4]
@@ -147361,7 +147361,7 @@ func_0808A4C0: @ 0x0808A4C0
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	mov r0, sp
 	adds r1, r4, #0
@@ -147370,10 +147370,10 @@ func_0808A4C0: @ 0x0808A4C0
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	b .L0808A552
 .L0808A512:
 	adds r0, r5, #0
@@ -147383,7 +147383,7 @@ func_0808A4C0: @ 0x0808A4C0
 	ldr r2, [r0]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	movs r2, #0x82
 	lsls r2, r2, #1
@@ -147399,10 +147399,10 @@ func_0808A4C0: @ 0x0808A4C0
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 .L0808A552:
 	add sp, #4
 	pop {r4, r5, r6}
@@ -147524,7 +147524,7 @@ func_0808A55C: @ 0x0808A55C
 	cmp r0, #0
 	beq .L0808A660
 	movs r1, #3
-	bl func_080CE3DC
+	bl DestroyPagedPanelDrawCommands
 .L0808A660:
 	str r5, [r4]
 	ldr r1, [sp, #0x18]
@@ -147712,7 +147712,7 @@ func_0808A55C: @ 0x0808A55C
 	bl func_08088590
 .L0808A814:
 	ldr r0, [r6]
-	bl func_080CDA44
+	bl MoveInventorySelectionDown
 	b .L0808A89A
 .L0808A81C:
 	adds r0, r7, #0
@@ -147802,7 +147802,7 @@ func_0808A55C: @ 0x0808A55C
 	bgt .L0808A8D6
 	adds r0, r3, #0
 	movs r2, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	b .L0808AA40
 .L0808A8D6:
 	ldr r2, [sp, #0x18]
@@ -147810,18 +147810,18 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, #0xbc
 	ldr r2, [r0]
 	adds r0, r3, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	b .L0808AA40
 .L0808A8E6:
 	ldr r0, [r6]
 	ldr r4, [r0, #4]
 	adds r0, r3, #0
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r4, r0
 	bne .L0808A97E
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r0, #9
 	ble .L0808A936
 	ldr r2, [sp, #0x18]
@@ -147830,12 +147830,12 @@ func_0808A55C: @ 0x0808A55C
 	ldr r4, [r0]
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0808A936
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	ldr r0, [r6]
 	ldr r2, [r0, #4]
@@ -147851,11 +147851,11 @@ func_0808A55C: @ 0x0808A55C
 .L0808A936:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r4, r0, #0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	adds r1, r4, #0
@@ -147874,7 +147874,7 @@ func_0808A55C: @ 0x0808A55C
 	bl func_08008B6C
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808AA40
 .L0808A976:
 	movs r2, #0x84
@@ -147884,7 +147884,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808A97E:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	ldr r0, [r6]
 	ldr r2, [r0, #4]
@@ -147903,7 +147903,7 @@ func_0808A55C: @ 0x0808A55C
 	bl func_08008B6C
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808AA40
 .L0808A9B6:
 	movs r1, #0x84
@@ -147933,7 +147933,7 @@ func_0808A55C: @ 0x0808A55C
 	cmp r0, #0
 	beq .L0808A9F2
 	adds r0, r1, #0
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808AA40
 .L0808A9F2:
 	ldr r2, [sp, #0x14]
@@ -148026,7 +148026,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808AAA6:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	ldr r0, [r6]
 	ldr r2, [r0, #4]
@@ -148036,7 +148036,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808AABC:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808AB06
 .L0808AAC6:
 	adds r0, r7, #0
@@ -148261,10 +148261,10 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -148286,7 +148286,7 @@ func_0808AC28: @ 0x0808AC28
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r3, r0, #0
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -148296,10 +148296,10 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	add r5, sp, #0x10
 	movs r1, #0x82
 	lsls r1, r1, #1
@@ -148308,7 +148308,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
@@ -148319,7 +148319,7 @@ func_0808AC28: @ 0x0808AC28
 	b .L0808AF78
 .L0808ACE2:
 	ldr r0, [r7, #0x78]
-	bl func_080CB2FC
+	bl GetLeftInventorySpecialUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -148328,10 +148328,10 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	adds r1, r5, #0
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -148345,7 +148345,7 @@ func_0808AC28: @ 0x0808AC28
 	bl GetTool__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r7, #0
-	bl func_080CE1C4
+	bl IsCursedTool
 	lsls r0, r0, #0x18
 	mov r8, r5
 	cmp r0, #0
@@ -148391,7 +148391,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -148441,7 +148441,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r0, sp, #0x28
 	adds r1, r4, #0
@@ -148452,15 +148452,15 @@ func_0808AC28: @ 0x0808AC28
 	bl GetAmount__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB9DC
+	bl DrawInventorySpecialSlotCount
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	b .L0808B158
 .L0808AE2A:
 	mov r2, sl
@@ -148472,7 +148472,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -148484,19 +148484,19 @@ func_0808AC28: @ 0x0808AC28
 	bl GetAmount__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB9DC
+	bl DrawInventorySpecialSlotCount
 	ldr r6, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	ldr r2, [sp, #0x38]
 	ldr r4, [r2]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -148504,14 +148504,14 @@ func_0808AC28: @ 0x0808AC28
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	b .L0808B158
 .L0808AE96:
 	ldr r4, [r7, #0x78]
 	ldr r5, [sp, #0x18]
 	ldr r6, [sp, #0x1c]
 	mov r0, r8
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r3, r0, #0
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -148522,12 +148522,12 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -148541,7 +148541,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r4, sp, #0x28
 	adds r0, r4, #0
@@ -148556,7 +148556,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -148570,12 +148570,12 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -148589,7 +148589,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -148620,10 +148620,10 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -148650,10 +148650,10 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	add r5, sp, #0x10
 	movs r1, #0x82
 	lsls r1, r1, #1
@@ -148662,7 +148662,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
@@ -148701,16 +148701,16 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
 	add r4, sp, #0x10
 	ldr r0, [r7, #0x7c]
-	bl func_080CC720
+	bl GetRightInventorySpecialUiEntry
 	ldm r0!, {r1, r2, r3}
 	stm r4!, {r1, r2, r3}
 	movs r1, #0
@@ -148734,7 +148734,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x14]
 	ldr r3, [sp, #0x18]
@@ -148759,7 +148759,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	mov r0, r8
 	adds r1, r4, #0
@@ -148768,7 +148768,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -148786,7 +148786,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x14]
 	ldr r3, [sp, #0x18]
@@ -148809,7 +148809,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -148870,10 +148870,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -148895,7 +148895,7 @@ func_0808B16C: @ 0x0808B16C
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r3, r0, #0
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -148905,10 +148905,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	add r5, sp, #0x10
 	movs r1, #0x82
 	lsls r1, r1, #1
@@ -148917,7 +148917,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
@@ -148928,7 +148928,7 @@ func_0808B16C: @ 0x0808B16C
 	b .L0808B4C8
 .L0808B22E:
 	ldr r0, [r7, #0x78]
-	bl func_080CB2FC
+	bl GetLeftInventorySpecialUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -148937,10 +148937,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	adds r1, r5, #0
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -148954,7 +148954,7 @@ func_0808B16C: @ 0x0808B16C
 	bl GetTool__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r7, #0
-	bl func_080CE1C4
+	bl IsCursedTool
 	lsls r0, r0, #0x18
 	mov r8, r5
 	cmp r0, #0
@@ -149000,7 +149000,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149043,7 +149043,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149066,14 +149066,14 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, sl
 	ldr r4, [r0]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149081,7 +149081,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	ldr r0, [r7, #0x78]
 	bl func_080CC0B4
 	b .L0808BA4A
@@ -149091,7 +149091,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149107,12 +149107,12 @@ func_0808B16C: @ 0x0808B16C
 	bl GetAmount__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB9DC
+	bl DrawInventorySpecialSlotCount
 	ldr r6, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, sl
 	b .L0808B7A4
@@ -149121,7 +149121,7 @@ func_0808B16C: @ 0x0808B16C
 	ldr r5, [sp, #0x18]
 	ldr r6, [sp, #0x1c]
 	mov r0, r8
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r3, r0, #0
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -149132,12 +149132,12 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -149151,7 +149151,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r4, sp, #0x28
 	adds r0, r4, #0
@@ -149166,7 +149166,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149180,12 +149180,12 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -149199,7 +149199,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149236,7 +149236,7 @@ func_0808B16C: @ 0x0808B16C
 	ldr r4, [r2]
 	adds r0, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149250,7 +149250,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149265,10 +149265,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	ldr r1, [sp, #0x3c]
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -149279,10 +149279,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	ldr r1, [sp, #0x40]
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -149308,7 +149308,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149320,7 +149320,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r0, sp, #0x2c
 	adds r1, r4, #0
@@ -149329,16 +149329,16 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r2, [r7, #0x78]
 	mov r8, r2
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x1c]
 	ldr r6, [sp, #0x20]
@@ -149355,7 +149355,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149367,7 +149367,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r0, sp, #0x2c
 	adds r1, r4, #0
@@ -149376,10 +149376,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r1, [r7, #0x78]
 	mov r8, r1
 	b .L0808B830
@@ -149421,7 +149421,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149436,7 +149436,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149452,14 +149452,14 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	ldr r4, [r0]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149467,15 +149467,15 @@ func_0808B16C: @ 0x0808B16C
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	b .L0808BA4A
 .L0808B72A:
 	mov r1, r8
@@ -149483,7 +149483,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149494,7 +149494,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149504,14 +149504,14 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r3, r8
 	ldr r4, [r3]
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149519,12 +149519,12 @@ func_0808B16C: @ 0x0808B16C
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	ldr r6, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 .L0808B7A4:
@@ -149532,7 +149532,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149540,7 +149540,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	b .L0808BA4A
 .L0808B7C8:
 	mov r1, r8
@@ -149548,7 +149548,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149560,7 +149560,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -149572,12 +149572,12 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x1c]
 	ldr r6, [sp, #0x20]
 	ldr r0, [sp, #0x40]
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -149590,13 +149590,13 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x10]
 	ldr r6, [sp, #0x14]
 	ldr r0, [sp, #0x3c]
 .L0808B842:
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -149622,10 +149622,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -149634,10 +149634,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	ldm r0!, {r1, r2, r3}
 	stm r4!, {r1, r2, r3}
 	add r4, sp, #0x1c
@@ -149649,7 +149649,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -149660,7 +149660,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -149687,7 +149687,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -149697,7 +149697,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -149710,7 +149710,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x14]
 	ldr r3, [sp, #0x18]
@@ -149722,10 +149722,10 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	b .L0808BA4A
 .L0808B96C:
 	adds r0, r6, #0
@@ -149737,7 +149737,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -149750,7 +149750,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -149760,15 +149760,15 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	ldr r4, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #8]
 	ldr r3, [sp, #0xc]
@@ -149782,7 +149782,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -149792,7 +149792,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -149802,7 +149802,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sl
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x14]
 	ldr r3, [sp, #0x18]
@@ -149814,7 +149814,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #8]
 	ldr r3, [sp, #0xc]
@@ -149846,17 +149846,17 @@ func_0808BA60: @ 0x0808BA60
 	cmp r7, #0
 	bne .L0808BA78
 	ldr r0, [r5, #0x78]
-	bl func_080CB2FC
+	bl GetLeftInventorySpecialUiEntry
 	b .L0808BA8C
 .L0808BA78:
 	ldr r4, [r5, #0x78]
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 .L0808BA8C:
 	adds r1, r0, #0
 	movs r2, #0
@@ -149932,10 +149932,10 @@ func_0808BA60: @ 0x0808BA60
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	adds r1, r0, #0
 	movs r2, #0
 	ldr r0, [r1, #4]
@@ -149957,7 +149957,7 @@ func_0808BA60: @ 0x0808BA60
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -150092,7 +150092,7 @@ func_0808BC14: @ 0x0808BC14
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	mov r0, sp
 	adds r1, r4, #0
@@ -150119,10 +150119,10 @@ func_0808BC14: @ 0x0808BC14
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 .L0808BCC2:
 	add sp, #8
 	pop {r4, r5, r6}
@@ -150486,7 +150486,7 @@ func_0808BF8C: @ 0x0808BF8C
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -150534,7 +150534,7 @@ func_0808BF8C: @ 0x0808BF8C
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -150555,7 +150555,7 @@ func_0808BF8C: @ 0x0808BF8C
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -150871,7 +150871,7 @@ func_0808C0BC: @ 0x0808C0BC
 	cmp r0, #0
 	beq .L0808C322
 	ldr r0, [r4]
-	bl func_080CDA44
+	bl MoveInventorySelectionDown
 	b .L0808C394
 .L0808C322:
 	adds r0, r7, #0
@@ -150952,14 +150952,14 @@ func_0808C0BC: @ 0x0808C0BC
 	ldr r1, [r0, #4]
 	adds r0, r2, #0
 	movs r2, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	b .L0808C4EE
 .L0808C3CC:
 	mov r1, r8
 	ldr r0, [r1]
 	ldr r4, [r0, #4]
 	adds r0, r2, #0
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r4, r0
 	bne .L0808C406
 	mov r2, r8
@@ -150988,7 +150988,7 @@ func_0808C0BC: @ 0x0808C0BC
 	bgt .L0808C426
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r0, #8
 	bgt .L0808C46E
 	mov r1, r8
@@ -150999,13 +150999,13 @@ func_0808C0BC: @ 0x0808C0BC
 .L0808C426:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r0, #8
 	ble .L0808C46E
 .L0808C432:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	mov r2, r8
 	ldr r0, [r2]
@@ -151027,7 +151027,7 @@ func_0808C0BC: @ 0x0808C0BC
 .L0808C464:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808C4EE
 .L0808C46E:
 	adds r0, r7, #0
@@ -151050,7 +151050,7 @@ func_0808C0BC: @ 0x0808C0BC
 	cmp r0, #0
 	beq .L0808C49E
 	adds r0, r1, #0
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808C4EE
 .L0808C49E:
 	ldr r2, [sp, #0xc]
@@ -151552,7 +151552,7 @@ func_0808C840: @ 0x0808C840
 .L0808C8A4:
 	ldr r0, [r6, #0x7c]
 	adds r1, r5, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 .L0808C8AC:
 	adds r5, #1
 	cmp r5, #7
@@ -151569,7 +151569,7 @@ func_0808C8BC: @ 0x0808C8BC
 	adds r4, r0, #0
 	adds r0, #0x94
 	ldr r0, [r0]
-	bl func_080CEB80
+	bl NextInventoryPage
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_0808C840
@@ -151584,7 +151584,7 @@ func_0808C8D8: @ 0x0808C8D8
 	adds r4, r0, #0
 	adds r0, #0x94
 	ldr r0, [r0]
-	bl func_080CEBC0
+	bl PreviousInventoryPage
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_0808C840
@@ -151625,7 +151625,7 @@ func_0808C8F4: @ 0x0808C8F4
 	ldr r4, [r0]
 	adds r0, r5, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -151650,7 +151650,7 @@ func_0808C8F4: @ 0x0808C8F4
 	ldr r4, [r0]
 	adds r0, r5, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	lsls r4, r4, #3
 	adds r6, r4, r0
 	movs r0, #0x82
@@ -151731,10 +151731,10 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -151761,10 +151761,10 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	add r5, sp, #0x10
 	movs r1, #0x80
 	lsls r1, r1, #1
@@ -151773,7 +151773,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
@@ -151811,16 +151811,16 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
 	add r4, sp, #0x18
 	ldr r0, [r7, #0x78]
-	bl func_080CB2FC
+	bl GetLeftInventorySpecialUiEntry
 	ldm r0!, {r1, r2, r3}
 	stm r4!, {r1, r2, r3}
 	movs r1, #0
@@ -151844,7 +151844,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x1c]
 	ldr r3, [sp, #0x20]
@@ -151866,7 +151866,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r4, #0
@@ -151875,7 +151875,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -151894,7 +151894,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x1c]
 	ldr r3, [sp, #0x20]
@@ -151916,7 +151916,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -151927,7 +151927,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	ldr r2, [sp, #0x2c]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sl, r0
 	movs r1, #0x82
 	lsls r1, r1, #1
@@ -152001,10 +152001,10 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	b .L0808CEB0
 	.align 2, 0
 .L0808CC80: .4byte gUnk_086678A0
@@ -152013,7 +152013,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sl
@@ -152022,7 +152022,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L0808CEB0
 .L0808CCAA:
 	mov r3, r8
@@ -152129,7 +152129,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sp
 	adds r0, #0x2a
@@ -152220,7 +152220,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r6, #0
 	bl GetIconId__C7Article
@@ -152286,7 +152286,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	adds r0, #0x90
 	ldr r0, [r0]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
@@ -152344,7 +152344,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sb
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sl, r0
 	add r5, sp, #8
 	movs r1, #0x82
@@ -152392,7 +152392,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #0x2c
 	bl .L0808D83C
@@ -152471,7 +152471,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r2, r8
 	ldr r0, [r2]
@@ -152508,10 +152508,10 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	adds r1, r3, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	ldm r0!, {r1, r2, r3}
 	stm r4!, {r1, r2, r3}
 	add r4, sp, #0x1c
@@ -152519,10 +152519,10 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	ldm r0!, {r1, r2, r3}
 	stm r4!, {r1, r2, r3}
 	movs r0, #0x80
@@ -152532,7 +152532,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152543,7 +152543,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152570,7 +152570,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152580,7 +152580,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152593,7 +152593,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x20]
 	ldr r3, [sp, #0x24]
@@ -152605,10 +152605,10 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	bl .L0808DD3A
 .L0808D1D0:
 	adds r0, r6, #0
@@ -152620,7 +152620,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152633,7 +152633,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152643,17 +152643,17 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	b .L0808D276
 .L0808D22A:
 	ldr r4, [r5]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152663,7 +152663,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152673,7 +152673,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x20]
 	ldr r3, [sp, #0x24]
@@ -152686,7 +152686,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, [sp, #0x14]
 	ldr r3, [sp, #0x18]
@@ -152704,7 +152704,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152717,7 +152717,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sb
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sl, r0
 	add r4, sp, #8
 	movs r2, #0x82
@@ -152753,7 +152753,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152773,7 +152773,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r5, #0
 	bl GetIconId__C7Article
@@ -152805,7 +152805,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r2, r8
 	ldr r0, [r2]
@@ -152867,7 +152867,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -152880,15 +152880,15 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r6, #0
 	b .L0808D83C
@@ -152978,7 +152978,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
 	bl GetItemAt__8RucksackUi
@@ -152994,7 +152994,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sp
 	adds r0, #0x31
@@ -153013,7 +153013,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #0x30
 	bl GetIconId__C7Article
@@ -153073,7 +153073,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -153086,15 +153086,15 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sl
@@ -153104,11 +153104,11 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r3, #0x90
 	str r3, [sp, #0x50]
 	ldr r0, [r3]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	str r0, [sp, #0x4c]
 	ldr r0, [sp, #0x50]
 	str r0, [sp, #0x58]
@@ -153135,7 +153135,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -153162,7 +153162,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -153185,7 +153185,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #4
 	bl GetArticle__C12ArticleStack
@@ -153205,7 +153205,7 @@ func_0808CEC4: @ 0x0808CEC4
 	bl func_080CB304
 	ldr r1, [sp, #0x50]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r1, r7, #0
 	adds r1, #0x94
 	ldr r1, [r1]
@@ -153229,7 +153229,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r3, r8
 	ldr r0, [r3]
@@ -153270,7 +153270,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -153299,13 +153299,13 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r2, [sp, #0x50]
 	ldr r0, [r2]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r1, r7, #0
 	adds r1, #0x94
 	ldr r1, [r1]
@@ -153319,7 +153319,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #8
 	bl GetArticle__C12RucksackItem
@@ -153439,7 +153439,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
 	bl GetItemAt__8RucksackUi
@@ -153454,7 +153454,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, r8
 	bl GetIconId__C7Article
@@ -153470,7 +153470,7 @@ func_0808CEC4: @ 0x0808CEC4
 	bl func_080CB304
 	ldr r1, [sp, #0x58]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r1, r7, #0
 	adds r1, #0x94
 	ldr r1, [r1]
@@ -153484,7 +153484,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sl
 	bl GetIconId__C7Article
@@ -153508,7 +153508,7 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sb
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sl, r0
 	movs r3, #0x82
 	lsls r3, r3, #1
@@ -153567,13 +153567,13 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	ldr r1, [sp, #0x50]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r2, [sp, #0x54]
 	ldr r1, [r2]
 	adds r1, #0xbc
@@ -153586,7 +153586,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	bl GetArticle__C12ArticleStack
@@ -153636,7 +153636,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	add r0, sp, #4
 	bl GetArticle__C12ArticleStack
@@ -153716,7 +153716,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sl
@@ -153725,11 +153725,11 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 .L0808DBD0:
 	ldr r3, [sp, #0x50]
 	ldr r0, [r3]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r2, [sp, #0x54]
 	ldr r1, [r2]
 	adds r1, #0xbc
@@ -153743,10 +153743,10 @@ func_0808CEC4: @ 0x0808CEC4
 	ldr r1, [sp, #0x3c]
 .L0808DBEC:
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	b .L0808DD3A
 .L0808DBFC:
 	ldr r0, [r6]
@@ -153773,7 +153773,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sl
@@ -153782,10 +153782,10 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	ldr r3, [sp, #0x50]
 	ldr r0, [r3]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r2, [sp, #0x54]
 	ldr r1, [r2]
 	adds r1, #0xbc
@@ -153796,7 +153796,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 .L0808DC78:
@@ -153807,7 +153807,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L0808DD3A
 .L0808DC8E:
 	ldr r0, [r6]
@@ -153826,7 +153826,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	add r0, sp, #4
 	bl GetArticle__C12ArticleStack
@@ -153850,7 +153850,7 @@ func_0808CEC4: @ 0x0808CEC4
 	bl func_080CC728
 	ldr r1, [sp, #0x50]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	ldr r2, [sp, #0x54]
 	ldr r1, [r2]
 	adds r1, #0xbc
@@ -153861,7 +153861,7 @@ func_0808CEC4: @ 0x0808CEC4
 	adds r0, r7, #0
 	ldr r1, [sp, #0x3c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	bl GetArticle__C12ArticleStack
@@ -153925,7 +153925,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r2, [r0]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sb, r0
 	movs r2, #0x82
 	lsls r2, r2, #1
@@ -153969,7 +153969,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sb
@@ -153978,7 +153978,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L0808E0DC
 .L0808DE18:
 	ldr r0, [r6]
@@ -154018,7 +154018,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	add r0, sp, #0x10
 	bl GetIconId__C7Article
@@ -154068,7 +154068,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	adds r1, r2, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -154084,7 +154084,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r2, [r0]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sb, r0
 	movs r2, #0x82
 	lsls r2, r2, #1
@@ -154127,7 +154127,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -154140,15 +154140,15 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sb
@@ -154157,7 +154157,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L0808E0DC
 .L0808DFBC:
 	ldr r0, [r6]
@@ -154179,7 +154179,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
 	bl GetItemAt__8RucksackUi
@@ -154194,7 +154194,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, r8
 	bl GetIconId__C7Article
@@ -154213,7 +154213,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sp
 	adds r0, #0x12
@@ -154248,7 +154248,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -154261,16 +154261,16 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 .L0808E0B4:
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, r8
 	bl GetIconId__C7Article
@@ -154301,11 +154301,11 @@ func_0808DD54: @ 0x0808DD54
 	adds r4, r7, #0
 	adds r4, #0x90
 	ldr r0, [r4]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sl, r0
 	movs r1, #0x82
 	lsls r1, r1, #1
@@ -154395,7 +154395,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r4, [r0]
 	ldr r2, [sp, #0x20]
 	ldr r0, [r2]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0808E1DE
 	b .L0808E426
@@ -154404,7 +154404,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sp
 	adds r0, #0x15
@@ -154444,7 +154444,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r4, [r0]
 	ldr r1, [sp, #0x20]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0808E24C
 	b .L0808E426
@@ -154453,7 +154453,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r6, #0
 	bl GetIconId__C7Article
@@ -154478,7 +154478,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -154514,7 +154514,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -154543,7 +154543,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r6, #0
 	bl GetIconId__C7Article
@@ -154565,14 +154565,14 @@ func_0808DD54: @ 0x0808DD54
 	ldr r4, [r0]
 	ldr r1, [sp, #0x20]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	bne .L0808E426
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r0, sp
 	adds r0, #0x17
@@ -154609,7 +154609,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -154622,10 +154622,10 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -154633,14 +154633,14 @@ func_0808DD54: @ 0x0808DD54
 	ldr r4, [r0]
 	ldr r1, [sp, #0x20]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	bne .L0808E426
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x18]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	adds r0, r6, #0
 	bl GetIconId__C7Article
@@ -154656,7 +154656,7 @@ func_0808DD54: @ 0x0808DD54
 .L0808E426:
 	ldr r2, [sp, #0x20]
 	ldr r0, [r2]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	add sp, #0x24
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -154742,10 +154742,10 @@ func_0808E444: @ 0x0808E444
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	adds r1, r0, #0
 	movs r2, #0
 	ldr r0, [r1, #4]
@@ -154769,7 +154769,7 @@ func_0808E444: @ 0x0808E444
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -154832,7 +154832,7 @@ func_0808E444: @ 0x0808E444
 	ldr r2, [r0]
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetArticleStackAt__5ShelfUi
@@ -154844,10 +154844,10 @@ func_0808E444: @ 0x0808E444
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	adds r1, r0, #0
 	movs r2, #0
 	ldr r0, [r1, #4]
@@ -154945,7 +154945,7 @@ func_0808E65C: @ 0x0808E65C
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	mov r0, sp
 	adds r1, r4, #0
@@ -154954,10 +154954,10 @@ func_0808E65C: @ 0x0808E65C
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	b .L0808E6F4
 .L0808E6AE:
 	adds r0, r5, #0
@@ -154967,7 +154967,7 @@ func_0808E65C: @ 0x0808E65C
 	ldr r2, [r0]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	movs r2, #0x82
 	lsls r2, r2, #1
@@ -154985,10 +154985,10 @@ func_0808E65C: @ 0x0808E65C
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 .L0808E6F4:
 	add sp, #4
 	pop {r4, r5, r6}
@@ -155109,7 +155109,7 @@ func_0808E6FC: @ 0x0808E6FC
 	cmp r0, #0
 	beq .L0808E800
 	movs r1, #3
-	bl func_080CE3DC
+	bl DestroyPagedPanelDrawCommands
 .L0808E800:
 	str r5, [r4]
 	ldr r1, [sp, #0x18]
@@ -155297,7 +155297,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl func_0808C8D8
 .L0808E9B4:
 	ldr r0, [r6]
-	bl func_080CDA44
+	bl MoveInventorySelectionDown
 	b .L0808EA3A
 .L0808E9BC:
 	adds r0, r7, #0
@@ -155387,7 +155387,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bgt .L0808EA76
 	adds r0, r3, #0
 	movs r2, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	b .L0808EBE0
 .L0808EA76:
 	ldr r2, [sp, #0x18]
@@ -155395,18 +155395,18 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, #0xbc
 	ldr r2, [r0]
 	adds r0, r3, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	b .L0808EBE0
 .L0808EA86:
 	ldr r0, [r6]
 	ldr r4, [r0, #4]
 	adds r0, r3, #0
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r4, r0
 	bne .L0808EB1E
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r0, #9
 	ble .L0808EAD6
 	ldr r2, [sp, #0x18]
@@ -155415,12 +155415,12 @@ func_0808E6FC: @ 0x0808E6FC
 	ldr r4, [r0]
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0808EAD6
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	ldr r0, [r6]
 	ldr r2, [r0, #4]
@@ -155436,11 +155436,11 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808EAD6:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r4, r0, #0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	adds r1, r4, #0
@@ -155459,7 +155459,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl func_08008B6C
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808EBE0
 .L0808EB16:
 	movs r2, #0x84
@@ -155469,7 +155469,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808EB1E:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	ldr r0, [r6]
 	ldr r2, [r0, #4]
@@ -155488,7 +155488,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl func_08008B6C
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808EBE0
 .L0808EB56:
 	movs r1, #0x84
@@ -155518,7 +155518,7 @@ func_0808E6FC: @ 0x0808E6FC
 	cmp r0, #0
 	beq .L0808EB92
 	adds r0, r1, #0
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808EBE0
 .L0808EB92:
 	ldr r2, [sp, #0x14]
@@ -155611,7 +155611,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808EC46:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	ldr r0, [r6]
 	ldr r2, [r0, #4]
@@ -155621,7 +155621,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808EC5C:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L0808ECA6
 .L0808EC66:
 	adds r0, r7, #0
@@ -155963,7 +155963,7 @@ func_0808EE9C: @ 0x0808EE9C
 .L0808EF14:
 	ldr r0, [r6, #0x7c]
 	adds r1, r7, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 .L0808EF1C:
 	adds r7, #1
 	cmp r7, #7
@@ -155982,7 +155982,7 @@ func_0808EF30: @ 0x0808EF30
 	adds r4, r0, #0
 	adds r0, #0x94
 	ldr r0, [r0]
-	bl func_080CEB80
+	bl NextInventoryPage
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_0808EE9C
@@ -155997,7 +155997,7 @@ func_0808EF4C: @ 0x0808EF4C
 	adds r4, r0, #0
 	adds r0, #0x94
 	ldr r0, [r0]
-	bl func_080CEBC0
+	bl PreviousInventoryPage
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_0808EE9C
@@ -156050,7 +156050,7 @@ func_0808EF68: @ 0x0808EF68
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -156065,7 +156065,7 @@ func_0808EF68: @ 0x0808EF68
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -156088,7 +156088,7 @@ func_0808EF68: @ 0x0808EF68
 	ldr r2, [r0]
 	adds r0, r6, #0
 	adds r1, r7, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolStackAt__9ToolChestUi
@@ -156173,10 +156173,10 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -156198,7 +156198,7 @@ func_0808F080: @ 0x0808F080
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r3, r0, #0
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -156208,10 +156208,10 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	add r5, sp, #0x10
 	movs r1, #0x80
 	lsls r1, r1, #1
@@ -156220,7 +156220,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
@@ -156231,7 +156231,7 @@ func_0808F080: @ 0x0808F080
 	b .L0808F6C2
 .L0808F136:
 	ldr r0, [r7, #0x78]
-	bl func_080CB2FC
+	bl GetLeftInventorySpecialUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -156240,10 +156240,10 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	adds r1, r5, #0
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -156257,7 +156257,7 @@ func_0808F080: @ 0x0808F080
 	bl GetTool__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r7, #0
-	bl func_080CE1C4
+	bl IsCursedTool
 	lsls r0, r0, #0x18
 	mov r8, r5
 	cmp r0, #0
@@ -156303,7 +156303,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -156353,7 +156353,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r0, sp, #0x28
 	adds r1, r4, #0
@@ -156364,15 +156364,15 @@ func_0808F080: @ 0x0808F080
 	bl GetAmount__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB9DC
+	bl DrawInventorySpecialSlotCount
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	b .L0808F766
 .L0808F27E:
 	mov r3, sl
@@ -156384,7 +156384,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -156396,19 +156396,19 @@ func_0808F080: @ 0x0808F080
 	bl GetAmount__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB9DC
+	bl DrawInventorySpecialSlotCount
 	ldr r6, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	ldr r2, [sp, #0x3c]
 	ldr r4, [r2]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -156416,14 +156416,14 @@ func_0808F080: @ 0x0808F080
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	b .L0808F766
 .L0808F2EA:
 	ldr r4, [r7, #0x78]
 	ldr r5, [sp, #0x18]
 	ldr r6, [sp, #0x1c]
 	mov r0, r8
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r3, r0, #0
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -156434,12 +156434,12 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -156453,7 +156453,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r4, sp, #0x28
 	adds r0, r4, #0
@@ -156468,7 +156468,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -156482,12 +156482,12 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
 	add r0, sp, #4
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -156501,7 +156501,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -156520,7 +156520,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	ldr r2, [sp, #0x34]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	str r0, [sp, #0x40]
 	movs r0, #0x82
 	lsls r0, r0, #1
@@ -156610,7 +156610,7 @@ func_0808F080: @ 0x0808F080
 	bl GetTool__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r7, #0
-	bl func_080CE1C4
+	bl IsCursedTool
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0808F4D4
@@ -156695,7 +156695,7 @@ func_0808F080: @ 0x0808F080
 	bl GetAmount__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB9DC
+	bl DrawInventorySpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -156704,7 +156704,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	adds r0, #0x90
 	ldr r0, [r0]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0808F586
 	b .L0808F766
@@ -156713,10 +156713,10 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	b .L0808F766
 .L0808F59C:
 	mov r2, r8
@@ -156735,7 +156735,7 @@ func_0808F080: @ 0x0808F080
 	bl GetAmount__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB9DC
+	bl DrawInventorySpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -156744,7 +156744,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	adds r0, #0x90
 	ldr r0, [r0]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0808F5E2
 	b .L0808F766
@@ -156753,7 +156753,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r2, sl
 	ldr r0, [r2]
@@ -156763,7 +156763,7 @@ func_0808F080: @ 0x0808F080
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L0808F766
 .L0808F60A:
 	add r0, sp, #4
@@ -156802,7 +156802,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	adds r0, #0x90
 	ldr r0, [r0]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	bne .L0808F6A8
 	ldr r0, [r7, #8]
@@ -156822,7 +156822,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r3, r8
 	ldr r0, [r3]
@@ -156867,7 +156867,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	adds r0, #0x90
 	ldr r0, [r0]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	bne .L0808F73E
 	ldr r0, [r7, #8]
@@ -156887,7 +156887,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r2, r8
 	ldr r0, [r2]
@@ -156948,7 +156948,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	adds r0, #0x90
 	ldr r0, [r0]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
@@ -156973,7 +156973,7 @@ func_0808F784: @ 0x0808F784
 	bl .L080908B0
 .L0808F7D2:
 	ldr r0, [r7, #0x78]
-	bl func_080CB2FC
+	bl GetLeftInventorySpecialUiEntry
 	add r1, sp, #4
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -156983,10 +156983,10 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	mov r1, r8
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -157005,7 +157005,7 @@ func_0808F784: @ 0x0808F784
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sb
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sl, r0
 	add r5, sp, #0x20
 	movs r1, #0x82
@@ -157037,7 +157037,7 @@ func_0808F784: @ 0x0808F784
 	bl GetTool__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r7, #0
-	bl func_080CE1C4
+	bl IsCursedTool
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0808F898
@@ -157128,7 +157128,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sl
@@ -157137,7 +157137,7 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	ldr r0, [r7, #0x78]
 	bl func_080CC0B4
 	bl .L080908B0
@@ -157160,12 +157160,12 @@ func_0808F784: @ 0x0808F784
 	bl GetAmount__C9ToolStack
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB9DC
+	bl DrawInventorySpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sl
@@ -157189,7 +157189,7 @@ func_0808F784: @ 0x0808F784
 	ldr r5, [sp, #0x14]
 	ldr r6, [sp, #0x18]
 	add r0, sp, #0x10
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r3, r0, #0
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -157200,7 +157200,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
@@ -157232,7 +157232,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	ldr r6, [sp, #0xc]
@@ -157257,7 +157257,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157271,7 +157271,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157286,10 +157286,10 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	ldr r1, [sp, #0x54]
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -157299,10 +157299,10 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	mov r1, sl
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -157328,7 +157328,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157340,7 +157340,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r0, sp, #0x18
 	adds r1, r4, #0
@@ -157349,16 +157349,16 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r2, [r7, #0x78]
 	mov r8, r2
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x2c]
 	ldr r6, [sp, #0x30]
@@ -157375,7 +157375,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157387,7 +157387,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r0, sp, #0x18
 	adds r1, r4, #0
@@ -157396,16 +157396,16 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r1, [r7, #0x78]
 	mov r8, r1
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x10]
 	ldr r6, [sp, #0x14]
@@ -157449,7 +157449,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157464,7 +157464,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157480,14 +157480,14 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	ldr r4, [r0]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157495,7 +157495,7 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	b .L0808FFE8
 .L0808FC92:
 	mov r1, r8
@@ -157503,7 +157503,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157514,7 +157514,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157524,14 +157524,14 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r3, r8
 	ldr r4, [r3]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157539,19 +157539,19 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	ldr r6, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	ldr r4, [r0]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157559,7 +157559,7 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	bl .L080908B0
 .L0808FD32:
 	mov r1, r8
@@ -157567,7 +157567,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157579,7 +157579,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157591,12 +157591,12 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x2c]
 	ldr r6, [sp, #0x30]
 	mov r0, sl
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -157608,7 +157608,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x10]
 	ldr r6, [sp, #0x14]
@@ -157622,7 +157622,7 @@ func_0808F784: @ 0x0808F784
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sb
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	str r0, [sp, #0x58]
 	movs r0, #0x80
 	lsls r0, r0, #1
@@ -157632,7 +157632,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157659,10 +157659,10 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	ldr r1, [sp, #0x5c]
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -157673,10 +157673,10 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 	ldr r1, [sp, #0x60]
 	ldm r0!, {r2, r3, r4}
 	stm r1!, {r2, r3, r4}
@@ -157702,7 +157702,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157725,22 +157725,22 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	ldr r2, [r7, #0x78]
 	mov r8, r2
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x1c]
 	ldr r6, [sp, #0x20]
 	ldr r0, [sp, #0x60]
 .L0808FED2:
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -157766,7 +157766,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r2, r0, #0
 	add r0, sp, #0x24
 	adds r1, r4, #0
@@ -157775,10 +157775,10 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	ldr r1, [r7, #0x7c]
 	mov r8, r1
 	b .L080900D0
@@ -157829,7 +157829,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157845,7 +157845,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r1, sl
 	ldr r0, [r1]
@@ -157855,16 +157855,16 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 .L0808FFE8:
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	bl .L080908B0
 .L08090000:
 	mov r2, r8
@@ -157872,7 +157872,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157888,14 +157888,14 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	ldr r4, [r0]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157903,12 +157903,12 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	mov r1, sl
 	ldr r0, [r1]
@@ -157920,7 +157920,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -157939,12 +157939,12 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x1c]
 	ldr r6, [sp, #0x20]
 	ldr r0, [sp, #0x60]
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -157957,13 +157957,13 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r5, [sp, #0x10]
 	ldr r6, [sp, #0x14]
 	ldr r0, [sp, #0x5c]
 .L080900E2:
-	bl func_080CAD14
+	bl GetUiEntryValue
 	str r0, [sp]
 	mov r0, r8
 	adds r1, r4, #0
@@ -157976,11 +157976,11 @@ func_0808F784: @ 0x0808F784
 	adds r1, #0x90
 	str r1, [sp, #0x68]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	str r0, [sp, #0x64]
 	mov r2, sb
 	cmp r2, #8
@@ -158008,7 +158008,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -158045,7 +158045,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -158064,10 +158064,10 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -158075,7 +158075,7 @@ func_0808F784: @ 0x0808F784
 	ldr r4, [r0]
 	ldr r3, [sp, #0x68]
 	ldr r0, [r3]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L080901F0
 	b .L080908B0
@@ -158097,7 +158097,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, sl
 	b .L080905F4
@@ -158126,7 +158126,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -158152,7 +158152,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	add r0, sp, #4
 	bl GetAmount__C9ToolStack
@@ -158210,7 +158210,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -158236,14 +158236,14 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	ldr r4, [r0]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -158251,7 +158251,7 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -158266,7 +158266,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -158282,14 +158282,14 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	ldr r4, [r0]
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -158297,7 +158297,7 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CB948
+	bl DrawInventorySlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -158305,7 +158305,7 @@ func_0808F784: @ 0x0808F784
 	ldr r4, [r0]
 	ldr r1, [sp, #0x68]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0809040E
 	b .L080908B0
@@ -158314,7 +158314,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r2, [sp, #0x6c]
 	ldr r0, [r2]
@@ -158325,7 +158325,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -158362,7 +158362,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	add r0, sp, #4
 	bl GetAmount__C9ToolStack
@@ -158380,7 +158380,7 @@ func_0808F784: @ 0x0808F784
 	ldr r4, [r0]
 	ldr r3, [sp, #0x68]
 	ldr r0, [r3]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L080904BC
 	b .L080908B0
@@ -158402,7 +158402,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, sl
 	bl GetAmount__C9ToolStack
@@ -158423,7 +158423,7 @@ func_0808F784: @ 0x0808F784
 	ldr r2, [r0]
 	adds r0, r7, #0
 	mov r1, sb
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	mov sl, r0
 	movs r1, #0x82
 	lsls r1, r1, #1
@@ -158485,17 +158485,17 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	ldr r3, [sp, #0x70]
 	ldr r0, [r3]
 	adds r0, #0xbc
 	ldr r4, [r0]
 	ldr r1, [sp, #0x68]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L080905C8
 	b .L080908B0
@@ -158516,7 +158516,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 .L080905F4:
@@ -158574,7 +158574,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	add r0, sp, #4
 	bl GetAmount__C9ToolStack
@@ -158651,7 +158651,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sl
@@ -158660,7 +158660,7 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	ldr r2, [sp, #0x70]
 	ldr r0, [r2]
 	adds r0, #0xbc
@@ -158668,7 +158668,7 @@ func_0808F784: @ 0x0808F784
 	ldr r3, [sp, #0x68]
 	ldr r0, [r3]
 .L08090750:
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L0809075A
 	b .L080908B0
@@ -158677,10 +158677,10 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	b .L080908B0
 .L08090770:
 	ldr r0, [r6]
@@ -158697,7 +158697,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 	mov r1, sl
@@ -158706,21 +158706,21 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	ldr r4, [sp, #0x70]
 	ldr r0, [r4]
 	adds r0, #0xbc
 	ldr r4, [r0]
 	ldr r1, [sp, #0x68]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	bne .L080908B0
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r4, r0, #0
 	ldr r0, [r6]
 .L080907D4:
@@ -158731,7 +158731,7 @@ func_0808F784: @ 0x0808F784
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r4, #0
-	bl func_080CCD48
+	bl DrawRightInventorySlotCount
 	b .L080908B0
 .L080907EA:
 	ldr r0, [r6]
@@ -158768,7 +158768,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	mov r1, sb
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	add r0, sp, #4
 	bl GetAmount__C9ToolStack
@@ -158786,7 +158786,7 @@ func_0808F784: @ 0x0808F784
 	ldr r4, [r0]
 	ldr r1, [sp, #0x68]
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	bne .L080908B0
 	ldr r0, [r7, #8]
@@ -158806,7 +158806,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r7, #0
 	ldr r1, [sp, #0x48]
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r5, r0, #0
 	mov r0, r8
 	bl GetAmount__C9ToolStack
@@ -158838,11 +158838,11 @@ func_080908CC: @ 0x080908CC
 	adds r6, r0, #0
 	adds r5, r1, #0
 	mov r0, sp
-	bl func_080CAC70
+	bl InitializeUiEntry
 	cmp r5, #0
 	bne .L080908E6
 	ldr r0, [r6, #0x78]
-	bl func_080CB2FC
+	bl GetLeftInventorySpecialUiEntry
 	b .L08090914
 .L080908E6:
 	cmp r5, #8
@@ -158851,20 +158851,20 @@ func_080908CC: @ 0x080908CC
 	adds r0, r6, #0
 	adds r1, r5, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CB2E8
+	bl GetLeftInventoryUiEntry
 	b .L08090914
 .L08090900:
 	ldr r4, [r6, #0x7c]
 	adds r0, r6, #0
 	adds r1, r5, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_080CC70C
+	bl GetRightInventoryUiEntry
 .L08090914:
 	mov r1, sp
 	ldm r0!, {r2, r3, r4}
@@ -159019,7 +159019,7 @@ func_08090960: @ 0x08090960
 	cmp r0, #0
 	beq .L08090A64
 	movs r1, #3
-	bl func_080CE3DC
+	bl DestroyPagedPanelDrawCommands
 .L08090A64:
 	str r5, [r4]
 	ldr r1, [sp, #0x10]
@@ -159200,7 +159200,7 @@ func_08090960: @ 0x08090960
 	bl func_0808EF4C
 .L08090BFC:
 	ldr r0, [r6]
-	bl func_080CDA44
+	bl MoveInventorySelectionDown
 	b .L08090C82
 .L08090C04:
 	adds r0, r7, #0
@@ -159288,7 +159288,7 @@ func_08090960: @ 0x08090960
 	bgt .L08090CBC
 	adds r0, r3, #0
 	movs r2, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	b .L08090E0C
 .L08090CBC:
 	ldr r2, [sp, #0x10]
@@ -159296,18 +159296,18 @@ func_08090960: @ 0x08090960
 	adds r0, #0xbc
 	ldr r2, [r0]
 	adds r0, r3, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	b .L08090E0C
 .L08090CCC:
 	ldr r0, [r6]
 	ldr r4, [r0, #4]
 	adds r0, r3, #0
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r4, r0
 	bne .L08090D56
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r0, #9
 	ble .L08090D32
 	ldr r2, [sp, #0x10]
@@ -159316,12 +159316,12 @@ func_08090960: @ 0x08090960
 	ldr r4, [r0]
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	cmp r4, r0
 	beq .L08090D32
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	ldr r0, [r6]
 	ldr r2, [r0, #4]
@@ -159340,16 +159340,16 @@ func_08090960: @ 0x08090960
 	bl func_08008B6C
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L08090E0C
 .L08090D32:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r4, r0, #0
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF054
+	bl GetInventoryCursorPage
 	adds r2, r0, #0
 	adds r0, r7, #0
 	adds r1, r4, #0
@@ -159361,7 +159361,7 @@ func_08090960: @ 0x08090960
 .L08090D56:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	ldr r0, [r6]
 	ldr r2, [r0, #4]
@@ -159381,7 +159381,7 @@ func_08090960: @ 0x08090960
 	bl func_08008B6C
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L08090E0C
 .L08090D8E:
 	adds r0, r7, #0
@@ -159404,7 +159404,7 @@ func_08090960: @ 0x08090960
 	cmp r0, #0
 	beq .L08090DBE
 	adds r0, r1, #0
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L08090E0C
 .L08090DBE:
 	ldr r2, [sp, #0xc]
@@ -160022,7 +160022,7 @@ func_08091280: @ 0x08091280
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -160070,7 +160070,7 @@ func_08091280: @ 0x08091280
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -160091,7 +160091,7 @@ func_08091280: @ 0x08091280
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -160691,7 +160691,7 @@ func_0809152C: @ 0x0809152C
 	beq .L0809186C
 	ldr r2, [sp, #0x60]
 	ldr r0, [r2]
-	bl func_080CDA44
+	bl MoveInventorySelectionDown
 	b .L080918E4
 .L0809186C:
 	adds r0, r7, #0
@@ -160800,7 +160800,7 @@ func_0809152C: @ 0x0809152C
 	ldr r4, [r0]
 	adds r0, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -160889,7 +160889,7 @@ func_0809152C: @ 0x0809152C
 	ldr r1, [r2]
 	ldr r1, [r1, #4]
 	movs r2, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	ldr r0, [r5]
 	bl GetTool__C9ToolStack
 	adds r1, r0, #0
@@ -160976,7 +160976,7 @@ func_0809152C: @ 0x0809152C
 	ldr r4, [r5]
 	adds r0, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -160993,7 +160993,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -161010,7 +161010,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -161047,12 +161047,12 @@ func_0809152C: @ 0x0809152C
 	ldr r1, [r2]
 	ldr r1, [r1, #4]
 	movs r2, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	ldr r4, [r5]
 	adds r0, r7, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -161073,7 +161073,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
 	bl GetToolAt__8RucksackUi
@@ -161097,7 +161097,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -161153,7 +161153,7 @@ func_0809152C: @ 0x0809152C
 	ldr r0, [r2]
 	ldr r4, [r0, #4]
 	adds r0, r1, #0
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r4, r0
 	bne .L08091C72
 	b .L08091EE8
@@ -161181,7 +161181,7 @@ func_0809152C: @ 0x0809152C
 	ldr r4, [r0]
 	adds r0, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -161244,13 +161244,13 @@ func_0809152C: @ 0x0809152C
 	lsls r2, r2, #1
 	adds r4, r7, r2
 	ldr r0, [r4]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	ldr r0, [r4]
 	ldr r2, [sp, #0x60]
 	ldr r1, [r2]
 	ldr r1, [r1, #4]
 	movs r2, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	ldr r0, [r5]
 	bl func_0800F258
 	adds r1, r0, #0
@@ -161294,7 +161294,7 @@ func_0809152C: @ 0x0809152C
 	ldr r4, [r5]
 	adds r0, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -161311,7 +161311,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -161323,7 +161323,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -161338,20 +161338,20 @@ func_0809152C: @ 0x0809152C
 	lsls r2, r2, #1
 	adds r4, r7, r2
 	ldr r0, [r4]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	ldr r0, [r4]
 	ldr r2, [sp, #0x60]
 	ldr r1, [r2]
 	ldr r1, [r1, #4]
 	movs r2, #0
-	bl func_080CEC84
+	bl ActivateInventoryCursor
 	ldr r5, [r5]
 	ldr r0, [r4]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	adds r0, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r5, #0
 	bl GetItemAt__8RucksackUi
@@ -161409,7 +161409,7 @@ func_0809152C: @ 0x0809152C
 	cmp r0, #0
 	beq .L08091EB0
 	adds r0, r1, #0
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	b .L08091EE8
 .L08091EB0:
 	ldr r2, [sp, #0x64]
@@ -161420,7 +161420,7 @@ func_0809152C: @ 0x0809152C
 	cmp r0, #0
 	beq .L08091ECA
 	adds r0, r1, #0
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	movs r0, #0
 	str r0, [sp, #0x58]
 	b .L08091EE8
@@ -161552,7 +161552,7 @@ func_0809152C: @ 0x0809152C
 	lsls r2, r2, #1
 	adds r0, r7, r2
 	ldr r0, [r0]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -161932,7 +161932,7 @@ func_0809152C: @ 0x0809152C
 	lsls r2, r2, #1
 	adds r0, r7, r2
 	ldr r0, [r0]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -162030,7 +162030,7 @@ func_0809152C: @ 0x0809152C
 .L080923D4:
 	ldr r1, [sp, #0x64]
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	cmp r0, #0
 	bne .L080923EE
 	adds r0, r7, #0
@@ -162046,11 +162046,11 @@ func_0809152C: @ 0x0809152C
 	ldr r4, [r0]
 	ldr r1, [sp, #0x64]
 	ldr r0, [r1]
-	bl func_080CF050
+	bl GetInventoryCursorSlot
 	adds r1, r0, #0
 	adds r0, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -162097,7 +162097,7 @@ func_0809152C: @ 0x0809152C
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r0, [r0]
-	bl func_080CECD0
+	bl ResetInventoryCursor
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -162724,7 +162724,7 @@ func_08092940: @ 0x08092940
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -162772,7 +162772,7 @@ func_08092940: @ 0x08092940
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -162793,7 +162793,7 @@ func_08092940: @ 0x08092940
 	adds r0, r6, #0
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -162865,7 +162865,7 @@ func_08092A70: @ 0x08092A70
 	ldr r4, [r0]
 	adds r0, r5, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetToolAt__8RucksackUi
@@ -163037,7 +163037,7 @@ func_08092A70: @ 0x08092A70
 	ldr r4, [r0]
 	adds r0, r5, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -163155,7 +163155,7 @@ func_08092CD0: @ 0x08092CD0
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl GetItemAt__8RucksackUi
@@ -163164,7 +163164,7 @@ func_08092CD0: @ 0x08092CD0
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_080CE184
+	bl GetInventoryGridCellIndex
 	adds r1, r0, #0
 	ldr r2, .L08092D58 @ =gUnk_086678A0
 	movs r3, #0xb0
@@ -163465,7 +163465,7 @@ func_08092D64: @ 0x08092D64
 	cmp r0, #0
 	beq .L08092FD2
 	ldr r0, [r6]
-	bl func_080CDA44
+	bl MoveInventorySelectionDown
 	b .L08093044
 .L08092FD2:
 	adds r0, r7, #0
@@ -163788,7 +163788,7 @@ func_0809323C: @ 0x0809323C
 	str r0, [r7, #8]
 	adds r0, r7, #0
 	adds r0, #0x38
-	bl func_080D02CC
+	bl InitializeJoybusState
 	adds r0, r4, #0
 	movs r1, #0
 	bl func_080E3A9C
@@ -169060,7 +169060,7 @@ func_08095D80: @ 0x08095D80
 	lsls r0, r1, #2
 	mov r2, sb
 	adds r7, r0, r2
-	ldr r0, .L08095F80 @ =gUnk_08117838
+	ldr r0, .L08095F80 @ =gInventorySpecialSlotPosition
 	adds r1, r7, #1
 	lsls r1, r1, #2
 	adds r1, r1, r0
@@ -169102,7 +169102,7 @@ func_08095D80: @ 0x08095D80
 	adds r1, r4, #0
 	b .L08095F9E
 	.align 2, 0
-.L08095F80: .4byte gUnk_08117838
+.L08095F80: .4byte gInventorySpecialSlotPosition
 .L08095F84: .4byte 0x00000362
 .L08095F88: .4byte gUnk_08101064
 .L08095F8C:
@@ -169934,7 +169934,7 @@ func_080962F0: @ 0x080962F0
 	asrs r0, r0, #2
 	lsls r1, r0, #4
 	subs r1, r1, r0
-	ldr r2, .L08096694 @ =gUnk_08117838
+	ldr r2, .L08096694 @ =gInventorySpecialSlotPosition
 	lsls r3, r6, #2
 	adds r2, r3, r2
 	lsls r1, r1, #3
@@ -169984,7 +169984,7 @@ func_080962F0: @ 0x080962F0
 	bl func_08096EE8
 	b .L080966AC
 	.align 2, 0
-.L08096694: .4byte gUnk_08117838
+.L08096694: .4byte gInventorySpecialSlotPosition
 .L08096698: .4byte 0x00000362
 .L0809669C: .4byte 0x00002B90
 .L080966A0:
@@ -170668,7 +170668,7 @@ func_08096B88: @ 0x08096B88
 .L08096C3C:
 	ldr r0, [r5, #0x7c]
 	adds r1, r6, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 .L08096C44:
 	adds r6, #1
 	cmp r6, r8
@@ -170681,7 +170681,7 @@ func_08096B88: @ 0x08096B88
 .L08096C52:
 	ldr r0, [r5, #0x7c]
 	adds r1, r4, #0
-	bl func_080CCDEC
+	bl ClearRightInventorySlotCount
 	adds r4, #1
 	cmp r4, #7
 	ble .L08096C52
@@ -170714,7 +170714,7 @@ func_08096B88: @ 0x08096B88
 	movs r3, #0
 	cmp r3, r4
 	bge .L08096CD6
-	ldr r6, .L08096D78 @ =gUnk_0811785C
+	ldr r6, .L08096D78 @ =gInventorySpecialSlotCountPosition
 	mov sb, r6
 	ldr r6, .L08096D74 @ =0x0000101C
 	ldr r7, .L08096D7C @ =0x00002BD0
@@ -170754,7 +170754,7 @@ func_08096B88: @ 0x08096B88
 	adds r3, r4, #0
 	cmp r3, #7
 	bgt .L08096D1E
-	ldr r7, .L08096D78 @ =gUnk_0811785C
+	ldr r7, .L08096D78 @ =gInventorySpecialSlotCountPosition
 	movs r4, #3
 	ldr r6, .L08096D7C @ =0x00002BD0
 .L08096CE6:
@@ -170832,7 +170832,7 @@ func_08096B88: @ 0x08096B88
 	.align 2, 0
 .L08096D70: .4byte 0x00002B90
 .L08096D74: .4byte 0x0000101C
-.L08096D78: .4byte gUnk_0811785C
+.L08096D78: .4byte gInventorySpecialSlotCountPosition
 .L08096D7C: .4byte 0x00002BD0
 .L08096D80: .4byte 0x00002C32
 .L08096D84: .4byte 0x0600F800
@@ -171478,7 +171478,7 @@ func_08097114: @ 0x08097114
 	mov r1, sb
 	ldr r0, [r1, #0x78]
 	adds r1, r5, #0
-	bl func_080CBA60
+	bl ClearInventorySlotCount
 .L08097292:
 	adds r4, #4
 	adds r5, #1
@@ -175539,7 +175539,7 @@ func_08099144: @ 0x08099144
 .L0809935A:
 	movs r2, #0
 	mov r5, sp
-	ldr r6, .L08099530 @ =gUnk_08117838
+	ldr r6, .L08099530 @ =gInventorySpecialSlotPosition
 .L08099360:
 	ldr r1, [sp, #0x6c]
 	asrs r1, r2
@@ -175580,7 +175580,7 @@ func_08099144: @ 0x08099144
 	cmp r0, #0
 	beq .L080993DE
 	mov r2, sp
-	ldr r1, .L08099530 @ =gUnk_08117838
+	ldr r1, .L08099530 @ =gInventorySpecialSlotPosition
 	adds r0, r1, #0
 	adds r0, #0x20
 	ldrb r0, [r0]
@@ -175609,7 +175609,7 @@ func_08099144: @ 0x08099144
 	beq .L08099432
 	movs r2, #0
 	mov r5, sp
-	ldr r6, .L08099530 @ =gUnk_08117838
+	ldr r6, .L08099530 @ =gInventorySpecialSlotPosition
 .L080993EA:
 	ldr r1, [sp, #0x70]
 	asrs r1, r2
@@ -175773,7 +175773,7 @@ func_08099144: @ 0x08099144
 	str r0, [r6, #4]
 	b .L080995FA
 	.align 2, 0
-.L08099530: .4byte gUnk_08117838
+.L08099530: .4byte gInventorySpecialSlotPosition
 .L08099534: .4byte 0x06010000
 .L08099538:
 	str r1, [sp, #0x78]
@@ -176397,7 +176397,7 @@ func_0809964C: @ 0x0809964C
 	lsls r2, r2, #2
 	bl func_08008EB8
 	movs r3, #0
-	ldr r6, .L08099AC0 @ =gUnk_0811785C
+	ldr r6, .L08099AC0 @ =gInventorySpecialSlotCountPosition
 	ldr r5, .L08099AC4 @ =0x0000101C
 .L08099A3A:
 	adds r3, #1
@@ -176458,7 +176458,7 @@ func_0809964C: @ 0x0809964C
 .L08099AB4: .4byte 0x00004218
 .L08099AB8: .4byte 0x00030003
 .L08099ABC: .4byte 0x00002BD0
-.L08099AC0: .4byte gUnk_0811785C
+.L08099AC0: .4byte gInventorySpecialSlotCountPosition
 .L08099AC4: .4byte 0x0000101C
 .L08099AC8: .4byte 0x00002BEC
 
@@ -177044,7 +177044,7 @@ func_08099ACC: @ 0x08099ACC
 .L08099F60:
 	movs r6, #0
 	mov r5, sp
-	ldr r3, .L0809A0E4 @ =gUnk_08117838
+	ldr r3, .L0809A0E4 @ =gInventorySpecialSlotPosition
 	mov r8, r3
 .L08099F68:
 	lsls r0, r6, #2
@@ -177232,7 +177232,7 @@ func_08099ACC: @ 0x08099ACC
 	str r0, [r5, #4]
 	b .L0809A1C8
 	.align 2, 0
-.L0809A0E4: .4byte gUnk_08117838
+.L0809A0E4: .4byte gInventorySpecialSlotPosition
 .L0809A0E8: .4byte 0x00002BB0
 .L0809A0EC: .4byte 0x00002B90
 .L0809A0F0: .4byte 0x00002BA7

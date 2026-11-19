@@ -1,11 +1,11 @@
 #include "prelude.h"
+#include "g5_graphics.hh"
 
 EC u32 func_0805E8F0(void *);
 EC void func_080CE120(void *, void *, u32);
-EC void func_080CADF0(void *, u32);
 EC u8 vtable_unk_080E85BC[];
 
-EC SECTION(".text.g5_080CEC84") void func_080CEC84(u8 * self, u32 index, u32 page)
+EC SECTION(".text.g5_080CEC84") void ActivateInventoryCursor(u8 * self, u32 index, u32 page) // 0x080CEC84
 {
     self[0x84] = 1;
     self[0x68] = 1;
@@ -27,5 +27,5 @@ EC SECTION(".text.g5_080CD950") void func_080CD950(u8 * self, u32 flags)
     u32 offset = *size * 12 + 4;
     u8 * end = (u8 *) size + offset;
     for (u8 * entry = self + 0x218; entry != end; entry += 12) {}
-    func_080CADF0(self, flags);
+    DestroyPanelDrawCommands(self, flags);
 }
