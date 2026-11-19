@@ -112,6 +112,73 @@ solid:
     return 1;
 }
 
+EC SECTION(".text.080AC5D0") bool AreEntityFootTilesMarked(EntityCollisionGrid const & grid, int pixelX, int pixelY)
+{
+    register EntityCollisionGrid const * collisionGrid asm("r4") = &grid;
+    asm ("" : "+l" (collisionGrid));
+    register int topPixel asm("r0") = pixelY - 8;
+    asm ("" : "+l" (topPixel));
+    register int firstY asm("r3") = topPixel >> 3;
+    asm ("" : "+l" (firstY));
+    register int firstX asm("sl") = (pixelX - 6) >> 3;
+    asm ("" : "+h" (firstX));
+    register int lastY asm("r8") = (pixelY + 3) >> 3;
+    asm ("" : "+h" (lastY));
+    int lastX = (pixelX + 5) >> 3;
+    if (firstY > lastY || firstX > lastX)
+        return false;
+    register unsigned width asm("sb") = collisionGrid->width;
+    asm ("" : "+h" (width));
+    if (firstY < 0)
+        return false;
+    register int leftmostTile asm("r1") = firstX;
+    asm ("" : "+l" (leftmostTile));
+    if (leftmostTile < 0 || static_cast<unsigned>(lastY) >= collisionGrid->height || static_cast<unsigned>(lastX) >= width)
+        return false;
+    u32 const * flags = collisionGrid->tileFlags;
+    if (!flags)
+        return false;
+    register u8 const * indexBase asm("r4") = collisionGrid->tileIndices;
+    asm ("" : "+l" (indexBase));
+    register u8 const * indices asm("ip") = indexBase;
+    asm ("" : "+h" (indices));
+    int y = firstY;
+    if (y <= lastY)
+    {
+        unsigned row = width * y;
+        do
+        {
+            register int x asm("r3") = firstX;
+            asm ("" : "+l" (x));
+            if (x <= lastX)
+            {
+                register unsigned cell asm("r0") = x + row;
+                asm ("" : "+l" (cell));
+                register unsigned tileOffset asm("r2") = cell * sizeof(u32);
+                asm ("" : "+l" (tileOffset));
+                register unsigned index asm("r1") = reinterpret_cast<unsigned>(indices);
+                asm ("" : "+l" (index));
+                register unsigned indexRow asm("r0");
+                asm ("add %0, %1, %2" : "=l" (indexRow) : "l" (row), "l" (index) : "cc");
+                asm ("add %0, %1, %2" : "=l" (index) : "l" (x), "l" (indexRow) : "cc");
+                do
+                {
+                    u32 const * tile = indices ? flags + *reinterpret_cast<u8 const *>(index)
+                        : reinterpret_cast<u32 const *>(reinterpret_cast<u8 const *>(flags) + tileOffset);
+                    asm ("" : "+l" (tile));
+                    if (static_cast<i32>(*tile << 30) >= 0)
+                        return false;
+                    tileOffset += sizeof(u32);
+                    ++index;
+                    asm ("" : "+l" (tileOffset), "+l" (index));
+                } while (++x <= lastX);
+            }
+            row += width;
+        } while (++y <= lastY);
+    }
+    return true;
+}
+
 EC SECTION(".text.080AB85C") void ProbeEntityCollisionDown(EntityCollisionProbe & probe)
 {
     probe.down = probe.step;

@@ -52,7 +52,6 @@ struct MapUpdateState
 EC u32 func_0800E324(Unk_0800E324 const & calendar);
 EC MapPatch & GetMapPatch(MapPatch & result, u32 const & flags, unsigned index, bool isWinter);
 EC void ApplyMapPatch(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, u32 y);
-EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapPatchTiles const gUnk_08106DAC;
 EC u32 const gUnk_08107438[6];
 EC bool HasRosterEntry(void * self);
@@ -166,6 +165,164 @@ EC SECTION(".text.080AAE14") void ResetMapTileCache(MapTileCache & cache, u32 fi
         tree.header->right = tree.header;
         tree.size = 0;
     }
+}
+
+union MapTileCacheEntry
+{
+    struct
+    {
+        u16 firstTile;
+        u8 palette;
+    } tiles;
+    u32 packed;
+};
+
+struct MapTileCacheInsertion
+{
+    int key;
+    MapTileCacheEntry entry;
+};
+
+struct MapTileCacheInsertResult
+{
+    MapTileCacheNode * node;
+    bool inserted;
+};
+
+EC void func_080E4304(MapTileCacheInsertResult & result, MapTileCacheTree & tree, MapTileCacheInsertion const & insertion);
+
+EC SECTION(".text.080AAE44") MapTileCacheEntry * GetOrAllocateMapTileCacheEntry(
+    MapTileCacheEntry & result, MapTileCache & cache, int key)
+{
+    struct SearchFrame
+    {
+        MapTileCacheNode * found;
+        MapTileCacheNode * end;
+        MapTileCacheInsertResult inserted;
+        MapTileCacheInsertion argument;
+        MapTileCacheInsertion insertion;
+        int key;
+        MapTileCacheEntry entry;
+    };
+    volatile SearchFrame frame;
+    register int inputKey asm("r2") = key;
+    asm ("" : "+l" (inputKey));
+    frame.key = inputKey;
+    asm ("" : "+l" (inputKey) : "m" (frame.key));
+    register int searchKey asm("r0") = inputKey;
+    asm ("" : "+l" (searchKey));
+    if (searchKey == 13)
+    {
+        register unsigned fixedTile asm("r0") = 998;
+        asm ("" : "+l" (fixedTile));
+        register unsigned fixedPalette asm("r1") = 11;
+        asm ("" : "+l" (fixedPalette));
+        result.tiles.firstTile = fixedTile;
+        result.tiles.palette = fixedPalette;
+        return &result;
+    }
+
+    register volatile SearchFrame * foundSlot asm("r8") = &frame;
+    asm ("" : "+h" (foundSlot));
+    register MapTileCacheTree * tree asm("r1") = reinterpret_cast<MapTileCacheTree *>(&cache);
+    asm ("" : "+l" (tree));
+    tree = reinterpret_cast<MapTileCacheTree *>(reinterpret_cast<u8 *>(tree) + 8);
+    asm ("" : "+l" (tree));
+    register volatile int * keyAddressLow asm("r2");
+    asm ("add %0, sp, %2" : "=l" (keyAddressLow) : "m" (frame.key), "I" (offsetof(SearchFrame, key)));
+    register volatile int * keySlot asm("ip") = keyAddressLow;
+    asm ("" : "+h" (keySlot));
+    register MapTileCacheNode * lowerBound asm("r4") = tree->header;
+    asm ("" : "+l" (lowerBound));
+    register MapTileCacheNode * node asm("r2") = lowerBound->parent;
+    asm ("" : "+l" (node));
+    register MapTileCacheTree * cacheIndex asm("sb") = tree;
+    asm ("" : "+h" (cacheIndex));
+    if (node)
+    {
+        register int requestedKey asm("r6") = searchKey;
+        asm ("" : "+l" (requestedKey));
+        do
+        {
+            register unsigned nodeBeforeKey asm("r3") = node->key < requestedKey ? 1u : 0u;
+            asm ("" : "+l" (nodeBeforeKey));
+            if (!nodeBeforeKey)
+            {
+                lowerBound = node;
+                asm ("" : "+l" (lowerBound));
+                node = lowerBound->left;
+            }
+            else
+                node = node->right;
+            asm ("" : "+l" (node));
+        } while (node);
+    }
+
+    register MapTileCacheNode * end asm("r3") = tree->header;
+    asm ("" : "+l" (end));
+    if (lowerBound == end)
+        goto notFound;
+    {
+        register unsigned keyBeforeBound asm("r2") = 0;
+        asm ("" : "+l" (keyBeforeBound));
+        register volatile int * keyAddress asm("r0") = keySlot;
+        asm ("" : "+l" (keyAddress));
+        register int requestedKey asm("r1") = *keyAddress;
+        asm ("" : "+l" (requestedKey));
+        if (requestedKey < lowerBound->key)
+            keyBeforeBound = 1;
+            asm ("" : "+l" (keyBeforeBound));
+        if (!keyBeforeBound)
+            goto foundEntry;
+    }
+notFound:
+    lowerBound = end;
+foundEntry:
+    register volatile SearchFrame * searchFrame asm("r2") = foundSlot;
+    asm ("" : "+l" (searchFrame));
+    searchFrame->found = lowerBound;
+    register MapTileCacheTree * index asm("r0") = cacheIndex;
+    asm ("" : "+l" (index));
+    register MapTileCacheNode * endNode asm("r1") = index->header;
+    asm ("" : "+l" (endNode));
+    frame.end = endNode;
+    register unsigned missing asm("r2") = frame.found == endNode ? 1u : 0u;
+    unsigned shouldInsert;
+    asm volatile ("" : "=l" (shouldInsert) : "0" (missing));
+    if (!shouldInsert)
+        goto haveEntry;
+    {
+        register MapTileCacheInsertResult * inserted asm("r0");
+        asm volatile ("add %0, sp, %2" : "=l" (inserted) : "m" (frame.inserted), "I" (offsetof(SearchFrame, inserted)));
+        register MapTileCacheEntry * entry asm("r3");
+        asm volatile ("add %0, sp, %3" : "=l" (entry) : "m" (frame.entry), "l" (inserted), "I" (offsetof(SearchFrame, entry)));
+        register unsigned firstTile asm("r1") = cache.nextTile;
+        asm ("" : "+l" (firstTile));
+        register unsigned palette asm("r2") = cache.nextPalette;
+        asm ("" : "+l" (palette));
+        entry->tiles.firstTile = firstTile;
+        entry->tiles.palette = palette;
+        asm ("" : : "m" (*entry));
+        register int insertionKey asm("r2") = frame.key;
+        asm ("" : "+l" (insertionKey));
+        frame.insertion.key = insertionKey;
+        register u32 packedEntry asm("r1") = frame.entry.packed;
+        asm ("" : "+l" (packedEntry));
+        frame.insertion.entry.packed = packedEntry;
+        frame.argument.key = insertionKey;
+        frame.argument.entry.packed = packedEntry;
+        register MapTileCacheTree * insertionIndex asm("r1") = cacheIndex;
+        asm ("" : "+l" (insertionIndex) : "l" (inserted));
+        MapTileCacheInsertion const * argument;
+        asm volatile ("add %0, sp, %4" : "=l" (argument) : "m" (frame.argument), "l" (inserted), "l" (insertionIndex), "I" (offsetof(SearchFrame, argument)));
+        func_080E4304(*inserted, *insertionIndex, *argument);
+        frame.found = frame.inserted.node;
+        cache.nextTile += 4;
+        ++cache.nextPalette;
+    }
+haveEntry:
+    result.packed = frame.found->value;
+    return &result;
 }
 
 EC SECTION(".text.080AAF10") MapTileCacheNode * GetFirstMapTileCacheNode(MapTileCache const & cache)
@@ -293,5 +450,5 @@ EC SECTION(".text.080AAF3C") u32 SelectMapGraphicsId(MapUpdateState const & map)
     u32 houseLevel = map.save->house.GetUpgradeLevel();
     u32 coopLevel = map.save->coop.GetUpgradeLevel();
     u32 barnLevel = map.save->barn.GetUpgradeLevel();
-    return func_0803A8A4(map.mapId, season, houseLevel, coopLevel, barnLevel);
+    return GetMapGraphicsVariantId(map.mapId, season, houseLevel, coopLevel, barnLevel);
 }
