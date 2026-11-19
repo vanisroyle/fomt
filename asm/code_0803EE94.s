@@ -31704,7 +31704,7 @@ SetMessageWindowStatePortrait: @ 0x08050AD8
 	adds r5, r1, #0
 	cmp r5, #0
 	blo .L08050AEA
-	bl func_080ADD20
+	bl GetMessagePortraitCount
 	cmp r5, r0
 	blo .L08050AF2
 .L08050AEA:
