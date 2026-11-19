@@ -1,6 +1,7 @@
 #include "farmer_entity_layout.hh"
 #include "entity_sound_channel.hh"
 #include "farm_house.hh"
+#include "sprite_animation.hh"
 
 #define ENTITY_CODE(addr) SECTION(".text.entities_part2." #addr)
 
@@ -458,7 +459,7 @@ EC void BeginFarmerToolDisplay(FarmerEntity * farmer)
     *state++ = 10;
     *state = 20;
     ShowFarmerToolDisplay(farmer);
-    func_08008B6C(FindEntitySoundChannel(farmer->game_object), 188);
+    AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 188);
     Farmer const * model = farmer->farmer;
     Tool tool = func_0800E550(*model, model->unk_5C.GetTool());
     if (tool.GetId() == TOOL_TELEPORT_STONE)
@@ -487,7 +488,7 @@ EC void TickFarmerToolCharge(FarmerEntity * farmer)
             u32 level = farmer->tool_level + 1;
             farmer->tool_level = level;
             if (static_cast<u8>(level) == 5)
-                func_08008B6C(FindEntitySoundChannel(farmer->game_object), 184);
+                AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 184);
         }
     }
 }
@@ -703,12 +704,6 @@ EC bool IsFarmerState7Or45(FarmerEntity const * farmer)
     return matches;
 }
 
-struct SpriteAnimationFrame
-{
-    u16 sprite_index;
-    u16 delay;
-};
-
 EC bool HasFarmerConsumeAnimation(FarmerEntity const * farmer) ENTITY_CODE(08032074);
 EC bool HasFarmerConsumeAnimation(FarmerEntity const * farmer)
 {
@@ -724,35 +719,21 @@ EC void MakeFarmerContactBox(Box * box, i32 x, i32 y)
     box->y2 = y + 5;
 }
 
-struct SpriteAnimationFrames
+EC u32 SumSpriteAnimationFrameDelays(SpriteAnimationSource const * source, u32 animation) ENTITY_CODE(08032090);
+EC u32 SumSpriteAnimationFrameDelays(SpriteAnimationSource const * source, u32 animation)
 {
-    SpriteAnimationFrame const * frames;
-    u16 count;
-
-    u16 Count() const { return frames != nullptr ? count : 0; }
-};
-
-struct ActorSpriteAnimations
-{
-    virtual ~ActorSpriteAnimations();
-    virtual SpriteAnimationFrames GetFrames(u32 animation);
-};
-
-EC u32 SumSpriteAnimationFrameDelays(ActorSpriteAnimations * sprite, u32 animation) ENTITY_CODE(08032090);
-EC u32 SumSpriteAnimationFrameDelays(ActorSpriteAnimations * sprite, u32 animation)
-{
-    SpriteAnimationFrames loaded = sprite->GetFrames(animation);
-    SpriteAnimationFrames frames = loaded;
-    SpriteAnimationFrames * sequence = &frames;
+    SpriteAnimationClip loaded = source->GetClip(animation);
+    SpriteAnimationClip clip = loaded;
+    SpriteAnimationClip * sequence = &clip;
     u32 total_delay = 0;
     u32 frame = 0;
-    u32 count = sequence->Count();
+    u32 count = static_cast<u16>(sequence->GetLength());
     if (frame < count)
     {
-        SpriteAnimationFrame const * next = sequence->frames;
+        SpriteKeyframe const * next = sequence->keyframes;
         do
         {
-            total_delay += (next++)->delay;
+            total_delay += (next++)->duration;
             ++frame;
         } while (frame < count);
     }

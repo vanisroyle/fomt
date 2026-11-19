@@ -15,8 +15,8 @@ struct EntitySoundGameVTable
     EntitySoundChannels const * (*get_channels)(GameObject * game);
 };
 
-EC bool func_08008CD0(void * channel);
-EC void func_08008B6C(void * channel, u16 sound);
+EC bool AudioPlayer_IsPlaying(void * channel);
+EC void AudioPlayer_StartSong(void * channel, u16 sound);
 
 inline void * FindEntitySoundChannel(GameObject * game)
 {
@@ -26,7 +26,7 @@ inline void * FindEntitySoundChannel(GameObject * game)
     void ** end = channels->end;
     for (; it != end; ++it)
     {
-        if (!func_08008CD0(*it))
+        if (!AudioPlayer_IsPlaying(*it))
             return *it;
     }
     return end[-1];

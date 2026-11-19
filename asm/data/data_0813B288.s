@@ -168,24 +168,24 @@ gUnk_086D6698:
 gUnk_086D74F8:
 	.incbin "baserom.gba", 0x6D74F8, 0x4ECC
 
-	.global gUnk_086DC3C4
-gUnk_086DC3C4:
+	.global gMineSoilTiles
+gMineSoilTiles:
 	.incbin "baserom.gba", 0x6DC3C4, 0xC
 
-	.global gUnk_086DC3D0
-gUnk_086DC3D0:
+	.global gMineDugSoilTiles
+gMineDugSoilTiles:
 	.incbin "baserom.gba", 0x6DC3D0, 0xC
 
-	.global gUnk_086DC3DC
-gUnk_086DC3DC:
+	.global gMineDownStairsTiles
+gMineDownStairsTiles:
 	.incbin "baserom.gba", 0x6DC3DC, 0xC
 
-	.global gUnk_086DC3E8
-gUnk_086DC3E8:
+	.global gMineUpStairsTiles
+gMineUpStairsTiles:
 	.incbin "baserom.gba", 0x6DC3E8, 0xC
 
-	.global gUnk_086DC3F4
-gUnk_086DC3F4:
+	.global gMineRockTiles
+gMineRockTiles:
 	.incbin "baserom.gba", 0x6DC3F4, 0x158
 
 	.global gUnk_086DC54C
