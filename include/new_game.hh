@@ -180,6 +180,7 @@ EC void NewGameChoiceDialog_Update(NewGameChoiceDialogTask * self);
 EC void NewGameMenu_UpdateDescription(NewGameMenuTask * self);
 EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self);
 EC void NameEntryScene_UpdateCursor(NameEntrySceneTask * self);
+EC void NameEntryScene_HandleInput(NameEntrySceneTask * self);
 EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite);
 EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source);
 EC void NewGameMenu_UpdateMessage(char * self);
