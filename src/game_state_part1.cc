@@ -396,7 +396,7 @@ EC void func_080D7F60(GameStateRuntime & self);
 EC void func_08050E68(void * self, u32 value);
 EC void func_08050E50(void * self, u32 value);
 EC u32 func_0809FE3C(void * self, u32 value);
-EC void func_08033B84(AActorEntity & self, u32 map, i32 x, i32 y);
+EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
 EC void func_080007EC(GameStateScript & self, u32 flags);
 EC void func_080D7F9C(GameStateRuntime & self, i32 id, u32 value_1, u32 value_2, u32 value_3, u32 value_4);
@@ -1051,7 +1051,7 @@ EC void SECTION(".text.game_state_0801223C") func_0801223C(GameStateScript & sel
         i32 current_y = reinterpret_cast<i16 const *>(&entity->y_q16)[1];
         current_x += x;
         current_y += y;
-        func_08033B84(*entity, reinterpret_cast<u8 *>(entity)[0x30], current_x, current_y);
+        ShowSpriteWorkerEffect(*entity, reinterpret_cast<u8 *>(entity)[0x30], current_x, current_y);
     }
 }
 

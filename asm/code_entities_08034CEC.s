@@ -1,6 +1,8 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
 
+    .section .text.npc_extra.08035380, "ax", %progbits
+
     thumb_func_start func_08035380
 func_08035380: @ 0x08035380
     push {r4, r5, r6, r7, lr}
@@ -758,65 +760,7 @@ func_08035380: @ 0x08035380
     pop {r0}
     bx r0
 
-    thumb_func_start func_08035908
-func_08035908: @ 0x08035908
-    push {r4, r5, r6, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    adds r0, #0x44
-    ldrh r6, [r0]
-    cmp r5, r6
-    beq .L0803593A
-    strh r5, [r0]
-    ldr r0, [r4, #0x14]
-    ldr r1, [r0, #0x28]
-    adds r0, r4, #0
-    bl _call_via_r1
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0803593A
-    ldrh r0, [r4, #0x22]
-    cmp r0, r6
-    bne .L0803593A
-    cmp r0, r5
-    beq .L0803593A
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl SetAnim__12AActorEntityUi
-.L0803593A:
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_08035940
-func_08035940: @ 0x08035940
-    push {r4, r5, r6, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    adds r0, #0x46
-    ldrh r6, [r0]
-    cmp r5, r6
-    beq .L08035972
-    strh r5, [r0]
-    ldr r0, [r4, #0x14]
-    ldr r1, [r0, #0x28]
-    adds r0, r4, #0
-    bl _call_via_r1
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08035972
-    ldrh r0, [r4, #0x22]
-    cmp r0, r6
-    bne .L08035972
-    cmp r0, r5
-    beq .L08035972
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl SetAnim__12AActorEntityUi
-.L08035972:
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
+    .section .text.npc_extra.08035978, "ax", %progbits
 
     thumb_func_start func_08035978
 func_08035978: @ 0x08035978
@@ -1006,23 +950,7 @@ func_08035A48: @ 0x08035A48
     .align 2, 0
 .L08035ADC: .4byte 0x000003FF
 
-    thumb_func_start func_08035AE0
-func_08035AE0: @ 0x08035AE0
-    push {lr}
-    adds r1, r0, #0
-    movs r2, #0
-    ldrh r0, [r1, #4]
-    cmp r0, #0x1d
-    bne .L08035AF6
-    movs r3, #0xe
-    ldrsh r0, [r1, r3]
-    cmp r0, #0x37
-    bgt .L08035AF6
-    movs r2, #1
-.L08035AF6:
-    adds r0, r2, #0
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08035AFC, "ax", %progbits
 
     thumb_func_start func_08035AFC
 func_08035AFC: @ 0x08035AFC
@@ -1174,7 +1102,7 @@ func_08035C04: @ 0x08035C04
     cmp r0, #0x1d
     bne .L08035C94
     adds r0, r4, #0
-    bl func_08035AE0
+    bl IsNpcAtNorthernExit
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08035C42
@@ -1222,10 +1150,10 @@ func_08035C04: @ 0x08035C04
 .L08035C94:
     adds r0, r4, #0
     adds r1, r7, #0
-    bl func_08035908
+    bl SetNpcWalkingAnimation
     adds r0, r4, #0
     mov r1, r8
-    bl func_08035940
+    bl SetNpcIdleAnimation
     pop {r3}
     mov r8, r3
     pop {r4, r5, r6, r7}
@@ -1737,7 +1665,7 @@ func_08036084: @ 0x08036084
     cmp r0, #0x1d
     bne .L08036114
     adds r0, r4, #0
-    bl func_08035AE0
+    bl IsNpcAtNorthernExit
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080360C2
@@ -1785,10 +1713,10 @@ func_08036084: @ 0x08036084
 .L08036114:
     adds r0, r4, #0
     adds r1, r7, #0
-    bl func_08035908
+    bl SetNpcWalkingAnimation
     adds r0, r4, #0
     mov r1, r8
-    bl func_08035940
+    bl SetNpcIdleAnimation
     pop {r3}
     mov r8, r3
     pop {r4, r5, r6, r7}
@@ -2195,7 +2123,7 @@ func_08036430: @ 0x08036430
     cmp r0, #0x1d
     bne .L080364C0
     adds r0, r4, #0
-    bl func_08035AE0
+    bl IsNpcAtNorthernExit
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0803646E
@@ -2243,10 +2171,10 @@ func_08036430: @ 0x08036430
 .L080364C0:
     adds r0, r4, #0
     adds r1, r7, #0
-    bl func_08035908
+    bl SetNpcWalkingAnimation
     adds r0, r4, #0
     mov r1, r8
-    bl func_08035940
+    bl SetNpcIdleAnimation
     pop {r3}
     mov r8, r3
     pop {r4, r5, r6, r7}
@@ -2394,7 +2322,7 @@ func_080365CC: @ 0x080365CC
     cmp r0, #0x1d
     bne .L0803665C
     adds r0, r4, #0
-    bl func_08035AE0
+    bl IsNpcAtNorthernExit
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0803660A
@@ -2442,10 +2370,10 @@ func_080365CC: @ 0x080365CC
 .L0803665C:
     adds r0, r4, #0
     adds r1, r7, #0
-    bl func_08035908
+    bl SetNpcWalkingAnimation
     adds r0, r4, #0
     mov r1, r8
-    bl func_08035940
+    bl SetNpcIdleAnimation
     pop {r3}
     mov r8, r3
     pop {r4, r5, r6, r7}
@@ -2592,10 +2520,10 @@ func_08036768: @ 0x08036768
     movs r5, #1
 .L08036784:
     adds r0, r4, #0
-    bl func_08035908
+    bl SetNpcWalkingAnimation
     adds r0, r4, #0
     ldr r1, .L080367A8 @ =0x0000027F
-    bl func_08035940
+    bl SetNpcIdleAnimation
     adds r0, r4, #0
     adds r0, #0x21
     strb r5, [r0]
@@ -2797,7 +2725,7 @@ func_08036900: @ 0x08036900
     cmp r0, #0x1d
     bne .L080369A0
     adds r0, r4, #0
-    bl func_08035AE0
+    bl IsNpcAtNorthernExit
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0803694A
@@ -2852,10 +2780,10 @@ func_08036900: @ 0x08036900
 .L080369A0:
     adds r0, r4, #0
     adds r1, r7, #0
-    bl func_08035908
+    bl SetNpcWalkingAnimation
     adds r0, r4, #0
     mov r1, r8
-    bl func_08035940
+    bl SetNpcIdleAnimation
     pop {r3}
     mov r8, r3
     pop {r4, r5, r6, r7}
@@ -3012,10 +2940,10 @@ func_08036AB4: @ 0x08036AB4
     ldr r5, .L08036AFC @ =0x000009E3
 .L08036AE4:
     adds r0, r4, #0
-    bl func_08035908
+    bl SetNpcWalkingAnimation
     adds r0, r4, #0
     adds r1, r5, #0
-    bl func_08035940
+    bl SetNpcIdleAnimation
     pop {r4, r5}
     pop {r0}
     bx r0
@@ -3474,7 +3402,7 @@ func_08036E70: @ 0x08036E70
     cmp r0, #0x3b
     bhi .L08036EAC
     adds r0, r4, #0
-    bl func_08035AE0
+    bl IsNpcAtNorthernExit
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08036ED0
@@ -3486,7 +3414,7 @@ func_08036E70: @ 0x08036E70
 .L08036EA8: .4byte 0x0000026F
 .L08036EAC:
     adds r0, r4, #0
-    bl func_08035AE0
+    bl IsNpcAtNorthernExit
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08036EC0
@@ -3505,10 +3433,10 @@ func_08036E70: @ 0x08036E70
 .L08036ED0:
     adds r0, r4, #0
     adds r1, r5, #0
-    bl func_08035908
+    bl SetNpcWalkingAnimation
     adds r0, r4, #0
     adds r1, r7, #0
-    bl func_08035940
+    bl SetNpcIdleAnimation
 .L08036EE0:
     pop {r4, r5, r6, r7}
     pop {r0}
@@ -3606,7 +3534,7 @@ func_08036E70: @ 0x08036E70
     @ 36f88:       283b            cmp     r0, #59 @ 0x3b
     @ 36f8a:       d832            bhi.n   0x36ff2
     @ 36f8c:       1c20            adds    r0, r4, #0
-    @ 36f8e:       f7fe fda7       bl      func_08035AE0
+    @ 36f8e:       f7fe fda7       bl      IsNpcAtNorthernExit
     @ 36f92:       0600            lsls    r0, r0, #24
     @ 36f94:       2800            cmp     r0, #0
     @ 36f96:       d02c            beq.n   0x36ff2
@@ -4194,10 +4122,7 @@ func_0803726C: @ 0x0803726C
     bx r0
     .align 2, 0
 
-    thumb_func_start func_08037430
-func_08037430: @ 0x08037430
-    ldrh r0, [r0, #0x3c]
-    bx lr
+    .section .text.npc_extra.08037434, "ax", %progbits
 
     thumb_func_start func_08037434
 func_08037434: @ 0x08037434
@@ -4221,17 +4146,7 @@ func_08037434: @ 0x08037434
     bx r0
     .align 2, 0
 
-    thumb_func_start func_0803745C
-func_0803745C: @ 0x0803745C
-    push {r4, lr}
-    adds r4, r0, #0
-    bl vfunc_14__7AEntity
-    adds r4, #0x40
-    movs r0, #0
-    strb r0, [r4]
-    pop {r4}
-    pop {r0}
-    bx r0
+    .section .text.npc_extra.08037470, "ax", %progbits
 
     thumb_func_start func_08037470
 func_08037470: @ 0x08037470
@@ -4253,6 +4168,8 @@ func_08037470: @ 0x08037470
     pop {r2}
     bx r2
     .align 2, 0
+
+    .section .text.npc_extra.08037494, "ax", %progbits
 
     thumb_func_start func_08037494
 func_08037494: @ 0x08037494
@@ -4312,13 +4229,13 @@ func_08037494: @ 0x08037494
 .L08037508:
     adds r0, r6, #0
     adds r1, r7, #0
-    bl func_08037628
+    bl GetChildNpcSpeed
     adds r1, r0, #0
     adds r0, r6, #0
     bl func_08037098
     adds r0, r6, #0
     adds r1, r7, #0
-    bl func_08037618
+    bl GetChildNpcAnimation
     adds r1, r0, #0
     ldrh r0, [r6, #0x22]
     cmp r0, r1
@@ -4421,7 +4338,7 @@ func_08037568: @ 0x08037568
     bl SetLocation__12AActorEntityRC13ActorLocation
     adds r0, r4, #0
     movs r1, #0
-    bl func_08037618
+    bl GetChildNpcAnimation
     adds r1, r0, #0
     ldrh r0, [r4, #0x22]
     cmp r0, r1
@@ -4443,30 +4360,7 @@ func_08037568: @ 0x08037568
     bx r0
     .align 2, 0
 
-    thumb_func_start func_08037618
-func_08037618: @ 0x08037618
-    ldr r0, .L08037624 @ =gUnk_080F1560
-    lsls r1, r1, #1
-    adds r1, r1, r0
-    ldrh r0, [r1]
-    bx lr
-    .align 2, 0
-.L08037624: .4byte gUnk_080F1560
-
-    thumb_func_start func_08037628
-func_08037628: @ 0x08037628
-    push {lr}
-    cmp r1, #1
-    beq .L08037632
-    movs r0, #0
-    b .L08037636
-.L08037632:
-    movs r0, #0x80
-    lsls r0, r0, #8
-.L08037636:
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_extra.0803763C, "ax", %progbits
 
     thumb_func_start func_0803763C
 func_0803763C: @ 0x0803763C
