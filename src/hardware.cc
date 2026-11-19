@@ -818,6 +818,193 @@ EC void SECTION(".text.func_08009864") func_08009864(HardwareSprites * self)
     func_08009834(self);
 }
 
+struct HardwareTaskNode;
+struct HardwareTaskList;
+
+struct HardwareTaskVtable
+{
+    void (*unk_00)();
+    void (*unk_04)();
+    bool (*run)(HardwareTaskNode *);
+    void (*unk_0C)();
+    void (*unk_10)();
+    void (*remove)(HardwareTaskList *, HardwareTaskNode *);
+};
+
+extern HardwareTaskVtable vtable_unk_080E5BE8;
+extern HardwareTaskVtable vtable_unk_080E5BB4;
+extern HardwareTaskVtable vtable_unk_080E5B90;
+
+struct HardwareTaskNode
+{
+    void Unlink()
+    {
+        if (previous != nullptr)
+        {
+            *previous = next;
+            next->previous = previous;
+        }
+    }
+
+    HardwareTaskNode ** previous;
+    HardwareTaskNode * next;
+    HardwareTaskVtable * vtable;
+};
+
+struct HardwareTaskList
+{
+    HardwareTaskNode node;
+    HardwareTaskNode * first;
+    HardwareTaskNode sentinel;
+};
+
+EC void func_08009940(HardwareTaskList *, HardwareTaskNode *);
+EC void func_08009968(HardwareTaskList *, HardwareTaskNode *);
+EC void func_08009984(HardwareTaskList *);
+EC void func_080099B0(HardwareTaskList *, HardwareTaskList *);
+EC void func_080099D4(HardwareTaskList *, HardwareTaskList *);
+EC void func_080098AC(HardwareTaskNode *, u32);
+EC void func_080098DC(HardwareTaskList *, u32);
+EC u16 func_08000528(u16);
+EC u16 func_080004F4(u16);
+
+struct HardwareInterruptLock
+{
+    HardwareInterruptLock(u16 mask) { saved = mask & func_08000528(mask); }
+    ~HardwareInterruptLock()
+    {
+        if (saved != 0)
+            func_080004F4(saved);
+    }
+    u16 saved;
+};
+
+EC void SECTION(".text.func_0800956C") func_0800956C(HardwareTaskList * self)
+{
+    HardwareInterruptLock lock(1);
+    func_08009984(self);
+}
+
+EC void SECTION(".text.func_0800959C") func_0800959C(HardwareTaskList * self, u32 flags)
+{
+    self->node.vtable = &vtable_unk_080E5B90;
+    func_0800956C(self);
+    func_080098DC(self, flags);
+}
+
+EC void SECTION(".text.func_080095C0") func_080095C0(HardwareTaskList * self, HardwareTaskNode * node)
+{
+    HardwareInterruptLock lock(1);
+    func_08009940(self, node);
+}
+
+EC void SECTION(".text.func_080095FC") func_080095FC(HardwareTaskList * self, HardwareTaskNode * node)
+{
+    HardwareInterruptLock lock(1);
+    func_08009968(self, node);
+}
+
+EC void SECTION(".text.func_08009638") func_08009638(HardwareTaskList * self, HardwareTaskList * other)
+{
+    HardwareInterruptLock lock(1);
+    func_080099B0(self, other);
+}
+
+EC void SECTION(".text.func_08009674") func_08009674(HardwareTaskList * self, HardwareTaskList * other)
+{
+    HardwareInterruptLock lock(1);
+    func_080099D4(self, other);
+}
+
+EC void SECTION(".text.func_080098AC") func_080098AC(HardwareTaskNode * self, u32 flags)
+{
+    self->vtable = &vtable_unk_080E5BE8;
+    self->Unlink();
+    if (flags & 1)
+        delete self;
+}
+
+EC void SECTION(".text.func_080098DC") func_080098DC(HardwareTaskList * self, u32 flags)
+{
+    self->node.vtable = &vtable_unk_080E5BB4;
+    func_08009984(self);
+    func_080098AC(&self->sentinel, 2);
+    func_080098AC(&self->node, flags);
+}
+
+EC bool SECTION(".text.func_08009908") func_08009908(HardwareTaskList * self)
+{
+    HardwareTaskNode * next = self->first;
+    HardwareTaskNode * end = &self->sentinel;
+    while (next != end)
+    {
+        HardwareTaskNode * current = next;
+        next = next->next;
+        if (!current->vtable->run(current))
+            self->node.vtable->remove(self, current);
+    }
+    return true;
+}
+
+EC void SECTION(".text.func_08009940") func_08009940(HardwareTaskList * self, HardwareTaskNode * node)
+{
+    node->Unlink();
+    HardwareTaskNode ** last = self->sentinel.previous;
+    *last = node;
+    node->previous = last;
+    node->next = &self->sentinel;
+    self->sentinel.previous = &node->next;
+}
+
+EC void SECTION(".text.func_08009968") func_08009968(HardwareTaskList * self, HardwareTaskNode * node)
+{
+    if (node->previous != nullptr)
+    {
+        node->Unlink();
+        node->previous = nullptr;
+        node->next = nullptr;
+    }
+}
+
+EC void SECTION(".text.func_08009984") func_08009984(HardwareTaskList * self)
+{
+    HardwareTaskNode * node = self->first;
+    HardwareTaskNode * end = &self->sentinel;
+    while (node != end)
+    {
+        HardwareTaskNode * current = node;
+        node = node->next;
+        current->previous = nullptr;
+        current->next = nullptr;
+    }
+    self->first = &self->sentinel;
+    self->sentinel.previous = &self->first;
+}
+
+EC void SECTION(".text.func_080099B0") func_080099B0(HardwareTaskList * self, HardwareTaskList * other)
+{
+    HardwareTaskNode ** last = self->sentinel.previous;
+    *last = other->first;
+    other->first->previous = last;
+    HardwareTaskNode ** other_last = other->sentinel.previous;
+    *other_last = &self->sentinel;
+    self->sentinel.previous = other_last;
+    other->first = &other->sentinel;
+    other->sentinel.previous = &other->first;
+}
+
+EC void SECTION(".text.func_080099D4") func_080099D4(HardwareTaskList * self, HardwareTaskList * other)
+{
+    HardwareTaskNode * first = self->first;
+    self->first = other->first;
+    other->first = first;
+    HardwareTaskNode ** last = self->sentinel.previous;
+    HardwareTaskNode ** other_last = other->sentinel.previous;
+    HardwareTaskNode * end = *last;
+    *last = *other_last;
+    *other_last = end;
+}
+
 EC void func_08007184(Unk_hardware_H * self) ALIAS(_._14Unk_hardware_H);
 
 EC void func_080071BC(Unk_hardware_H * self, unsigned int from, unsigned int count)
