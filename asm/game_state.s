@@ -21503,7 +21503,7 @@ func_0801DDCC: @ 0x0801DDCC
     bl func_0809C5B4
     ldr r0, [r4, #4]
     adds r1, r5, #0
-    bl func_080AA850
+    bl ApplySavedMapTilePatch
     pop {r4, r5}
     pop {r0}
     bx r0
@@ -21525,7 +21525,7 @@ func_0801DDF8: @ 0x0801DDF8
     bl func_0809C5D0
     ldr r0, [r4, #4]
     adds r1, r5, #0
-    bl func_080AA850
+    bl ApplySavedMapTilePatch
     pop {r4, r5}
     pop {r0}
     bx r0
@@ -21547,7 +21547,7 @@ func_0801DE24: @ 0x0801DE24
 func_0801DE3C: @ 0x0801DE3C
     push {lr}
     ldr r0, [r0, #4]
-    bl func_080AA8BC
+    bl ClearSupermarketBlueFeatherDisplay
     pop {r0}
     bx r0
 
@@ -21555,7 +21555,7 @@ func_0801DE3C: @ 0x0801DE3C
 func_0801DE48: @ 0x0801DE48
     push {lr}
     ldr r0, [r0, #4]
-    bl func_080AA8DC
+    bl RequestMap29Refresh
     pop {r0}
     bx r0
 .L0801DE54:

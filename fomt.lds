@@ -355,6 +355,28 @@ SECTIONS
         src/harvest_sprite.o(.text);
 
         asm/code_809E804.o(.text);
+        src/map_updates.o(.text.080AA850);
+        src/map_updates.o(.text.080AA89C);
+        src/map_updates.o(.text.080AA8BC);
+        src/map_updates.o(.text.080AA8DC);
+        src/map_updates.o(.text.080AA8F0);
+        asm/code_809E804.o(.text.080AA9C8);
+        src/map_updates.o(.text.080AAE14);
+        asm/code_809E804.o(.text.080AAE44);
+        src/map_updates.o(.text.080AAF10);
+        src/map_updates.o(.text.080AAF1C);
+        src/map_updates.o(.text.080AAF28);
+        src/map_updates.o(.text.080AAF3C);
+        asm/code_809E804.o(.text.080AAF9C);
+        src/entity_movement.o(.text.080AB788);
+        src/entity_movement.o(.text.080AB7A4);
+        src/entity_movement.o(.text.080AB82C);
+        asm/code_809E804.o(.text.080AB85C);
+        src/entity_movement.o(.text.080ABBA0);
+        src/entity_movement.o(.text.080ABBC4);
+        src/entity_movement.o(.text.080ABBEC);
+        src/entity_movement.o(.text.080ABC14);
+        asm/code_809E804.o(.text.080ABC40);
         asm/code_080C8360.o(.text);
         src/g5_panels.o(.text.g5_080C8550);
         asm/code_080C8360.o(.text.g5_after_080C8550);
