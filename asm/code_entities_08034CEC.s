@@ -980,28 +980,7 @@ func_08035AFC: @ 0x08035AFC
 .L08035B30: .4byte 0x000003E2
 .L08035B34: .4byte vtable_unk_080E7198
 
-    thumb_func_start func_08035B38
-func_08035B38: @ 0x08035B38
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08035B64, "ax", %progbits
 
     thumb_func_start func_08035B64
 func_08035B64: @ 0x08035B64
@@ -1031,28 +1010,7 @@ func_08035B64: @ 0x08035B64
 .L08035B94: .4byte 0x00000213
 .L08035B98: .4byte vtable_unk_080E7158
 
-    thumb_func_start func_08035B9C
-func_08035B9C: @ 0x08035B9C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08035BC8, "ax", %progbits
 
     thumb_func_start func_08035BC8
 func_08035BC8: @ 0x08035BC8
@@ -1193,30 +1151,7 @@ func_08035D04: @ 0x08035D04
 .L08035D38: .4byte 0x00000406
 .L08035D3C: .4byte vtable_unk_080E70D8
 
-    thumb_func_start func_08035D40
-func_08035D40: @ 0x08035D40
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #3
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_extra.08035D70, "ax", %progbits
 
     thumb_func_start func_08035D70
 func_08035D70: @ 0x08035D70
@@ -1246,28 +1181,7 @@ func_08035D70: @ 0x08035D70
 .L08035DA4: .4byte 0x00000405
 .L08035DA8: .4byte vtable_unk_080E7098
 
-    thumb_func_start func_08035DAC
-func_08035DAC: @ 0x08035DAC
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08035DD8, "ax", %progbits
 
     thumb_func_start func_08035DD8
 func_08035DD8: @ 0x08035DD8
@@ -1297,28 +1211,7 @@ func_08035DD8: @ 0x08035DD8
 .L08035E0C: .4byte 0x00000403
 .L08035E10: .4byte vtable_unk_080E7058
 
-    thumb_func_start func_08035E14
-func_08035E14: @ 0x08035E14
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08035E40, "ax", %progbits
 
     thumb_func_start func_08035E40
 func_08035E40: @ 0x08035E40
@@ -1348,30 +1241,7 @@ func_08035E40: @ 0x08035E40
 .L08035E74: .4byte 0x00000402
 .L08035E78: .4byte vtable_unk_080E7018
 
-    thumb_func_start func_08035E7C
-func_08035E7C: @ 0x08035E7C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #2
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_extra.08035EAC, "ax", %progbits
 
     thumb_func_start func_08035EAC
 func_08035EAC: @ 0x08035EAC
@@ -1401,28 +1271,7 @@ func_08035EAC: @ 0x08035EAC
 .L08035EDC: .4byte gUnk_080F6370
 .L08035EE0: .4byte vtable_unk_080E6FD8
 
-    thumb_func_start func_08035EE4
-func_08035EE4: @ 0x08035EE4
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08035F10, "ax", %progbits
 
     thumb_func_start func_08035F10
 func_08035F10: @ 0x08035F10
@@ -1452,28 +1301,7 @@ func_08035F10: @ 0x08035F10
 .L08035F40: .4byte 0x000003FD
 .L08035F44: .4byte vtable_unk_080E6F98
 
-    thumb_func_start func_08035F48
-func_08035F48: @ 0x08035F48
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08035F74, "ax", %progbits
 
     thumb_func_start func_08035F74
 func_08035F74: @ 0x08035F74
@@ -1503,30 +1331,7 @@ func_08035F74: @ 0x08035F74
 .L08035FA8: .4byte 0x000003F5
 .L08035FAC: .4byte vtable_unk_080E6F58
 
-    thumb_func_start func_08035FB0
-func_08035FB0: @ 0x08035FB0
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #2
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_extra.08035FE0, "ax", %progbits
 
     thumb_func_start func_08035FE0
 func_08035FE0: @ 0x08035FE0
@@ -3365,53 +3170,15 @@ func_08037048: @ 0x08037048
 .L08037090: .4byte vtable_unk_080E7328
 .L08037094: .4byte __vt_7AEntity
 
-    thumb_func_start func_08037098
-func_08037098: @ 0x08037098
-    push {r4, r5, lr}
-    adds r3, r0, #0
-    movs r4, #0
-    movs r5, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    adds r2, r0, #0
-    cmp r0, #1
-    beq .L080370C2
-    cmp r0, #1
-    bgt .L080370B4
-    cmp r0, #0
-    beq .L080370BE
-    b .L080370CC
-.L080370B4:
-    cmp r2, #2
-    beq .L080370C6
-    cmp r2, #3
-    beq .L080370CA
-    b .L080370CC
-.L080370BE:
-    adds r5, r1, #0
-    b .L080370CC
-.L080370C2:
-    rsbs r5, r1, #0
-    b .L080370CC
-.L080370C6:
-    rsbs r4, r1, #0
-    b .L080370CC
-.L080370CA:
-    adds r4, r1, #0
-.L080370CC:
-    str r4, [r3, #0x18]
-    str r5, [r3, #0x1c]
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
+    .section .text.npc_extra.080370D8, "ax", %progbits
 .L080370D8:
     .byte 0x10, 0xB5, 0x00, 0x69, 0x00, 0x28, 0x16, 0xD0
     .byte 0x00, 0x24, 0x02, 0x1C, 0x30, 0x32, 0x00, 0x21, 0xD0, 0x89, 0x00, 0x28, 0x04, 0xD0, 0x10, 0x20
     .byte 0x11, 0x5E, 0x48, 0x42, 0x08, 0x43, 0xC1, 0x0F, 0x00, 0x29, 0x05, 0xD0, 0x10, 0x1C, 0x27, 0xF0
     .byte 0xC9, 0xFB, 0x00, 0x06, 0x00, 0x28, 0x00, 0xD0, 0x01, 0x24, 0x20, 0x1C, 0x00, 0xE0, 0x01, 0x20
     .byte 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
+
+    .section .text.npc_extra.08037118, "ax", %progbits
 
     thumb_func_start func_08037118
 func_08037118: @ 0x08037118
@@ -3886,7 +3653,7 @@ func_08037494: @ 0x08037494
     bl GetChildNpcSpeed
     adds r1, r0, #0
     adds r0, r6, #0
-    bl func_08037098
+    bl SetMovingNpcFacingVelocity
     adds r0, r6, #0
     adds r1, r7, #0
     bl GetChildNpcAnimation
@@ -4077,7 +3844,7 @@ func_0803763C: @ 0x0803763C
     bl GetNpcVariantTwoSpeed
     adds r1, r0, #0
     adds r0, r6, #0
-    bl func_08037098
+    bl SetMovingNpcFacingVelocity
     adds r0, r6, #0
     adds r1, r7, #0
     bl GetNpcVariantTwoAnimation
@@ -4269,7 +4036,7 @@ func_080377E8: @ 0x080377E8
     bl GetNpcVariantThreeSpeed
     adds r1, r0, #0
     adds r0, r6, #0
-    bl func_08037098
+    bl SetMovingNpcFacingVelocity
     adds r0, r6, #0
     adds r1, r7, #0
     bl GetNpcVariantThreeAnimation
@@ -4379,7 +4146,7 @@ func_08037958: @ 0x08037958
     bl GetNpcVariantFourSpeed
     adds r1, r0, #0
     adds r0, r6, #0
-    bl func_08037098
+    bl SetMovingNpcFacingVelocity
     adds r0, r6, #0
     adds r1, r7, #0
     bl GetNpcVariantFourAnimation
