@@ -899,7 +899,10 @@ SECTIONS
         src/map_scene.o(.text.080ADA78);
         src/map_scene.o(.text.080ADA84);
         src/map_scene.o(.text.080ADAA8);
-        asm/code_809E804.o(.text.080ADACC);
+        src/map_scene.o(.text.080ADACC);
+        asm/code_809E804.o(.text.080ADAFC);
+        src/map_scene.o(.text.080ADB24);
+        asm/code_809E804.o(.text.080ADB3C);
         src/map_scene.o(.text.080ADB54);
         src/map_scene.o(.text.080ADB78);
         src/map_scene.o(.text.080ADB84);
@@ -918,7 +921,10 @@ SECTIONS
         src/chicken_feeding.o(.text.080AE4D8);
         asm/code_809E804.o(.text.080AE4E4);
         src/chicken_feeding.o(.text.080AE6C0);
-        asm/code_809E804.o(.text.080AE6CC);
+        src/chicken_feeding.o(.text.080AE6CC);
+        asm/code_809E804.o(.text.080AE7D0);
+        src/chicken_feeding.o(.text.080B09B0);
+        asm/code_809E804.o(.text.080B0AA0);
         asm/code_080C8360.o(.text);
         src/g5_panels.o(.text.g5_080C8550);
         asm/code_080C8360.o(.text.g5_after_080C8550);

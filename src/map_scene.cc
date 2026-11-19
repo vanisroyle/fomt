@@ -28,12 +28,23 @@ struct MapSceneAnimationSlot
 
 struct MapSceneOverlay;
 
+struct MapSceneObjectPalette
+{
+    u16 colors[16];
+    STRUCT_PAD(0x20, 0x81);
+    bool flag;
+    bool overridden;
+    u8 overrideParameter;
+};
+
 struct MapScene
 {
     STRUCT_PAD(0x00, 0x04);
     MapUpdateState * map;
     MapSceneEntity * entities[100];
-    STRUCT_PAD(0x198, 0xDB0);
+    STRUCT_PAD(0x198, 0x1BC);
+    MapSceneObjectPalette objectPalettes[16];
+    STRUCT_PAD(0x9FC, 0xDB0);
     MapSceneAnimationSlot animations[13];
     STRUCT_PAD(0x1020, 0x1024);
     MapSceneOverlay * overlay;
@@ -59,6 +70,21 @@ EC bool IsMapTransitionIdle(u8 * self);
 EC SECTION(".text.080ADA78") MapSceneOverlay * GetMapSceneOverlay(MapScene const & scene)
 {
     return scene.overlay;
+}
+
+EC SECTION(".text.080ADACC") void SetMapSceneObjectPalette(MapScene & scene, u16 const * colors, int slot, u8 overrideParameter)
+{
+    MapSceneObjectPalette * palettes = scene.objectPalettes;
+    asm ("" : "+l" (palettes));
+    MapSceneObjectPalette & palette = palettes[slot];
+    memcpy(palette.colors, colors, sizeof palette.colors);
+    palette.overridden = true;
+    palette.overrideParameter = overrideParameter;
+}
+
+EC SECTION(".text.080ADB24") void ClearMapSceneObjectPaletteFlag(MapScene & scene, int slot)
+{
+    scene.objectPalettes[slot].flag = false;
 }
 EC void func_080A59BC(MapUpdateState & map, int x, int y, u32 pixelsPerStep);
 EC void func_080A5960(MapUpdateState & map, int x, int y);
