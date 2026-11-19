@@ -303,7 +303,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #1
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020670:
     cmp r7, #0
     beq .L08020694
@@ -320,7 +320,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020694:
     adds r0, r6, #0
     bl DogEntity_GetAnimationState
@@ -379,7 +379,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #1
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020714:
     cmp r7, #0
     beq .L08020738
@@ -396,7 +396,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020738:
     ldr r7, [sp, #0xf8]
     ldrb r0, [r7]
@@ -2060,7 +2060,7 @@ func_080224E4: @ 0x080224E4
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L0802263E:
     cmp r5, #0
     beq .L08022662
@@ -2077,7 +2077,7 @@ func_080224E4: @ 0x080224E4
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08022662:
     ldr r0, [r7, #0x24]
     cmp r0, #0

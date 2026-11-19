@@ -1060,7 +1060,7 @@ SECTIONS
         src/entity_movement.o(.text.080AB948);
         src/entity_movement.o(.text.080AB9C4);
         src/entity_movement.o(.text.080ABA3C);
-        asm/code_809E804.o(.text.080ABA90);
+        src/entity_movement.o(.text.080ABA90);
         src/entity_movement.o(.text.080ABBA0);
         src/entity_movement.o(.text.080ABBC4);
         src/entity_movement.o(.text.080ABBEC);

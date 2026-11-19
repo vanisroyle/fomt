@@ -268,6 +268,116 @@ EC SECTION(".text.080AB9C4") void ProbeEntityCollisionRight(EntityCollisionProbe
     probe.rightClear = clear;
 }
 
+EC SECTION(".text.080ABA90") void ConstrainEntityMovementAgainstRectangle(EntityCollisionProbe & probe, ProbeRectangle const & obstacle, unsigned markBlocked)
+{
+    if (probe.bounds.left < obstacle.right && obstacle.left < probe.bounds.right)
+    {
+        int gap = probe.bounds.bottom - obstacle.top;
+        if (gap <= 0)
+        {
+            register int current asm("r1") = probe.down;
+            register int step asm("r0") = probe.step;
+            asm ("" : "+l" (current), "+l" (step));
+            register int travel asm("r0");
+            if (current > step)
+            {
+                ProbeEntityCollisionDown(probe);
+                travel = probe.down;
+                asm ("" : "+l" (travel));
+            }
+            else
+            {
+                travel = current;
+                asm ("" : "+l" (travel));
+            }
+            if (gap + travel > 0)
+            {
+                probe.down = -gap;
+                if (markBlocked == 1)
+                    probe.downClear = 0;
+            }
+        }
+        gap = probe.bounds.top - obstacle.bottom;
+        if (gap >= 0)
+        {
+            register int current asm("r1") = probe.up;
+            register int step asm("r0") = probe.step;
+            asm ("" : "+l" (current), "+l" (step));
+            register int travel asm("r0");
+            if (current < -step)
+            {
+                ProbeEntityCollisionUp(probe);
+                travel = probe.up;
+                asm ("" : "+l" (travel));
+            }
+            else
+            {
+                travel = current;
+                asm ("" : "+l" (travel));
+            }
+            if (gap + travel < 0)
+            {
+                probe.up = -gap;
+                if (markBlocked == 1)
+                    probe.upClear = 0;
+            }
+        }
+    }
+    if (probe.bounds.top < obstacle.bottom && obstacle.top < probe.bounds.bottom)
+    {
+        int gap = probe.bounds.left - obstacle.right;
+        if (gap >= 0)
+        {
+            register int current asm("r1") = probe.left;
+            register int step asm("r0") = probe.step;
+            asm ("" : "+l" (current), "+l" (step));
+            register int travel asm("r0");
+            if (current < -step)
+            {
+                ProbeEntityCollisionLeft(probe);
+                travel = probe.left;
+                asm ("" : "+l" (travel));
+            }
+            else
+            {
+                travel = current;
+                asm ("" : "+l" (travel));
+            }
+            if (gap + travel < 0)
+            {
+                probe.left = -gap;
+                if (markBlocked == 1)
+                    probe.leftClear = 0;
+            }
+        }
+        gap = probe.bounds.right - obstacle.left;
+        if (gap <= 0)
+        {
+            register int current asm("r1") = probe.right;
+            register int step asm("r0") = probe.step;
+            asm ("" : "+l" (current), "+l" (step));
+            register int travel asm("r0");
+            if (current > step)
+            {
+                ProbeEntityCollisionRight(probe);
+                travel = probe.right;
+                asm ("" : "+l" (travel));
+            }
+            else
+            {
+                travel = current;
+                asm ("" : "+l" (travel));
+            }
+            if (gap + travel > 0)
+            {
+                probe.right = -gap;
+                if (markBlocked == 1)
+                    probe.rightClear = 0;
+            }
+        }
+    }
+}
+
 EC SECTION(".text.080ABA3C") EntityCollisionProbe * InitializeEntityCollisionProbe(EntityCollisionProbe * probe)
 {
     EntityCollisionProbe defaults;
