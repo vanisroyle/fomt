@@ -193,4 +193,3 @@ EC void IntroScene_Destroy(IntroSceneOwner * self, int destructorFlags)
 }
 
 EC IntroSceneOwner * func_080036F8(IntroSceneOwner * self) ALIAS(IntroScene_Initialize);
-EC IntroSceneTask * func_08000914(void * storage) ALIAS(IntroScene_CreateTask);
