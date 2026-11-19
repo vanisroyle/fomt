@@ -292,12 +292,12 @@ EC AActorEntity * InitializeScheduledNpc02(AActorEntity * self, GameObject * gam
     return self;
 }
 
-EC u8 const gUnk_080F1FC0[];
+EC u8 const gPopuriScheduleInfo[];
 EC u8 const vtable_unk_080E7118[];
 EC AActorEntity * InitializeScheduledNpc03(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035BC8);
 EC AActorEntity * InitializeScheduledNpc03(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
 {
-    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F1FC0, 559, 563, 993);
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gPopuriScheduleInfo, 559, 563, 993);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7118;
     return self;
 }
@@ -382,12 +382,12 @@ EC AActorEntity * InitializeScheduledNpc11(AActorEntity * self, GameObject * gam
     return self;
 }
 
-EC u8 const gUnk_080F4D74[];
+EC u8 const gMaryScheduleInfo[];
 EC u8 const vtable_unk_080E6ED8[];
 EC AActorEntity * InitializeScheduledNpc12(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08036048);
 EC AActorEntity * InitializeScheduledNpc12(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
 {
-    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F4D74, 2067, 2071, 1014);
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gMaryScheduleInfo, 2067, 2071, 1014);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6ED8;
     return self;
 }
@@ -472,12 +472,12 @@ EC AActorEntity * InitializeScheduledNpc20(AActorEntity * self, GameObject * gam
     return self;
 }
 
-EC u8 const gUnk_080F5D94[];
+EC u8 const gElliScheduleInfo[];
 EC u8 const vtable_unk_080E6C98[];
 EC AActorEntity * InitializeScheduledNpc21(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08036590);
 EC AActorEntity * InitializeScheduledNpc21(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
 {
-    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F5D94, 2180, 2184, 1018);
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gElliScheduleInfo, 2180, 2184, 1018);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6C98;
     return self;
 }
