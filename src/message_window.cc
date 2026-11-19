@@ -2,6 +2,7 @@
 #include <new>
 #include <string.h>
 #include "gbasvc.h"
+#include "sprite_animation.hh"
 
 struct PACKED MessageWindowFlags
 {
@@ -159,7 +160,6 @@ struct MessagePortraitClips
 
 EC void func_0805E6CC(MessagePortraitResources *, void const *);
 EC u8 const gUnk_0852D984[];
-EC void func_080ADCA4(void *, u32);
 EC void func_0805E860(void *, u32);
 EC const u8 gUnk_080F9F3C[];
 EC void DestroyMessageWindowState(MessageWindowState *, u32);
@@ -182,6 +182,54 @@ struct MessagePortraitClipSet
 {
     MessagePortraitClip clips[4];
 };
+
+struct MessagePortraitAnimationMethods
+{
+    STRUCT_PAD(0, 0xC);
+    void (*getClip)(SpriteAnimationClip *, MessagePortraitResources const *, u32);
+    void (*getFrame)(SpriteFrameView *, MessagePortraitResources const *, u32);
+};
+
+EC void * CopyMessagePortraitFrameBytes(void *, void const *, unsigned) asm("memcpy");
+
+EC SECTION(".text.080ADCA4") void LoadMessagePortraitAnimationFrame(MessagePortraitClips & owner, u32 portraitId)
+{
+    struct PortraitFrameLookup
+    {
+        MessagePortraitClipSet frame;
+        MessagePortraitResources resources;
+        MessagePortraitClip clip;
+    } lookup;
+    register u32 clipId asm("r8") = portraitId;
+    asm ("" : "+h" (clipId));
+    register MessagePortraitClipSet * destination asm("r4") = reinterpret_cast<MessagePortraitClipSet *>(owner.entries);
+    asm ("" : "+l" (destination));
+    register void const * data asm("r1") = gUnk_0852D984;
+    asm ("" : "+l" (data));
+    register MessagePortraitResources * initialize asm("r0") = &lookup.resources;
+    asm ("" : "+l" (initialize));
+    func_0805E6CC(initialize, data);
+    register MessagePortraitResources * resources asm("r6");
+    asm ("add %0, sp, %2" : "=l" (resources) : "m" (lookup.resources.vtable), "I" (offsetof(PortraitFrameLookup, resources)));
+    register MessagePortraitAnimationMethods const * methods asm("r5") =
+        reinterpret_cast<MessagePortraitAnimationMethods const *>(lookup.resources.vtable);
+    asm ("" : "+l" (methods));
+    register SpriteAnimationClip * clip asm("r0") = reinterpret_cast<SpriteAnimationClip *>(&lookup.clip);
+    asm ("" : "+l" (clip));
+    methods->getClip(clip, resources, clipId);
+    register unsigned frameId asm("r2") = static_cast<SpriteKeyframe const *>(lookup.clip.keyframes)->frame;
+    asm ("" : "+l" (frameId));
+    register SpriteFrameView * frame asm("r0") = reinterpret_cast<SpriteFrameView *>(&lookup.frame);
+    asm ("" : "+l" (frame));
+    methods->getFrame(frame, resources, frameId);
+    lookup.resources.vtable = reinterpret_cast<u32 const *>(vtable_unk_080E5A28);
+    frame = reinterpret_cast<SpriteFrameView *>(&lookup.frame);
+    asm ("" : "+l" (frame));
+    register MessagePortraitClipSet * frameSource asm("r1") = &lookup.frame;
+    asm ("" : "+l" (frameSource));
+    CopyMessagePortraitFrameBytes(frame, frameSource, sizeof(*frame));
+    *destination = lookup.frame;
+}
 
 static inline void ClearMessagePortraitClipLength(MessagePortraitClip * clip, unsigned zero)
 {

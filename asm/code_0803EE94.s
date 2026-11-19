@@ -29205,7 +29205,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	adds r1, r7, #0
 	adds r1, #0xd0
 	mov r2, sp
-	bl func_080ADD78
+	bl UpdateMessageScript
 	cmp r0, #1
 	beq .L0804F8B8
 	cmp r0, #1
@@ -30844,7 +30844,7 @@ DrawMessageChoiceText: @ 0x080507F8
 	adds r0, r5, #0
 	adds r1, r6, #0
 	mov r2, sp
-	bl func_080ADD78
+	bl UpdateMessageScript
 	str r4, [sp]
 	cmp r0, #1
 	beq .L08050844
@@ -31219,7 +31219,7 @@ SetMessageWindowStatePortrait: @ 0x08050AD8
 	lsls r1, r1, #1
 	adds r0, r4, r1
 	adds r1, r5, #0
-	bl func_080ADCA4
+	bl LoadMessagePortraitAnimationFrame
 	movs r1, #0xf0
 	lsls r1, r1, #1
 	adds r0, r4, r1
@@ -52167,7 +52167,7 @@ func_0805BC34: @ 0x0805BC34
 	str r0, [sp]
 	adds r0, r5, #0
 	add r3, sp, #4
-	bl func_0805C63C
+	bl DrawHorseRaceEntrantObjects
 	ldr r6, .L0805C628 @ =0x0000140E
 	adds r0, r5, r6
 	ldrb r0, [r0]
@@ -52456,239 +52456,6 @@ func_0805BC34: @ 0x0805BC34
 .L0805C630: .4byte 0x000013EC
 .L0805C634: .4byte 0x0000059C
 .L0805C638: .4byte 0x000006BA
-
-	thumb_func_start func_0805C63C
-func_0805C63C: @ 0x0805C63C
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x10
-	str r0, [sp, #8]
-	mov r8, r3
-	mov sb, r1
-	lsls r2, r2, #3
-	add r2, sb
-	str r2, [sp, #0xc]
-	cmp sb, r2
-	bne .L0805C65A
-	b .L0805C7D4
-.L0805C65A:
-	mov r2, sb
-	ldr r0, [r2]
-	ldr r1, [r2, #4]
-	str r0, [sp]
-	str r1, [sp, #4]
-	ldr r1, [sp]
-	lsls r0, r1, #7
-	asrs r3, r0, #0x17
-	mov r0, sp
-	movs r5, #0
-	ldrsb r5, [r0, r5]
-	lsls r0, r1, #0x10
-	lsrs r0, r0, #0x1e
-	adds r4, r0, #0
-	lsrs r1, r1, #0x1e
-	cmp r4, #0
-	bne .L0805C684
-	movs r6, #8
-	lsls r6, r1
-	adds r4, r6, #0
-	b .L0805C6A4
-.L0805C684:
-	adds r0, r1, #1
-	lsrs r0, r0, #1
-	adds r0, #1
-	movs r2, #8
-	lsls r2, r0
-	movs r0, #8
-	cmp r1, #1
-	beq .L0805C696
-	lsrs r0, r2, #1
-.L0805C696:
-	cmp r4, #1
-	beq .L0805C6A0
-	adds r6, r2, #0
-	adds r4, r0, #0
-	b .L0805C6A4
-.L0805C6A0:
-	adds r6, r0, #0
-	adds r4, r2, #0
-.L0805C6A4:
-	mov r0, r8
-	ldrb r7, [r0, #0x10]
-	movs r1, #1
-	mov sl, r1
-	mov r0, sl
-	ands r0, r7
-	cmp r0, #0
-	beq .L0805C6CE
-	adds r0, r3, r4
-	rsbs r3, r0, #0
-	ldr r2, [sp]
-	lsls r1, r2, #3
-	lsrs r1, r1, #0x1f
-	mov r0, sl
-	eors r1, r0
-	ands r1, r0
-	lsls r1, r1, #0x1c
-	ldr r0, .L0805C7E4 @ =0xEFFFFFFF
-	ands r0, r2
-	orrs r0, r1
-	str r0, [sp]
-.L0805C6CE:
-	movs r0, #2
-	ands r0, r7
-	cmp r0, #0
-	beq .L0805C6F0
-	adds r0, r5, r6
-	rsbs r5, r0, #0
-	ldr r2, [sp]
-	lsls r1, r2, #2
-	lsrs r1, r1, #0x1f
-	mov r0, sl
-	eors r1, r0
-	ands r1, r0
-	lsls r1, r1, #0x1d
-	ldr r0, .L0805C7E8 @ =0xDFFFFFFF
-	ands r0, r2
-	orrs r0, r1
-	str r0, [sp]
-.L0805C6F0:
-	mov r1, r8
-	movs r2, #0
-	ldrsh r0, [r1, r2]
-	adds r3, r3, r0
-	movs r2, #2
-	ldrsh r0, [r1, r2]
-	adds r5, r5, r0
-	adds r0, r3, r4
-	cmp r0, #0
-	ble .L0805C7C8
-	cmp r3, #0xef
-	bgt .L0805C7C8
-	adds r0, r5, r6
-	cmp r0, #0
-	ble .L0805C7C8
-	cmp r5, #0x9f
-	bgt .L0805C7C8
-	ldr r0, .L0805C7EC @ =0x000001FF
-	ands r3, r0
-	lsls r2, r3, #0x10
-	ldr r1, .L0805C7F0 @ =0xFE00FFFF
-	ldr r0, [sp]
-	ands r0, r1
-	orrs r0, r2
-	lsls r2, r5, #0x18
-	lsrs r2, r2, #0x18
-	ldr r1, .L0805C7F4 @ =0xFFFFFF00
-	ands r0, r1
-	orrs r0, r2
-	str r0, [sp]
-	mov r4, sp
-	ldr r0, [sp, #4]
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x1c
-	lsls r0, r0, #3
-	ldr r3, [sp, #0x30]
-	adds r0, r0, r3
-	adds r0, #8
-	ldr r1, [r0, #4]
-	bl func_080074C0
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x10
-	movs r1, #0xf
-	ands r0, r1
-	lsls r0, r0, #0xc
-	ldr r1, .L0805C7F8 @ =0xFFFF0FFF
-	ldr r2, [sp, #4]
-	ands r2, r1
-	orrs r2, r0
-	lsls r0, r2, #0x16
-	lsrs r0, r0, #0x16
-	mov r1, r8
-	ldrh r1, [r1, #6]
-	adds r0, r0, r1
-	lsls r0, r0, #0x16
-	lsrs r0, r0, #0x16
-	ldr r1, .L0805C7FC @ =0xFFFFFC00
-	ands r1, r2
-	orrs r1, r0
-	mov r2, r8
-	ldrh r0, [r2, #8]
-	movs r3, #3
-	ands r0, r3
-	lsls r0, r0, #0xa
-	ldr r2, .L0805C800 @ =0xFFFFF3FF
-	ands r1, r2
-	orrs r1, r0
-	str r1, [sp, #4]
-	mov r1, r8
-	ldr r0, [r1, #0xc]
-	ands r0, r3
-	lsls r0, r0, #0xa
-	ldr r1, [sp]
-	ands r1, r2
-	orrs r1, r0
-	mov r3, r8
-	ldr r2, [r3, #0x14]
-	movs r0, #3
-	ands r2, r0
-	lsls r2, r2, #8
-	ldr r0, .L0805C804 @ =0xFFFFFCFF
-	ands r1, r0
-	orrs r1, r2
-	ldrb r2, [r3, #0x18]
-	mov r3, sl
-	ands r2, r3
-	lsls r2, r2, #0xc
-	ldr r0, .L0805C808 @ =0xFFFFEFFF
-	ands r1, r0
-	orrs r1, r2
-	str r1, [sp]
-	ldr r0, [sp, #8]
-	bl HardwareContext_GetOamBuffer
-	adds r3, r0, #0
-	ldrb r2, [r3]
-	cmp r2, #0x7f
-	bhi .L0805C7C8
-	lsls r1, r2, #3
-	adds r1, #4
-	adds r1, r3, r1
-	ldr r0, [sp]
-	str r0, [r1]
-	ldrh r0, [r4, #4]
-	strh r0, [r1, #4]
-	adds r0, r2, #1
-	strb r0, [r3]
-.L0805C7C8:
-	movs r0, #8
-	add sb, r0
-	ldr r1, [sp, #0xc]
-	cmp sb, r1
-	beq .L0805C7D4
-	b .L0805C65A
-.L0805C7D4:
-	add sp, #0x10
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805C7E4: .4byte 0xEFFFFFFF
-.L0805C7E8: .4byte 0xDFFFFFFF
-.L0805C7EC: .4byte 0x000001FF
-.L0805C7F0: .4byte 0xFE00FFFF
-.L0805C7F4: .4byte 0xFFFFFF00
-.L0805C7F8: .4byte 0xFFFF0FFF
-.L0805C7FC: .4byte 0xFFFFFC00
-.L0805C800: .4byte 0xFFFFF3FF
-.L0805C804: .4byte 0xFFFFFCFF
-.L0805C808: .4byte 0xFFFFEFFF
 
 	.section .text.f3.0805C96C, "ax", %progbits
 	thumb_func_start func_0805C96C
