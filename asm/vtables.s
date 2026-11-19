@@ -350,7 +350,7 @@ vtable_unk_080E5EC4: @ game object
 	.word 0x0801DD85
 	.word 0x0801DE55
 	.word func_0801DE24
-	.word func_08017C00
+	.word GameMap_IsInteriorOrForced
 	.word func_08019BEC
 	.word func_08019B90
 	.word func_0801EAA0
