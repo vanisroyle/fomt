@@ -388,7 +388,7 @@ EC ItemDisplayGraphics * NewItemDisplayGraphics(ItemDisplayEntity * display)
     return InitItemDisplayGraphics(static_cast<ItemDisplayGraphics *>(::operator new(sizeof(ItemDisplayGraphics))), display);
 }
 
-EC void func_0802BA74(ItemDisplayEntity * display);
+EC void AdvanceItemDisplayState(ItemDisplayEntity * display) ENTITY_CODE(0802BA74);
 EC void func_0803242C(AActorEntity * display, u32 argument);
 EC u32 GetItemDisplayStateAnimation(ItemDisplayEntity const * display) ENTITY_CODE(0802BC48);
 
@@ -399,7 +399,7 @@ EC void TickItemDisplayEntity(ItemDisplayEntity * display, u32 argument)
     {
         if (display->active)
         {
-            func_0802BA74(display);
+            AdvanceItemDisplayState(display);
             u32 animation = static_cast<u16>(GetItemDisplayStateAnimation(display));
             if (display->anim_id != animation)
                 display->SetAnim(animation);
@@ -472,6 +472,105 @@ enum
     FACING_LEFT = 2,
     FACING_RIGHT = 3,
 };
+
+struct ItemDisplayDropGameVTable
+{
+    STRUCT_PAD(0x00, 0xBC);
+    void (*drop_item)(GameObject *, Location const &, u32);
+};
+
+inline bool HasItemDisplayAnimationEnded(ItemDisplayEntity const * display)
+{
+    bool ended = false;
+    if (display->unk_24 == 0)
+        ended = true;
+    return ended;
+}
+
+EC void AdvanceItemDisplayState(ItemDisplayEntity * display)
+{
+    switch (display->state)
+    {
+    case 0:
+        display->active = false;
+        break;
+    case 1:
+    {
+        register ThrownItemMotion * motion asm("r1") = &display->thrown_item;
+        motion->x_speed += motion->x_velocity;
+        motion->y_speed += motion->y_velocity;
+        register i32 falling_speed asm("r0") = motion->z_velocity - 19114;
+        motion->z_velocity = falling_speed;
+        register i32 height asm("r2") = motion->z_speed + falling_speed;
+        register ThrownItemMotion * retained asm("sl") = motion;
+        asm volatile("" : : "r"(retained));
+        if (height > 0)
+            motion->z_speed = height;
+        else
+        {
+            i32 zero = 0;
+            register ThrownItemMotion * stopped asm("r3") = retained;
+            stopped->z_speed = zero;
+            stopped->z_velocity = zero;
+        }
+        if (!HasItemDisplayAnimationEnded(display))
+            break;
+        display->state = 0;
+        i32 x = display->x_q16 >> 16;
+        i32 y = display->y_q16 >> 16;
+        switch (static_cast<i32>(display->facing))
+        {
+        case FACING_DOWN: y += 20; break;
+        case FACING_UP: y -= 20; break;
+        case FACING_LEFT: x -= 20; break;
+        case FACING_RIGHT: x += 20; break;
+        }
+        Location where(display->location_map, x, y);
+        GameObject * game = display->game_object;
+        ItemDisplayDropGameVTable const * table = *reinterpret_cast<ItemDisplayDropGameVTable const **>(game);
+        table->drop_item(game, where, display->display_icon);
+        register i32 inactive asm("r1") = 0;
+        register ThrownItemMotion * idle asm("r2") = retained;
+        asm volatile("" : "+r"(idle));
+        *reinterpret_cast<u8 *>(&idle->active) = inactive;
+        *reinterpret_cast<u8 *>(&display->alternate_idle) = inactive;
+        break;
+    }
+    case 2:
+        if (HasItemDisplayAnimationEnded(display))
+        {
+            display->state = 0;
+            display->thrown_item.active = false;
+            display->alternate_idle = false;
+        }
+        break;
+    case 3:
+        if (HasItemDisplayAnimationEnded(display))
+        {
+            u8 * motion_bytes = reinterpret_cast<u8 *>(display) + 0x38;
+            ThrownItemMotion * motion = reinterpret_cast<ThrownItemMotion *>(motion_bytes);
+            register i32 zero asm("r1") = 0;
+            register i32 carried_height asm("r2") = 21 << 16;
+            motion->x_speed = zero;
+            motion->y_speed = zero;
+            motion->z_speed = carried_height;
+            *(motion_bytes - 4) = zero;
+            display->alternate_idle = true;
+        }
+        break;
+    case 4:
+    {
+        u32 timer = display->transition_timer - 1;
+        display->transition_timer = timer;
+        if (static_cast<u8>(timer) == 0)
+        {
+            display->state = 0;
+            display->thrown_item.active = false;
+        }
+        break;
+    }
+    }
+}
 
 struct FarmerEventRequest
 {
