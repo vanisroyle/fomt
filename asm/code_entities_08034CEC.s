@@ -958,87 +958,6 @@ func_08035A48: @ 0x08035A48
 
     .section .text.npc_extra.08035C04, "ax", %progbits
 
-    thumb_func_start func_08035C04
-func_08035C04: @ 0x08035C04
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L08035C48 @ =0x0000022F
-    ldr r0, .L08035C4C @ =0x00000233
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L08035C50 @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #3
-    bne .L08035C94
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L08035C94
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08035C42
-    ldr r2, .L08035C54 @ =0x0000216B
-    adds r0, r5, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x19
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L08035C5C
-.L08035C42:
-    ldr r7, .L08035C58 @ =0x0000023F
-    b .L08035C94
-    .align 2, 0
-.L08035C48: .4byte 0x0000022F
-.L08035C4C: .4byte 0x00000233
-.L08035C50: .4byte 0x00001CD4
-.L08035C54: .4byte 0x0000216B
-.L08035C58: .4byte 0x0000023F
-.L08035C5C:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L08035C94
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L08035C94
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08035C94
-    ldr r7, .L08035CB0 @ =0x00000247
-    ldr r0, .L08035CB4 @ =0x0000024B
-    mov r8, r0
-.L08035C94:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08035CB0: .4byte 0x00000247
-.L08035CB4: .4byte 0x0000024B
-
     .section .text.npc_extra.08035D04, "ax", %progbits
 
     .section .text.npc_extra.08035D70, "ax", %progbits
@@ -1059,87 +978,6 @@ func_08035C04: @ 0x08035C04
 
     .section .text.npc_extra.08036084, "ax", %progbits
 
-    thumb_func_start func_08036084
-func_08036084: @ 0x08036084
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L080360C8 @ =0x00000813
-    ldr r0, .L080360CC @ =0x00000817
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L080360D0 @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #0xc
-    bne .L08036114
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L08036114
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L080360C2
-    ldr r2, .L080360D4 @ =0x0000216C
-    adds r0, r5, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x19
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L080360DC
-.L080360C2:
-    ldr r7, .L080360D8 @ =0x00000827
-    b .L08036114
-    .align 2, 0
-.L080360C8: .4byte 0x00000813
-.L080360CC: .4byte 0x00000817
-.L080360D0: .4byte 0x00001CD4
-.L080360D4: .4byte 0x0000216C
-.L080360D8: .4byte 0x00000827
-.L080360DC:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L08036114
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L08036114
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08036114
-    ldr r7, .L08036130 @ =0x0000082F
-    ldr r0, .L08036134 @ =0x00000833
-    mov r8, r0
-.L08036114:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08036130: .4byte 0x0000082F
-.L08036134: .4byte 0x00000833
-
     .section .text.npc_extra.08036184, "ax", %progbits
 
     .section .text.npc_extra.080361EC, "ax", %progbits
@@ -1156,173 +994,11 @@ func_08036084: @ 0x08036084
 
     .section .text.npc_extra.08036430, "ax", %progbits
 
-    thumb_func_start func_08036430
-func_08036430: @ 0x08036430
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L08036474 @ =0x00000691
-    ldr r0, .L08036478 @ =0x00000695
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L0803647C @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #0x13
-    bne .L080364C0
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L080364C0
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0803646E
-    ldr r2, .L08036480 @ =0x0000216C
-    adds r0, r5, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x1b
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L08036488
-.L0803646E:
-    ldr r7, .L08036484 @ =0x000006A1
-    b .L080364C0
-    .align 2, 0
-.L08036474: .4byte 0x00000691
-.L08036478: .4byte 0x00000695
-.L0803647C: .4byte 0x00001CD4
-.L08036480: .4byte 0x0000216C
-.L08036484: .4byte 0x000006A1
-.L08036488:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L080364C0
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L080364C0
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080364C0
-    ldr r7, .L080364DC @ =0x000006AD
-    ldr r0, .L080364E0 @ =0x000006B1
-    mov r8, r0
-.L080364C0:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080364DC: .4byte 0x000006AD
-.L080364E0: .4byte 0x000006B1
-
     .section .text.npc_extra.08036530, "ax", %progbits
 
     .section .text.npc_extra.08036590, "ax", %progbits
 
     .section .text.npc_extra.080365CC, "ax", %progbits
-
-    thumb_func_start func_080365CC
-func_080365CC: @ 0x080365CC
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L08036610 @ =0x00000884
-    ldr r0, .L08036614 @ =0x00000888
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L08036618 @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #0x15
-    bne .L0803665C
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L0803665C
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0803660A
-    ldr r2, .L0803661C @ =0x0000216C
-    adds r0, r5, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x1d
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L08036624
-.L0803660A:
-    ldr r7, .L08036620 @ =0x0000089C
-    b .L0803665C
-    .align 2, 0
-.L08036610: .4byte 0x00000884
-.L08036614: .4byte 0x00000888
-.L08036618: .4byte 0x00001CD4
-.L0803661C: .4byte 0x0000216C
-.L08036620: .4byte 0x0000089C
-.L08036624:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L0803665C
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L0803665C
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0803665C
-    ldr r7, .L08036678 @ =0x00000894
-    ldr r0, .L0803667C @ =0x00000898
-    mov r8, r0
-.L0803665C:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08036678: .4byte 0x00000894
-.L0803667C: .4byte 0x00000898
 
     .section .text.npc_extra.080366CC, "ax", %progbits
 
@@ -1506,6 +1182,8 @@ func_08036BB0: @ 0x08036BB0
     bx r0
     .align 2, 0
 
+    .section .text.npc_extra.08036BF8, "ax", %progbits
+
     thumb_func_start func_08036BF8
 func_08036BF8: @ 0x08036BF8
     push {r4, r5, r6, r7, lr}
@@ -1561,66 +1239,6 @@ func_08036BF8: @ 0x08036BF8
 
     .section .text.npc_extra.08036E00, "ax", %progbits
     .section .text.npc_extra.08036E70, "ax", %progbits
-
-    thumb_func_start func_08036E70
-func_08036E70: @ 0x08036E70
-    push {r4, r5, r6, r7, lr}
-    adds r4, r0, #0
-    ldr r0, [r4, #0x34]
-    ldr r1, .L08036EA0 @ =0x00001CD4
-    adds r0, r0, r1
-    bl GetActiveRosterNpc
-    adds r6, r0, #0
-    cmp r0, #0
-    beq .L08036EE0
-    ldr r5, .L08036EA4 @ =0x00000267
-    ldr r7, .L08036EA8 @ =0x0000026F
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L08036EAC
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08036ED0
-    movs r5, #0xc
-    b .L08036ED0
-    .align 2, 0
-.L08036EA0: .4byte 0x00001CD4
-.L08036EA4: .4byte 0x00000267
-.L08036EA8: .4byte 0x0000026F
-.L08036EAC:
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08036EC0
-    ldr r5, .L08036EBC @ =0x00000277
-    b .L08036ED0
-    .align 2, 0
-.L08036EBC: .4byte 0x00000277
-.L08036EC0:
-    adds r0, r6, #0
-    bl HasNamedNpcFlag
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08036ED0
-    ldr r5, .L08036EE8 @ =0x0000026B
-    ldr r7, .L08036EEC @ =0x00000273
-.L08036ED0:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcIdleAnimation
-.L08036EE0:
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08036EE8: .4byte 0x0000026B
-.L08036EEC: .4byte 0x00000273
 
     .section .text.npc_extra.08036F0C, "ax", %progbits
 
@@ -4386,15 +4004,6 @@ func_08038EE0: @ 0x08038EE0
 .L080390CC: .4byte vtable_unk_080E681C
 
     .section .text.npc_extra.080390D0, "ax", %progbits
-
-    thumb_func_start func_080390D0
-func_080390D0: @ 0x080390D0
-    ldr r1, [r0, #0x10]
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-    bx lr
-    .align 2, 0
 
     .section .text.npc_extra.080390DC, "ax", %progbits
     .section .text.npc_extra.08039134, "ax", %progbits

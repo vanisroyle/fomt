@@ -793,7 +793,7 @@ struct NpcScheduleRoster
     Npc npc_1A8;
     Npc npc_1BC;
     Npc npc_1D0;
-    Npc npc_1E4;
+    Npc karen;
     STRUCT_PAD(0x1F8, 0x1FC);
     Npc npc_1FC;
     Npc npc_210;
@@ -832,7 +832,7 @@ EC ScheduleInfo const gUnk_080F33B8;
 EC ScheduleInfo const gUnk_080F61FC;
 EC ScheduleInfo const gUnk_080F3408;
 EC ScheduleInfo const gUnk_080F3FD8;
-EC ScheduleInfo const gUnk_080F35E4;
+EC ScheduleInfo const gKarenScheduleInfo;
 EC ScheduleInfo const gUnk_080F3010;
 EC ScheduleInfo const gUnk_080F5D94;
 EC ScheduleInfo const gUnk_080F6DE8;
@@ -869,7 +869,7 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_1A8, gUnk_080F61FC, context);
     ResetNpcDailySchedule(self.npc_1BC, gUnk_080F3408, context);
     ResetNpcDailySchedule(self.npc_1D0, gUnk_080F3FD8, context);
-    ResetNpcDailySchedule(self.npc_1E4, gUnk_080F35E4, context);
+    ResetNpcDailySchedule(self.karen, gKarenScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_1FC, gUnk_080F3010, context);
     ResetNpcDailySchedule(self.npc_210, gUnk_080F5D94, context);
     ResetNpcDailySchedule(self.npc_228, gUnk_080F6DE8, context);
@@ -931,9 +931,15 @@ struct NpcScheduleContext
     u32 unk_1DAC[2];
     STRUCT_PAD(0x1DB4, 0x1E28);
     Bachelorette npc_1E28;
-    STRUCT_PAD(0x1E40, 0x215A);
+    STRUCT_PAD(0x1E40, 0x1EB8);
+    Bachelorette karen;
+    STRUCT_PAD(0x1ED0, 0x2148);
+    u8 marriedScheduleVariant;
+    STRUCT_PAD(0x2149, 0x215A);
     u8 unk_215A;
-    STRUCT_PAD(0x215B, 0x2174);
+    STRUCT_PAD(0x215B, 0x216C);
+    u8 spouseScheduleEvent;
+    STRUCT_PAD(0x216D, 0x2174);
     u32 unk_2174;
     union
     {
@@ -951,7 +957,9 @@ struct NpcScheduleContext
     u8 : 3;
     STRUCT_PAD(0x2188, 0x21A2);
     u8 unk_21A2;
-    STRUCT_PAD(0x21A3, 0x21CA);
+    STRUCT_PAD(0x21A3, 0x21A4);
+    u8 karenWinterEvent;
+    STRUCT_PAD(0x21A5, 0x21CA);
     u8 eventFlags;
 };
 
@@ -1140,6 +1148,122 @@ ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F3FD8(NpcScheduleContext const 
         return 1;
     }
     return 2;
+}
+
+enum KarenSchedule
+{
+    KAREN_SCHEDULE_ABSENT,
+    KAREN_SCHEDULE_CLEAR_WEATHER,
+    KAREN_SCHEDULE_OTHER_WEATHER,
+    KAREN_SCHEDULE_SUNDAY,
+    KAREN_SCHEDULE_TUESDAY_CLEAR,
+    KAREN_SCHEDULE_TUESDAY_OTHER_WEATHER,
+    KAREN_SCHEDULE_AFTER_RIVAL_EVENTS,
+    KAREN_SCHEDULE_AFTER_RIVAL_EVENTS_SUNDAY,
+    KAREN_SCHEDULE_FESTIVAL,
+    KAREN_SCHEDULE_WINTER_14,
+    KAREN_SCHEDULE_AFTER_RIVAL_EVENTS_FESTIVAL,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_SUNDAY_TUESDAY,
+    KAREN_SCHEDULE_MARRIED,
+    KAREN_SCHEDULE_MARRIED_VARIANT,
+    KAREN_SCHEDULE_MARRIED_VARIANT_SUNDAY_TUESDAY,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_FESTIVAL_OR_STORM,
+    KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_FESTIVAL_OR_STORM,
+    KAREN_SCHEDULE_MARRIED_FESTIVAL_OR_STORM,
+    KAREN_SCHEDULE_MARRIED_VARIANT_FESTIVAL_OR_STORM,
+    KAREN_SCHEDULE_MARRIED_AUTUMN_9,
+    KAREN_SCHEDULE_MARRIED_AUTUMN_13,
+    KAREN_SCHEDULE_MARRIED_EVENT_OVERRIDE,
+};
+
+enum { KAREN_NPC_ID = 19 };
+
+struct G1NpcRoster;
+
+EC u8 * GetActiveRosterNpc(u8 *);
+EC Bachelorette * GetRosterBacheloretteById(G1NpcRoster *, u32);
+
+ROM_TEXT(0803DFE8) unsigned SelectKarenSchedule(NpcScheduleContext const & self)
+{
+    if (self.eventFlags & 0xC)
+        return KAREN_SCHEDULE_ABSENT;
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    u8 * roster = const_cast<u8 *>(self.unk_1CD4);
+    unsigned spouseNpcId = GetRosterMarriageCandidate(roster);
+    if (spouseNpcId == KAREN_NPC_ID)
+    {
+        if (season == SEASON_AUTUMN)
+        {
+            if (day == 9)
+                return KAREN_SCHEDULE_MARRIED_AUTUMN_9;
+            if (day == 13)
+                return KAREN_SCHEDULE_MARRIED_AUTUMN_13;
+        }
+        if ((static_cast<u32>(self.spouseScheduleEvent) << 27 >> 30) == 1)
+            return KAREN_SCHEDULE_MARRIED_EVENT_OVERRIDE;
+        unsigned marriedVariant = self.marriedScheduleVariant;
+        uintptr_t activeNpc = reinterpret_cast<uintptr_t>(GetActiveRosterNpc(const_cast<u8 *>(self.unk_1CD4)));
+        // Keep the original branchless non-null test.
+        unsigned hasActiveNpc = ((0u - activeNpc) | activeNpc) >> 31;
+        if (IsNpcScheduleFestivalDay(season, day) || self.weather == 3 || self.weather == 4)
+        {
+            if (hasActiveNpc)
+            {
+                if (marriedVariant)
+                    return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_FESTIVAL_OR_STORM;
+                return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_FESTIVAL_OR_STORM;
+            }
+            if (marriedVariant)
+                return KAREN_SCHEDULE_MARRIED_VARIANT_FESTIVAL_OR_STORM;
+            return KAREN_SCHEDULE_MARRIED_FESTIVAL_OR_STORM;
+        }
+        if (marriedVariant && (weekday == SCHEDULE_SUNDAY || weekday == SCHEDULE_TUESDAY))
+        {
+            if (hasActiveNpc)
+                return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT_SUNDAY_TUESDAY;
+            return KAREN_SCHEDULE_MARRIED_VARIANT_SUNDAY_TUESDAY;
+        }
+        if (hasActiveNpc)
+        {
+            if (marriedVariant)
+                return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC_VARIANT;
+            return KAREN_SCHEDULE_MARRIED_ACTIVE_NPC;
+        }
+        if (marriedVariant)
+            return KAREN_SCHEDULE_MARRIED_VARIANT;
+        return KAREN_SCHEDULE_MARRIED;
+    }
+    if (self.karen.GetRivalEventCount() > 4)
+    {
+        if (IsNpcScheduleFestivalDay(season, day))
+            return KAREN_SCHEDULE_AFTER_RIVAL_EVENTS_FESTIVAL;
+        if (weekday == SCHEDULE_SUNDAY)
+            return KAREN_SCHEDULE_AFTER_RIVAL_EVENTS_SUNDAY;
+        return KAREN_SCHEDULE_AFTER_RIVAL_EVENTS;
+    }
+    Bachelorette const * karen = GetRosterBacheloretteById(reinterpret_cast<G1NpcRoster *>(roster), KAREN_NPC_ID);
+    if (season == SEASON_WINTER && day == 14 && spouseNpcId == 0 && karen && karen->GetLove() > 9999
+        && (static_cast<u32>(self.karenWinterEvent) << 25 >> 30) != 2)
+        return KAREN_SCHEDULE_WINTER_14;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return KAREN_SCHEDULE_FESTIVAL;
+    if (weekday == SCHEDULE_SUNDAY)
+        return KAREN_SCHEDULE_SUNDAY;
+    if (weekday == SCHEDULE_TUESDAY)
+    {
+        if (self.weather == 0)
+            return KAREN_SCHEDULE_TUESDAY_CLEAR;
+        return KAREN_SCHEDULE_TUESDAY_OTHER_WEATHER;
+    }
+    if (self.weather == 0)
+        return KAREN_SCHEDULE_CLEAR_WEATHER;
+    return KAREN_SCHEDULE_OTHER_WEATHER;
 }
 
 ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F42F0(NpcScheduleContext const & self)
