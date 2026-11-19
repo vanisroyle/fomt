@@ -4,6 +4,7 @@
 #include "farm.hh"
 #include "coop.hh"
 #include "script_engine.hh"
+#include "scene.hh"
 
 #include <stdlib.h>
 
@@ -213,7 +214,7 @@ struct GameStateObject
     virtual ~GameStateObject();
     virtual void vfunc_C();
     virtual void vfunc_10();
-    virtual void vfunc_14();
+    virtual u32 vfunc_14();
     virtual void vfunc_18();
     virtual void vfunc_1C();
     virtual void vfunc_20();
@@ -222,7 +223,7 @@ struct GameStateObject
     virtual void vfunc_2C();
     virtual void vfunc_30();
     virtual void vfunc_34();
-    virtual void vfunc_38();
+    virtual void vfunc_38(u32 id);
     virtual void vfunc_3C(u32 value);
     virtual GameStateActorEntity * vfunc_40(u32 id);
     virtual void vfunc_44();
@@ -300,6 +301,14 @@ struct GameStateObject
     virtual void vfunc_164(u32 value);
 };
 
+struct GameStateAudioList
+{
+    void ** begin;
+    void ** end;
+    void ** capacity;
+    u32 unk_0C;
+};
+
 struct GameStateRuntime
 {
     STRUCT_PAD(0x00, 0x8C);
@@ -312,10 +321,12 @@ struct GameStateRuntime
     void * text;
     STRUCT_PAD(0xB4, 0xBC);
     u8 music[0x14];
-    u8 unk_D0[0x10];
+    GameStateAudioList audio;
     u16 unk_E0;
     STRUCT_PAD(0xE2, 0xE4);
     GameStateActorEntity * target;
+    STRUCT_PAD(0xE8, 0xF4);
+    virtual ~GameStateRuntime();
 };
 
 struct GameStateScript
@@ -323,6 +334,7 @@ struct GameStateScript
     u32 unk_00;
     GameStateRuntime * runtime;
 };
+
 
 struct GameStateGlobalStatus
 {
@@ -385,6 +397,13 @@ EC void func_08050E68(void * self, u32 value);
 EC void func_08050E50(void * self, u32 value);
 EC u32 func_0809FE3C(void * self, u32 value);
 EC void func_08033B84(AActorEntity & self, u32 map, i32 x, i32 y);
+extern u8 const vtable_unk_080E5E64[];
+EC void func_080007EC(GameStateScript & self, u32 flags);
+EC void func_080D7F9C(GameStateRuntime & self, i32 id, u32 value_1, u32 value_2, u32 value_3, u32 value_4);
+EC void func_080A05E8(void * self, void * value);
+EC void func_08008B6C(void * self, u16 amount);
+EC void func_08008B88(void * self, u16 amount);
+EC void func_08008BB0(void * self, u16 amount);
 
 EC void SECTION(".text.game_state_08012454") func_08012454(GameStateScript & self)
 {
@@ -441,7 +460,7 @@ EC void SECTION(".text.game_state_08014304") func_08014304(GameStateScript & sel
 
 EC SECTION(".text.game_state_0801468C") u8 * func_0801468C(GameStateScript & self)
 {
-    return self.runtime->unk_D0;
+    return reinterpret_cast<u8 *>(&self.runtime->audio);
 }
 
 EC u32 SECTION(".text.game_state_080167CC") func_080167CC(GameStateScript & self)
@@ -1058,5 +1077,75 @@ EC void SECTION(".text.game_state_08016F60") func_08016F60(GameStateScript & sel
         GameStateActiveEntity * entity = reinterpret_cast<GameStateActiveEntity *>(object->vfunc_40(id));
         if (entity != nullptr && entity->vfunc_5C())
             entity->vfunc_7C();
+    }
+}
+
+EC SECTION(".text.game_state_08011FE8") void func_08011FE8(GameStateScript & self, u32 flags)
+{
+    self.unk_00 = reinterpret_cast<u32>(vtable_unk_080E5E64);
+    gUnk_0300040C->engine.ClearUnk();
+    delete self.runtime;
+    func_080007EC(self, flags);
+}
+
+EC SECTION(".text.game_state_08012064") void func_08012064(GameStateScript & self, i32 id, u32 value_2, u32 value_3, u32 value_4)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    u32 value_1 = runtime.object->vfunc_14();
+    func_080D7F9C(runtime, id, value_1, value_2, value_3, value_4);
+}
+
+EC SECTION(".text.game_state_08016CEC") void func_08016CEC(GameStateScript & self, u32 id)
+{
+    GameStateObject * & object = self.runtime->object;
+    object->vfunc_38(id);
+    AActorEntity * entity = object->vfunc_40(id);
+    if (entity != nullptr && !entity->vfunc_28())
+        entity->vfunc_20();
+}
+
+EC SECTION(".text.game_state_080167DC") void func_080167DC(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    func_080A05E8(runtime.state + 0x1CD4, runtime.state + 0x11);
+    GameStateObject * & object = runtime.object;
+    object->vfunc_38(0x23);
+    AActorEntity * entity = object->vfunc_40(0x23);
+    if (entity != nullptr && !entity->vfunc_28())
+        entity->vfunc_20();
+}
+
+EC SECTION(".text.game_state_08012464") void func_08012464(GameStateScript & self, i32 mode, u32 value)
+{
+    GameStateAudioList & audio = self.runtime->audio;
+    void ** current = audio.begin;
+    void ** end = audio.end;
+    void * music;
+    if (current != end)
+    {
+        do
+        {
+            if (!(u8) func_08008CD0(*current))
+            {
+                music = *current;
+                goto play;
+            }
+            current++;
+        } while (current != end);
+    }
+    music = end[-1];
+play:
+    u16 amount = value;
+    switch (mode)
+    {
+    case 0:
+        func_08008B6C(music, amount);
+        break;
+    case 1:
+        func_08008B88(music, amount);
+        break;
+    case 2:
+        func_08008BB0(music, amount);
+        break;
     }
 }
