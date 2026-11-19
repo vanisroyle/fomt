@@ -1269,9 +1269,9 @@ SECTIONS
         src/entity_movement.o(.text.080ABBEC);
         src/entity_movement.o(.text.080ABC14);
         src/entity_movement.o(.text.080ABC40);
-        asm/code_809E804.o(.text.080ABE58);
+        src/entity_movement.o(.text.080ABE58);
         src/entity_movement.o(.text.080AC070);
-        asm/code_809E804.o(.text.080AC124);
+        src/entity_movement.o(.text.080AC124);
         src/entity_movement.o(.text.080AC388);
         src/entity_movement.o(.text.080AC5D0);
         src/map_scene.o(.text.080AC674);
@@ -1521,6 +1521,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CD950);
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
+        src/g5_navigation.o(.text.g5_080CDB08);
+        asm/code_080C8360.o(.text.g5_after_080CDB08);
         src/g5_navigation.o(.text.g5_080CDD7C);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);
@@ -1555,6 +1557,7 @@ SECTIONS
         src/g5_runtime.o(.text.g5_080D035C);
         src/g5_runtime.o(.text.g5_requests);
         asm/code_080D035C.o(.text.g5_0490);
+        src/g5_buffer_exchange.o(.text.g5_080D0558);
         src/g5_runtime.o(.text.g5_transfer);
         asm/code_080D035C.o(.text.g5_after_transfer);
         src/g5_runtime.o(.text.g5_080D0644);
