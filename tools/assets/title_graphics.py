@@ -14,6 +14,7 @@ MAPS = ((0x74A1D8, 0x3DC, ()), (0x74A5B4, 0x21C, ()),
         (0x74A7D0, 0xF4, ()), (0x74A8C4, 0xFC, ()))
 LOGO_LOADED_COLORS = (144, 255)  # intro_scene.s copies 0xE0 bytes from color 144 to OBJ palette
 ITEMS = {"title-logo": 0, "title-start": 1, "title-continue": 5, "title-copyright": 9}
+PALETTE_OWNERS = {"title-continue": "title-start"}
 RESOURCE_NON_POINTER_STREAMS = ((0x5275D0, 0x21C4), (0x7180E0, 0x29F8))
 
 
@@ -154,6 +155,9 @@ def extract(rom, assets, g, force=False):
     root = assets / "graphics"
     for name, index in ITEMS.items():
         start, size, pal, pal_size, bpp, _ = item(resource, index)
+        owner = PALETTE_OWNERS.get(name, name)
+        if owner != name:
+            _, _, pal, pal_size, _, _ = item(resource, ITEMS[owner])
         fa.write_missing(root / f"{name}.png", indexed_png.write(g.tile_sheet(resource[start:start + size], bpp),
                          g.palette_rgb(resource[pal:pal + pal_size])), force)
     hints = bank_hints(maps, tiles, len(palette) // 2)
@@ -168,16 +172,25 @@ def build(rom, assets, output, g):
     rebuilt = bytearray(resource)
     root = assets / "graphics"
     previews = {}
+    images = {name: indexed_png.read((root / f"{name}.png").read_bytes()) for name in ITEMS}
     for name, index in ITEMS.items():
         start, size, pal, pal_size, bpp, objects = item(resource, index)
-        rows, colors = indexed_png.read((root / f"{name}.png").read_bytes())
+        rows, colors = images[name]
         raw = g.sheet_tiles(rows, size, bpp)
         color_bytes = g.palette_bytes(colors, resource[pal:pal + pal_size])
+        owner = PALETTE_OWNERS.get(name, name)
+        if owner != name:
+            _, _, owner_pal, owner_size, _, _ = item(resource, ITEMS[owner])
+            original_owner = resource[owner_pal:owner_pal + owner_size]
+            if color_bytes != resource[pal:pal + pal_size] and g.palette_bytes(colors, original_owner) != original_owner:
+                raise ValueError(f"{name}.png: the game never loads this palette; edit the shared palette in {owner}.png instead")
+            color_bytes = g.palette_bytes(images[owner][1], original_owner)
         if name == "title-logo" and color_bytes[:LOGO_LOADED_COLORS[0] * 2] != resource[pal:pal + LOGO_LOADED_COLORS[0] * 2]:
             raise ValueError(f"{name}.png: the game loads only palette colors "
                              f"{LOGO_LOADED_COLORS[0]}-{LOGO_LOADED_COLORS[1]}; colors below that must stay unchanged")
         rebuilt[start:start + size] = raw
-        rebuilt[pal:pal + pal_size] = color_bytes
+        if owner == name:
+            rebuilt[pal:pal + pal_size] = color_bytes
         previews[f"{name}-preview.png"] = sprite_preview(raw, g.palette_rgb(color_bytes), bpp, objects)
     rows, colors = indexed_png.read((root / "title-background.png").read_bytes())
     hints = bank_hints(maps, tiles, len(palette) // 2)

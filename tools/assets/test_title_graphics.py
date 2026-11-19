@@ -1,6 +1,6 @@
 """Synthetic title-resource, banked background and rebuild regressions."""
 
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 import struct
 import tempfile
@@ -22,7 +22,67 @@ def resource():
     return b"".join(struct.pack("<I", count) + data for count, data in sections)
 
 
+@contextmanager
+def palette_resource():
+    raw = bytearray(resource())
+    for name, value in (("title-start", 0x1234), ("title-continue", 0x2345), ("title-copyright", 0x3456)):
+        start, _, pal, _, _, _ = title.item(raw, title.ITEMS[name])
+        raw[start] = 0x33
+        struct.pack_into("<H", raw, pal + 6, value)
+    rom, parts = bytearray(0x1000), []
+    for i, data in enumerate([bytes(raw), bytes(32768)] + [bytes(4096)] * 4):
+        encoded = g.codec.encode(data)
+        offset = len(rom)
+        parts.append((offset, len(encoded), (i * 4,)))
+        struct.pack_into("<I", rom, i * 4, 0x08000000 + offset)
+        rom += encoded
+    palette = (len(rom), 512, (24,))
+    struct.pack_into("<I", rom, 24, 0x08000000 + palette[0])
+    rom += bytes(512)
+    with ExitStack() as stack, tempfile.TemporaryDirectory() as directory:
+        for key, value in (("RESOURCE", parts[0]), ("BACKGROUND", parts[1]), ("MAPS", tuple(parts[2:])),
+                           ("PALETTE", palette), ("RESOURCE_NON_POINTER_STREAMS", ())):
+            stack.enter_context(patch.object(title, key, value))
+        assets, output = Path(directory) / "assets", Path(directory) / "output"
+        title.extract(rom, assets, g)
+        yield bytes(raw), rom, assets, output
+
+
 class TitleGraphicsTests(unittest.TestCase):
+    def test_start_owns_continue_runtime_palette_and_previews(self):
+        with palette_resource() as (raw, rom, assets, output):
+            start = assets / "graphics/title-start.png"
+            continuation = assets / "graphics/title-continue.png"
+            rows, colors = indexed_png.read(start.read_bytes())
+            continue_rows, continue_colors = indexed_png.read(continuation.read_bytes())
+            self.assertEqual(continue_colors, colors)
+            colors[3] = (255, 0, 0)
+            start.write_bytes(indexed_png.write(rows, colors))
+            title.build(rom, assets, output, g)
+            packed = (output / "graphics-title-resource-overflow.bin").read_bytes() or (output / "graphics-title-resource-slot.bin").read_bytes()
+            rebuilt = g.codec.decode(packed)[0]
+            unused = title.item(raw, title.ITEMS["title-continue"])[2]
+            self.assertEqual(rebuilt[unused:unused + 32], raw[unused:unused + 32])
+            for name in ("title-start", "title-continue"):
+                preview_rows, preview_colors = indexed_png.read((output / f"{name}-preview.png").read_bytes())
+                self.assertEqual(preview_rows[0][0], 3)
+                self.assertEqual(preview_colors, colors)
+            copyright_pal = title.item(raw, title.ITEMS["title-copyright"])[2]
+            self.assertEqual(rebuilt[copyright_pal:copyright_pal + 32], raw[copyright_pal:copyright_pal + 32])
+            legacy = g.palette_rgb(raw[unused:unused + 32])
+            continuation.write_bytes(indexed_png.write(continue_rows, legacy))
+            title.build(rom, assets, output, g)
+            self.assertEqual(indexed_png.read((output / "title-continue-preview.png").read_bytes())[1], colors)
+
+    def test_continue_palette_edits_are_rejected_instead_of_silently_ignored(self):
+        with palette_resource() as (_, rom, assets, output):
+            path = assets / "graphics/title-continue.png"
+            rows, colors = indexed_png.read(path.read_bytes())
+            colors[5] = (255, 0, 255)
+            path.write_bytes(indexed_png.write(rows, colors))
+            with self.assertRaisesRegex(ValueError, "never loads.*title-start"):
+                title.build(rom, assets, output, g)
+
     def test_growth_excludes_only_decoded_audited_payload_ranges(self):
         encoded = g.codec.encode(b"\x74\x90\x08" * 100)
         rom = bytearray(0xC000)

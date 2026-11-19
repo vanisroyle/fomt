@@ -57,14 +57,26 @@ The following indexed tile sheets are now editable under `assets/graphics/`:
 |---|---:|---|---:|
 | `title-logo.png` | 0 | 8bpp / 256 colors | 15168 |
 | `title-start.png` | 1 (also shared by items 2/3) | 4bpp / 16 colors | 448 |
-| `title-continue.png` | 5 (also shared by items 6/7) | 4bpp / 16 colors | 672 |
+| `title-continue.png` | 5 (also shared by items 6/7) | 4bpp / Start's shared 16 colors | 672 |
 | `title-copyright.png` | 9 | 4bpp / 16 colors | 1920 |
 
-These four disjoint pixel/palette ranges cover all tiles and palettes in the
+These four disjoint pixel ranges cover all tiles in the
 19468-byte resource unpacked from `0x747A74`. Keep the original indexed palette
 length, sheet dimensions and zero padding. Do not add/reorder tiles. All
 animation states sharing those tiles see the edit. Their OAM layouts and
 animation metadata are retained unchanged, not editable BG maps.
+
+**Shared palette:** edit **`title-start.png`** to change the colors used by
+both Start and Continue. Continue has no independent runtime palette. Fresh
+extraction gives both PNGs Start's palette; Continue's PNG palette is a
+read-only reference. Editing it is rejected with an instruction to edit Start
+instead. Do not copy a newly edited Start palette into Continue's source PNG;
+use the generated `title-continue-preview.png` to see its effective colors.
+Legacy Continue PNGs with their original, unused resource palette are also
+accepted unchanged (their transparent color 0 differs in the original ROM).
+No extraction overwrites existing files unless forced. The unused Continue
+palette bytes in the resource always remain byte-identical, even when Start's
+palette changes. Copyright has its own independent, editable 16-color palette.
 
 **Load-site verification:** `func_08000914` in `asm/intro_scene.s`, literal
 `0xCB4`, calls `Unpack` on `gUnk_08747A74`, then constructs its resource object
@@ -76,8 +88,24 @@ range and palette range. Its vtable entry at `0xE79D8` is called by
 `func_080019D8` while setting up the title/intro objects; tiles are copied by
 `func_08008E64` into allocated `0x06010000 + tile_base*32`, palettes into
 `0x05000200 + palette_base*32`. OBJ attribute bit 13 proves item 0 is **8bpp**
-and the word/copyright items **4bpp**; their palette counts are respectively
-16 banks and one bank. `func_0805E99C` applies the layout and emits OAM entries.
+and the word/copyright items **4bpp**; their resource palette counts are
+respectively 16 banks and one bank. These resource descriptors alone do **not**
+establish which palette the game actually copies or selects:
+
+| Item | `func_080019D8` palette copy | Draw selection in `func_080024E0` |
+|---|---|---|
+| Logo (0) | Copy at `0x08001C4A`: source palette + `0x120`, `0xE0` bytes to `0x05000320` | 8bpp OBJ uses global OBJ colors; only 144..255 come from this source |
+| Start (1) | Copy at `0x0800224A`: 32 bytes to palette allocation at scene `+0x6D00` | `0x0800268C`: allocation `+0x6D00` |
+| Continue (5) | **No palette copy** between its item lookup at `0x08002340` and tile copy at `0x0800237E` | `0x0800271E`: reuses the same allocation in `r6`, `+0x6D00` |
+| Copyright (9) | Copy at `0x080023E2`: 32 bytes to its own allocation at scene `+0x6D10` | `0x080025F6`: allocation `+0x6D10` |
+
+`func_08000914` binds animations 1/4/7 to scene objects at `+0x6BE0`,
+`+0x6C00`, `+0x6C20`; their first frames resolve to resource items 1/5/9.
+Continue is drawn on the existing-save menu (`scene +0x6C6D == 2`), using
+Start's palette even though its descriptor names a separate source palette.
+`func_0805E99C` adds the selected allocation to the OBJ palette bank and emits
+OAM entries. This explains why changing Start recolors an unedited Continue,
+while changing Continue's resource palette has no in-game effect.
 There is no BG tilemap load for these objects: their map is the resource's
 OBJ layout section, used by that draw path. Display control `0x1F40` enables
 1D OBJ tile addressing, as used by the preview renderer.
