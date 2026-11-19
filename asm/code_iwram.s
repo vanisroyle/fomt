@@ -33,10 +33,10 @@ func_03000714:
 func_0300085C:
     inc 0x0300085C, 0x03000958
 
-    .global func_03000958
-    .type func_03000958, function
+    .global Irq_Dispatch
+    .type Irq_Dispatch, function
     .arm
-func_03000958:
+Irq_Dispatch:
     inc 0x03000958, 0x03000A1C
 
     .global func_03000A1C

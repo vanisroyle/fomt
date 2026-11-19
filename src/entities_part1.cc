@@ -51,14 +51,6 @@ EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
 EC void func_0802A588(AEntity * self);
 
-struct EntityAnimationState
-{
-    STRUCT_PAD(0x00, 0x0E);
-    u16 frames;
-    i16 count;
-};
-
-EC bool func_0805E894(EntityAnimationState * state);
 EC bool func_080AC070(void * map, Box const * box);
 
 struct BarnAnimalEntity : AActorEntity
@@ -116,8 +108,8 @@ struct EntitySoundGameVTable
     EntitySoundChannels const * (*get_channels)(GameObject * game);
 };
 
-EC bool func_08008CD0(void * channel);
-EC void func_08008B6C(void * channel, u16 sound);
+EC bool AudioPlayer_IsPlaying(void * channel);
+EC void AudioPlayer_StartSong(void * channel, u16 sound);
 EC void CancelFarmerItemDisplay(FarmerEntity * self);
 EC void ShowFarmerToolDisplay(FarmerEntity * self);
 EC void func_0800F4C0(HeldItem * self);
@@ -159,7 +151,7 @@ EC Article func_0800F258(HeldItem const * self);
 EC u32 ChickenEntity_GetStateSpeed(AEntity * self, u32 value);
 EC Box func_0803240C(AActorEntity const * self);
 EC u32 func_0800F344(HeldItem const * self);
-EC void func_08010014(void * self, Location const & location);
+EC void ItemCollection_SetExtraItems(void * self, Location const & location);
 EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 state);
 EC void __builtin_delete(void * ptr);
 EC void * __builtin_new(size_t size);
@@ -288,7 +280,7 @@ inline void * FindEntitySoundChannel(GameObject * game)
     void ** end = channels->end;
     for (; it != end; ++it)
     {
-        if (!func_08008CD0(*it))
+        if (!AudioPlayer_IsPlaying(*it))
             return *it;
     }
     return end[-1];
@@ -437,7 +429,7 @@ EC void FarmerEntity_Destroy(FarmerEntity * self, u32 flags)
             break;
         }
         case HeldItem::KIND_4:
-            func_08010014(reinterpret_cast<u8 *>(self->game_state) + 0x1CA0, self->AEntity::GetLocation());
+            ItemCollection_SetExtraItems(reinterpret_cast<u8 *>(self->game_state) + 0x1CA0, self->AEntity::GetLocation());
             break;
         }
     }
@@ -623,7 +615,7 @@ EC void FarmerEntity_LiftRucksackItem(FarmerEntity * self, RucksackItem const * 
     func_0802A588(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
-    func_08008B6C(FindEntitySoundChannel(self->game_object), 106);
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
 }
 
 // 0x080262C4
@@ -897,7 +889,7 @@ EC void FarmerEntity_LiftObject(FarmerEntity * self)
     func_0802A588(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
-    func_08008B6C(FindEntitySoundChannel(self->game_object), 106);
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
 }
 
 // 0x08025EFC
@@ -908,7 +900,7 @@ EC void FarmerEntity_LiftChicken(FarmerEntity * self, u8 value)
     func_0802A588(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
-    func_08008B6C(FindEntitySoundChannel(self->game_object), 106);
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
 }
 
 // 0x08025E38
@@ -919,7 +911,7 @@ EC void FarmerEntity_LiftDog(FarmerEntity * self)
     func_0802A588(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
-    func_08008B6C(FindEntitySoundChannel(self->game_object), 106);
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
 }
 
 // 0x08025A40
@@ -928,7 +920,7 @@ EC void FarmerEntity_CycleTool(FarmerEntity * self, bool next)
 {
     if (FarmerEntity_IsUsingCursedTool(self))
     {
-        func_08008B6C(FindEntitySoundChannel(self->game_object), 199);
+        AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 199);
         self->state = 0;
     }
     else
@@ -943,7 +935,7 @@ EC void FarmerEntity_CycleTool(FarmerEntity * self, bool next)
             self->state = 21;
             self->unk_3D = 20;
             ShowFarmerToolDisplay(self);
-            func_08008B6C(FindEntitySoundChannel(self->game_object), 188);
+            AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 188);
         }
     }
 }
@@ -962,7 +954,7 @@ EC void FarmerEntity_StoreHeldItem(FarmerEntity * self)
             func_0800F390(&self->farmer->unk_54);
             self->state = 18;
             CancelFarmerItemDisplay(self);
-            func_08008B6C(FindEntitySoundChannel(self->game_object), 107);
+            AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 107);
         }
         else
             self->state = 4;
@@ -984,7 +976,7 @@ EC void FarmerEntity_CycleHeldItemWithFeedback(FarmerEntity * self, bool next)
     {
         func_0802A588(self);
         self->state = 20;
-        func_08008B6C(FindEntitySoundChannel(self->game_object), 107);
+        AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 107);
     }
 }
 
@@ -1001,7 +993,7 @@ EC void FarmerEntity_CycleHeldItem(FarmerEntity * self, bool next)
     {
         self->state = 19;
         CancelFarmerItemDisplay(self);
-        func_08008B6C(FindEntitySoundChannel(self->game_object), 107);
+        AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 107);
     }
 }
 
@@ -1287,9 +1279,9 @@ EC bool AEntity_IsAnimationFinished(AEntity * self)
     if (self->unk_10.Get() != nullptr)
     {
         bool result = false;
-        EntityAnimationState * state = reinterpret_cast<EntityAnimationState *>(&self->unk_10.Get()->sprite_animator);
-        bool active = state->frames != 0 && state->count != 0;
-        if (!active || func_0805E894(state))
+        SpriteAnimator * state = &self->unk_10.Get()->sprite_animator;
+        bool active = state->remaining_q8 != 0 && state->speed_q8 != 0;
+        if (!active || WillSpriteAnimationLoop(state))
             result = true;
         return result;
     }
