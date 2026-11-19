@@ -9480,7 +9480,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803C54C
+	bl InitializeClockHud
 	mov r4, sl
 	adds r4, #0xb4
 	adds r5, r0, #0
@@ -12228,7 +12228,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803C54C
+	bl InitializeClockHud
 	mov r4, sl
 	adds r4, #0xb4
 	adds r5, r0, #0
@@ -12662,7 +12662,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803C54C
+	bl InitializeClockHud
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r1, [r6]
@@ -25708,8 +25708,8 @@ func_080E0D64: @ 0x080E0D64
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080E0D70
-func_080E0D70: @ 0x080E0D70
+	thumb_func_start DestroyClockDisplayData
+DestroyClockDisplayData: @ 0x080E0D70
 	push {r4, r5, r6, lr}
 	adds r6, r0, #0
 	adds r5, r1, #0
