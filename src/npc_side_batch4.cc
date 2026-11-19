@@ -99,3 +99,95 @@ EC UnknownEntityThing * CreateNpcVariantFiveSprite(AActorEntity * self)
     struct Storage { u8 bytes[0x8C]; };
     return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 2, 27, 0, 8, 0, false);
 }
+
+struct NpcActivityState
+{
+    STRUCT_PAD(0x00, 0x0C);
+    u32 state;
+    STRUCT_PAD(0x10, 0x12);
+    u8 busy;
+};
+
+struct ActiveNpcEntity : AActorEntity
+{
+    ActiveNpcEntity();
+    void * npc;
+    NpcActivityState * activity;
+};
+
+EC u32 IsWithinSideEntityExit(i32 x, i32 y) NPC_EXTRA_CODE(080391C0);
+EC u32 IsWithinSideEntityExit(i32 x, i32 y)
+{
+    if (y <= 56 && x > 323 && x <= 356)
+        return 1;
+    if (y > 639 && x > 247 && x <= 280)
+        return 1;
+    return 0;
+}
+
+EC void SideEntityIdleNoOp() NPC_EXTRA_CODE(080391FC);
+EC void SideEntityIdleNoOp()
+{
+}
+
+EC u32 SideEntityCannotInteract() NPC_EXTRA_CODE(08039200);
+EC u32 SideEntityCannotInteract()
+{
+    return 0;
+}
+
+EC u32 SideEntityCanInteract() NPC_EXTRA_CODE(0803930C);
+EC u32 SideEntityCanInteract()
+{
+    return 1;
+}
+
+EC void ActiveNpcIdleNoOp() NPC_EXTRA_CODE(08039A5C);
+EC void ActiveNpcIdleNoOp()
+{
+}
+
+EC u32 GetBusyNpcFacing(void * context, ActiveNpcEntity * self) NPC_EXTRA_CODE(080396F4);
+EC u32 GetBusyNpcFacing(void * context, ActiveNpcEntity * self)
+{
+    u32 busy = self->activity->busy;
+    u32 facing = 0;
+    if (busy != 0)
+        facing = 3;
+    return facing;
+}
+
+EC u32 IsNpcActivityNotFour(ActiveNpcEntity * self) NPC_EXTRA_CODE(08039D98);
+EC u32 IsNpcActivityNotFour(ActiveNpcEntity * self)
+{
+    return self->activity->state != 4;
+}
+
+EC u32 GetActiveNpcMovementSpeed(AEntity * self, u32 movement) NPC_EXTRA_CODE(08039D5C);
+EC u32 GetActiveNpcMovementSpeed(AEntity * self, u32 movement)
+{
+    switch (movement)
+    {
+    case 1: return 0x8000;
+    case 2: return 0x10000;
+    case 0: case 3: case 4: default: return 0;
+    }
+}
+
+EC UnknownEntityThing * func_08038820(UnknownEntityThing * self, AEntity * entity);
+EC UnknownEntityThing * CreateSideEntityEffectController(AEntity * self) NPC_EXTRA_CODE(080387A0);
+EC UnknownEntityThing * CreateSideEntityEffectController(AEntity * self)
+{
+    struct Storage { u8 bytes[0x18]; };
+    return func_08038820(reinterpret_cast<UnknownEntityThing *>(new Storage), self);
+}
+
+EC void InitializeEntityBase(AEntity * self, GameObject * game, Location const & location) asm("__7AEntityP10GameObjectRC8Location");
+EC u8 const vtable_unk_080E7444[];
+EC AEntity * InitializeReactionEntity(AEntity * self, GameObject * game, Location const & location) NPC_EXTRA_CODE(08037CC4);
+EC AEntity * InitializeReactionEntity(AEntity * self, GameObject * game, Location const & location)
+{
+    InitializeEntityBase(self, game, location);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7444;
+    return self;
+}
