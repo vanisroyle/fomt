@@ -14607,7 +14607,7 @@ func_080ADD78: @ 0x080ADD78
 	movs r0, #0
 	str r0, [sp, #0x24]
 	adds r0, r7, #0
-	bl func_080ADF40
+	bl AdvanceMessageScriptClock
 	adds r6, r0, #0
 	ldr r0, [r7]
 	cmp r0, #2
@@ -14826,31 +14826,7 @@ func_080ADD78: @ 0x080ADD78
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_080ADF40
-func_080ADF40: @ 0x080ADF40
-	push {r4, r5, lr}
-	adds r2, r0, #0
-	ldrh r0, [r2, #6]
-	adds r5, r0, #0
-	ldrh r0, [r2, #4]
-	adds r1, r5, r0
-	adds r4, r1, #0
-	movs r0, #0xff
-	ands r0, r1
-	movs r3, #0
-	cmp r0, #0
-	beq .L080ADF5A
-	adds r3, r1, #0
-.L080ADF5A:
-	strh r3, [r2, #6]
-	adds r0, r4, #0
-	asrs r1, r0, #8
-	adds r0, r5, #0
-	asrs r0, r0, #8
-	subs r0, r1, r0
-	pop {r4, r5}
-	pop {r1}
-	bx r1
+	.section .text.080ADF6C, "ax", %progbits
 
 	thumb_func_start func_080ADF6C
 func_080ADF6C: @ 0x080ADF6C
