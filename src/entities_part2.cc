@@ -353,7 +353,7 @@ struct FarmerTerrainActorVTable
     Box (*get_bounds)(AEntity const *);
 };
 
-EC bool func_080AC070(FarmerTerrainGrid const * grid, Box const * bounds);
+EC bool DoesEntityCollisionRectangleHitSolidTile(FarmerTerrainGrid const * grid, Box const * bounds);
 
 EC bool IsFarmerOnSpecialTerrain(FarmerEntity * farmer) ENTITY_CODE(0802AEA4);
 EC bool IsFarmerOnSpecialTerrain(FarmerEntity * farmer)
@@ -369,7 +369,7 @@ EC bool IsFarmerOnSpecialTerrain(FarmerEntity * farmer)
     Box const * box = &bounds;
 
     {
-        if (func_080AC070(&terrain, box))
+        if (DoesEntityCollisionRectangleHitSolidTile(&terrain, box))
             goto found;
         register u32 range asm("r1") = map - 0x34;
         asm volatile("" : : "r"(range));
