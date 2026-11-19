@@ -410,3 +410,73 @@ EC u32 GetSideActorFacing(AActorEntity * self)
 {
     return self->facing;
 }
+
+EC void StartSideSpriteOverlay(UnknownEntityThing * self, u32 clip_id, u8 alternate_mode) NPC_SIDE_CODE(08032AB4);
+EC void StartSideSpriteOverlay(UnknownEntityThing * self, u32 clip_id, u8 alternate_mode)
+{
+    SetSpriteAnimatorClip(&self->sprite_animator_70, clip_id);
+    self->unk_84 = 1;
+    self->unk_86 = 0;
+    self->unk_87 = 1;
+    u32 mode = 1;
+    if (alternate_mode != 0)
+        mode = 2;
+    self->unk_8A_0 = mode;
+}
+
+EC void SetSideSpriteOverlayFlags(UnknownEntityThing * self, u32 flags) NPC_SIDE_CODE(08032AF4);
+EC void SetSideSpriteOverlayFlags(UnknownEntityThing * self, u32 flags)
+{
+    self->unk_8A_2 = flags;
+}
+
+EC void SetSideActorAnimationIfChanged(AActorEntity * self, u32 animation) NPC_SIDE_CODE(08032B44);
+EC void SetSideActorAnimationIfChanged(AActorEntity * self, u32 animation)
+{
+    if (self->anim_id != animation)
+        self->SetAnim(animation);
+}
+
+EC u32 GetSideActorFacingAnimation(AActorEntity * self) NPC_SIDE_CODE(08032B5C);
+EC u32 GetSideActorFacingAnimation(AActorEntity * self)
+{
+    u32 animation = self->anim_id;
+    animation += self->facing;
+    return animation;
+}
+
+EC void SetSideActorMovementFlags(AActorEntity * self, u32 flags) NPC_SIDE_CODE(08032B94);
+EC void SetSideActorMovementFlags(AActorEntity * self, u32 flags)
+{
+    self->unk_21 = flags;
+}
+
+EC u32 GetSideActorMovementFlags(AActorEntity * self) NPC_SIDE_CODE(08032B9C);
+EC u32 GetSideActorMovementFlags(AActorEntity * self)
+{
+    return self->unk_21;
+}
+
+EC void SetSideActorYVelocity(AActorEntity * self, u32 velocity) NPC_SIDE_CODE(08032BA4);
+EC void SetSideActorYVelocity(AActorEntity * self, u32 velocity)
+{
+    self->y_speed_q16 = velocity;
+}
+
+EC u32 GetSideActorYVelocity(AActorEntity * self) NPC_SIDE_CODE(08032BA8);
+EC u32 GetSideActorYVelocity(AActorEntity * self)
+{
+    return self->y_speed_q16;
+}
+
+EC void SetSideActorXVelocity(AActorEntity * self, u32 velocity) NPC_SIDE_CODE(08032BAC);
+EC void SetSideActorXVelocity(AActorEntity * self, u32 velocity)
+{
+    self->x_speed_q16 = velocity;
+}
+
+EC u32 GetSideActorXVelocity(AActorEntity * self) NPC_SIDE_CODE(08032BB0);
+EC u32 GetSideActorXVelocity(AActorEntity * self)
+{
+    return self->x_speed_q16;
+}
