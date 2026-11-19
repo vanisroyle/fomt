@@ -1,7 +1,7 @@
 #include "prelude.h"
 
 #include "bachelorette.hh"
-#include "dialog_choice_graphics.hh"
+#include "clock_display.hh"
 #include "dog.hh"
 #include "farm.hh"
 #include "farm_house.hh"
@@ -752,45 +752,6 @@ ROM_TEXT(0803C518) void DisablePauseMenuSelection(PauseMenuWindow & self)
     self.selectionEnabled = false;
 }
 
-struct ClockDisplayData
-{
-    STRUCT_PAD(0x000, 0x084);
-    u8 seasonFirstTiles[0x20];
-    u8 seasonSecondTiles[0x20];
-    u8 dayTensTiles[0x20];
-    u8 dayOnesTiles[0x20];
-    u8 meridiemTiles[0x20];
-    STRUCT_PAD(0x124, 0x144);
-    u8 hourTensTiles[0x20];
-    u8 hourOnesTiles[0x20];
-    STRUCT_PAD(0x184, 0x18C);
-    u8 dateTilesDirty;
-    STRUCT_PAD(0x18D, 0x1A8);
-    u8 weekdayFirstTiles[0x20];
-    u8 weekdaySecondTiles[0x20];
-    u8 weekdayThirdTiles[0x20];
-    STRUCT_PAD(0x208, 0x228);
-    u8 colonTiles[0x20];
-    u8 minuteTensTiles[0x20];
-    u8 minuteOnesTiles[0x20];
-    STRUCT_PAD(0x288, 0x2B0);
-    u8 tilesDirty;
-    STRUCT_PAD(0x2B1, 0x2CC);
-    u8 weatherIcon;
-    STRUCT_PAD(0x2CD, 0x2F0);
-    u8 weatherIconDirty;
-    u8 toolIconVisible;
-    u16 toolIconId;
-    STRUCT_PAD(0x2F4, 0x334);
-    u8 toolIconDirty;
-};
-
-struct ClockDisplay
-{
-    ClockDisplayData * inner;
-};
-
-EC u8 const gClockFont[][0x20];
 
 ROM_TEXT(0803D080) void SetClockSeasonTiles(ClockDisplay & self, Season season)
 {
@@ -1004,9 +965,8 @@ ROM_TEXT(0803D2E8) void HideClockToolIcon(ClockDisplay & self)
 struct SavedCalendarDate;
 EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, bool colonVisible);
 
-struct ClockHud
+struct ClockHud : DialogWindow
 {
-    STRUCT_PAD(0x00, 0x08);
     ClockDisplay display;
 };
 
@@ -2564,32 +2524,25 @@ EC int UpdatePauseMenuWindow(PauseMenuWindow &, ControllerInput const &, OamBuff
 EC void func_0803BE50(DialogWindow &, int);
 EC void func_080E0C38(PauseMenuGraphics *, int);
 EC char const gPauseMenuWindowVtable[];
-EC char const vtable_unk_080E77E0[];
+EC char const gClockHudVTable[];
 
-struct DialogChoiceWindow : DialogWindow
-{
-    DialogChoiceGraphicsOwner choiceGraphics;
-};
-
-struct DialogChoiceWindowVtable
+struct ClockHudVTable
 {
     STRUCT_PAD(0, 0x1C);
-    int (* getX)(DialogChoiceWindow &);
-    int (* getY)(DialogChoiceWindow &);
+    int (* getX)(ClockHud &);
+    int (* getY)(ClockHud &);
 };
 
-EC void DrawDialogChoices(DialogChoiceGraphicsOwner &, int x, int y, OamBuffer *, DialogLayerRenderer *);
-
-ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBuffer * oam,
+ROM_TEXT(0803D4D8) int UpdateClockHud(ClockHud & self, OamBuffer * oam,
     BackgroundVideoState * video, DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
 {
     // Preserve the original register allocation for the window state.
     register int state asm("r6") = UpdateDialogWindow(self, video, layerRenderer, tileTransfers);
     if (state == DIALOG_WINDOW_OPEN)
     {
-        int x = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getX(self);
-        int y = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getY(self);
-        DrawDialogChoices(self.choiceGraphics, x, y, oam, layerRenderer);
+        int x = static_cast<ClockHudVTable const *>(self.vtable)->getX(self);
+        int y = static_cast<ClockHudVTable const *>(self.vtable)->getY(self);
+        DrawClockDisplay(self.display, x, y, oam, layerRenderer);
     }
     return state;
 }
@@ -2632,17 +2585,17 @@ ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, Co
     return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, audio);
 }
 
-ROM_TEXT(0803C518) DialogChoiceWindow & func_0803C54C(DialogChoiceWindow & self, int arg1, int arg2, int arg3, int arg4)
+ROM_TEXT(0803C518) ClockHud & InitializeClockHud(ClockHud & self, int background, int screenBlock, int paletteBank, int layerMode)
 {
-    func_0803BDFC(self, 128, 136, 112, 24, arg1, arg2, arg3, arg4);
-    self.vtable = vtable_unk_080E77E0;
-    InitializeDialogChoiceGraphics(self.choiceGraphics);
+    func_0803BDFC(self, 128, 136, 112, 24, background, screenBlock, paletteBank, layerMode);
+    self.vtable = gClockHudVTable;
+    InitializeClockDisplay(self.display);
     return self;
 }
 
-ROM_TEXT(0803C518) void func_0803C588(DialogChoiceWindow & self, int flags)
+ROM_TEXT(0803C518) void DestroyClockHud(ClockHud & self, int flags)
 {
-    self.vtable = vtable_unk_080E77E0;
-    DestroyDialogChoiceGraphics(self.choiceGraphics, 2);
+    self.vtable = gClockHudVTable;
+    DestroyClockDisplay(self.display, 2);
     func_0803BE50(self, flags);
 }

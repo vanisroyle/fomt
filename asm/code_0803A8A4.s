@@ -2039,8 +2039,8 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	bx r1
 
 	.section .text.0803C7C8, "ax", %progbits
-	thumb_func_start DrawDialogChoices
-DrawDialogChoices: @ 0x0803C7C8
+	thumb_func_start DrawClockDisplay
+DrawClockDisplay: @ 0x0803C7C8
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
