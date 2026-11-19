@@ -27,8 +27,8 @@ struct LivestockReport
     u8 name_bitmaps[(MAX_NAME_BITMAPS - 1) * NAME_BITMAP_STRIDE + NAME_BITMAP_BYTES];
 };
 
-EC void Fill4bppTileBitmap(Vec2 dimensions, void * tiles, u32 color) asm("func_0804E7A0");
-EC void DrawTextTo4bppTileBitmap(Vec2 dimensions, void * tiles, u32 x, u32 y, char const * text) asm("func_0804E8F0");
+EC void FillMessageTiles(Vec2 dimensions, void * tiles, u32 color);
+EC void DrawMessageTileString(Vec2 dimensions, void * tiles, u32 x, u32 y, char const * text);
 EC void DrawFarmReportPanel(LivestockReport * self) asm("func_08076EA8");
 EC void SetFarmReportScrollHeight(void * panel, i16 height) asm("func_08075E24");
 EC void InitLivestockReport(LivestockReport * self, void * menu, void * display, u32 content_height, char const * title);
@@ -53,9 +53,9 @@ REPORT_CODE(08063E04) u8 * RenderLivestockReportName(LivestockReport * self, u32
         uintptr_t address = row * LivestockReport::NAME_BITMAP_STRIDE;
         address += reinterpret_cast<uintptr_t>(self);
         u8 * bitmap;
-        Fill4bppTileBitmap(Vec2(LivestockReport::NAME_BITMAP_WIDTH, LivestockReport::NAME_BITMAP_HEIGHT),
+        FillMessageTiles(Vec2(LivestockReport::NAME_BITMAP_WIDTH, LivestockReport::NAME_BITMAP_HEIGHT),
             bitmap = reinterpret_cast<u8 *>(address + offsetof(LivestockReport, name_bitmaps)), 0);
-        DrawTextTo4bppTileBitmap(Vec2(LivestockReport::NAME_BITMAP_WIDTH, LivestockReport::NAME_BITMAP_HEIGHT),
+        DrawMessageTileString(Vec2(LivestockReport::NAME_BITMAP_WIDTH, LivestockReport::NAME_BITMAP_HEIGHT),
             bitmap, 0, 0, name);
         return bitmap;
     }

@@ -27,17 +27,17 @@ struct MapScene
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapData const * GetMapData(u32 graphicsId);
 EC void func_080CFFC0(MapUpdateState & map, int column, int row, u32 const & value);
-EC void func_080A63B8(MapUpdateState & map, u32 useUpperPosition);
-EC void func_080A635C(MapUpdateState & map);
-EC void func_080A6300(MapUpdateState & map);
-EC void func_080A6024(MapUpdateState & map, u32 columnIndex);
+EC void ApplyMapBuildingDoorPatch(MapUpdateState & map, u32 useUpperPosition);
+EC void ApplyMapRow17PatchB(MapUpdateState & map);
+EC void ApplyMapRow17PatchA(MapUpdateState & map);
+EC void ApplyMapIndexedFixturePatch(MapUpdateState & map, u32 columnIndex);
 EC void func_080A607C(MapUpdateState & map, u32 tileIndex);
-EC void func_080A62BC(MapUpdateState & map);
-EC void func_080A6278(MapUpdateState & map);
-EC void func_080A6234(MapUpdateState & map);
-EC void func_080A61F0(MapUpdateState & map);
-EC void func_080A6194(MapUpdateState & map);
-EC void func_080A6138(MapUpdateState & map);
+EC void ApplyMapRow2PatchB(MapUpdateState & map);
+EC void ApplyMapRow2PatchA(MapUpdateState & map);
+EC void ApplyMapRow3PatchB(MapUpdateState & map);
+EC void ApplyMapRow3PatchA(MapUpdateState & map);
+EC void ApplyMapRow15PatchB(MapUpdateState & map);
+EC void ApplyMapRow15PatchA(MapUpdateState & map);
 EC void StartMapTransitionDelay(u8 * self);
 EC bool IsMapTransitionIdle(u8 * self);
 EC void func_080A59BC(MapUpdateState & map, int x, int y, u32 pixelsPerStep);
@@ -50,24 +50,24 @@ EC SECTION(".text.080AD938") void SetMapGridCell(MapScene & scene, int column, i
 
 EC SECTION(".text.080AD944") void ApplyMapPatchAtX1(MapScene & scene, u32 useUpperPosition)
 {
-    func_080A63B8(*scene.map, useUpperPosition);
+    ApplyMapBuildingDoorPatch(*scene.map, useUpperPosition);
 }
 
 EC SECTION(".text.080AD950") int ApplyMapPatchAtY17VariantA(MapScene & scene)
 {
-    func_080A635C(*scene.map);
+    ApplyMapRow17PatchB(*scene.map);
     return 0;
 }
 
 EC SECTION(".text.080AD960") int ApplyMapPatchAtY17VariantB(MapScene & scene)
 {
-    func_080A6300(*scene.map);
+    ApplyMapRow17PatchA(*scene.map);
     return 0;
 }
 
 EC SECTION(".text.080AD970") void ApplyMapPatchFromColumnIndex(MapScene & scene, u32 columnIndex)
 {
-    func_080A6024(*scene.map, columnIndex);
+    ApplyMapIndexedFixturePatch(*scene.map, columnIndex);
 }
 
 EC SECTION(".text.080AD97C") void ApplyMapPatchFromTileIndex(MapScene & scene, u32 tileIndex)
@@ -77,32 +77,32 @@ EC SECTION(".text.080AD97C") void ApplyMapPatchFromTileIndex(MapScene & scene, u
 
 EC SECTION(".text.080AD988") void ApplyMapPatchAtY2VariantB(MapScene & scene)
 {
-    func_080A62BC(*scene.map);
+    ApplyMapRow2PatchB(*scene.map);
 }
 
 EC SECTION(".text.080AD994") void ApplyMapPatchAtY2VariantA(MapScene & scene)
 {
-    func_080A6278(*scene.map);
+    ApplyMapRow2PatchA(*scene.map);
 }
 
 EC SECTION(".text.080AD9A0") void ApplyMapPatchAtY3VariantB(MapScene & scene)
 {
-    func_080A6234(*scene.map);
+    ApplyMapRow3PatchB(*scene.map);
 }
 
 EC SECTION(".text.080AD9AC") void ApplyMapPatchAtY3VariantA(MapScene & scene)
 {
-    func_080A61F0(*scene.map);
+    ApplyMapRow3PatchA(*scene.map);
 }
 
 EC SECTION(".text.080AD9B8") void ApplyMapPatchAtY15VariantB(MapScene & scene)
 {
-    func_080A6194(*scene.map);
+    ApplyMapRow15PatchB(*scene.map);
 }
 
 EC SECTION(".text.080AD9C4") void ApplyMapPatchAtY15VariantA(MapScene & scene)
 {
-    func_080A6138(*scene.map);
+    ApplyMapRow15PatchA(*scene.map);
 }
 
 EC SECTION(".text.080AD9D0") void StartMapTileAnimationDelay(MapScene & scene)
