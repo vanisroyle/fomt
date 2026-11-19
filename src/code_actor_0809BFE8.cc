@@ -883,6 +883,46 @@ ROM_TEXT(0809E0AC) MineTileGraphics const * GetMineTileGraphics(MineFloor const 
     }
 }
 
+ROM_TEXT(0809E118) void CountMineFloorOutcomes(MineFloor const & floor, u8 * outcomeCounts)
+{
+    register MineFloor const * mine asm("r5") = &floor;
+    u8 * counts = outcomeCounts;
+    register unsigned row asm("r6");
+    for (row = 0; row < static_cast<unsigned>(GetMineFloorHeight(*mine)); )
+    {
+        register unsigned column asm("r4") = 0;
+        register unsigned nextRow asm("r3") = row + 1;
+        volatile unsigned savedNextRow;
+
+        goto testColumn;
+    countTile:
+        {
+            register unsigned columnOffset asm("r2") = column * sizeof(MineFloor::Tile);
+            asm("" : "+r"(columnOffset));
+            unsigned offset = columnOffset + row * sizeof(mine->tiles[0]);
+            u8 const * tileBytes = reinterpret_cast<u8 const *>(mine) + offset + offsetof(MineFloor, tiles);
+            MineFloor::Tile const & tile = *reinterpret_cast<MineFloor::Tile const *>(tileBytes);
+            register u8 * rockCount asm("r0") = &counts[tile.rockOutcome];
+            asm("" : "+r"(rockCount));
+            ++*rockCount;
+            // The dig outcome occupies the upper six bits of the second byte.
+            unsigned digOutcome = reinterpret_cast<u8 const *>(&tile)[1] >> 2;
+            ++counts[digOutcome];
+            ++column;
+        }
+    testColumn:
+        // Match the original spill of the next row across the width call.
+        register MineFloor const * mineArg asm("r0") = mine;
+        asm("" : "+r"(mineArg));
+        savedNextRow = nextRow;
+        register unsigned width asm("r0") = GetMineFloorWidth(*mineArg);
+        nextRow = savedNextRow;
+        if (column < width)
+            goto countTile;
+        row = nextRow;
+    }
+}
+
 ROM_TEXT(0809E174) bool func_0809E174(MineFloor const & self)
 {
     return (static_cast<u32>(self.kappaJewelFlags) << 31) >> 31;
