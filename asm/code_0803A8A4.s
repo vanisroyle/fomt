@@ -2185,15 +2185,9 @@ UpdateDialogWindowLayers: @ 0x0803BAAC
 	.byte 0xC1, 0x61, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x58, 0x77, 0x0E, 0x08, 0xFF, 0x03, 0x00, 0x00
 	.byte 0x1F, 0x80, 0xFF, 0xFF, 0xFF, 0x7F, 0xF8, 0xFF
 
-	.section .text.0803BFF0, "ax", %progbits
-	.align 2, 0
-.L0803BFF0:
-	.byte 0x30, 0xB5, 0x83, 0xB0, 0x06, 0x9C, 0x07, 0x9D, 0x00, 0x94, 0x01, 0x95, 0x00, 0x24, 0x02, 0x94
-	.byte 0x00, 0xF0, 0x12, 0xF8, 0x03, 0xB0, 0x30, 0xBC, 0x02, 0xBC, 0x08, 0x47
-
 	.section .text.0803C028, "ax", %progbits
-	thumb_func_start func_0803C028
-func_0803C028: @ 0x0803C028
+	thumb_func_start UpdatePauseMenuWindow
+UpdatePauseMenuWindow: @ 0x0803C028
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -2270,7 +2264,7 @@ func_0803C028: @ 0x0803C028
 	movs r1, #0xcb
 	bl AudioPlayer_StartSong
 .L0803C0B2:
-	ldr r0, .L0803C0C4 @ =gUnk_080F1A34
+	ldr r0, .L0803C0C4 @ =gPauseMenuTabLabels
 	ldrb r1, [r7, #0xc]
 	lsls r1, r1, #2
 	adds r1, r1, r0
@@ -2280,7 +2274,7 @@ func_0803C028: @ 0x0803C028
 	strb r0, [r7, #0xe]
 	b .L0803C0DC
 	.align 2, 0
-.L0803C0C4: .4byte gUnk_080F1A34
+.L0803C0C4: .4byte gPauseMenuTabLabels
 .L0803C0C8:
 	movs r0, #1
 	ands r3, r0
@@ -2333,7 +2327,7 @@ func_0803C028: @ 0x0803C028
 	ldr r2, [r0, #0x10]
 	adds r0, r3, #0
 	bl _call_via_r2
-	ldr r1, .L0803C4D4 @ =gUnk_080F1A34
+	ldr r1, .L0803C4D4 @ =gPauseMenuTabLabels
 	ldrb r0, [r7, #0xc]
 	lsls r0, r0, #2
 	adds r0, r0, r1
@@ -2795,7 +2789,7 @@ func_0803C028: @ 0x0803C028
 	b .L0803C4F8
 	.align 2, 0
 .L0803C4D0: .4byte 0x05000200
-.L0803C4D4: .4byte gUnk_080F1A34
+.L0803C4D4: .4byte gPauseMenuTabLabels
 .L0803C4D8: .4byte 0x06010000
 .L0803C4DC: .4byte 0x000001FF
 .L0803C4E0: .4byte 0xFE00FFFF
@@ -4748,126 +4742,6 @@ func_0803DA7C: @ 0x0803DA7C
 	.byte 0xF6, 0xD0, 0x02, 0x2C, 0xF4, 0xD0, 0x00, 0x2C, 0x05, 0xD1, 0xF1, 0xE7, 0x03, 0x2C, 0x02, 0xD1
 	.byte 0xEE, 0xE7, 0x00, 0x2A, 0xEC, 0xD0, 0x01, 0x20, 0x02, 0xE0, 0x04, 0x20, 0x00, 0xE0, 0x00, 0x20
 	.byte 0x01, 0xB0, 0x70, 0xBC, 0x02, 0xBC, 0x08, 0x47
-
-	thumb_func_start func_0803DDE8
-func_0803DDE8: @ 0x0803DDE8
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #4
-	adds r5, r0, #0
-	ldr r1, .L0803DE48 @ =0x000021CA
-	adds r0, r5, r1
-	ldrb r0, [r0]
-	lsls r0, r0, #0x19
-	cmp r0, #0
-	blt .L0803DE42
-	mov r4, sp
-	adds r1, r5, #0
-	adds r1, #0x10
-	mov r0, sp
-	bl DecodeNpcScheduleDate
-	mov r0, sp
-	ldrb r6, [r0]
-	ldrb r7, [r4, #1]
-	ldrb r0, [r4, #2]
-	mov r8, r0
-	ldrb r4, [r4, #3]
-	ldr r1, .L0803DE4C @ =0x00002181
-	adds r0, r5, r1
-	ldrb r0, [r0]
-	lsls r0, r0, #0x1a
-	lsrs r0, r0, #0x1e
-	cmp r0, #2
-	beq .L0803DE42
-	subs r1, #0xc
-	adds r0, r5, r1
-	ldrb r0, [r0]
-	lsls r0, r0, #0x1b
-	cmp r0, #0
-	blt .L0803DE50
-	cmp r6, #1
-	bhi .L0803DE42
-	cmp r6, #1
-	bne .L0803DE50
-	cmp r7, #3
-	bne .L0803DE50
-	mov r0, r8
-	cmp r0, #0x1c
-	bls .L0803DE50
-.L0803DE42:
-	movs r0, #0
-	b .L0803DEBE
-	.align 2, 0
-.L0803DE48: .4byte 0x000021CA
-.L0803DE4C: .4byte 0x00002181
-.L0803DE50:
-	ldr r1, .L0803DE64 @ =0x00002181
-	adds r0, r5, r1
-	ldrb r0, [r0]
-	lsls r0, r0, #0x1e
-	lsrs r0, r0, #0x1e
-	cmp r0, #1
-	bne .L0803DE68
-	movs r0, #5
-	b .L0803DEBE
-	.align 2, 0
-.L0803DE64: .4byte 0x00002181
-.L0803DE68:
-	adds r0, r7, #0
-	mov r1, r8
-	bl IsNpcScheduleFestivalDay
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L0803DE7A
-	movs r0, #4
-	b .L0803DEBE
-.L0803DE7A:
-	cmp r6, #1
-	bne .L0803DE9C
-	cmp r7, #2
-	bne .L0803DE9C
-	mov r0, r8
-	cmp r0, #0xf
-	bne .L0803DE9C
-	ldr r1, .L0803DE98 @ =0x00002175
-	adds r0, r5, r1
-	ldrb r0, [r0]
-	lsls r0, r0, #0x1b
-	cmp r0, #0
-	bge .L0803DE9C
-.L0803DE94:
-	movs r0, #2
-	b .L0803DEBE
-	.align 2, 0
-.L0803DE98: .4byte 0x00002175
-.L0803DE9C:
-	ldr r1, .L0803DEB8 @ =0x00002174
-	adds r0, r5, r1
-	ldr r0, [r0]
-	movs r1, #0xc2
-	lsls r1, r1, #0xb
-	ands r0, r1
-	movs r1, #0x82
-	lsls r1, r1, #0xb
-	cmp r0, r1
-	bne .L0803DEBC
-	cmp r4, #6
-	bne .L0803DE94
-	movs r0, #3
-	b .L0803DEBE
-	.align 2, 0
-.L0803DEB8: .4byte 0x00002174
-.L0803DEBC:
-	movs r0, #1
-.L0803DEBE:
-	add sp, #4
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
 
 	.section .text.0803DFE8, "ax", %progbits
 	thumb_func_start func_0803DFE8

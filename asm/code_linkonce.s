@@ -9590,7 +9590,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9633,7 +9633,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9669,7 +9669,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9721,7 +9721,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [sp, #4]
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9760,7 +9760,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9803,7 +9803,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -10380,7 +10380,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r4, .L080D91F0 @ =0x00000544
 	add r4, sp
 	ldr r3, [r4]
-	bl func_0803C00C
+	bl UpdatePauseMenuWindowWithAudio
 	b .L080D93E8
 	.align 2, 0
 .L080D91EC: .4byte 0x0000056C
@@ -11617,7 +11617,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -11699,7 +11699,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [sp, #4]
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -11746,7 +11746,7 @@ sub_080D8178: @ 0x080D8178
 	add r5, sp
 	str r3, [r5]
 	ldr r0, [r4]
-	bl func_0803C540
+	bl GetPauseMenuSelection
 	cmp r0, #6
 	bls .L080D9D7E
 	b .L080DA0E4
@@ -12170,7 +12170,7 @@ sub_080D8178: @ 0x080D8178
 	bl .L080DAAE6
 .L080DA0F4:
 	ldr r0, [r7]
-	bl func_0803C544
+	bl DisablePauseMenuSelection
 	ldr r1, .L080DA114 @ =0x0000055C
 	add r1, sp
 	ldr r1, [r1]
@@ -15141,7 +15141,7 @@ func_080DB96C: @ 0x080DB96C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_08057DD8
+	bl InitializeAnimalFestivalController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -17315,7 +17315,7 @@ func_080DCB40: @ 0x080DCB40
 	thumb_func_start func_080DCB4C
 func_080DCB4C: @ 0x080DCB4C
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17323,7 +17323,7 @@ func_080DCB4C: @ 0x080DCB4C
 	thumb_func_start func_080DCB58
 func_080DCB58: @ 0x080DCB58
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17331,7 +17331,7 @@ func_080DCB58: @ 0x080DCB58
 	thumb_func_start func_080DCB64
 func_080DCB64: @ 0x080DCB64
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17339,7 +17339,7 @@ func_080DCB64: @ 0x080DCB64
 	thumb_func_start func_080DCB70
 func_080DCB70: @ 0x080DCB70
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17989,7 +17989,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD090 @ =vtable_unk_080E76A4
 	b .L080DD2AA
 	.align 2, 0
@@ -18004,7 +18004,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r2, #0x10
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD0B0 @ =vtable_unk_080E768C
 	b .L080DD2AA
 	.align 2, 0
@@ -18020,7 +18020,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD0D8 @ =vtable_unk_080E7674
 	b .L080DD2AA
 	.align 2, 0
@@ -18037,7 +18037,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD100 @ =vtable_unk_080E765C
 	b .L080DD2AA
 	.align 2, 0
@@ -18054,7 +18054,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD15C @ =vtable_unk_080E7644
 	str r0, [r5, #0x4c]
 	ldr r0, [r7, #4]
@@ -18098,7 +18098,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD1D0 @ =vtable_unk_080E762C
 	str r0, [r5, #0x4c]
 	ldr r0, [r7, #4]
@@ -18153,7 +18153,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD1F8 @ =vtable_unk_080E7614
 	b .L080DD2AA
 	.align 2, 0
@@ -18170,7 +18170,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD220 @ =vtable_unk_080E75FC
 	b .L080DD2AA
 	.align 2, 0
@@ -18187,7 +18187,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD248 @ =vtable_unk_080E75E4
 	b .L080DD2AA
 	.align 2, 0
@@ -18204,7 +18204,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD270 @ =vtable_unk_080E75CC
 	b .L080DD2AA
 	.align 2, 0
@@ -18218,7 +18218,7 @@ func_080DCFE0: @ 0x080DCFE0
 	mov r1, r8
 	ldr r2, .L080DD28C @ =0x000008FD
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD290 @ =vtable_unk_080E75B4
 	b .L080DD2AA
 	.align 2, 0
@@ -18232,7 +18232,7 @@ func_080DCFE0: @ 0x080DCFE0
 	mov r1, r8
 	movs r2, #0x15
 	movs r3, #0
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD314 @ =vtable_unk_080E759C
 .L080DD2AA:
 	str r0, [r5, #0x4c]
@@ -26617,7 +26617,7 @@ func_080E14B8: @ 0x080E14B8
 	ldr r0, [r3, #0x14]
 	mov r1, sp
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r5, sp, #8
 	mov r0, sp
 	bl strlen
@@ -32299,14 +32299,14 @@ func_080E3F40: @ 0x080E3F40
 	ldrsb r0, [r3, r0]
 	adds r1, #2
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	b .L080E4040
 .L080E4034:
 	movs r0, #4
 	ldrsb r0, [r3, r0]
 	mov r1, sp
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 .L080E4040:
 	add r5, sp, #0x20
 	mov r0, sp
@@ -32943,7 +32943,7 @@ func_080E44E4: @ 0x080E44E4
 	adds r1, r4, #0
 	movs r2, #5
 	movs r3, #0x1b
-	bl func_080324BC
+	bl InitializeSideActorSpriteLayers
 	add sp, #0x10
 	pop {r4}
 	pop {r1}

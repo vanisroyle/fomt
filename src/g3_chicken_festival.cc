@@ -10,7 +10,7 @@ struct FestivalChicken
     u32 action;
     u32 previousAction;
     u32 facing;
-    u32 unknown_0C;
+    u32 previousFacing;
     u32 movementDecision;
     u32 reaction;
     i32 ringDistance;
@@ -114,6 +114,37 @@ EC SECTION(".text.g3_080B3948") void AdvanceFeedingEffectTimers(FeedingEffectTim
             break;
         }
     }
+}
+
+struct FestivalInstructionChickens
+{
+    u8 unknown_000[0x6c];
+    FestivalChicken chickens[2];
+    u8 unknown_0EC[0xa72];
+    u8 speed;
+};
+
+EC void CreateFestivalChickenSprites(void *, u8);
+
+EC SECTION(".text.g3_080B5788") void ResetFestivalInstructionChickens(FestivalInstructionChickens * state)
+{
+    for (i32 i = 0; i < 2; ++i)
+    {
+        state->chickens[i].x = 0x7800;
+        state->chickens[i].y = (i * 24 + 58) << 8;
+        state->chickens[i].speed = state->speed;
+        state->chickens[i].unknown_31[0] = 1;
+        state->chickens[i].unknown_27[2] = 1;
+        state->chickens[i].action = 2;
+        state->chickens[i].previousAction = 2;
+        state->chickens[i].unknown_31[14] = 0;
+    }
+    state->chickens[0].facing = 3;
+    state->chickens[0].previousFacing = 3;
+    state->chickens[1].facing = 1;
+    state->chickens[1].previousFacing = 1;
+    CreateFestivalChickenSprites(state, 0);
+    CreateFestivalChickenSprites(state, 1);
 }
 
 EC SECTION(".text.g3_080B3BA8") void ToggleFeedingPause(u8 * state)
@@ -1256,4 +1287,30 @@ EC SECTION(".text.g3_080BA2C4") i32 RunFestivalInstructionDialogue(FestivalInstr
     }
     UpdateFestivalCheerDemonstration((FestivalCheerDemonstration *) state);
     return timer;
+}
+
+
+struct FestivalCrowdAnimation
+{
+    u8 unknown_000[0xb18];
+    u32 round;
+};
+
+EC SECTION(".text.g3_080BB890") u16 GetFestivalCrowdAnimation(FestivalCrowdAnimation * state, i32 group, i32 participant, i32 pose)
+{
+    u16 animation = 0;
+    switch (group)
+    {
+    case 0:
+        animation = gUnk_08107D3C[participant];
+        break;
+    case 1:
+        if (participant != 0) participant += state->round;
+        animation = gUnk_08107D46[participant][pose];
+        break;
+    case 2:
+        animation = gUnk_08107D66[pose];
+        break;
+    }
+    return animation;
 }

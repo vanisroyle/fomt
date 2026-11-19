@@ -89,170 +89,6 @@ func_0803242C: @ 0x0803242C
 
     .section .text.npc_side.080324BC, "ax", %progbits
 
-    thumb_func_start func_080324BC
-func_080324BC: @ 0x080324BC
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0xc
-    adds r7, r0, #0
-    adds r4, r1, #0
-    adds r5, r2, #0
-    mov sb, r3
-    add r0, sp, #0x34
-    ldrb r0, [r0]
-    mov r8, r0
-    str r4, [r7]
-    ldr r0, .L0803255C @ =vtable_unk_080E68B4
-    str r0, [r7, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x68]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldrh r2, [r4, #0x22]
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    adds r2, r2, r0
-    ldr r3, [r4]
-    adds r0, r7, #0
-    adds r0, #8
-    str r5, [sp]
-    mov r5, sb
-    str r5, [sp, #4]
-    add r5, sp, #8
-    mov r6, r8
-    strb r6, [r5]
-    bl func_080A4A00
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x6c]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldr r3, [r4]
-    adds r0, r7, #0
-    adds r0, #0x48
-    movs r2, #2
-    str r2, [sp]
-    movs r2, #0xe
-    str r2, [sp, #4]
-    movs r2, #0
-    strb r2, [r5]
-    movs r2, #0
-    bl func_080A4A00
-    adds r0, r7, #0
-    adds r0, #0x88
-    movs r1, #0
-    add r2, sp, #0x28
-    ldrb r2, [r2]
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-    adds r0, #1
-    ldr r3, [sp, #0x2c]
-    lsls r6, r3, #2
-    strb r6, [r0]
-    adds r0, #1
-    add r5, sp, #0x30
-    ldrb r5, [r5]
-    strb r5, [r0]
-    adds r0, r7, #0
-    add sp, #0xc
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0803255C: .4byte vtable_unk_080E68B4
-
-    thumb_func_start func_08032560
-func_08032560: @ 0x08032560
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0x14
-    adds r7, r0, #0
-    adds r5, r1, #0
-    adds r4, r2, #0
-    mov sb, r3
-    ldr r6, [sp, #0x30]
-    add r0, sp, #0x40
-    ldrb r0, [r0]
-    mov r8, r0
-    str r5, [r7]
-    ldr r0, .L08032608 @ =vtable_unk_080E68B4
-    str r0, [r7, #4]
-    ldr r0, [r5]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x68]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldrh r2, [r5, #0x22]
-    adds r0, r5, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    adds r2, r2, r0
-    ldr r3, [r5]
-    adds r0, r7, #0
-    adds r0, #8
-    str r4, [sp]
-    mov r4, sb
-    str r4, [sp, #4]
-    str r6, [sp, #8]
-    add r4, sp, #0xc
-    mov r6, r8
-    strb r6, [r4]
-    bl func_080A49A0
-    ldr r0, [r5]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x6c]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldr r3, [r5]
-    adds r0, r7, #0
-    adds r0, #0x48
-    movs r2, #2
-    str r2, [sp]
-    movs r2, #0xe
-    str r2, [sp, #4]
-    add r4, sp, #8
-    movs r2, #0
-    strb r2, [r4]
-    movs r2, #0
-    bl func_080A4A00
-    adds r0, r7, #0
-    adds r0, #0x88
-    movs r1, #0
-    add r2, sp, #0x34
-    ldrb r2, [r2]
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-    adds r0, #1
-    ldr r3, [sp, #0x38]
-    lsls r3, r3, #2
-    str r3, [sp, #0x10]
-    strb r3, [r0]
-    adds r0, #1
-    add r6, sp, #0x3c
-    ldrb r6, [r6]
-    strb r6, [r0]
-    adds r0, r7, #0
-    add sp, #0x14
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08032608: .4byte vtable_unk_080E68B4
-
     .section .text.npc_side.0803260C, "ax", %progbits
 
     thumb_func_start func_0803260C
@@ -658,49 +494,6 @@ func_08032690: @ 0x08032690
 
     .section .text.npc_side.0803295C, "ax", %progbits
 
-    thumb_func_start func_0803295C
-func_0803295C: @ 0x0803295C
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L080329AC @ =vtable_unk_080E6828
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x30]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C12AActorEntity
-    mov r0, sp
-    ldm r0!, {r1, r2}
-    stm r4!, {r1, r2}
-    ldrh r1, [r5, #0x22]
-    ldr r0, [r5, #0x30]
-    strh r1, [r0, #8]
-    ldr r0, .L080329B0 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L08032994
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08032994:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L080329A2
-    adds r0, r5, #0
-    bl __builtin_delete
-.L080329A2:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080329AC: .4byte vtable_unk_080E6828
-.L080329B0: .4byte __vt_7AEntity
     .section .text.npc_side.080329DC, "ax", %progbits
 
     thumb_func_start func_080329DC
@@ -2476,14 +2269,6 @@ func_08033928: @ 0x08033928
     pop {r4, r5, r6, r7}
     pop {r1}
     bx r1
-    thumb_func_start func_08033A2C
-func_08033A2C: @ 0x08033A2C
-    .byte 0x70, 0xb5, 0x82, 0xb0, 0x05, 0x1c, 0x0e, 0x1c, 0x10, 0x48, 0x68, 0x61, 0x6c, 0x6b, 0x68, 0x46
-    .byte 0x29, 0x1c, 0xfe, 0xf7, 0x97, 0xfb, 0x20, 0x1c, 0x69, 0x46, 0x6a, 0xf0, 0x8f, 0xfc, 0x0c, 0x48
-    .byte 0x68, 0x61, 0x29, 0x69, 0x00, 0x29, 0x05, 0xd0, 0x48, 0x68, 0x82, 0x68, 0x08, 0x1c, 0x03, 0x21
-    .byte 0x9f, 0xf0, 0x5a, 0xff, 0x01, 0x20, 0x30, 0x40, 0x00, 0x28, 0x02, 0xd0, 0x28, 0x1c, 0xcc, 0xf7
-    .byte 0xcd, 0xfd, 0x02, 0xb0, 0x70, 0xbc, 0x01, 0xbc, 0x00, 0x47, 0x00, 0x00, 0xc8, 0x68, 0x0e, 0x08
-    .byte 0x50, 0x62, 0x0e, 0x08
     .section .text.npc_side.08033B10, "ax", %progbits
 
     .section .text.npc_side.08033B24, "ax", %progbits
@@ -3738,7 +3523,7 @@ func_08034A14: @ 0x08034A14
     strb r6, [r0]
     mov r0, r8
     movs r2, #3
-    bl func_080324BC
+    bl InitializeSideActorSpriteLayers
     ldr r0, .L08034A98 @ =vtable_unk_080E6904
     mov r1, r8
     str r0, [r1, #4]
