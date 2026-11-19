@@ -56,6 +56,30 @@ struct MapScene
 
 EC void func_080AB68C(MapTileEffectQueue *, int, int, u32);
 EC i32 func_080AC96C(GameStateSpriteCache &, u32);
+
+struct MapSceneTerrainSource
+{
+    u32 mapId;
+    u32 graphicsId;
+    STRUCT_PAD(0x08, 0x2C);
+    TerrainInfo const * terrain;
+};
+
+struct MapSceneTerrainGrid
+{
+    TerrainInfo const * terrain;
+    u8 const * indices;
+    u16 width;
+    u16 height;
+};
+
+struct MapSceneOwner
+{
+    MapScene * scene;
+};
+
+EC void * func_080CFB28(u8 *);
+EC MapScene * func_080AC9EC(void *, void **);
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapData const * GetMapData(u32 graphicsId);
 EC void func_080CFFC0(MapUpdateState & map, int column, int row, u32 const & value);
@@ -72,6 +96,91 @@ EC void ApplyMapRow15PatchB(G1MapState * map);
 EC void ApplyMapRow15PatchA(G1MapState * map);
 EC void StartMapTransitionDelay(u8 * self);
 EC bool IsMapTransitionIdle(u8 * self);
+
+EC SECTION(".text.080AD69C") MapSceneTerrainGrid & GetMapSceneTerrainGrid(MapSceneTerrainGrid & result, MapScene const & scene, u32 requestedMap)
+{
+    register MapSceneTerrainGrid * output asm("r5") = &result;
+    register MapScene const * state asm("sb") = &scene;
+    register u32 mapId asm("r4") = requestedMap;
+    asm ("" : "+l" (output), "+h" (state), "+l" (mapId));
+    if (mapId > 563)
+    {
+        output->terrain = 0;
+        output->indices = 0;
+        output->width = 0;
+        output->height = 0;
+    }
+    else
+    {
+        register MapScene const * source asm("r1") = state;
+        asm ("" : "+l" (source));
+        register MapSceneTerrainSource const * current asm("r0") = reinterpret_cast<MapSceneTerrainSource const *>(source->map);
+        asm ("" : "+l" (current));
+        u32 currentMap = current->mapId;
+        asm ("" : "+l" (currentMap));
+        u32 graphicsId = currentMap == mapId ? current->graphicsId : func_0803A8A4(mapId, 1, 0, 0, 0);
+        register MapData const * data asm("r0") = GetMapData(graphicsId);
+        asm ("" : "+l" (data));
+        register unsigned width asm("r6") = data->width;
+        asm ("" : "+l" (width));
+        register unsigned heightValue asm("r1") = data->height;
+        asm ("" : "+l" (heightValue));
+        register unsigned height asm("r8") = heightValue;
+        asm ("" : "+h" (height));
+        if (currentMap == mapId)
+        {
+            MapSceneTerrainSource const * active = reinterpret_cast<MapSceneTerrainSource const *>(state->map);
+            GetMapData(active->graphicsId);
+            register unsigned noIndices asm("r1") = 0;
+            asm ("" : "+l" (noIndices));
+            output->terrain = active->terrain;
+            output->indices = reinterpret_cast<u8 const *>(noIndices);
+            output->width = width;
+            register unsigned liveHeight asm("r1") = height;
+            asm ("" : "+l" (liveHeight));
+            output->height = liveHeight;
+        }
+        else
+        {
+            register u8 const * indices asm("r1") = data->terrain_map;
+            asm ("" : "+l" (indices));
+            output->terrain = data->terrain_info;
+            output->indices = indices;
+            output->width = width;
+            output->height = height;
+        }
+    }
+    return *output;
+}
+
+EC SECTION(".text.080AD724") MapSceneOwner * InitializeMapSceneOwner(MapSceneOwner * owner)
+{
+    struct SceneTemporary
+    {
+        MapScene * volatile owned;
+        void * resource;
+        MapScene * volatile * volatile source;
+        MapScene * volatile transferred;
+    } temporary;
+    temporary.resource = func_080CFB28(static_cast<u8 *>(operator new(0x1E4)));
+    MapScene * scene = func_080AC9EC(operator new(0x1038), &temporary.resource);
+    temporary.owned = scene;
+    register MapScene * volatile * source asm("r1") = &temporary.owned;
+    asm ("" : "+l" (source));
+    temporary.source = source;
+    temporary.transferred = scene;
+    register MapScene * volatile * released asm("r2") = source;
+    asm ("" : "+l" (released));
+    *released = 0;
+    owner->scene = scene;
+    MapScene * pending = temporary.owned;
+    if (pending)
+    {
+        typedef void (* DestroyScene)(MapScene *, unsigned);
+        reinterpret_cast<DestroyScene const * const *>(pending)[0][2](pending, 3);
+    }
+    return owner;
+}
 
 EC SECTION(".text.080AD8C4") void QueueMapSceneTileEffect(MapScene & scene, int tileX, int tileY, u32 effectId)
 {

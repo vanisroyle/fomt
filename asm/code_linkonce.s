@@ -24496,7 +24496,7 @@ func_080E0094: @ 0x080E0094
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	ldr r0, [sp, #0x94]
-	bl func_080AD724
+	bl InitializeMapSceneOwner
 	ldr r0, [sp, #0x10]
 	ldr r1, [sp, #0x94]
 	str r1, [sp, #0x68]
