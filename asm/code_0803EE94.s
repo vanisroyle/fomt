@@ -46494,7 +46494,7 @@ func_080588AC: @ 0x080588AC
 	cmp r4, #3
 	ble .L08058906
 	adds r0, r6, #0
-	bl func_0805C80C
+	bl InitHorseRaceEntrants
 	ldr r1, [r6, #8]
 	ldr r3, .L080589B0 @ =0x00002C4A
 	adds r1, r1, r3
@@ -53833,175 +53833,7 @@ func_0805C63C: @ 0x0805C63C
 .L0805C804: .4byte 0xFFFFFCFF
 .L0805C808: .4byte 0xFFFFEFFF
 
-	thumb_func_start func_0805C80C
-func_0805C80C: @ 0x0805C80C
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	mov r8, r0
-	ldr r6, .L0805C90C @ =0x0000142C
-	add r6, r8
-	ldr r0, .L0805C910 @ =0x0000140E
-	add r0, r8
-	ldrb r0, [r0]
-	cmp r0, #1
-	bne .L0805C872
-	ldr r1, .L0805C914 @ =0x000014A4
-	add r1, r8
-	movs r0, #0x80
-	strh r0, [r1]
-	ldr r4, .L0805C918 @ =0x000014DC
-	add r4, r8
-	ldr r0, [r4]
-	bl GetAdequacy__C3Pet
-	ldr r5, .L0805C91C @ =0x000014A1
-	add r5, r8
-	strb r0, [r5]
-	ldr r0, [r4]
-	bl GetAffection__C6Animal
-	ldr r1, .L0805C920 @ =0x000014A2
-	add r1, r8
-	strb r0, [r1]
-	ldrb r1, [r5]
-	movs r0, #0xfa
-	subs r0, r0, r1
-	adds r1, r0, #0
-	muls r1, r0, r1
-	adds r0, r1, #0
-	movs r1, #0xfa
-	lsls r1, r1, #2
-	bl __divsi3
-	adds r4, r0, #0
-	bl rand
-	movs r1, #3
-	ands r0, r1
-	adds r0, #1
-	adds r4, r4, r0
-	ldr r0, .L0805C924 @ =0x000014AC
-	add r0, r8
-	strh r4, [r0]
-.L0805C872:
-	movs r5, #0
-	ldr r0, .L0805C928 @ =0x00000C49
-	mov sl, r0
-	mov sb, r5
-.L0805C87A:
-	ldrb r0, [r6, #0x1d]
-	mov r1, sl
-	muls r1, r0, r1
-	adds r0, r1, #0
-	movs r1, #0xb0
-	lsls r1, r1, #0xf
-	adds r0, r0, r1
-	movs r1, #0x3c
-	bl __divsi3
-	adds r4, r0, #0
-	str r4, [r6]
-	ldrb r0, [r6, #0x1e]
-	mov r1, sl
-	muls r1, r0, r1
-	adds r0, r1, #0
-	movs r1, #0xc0
-	lsls r1, r1, #0xc
-	adds r0, r0, r1
-	movs r1, #0x3c
-	bl __divsi3
-	adds r0, r0, r4
-	str r0, [r6, #4]
-	subs r0, r0, r4
-	movs r1, #0x3c
-	bl __divsi3
-	str r0, [r6, #8]
-	mov r0, sb
-	str r0, [r6, #0xc]
-	movs r0, #0xc
-	strh r0, [r6, #0x18]
-	movs r0, #0xff
-	strh r0, [r6, #0x1a]
-	mov r1, sb
-	strb r1, [r6, #0x1c]
-	str r4, [r6, #0x10]
-	movs r0, #0xd7
-	lsls r0, r0, #0x13
-	str r0, [r6, #0x14]
-	movs r0, #0xff
-	strb r0, [r6, #0x1f]
-	mov r0, sb
-	strh r0, [r6, #0x22]
-	strh r0, [r6, #0x2a]
-	ldr r0, .L0805C92C @ =0x00001424
-	add r0, r8
-	movs r1, #0
-	ldrsh r0, [r0, r1]
-	adds r4, r5, #1
-	adds r7, r6, #0
-	adds r7, #0x2c
-	cmp r0, #0
-	bne .L0805C952
-	ldr r0, .L0805C910 @ =0x0000140E
-	add r0, r8
-	ldrb r0, [r0]
-	cmp r0, #1
-	bne .L0805C930
-	cmp r5, #2
-	bne .L0805C930
-	adds r1, r6, #0
-	adds r1, #0x24
-	movs r2, #0
-	adds r0, r6, #0
-	adds r0, #0x27
-.L0805C900:
-	strb r2, [r0]
-	subs r0, #1
-	cmp r0, r1
-	bge .L0805C900
-	b .L0805C952
-	.align 2, 0
-.L0805C90C: .4byte 0x0000142C
-.L0805C910: .4byte 0x0000140E
-.L0805C914: .4byte 0x000014A4
-.L0805C918: .4byte 0x000014DC
-.L0805C91C: .4byte 0x000014A1
-.L0805C920: .4byte 0x000014A2
-.L0805C924: .4byte 0x000014AC
-.L0805C928: .4byte 0x00000C49
-.L0805C92C: .4byte 0x00001424
-.L0805C930:
-	movs r2, #0
-	adds r4, r5, #1
-	adds r7, r6, #0
-	adds r7, #0x2c
-	adds r3, r6, #0
-	adds r3, #0x24
-	ldr r5, .L0805C968 @ =gUnk_080FA99E
-.L0805C93E:
-	adds r0, r3, r2
-	ldrh r1, [r6, #0x20]
-	lsls r1, r1, #2
-	adds r1, r2, r1
-	adds r1, r1, r5
-	ldrb r1, [r1]
-	strb r1, [r0]
-	adds r2, #1
-	cmp r2, #3
-	ble .L0805C93E
-.L0805C952:
-	adds r5, r4, #0
-	adds r6, r7, #0
-	cmp r5, #3
-	ble .L0805C87A
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805C968: .4byte gUnk_080FA99E
-
+	.section .text.f3.0805C96C, "ax", %progbits
 	thumb_func_start func_0805C96C
 func_0805C96C: @ 0x0805C96C
 	push {r4, r5, r6, r7, lr}
@@ -57330,8 +57162,10 @@ GetSpriteAnimationDataFrame: @ 0x0805E790
 	bx r1
 	.align 2, 0
 	.section .text.f3.0805E99C, "ax", %progbits
-	thumb_func_start func_0805E99C
-func_0805E99C: @ 0x0805E99C
+	thumb_func_start DrawSpriteFrameObjects
+	.global func_0805E99C
+	.thumb_set func_0805E99C, DrawSpriteFrameObjects
+DrawSpriteFrameObjects: @ 0x0805E99C
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -57500,7 +57334,7 @@ func_0805E99C: @ 0x0805E99C
 	add r1, sp, #0x10
 	adds r2, r6, #0
 	mov r3, sb
-	bl func_0805EC24
+	bl AdjustAffineSpriteOrigin
 	mov r3, r8
 	cmp r3, #3
 	bne .L0805EB04
@@ -57653,167 +57487,7 @@ func_0805E99C: @ 0x0805E99C
 .L0805EC1C: .4byte 0xFFFFFC00
 .L0805EC20: .4byte 0xFFFF0FFF
 
-	thumb_func_start func_0805EC24
-func_0805EC24: @ 0x0805EC24
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	mov sb, r0
-	mov sl, r1
-	ldr r4, [sp, #0x20]
-	lsrs r2, r2, #1
-	ldr r0, [r0]
-	adds r0, r0, r2
-	lsls r7, r0, #8
-	lsrs r3, r3, #1
-	ldr r0, [r1]
-	adds r0, r0, r3
-	lsls r0, r0, #8
-	mov r8, r0
-	movs r0, #0
-	ldrsh r1, [r4, r0]
-	lsls r0, r1, #4
-	adds r0, r0, r1
-	lsls r0, r0, #4
-	cmp r0, #0
-	bge .L0805EC56
-	adds r0, #0xff
-.L0805EC56:
-	lsls r0, r0, #8
-	lsrs r5, r0, #0x10
-	movs r2, #2
-	ldrsh r1, [r4, r2]
-	lsls r0, r1, #4
-	adds r0, r0, r1
-	lsls r0, r0, #4
-	cmp r0, #0
-	bge .L0805EC6A
-	adds r0, #0xff
-.L0805EC6A:
-	lsls r0, r0, #8
-	lsrs r2, r0, #0x10
-	movs r3, #4
-	ldrsh r1, [r4, r3]
-	lsls r0, r1, #4
-	adds r0, r0, r1
-	lsls r0, r0, #4
-	cmp r0, #0
-	bge .L0805EC7E
-	adds r0, #0xff
-.L0805EC7E:
-	lsls r0, r0, #8
-	lsrs r3, r0, #0x10
-	movs r0, #6
-	ldrsh r1, [r4, r0]
-	lsls r0, r1, #4
-	adds r0, r0, r1
-	lsls r0, r0, #4
-	cmp r0, #0
-	bge .L0805EC92
-	adds r0, #0xff
-.L0805EC92:
-	lsls r1, r0, #8
-	lsls r0, r5, #0x10
-	asrs r6, r0, #0x10
-	asrs r4, r1, #0x10
-	adds r1, r6, #0
-	muls r1, r4, r1
-	lsls r0, r2, #0x10
-	asrs r2, r0, #0x10
-	lsls r0, r3, #0x10
-	asrs r3, r0, #0x10
-	adds r0, r2, #0
-	muls r0, r3, r0
-	subs r1, r1, r0
-	cmp r1, #0
-	bge .L0805ECB2
-	adds r1, #0xff
-.L0805ECB2:
-	asrs r5, r1, #8
-	cmp r5, #0
-	beq .L0805ED3E
-	adds r1, r4, #0
-	muls r1, r7, r1
-	mov r0, r8
-	muls r0, r2, r0
-	subs r2, r1, r0
-	mov r1, r8
-	muls r1, r6, r1
-	adds r0, r3, #0
-	muls r0, r7, r0
-	subs r4, r1, r0
-	movs r0, #0x80
-	lsls r0, r0, #1
-	cmp r5, r0
-	bne .L0805ECEA
-	adds r0, r2, #0
-	cmp r2, #0
-	bge .L0805ECDC
-	adds r0, #0xff
-.L0805ECDC:
-	asrs r6, r0, #8
-	adds r0, r4, #0
-	cmp r4, #0
-	bge .L0805ECE6
-	adds r0, #0xff
-.L0805ECE6:
-	asrs r2, r0, #8
-	b .L0805ED24
-.L0805ECEA:
-	ldr r0, .L0805ED0C @ =0xFFFFFF00
-	cmp r5, r0
-	bne .L0805ED10
-	adds r0, r2, #0
-	cmp r2, #0
-	bge .L0805ECF8
-	adds r0, #0xff
-.L0805ECF8:
-	asrs r6, r0, #8
-	rsbs r6, r6, #0
-	adds r0, r4, #0
-	cmp r4, #0
-	bge .L0805ED04
-	adds r0, #0xff
-.L0805ED04:
-	asrs r2, r0, #8
-	rsbs r2, r2, #0
-	b .L0805ED24
-	.align 2, 0
-.L0805ED0C: .4byte 0xFFFFFF00
-.L0805ED10:
-	adds r0, r2, #0
-	adds r1, r5, #0
-	bl __divsi3
-	adds r6, r0, #0
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl __divsi3
-	adds r2, r0, #0
-.L0805ED24:
-	subs r1, r6, r7
-	asrs r1, r1, #8
-	mov r3, sb
-	ldr r0, [r3]
-	adds r0, r0, r1
-	str r0, [r3]
-	mov r0, r8
-	subs r1, r2, r0
-	asrs r1, r1, #8
-	mov r2, sl
-	ldr r0, [r2]
-	adds r0, r0, r1
-	str r0, [r2]
-.L0805ED3E:
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.f3.0805ED4C, "ax", %progbits
 	thumb_func_start InitChildhoodMemoryScreen
 InitChildhoodMemoryScreen: @ 0x0805ED4C
 	push {r4, r5, r6, lr}
@@ -117836,7 +117510,7 @@ sub_0807C194: @ 0x0807C194
 	ldr r1, [r5, #8]
 	ldr r2, [sp, #0x94]
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 	ldr r0, [r7, #8]
 	movs r5, #0x82
 	lsls r5, r5, #3
@@ -118291,7 +117965,7 @@ sub_0807C194: @ 0x0807C194
 	ldr r1, [sp, #0x18]
 	ldr r2, [sp, #0x94]
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 .L0807C710:
 	ldr r2, .L0807C738 @ =0x000006A4
 	adds r1, r7, r2
@@ -118816,7 +118490,7 @@ sub_0807C194: @ 0x0807C194
 	adds r0, r7, r4
 	ldr r5, [r0, #0x14]
 	mov r8, r5
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	add r3, sp, #0x10
 	movs r6, #0xa9
 	lsls r6, r6, #2
@@ -119013,7 +118687,7 @@ sub_0807C194: @ 0x0807C194
 	beq .L0807CD38
 	ldr r5, .L0807CD30 @ =0x00000684
 	adds r0, r7, r5
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r6, .L0807CD34 @ =0x000006A4
 	adds r0, r7, r6
 	str r4, [r0]
@@ -120352,7 +120026,7 @@ func_0807D218: @ 0x0807D218
 	ldr r1, [sp, #0xe0]
 	adds r2, r5, #0
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r1, r7, r2
@@ -120640,7 +120314,7 @@ func_0807D218: @ 0x0807D218
 	ldr r1, [r0, #0x14]
 	mov r8, r1
 	movs r6, #1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r1, [r7, #0x10]
 	adds r0, r7, #0
 	bl func_0807D1DC
@@ -120816,7 +120490,7 @@ func_0807D218: @ 0x0807D218
 	beq .L0807DCB4
 	ldr r3, .L0807DCB0 @ =0x00000684
 	adds r0, r7, r3
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	movs r1, #0xe1
 	lsls r1, r1, #3
 	adds r0, r7, r1
@@ -121245,7 +120919,7 @@ func_0807DE3C: @ 0x0807DE3C
 	adds r0, r7, r1
 	mov r1, sb
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 	movs r2, #0
 	mov sb, r2
 	mov r8, r2
@@ -122380,7 +122054,7 @@ func_0807E558: @ 0x0807E558
 	ldr r1, [sp, #0xd8]
 	mov r2, sl
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 	movs r4, #0xe1
 	lsls r4, r4, #3
 	adds r1, r7, r4
@@ -122661,7 +122335,7 @@ func_0807E558: @ 0x0807E558
 	adds r0, r7, r3
 	ldr r6, [r0, #0x14]
 	movs r5, #1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r1, [r7, #0x10]
 	adds r0, r7, #0
 	bl func_0807E51C
@@ -122798,7 +122472,7 @@ func_0807E558: @ 0x0807E558
 	beq .L0807ED84
 	ldr r3, .L0807ED80 @ =0x00000684
 	adds r0, r7, r3
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r1, [r7, #0x10]
 	adds r0, r7, #0
 	bl func_0807E51C
@@ -124920,7 +124594,7 @@ func_0807F8C8: @ 0x0807F8C8
 	ldr r1, [sp, #0x40]
 	adds r2, r4, #0
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 	movs r4, #0xe1
 	lsls r4, r4, #3
 	adds r1, r6, r4
@@ -125399,7 +125073,7 @@ func_0807F8C8: @ 0x0807F8C8
 	ldr r7, [r0, #0x14]
 	movs r4, #1
 	mov r8, r4
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r1, [r6, #0x10]
 	adds r0, r6, #0
 	bl func_0807F684
@@ -125566,7 +125240,7 @@ func_0807F8C8: @ 0x0807F8C8
 	beq .L080803D4
 	ldr r1, .L080803D0 @ =0x00000684
 	adds r0, r6, r1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r0, r6, r2
@@ -126421,7 +126095,7 @@ func_08080540: @ 0x08080540
 	ldr r1, [sp, #0xd8]
 	ldr r2, [sp, #0xdc]
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 	ldr r4, .L08080AE8 @ =0x000006A4
 	adds r1, r7, r4
 	movs r0, #3
@@ -126532,7 +126206,7 @@ func_08080540: @ 0x08080540
 	ldr r1, .L08080C68 @ =0x00000684
 	adds r0, r7, r1
 	ldr r6, [r0, #0x14]
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r0, [r7, #0x10]
 	lsls r0, r0, #2
 	adds r0, r0, r7
@@ -126653,7 +126327,7 @@ func_08080540: @ 0x08080540
 	beq .L08080CDC
 	ldr r1, .L08080CD4 @ =0x00000684
 	adds r0, r7, r1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r2, .L08080CD8 @ =0x000006A4
 	adds r0, r7, r2
 	str r4, [r0]
@@ -127804,7 +127478,7 @@ func_0808114C: @ 0x0808114C
 	ldr r1, [sp, #0x1c]
 	ldr r2, [sp, #0x28]
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 	ldr r2, .L08081624 @ =0x000006A4
 	adds r1, r6, r2
 	movs r0, #4
@@ -128121,7 +127795,7 @@ func_0808114C: @ 0x0808114C
 	ldr r1, .L08081950 @ =0x00000684
 	adds r0, r6, r1
 	ldr r7, [r0, #0x14]
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r0, [r6, #0x10]
 	lsls r0, r0, #2
 	adds r0, r0, r6
@@ -128226,7 +127900,7 @@ func_0808114C: @ 0x0808114C
 	beq .L080819C4
 	ldr r1, .L080819BC @ =0x00000684
 	adds r0, r6, r1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r2, .L080819C0 @ =0x000006A4
 	adds r0, r6, r2
 	str r4, [r0]
@@ -133958,7 +133632,7 @@ func_08084228: @ 0x08084228
 	adds r0, r6, r4
 	ldr r7, [r0, #0x14]
 	movs r5, #1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	add r0, sp, #0x14
 	mov r8, r0
 	movs r1, #0xa9
@@ -134126,7 +133800,7 @@ func_08084228: @ 0x08084228
 	beq .L080850D0
 	ldr r1, .L080850CC @ =0x00000684
 	adds r0, r6, r1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r0, r6, r2
@@ -138474,7 +138148,7 @@ sub_08086DFA: @ 0x08086DFA
 	ldr r1, [sp, #0x18]
 	ldr r2, [sp, #0xa4]
 	movs r3, #5
-	bl func_080CA8B4
+	bl InventoryMenu_OpenQuantitySelector
 	ldr r2, .L08087370 @ =0x000006A4
 	adds r1, r7, r2
 	movs r0, #2
@@ -139163,7 +138837,7 @@ sub_08087710: @ 0x08087710
 	adds r0, r7, r4
 	ldr r5, [r0, #0x14]
 	mov r8, r5
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	add r3, sp, #0x10
 	movs r6, #0xa9
 	lsls r6, r6, #2
@@ -139368,7 +139042,7 @@ sub_08087710: @ 0x08087710
 	beq .L08087AE0
 	ldr r5, .L08087AD8 @ =0x00000684
 	adds r0, r7, r5
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r6, .L08087ADC @ =0x000006A4
 	adds r0, r7, r6
 	str r4, [r0]
@@ -140745,7 +140419,7 @@ func_080885AC: @ 0x080885AC
 	str r2, [sp, #4]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 	b .L08088658
 .L08088614:
 	adds r0, r5, #0
@@ -140994,7 +140668,7 @@ func_08088688: @ 0x08088688
 	b .L08088B8C
 .L08088822:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, r8
@@ -141337,7 +141011,7 @@ func_08088688: @ 0x08088688
 	ldr r0, [sp, #0xc]
 	str r0, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -141532,7 +141206,7 @@ func_08088BA0: @ 0x08088BA0
 	ldr r0, [sp, #0x10]
 	str r0, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sl
@@ -141613,7 +141287,7 @@ func_08088BA0: @ 0x08088BA0
 	movs r1, #1
 	bl AddAmount__9FoodStackUi
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sl
@@ -143196,7 +142870,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r0, [r1]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
@@ -143322,7 +142996,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r0, [r1]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L08089EBC
 .L08089C8E:
 	ldr r0, [sp, #0x1c]
@@ -143780,7 +143454,7 @@ func_08089AD8: @ 0x08089AD8
 	ldr r0, [r1]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -144285,7 +143959,7 @@ func_0808A4C0: @ 0x0808A4C0
 	ldr r0, [r0]
 	bl func_0800F390
 	ldr r0, [r5, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L0808A552
 .L0808A4DC:
 	cmp r6, #8
@@ -145500,7 +145174,7 @@ func_0808AC28: @ 0x0808AC28
 	b .L0808AF78
 .L0808AF18:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r2, [r7, #0x78]
 	mov r8, r2
 	adds r0, r7, #0
@@ -145717,7 +145391,7 @@ func_0808AC28: @ 0x0808AC28
 	b .L0808B158
 .L0808B0FE:
 	ldr r0, [r7, #0x7c]
-	bl func_080CD4D4
+	bl InventoryMenu_ClearRightSpecialSlotCount
 	ldr r4, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
@@ -146019,7 +145693,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r1, r5, #0
 	bl DrawInventorySlotCount
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L0808BA4A
 .L0808B39A:
 	mov r1, sl
@@ -146110,7 +145784,7 @@ func_0808B16C: @ 0x0808B16C
 	b .L0808B4C8
 .L0808B466:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r1, [r7, #0x78]
 	mov r8, r1
 	adds r0, r7, #0
@@ -147016,7 +146690,7 @@ func_0808BC14: @ 0x0808BC14
 	ldr r0, [r0]
 	bl func_0800F390
 	ldr r0, [r5, #0x7c]
-	bl func_080CD4D4
+	bl InventoryMenu_ClearRightSpecialSlotCount
 	b .L0808BCC2
 	.align 2, 0
 .L0808BC64: .4byte 0x00001BD8
@@ -147506,7 +147180,7 @@ func_0808BF8C: @ 0x0808BF8C
 	str r2, [sp, #4]
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 .L0808C084:
 	mov r8, r0
 .L0808C086:
@@ -148576,7 +148250,7 @@ func_0808C8F4: @ 0x0808C8F4
 	str r2, [sp, #4]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 	b .L0808C9A0
 .L0808C95C:
 	adds r0, r5, #0
@@ -148825,7 +148499,7 @@ func_0808C9D0: @ 0x0808C9D0
 	b .L0808CEB0
 .L0808CB6A:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
@@ -149143,7 +148817,7 @@ func_0808C9D0: @ 0x0808C9D0
 	movs r2, #2
 	bl memcpy
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -149323,7 +148997,7 @@ func_0808CEC4: @ 0x0808CEC4
 	movs r2, #2
 	bl memcpy
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
@@ -149402,7 +149076,7 @@ func_0808CEC4: @ 0x0808CEC4
 	movs r1, #1
 	bl AddAmount__12ArticleStackUi
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
@@ -150900,7 +150574,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r0, [r2]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
@@ -150988,7 +150662,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r0, [r1]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L0808E0B4
 .L0808DEC6:
 	ldr r2, [sp, #0x18]
@@ -151372,7 +151046,7 @@ func_0808DD54: @ 0x0808DD54
 	ldr r0, [r2]
 	bl func_0800F390
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -151869,7 +151543,7 @@ func_0808E65C: @ 0x0808E65C
 	ldr r0, [r0]
 	bl func_0800F390
 	ldr r0, [r5, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	b .L0808E6F4
 .L0808E678:
 	cmp r6, #8
@@ -153412,7 +153086,7 @@ func_0808F080: @ 0x0808F080
 	b .L0808F6C2
 .L0808F36C:
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r2, [r7, #0x78]
 	mov r8, r2
 	adds r0, r7, #0
@@ -153794,7 +153468,7 @@ func_0808F080: @ 0x0808F080
 	bl GetTool__C9ToolStack
 	adds r5, r0, #0
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -154075,7 +153749,7 @@ func_0808F784: @ 0x0808F784
 	adds r1, r4, #0
 	bl DrawRightInventorySlotCount
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	bl .L080908B0
 .L0808F956:
 	movs r3, #0x82
@@ -154162,7 +153836,7 @@ func_0808F784: @ 0x0808F784
 	movs r2, #2
 	bl memcpy
 	ldr r0, [r7, #0x78]
-	bl func_080CC0B4
+	bl InventoryMenu_ClearLeftSpecialSlotCount
 	ldr r3, [r7, #0x7c]
 	mov r8, r3
 	adds r0, r7, #0
@@ -157042,7 +156716,7 @@ func_08091280: @ 0x08091280
 	str r2, [sp, #4]
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 .L08091378:
 	mov r8, r0
 .L0809137A:
@@ -159744,7 +159418,7 @@ func_08092940: @ 0x08092940
 	str r2, [sp, #4]
 	adds r0, r6, #0
 	adds r1, r5, #0
-	bl func_080CFA38
+	bl InventoryMenu_GetRucksackItemDescription
 .L08092A38:
 	mov r8, r0
 .L08092A3A:
@@ -160943,7 +160617,7 @@ func_08093364: @ 0x08093364
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl SetMessageWindowSpeakerName
-	ldr r1, .L08093588 @ =func_080D0704
+	ldr r1, .L08093588 @ =Joybus_HandleSerialInterrupt
 	movs r0, #7
 	bl Irq_SetHandler
 	movs r0, #0x80
@@ -161071,7 +160745,7 @@ func_08093364: @ 0x08093364
 .L0809357C: .4byte gUnk_080F9F78
 .L08093580: .4byte 0x03FF03FF
 .L08093584: .4byte 0x00001CD4
-.L08093588: .4byte func_080D0704
+.L08093588: .4byte Joybus_HandleSerialInterrupt
 .L0809358C: .4byte vtable_unk_080E5B80
 .L08093590: .4byte 0x00000889
 .L08093594: .4byte .L08093598

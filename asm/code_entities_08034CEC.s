@@ -1554,149 +1554,19 @@ func_08036BF8: @ 0x08036BF8
 
     .section .text.npc_extra.08036CAC, "ax", %progbits
 
-    thumb_func_start func_08036CAC
-func_08036CAC: @ 0x08036CAC
-    push {r4, r5, lr}
-    sub sp, #0x10
-    adds r5, r0, #0
-    movs r4, #0
-    str r4, [sp]
-    ldr r0, .L08036CD4 @ =0x00000679
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    str r4, [sp, #0xc]
-    adds r0, r5, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036CD8 @ =vtable_unk_080E6A18
-    str r0, [r5, #0x14]
-    adds r0, r5, #0
-    add sp, #0x10
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036CD4: .4byte 0x00000679
-.L08036CD8: .4byte vtable_unk_080E6A18
-
     .section .text.npc_extra.08036D0C, "ax", %progbits
-
-    thumb_func_start func_08036D0C
-func_08036D0C: @ 0x08036D0C
-    push {r4, r5, lr}
-    sub sp, #0x10
-    adds r5, r0, #0
-    movs r4, #0
-    str r4, [sp]
-    ldr r0, .L08036D34 @ =0x00000669
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    str r4, [sp, #0xc]
-    adds r0, r5, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036D38 @ =vtable_unk_080E69D8
-    str r0, [r5, #0x14]
-    adds r0, r5, #0
-    add sp, #0x10
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036D34: .4byte 0x00000669
-.L08036D38: .4byte vtable_unk_080E69D8
 
     .section .text.npc_extra.08036D68, "ax", %progbits
 
-    thumb_func_start func_08036D68
-func_08036D68: @ 0x08036D68
-    push {r4, r5, lr}
-    sub sp, #0x10
-    adds r5, r0, #0
-    movs r4, #0
-    str r4, [sp]
-    ldr r0, .L08036D90 @ =0x000007FE
-    str r0, [sp, #4]
-    str r0, [sp, #8]
-    str r4, [sp, #0xc]
-    adds r0, r5, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036D94 @ =vtable_unk_080E6998
-    str r0, [r5, #0x14]
-    adds r0, r5, #0
-    add sp, #0x10
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036D90: .4byte 0x000007FE
-.L08036D94: .4byte vtable_unk_080E6998
-
     .section .text.npc_extra.08036DC4, "ax", %progbits
 
-    thumb_func_start func_08036DC4
-func_08036DC4: @ 0x08036DC4
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L08036DF0 @ =gUnk_080F6B10
-    str r0, [sp]
-    ldr r0, .L08036DF4 @ =0x000008D8
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    ldr r0, .L08036DF8 @ =0x000003FE
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036DFC @ =vtable_unk_080E6958
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036DF0: .4byte gUnk_080F6B10
-.L08036DF4: .4byte 0x000008D8
-.L08036DF8: .4byte 0x000003FE
-.L08036DFC: .4byte vtable_unk_080E6958
+    .section .text.npc_extra.08036E00, "ax", %progbits
 .L08036E00:
     .byte 0x10, 0xB5, 0x84, 0xB0, 0x04, 0x1C, 0x8C, 0x20, 0xC9, 0xF7, 0xE4, 0xFB, 0x01, 0x21, 0x00, 0x91
     .byte 0x00, 0x21, 0x01, 0x91, 0x02, 0x91, 0x03, 0xAA, 0x11, 0x70, 0x21, 0x1C, 0x04, 0x22, 0x1B, 0x23
     .byte 0xFB, 0xF7, 0x4C, 0xFB, 0x04, 0xB0, 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47
 
-    thumb_func_start func_08036E2C
-func_08036E2C: @ 0x08036E2C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L08036E60 @ =gUnk_080F29C0
-    str r0, [sp]
-    ldr r0, .L08036E64 @ =0x00000267
-    str r0, [sp, #4]
-    adds r0, #8
-    str r0, [sp, #8]
-    ldr r0, .L08036E68 @ =0x000003E3
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036E6C @ =vtable_unk_080E6918
-    str r0, [r4, #0x14]
-    adds r1, r4, #0
-    adds r1, #0x48
-    movs r0, #0
-    strh r0, [r1]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036E60: .4byte gUnk_080F29C0
-.L08036E64: .4byte 0x00000267
-.L08036E68: .4byte 0x000003E3
-.L08036E6C: .4byte vtable_unk_080E6918
+    .section .text.npc_extra.08036E70, "ax", %progbits
 
     thumb_func_start func_08036E70
 func_08036E70: @ 0x08036E70
@@ -2477,28 +2347,7 @@ func_08037494: @ 0x08037494
     .align 2, 0
 .L08037538: .4byte gUnk_080F1538
 
-    thumb_func_start func_0803753C
-func_0803753C: @ 0x0803753C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r2, #0
-    str r2, [sp]
-    movs r1, #7
-    str r1, [sp, #4]
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #2
-    movs r3, #9
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08037568, "ax", %progbits
 
     thumb_func_start func_08037568
 func_08037568: @ 0x08037568
@@ -2668,30 +2517,7 @@ func_0803763C: @ 0x0803763C
     .align 2, 0
 .L080376E0: .4byte gUnk_080F156C
 
-    thumb_func_start func_080376E4
-func_080376E4: @ 0x080376E4
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #2
-    str r1, [sp]
-    movs r1, #0xc
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0xc
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_extra.08037714, "ax", %progbits
 
     thumb_func_start func_08037714
 func_08037714: @ 0x08037714
@@ -2860,55 +2686,9 @@ func_080377E8: @ 0x080377E8
     .align 2, 0
 .L08037888: .4byte gUnk_080F15B4
 
-    thumb_func_start func_0803788C
-func_0803788C: @ 0x0803788C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r2, #0
-    str r2, [sp]
-    movs r1, #8
-    str r1, [sp, #4]
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #2
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-
     .section .text.npc_extra.08037958, "ax", %progbits
 
     .section .text.npc_extra.080379D8, "ax", %progbits
-
-    thumb_func_start func_080379D8
-func_080379D8: @ 0x080379D8
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r2, #0
-    str r2, [sp]
-    movs r1, #8
-    str r1, [sp, #4]
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #2
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
 
     .section .text.npc_extra.08037A5C, "ax", %progbits
 
@@ -3100,23 +2880,7 @@ func_08037B80: @ 0x08037B80
     .byte 0xC9, 0xFA, 0x28, 0x1C, 0x03, 0xB0, 0x30, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x1C, 0x07, 0x00, 0x00
     .byte 0xE4, 0x72, 0x0E, 0x08
 
-    thumb_func_start func_08037CC4
-func_08037CC4: @ 0x08037CC4
-    push {r4, lr}
-    adds r4, r0, #0
-    bl __7AEntityP10GameObjectRC8Location
-    ldr r0, .L08037CD8 @ =vtable_unk_080E7444
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037CD8: .4byte vtable_unk_080E7444
-.L08037CDC:
-    .byte 0x0A, 0x23, 0xCA, 0x5E
-    .byte 0x0E, 0x23, 0xC9, 0x5E, 0x02, 0x80, 0x01, 0x31, 0x41, 0x80, 0x82, 0x80, 0xC1, 0x80, 0x70, 0x47
-
+    .section .text.npc_extra.08037CDC, "ax", %progbits
     .section .text.npc_extra.08037D08, "ax", %progbits
 
     thumb_func_start func_08037D08
@@ -4247,19 +4011,6 @@ func_08038740: @ 0x08038740
 .L08038798: .4byte 0xFFFFFC00
 .L0803879C: .4byte vtable_unk_080E7380
 
-    thumb_func_start func_080387A0
-func_080387A0: @ 0x080387A0
-    push {r4, lr}
-    adds r4, r0, #0
-    movs r0, #0x18
-    bl __builtin_new
-    adds r1, r4, #0
-    bl func_08038820
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
     .section .text.npc_extra.0803880C, "ax", %progbits
 
     .section .text.npc_extra.08038820, "ax", %progbits
@@ -5376,6 +5127,8 @@ func_08038EE0: @ 0x08038EE0
     .align 2, 0
 .L080390CC: .4byte vtable_unk_080E681C
 
+    .section .text.npc_extra.080390D0, "ax", %progbits
+
     thumb_func_start func_080390D0
 func_080390D0: @ 0x080390D0
     ldr r1, [r0, #0x10]
@@ -5385,15 +5138,8 @@ func_080390D0: @ 0x080390D0
     bx lr
     .align 2, 0
 
-
-.L080390DC:
-    .byte 0x10, 0xB5, 0x04, 0x1C
-    .byte 0x30, 0x30, 0x25, 0xF0, 0xBD, 0xFB, 0x20, 0x1C, 0x44, 0x30, 0x00, 0x22, 0x01, 0x21, 0x01, 0x70
-    .byte 0x02, 0x30, 0x02, 0x70, 0x01, 0x30, 0x01, 0x70, 0x10, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
-    .byte 0x26, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0xCB, 0x1F, 0x03, 0x80, 0x13, 0x1F, 0x43, 0x80
-    .byte 0x07, 0x31, 0x81, 0x80, 0x05, 0x32, 0xC2, 0x80, 0x70, 0x47, 0x00, 0x00, 0x00, 0xB5, 0x80, 0x69
-    .byte 0xD6, 0xF7, 0x56, 0xFF, 0x00, 0x21, 0x1E, 0x28, 0x00, 0xD1, 0x01, 0x21, 0x08, 0x1C, 0x02, 0xBC
-    .byte 0x08, 0x47, 0x00, 0x00
+    .section .text.npc_extra.080390DC, "ax", %progbits
+    .section .text.npc_extra.08039134, "ax", %progbits
 
     thumb_func_start func_08039134
 func_08039134: @ 0x08039134
@@ -5469,50 +5215,7 @@ func_08039134: @ 0x08039134
     bx r1
     .align 2, 0
 
-    thumb_func_start func_080391C0
-func_080391C0: @ 0x080391C0
-    push {lr}
-    adds r2, r0, #0
-    cmp r1, #0x38
-    bgt .L080391D4
-    ldr r0, .L080391EC @ =0x00000143
-    cmp r2, r0
-    ble .L080391D4
-    adds r0, #0x21
-    cmp r2, r0
-    ble .L080391E6
-.L080391D4:
-    ldr r0, .L080391F0 @ =0x0000027F
-    cmp r1, r0
-    ble .L080391F4
-    cmp r2, #0xf7
-    ble .L080391F4
-    movs r0, #0x8c
-    lsls r0, r0, #1
-    cmp r2, r0
-    bgt .L080391F4
-.L080391E6:
-    movs r0, #1
-    b .L080391F6
-    .align 2, 0
-.L080391EC: .4byte 0x00000143
-.L080391F0: .4byte 0x0000027F
-.L080391F4:
-    movs r0, #0
-.L080391F6:
-    pop {r1}
-    bx r1
-    .align 2, 0
-
-    thumb_func_start func_080391FC
-func_080391FC: @ 0x080391FC
-    bx lr
-    .align 2, 0
-
-    thumb_func_start func_08039200
-func_08039200: @ 0x08039200
-    movs r0, #0
-    bx lr
+    .section .text.npc_extra.08039204, "ax", %progbits
 
     thumb_func_start func_08039204
 func_08039204: @ 0x08039204
@@ -5593,7 +5296,7 @@ func_08039204: @ 0x08039204
     bne .L080392E4
     mov r0, sb
     adds r1, r7, #0
-    bl func_080391C0
+    bl IsWithinSideEntityExit
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080392B6
@@ -5654,10 +5357,7 @@ func_08039204: @ 0x08039204
     pop {r0}
     bx r0
 
-    thumb_func_start func_0803930C
-func_0803930C: @ 0x0803930C
-    movs r0, #1
-    bx lr
+    .section .text.npc_extra.08039310, "ax", %progbits
 
     thumb_func_start func_08039310
 func_08039310: @ 0x08039310
@@ -5770,7 +5470,7 @@ func_08039310: @ 0x08039310
     adds r0, r2, #0
     adds r1, r7, #0
     str r2, [sp, #0x28]
-    bl func_080391C0
+    bl IsWithinSideEntityExit
     lsls r0, r0, #0x18
     ldr r2, [sp, #0x28]
     cmp r0, #0
@@ -6151,19 +5851,7 @@ func_0803955C: @ 0x0803955C
     pop {r0}
     bx r0
 
-    thumb_func_start func_080396F4
-func_080396F4: @ 0x080396F4
-    push {lr}
-    ldr r0, [r1, #0x34]
-    ldrb r0, [r0, #0x12]
-    movs r1, #0
-    cmp r0, #0
-    beq .L08039702
-    movs r1, #3
-.L08039702:
-    adds r0, r1, #0
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08039708, "ax", %progbits
 
     thumb_func_start func_08039708
 func_08039708: @ 0x08039708
@@ -6464,7 +6152,7 @@ func_080398A4: @ 0x080398A4
     adds r4, r0, #0
     adds r0, r6, #0
     adds r1, r4, #0
-    bl func_08039D5C
+    bl GetActiveNpcMovementSpeed
     adds r1, r0, #0
     adds r0, r6, #0
     bl AActorEntity_SetFacingSpeed
@@ -6554,33 +6242,9 @@ func_080399C0: @ 0x080399C0
 .L08039A28: .4byte vtable_unk_080E74DC
 .L08039A2C: .4byte __vt_7AEntity
 
-    thumb_func_start func_08039A30
-func_08039A30: @ 0x08039A30
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r2, #0
-    str r2, [sp]
-    movs r1, #8
-    str r1, [sp, #4]
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #2
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08039A5C, "ax", %progbits
 
-    thumb_func_start func_08039A5C
-func_08039A5C: @ 0x08039A5C
-    bx lr
-    .align 2, 0
+    .section .text.npc_extra.08039A60, "ax", %progbits
 
     thumb_func_start func_08039A60
 func_08039A60: @ 0x08039A60
@@ -6870,7 +6534,7 @@ func_08039A60: @ 0x08039A60
 .L08039CA8:
     adds r0, r7, #0
     adds r1, r4, #0
-    bl func_08039D5C
+    bl GetActiveNpcMovementSpeed
     adds r1, r0, #0
     adds r0, r7, #0
     bl AActorEntity_SetFacingSpeed
@@ -6903,7 +6567,7 @@ func_08039A60: @ 0x08039A60
     ldrsh r0, [r7, r1]
     movs r2, #0xe
     ldrsh r1, [r7, r2]
-    bl func_080391C0
+    bl IsWithinSideEntityExit
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08039CFE
@@ -6950,49 +6614,7 @@ func_08039A60: @ 0x08039A60
 
     .section .text.npc_extra.08039D5C, "ax", %progbits
 
-    thumb_func_start func_08039D5C
-func_08039D5C: @ 0x08039D5C
-    push {lr}
-    cmp r1, #4
-    bhi .L08039D90
-    lsls r0, r1, #2
-    ldr r1, .L08039D6C @ =.L08039D70
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L08039D6C: .4byte .L08039D70
-.L08039D70: @ jump table
-    .4byte .L08039D90 @ case 0
-    .4byte .L08039D84 @ case 1
-    .4byte .L08039D8A @ case 2
-    .4byte .L08039D90 @ case 3
-    .4byte .L08039D90 @ case 4
-.L08039D84:
-    movs r0, #0x80
-    lsls r0, r0, #8
-    b .L08039D92
-.L08039D8A:
-    movs r0, #0x80
-    lsls r0, r0, #9
-    b .L08039D92
-.L08039D90:
-    movs r0, #0
-.L08039D92:
-    pop {r1}
-    bx r1
-    .align 2, 0
-
-    thumb_func_start func_08039D98
-func_08039D98: @ 0x08039D98
-    ldr r0, [r0, #0x34]
-    ldr r1, [r0, #0xc]
-    movs r0, #4
-    eors r1, r0
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-    bx lr
+    .section .text.npc_extra.08039DA8, "ax", %progbits
 
     thumb_func_start func_08039DA8
 func_08039DA8: @ 0x08039DA8
@@ -8274,15 +7896,3 @@ func_0803A798: @ 0x0803A798
     .align 2, 0
 .L0803A7FC: .4byte 0xFFFFFC00
 .L0803A800: .4byte vtable_unk_080E7568
-.L0803A804:
-    .byte 0x30, 0x30, 0x10, 0x21, 0x40, 0x5E, 0x70, 0x47, 0x30, 0x30, 0x01, 0x82
-    .byte 0x70, 0x47, 0x00, 0x00, 0x00, 0xB5, 0x30, 0x30, 0x24, 0xF0, 0x3C, 0xF8, 0x02, 0xBC, 0x08, 0x47
-    .byte 0x00, 0xB5, 0x01, 0x1C, 0x30, 0x31, 0x00, 0x22, 0xC8, 0x89, 0x00, 0x28, 0x04, 0xD0, 0x10, 0x20
-    .byte 0x09, 0x5E, 0x48, 0x42, 0x08, 0x43, 0xC2, 0x0F, 0x10, 0x1C, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
-    .byte 0x10, 0xB5, 0x04, 0x1C, 0x21, 0x1C, 0x47, 0x31, 0x08, 0x78, 0x00, 0x28, 0x0A, 0xD1, 0x20, 0x1C
-    .byte 0x30, 0x30, 0x24, 0xF0, 0x4D, 0xF8, 0x80, 0x07, 0x00, 0x28, 0x05, 0xDA, 0x21, 0x1C, 0x44, 0x31
-    .byte 0x01, 0x20, 0x00, 0xE0, 0x00, 0x20, 0x08, 0x70, 0x10, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
-    .byte 0x30, 0xB5, 0x04, 0x1C, 0x0D, 0x1C, 0xA0, 0x88, 0xA8, 0x42, 0x0D, 0xD0, 0x20, 0x1C, 0x30, 0x30
-    .byte 0x23, 0xF0, 0xEE, 0xFF, 0x20, 0x1C, 0x44, 0x30, 0x00, 0x22, 0x01, 0x21, 0x01, 0x70, 0x02, 0x30
-    .byte 0x02, 0x70, 0x01, 0x30, 0x01, 0x70, 0xA5, 0x80, 0x30, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
-    .byte 0x00, 0x68, 0x70, 0x47
