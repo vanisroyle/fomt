@@ -895,7 +895,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803B2A8);
         asm/code_0803A8A4.o(.text.0803B368);
         src/code_0803A8A4.o(.text.0803B454);
-        asm/code_0803A8A4.o(.text.0803B4DC);
+        src/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);
         asm/code_0803A8A4.o(.text.0803B718);
         src/code_0803A8A4.o(.text.0803B840);
@@ -1234,6 +1234,7 @@ SECTIONS
         src/map_updates.o(.text.080AAF28);
         src/map_updates.o(.text.080AAF3C);
         asm/code_809E804.o(.text.080AAF9C);
+        src/map_scene.o(.text.080AB2E4);
         src/map_scene.o(.text.080AB380);
         asm/code_809E804.o(.text.080AB410);
         src/map_scene.o(.text.080AB68C);
@@ -1261,7 +1262,7 @@ SECTIONS
         asm/code_809E804.o(.text.080ACC10);
         src/map_scene.o(.text.080AD3B0);
         src/map_scene.o(.text.080AD49C);
-        asm/code_809E804.o(.text.080AD5D8);
+        src/map_scene.o(.text.080AD5D8);
         src/map_scene.o(.text.080AD69C);
         src/map_scene.o(.text.080AD724);
         asm/code_809E804.o(.text.080AD774);

@@ -110,7 +110,6 @@ EC void DestroyResourcePool(ResourcePool *, int) asm("ResourcePool_Destroy");
 EC MessageWindow * CreateMessageWindow(MessageWindow *, u32, u32, u32, u32, void *, void *);
 EC void ClearMessageWindowButtonMask(MessageWindow *, u32);
 EC AudioPlayer * AudioPlayer_Initialize(AudioPlayer *, u8);
-EC char const * GetFarmerName(Farmer const &) asm("func_0800E4E0");
 EC char const gChildhoodMemoryScreenVTable[] asm("vtable_unk_080E79DC");
 EC char const gChildhoodMemoryFarmerNameVTable[] asm("vtable_unk_080E79E8");
 

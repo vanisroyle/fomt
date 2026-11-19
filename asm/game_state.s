@@ -7530,7 +7530,7 @@ func_08014D9C: @ 0x08014D9C
     adds r0, #0x8c
     ldr r0, [r0]
     adds r0, #0x14
-    bl method_08009AF4__C4Farm
+    bl GetName__C4Farm
     mov r8, r0
     mov r4, r8
     adds r0, r6, #0
@@ -8196,7 +8196,7 @@ func_0801531C: @ 0x0801531C
     adds r0, #0x8c
     ldr r0, [r0]
     adds r0, #0x14
-    bl method_08009AF4__C4Farm
+    bl GetName__C4Farm
     mov r8, r0
     mov r4, r8
     adds r0, r6, #0
@@ -12011,7 +12011,7 @@ func_080175B4: @ 0x080175B4
     cmp r0, #0
     beq .L080177B8
     movs r1, #3
-    bl func_080AB2E4
+    bl DestroyMapTileEffectQueue
 .L080177B8:
     str r5, [r4]
     movs r0, #4
@@ -12029,7 +12029,7 @@ func_080175B4: @ 0x080175B4
     cmp r0, #0
     beq .L080177E0
     movs r1, #3
-    bl func_080AB2E4
+    bl DestroyMapTileEffectQueue
 .L080177E0:
     str r4, [r5]
     movs r4, #0
@@ -16571,7 +16571,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019CF0
     movs r1, #3
-    bl func_080AB2E4
+    bl DestroyMapTileEffectQueue
 .L08019CF0:
     str r5, [r4]
     movs r2, #0
@@ -16753,7 +16753,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019E78
     movs r1, #3
-    bl func_080AB2E4
+    bl DestroyMapTileEffectQueue
 .L08019E78:
     str r4, [r5]
     adds r0, r7, #0
