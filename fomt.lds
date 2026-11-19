@@ -154,6 +154,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_080CD578);
         src/g5_objects.o(.text.g5_080CD950);
         asm/code_080C8360.o(.text.g5_after_080CD950);
+        src/g5_navigation.o(.text.g5_080CDA44);
+        asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_helpers.o(.text.g5_080CE184);
         asm/code_080C8360.o(.text.g5_080CE19C);
         src/g5_panels.o(.text.g5_080CE19C);
