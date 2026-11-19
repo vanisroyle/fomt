@@ -1791,28 +1791,7 @@ func_08036530: @ 0x08036530
 .L0803655C: .4byte gUnk_080F3010
 .L08036560: .4byte vtable_unk_080E6CD8
 
-    thumb_func_start func_08036564
-func_08036564: @ 0x08036564
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036590, "ax", %progbits
 
     thumb_func_start func_08036590
 func_08036590: @ 0x08036590
@@ -1953,28 +1932,7 @@ func_080366CC: @ 0x080366CC
 .L080366FC: .4byte 0x000008EC
 .L08036700: .4byte vtable_unk_080E6C58
 
-    thumb_func_start func_08036704
-func_08036704: @ 0x08036704
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036730, "ax", %progbits
 
     thumb_func_start func_08036730
 func_08036730: @ 0x08036730
@@ -2070,28 +2028,7 @@ func_080367F8: @ 0x080367F8
 .L0803682C: .4byte 0x000003F2
 .L08036830: .4byte vtable_unk_080E6BD8
 
-    thumb_func_start func_08036834
-func_08036834: @ 0x08036834
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036860, "ax", %progbits
 
     thumb_func_start func_08036860
 func_08036860: @ 0x08036860
@@ -2121,28 +2058,7 @@ func_08036860: @ 0x08036860
 .L08036890: .4byte 0x000007F2
 .L08036894: .4byte vtable_unk_080E6B98
 
-    thumb_func_start func_08036898
-func_08036898: @ 0x08036898
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.080368C4, "ax", %progbits
 
     thumb_func_start func_080368C4
 func_080368C4: @ 0x080368C4
@@ -2290,28 +2206,7 @@ func_08036A10: @ 0x08036A10
 .L08036A44: .4byte 0x00000401
 .L08036A48: .4byte vtable_unk_080E6B18
 
-    thumb_func_start func_08036A4C
-func_08036A4C: @ 0x08036A4C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036A78, "ax", %progbits
 
     thumb_func_start func_08036A78
 func_08036A78: @ 0x08036A78
@@ -2369,31 +2264,6 @@ func_08036B4C: @ 0x08036B4C
     .align 2, 0
 .L08036B78: .4byte gUnk_080F2DC0
 .L08036B7C: .4byte vtable_unk_080E6A98
-
-    thumb_func_start func_08036B80
-func_08036B80: @ 0x08036B80
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #2
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
 
     .section .text.npc_extra.08036BB0, "ax", %progbits
 
@@ -2509,28 +2379,7 @@ func_08036C48: @ 0x08036C48
 .L08036C78: .4byte 0x00000857
 .L08036C7C: .4byte vtable_unk_080E6A58
 
-    thumb_func_start func_08036C80
-func_08036C80: @ 0x08036C80
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036CAC, "ax", %progbits
 
     thumb_func_start func_08036CAC
 func_08036CAC: @ 0x08036CAC
@@ -2557,30 +2406,7 @@ func_08036CAC: @ 0x08036CAC
 .L08036CD4: .4byte 0x00000679
 .L08036CD8: .4byte vtable_unk_080E6A18
 
-    thumb_func_start func_08036CDC
-func_08036CDC: @ 0x08036CDC
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #2
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_extra.08036D0C, "ax", %progbits
 
     thumb_func_start func_08036D0C
 func_08036D0C: @ 0x08036D0C
@@ -2607,28 +2433,7 @@ func_08036D0C: @ 0x08036D0C
 .L08036D34: .4byte 0x00000669
 .L08036D38: .4byte vtable_unk_080E69D8
 
-    thumb_func_start func_08036D3C
-func_08036D3C: @ 0x08036D3C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036D68, "ax", %progbits
 
     thumb_func_start func_08036D68
 func_08036D68: @ 0x08036D68
@@ -2654,28 +2459,7 @@ func_08036D68: @ 0x08036D68
 .L08036D90: .4byte 0x000007FE
 .L08036D94: .4byte vtable_unk_080E6998
 
-    thumb_func_start func_08036D98
-func_08036D98: @ 0x08036D98
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036DC4, "ax", %progbits
 
     thumb_func_start func_08036DC4
 func_08036DC4: @ 0x08036DC4
