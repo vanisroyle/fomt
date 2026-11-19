@@ -41,7 +41,7 @@ struct ChickenFeedingState
     u8 spriteAnimationDirty;
 };
 
-EC void func_08008B6C(void *, u32);
+EC void AudioPlayer_StartSong(void *, u32);
 EC void func_080B34DC(void *);
 
 
@@ -59,7 +59,7 @@ EC SECTION(".text.g3_080B3A28") void HandleChickenFeedingAction(ChickenFeedingSt
             ++state->eventCount90D;
             state->effectAnimationDirty[state->selectedTrough] = 1;
             state->effectFrames[state->selectedTrough] = 0;
-            func_08008B6C((u8 *) state + 0x814, 0xc7);
+            AudioPlayer_StartSong((u8 *) state + 0x814, 0xc7);
         }
     }
     else if (state->troughStates[state->selectedTrough] == 1)
@@ -72,11 +72,11 @@ EC SECTION(".text.g3_080B3A28") void HandleChickenFeedingAction(ChickenFeedingSt
         state->chickenAnimationDirty[state->selectedTrough] = 1;
         state->troughAnimationDirty[state->selectedTrough] = 1;
         state->effectAnimationDirty[state->selectedTrough] = 1;
-        func_08008B6C((u8 *) state + 0x814, 0x6c);
+        AudioPlayer_StartSong((u8 *) state + 0x814, 0x6c);
     }
     else
     {
-        func_08008B6C((u8 *) state + 0x814, 0x6c);
+        AudioPlayer_StartSong((u8 *) state + 0x814, 0x6c);
         state->troughStates[state->selectedTrough] = FEEDING_TROUGH_0;
         state->troughAnimationDirty[state->selectedTrough] = 1;
         if (state->chickenStates[state->selectedTrough] == 4)

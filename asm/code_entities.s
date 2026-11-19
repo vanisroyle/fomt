@@ -1,6 +1,8 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
 
+    .section .text.entities_part2.08029558,"ax",%progbits
+
     thumb_func_start func_08029558
 func_08029558: @ 0x08029558
     push {r4, r5, r6, r7, lr}
@@ -553,21 +555,7 @@ func_08029558: @ 0x08029558
     pop {r1}
     bx r1
 
-    thumb_func_start func_080299D0
-func_080299D0: @ 0x080299D0
-    push {lr}
-    adds r1, r0, #0
-    adds r1, #0xa4
-    movs r2, #0
-    strb r2, [r1]
-    subs r1, #0x1c
-    strb r2, [r1]
-    movs r1, #0xc9
-    lsls r1, r1, #1
-    bl SetAnim__12AActorEntityUi
-    pop {r0}
-    bx r0
-    .align 2, 0
+    .section .text.entities_part2.080299EC,"ax",%progbits
 
     thumb_func_start func_080299EC
 func_080299EC: @ 0x080299EC
@@ -614,7 +602,7 @@ func_080299EC: @ 0x080299EC
     beq .L08029A56
 .L08029A44:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08029A7A
@@ -626,7 +614,7 @@ func_080299EC: @ 0x080299EC
     ldr r0, [r0]
 .L08029A5A:
     movs r1, #0x6a
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r4, #0
     movs r0, #0x11
     mov r2, r8
@@ -1958,63 +1946,7 @@ func_0802A4C0: @ 0x0802A4C0
     bx r0
     .align 2, 0
 
-    thumb_func_start func_0802A510
-func_0802A510: @ 0x0802A510
-    push {r4, r5, r6, r7, lr}
-    sub sp, #4
-    adds r3, r0, #0
-    adds r0, #0x88
-    movs r6, #0
-    movs r7, #1
-    strb r7, [r0]
-    strb r6, [r0, #1]
-    ldr r1, .L0802A584 @ =0xFFF80000
-    movs r2, #0x88
-    lsls r2, r2, #0xd
-    str r1, [r0, #4]
-    str r6, [r0, #8]
-    str r2, [r0, #0x14]
-    ldr r5, [r3, #0x10]
-    cmp r5, #0
-    beq .L0802A57A
-    ldr r4, [r3, #0x38]
-    adds r0, r4, #0
-    adds r0, #0x5c
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    mov r1, sp
-    strb r0, [r1]
-    mov r0, sp
-    bl GetIconId__C4Tool
-    adds r4, r0, #0
-    lsls r4, r4, #0x10
-    lsrs r4, r4, #0x10
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    adds r2, r4, #0
-    bl func_0805E850
-    adds r0, r5, #0
-    adds r0, #0xc8
-    strb r7, [r0]
-    adds r0, #2
-    strb r6, [r0]
-    adds r0, #1
-    strb r7, [r0]
-.L0802A57A:
-    add sp, #4
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0802A584: .4byte 0xFFF80000
+    .section .text.entities_part2.0802A588,"ax",%progbits
 
     thumb_func_start func_0802A588
 func_0802A588: @ 0x0802A588
@@ -2298,12 +2230,7 @@ func_0802A588: @ 0x0802A588
     bx r0
     .align 2, 0
 
-    thumb_func_start func_0802A7D8
-func_0802A7D8: @ 0x0802A7D8
-    adds r0, #0x88
-    movs r1, #0
-    strb r1, [r0]
-    bx lr
+    .section .text.entities_part2.0802A7E0,"ax",%progbits
 
     thumb_func_start func_0802A7E0
 func_0802A7E0: @ 0x0802A7E0
@@ -4063,49 +3990,8 @@ func_0802B46C: @ 0x0802B46C
     .byte 0x08, 0x70, 0x1E, 0xB0, 0x38, 0xBC, 0x98, 0x46, 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC, 0x01, 0xBC
     .byte 0x00, 0x47, 0x00, 0x00, 0x81, 0x02, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00
 
-    thumb_func_start func_0802B8EC
-func_0802B8EC: @ 0x0802B8EC
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    movs r0, #0xc8
-    bl __builtin_new
-    adds r1, r4, #0
-    adds r2, r5, #0
-    bl FarmerEntity_Init
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
 
-    thumb_func_start func_0802B908
-func_0802B908: @ 0x0802B908
-    push {r4, r5, lr}
-    sub sp, #0xc
-    adds r4, r0, #0
-    adds r5, r1, #0
-    ldr r0, .L0802B93C @ =0x00001BD8
-    adds r1, r2, r0
-    add r0, sp, #4
-    bl func_0800E924
-    movs r0, #0xc9
-    lsls r0, r0, #1
-    str r0, [sp]
-    adds r0, r4, #0
-    adds r1, r5, #0
-    add r2, sp, #4
-    movs r3, #2
-    bl __12AActorEntityP10GameObjectRC13ActorLocationUiUi
-    ldr r0, .L0802B940 @ =vtable_unk_080E676C
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0xc
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0802B93C: .4byte 0x00001BD8
-.L0802B940: .4byte vtable_unk_080E676C
+    .section .text.entities_part2.0802B944,"ax",%progbits
 
     thumb_func_start func_0802B944
 func_0802B944: @ 0x0802B944
@@ -4466,54 +4352,7 @@ func_0802BA74: @ 0x0802BA74
     pop {r0}
     bx r0
 
-    thumb_func_start func_0802BC48
-func_0802BC48: @ 0x0802BC48
-    push {lr}
-    adds r2, r0, #0
-    movs r1, #0xc9
-    lsls r1, r1, #1
-    adds r0, #0x34
-    ldrb r0, [r0]
-    cmp r0, #4
-    bhi .L0802BC9C
-    lsls r0, r0, #2
-    ldr r1, .L0802BC64 @ =.L0802BC68
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0802BC64: .4byte .L0802BC68
-.L0802BC68: @ jump table
-    .4byte .L0802BC7C @ case 0
-    .4byte .L0802BC8E @ case 1
-    .4byte .L0802BC8E @ case 2
-    .4byte .L0802BC94 @ case 3
-    .4byte .L0802BC9A @ case 4
-.L0802BC7C:
-    adds r0, r2, #0
-    adds r0, #0x59
-    ldrb r0, [r0]
-    movs r1, #0xa9
-    lsls r1, r1, #1
-    cmp r0, #0
-    bne .L0802BC9C
-    adds r1, #0x40
-    b .L0802BC9C
-.L0802BC8E:
-    movs r1, #0xcf
-    lsls r1, r1, #1
-    b .L0802BC9C
-.L0802BC94:
-    movs r1, #0xa3
-    lsls r1, r1, #1
-    b .L0802BC9C
-.L0802BC9A:
-    movs r1, #0x42
-.L0802BC9C:
-    adds r0, r1, #0
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.entities_part2.0802BCA4,"ax",%progbits
 .L0802BCA4:
     .byte 0xF0, 0xB5, 0x47, 0x46, 0x80, 0xB4, 0x81, 0xB0, 0x06, 0x1C, 0x0B, 0x1C
     .byte 0x38, 0x30, 0x00, 0x27, 0x01, 0x21, 0x88, 0x46, 0x41, 0x46, 0x01, 0x70, 0x47, 0x70, 0x23, 0x49
@@ -4609,7 +4448,7 @@ func_0802BE68: @ 0x0802BE68
     adds r0, #0x24
     strb r4, [r0]
     adds r0, r5, #0
-    bl func_0802BC48
+    bl GetItemDisplayStateAnimation
     adds r1, r0, #0
     lsls r1, r1, #0x10
     lsrs r1, r1, #0x10
@@ -4624,30 +4463,7 @@ func_0802BE68: @ 0x0802BE68
     .align 2, 0
 .L0802BEF8: .4byte 0x0001AAAA
 
-    thumb_func_start func_0802BEFC
-func_0802BEFC: @ 0x0802BEFC
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r1, r4, #0
-    adds r1, #0x34
-    movs r0, #2
-    strb r0, [r1]
-    adds r0, r4, #0
-    adds r0, #0x58
-    movs r5, #1
-    strb r5, [r0]
-    adds r0, r4, #0
-    bl func_0802BC48
-    adds r1, r0, #0
-    lsls r1, r1, #0x10
-    lsrs r1, r1, #0x10
-    adds r0, r4, #0
-    bl SetAnim__12AActorEntityUi
-    adds r4, #0x54
-    strb r5, [r4]
-    pop {r4, r5}
-    pop {r0}
-    bx r0
+    .section .text.entities_part2.0802BF2C,"ax",%progbits
 
     thumb_func_start func_0802BF2C
 func_0802BF2C: @ 0x0802BF2C
@@ -5023,18 +4839,7 @@ func_0802BFE4: @ 0x0802BFE4
     .align 2, 0
 .L0802C20C: .4byte 0x0000FFFF
 
-    thumb_func_start func_0802C210
-func_0802C210: @ 0x0802C210
-    push {r4, lr}
-    adds r4, r0, #0
-    movs r0, #0x5c
-    bl __builtin_new
-    adds r1, r4, #0
-    bl func_0802B9C0
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.entities_part2.0802C228,"ax",%progbits
 .L0802C228:
     .byte 0x30, 0xB5, 0x05, 0x1C, 0x0C, 0x1C, 0x28, 0x68
     .byte 0x00, 0x68, 0x01, 0x68, 0x49, 0x6E, 0xA7, 0xF0, 0x6B, 0xFB, 0x01, 0x1C, 0x28, 0x1C, 0xB4, 0x30
@@ -5049,10 +4854,7 @@ func_0802C210: @ 0x0802C210
     .byte 0x01, 0x21, 0x01, 0x70, 0x02, 0x30, 0x02, 0x70, 0x01, 0x30, 0x01, 0x70, 0x30, 0xBC, 0x01, 0xBC
     .byte 0x00, 0x47, 0x00, 0x00, 0x54, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00
 
-    thumb_func_start func_0802C2DC
-func_0802C2DC: @ 0x0802C2DC
-    bx lr
-    .align 2, 0
+    .section .text.entities_part2.0802C2E0,"ax",%progbits
 
     thumb_func_start func_0802C2E0
 func_0802C2E0: @ 0x0802C2E0
@@ -5192,7 +4994,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C408
 .L0802C3F6:
     ldr r0, [r6]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C3AC
@@ -5213,7 +5015,7 @@ func_0802C2E0: @ 0x0802C2E0
     adds r0, r0, r6
     ldrh r1, [r0, #2]
     adds r0, r2, #0
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     mov r0, r8
     bl FarmerEntity_IsUsingCursedTool
     lsls r0, r0, #0x18
@@ -5257,7 +5059,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C48C
 .L0802C47A:
     ldr r0, [r6]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C43C
@@ -5278,7 +5080,7 @@ func_0802C2E0: @ 0x0802C2E0
     adds r0, r0, r6
     ldrh r1, [r0, #2]
     adds r0, r2, #0
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     mov r0, r8
     bl FarmerEntity_IsUsingCursedTool
     lsls r0, r0, #0x18
@@ -5333,7 +5135,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C51E
 .L0802C50C:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C4E0
@@ -5345,7 +5147,7 @@ func_0802C2E0: @ 0x0802C2E0
     ldr r0, [r0]
 .L0802C522:
     movs r1, #0x9d
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     ldr r0, .L0802C54C @ =gUnk_080F1184
 .L0802C52A:
     ldr r1, [r0]
@@ -5392,7 +5194,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C58E
 .L0802C57C:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C550
@@ -5404,7 +5206,7 @@ func_0802C2E0: @ 0x0802C2E0
     ldr r0, [r0]
 .L0802C592:
     movs r1, #0x9d
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     ldr r0, .L0802C59C @ =gUnk_080F118C
     b .L0802C52A
     .align 2, 0
@@ -5432,7 +5234,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C5DA
 .L0802C5C8:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C5A0
@@ -5444,7 +5246,7 @@ func_0802C2E0: @ 0x0802C2E0
     ldr r0, [r0]
 .L0802C5DE:
     movs r1, #0x94
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
 .L0802C5E4:
     movs r5, #2
     rsbs r5, r5, #0
@@ -5474,7 +5276,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C628
 .L0802C616:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C5EA
@@ -5486,7 +5288,7 @@ func_0802C2E0: @ 0x0802C2E0
     ldr r0, [r0]
 .L0802C62C:
     movs r1, #0x93
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     ldr r0, .L0802C664 @ =gUnk_080F1194
     ldr r1, [r0]
     ldr r2, [r0, #4]
@@ -5549,7 +5351,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C6BC
 .L0802C6AA:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C67E
@@ -5561,7 +5363,7 @@ func_0802C2E0: @ 0x0802C2E0
     ldr r0, [r0]
 .L0802C6C0:
     movs r1, #0x9f
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     ldr r0, .L0802C6CC @ =gUnk_080F119C
     b .L0802C52A
     .align 2, 0
@@ -5591,7 +5393,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C70E
 .L0802C6FC:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C6D0
@@ -5603,7 +5405,7 @@ func_0802C2E0: @ 0x0802C2E0
     ldr r0, [r0]
 .L0802C712:
     movs r1, #0xa0
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     ldr r0, .L0802C748 @ =gUnk_080F11A4
     ldr r1, [r0]
     ldr r2, [r0, #4]
@@ -5667,7 +5469,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C7A0
 .L0802C78E:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C766
@@ -5679,7 +5481,7 @@ func_0802C2E0: @ 0x0802C2E0
     ldr r0, [r0]
 .L0802C7A4:
     movs r1, #0x9e
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802C83C
 .L0802C7AC:
     ldr r0, [r4]
@@ -5706,7 +5508,7 @@ func_0802C2E0: @ 0x0802C2E0
     beq .L0802C7EA
 .L0802C7D8:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C7AC
@@ -5718,7 +5520,7 @@ func_0802C2E0: @ 0x0802C2E0
     ldr r0, [r0]
 .L0802C7EE:
     movs r1, #0x9d
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     ldr r0, .L0802C824 @ =gUnk_080F11AC
     ldr r1, [r0]
     ldr r2, [r0, #4]
@@ -5788,7 +5590,7 @@ func_0802C860: @ 0x0802C860
     movs r0, #0x14
     strb r0, [r1]
     adds r0, r6, #0
-    bl func_0802A510
+    bl ShowFarmerToolDisplay
     ldr r0, [r6]
     ldr r1, [r0]
     movs r2, #0xa6
@@ -5802,7 +5604,7 @@ func_0802C860: @ 0x0802C860
     beq .L0802C8A4
 .L0802C892:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C8E8
@@ -5814,7 +5616,7 @@ func_0802C860: @ 0x0802C860
     ldr r0, [r0]
 .L0802C8A8:
     movs r1, #0xbc
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     ldr r4, [r6, #0x38]
     adds r0, r4, #0
     adds r0, #0x5c
@@ -5903,7 +5705,7 @@ func_0802C908: @ 0x0802C908
     beq .L0802C974
 .L0802C95E:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0802C96E
@@ -5918,7 +5720,7 @@ func_0802C908: @ 0x0802C908
     ldr r0, [r0]
 .L0802C978:
     movs r1, #0xb8
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
 .L0802C97E:
     pop {r4, r5}
     pop {r0}
@@ -6175,7 +5977,7 @@ func_0802C984: @ 0x0802C984
     beq .L0802CC14
 .L0802CC02:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802CBB2
@@ -6187,7 +5989,7 @@ func_0802C984: @ 0x0802C984
     ldr r0, [r0]
 .L0802CC18:
     movs r1, #0x92
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802CDC4
 .L0802CC20:
     ldr r0, [r6, #0x38]
@@ -6790,7 +6592,7 @@ func_0802CDCC: @ 0x0802CDCC
     adds r0, r7, #0
     movs r1, #3
     adds r2, r5, #0
-    bl func_0802536C
+    bl FarmerEntity_MoveWithSliding
     b .L0802D122
 .L0802D0F4:
     cmp r5, #0
@@ -6798,7 +6600,7 @@ func_0802CDCC: @ 0x0802CDCC
     rsbs r2, r5, #0
     adds r0, r7, #0
     movs r1, #2
-    bl func_0802536C
+    bl FarmerEntity_MoveWithSliding
     b .L0802D122
 .L0802D104:
     cmp r6, #0
@@ -6806,7 +6608,7 @@ func_0802CDCC: @ 0x0802CDCC
     adds r0, r7, #0
     movs r1, #0
     adds r2, r6, #0
-    bl func_0802536C
+    bl FarmerEntity_MoveWithSliding
     b .L0802D122
 .L0802D114:
     cmp r6, #0
@@ -6814,7 +6616,7 @@ func_0802CDCC: @ 0x0802CDCC
     rsbs r2, r6, #0
     adds r0, r7, #0
     movs r1, #1
-    bl func_0802536C
+    bl FarmerEntity_MoveWithSliding
 .L0802D122:
     ldr r0, [r7, #0x14]
     ldr r1, [r0, #0x40]
@@ -8133,7 +7935,7 @@ func_0802D9AC: @ 0x0802D9AC
     beq .L0802DB5E
 .L0802DB4C:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802DAC4
@@ -8145,7 +7947,7 @@ func_0802D9AC: @ 0x0802D9AC
     ldr r0, [r0]
 .L0802DB62:
     movs r1, #0x65
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802DBAA
 .L0802DB6A:
     ldr r0, [r4]
@@ -8168,7 +7970,7 @@ func_0802D9AC: @ 0x0802D9AC
     beq .L0802DBA0
 .L0802DB8E:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802DB6A
@@ -8180,10 +7982,10 @@ func_0802D9AC: @ 0x0802D9AC
     ldr r0, [r0]
 .L0802DBA4:
     movs r1, #0x66
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
 .L0802DBAA:
     adds r0, r6, #0
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     ldr r0, [r6, #0x38]
     adds r0, #0x54
     bl func_0800F390
@@ -8289,7 +8091,7 @@ func_0802DBF0: @ 0x0802DBF0
     b .L0802DE7A
 .L0802DC6E:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0802DC7C
@@ -8337,7 +8139,7 @@ func_0802DBF0: @ 0x0802DBF0
     b .L0802DE7A
 .L0802DCCC:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0802DCDA
@@ -8438,7 +8240,7 @@ func_0802DBF0: @ 0x0802DBF0
     beq .L0802DDB6
 .L0802DDA4:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802DD36
@@ -8450,7 +8252,7 @@ func_0802DBF0: @ 0x0802DBF0
     ldr r0, [r0]
 .L0802DDBA:
     movs r1, #0x65
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802DE02
 .L0802DDC2:
     ldr r0, [r4]
@@ -8473,7 +8275,7 @@ func_0802DBF0: @ 0x0802DBF0
     beq .L0802DDF8
 .L0802DDE6:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802DDC2
@@ -8485,10 +8287,10 @@ func_0802DBF0: @ 0x0802DBF0
     ldr r0, [r0]
 .L0802DDFC:
     movs r1, #0x66
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
 .L0802DE02:
     adds r0, r6, #0
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     ldr r0, [r6, #0x38]
     adds r0, #0x54
     bl func_0800F390
@@ -8541,7 +8343,7 @@ func_0802DBF0: @ 0x0802DBF0
     beq .L0802DE7A
 .L0802DE68:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802DE2E
@@ -8553,7 +8355,7 @@ func_0802DBF0: @ 0x0802DBF0
     ldr r0, [r0]
 .L0802DE7E:
     movs r1, #0x67
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802DE8C
 .L0802DE86:
     adds r0, r6, #0
@@ -8783,7 +8585,7 @@ func_0802DE94: @ 0x0802DE94
     beq .L0802E052
 .L0802E040:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802DFD2
@@ -8795,7 +8597,7 @@ func_0802DE94: @ 0x0802DE94
     ldr r0, [r0]
 .L0802E056:
     movs r1, #0x65
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802E09E
 .L0802E05E:
     ldr r0, [r4]
@@ -8818,7 +8620,7 @@ func_0802DE94: @ 0x0802DE94
     beq .L0802E094
 .L0802E082:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802E05E
@@ -8830,10 +8632,10 @@ func_0802DE94: @ 0x0802DE94
     ldr r0, [r0]
 .L0802E098:
     movs r1, #0x66
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
 .L0802E09E:
     adds r0, r6, #0
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     ldr r0, [r6, #0x38]
     adds r0, #0x54
     bl func_0800F390
@@ -9141,7 +8943,7 @@ func_0802E0FC: @ 0x0802E0FC
     add r0, sp, #0x4c
     mov r1, r8
     adds r2, r6, #0
-    bl func_08024724
+    bl Map_FindCollisionEscapeOffset
     ldr r0, [sp, #0x4c]
     str r0, [sp, #0x50]
     add r1, sp, #0x50
@@ -9324,7 +9126,7 @@ func_0802E0FC: @ 0x0802E0FC
     beq .L0802E5F6
 .L0802E4FC:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802E57E
@@ -9406,7 +9208,7 @@ func_0802E0FC: @ 0x0802E0FC
     bl _call_via_r2
     adds r5, r0, #0
     ldr r0, [r5, #0x18]
-    bl func_0800FFD0
+    bl ItemCollection_GetByteCount
     movs r1, #0
     cmp r0, #0x1e
     bne .L0802E5B6
@@ -9416,7 +9218,7 @@ func_0802E0FC: @ 0x0802E0FC
     bne .L0802E602
     adds r0, r5, #0
     adds r1, r4, #0
-    bl func_08037EB4
+    bl SetNpcReaction
     movs r0, #0xe
     ldr r3, [sp, #0x7c]
     strb r0, [r3]
@@ -9435,7 +9237,7 @@ func_0802E0FC: @ 0x0802E0FC
     beq .L0802E5F6
 .L0802E5E4:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802E57E
@@ -9447,7 +9249,7 @@ func_0802E0FC: @ 0x0802E0FC
     ldr r0, [r0]
 .L0802E5FA:
     movs r1, #0x6e
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802E7BA
 .L0802E602:
     ldr r3, .L0802E608 @ =0x000003CD
@@ -9620,7 +9422,7 @@ func_0802E0FC: @ 0x0802E0FC
     ldr r2, [r1, #0x40]
     movs r1, #0x4b
     bl _call_via_r2
-    bl func_08038108
+    bl IsSideSpriteLaunched
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0802E7BA
@@ -9948,7 +9750,7 @@ func_0802E0FC: @ 0x0802E0FC
     b .L0802EB02
 .L0802E9CE:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802EA82
@@ -10034,7 +9836,7 @@ func_0802E0FC: @ 0x0802E0FC
     beq .L0802EB02
 .L0802EA6E:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802EA82
@@ -10050,7 +9852,7 @@ func_0802E0FC: @ 0x0802E0FC
     ldr r5, [sp, #0x7c]
     strb r0, [r5]
     adds r0, r7, #0
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     ldr r0, [r7, #0x38]
     adds r0, #0x54
     bl func_0800F390
@@ -10080,7 +9882,7 @@ func_0802E0FC: @ 0x0802E0FC
 .L0802EAD0:
     ldr r2, [sp, #0x78]
     ldrb r1, [r2]
-    bl func_080380EC
+    bl LaunchSideSprite
     ldr r0, [r7]
     ldr r1, [r0]
     movs r3, #0xa6
@@ -10094,7 +9896,7 @@ func_0802E0FC: @ 0x0802E0FC
     beq .L0802EB02
 .L0802EAF0:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802EA82
@@ -10106,7 +9908,7 @@ func_0802E0FC: @ 0x0802E0FC
     ldr r0, [r0]
 .L0802EB06:
     movs r1, #0x6c
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802EBE6
     .align 2, 0
 .L0802EB10: .4byte 0x00001CCC
@@ -10393,7 +10195,7 @@ func_0802EC00: @ 0x0802EC00
     beq .L0802ED40
 .L0802ED2E:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802ECFC
@@ -10405,7 +10207,7 @@ func_0802EC00: @ 0x0802EC00
     ldr r0, [r0]
 .L0802ED44:
     movs r1, #0xb6
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     ldr r0, [r7, #0x38]
     adds r0, #0x54
     bl func_0800F390
@@ -10787,7 +10589,7 @@ func_0802EC00: @ 0x0802EC00
     beq .L0802F02A
 .L0802F018:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802EF8E
@@ -10799,7 +10601,7 @@ func_0802EC00: @ 0x0802EC00
     ldr r0, [r0]
 .L0802F02E:
     movs r1, #0xd0
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802F0AE
     .align 2, 0
 .L0802F038: .4byte gUnk_080F117F
@@ -10820,7 +10622,7 @@ func_0802EC00: @ 0x0802EC00
     beq .L0802F06A
 .L0802F058:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802F03C
@@ -10832,7 +10634,7 @@ func_0802EC00: @ 0x0802EC00
     ldr r0, [r0]
 .L0802F06E:
     movs r1, #0xd1
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L0802F0AE
 .L0802F076:
     ldr r0, [r4]
@@ -10851,7 +10653,7 @@ func_0802EC00: @ 0x0802EC00
     beq .L0802F0A4
 .L0802F092:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802F076
@@ -10863,7 +10665,7 @@ func_0802EC00: @ 0x0802EC00
     ldr r0, [r0]
 .L0802F0A8:
     movs r1, #0xd0
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
 .L0802F0AE:
     movs r1, #0
     ldrh r0, [r7, #0x24]
@@ -11497,7 +11299,7 @@ func_0802F0EC: @ 0x0802F0EC
     beq .L0802F63E
 .L0802F62C:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802F5F4
@@ -11686,7 +11488,7 @@ func_0802F0EC: @ 0x0802F0EC
     beq .L0802F7CE
 .L0802F7BC:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802F792
@@ -11769,7 +11571,7 @@ func_0802F0EC: @ 0x0802F0EC
     orrs r5, r2
     strh r5, [r6, #4]
     mov r1, sp
-    bl func_08010014
+    bl ItemCollection_SetExtraItems
     mov r2, sl
     ldr r0, [r2]
     ldr r1, [r0]
@@ -11893,7 +11695,7 @@ func_0802F0EC: @ 0x0802F0EC
     bl func_0800ED2C
 .L0802F964:
     mov r0, sl
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     mov r4, sl
     movs r5, #0xa
     ldrsh r3, [r4, r5]
@@ -12013,7 +11815,7 @@ func_0802F0EC: @ 0x0802F0EC
     movs r0, #1
     strb r0, [r1]
     mov r0, sl
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     mov r6, sl
     ldr r4, [r6, #0x38]
     adds r0, r4, #0
@@ -13608,7 +13410,7 @@ sub_0802FBFC: @ 0x0802FBFC
     beq .L080306AC
 .L0803069A:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08030648
@@ -13620,7 +13422,7 @@ sub_0802FBFC: @ 0x0802FBFC
     ldr r0, [r0]
 .L080306B0:
     movs r1, #0x6d
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r6, #0
     ldr r2, [sp, #0x158]
     strh r6, [r2]
@@ -14704,7 +14506,7 @@ sub_08030E0A: @ 0x08030E0A
     bl .L08031F0E
 .L08030F6E:
     mov r0, sl
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     mov r7, sl
     ldr r0, [r7, #0x34]
     ldr r1, .L08030FBC @ =0x000034C4
@@ -14914,7 +14716,7 @@ sub_08030E0A: @ 0x08030E0A
     beq .L080311DE
 .L0803110C:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0803119C
@@ -15014,7 +14816,7 @@ sub_08030E0A: @ 0x08030E0A
     beq .L080311DE
 .L080311CC:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0803119C
@@ -15026,7 +14828,7 @@ sub_08030E0A: @ 0x08030E0A
     ldr r0, [r0]
 .L080311E2:
     movs r1, #0x6a
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     bl .L08031F0E
 .L080311EC:
     ldr r3, [sp, #0x13c]
@@ -16030,7 +15832,7 @@ sub_0803192E: @ 0x0803192E
     beq .L0803199A
 .L08031988:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0803194C
@@ -16042,7 +15844,7 @@ sub_0803192E: @ 0x0803192E
     ldr r0, [r0]
 .L0803199E:
     movs r1, #0x6b
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L08031F0E
 .L080319A6:
     movs r1, #0
@@ -16502,7 +16304,7 @@ sub_08031A5E: @ 0x08031A5E
     ldr r4, [sp, #0x13c]
     strb r0, [r4]
     mov r0, sl
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     mov r5, sl
     ldr r0, [r5]
     ldr r1, [r0]
@@ -16517,7 +16319,7 @@ sub_08031A5E: @ 0x08031A5E
     beq .L08031D00
 .L08031CEE:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08031CB2
@@ -16529,7 +16331,7 @@ sub_08031A5E: @ 0x08031A5E
     ldr r0, [r0]
 .L08031D04:
     movs r1, #0x65
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L08031F0E
 .L08031D0C:
     movs r1, #0
@@ -16578,7 +16380,7 @@ sub_08031A5E: @ 0x08031A5E
     beq .L08031D6E
 .L08031D5C:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08031D26
@@ -16593,10 +16395,10 @@ sub_08031A5E: @ 0x08031A5E
 
     thumb_func_start sub_08031D74
 sub_08031D74: @ 0x08031D74
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
 .L08031D78:
     mov r0, sl
-    bl func_0802A7D8
+    bl CancelFarmerItemDisplay
     b .L08031F0E
 .L08031D80:
     movs r1, #0
@@ -16660,7 +16462,7 @@ sub_08031D74: @ 0x08031D74
     beq .L08031DFA
 .L08031DE8:
     ldr r0, [r5]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08031DB4
@@ -16672,7 +16474,7 @@ sub_08031D74: @ 0x08031D74
     ldr r0, [r0]
 .L08031DFE:
     movs r1, #0x65
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r0, #0
     strb r0, [r4]
     movs r0, #0xf
@@ -16729,7 +16531,7 @@ sub_08031E0A: @ 0x08031E0A
     beq .L08031E74
 .L08031E62:
     ldr r0, [r5]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08031E30
@@ -16741,7 +16543,7 @@ sub_08031E0A: @ 0x08031E0A
     ldr r0, [r0]
 .L08031E78:
     movs r1, #0x66
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r0, #0
     strb r0, [r4]
     movs r0, #0x10
@@ -16854,65 +16656,7 @@ sub_08031E0A: @ 0x08031E0A
     .byte 0x70, 0x47, 0x00, 0x00, 0xA8, 0x30, 0x00, 0x68, 0x70, 0x47, 0x00, 0x00, 0xB1, 0x30, 0x00, 0x78
     .byte 0x70, 0x47, 0x00, 0x00, 0x7A, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00
 
-    thumb_func_start func_0803205C
-func_0803205C: @ 0x0803205C
-    push {lr}
-    movs r1, #0
-    adds r0, #0x3c
-    ldrb r0, [r0]
-    cmp r0, #7
-    beq .L0803206C
-    cmp r0, #0x2d
-    bne .L0803206E
-.L0803206C:
-    movs r1, #1
-.L0803206E:
-    adds r0, r1, #0
-    pop {r1}
-    bx r1
+    .section .text.entities_part2.08032074,"ax",%progbits
 .L08032074:
     .byte 0xC0, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0xCB, 0x1F, 0x03, 0x80
     .byte 0x13, 0x1C, 0x09, 0x3B, 0x43, 0x80, 0x07, 0x31, 0x81, 0x80, 0x05, 0x32, 0xC2, 0x80, 0x70, 0x47
-
-    thumb_func_start func_08032090
-func_08032090: @ 0x08032090
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    adds r2, r1, #0
-    ldr r1, [r4]
-    mov r0, sp
-    ldr r3, [r1, #0xc]
-    adds r1, r4, #0
-    bl _call_via_r3
-    ldr r0, [sp]
-    ldr r1, [sp, #4]
-    str r0, [sp, #8]
-    str r1, [sp, #0xc]
-    add r2, sp, #8
-    movs r4, #0
-    movs r3, #0
-    ldr r0, [sp, #8]
-    movs r1, #0
-    cmp r0, #0
-    beq .L080320BC
-    ldrh r1, [r2, #4]
-.L080320BC:
-    adds r2, r1, #0
-    cmp r4, r2
-    bhs .L080320D0
-    adds r1, r0, #0
-.L080320C4:
-    ldrh r0, [r1, #2]
-    adds r4, r4, r0
-    adds r1, #4
-    adds r3, #1
-    cmp r3, r2
-    blo .L080320C4
-.L080320D0:
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0

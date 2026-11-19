@@ -75,11 +75,11 @@ EC u8 vtable_unk_080E850C[];
 EC u8 vtable_unk_080E8528[];
 EC void * func_080ADF6C(void *, void *);
 EC void * func_080B3CC8(void *, void *);
-EC void func_080007EC(void *, u32);
-EC void func_08008B6C(void *, u32);
+EC void Scene_DestroyBase(void *, u32);
+EC void AudioPlayer_StartSong(void *, u32);
 EC void func_080B0934(void *);
 EC void func_080B0970(void *);
-EC void func_08050D8C(void *, char const *);
+EC void SetMessageWindowText(void *, char const *);
 EC u16 gUnk_08107ACC[4][6];
 EC u8 gUnk_08107AFC[];
 EC char gUnk_08107B28[], gUnk_08107B5C[], gUnk_08107C18[];
@@ -117,7 +117,7 @@ EC SECTION(".text.g3_080B3948") void AdvanceFeedingEffectTimers(FeedingEffectTim
 
 EC SECTION(".text.g3_080B3BA8") void ToggleFeedingPause(u8 * state)
 {
-    func_08008B6C(state + 0x818, 0xb8);
+    AudioPlayer_StartSong(state + 0x818, 0xb8);
     u32 * paused = (u32 *) (state + 0x83c);
     if (*paused == 0)
     {
@@ -144,7 +144,7 @@ EC SECTION(".text.g3_080B3C0C") void DestroyChickenFeedingWrapper(MinigameWrappe
     MinigameState * state = (MinigameState *) self->state;
     if (state != nullptr)
         state->vtable->destroy(state, 3);
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 EC SECTION(".text.g3_080B8DAC") u16 GetFestivalChickenAnimation(u8 * state, u32 animation, u32 direction, u8 round)
@@ -163,7 +163,7 @@ EC SECTION(".text.g3_080B9428") void TriggerFestivalRivalCheer(ChickenFestivalCo
         state->chickens[1].actionFrames = 0;
         state->chickens[1].animationDirty = 1;
         state->chickens[1].action = 5;
-        func_08008B6C((u8 *) state + 0x70c, 0xcc);
+        AudioPlayer_StartSong((u8 *) state + 0x70c, 0xcc);
     }
 }
 
@@ -248,11 +248,11 @@ EC SECTION(".text.g3_080BA574") void ShowFestivalInstructionPage(u8 * state, u32
 {
     switch (page)
     {
-    case 1: func_08050D8C(*(void **) (state + 0x718), gUnk_08107B28); break;
-    case 2: func_08050D8C(*(void **) (state + 0x718), gUnk_08107B5C); break;
-    case 3: func_08050D8C(*(void **) (state + 0x718), gUnk_08107C18); break;
-    case 4: func_08050D8C(*(void **) (state + 0x718), gUnk_08107CB0); break;
-    case 5: func_08050D8C(*(void **) (state + 0x718), gUnk_08107CE0); break;
+    case 1: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107B28); break;
+    case 2: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107B5C); break;
+    case 3: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107C18); break;
+    case 4: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107CB0); break;
+    case 5: SetMessageWindowText(*(void **) (state + 0x718), gUnk_08107CE0); break;
     }
 }
 
@@ -269,7 +269,7 @@ EC SECTION(".text.g3_080BC8C0") void DestroyChickenFestivalWrapper(MinigameWrapp
     MinigameState * state = (MinigameState *) self->state;
     if (state != nullptr)
         state->vtable->destroy(state, 3);
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 struct FestivalMatchState
@@ -288,13 +288,13 @@ struct FestivalMatchState
     u8 rivalCheerInterval;
 };
 
-EC u32 func_080088D4(void *);
+EC u32 HardwareContext_GetRepeatedKeys(void *);
 struct FestivalCheerAI;
 EC void TryFestivalRivalCheer(FestivalCheerAI *);
 
 EC SECTION(".text.g3_080BA6B8") void HandleFestivalCheerInput(FestivalMatchState * state)
 {
-    u32 keys = func_080088D4(state);
+    u32 keys = HardwareContext_GetRepeatedKeys(state);
     if (state->chickens[0].canCheer == 1 && (keys & 1))
     {
         state->chickens[0].cheerRequested = 1;
@@ -304,7 +304,7 @@ EC SECTION(".text.g3_080BA6B8") void HandleFestivalCheerInput(FestivalMatchState
             state->chickens[0].actionFrames = 0;
             state->chickens[0].animationDirty = 1;
             state->chickens[0].action = 5;
-            func_08008B6C((u8 *) state + 0x70c, 0xcc);
+            AudioPlayer_StartSong((u8 *) state + 0x70c, 0xcc);
         }
     }
     if (state->chickens[1].canCheer == 1)
@@ -360,7 +360,35 @@ struct FestivalPauseState
     u8 paused;
 };
 
-EC u32 func_080088CC(void *);
+EC u32 HardwareContext_GetPressedKeys(void *);
+
+EC SECTION(".text.g3_080BA608") void ToggleFestivalPause(FestivalPauseState * state)
+{
+    if (HardwareContext_GetPressedKeys(state) & 8)
+    {
+        AudioPlayer_StartSong((u8 *) state + 0x714, 0xb8);
+        if (state->paused)
+        {
+            state->paused = 0;
+            state->chickens[0]->playbackRate = 0x100;
+            state->chickens[1]->playbackRate = 0x100;
+            state->shadows[0]->playbackRate = 0x100;
+            state->shadows[1]->playbackRate = 0x100;
+            state->reactions[0]->playbackRate = 0x100;
+            state->reactions[1]->playbackRate = 0x100;
+        }
+        else
+        {
+            state->chickens[0]->playbackRate = 0;
+            state->chickens[1]->playbackRate = 0;
+            state->shadows[0]->playbackRate = 0;
+            state->shadows[1]->playbackRate = 0;
+            state->reactions[0]->playbackRate = 0;
+            state->reactions[1]->playbackRate = 0;
+            state->paused = 1;
+        }
+    }
+}
 
 struct FestivalSceneResult
 {
@@ -483,12 +511,12 @@ EC SECTION(".text.g3_080B9AC0") void UpdateFestivalChickenMovement(ChickenFestiv
 EC u16 gUnk_08107D3C[], gUnk_08107D46[4][4], gUnk_08107D66[];
 
 
-EC void * func_08008918(void *);
-EC void * func_080088DC(void *);
-EC void * func_08008920(void *);
-EC void * func_08008940(void *);
-EC void * func_0800894C(void *);
-EC i32 func_08050D3C(void *, void *, void *, void *, void *, void *, void *);
+EC void * HardwareContext_GetDisplayRegisters(void *);
+EC void * HardwareContext_GetState(void *);
+EC void * HardwareContext_GetOamBuffer(void *);
+EC void * HardwareContext_GetFrameTasks(void *);
+EC void * HardwareContext_GetVBlankTasks(void *);
+EC i32 UpdateMessageWindow(void *, void *, void *, void *, void *, void *, void *);
 
 struct FestivalSceneFlow
 {
@@ -517,13 +545,13 @@ EC SECTION(".text.g3_080B45F0") void ResetChickenFestivalScene(FestivalSceneFlow
     flow->thirdParticipant = 22;
     u8 * state = (u8 *) flow;
     void * window = *(void **) (state + 0x718);
-    void * input = func_080088DC(state);
-    void * sprites = func_08008920(state);
-    void * registers = func_08008918(state);
-    void * graphics = func_08008940(state);
-    void * palettes = func_0800894C(state);
+    void * input = HardwareContext_GetState(state);
+    void * sprites = HardwareContext_GetOamBuffer(state);
+    void * registers = HardwareContext_GetDisplayRegisters(state);
+    void * graphics = HardwareContext_GetFrameTasks(state);
+    void * palettes = HardwareContext_GetVBlankTasks(state);
     void * dialogueState = state + 0x708;
-    func_08050D3C(window, input, sprites, registers, graphics, palettes, dialogueState);
+    UpdateMessageWindow(window, input, sprites, registers, graphics, palettes, dialogueState);
 }
 
 
@@ -847,7 +875,7 @@ EC SECTION(".text.g3_080B94A8") void UpdateFestivalCheerWindup(FestivalCheerReso
         state->chickens[chicken].movementBias = 0;
         state->chickens[chicken].animationDirty = 0;
         state->chickens[chicken].unknown_2E = 1;
-        func_08008B6C((u8 *) state + 0x710, 0xb5);
+        AudioPlayer_StartSong((u8 *) state + 0x710, 0xb5);
     }
 }
 
@@ -886,7 +914,7 @@ EC SECTION(".text.g3_080B9844") void UpdateFestivalCheerReaction(FestivalReactio
         if (++state->chickens[chicken].actionFrames > 59)
         {
             state->chickens[chicken].actionFrames = 0;
-            func_08008B6C((u8 *) state + 0x710, 0xb5);
+            AudioPlayer_StartSong((u8 *) state + 0x710, 0xb5);
         }
         return;
     }
@@ -992,8 +1020,8 @@ struct FestivalCheerDemonstration
     u16 reactionSpeed;
 };
 
-EC void func_08008B88(void *, u32);
-EC void func_08050DE4(void *);
+EC void AudioPlayer_StartSongIfStoppedOrChanged(void *, u32);
+EC void EnableMessageWindowInstantText(void *);
 
 EC SECTION(".text.g3_080B5318") void UpdateFestivalCheerDemonstration(FestivalCheerDemonstration * state)
 {
@@ -1012,12 +1040,12 @@ EC SECTION(".text.g3_080B5318") void UpdateFestivalCheerDemonstration(FestivalCh
         state->chickens[0].actionFrames = 0;
         state->playerAnimation = 1;
         state->rivalAnimation = 1;
-        func_08008B88((u8 *) state + 0x70c, 0xcc);
+        AudioPlayer_StartSongIfStoppedOrChanged((u8 *) state + 0x70c, 0xcc);
         break;
     case 3:
         if (state->frames == 1)
         {
-            func_08008B6C((u8 *) state + 0x70c, 0xa6);
+            AudioPlayer_StartSong((u8 *) state + 0x70c, 0xa6);
             func_0805E860(state->reactions[1], 2);
             state->chickens[1].unknown_31[14] = 1;
         }
@@ -1045,7 +1073,7 @@ EC SECTION(".text.g3_080B5318") void UpdateFestivalCheerDemonstration(FestivalCh
         }
         break;
     case 4:
-        func_08008B88((u8 *) state + 0x70c, 0xcc);
+        AudioPlayer_StartSongIfStoppedOrChanged((u8 *) state + 0x70c, 0xcc);
         state->frames = 0;
         state->chickens[0].actionFrames = 0;
         state->chickens[1].action = 2;
@@ -1058,14 +1086,14 @@ EC SECTION(".text.g3_080B5318") void UpdateFestivalCheerDemonstration(FestivalCh
         else if (state->chickens[0].ringDistance == 0)
         {
             state->chickens[0].action = 0;
-            func_08050DE4(state->message);
+            EnableMessageWindowInstantText(state->message);
         }
         break;
     case 5:
         state->chickens[1].action = 2;
         state->chickens[1].facing = 1;
         if (state->frames == 1)
-            func_08008B6C((u8 *) state + 0x70c, 0xa6);
+            AudioPlayer_StartSong((u8 *) state + 0x70c, 0xa6);
         if (state->frames <= 59)
         {
             state->playerAnimation = 2;
@@ -1085,7 +1113,7 @@ EC SECTION(".text.g3_080B5318") void UpdateFestivalCheerDemonstration(FestivalCh
                 state->chickens[0].x, state->chickens[0].y);
             if (state->chickens[0].ringDistance < 0)
             {
-                func_08050DE4(state->message);
+                EnableMessageWindowInstantText(state->message);
                 state->frames = 180;
                 state->chickens[0].action = 0;
                 if ((state->chickens[0].y >> 11) <= 9)
@@ -1132,62 +1160,62 @@ struct FestivalInstructionFlow
     u32 showPrompt;
 };
 
-EC i32 func_08050D34(void *);
-EC void func_08050D5C(void *);
-EC void func_08050D74(void *);
-EC void func_08050DD8(void *);
-EC i32 func_08050DF0(void *);
-EC void func_08050E30(void *, char const *, char const *, char const *, u32, u32, u32);
+EC i32 GetMessageWindowPhase(void *);
+EC void OpenMessageWindow(void *);
+EC void CloseMessageWindow(void *);
+EC void DisableMessageWindowInstantText(void *);
+EC i32 GetMessageWindowSelection(void *);
+EC void ConfigureMessageWindowPromptChoices(void *, char const *, char const *, char const *, u32, u32, u32);
 EC char gUnk_08107B00[], gUnk_08107B14[], gUnk_08107B1C[];
 EC char gUnk_08107A68[], gUnk_08107A80[], gUnk_08107A9C[], gUnk_08107AB4[];
 
 EC SECTION(".text.g3_080BA2C4") i32 RunFestivalInstructionDialogue(FestivalInstructionFlow * state, i32 timer)
 {
-    i32 mode = func_08050D34(state->message);
+    i32 mode = GetMessageWindowPhase(state->message);
     void * window = state->message;
-    void * input = func_080088DC(state);
-    void * sprites = func_08008920(state);
-    void * registers = func_08008918(state);
-    void * graphics = func_08008940(state);
-    void * palettes = func_0800894C(state);
+    void * input = HardwareContext_GetState(state);
+    void * sprites = HardwareContext_GetOamBuffer(state);
+    void * registers = HardwareContext_GetDisplayRegisters(state);
+    void * graphics = HardwareContext_GetFrameTasks(state);
+    void * palettes = HardwareContext_GetVBlankTasks(state);
     void * dialogueState = state->dialogueState;
-    switch (func_08050D3C(window, input, sprites, registers, graphics, palettes, dialogueState))
+    switch (UpdateMessageWindow(window, input, sprites, registers, graphics, palettes, dialogueState))
     {
     case 0:
         if (state->demonstrationComplete)
             state->phase = 2;
         else if (state->step != 3 || state->frames > 179)
-            func_08050D5C(state->message);
+            OpenMessageWindow(state->message);
         break;
     case 3:
         switch (mode)
         {
         default:
-            func_08050D74(state->message);
+            CloseMessageWindow(state->message);
             break;
         case 1:
             if (state->step == 4 && state->chickens[0].ringDistance > 0)
-                func_08050DD8(state->message);
+                DisableMessageWindowInstantText(state->message);
             if (state->step == 5 && state->chickens[0].ringDistance == 0)
-                func_08050DD8(state->message);
+                DisableMessageWindowInstantText(state->message);
             ShowFestivalInstructionPage((u8 *) state, state->step);
             break;
         case 4:
         case 5:
             if (++state->step == 6)
-                func_08050E30(state->message, gUnk_08107B00, gUnk_08107B14, gUnk_08107B1C, 0, 0, 0);
+                ConfigureMessageWindowPromptChoices(state->message, gUnk_08107B00, gUnk_08107B14, gUnk_08107B1C, 0, 0, 0);
             break;
         case 6:
-            switch (func_08050DF0(state->message))
+            switch (GetMessageWindowSelection(state->message))
             {
             case 1:
                 switch (state->round)
                 {
-                case 0: func_08050D8C(state->message, gUnk_08107A68); break;
-                case 1: func_08050D8C(state->message, gUnk_08107A80); break;
-                case 2: func_08050D8C(state->message, gUnk_08107A9C); break;
+                case 0: SetMessageWindowText(state->message, gUnk_08107A68); break;
+                case 1: SetMessageWindowText(state->message, gUnk_08107A80); break;
+                case 2: SetMessageWindowText(state->message, gUnk_08107A9C); break;
                 }
-                func_08050DD8(state->message);
+                DisableMessageWindowInstantText(state->message);
                 timer = 0;
                 break;
             case 2:
@@ -1208,9 +1236,9 @@ EC SECTION(".text.g3_080BA2C4") i32 RunFestivalInstructionDialogue(FestivalInstr
         {
             state->showPrompt = 1;
             timer = 122;
-            func_08050DE4(state->message);
-            func_08050D8C(state->message, gUnk_08107AB4);
-            func_08050DD8(state->message);
+            EnableMessageWindowInstantText(state->message);
+            SetMessageWindowText(state->message, gUnk_08107AB4);
+            DisableMessageWindowInstantText(state->message);
         }
         if ((u32) (timer - 122) <= 89)
             ++timer;
@@ -1218,8 +1246,8 @@ EC SECTION(".text.g3_080BA2C4") i32 RunFestivalInstructionDialogue(FestivalInstr
         {
             state->showPrompt = 0;
             timer = 121;
-            func_08050DE4(state->message);
-            func_08050D74(state->message);
+            EnableMessageWindowInstantText(state->message);
+            CloseMessageWindow(state->message);
             state->waitingForChoice = 0;
             state->demonstrationComplete = 1;
         }

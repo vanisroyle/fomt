@@ -1,7 +1,7 @@
 #include "prelude.h"
 #include "g5_graphics.hh"
+#include "sprite_animation.hh"
 
-EC u32 func_0805E8F0(void *);
 EC void func_080CE120(void *, void *, u32);
 EC u8 vtable_unk_080E85BC[];
 
@@ -9,7 +9,8 @@ EC SECTION(".text.g5_080CEC84") void ActivateInventoryCursor(u8 * self, u32 inde
 {
     self[0x84] = 1;
     self[0x68] = 1;
-    while ((i32) (func_0805E8F0(self + 0x38) << 29) >= 0) {}
+    while (static_cast<i32>(AdvanceSpriteAnimator(reinterpret_cast<SpriteAnimator *>(self + 0x38))
+        << (31 - SpriteAnimator::LOOP_FLAG_BIT)) >= 0) {}
     void * owner = *(void **) self;
     u32 position;
     u8 * coords = (u8 *) &position;
