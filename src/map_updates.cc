@@ -55,7 +55,7 @@ EC void func_080A5BD8(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, 
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapPatchTiles const gUnk_08106DAC;
 EC u32 const gUnk_08107438[6];
-EC bool func_080A0504(BacheloretteRoster const & roster);
+EC bool HasRosterEntry(void * self);
 EC u32 func_080A041C(BacheloretteRoster const & roster);
 EC Bachelorette const * func_080A01F8(BacheloretteRoster const & roster, u32 npcId);
 EC u32 GetFirstSlotWithTool__C8RucksackUi(void const * rucksack, u32 toolId);
@@ -92,7 +92,7 @@ EC SECTION(".text.080AA8F0") bool CanStockBlueFeather(MapUpdateState const & map
 {
     MapUpdateSave * const & save = map.save;
     BacheloretteRoster const & roster = *reinterpret_cast<BacheloretteRoster const *>(save->bachelorettes);
-    if (func_080A0504(roster) || func_080A041C(roster) != 0)
+    if (HasRosterEntry(save->bachelorettes) || func_080A041C(roster) != 0)
         return false;
 
     ToolStack const & equippedTool = save->equippedTool;

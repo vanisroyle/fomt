@@ -15259,7 +15259,7 @@ func_080DBA4C: @ 0x080DBA4C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_0805CEB8
+	bl InitHorseRaceScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]

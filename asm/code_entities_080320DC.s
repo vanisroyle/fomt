@@ -3129,7 +3129,7 @@ func_08034260: @ 0x08034260
     adds r1, #0x30
     ldrb r1, [r1]
     add r2, sp, #8
-    bl func_0809E988
+    bl SetNpcEventSlot
     ldr r1, .L080342D4 @ =0xFFFF0000
     ldr r0, [sp, #0x18]
     ands r0, r1
@@ -3235,7 +3235,7 @@ func_0803436C: @ 0x0803436C
     ldm r1!, {r4, r5}
     stm r2!, {r4, r5}
     ldrb r1, [r3]
-    bl func_0809E994
+    bl ClearNpcEventSlot
     ldr r0, [sp, #0x24]
     ldr r1, [r0, #0x3c]
     mov r0, sp
@@ -4006,7 +4006,7 @@ func_08034940: @ 0x08034940
     adds r1, r5, #0
     adds r1, #0x30
     ldrb r1, [r1]
-    bl func_0809E994
+    bl ClearNpcEventSlot
     ldr r0, [r5, #0x34]
     add r1, sp, #8
     bl method_0809E7FC__13HarvestSprite
