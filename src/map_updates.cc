@@ -181,7 +181,7 @@ struct SavedMapPatchRecord
 };
 
 EC u32 GetMapStateBit(u8 *, u32, u32);
-EC void func_080A1CBC(SavedMapPatchRecord &, u8 *, unsigned);
+EC void GetMapForageObstacle(SavedMapPatchRecord &, u8 *, unsigned);
 EC void func_080AA9C8(MapUpdateState &, SavedMapPatchRecord const &);
 EC u8 const gUnk_08107450[][2];
 
@@ -260,7 +260,7 @@ EC SECTION(".text.080AACB8") void RefreshMapTileCacheForState(MapUpdateState & s
     {
         if (static_cast<u8>(GetMapStateBit(patches, index, season)))
         {
-            func_080A1CBC(patch, patches, index);
+            GetMapForageObstacle(patch, patches, index);
             func_080AA9C8(*map, patch);
         }
         ++index;
@@ -269,7 +269,7 @@ EC SECTION(".text.080AACB8") void RefreshMapTileCacheForState(MapUpdateState & s
     {
         if (static_cast<u8>(GetMapStateBit(patches, index, season)))
         {
-            func_080A1CBC(patch, patches, index);
+            GetMapForageObstacle(patch, patches, index);
             func_080AA9C8(*map, patch);
         }
     }

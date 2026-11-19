@@ -13013,7 +13013,7 @@ func_080AD77C: @ 0x080AD77C
 	adds r1, r7, #0
 	mov r2, sb
 	adds r3, r6, #0
-	bl func_080A4A00
+	bl InitializeAnimatedMapSpriteSinglePalette
 	adds r5, r0, #0
 	ldr r1, [r4]
 	cmp r5, r1
@@ -13047,7 +13047,7 @@ func_080AD77C: @ 0x080AD77C
 	adds r1, r7, #0
 	ldr r2, .L080AD8C0 @ =0x000001A9
 	adds r3, r6, #0
-	bl func_080A4A00
+	bl InitializeAnimatedMapSpriteSinglePalette
 	adds r5, r0, #0
 	ldr r1, [r4]
 	cmp r5, r1
