@@ -22,10 +22,12 @@ struct FestivalChicken
     u8 speed;
     u8 unknown_24[2];
     u8 cheerCooldown;
-    u8 unknown_27[5];
+    u8 unknown_27[3];
+    u16 displayY;
     u8 cheerRequested;
     u8 animationDirty;
-    u8 unknown_2E[2];
+    u8 unknown_2E;
+    u8 movementBias;
     u8 canCheer;
     u8 unknown_31[15];
 };
@@ -453,6 +455,233 @@ EC SECTION(".text.g3_080BC254") u8 * CopyFestivalDialogueSpan(u8 * state, i32 ch
     }
     return state + 0xb35;
 }
+
+EC void UpdateFestivalChickenAction2(FestivalChicken *);
+EC void UpdateFestivalChickenAction4(FestivalChicken *);
+EC void UpdateFestivalChickenIdle(FestivalChicken *);
+EC void UpdateFestivalChickenAction3(FestivalChicken *);
+EC void func_080BA204(FestivalChicken *);
+
+EC SECTION(".text.g3_080B9AC0") void UpdateFestivalChickenMovement(ChickenFestivalCombat * state)
+{
+    for (u32 i = 0; i < 2; ++i)
+    {
+        switch (state->chickens[i].action)
+        {
+        case 1: MoveFestivalChicken(&state->chickens[i]); break;
+        case 2: UpdateFestivalChickenAction2(&state->chickens[i]); break;
+        case 4: UpdateFestivalChickenAction4(&state->chickens[i]); break;
+        case 0: UpdateFestivalChickenIdle(&state->chickens[i]); break;
+        case 3: UpdateFestivalChickenAction3(&state->chickens[i]); break;
+        case 5: func_080BA204(&state->chickens[i]); break;
+        }
+    }
+}
+
+
+EC u16 gUnk_08107D3C[], gUnk_08107D46[4][4], gUnk_08107D66[];
+
+
+EC void * func_08008918(void *);
+EC void * func_080088DC(void *);
+EC void * func_08008920(void *);
+EC void * func_08008940(void *);
+EC void * func_0800894C(void *);
+EC i32 func_08050D3C(void *, void *, void *, void *, void *, void *, void *);
+EC void func_080087C8(void *);
+EC void BlankChickenFestivalDisplay(void *);
+EC void func_080B469C(void *);
+EC void func_080B7648(void *);
+EC void func_080B5824(void *);
+EC void func_080B888C(void *);
+
+struct FestivalSceneFlow
+{
+    u8 unknown_000[0xb14];
+    i32 phase;
+    u32 round;
+    u8 unknown_B1C[0x15];
+    u8 introComplete;
+    u8 finished;
+    u8 unknown_B33[0xa];
+    u8 firstParticipant;
+    u8 secondParticipant;
+    u8 thirdParticipant;
+    u8 unknown_B40[0x18];
+    u8 initialRound;
+};
+
+EC SECTION(".text.g3_080B45F0") void ResetChickenFestivalScene(FestivalSceneFlow * flow)
+{
+    flow->introComplete = 0;
+    flow->finished = 0;
+    flow->round = flow->initialRound;
+    flow->phase = 0;
+    flow->firstParticipant = 22;
+    flow->secondParticipant = 22;
+    flow->thirdParticipant = 22;
+    u8 * state = (u8 *) flow;
+    void * window = *(void **) (state + 0x718);
+    void * input = func_080088DC(state);
+    void * sprites = func_08008920(state);
+    void * registers = func_08008918(state);
+    void * graphics = func_08008940(state);
+    void * palettes = func_0800894C(state);
+    void * dialogueState = state + 0x708;
+    func_08050D3C(window, input, sprites, registers, graphics, palettes, dialogueState);
+}
+
+
+EC void func_08008EB8(u32, void *, u32);
+EC void func_08008E64(void const *, void *, u32);
+EC void Unpack(void const *, void *);
+EC u8 gUnk_0873BE24[], gUnk_0873BF48[], gUnk_0873BFF0[], gUnk_0873CBF4[];
+
+
+
+struct SpriteHarvestingResource
+{
+    u32 unknown_00;
+    void * allocation;
+};
+
+struct SpriteHarvestingResources
+{
+    u8 unknown_000[0x5b0];
+    SpriteHarvestingResource groups[9];
+};
+
+EC void func_08007C28(SpriteHarvestingResource *, void *);
+EC void * func_08007B54(SpriteHarvestingResource *, u32);
+
+static inline void ResizeHarvestingResource(SpriteHarvestingResource & resource, u32 count)
+{
+    func_08007C28(&resource, resource.allocation);
+    resource.allocation = func_08007B54(&resource, count);
+}
+
+EC SECTION(".text.g3_080BCEC8") void AllocateSpriteHarvestingResources(SpriteHarvestingResources * state)
+{
+    ResizeHarvestingResource(state->groups[0], 3);
+    ResizeHarvestingResource(state->groups[1], 6);
+    ResizeHarvestingResource(state->groups[2], 2);
+    ResizeHarvestingResource(state->groups[3], 5);
+    ResizeHarvestingResource(state->groups[4], 5);
+    ResizeHarvestingResource(state->groups[5], 2);
+    ResizeHarvestingResource(state->groups[8], 4);
+    ResizeHarvestingResource(state->groups[7], 2);
+    ResizeHarvestingResource(state->groups[6], 6);
+}
+
+EC void func_080B8DF4(void *, u8);
+
+
+
+EC char gUnk_081078BD[20][13];
+EC char * strcpy(char *, char const *);
+
+struct FestivalNames
+{
+    u8 unknown_000[0x9e];
+    char player[14];
+    u8 unknown_0AC[0x32];
+    char rival[14];
+    u8 unknown_0EC[0xa2c];
+    i32 round;
+    char entrant[13];
+    u8 unknown_B29[0x14];
+    u8 opponents[3];
+};
+
+EC SECTION(".text.g3_080B757C") void ChooseFestivalOpponentName(FestivalNames * state)
+{
+    i32 opponent = 0;
+    for (int i = 0; i < 14; ++i)
+    {
+        state->player[i] = 0;
+        state->rival[i] = 0;
+    }
+    strcpy(state->player, state->entrant);
+    switch (state->round)
+    {
+    case 0:
+    {
+        u32 range = 6;
+        opponent = (range * (rand() & 0xffff)) >> 16;
+        break;
+    }
+    case 1:
+    {
+        u32 range = 7;
+        opponent = (range * (rand() & 0xffff)) >> 16;
+        opponent += 6;
+        break;
+    }
+    case 2:
+    {
+        u32 range = 7;
+        opponent = (range * (rand() & 0xffff)) >> 16;
+        opponent += 13;
+        break;
+    }
+    }
+    state->opponents[state->round] = opponent;
+    strcpy(state->rival, gUnk_081078BD[opponent]);
+}
+
+EC SECTION(".text.g3_080B9F64") u8 GetFestivalRivalRelativeDirection(ChickenFestivalCombat * state, u8 chicken, u8 rival)
+{
+    u8 direction = 0;
+    i32 dx = state->chickens[rival].x - state->chickens[chicken].x;
+    i32 dy = state->chickens[chicken].y - state->chickens[rival].y;
+    if ((dx > 0 && dy > 0 && dy > dx)
+        || (dx < 0 && dy > 0 && dy > -dx)
+        || (dy > 0 && dx == 0))
+        direction = 4 - state->chickens[chicken].facing;
+    else if ((dx > 0 && dy > 0 && dx > dy)
+        || (dx > 0 && dy < 0 && dx > -dy)
+        || (dx > 0 && dy == 0))
+        direction = 5 - state->chickens[chicken].facing;
+    else if ((dx > 0 && dy < 0 && dx < -dy)
+        || (dx < 0 && dy < 0 && dx > dy)
+        || (dy < 0 && dx == 0))
+        direction = 6 - state->chickens[chicken].facing;
+    else if ((dx < 0 && dy < 0 && dx < dy)
+        || (dx < 0 && dy > 0 && dx < -dy)
+        || (dx < 0 && dy == 0))
+        direction = 7 - state->chickens[chicken].facing;
+    else if (dx > 0 && dy > 0 && dx == dy)
+        direction = 12 - state->chickens[chicken].facing;
+    else if (dx > 0 && dy < 0 && dx == -dy)
+        direction = 13 - state->chickens[chicken].facing;
+    else if (dx < 0 && dy < 0 && dx == dy)
+        direction = 14 - state->chickens[chicken].facing;
+    else if (dx < 0 && dy > 0 && dx == -dy)
+        direction = 15 - state->chickens[chicken].facing;
+    if ((u8) (direction - 4) <= 7)
+        direction -= 4;
+    else if (direction > 11)
+        direction -= 8;
+    return direction;
+}
+
+
+EC SECTION(".text.g3_080BB890") u16 GetFestivalResultAnimation(u8 * state, i32 kind, u32 round, u32 animation)
+{
+    u16 result = 0;
+    switch (kind)
+    {
+    case 0: result = gUnk_08107D3C[round]; break;
+    case 1:
+        if (round != 0)
+            round += *(u32 *) (state + 0xb18);
+        result = gUnk_08107D46[round][animation];
+        break;
+    case 2: result = gUnk_08107D66[animation]; break;
+    }
+    return result;
+}
+
 
 EC SECTION(".text.g3_080BA608") void ToggleFestivalPause(FestivalPauseState * state)
 {

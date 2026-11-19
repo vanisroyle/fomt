@@ -403,6 +403,10 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B44E0);
         src/g3_state.o(.text.g3_080B45E4);
         asm/code_809E804.o(.text.g3_after_080B45E4);
+        src/g3_chicken_festival.o(.text.g3_080B45F0);
+        asm/code_809E804.o(.text.g3_after_080B45F0);
+        src/g3_chicken_festival.o(.text.g3_080B757C);
+        asm/code_809E804.o(.text.g3_after_080B757C);
         src/g3_chicken_festival.o(.text.g3_080B8DAC);
         asm/code_809E804.o(.text.g3_after_080B8DAC);
         src/g3_chicken_festival.o(.text.g3_080B9428);
@@ -415,10 +419,14 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B97FC);
         src/g3_chicken_festival.o(.text.g3_080B9828);
         asm/code_809E804.o(.text.g3_after_080B9828);
+        src/g3_chicken_festival.o(.text.g3_080B9AC0);
+        asm/code_809E804.o(.text.g3_after_080B9AC0);
         src/g3_chicken_festival.o(.text.g3_080B9F0C);
         asm/code_809E804.o(.text.g3_after_080B9F0C);
         src/g3_chicken_festival.o(.text.g3_080B9F38);
         asm/code_809E804.o(.text.g3_after_080B9F38);
+        src/g3_chicken_festival.o(.text.g3_080B9F64);
+        asm/code_809E804.o(.text.g3_after_080B9F64);
         src/g3_chicken_festival.o(.text.g3_080BA1A4);
         asm/code_809E804.o(.text.g3_after_080BA1A4);
         src/g3_state.o(.text.g3_080BA1F4);
@@ -439,6 +447,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080BA6B8);
         src/g3_chicken_festival.o(.text.g3_080BA734);
         asm/code_809E804.o(.text.g3_after_080BA734);
+        src/g3_chicken_festival.o(.text.g3_080BB890);
+        asm/code_809E804.o(.text.g3_after_080BB890);
         src/g3_chicken_festival.o(.text.g3_080BC254);
         asm/code_809E804.o(.text.g3_after_080BC254);
         src/g3_chicken_festival.o(.text.g3_080BC898);
@@ -453,6 +463,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080BCCD4);
         src/g3_state.o(.text.g3_080BCEBC);
         asm/code_809E804.o(.text.g3_after_080BCEBC);
+        src/g3_chicken_festival.o(.text.g3_080BCEC8);
+        asm/code_809E804.o(.text.g3_after_080BCEC8);
         asm/code_080C8360.o(.text);
         src/g5_panels.o(.text.g5_080C8550);
         asm/code_080C8360.o(.text.g5_after_080C8550);
