@@ -2094,8 +2094,8 @@ gUnk_08103680:
 gUnk_081036A0:
 	.incbin "baserom.gba", 0x1036A0, 0x20
 
-	.global gUnk_081036C0
-gUnk_081036C0:
+	.global gCursedToolProgressThresholds
+gCursedToolProgressThresholds:
 	.incbin "baserom.gba", 0x1036C0, 0x14
 
 	.global gUnk_081036D4
@@ -3182,20 +3182,20 @@ gUnk_08117814:
 gUnk_08117828:
 	.incbin "baserom.gba", 0x117828, 0x10
 
-	.global gUnk_08117838
-gUnk_08117838:
+	.global gInventorySpecialSlotPosition
+gInventorySpecialSlotPosition:
 	.incbin "baserom.gba", 0x117838, 0x4
 
-	.global gUnk_0811783C
-gUnk_0811783C:
+	.global gInventorySlotPositions
+gInventorySlotPositions:
 	.incbin "baserom.gba", 0x11783C, 0x20
 
-	.global gUnk_0811785C
-gUnk_0811785C:
+	.global gInventorySpecialSlotCountPosition
+gInventorySpecialSlotCountPosition:
 	.incbin "baserom.gba", 0x11785C, 0x4
 
-	.global gUnk_08117860
-gUnk_08117860:
+	.global gInventorySlotCountPositions
+gInventorySlotCountPositions:
 	.incbin "baserom.gba", 0x117860, 0x2C
 
 	.global gUnk_0811788C
