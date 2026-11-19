@@ -73,6 +73,39 @@ struct SpriteWorkTarget
     u32 extra;
 };
 
+struct SpriteWorkerTaskStorage
+{
+    u8 kind_flags;
+    u8 payload[7];
+};
+
+struct SpriteWorkerLocationStorage
+{
+    u16 packed_map_x;
+    i16 packed_x_y;
+    i16 packed_y;
+};
+
+struct ActivitySpriteAnimationPair
+{
+    STRUCT_PAD(0x00, 0x04);
+    u16 animation_id;
+    u16 overlay_animation_id;
+};
+
+struct SpriteWorkerEntity : AActorEntity
+{
+    SpriteWorkerEntity();
+    u8 sprite_id;
+    STRUCT_PAD(0x31, 0x34);
+    HarvestSprite * record;
+    SpriteWorkTarget * work_targets;
+    void * work_context;
+    u8 work_state;
+    u8 work_pause;
+    u8 work_active;
+};
+
 struct SpriteWorkMapServices;
 struct SpriteWorkMapVTable
 {
@@ -139,6 +172,19 @@ struct NearbyReactiveNpc : AActorEntity
     u8 reaction_timer;
 };
 
+struct ScheduledNpcPathView : AActorEntity
+{
+    ScheduledNpcPathView();
+    Npc * record;
+    void * world;
+    ScheduleInfo const * schedule_info;
+    u8 schedule_index;
+    u8 entry_index;
+    u8 point_index;
+    u8 reaction_timer;
+    u16 path_elapsed;
+};
+
 EC void SetNpcWalkingAnimation(AActorEntity * self, u32 animation);
 EC void SetNpcIdleAnimation(AActorEntity * self, u32 animation);
 EC void func_08034EB4(AActorEntity * self, u32 reason);
@@ -153,10 +199,191 @@ EC bool IsNpcAtNorthernExit(AEntity * self);
 EC u8 * GetActiveRosterNpc(u8 * roster);
 EC u32 GetNamedNpcAgeDays(u8 * npc);
 EC bool IsFamilyScheduleAwayFromHome(void const * world, GameTime const & time);
-EC bool func_08035978(AActorEntity * self);
+EC bool CanAdvanceScheduledNpcPath(AActorEntity * self);
 EC void func_08032384(AActorEntity * self, u32 state, u32 argument);
 EC ScheduleInfo const gUnk_080F29C0;
 EC ScheduleEntry const * func_080D7ECC(ScheduleEntry const *, ScheduleEntry const *, i32 const *, u32, u32);
+EC void ReadSpriteWorkerTaskLocation(SpriteWorkerLocationStorage *, AEntity const *) asm("GetLocation__C7AEntity");
+EC void FindSpriteWorkerTask(SpriteWorkerTaskStorage *, void *, GameObject *, SpriteWorkerLocationStorage const *, HarvestSprite::Task, SpriteWorkTarget *) asm("func_080330F4");
+EC void SetNpcEventSlot(SpriteWorkTarget *, u8, SpriteWorkerTaskStorage const *);
+EC u32 RollEntityMovementRandom(u32 maximum);
+EC u8 const gUnk_080F16C2[];
+EC u32 func_0805E8F0(void * animation);
+
+EC bool CanAdvanceScheduledNpcPath(AActorEntity * actor) NPC_EXTRA_CODE(08035978);
+EC bool CanAdvanceScheduledNpcPath(AActorEntity * actor)
+{
+    ScheduledNpcPathView * self = reinterpret_cast<ScheduledNpcPathView *>(actor);
+    i32 ready;
+    if (!self->vfunc_28())
+    {
+        ScheduleInfo const * info = self->schedule_info;
+        if (info != nullptr)
+        {
+            Schedule const * schedule = info->schedules[self->schedule_index];
+            if (schedule != nullptr)
+            {
+                u8 entry_index = self->entry_index;
+                if (u32(entry_index) < u32(schedule->num_time_entries))
+                {
+                    ScheduleEntry const * entry = &schedule->time_entries[entry_index];
+                    PathInfo const * path = entry->path;
+                    if (path != nullptr)
+                    {
+                        MarriageNpcServices * game = reinterpret_cast<MarriageNpcServices *>(self->game_object);
+                        MarriageNpcClock * clock = game->vtable->get_clock(game);
+                        GameTime const & time = clock->time;
+                        i32 hour = u32(time.clock_hour) - 6;
+                        if (hour < 0)
+                            hour += 24;
+                        u32 minutes = hour * 60 + u32(time.clock_minute);
+                        if (path->points != nullptr)
+                        {
+                            u16 count = path->num_points;
+                            if (count != 0)
+                            {
+                                if (u32(self->point_index) >= u32(count))
+                                    goto not_ready;
+                                if (i32(u32(path->point_type_select) << 31) >= 0)
+                                {
+                                    ready = 0;
+                                    i32 elapsed = self->path_elapsed;
+                                    i32 timeout = 750;
+                                    if (elapsed < timeout)
+                                        goto done;
+                                    goto path_ready;
+                                }
+                            }
+                        }
+                        ready = 0;
+                        if (i32(self->entry_index + 1) < i32(schedule->num_time_entries) && minutes >= u32(entry[1].time))
+                            path_ready: ready = 1;
+                        done: return ready;
+                    }
+                }
+            }
+        }
+    }
+    not_ready:
+    return false;
+}
+
+static inline u32 AdvanceSideActorOverlay(UnknownEntityThing * self)
+{
+    i16 zero = 0;
+    if (self->unk_87 == zero)
+    {
+        u32 result = func_0805E8F0(&self->sprite_animator_70);
+        if (i32(result << 30) < zero)
+            self->unk_84 = 1;
+        return result;
+    }
+    self->unk_87 = zero;
+    return 2;
+}
+
+EC void UpdateSideActorAnimationLayers(UnknownEntityThing * self) NPC_SIDE_CODE(0803260C);
+EC void UpdateSideActorAnimationLayers(UnknownEntityThing * self)
+{
+    u8 * changed = &self->unk_47;
+    u8 state;
+    if (self->unk_47 == 0)
+    {
+        if (i32(func_0805E8F0(&self->sprite_animator) << 30) < 0)
+        {
+            changed = &self->unk_44;
+            state = 1;
+            goto store_state;
+        }
+    }
+    else
+    {
+        state = 0;
+        store_state:
+        *changed = state;
+    }
+    u32 mode = self->unk_8A_0;
+    if (mode != 0)
+    {
+        i32 hide = 0;
+        u32 result = AdvanceSideActorOverlay(self);
+        if (i32(result << 29) < 0 && mode != 2)
+            hide = 1;
+        if (hide)
+            self->unk_8A_0 = 0;
+    }
+}
+
+EC i32 SelectActivitySpriteAnimationPair(void * self, ActivitySpriteAnimationPair * sprite, u8 variant) NPC_EXTRA_CODE(0803A144);
+EC i32 SelectActivitySpriteAnimationPair(void * self, ActivitySpriteAnimationPair * sprite, u8 variant)
+{
+    u8 selection = variant;
+    u8 const * overlay;
+    i32 index;
+    do
+    {
+        if (i32(u32(variant) << 24) < 0)
+            selection = RollEntityMovementRandom(3);
+        u8 const * table = gUnk_080F16C2;
+        do
+        {
+            index = i8(selection);
+            sprite->animation_id = *reinterpret_cast<u16 const *>(table + index * 4);
+            overlay = table + (index * 2 + 1) * 2;
+            sprite->overlay_animation_id = *reinterpret_cast<u16 const *>(overlay);
+        } while (0);
+    } while (0);
+    return index;
+}
+
+EC i32 IsSpriteWorkerOutOfTasks(SpriteWorkerEntity * self) NPC_SIDE_CODE(08033B24);
+EC i32 IsSpriteWorkerOutOfTasks(SpriteWorkerEntity * self)
+{
+    SpriteWorkerTaskStorage target;
+    SpriteWorkerLocationStorage location;
+    GameObject * game;
+    u32 sprite_id = self->sprite_id;
+    SpriteWorkTarget const * current = self->work_targets;
+    current += sprite_id;
+    if (u32(current->kind_flags) << 28)
+        return 0;
+    game = self->game_object;
+    ReadSpriteWorkerTaskLocation(&location, self);
+    FindSpriteWorkerTask(&target, self->work_context, game, &location, self->record->GetCurrentTask(), self->work_targets);
+    SpriteWorkerTaskStorage const * result = &target;
+    i32 empty = 0;
+    if ((u32(result->kind_flags) << 28) == 0)
+        empty = 1;
+    return empty;
+}
+
+EC bool TryAssignSpriteWorkerTask(SpriteWorkerEntity * self) NPC_SIDE_CODE(08034260);
+EC bool TryAssignSpriteWorkerTask(SpriteWorkerEntity * self)
+{
+    SpriteWorkerTaskStorage target;
+    SpriteWorkerLocationStorage location;
+    struct Timer { u32 duration : 16; u32 : 16; } timer;
+    GameObject * game;
+    bool found;
+    if (self->work_pause)
+        return false;
+    game = self->game_object;
+    ReadSpriteWorkerTaskLocation(&location, self);
+    FindSpriteWorkerTask(&target, self->work_context, game, &location, self->record->GetCurrentTask(), self->work_targets);
+    if ((u32(target.kind_flags) << 28) == 0)
+    {
+        self->work_pause = 1;
+        found = false;
+    }
+    else
+    {
+        SetNpcEventSlot(self->work_targets, self->sprite_id, &target);
+        timer.duration = 0;
+        self->record->method_0809E7E4(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
+        found = true;
+    }
+    return found;
+}
 
 EC bool IsFamilyScheduleAwayFromHome(void const * world, GameTime const & time) NPC_SIDE_CODE(08034C64);
 EC bool IsFamilyScheduleAwayFromHome(void const * world, GameTime const & time)
@@ -203,7 +430,7 @@ EC void ReactToNearbyNpcLocation(NearbyReactiveNpc * self, Location const & loca
             i32 dy = location.y - GetNearbyNpcCoordinate(self->y_q16);
             if (dy < 0)
                 dy = -dy;
-            if (dy <= 111 && !func_08035978(self) && !self->vfunc_28())
+            if (dy <= 111 && !CanAdvanceScheduledNpcPath(self) && !self->vfunc_28())
             {
                 func_08032384(self, 2, 0);
                 self->reaction_timer = 120;

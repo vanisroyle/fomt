@@ -344,7 +344,7 @@ EC u8 const vtable_unk_080E76BC[];
 EC void vfunc_14__7AEntity(AEntity * self);
 EC void SetChangedLocation__3Npc(void * record);
 EC SpriteWorkerEffect * func_08034A14(SpriteWorkerEffect * self, SpriteWorkerEntity * actor);
-EC void func_0803260C(UnknownEntityThing * self);
+EC void UpdateSideActorAnimationLayers(UnknownEntityThing * self);
 EC bool AudioPlayer_IsPlaying(AudioPlayer * self);
 EC void AudioPlayer_StartSong(AudioPlayer * self, u16 song);
 
@@ -390,7 +390,7 @@ EC void RefreshSpriteWorkerRecord(SpriteWorkerEntity * self)
 EC void UpdateSpriteWorkerEffect(SpriteWorkerEffect * self) NPC_SIDE_CODE(08034AA0);
 EC void UpdateSpriteWorkerEffect(SpriteWorkerEffect * self)
 {
-    func_0803260C(self);
+    UpdateSideActorAnimationLayers(self);
     if (self->effect_timer != 0)
     {
         if (self->effect_restart == 0)

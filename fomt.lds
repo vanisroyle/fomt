@@ -588,7 +588,7 @@ SECTIONS
         src/npc_side_entities.o(.text.npc_side.080324B8);
         src/npc_side_batch6.o(.text.npc_side.080324BC);
         src/npc_side_batch6.o(.text.npc_side.08032560);
-        asm/code_entities_080320DC.o(.text.npc_side.0803260C);
+        src/npc_side_batch8.o(.text.npc_side.0803260C);
         asm/code_entities_080320DC.o(.text.npc_side.08032690);
         src/npc_side_entities.o(.text.npc_side.08032900);
         src/npc_side_batch5.o(.text.npc_side.08032934);
@@ -636,13 +636,13 @@ SECTIONS
         src/npc_side_batch5.o(.text.npc_side.08033AE4);
         src/npc_side_batch5.o(.text.npc_side.08033AFC);
         src/npc_side_batch5.o(.text.npc_side.08033B10);
-        asm/code_entities_080320DC.o(.text.npc_side.08033B24);
+        src/npc_side_batch8.o(.text.npc_side.08033B24);
         src/npc_side_entities.o(.text.npc_side.08033B7C);
         src/npc_side_batch2.o(.text.npc_side.08033B84);
         asm/code_entities_080320DC.o(.text.npc_side.08033B94);
         asm/code_entities_080320DC.o(.text.npc_side.08034180);
         src/npc_side_entities.o(.text.npc_side.08034248);
-        asm/code_entities_080320DC.o(.text.npc_side.08034260);
+        src/npc_side_batch8.o(.text.npc_side.08034260);
         src/npc_side_batch7.o(.text.npc_side.080342D8);
         asm/code_entities_080320DC.o(.text.npc_side.0803436C);
         src/npc_side_batch5.o(.text.npc_side.08034AA0);
@@ -658,7 +658,7 @@ SECTIONS
         asm/code_entities_08034CEC.o(.text.npc_extra.08035380);
         src/npc_side_batch2.o(.text.npc_extra.08035908);
         src/npc_side_batch2.o(.text.npc_extra.08035940);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08035978);
+        src/npc_side_batch8.o(.text.npc_extra.08035978);
         src/npc_side_batch8.o(.text.npc_extra.08035A48);
         src/npc_side_batch2.o(.text.npc_extra.08035AE0);
         src/npc_side_batch3.o(.text.npc_extra.08035AFC);
@@ -869,7 +869,7 @@ SECTIONS
         src/npc_side_batch6.o(.text.npc_extra.08039E98);
         src/npc_side_batch5.o(.text.npc_extra.08039F50);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039F90);
-        asm/code_entities_08034CEC.o(.text.npc_extra.0803A144);
+        src/npc_side_batch8.o(.text.npc_extra.0803A144);
         asm/code_entities_08034CEC.o(.text.npc_extra.0803A180);
         src/npc_side_batch2.o(.text.npc_extra.0803A320);
         src/npc_side_batch2.o(.text.npc_extra.0803A334);

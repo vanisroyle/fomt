@@ -18112,7 +18112,7 @@ func_080DCFE0: @ 0x080DCFE0
 	lsls r2, r2, #0x1c
 	asrs r2, r2, #0x1c
 	adds r0, r5, #0
-	bl func_0803A144
+	bl SelectActivitySpriteAnimationPair
 	adds r1, r5, #0
 	adds r1, #0x78
 	movs r2, #0
@@ -19312,7 +19312,7 @@ func_080DD9CC: @ 0x080DD9CC
 	lsls r2, r2, #0x18
 	asrs r2, r2, #0x18
 	adds r0, r5, #0
-	bl func_0803A144
+	bl SelectActivitySpriteAnimationPair
 	adds r0, r5, #0
 	adds r0, #0x68
 	movs r2, #0

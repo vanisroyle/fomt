@@ -62,7 +62,7 @@ struct SideEntityEffects
 EC u32 RollEntityMovementRandom(u32 limit);
 EC bool RollSpriteWorkChance(u32 friendship);
 EC u32 GetSpriteWorkerFriendship(Npc const * self) asm("GetFriendship__C3Npc");
-EC bool func_08034260(SpriteWorkerEntity * self);
+EC bool TryAssignSpriteWorkerTask(SpriteWorkerEntity * self);
 EC void func_08034180(AActorEntity * self, u32 animation, u32 facing, u32 speed);
 EC void SetNpcWalkingAnimation(AActorEntity * self, u32 animation);
 EC void SetNpcIdleAnimation(AActorEntity * self, u32 animation);
@@ -87,7 +87,7 @@ EC u32 ComputeSpriteWorkSpeed(u32 task_experience)
 EC void ChooseSpriteWorkerNextTask(SpriteWorkerEntity * self) NPC_SIDE_CODE(080342D8);
 EC void ChooseSpriteWorkerNextTask(SpriteWorkerEntity * self)
 {
-    if (!RollSpriteWorkChance(GetSpriteWorkerFriendship(self->record)) || !func_08034260(self))
+    if (!RollSpriteWorkChance(GetSpriteWorkerFriendship(self->record)) || !TryAssignSpriteWorkerTask(self))
     {
         struct Timer { u32 duration : 16; u32 animation : 8; u32 facing : 8; } timer;
         timer.duration = RollEntityMovementRandom(180);

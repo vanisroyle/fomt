@@ -91,81 +91,6 @@ func_0803242C: @ 0x0803242C
 
     .section .text.npc_side.0803260C, "ax", %progbits
 
-    thumb_func_start func_0803260C
-func_0803260C: @ 0x0803260C
-    push {r4, r5, r6, r7, lr}
-    adds r4, r0, #0
-    adds r1, r4, #0
-    adds r1, #0x47
-    ldrb r0, [r1]
-    cmp r0, #0
-    bne .L08032630
-    adds r0, r4, #0
-    adds r0, #0x30
-    bl func_0805E8F0
-    lsls r0, r0, #0x1e
-    cmp r0, #0
-    bge .L08032634
-    adds r1, r4, #0
-    adds r1, #0x44
-    movs r0, #1
-    b .L08032632
-.L08032630:
-    movs r0, #0
-.L08032632:
-    strb r0, [r1]
-.L08032634:
-    adds r1, r4, #0
-    adds r1, #0x8a
-    ldrb r0, [r1]
-    lsls r0, r0, #0x1e
-    lsrs r5, r0, #0x1e
-    adds r6, r1, #0
-    cmp r5, #0
-    beq .L0803268A
-    movs r7, #0
-    subs r1, #3
-    ldrb r0, [r1]
-    cmp r0, #0
-    bne .L0803266A
-    adds r0, r4, #0
-    adds r0, #0x70
-    bl func_0805E8F0
-    adds r2, r0, #0
-    lsls r0, r2, #0x1e
-    cmp r0, #0
-    bge .L08032666
-    adds r1, r4, #0
-    adds r1, #0x84
-    movs r0, #1
-    strb r0, [r1]
-.L08032666:
-    adds r0, r2, #0
-    b .L08032670
-.L0803266A:
-    movs r0, #0
-    strb r0, [r1]
-    movs r0, #2
-.L08032670:
-    lsls r0, r0, #0x1d
-    cmp r0, #0
-    bge .L0803267C
-    cmp r5, #2
-    beq .L0803267C
-    movs r7, #1
-.L0803267C:
-    cmp r7, #0
-    beq .L0803268A
-    ldrb r1, [r6]
-    movs r0, #4
-    rsbs r0, r0, #0
-    ands r0, r1
-    strb r0, [r6]
-.L0803268A:
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-
     .section .text.npc_side.08032690, "ax", %progbits
 
     thumb_func_start func_08032690
@@ -2174,53 +2099,6 @@ func_08033928: @ 0x08033928
 
     .section .text.npc_side.08033B24, "ax", %progbits
 
-    thumb_func_start func_08033B24
-func_08033B24: @ 0x08033B24
-    push {r4, r5, r6, lr}
-    sub sp, #0x18
-    adds r6, r0, #0
-    adds r0, #0x30
-    ldrb r0, [r0]
-    ldr r1, [r6, #0x38]
-    lsls r0, r0, #3
-    adds r1, r1, r0
-    ldrb r0, [r1]
-    lsls r0, r0, #0x1c
-    cmp r0, #0
-    beq .L08033B40
-    movs r0, #0
-    b .L08033B74
-.L08033B40:
-    ldr r5, [r6]
-    add r4, sp, #0x10
-    adds r0, r4, #0
-    adds r1, r6, #0
-    bl GetLocation__C7AEntity
-    ldr r0, [r6, #0x34]
-    bl GetCurrentTask__C13HarvestSprite
-    ldr r1, [r6, #0x3c]
-    str r0, [sp]
-    ldr r0, [r6, #0x38]
-    str r0, [sp, #4]
-    add r0, sp, #8
-    adds r2, r5, #0
-    adds r3, r4, #0
-    bl func_080330F4
-    add r0, sp, #8
-    movs r1, #0
-    ldrb r0, [r0]
-    lsls r0, r0, #0x1c
-    cmp r0, #0
-    bne .L08033B72
-    movs r1, #1
-.L08033B72:
-    adds r0, r1, #0
-.L08033B74:
-    add sp, #0x18
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-
     .section .text.npc_side.08033B84, "ax", %progbits
 
     .section .text.npc_side.08033B94, "ax", %progbits
@@ -2378,7 +2256,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     bne .L08033CD0
 .L08033CC2:
     adds	r0, r7, #0
-    bl func_08034260
+    bl TryAssignSpriteWorkerTask
     lsls	r0, r0, #24
     cmp	r0, #0
     beq .L08033CD0
@@ -3108,66 +2986,6 @@ func_08034180: @ 0x08034180
     .align 2, 0
 
     .section .text.npc_side.08034260, "ax", %progbits
-
-    thumb_func_start func_08034260
-func_08034260: @ 0x08034260
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    adds r6, r0, #0
-    adds r7, r6, #0
-    adds r7, #0x41
-    ldrb r0, [r7]
-    cmp r0, #0
-    beq .L08034274
-    movs r0, #0
-    b .L080342CA
-.L08034274:
-    ldr r5, [r6]
-    add r4, sp, #0x10
-    adds r0, r4, #0
-    adds r1, r6, #0
-    bl GetLocation__C7AEntity
-    ldr r0, [r6, #0x34]
-    bl GetCurrentTask__C13HarvestSprite
-    ldr r1, [r6, #0x3c]
-    str r0, [sp]
-    ldr r0, [r6, #0x38]
-    str r0, [sp, #4]
-    add r0, sp, #8
-    adds r2, r5, #0
-    adds r3, r4, #0
-    bl func_080330F4
-    add r0, sp, #8
-    ldrb r0, [r0]
-    lsls r0, r0, #0x1c
-    cmp r0, #0
-    bne .L080342AA
-    movs r0, #1
-    strb r0, [r7]
-    movs r0, #0
-    b .L080342CA
-.L080342AA:
-    ldr r0, [r6, #0x38]
-    adds r1, r6, #0
-    adds r1, #0x30
-    ldrb r1, [r1]
-    add r2, sp, #8
-    bl SetNpcEventSlot
-    ldr r1, .L080342D4 @ =0xFFFF0000
-    ldr r0, [sp, #0x18]
-    ands r0, r1
-    str r0, [sp, #0x18]
-    ldr r0, [r6, #0x34]
-    add r1, sp, #0x18
-    bl method_0809E7E4__13HarvestSpritePC15UnkBarnAnimal2C
-    movs r0, #1
-.L080342CA:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L080342D4: .4byte 0xFFFF0000
 
     .section .text.npc_side.0803436C, "ax", %progbits
 
@@ -4215,4 +4033,3 @@ DrawSpriteWorkerEffectLayer: @ 0x08034AE8
     .section .text.npc_side.08034C4C, "ax", %progbits
 
     .section .text.npc_side.08034C64, "ax", %progbits
-

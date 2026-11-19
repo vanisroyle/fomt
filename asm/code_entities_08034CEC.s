@@ -762,116 +762,6 @@ func_08035380: @ 0x08035380
 
     .section .text.npc_extra.08035978, "ax", %progbits
 
-    thumb_func_start func_08035978
-func_08035978: @ 0x08035978
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r0, [r4, #0x14]
-    ldr r1, [r0, #0x28]
-    adds r0, r4, #0
-    bl _call_via_r1
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08035A3A
-    ldr r1, [r4, #0x38]
-    cmp r1, #0
-    beq .L08035A3A
-    adds r0, r4, #0
-    adds r0, #0x3c
-    ldrb r0, [r0]
-    ldr r1, [r1, #8]
-    lsls r0, r0, #2
-    adds r0, r0, r1
-    ldr r6, [r0]
-    cmp r6, #0
-    beq .L08035A3A
-    adds r0, r4, #0
-    adds r0, #0x3d
-    ldrb r1, [r0]
-    mov r8, r0
-    ldrh r0, [r6]
-    cmp r1, r0
-    bhs .L08035A3A
-    lsls r1, r1, #3
-    ldr r0, [r6, #4]
-    adds r7, r0, r1
-    ldr r5, [r7, #4]
-    cmp r5, #0
-    beq .L08035A3A
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldrh r1, [r0, #0xa]
-    lsls r0, r1, #0x1b
-    lsrs r0, r0, #0x1b
-    subs r2, r0, #6
-    cmp r2, #0
-    bge .L080359E0
-    adds r2, #0x18
-.L080359E0:
-    lsls r0, r2, #4
-    subs r0, r0, r2
-    lsls r0, r0, #2
-    lsls r1, r1, #0x15
-    lsrs r1, r1, #0x1a
-    adds r1, r0, r1
-    ldr r0, [r5]
-    cmp r0, #0
-    beq .L08035A20
-    ldrh r2, [r5, #4]
-    cmp r2, #0
-    beq .L08035A20
-    adds r0, r4, #0
-    adds r0, #0x3e
-    ldrb r0, [r0]
-    cmp r0, r2
-    bhs .L08035A3A
-    ldrb r0, [r5, #0xb]
-    lsls r0, r0, #0x1b
-    cmp r0, #0
-    blt .L08035A20
-    movs r2, #0
-    adds r0, r4, #0
-    adds r0, #0x40
-    ldrh r1, [r0]
-    ldr r0, .L08035A1C @ =0x000002EE
-    cmp r1, r0
-    blt .L08035A36
-    b .L08035A34
-    .align 2, 0
-.L08035A1C: .4byte 0x000002EE
-.L08035A20:
-    movs r2, #0
-    mov r3, r8
-    ldrb r0, [r3]
-    adds r0, #1
-    ldrh r6, [r6]
-    cmp r0, r6
-    bge .L08035A36
-    ldrh r7, [r7, #8]
-    cmp r1, r7
-    blo .L08035A36
-.L08035A34:
-    movs r2, #1
-.L08035A36:
-    adds r0, r2, #0
-    b .L08035A3C
-.L08035A3A:
-    movs r0, #0
-.L08035A3C:
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
     .section .text.npc_extra.08035AFC, "ax", %progbits
 
     .section .text.npc_extra.08035B64, "ax", %progbits
@@ -5295,38 +5185,6 @@ func_08039F90: @ 0x08039F90
 
     .section .text.npc_extra.0803A144, "ax", %progbits
 
-    thumb_func_start func_0803A144
-func_0803A144: @ 0x0803A144
-    push {r4, lr}
-    adds r4, r1, #0
-    lsls r2, r2, #0x18
-    lsrs r0, r2, #0x18
-    cmp r2, #0
-    bge .L0803A15A
-    movs r0, #3
-    bl RollEntityMovementRandom
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-.L0803A15A:
-    ldr r2, .L0803A17C @ =gUnk_080F16C2
-    lsls r0, r0, #0x18
-    asrs r0, r0, #0x18
-    lsls r1, r0, #2
-    adds r1, r1, r2
-    ldrh r1, [r1]
-    strh r1, [r4, #4]
-    lsls r1, r0, #1
-    adds r1, #1
-    lsls r1, r1, #1
-    adds r1, r1, r2
-    ldrh r1, [r1]
-    strh r1, [r4, #6]
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0803A17C: .4byte gUnk_080F16C2
-
     .section .text.npc_extra.0803A180, "ax", %progbits
 
     thumb_func_start func_0803A180
@@ -5877,7 +5735,7 @@ func_0803A394: @ 0x0803A394
     adds r0, r5, #0
     movs r2, #1
     rsbs r2, r2, #0
-    bl func_0803A144
+    bl SelectActivitySpriteAnimationPair
     adds r1, r5, #0
     adds r1, #0x78
     strb r0, [r1]
@@ -5990,7 +5848,7 @@ func_0803A394: @ 0x0803A394
     adds r0, r5, #0
     movs r2, #1
     rsbs r2, r2, #0
-    bl func_0803A144
+    bl SelectActivitySpriteAnimationPair
     adds r0, r5, #0
     adds r0, #0x60
     movs r1, #0
