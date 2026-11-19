@@ -143,11 +143,33 @@ old aliases are retained. Do not ship a translation without auditing the
 non-script consumers and testing relevant gameplay. No runtime decoder or
 global pointer changes are made, and normal builds never reclaim automatically.
 
-Without `--placeholders`, chosen large cells keep their old artwork until you
-draw replacements. With the flag the base ASCII glyph is centered in a 16px
-cell and given a generic top accent marker: these are not finished Vietnamese
-typefaces. Capacity checks happen before modifications, and repeat assignments
-are no-ops. Existing single-byte assignments are kept, not migrated.
+Vietnamese letters in `--reclaim-large` mode are drawn automatically, even
+without `--placeholders`. The tool composites the extracted small-font base
+letters with original, hand-drawn acute/grave/hook/tilde/dot/circumflex/breve/horn
+patterns. Circumflex or breve plus tone are placed side by side; horn attaches
+to the upper right of o/u. Accented i loses its original dot, dot-below letters
+reserve row 11, and marked capitals compress their base vertically while
+preserving strokes. Đ/đ add a crossbar to D/d. All ink fits a 16x12 cell.
+Only accent patterns and algorithms are committed, never ROM-derived letters.
+
+The unmodified renderer has no per-glyph width table: double-byte map entries
+always return width class 2 and use the 16px drawing/advance path, regardless
+of ink width. There is no existing double-byte-to-8px switch; no decoder patch
+is made here. The original single-byte path remains 8px.
+
+```sh
+python3 tools/assets/font_assets.py vietnamese-sheet \
+    --output /home/ubuntu/screenshots/vi_glyphs.png
+```
+
+This generates all 134 letters from the supplied ROM at 4x zoom, with Unicode
+hex labels (alphabetical by code point). The PNG is a local review artifact,
+not source to commit. Existing assigned/hand-edited glyphs are not redrawn by
+sample; repeated assignments remain no-ops. For non-Vietnamese characters,
+`--placeholders` retains its old generic-marker behavior; otherwise those
+cells keep their original artwork for manual drawing. Existing single-byte
+assignments are kept, not migrated. Review the generated Vietnamese sheet
+and in-game typography before release, especially the compact capitals.
 
 ### Proposed next decoder change — NOT implemented
 
@@ -206,6 +228,7 @@ make assets-test
 python3 tools/assets/font_assets.py roundtrip
 make clean && make -j8 compare
 python3 tools/assets/check_font_rom.py
+python3 tools/assets/check_vietnamese_rom.py
 ```
 
 Roundtrip compares all font and map bytes to the original ROM. The opt-in ROM
@@ -219,3 +242,10 @@ It restores its edits in `finally` and finishes with compare; local sample
 ROMs are retained at `build/assets/font-sample.gba` and
 `build/assets/font-reclaimed-sample.gba`. This pipeline check is not an emulator
 rendering test.
+
+The Vietnamese-specific check assigns all 134 composed letters and replaces
+Thomas's script 0867 string 0 with a two-row Vietnamese sample. It validates
+the built script and all 134 bitmaps, saves `build/assets/vietnamese-thomas.gba`,
+then restores the edited files and compares the original ROM again. Start
+with pristine assets and a compare-OK build; do not run these edit checks in
+parallel with another build or asset editor.

@@ -215,11 +215,11 @@ class FontTests(unittest.TestCase):
         with (patch.object(font, "original_rom", return_value=bytes(0x527094)),
               patch.object(font, "rom_maps", return_value={"double": {0x889F: 0, 0x88A0: 1}}),
               patch.object(font, "script_usage", return_value=(set(), 0))):
-            font.sample(Path("unused"), self.root, "ạ", reclaim_large=True)
+            font.sample(Path("unused"), self.root, "☃", reclaim_large=True)
             self.assertEqual(path.read_bytes(), saved)
             before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
             with self.assertRaisesRegex(ValueError, "no edits made"):
-                font.sample(Path("unused"), self.root, "ạầ", reclaim_large=True)
+                font.sample(Path("unused"), self.root, "☃ầ", reclaim_large=True)
             self.assertTrue(all(p.read_bytes() == raw for p, raw in before.items()))
 
     def test_large_assignment_preserves_multi_glyph_charmap(self):
@@ -250,6 +250,36 @@ class FontTests(unittest.TestCase):
                 self.assertEqual(font.read_map(path, "single")[0xA0], 2)
                 expected = source.replace(row, row.replace(row.split("=", 1)[1].split("#", 1)[0].strip(), "2"))
                 self.assertEqual(path.read_text(), expected)
+
+    def test_vietnamese_composition_all_letters_and_tone_families(self):
+        single = {ord(c): i for i, c in enumerate("aeiouyAEIOUYDd")}
+        small = b"".join(bytes([0x10, 0x28] + [0x44] * 6 + [0x38, 0, 0, 0]) for _ in single)
+        for char in font.vietnamese_letters():
+            with self.subTest(char=char):
+                glyph = font.vietnamese_glyph(char, small, single)
+                self.assertEqual(len(glyph), 24)
+                self.assertTrue(any(glyph))
+                if "\u0323" in font.unicodedata.normalize("NFD", char):
+                    self.assertEqual(int.from_bytes(glyph[22:24], "big"), 1 << 8)
+        for family in ("ăằắẳẵặ", "âầấẩẫậ", "êềếểễệ", "ôồốổỗộ", "ơờớởỡợ", "ưừứửữự"):
+            for letters in (family, family.upper()):
+                self.assertEqual(len({font.vietnamese_glyph(c, small, single) for c in letters}), 6)
+        for char in ("", "x", "ệế"):
+            with self.assertRaises(ValueError):
+                font.vietnamese_glyph(char, small, single)
+        with self.assertRaisesRegex(ValueError, "base glyph"):
+            font.vietnamese_glyph("ạ", b"", {})
+
+    def test_reclaimed_vietnamese_is_drawn_without_placeholder_flag(self):
+        self.large_fixture()
+        with (patch.object(font, "original_rom", return_value=bytes(0x527094)),
+              patch.object(font, "rom_maps", return_value={"double": {0x889F: 0, 0x88A0: 1}}),
+              patch.object(font, "script_usage", return_value=(set(), 0))):
+            font.sample(Path("unused"), self.root, "ạ", reclaim_large=True)
+        small = font.from_sheet(font.read_png((self.root / "fonts/small.png").read_bytes()), 487, 8)
+        large = font.from_sheet(font.read_png((self.root / "fonts/large.png").read_bytes()), 6922, 16)
+        single = font.read_map(self.root / "fonts/single.map", "single")
+        self.assertEqual(large[24:48], font.vietnamese_glyph("ạ", small, single))
 
 
 if __name__ == "__main__":

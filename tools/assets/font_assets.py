@@ -20,6 +20,16 @@ MAPS = {"single": (0x4FA7A0, 256, 487), "double": (0x523290, 7938, 6922)}
 SIGNATURE = b"\x89PNG\r\n\x1a\n"
 SPECIAL_CODES = frozenset((0xB1, 0xB2, 0xB3, 0xB4, 0xB6, 0xB7, *range(0xBB, 0xC4)))
 MAP_ROW = re.compile(r"([0-9a-fA-F]{2,4})\s*=\s*(-?\d+)")
+ACCENTS = {
+    "\u0301": (".#", "#."),
+    "\u0300": ("#.", ".#"),
+    "\u0309": (".##", "..#", ".#."),
+    "\u0303": (".##..", "#..##"),
+    "\u0323": ("#",),
+    "\u0302": (".#.", "#.#"),
+    "\u0306": ("#...#", ".###."),
+    "\u031b": ("..#", "..#", "##."),
+}
 
 
 def png_chunk(tag, data):
@@ -276,6 +286,78 @@ def vietnamese_letters():
     return sorted(letters)
 
 
+def vietnamese_glyph(char, small, single):
+    if char not in vietnamese_letters():
+        raise ValueError(f"not a Vietnamese precomposed letter: {char!r}")
+    parts = unicodedata.normalize("NFD", char)
+    base = parts[0]
+    if base in "Đđ":
+        base = "D" if base == "Đ" else "d"
+    index = single.get(ord(base), -1)
+    if index < 0:
+        raise ValueError(f"missing base glyph for {base!r}")
+    source = list(small[index * 12:index * 12 + 12])
+    if len(source) != 12 or not any(source):
+        raise ValueError(f"empty or truncated base glyph for {base!r}")
+    shape = next((mark for mark in parts[1:] if mark in "\u0302\u0306\u031b"), None)
+    tone = next((mark for mark in parts[1:] if mark in "\u0300\u0301\u0309\u0303\u0323"), None)
+    above = shape is not None or tone not in (None, "\u0323")
+    if base == "i" and above:
+        for y in range(3):
+            source[y] = 0
+    if char in "Đđ":
+        source[4 if char == "Đ" else 2] |= 0xE0 if char == "Đ" else 0x1E
+    body = [(y, row) for y, row in enumerate(source) if row]
+    top, bottom = body[0][0], body[-1][0]
+    target_top = (4 if tone == "\u0309" else 3) if above else top
+    height = min(bottom - top + 1, 7 if base.isupper() and above else 12)
+    height = min(height, (10 if tone == "\u0323" else 12) - target_top)
+    rows = [0] * 12
+    for y in range(top, bottom + 1):
+        target = target_top + (y - top) * height // (bottom - top + 1)
+        rows[target] |= source[y] << 4
+
+    def stamp(mark, x, y):
+        for dy, pattern in enumerate(ACCENTS[mark]):
+            for dx, pixel in enumerate(pattern):
+                if pixel == "#":
+                    rows[y + dy] |= 1 << (15 - x - dx)
+
+    stacked = shape in ("\u0302", "\u0306") and tone not in (None, "\u0323")
+    if shape == "\u031b":
+        stamp(shape, 9, target_top - 2)
+    elif shape:
+        stamp(shape, (3 if shape == "\u0306" else 5) if stacked else (5 if shape == "\u0306" else 6), 0)
+    if tone == "\u0323":
+        stamp(tone, 7, 11)
+    elif tone:
+        stamp(tone, 9 if stacked else (5 if tone == "\u0303" else 6), 0)
+    return b"".join(row.to_bytes(2, "big") for row in rows)
+
+
+def vietnamese_sheet(rom_path, output):
+    rom = original_rom(rom_path)
+    single = rom_maps(rom)["single"]
+    small = rom[0x4F90CC:0x4FA7A0]
+    letters = vietnamese_letters()
+    rows = [bytearray(8 * 40) for _ in range(math.ceil(len(letters) / 8) * 28)]
+    for i, char in enumerate(letters):
+        x, y = i % 8 * 40, i // 8 * 28
+        glyph = vietnamese_glyph(char, small, single)
+        for dy in range(12):
+            value = int.from_bytes(glyph[dy * 2:dy * 2 + 2], "big")
+            for dx in range(16):
+                rows[y + dy][x + 12 + dx] = (value >> (15 - dx)) & 1
+        for j, digit in enumerate(f"{ord(char):04X}"):
+            start = single[ord(digit)] * 12
+            for dy, value in enumerate(small[start:start + 12]):
+                for dx in range(8):
+                    rows[y + 14 + dy][x + 4 + j * 8 + dx] = (value >> (7 - dx)) & 1
+    zoomed = [bytearray(pixel for pixel in row for _ in range(4)) for row in rows for _ in range(4)]
+    fa.write_changed(output, write_png(zoomed))
+    print(f"Vietnamese contact sheet: {len(letters)} glyphs, 4x, Unicode hex labels -> {output}")
+
+
 def glyph_for(raw, single, double):
     code = int.from_bytes(raw, "big")
     return single.get(code, -1) if len(raw) == 1 else double.get(code, -1) if len(raw) == 2 else -1
@@ -426,12 +508,16 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
     map_source = map_path.read_bytes().decode("utf-8")
     additions = []
     pixels = bytearray(data)
-    small = from_sheet(read_png((root / "small.png").read_bytes()), 487, 8) if reclaim_large and placeholders else data
+    real_letters = set(vietnamese_letters()) if reclaim_large else set()
+    draw = placeholders or any(char in real_letters for char in missing)
+    small = from_sheet(read_png((root / "small.png").read_bytes()), 487, 8) if reclaim_large and draw else data
     for char, code, slot in assignments:
         map_source = assign_map_row(map_source, code, slot)
         raw = code.to_bytes(2 if reclaim_large else 1, "big")
         additions.append(f"U+{ord(char):04X} = {raw.hex(' ').upper()}\n")
-        if placeholders:
+        if char in real_letters:
+            pixels[slot * size:slot * size + size] = vietnamese_glyph(char, small, single)
+        elif placeholders:
             base = unicodedata.normalize("NFD", char)[0]
             if base in "Đđ":
                 base = "D" if base == "Đ" else "d"
@@ -450,15 +536,16 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
     fa.write_changed(map_path, map_source.encode("utf-8"))
     separator = "" if old_charmap.endswith("\n") else "\n"
     fa.write_changed(assets / "charmap.txt", (old_charmap + separator + "".join(additions)).encode("utf-8"))
-    if placeholders:
+    if draw:
         fa.write_changed(root / (name + ".png"), write_png(to_sheet(bytes(pixels), count, width)))
     print(f"Added {len(assignments)} {kind}-byte assignments. "
-          + ("Placeholder accents need artist review." if placeholders else f"Draw the assigned cells in {name}.png."))
+          + ("Vietnamese glyphs composed from base letters and accent patterns." if real_letters and draw
+             else "Placeholder accents need artist review." if placeholders else f"Draw the assigned cells in {name}.png."))
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("extract", "build", "roundtrip", "capacity", "sample"))
+    parser.add_argument("command", choices=("extract", "build", "roundtrip", "capacity", "sample", "vietnamese-sheet"))
     parser.add_argument("--rom", type=Path, default=Path("baserom.gba"))
     parser.add_argument("--assets", type=Path, default=Path("assets"))
     parser.add_argument("--output", type=Path, default=Path("build/assets"))
@@ -480,6 +567,8 @@ def main():
             capacity(args.assets, args.rom)
         elif args.command == "sample":
             sample(args.rom, args.assets, args.text, args.placeholders, args.reclaim_large)
+        elif args.command == "vietnamese-sheet":
+            vietnamese_sheet(args.rom, args.output)
         else:
             rom = original_rom(args.rom)
             data = build_data(args.assets)
