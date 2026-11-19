@@ -7955,8 +7955,8 @@ func_08014D9C: @ 0x08014D9C
 .L08015208: .4byte 0x00000383
 .L0801520C: .4byte gUnk_080F0658
 
-    thumb_func_start func_08015210
-func_08015210: @ 0x08015210
+    thumb_func_start GameScript_RemoveLivestockInState2
+GameScript_RemoveLivestockInState2: @ 0x08015210
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -10955,8 +10955,8 @@ func_080168D4: @ 0x080168D4
 
     .section .text.game_state_08016DB0, "ax", %progbits
 
-    thumb_func_start func_08016DB0
-func_08016DB0: @ 0x08016DB0
+    thumb_func_start GameScript_StartRandomRecipeFoodAction
+GameScript_StartRandomRecipeFoodAction: @ 0x08016DB0
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}

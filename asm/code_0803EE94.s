@@ -9914,7 +9914,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044A5C
 	bl .L08045572
 .L08044A5C:
-	bl func_08015210
+	bl GameScript_RemoveLivestockInState2
 	bl .L08045572
 .L08044A64:
 	movs r6, #0xd5
@@ -10665,7 +10665,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08045020
 	bl .L0804168A
 .L08045020:
-	bl func_08016DB0
+	bl GameScript_StartRandomRecipeFoodAction
 	bl .L0804168A
 .L08045028:
 	movs r6, #0xd5

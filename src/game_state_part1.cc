@@ -246,7 +246,7 @@ struct GameStateObject
     virtual void vfunc_30();
     virtual void vfunc_34();
     virtual void vfunc_38(u32 id);
-    virtual void vfunc_3C(u32 value);
+    virtual void RemoveActor(u32 actorId);
     virtual GameStateActorEntity * GetActor(u32 actorId);
     virtual void vfunc_44();
     virtual void vfunc_48();
@@ -708,19 +708,19 @@ EC void SECTION(".text.game_state_08016834") GameScript_ClearFarmAnimalActor(Gam
     switch (kind)
     {
     case 0:
-        runtime.scene->vfunc_3C(0x2C);
+        runtime.scene->RemoveActor(0x2C);
         break;
     case 4:
-        runtime.scene->vfunc_3C(0x2B);
+        runtime.scene->RemoveActor(0x2B);
         break;
     case 1:
     case 2:
         reinterpret_cast<Barn *>(runtime.saveData + 0x5F0)->method_0800D80C(index);
-        runtime.scene->vfunc_3C(index + 0x36);
+        runtime.scene->RemoveActor(index + 0x36);
         break;
     case 3:
         reinterpret_cast<Coop *>(runtime.saveData + 0x410)->method_0800CB7C(index);
-        runtime.scene->vfunc_3C(index + 0x2E);
+        runtime.scene->RemoveActor(index + 0x2E);
         break;
     }
 }
@@ -872,7 +872,7 @@ EC u32 SECTION(".text.game_state_08016784") GameScript_FadeMusicIfPlaying(GameSt
 // 0x08016D34
 EC void SECTION(".text.game_state_08016D34") GameScript_InvokeSceneActorAction(GameStateScript & script, u32 actorId)
 {
-    script.runtime->scene->vfunc_3C(actorId);
+    script.runtime->scene->RemoveActor(actorId);
 }
 
 // 0x08012454
@@ -1533,7 +1533,7 @@ EC void SECTION(".text.game_state_08014D30") GameScript_RemoveHorse(GameStateScr
     GameStateRuntime & runtime = *script.runtime;
     if (value == 0)
     {
-        runtime.scene->vfunc_3C(0x2C);
+        runtime.scene->RemoveActor(0x2C);
         reinterpret_cast<Farm *>(runtime.saveData + 0x14)->RemoveHorse();
     }
 }
