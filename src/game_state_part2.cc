@@ -272,7 +272,6 @@ EC void SetAlternateMapPatch(u32 & flags, u32 index);
 EC void ClearAlternateMapPatch(u32 & flags, u32 index);
 EC void ApplySavedMapTilePatch(MapUpdateState & map, u32 index);
 EC MapData const * GetMapData(u32 map_variant);
-EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 barn_level);
 EC u32 func_0800E324(Unk_0800E324 const & clock);
 EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
 EC u8 * GameScript_GetSoundPlayers(GameStateScript & script);
@@ -315,7 +314,7 @@ EC SECTION(".text.game_state_c2.08019F7C") u32 GameStateGetMapWidthPixels(GameSt
     u32 house_level = state->farm.farm_house.GetUpgradeLevel();
     u32 coop_level = state->farm.coop.GetUpgradeLevel();
     u32 barn_level = state->farm.barn.GetUpgradeLevel();
-    return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->width * 8;
+    return GetMapData(GetMapGraphicsVariantId(map, season, house_level, coop_level, barn_level))->width * 8;
 }
 
 EC SECTION(".text.game_state_c2.08019FE8") u32 GameStateGetMapHeightPixels(GameStateMapOwner const & game, u32 map)
@@ -325,7 +324,7 @@ EC SECTION(".text.game_state_c2.08019FE8") u32 GameStateGetMapHeightPixels(GameS
     u32 house_level = state->farm.farm_house.GetUpgradeLevel();
     u32 coop_level = state->farm.coop.GetUpgradeLevel();
     u32 barn_level = state->farm.barn.GetUpgradeLevel();
-    return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->height * 8;
+    return GetMapData(GetMapGraphicsVariantId(map, season, house_level, coop_level, barn_level))->height * 8;
 }
 
 EC SECTION(".text.game_state_c2.0801A054") GameStateMapTerrain GameStateGetMapTerrain(GameStateMapOwner const & game, u32 map)
@@ -349,7 +348,7 @@ EC SECTION(".text.game_state_c2.0801A054") GameStateMapTerrain GameStateGetMapTe
         u32 house_level = state->farm.farm_house.GetUpgradeLevel();
         u32 coop_level = state->farm.coop.GetUpgradeLevel();
         u32 barn_level = state->farm.barn.GetUpgradeLevel();
-        variant = func_0803A8A4(map, season, house_level, coop_level, barn_level);
+        variant = GetMapGraphicsVariantId(map, season, house_level, coop_level, barn_level);
     }
 
     MapData const * data = GetMapData(variant);
