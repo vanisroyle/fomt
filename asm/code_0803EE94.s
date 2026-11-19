@@ -45860,7 +45860,7 @@ func_080588AC: @ 0x080588AC
 	movs r1, #0
 	bl func_08059FE0
 	adds r0, r6, #0
-	bl func_0805A3F0
+	bl LoadHorseRaceHelpTextTiles
 	ldr r0, [sp, #4]
 	ldr r1, .L08058A20 @ =0x00000889
 	adds r0, #0xc
@@ -46282,7 +46282,7 @@ func_080588AC: @ 0x080588AC
 	movs r0, #1
 	strh r0, [r1]
 	adds r0, r6, #0
-	bl func_0805A3F0
+	bl LoadHorseRaceHelpTextTiles
 	b .L08058E30
 	.align 2, 0
 .L08058D50: .4byte 0x00001424
@@ -48917,121 +48917,6 @@ func_08059FE0: @ 0x08059FE0
 .L0805A3E4: .4byte 0x00000BEA
 .L0805A3E8: .4byte 0x00000BF2
 .L0805A3EC: .4byte 0x0600F000
-
-	thumb_func_start func_0805A3F0
-func_0805A3F0: @ 0x0805A3F0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	ldr r4, .L0805A4C4 @ =0xFFFFF7E8
-	add sp, r4
-	ldr r1, .L0805A4C8 @ =0x06008000
-	movs r2, #0xb0
-	lsls r2, r2, #6
-	movs r0, #0
-	bl Dma3_Fill
-	ldr r4, .L0805A4CC @ =0x0600F800
-	movs r2, #0x80
-	lsls r2, r2, #4
-	movs r0, #0
-	adds r1, r4, #0
-	bl Dma3_Fill
-	movs r2, #0
-	ldr r0, .L0805A4D0 @ =gUnk_080FAFC8
-	mov r8, r0
-	movs r1, #0x80
-	lsls r1, r1, #6
-	adds r5, r1, #0
-.L0805A424:
-	movs r3, #0
-	lsls r1, r2, #6
-	lsls r0, r2, #5
-	adds r2, #1
-	adds r0, r0, r5
-	adds r1, r1, r4
-.L0805A430:
-	strh r0, [r1]
-	adds r0, #1
-	adds r1, #2
-	adds r3, #1
-	cmp r3, #0x1f
-	bls .L0805A430
-	cmp r2, #0x15
-	bls .L0805A424
-	mov r1, r8
-	ldr r0, [r1]
-	cmp r0, #0
-	beq .L0805A4B2
-	movs r6, #0x81
-	lsls r6, r6, #4
-	add r6, sp
-	movs r0, #0x20
-	mov sl, r0
-	movs r1, #2
-	mov sb, r1
-	add r5, sp, #0x10
-	ldr r7, .L0805A4C8 @ =0x06008000
-	ldr r4, .L0805A4D4 @ =0x00000814
-	add r4, sp
-.L0805A45E:
-	mov r0, sl
-	strh r0, [r6]
-	mov r1, sb
-	strh r1, [r6, #2]
-	ldr r0, [r6]
-	adds r1, r5, #0
-	movs r2, #0
-	bl FillMessageTiles
-	mov r0, r8
-	adds r0, #4
-	mov r8, r0
-	subs r0, #4
-	ldm r0!, {r1}
-	mov r0, sl
-	strh r0, [r4]
-	mov r0, sb
-	strh r0, [r4, #2]
-	ldr r0, [r4]
-	str r1, [sp]
-	movs r1, #0
-	str r1, [sp, #4]
-	movs r1, #1
-	str r1, [sp, #8]
-	adds r1, r5, #0
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileStringWithColors
-	adds r0, r5, #0
-	adds r1, r7, #0
-	movs r2, #0x80
-	lsls r2, r2, #4
-	bl Dma3_Copy
-	movs r0, #0x80
-	lsls r0, r0, #4
-	adds r7, r7, r0
-	mov r1, r8
-	ldr r0, [r1]
-	cmp r0, #0
-	bne .L0805A45E
-.L0805A4B2:
-	ldr r3, .L0805A4D8 @ =0x00000818
-	add sp, r3
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805A4C4: .4byte 0xFFFFF7E8
-.L0805A4C8: .4byte 0x06008000
-.L0805A4CC: .4byte 0x0600F800
-.L0805A4D0: .4byte gUnk_080FAFC8
-.L0805A4D4: .4byte 0x00000814
-.L0805A4D8: .4byte 0x00000818
 
 	.section .text.f3.0805A744, "ax", %progbits
 	thumb_func_start func_0805A744
