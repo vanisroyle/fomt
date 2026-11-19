@@ -158,6 +158,22 @@ EC void SetMessageWindowStatePortrait(MessageWindowState *, u32);
 EC void SetMessageWindowStateSpeakerName(MessageWindowState *, const char *);
 EC void SetMessageWindowStateIndicator(MessageWindowState *, u32);
 
+struct MessagePortraitClipSet
+{
+    MessagePortraitClip clips[4];
+};
+
+EC SECTION(".text.080ADD08") MessagePortraitClipSet & CopyMessagePortraitClips(MessagePortraitClipSet & output, MessagePortraitClips const & owner)
+{
+    register MessagePortraitClipSet * original asm("r0") = &output;
+    register MessagePortraitClipSet * destination asm("r2") = original;
+    asm ("" : "+l" (destination) : "l" (original));
+    register MessagePortraitClipSet const * source asm("r1") = reinterpret_cast<MessagePortraitClipSet const *>(owner.entries);
+    asm ("" : "+l" (source));
+    *destination = *source;
+    return *original;
+}
+
 EC SECTION(".text.080ADC84") void DestroyMessagePortraitClips(MessagePortraitClips * clips, unsigned flags)
 {
     __builtin_delete(clips->entries);

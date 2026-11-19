@@ -11804,7 +11804,7 @@ func_08045638: @ 0x08045638
 	cmp r3, #0
 	bne .L080458D2
 	adds r0, r7, #0
-	bl func_080ADBB4
+	bl IsMapEventCalendarDate
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080458D4
@@ -30559,7 +30559,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	lsls r2, r2, #1
 	adds r1, r7, r2
 	ldr r0, [sp, #0x90]
-	bl func_080ADD08
+	bl CopyMessagePortraitClips
 	movs r3, #0xee
 	lsls r3, r3, #1
 	adds r0, r7, r3

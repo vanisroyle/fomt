@@ -28,6 +28,8 @@ struct MapSceneAnimationSlot
 };
 
 struct MapSceneOverlay;
+struct GameStateSpriteCache;
+struct MapTileEffectQueue;
 
 struct MapSceneObjectPalette
 {
@@ -49,8 +51,11 @@ struct MapScene
     MapSceneAnimationSlot animations[13];
     STRUCT_PAD(0x1020, 0x1024);
     MapSceneOverlay * overlay;
+    MapTileEffectQueue * tileEffects;
 };
 
+EC void func_080AB68C(MapTileEffectQueue *, int, int, u32);
+EC i32 func_080AC96C(GameStateSpriteCache &, u32);
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapData const * GetMapData(u32 graphicsId);
 EC void func_080CFFC0(MapUpdateState & map, int column, int row, u32 const & value);
@@ -67,6 +72,81 @@ EC void ApplyMapRow15PatchB(G1MapState * map);
 EC void ApplyMapRow15PatchA(G1MapState * map);
 EC void StartMapTransitionDelay(u8 * self);
 EC bool IsMapTransitionIdle(u8 * self);
+
+EC SECTION(".text.080AD8C4") void QueueMapSceneTileEffect(MapScene & scene, int tileX, int tileY, u32 effectId)
+{
+    register MapScene * state asm("r5") = &scene;
+    register int column asm("r6") = tileX;
+    int row = tileY;
+    register u32 effect asm("r4") = effectId;
+    asm ("" : "+l" (state), "+l" (column), "+l" (row), "+l" (effect));
+    register int offsetX asm("r2") = 0;
+    register int offsetY asm("r3") = 0;
+    switch (effect)
+    {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+        offsetX = 8;
+        offsetY = 16;
+        break;
+    case 4:
+        offsetX = 8;
+        offsetY = 11;
+        break;
+    case 6:
+    case 7:
+    case 8:
+        offsetX = 16;
+        offsetY = 32;
+        break;
+    }
+    register u32 queueOffset asm("r1") = offsetof(MapScene, tileEffects);
+    asm ("" : "+l" (queueOffset));
+    register MapTileEffectQueue ** queueSlot asm("r0") = reinterpret_cast<MapTileEffectQueue **>(reinterpret_cast<u8 *>(state) + queueOffset);
+    asm ("" : "+l" (queueSlot));
+    register MapTileEffectQueue * queue asm("r0") = *queueSlot;
+    asm ("" : "+l" (queue), "+l" (offsetX), "+l" (offsetY));
+    register int pixelX asm("r1") = column * 16 + offsetX;
+    asm ("" : "+l" (pixelX));
+    register int pixelY asm("r2") = row * 16;
+    asm ("" : "+l" (pixelY));
+    offsetY += 56;
+    asm ("" : "+l" (offsetY));
+    func_080AB68C(queue, pixelX, pixelY + offsetY, effect);
+}
+
+EC SECTION(".text.080ADAFC") i32 GetMapSceneCachedSpriteSlot(MapScene & scene, u32 slot)
+{
+    u8 * cache = reinterpret_cast<u8 *>(&scene) + 0x19c;
+    u8 & cached = cache[slot];
+    i32 spriteSlot = cached - 0x10;
+    if (spriteSlot < 0)
+    {
+        spriteSlot = func_080AC96C(*reinterpret_cast<GameStateSpriteCache *>(cache), slot);
+        cached = spriteSlot + 0x10;
+    }
+    return spriteSlot;
+}
+
+EC u8 const gUnk_081074F6[27];
+EC u8 const * func_080E0E80(u8 const *, u8 const *, unsigned const *, unsigned, unsigned);
+
+EC SECTION(".text.080ADBB4") bool IsMapEventCalendarDate(u8 const * packedDate)
+{
+    register u32 date asm("r2") = *packedDate;
+    asm ("" : "+l" (date));
+    register u32 season asm("r1") = (date << 30) >> 30;
+    asm ("" : "+l" (season));
+    u32 day = (date << 25) >> 27;
+    unsigned yearDay = season * 30 + day;
+    register u8 const * dates asm("r0") = gUnk_081074F6;
+    asm ("" : "+l" (dates));
+    u8 const * end = dates + 27;
+    u8 const * event = func_080E0E80(dates, end, &yearDay, 0, 0);
+    return event != end && yearDay >= *event;
+}
 
 EC SECTION(".text.080ADA78") MapSceneOverlay * GetMapSceneOverlay(MapScene const & scene)
 {
