@@ -34,6 +34,44 @@ struct SpriteAnimationSource
     virtual SpriteAnimationClip GetClip(u32 clip_id) const;
 };
 
+struct SpriteAnimationData;
+
+struct SpriteFrameObject
+{
+    u32 attributes[2];
+};
+
+struct SpriteFrameExtra
+{
+    u32 words[2];
+};
+
+template <typename T>
+struct SpriteFrameSlice
+{
+    T const * data;
+    u16 length;
+
+    SpriteFrameSlice(T const * data = nullptr, u16 length = 0) : data(data), length(length) {}
+};
+
+struct SpriteFrameView
+{
+    SpriteFrameSlice<SpriteFrameObject> objects;
+    SpriteFrameSlice<u8> tile_bytes;
+    SpriteFrameSlice<u16> palette_bytes;
+    SpriteFrameSlice<SpriteFrameExtra> extras;
+
+    SpriteFrameView() {}
+    SpriteFrameView(SpriteFrameObject const * objects, u16 object_count,
+        u8 const * tiles, u16 tile_byte_count, u16 const * palettes, u16 palette_byte_count,
+        SpriteFrameExtra const * extras, u16 extra_count)
+        : objects(objects, object_count),
+          tile_bytes(tiles, tile_byte_count),
+          palette_bytes(palettes, palette_byte_count),
+          extras(extras, extra_count) {}
+};
+
 struct SpriteAnimator
 {
     enum { KEYFRAME_CHANGED = 1, FRAME_CHANGED = 2, LOOP_FLAG_BIT = 2, LOOPED = 1 << LOOP_FLAG_BIT };
@@ -46,6 +84,7 @@ struct SpriteAnimator
     bool refresh_frame;
 };
 
+EC SpriteFrameView GetSpriteAnimationDataFrame(SpriteAnimationData const * self, u32 frame_id);
 EC SpriteAnimator * InitSpriteAnimator(SpriteAnimator * self, SpriteAnimationSource const * source, u32 clip_id, int speed_q8);
 EC void BindSpriteAnimator(SpriteAnimator * self, SpriteAnimationSource const * source, u32 clip_id);
 EC void SetSpriteAnimatorClip(SpriteAnimator * self, u32 clip_id);

@@ -31,16 +31,6 @@ struct SpriteFrameHeader
     u16 first_extra;
 };
 
-struct SpriteFrameObject
-{
-    u32 attributes[2];
-};
-
-struct SpriteFrameExtra
-{
-    u32 words[2];
-};
-
 struct SpriteAnimationData
 {
     u32 const * vtable;
@@ -118,6 +108,45 @@ ANIMATION_CODE(0805E760) SpriteAnimationClip GetSpriteAnimationDataClip(SpriteAn
         return SpriteAnimationClip(self->keyframes + clip.first_keyframe, clip.length);
     }
     return SpriteAnimationClip();
+}
+
+ANIMATION_CODE(0805E790) SpriteFrameView GetSpriteAnimationDataFrame(
+    SpriteAnimationData const * self, u32 frame_id)
+{
+    if (frame_id < self->frame_count)
+    {
+        u32 frame_offset = frame_id * sizeof(SpriteFrameHeader);
+        SpriteFrameHeader const & frame = *reinterpret_cast<SpriteFrameHeader const *>(
+            reinterpret_cast<u8 const *>(self->frames) + frame_offset);
+        u32 object_offset = frame.first_object;
+        u16 object_count = frame.object_count;
+        u32 tile_offset = frame.first_tile * sizeof(*self->tiles);
+        u8 const * tiles = reinterpret_cast<u8 const *>(
+            tile_offset + reinterpret_cast<uintptr_t>(self->tiles));
+
+        // Preserve the original Thumb register allocation.
+        register u32 tile_bytes asm("r6") = frame.tile_count;
+        asm ("" : "+r" (tile_bytes));
+        u32 palette_offset = frame.first_palette * sizeof(*self->palettes);
+        u16 const * palettes = reinterpret_cast<u16 const *>(
+            palette_offset + reinterpret_cast<uintptr_t>(self->palettes));
+        register u32 palette_bytes asm("r5") = frame.palette_count;
+        register u32 extra_offset asm("r1") = frame.first_extra;
+        register u16 extra_count asm("r8") = frame.extra_count;
+        asm ("" : "+r" (palette_bytes), "+r" (extra_offset), "+r" (extra_count));
+
+        object_offset *= sizeof(SpriteFrameObject);
+        SpriteFrameObject const * objects = reinterpret_cast<SpriteFrameObject const *>(
+            object_offset + reinterpret_cast<uintptr_t>(self->objects));
+        tile_bytes *= sizeof(*self->tiles);
+        palette_bytes *= sizeof(*self->palettes);
+        asm ("" : "+r" (tile_bytes), "+r" (palette_bytes));
+        extra_offset *= sizeof(SpriteFrameExtra);
+        SpriteFrameExtra const * extras = reinterpret_cast<SpriteFrameExtra const *>(
+            extra_offset + reinterpret_cast<uintptr_t>(self->extras));
+        return SpriteFrameView(objects, object_count, tiles, tile_bytes, palettes, palette_bytes, extras, extra_count);
+    }
+    return SpriteFrameView();
 }
 
 ANIMATION_CODE(0805E81C) u32 GetSpriteAnimationDataFrameCount(SpriteAnimationData const * self)
@@ -273,6 +302,7 @@ ANIMATION_CODE(0805E8F0) u32 AdvanceSpriteAnimator(SpriteAnimator * self)
 
 EC SpriteAnimationData * func_0805E6CC(SpriteAnimationData *, void const *) ALIAS(InitSpriteAnimationData);
 EC SpriteAnimationClip func_0805E760(SpriteAnimationData const *, u32) ALIAS(GetSpriteAnimationDataClip);
+EC SpriteFrameView func_0805E790(SpriteAnimationData const *, u32) ALIAS(GetSpriteAnimationDataFrame);
 EC SpriteAnimator * func_0805E824(SpriteAnimator *, SpriteAnimationSource const *, u32, int) ALIAS(InitSpriteAnimator);
 EC void func_0805E850(SpriteAnimator *, SpriteAnimationSource const *, u32) ALIAS(BindSpriteAnimator);
 EC void func_0805E860(SpriteAnimator *, u32) ALIAS(SetSpriteAnimatorClip);
