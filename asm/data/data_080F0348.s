@@ -334,6 +334,6 @@ gUnk_080F19CC:
 gUnk_080F1A34:
 	.incbin "baserom.gba", 0xF1A34, 0x32
 
-	.global gUnk_080F1A66
-gUnk_080F1A66:
+	.global gNpcScheduleFestivalDays
+gNpcScheduleFestivalDays:
 	.incbin "baserom.gba", 0xF1A66, 0x1A

@@ -10493,7 +10493,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r3, #0xd2
 	lsls r3, r3, #6
 	adds r0, r0, r3
-	bl func_0809C304
+	bl GetCursedToolActive
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	b .L08045166
@@ -10520,7 +10520,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r3, #0xd2
 	lsls r3, r3, #6
 	adds r0, r0, r3
-	bl func_0809C444
+	bl AdvanceCursedSickleOrHammerProgress
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	b .L08045166
@@ -10547,7 +10547,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r3, #0xd2
 	lsls r3, r3, #6
 	adds r0, r0, r3
-	bl func_0809C474
+	bl UpdateCursedToolProgressForScript
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	b .L08045166

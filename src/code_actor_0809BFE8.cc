@@ -1,6 +1,7 @@
 #include "prelude.h"
 
 #include "actor.hh"
+#include "item.hh"
 
 #include <string.h>
 
@@ -93,18 +94,18 @@ ROM_TEXT(0809C0A0) void func_0809C0D4(Unk_Actor_0809BFE8 & self)
     self.unk_08_0 = 100;
 }
 
-struct ActivityFlags
+struct CursedToolProgress
 {
     u8 active[6];
     u8 completed[6];
     u8 elapsed[6];
 };
 
-ROM_TEXT(0809C0A0) ActivityFlags & func_0809C144(ActivityFlags & self)
+ROM_TEXT(0809C0A0) CursedToolProgress & InitCursedToolProgress(CursedToolProgress & self)
 {
     unsigned i = 0;
     u8 zero = 0;
-    for (ActivityFlags * entry = &self; i < ARRAY_COUNT(self.active); ++i)
+    for (CursedToolProgress * entry = &self; i < ARRAY_COUNT(self.active); ++i)
     {
         entry->active[i] = zero;
         entry->elapsed[i] = zero;
@@ -113,27 +114,48 @@ ROM_TEXT(0809C0A0) ActivityFlags & func_0809C144(ActivityFlags & self)
     return self;
 }
 
-ROM_TEXT(0809C22C) unsigned func_0809C22C(ActivityFlags const &, unsigned id)
+ROM_TEXT(0809C0A0) bool IsCursedToolForProgress(CursedToolProgress const &, Tool const & tool)
+{
+    switch (tool.GetId())
+    {
+    case TOOL_CURSED_SICKLE:
+    case TOOL_CURSED_HOE:
+    case TOOL_CURSED_AXE:
+    case TOOL_CURSED_HAMMER:
+    case TOOL_CURSED_WATERING_CAN:
+    case TOOL_CURSED_FISHING_ROD:
+        return true;
+    default:
+        return false;
+    }
+}
+
+ROM_TEXT(0809C0A0) unsigned GetCursedToolSlot(CursedToolProgress const &, unsigned toolId)
 {
     unsigned index = 1;
-    switch (id)
+    switch (toolId)
     {
-    case 5: index = 0; break;
-    case 13: index = 1; break;
-    case 21: index = 2; break;
-    case 29: index = 3; break;
-    case 37: index = 4; break;
-    case 45: index = 5; break;
+    case TOOL_CURSED_SICKLE: index = 0; break;
+    case TOOL_CURSED_HOE: index = 1; break;
+    case TOOL_CURSED_AXE: index = 2; break;
+    case TOOL_CURSED_HAMMER: index = 3; break;
+    case TOOL_CURSED_WATERING_CAN: index = 4; break;
+    case TOOL_CURSED_FISHING_ROD: index = 5; break;
     }
     return index;
 }
 
-ROM_TEXT(0809C22C) u8 func_0809C304(ActivityFlags const & self, unsigned id)
+ROM_TEXT(0809C0A0) u8 GetCursedToolActive(CursedToolProgress const & self, unsigned toolId)
 {
-    return self.active[func_0809C22C(self, id)];
+    return self.active[GetCursedToolSlot(self, toolId)];
 }
 
-static inline bool HasActivity(ActivityFlags const & self, unsigned index)
+ROM_TEXT(0809C0A0) u8 GetCursedToolCompleted(CursedToolProgress const & self, unsigned toolId)
+{
+    return self.completed[GetCursedToolSlot(self, toolId)];
+}
+
+static inline bool HasStartedCursedToolProgress(CursedToolProgress const & self, unsigned index)
 {
     int completed = -self.completed[index];
     int active = -self.active[index];
@@ -141,21 +163,22 @@ static inline bool HasActivity(ActivityFlags const & self, unsigned index)
     return active < 0;
 }
 
-ROM_TEXT(0809C32C) bool func_0809C32C(ActivityFlags const & self)
+ROM_TEXT(0809C0A0) bool HaveAllCursedToolsStarted(CursedToolProgress const & self)
 {
-    return HasActivity(self, 1) && HasActivity(self, 0) && HasActivity(self, 2)
-        && HasActivity(self, 3) && HasActivity(self, 4) && HasActivity(self, 5);
+    return HasStartedCursedToolProgress(self, 1) && HasStartedCursedToolProgress(self, 0)
+        && HasStartedCursedToolProgress(self, 2) && HasStartedCursedToolProgress(self, 3)
+        && HasStartedCursedToolProgress(self, 4) && HasStartedCursedToolProgress(self, 5);
 }
 
-ROM_TEXT(0809C32C) bool func_0809C38C(ActivityFlags const & self)
+ROM_TEXT(0809C0A0) bool HaveAllCursedToolsCompleted(CursedToolProgress const & self)
 {
     return self.completed[1] && self.completed[0] && self.completed[2] && self.completed[3]
         && self.completed[4] && self.completed[5];
 }
 
-ROM_TEXT(0809C32C) void func_0809C3BC(ActivityFlags & self, unsigned id)
+ROM_TEXT(0809C0A0) void StartCursedToolProgress(CursedToolProgress & self, unsigned toolId)
 {
-    unsigned index = func_0809C22C(self, id);
+    unsigned index = GetCursedToolSlot(self, toolId);
     if (self.active[index] == 0)
     {
         self.active[index] = 1;
@@ -163,14 +186,14 @@ ROM_TEXT(0809C32C) void func_0809C3BC(ActivityFlags & self, unsigned id)
     }
 }
 
-EC u8 const gUnk_081036C0[];
+EC u8 const gCursedToolProgressThresholds[6];
 
-ROM_TEXT(0809C32C) bool func_0809C3E0(ActivityFlags & self, unsigned index)
+ROM_TEXT(0809C0A0) bool AdvanceCursedToolProgress(CursedToolProgress & self, unsigned index)
 {
     bool completed = false;
     if (self.active[index])
     {
-        if (self.elapsed[index] < gUnk_081036C0[index])
+        if (self.elapsed[index] < gCursedToolProgressThresholds[index])
             ++self.elapsed[index];
         else
         {
@@ -182,45 +205,45 @@ ROM_TEXT(0809C32C) bool func_0809C3E0(ActivityFlags & self, unsigned index)
     return completed;
 }
 
-ROM_TEXT(0809C32C) void func_0809C420(ActivityFlags & self, unsigned index)
+ROM_TEXT(0809C0A0) void ResetSickleOrHammerProgress(CursedToolProgress & self, unsigned index)
 {
     if (self.active[index] && (index == 0 || index == 3))
         self.elapsed[index] = 0;
 }
 
-ROM_TEXT(0809C32C) bool func_0809C444(ActivityFlags & self, unsigned id)
+ROM_TEXT(0809C0A0) bool AdvanceCursedSickleOrHammerProgress(CursedToolProgress & self, unsigned toolId)
 {
     bool completed = false;
-    unsigned index = func_0809C22C(self, id);
+    unsigned index = GetCursedToolSlot(self, toolId);
     if (self.active[index] && (index == 0 || index == 3))
-        completed = func_0809C3E0(self, index);
+        completed = AdvanceCursedToolProgress(self, index);
     return completed;
 }
 
-ROM_TEXT(0809C32C) bool func_0809C474(ActivityFlags & self, unsigned id)
+ROM_TEXT(0809C0A0) bool UpdateCursedToolProgressForScript(CursedToolProgress & self, unsigned toolId)
 {
-    unsigned index = func_0809C22C(self, id);
+    unsigned index = GetCursedToolSlot(self, toolId);
     bool completed = false;
     if (self.active[index])
     {
         if (index == 1 || index == 4)
-            completed = func_0809C3E0(self, index);
+            completed = AdvanceCursedToolProgress(self, index);
         if (index == 0 || index == 3)
-            func_0809C420(self, index);
+            ResetSickleOrHammerProgress(self, index);
     }
     return completed;
 }
 
-ROM_TEXT(0809C32C) bool func_0809C4B4(ActivityFlags & self, unsigned id)
+ROM_TEXT(0809C0A0) bool AdvanceCursedAxeOrRodProgress(CursedToolProgress & self, unsigned toolId)
 {
-    unsigned index = func_0809C22C(self, id);
+    unsigned index = GetCursedToolSlot(self, toolId);
     bool completed = false;
     if (self.active[index] && (index == 5 || index == 2))
-        completed = func_0809C3E0(self, index);
+        completed = AdvanceCursedToolProgress(self, index);
     return completed;
 }
 
-ROM_TEXT(0809C32C) void func_0809C4E4(u32 & flags)
+ROM_TEXT(0809C0A0) void func_0809C4E4(u32 & flags)
 {
     flags = 0;
 }
@@ -396,7 +419,38 @@ struct Unk_0809D8A0
     u32 unk_625_4 : 1;
 };
 
-ROM_TEXT(0809D470) unsigned func_0809D470(Unk_0809D8A0 const &, unsigned value)
+ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(Unk_0809D8A0 const &, unsigned value)
+{
+    unsigned row = 0;
+    if (value == 0)
+        goto done;
+    if (value <= 9)
+        return 1;
+    if (value <= 99)
+    {
+        row = 2;
+        for (unsigned bound = 20; bound <= 99 && value >= bound; bound += 20)
+            ++row;
+        return row;
+    }
+    if (value == 100)
+        return 7;
+    if (value <= 249)
+    {
+        row = 8;
+        for (unsigned bound = 130; bound <= 249 && value >= bound; bound += 30)
+            ++row;
+        return row;
+    }
+    row = 14;
+    if (value > 254)
+        goto done;
+    row = 13;
+done:
+    return row;
+}
+
+ROM_TEXT(0809D418) unsigned func_0809D470(Unk_0809D8A0 const &, unsigned value)
 {
     switch (value)
     {
