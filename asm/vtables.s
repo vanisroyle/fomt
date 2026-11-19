@@ -958,19 +958,23 @@ vtable_unk_080E7A28:
 
 	.global vtable_unk_080E7A38
 vtable_unk_080E7A38:
-	.incbin "baserom.gba", 0xE7A38, 0x10
+	.incbin "baserom.gba", 0xE7A38, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A48
 vtable_unk_080E7A48:
-	.incbin "baserom.gba", 0xE7A48, 0x10
+	.incbin "baserom.gba", 0xE7A48, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A58
 vtable_unk_080E7A58:
-	.incbin "baserom.gba", 0xE7A58, 0x10
+	.incbin "baserom.gba", 0xE7A58, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A68
 vtable_unk_080E7A68:
-	.incbin "baserom.gba", 0xE7A68, 0x10
+	.incbin "baserom.gba", 0xE7A68, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A78
 vtable_unk_080E7A78:

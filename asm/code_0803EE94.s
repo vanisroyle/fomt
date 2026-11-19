@@ -50260,6 +50260,7 @@ func_08059878: @ 0x08059878
 	.align 2, 0
 .L08059C90: .4byte gUnk_080FAE00
 
+	.section .text.f3.08059C94, "ax", %progbits
 	thumb_func_start func_08059C94
 func_08059C94: @ 0x08059C94
 	push {r4, r5, r6, r7, lr}
@@ -68833,8 +68834,8 @@ sub_08061E00: @ 0x08061E00
 	.align 2, 0
 .L08062E98: .4byte 0x0000058C
 
-	thumb_func_start func_08062E9C
-func_08062E9C: @ 0x08062E9C
+	thumb_func_start InitLivestockReport
+InitLivestockReport: @ 0x08062E9C
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -70952,109 +70953,9 @@ func_08062E9C: @ 0x08062E9C
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_08063E04
-func_08063E04: @ 0x08063E04
-	push {r4, r5, r6, r7, lr}
-	sub sp, #0xc
-	adds r7, r2, #0
-	cmp r1, #0xf
-	bls .L08063E12
-	movs r0, #0
-	b .L08063E50
-.L08063E12:
-	lsls r4, r1, #1
-	adds r4, r4, r1
-	lsls r4, r4, #6
-	adds r4, r4, r1
-	lsls r4, r4, #2
-	adds r4, r4, r0
-	add r1, sp, #4
-	movs r5, #0xc
-	movs r6, #2
-	adds r0, r1, #0
-	strh r5, [r0]
-	strh r6, [r1, #2]
-	ldr r0, [sp, #4]
-	movs r1, #0x97
-	lsls r1, r1, #5
-	adds r4, r4, r1
-	adds r1, r4, #0
-	movs r2, #0
-	bl func_0804E7A0
-	add r0, sp, #8
-	strh r5, [r0]
-	strh r6, [r0, #2]
-	ldr r0, [sp, #8]
-	str r7, [sp]
-	adds r1, r4, #0
-	movs r2, #0
-	movs r3, #0
-	bl func_0804E8F0
-	adds r0, r4, #0
-.L08063E50:
-	add sp, #0xc
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_08063E58
-func_08063E58: @ 0x08063E58
-	push {lr}
-	bl func_08076EA8
-	movs r0, #1
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_08063E64
-func_08063E64: @ 0x08063E64
-	push {lr}
-	sub sp, #8
-	movs r1, #0xa
-	str r1, [sp]
-	bl GetAffection__C6Animal
-	movs r1, #0x19
-	bl __udivsi3
-	str r0, [sp, #4]
-	add r2, sp, #4
-	ldr r1, [sp]
-	mov r3, sp
-	cmp r1, r0
-	bls .L08063E84
-	adds r3, r2, #0
-.L08063E84:
-	ldr r0, [r3]
-	add sp, #8
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_08063E8C
-func_08063E8C: @ 0x08063E8C
-	push {r4, lr}
-	adds r4, r0, #0
-	bl IsSick__C9Livestock
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L08063E9E
-	movs r0, #0x58
-	b .L08063EB0
-.L08063E9E:
-	adds r0, r4, #0
-	bl IsUnhappy__C9Livestock
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	bne .L08063EAE
-	movs r0, #0x38
-	b .L08063EB0
-.L08063EAE:
-	movs r0, #0x48
-.L08063EB0:
-	pop {r4}
-	pop {r1}
-	bx r1
-	.align 2, 0
-
-	thumb_func_start func_08063EB8
-func_08063EB8: @ 0x08063EB8
+	.section .text.f3.08063EB8, "ax", %progbits
+	thumb_func_start AddLivestockReportRow
+AddLivestockReportRow: @ 0x08063EB8
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -71268,7 +71169,7 @@ func_08063EB8: @ 0x08063EB8
 	bl func_0804E9F4
 .L08064044:
 	ldr r0, [sp, #0x44]
-	bl func_08063E64
+	bl GetLivestockReportHeartCount
 	adds r6, r0, #0
 	movs r4, #0
 	cmp r4, r6
@@ -71304,7 +71205,7 @@ func_08063EB8: @ 0x08063EB8
 	adds r2, r0, #0
 	ldr r0, [sp, #0x3c]
 	ldr r1, [sp, #0x40]
-	bl func_08063E04
+	bl RenderLivestockReportName
 	mov r4, r8
 	str r0, [r4, #4]
 	movs r0, #3
@@ -71479,7 +71380,7 @@ func_08063EB8: @ 0x08063EB8
 	adds r4, r4, r3
 	adds r4, #0x20
 	ldr r0, [sp, #0x44]
-	bl func_08063E8C
+	bl GetLivestockReportMoodTile
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -71639,339 +71540,7 @@ func_08063EB8: @ 0x08063EB8
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_08064320
-func_08064320: @ 0x08064320
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #4
-	adds r5, r0, #0
-	ldr r0, .L08064384 @ =gUnk_080FB880
-	str r0, [sp]
-	adds r0, r5, #0
-	movs r3, #0x2d
-	bl func_08062E9C
-	ldr r0, .L08064388 @ =0x000005B4
-	adds r1, r5, r0
-	ldr r0, .L0806438C @ =vtable_unk_080E7A58
-	str r0, [r1]
-	movs r6, #0
-	movs r7, #0
-	ldr r1, .L08064390 @ =0x0000058C
-	adds r0, r5, r1
-	ldr r0, [r0]
-	movs r1, #0x82
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	bl GetCapacity__C4Coop
-	mov r8, r0
-	cmp r6, r8
-	bhs .L080643B4
-.L08064358:
-	ldr r1, .L08064390 @ =0x0000058C
-	adds r0, r5, r1
-	ldr r0, [r0]
-	movs r1, #0x82
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	adds r1, r7, #0
-	bl GetChicken__C4CoopUi
-	adds r4, r0, #0
-	cmp r4, #0
-	beq .L080643AE
-	bl GetGrowthStage__C7Chicken
-	cmp r0, #0
-	beq .L0806439C
-	cmp r0, #1
-	bne .L0806439C
-	ldr r3, .L08064394 @ =gUnk_0875268C
-	ldr r0, .L08064398 @ =gUnk_0875270C
-	b .L080643A0
-	.align 2, 0
-.L08064384: .4byte gUnk_080FB880
-.L08064388: .4byte 0x000005B4
-.L0806438C: .4byte vtable_unk_080E7A58
-.L08064390: .4byte 0x0000058C
-.L08064394: .4byte gUnk_0875268C
-.L08064398: .4byte gUnk_0875270C
-.L0806439C:
-	ldr r3, .L080643D4 @ =gUnk_0875272C
-	ldr r0, .L080643D8 @ =gUnk_087527AC
-.L080643A0:
-	str r0, [sp]
-	adds r0, r5, #0
-	adds r1, r6, #0
-	adds r2, r4, #0
-	bl func_08063EB8
-	adds r6, #1
-.L080643AE:
-	adds r7, #1
-	cmp r7, r8
-	blo .L08064358
-.L080643B4:
-	ldr r0, [r5, #4]
-	lsls r1, r6, #2
-	adds r1, r1, r6
-	adds r1, #5
-	lsls r1, r1, #0x13
-	asrs r1, r1, #0x10
-	bl func_08075E24
-	adds r0, r5, #0
-	add sp, #4
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080643D4: .4byte gUnk_0875272C
-.L080643D8: .4byte gUnk_087527AC
-
-	thumb_func_start func_080643DC
-func_080643DC: @ 0x080643DC
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #4
-	adds r7, r0, #0
-	ldr r0, .L08064458 @ =gUnk_080FB894
-	str r0, [sp]
-	adds r0, r7, #0
-	movs r3, #0x55
-	bl func_08062E9C
-	ldr r0, .L0806445C @ =0x000005B4
-	adds r1, r7, r0
-	ldr r0, .L08064460 @ =vtable_unk_080E7A48
-	str r0, [r1]
-	movs r1, #0
-	mov r8, r1
-	mov sb, r1
-	ldr r2, .L08064464 @ =0x0000058C
-	adds r0, r7, r2
-	ldr r0, [r0]
-	movs r1, #0xbe
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	bl GetCapacity__C4Barn
-	mov sl, r0
-	cmp r8, sl
-	bhs .L080644C2
-.L0806441A:
-	ldr r2, .L08064464 @ =0x0000058C
-	adds r0, r7, r2
-	ldr r0, [r0]
-	movs r1, #0xbe
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	mov r1, sb
-	bl GetCow__C4BarnUi
-	adds r4, r0, #0
-	cmp r4, #0
-	beq .L080644BA
-	bl GetGrowthStage__C3Cow
-	cmp r0, #1
-	beq .L08064494
-	cmp r0, #1
-	blo .L080644A4
-	cmp r0, #2
-	bne .L080644A4
-	ldr r6, .L08064468 @ =gUnk_08751B4C
-	ldr r5, .L0806446C @ =gUnk_08751BCC
-	adds r0, r4, #0
-	bl IsPregnant__C10BarnAnimal
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L08064478
-	ldr r6, .L08064470 @ =gUnk_08751C8C
-	ldr r5, .L08064474 @ =gUnk_08751D0C
-	b .L080644A8
-	.align 2, 0
-.L08064458: .4byte gUnk_080FB894
-.L0806445C: .4byte 0x000005B4
-.L08064460: .4byte vtable_unk_080E7A48
-.L08064464: .4byte 0x0000058C
-.L08064468: .4byte gUnk_08751B4C
-.L0806446C: .4byte gUnk_08751BCC
-.L08064470: .4byte gUnk_08751C8C
-.L08064474: .4byte gUnk_08751D0C
-.L08064478:
-	adds r0, r4, #0
-	bl HasBeenMilked__C3Cow
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L080644A8
-	ldr r6, .L0806448C @ =gUnk_08751DCC
-	ldr r5, .L08064490 @ =gUnk_08751E4C
-	b .L080644A8
-	.align 2, 0
-.L0806448C: .4byte gUnk_08751DCC
-.L08064490: .4byte gUnk_08751E4C
-.L08064494:
-	ldr r6, .L0806449C @ =gUnk_08751BEC
-	ldr r5, .L080644A0 @ =gUnk_08751C6C
-	b .L080644A8
-	.align 2, 0
-.L0806449C: .4byte gUnk_08751BEC
-.L080644A0: .4byte gUnk_08751C6C
-.L080644A4:
-	ldr r6, .L080644E8 @ =gUnk_08751D2C
-	ldr r5, .L080644EC @ =gUnk_08751DAC
-.L080644A8:
-	str r5, [sp]
-	adds r0, r7, #0
-	mov r1, r8
-	adds r2, r4, #0
-	adds r3, r6, #0
-	bl func_08063EB8
-	movs r2, #1
-	add r8, r2
-.L080644BA:
-	movs r0, #1
-	add sb, r0
-	cmp sb, sl
-	blo .L0806441A
-.L080644C2:
-	ldr r0, [r7, #4]
-	mov r2, r8
-	lsls r1, r2, #2
-	add r1, r8
-	adds r1, #5
-	lsls r1, r1, #0x13
-	asrs r1, r1, #0x10
-	bl func_08075E24
-	adds r0, r7, #0
-	add sp, #4
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080644E8: .4byte gUnk_08751D2C
-.L080644EC: .4byte gUnk_08751DAC
-
-	thumb_func_start func_080644F0
-func_080644F0: @ 0x080644F0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #4
-	adds r7, r0, #0
-	ldr r0, .L08064568 @ =gUnk_080FB8A4
-	str r0, [sp]
-	adds r0, r7, #0
-	movs r3, #0x55
-	bl func_08062E9C
-	ldr r0, .L0806456C @ =0x000005B4
-	adds r1, r7, r0
-	ldr r0, .L08064570 @ =vtable_unk_080E7A38
-	str r0, [r1]
-	movs r1, #0
-	mov r8, r1
-	mov sb, r1
-	ldr r2, .L08064574 @ =0x0000058C
-	adds r0, r7, r2
-	ldr r0, [r0]
-	movs r1, #0xbe
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	bl GetCapacity__C4Barn
-	mov sl, r0
-	cmp r8, sl
-	bhs .L080645C2
-.L0806452E:
-	ldr r2, .L08064574 @ =0x0000058C
-	adds r0, r7, r2
-	ldr r0, [r0]
-	movs r1, #0xbe
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	mov r1, sb
-	bl GetSheep__C4BarnUi
-	adds r4, r0, #0
-	cmp r4, #0
-	beq .L080645BA
-	bl GetGrowthStage__C5Sheep
-	cmp r0, #0
-	beq .L080645A4
-	cmp r0, #1
-	bne .L080645A4
-	ldr r6, .L08064578 @ =gUnk_0875320C
-	ldr r5, .L0806457C @ =gUnk_0875328C
-	adds r0, r4, #0
-	bl IsPregnant__C10BarnAnimal
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L08064588
-	ldr r6, .L08064580 @ =gUnk_0875334C
-	ldr r5, .L08064584 @ =gUnk_087533CC
-	b .L080645A8
-	.align 2, 0
-.L08064568: .4byte gUnk_080FB8A4
-.L0806456C: .4byte 0x000005B4
-.L08064570: .4byte vtable_unk_080E7A38
-.L08064574: .4byte 0x0000058C
-.L08064578: .4byte gUnk_0875320C
-.L0806457C: .4byte gUnk_0875328C
-.L08064580: .4byte gUnk_0875334C
-.L08064584: .4byte gUnk_087533CC
-.L08064588:
-	adds r0, r4, #0
-	bl IsSheared__C5Sheep
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L080645A8
-	ldr r6, .L0806459C @ =gUnk_087532AC
-	ldr r5, .L080645A0 @ =gUnk_0875332C
-	b .L080645A8
-	.align 2, 0
-.L0806459C: .4byte gUnk_087532AC
-.L080645A0: .4byte gUnk_0875332C
-.L080645A4:
-	ldr r6, .L080645E8 @ =gUnk_087533EC
-	ldr r5, .L080645EC @ =gUnk_0875346C
-.L080645A8:
-	str r5, [sp]
-	adds r0, r7, #0
-	mov r1, r8
-	adds r2, r4, #0
-	adds r3, r6, #0
-	bl func_08063EB8
-	movs r2, #1
-	add r8, r2
-.L080645BA:
-	movs r0, #1
-	add sb, r0
-	cmp sb, sl
-	blo .L0806452E
-.L080645C2:
-	ldr r0, [r7, #4]
-	mov r2, r8
-	lsls r1, r2, #2
-	add r1, r8
-	adds r1, #5
-	lsls r1, r1, #0x13
-	asrs r1, r1, #0x10
-	bl func_08075E24
-	adds r0, r7, #0
-	add sp, #4
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080645E8: .4byte gUnk_087533EC
-.L080645EC: .4byte gUnk_0875346C
-
+	.section .text.f3.080645F0, "ax", %progbits
 	thumb_func_start func_080645F0
 func_080645F0: @ 0x080645F0
 	push {r4, r5, r6, r7, lr}
@@ -74906,6 +74475,7 @@ func_080645F0: @ 0x080645F0
 	movs r3, #0
 	str r3, [sp, #0xf8]
 
+	.section .text.after_f3, "ax", %progbits
 	thumb_func_start sub_08065B14
 sub_08065B14: @ 0x08065B14
 	ldr r4, [sp, #0xf0]
@@ -83642,7 +83212,7 @@ func_08069C34: @ 0x08069C34
 	adds r1, r4, r2
 	ldr r2, [r1]
 	adds r1, r4, #0
-	bl func_08064320
+	bl InitChickenReport
 	b .L08069D2C
 	.align 2, 0
 .L08069CA4: .4byte 0x0000431C
@@ -83654,7 +83224,7 @@ func_08069C34: @ 0x08069C34
 	adds r1, r4, r2
 	ldr r2, [r1]
 	adds r1, r4, #0
-	bl func_080643DC
+	bl InitCowReport
 	b .L08069D2C
 	.align 2, 0
 .L08069CC0: .4byte 0x0000431C
@@ -83666,7 +83236,7 @@ func_08069C34: @ 0x08069C34
 	adds r1, r4, r2
 	ldr r2, [r1]
 	adds r1, r4, #0
-	bl func_080644F0
+	bl InitSheepReport
 	b .L08069D2C
 	.align 2, 0
 .L08069CDC: .4byte 0x0000431C

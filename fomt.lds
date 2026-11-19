@@ -322,6 +322,8 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803EE50);
         src/script_engine.o(.text);
         asm/code_0803EE94.o(.text);
+        *(SORT_BY_NAME(.text.f3.*));
+        asm/code_0803EE94.o(.text.after_f3);
 
         src/actor.o(.text);
         src/animal.o(.text);
