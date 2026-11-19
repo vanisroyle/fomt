@@ -1900,7 +1900,7 @@ func_08010F54: @ 0x08010F54
 .L08011324: .4byte 0x00001F64
 .L08011328:
     adds r0, r4, #0
-    bl func_0809EC48
+    bl UpdateNpcConstructionLocation
 .L0801132E:
     ldr r0, .L08011354 @ =0x00001DAC
     adds r4, r6, r0
@@ -11985,7 +11985,7 @@ func_080174C8: @ 0x080174C8
     adds r0, r6, #0
     adds r1, r7, #0
     mov r2, sl
-    bl func_080A1C94
+    bl ClearMapAvailabilityBit
     movs r0, #1
     mov r1, r8
     strb r0, [r1]
@@ -12285,7 +12285,7 @@ func_080175B4: @ 0x080175B4
     cmp r0, #0
     beq .L080177A0
     movs r1, #3
-    bl func_0803AC78
+    bl DestroyFixedSpriteOverlay
 .L080177A0:
     str r4, [r5]
     ldr r2, .L0801787C @ =0x00001028
@@ -12334,7 +12334,7 @@ func_080175B4: @ 0x080175B4
     cmp r0, #0
     beq .L08017806
     movs r1, #3
-    bl func_0803B0A8
+    bl DestroyGameStateMapOverlay
 .L08017806:
     str r5, [r4]
     ldr r0, [r7, #4]
@@ -12687,7 +12687,7 @@ func_080179CC: @ 0x080179CC
     cmp r0, #0
     beq .L08017B0C
     movs r1, #3
-    bl func_0803B0A8
+    bl DestroyGameStateMapOverlay
 .L08017B0C:
     ldr r1, .L08017BE4 @ =0x00001074
     adds r0, r6, r1
@@ -16834,7 +16834,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019CC2
     movs r1, #3
-    bl func_0803AC78
+    bl DestroyFixedSpriteOverlay
 .L08019CC2:
     str r5, [r4]
     mov r4, sb
@@ -16845,7 +16845,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019CD8
     movs r1, #3
-    bl func_0803B0A8
+    bl DestroyGameStateMapOverlay
 .L08019CD8:
     str r5, [r4]
     ldr r1, .L08019E18 @ =0x00001028
@@ -16960,7 +16960,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019DCA
     movs r1, #3
-    bl func_0803AC78
+    bl DestroyFixedSpriteOverlay
 .L08019DCA:
     str r4, [r5]
     ldr r0, [r7, #4]

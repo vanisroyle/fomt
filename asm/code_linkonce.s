@@ -31363,7 +31363,7 @@ func_080E3920: @ 0x080E3920
 	thumb_func_start func_080E392C
 func_080E392C: @ 0x080E392C
 	push {lr}
-	bl func_080D035C
+	bl Joybus_UpdateTransfers
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -32102,28 +32102,28 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3EAC:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32144,7 +32144,7 @@ func_080E3E9C: @ 0x080E3E9C
 	bne .L080E3F38
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32152,7 +32152,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F16:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32160,7 +32160,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F26:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080E3F38
