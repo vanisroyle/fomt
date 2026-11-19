@@ -7321,7 +7321,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r5, r4
 	ldr r0, [r0]
 	adds r0, #0x14
-	bl method_08009B20__C4Farm
+	bl HasGoldenLumberOnField__C4Farm
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	bl .L080454A8
@@ -7369,7 +7369,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r2, .L080435F8 @ =0x00001BD8
 	adds r4, r4, r2
 	adds r0, r4, #0
-	bl func_0800E4E0
+	bl GetFarmerName
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_0800E9A8
@@ -56142,7 +56142,7 @@ func_0805FF14: @ 0x0805FF14
 	mov sl, r2
 	mov r0, sl
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	adds r6, r0, #0
 	add r5, sp, #0x20
 	bl strlen
@@ -59022,7 +59022,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r0, [r0]
 	ldr r1, .L080614A4 @ =0x00001BD8
 	adds r0, r0, r1
-	bl func_0800E4E0
+	bl GetFarmerName
 	adds r1, r0, #0
 	add r0, sp, #0x100
 	strh r4, [r0]
@@ -107194,7 +107194,7 @@ func_0807865C: @ 0x0807865C
 	bls .L080787DE
 	ldr r0, [r7, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	mov sb, r0
 	ldr r6, [sp, #0x8c]
 	mov r4, sb
@@ -107274,7 +107274,7 @@ func_0807865C: @ 0x0807865C
 .L080788DA:
 	ldr r0, [r7, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	mov sb, r0
 	ldr r6, [sp, #0x84]
 	mov r4, sb
@@ -110667,7 +110667,7 @@ func_0807A708: @ 0x0807A708
 	ldr r0, [r2, #8]
 	ldr r1, .L0807A790 @ =0x00001BD8
 	adds r0, r0, r1
-	bl func_0800E4E0
+	bl GetFarmerName
 	adds r0, r0, r4
 	ldrb r0, [r0]
 	strb r0, [r5]
@@ -110680,7 +110680,7 @@ func_0807A708: @ 0x0807A708
 	ldr r0, [r2, #8]
 	ldr r1, .L0807A790 @ =0x00001BD8
 	adds r0, r0, r1
-	bl func_0800E4E0
+	bl GetFarmerName
 	adds r0, r0, r4
 	ldrb r0, [r0]
 	cmp r0, #0
@@ -110700,7 +110700,7 @@ func_0807A708: @ 0x0807A708
 	mov r2, r8
 	ldr r0, [r2, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	adds r0, r0, r4
 	ldrb r0, [r0]
 	strb r0, [r5]
@@ -110712,7 +110712,7 @@ func_0807A708: @ 0x0807A708
 	mov r1, r8
 	ldr r0, [r1, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	adds r0, r0, r4
 	ldrb r0, [r0]
 	cmp r0, #0
@@ -136322,7 +136322,7 @@ sub_08087710: @ 0x08087710
 .L0808800E:
 	ldr r0, [r7, #8]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	mov sb, r0
 	ldr r2, .L080880B4 @ =0x00003AB4
 	adds r4, r7, r2
@@ -159445,12 +159445,12 @@ func_08094844: @ 0x08094844
 	ldr r1, [r1, #4]
 	str r1, [sp]
 	adds r0, #0x14
-	bl method_08009AF4__C4Farm
+	bl GetName__C4Farm
 	mov sb, r0
 	ldr r0, [r4]
 	ldr r1, .L080948D4 @ =0x00001BD8
 	adds r0, r0, r1
-	bl func_0800E4E0
+	bl GetFarmerName
 	mov sl, r0
 	ldr r0, [r4]
 	ldr r2, .L080948D8 @ =0x00001CD4

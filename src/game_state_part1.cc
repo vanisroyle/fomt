@@ -3,6 +3,7 @@
 #include "entity_actor.hh"
 #include "farm.hh"
 #include "coop.hh"
+#include "message_script.hh"
 #include "script_engine.hh"
 #include "scene.hh"
 #include "shipping_bin.hh"
@@ -421,7 +422,7 @@ struct GameStateRuntime
     SmartPtr<GameStateSceneFactory> pendingSceneFactory;
     GameStateObject * scene;
     GameStateDialogueOwner dialogue;
-    void * textVariables;
+    GameScriptTextVariables * textVariables;
     SmartPtr<GameStateTextPanel> textPanel;
     SmartPtr<GameStateTextPanel> secondaryTextPanel;
     u8 musicPlayer[0x14];
@@ -580,7 +581,6 @@ EC u32 SECTION(".text.game_state_08016D9C") GameScript_GetReturnMap()
 EC void Audio_StopAllPlayers();
 EC void AudioPlayer_Stop(void * self);
 EC u32 AudioPlayer_IsPlaying(void * self);
-EC void func_0803B6B8(void * self, u32 index, char const * text);
 EC void ClearMessageWindowSpeakerName(void * self);
 EC void ClearMessageWindowPortrait(void * self);
 EC void ClearMessageWindowIndicator(void * self);
@@ -914,7 +914,7 @@ EC void SECTION(".text.game_state_0801284C") GameScript_ClearDialogueIndicator(G
 // 0x08012ACC
 EC void SECTION(".text.game_state_08012ACC") GameScript_SetTextVariable(GameStateScript & script, u32 variableIndex, char const * text)
 {
-    func_0803B6B8(script.runtime->textVariables, variableIndex, text);
+    SetGameScriptTextVariable(*script.runtime->textVariables, variableIndex, text);
 }
 
 // 0x08012BAC
@@ -1355,7 +1355,7 @@ EC void SECTION(".text.game_state_08012AA4") GameScript_SetIntegerTextVariable(G
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
     FormatMessageInteger(value, formattedNumber, 0);
-    func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
+    SetGameScriptTextVariable(*runtime.textVariables, variableIndex, formattedNumber);
 }
 
 // 0x08012ADC
@@ -1364,7 +1364,7 @@ EC void SECTION(".text.game_state_08012ADC") GameScript_SetPaddedIntegerTextVari
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
     FormatMessageInteger(value, formattedNumber, minimumDigits);
-    func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
+    SetGameScriptTextVariable(*runtime.textVariables, variableIndex, formattedNumber);
 }
 
 // 0x08016F0C
