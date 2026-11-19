@@ -28,7 +28,10 @@ struct MedalExchange
     STRUCT_PAD(0x00, 0x50);
     u8 prize_graphics_data[0x30];
     SpriteAnimator cursor;
-    STRUCT_PAD(0x94, 0x134);
+    STRUCT_PAD(0x94, 0x11C);
+    MedalExchangeObjAllocation glyph_tiles;
+    MedalExchangeObjAllocation glyph_palette;
+    STRUCT_PAD(0x12C, 0x134);
     MedalExchangeObjAllocation cursor_palette;
     MedalExchangeObjAllocation prize_tiles;
     MedalExchangeObjAllocation prize_palette;
@@ -147,6 +150,267 @@ EC u32 ResolveMedalObjPalette(MedalExchangeObjAllocation *, u32) asm("func_08007
 EC u32 ResolveMedalObjTile(MedalExchangeObjAllocation *, u32) asm("func_08007D4C");
 EC void ReadPrizeFrame(MedalExchangeFrameView *, SpriteAnimationData const *, u32) asm("GetSpriteAnimationDataFrame");
 EC void * CopyPrizeFrame(void *, void const *, size_t) asm("memcpy");
+
+struct MedalExchangeDisplayRegisters
+{
+    u16 control;
+    STRUCT_PAD(0x02, 0x0A);
+    u16 bg1_control, bg2_control, bg3_control;
+    STRUCT_PAD(0x10, 0x14);
+    u16 bg1_scroll_x, bg1_scroll_y;
+    u16 bg2_scroll_x, bg2_scroll_y;
+    u16 bg3_scroll_x, bg3_scroll_y;
+};
+
+EC MedalExchangeDisplayRegisters * GetMedalExchangeDisplayRegisters(MedalExchange *) asm("HardwareContext_GetDisplayRegisters");
+EC void DrawMessageFrame(u16 *, u32, u32, u32, u32, u32, u32);
+EC u8 const * const gMedalExchangeMessageFrameTiles asm("gUnk_080F9F70");
+EC u32 const gMedalExchangeMessageFrameTileBytes asm("gUnk_080F9F74");
+EC u16 const * const gMedalExchangeMessageFramePalette asm("gUnk_080F9F78");
+EC u16 const gMedalExchangeGlyphCodes[] asm("gUnk_080FB1A6");
+
+// The original register setters copy through a halfword scratch slot.
+#define SET_MEDAL_SCROLL(field, zero, zero_register) \
+    do { \
+        register MedalExchangeDisplayRegisters * display asm("r0") = GetMedalExchangeDisplayRegisters(exchange); \
+        register u16 * scratch asm("r1") = &work.display_value; \
+        asm ("" : "+r" (scratch), "+r" (display)); \
+        register u16 value asm(zero_register) = zero; \
+        asm volatile ("strh %0, [%1]" : : "l" (value), "l" (scratch) : "memory"); \
+        display->field = value; \
+    } while (0)
+
+#define SET_MEDAL_BG_CONTROL(field, flags) \
+    do { \
+        register MedalExchangeDisplayRegisters * display asm("r0") = GetMedalExchangeDisplayRegisters(exchange); \
+        register u16 * scratch asm("r2") = &work.display_value; \
+        asm ("" : "+r" (scratch), "+r" (display)); \
+        register u32 bg_flags asm("r3") = flags; \
+        asm ("" : "+r" (bg_flags)); \
+        register u16 value asm("r1") = bg_flags; \
+        asm ("" : "+r" (value)); \
+        asm volatile ("strh %0, [%1]" : : "l" (value), "l" (scratch) : "memory"); \
+        display->field = value; \
+    } while (0)
+
+EC SECTION(".text.f3.0805D9C0") void LoadMedalExchangeScreenGraphics(MedalExchange * self)
+{
+    enum
+    {
+        BG_VRAM = 0x06000000,
+        OBJ_VRAM = 0x06010000,
+        BG_PALETTE = 0x05000000,
+        OBJ_PALETTE = 0x05000200,
+        PRIZE_NAME_PALETTE = BG_PALETTE + 0x40,
+        BLANK_TILE = 0x06007FE0,
+        BASE_MAP = 0x0600E000,
+        FRAME_MAP = 0x0600E800,
+        PRIZE_NAME_MAP = 0x0600F000,
+        MAP_BYTES = 0x800,
+        TILE_BYTES = 32,
+        FRAME_WIDTH = 32,
+        GLYPH_COUNT = 24,
+        GLYPH_WIDTH = 1,
+        GLYPH_HEIGHT = 2,
+        GLYPH_TRANSPARENT = 0x03E0,
+        GLYPH_SHADOW = 0x4218,
+        DISPLAY_LAYERS = 0x1E40,
+        BASE_BG_CONTROL = 0x5C43,
+        FRAME_BG_CONTROL = 0x1D41,
+        PRIZE_NAMES_BG_CONTROL = 0x5E42,
+        BASE_MAP_TILE_PAIR = 0x00030003,
+    };
+    // Keep the scratch block after the outgoing arguments of DrawMessageFrame.
+    enum { STACKED_TEXT_ARGS = 3 * sizeof(u32) };
+    struct
+    {
+        u16 display_value;
+        STRUCT_PAD(0x02, 0x08);
+        u32 glyph_tiles[GLYPH_WIDTH * GLYPH_HEIGHT * TILE_BYTES / sizeof(u32)];
+        PrizeNameTileSize size;
+    } work;
+
+    register MedalExchange * exchange asm("r6") = self;
+    register u16 scroll_zero asm("r4");
+    register int glyph asm("r5");
+    {
+        register MedalExchangeDisplayRegisters * display asm("r0") = GetMedalExchangeDisplayRegisters(exchange);
+        register u16 * scratch asm("r1") = &work.display_value;
+        asm ("" : "+r" (scratch), "+r" (display));
+        asm ("mov %0, #0" : "=l" (scroll_zero) : : "cc");
+        register u16 value asm("r4") = scroll_zero;
+        asm volatile ("strh %0, [%1]" : : "l" (value), "l" (scratch) : "memory");
+        display->bg1_scroll_x = value;
+    }
+    {
+        register MedalExchangeDisplayRegisters * display asm("r0") = GetMedalExchangeDisplayRegisters(exchange);
+        register u16 * scratch asm("r2") = &work.display_value;
+        asm ("" : "+r" (scratch), "+r" (display));
+        register unsigned scroll_offset asm("r3") = offsetof(MedalExchange, scroll_y);
+        asm ("" : "+r" (scroll_offset));
+        register uintptr_t scroll_address asm("r1");
+        asm ("add %0, %1, %2" : "=l" (scroll_address) : "l" (exchange), "l" (scroll_offset) : "cc");
+        register u16 value asm("r1") = *reinterpret_cast<u16 const *>(scroll_address);
+        asm volatile ("strh %0, [%1]" : : "l" (value), "l" (scratch) : "memory");
+        display->bg1_scroll_y = value;
+    }
+    SET_MEDAL_SCROLL(bg2_scroll_x, scroll_zero, "r4");
+    SET_MEDAL_SCROLL(bg2_scroll_y, scroll_zero, "r4");
+    SET_MEDAL_SCROLL(bg3_scroll_x, scroll_zero, "r4");
+    SET_MEDAL_SCROLL(bg3_scroll_y, scroll_zero, "r4");
+
+    Dma3_Fill(0, reinterpret_cast<void *>(BLANK_TILE), TILE_BYTES);
+    register u32 empty_map asm("r4") = ~0u;
+    asm ("" : "+r" (empty_map));
+    register void * base_map_low asm("r0") = reinterpret_cast<void *>(BASE_MAP);
+    asm ("" : "+r" (base_map_low));
+    register void * base_map asm("r9") = base_map_low;
+    asm ("" : "+r" (base_map));
+    register u32 map_bytes_low asm("r1") = MAP_BYTES;
+    asm ("" : "+r" (map_bytes_low));
+    register u32 map_bytes asm("r8") = map_bytes_low;
+    asm ("" : "+r" (map_bytes));
+    Dma3_Fill(empty_map, base_map, map_bytes);
+    register u16 * frame_map_low asm("r2") = reinterpret_cast<u16 *>(FRAME_MAP);
+    asm ("" : "+r" (frame_map_low));
+    register u16 * frame_map asm("r10") = frame_map_low;
+    asm ("" : "+r" (frame_map));
+    Dma3_Fill(empty_map, frame_map, map_bytes);
+    Dma3_Fill(empty_map, reinterpret_cast<void *>(PRIZE_NAME_MAP), map_bytes);
+    {
+        register MedalExchangeDisplayRegisters * display asm("r0") = GetMedalExchangeDisplayRegisters(exchange);
+        register u16 * scratch asm("r1") = &work.display_value;
+        asm ("" : "+r" (scratch), "+r" (display));
+        register u32 register_value asm("r3") = DISPLAY_LAYERS;
+        asm ("" : "+r" (register_value));
+        register u16 value asm("r2") = register_value;
+        asm ("" : "+r" (value));
+        asm volatile ("strh %0, [%1]" : : "l" (value), "l" (scratch) : "memory");
+        asm ("mov %0, #0" : "=l" (glyph) : : "cc");
+        display->control = value;
+    }
+    SET_MEDAL_BG_CONTROL(bg3_control, BASE_BG_CONTROL);
+    SET_MEDAL_BG_CONTROL(bg2_control, FRAME_BG_CONTROL);
+    SET_MEDAL_BG_CONTROL(bg1_control, PRIZE_NAMES_BG_CONTROL);
+    Dma3_Copy(gMedalExchangeMessageFrameTiles, reinterpret_cast<void *>(BG_VRAM), gMedalExchangeMessageFrameTileBytes);
+    Dma3_Fill(BASE_MAP_TILE_PAIR, base_map, map_bytes);
+
+    SET_MEDAL_SCROLL(bg3_scroll_x, glyph, "r5");
+    SET_MEDAL_SCROLL(bg3_scroll_y, glyph, "r5");
+    DrawMessageFrame(frame_map, 0, 0, FRAME_WIDTH, 3, glyph, glyph);
+    SET_MEDAL_SCROLL(bg2_scroll_x, glyph, "r5");
+    SET_MEDAL_SCROLL(bg2_scroll_y, glyph, "r5");
+    SET_MEDAL_SCROLL(bg1_scroll_x, glyph, "r5");
+    SET_MEDAL_SCROLL(bg1_scroll_y, glyph, "r5");
+    Dma3_Copy(gMedalExchangeMessageFramePalette, reinterpret_cast<void *>(BG_PALETTE), TILE_BYTES);
+
+    volatile u16 * prize_palette = reinterpret_cast<volatile u16 *>(PRIZE_NAME_PALETTE);
+    prize_palette[0] = GLYPH_TRANSPARENT;
+    asm ("" : "+r" (prize_palette));
+    ++prize_palette;
+    *prize_palette = glyph;
+    asm ("" : "+r" (prize_palette));
+    ++prize_palette;
+    asm ("" : "+r" (prize_palette));
+    register u32 shadow_low asm("r2") = GLYPH_SHADOW;
+    asm ("" : "+r" (shadow_low));
+    register u16 glyph_shadow asm("r9") = shadow_low;
+    asm ("" : "+r" (glyph_shadow));
+    *prize_palette = shadow_low;
+    register u32 glyph_palette_offset asm("r3") = offsetof(MedalExchange, glyph_palette);
+    asm ("" : "+r" (glyph_palette_offset));
+    MedalExchangeObjAllocation * glyph_palette = reinterpret_cast<MedalExchangeObjAllocation *>(reinterpret_cast<u8 *>(exchange) + glyph_palette_offset);
+    u32 palette_slot = ResolveMedalObjPalette(glyph_palette, glyph_palette->handle);
+    register uintptr_t transparent_address asm("r0") = OBJ_PALETTE + palette_slot * TILE_BYTES;
+    asm ("" : "+r" (transparent_address));
+    register u16 transparent asm("r2") = GLYPH_TRANSPARENT;
+    asm ("" : "+r" (transparent));
+    *reinterpret_cast<volatile u16 *>(transparent_address) = transparent;
+    palette_slot = ResolveMedalObjPalette(glyph_palette, glyph_palette->handle);
+    register uintptr_t palette_bytes asm("r0") = palette_slot * TILE_BYTES;
+    asm ("" : "+r" (palette_bytes));
+    register uintptr_t ink_entry asm("r3") = OBJ_PALETTE + sizeof(u16);
+    asm ("" : "+r" (ink_entry));
+    asm ("add %0, %0, %1" : "+l" (palette_bytes) : "l" (ink_entry) : "cc");
+    *reinterpret_cast<volatile u16 *>(palette_bytes) = glyph;
+    palette_slot = ResolveMedalObjPalette(glyph_palette, glyph_palette->handle);
+    palette_bytes = palette_slot * TILE_BYTES;
+    asm ("" : "+r" (palette_bytes));
+    register uintptr_t shadow_entry asm("r1") = OBJ_PALETTE + 2 * sizeof(u16);
+    asm ("" : "+r" (shadow_entry));
+    asm ("add %0, %0, %1" : "+l" (palette_bytes) : "l" (shadow_entry) : "cc");
+    register u16 shadow asm("r2") = glyph_shadow;
+    asm ("" : "+r" (shadow));
+    *reinterpret_cast<volatile u16 *>(palette_bytes) = shadow;
+
+    register PrizeNameTileSize * size_low asm("r3");
+    asm ("add %0, sp, %1" : "=l" (size_low) : "i" (STACKED_TEXT_ARGS + offsetof(__typeof__(work), size)));
+    register PrizeNameTileSize * size asm("r9") = size_low;
+    asm ("" : "+r" (size));
+    register u32 * pixels_low asm("r0");
+    asm ("add %0, sp, %1" : "=l" (pixels_low) : "i" (STACKED_TEXT_ARGS + offsetof(__typeof__(work), glyph_tiles)));
+    register u32 * pixels asm("r8") = pixels_low;
+    asm ("" : "+r" (pixels));
+    u32 width = GLYPH_WIDTH;
+    asm ("" : "+r" (width));
+    register u32 height_low asm("r1") = GLYPH_HEIGHT;
+    asm ("" : "+r" (height_low));
+    register u32 height asm("r10") = height_low;
+    asm ("" : "+r" (height));
+    register u32 glyph_tiles_offset asm("r2") = offsetof(MedalExchange, glyph_tiles);
+    asm ("" : "+r" (glyph_tiles_offset));
+    register MedalExchangeObjAllocation * glyph_tiles asm("r6") =
+        reinterpret_cast<MedalExchangeObjAllocation *>(reinterpret_cast<u8 *>(exchange) + glyph_tiles_offset);
+    asm ("" : "+r" (glyph_tiles));
+    do
+    {
+        register u16 const * codes asm("r0") = gMedalExchangeGlyphCodes;
+        asm volatile ("" : "+r" (codes));
+        register u32 code_offset asm("r4") = glyph * sizeof(u16);
+        asm ("" : "+r" (code_offset));
+        asm ("add %0, %1, %0" : "+l" (codes) : "l" (code_offset) : "cc");
+        register u32 code asm("r1") = *codes;
+        register PrizeNameTileSize * size_width asm("r0");
+        asm volatile ("add %0, sp, %2\n\tstrh %1, [%0]"
+            : "=&l" (size_width)
+            : "l" (width), "i" (STACKED_TEXT_ARGS + offsetof(__typeof__(work), size)) : "memory");
+        asm ("" : "+r" (code));
+        register u32 height_value asm("r0") = height;
+        asm ("" : "+r" (height_value));
+        register PrizeNameTileSize * size_height asm("r3") = size;
+        asm volatile ("strh %0, [%1, #2]" : : "l" (height_value), "l" (size_height) : "memory");
+
+        // Match the agbcc stack argument order for this glyph draw.
+        asm volatile (
+            "ldr r0, [sp, %2]\n\t"
+            "str %0, [sp]\n\t"
+            "mov %0, #0\n\t"
+            "str %0, [sp, #4]\n\t"
+            "str %1, [sp, #8]\n\t"
+            "add r1, sp, %3\n\t"
+            "mov r2, #0\n\t"
+            "mov r3, #0\n\t"
+            "bl DrawMessageGlyphWithColors"
+            : "+l" (code)
+            : "l" (width),
+              "i" (STACKED_TEXT_ARGS + offsetof(__typeof__(work), size)),
+              "i" (STACKED_TEXT_ARGS + offsetof(__typeof__(work), glyph_tiles))
+            : "r0", "r2", "r3", "r12", "lr", "cc", "memory");
+        register u32 tile asm("r1") = ResolveMedalObjTile(glyph_tiles, glyph_tiles->handle);
+        asm ("" : "+r" (tile));
+        tile += code_offset;
+        register uintptr_t tile_bytes asm("r1") = tile * TILE_BYTES;
+        asm ("" : "+r" (tile_bytes));
+        register uintptr_t obj_vram asm("r2") = OBJ_VRAM;
+        asm ("" : "+r" (obj_vram));
+        Dma3_Copy(pixels, reinterpret_cast<void *>(tile_bytes + obj_vram), sizeof(work.glyph_tiles));
+        ++glyph;
+    } while (glyph < GLYPH_COUNT);
+}
+
+#undef SET_MEDAL_SCROLL
+#undef SET_MEDAL_BG_CONTROL
+
 EC SECTION(".text.f3.0805DC24") void LoadMedalExchangePrizeGraphics(MedalExchange * self)
 {
     enum
