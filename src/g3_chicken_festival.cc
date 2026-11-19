@@ -77,8 +77,9 @@ EC void * func_080ADF6C(void *, void *);
 EC void * func_080B3CC8(void *, void *);
 EC void Scene_DestroyBase(void *, u32);
 EC void AudioPlayer_StartSong(void *, u32);
-EC void func_080B0934(void *);
-EC void func_080B0970(void *);
+struct ChickenFeedingScene;
+EC void PauseChickenFeedingAnimations(ChickenFeedingScene &);
+EC void ResumeChickenFeedingAnimations(ChickenFeedingScene &);
 EC void SetMessageWindowText(void *, char const *);
 EC u16 gUnk_08107ACC[4][6];
 EC u8 gUnk_08107AFC[];
@@ -153,12 +154,12 @@ EC SECTION(".text.g3_080B3BA8") void ToggleFeedingPause(u8 * state)
     if (*paused == 0)
     {
         *paused = 1;
-        func_080B0934(state);
+        PauseChickenFeedingAnimations(*reinterpret_cast<ChickenFeedingScene *>(state));
     }
     else
     {
         *paused = 0;
-        func_080B0970(state);
+        ResumeChickenFeedingAnimations(*reinterpret_cast<ChickenFeedingScene *>(state));
     }
 }
 

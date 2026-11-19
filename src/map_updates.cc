@@ -51,13 +51,13 @@ struct MapUpdateState
 
 EC u32 func_0800E324(Unk_0800E324 const & calendar);
 EC MapPatch & GetMapPatch(MapPatch & result, u32 const & flags, unsigned index, bool isWinter);
-EC void func_080A5BD8(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, u32 y);
+EC void ApplyMapPatch(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, u32 y);
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapPatchTiles const gUnk_08106DAC;
 EC u32 const gUnk_08107438[6];
 EC bool HasRosterEntry(void * self);
-EC u32 func_080A041C(BacheloretteRoster const & roster);
-EC Bachelorette const * func_080A01F8(BacheloretteRoster const & roster, u32 npcId);
+EC u32 GetRosterProposalCandidate(BacheloretteRoster const & roster);
+EC Bachelorette const * GetRosterBacheloretteById(BacheloretteRoster const & roster, u32 npcId);
 EC u32 GetFirstSlotWithTool__C8RucksackUi(void const * rucksack, u32 toolId);
 EC u32 GetFirstSlotWith__C9ToolChestUi(void const * chest, u32 toolId);
 
@@ -66,19 +66,19 @@ EC SECTION(".text.080AA850") void ApplySavedMapTilePatch(MapUpdateState & map, u
     u32 season = func_0800E324(map.save->GetCalendar());
     MapPatch patch;
     GetMapPatch(patch, map.save->tilePatchFlags, patchId, season == SEASON_WINTER);
-    func_080A5BD8(map, patch.tiles, patch.tileX, patch.tileY);
+    ApplyMapPatch(map, patch.tiles, patch.tileX, patch.tileY);
     map.tilesDirty = true;
 }
 
 EC SECTION(".text.080AA89C") void ClearSupermarketRucksackDisplay(MapUpdateState & map)
 {
-    func_080A5BD8(map, &gUnk_08106DAC, 33, 20);
+    ApplyMapPatch(map, &gUnk_08106DAC, 33, 20);
     map.tilesDirty = true;
 }
 
 EC SECTION(".text.080AA8BC") void ClearSupermarketBlueFeatherDisplay(MapUpdateState & map)
 {
-    func_080A5BD8(map, &gUnk_08106DAC, 33, 23);
+    ApplyMapPatch(map, &gUnk_08106DAC, 33, 23);
     map.tilesDirty = true;
 }
 
@@ -92,7 +92,7 @@ EC SECTION(".text.080AA8F0") bool CanStockBlueFeather(MapUpdateState const & map
 {
     MapUpdateSave * const & save = map.save;
     BacheloretteRoster const & roster = *reinterpret_cast<BacheloretteRoster const *>(save->bachelorettes);
-    if (HasRosterEntry(save->bachelorettes) || func_080A041C(roster) != 0)
+    if (HasRosterEntry(save->bachelorettes) || GetRosterProposalCandidate(roster) != 0)
         return false;
 
     ToolStack const & equippedTool = save->equippedTool;
@@ -119,7 +119,7 @@ checkFeather:
     CandidateIds candidates = *reinterpret_cast<CandidateIds const *>(gUnk_08107438);
     for (u32 i = 0; i < ARRAY_COUNT(candidates.ids); ++i)
     {
-        Bachelorette const * candidate = func_080A01F8(roster, candidates.ids[i]);
+        Bachelorette const * candidate = GetRosterBacheloretteById(roster, candidates.ids[i]);
         if (candidate != 0 && candidate->GetLove() >= 50000 && candidate->GetRivalEventCount() <= 3)
             return true;
     }
