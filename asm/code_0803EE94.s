@@ -121880,7 +121880,7 @@ sub_0807C194: @ 0x0807C194
 	adds r0, r7, r4
 	ldr r5, [r0, #0x14]
 	mov r8, r5
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	add r3, sp, #0x10
 	movs r6, #0xa9
 	lsls r6, r6, #2
@@ -122077,7 +122077,7 @@ sub_0807C194: @ 0x0807C194
 	beq .L0807CD38
 	ldr r5, .L0807CD30 @ =0x00000684
 	adds r0, r7, r5
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r6, .L0807CD34 @ =0x000006A4
 	adds r0, r7, r6
 	str r4, [r0]
@@ -123704,7 +123704,7 @@ func_0807D218: @ 0x0807D218
 	ldr r1, [r0, #0x14]
 	mov r8, r1
 	movs r6, #1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r1, [r7, #0x10]
 	adds r0, r7, #0
 	bl func_0807D1DC
@@ -123880,7 +123880,7 @@ func_0807D218: @ 0x0807D218
 	beq .L0807DCB4
 	ldr r3, .L0807DCB0 @ =0x00000684
 	adds r0, r7, r3
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	movs r1, #0xe1
 	lsls r1, r1, #3
 	adds r0, r7, r1
@@ -125725,7 +125725,7 @@ func_0807E558: @ 0x0807E558
 	adds r0, r7, r3
 	ldr r6, [r0, #0x14]
 	movs r5, #1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r1, [r7, #0x10]
 	adds r0, r7, #0
 	bl func_0807E51C
@@ -125862,7 +125862,7 @@ func_0807E558: @ 0x0807E558
 	beq .L0807ED84
 	ldr r3, .L0807ED80 @ =0x00000684
 	adds r0, r7, r3
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r1, [r7, #0x10]
 	adds r0, r7, #0
 	bl func_0807E51C
@@ -128463,7 +128463,7 @@ func_0807F8C8: @ 0x0807F8C8
 	ldr r7, [r0, #0x14]
 	movs r4, #1
 	mov r8, r4
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r1, [r6, #0x10]
 	adds r0, r6, #0
 	bl func_0807F684
@@ -128630,7 +128630,7 @@ func_0807F8C8: @ 0x0807F8C8
 	beq .L080803D4
 	ldr r1, .L080803D0 @ =0x00000684
 	adds r0, r6, r1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r0, r6, r2
@@ -129596,7 +129596,7 @@ func_08080540: @ 0x08080540
 	ldr r1, .L08080C68 @ =0x00000684
 	adds r0, r7, r1
 	ldr r6, [r0, #0x14]
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r0, [r7, #0x10]
 	lsls r0, r0, #2
 	adds r0, r0, r7
@@ -129717,7 +129717,7 @@ func_08080540: @ 0x08080540
 	beq .L08080CDC
 	ldr r1, .L08080CD4 @ =0x00000684
 	adds r0, r7, r1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r2, .L08080CD8 @ =0x000006A4
 	adds r0, r7, r2
 	str r4, [r0]
@@ -131185,7 +131185,7 @@ func_0808114C: @ 0x0808114C
 	ldr r1, .L08081950 @ =0x00000684
 	adds r0, r6, r1
 	ldr r7, [r0, #0x14]
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r0, [r6, #0x10]
 	lsls r0, r0, #2
 	adds r0, r0, r6
@@ -131290,7 +131290,7 @@ func_0808114C: @ 0x0808114C
 	beq .L080819C4
 	ldr r1, .L080819BC @ =0x00000684
 	adds r0, r6, r1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r2, .L080819C0 @ =0x000006A4
 	adds r0, r6, r2
 	str r4, [r0]
@@ -137022,7 +137022,7 @@ func_08084228: @ 0x08084228
 	adds r0, r6, r4
 	ldr r7, [r0, #0x14]
 	movs r5, #1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	add r0, sp, #0x14
 	mov r8, r0
 	movs r1, #0xa9
@@ -137190,7 +137190,7 @@ func_08084228: @ 0x08084228
 	beq .L080850D0
 	ldr r1, .L080850CC @ =0x00000684
 	adds r0, r6, r1
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	movs r2, #0xe1
 	lsls r2, r2, #3
 	adds r0, r6, r2
@@ -142227,7 +142227,7 @@ sub_08087710: @ 0x08087710
 	adds r0, r7, r4
 	ldr r5, [r0, #0x14]
 	mov r8, r5
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	add r3, sp, #0x10
 	movs r6, #0xa9
 	lsls r6, r6, #2
@@ -142432,7 +142432,7 @@ sub_08087710: @ 0x08087710
 	beq .L08087AE0
 	ldr r5, .L08087AD8 @ =0x00000684
 	adds r0, r7, r5
-	bl func_080CAAF4
+	bl InventoryMenu_ClearQuantitySelector
 	ldr r6, .L08087ADC @ =0x000006A4
 	adds r0, r7, r6
 	str r4, [r0]
