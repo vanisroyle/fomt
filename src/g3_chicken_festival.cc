@@ -72,8 +72,8 @@ EC u8 vtable_unk_080E850C[];
 EC u8 vtable_unk_080E8528[];
 EC void * func_080ADF6C(void *, void *);
 EC void * func_080B3CC8(void *, void *);
-EC void func_080007EC(void *, u32);
-EC void func_08008B6C(void *, u32);
+EC void Scene_DestroyBase(void *, u32);
+EC void AudioPlayer_StartSong(void *, u32);
 EC void func_080B0934(void *);
 EC void func_080B0970(void *);
 EC void SetMessageWindowText(void *, char const *);
@@ -114,7 +114,7 @@ EC SECTION(".text.g3_080B3948") void AdvanceFeedingEffectTimers(FeedingEffectTim
 
 EC SECTION(".text.g3_080B3BA8") void ToggleFeedingPause(u8 * state)
 {
-    func_08008B6C(state + 0x818, 0xb8);
+    AudioPlayer_StartSong(state + 0x818, 0xb8);
     u32 * paused = (u32 *) (state + 0x83c);
     if (*paused == 0)
     {
@@ -141,7 +141,7 @@ EC SECTION(".text.g3_080B3C0C") void DestroyChickenFeedingWrapper(MinigameWrappe
     MinigameState * state = (MinigameState *) self->state;
     if (state != nullptr)
         state->vtable->destroy(state, 3);
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 EC SECTION(".text.g3_080B8DAC") u16 GetFestivalChickenAnimation(u8 * state, u32 animation, u32 direction, u8 round)
@@ -160,7 +160,7 @@ EC SECTION(".text.g3_080B9428") void TriggerFestivalRivalCheer(ChickenFestivalCo
         state->chickens[1].actionFrames = 0;
         state->chickens[1].animationDirty = 1;
         state->chickens[1].action = 5;
-        func_08008B6C((u8 *) state + 0x70c, 0xcc);
+        AudioPlayer_StartSong((u8 *) state + 0x70c, 0xcc);
     }
 }
 
@@ -266,7 +266,7 @@ EC SECTION(".text.g3_080BC8C0") void DestroyChickenFestivalWrapper(MinigameWrapp
     MinigameState * state = (MinigameState *) self->state;
     if (state != nullptr)
         state->vtable->destroy(state, 3);
-    func_080007EC(self, flags);
+    Scene_DestroyBase(self, flags);
 }
 
 struct FestivalMatchState
@@ -285,12 +285,12 @@ struct FestivalMatchState
     u8 rivalCheerInterval;
 };
 
-EC u32 func_080088D4(void *);
+EC u32 HardwareContext_GetRepeatedKeys(void *);
 EC void func_080B92B4(void *);
 
 EC SECTION(".text.g3_080BA6B8") void HandleFestivalCheerInput(FestivalMatchState * state)
 {
-    u32 keys = func_080088D4(state);
+    u32 keys = HardwareContext_GetRepeatedKeys(state);
     if (state->chickens[0].canCheer == 1 && (keys & 1))
     {
         state->chickens[0].cheerRequested = 1;
@@ -300,7 +300,7 @@ EC SECTION(".text.g3_080BA6B8") void HandleFestivalCheerInput(FestivalMatchState
             state->chickens[0].actionFrames = 0;
             state->chickens[0].animationDirty = 1;
             state->chickens[0].action = 5;
-            func_08008B6C((u8 *) state + 0x70c, 0xcc);
+            AudioPlayer_StartSong((u8 *) state + 0x70c, 0xcc);
         }
     }
     if (state->chickens[1].canCheer == 1)
@@ -356,13 +356,13 @@ struct FestivalPauseState
     u8 paused;
 };
 
-EC u32 func_080088CC(void *);
+EC u32 HardwareContext_GetPressedKeys(void *);
 
 EC SECTION(".text.g3_080BA608") void ToggleFestivalPause(FestivalPauseState * state)
 {
-    if (func_080088CC(state) & 8)
+    if (HardwareContext_GetPressedKeys(state) & 8)
     {
-        func_08008B6C((u8 *) state + 0x714, 0xb8);
+        AudioPlayer_StartSong((u8 *) state + 0x714, 0xb8);
         if (state->paused)
         {
             state->paused = 0;
