@@ -480,3 +480,99 @@ EC u32 GetSideActorXVelocity(AActorEntity * self)
 {
     return self->x_speed_q16;
 }
+
+struct SideEffectAnimationState
+{
+    void * owner;
+    u16 animation;
+    STRUCT_PAD(0x06, 0x30);
+    SpriteAnimator animator;
+    u8 visible;
+    u8 flags;
+    u8 flip;
+    u8 restart;
+};
+
+EC u32 IsSideActorSpritePlaying(UnknownEntityThing * self) NPC_SIDE_CODE(08032A64);
+EC u32 IsSideActorSpritePlaying(UnknownEntityThing * self)
+{
+    SpriteAnimator * animator = &self->sprite_animator;
+    u32 playing = 0;
+    if (animator->remaining_q8 != 0)
+        playing = animator->speed_q8 != 0;
+    return playing;
+}
+
+EC void SetSideActorFacingIfChanged(AActorEntity * self, u32 facing) NPC_SIDE_CODE(08032B68);
+EC void SetSideActorFacingIfChanged(AActorEntity * self, u32 facing)
+{
+    if (self->facing != facing)
+        self->SetAnimFacing(facing);
+}
+
+EC i32 GetSideActorDrawDepth(SpriteTaskActor const * self) NPC_SIDE_CODE(08032B88);
+EC i32 GetSideActorDrawDepth(SpriteTaskActor const * self)
+{
+    return 0x8000 - self->y;
+}
+
+EC i32 GetSideEffectAnimationSpeed(SideEffectAnimationState * self) NPC_EXTRA_CODE(0803A804);
+EC i32 GetSideEffectAnimationSpeed(SideEffectAnimationState * self)
+{
+    SpriteAnimator * animator = &self->animator;
+    return animator->speed_q8;
+}
+
+EC void SetSideEffectAnimationSpeed(SideEffectAnimationState * self, u32 speed) NPC_EXTRA_CODE(0803A80C);
+EC void SetSideEffectAnimationSpeed(SideEffectAnimationState * self, u32 speed)
+{
+    SpriteAnimator * animator = &self->animator;
+    animator->speed_q8 = speed;
+}
+
+EC bool WillSideEffectAnimationLoop(SideEffectAnimationState * self) NPC_EXTRA_CODE(0803A814);
+EC bool WillSideEffectAnimationLoop(SideEffectAnimationState * self)
+{
+    return WillSpriteAnimationLoop(&self->animator);
+}
+
+EC u32 IsSideEffectAnimationPlaying(SideEffectAnimationState * self) NPC_EXTRA_CODE(0803A820);
+EC u32 IsSideEffectAnimationPlaying(SideEffectAnimationState * self)
+{
+    SpriteAnimator * animator = &self->animator;
+    u32 playing = 0;
+    if (animator->remaining_q8 != 0)
+        playing = animator->speed_q8 != 0;
+    return playing;
+}
+
+EC void UpdateSideEffectAnimation(SideEffectAnimationState * self) NPC_EXTRA_CODE(0803A840);
+EC void UpdateSideEffectAnimation(SideEffectAnimationState * self)
+{
+    if (self->restart == 0)
+    {
+        if (i32(AdvanceSpriteAnimator(&self->animator) << 30) < 0)
+            self->visible = 1;
+    }
+    else
+        self->restart = 0;
+}
+
+EC void SetSideEffectAnimationIfChanged(SideEffectAnimationState * self, u32 animation) NPC_EXTRA_CODE(0803A870);
+EC void SetSideEffectAnimationIfChanged(SideEffectAnimationState * self, u32 animation)
+{
+    if (self->animation != animation)
+    {
+        SetSpriteAnimatorClip(&self->animator, animation);
+        self->visible = 1;
+        self->flip = 0;
+        self->restart = 1;
+        self->animation = animation;
+    }
+}
+
+EC void * GetSideEffectOwner(SideEffectAnimationState * self) NPC_EXTRA_CODE(0803A8A0);
+EC void * GetSideEffectOwner(SideEffectAnimationState * self)
+{
+    return self->owner;
+}
