@@ -28651,7 +28651,7 @@ func_080B55D0: @ 0x080B55D0
 	ldrh r1, [r2]
 	strh r1, [r0, #0x1e]
 	adds r0, r7, #0
-	bl func_080B5788
+	bl ResetFestivalInstructionChickens
 	movs r1, #0xe3
 	lsls r1, r1, #3
 	adds r0, r7, r1
