@@ -154,10 +154,10 @@ struct GameStateActorEntity : public AActorEntity
 {
     GameStateActorEntity();
 
-    virtual void vfunc_3C();
+    virtual void vfunc_3C(u32 mode);
     virtual u32 vfunc_40();
     virtual u32 vfunc_44();
-    virtual void vfunc_48();
+    virtual bool vfunc_48();
     virtual void vfunc_4C();
     virtual void vfunc_50();
     virtual void vfunc_54();
@@ -404,6 +404,89 @@ EC void func_080A05E8(void * self, void * value);
 EC void func_08008B6C(void * self, u16 amount);
 EC void func_08008B88(void * self, u16 amount);
 EC void func_08008BB0(void * self, u16 amount);
+EC void func_08008BF8(void * self, u32 speed);
+
+struct __attribute__((packed, aligned(2))) GameStateHalfCounter
+{
+    u16 reserved;
+    struct __attribute__((packed, aligned(2)))
+    {
+        u16 reserved : 2;
+        u16 counter : 7;
+    } progress;
+};
+
+// 0x08010F14
+EC u32 SECTION(".text.game_state_08010F14") GameProgress_GetHalfCounter(GameStateHalfCounter const & header)
+{
+    return header.progress.counter;
+}
+
+// 0x08011498
+EC u32 SECTION(".text.game_state_08011498") GameProgress_RaiseHalfCounter(GameStateHalfCounter & header, u32 minimum)
+{
+    if (minimum > 99)
+        minimum = 99;
+    u32 changed;
+    if (header.progress.counter >= minimum)
+        changed = 0;
+    else
+    {
+        header.progress.counter = minimum;
+        changed = 1;
+    }
+    return changed;
+}
+
+// 0x0801412C
+EC u32 SECTION(".text.game_state_0801412C") GameScript_BeginPlayerAction48(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u32 started;
+    if (runtime.object->vfunc_40(0)->vfunc_48())
+    {
+        runtime.command = 0x19;
+        started = 1;
+    }
+    else
+        started = 0;
+    return started;
+}
+
+// 0x08014BD8
+EC void SECTION(".text.game_state_08014BD8") GameScript_SetNonPlayerActorMode(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u32 actorId = 1;
+    GameStateObject * & scene = runtime.object;
+    for (; actorId <= 0x23; actorId++)
+    {
+        GameStateActorEntity * actor = scene->vfunc_40(actorId);
+        if (actor != nullptr)
+            actor->vfunc_3C(3);
+    }
+}
+
+// 0x08016784
+EC u32 SECTION(".text.game_state_08016784") GameScript_FadeMusicIfPlaying(GameStateScript & script)
+{
+    u8 * music = script.runtime->music;
+    u32 started;
+    if ((u8) func_08008CD0(music))
+    {
+        func_08008BF8(music, 5);
+        started = 1;
+    }
+    else
+        started = 0;
+    return started;
+}
+
+// 0x08016D34
+EC void SECTION(".text.game_state_08016D34") GameScript_InvokeSceneActorAction(GameStateScript & script, u32 actorId)
+{
+    script.runtime->object->vfunc_3C(actorId);
+}
 
 EC void SECTION(".text.game_state_08012454") func_08012454(GameStateScript & self)
 {

@@ -10140,7 +10140,7 @@ func_080A3900: @ 0x080A3900
 	bl func_080B3C84
 	adds r1, r0, #0
 	adds r0, r4, #0
-	bl func_08011498
+	bl GameProgress_RaiseHalfCounter
 	ldr r0, [r5, #4]
 	mov r1, r8
 	str r1, [r5, #4]

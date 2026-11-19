@@ -3537,7 +3537,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08041668
-	bl func_0801412C
+	bl GameScript_BeginPlayerAction48
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 .L08041668:
@@ -8949,7 +8949,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080442E2
 	bl .L08045572
 .L080442E2:
-	bl func_08014BD8
+	bl GameScript_SetNonPlayerActorMode
 	bl .L08045572
 .L080442EA:
 	adds r6, r5, #0
@@ -11242,7 +11242,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08045572
-	bl func_08016784
+	bl GameScript_FadeMusicIfPlaying
 	b .L08045572
 .L08045496:
 	movs r2, #0xd4
