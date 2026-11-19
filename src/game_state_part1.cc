@@ -25,6 +25,31 @@ struct GameStateSelection
     u8 delay;
 };
 
+struct GameStateWordHeader
+{
+    u32 unused : 13;
+    u32 value : 5;
+};
+
+EC u32 SECTION(".text.game_state_08010F0C") func_08010F0C(GameStateWordHeader const & self)
+{
+    return self.value;
+}
+
+EC u32 SECTION(".text.game_state_08011588") func_08011588(void const * data, u32 length)
+{
+    u32 sum = 0;
+    if (data != nullptr && length != 0)
+    {
+        u8 const * cursor = static_cast<u8 const *>(data);
+        do
+        {
+            sum += *cursor++;
+        } while (--length != 0);
+    }
+    return sum;
+}
+
 EC int SECTION(".text.game_state_08010348") func_08010348()
 {
     int value;
@@ -275,6 +300,8 @@ struct GameStateScript
 
 struct GameStateGlobalStatus
 {
+    u32 GetValue() const { return unk_04; }
+
     u8 unk_00;
     u32 unk_04;
 };
@@ -297,6 +324,11 @@ struct GameStateGlobal
 };
 
 extern GameStateGlobal * gUnk_0300040C;
+
+EC u32 SECTION(".text.game_state_08016D9C") func_08016D9C()
+{
+    return gUnk_0300040C->status.GetValue();
+}
 
 EC void func_08008DE8();
 EC void func_08008BE0(void * self);
