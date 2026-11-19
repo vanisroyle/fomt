@@ -2,9 +2,7 @@
 
 #include <stdlib.h>
 
-extern "C" void func_0805E860(SpriteAnimator * self, u32 anim_id);
-extern "C" u32 func_08032090(void * sprite, u32 anim_id); // Sprite
-extern "C" bool func_080AC070(UnkMap & unk, Box const & box);
+extern "C" bool DoesEntityCollisionRectangleHitSolidTile(UnkMap & unk, Box const & box);
 
 AActorEntity::AActorEntity(GameObject * game_object, ActorLocation const & location, u32 arg_2, u32 anim_id)
     : AEntity(game_object, location), x_speed_q16(0), y_speed_q16(0), facing(location.facing), unk_21(arg_2)
@@ -47,13 +45,13 @@ void AActorEntity::RefreshSprite(u32 sprite_anim)
 
     if (ptr != nullptr)
     {
-        func_0805E860(&ptr->sprite_animator, sprite_anim);
+        SetSpriteAnimatorClip(&ptr->sprite_animator, sprite_anim);
         ptr->unk_44 = 1;
         ptr->unk_46 = 0;
         ptr->unk_47 = 1;
     }
 
-    unk_24 = func_08032090(game_object->vfunc_68(), sprite_anim);
+    unk_24 = SumSpriteAnimationFrameDelays(static_cast<SpriteAnimationSource *>(game_object->vfunc_68()), sprite_anim);
     unk_26 = unk_24;
 }
 
@@ -103,7 +101,7 @@ void AActorEntity::method_08032208()
 
     UnkMap unk = go->vfunc_34(map);
 
-    if (func_080AC070(unk, box) || !func_080AC070(unk, box.Moved(x_diff, y_diff)))
+    if (DoesEntityCollisionRectangleHitSolidTile(unk, box) || !DoesEntityCollisionRectangleHitSolidTile(unk, box.Moved(x_diff, y_diff)))
     {
         x_q16 = x_new_q16;
         y_q16 = y_new_q16;
@@ -162,7 +160,7 @@ EC void func_08032384(AActorEntity & self, u32 arg_1, bool arg_2)
     {
         // TODO: this may be an inlined method call?
         UnknownEntityThing * ptr = self.unk_10.Get();
-        func_0805E860(&ptr->sprite_animator_70, arg_1);
+        SetSpriteAnimatorClip(&ptr->sprite_animator_70, arg_1);
         ptr->unk_84 = 1;
         ptr->unk_86 = 0;
         ptr->unk_87 = 1;
