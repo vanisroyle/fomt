@@ -57,5 +57,8 @@ EC void Joybus_HandleSerialInterrupt(); // 0x080D0704
 EC void Joybus_UpdateTransfers(); // 0x080D035C
 EC void Joybus_QueueWordExchange(u32 send_word, u32 require_handshake); // 0x080D0644
 EC void Joybus_QueueExchangeCommands(); // 0x080D05DC
+// Receives before sending. Byte counts round up to halfwords; odd-length
+// buffers therefore need one accessible padding byte.
+EC void Joybus_QueueBufferExchange(u8 * send_buffer, u32 send_bytes, u8 * receive_buffer, u32 receive_bytes); // 0x080D0558
 
 #endif

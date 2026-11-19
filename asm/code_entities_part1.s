@@ -890,7 +890,7 @@ func_080204CC: @ 0x080204CC
     adds r0, r3, #0
     mov r2, r8
     mov r3, sb
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
@@ -995,7 +995,7 @@ func_080204CC: @ 0x080204CC
     str r4, [sp]
     mov r4, sb
     str r4, [sp, #4]
-    bl func_080ABE58
+    bl ChooseEntityFacingAwayFromPoint
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
@@ -1130,7 +1130,7 @@ func_080204CC: @ 0x080204CC
     adds r0, r2, #0
     mov r2, sb
     mov r3, r8
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
@@ -1368,7 +1368,7 @@ func_080204CC: @ 0x080204CC
     adds r0, r3, #0
     ldr r2, [sp, #0xf4]
     mov r3, r8
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
@@ -1571,7 +1571,7 @@ func_080204CC: @ 0x080204CC
     str r7, [sp]
     str r0, [sp, #4]
     mov r0, ip
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
@@ -2852,7 +2852,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     add r0, sp, #8
     adds r1, r6, #0
     movs r3, #0
-    bl func_080AC124
+    bl ClampEntityMovementToSolidTiles
     ldr r1, [sp, #0x1c]
     cmp r1, #0
     beq .L0802549C
@@ -2877,7 +2877,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     add r0, sp, #8
     adds r1, r6, #0
     movs r2, #0
-    bl func_080AC124
+    bl ClampEntityMovementToSolidTiles
     ldr r1, [sp, #0x1c]
     cmp r1, #0
     beq .L0802549C
@@ -2903,7 +2903,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r1, r6, #0
     movs r2, #0
     movs r3, #0
-    bl func_080AC124
+    bl ClampEntityMovementToSolidTiles
     ldr r1, [sp, #0x1c]
     cmp r1, #0
     beq .L0802549C
@@ -2922,7 +2922,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r1, r6, #0
     movs r2, #0
     movs r3, #0
-    bl func_080AC124
+    bl ClampEntityMovementToSolidTiles
     ldr r1, [sp, #0x1c]
     cmp r1, #0
     beq .L0802549C

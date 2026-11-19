@@ -2392,7 +2392,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     str	r4, [sp, #0]
     mov	r6, r8
     str	r6, [sp, #4]
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds	r2, r0, #0
     ldr	r0, [sp, #148]
     ldrb	r1, [r0, #2]
@@ -2696,7 +2696,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     str	r4, [sp, #4]
     ldr	r0, [sp, #156]
     ldr	r1, [sp, #160]
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds	r2, r0, #0
     adds	r0, r7, #0
     movs	r1, #1

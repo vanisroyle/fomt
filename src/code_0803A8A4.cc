@@ -963,7 +963,7 @@ ROM_TEXT(0803D2E8) void HideClockToolIcon(ClockDisplay & self)
 }
 
 struct SavedCalendarDate;
-EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, bool colonVisible);
+EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, unsigned colonVisible);
 
 struct ClockHud : DialogWindow
 {
@@ -1171,7 +1171,8 @@ struct PACKED SavedCalendarDate
 {
     u8 yearInCycle : 3;
     u8 yearCycle : 5;
-    u8 packedDateAndTime[2];
+    u8 packedDate;
+    u8 packedTime[2];
 };
 
 enum NpcScheduleWeekday
@@ -1216,7 +1217,7 @@ struct NpcScheduleContext
     u32 weather;
     STRUCT_PAD(0x000C, 0x0010);
     SavedCalendarDate calendar;
-    STRUCT_PAD(0x0013, 0x1CD4);
+    STRUCT_PAD(0x0014, 0x1CD4);
     u8 unk_1CD4[4];
     STRUCT_PAD(0x1CD8, 0x1D6C);
     Bachelorette popuri;
@@ -1260,7 +1261,441 @@ struct NpcScheduleContext
     u8 eventFlags;
 };
 
-EC CalendarDate & DecodeNpcScheduleDate(CalendarDate &, SavedCalendarDate const &);
+#define EXTRACT_CALENDAR_FIELD(output, input, offset, width) \
+    asm(".syntax unified\n\tlsls %0, %1, %2\n\tlsrs %0, %0, %3\n\t.syntax divided" \
+        : "=l"(output) : "l"(input), "I"(32 - (offset) - (width)), "I"(32 - (width)))
+
+ROM_TEXT(0803D52C) CalendarDate & DecodeNpcScheduleDate(CalendarDate & result, SavedCalendarDate const & calendar)
+{
+    enum
+    {
+        DAYS_PER_SEASON = 30,
+        DAYS_PER_YEAR = 4 * DAYS_PER_SEASON,
+        DAYS_PER_WEEK = 7,
+        YEARS_PER_CALENDAR_CYCLE = 7,
+        WEEKDAY_YEAR_OFFSET = 6,
+        MAX_YEAR = 200,
+        SCHEDULE_DAY_START_HOUR = 6,
+        SEASON_BIT = 0,
+        SEASON_WIDTH = 2,
+        SEASON_MASK = (1u << SEASON_WIDTH) - 1,
+        DAY_BIT = 2,
+        DAY_WIDTH = 5,
+        DAY_MASK = (1u << DAY_WIDTH) - 1,
+        WEEKDAY_WIDTH = 3,
+        WEEKDAY_MASK = (1u << WEEKDAY_WIDTH) - 1,
+        HOUR_BIT = 16,
+        HOUR_WIDTH = 5,
+    };
+    struct LocalDate
+    {
+        unsigned maxYear;
+        unsigned year;
+        u8 date;
+    } local;
+    // Register and stack constraints below preserve agbcc's original Thumb layout.
+    asm("" : : : "r9", "r10");
+
+    unsigned dateByte = calendar.packedDate;
+    u8 * dateBuffer = &local.date;
+    *dateBuffer = dateByte;
+
+    unsigned yearInCycle = calendar.yearInCycle;
+    unsigned season;
+    EXTRACT_CALENDAR_FIELD(season, dateByte, SEASON_BIT, SEASON_WIDTH);
+    register unsigned dayCount asm("r3");
+    EXTRACT_CALENDAR_FIELD(dayCount, dateByte, DAY_BIT, DAY_WIDTH);
+    yearInCycle += WEEKDAY_YEAR_OFFSET;
+    dayCount += season * DAYS_PER_SEASON + yearInCycle * DAYS_PER_YEAR;
+    register u8 * date asm("r8");
+    date = dateBuffer;
+    asm("" : "+r"(date));
+    if (dayCount > DAYS_PER_WEEK - 1)
+        dayCount %= DAYS_PER_WEEK;
+    // The original keeps the weekday in the low three bits of a register.
+    unsigned weekdayStorage;
+    asm("" : "=l"(weekdayStorage));
+    unsigned weekdayMask = ~unsigned(WEEKDAY_MASK);
+    asm("" : "+l"(weekdayMask));
+    unsigned weekdayLow = dayCount & WEEKDAY_MASK;
+    asm("and %0, %1" : "+l"(weekdayMask) : "l"(weekdayStorage));
+    weekdayStorage = weekdayMask | weekdayLow;
+    asm("" : "+l"(weekdayStorage) : : "memory");
+
+    unsigned maxYear = MAX_YEAR;
+    local.maxYear = maxYear;
+    unsigned actualYear = calendar.yearCycle * unsigned(YEARS_PER_CALENDAR_CYCLE)
+        + calendar.yearInCycle;
+    local.year = actualYear;
+    unsigned * actualYearAddress = &local.year;
+    register unsigned * yearAddress asm("r2") = &local.maxYear;
+    if (maxYear > actualYear)
+        yearAddress = actualYearAddress;
+    register unsigned year asm("r4") = *yearAddress;
+    unsigned packedCalendar;
+    asm("ldr %0, [%1]" : "=l"(packedCalendar) : "l"(&calendar) : "memory");
+    unsigned hour;
+    EXTRACT_CALENDAR_FIELD(hour, packedCalendar, HOUR_BIT, HOUR_WIDTH);
+    // NPC schedules still use the previous date before 6 AM.
+    if (hour < SCHEDULE_DAY_START_HOUR)
+    {
+        u8 * rolledDate;
+        asm("mov %0, %1" : "=l"(rolledDate) : "r"(date));
+        unsigned currentDateByte = *rolledDate;
+        unsigned dayShift;
+        register unsigned previousDay asm("r2");
+        asm("lsl %0, %2, %3; lsr %1, %0, %4"
+            : "=&l"(dayShift), "=l"(previousDay)
+            : "l"(currentDateByte), "I"(32 - DAY_BIT - DAY_WIDTH), "I"(32 - DAY_WIDTH));
+        if (previousDay == 0)
+        {
+            unsigned previousSeason;
+            EXTRACT_CALENDAR_FIELD(previousSeason, currentDateByte, SEASON_BIT, SEASON_WIDTH);
+            unsigned seasonMask = ~unsigned(SEASON_MASK);
+            --previousSeason;
+            unsigned seasonBits = SEASON_MASK;
+            previousSeason &= seasonBits;
+            seasonMask &= currentDateByte;
+            seasonMask |= previousSeason;
+            *rolledDate = seasonMask;
+            previousDay = DAYS_PER_SEASON - 1;
+        }
+        else
+        {
+            --previousDay;
+        }
+        register unsigned dayMask asm("r0") = DAY_MASK;
+        asm("" : "+l"(dayMask));
+        previousDay = (previousDay & dayMask) << DAY_BIT;
+        unsigned unchangedDate = *rolledDate;
+        unsigned preserveOtherDateBits = ~(unsigned(DAY_MASK) << DAY_BIT);
+        preserveOtherDateBits &= unchangedDate;
+        *rolledDate = preserveOtherDateBits | previousDay;
+
+        u8 const * normalizedDate;
+        asm("mov %0, %1" : "=l"(normalizedDate) : "r"(date));
+        unsigned normalizedDateByte = *normalizedDate;
+        unsigned normalizedSeason;
+        EXTRACT_CALENDAR_FIELD(normalizedSeason, normalizedDateByte, SEASON_BIT, SEASON_WIDTH);
+        if (normalizedSeason == SEASON_WINTER)
+        {
+            unsigned normalizedDay;
+            EXTRACT_CALENDAR_FIELD(normalizedDay, normalizedDateByte, DAY_BIT, DAY_WIDTH);
+            if (normalizedDay == DAYS_PER_SEASON - 1)
+                --year;
+        }
+
+        int weekday;
+        EXTRACT_CALENDAR_FIELD(weekday, weekdayStorage, 0, WEEKDAY_WIDTH);
+        int previousWeekday = DAYS_PER_WEEK - 1;
+        if (weekday > SCHEDULE_MONDAY)
+            previousWeekday = weekday - 1;
+        unsigned weekdayBits = WEEKDAY_MASK;
+        asm("" : "+l"(weekdayBits));
+        previousWeekday &= weekdayBits;
+        register unsigned preserveOtherWeekdayBits asm("r0") = ~unsigned(WEEKDAY_MASK);
+        preserveOtherWeekdayBits &= weekdayStorage;
+        weekdayStorage = preserveOtherWeekdayBits | previousWeekday;
+    }
+
+    result.year = year;
+    register u8 const * scheduleDate asm("r1");
+    asm("mov %0, %1" : "=l"(scheduleDate) : "r"(date));
+    unsigned scheduleSeasonByte = *scheduleDate;
+    asm("" : "+l"(scheduleSeasonByte));
+    unsigned scheduleSeason;
+    EXTRACT_CALENDAR_FIELD(scheduleSeason, scheduleSeasonByte, SEASON_BIT, SEASON_WIDTH);
+    result.season = scheduleSeason;
+    u8 const * dayAddress;
+    asm("add %0, sp, %1"
+        : "=l"(dayAddress) : "I"(offsetof(LocalDate, date)) : "memory");
+    unsigned scheduleDayByte = *dayAddress;
+    unsigned scheduleDay;
+    EXTRACT_CALENDAR_FIELD(scheduleDay, scheduleDayByte, DAY_BIT, DAY_WIDTH);
+    result.day = scheduleDay + 1;
+    unsigned scheduleWeekday;
+    EXTRACT_CALENDAR_FIELD(scheduleWeekday, weekdayStorage, 0, WEEKDAY_WIDTH);
+    result.weekday = scheduleWeekday;
+    return result;
+}
+
+ROM_TEXT(0803CD4C) void SetClockDateAndTimeTiles(ClockDisplay & display, SavedCalendarDate const & calendar, unsigned colonVisible)
+{
+    enum
+    {
+        SEASON_BIT = 0,
+        SEASON_WIDTH = 2,
+        DAY_BIT = 2,
+        DAY_WIDTH = 5,
+        HOUR_BIT = 16,
+        HOUR_WIDTH = 5,
+        MINUTE_BIT = 21,
+        MINUTE_WIDTH = 6,
+        WEEKDAY_YEAR_OFFSET = 6,
+        DAYS_PER_SEASON = 30,
+        DAYS_PER_YEAR = 4 * DAYS_PER_SEASON,
+        DAYS_PER_WEEK = 7,
+        WEEKDAY_MASK = 7,
+        HOURS_PER_HALF_DAY = 12,
+        MINUTES_PER_DISPLAY_STEP = 10,
+        AM_TILE = 28,
+        PM_TILE = 30,
+        COLON_TILE = 10,
+    };
+    struct ClockTileLocals
+    {
+        unsigned weekdayTiles[CLOCK_TILE_BYTES / sizeof(unsigned)];
+        SavedCalendarDate const * calendar;
+        unsigned showColon;
+        STRUCT_PAD(0x28, 0x2C);
+        u8 * timeDirty;
+    } local;
+    // The scratch tile and register constraints preserve the original Thumb layout.
+    local.calendar = &calendar;
+    asm("" : : "m"(local.calendar) : "memory");
+    register unsigned colonFlag asm("r2");
+    EXTRACT_CALENDAR_FIELD(colonFlag, colonVisible, 0, 8);
+    local.showColon = colonFlag;
+    asm("" : : "m"(local.calendar), "m"(local.showColon) : "memory");
+    ClockDisplayData * clock = display.inner;
+    unsigned packedSeason = calendar.packedDate;
+    asm("" : "+l"(packedSeason));
+    unsigned season;
+    EXTRACT_CALENDAR_FIELD(season, packedSeason, SEASON_BIT, SEASON_WIDTH);
+    register unsigned firstSeasonTile asm("r5");
+    unsigned secondSeasonTile;
+    switch (int(season))
+    {
+    case SEASON_SPRING:
+    default: firstSeasonTile = 11; secondSeasonTile = 12; break;
+    case SEASON_SUMMER: firstSeasonTile = 13; secondSeasonTile = 14; break;
+    case SEASON_AUTUMN: firstSeasonTile = 15; secondSeasonTile = 16; break;
+    case SEASON_WINTER: firstSeasonTile = 17; secondSeasonTile = 18; break;
+    }
+    asm("" : "+l"(firstSeasonTile), "+l"(secondSeasonTile));
+    u8 * firstSeasonDest = clock->seasonFirstTiles;
+    unsigned firstSeasonOffset = firstSeasonTile * sizeof(ClockTile);
+    ClockTile const * font = gClockFont;
+    asm("" : "+r"(font));
+    memcpy(firstSeasonDest, reinterpret_cast<u8 const *>(font) + firstSeasonOffset, sizeof(ClockTile));
+    u8 * dateDirty = &clock->dateTilesDirty;
+    register unsigned firstDirty asm("r1") = 1;
+    asm("" : "+l"(firstDirty));
+    unsigned initialDirty = firstDirty;
+    asm("" : "+r"(initialDirty));
+    register unsigned markSeasonFirst asm("r2");
+    asm("mov %0, %1" : "=l"(markSeasonFirst) : "r"(initialDirty));
+    *dateDirty = markSeasonFirst;
+    u8 const * secondSeasonTileData = font[secondSeasonTile];
+    memcpy(clock->seasonSecondTiles, secondSeasonTileData, sizeof(ClockTile));
+    unsigned markSeasonSecond;
+    asm("mov %0, %1" : "=l"(markSeasonSecond) : "r"(initialDirty));
+    *dateDirty = markSeasonSecond;
+
+    SavedCalendarDate const * saved = local.calendar;
+    unsigned packedDate = saved->packedDate;
+    register unsigned dayExtracted asm("r0");
+    EXTRACT_CALENDAR_FIELD(dayExtracted, packedDate, DAY_BIT, DAY_WIDTH);
+    dayExtracted++;
+    asm("" : "+l"(dayExtracted));
+    unsigned day = dayExtracted;
+    unsigned yearInCycle = saved->yearInCycle;
+    unsigned daySeason;
+    EXTRACT_CALENDAR_FIELD(daySeason, packedDate, SEASON_BIT, SEASON_WIDTH);
+    yearInCycle += WEEKDAY_YEAR_OFFSET;
+    unsigned weekday = daySeason * DAYS_PER_SEASON + yearInCycle * DAYS_PER_YEAR + day;
+    weekday--;
+    register u8 * dateUploadDirty asm("r9") = dateDirty;
+    asm("" : "+r"(dateUploadDirty));
+    if (weekday >= DAYS_PER_WEEK)
+        weekday %= DAYS_PER_WEEK;
+    register unsigned weekdayMask asm("r0") = WEEKDAY_MASK;
+    asm("" : "+l"(weekdayMask));
+    unsigned weekdayIndex = weekdayMask & weekday;
+    int dayTens = day / 10;
+    day %= 10;
+    if (dayTens > 0)
+    {
+        u8 const * dayTensTile = font[dayTens];
+        memcpy(clock->dayTensTiles, dayTensTile, sizeof(ClockTile));
+        unsigned markDayTens;
+        register u8 * dayTensDirty asm("r2");
+        asm("mov %0, %2; mov %1, %3" : "=l"(markDayTens), "=l"(dayTensDirty)
+            : "r"(initialDirty), "r"(dateUploadDirty));
+        *dayTensDirty = markDayTens;
+    }
+    else
+    {
+        memset(local.weekdayTiles, 0, sizeof(ClockTile));
+        u8 * blankDayTensDest = clock->dayTensTiles;
+        u8 const * blankDayTens = reinterpret_cast<u8 const *>(local.weekdayTiles);
+        memcpy(blankDayTensDest, blankDayTens, sizeof(ClockTile));
+        register unsigned markBlankDayTens asm("r2");
+        register u8 * blankDayTensDirty asm("r1");
+        asm("mov %0, %2; mov %1, %3" : "=l"(markBlankDayTens), "=l"(blankDayTensDirty)
+            : "r"(initialDirty), "r"(dateUploadDirty));
+        *blankDayTensDirty = markBlankDayTens;
+    }
+    unsigned dayOnesOffset = day * sizeof(ClockTile);
+    register ClockTile const * dayOnesFont asm("r0") = gClockFont;
+    u8 const * dayOnesTile;
+    asm(".syntax unified; adds %0, %1, %2; .syntax divided"
+        : "=l"(dayOnesTile) : "l"(dayOnesOffset), "l"(dayOnesFont));
+    memcpy(clock->dayOnesTiles, dayOnesTile, sizeof(ClockTile));
+    unsigned markDayOnes = 1;
+    register u8 * dayOnesDirty asm("r1");
+    asm("mov %0, %1" : "=l"(dayOnesDirty) : "r"(dateUploadDirty));
+    *dayOnesDirty = markDayOnes;
+    switch (weekdayIndex)
+    {
+    case 0:
+    default: local.weekdayTiles[0] = 0x60; local.weekdayTiles[1] = 0x61; local.weekdayTiles[2] = 0x62; break;
+    case 1: local.weekdayTiles[0] = 0x63; local.weekdayTiles[1] = 0x64; local.weekdayTiles[2] = 0x65; break;
+    case 2: local.weekdayTiles[0] = 0x66; local.weekdayTiles[1] = 0x67; local.weekdayTiles[2] = 0x68; break;
+    case 3: local.weekdayTiles[0] = 0x69; local.weekdayTiles[1] = 0x6A; local.weekdayTiles[2] = 0x6B; break;
+    case 4: local.weekdayTiles[0] = 0x6C; local.weekdayTiles[1] = 0x6D; local.weekdayTiles[2] = 0x6E; break;
+    case 5: local.weekdayTiles[0] = 0x6F; local.weekdayTiles[1] = 0x70; local.weekdayTiles[2] = 0x71; break;
+    case 6: local.weekdayTiles[0] = 0x72; local.weekdayTiles[1] = 0x73; local.weekdayTiles[2] = 0x74; break;
+    }
+    asm("" : : "l"(weekdayIndex));
+    register unsigned weekdayFirstDestOffset asm("r2") = offsetof(ClockDisplayData, weekdayFirstTiles);
+    asm("" : "+l"(weekdayFirstDestOffset));
+    u8 * weekdayFirstDest = reinterpret_cast<u8 *>(clock) + weekdayFirstDestOffset;
+    unsigned weekdayFirstTileOffset = local.weekdayTiles[0] * sizeof(ClockTile);
+    ClockTile const * timeFont = gClockFont;
+    asm("" : "+r"(timeFont));
+    memcpy(weekdayFirstDest, reinterpret_cast<u8 const *>(timeFont) + weekdayFirstTileOffset, sizeof(ClockTile));
+    u8 * timeDirty = &clock->tilesDirty;
+    register unsigned markTimeDirty asm("r6") = 1;
+    *timeDirty = markTimeDirty;
+    u8 const * secondWeekdayTile = timeFont[local.weekdayTiles[1]];
+    unsigned weekdaySecondDestOffset = offsetof(ClockDisplayData, weekdaySecondTiles);
+    memcpy(reinterpret_cast<u8 *>(clock) + weekdaySecondDestOffset, secondWeekdayTile, sizeof(ClockTile));
+    *timeDirty = markTimeDirty;
+    u8 const * thirdWeekdayTile = timeFont[local.weekdayTiles[2]];
+    unsigned weekdayThirdDestOffset = offsetof(ClockDisplayData, weekdayThirdTiles);
+    memcpy(reinterpret_cast<u8 *>(clock) + weekdayThirdDestOffset, thirdWeekdayTile, sizeof(ClockTile));
+    *timeDirty = markTimeDirty;
+    register SavedCalendarDate const * savedTime asm("r1") = local.calendar;
+    unsigned packedCalendar;
+    asm("ldr %0, [%1]" : "=l"(packedCalendar) : "l"(savedTime) : "memory");
+    register unsigned decodedHour asm("r0");
+    EXTRACT_CALENDAR_FIELD(decodedHour, packedCalendar, HOUR_BIT, HOUR_WIDTH);
+    unsigned hour = decodedHour;
+    asm("" : "+l"(hour));
+    register unsigned meridiemTile asm("r1") = PM_TILE;
+    local.timeDirty = timeDirty;
+    asm("" : : "m"(local.timeDirty), "l"(meridiemTile) : "memory");
+    if (hour < HOURS_PER_HALF_DAY)
+        meridiemTile = AM_TILE;
+    u8 const * meridiemTileData = timeFont[meridiemTile];
+    unsigned meridiemDestOffset = offsetof(ClockDisplayData, meridiemTiles);
+    memcpy(reinterpret_cast<u8 *>(clock) + meridiemDestOffset, meridiemTileData, sizeof(ClockTile));
+    *dateUploadDirty = markTimeDirty;
+    unsigned displayedHour = HOURS_PER_HALF_DAY;
+    if (hour != HOURS_PER_HALF_DAY)
+    {
+        displayedHour = hour;
+        if (displayedHour >= HOURS_PER_HALF_DAY)
+            displayedHour -= HOURS_PER_HALF_DAY;
+    }
+    int hourTens = displayedHour / 10;
+    unsigned hourOnes = displayedHour % 10;
+    u8 const * hourTensTile;
+    u8 * hourTensDest;
+    if (hourTens > 0)
+    {
+        unsigned hourTensOffset = hourTens * sizeof(ClockTile);
+        ClockTile const * hourTensFont = gClockFont;
+        register u8 const * tensTile asm("r1");
+        asm(".syntax unified; adds %0, %1, %2; .syntax divided"
+            : "=l"(tensTile) : "l"(hourTensOffset), "l"(hourTensFont));
+        unsigned hourTensDestOffset = offsetof(ClockDisplayData, hourTensTiles);
+        hourTensDest = reinterpret_cast<u8 *>(clock) + hourTensDestOffset;
+        hourTensTile = tensTile;
+    }
+    else
+    {
+        memset(local.weekdayTiles, 0, sizeof(ClockTile));
+        register unsigned hourTensDestOffset asm("r2") = offsetof(ClockDisplayData, hourTensTiles);
+        asm("" : "+l"(hourTensDestOffset));
+        hourTensDest = reinterpret_cast<u8 *>(clock) + hourTensDestOffset;
+        hourTensTile = reinterpret_cast<u8 *>(local.weekdayTiles);
+    }
+    memcpy(hourTensDest, hourTensTile, sizeof(ClockTile));
+    unsigned markHourTens = 1;
+    register u8 * hourTensDirty asm("r1");
+    asm("mov %0, %1" : "=l"(hourTensDirty) : "r"(dateUploadDirty));
+    *hourTensDirty = markHourTens;
+    unsigned hourOnesOffset = hourOnes * sizeof(ClockTile);
+    register ClockTile const * timeRowFontAddress asm("r2") = gClockFont;
+    asm("" : "+l"(timeRowFontAddress));
+    ClockTile const * timeRowFont = timeRowFontAddress;
+    asm("" : "+r"(timeRowFont));
+    u8 const * hourOnesTile = reinterpret_cast<u8 const *>(timeRowFont) + hourOnesOffset;
+    unsigned hourOnesDestOffset = offsetof(ClockDisplayData, hourOnesTiles);
+    memcpy(reinterpret_cast<u8 *>(clock) + hourOnesDestOffset, hourOnesTile, sizeof(ClockTile));
+    unsigned markTimeRowDirty = 1;
+    asm("" : "+r"(markTimeRowDirty));
+    register unsigned markHourOnes asm("r2");
+    register u8 * hourOnesDirty asm("r1");
+    asm("mov %0, %2; mov %1, %3" : "=l"(markHourOnes), "=l"(hourOnesDirty)
+        : "r"(markTimeRowDirty), "r"(dateUploadDirty));
+    *hourOnesDirty = markHourOnes;
+
+    register SavedCalendarDate const * savedMinute asm("r1") = local.calendar;
+    asm("ldr %0, [%1]" : "=l"(packedCalendar) : "l"(savedMinute) : "memory");
+    unsigned minute;
+    EXTRACT_CALENDAR_FIELD(minute, packedCalendar, MINUTE_BIT, MINUTE_WIDTH);
+    // The bulk HUD refresh displays minutes in ten-minute steps.
+    unsigned displayedMinute = u8(minute / MINUTES_PER_DISPLAY_STEP) * MINUTES_PER_DISPLAY_STEP;
+    unsigned minuteTens = displayedMinute / 10;
+    unsigned minuteOnes = displayedMinute % 10;
+    u8 const * minuteTensTile = timeRowFont[minuteTens];
+    u8 * colonDest = clock->colonTiles;
+    asm("" : "+l"(colonDest));
+    register unsigned minuteTensDestOffset asm("r1") = offsetof(ClockDisplayData, minuteTensTiles);
+    asm("" : "+l"(minuteTensDestOffset));
+    u8 * minuteTensDest = reinterpret_cast<u8 *>(clock) + minuteTensDestOffset;
+    memcpy(minuteTensDest, minuteTensTile, sizeof(ClockTile));
+    unsigned markMinuteTens;
+    asm("mov %0, %1" : "=l"(markMinuteTens) : "r"(markTimeRowDirty));
+    register u8 * minuteTensDirty asm("r2") = local.timeDirty;
+    *minuteTensDirty = markMinuteTens;
+    u8 const * minuteOnesTile = timeRowFont[minuteOnes];
+    register unsigned minuteOnesDestOffset asm("r1") = offsetof(ClockDisplayData, minuteOnesTiles);
+    asm("" : "+l"(minuteOnesDestOffset));
+    u8 * minuteOnesDest = reinterpret_cast<u8 *>(clock) + minuteOnesDestOffset;
+    memcpy(minuteOnesDest, minuteOnesTile, sizeof(ClockTile));
+    unsigned markMinuteOnes;
+    asm("mov %0, %1" : "=l"(markMinuteOnes) : "r"(markTimeRowDirty));
+    register u8 * minuteOnesDirty asm("r2") = local.timeDirty;
+    *minuteOnesDirty = markMinuteOnes;
+    unsigned showColon = local.showColon;
+    asm("" : "+l"(showColon) : : "r0");
+    if (showColon)
+    {
+        memcpy(colonDest, timeRowFont[COLON_TILE], sizeof(ClockTile));
+        unsigned markColon;
+        asm("mov %0, %1" : "=l"(markColon) : "r"(markTimeRowDirty));
+        register u8 * colonDirty asm("r2") = local.timeDirty;
+        *colonDirty = markColon;
+    }
+    else
+    {
+        memset(local.weekdayTiles, 0, sizeof(ClockTile));
+        u8 * blankColonDest = colonDest;
+        u8 const * blankColon = reinterpret_cast<u8 const *>(local.weekdayTiles);
+        memcpy(blankColonDest, blankColon, sizeof(ClockTile));
+        register unsigned markBlankColon asm("r2");
+        asm("mov %0, %1" : "=l"(markBlankColon) : "r"(markTimeRowDirty));
+        register u8 * blankColonDirty asm("r1") = local.timeDirty;
+        *blankColonDirty = markBlankColon;
+    }
+}
+
+#undef EXTRACT_CALENDAR_FIELD
+
 EC unsigned GetRosterMarriageCandidate(void const *);
 
 ROM_TEXT(0803D7E4) unsigned SelectNpcSchedule_080F1A80(void const * context)
@@ -2407,7 +2842,7 @@ struct CarpenterScheduleContext
     unsigned weather;
     STRUCT_PAD(0xC, 0x10);
     SavedCalendarDate date;
-    STRUCT_PAD(0x13, 0x1F4);
+    STRUCT_PAD(0x14, 0x1F4);
     FarmHouse farmHouse;
     u8 padAfterFarmHouse[0x1F64 - 0x1F4 - sizeof(FarmHouse)];
     CarpenterConstructionState construction;
