@@ -61,7 +61,9 @@ struct GameStateMapData
     Farm farm;
     u8 reserved[0x1BD8 - 0x14 - sizeof(Farm)];
     Farmer farmer;
-    u8 reserved_after_farmer[0x34C4 - 0x1BD8 - sizeof(Farmer)];
+    u8 reserved_after_farmer[0x2192 - 0x1BD8 - sizeof(Farmer)];
+    u8 shipping_collection_flags;
+    STRUCT_PAD(0x2193, 0x34C4);
     bool player_only_when_disabled;
     STRUCT_PAD(0x34C5, 0x34D8);
     u32 tile_variant_flags;
@@ -719,6 +721,40 @@ EC SECTION(".text.game_state_c2.0801FC0C") GameStatePackedSpriteArchive const * 
 EC SECTION(".text.game_state_c2.0801FC18") GameStatePackedSpriteArchive const * GameStateGetSpriteArchive7(GameStateMapOwner const & game)
 {
     return &game.sprite_archives[7];
+}
+
+template<u32 EventId>
+static inline void QueueShippingMilestone(GameStateMapOwner & game, u32 argument)
+{
+    void (* const * queue_event)(GameStateMapOwner &, GameStateScriptEvent const &, u32) = &game.vtable->queue_event;
+    GameStateScriptEvent event(EventId, argument);
+    (*queue_event)(game, event, 1);
+}
+
+EC SECTION(".text.game_state_c2.0801F924") void GameStateShipProduct(GameStateMapOwner & game, Product const & product)
+{
+    ShippingBin & bin = game.map_data->farm.shipping_bin;
+    int id = product.GetId();
+    u32 previous = bin.IsDisplayEnabled(id) ? bin.GetAmountShipped(id) : 0;
+    bin.Ship(product);
+    u32 amount = bin.GetAmountShipped(id);
+    if (previous >= amount)
+        goto collection;
+
+    switch (amount)
+    {
+        case 10000: QueueShippingMilestone<0x33C>(game, id); break;
+        case 100000: QueueShippingMilestone<0x33D>(game, id); break;
+        case 1000000: QueueShippingMilestone<0x33E>(game, id); break;
+        case 10000000: QueueShippingMilestone<0x33F>(game, id); break;
+        case 100000000: QueueShippingMilestone<0x340>(game, id); break;
+        case 1000000000: QueueShippingMilestone<0x341>(game, id); break;
+    }
+
+collection:
+    u32 status = game.map_data->shipping_collection_flags & 3;
+    if (status == 0 && bin.HasShippedOneOfEachProduct())
+        QueueShippingMilestone<0x342>(game, status);
 }
 
 static inline void InstallMapOverlay(GameStateMapOverlay * & overlay, GameStateMapOverlay * replacement)
