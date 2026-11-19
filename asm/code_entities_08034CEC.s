@@ -1000,10 +1000,10 @@ func_08035C04: @ 0x08035C04
 .L08035C58: .4byte 0x0000023F
 .L08035C5C:
     adds r0, r6, #0
-    bl func_080A0384
+    bl GetActiveRosterNpc
     cmp r0, #0
     beq .L08035C94
-    bl func_0809EAD8
+    bl GetNamedNpcAgeDays
     cmp r0, #0x3b
     bhi .L08035C94
     ldr r0, [r4]
@@ -1101,10 +1101,10 @@ func_08036084: @ 0x08036084
 .L080360D8: .4byte 0x00000827
 .L080360DC:
     adds r0, r6, #0
-    bl func_080A0384
+    bl GetActiveRosterNpc
     cmp r0, #0
     beq .L08036114
-    bl func_0809EAD8
+    bl GetNamedNpcAgeDays
     cmp r0, #0x3b
     bhi .L08036114
     ldr r0, [r4]
@@ -1198,10 +1198,10 @@ func_08036430: @ 0x08036430
 .L08036484: .4byte 0x000006A1
 .L08036488:
     adds r0, r6, #0
-    bl func_080A0384
+    bl GetActiveRosterNpc
     cmp r0, #0
     beq .L080364C0
-    bl func_0809EAD8
+    bl GetNamedNpcAgeDays
     cmp r0, #0x3b
     bhi .L080364C0
     ldr r0, [r4]
@@ -1285,10 +1285,10 @@ func_080365CC: @ 0x080365CC
 .L08036620: .4byte 0x0000089C
 .L08036624:
     adds r0, r6, #0
-    bl func_080A0384
+    bl GetActiveRosterNpc
     cmp r0, #0
     beq .L0803665C
-    bl func_0809EAD8
+    bl GetNamedNpcAgeDays
     cmp r0, #0x3b
     bhi .L0803665C
     ldr r0, [r4]
@@ -1421,10 +1421,10 @@ func_08036900: @ 0x08036900
 .L08036964: .4byte 0x000007D2
 .L08036968:
     adds r0, r6, #0
-    bl func_080A0384
+    bl GetActiveRosterNpc
     cmp r0, #0
     beq .L080369A0
-    bl func_0809EAD8
+    bl GetNamedNpcAgeDays
     cmp r0, #0x3b
     bhi .L080369A0
     ldr r0, [r4]
@@ -1705,13 +1705,13 @@ func_08036E70: @ 0x08036E70
     ldr r0, [r4, #0x34]
     ldr r1, .L08036EA0 @ =0x00001CD4
     adds r0, r0, r1
-    bl func_080A0384
+    bl GetActiveRosterNpc
     adds r6, r0, #0
     cmp r0, #0
     beq .L08036EE0
     ldr r5, .L08036EA4 @ =0x00000267
     ldr r7, .L08036EA8 @ =0x0000026F
-    bl func_0809EAD8
+    bl GetNamedNpcAgeDays
     cmp r0, #0x3b
     bhi .L08036EAC
     adds r0, r4, #0
@@ -1737,7 +1737,7 @@ func_08036E70: @ 0x08036E70
 .L08036EBC: .4byte 0x00000277
 .L08036EC0:
     adds r0, r6, #0
-    bl func_0809EAE0
+    bl HasNamedNpcFlag
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08036ED0
@@ -1795,14 +1795,14 @@ func_08036E70: @ 0x08036E70
     @ 36f12:       6b68            ldr     r0, [r5, #52]   @ 0x34
     @ 36f14:       4910            ldr     r1, [pc, #64]   @ (0x36f58)
     @ 36f16:       1840            adds    r0, r0, r1
-    @ 36f18:       f069 fa34       bl      func_080A0384
+    @ 36f18:       f069 fa34       bl      GetActiveRosterNpc
     @ 36f1c:       1c04            adds    r4, r0, #0
     @ 36f1e:       2c00            cmp     r4, #0
     @ 36f20:       d01c            beq.n   0x36f5c
     @ 36f22:       1c28            adds    r0, r5, #0
     @ 36f24:       f7ff ffa4       bl      func_08036E70
     @ 36f28:       1c20            adds    r0, r4, #0
-    @ 36f2a:       f067 fdd9       bl      func_0809EAE0
+    @ 36f2a:       f067 fdd9       bl      HasNamedNpcFlag
     @ 36f2e:       0600            lsls    r0, r0, #24
     @ 36f30:       2401            movs    r4, #1
     @ 36f32:       2800            cmp     r0, #0
@@ -1840,10 +1840,10 @@ func_08036E70: @ 0x08036E70
     @ 36f76:       6b60            ldr     r0, [r4, #52]   @ 0x34
     @ 36f78:       490b            ldr     r1, [pc, #44]   @ (0x36fa8)
     @ 36f7a:       1840            adds    r0, r0, r1
-    @ 36f7c:       f069 fa02       bl      func_080A0384
+    @ 36f7c:       f069 fa02       bl      GetActiveRosterNpc
     @ 36f80:       2800            cmp     r0, #0
     @ 36f82:       d036            beq.n   0x36ff2
-    @ 36f84:       f067 fda8       bl      func_0809EAD8
+    @ 36f84:       f067 fda8       bl      GetNamedNpcAgeDays
     @ 36f88:       283b            cmp     r0, #59 @ 0x3b
     @ 36f8a:       d832            bhi.n   0x36ff2
     @ 36f8c:       1c20            adds    r0, r4, #0
