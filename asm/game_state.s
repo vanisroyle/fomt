@@ -253,7 +253,7 @@ func_08010358: @ 0x08010358
     movs r1, #0xb2
     lsls r1, r1, #6
     adds r0, r6, r1
-    bl func_0809CD78
+    bl ResetFishingRecords
     ldr r2, .L08010644 @ =0x00002E58
     adds r0, r6, r2
     bl func_0809CE8C
@@ -1762,14 +1762,14 @@ func_08010F54: @ 0x08010F54
     ldr r1, .L0801121C @ =0x00001F64
     adds r4, r6, r1
     adds r0, r4, #0
-    bl func_0809EB70
+    bl IsConstructionComplete
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080111EA
     b .L08011328
 .L080111EA:
     adds r0, r4, #0
-    bl func_0809EB68
+    bl GetConstructionJob
     cmp r0, #0xd
     bls .L080111F6
     b .L08011318
@@ -2375,7 +2375,7 @@ func_08011650: @ 0x08011650
     movs r1, #0xb2
     lsls r1, r1, #6
     adds r0, r7, r1
-    bl func_0809CD78
+    bl ResetFishingRecords
     ldr r2, .L080118BC @ =0x00002E58
     adds r0, r7, r2
     bl func_0809CE8C
@@ -12858,7 +12858,7 @@ func_080175B4: @ 0x080175B4
     ldr r0, [r0]
     ldr r2, .L08017874 @ =0x0000214C
     adds r0, r0, r2
-    bl func_0809C5F4
+    bl HasPendingScriptEvents
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08017778
@@ -14251,7 +14251,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r4]
     ldr r3, .L080182C4 @ =0x0000214C
     adds r0, r0, r3
-    bl func_0809C5F4
+    bl HasPendingScriptEvents
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080182A2
@@ -17750,7 +17750,7 @@ func_08019BEC: @ 0x08019BEC
     ldr r0, [r0]
     ldr r2, .L08019F30 @ =0x0000214C
     adds r0, r0, r2
-    bl func_0809C5F4
+    bl HasPendingScriptEvents
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08019EE6
@@ -22793,7 +22793,7 @@ func_0801EAA0: @ 0x0801EAA0
     ldr r0, [r0]
     ldr r3, .L0801EDFC @ =0x0000214C
     adds r0, r0, r3
-    bl func_0809C5F4
+    bl HasPendingScriptEvents
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0801EDD8
