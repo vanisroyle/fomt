@@ -1,17 +1,10 @@
-#include "prelude.h"
+#include "message_script.hh"
 
 #include <string.h>
 
 struct MessageScriptOutput;
 struct MessageScriptInput;
 struct MessageScriptSubstitutions;
-
-struct MessageScriptReplacement
-{
-    u8 found;
-    STRUCT_PAD(1, 4);
-    char text[32];
-};
 
 struct MessageScriptOutputMethods
 {

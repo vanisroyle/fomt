@@ -2272,7 +2272,7 @@ func_0802A7E0: @ 0x0802A7E0
     adds r0, r5, #0
     mov r1, sb
     mov r2, sl
-    bl func_080AC5D0
+    bl AreEntityFootTilesMarked
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802A9A2
@@ -13346,7 +13346,7 @@ sub_08030E0A: @ 0x08030E0A
     cmp r0, #0
     beq .L08031928
     mov r1, sp
-    bl func_08035A48
+    bl ReactToNearbyNpcLocation
 .L08031928:
     adds r4, #1
     cmp r4, #0x23
