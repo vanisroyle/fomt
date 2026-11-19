@@ -350,7 +350,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateRemoveRecordPlayerAlbum
 	.word GameStateSetRecordPlayerAlbum
 	.word GameStateApplyMapTilePatchWithAlternateRow
-	.word func_08017C00
+	.word GameMap_IsInteriorOrForced
 	.word func_08019BEC
 	.word GameStateRefreshMapDaylight
 	.word func_0801EAA0
@@ -393,7 +393,7 @@ vtable_unk_080E5EC4: @ game object
 	.word 0x0801F519
 	.word GameStateSetVaseArticle
 	.word func_0801EE00
-	.word func_0801F924
+	.word GameStateShipProduct
 	.word 0x0801C551
 	.word 0x0801C69D
 
@@ -457,7 +457,9 @@ vtable_unk_080E6658:
 
 	.global vtable_unk_080E6708
 vtable_unk_080E6708:
-	.incbin "baserom.gba", 0xE6708, 0x14
+	.incbin "baserom.gba", 0xE6708, 0xC
+	.4byte TickFarmerEffectGraphics
+	.incbin "baserom.gba", 0xE6718, 0x4
 
 	.global vtable_unk_080E671C
 vtable_unk_080E671C:
@@ -803,9 +805,11 @@ vtable_unk_080E7738:
 vtable_unk_080E7748:
 	.incbin "baserom.gba", 0xE7748, 0x10
 
-	.global vtable_unk_080E7758
-vtable_unk_080E7758:
-	.incbin "baserom.gba", 0xE7758, 0x10
+	.global gDialogWindowTilemapTaskVtable
+gDialogWindowTilemapTaskVtable:
+	.4byte 0, 0
+	.4byte RunDialogWindowTilemapTask
+	.4byte func_080E0A7C
 
 	.global vtable_unk_080E7768
 vtable_unk_080E7768:
