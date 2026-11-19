@@ -2357,7 +2357,7 @@ func_08024CD0: @ 0x08024CD0
     adds r0, r5, #0
     bl func_0802CDCC
     adds r0, r5, #0
-    bl func_0802D158
+    bl SelectFarmerAnimation
     lsls r0, r0, #0x10
     lsrs r1, r0, #0x10
     ldrh r0, [r5, #0x22]
