@@ -1906,7 +1906,7 @@ func_08010F54: @ 0x08010F54
 .L08011324: .4byte 0x00001F64
 .L08011328:
     adds r0, r4, #0
-    bl func_0809EC48
+    bl UpdateNpcConstructionLocation
 .L0801132E:
     ldr r0, .L08011354 @ =0x00001DAC
     adds r4, r6, r0
@@ -12586,7 +12586,7 @@ func_080174C8: @ 0x080174C8
     adds r0, r6, #0
     adds r1, r7, #0
     mov r2, sl
-    bl func_080A1C94
+    bl ClearMapAvailabilityBit
     movs r0, #1
     mov r1, r8
     strb r0, [r1]

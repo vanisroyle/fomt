@@ -2346,8 +2346,8 @@ gUnk_0810563C:
 gUnk_08105708:
 	.incbin "baserom.gba", 0x105708, 0x7D4
 
-	.global gUnk_08105EDC
-gUnk_08105EDC: @ map data?
+	.global gMapDefinitions
+gMapDefinitions: @ map data?
 	.incbin "baserom.gba", 0x105EDC, 0xA50
 
 	.global gUnk_0810692C
@@ -2406,40 +2406,40 @@ gUnk_08106A4C:
 gUnk_08106A64:
 	.incbin "baserom.gba", 0x106A64, 0x18
 
-	.global gUnk_08106A7C
-gUnk_08106A7C:
+	.global gMapPatch_08106A7C
+gMapPatch_08106A7C:
 	.incbin "baserom.gba", 0x106A7C, 0x18
 
-	.global gUnk_08106A94
-gUnk_08106A94:
+	.global gMapPatch_08106A94
+gMapPatch_08106A94:
 	.incbin "baserom.gba", 0x106A94, 0x18
 
-	.global gUnk_08106AAC
-gUnk_08106AAC:
+	.global gMapPatch_08106AAC
+gMapPatch_08106AAC:
 	.incbin "baserom.gba", 0x106AAC, 0x18
 
-	.global gUnk_08106AC4
-gUnk_08106AC4:
+	.global gMapPatch_08106AC4
+gMapPatch_08106AC4:
 	.incbin "baserom.gba", 0x106AC4, 0x18
 
-	.global gUnk_08106ADC
-gUnk_08106ADC:
+	.global gMapPatch_08106ADC
+gMapPatch_08106ADC:
 	.incbin "baserom.gba", 0x106ADC, 0x18
 
-	.global gUnk_08106AF4
-gUnk_08106AF4:
+	.global gMapPatch_08106AF4
+gMapPatch_08106AF4:
 	.incbin "baserom.gba", 0x106AF4, 0x18
 
 	.global gUnk_08106B0C
 gUnk_08106B0C:
 	.incbin "baserom.gba", 0x106B0C, 0x18
 
-	.global gUnk_08106B24
-gUnk_08106B24:
+	.global gMapPatch_08106B24
+gMapPatch_08106B24:
 	.incbin "baserom.gba", 0x106B24, 0x18
 
-	.global gUnk_08106B3C
-gUnk_08106B3C:
+	.global gMapPatch_08106B3C
+gMapPatch_08106B3C:
 	.incbin "baserom.gba", 0x106B3C, 0x18
 
 	.global gUnk_08106B54
@@ -2486,8 +2486,8 @@ gUnk_08106C5C:
 gUnk_08106C74:
 	.incbin "baserom.gba", 0x106C74, 0x18
 
-	.global gUnk_08106C8C
-gUnk_08106C8C:
+	.global gMapIndexedFixturePatch
+gMapIndexedFixturePatch:
 	.incbin "baserom.gba", 0x106C8C, 0x18
 
 	.global gUnk_08106CA4
@@ -2562,8 +2562,8 @@ gUnk_08107094:
 gUnk_081070AC:
 	.incbin "baserom.gba", 0x1070AC, 0x18
 
-	.global gUnk_081070C4
-gUnk_081070C4:
+	.global gMapBuildingDoorPatch
+gMapBuildingDoorPatch:
 	.incbin "baserom.gba", 0x1070C4, 0x18
 
 	.global gUnk_081070DC
@@ -2734,12 +2734,12 @@ gUnk_081073AC:
 gUnk_081073B8:
 	.incbin "baserom.gba", 0x1073B8, 0xC
 
-	.global gUnk_081073C4
-gUnk_081073C4:
+	.global gMapFixtureColumns
+gMapFixtureColumns:
 	.incbin "baserom.gba", 0x1073C4, 0x8
 
-	.global gUnk_081073CC
-gUnk_081073CC:
+	.global gMapSmallFixtureColumns
+gMapSmallFixtureColumns:
 	.incbin "baserom.gba", 0x1073CC, 0x4
 
 	.global gUnk_081073D0

@@ -7263,7 +7263,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bhi .L0804351C
 	adds r0, r7, #0
 	adds r1, r4, #0
-	bl func_0809EEA4
+	bl IsNpcInteractionAvailable
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L08043504
@@ -8283,7 +8283,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r4, .L08043DB8 @ =0x00001DAC
 	adds r0, r0, r4
-	bl func_0809ED64
+	bl CompleteNpcMilestoneEvent
 .L08043D98:
 	adds r2, r5, #0
 	adds r2, #0x24
@@ -129427,7 +129427,7 @@ func_0808114C: @ 0x0808114C
 	ldr r0, [r6, #8]
 	ldr r2, .L080812F8 @ =0x00001FE4
 	adds r0, r0, r2
-	bl func_0809EEA4
+	bl IsNpcInteractionAvailable
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08081196
@@ -133636,7 +133636,7 @@ sub_08082F50: @ 0x08082F50
 	adds r1, r7, r3
 	ldr r2, [r1]
 	movs r1, #0x23
-	bl func_0809EE20
+	bl StartNpcMilestoneEvent
 	b .L080834E6
 	.align 2, 0
 .L08083440: .4byte 0x00001DAC
@@ -133649,7 +133649,7 @@ sub_08082F50: @ 0x08082F50
 	adds r1, r7, r5
 	ldr r2, [r1]
 	movs r1, #0x24
-	bl func_0809EE20
+	bl StartNpcMilestoneEvent
 	b .L080834E6
 	.align 2, 0
 .L0808345C: .4byte 0x00001DAC
@@ -133662,7 +133662,7 @@ sub_08082F50: @ 0x08082F50
 	adds r1, r7, r2
 	ldr r2, [r1]
 	movs r1, #0x25
-	bl func_0809EE20
+	bl StartNpcMilestoneEvent
 	b .L080834E6
 	.align 2, 0
 .L08083478: .4byte 0x00001DAC
@@ -133675,7 +133675,7 @@ sub_08082F50: @ 0x08082F50
 	adds r1, r7, r4
 	ldr r2, [r1]
 	movs r1, #0x20
-	bl func_0809EE20
+	bl StartNpcMilestoneEvent
 	b .L080834E6
 	.align 2, 0
 .L08083494: .4byte 0x00001DAC
@@ -133688,7 +133688,7 @@ sub_08082F50: @ 0x08082F50
 	adds r1, r7, r6
 	ldr r2, [r1]
 	movs r1, #0x21
-	bl func_0809EE20
+	bl StartNpcMilestoneEvent
 	b .L080834E6
 	.align 2, 0
 .L080834B0: .4byte 0x00001DAC
@@ -133701,7 +133701,7 @@ sub_08082F50: @ 0x08082F50
 	adds r1, r7, r2
 	ldr r2, [r1]
 	movs r1, #0x1f
-	bl func_0809EE20
+	bl StartNpcMilestoneEvent
 	b .L080834E6
 	.align 2, 0
 .L080834CC: .4byte 0x00001DAC
@@ -133714,7 +133714,7 @@ sub_08082F50: @ 0x08082F50
 	adds r1, r7, r4
 	ldr r2, [r1]
 	movs r1, #0x22
-	bl func_0809EE20
+	bl StartNpcMilestoneEvent
 .L080834E6:
 	ldr r5, .L08083504 @ =0x000006A4
 	adds r1, r7, r5
@@ -134082,7 +134082,7 @@ sub_08082F50: @ 0x08082F50
 	ldr r3, .L08083848 @ =0x000048E4
 	adds r2, r7, r3
 	ldr r2, [r2]
-	bl func_0809EE20
+	bl StartNpcMilestoneEvent
 	movs r2, #1
 	ldr r5, .L0808384C @ =0x000048D8
 	adds r0, r7, r5
@@ -136527,7 +136527,7 @@ func_08084228: @ 0x08084228
 	ldr r7, .L080852FC @ =0x00001F64
 	adds r0, r0, r7
 	ldr r1, [r4, #0xc]
-	bl func_0809EBA8
+	bl StartNpcConstruction
 	ldr r0, [r6, #8]
 	ldr r1, .L08085300 @ =0x00001AA8
 	adds r0, r0, r1
@@ -136688,7 +136688,7 @@ func_08084228: @ 0x08084228
 	ldr r7, .L08085420 @ =0x00001F64
 	adds r0, r0, r7
 	ldr r1, [r4, #0xc]
-	bl func_0809EBA8
+	bl StartNpcConstruction
 	ldr r0, [r6, #8]
 	ldr r1, .L08085424 @ =0x00001AA8
 	adds r0, r0, r1

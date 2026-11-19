@@ -28,16 +28,16 @@ struct GameStateMapOwner
     GameStateMapData * map_data;
 };
 
-EC void func_080A6138(GameStateMapView & view);
-EC void func_080A6194(GameStateMapView & view);
-EC void func_080A61F0(GameStateMapView & view);
-EC void func_080A6234(GameStateMapView & view);
-EC void func_080A6278(GameStateMapView & view);
-EC void func_080A62BC(GameStateMapView & view);
+EC void ApplyMapRow15PatchA(GameStateMapView & view);
+EC void ApplyMapRow15PatchB(GameStateMapView & view);
+EC void ApplyMapRow3PatchA(GameStateMapView & view);
+EC void ApplyMapRow3PatchB(GameStateMapView & view);
+EC void ApplyMapRow2PatchA(GameStateMapView & view);
+EC void ApplyMapRow2PatchB(GameStateMapView & view);
 EC void func_080A607C(GameStateMapView & view, u32 index);
-EC void func_080A6024(GameStateMapView & view, u32 index);
+EC void ApplyMapIndexedFixturePatch(GameStateMapView & view, u32 index);
 EC void StartMapTransitionDelay(GameStateMapView & view);
-EC void func_080A63B8(GameStateMapView & view, u32 alternate);
+EC void ApplyMapBuildingDoorPatch(GameStateMapView & view, u32 alternate);
 EC void func_080AA89C(GameStateMapView & view);
 EC void func_080AA8BC(GameStateMapView & view);
 EC void func_080AA8DC(GameStateMapView & view);
@@ -50,32 +50,32 @@ EC void func_080AA850(GameStateMapView & view, u32 index);
 
 EC SECTION(".text.game_state_c2.0801DD18") void GameStateApplyRow15TilePatchVariant1(GameStateMapOwner & game)
 {
-    func_080A6138(*game.map_view);
+    ApplyMapRow15PatchA(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD24") void GameStateApplyRow15TilePatchVariant2(GameStateMapOwner & game)
 {
-    func_080A6194(*game.map_view);
+    ApplyMapRow15PatchB(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD30") void GameStateApplyRow3TilePatchVariant1(GameStateMapOwner & game)
 {
-    func_080A61F0(*game.map_view);
+    ApplyMapRow3PatchA(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD3C") void GameStateApplyRow3TilePatchVariant2(GameStateMapOwner & game)
 {
-    func_080A6234(*game.map_view);
+    ApplyMapRow3PatchB(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD48") void GameStateApplyRow2TilePatchVariant1(GameStateMapOwner & game)
 {
-    func_080A6278(*game.map_view);
+    ApplyMapRow2PatchA(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD54") void GameStateApplyRow2TilePatchVariant2(GameStateMapOwner & game)
 {
-    func_080A62BC(*game.map_view);
+    ApplyMapRow2PatchB(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD60") void GameStateApplyMapTilePatchAtIndex(GameStateMapOwner & game, u32 index)
@@ -85,7 +85,7 @@ EC SECTION(".text.game_state_c2.0801DD60") void GameStateApplyMapTilePatchAtInde
 
 EC SECTION(".text.game_state_c2.0801DD6C") void GameStateApplyMapTilePatchInColumn(GameStateMapOwner & game, u32 index)
 {
-    func_080A6024(*game.map_view, index);
+    ApplyMapIndexedFixturePatch(*game.map_view, index);
 }
 
 EC SECTION(".text.game_state_c2.0801DD78") void GameStateStartMapViewTimer(GameStateMapOwner & game)
@@ -107,7 +107,7 @@ EC SECTION(".text.game_state_c2.0801DDF8") void GameStateClearMapTileVariant(Gam
 
 EC SECTION(".text.game_state_c2.0801DE24") void GameStateApplyMapTilePatchWithAlternateRow(GameStateMapOwner & game, u32 alternate)
 {
-    func_080A63B8(*game.map_view, alternate);
+    ApplyMapBuildingDoorPatch(*game.map_view, alternate);
 }
 
 EC SECTION(".text.game_state_c2.0801DE30") void GameStateApplyMapTilePatchAtRow20(GameStateMapOwner & game)
