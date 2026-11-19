@@ -11,6 +11,19 @@ EC void func_080CE790(void *);
 EC void func_080CD8A0(void *);
 EC void func_080CE510(void *, u32, void *, u32, u32, u32);
 EC u8 vtable_unk_080E85DC[];
+EC u8 vtable_unk_080E85E8[];
+EC void func_080A4A94(void *);
+EC void __9FieldPlot(void *);
+
+EC SECTION(".text.g5_080CFB28") void * func_080CFB28(u8 * self)
+{
+    func_080A4A94(self);
+    *(void **) (self + 0x90) = vtable_unk_080E85E8;
+    u8 * plot = self + 0x94;
+    for (int i = 83; i != -1; plot += 4, --i)
+        __9FieldPlot(plot);
+    return self;
+}
 
 EC SECTION(".text.g5_080C8550") void func_080C8550(void ** self)
 {

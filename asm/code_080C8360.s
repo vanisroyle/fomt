@@ -15162,33 +15162,7 @@ func_080CFA38: @ 0x080CFA38
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_080CFB28
-func_080CFB28: @ 0x080CFB28
-	push {r4, r5, r6, r7, lr}
-	adds r6, r0, #0
-	bl func_080A4A94
-	adds r1, r6, #0
-	adds r1, #0x90
-	ldr r0, .L080CFB58 @ =vtable_unk_080E85E8
-	str r0, [r1]
-	adds r4, r6, #0
-	adds r4, #0x94
-	movs r5, #0x53
-	movs r7, #1
-	rsbs r7, r7, #0
-.L080CFB42:
-	adds r0, r4, #0
-	bl __9FieldPlot
-	adds r4, #4
-	subs r5, #1
-	cmp r5, r7
-	bne .L080CFB42
-	adds r0, r6, #0
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080CFB58: .4byte vtable_unk_080E85E8
+.section .text.g5_after_080CFB28, "ax"
 
 	thumb_func_start func_080CFB5C
 func_080CFB5C: @ 0x080CFB5C

@@ -153,6 +153,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CECD0);
         src/g5_helpers.o(.text.g5_080CF050);
         asm/code_080C8360.o(.text.g5_080CF05C);
+        src/g5_panels.o(.text.g5_080CFB28);
+        asm/code_080C8360.o(.text.g5_after_080CFB28);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
         asm/code_080D035C.o(.text);
