@@ -2059,7 +2059,7 @@ func_08033928: @ 0x08033928
     add r4, sp, #0xc
     adds r0, r4, #0
     adds r1, r6, #0
-    bl func_0809E804
+    bl GetHarvestSpriteHomeLocation
     adds r0, r7, #0
     adds r1, r4, #0
     bl SetLocation__12AActorEntityRC13ActorLocation
@@ -2760,7 +2760,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     adds	r0, #48
     ldrb	r1, [r0, #0]
     add	r0, sp, #8
-    bl func_0809E804
+    bl GetHarvestSpriteHomeLocation
     adds	r0, r7, #0
     add	r1, sp, #8
     bl SetLocation__12AActorEntityRC13ActorLocation
