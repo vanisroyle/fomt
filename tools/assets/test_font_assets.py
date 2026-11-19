@@ -301,6 +301,22 @@ class FontTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 font_renderer.assignment(rom, raw)
 
+    def test_single_allocator_reserves_undrawn_tagged_small_slots(self):
+        self.large_fixture()
+        single = font.read_map(self.root / "fonts/single.map", "single")
+        with (patch.object(font, "original_rom", return_value=bytes(0x527094)),
+              patch.object(font, "rom_maps", return_value={"single": single, "double": {}}),
+              patch.object(font, "script_usage", return_value=(set(), 0))):
+            font.sample(Path("unused"), self.root, "☃", halfwidth=True)
+            mapping = font.fa.charmap(self.root / "charmap.txt")
+            code = int.from_bytes(mapping["☃"], "big")
+            double = font.read_map(self.root / "fonts/double.map", "double")
+            self.assertEqual(double[code], 0x4002)
+            font.sample(Path("unused"), self.root, "ạ", placeholders=True)
+        mapping = font.fa.charmap(self.root / "charmap.txt")
+        single = font.read_map(self.root / "fonts/single.map", "single")
+        self.assertEqual(single[mapping["ạ"][0]], 3)
+
     def test_halfwidth_allocation_tags_protects_slots_and_requires_build_flag(self):
         self.large_fixture()
         path = self.root / "fonts/double.map"

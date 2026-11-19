@@ -483,6 +483,7 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False, half
     root = assets / "fonts"
     single = read_map(root / "single.map", "single")
     double = read_map(root / "double.map", "double")
+    tagged_slots = {v & 0x3FFF for v in double.values() if v >= 0x4000}
     fa.write_missing(assets / "charmap.txt", b"# Unicode overrides\n")
     mapping = fa.charmap(assets / "charmap.txt")
     missing = []
@@ -514,7 +515,6 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False, half
         used, _ = script_usage(rom, assets, single, double)
         used.update(reserved)
         if halfwidth:
-            tagged_slots = {v & 0x3FFF for v in double.values() if v >= 0x4000}
             occupied = set(single.values()) | set(rom_maps(rom)["single"].values()) | tagged_slots
             candidates = [i for i in range(487) if i not in occupied]
         else:
@@ -522,7 +522,8 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False, half
         available = [code for code in accepted_free_codes(single, double) if code not in used]
         print("Allocating tagged small-font slots" if halfwidth else "WARNING: reclaiming script-unused kanji; non-script/substituted text is NOT audited")
     else:
-        candidates = [i for i in range(count) if i not in single.values()]
+        occupied = set(single.values()) | tagged_slots
+        candidates = [i for i in range(count) if i not in occupied]
         available = [code for code in safe_codes(single) if code not in reserved]
     # Unmapped cells with hand-drawn edits are reserved for their author.
     slots = [i for i in candidates if data[i * size:i * size + size] == original[i * size:i * size + size]]
