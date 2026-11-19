@@ -204,7 +204,8 @@ def read_map(path, kind):
         code, index = int(match[1], 16), int(match[2])
         if code not in allowed or code in values:
             fa.fail(path, line, "invalid or duplicate game code")
-        if not -1 <= index < MAPS[kind][2]:
+        tagged = kind == "double" and 0x4000 <= index < 0x4000 + 487
+        if not tagged and not -1 <= index < MAPS[kind][2]:
             fa.fail(path, line, f"glyph index must be -1..{MAPS[kind][2] - 1}; fixed slot cannot grow")
         values[code] = index
     if set(values) != allowed:
@@ -263,11 +264,14 @@ def build_data(assets):
     return result
 
 
-def build(assets, output):
+def build(assets, output, halfwidth=False):
     data = build_data(assets)
+    if not halfwidth and any(value >= 0x4000 for value in struct.unpack("<7938h", data["double"])):
+        raise ValueError("tagged small glyphs require make VIETNAMESE_FONT=1")
+    fa.write_changed(output / "vietnamese-mode.inc", f".equ VIETNAMESE_FONT, {int(halfwidth)}\n".encode())
     for name, raw in data.items():
         fa.write_changed(output / ("font-" + name + ".bin"), raw)
-    digest = hashlib.sha256(b"".join(data.values())).hexdigest()
+    digest = hashlib.sha256(b"".join(data.values()) + bytes([halfwidth])).hexdigest()
     fa.write_changed(output / "fonts.stamp", (digest + "\n").encode())
     print("Built fonts: 487 small / 6922 large glyphs; fixed slots unchanged")
 
@@ -286,7 +290,9 @@ def vietnamese_letters():
     return sorted(letters)
 
 
-def vietnamese_glyph(char, small, single):
+def vietnamese_glyph(char, small, single, width=16):
+    if width not in (8, 16):
+        raise ValueError("Vietnamese glyph width must be 8 or 16")
     if char not in vietnamese_letters():
         raise ValueError(f"not a Vietnamese precomposed letter: {char!r}")
     parts = unicodedata.normalize("NFD", char)
@@ -339,7 +345,8 @@ def vietnamese_glyph(char, small, single):
         stamp(tone, 3, 11)
     elif tone:
         stamp(tone, 4 if stacked else 5 if tone == "\u0309" and base.isupper() else 2, 0)
-    return b"".join(row.to_bytes(2, "big") for row in rows)
+    glyph = b"".join(row.to_bytes(2, "big") for row in rows)
+    return glyph[::2] if width == 8 else glyph
 
 
 def vietnamese_sheet(rom_path, output):
@@ -469,7 +476,9 @@ def capacity(assets, rom_path):
     print("WARNING: script-only reclamation does not audit non-script or dynamically substituted text")
 
 
-def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
+def sample(rom_path, assets, text, placeholders=False, reclaim_large=False, halfwidth=False):
+    if halfwidth:
+        reclaim_large = True
     text = unicodedata.normalize("NFC", text)
     root = assets / "fonts"
     single = read_map(root / "single.map", "single")
@@ -488,10 +497,14 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
             if char in mapping:
                 raise ValueError(f"existing charmap assignment for {char!r} is unmapped; fix it first")
             missing.append(char)
+        elif halfwidth and char in mapping and double.get(int.from_bytes(raw, "big"), -1) < 0x4000:
+            raise ValueError(f"existing assignment for {char!r} is not tagged; restore or migrate it before --halfwidth")
     reserved = {int.from_bytes(raw, "big") for raw in mapping.values()}
     for raw in mapping.values():
         reserved.update(stream_codes(raw, single, double))
     name, kind = ("large", "double") if reclaim_large else ("small", "single")
+    if halfwidth:
+        name = "small"
     offset, count, width = FONTS[name]
     size = 12 * (width // 8)
     data = from_sheet(read_png((root / (name + ".png")).read_bytes()), count, width)
@@ -500,9 +513,14 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
     if reclaim_large:
         used, _ = script_usage(rom, assets, single, double)
         used.update(reserved)
-        _, candidates = reclaimable_slots(double, used, rom_maps(rom)["double"])
+        if halfwidth:
+            tagged_slots = {v & 0x3FFF for v in double.values() if v >= 0x4000}
+            occupied = set(single.values()) | set(rom_maps(rom)["single"].values()) | tagged_slots
+            candidates = [i for i in range(487) if i not in occupied]
+        else:
+            _, candidates = reclaimable_slots(double, used, rom_maps(rom)["double"])
         available = [code for code in accepted_free_codes(single, double) if code not in used]
-        print("WARNING: reclaiming script-unused kanji; non-script/substituted text is NOT audited")
+        print("Allocating tagged small-font slots" if halfwidth else "WARNING: reclaiming script-unused kanji; non-script/substituted text is NOT audited")
     else:
         candidates = [i for i in range(count) if i not in single.values()]
         available = [code for code in safe_codes(single) if code not in reserved]
@@ -519,11 +537,11 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
     draw = placeholders or any(char in real_letters for char in missing)
     small = from_sheet(read_png((root / "small.png").read_bytes()), 487, 8) if reclaim_large and draw else data
     for char, code, slot in assignments:
-        map_source = assign_map_row(map_source, code, slot)
+        map_source = assign_map_row(map_source, code, slot | 0x4000 if halfwidth else slot)
         raw = code.to_bytes(2 if reclaim_large else 1, "big")
         additions.append(f"U+{ord(char):04X} = {raw.hex(' ').upper()}\n")
         if char in real_letters:
-            pixels[slot * size:slot * size + size] = vietnamese_glyph(char, small, single)
+            pixels[slot * size:slot * size + size] = vietnamese_glyph(char, small, single, width)
         elif placeholders:
             base = unicodedata.normalize("NFD", char)[0]
             if base in "Đđ":
@@ -532,7 +550,7 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
             glyph = bytearray(small[index * 12:index * 12 + 12] if index >= 0 else bytes(12))
             glyph[0] |= 0x18
             glyph[1] |= 0x08
-            if reclaim_large:
+            if reclaim_large and not halfwidth:
                 glyph = b"".join((row << 4).to_bytes(2, "big") for row in glyph)
             pixels[slot * size:slot * size + size] = glyph
         print(f"Assign {char} U+{ord(char):04X} -> {raw.hex(' ').upper()}, {name} glyph {slot}")
@@ -560,6 +578,7 @@ def main():
     parser.add_argument("--text", default="Xin chào Việt Nam!")
     parser.add_argument("--placeholders", action="store_true")
     parser.add_argument("--reclaim-large", action="store_true", help="opt in to script-only kanji reclamation; full-width output")
+    parser.add_argument("--halfwidth", action="store_true", help="allocate tagged 8px Vietnamese glyphs; build with VIETNAMESE_FONT=1")
     args = parser.parse_args()
     try:
         if args.force and args.command != "extract":
@@ -569,11 +588,11 @@ def main():
         if args.command == "extract":
             print("Extracted fonts (existing edits preserved)" if not args.force else "Re-extracted fonts (overwritten)")
         elif args.command == "build":
-            build(args.assets, args.output)
+            build(args.assets, args.output, args.halfwidth)
         elif args.command == "capacity":
             capacity(args.assets, args.rom)
         elif args.command == "sample":
-            sample(args.rom, args.assets, args.text, args.placeholders, args.reclaim_large)
+            sample(args.rom, args.assets, args.text, args.placeholders, args.reclaim_large, args.halfwidth)
         elif args.command == "vietnamese-sheet":
             vietnamese_sheet(args.rom, args.output)
         else:

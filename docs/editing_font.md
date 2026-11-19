@@ -176,15 +176,15 @@ cells keep their original artwork for manual drawing. Existing single-byte
 assignments are kept, not migrated. Review the generated Vietnamese sheet
 and in-game typography before release, especially the compact capitals.
 
-### Proposed next decoder change — NOT implemented
+### Tagged small-font decoder design
 
 `func_080D0D28` in `asm/code_080D0C68.s` loads a double-byte table entry and
 unconditionally sets width class `r6 = 2`. Positive indices then use the large
 24-byte glyph path; the half-width path uses class 1 and 12-byte small glyphs.
 The result class also controls text advance. `GetShiftJisGlyphIndex` at
 0x080D0CD4 (`src/g5_encoding.cc`, formerly func_080D0CD4) is only a code-to-table
-index calculation; it has no width convention. Therefore **no current double-
-byte map value selects an 8px small glyph**. Negative entries return failure;
+index calculation; it has no width convention. In the vanilla decoder **no
+double-byte map value selects an 8px small glyph**. Negative entries return failure;
 putting a small index in the double map simply selects the wrong large glyph.
 
 Smallest semantic extension: reserve positive bit 14 (`0x4000`) in double-map
@@ -192,8 +192,8 @@ values to mean `0x4000 | small_index`. Immediately after the double table load,
 detect this bit, clear it from r5, and set r6=1; otherwise retain r6=2. Keep -1
 unmapped by testing positivity before interpreting flags. Existing large
 indices max at 6921, so bit 14 is free; tagged values remain positive s16. Both
-draw calls and width-only queries must see the same class. Update the map
-validator/sample allocator to support these tags, then allocate unused valid
+draw calls and width-only queries must see the same class. The map
+validator/sample allocator support these tags and allocate unused valid
 double-byte codes rather than stealing lead bytes. No change to the Shift-JIS
 index formula is required.
 
@@ -201,7 +201,38 @@ This semantic patch must **not expand the existing assembly in place**: doing
 so shifts code/data with raw pointer dependencies. Use a fixed-size branch to
 an appended Thumb helper/trampoline and return to the original instruction
 stream, or a size-matched replacement after an instruction budget audit. That
-placement detail remains to be designed/tested; no runtime patch is in this PR.
+placement is implemented by the opt-in mode below; vanilla bytes stay intact.
+
+## Opt-in 8px Vietnamese mode
+
+Starting from pristine extracted fonts/charmap (do not overwrite translation edits):
+
+```sh
+python3 tools/assets/font_assets.py sample --halfwidth --text 'Người ở đây thật dễ chịu. Ữ Ộ ặ ẫ!'
+make -j8 VIETNAMESE_FONT=1
+```
+
+Use all 134 letters as `--text` to install the entire alphabet. This mode draws
+8x12 compositions into untouched small-font cells, reserving original/current
+single-map slots, existing tagged slots, and hand-edited cells. It consumes
+unmapped double-byte codes but does not reclaim kanji glyphs. A double-map entry
+`16384 + small_index` selects the existing small-font raster and **8px advance**.
+Existing full-width charmap overrides must be restored/migrated explicitly;
+the tool will not silently replace them. A vanilla build rejects tagged maps.
+
+`VIETNAMESE_FONT=1` installs an eight-byte jump at the double-map lookup. The
+tag-aware Thumb helper lives in ROM overflow space; negative/unmapped and
+untagged large indices retain their original behavior. Switching the Make
+flag rebuilds the decoder even without cleaning. The default flag is zero,
+and unchanged vanilla assets still pass `make compare`.
+
+```sh
+python3 tools/assets/check_vietnamese_rom.py --halfwidth
+```
+
+This saves `build/assets/vietnamese-thomas-8px.gba`, restores assets and the
+vanilla build, and emulates the **compiled** tag helper for all 134 assignments
+(including the 8px width result) and all original mapped double-byte codes.
 
 ## Optional sample assignment
 

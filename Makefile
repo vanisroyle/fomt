@@ -17,6 +17,7 @@ DATA_ASM_DIR = asm/data
 BUILD_DIR = build
 PYTHON ?= python3
 SCRIPTS_OVERFLOW_FROM ?= 1329
+VIETNAMESE_FONT ?= 0
 
 # ====================
 # = TOOL DEFINITIONS =
@@ -99,7 +100,12 @@ $(BUILD_DIR)/asm/data/data_080F1A80.o $(BUILD_DIR)/asm/data/data_0813B288.o: $(B
 FONT_BINS := $(addprefix $(BUILD_DIR)/assets/font-,small.bin large.bin single.bin double.bin)
 
 $(BUILD_DIR)/assets/fonts.stamp: FORCE
-	@$(PYTHON) tools/assets/font_assets.py build
+	@$(PYTHON) tools/assets/font_assets.py build $(if $(filter 1,$(VIETNAMESE_FONT)),--halfwidth,)
+
+$(BUILD_DIR)/assets/vietnamese-mode.inc: $(BUILD_DIR)/assets/fonts.stamp
+	@test -f $@
+
+$(BUILD_DIR)/asm/code_080D0C68.o $(BUILD_DIR)/asm/vietnamese_font.o: $(BUILD_DIR)/assets/fonts.stamp $(BUILD_DIR)/assets/vietnamese-mode.inc
 
 $(FONT_BINS): $(BUILD_DIR)/assets/fonts.stamp
 	@test -f $@

@@ -263,6 +263,7 @@ class FontTests(unittest.TestCase):
                 if "\u0323" in font.unicodedata.normalize("NFD", char):
                     self.assertEqual(int.from_bytes(glyph[22:24], "big"), 1 << 12)
                 self.assertFalse(any(glyph[1::2]))
+                self.assertEqual(font.vietnamese_glyph(char, small, single, 8), glyph[::2])
         for family in ("ăằắẳẵặ", "âầấẩẫậ", "êềếểễệ", "ôồốổỗộ", "ơờớởỡợ", "ưừứửữự"):
             for letters in (family, family.upper()):
                 self.assertEqual(len({font.vietnamese_glyph(c, small, single) for c in letters}), 6)
@@ -299,6 +300,32 @@ class FontTests(unittest.TestCase):
         for raw in (b"", b"\x05", b"\x41\x41"):
             with self.assertRaises(ValueError):
                 font_renderer.assignment(rom, raw)
+
+    def test_halfwidth_allocation_tags_protects_slots_and_requires_build_flag(self):
+        self.large_fixture()
+        path = self.root / "fonts/double.map"
+        path.write_text(path.read_text().replace("889F = 0", "889F = 16386"))
+        single = font.read_map(self.root / "fonts/single.map", "single")
+        with (patch.object(font, "original_rom", return_value=bytes(0x527094)),
+              patch.object(font, "rom_maps", return_value={"single": single, "double": {}}),
+              patch.object(font, "script_usage", return_value=(set(), 0))):
+            font.sample(Path("unused"), self.root, "ạ", halfwidth=True)
+            mapping = font.fa.charmap(self.root / "charmap.txt")
+            code = int.from_bytes(mapping["ạ"], "big")
+            self.assertEqual(font.read_map(path, "double")[code], 0x4003)
+            before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+            for text in ("ạ", ""):
+                font.sample(Path("unused"), self.root, text, halfwidth=True)
+            with patch.object(font, "accepted_free_codes", return_value=[]):
+                with self.assertRaisesRegex(ValueError, "no edits made"):
+                    font.sample(Path("unused"), self.root, "ậ", halfwidth=True)
+            self.assertTrue(all(p.read_bytes() == data for p, data in before.items()))
+        data = font.build_data(self.root)["small"]
+        self.assertEqual(data[36:48], font.vietnamese_glyph("ạ", data, single, 8))
+        with self.assertRaisesRegex(ValueError, "VIETNAMESE_FONT=1"):
+            font.build(self.root, self.root / "output")
+        font.build(self.root, self.root / "output", halfwidth=True)
+        self.assertEqual((self.root / "output/vietnamese-mode.inc").read_text(), ".equ VIETNAMESE_FONT, 1\n")
 
 
 if __name__ == "__main__":
