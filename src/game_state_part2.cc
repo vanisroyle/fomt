@@ -1137,6 +1137,64 @@ done:
     return 0;
 }
 
+EC void RefreshOutsideFarmTerrain(TerrainInfo *, Farm &, bool) asm("func_080171F8");
+
+EC SECTION(".text.game_state_c2.0801E90C") void GameStateClearFieldPlotsUnderActors(GameStateMapOwner & owner)
+{
+    register GameStateMapOwner & game asm("r8") = owner;
+    u32 changed = false;
+    for (int i = 0; i < 100; ++i)
+    {
+        register GameStateMapOwner * map_owner asm("r1") = &game;
+        register GameStateEntitySlotVtable const * slots asm("r0") = map_owner->vtable;
+        AEntity * actor = slots->get_entity(game, i);
+        if (!actor || actor->GetMap() != 2)
+            continue;
+        Box box = actor->GetBox();
+        Box limits = box;
+        register Box * bounds asm("r4") = &limits;
+        asm("" : "+l"(bounds));
+        register Box * lower_bounds asm("r6") = bounds;
+        int left = std::max(0, ((bounds->x1 >> 3) - 34) >> 1);
+        int right = std::min<int>(Farm::FIELD_WIDTH - 1, (((bounds->x2 - 1) >> 3) - 34) >> 1);
+        int top = std::max(0, ((bounds->y1 >> 3) - 22) >> 1);
+        int bottom = std::min<int>(Farm::FIELD_HEIGHT - 1, (((lower_bounds->y2 - 1) >> 3) - 22) >> 1);
+        for (int y = top; y <= bottom; ++y)
+        {
+            for (int x = left; x <= right; ++x)
+            {
+                FieldPlot & plot = game.map_data->farm.field.PlotAt(x, y);
+                if (plot.GetUnk2() == 21)
+                {
+                    plot.method_0800A4A4();
+                    changed = true;
+                }
+            }
+        }
+    }
+    if (changed)
+    {
+        register GameStateMapOwner * map_owner asm("r2") = &game;
+        asm("" : "+l"(map_owner));
+        register GameStateMapView & view asm("r5") = *map_owner->map_view;
+        if (view.id == 2)
+        {
+            GameStateMapDisplayVtable const * display = view.display_vtable;
+            register u32 band asm("r1") = game.daylight_band;
+            register int amount asm("r2") = game.daylight_amount;
+            display->apply_daylight(view, band, amount, 30 - amount);
+        }
+        else
+        {
+            TerrainInfo * terrain = const_cast<TerrainInfo *>(game.farm_terrain);
+            GameStateMapData * state = game.map_data;
+            Farm & farm = state->farm;
+            u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+            RefreshOutsideFarmTerrain(terrain, farm, season == SEASON_WINTER);
+        }
+    }
+}
+
 EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
     GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result)
 {
