@@ -538,16 +538,16 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->thrown_item.Init();
     self->item_animation_override = true;
     self->unk_A6 = 0;
-    self->unk_A8 = -1;
-    self->unk_AC = -1;
-    self->unk_B0 = false;
-    self->unk_B1 = false;
-    self->unk_B2 = 100;
+    self->last_discarded_item_kind = -1;
+    self->last_discarded_item_id = -1;
+    self->last_discard_special = false;
+    self->target_cow_slot = 0;
+    self->interaction_target_slot = 100;
     self->unk_B3 = false;
     self->unk_B4 = false;
-    self->unk_C0 = false;
+    self->consume_animation_active = false;
     self->unk_C1 = false;
-    self->unk_C2 = false;
+    self->update_paused = false;
     self->exhaustion_state = 0;
     self->unk_C4 = false;
     self->unk_C5 = false;
@@ -634,9 +634,9 @@ EC void func_08025018(FarmerEntity * self, u32 argument) ENTITY_CODE(08025018);
 EC void func_08025018(FarmerEntity * self, u32 argument)
 {
     self->unk_C1 = false;
-    if (!self->unk_C2)
+    if (!self->update_paused)
     {
-        if (self->unk_C0)
+        if (self->consume_animation_active)
         {
             func_0802F0EC(self, 0, 0);
             u16 anim = func_0802D158(self);

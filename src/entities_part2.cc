@@ -53,6 +53,14 @@ inline void * FarmerItemSprites(FarmerIconGraphics * graphics)
     return table->get_item_sprites(game);
 }
 
+inline void * FarmerActorSprites(FarmerIconGraphics * graphics)
+{
+    AEntity * entity = *reinterpret_cast<AEntity **>(graphics);
+    GameObject * game = entity->game_object;
+    FarmerIconGameVTable const * table = *reinterpret_cast<FarmerIconGameVTable const **>(game);
+    return table->get_actor_sprites(game);
+}
+
 inline void RestartFarmerIcon(FarmerIconState * state)
 {
     u8 * flags = reinterpret_cast<u8 *>(state);
@@ -132,7 +140,7 @@ EC void BeginFarmerEatingAnimation(FarmerEntity * farmer, Food const * food)
         farmer->state = 54;
     else
         farmer->state = 55;
-    farmer->unk_C0 = true;
+    farmer->consume_animation_active = true;
     farmer->SetAnim(0x146);
 }
 
@@ -417,10 +425,7 @@ EC void SetItemDisplayGraphicsIcon(ItemDisplayGraphics * graphics, u32 animation
 EC void SetFarmerEffectIcon(FarmerIconGraphics * graphics, u32 animation) ENTITY_CODE(0802C264);
 EC void SetFarmerEffectIcon(FarmerIconGraphics * graphics, u32 animation)
 {
-    AEntity * entity = *reinterpret_cast<AEntity **>(graphics);
-    GameObject * game = entity->game_object;
-    FarmerIconGameVTable const * table = *reinterpret_cast<FarmerIconGameVTable const **>(game);
-    void * sprites = table->get_actor_sprites(game);
+    void * sprites = FarmerActorSprites(graphics);
     func_0805E850(&graphics->icon_animator, sprites, animation);
     SetItemDisplayGraphicsIconFlags<false>(&graphics->icon_state, animation);
 }
@@ -544,6 +549,151 @@ EC void UpdateFarmerTurnInput(FarmerEntity * farmer, FarmerInputState const * in
     }
 }
 
+struct FarmerGraphicsRefresh : FarmerIconGraphics
+{
+    STRUCT_PAD(0xCC, 0x281);
+    bool refresh_icon;
+};
+
+EC void MarkFarmerGraphicsForRefresh(FarmerGraphicsRefresh * graphics) ENTITY_CODE(08031F20);
+EC void MarkFarmerGraphicsForRefresh(FarmerGraphicsRefresh * graphics)
+{
+    graphics->refresh_icon = true;
+}
+
+EC void SetFarmerActorEffectIcon(FarmerIconGraphics * graphics, u32 animation) ENTITY_CODE(08031F30);
+EC void SetFarmerActorEffectIcon(FarmerIconGraphics * graphics, u32 animation)
+{
+    void * sprites = FarmerActorSprites(graphics);
+    func_0805E850(&graphics->icon_animator, sprites, animation);
+    SetItemDisplayGraphicsIconFlags<false>(&graphics->icon_state, animation);
+}
+
+EC void SetFarmerItemEffectIcon(FarmerIconGraphics * graphics, u32 animation) ENTITY_CODE(08031F68);
+EC void SetFarmerItemEffectIcon(FarmerIconGraphics * graphics, u32 animation)
+{
+    void * sprites = FarmerItemSprites(graphics);
+    func_0805E850(&graphics->icon_animator, sprites, animation);
+    SetItemDisplayGraphicsIconFlags<false>(&graphics->icon_state, animation);
+}
+
+struct FarmerInteractionGameVTable
+{
+    STRUCT_PAD(0x00, 0x40);
+    AEntity * (*get_entity)(GameObject * game, u32 slot);
+};
+
+inline bool IsFarmerTargetSlot(u32 slot)
+{
+    bool is_target = false;
+    if (slot - 43 <= 26)
+        is_target = true;
+    return is_target;
+}
+
+EC AEntity * GetFarmerInteractionTarget(FarmerEntity * farmer) ENTITY_CODE(08031FA0);
+EC AEntity * GetFarmerInteractionTarget(FarmerEntity * farmer)
+{
+    u32 slot = farmer->interaction_target_slot;
+    AEntity * target;
+    if (!IsFarmerTargetSlot(slot))
+        target = nullptr;
+    else
+    {
+        GameObject * game = farmer->game_object;
+        FarmerInteractionGameVTable const * table = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+        target = table->get_entity(game, slot);
+    }
+    return target;
+}
+
+EC bool IsFarmerInteractionTargetSlot(FarmerEntity const * farmer, u32 slot) ENTITY_CODE(08031FCC);
+EC bool IsFarmerInteractionTargetSlot(FarmerEntity const *, u32 slot)
+{
+    return IsFarmerTargetSlot(slot);
+}
+
+struct FarmerToolOffset
+{
+    i32 x;
+    i32 y;
+};
+
+EC void TransformFarmerToolOffset(FarmerEntity const * farmer, FarmerToolOffset * offset, i32 facing) ENTITY_CODE(08031FDC);
+EC void TransformFarmerToolOffset(FarmerEntity const *, FarmerToolOffset * offset, i32 facing)
+{
+    switch (facing)
+    {
+    case FACING_DOWN:
+    {
+        facing = offset->x;
+        i32 y = offset->y;
+        offset->x = y;
+        offset->y = facing;
+        break;
+    }
+    case FACING_UP:
+    {
+        facing = offset->x;
+        i32 y = offset->y;
+        offset->x = -y;
+        offset->y = -facing;
+        break;
+    }
+    case FACING_LEFT:
+        offset->x = -offset->x;
+        break;
+    }
+}
+
+EC ThrownItemMotion * GetFarmerThrownItemMotion(FarmerEntity * farmer) ENTITY_CODE(08032014);
+EC ThrownItemMotion * GetFarmerThrownItemMotion(FarmerEntity * farmer)
+{
+    return &farmer->thrown_item;
+}
+
+EC bool IsFarmerUpdatePaused(FarmerEntity const * farmer) ENTITY_CODE(08032018);
+EC bool IsFarmerUpdatePaused(FarmerEntity const * farmer)
+{
+    return farmer->update_paused;
+}
+
+EC void SetFarmerUpdatePaused(FarmerEntity * farmer, bool paused) ENTITY_CODE(08032020);
+EC void SetFarmerUpdatePaused(FarmerEntity * farmer, bool paused)
+{
+    farmer->update_paused = paused;
+}
+
+EC FarmerHeldItemAnimation * GetFarmerHeldItemAnimation(FarmerEntity * farmer) ENTITY_CODE(08032028);
+EC FarmerHeldItemAnimation * GetFarmerHeldItemAnimation(FarmerEntity * farmer)
+{
+    return &farmer->held_anim;
+}
+
+EC bool WasFarmerDiscardedItemSpecial(FarmerEntity const * farmer) ENTITY_CODE(08032034);
+EC bool WasFarmerDiscardedItemSpecial(FarmerEntity const * farmer)
+{
+    return farmer->last_discard_special;
+}
+
+EC i32 GetFarmerLastDiscardedItemId(FarmerEntity const * farmer) ENTITY_CODE(0803203C);
+EC i32 GetFarmerLastDiscardedItemId(FarmerEntity const * farmer)
+{
+    return farmer->last_discarded_item_id;
+}
+
+EC i32 GetFarmerLastDiscardedItemKind(FarmerEntity const * farmer) ENTITY_CODE(08032044);
+EC i32 GetFarmerLastDiscardedItemKind(FarmerEntity const * farmer)
+{
+    return farmer->last_discarded_item_kind;
+}
+
+EC u8 GetFarmerTargetCowSlot(FarmerEntity const * farmer) ENTITY_CODE(0803204C);
+EC u8 GetFarmerTargetCowSlot(FarmerEntity const * farmer)
+{
+    return farmer->target_cow_slot;
+}
+
 EC bool IsFarmerState7Or45(FarmerEntity const * farmer) ENTITY_CODE(0803205C);
 EC bool IsFarmerState7Or45(FarmerEntity const * farmer)
 {
@@ -558,6 +708,21 @@ struct SpriteAnimationFrame
     u16 sprite_index;
     u16 delay;
 };
+
+EC bool HasFarmerConsumeAnimation(FarmerEntity const * farmer) ENTITY_CODE(08032074);
+EC bool HasFarmerConsumeAnimation(FarmerEntity const * farmer)
+{
+    return farmer->consume_animation_active;
+}
+
+EC void MakeFarmerContactBox(Box * box, i32 x, i32 y) ENTITY_CODE(0803207C);
+EC void MakeFarmerContactBox(Box * box, i32 x, i32 y)
+{
+    box->x1 = x - 7;
+    box->y1 = y - 9;
+    box->x2 = x + 7;
+    box->y2 = y + 5;
+}
 
 struct SpriteAnimationFrames
 {
