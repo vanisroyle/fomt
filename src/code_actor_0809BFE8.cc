@@ -243,18 +243,30 @@ ROM_TEXT(0809C0A0) bool AdvanceCursedAxeOrRodProgress(CursedToolProgress & self,
     return completed;
 }
 
-ROM_TEXT(0809C0A0) void func_0809C4E4(u32 & flags)
+ROM_TEXT(0809C0A0) void ResetMapPatchVariants(u32 & flags)
 {
     flags = 0;
 }
 
-ROM_TEXT(0809C5B4) void func_0809C5B4(u32 & flags, unsigned index)
+ROM_TEXT(0809C4EC) bool IsDefaultMapPatch(u32 const & flags, unsigned index)
+{
+    unsigned hasAlternatePatch = 0;
+    if (index <= 13)
+    {
+        unsigned bit = flags & (1u << (index & 31));
+        hasAlternatePatch = ((-bit) | bit) >> 31;
+    }
+    // Preserve the original nonzero test and one-bit inversion.
+    return (hasAlternatePatch | 1) ^ hasAlternatePatch;
+}
+
+ROM_TEXT(0809C5B4) void SetAlternateMapPatch(u32 & flags, unsigned index)
 {
     if (index <= 13)
         flags |= 1u << (index & 31);
 }
 
-ROM_TEXT(0809C5B4) void func_0809C5D0(u32 & flags, unsigned index)
+ROM_TEXT(0809C5B4) void ClearAlternateMapPatch(u32 & flags, unsigned index)
 {
     if (index <= 13)
         flags &= ~(1u << (index & 31));

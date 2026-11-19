@@ -13847,7 +13847,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r0, [r6]
 	adds r0, #8
 	adds r1, r2, #0
-	bl func_0803D080
+	bl SetClockSeasonTiles
 .L080DADEE:
 	ldr r0, [r6]
 	mov r1, sb
