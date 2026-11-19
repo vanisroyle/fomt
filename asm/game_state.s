@@ -1762,14 +1762,14 @@ func_08010F54: @ 0x08010F54
     ldr r1, .L0801121C @ =0x00001F64
     adds r4, r6, r1
     adds r0, r4, #0
-    bl func_0809EB70
+    bl IsConstructionComplete
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080111EA
     b .L08011328
 .L080111EA:
     adds r0, r4, #0
-    bl func_0809EB68
+    bl GetConstructionJob
     cmp r0, #0xd
     bls .L080111F6
     b .L08011318

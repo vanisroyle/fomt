@@ -460,9 +460,8 @@ EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self)
     {
         FarmerEventStateView * events = reinterpret_cast<FarmerEventStateView *>(self->game_state);
         u32 event_state = events->unk_2171_3;
-        ScriptEventSelection const & scriptEvents = *reinterpret_cast<ScriptEventSelection const *>(
-            reinterpret_cast<u8 *>(events) + 0x214C);
-        if (event_state == 1 || IsSelectedScriptEvent(scriptEvents, 74))
+        if (event_state == 1 || IsSelectedScriptEvent(*reinterpret_cast<ScriptEventSelection const *>(
+            reinterpret_cast<u8 *>(events) + 0x214C), 74))
             priority = 1;
     }
     self->unk_21 = priority;

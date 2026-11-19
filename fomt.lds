@@ -316,7 +316,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803E620);
         asm/code_0803A8A4.o(.text.0803E780);
         src/code_0803A8A4.o(.text.0803E8E8);
-        asm/code_0803A8A4.o(.text.0803ECC0);
+        src/code_0803A8A4.o(.text.0803ECC0);
         src/code_0803A8A4.o(.text.0803EDCC);
         src/script_engine.o(.text);
         asm/code_0803EE94.o(.text);
