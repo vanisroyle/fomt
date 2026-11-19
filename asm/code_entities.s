@@ -2980,7 +2980,7 @@ func_0802B054: @ 0x0802B054
     ldr r0, [r5, #0x34]
     ldr r1, .L0802B130 @ =0x00002E58
     adds r0, r0, r1
-    bl func_0809DFAC
+    bl CountHarvestGoddessJewels
     lsls r0, r0, #0x18
     lsrs r0, r0, #0x18
     cmp r0, #9
@@ -3024,7 +3024,7 @@ func_0802B054: @ 0x0802B054
     ldr r0, [r5, #0x34]
     ldr r1, .L0802B130 @ =0x00002E58
     adds r0, r0, r1
-    bl func_0809E02C
+    bl CountKappaJewels
     lsls r0, r0, #0x18
     lsrs r0, r0, #0x18
     cmp r0, #9
@@ -3115,7 +3115,7 @@ func_0802B054: @ 0x0802B054
     beq .L0802B1BC
     ldr r0, [r5, #0x34]
     adds r0, r0, r4
-    bl func_0809DFAC
+    bl CountHarvestGoddessJewels
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802B1BC
@@ -3191,7 +3191,7 @@ func_0802B054: @ 0x0802B054
     ldr r0, [r5, #0x34]
     ldr r1, .L0802B258 @ =0x00002E58
     adds r0, r0, r1
-    bl func_0809E02C
+    bl CountKappaJewels
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802B250
