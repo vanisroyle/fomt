@@ -128,7 +128,7 @@ struct GameStateMapOwner
     bool skip_day_update_events;
 };
 
-EC void func_0803B0A8(GameStateMapOverlay * overlay, u32 destructor_flags);
+EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
 EC i32 func_080AC96C(GameStateSpriteCache & cache, u32 slot);
 
 EC void func_080A6138(GameStateMapView & view);
@@ -497,7 +497,7 @@ EC SECTION(".text.game_state_c2.0801FC78") void GameStateClearMapOverlay(GameSta
     GameStateMapOverlay * & overlay = game.map_overlay;
     GameStateMapOverlay * replacement = nullptr;
     if (replacement != overlay && overlay != nullptr)
-        func_0803B0A8(overlay, 3);
+        DestroyGameStateMapOverlay(overlay, 3);
     overlay = replacement;
 }
 

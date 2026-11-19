@@ -12886,7 +12886,7 @@ func_080175B4: @ 0x080175B4
     cmp r0, #0
     beq .L080177A0
     movs r1, #3
-    bl func_0803AC78
+    bl DestroyFixedSpriteOverlay
 .L080177A0:
     str r4, [r5]
     ldr r2, .L0801787C @ =0x00001028
@@ -12935,7 +12935,7 @@ func_080175B4: @ 0x080175B4
     cmp r0, #0
     beq .L08017806
     movs r1, #3
-    bl func_0803B0A8
+    bl DestroyGameStateMapOverlay
 .L08017806:
     str r5, [r4]
     ldr r0, [r7, #4]
@@ -13288,7 +13288,7 @@ func_080179CC: @ 0x080179CC
     cmp r0, #0
     beq .L08017B0C
     movs r1, #3
-    bl func_0803B0A8
+    bl DestroyGameStateMapOverlay
 .L08017B0C:
     ldr r1, .L08017BE4 @ =0x00001074
     adds r0, r6, r1
@@ -17505,7 +17505,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019CC2
     movs r1, #3
-    bl func_0803AC78
+    bl DestroyFixedSpriteOverlay
 .L08019CC2:
     str r5, [r4]
     mov r4, sb
@@ -17516,7 +17516,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019CD8
     movs r1, #3
-    bl func_0803B0A8
+    bl DestroyGameStateMapOverlay
 .L08019CD8:
     str r5, [r4]
     ldr r1, .L08019E18 @ =0x00001028
@@ -17631,7 +17631,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019DCA
     movs r1, #3
-    bl func_0803AC78
+    bl DestroyFixedSpriteOverlay
 .L08019DCA:
     str r4, [r5]
     ldr r0, [r7, #4]
@@ -23882,7 +23882,7 @@ func_0801FAC8: @ 0x0801FAC8
     cmp r0, #0
     beq .L0801FB66
     movs r1, #3
-    bl func_0803B0A8
+    bl DestroyGameStateMapOverlay
 .L0801FB66:
     str r4, [r5]
 .L0801FB68:

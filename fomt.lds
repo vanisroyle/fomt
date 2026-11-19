@@ -706,6 +706,10 @@ SECTIONS
         asm/code_entities_08034CEC.o(.text.npc_extra.0803A350);
 
         asm/code_0803A8A4.o(.text);
+        src/code_0803A8A4.o(.text.0803AC78);
+        asm/code_0803A8A4.o(.text.0803ACD8);
+        src/code_0803A8A4.o(.text.0803B0A8);
+        asm/code_0803A8A4.o(.text.0803B128);
         src/code_0803A8A4.o(.text.0803B454);
         asm/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);
