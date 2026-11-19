@@ -2025,8 +2025,8 @@ func_08010F54: @ 0x08010F54
 
     .section .text.game_state_080115B0, "ax", %progbits
 
-    thumb_func_start func_080115B0
-func_080115B0: @ 0x080115B0
+    thumb_func_start SaveData_WriteToStorage
+SaveData_WriteToStorage: @ 0x080115B0
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -2105,6 +2105,7 @@ func_080115B0: @ 0x080115B0
     bx r1
     .align 2, 0
 .L0801164C: .4byte gUnk_03000400
+    .section .text.game_state_08011650, "ax", %progbits
 
     thumb_func_start func_08011650
 func_08011650: @ 0x08011650
@@ -3511,91 +3512,6 @@ func_080124D0: @ 0x080124D0
 
     .section .text.game_state_080127A0, "ax", %progbits
 
-    thumb_func_start func_080127A0
-func_080127A0: @ 0x080127A0
-    push {r4, lr}
-    ldr r4, [r0, #4]
-    adds r0, r4, #0
-    adds r0, #0xac
-    ldr r0, [r0]
-    cmp r0, #0
-    beq .L08012840
-    adds r0, r4, #0
-    adds r0, #0x8c
-    ldr r2, [r0]
-    ldr r3, .L080127E0 @ =0x00002210
-    adds r0, r2, r3
-    ldrb r0, [r0]
-    lsls r0, r0, #0x1d
-    cmp r0, #0
-    bge .L08012840
-    cmp r1, #0x1f
-    beq .L08012840
-    ldr r3, .L080127E4 @ =0x00001CD4
-    adds r0, r2, r3
-    bl func_080A0878
-    cmp r0, #0
-    beq .L08012840
-    bl GetLove__C12Bachelorette
-    adds r2, r0, #0
-    ldr r0, .L080127E8 @ =0x0000EA5F
-    cmp r2, r0
-    bls .L080127EC
-    movs r1, #6
-    b .L08012836
-    .align 2, 0
-.L080127E0: .4byte 0x00002210
-.L080127E4: .4byte 0x00001CD4
-.L080127E8: .4byte 0x0000EA5F
-.L080127EC:
-    ldr r0, .L080127F8 @ =0x0000C34F
-    cmp r2, r0
-    bls .L080127FC
-    movs r1, #5
-    b .L08012836
-    .align 2, 0
-.L080127F8: .4byte 0x0000C34F
-.L080127FC:
-    ldr r0, .L08012808 @ =0x00009C3F
-    cmp r2, r0
-    bls .L0801280C
-    movs r1, #4
-    b .L08012836
-    .align 2, 0
-.L08012808: .4byte 0x00009C3F
-.L0801280C:
-    ldr r0, .L08012818 @ =0x0000752F
-    cmp r2, r0
-    bls .L0801281C
-    movs r1, #3
-    b .L08012836
-    .align 2, 0
-.L08012818: .4byte 0x0000752F
-.L0801281C:
-    ldr r0, .L08012828 @ =0x00004E1F
-    cmp r2, r0
-    bls .L0801282C
-    movs r1, #2
-    b .L08012836
-    .align 2, 0
-.L08012828: .4byte 0x00004E1F
-.L0801282C:
-    ldr r0, .L08012848 @ =0x0000270F
-    movs r1, #0
-    cmp r2, r0
-    bls .L08012836
-    movs r1, #1
-.L08012836:
-    adds r0, r4, #0
-    adds r0, #0xac
-    ldr r0, [r0]
-    bl func_08050E80
-.L08012840:
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012848: .4byte 0x0000270F
 
     .section .text.game_state_08012860, "ax", %progbits
 
@@ -11128,83 +11044,7 @@ func_08015E30: @ 0x08015E30
 
     .section .text.game_state_08016834, "ax", %progbits
 
-    thumb_func_start func_08016834
-func_08016834: @ 0x08016834
-    push {r4, r5, lr}
-    adds r5, r2, #0
-    ldr r4, [r0, #4]
-    cmp r1, #4
-    bhi .L080168CE
-    lsls r0, r1, #2
-    ldr r1, .L08016848 @ =.L0801684C
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L08016848: .4byte .L0801684C
-.L0801684C: @ jump table
-    .4byte .L08016860 @ case 0
-    .4byte .L08016884 @ case 1
-    .4byte .L08016884 @ case 2
-    .4byte .L080168AA @ case 3
-    .4byte .L08016872 @ case 4
-.L08016860:
-    adds r0, r4, #0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x3c]
-    movs r1, #0x2c
-    bl _call_via_r2
-    b .L080168CE
-.L08016872:
-    adds r0, r4, #0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x3c]
-    movs r1, #0x2b
-    bl _call_via_r2
-    b .L080168CE
-.L08016884:
-    adds r0, r4, #0
-    adds r0, #0x8c
-    ldr r0, [r0]
-    movs r1, #0xbe
-    lsls r1, r1, #3
-    adds r0, r0, r1
-    adds r1, r5, #0
-    bl method_0800D80C__4BarnUi
-    adds r0, r4, #0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r2, [r0]
-    adds r1, r5, #0
-    adds r1, #0x36
-    ldr r2, [r2, #0x3c]
-    bl _call_via_r2
-    b .L080168CE
-.L080168AA:
-    adds r0, r4, #0
-    adds r0, #0x8c
-    ldr r0, [r0]
-    movs r1, #0x82
-    lsls r1, r1, #3
-    adds r0, r0, r1
-    adds r1, r5, #0
-    bl method_0800CB7C__4CoopUi
-    adds r0, r4, #0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r2, [r0]
-    adds r1, r5, #0
-    adds r1, #0x2e
-    ldr r2, [r2, #0x3c]
-    bl _call_via_r2
-.L080168CE:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
+    .section .text.game_state_080168D4, "ax", %progbits
 
     thumb_func_start func_080168D4
 func_080168D4: @ 0x080168D4

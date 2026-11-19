@@ -2540,7 +2540,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040E88
 	bl .L08045572
 .L08040E88:
-	bl func_080127A0
+	bl GameScript_SetDialogueLoveLevel
 	bl .L08045572
 .L08040E90:
 	movs r1, #0xd5
@@ -9683,7 +9683,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804488E
 	bl .L08045572
 .L0804488E:
-	bl func_08016834
+	bl GameScript_ClearFarmAnimalActor
 	bl .L08045572
 .L08044896:
 	movs r4, #0xda
@@ -18984,7 +18984,7 @@ func_08048FFC: @ 0x08048FFC
 	movs r1, #0
 .L08049B0A:
 	movs r2, #0
-	bl func_08016834
+	bl GameScript_ClearFarmAnimalActor
 	bl .L0804DA2E
 	.align 2, 0
 .L08049B14: .4byte 0x000021A1

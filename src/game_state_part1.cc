@@ -6,6 +6,7 @@
 #include "script_engine.hh"
 #include "scene.hh"
 #include "shipping_bin.hh"
+#include "bachelorette.hh"
 
 #include <stdlib.h>
 
@@ -527,6 +528,64 @@ EC void func_08008B6C(void * self, u16 amount);
 EC void func_08008B88(void * self, u16 amount);
 EC void func_08008BB0(void * self, u16 amount);
 EC void func_08008BF8(void * self, u32 speed);
+
+EC Bachelorette const * func_080A0878(void * data, u32 characterId);
+EC void func_08050E80(void * dialogue, u32 level);
+
+
+// 0x08016834
+EC void SECTION(".text.game_state_08016834") GameScript_ClearFarmAnimalActor(GameStateScript & script, u32 kind, u32 index)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    switch (kind)
+    {
+    case 0:
+        runtime.scene->vfunc_3C(0x2C);
+        break;
+    case 4:
+        runtime.scene->vfunc_3C(0x2B);
+        break;
+    case 1:
+    case 2:
+        reinterpret_cast<Barn *>(runtime.saveData + 0x5F0)->method_0800D80C(index);
+        runtime.scene->vfunc_3C(index + 0x36);
+        break;
+    case 3:
+        reinterpret_cast<Coop *>(runtime.saveData + 0x410)->method_0800CB7C(index);
+        runtime.scene->vfunc_3C(index + 0x2E);
+        break;
+    }
+}
+
+// 0x080127A0
+EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveLevel(GameStateScript & script, u32 characterId)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0) && characterId != 0x1F)
+    {
+        Bachelorette const * character = func_080A0878(runtime.saveData + 0x1CD4, characterId);
+        if (character != nullptr)
+        {
+            u32 love = character->GetLove();
+            u32 level;
+            if (love >= 60000)
+                level = 6;
+            else if (love >= 50000)
+                level = 5;
+            else if (love >= 40000)
+                level = 4;
+            else if (love >= 30000)
+                level = 3;
+            else if (love >= 20000)
+                level = 2;
+            else if (love >= 10000)
+                level = 1;
+            else
+                level = 0;
+            func_08050E80(runtime.dialogue.Get(), level);
+        }
+    }
+}
 struct GameStateVariant
 {
     u32 reserved : 2;
