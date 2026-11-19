@@ -64,7 +64,9 @@ struct GameStateMapData
     u8 : 7;
     u8 map_12_scenery_variant : 1;
     u8 map_27_scenery_variant : 1;
-    STRUCT_PAD(0x5, 0x10);
+    STRUCT_PAD(0x5, 0x8);
+    u32 farm_layout;
+    STRUCT_PAD(0xC, 0x10);
     GameStateMapCalendar clock;
     Farm farm;
     u8 reserved[0x1BD8 - 0x14 - sizeof(Farm)];
@@ -78,6 +80,7 @@ struct GameStateMapData
 };
 
 struct GameStateMapOwner;
+struct GameStateVaseDisplay;
 struct GameStatePackedSpriteArchive;
 
 struct GameStateMapOverlay
@@ -179,7 +182,8 @@ struct GameStateEntitySlotVtable
     STRUCT_PAD(0x48, 0x5C);
     GameStatePackedSpriteArchive const * (*get_interaction_archive)(GameStateMapOwner const & game);
     GameStatePackedSpriteArchive const * (*get_scenery_archive)(GameStateMapOwner const & game);
-    STRUCT_PAD(0x64, 0x140);
+    GameStatePackedSpriteArchive const * (*get_vase_archive)(GameStateMapOwner const & game);
+    STRUCT_PAD(0x68, 0x140);
     void (*queue_event)(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue);
     STRUCT_PAD(0x144, 0x148);
     u32 (*get_music_track)(GameStateMapOwner const & game);
@@ -232,7 +236,7 @@ struct GameStateMapOwner
     bool scenery_active;
     STRUCT_PAD(0x1061, 0x1064);
     SmartPtr<GameStateMapInteraction> timed_interaction;
-    STRUCT_PAD(0x1068, 0x106C);
+    GameStateVaseDisplay * vase_display;
     SmartPtr<GameStateMapInteraction> paired_scenery_first;
     SmartPtr<GameStateMapInteraction> paired_scenery_second;
     SmartPtr<GameStateMapInteraction> seasonal_scenery;
@@ -276,7 +280,6 @@ EC u32 func_0800E324(Unk_0800E324 const & clock);
 EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
 EC u8 * GameScript_GetSoundPlayers(GameStateScript & script);
 EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
-EC void func_0801F3E4(GameStateMapOwner & game);
 EC bool SaveData_CollectShippingValue(GameStateMapData & state);
 EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
 EC void GameScript_ConfigureMusic(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
@@ -495,6 +498,58 @@ EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
     }
 done:
     return found;
+}
+
+static inline FieldPlot * GetHoeFieldPlot(FieldPlot * field, int x, int row)
+{
+    register int index asm("r0") = x + row * Farm::FIELD_WIDTH;
+    asm("" : "=l"(index) : "0"(index));
+    return field + index;
+}
+
+EC SECTION(".text.game_state_c2.0801C29C") u32 GameStateHoeFarmPlot(GameStateMapOwner & game, Location const & location)
+{
+    u32 result = 0;
+    GameStateFarmPlot plot;
+    if (GameStateFindFarmPlot(game, location, plot))
+    {
+        FieldPlot * farm_plot = plot.plot;
+        bool default_layout = game.map_data->farm_layout == 0;
+        result = farm_plot->method_0800A190(default_layout);
+        if (game.vtable->get_map_id(game) == ((u32(*reinterpret_cast<u16 const *>(&location) << 22)) >> 22))
+        {
+            GameStateMapView * view = game.map_view;
+            register GameStateFarmPlot * coords = &plot;
+            register GameStateFarmPlot * row_coords = coords;
+            FieldPlot * field = game.map_data->farm.field.plots;
+            register int x asm("r3") = coords->plot_x;
+            register int y asm("r2") = row_coords->plot_y;
+            asm("" : : "l"(x), "l"(y));
+            FieldPlot * current = GetHoeFieldPlot(field, x, y);
+            int south_y = y + 1;
+            bool south_valid = x >= 0 && south_y >= 0 && x < Farm::FIELD_WIDTH && south_y < Farm::FIELD_HEIGHT;
+            FieldPlot * south = south_valid ? GetHoeFieldPlot(field, x, south_y) : nullptr;
+            int north_y = y - 1;
+            bool north_valid = x >= 0 && north_y >= 0 && x < Farm::FIELD_WIDTH && north_y < Farm::FIELD_HEIGHT;
+            FieldPlot * north = north_valid ? GetHoeFieldPlot(field, x, north_y) : nullptr;
+            Unk_Something const * adjacent = current->method_0800AF5C(south, north);
+            func_080AA6D0(*view, plot.tile_x, plot.tile_y, *plot.plot, adjacent);
+        }
+        if (result == 3)
+        {
+            for (u32 i = 0; i < 4; ++i)
+            {
+                if (game.field_objects[i].kind == 0)
+                {
+                    game.field_objects[i].kind = 2;
+                    game.field_objects[i].tile_x = plot.tile_x;
+                    game.field_objects[i].tile_y = plot.tile_y;
+                    break;
+                }
+            }
+        }
+    }
+    return result;
 }
 
 EC SECTION(".text.game_state_c2.0801C198") bool GameStateFindMinePlot(
@@ -754,10 +809,139 @@ EC SECTION(".text.game_state_c2.0801F2DC") void GameStateRefreshTimedMapInteract
         game.timed_interaction = nullptr;
 }
 
+struct GameStateVaseFrame
+{
+    u32 words[8];
+};
+
+struct GameStateVaseClip
+{
+    SpriteKeyframe const * keyframes;
+    u16 length;
+};
+
+struct GameStateVaseDisplay;
+struct GameStateVaseDisplayVtable
+{
+    STRUCT_PAD(0, 8);
+    void (*destroy)(GameStateVaseDisplay *, u32);
+};
+
+struct GameStateVaseDisplay
+{
+    STRUCT_PAD(0, 0x24);
+    GameStateVaseDisplayVtable const * vtable;
+    GameStateVaseFrame frame;
+    bool active;
+};
+
+struct GameStateVaseArchiveVtable
+{
+    STRUCT_PAD(0, 0xC);
+    void (*get_clip)(GameStateVaseClip *, GameStatePackedSpriteArchive const *, u32);
+    void (*decode)(GameStateVaseFrame *, GameStatePackedSpriteArchive const *, u32);
+};
+
+struct GameStateVaseAnimator
+{
+    GameStatePackedSpriteArchive const * source;
+    SpriteKeyframe const * keyframes;
+    STRUCT_PAD(8, 12);
+    u16 keyframe;
+    STRUCT_PAD(14, 20);
+};
+
+struct GameStateVaseScratch
+{
+    GameStateVaseFrame frame;
+    GameStateVaseAnimator animator;
+};
+
+EC void InitGameStateVaseAnimator(GameStateVaseAnimator *, GameStatePackedSpriteArchive const *, u32, int) asm("InitSpriteAnimator");
+EC void InitGameStateVaseDisplay(GameStateVaseDisplay *, GameStateMapOwner &, u32, u32) asm("InitializeMapSpriteSinglePalette");
+EC GameStateVaseDisplayVtable const vtable_unk_080E602C;
+EC void * CopyGameStateVaseFrame(void *, void const *, size_t) asm("memcpy");
+
+static inline GameStateVaseArchiveVtable const * GetVaseArchiveVtable(GameStatePackedSpriteArchive const * archive)
+{
+    return static_cast<GameStateVaseArchiveVtable const *>(archive->vtable);
+}
+
+static inline SpriteKeyframe const * GetVaseKeyframes(GameStateVaseClip clip)
+{
+    return clip.keyframes;
+}
+
+EC SECTION(".text.game_state_c2.0801F3E4") void GameStateRefreshVase(GameStateMapOwner & game)
+{
+    GameStateVaseScratch scratch;
+    register GameStateVaseDisplay * replacement asm("r5");
+    GameStateVaseDisplay ** slot;
+    int speed_q8;
+    if (game.vtable->get_map_id(game) == 0x1D)
+    {
+        u32 article_id = game.map_data->farm.farm_house.GetVaseArticleId();
+        if (article_id == 0x5F)
+            return;
+
+        Article article(article_id);
+        register u16 icon = article.GetIconId();
+        register GameStateVaseDisplay ** base = &game.vase_display;
+        register GameStateVaseDisplay ** vase_slot = base;
+        register GameStateVaseDisplay * display asm("r4") = *base;
+        speed_q8 = 0x100;
+        if (display)
+        {
+            GameStatePackedSpriteArchive const * archive = game.vtable->get_vase_archive(game);
+            register GameStateVaseAnimator * init = &scratch.animator;
+            asm("" : "=l"(init) : "0"(init));
+            InitGameStateVaseAnimator(init, archive, icon, speed_q8);
+            register GameStateVaseAnimator * animator asm("r0") = &scratch.animator;
+            GameStatePackedSpriteArchive const * source = scratch.animator.source;
+            GameStateVaseArchiveVtable const * methods = GetVaseArchiveVtable(source);
+            register u32 offset = animator->keyframe * sizeof(SpriteKeyframe);
+            SpriteKeyframe const * keyframes = scratch.animator.keyframes;
+            register u32 frame_id = reinterpret_cast<SpriteKeyframe const *>(reinterpret_cast<u8 const *>(keyframes) + offset)->frame;
+            register GameStateVaseFrame * frame asm("r0") = &scratch.frame;
+            methods->decode(frame, source, frame_id);
+            CopyGameStateVaseFrame(&scratch.frame, &scratch.frame, sizeof(scratch.frame));
+            display->frame = scratch.frame;
+            display->active = true;
+            asm("" : : "l"(display));
+            return;
+        }
+
+        replacement = static_cast<GameStateVaseDisplay *>(::operator new(sizeof(GameStateVaseDisplay)));
+        GameStatePackedSpriteArchive const * archive = game.vtable->get_vase_archive(game);
+        InitGameStateVaseDisplay(replacement, game, 2, 0x1B);
+        replacement->vtable = &vtable_unk_080E602C;
+        GameStateVaseFrame * dest = &replacement->frame;
+        GameStateVaseClip clip;
+        GameStateVaseArchiveVtable const * methods = GetVaseArchiveVtable(archive);
+        methods->get_clip(&clip, archive, icon);
+        register u32 frame_id asm("r2") = GetVaseKeyframes(clip)->frame;
+        register GameStateVaseFrame * frame asm("r0") = dest;
+        asm("" : "=l"(frame_id), "=l"(frame) : "0"(frame_id), "1"(frame));
+        methods->decode(frame, archive, frame_id);
+        replacement->active = true;
+        slot = vase_slot;
+    }
+    else
+    {
+        slot = &game.vase_display;
+        replacement = nullptr;
+    }
+
+    GameStateVaseDisplay * previous = *slot;
+    if (replacement != previous && previous)
+        previous->vtable->destroy(previous, 3);
+    *slot = replacement;
+}
+
 EC SECTION(".text.game_state_c2.0801F5F0") void GameStateSetVaseArticle(GameStateMapOwner & game, u32 article_id)
 {
     game.map_data->farm.farm_house.SetVaseArticleId(article_id);
-    func_0801F3E4(game);
+    GameStateRefreshVase(game);
 }
 
 EC SECTION(".text.game_state_c2.0801FCA4") GameStatePlayerData const * GameStateGetPlayerData(GameStateMapOwner const & game)
