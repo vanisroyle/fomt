@@ -1,6 +1,77 @@
 #include "prelude.h"
 
 #include <stdlib.h>
+#include <string.h>
+
+struct ProbeRectangle
+{
+    i16 left;
+    i16 top;
+    i16 right;
+    i16 bottom;
+};
+
+struct EntityCollisionGrid
+{
+    u32 const * tileFlags;
+    u8 const * tileIndices;
+    u16 width;
+    u16 height;
+};
+
+struct EntityCollisionProbe
+{
+    int down;
+    int up;
+    int left;
+    int right;
+    bool downClear;
+    bool upClear;
+    bool leftClear;
+    bool rightClear;
+    EntityCollisionGrid grid;
+    ProbeRectangle bounds;
+    int step;
+    int horizontalLookahead;
+    int verticalLookahead;
+};
+
+EC SECTION(".text.080ABA3C") EntityCollisionProbe * InitializeEntityCollisionProbe(EntityCollisionProbe * probe)
+{
+    EntityCollisionProbe defaults;
+    register EntityCollisionProbe * flagBase asm("r1") = &defaults;
+    asm ("" : "+l" (flagBase));
+    defaults.down = 0;
+    defaults.up = 0;
+    defaults.left = 0;
+    defaults.right = 0;
+    flagBase->downClear = false;
+    flagBase->upClear = false;
+    flagBase->leftClear = false;
+    flagBase->rightClear = false;
+    register EntityCollisionGrid * grid asm("r1") = &defaults.grid;
+    asm ("" : "+l" (grid));
+    defaults.grid.tileFlags = nullptr;
+    grid->tileIndices = nullptr;
+    grid->width = 0;
+    grid->height = 0;
+    register ProbeRectangle * bounds asm("r1") = &defaults.bounds;
+    asm ("" : "+l" (bounds));
+    bounds->left = 0;
+    bounds->top = 0;
+    bounds->right = 0;
+    bounds->bottom = 0;
+    defaults.step = 1;
+    defaults.horizontalLookahead = 0;
+    defaults.verticalLookahead = 0;
+    asm ("" : : : "memory");
+    defaults.downClear = true;
+    defaults.upClear = true;
+    defaults.leftClear = true;
+    defaults.rightClear = true;
+    memcpy(probe, &defaults, sizeof(defaults));
+    return probe;
+}
 
 struct WanderChoice
 {

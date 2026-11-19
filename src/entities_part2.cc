@@ -41,13 +41,14 @@ struct FarmerStepEffectSlot
     STRUCT_PAD(0x01, 0x2C);
     SpriteAnimator animator;
     FarmerIconState icon_state;
-    STRUCT_PAD(0x44, 0x48);
+    u32 packed_position;
 };
 
 struct FarmerEffectGraphics : FarmerIconGraphics
 {
     STRUCT_PAD(0xCC, 0xD0);
     FarmerStepEffectSlot step_effects[6];
+    u8 next_step_effect;
 };
 
 EC void func_0803260C(FarmerIconGraphics * graphics);
@@ -464,6 +465,194 @@ EC u32 GetItemDisplayStateAnimation(ItemDisplayEntity const * display)
     return animation;
 }
 
+enum
+{
+    FACING_DOWN = 0,
+    FACING_UP = 1,
+    FACING_LEFT = 2,
+    FACING_RIGHT = 3,
+};
+
+struct FarmerEventRequest
+{
+    u32 id;
+    u32 argument;
+};
+
+typedef void (*FarmerEventDispatch)(GameObject *, FarmerEventRequest const *, u32);
+
+struct FarmerEventGameVTable
+{
+    STRUCT_PAD(0, 0x140);
+    FarmerEventDispatch dispatch_event;
+};
+
+#define SEND_PEDOMETER_MILESTONE(id_value) \
+    { \
+        GameObject * game = farmer->game_object; \
+        FarmerEventDispatch const * method = &(*reinterpret_cast<FarmerEventGameVTable const **>(game))->dispatch_event; \
+        FarmerEventRequest event; \
+        FarmerEventRequest * args = &event; \
+        u32 event_id = id_value; \
+        u32 argument = 0; \
+        args->id = event_id; \
+        args->argument = argument; \
+        FarmerEventDispatch dispatch = *method; \
+        dispatch(game, args, 1); \
+        return; \
+    }
+
+EC void TickFarmerPedometer(FarmerEntity * farmer) ENTITY_CODE(0802AD80);
+EC void TickFarmerPedometer(FarmerEntity * farmer)
+{
+    u32 previous_step_count = func_0800E958(*farmer->farmer);
+    func_0800ED8C(*farmer->farmer);
+    if (previous_step_count == func_0800E958(*farmer->farmer))
+        return;
+
+    switch (func_0800E958(*farmer->farmer))
+    {
+    case 10000: SEND_PEDOMETER_MILESTONE(0x336)
+    case 100000: SEND_PEDOMETER_MILESTONE(0x337)
+    case 1000000: SEND_PEDOMETER_MILESTONE(0x338)
+    case 10000000: SEND_PEDOMETER_MILESTONE(0x339)
+    case 100000000: SEND_PEDOMETER_MILESTONE(0x33A)
+    case 1000000000: SEND_PEDOMETER_MILESTONE(0x33B)
+    default: return;
+    }
+}
+
+#undef SEND_PEDOMETER_MILESTONE
+
+struct FarmerStepPosition
+{
+    i16 x;
+    i16 y;
+};
+
+union PackedFarmerStepPosition
+{
+    FarmerStepPosition coordinates;
+    u32 packed;
+};
+
+struct FarmerStepCoordinateQ16
+{
+    i16 fraction;
+    i16 pixel;
+};
+
+EC void SpawnFarmerStepEffect(FarmerEffectGraphics * graphics) ENTITY_CODE(0802B46C);
+EC void SpawnFarmerStepEffect(FarmerEffectGraphics * graphics)
+{
+    FarmerEntity * farmer = *reinterpret_cast<FarmerEntity **>(graphics);
+    u32 index = graphics->next_step_effect;
+    u8 * slots_base = reinterpret_cast<u8 *>(graphics) + 0xCC;
+    u32 stride = (index * sizeof(FarmerStepEffectSlot)) + 4;
+    register i32 x asm("r2") = reinterpret_cast<FarmerStepCoordinateQ16 *>(&farmer->x_q16)->pixel;
+    register i32 y asm("r3") = reinterpret_cast<FarmerStepCoordinateQ16 *>(&farmer->y_q16)->pixel;
+    asm volatile("" : : "r"(x), "r"(y));
+    i32 facing = farmer->facing;
+    register u32 parity asm("r5") = index & 1;
+    FarmerStepEffectSlot * effect = reinterpret_cast<FarmerStepEffectSlot *>(slots_base + stride);
+    effect->active = 1;
+    PackedFarmerStepPosition position;
+    volatile i16 * x_ptr = &position.coordinates.x;
+    volatile i16 * y_ptr = &position.coordinates.y;
+    *x_ptr = x;
+    *y_ptr = y;
+    effect->packed_position = position.packed;
+    u32 animation;
+    register u32 directional_base asm("r3");
+    if (facing == FACING_UP)
+        goto north;
+    if (facing <= FACING_UP)
+        goto south;
+    if (facing == FACING_LEFT)
+        goto west;
+    if (facing == FACING_RIGHT)
+        goto east;
+south:
+    animation = parity + 0x650;
+    goto apply_animation;
+north:
+    directional_base = 0x652;
+    goto select_directional_animation;
+west:
+    animation = parity + 0x654;
+    goto apply_animation;
+east:
+    directional_base = 0x656;
+select_directional_animation:
+    animation = parity + directional_base;
+apply_animation:
+    SetSpriteAnimatorClip(&effect->animator, animation);
+    u8 * flags = reinterpret_cast<u8 *>(&effect->icon_state);
+    register u32 zero asm("r2") = 0;
+    register u32 enabled asm("r1") = 1;
+    *flags = enabled;
+    flags += 2;
+    *flags = zero;
+    ++flags;
+    *flags = enabled;
+    u32 advanced = index + 1;
+    u32 next = 0;
+    if (advanced <= 5)
+        next = advanced;
+    graphics->next_step_effect = next;
+}
+
+EC void BeginItemDisplayThrow(ItemDisplayEntity * display) ENTITY_CODE(0802BE68);
+EC void BeginItemDisplayThrow(ItemDisplayEntity * display)
+{
+    const i32 throw_speed = 109226;
+    register i32 facing asm("r2") = display->facing;
+    ThrownItemMotion * motion;
+    register i32 velocity asm("r1");
+    switch (facing)
+    {
+    case FACING_LEFT:
+        motion = &display->thrown_item;
+        velocity = -throw_speed;
+        facing = 0;
+        motion->x_velocity = velocity;
+        asm volatile("" : : : "memory");
+        motion->y_velocity = facing;
+        goto reset_vertical_velocity;
+    case FACING_RIGHT:
+        motion = &display->thrown_item;
+        velocity = throw_speed;
+        facing = 0;
+        motion->x_velocity = velocity;
+        motion->y_velocity = facing;
+        goto reset_vertical_velocity;
+    case FACING_UP:
+        motion = &display->thrown_item;
+        facing = 0;
+        velocity = -throw_speed;
+        goto set_y_velocity;
+    case FACING_DOWN:
+        motion = &display->thrown_item;
+        velocity = throw_speed;
+        goto set_y_velocity;
+    default:
+        goto start_animation;
+    }
+set_y_velocity:
+    motion->x_velocity = facing;
+    motion->y_velocity = velocity;
+reset_vertical_velocity:
+    motion->z_velocity = facing;
+start_animation:
+    u8 * state = reinterpret_cast<u8 *>(display) + 0x34;
+    int throwing = 1;
+    *state = throwing;
+    bool * restart = reinterpret_cast<bool *>(state + 0x24);
+    *restart = throwing;
+    display->SetAnim(static_cast<u16>(GetItemDisplayStateAnimation(display)));
+    display->active = throwing;
+}
+
 EC void BeginItemDisplayStateTwo(ItemDisplayEntity * display) ENTITY_CODE(0802BEFC);
 EC void BeginItemDisplayStateTwo(ItemDisplayEntity * display)
 {
@@ -576,8 +765,11 @@ EC void TickFarmerToolCharge(FarmerEntity * farmer)
 
 struct FarmerInputState
 {
-    STRUCT_PAD(0x00, 0x04);
-    u16 direction_keys;
+    u16 held;
+    STRUCT_PAD(0x02, 0x04);
+    u16 pressed;
+    STRUCT_PAD(0x06, 0x08);
+    u16 repeated;
 };
 
 enum
@@ -591,10 +783,6 @@ enum
     INPUT_R = 1 << 8,
     INPUT_L = 1 << 9,
     TURN_INPUT_MASK = INPUT_A | INPUT_B | INPUT_RIGHT | INPUT_LEFT | INPUT_UP | INPUT_DOWN | INPUT_R | INPUT_L,
-    FACING_DOWN = 0,
-    FACING_UP = 1,
-    FACING_LEFT = 2,
-    FACING_RIGHT = 3,
     FARMER_TURN_STATE = 24,
 };
 
@@ -603,7 +791,7 @@ EC void func_080323C8(AEntity * farmer);
 EC void UpdateFarmerTurnInput(FarmerEntity * farmer, FarmerInputState const * input) ENTITY_CODE(0802D844);
 EC void UpdateFarmerTurnInput(FarmerEntity * farmer, FarmerInputState const * input)
 {
-    u32 keys = input != nullptr ? input->direction_keys : 0;
+    u32 keys = input != nullptr ? input->pressed : 0;
     if (farmer->exhaustion_state != 0 || (keys & TURN_INPUT_MASK))
     {
         func_080323C8(farmer);
@@ -629,6 +817,77 @@ EC void UpdateFarmerTurnInput(FarmerEntity * farmer, FarmerInputState const * in
                 farmer->SetAnimFacing(FACING_DOWN);
         }
     }
+}
+
+union FarmerToolCyclePressedKeys
+{
+    u32 word;
+    u8 bytes[4];
+};
+
+EC void FarmerEntity_CycleTool(FarmerEntity * farmer, bool next);
+
+EC void HandleFarmerToolCycleInput(FarmerEntity * farmer, FarmerInputState const * input) ENTITY_CODE(0802D8E8);
+EC void HandleFarmerToolCycleInput(FarmerEntity * farmer, FarmerInputState const * input)
+{
+    u32 held = 0;
+    struct
+    {
+        FarmerEventRequest event;
+        volatile FarmerToolCyclePressedKeys pressed;
+    } locals;
+    locals.pressed.word = 0;
+    u32 repeated = 0;
+    if (input)
+    {
+        held = input->held;
+        locals.pressed.word = input->pressed;
+        repeated = input->repeated;
+    }
+    if (farmer->exhaustion_state)
+    {
+        farmer->state = 0;
+        return;
+    }
+    u32 cycling = ((held << 30) >> 31) | ((held << 22) >> 31);
+    if (!cycling)
+        goto cancel_cycle;
+    if (((repeated << 25) >> 31) | ((repeated << 26) >> 31))
+    {
+        FarmerEntity_CycleTool(farmer, true);
+        return;
+    }
+    {
+        u32 previous_direction = ((repeated << 24) >> 31) | ((repeated << 27) >> 31);
+        u32 pressed = locals.pressed.word;
+        u32 previous_or_b = ((pressed << 30) >> 31) | previous_direction;
+        asm volatile("" : : "r"(previous_or_b));
+        u32 previous = previous_or_b | ((pressed << 22) >> 31);
+        if (previous)
+        {
+            FarmerEntity_CycleTool(farmer, false);
+            return;
+        }
+        volatile u8 * pressed_bytes = locals.pressed.bytes;
+        u32 low_byte = pressed_bytes[0];
+        u32 button_bit = 1;
+        cycling = button_bit & low_byte;
+        if (cycling)
+        {
+            GameObject * game = farmer->game_object;
+            FarmerEventDispatch const * method = &(*reinterpret_cast<FarmerEventGameVTable const **>(game))->dispatch_event;
+            u32 event_id = 0x3CE;
+            locals.event.id = event_id;
+            locals.event.argument = previous;
+            (*method)(game, &locals.event, 0);
+            farmer->state = previous;
+            return;
+        }
+        if (!(pressed_bytes[1] & button_bit))
+            return;
+    }
+cancel_cycle:
+    farmer->state = cycling;
 }
 
 struct FarmerGraphicsRefresh : FarmerIconGraphics
