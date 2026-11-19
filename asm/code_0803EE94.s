@@ -1080,7 +1080,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r1, .L080403A8 @ =0x000034D8
 	adds r0, r0, r1
-	bl func_0809C5EC
+	bl ClearPendingScriptEvents
 	bl .L08045572
 	.align 2, 0
 .L080403A8: .4byte 0x000034D8
@@ -11429,7 +11429,7 @@ func_080455D8: @ 0x080455D8
 	ldr r0, [r4]
 	ldr r2, .L08045600 @ =0x0000214C
 	adds r0, r0, r2
-	bl func_0809C694
+	bl IsSelectedScriptEvent
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08045604
@@ -11516,7 +11516,7 @@ func_08045638: @ 0x08045638
 .L08045692:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C694
+	bl IsSelectedScriptEvent
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080456A2
@@ -11524,7 +11524,7 @@ func_08045638: @ 0x08045638
 .L080456A2:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C6B0
+	bl DeselectScriptEvent
 	b .L080458F8
 .L080456AC:
 	cmp r6, #0
@@ -11542,7 +11542,7 @@ func_08045638: @ 0x08045638
 .L080456C4:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C6AC
+	bl SelectScriptEvent
 	b .L080458F8
 .L080456CE:
 	cmp r6, #0
@@ -11567,13 +11567,13 @@ func_08045638: @ 0x08045638
 	blo .L080456CE
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C694
+	bl IsSelectedScriptEvent
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0804570C
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0809C6B0
+	bl DeselectScriptEvent
 .L0804570C:
 	cmp r6, #0
 	beq .L08045712
@@ -27432,7 +27432,7 @@ func_08048FFC: @ 0x08048FFC
 	mov r2, r8
 	lsls r1, r2, #0x10
 	lsrs r1, r1, #0x10
-	bl func_0809C600
+	bl AddPendingScriptEvent
 	b .L0804E0E6
 	.align 2, 0
 .L0804E0CC: .4byte 0x0000214C
@@ -27446,7 +27446,7 @@ func_08048FFC: @ 0x08048FFC
 	mov r2, r8
 	lsls r1, r2, #0x10
 	lsrs r1, r1, #0x10
-	bl func_0809C644
+	bl RemovePendingScriptEvent
 .L0804E0E6:
 	add sp, #8
 	pop {r3, r4}

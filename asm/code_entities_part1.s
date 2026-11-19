@@ -3543,7 +3543,7 @@ func_08024B9C: @ 0x08024B9C
     subs r2, #0x25
     adds r0, r1, r2
     movs r1, #0x4a
-    bl func_0809C694
+    bl IsSelectedScriptEvent
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08024BCA

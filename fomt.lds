@@ -336,8 +336,6 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809C4EC);
         asm/code_actor_0809BFE8.o(.text.0809C510);
         src/code_actor_0809BFE8.o(.text.0809C5B4);
-        asm/code_actor_0809BFE8.o(.text.0809C600);
-        src/code_actor_0809BFE8.o(.text.0809C644);
         asm/code_actor_0809BFE8.o(.text.0809C6BC);
         src/code_actor_0809BFE8.o(.text.0809CD78);
         asm/code_actor_0809BFE8.o(.text.0809CE8C);
