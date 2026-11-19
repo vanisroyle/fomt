@@ -2852,7 +2852,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     add r0, sp, #8
     adds r1, r6, #0
     movs r3, #0
-    bl func_080AC124
+    bl ClampEntityMovementToSolidTiles
     ldr r1, [sp, #0x1c]
     cmp r1, #0
     beq .L0802549C
@@ -2877,7 +2877,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     add r0, sp, #8
     adds r1, r6, #0
     movs r2, #0
-    bl func_080AC124
+    bl ClampEntityMovementToSolidTiles
     ldr r1, [sp, #0x1c]
     cmp r1, #0
     beq .L0802549C
@@ -2903,7 +2903,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r1, r6, #0
     movs r2, #0
     movs r3, #0
-    bl func_080AC124
+    bl ClampEntityMovementToSolidTiles
     ldr r1, [sp, #0x1c]
     cmp r1, #0
     beq .L0802549C
@@ -2922,7 +2922,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r1, r6, #0
     movs r2, #0
     movs r3, #0
-    bl func_080AC124
+    bl ClampEntityMovementToSolidTiles
     ldr r1, [sp, #0x1c]
     cmp r1, #0
     beq .L0802549C
