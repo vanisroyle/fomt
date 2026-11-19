@@ -377,9 +377,196 @@ gUnk_080F3FD8:
 gUnk_080F42F0:
 	.incbin "baserom.gba", 0xF42F0, 0xEC
 
-	.global gUnk_080F43DC
-gUnk_080F43DC:
-	.incbin "baserom.gba", 0xF43DC, 0x598
+	.global gAnnScheduleInfo
+gAnnScheduleInfo:
+	.4byte SelectAnnSchedule
+	.4byte 19, .LAnnSchedules
+.LAnnSchedules: @ In AnnSchedule order.
+	.4byte 0
+	.4byte .LAnnClearSchedule
+	.4byte .LAnnOtherWeatherSchedule
+	.4byte .LAnnAfterRivalEventsClearSchedule
+	.4byte .LAnnAfterRivalEventsOtherWeatherSchedule
+	.4byte .LAnnAutumn5Schedule
+	.4byte .LAnnFestivalSchedule
+	.4byte .LAnnWinter14Schedule
+	.4byte .LAnnMarriedActiveNpcSchedule
+	.4byte .LAnnMarriedActiveNpcVariantSchedule
+	.4byte .LAnnMarriedSchedule
+	.4byte .LAnnMarriedVariantSchedule
+	.4byte .LAnnMarriedActiveNpcFestivalOrStormSchedule
+	.4byte .LAnnMarriedActiveNpcVariantFestivalOrStormSchedule
+	.4byte .LAnnMarriedFestivalOrStormSchedule
+	.4byte .LAnnMarriedVariantFestivalOrStormSchedule
+	.4byte .LAnnMarriedAutumn9Schedule
+	.4byte .LAnnMarriedAutumn13Schedule
+	.4byte .LAnnMarriedEventOverrideSchedule
+
+.LAnnClearSchedule:
+	.2byte 11, 0
+	.4byte .LAnnClearEntries
+.LAnnOtherWeatherSchedule:
+	.2byte 6, 0
+	.4byte .LAnnOtherWeatherEntries
+.LAnnAfterRivalEventsClearSchedule:
+	.2byte 11, 0
+	.4byte .LAnnAfterRivalEventsClearEntries
+.LAnnAfterRivalEventsOtherWeatherSchedule:
+	.2byte 6, 0
+	.4byte .LAnnAfterRivalEventsOtherWeatherEntries
+.LAnnAutumn5Schedule:
+	.2byte 3, 0
+	.4byte .LAnnAutumn5Entries
+.LAnnFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LAnnFestivalEntries
+.LAnnWinter14Schedule:
+	.2byte 5, 0
+	.4byte .LAnnWinter14Entries
+.LAnnMarriedActiveNpcSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedActiveNpcEntries
+.LAnnMarriedActiveNpcVariantSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedActiveNpcVariantEntries
+.LAnnMarriedSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedEntries
+.LAnnMarriedVariantSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedVariantEntries
+.LAnnMarriedActiveNpcFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedActiveNpcFestivalOrStormEntries
+.LAnnMarriedActiveNpcVariantFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedActiveNpcVariantFestivalOrStormEntries
+.LAnnMarriedFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedFestivalOrStormEntries
+.LAnnMarriedVariantFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedVariantFestivalOrStormEntries
+.LAnnMarriedAutumn9Schedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedAutumn9Entries
+.LAnnMarriedAutumn13Schedule:
+	.2byte 3, 0
+	.4byte .LAnnMarriedAutumn13Entries
+.LAnnMarriedEventOverrideSchedule:
+	.2byte 1, 0
+	.4byte .LAnnMarriedEventOverrideEntries
+
+	@ Time is minutes since 06:00; route indices refer to the original path records.
+	.macro ann_schedule_entry time, path
+	.2byte \time, 0
+	.4byte .LAnnPaths + (\path * 12)
+	.endm
+
+.LAnnClearEntries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 60, 3
+	ann_schedule_entry 95, 4
+	ann_schedule_entry 107, 5
+	ann_schedule_entry 240, 6
+	ann_schedule_entry 253, 7
+	ann_schedule_entry 287, 2
+	ann_schedule_entry 420, 0
+	ann_schedule_entry 600, 2
+	ann_schedule_entry 780, 0
+	ann_schedule_entry 960, 1
+.LAnnOtherWeatherEntries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 240, 2
+	ann_schedule_entry 420, 0
+	ann_schedule_entry 600, 2
+	ann_schedule_entry 780, 0
+	ann_schedule_entry 960, 1
+.LAnnAfterRivalEventsClearEntries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 60, 3
+	ann_schedule_entry 95, 4
+	ann_schedule_entry 107, 5
+	ann_schedule_entry 240, 6
+	ann_schedule_entry 253, 7
+	ann_schedule_entry 287, 2
+	ann_schedule_entry 420, 0
+	ann_schedule_entry 600, 2
+	ann_schedule_entry 780, 0
+	ann_schedule_entry 960, 1
+.LAnnAfterRivalEventsOtherWeatherEntries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 240, 2
+	ann_schedule_entry 420, 0
+	ann_schedule_entry 600, 2
+	ann_schedule_entry 780, 0
+	ann_schedule_entry 960, 1
+.LAnnAutumn5Entries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 240, 0
+	ann_schedule_entry 660, 1
+.LAnnFestivalEntries:
+	ann_schedule_entry 0, 1
+.LAnnWinter14Entries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 120, 8
+	ann_schedule_entry 130, 9
+	ann_schedule_entry 180, 13
+	ann_schedule_entry 190, 1
+.LAnnMarriedActiveNpcEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedActiveNpcVariantEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 180, 0
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedVariantEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 180, 0
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedActiveNpcFestivalOrStormEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedActiveNpcVariantFestivalOrStormEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedFestivalOrStormEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedVariantFestivalOrStormEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedAutumn9Entries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 240, 14
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedAutumn13Entries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 14
+.LAnnMarriedEventOverrideEntries:
+	ann_schedule_entry 0, 11
+
+.LAnnPaths:
+	.incbin "baserom.gba", 0xF475C, 0x218
 
 	.global gUnk_080F4974
 gUnk_080F4974:
