@@ -2832,7 +2832,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     adds r6, r2, #0
     adds r0, r1, #0
     adds r1, r6, #0
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     lsls r0, r0, #0x18
     lsrs r0, r0, #0x18
     cmp r0, #0
@@ -2883,7 +2883,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     strh r4, [r2, #6]
     ldr r0, [sp, #0x40]
     mov r1, sp
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -2913,7 +2913,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     adds r2, r3, r2
     strh r2, [r1, #6]
     ldr r0, [sp, #0x40]
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -2943,7 +2943,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     strh r2, [r1, #4]
     strh r4, [r1, #6]
     ldr r0, [sp, #0x40]
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r3, #1
     eors r0, r3
     lsls r0, r0, #0x18
@@ -2972,7 +2972,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     strh r2, [r1, #4]
     strh r4, [r1, #6]
     ldr r0, [sp, #0x40]
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r3, #1
     eors r0, r3
     lsls r0, r0, #0x18
@@ -3001,7 +3001,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     add r4, sb
     strh r4, [r1, #6]
     ldr r0, [sp, #0x40]
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r3, #1
     eors r0, r3
     lsls r0, r0, #0x18
@@ -3031,7 +3031,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     adds r4, r5, r4
     strh r4, [r1, #6]
     ldr r0, [sp, #0x40]
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3062,7 +3062,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     adds r4, r0, r4
     strh r4, [r1, #6]
     ldr r0, [sp, #0x40]
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3092,7 +3092,7 @@ Map_FindCollisionEscapeOffset: @ 0x08024724
     adds r4, r0, r4
     strh r4, [r1, #6]
     ldr r0, [sp, #0x40]
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3839,7 +3839,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r2, r2, r5
     strh r2, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3877,7 +3877,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     strh r2, [r1, #4]
     strh r5, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3918,7 +3918,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     mov r0, ip
     strh r0, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3963,7 +3963,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r0, r0, r5
     strh r0, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18

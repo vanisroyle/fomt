@@ -52,7 +52,7 @@ EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
 EC void func_0802A588(AEntity * self);
 
-EC bool func_080AC070(void * map, Box const * box);
+EC bool DoesEntityCollisionRectangleHitSolidTile(void * map, Box const * box);
 
 struct BarnAnimalEntity : AActorEntity
 {
@@ -278,7 +278,7 @@ inline void LaunchFarmerHeldItem(FarmerEntity * self)
 
 inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 {
-    return func_080AC070(map, &box);
+    return DoesEntityCollisionRectangleHitSolidTile(map, &box);
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
@@ -371,7 +371,7 @@ EC u32 FarmerEntity_FindVerticalClearStep(FarmerEntity const * self, void * map,
             i16 * bottom = &shifted.y2;
             *top += delta;
             *bottom += delta;
-            if (!func_080AC070(map, &shifted))
+            if (!DoesEntityCollisionRectangleHitSolidTile(map, &shifted))
                 break;
             ++step;
         } while (step <= max_steps);
@@ -394,7 +394,7 @@ EC u32 FarmerEntity_FindHorizontalClearStep(FarmerEntity const * self, void * ma
             i16 * right = &shifted.x2;
             *left += delta;
             *right += delta;
-            if (!func_080AC070(map, &shifted))
+            if (!DoesEntityCollisionRectangleHitSolidTile(map, &shifted))
                 break;
             ++step;
         } while (step <= max_steps);
@@ -815,7 +815,7 @@ EC void DogEntity_PlaceCarriedTarget(DogEntity * self)
             if (offset < 0)
                 break;
             Box box = target->GetBox();
-            if (!func_080AC070(const_cast<UnkMap *>(&map), &box))
+            if (!DoesEntityCollisionRectangleHitSolidTile(const_cast<UnkMap *>(&map), &box))
                 break;
         }
         StopLaunchedSpriteMovement(target);
