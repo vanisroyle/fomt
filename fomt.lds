@@ -134,10 +134,14 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_CADB4);
         src/g5_helpers.o(.text.g5_080CB2E8);
         asm/code_080C8360.o(.text.g5_080CB304);
+        src/g5_drawing.o(.text.g5_080CB948);
+        asm/code_080C8360.o(.text.g5_after_080CB948);
         src/g5_helpers.o(.text.g5_080CC134);
         asm/code_080C8360.o(.text.g5_080CC15C);
         src/g5_helpers.o(.text.g5_080CC70C);
         asm/code_080C8360.o(.text.g5_080CC728);
+        src/g5_drawing.o(.text.g5_080CCD48);
+        asm/code_080C8360.o(.text.g5_after_080CCD48);
         src/g5_helpers.o(.text.g5_080CD534);
         asm/code_080C8360.o(.text.g5_080CD578);
         src/g5_helpers.o(.text.g5_080CE184);
