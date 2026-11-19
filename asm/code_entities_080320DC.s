@@ -2087,7 +2087,7 @@ func_08033928: @ 0x08033928
     adds r0, r7, #0
     adds r1, r5, #0
     mov r3, r8
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
     adds r0, r7, #0
     add sp, #0x14
     pop {r3}
@@ -2198,7 +2198,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     adds	r0, r7, #0
     movs	r1, #1
     movs	r2, #0
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
     b .L08034110
 .L08033C5C:
     mov	r0, r8
@@ -2220,7 +2220,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     adds	r0, r7, #0
     movs	r1, #1
     movs	r2, #0
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
 .L08033C88:
     movs	r4, #14
     ldrsh	r0, [r7, r4]
@@ -2399,7 +2399,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     movs	r3, #128
     lsls	r3, r3, #8
     adds	r0, r7, #0
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
     b .L08034110
 .L08033DF4:
     subs	r0, #1
@@ -2608,7 +2608,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     adds	r0, r7, #0
     movs	r1, #0
     movs	r3, #0
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
     movs	r0, #0
     ldr	r1, [sp, #152]
     strh	r0, [r1, #0]
@@ -2701,7 +2701,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     adds	r0, r7, #0
     movs	r1, #1
     adds	r3, r6, #0
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
     b .L08034110
 .L0803404C:
     subs	r0, #1
@@ -2742,7 +2742,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     adds	r0, r7, #0
     movs	r1, #1
     movs	r2, #1
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
     b .L08034110
 .L0803409A:
     movs	r4, #14
@@ -2771,7 +2771,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     movs	r1, #0
 .L080340D2:
     movs	r3, #0
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
     b .L08034110
 .L080340DA:
     ldr	r2, [r7, #24]
@@ -2803,7 +2803,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     lsls	r3, r3, #8
     adds	r0, r7, #0
     movs	r1, #1
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
 .L08034110:
     adds	r4, r7, #0
     adds	r4, #66
@@ -2867,123 +2867,6 @@ UpdateSpriteWorkerState: @ 0x08033B94
     .short 0x0000
 
     .section .text.npc_side.08034180, "ax", %progbits
-
-    thumb_func_start func_08034180
-func_08034180: @ 0x08034180
-    push {r4, r5, r6, r7, lr}
-    adds r4, r0, #0
-    adds r7, r1, #0
-    adds r5, r2, #0
-    adds r6, r3, #0
-    bl GetSpriteTaskAnimation
-    adds r1, r0, #0
-    ldrh r0, [r4, #0x22]
-    cmp r0, r1
-    beq .L0803419C
-    adds r0, r4, #0
-    bl SetAnim__12AActorEntityUi
-.L0803419C:
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, r5
-    beq .L080341AE
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl SetAnimFacing__12AActorEntityUi
-.L080341AE:
-    adds r0, r4, #0
-    adds r0, #0x42
-    movs r1, #0
-    strb r1, [r0]
-    cmp r7, #1
-    beq .L080341D0
-    cmp r7, #1
-    bgt .L080341C4
-    cmp r7, #0
-    beq .L080341C8
-    b .L0803420A
-.L080341C4:
-    cmp r7, #4
-    bgt .L0803420A
-.L080341C8:
-    movs r0, #0
-    str r0, [r4, #0x18]
-    str r0, [r4, #0x1c]
-    b .L0803420A
-.L080341D0:
-    adds r0, r6, #0
-    cmp r6, #0
-    bge .L080341D8
-    rsbs r0, r6, #0
-.L080341D8:
-    adds r6, r0, #0
-    cmp r5, #1
-    beq .L080341F8
-    cmp r5, #1
-    bgt .L080341E8
-    cmp r5, #0
-    beq .L080341F2
-    b .L0803420A
-.L080341E8:
-    cmp r5, #2
-    beq .L08034200
-    cmp r5, #3
-    beq .L08034206
-    b .L0803420A
-.L080341F2:
-    str r6, [r4, #0x1c]
-    str r1, [r4, #0x18]
-    b .L0803420A
-.L080341F8:
-    rsbs r0, r6, #0
-    str r0, [r4, #0x1c]
-    str r1, [r4, #0x18]
-    b .L0803420A
-.L08034200:
-    rsbs r0, r6, #0
-    str r0, [r4, #0x18]
-    b .L08034208
-.L08034206:
-    str r6, [r4, #0x18]
-.L08034208:
-    str r1, [r4, #0x1c]
-.L0803420A:
-    adds r0, r4, #0
-    adds r0, #0x40
-    adds r5, r0, #0
-    ldrb r0, [r5]
-    cmp r7, r0
-    beq .L0803423E
-    movs r1, #1
-    rsbs r1, r1, #0
-    cmp r7, #2
-    beq .L08034224
-    cmp r7, #3
-    beq .L08034228
-    b .L0803422A
-.L08034224:
-    movs r1, #8
-    b .L0803422E
-.L08034228:
-    movs r1, #5
-.L0803422A:
-    cmp r1, #0
-    blt .L08034238
-.L0803422E:
-    adds r0, r4, #0
-    movs r2, #1
-    bl func_08032384
-    b .L0803423E
-.L08034238:
-    adds r0, r4, #0
-    bl func_080323C8
-.L0803423E:
-    strb r7, [r5]
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
     .section .text.npc_side.08034260, "ax", %progbits
 
@@ -3805,7 +3688,7 @@ func_08034940: @ 0x08034940
     lsls r3, r3, #8
     adds r0, r5, #0
     movs r1, #1
-    bl func_08034180
+    bl SetSpriteWorkerMovementState
     movs r0, #1
     b .L08034A0A
     .align 2, 0

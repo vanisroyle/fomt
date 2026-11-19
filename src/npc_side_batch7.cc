@@ -63,7 +63,7 @@ EC u32 RollEntityMovementRandom(u32 limit);
 EC bool RollSpriteWorkChance(u32 friendship);
 EC u32 GetSpriteWorkerFriendship(Npc const * self) asm("GetFriendship__C3Npc");
 EC bool TryAssignSpriteWorkerTask(SpriteWorkerEntity * self);
-EC void func_08034180(AActorEntity * self, u32 animation, u32 facing, u32 speed);
+EC void SetSpriteWorkerMovementState(AActorEntity * self, u32 animation, u32 facing, u32 speed);
 EC void SetNpcWalkingAnimation(AActorEntity * self, u32 animation);
 EC void SetNpcIdleAnimation(AActorEntity * self, u32 animation);
 EC u8 * GetActiveRosterNpc(u8 * roster);
@@ -97,7 +97,7 @@ EC void ChooseSpriteWorkerNextTask(SpriteWorkerEntity * self)
         u32 experience = record->GetTaskExp(task);
         timer.facing = (RollEntityMovementRandom(256 - experience) >> 6) + 2;
         self->record->method_0809E7D8(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
-        func_08034180(self, 0, self->facing, 0);
+        SetSpriteWorkerMovementState(self, 0, self->facing, 0);
     }
 }
 
