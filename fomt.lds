@@ -1138,6 +1138,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1EF4);
         src/g1_map_counts.o(.text.g1_080A1FC4);
         asm/g1_npc.o(.text.g1_after_b4_080A1FC4);
+        src/g1_calendar_numbers.o(.text.g1_080A3588);
+        asm/g1_npc.o(.text.g1_after_b9_080A3588);
         src/g1_scene_wrapper.o(.text.g1_080A3744);
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
@@ -1223,7 +1225,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A6640);
         asm/code_809E804.o(.text);
         src/g1_map_buffers.o(.text.080AA540);
-        asm/code_809E804.o(.text.080AA6D0);
+        src/game_state_part2.o(.text.080AA6D0);
         src/map_updates.o(.text.080AA850);
         src/map_updates.o(.text.080AA89C);
         src/map_updates.o(.text.080AA8BC);

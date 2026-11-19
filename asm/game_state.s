@@ -19142,7 +19142,7 @@ func_0801DEB4: @ 0x0801DEB4
     ldr r1, [sp, #0xc]
     mov r2, sb
     adds r3, r6, #0
-    bl func_080AA6D0
+    bl ApplyFieldPlotToMap
 .L0801E05C:
     movs r6, #2
     add sb, r6
