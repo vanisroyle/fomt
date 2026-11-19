@@ -14786,7 +14786,7 @@ func_080DB6CC: @ 0x080DB6CC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_080A3744
+	bl InitializeSpriteFeedingSceneWrapper
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -32797,7 +32797,7 @@ func_080E43B8: @ 0x080E43B8
 .L080E43EC:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080A4B6C
+	bl DestroyMapBuffers
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -35462,7 +35462,7 @@ func_080E596C: @ 0x080E596C
 	thumb_func_start func_080E59C0
 func_080E59C0: @ 0x080E59C0
 	push {lr}
-	bl func_080A4B6C
+	bl DestroyMapBuffers
 	pop {r0}
 	bx r0
 .align 2, 0

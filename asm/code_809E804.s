@@ -12500,7 +12500,7 @@ func_080AC9EC: @ 0x080AC9EC
 	str r2, [sp]
 	movs r2, #0
 	movs r3, #0
-	bl func_080A56DC
+	bl LoadMapAtLocation
 	movs r0, #0xa0
 	bl __builtin_new
 	adds r1, r6, #0
@@ -13751,7 +13751,7 @@ func_080AD3B0: @ 0x080AD3B0
 	adds r1, r7, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_080A56DC
+	bl LoadMapAtLocation
 	movs r0, #0xa0
 	bl __builtin_new
 	adds r1, r6, #0

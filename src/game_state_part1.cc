@@ -520,7 +520,7 @@ EC void func_080D7F74(GameStateRuntime & self);
 EC void func_080D7F60(GameStateRuntime & self);
 EC void SetMessageWindowSpeakerName(void * self, const char * name);
 EC void SetMessageWindowPortrait(void * self, u32 value);
-EC u32 func_0809FE3C(void * self, u32 value);
+EC u32 GetRosterNpcName(void * self, u32 value);
 EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
 EC void Scene_DestroyBase(GameStateScript & self, u32 flags);
@@ -1497,7 +1497,7 @@ EC void SECTION(".text.game_state_080126E4") GameScript_SetDialogueCharacterName
     GameStateRuntime & runtime = *script.runtime;
     void * window = runtime.dialogue.Get();
     if (window != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
-        SetMessageWindowSpeakerName(window, (char const *) func_0809FE3C(runtime.saveData + 0x1CD4, characterId));
+        SetMessageWindowSpeakerName(window, (char const *) GetRosterNpcName(runtime.saveData + 0x1CD4, characterId));
 }
 
 // 0x0801223C
