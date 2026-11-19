@@ -75,6 +75,8 @@ loop inside an enclosing block, preserving the original scope.
 ## Run and validate
 
 ```sh
+python3 -B tools/g3_permuter/test_harness.py
+
 "$HOME/permuter-venv/bin/python" "$HOME/decomp-permuter/permuter.py" \
     "$HOME/permutations/080B36B4" --debug --stack-diffs --algorithm levenshtein
 
