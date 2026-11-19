@@ -121,6 +121,26 @@ SECTIONS
         src/harvest_sprite.o(.text);
 
         asm/code_809E804.o(.text);
+        asm/code_080C8360.o(.text);
+        src/g5_ui.o(.text.g5_buttons);
+        asm/code_080C8360.o(.text.g5_CAC3C);
+        src/g5_ui.o(.text.g5_entry_init);
+        asm/code_080C8360.o(.text.g5_CAC7C);
+        src/g5_ui.o(.text.g5_entry_access);
+        asm/code_080C8360.o(.text.g5_CAD18);
+        src/g5_ui.o(.text.g5_entry_update);
+        asm/code_080C8360.o(.text.g5_CADB4);
+        src/g5_memory.o(.text);
+        src/g5_runtime.o(.text.g5_init);
+        asm/code_080D035C.o(.text);
+        src/g5_runtime.o(.text.g5_requests);
+        asm/code_080D035C.o(.text.g5_0490);
+        src/g5_runtime.o(.text.g5_queries);
+        asm/code_080D035C.o(.text.g5_06DC);
+        src/g5_runtime.o(.text.g5_commands);
+        src/g5_runtime.o(.text);
+        asm/code_080D0C68.o(.text);
+        asm/code_080D102C.o(.text);
 
         src/m4a_1.o(.text);
         src/m4a.o(.text);
