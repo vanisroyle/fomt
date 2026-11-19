@@ -151,6 +151,14 @@ EC void func_0802A510(FarmerEntityPart1 * self);
 EC void func_0800F4C0(HeldItem * self);
 EC void func_0800F4F0(HeldItem * self, u8 value);
 EC void func_0800F4D8(HeldItem * self);
+EC u32 func_08020018(u32 value);
+EC void func_080200C4(AActorEntity * self, u32 sound);
+
+struct AnimalTimerPairPart1
+{
+    u32 time;
+    u32 unknown;
+};
 
 inline void * EntitySoundChannelPart1(GameObject * game)
 {
@@ -183,6 +191,80 @@ inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC void func_080221F0(HorseEntityPart1 * self, Location const * target) ENTITY_CODE(080221F0);
+EC void func_080221F0(HorseEntityPart1 * self, Location const * target)
+{
+    if (target->GetMap() == self->GetMap())
+    {
+        u32 affection = self->horse->GetAffection();
+        i32 radius = func_08020018(affection);
+        i32 x = self->GetQ16X() >> 16;
+        i32 dx = target->GetX() - x;
+        i32 y = self->GetQ16Y() >> 16;
+        i32 dy = target->GetY() - y;
+        if (dx * dx + dy * dy <= radius * radius)
+        {
+            AnimalTimerPairPart1 timer;
+            timer.time = u16(480 + self->horse->GetAffection() * 960 / 256);
+            self->horse->method_0809BC30(reinterpret_cast<UnkBarnAnimal2C_x2 const *>(&timer));
+            if (!self->override_state)
+                func_08022048(self, func_080220D4(self), self->facing);
+            self->horse->SetHasTalkedToday();
+        }
+    }
+}
+
+EC void func_0802151C(DogEntityPart1 * self, Location const * target) ENTITY_CODE(0802151C);
+EC void func_0802151C(DogEntityPart1 * self, Location const * target)
+{
+    if (self->dog->GetGrowthStage() == 1 && target->GetMap() == self->GetMap())
+    {
+        u32 affection = self->dog->GetAdequacy();
+        i32 radius = func_08020018(affection);
+        i32 x = self->GetQ16X() >> 16;
+        i32 dx = target->GetX() - x;
+        i32 y = self->GetQ16Y() >> 16;
+        i32 dy = target->GetY() - y;
+        if (dx * dx + dy * dy <= radius * radius)
+        {
+            func_080200C4(self, 169);
+            if (self->dog->unk_20 == 5)
+                func_080212C0(self);
+            AnimalTimerPairPart1 timer;
+            timer.time = u16(480 + affection * 960 / 251);
+            self->dog->method_0809BB70(reinterpret_cast<UnkBarnAnimal2C_x2 const *>(&timer));
+            if (!self->override_state)
+                func_080211E4(self, func_08021264(self), self->facing);
+            self->dog->SetHasPlayedToday();
+        }
+    }
+}
+
+EC void func_08021444(DogEntityPart1 * self, Location const * target) ENTITY_CODE(08021444);
+EC void func_08021444(DogEntityPart1 * self, Location const * target)
+{
+    if (target->GetMap() == self->GetMap() && self->dog->unk_20 != 5)
+    {
+        u32 affection = self->dog->GetAffection();
+        i32 radius = func_08020018(affection);
+        i32 x = self->GetQ16X() >> 16;
+        i32 dx = target->GetX() - x;
+        i32 y = self->GetQ16Y() >> 16;
+        i32 dy = target->GetY() - y;
+        if (dx * dx + dy * dy <= radius * radius)
+        {
+            if (self->dog->unk_20 == 5)
+                func_080212C0(self);
+            AnimalTimerPairPart1 timer;
+            timer.time = u16(480 + affection * 960 / 251);
+            self->dog->method_0809BB54(reinterpret_cast<UnkBarnAnimal2C_x2 const *>(&timer));
+            if (!self->override_state)
+                func_080211E4(self, func_08021264(self), self->facing);
+            self->dog->SetHasTalkedToday();
+        }
+    }
+}
 
 EC bool func_08025944(FarmerEntityPart1 * self) ENTITY_CODE(08025944);
 EC bool func_08025944(FarmerEntityPart1 * self)
