@@ -1646,38 +1646,7 @@ func_08036F68: @ 0x08036F68
     .byte 0x5d, 0xff, 0x04, 0xb0, 0xf0, 0xbc, 0x01, 0xbc, 0x00, 0x47, 0x00, 0x00
     .section .text.npc_extra.08037008, "ax", %progbits
 
-    thumb_func_start func_08037008
-func_08037008: @ 0x08037008
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    adds r5, r2, #0
-    ldr r6, [sp, #0x14]
-    str r3, [sp]
-    movs r3, #2
-    bl __12AActorEntityP10GameObjectRC13ActorLocationUiUi
-    ldr r0, .L08037044 @ =vtable_unk_080E7328
-    str r0, [r4, #0x14]
-    str r5, [r4, #0x30]
-    adds r1, r4, #0
-    adds r1, #0x34
-    movs r0, #0
-    strh r0, [r4, #0x34]
-    strh r0, [r1, #2]
-    strh r0, [r1, #4]
-    strh r0, [r1, #6]
-    strh r6, [r4, #0x3c]
-    strh r0, [r4, #0x3e]
-    adds r1, #0xc
-    movs r0, #1
-    strb r0, [r1]
-    adds r0, r4, #0
-    add sp, #4
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037044: .4byte vtable_unk_080E7328
+    .section .text.npc_extra.08037048, "ax", %progbits
 
     thumb_func_start func_08037048
 func_08037048: @ 0x08037048
@@ -2582,7 +2551,7 @@ func_08037A5C: @ 0x08037A5C
     adds r1, r6, #0
     mov r2, r8
     ldr r3, .L08037AC8 @ =0x0000071C
-    bl func_08037008
+    bl InitializeMovingNpcBase
     ldr r0, .L08037ACC @ =vtable_unk_080E72E4
     str r0, [r5, #0x14]
     adds r2, r5, #0
@@ -2639,7 +2608,7 @@ func_08037AD0: @ 0x08037AD0
     mov r2, r8
     movs r3, #0xab
     lsls r3, r3, #2
-    bl func_08037008
+    bl InitializeMovingNpcBase
     ldr r0, .L08037B44 @ =vtable_unk_080E72A0
     str r0, [r5, #0x14]
     adds r2, r5, #0
@@ -2678,79 +2647,6 @@ func_08037AD0: @ 0x08037AD0
     bx r1
     .align 2, 0
 .L08037B44: .4byte vtable_unk_080E72A0
-
-    thumb_func_start func_08037B48
-func_08037B48: @ 0x08037B48
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r5, r0, #0
-    adds r6, r1, #0
-    movs r0, #0x44
-    bl __builtin_new
-    adds r4, r0, #0
-    movs r0, #0xc
-    str r0, [sp]
-    adds r0, r4, #0
-    adds r1, r5, #0
-    adds r2, r6, #0
-    ldr r3, .L08037B78 @ =0x00000379
-    bl func_08037008
-    ldr r0, .L08037B7C @ =vtable_unk_080E725C
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #4
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037B78: .4byte 0x00000379
-.L08037B7C: .4byte vtable_unk_080E725C
-
-    thumb_func_start func_08037B80
-func_08037B80: @ 0x08037B80
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r5, r0, #0
-    adds r6, r1, #0
-    movs r0, #0x44
-    bl __builtin_new
-    adds r4, r0, #0
-    movs r0, #0xa
-    str r0, [sp]
-    adds r0, r4, #0
-    adds r1, r5, #0
-    adds r2, r6, #0
-    ldr r3, .L08037BB0 @ =0x00000207
-    bl func_08037008
-    ldr r0, .L08037BB4 @ =vtable_unk_080E7218
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #4
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037BB0: .4byte 0x00000207
-.L08037BB4: .4byte vtable_unk_080E7218
-.L08037BB8:
-    .byte 0x10, 0xB5, 0x81, 0xB0, 0x04, 0x1C, 0x06, 0x4B
-    .byte 0x0A, 0x20, 0x00, 0x90, 0x20, 0x1C, 0xFF, 0xF7, 0x1F, 0xFA, 0x04, 0x48, 0x60, 0x61, 0x20, 0x1C
-    .byte 0x01, 0xB0, 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x07, 0x02, 0x00, 0x00, 0x18, 0x72, 0x0E, 0x08
-    .byte 0x10, 0xB5, 0x81, 0xB0, 0x04, 0x1C, 0x06, 0x4B, 0x0C, 0x20, 0x00, 0x90, 0x20, 0x1C, 0xFF, 0xF7
-    .byte 0x0B, 0xFA, 0x04, 0x48, 0x60, 0x61, 0x20, 0x1C, 0x01, 0xB0, 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47
-    .byte 0x79, 0x03, 0x00, 0x00, 0x5C, 0x72, 0x0E, 0x08, 0x30, 0xB5, 0x83, 0xB0, 0x05, 0x1C, 0x1C, 0x1C
-    .byte 0xAB, 0x23, 0x9B, 0x00, 0x0B, 0x20, 0x00, 0x90, 0x28, 0x1C, 0xFF, 0xF7, 0xF5, 0xF9, 0x11, 0x48
-    .byte 0x68, 0x61, 0x2A, 0x1C, 0x44, 0x32, 0x03, 0x20, 0x04, 0x40, 0x11, 0x78, 0x04, 0x20, 0x40, 0x42
-    .byte 0x08, 0x40, 0x20, 0x43, 0x10, 0x70, 0x01, 0xAB, 0xE6, 0x21, 0x89, 0x00, 0x90, 0x22, 0x52, 0x00
-    .byte 0x18, 0x1C, 0x01, 0x80, 0x5A, 0x80, 0xA4, 0x20, 0x40, 0x00, 0x09, 0x18, 0x99, 0x80, 0x08, 0x32
-    .byte 0xDA, 0x80, 0x28, 0x1C, 0x19, 0x1C, 0xFF, 0xF7, 0xF5, 0xFA, 0x28, 0x1C, 0x03, 0xB0, 0x30, 0xBC
-    .byte 0x02, 0xBC, 0x08, 0x47, 0xA0, 0x72, 0x0E, 0x08, 0x30, 0xB5, 0x83, 0xB0, 0x05, 0x1C, 0x1C, 0x1C
-    .byte 0x12, 0x4B, 0x00, 0x20, 0x00, 0x90, 0x28, 0x1C, 0xFF, 0xF7, 0xC6, 0xF9, 0x10, 0x48, 0x68, 0x61
-    .byte 0x2A, 0x1C, 0x44, 0x32, 0x03, 0x20, 0x04, 0x40, 0x11, 0x78, 0x04, 0x20, 0x40, 0x42, 0x08, 0x40
-    .byte 0x20, 0x43, 0x10, 0x70, 0x01, 0xAA, 0xB0, 0x21, 0x49, 0x00, 0xD8, 0x23, 0x10, 0x1C, 0x01, 0x80
-    .byte 0x53, 0x80, 0x38, 0x31, 0x91, 0x80, 0xE8, 0x20, 0xD0, 0x80, 0x28, 0x1C, 0x11, 0x1C, 0xFF, 0xF7
-    .byte 0xC9, 0xFA, 0x28, 0x1C, 0x03, 0xB0, 0x30, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x1C, 0x07, 0x00, 0x00
-    .byte 0xE4, 0x72, 0x0E, 0x08
 
     .section .text.npc_extra.08037CDC, "ax", %progbits
     .section .text.npc_extra.08037D08, "ax", %progbits
@@ -2890,30 +2786,7 @@ func_08037D74: @ 0x08037D74
     pop {r0}
     bx r0
 
-    thumb_func_start func_08037E18
-func_08037E18: @ 0x08037E18
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r4, r0, #0
-    adds r5, r1, #0
-    adds r6, r2, #0
-    mov r0, sp
-    adds r1, r6, #0
-    bl ItemCollection_GetExtraItems
-    adds r0, r4, #0
-    adds r1, r5, #0
-    mov r2, sp
-    bl __7AEntityP10GameObjectRC8Location
-    ldr r0, .L08037E44 @ =vtable_unk_080E73FC
-    str r0, [r4, #0x14]
-    str r6, [r4, #0x18]
-    adds r0, r4, #0
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037E44: .4byte vtable_unk_080E73FC
+    .section .text.npc_extra.08037E48, "ax", %progbits
 
     thumb_func_start func_08037E48
 func_08037E48: @ 0x08037E48
@@ -3833,54 +3706,6 @@ func_080385B0: @ 0x080385B0
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
-    thumb_func_start func_08038740
-func_08038740: @ 0x08038740
-    push {r4, r5, r6, lr}
-    mov r6, r8
-    push {r6}
-    sub sp, #8
-    adds r6, r0, #0
-    mov r8, r2
-    mov r2, sp
-    movs r5, #8
-    ldrh r3, [r2]
-    ldr r4, .L08038798 @ =0xFFFFFC00
-    adds r0, r4, #0
-    ands r0, r3
-    orrs r0, r5
-    strh r0, [r2]
-    ldrb r5, [r2, #1]
-    movs r3, #3
-    adds r0, r3, #0
-    ands r0, r5
-    strb r0, [r2, #1]
-    ldrh r5, [r2, #2]
-    adds r0, r4, #0
-    ands r0, r5
-    strh r0, [r2, #2]
-    ldrb r0, [r2, #3]
-    ands r3, r0
-    strb r3, [r2, #3]
-    ldrh r0, [r2, #4]
-    ands r4, r0
-    strh r4, [r2, #4]
-    adds r0, r6, #0
-    bl __7AEntityP10GameObjectRC8Location
-    ldr r0, .L0803879C @ =vtable_unk_080E7380
-    str r0, [r6, #0x14]
-    mov r0, r8
-    str r0, [r6, #0x18]
-    adds r0, r6, #0
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08038798: .4byte 0xFFFFFC00
-.L0803879C: .4byte vtable_unk_080E7380
 
     .section .text.npc_extra.0803880C, "ax", %progbits
 
@@ -7711,56 +7536,3 @@ func_0803A394: @ 0x0803A394
     bx r0
     .align 2, 0
 .L0803A794: .4byte vtable_unk_080E759C
-
-    thumb_func_start func_0803A798
-func_0803A798: @ 0x0803A798
-    push {r4, r5, r6, lr}
-    mov r6, r8
-    push {r6}
-    sub sp, #8
-    adds r6, r0, #0
-    mov r8, r1
-    movs r0, #0x20
-    bl __builtin_new
-    adds r5, r0, #0
-    mov r1, sp
-    ldrh r2, [r1]
-    ldr r3, .L0803A7FC @ =0xFFFFFC00
-    adds r0, r3, #0
-    ands r0, r2
-    strh r0, [r1]
-    ldrb r4, [r1, #1]
-    movs r2, #3
-    adds r0, r2, #0
-    ands r0, r4
-    strb r0, [r1, #1]
-    ldrh r4, [r1, #2]
-    adds r0, r3, #0
-    ands r0, r4
-    strh r0, [r1, #2]
-    ldrb r0, [r1, #3]
-    ands r2, r0
-    strb r2, [r1, #3]
-    ldrh r0, [r1, #4]
-    ands r3, r0
-    strh r3, [r1, #4]
-    adds r0, r5, #0
-    adds r1, r6, #0
-    mov r2, sp
-    bl __7AEntityP10GameObjectRC8Location
-    ldr r0, .L0803A800 @ =vtable_unk_080E7568
-    str r0, [r5, #0x14]
-    mov r0, r8
-    str r0, [r5, #0x18]
-    movs r0, #1
-    strb r0, [r5, #0x1c]
-    adds r0, r5, #0
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0803A7FC: .4byte 0xFFFFFC00
-.L0803A800: .4byte vtable_unk_080E7568

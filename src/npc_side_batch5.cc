@@ -108,3 +108,156 @@ EC u32 GetSpriteWorkerBaseAnimation(SpriteWorkerEntity * self)
     u16 const * animations = gUnk_080F14B8 + 14;
     return animations[self->sprite_id];
 }
+
+struct DirectedMovingNpc : MovingNpcEntity
+{
+    DirectedMovingNpc();
+    u8 direction : 2;
+    u8 flags : 6;
+};
+
+struct RecordedEffectEntity : AEntity
+{
+    RecordedEffectEntity();
+    void * record;
+    u8 active;
+};
+
+EC void InitializeActorBase(AActorEntity * self, GameObject * game, ActorLocation const & location, u32 layer, u32 animation)
+    asm("__12AActorEntityP10GameObjectRC13ActorLocationUiUi");
+EC void InitializeEntityBase(AEntity * self, GameObject * game, Location const & location)
+    asm("__7AEntityP10GameObjectRC8Location");
+EC Location ItemCollection_GetExtraItems(void * record);
+EC void SetNpcMovementBounds(MovingNpcEntity * self, Box const & bounds);
+EC u8 const vtable_unk_080E7328[];
+EC u8 const vtable_unk_080E7218[];
+EC u8 const vtable_unk_080E725C[];
+EC u8 const vtable_unk_080E72A0[];
+EC u8 const vtable_unk_080E72E4[];
+EC u8 const vtable_unk_080E7380[];
+EC u8 const vtable_unk_080E7568[];
+EC u8 const vtable_unk_080E73FC[];
+
+EC MovingNpcEntity * InitializeMovingNpcBase(MovingNpcEntity * self, GameObject * game, ActorLocation * location, u32 animation, u32 idle_animation) NPC_EXTRA_CODE(08037008);
+EC MovingNpcEntity * InitializeMovingNpcBase(MovingNpcEntity * self, GameObject * game, ActorLocation * location, u32 animation, u32 idle_animation)
+{
+    InitializeActorBase(self, game, *location, 2, animation);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7328;
+    self->saved_location = location;
+    Box * bounds = &self->movement_bounds;
+    bounds->x1 = 0;
+    bounds->y1 = 0;
+    bounds->x2 = 0;
+    bounds->y2 = 0;
+    self->animation = idle_animation;
+    self->timer = 0;
+    self->hidden = 1;
+    return self;
+}
+
+EC MovingNpcEntity * InitializeMovingNpcVariantSix(MovingNpcEntity * self, GameObject * game, ActorLocation * location) NPC_EXTRA_CODE(08037BB8);
+EC MovingNpcEntity * InitializeMovingNpcVariantSix(MovingNpcEntity * self, GameObject * game, ActorLocation * location)
+{
+    InitializeMovingNpcBase(self, game, location, 519, 10);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7218;
+    return self;
+}
+
+EC MovingNpcEntity * InitializeMovingNpcVariantSeven(MovingNpcEntity * self, GameObject * game, ActorLocation * location) NPC_EXTRA_CODE(08037BE0);
+EC MovingNpcEntity * InitializeMovingNpcVariantSeven(MovingNpcEntity * self, GameObject * game, ActorLocation * location)
+{
+    InitializeMovingNpcBase(self, game, location, 889, 12);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E725C;
+    return self;
+}
+
+EC MovingNpcEntity * CreateMovingNpcVariantSeven(GameObject * game, ActorLocation * location) NPC_EXTRA_CODE(08037B48);
+EC MovingNpcEntity * CreateMovingNpcVariantSeven(GameObject * game, ActorLocation * location)
+{
+    struct Storage
+    {
+        u8 bytes[0x44];
+        Storage(GameObject * game, ActorLocation * location)
+        {
+            MovingNpcEntity * self = reinterpret_cast<MovingNpcEntity *>(this);
+            InitializeMovingNpcBase(self, game, location, 889, 12);
+            reinterpret_cast<void const **>(self)[5] = vtable_unk_080E725C;
+        }
+    };
+    return reinterpret_cast<MovingNpcEntity *>(new Storage(game, location));
+}
+
+EC MovingNpcEntity * CreateMovingNpcVariantSix(GameObject * game, ActorLocation * location) NPC_EXTRA_CODE(08037B80);
+EC MovingNpcEntity * CreateMovingNpcVariantSix(GameObject * game, ActorLocation * location)
+{
+    struct Storage
+    {
+        u8 bytes[0x44];
+        Storage(GameObject * game, ActorLocation * location)
+        {
+            MovingNpcEntity * self = reinterpret_cast<MovingNpcEntity *>(this);
+            InitializeMovingNpcBase(self, game, location, 519, 10);
+            reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7218;
+        }
+    };
+    return reinterpret_cast<MovingNpcEntity *>(new Storage(game, location));
+}
+
+EC DirectedMovingNpc * InitializeDirectedMovingNpcOne(DirectedMovingNpc * self, GameObject * game, ActorLocation * location, u32 direction) NPC_EXTRA_CODE(08037C08);
+EC DirectedMovingNpc * InitializeDirectedMovingNpcOne(DirectedMovingNpc * self, GameObject * game, ActorLocation * location, u32 direction)
+{
+    InitializeMovingNpcBase(self, game, location, 684, 11);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E72A0;
+    self->direction = direction;
+    Box bounds(920, 288);
+    bounds.x2 += 328;
+    bounds.y2 += 8;
+    SetNpcMovementBounds(self, bounds);
+    return self;
+}
+
+EC DirectedMovingNpc * InitializeDirectedMovingNpcTwo(DirectedMovingNpc * self, GameObject * game, ActorLocation * location, u32 direction) NPC_EXTRA_CODE(08037C68);
+EC DirectedMovingNpc * InitializeDirectedMovingNpcTwo(DirectedMovingNpc * self, GameObject * game, ActorLocation * location, u32 direction)
+{
+    InitializeMovingNpcBase(self, game, location, 1820, 0);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E72E4;
+    self->direction = direction;
+    Box bounds(352, 216);
+    bounds.x2 += 56;
+    bounds.y2 += 16;
+    SetNpcMovementBounds(self, bounds);
+    return self;
+}
+
+EC RecordedEffectEntity * InitializeSideEffectEntity(RecordedEffectEntity * self, GameObject * game, void * record) NPC_EXTRA_CODE(08038740);
+EC RecordedEffectEntity * InitializeSideEffectEntity(RecordedEffectEntity * self, GameObject * game, void * record)
+{
+    Location location(8, 0, 0);
+    InitializeEntityBase(self, game, location);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7380;
+    self->record = record;
+    return self;
+}
+
+EC RecordedEffectEntity * CreateActiveSideEffectEntity(GameObject * game, void * record) NPC_EXTRA_CODE(0803A798);
+EC RecordedEffectEntity * CreateActiveSideEffectEntity(GameObject * game, void * record)
+{
+    struct Storage { u8 bytes[0x20]; };
+    RecordedEffectEntity * self = reinterpret_cast<RecordedEffectEntity *>(new Storage);
+    Location location(0, 0, 0);
+    InitializeEntityBase(self, game, location);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7568;
+    self->record = record;
+    self->active = 1;
+    return self;
+}
+
+EC RecordedEffectEntity * InitializeTimedReactionEntity(RecordedEffectEntity * self, GameObject * game, void * record) NPC_EXTRA_CODE(08037E18);
+EC RecordedEffectEntity * InitializeTimedReactionEntity(RecordedEffectEntity * self, GameObject * game, void * record)
+{
+    Location location = ItemCollection_GetExtraItems(record);
+    InitializeEntityBase(self, game, location);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E73FC;
+    self->record = record;
+    return self;
+}
