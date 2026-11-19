@@ -3724,7 +3724,7 @@ func_08039204: @ 0x08039204
     adds r1, r7, #0
     mov r2, sl
     adds r3, r6, #0
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds r1, r0, #0
     ldrb r0, [r4]
     cmp r0, r1
@@ -3899,7 +3899,7 @@ func_08039310: @ 0x08039310
     adds r1, r7, #0
     mov r2, sl
     mov r3, sb
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds r1, r0, #0
     ldrb r0, [r4]
     cmp r0, r1
