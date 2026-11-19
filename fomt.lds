@@ -893,7 +893,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803B0A8);
         asm/code_0803A8A4.o(.text.0803B128);
         src/code_0803A8A4.o(.text.0803B2A8);
-        asm/code_0803A8A4.o(.text.0803B368);
+        src/map_overlay_draw.o(.text.0803B368);
         src/code_0803A8A4.o(.text.0803B454);
         src/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);

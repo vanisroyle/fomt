@@ -13588,7 +13588,7 @@ func_080182C8: @ 0x080182C8
     cmp r0, #0
     beq .L0801848A
     add r1, sp, #0x14
-    bl func_0803B368
+    bl DrawMapOverlayParticles
 .L0801848A:
     ldr r0, .L08018528 @ =0x00001028
     add r0, sb
