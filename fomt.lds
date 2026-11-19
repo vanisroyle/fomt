@@ -130,6 +130,18 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
         asm/code_080C8360.o(.text.g5_CADB4);
+        src/g5_helpers.o(.text.g5_080CB2E8);
+        asm/code_080C8360.o(.text.g5_080CB304);
+        src/g5_helpers.o(.text.g5_080CC134);
+        asm/code_080C8360.o(.text.g5_080CC15C);
+        src/g5_helpers.o(.text.g5_080CC70C);
+        asm/code_080C8360.o(.text.g5_080CC728);
+        src/g5_helpers.o(.text.g5_080CD534);
+        asm/code_080C8360.o(.text.g5_080CD578);
+        src/g5_helpers.o(.text.g5_080CE184);
+        asm/code_080C8360.o(.text.g5_080CE19C);
+        src/g5_helpers.o(.text.g5_080CF050);
+        asm/code_080C8360.o(.text.g5_080CF05C);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
         asm/code_080D035C.o(.text);
