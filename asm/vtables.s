@@ -321,23 +321,23 @@ vtable_unk_080E5EC4: @ game object
 	.word func_08019FE8
 	.word func_0801A054 @ 30
 	.word func_0801A8E0
-	.word func_0801FD0C
-	.word 0x0801FD01
-	.word 0x0801FCF5
+	.word GameStateRemoveEntitySlot
+	.word GameStateGetEntitySlot
+	.word GameStateGetConstEntitySlot
 	.word 0x0801B5C1
-	.word 0x0801FCDD
-	.word 0x0801FCB5
+	.word GameStateClearSpriteCacheEntry
+	.word GameStateGetCachedSpriteSlot
 	.word 0x0801B9E9
 	.word 0x0801FD31
-	.word 0x0801FC55
-	.word 0x0801FC49
-	.word 0x0801FC61
-	.word 0x0801FC6D
-	.word 0x0801FC3D
-	.word 0x0801FC0D
-	.word 0x0801FC01
-	.word 0x0801FBF5
-	.word 0x0801FBE9
+	.word GameStateGetSpriteArchive2
+	.word GameStateGetSpriteArchive3
+	.word GameStateGetSpriteArchive1
+	.word GameStateGetSpriteArchive0
+	.word GameStateGetSpriteArchive4
+	.word GameStateGetSpriteArchive8
+	.word GameStateGetSpriteArchive9
+	.word GameStateGetSpriteArchive10
+	.word GameStateGetSpriteArchive11
 	.word GameStateStartMapViewTimer
 	.word GameStateApplyRow15TilePatchVariant1
 	.word GameStateApplyRow15TilePatchVariant2
@@ -381,8 +381,8 @@ vtable_unk_080E5EC4: @ game object
 	.word func_08019F38
 	.word func_0801D8CC
 	.word func_0801D948
-	.word func_0801FAA8
-	.word func_0801FAB8
+	.word GameStateLookupEntitySlot
+	.word GameStateLookupConstEntitySlot
 	.word 0x0801B499
 	.word 0x0801E085
 	.word 0x0801C0E1
