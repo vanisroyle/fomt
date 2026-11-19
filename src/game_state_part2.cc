@@ -5,6 +5,7 @@
 #include "entity.hh"
 #include "farm.hh"
 #include "farmer.hh"
+#include "utility/vec2.hh"
 
 struct GameStateAudioList;
 struct GameStateMapEffect;
@@ -2136,6 +2137,212 @@ EC SECTION(".text.game_state_c2.0801DE3C") void GameStateApplyMapTilePatchAtRow2
 EC SECTION(".text.game_state_c2.0801DE48") void GameStateQueueMapEvent1D(GameStateMapOwner & game)
 {
     RequestMap29Refresh(reinterpret_cast<MapUpdateState &>(*game.map_view));
+}
+
+EC SECTION(".text.game_state_c2.0801DEB4") bool GameStateClearNearestEligibleFarmPlot(GameStateMapOwner & owner, Vec2 const & center)
+{
+    register GameStateMapOwner & game asm("sl") = owner;
+    Vec2 const & point = center;
+    struct SearchState
+    {
+        Unk_Something const * outgoing_neighbor_tiles;
+        int best_distance;
+        int best_y;
+        int tile_x;
+        GameStateMapView * view;
+        int remaining;
+        GameStateFarmField * field;
+        int center_y;
+    } scratch;
+    const u32 field_offset_in_map_data = offsetof(GameStateMapData, farm) + offsetof(Farm, field);
+    scratch.best_distance = 0;
+    register int best_x asm("r8") = 0;
+    register u32 no_candidate asm("r1") = 0;
+    asm("" : "+l"(no_candidate) : "h"(best_x));
+    scratch.best_y = no_candidate;
+    register u32 found asm("ip") = no_candidate;
+    asm("" : : "h"(found));
+    register unsigned y asm("r4") = 0;
+
+    register GameStateMapData * data asm("r0") = game.map_data;
+    register u32 field_offset asm("r2") = field_offset_in_map_data;
+    register GameStateFarmField * farm_field asm("r2");
+    asm("add %0, %2, %0" : "=l"(farm_field) : "0"(field_offset), "l"(data) : "cc");
+    scratch.field = farm_field;
+    register int width asm("r1");
+    do
+    {
+        register unsigned x asm("r3") = 0;
+        register unsigned following asm("r6") = y + 1;
+        asm("" : "+l"(following) : "l"(x));
+        register unsigned next_y asm("r9") = following;
+        register int center_x asm("r5") = 280;
+        register unsigned offset asm("r0") = y * (Farm::FIELD_WIDTH * sizeof(FieldPlot));
+        register u32 field_row asm("r1") = reinterpret_cast<u32>(scratch.field);
+        asm("" : "+l"(field_row) : "l"(offset));
+        register FieldPlot * plot asm("r2") = reinterpret_cast<FieldPlot *>(offset + field_row);
+        scratch.center_y = y * 16 + 184;
+
+        do
+        {
+            FieldPlot const sample = *plot;
+            if (sample.GetUnk2() == 20 && sample.GetUnk8() == 5)
+            {
+                register int coordinate_offset asm("r6") = offsetof(Vec2, x);
+                register int origin_x asm("r1");
+                asm("ldrsh %0, [%1, %2]" : "=l"(origin_x) : "l"(&point), "l"(coordinate_offset), "m"(point.x));
+                register int dx asm("r1") = center_x - origin_x;
+                register int origin_y asm("r0") = point.y;
+                register int dy asm("r0") = scratch.center_y - origin_y;
+                register int dx_squared asm("r6") = dx * dx;
+                dx = dx_squared;
+                register int dy_squared asm("r6") = dy * dy;
+                asm("" : "+l"(dy_squared) : "l"(dx), "l"(dy));
+                dy = dy_squared;
+                asm("" : "+l"(dy) : "l"(dx));
+                register int distance asm("r1") = dx + dy;
+                register int candidate asm("r0") = distance;
+
+                register u32 already_found asm("r6") = found;
+                asm("" : : "l"(already_found), "l"(candidate));
+                if (!already_found || distance < scratch.best_distance)
+                {
+                    register u32 hit asm("r1") = 1;
+                    asm volatile ("" : : "l"(hit));
+                    found = hit;
+                    best_x = x;
+                    scratch.best_y = y;
+                    scratch.best_distance = candidate;
+                }
+            }
+            center_x += 16;
+            ++plot;
+            ++x;
+        } while (x < Farm::FIELD_WIDTH);
+        width = Farm::FIELD_WIDTH;
+        asm("" : "+l"(width));
+        y = next_y;
+    } while (y < Farm::FIELD_HEIGHT);
+    register u32 have_result asm("r2") = found;
+    asm("" : "+l"(have_result));
+    if (!have_result)
+        goto miss;
+    {
+        register GameStateMapData * current_data asm("r0") = game.map_data;
+        register u32 field_offset asm("r3") = field_offset_in_map_data;
+        asm("" : "+l"(field_offset) : "l"(current_data));
+        register FieldPlot * field asm("r0") = reinterpret_cast<FieldPlot *>(reinterpret_cast<u8 *>(current_data) + field_offset);
+        asm("" : "+l"(field));
+        register int selected_y asm("r6") = scratch.best_y;
+        register int selected_row asm("r1") = selected_y * width;
+        asm("" : "+l"(selected_row) : "l"(selected_y), "l"(field));
+        int x = best_x;
+        asm("" : "+l"(x) : "l"(selected_row) : "r5");
+        register int index asm("r4") = x + selected_row;
+        field[index].method_0800A3C8();
+        register GameStateMapOwner * map_owner asm("r1") = &game;
+        asm("" : "+l"(map_owner));
+        if (map_owner->vtable->get_map_id(game) == 2)
+        {
+            scratch.tile_x = x * 2 + 34;
+            register int position_y asm("r0") = selected_y * 2;
+            register GameStateMapOwner * owner_view asm("r2") = &game;
+            register GameStateMapView * view asm("r2") = owner_view->map_view;
+            scratch.view = view;
+            register int tile_y asm("r9") = position_y + 20;
+            register int row_index asm("r5") = index - Farm::FIELD_WIDTH;
+            register int row asm("r4") = selected_y;
+            asm("" : "+l"(row));
+            --row;
+            register int remaining asm("r3") = 2;
+            scratch.remaining = remaining;
+            register int rows_left asm("r7");
+            do
+            {
+                register GameStateMapData * data asm("r0") = game.map_data;
+                register u32 field_offset asm("r6") = field_offset_in_map_data;
+                asm("" : "+l"(field_offset) : "l"(data));
+                register FieldPlot * field asm("r1") = reinterpret_cast<FieldPlot *>(reinterpret_cast<u8 *>(data) + field_offset);
+                register u32 in_bounds asm("r0") = 0;
+                register int column asm("r7") = best_x;
+                if (column >= 0 && row >= 0 && column < Farm::FIELD_WIDTH && row < Farm::FIELD_HEIGHT)
+                    in_bounds = 1;
+                register FieldPlot * plot asm("r3");
+                if (in_bounds)
+                {
+                    register int offset asm("r0") = row_index * sizeof(FieldPlot);
+                    plot = reinterpret_cast<FieldPlot *>(reinterpret_cast<u8 *>(field) + offset);
+                }
+                else
+                    plot = nullptr;
+                register FieldPlot * selected asm("r6") = plot;
+                if (selected)
+                {
+                    register GameStateMapData * data asm("r0") = game.map_data;
+                    register u32 field_offset asm("r1") = field_offset_in_map_data;
+                    register FieldPlot * field asm("r2") = reinterpret_cast<FieldPlot *>(reinterpret_cast<u8 *>(data) + field_offset);
+                    register int this_row asm("r3") = row;
+                    register FieldPlot * current asm("ip") = &field[row_index];
+
+                    register int south_row asm("r0") = row + 1;
+                    register u32 south_in_bounds asm("r1") = 0;
+                    register int column asm("r7") = best_x;
+                    if (column >= 0 && south_row >= 0 && column < Farm::FIELD_WIDTH && south_row < Farm::FIELD_HEIGHT)
+                        south_in_bounds = 1;
+                    register FieldPlot * south asm("r1");
+                    if (south_in_bounds)
+                    {
+                        register int width asm("r1") = Farm::FIELD_WIDTH;
+                        south_row *= width;
+                        south_row += best_x;
+                        south = &field[south_row];
+                    }
+                    else
+                        south = nullptr;
+
+                    register int north_row asm("r0") = this_row - 1;
+                    register u32 north_in_bounds asm("r3") = 0;
+                    column = best_x;
+                    if (column >= 0 && north_row >= 0 && column < Farm::FIELD_WIDTH && north_row < Farm::FIELD_HEIGHT)
+                        north_in_bounds = 1;
+                    register FieldPlot * north asm("r2");
+                    if (north_in_bounds)
+                    {
+                        register int width asm("r3") = Farm::FIELD_WIDTH;
+                        north_row *= width;
+                        north_row += best_x;
+                        north = &field[north_row];
+                    }
+                    else
+                        north = nullptr;
+                    register Unk_Something const * adjacent asm("r0") = current->method_0800AF5C(south, north);
+                    asm volatile (
+                        ".ifnc \"%1\", \"[sp]\"\n\t"
+                        ".error \"Field redraw argument must be at the outgoing argument slot\"\n\t"
+                        ".endif\n\t"
+                        "str %0, %1\n\t"
+                        "ldr r0, %2\n\t"
+                        "ldr r1, %3\n\t"
+                        "mov r2, %4\n\t"
+                        "add r3, %5, #0\n\t"
+                        "bl func_080AA6D0"
+                        : "+l"(adjacent), "=m"(scratch.outgoing_neighbor_tiles)
+                        : "m"(scratch.view), "m"(scratch.tile_x), "h"(tile_y), "l"(selected)
+                        : "r1", "r2", "r3", "ip", "lr", "cc", "memory");
+                }
+                register int step asm("r6") = 2;
+                tile_y += step;
+                row_index += Farm::FIELD_WIDTH;
+                ++row;
+                rows_left = scratch.remaining;
+                rows_left--;
+                scratch.remaining = rows_left;
+            } while (rows_left >= 0);
+        }
+    }
+    return true;
+miss:
+    return false;
 }
 
 EC SECTION(".text.game_state_c2.0801DE54") int GameStateSetRecordPlayerAlbum(GameStateMapOwner & game, u32 album_id)

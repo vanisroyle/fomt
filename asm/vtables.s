@@ -372,7 +372,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateApplyMapTilePatchAtRow20
 	.word GameStateApplyMapTilePatchAtRow23
 	.word GameStateQueueMapEvent1D
-	.word func_0801DEB4
+	.word GameStateClearNearestEligibleFarmPlot
 	.word GameStateSetMapTileVariant
 	.word GameStateClearMapTileVariant
 	.word GameStateSettleShippingBin
