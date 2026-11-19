@@ -29205,7 +29205,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	adds r1, r7, #0
 	adds r1, #0xd0
 	mov r2, sp
-	bl func_080ADD78
+	bl UpdateMessageScript
 	cmp r0, #1
 	beq .L0804F8B8
 	cmp r0, #1
@@ -30844,7 +30844,7 @@ DrawMessageChoiceText: @ 0x080507F8
 	adds r0, r5, #0
 	adds r1, r6, #0
 	mov r2, sp
-	bl func_080ADD78
+	bl UpdateMessageScript
 	str r4, [sp]
 	cmp r0, #1
 	beq .L08050844
