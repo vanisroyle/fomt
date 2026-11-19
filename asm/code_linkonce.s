@@ -9555,7 +9555,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	ldr r0, [r6]
 	movs r4, #0xaa
 	lsls r4, r4, #3
@@ -9564,7 +9564,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r4]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	ldr r5, .L080D8AC0 @ =0x0000055C
 	add r5, sp
 	ldr r5, [r5]
@@ -12303,7 +12303,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	mov r0, sl
 	adds r0, #0xb4
 	ldr r0, [r0]
@@ -12314,7 +12314,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r4]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r0, #0
 	b .L080DA790
 	.align 2, 0
@@ -12736,7 +12736,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	mov r0, sl
 	adds r0, #0xb4
 	ldr r0, [r0]
@@ -12747,7 +12747,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r2]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r0, #0
 	b .L080DA804
 	.align 2, 0
@@ -13867,7 +13867,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r1, [r2]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r3, #0xaa
 	lsls r3, r3, #3
 	add r3, sp
@@ -13882,7 +13882,7 @@ sub_080DA76C: @ 0x080DA76C
 	beq .L080DAE54
 	ldr r0, [r6]
 	adds r0, #8
-	bl func_0803D440
+	bl HideClockToolIcon
 	b .L080DAE90
 	.align 2, 0
 .L080DAE3C: .4byte 0x00000544
@@ -13917,7 +13917,7 @@ sub_080DA76C: @ 0x080DA76C
 	lsrs r1, r1, #0x10
 	ldr r0, [r6]
 	adds r0, #8
-	bl func_0803D404
+	bl SetClockToolIcon
 .L080DAE90:
 	ldr r1, .L080DAFA8 @ =0x00000574
 	add r1, sp
@@ -18406,7 +18406,7 @@ func_080DD3D4: @ 0x080DD3D4
 	thumb_func_start func_080DD404
 func_080DD404: @ 0x080DD404
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18478,7 +18478,7 @@ func_080DD460: @ 0x080DD460
 	beq .L080DD48C
 	adds r0, r4, #0
 	movs r1, #0xcf
-	bl func_0803A350
+	bl PlaySideEntitySong
 .L080DD48C:
 	movs r0, #2
 	bl RollEntityMovementRandom
@@ -18532,7 +18532,7 @@ func_080DD460: @ 0x080DD460
 	thumb_func_start func_080DD4E4
 func_080DD4E4: @ 0x080DD4E4
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18623,7 +18623,7 @@ func_080DD540: @ 0x080DD540
 	thumb_func_start func_080DD588
 func_080DD588: @ 0x080DD588
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -18888,7 +18888,7 @@ func_080DD5E4: @ 0x080DD5E4
 	thumb_func_start func_080DD788
 func_080DD788: @ 0x080DD788
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19005,7 +19005,7 @@ func_080DD7E4: @ 0x080DD7E4
 	thumb_func_start func_080DD860
 func_080DD860: @ 0x080DD860
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19123,7 +19123,7 @@ func_080DD8BC: @ 0x080DD8BC
 	thumb_func_start func_080DD938
 func_080DD938: @ 0x080DD938
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19287,7 +19287,7 @@ func_080DD9CC: @ 0x080DD9CC
 .L080DDA62:
 	adds r0, r5, #0
 	movs r1, #0xce
-	bl func_0803A350
+	bl PlaySideEntitySong
 	b .L080DDBD6
 .L080DDA6C:
 	adds r2, r5, #0
@@ -19513,7 +19513,7 @@ func_080DD9CC: @ 0x080DD9CC
 	thumb_func_start func_080DDC18
 func_080DDC18: @ 0x080DDC18
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19821,7 +19821,7 @@ func_080DDC78: @ 0x080DDC78
 	thumb_func_start func_080DDE68
 func_080DDE68: @ 0x080DDE68
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -19912,7 +19912,7 @@ func_080DDEC4: @ 0x080DDEC4
 	thumb_func_start func_080DDF0C
 func_080DDF0C: @ 0x080DDF0C
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20003,7 +20003,7 @@ func_080DDF68: @ 0x080DDF68
 	thumb_func_start func_080DDFB0
 func_080DDFB0: @ 0x080DDFB0
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20092,7 +20092,7 @@ func_080DE00C: @ 0x080DE00C
 	thumb_func_start func_080DE050
 func_080DE050: @ 0x080DE050
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -20210,7 +20210,7 @@ func_080DE0AC: @ 0x080DE0AC
 	thumb_func_start func_080DE128
 func_080DE128: @ 0x080DE128
 	push {lr}
-	bl func_08039F50
+	bl DestroyActivityRenderSprite
 	pop {r0}
 	bx r0
 	.align 2, 0
