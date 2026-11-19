@@ -1,5 +1,6 @@
 #include "pet.hh"
 #include "sprite_animation.hh"
+#include "sprite_rendering.hh"
 
 #include <stdlib.h>
 
@@ -155,12 +156,15 @@ struct HorseRaceState
     u8 entry_animation[0x30] ALIGN(4);
     STRUCT_PAD(0x1A0, 0x358);
     SpriteAnimator betting_graphics;
-    STRUCT_PAD(0x36C, 0x600);
+    STRUCT_PAD(0x36C, 0x550);
+    SpriteAnimator betting_cursor;
+    SpriteFrameDrawOptions cursor_options;
+    STRUCT_PAD(0x580, 0x600);
     RaceObjAllocation betting_tiles, betting_palette;
     RaceObjAllocation betting_glyph_tiles, betting_glyph_palette;
     RaceObjAllocation prompt_palette;
     STRUCT_PAD(0x628, 0x640);
-    RaceObjAllocation entry_tiles, entry_palette;
+    RaceObjAllocation betting_cursor_tiles, betting_cursor_palette;
     STRUCT_PAD(0x650, 0x738);
     RaceGlyph glyphs[148];
     i16 glyph_count;
@@ -171,7 +175,9 @@ struct HorseRaceState
     i16 bg1_pattern_phase, bg2_pattern_phase, bg3_pattern_phase;
     STRUCT_PAD(0x13FC, 0x13FE);
     i16 selected_racer;
-    STRUCT_PAD(0x1400, 0x140E);
+    STRUCT_PAD(0x1400, 0x140A);
+    i16 betting_menu_selection;
+    STRUCT_PAD(0x140C, 0x140E);
     u8 player_is_racing;
     STRUCT_PAD(0x140F, 0x1414);
     int entry_funds;
@@ -1112,7 +1118,7 @@ EC SECTION(".text.f3.08059FE0") void LoadHorseRaceBettingTableGraphics(HorseRace
         asm ("" : "+l" (palette_slice));
         register u16 const * palette asm("r4") = work.frame.palette.data;
         asm ("" : "+l" (palette));
-        register RaceObjAllocation * resource asm("r0") = RACE_TABLE_ALLOCATION(entry_palette);
+        register RaceObjAllocation * resource asm("r0") = RACE_TABLE_ALLOCATION(betting_cursor_palette);
         asm ("" : "+l" (resource));
         register u32 palette_offset asm("r0") = ResolveRaceObjPalette(resource, resource->handle) * TILE_BYTES;
         asm ("" : "+l" (palette_offset));
@@ -1131,7 +1137,7 @@ EC SECTION(".text.f3.08059FE0") void LoadHorseRaceBettingTableGraphics(HorseRace
         asm ("" : "+l" (tile_slice));
         register u8 const * tiles asm("r5") = work.frame.tiles.data;
         asm ("" : "+l" (tiles));
-        resource = RACE_TABLE_ALLOCATION(entry_tiles);
+        resource = RACE_TABLE_ALLOCATION(betting_cursor_tiles);
         asm ("" : "+l" (resource));
         register u32 tile_offset asm("r0") = ResolveRaceObjTile(resource, resource->handle) * TILE_BYTES;
         asm ("" : "+l" (tile_offset));
@@ -1451,3 +1457,473 @@ EC SECTION(".text.f3.08059FE0") void LoadHorseRaceBettingTableGraphics(HorseRace
 #undef RACE_TABLE_CONSTANT
 #undef RACE_TABLE_ALLOCATION
 #undef RACE_TABLE_STACK
+
+EC SpriteOamBuffer * GetRaceBettingOam(HorseRaceState *) asm("HardwareContext_GetOamBuffer");
+
+#define RACE_BETTING_FIELD(reg, field) ({ \
+    register uintptr_t offset asm(reg) = offsetof(HorseRaceState, field); \
+    asm ("" : "+l" (offset)); \
+    reinterpret_cast<__typeof__(&self->field)>(reinterpret_cast<u8 *>(self) + offset); \
+})
+
+#define RACE_BETTING_LITERAL(reg, field) ({ \
+    register u32 constant asm(reg); \
+    asm ("ldr %0, .Lrace_betting_objects_" #field : "=l" (constant)); \
+    constant; \
+})
+
+#define RACE_BETTING_DRAW_FRAME(result, block_reg) do { \
+    CopyRaceFrame(result, result, sizeof(work.frame)); \
+    register RaceFrameView * target asm("r1"); \
+    asm ("add %0, sp, %1" : "=l" (target) : "i" (offsetof(__typeof__(work), frame))); \
+    register RaceFrameView * output asm("r0") = result; \
+    asm volatile ("ldmia %1!, {r2, r3, " block_reg "}\n\tstmia %0!, {r2, r3, " block_reg "}\n\t" \
+        "ldmia %1!, {r2, r3, " block_reg "}\n\tstmia %0!, {r2, r3, " block_reg "}\n\t" \
+        "ldmia %1!, {r2, r3}\n\tstmia %0!, {r2, r3}" \
+        : "+l" (target), "+l" (output) : : "r2", "r3", block_reg, "memory"); \
+} while (0)
+
+#define RACE_BETTING_COPY_DRAW_FRAME() do { \
+    register RaceFrameView * frame_result asm("r0") = work.fetched_pointer; \
+    asm ("" : "+l" (frame_result)); \
+    CopyRaceFrame(frame_result, frame_result, sizeof(work.frame)); \
+    register RaceFrameView * target asm("r1") = &work.frame; \
+    asm ("" : "+l" (target)); \
+    register RaceFrameView * box asm("r0") = work.fetched_pointer; \
+    asm ("" : "+l" (box)); \
+    asm volatile ("ldmia %1!, {r2, r3, r7}\n\tstmia %0!, {r2, r3, r7}\n\t" \
+        "ldmia %1!, {r2, r3, r7}\n\tstmia %0!, {r2, r3, r7}\n\t" \
+        "ldmia %1!, {r2, r3}\n\tstmia %0!, {r2, r3}" \
+        : "+l" (target), "+l" (box) : : "r2", "r3", "r7", "memory"); \
+} while (0)
+
+#define RACE_BETTING_SUBMIT_FRAME(temp_reg) do { \
+    register SpriteOamBuffer * oam asm("r0") = GetRaceBettingOam(self); \
+    asm ("" : "+l" (oam)); \
+    register SpriteOamBuffer * sprites asm("r3") = oam; \
+    asm ("" : "+l" (sprites)); \
+    register SpriteFrameObject const * objects asm("r0") = work.frame.objects.data; \
+    asm ("" : "+l" (objects)); \
+    register SpriteFrameObject const * list asm("r1") = objects; \
+    asm ("" : "+l" (list)); \
+    register u32 count asm("r2") = 0; \
+    asm ("" : "+l" (count)); \
+    if (list != nullptr) { \
+        register SpriteFrameDrawOptions * stack asm(temp_reg); \
+        asm ("mov %0, sp" : "=l" (stack)); \
+        asm ("ldrh %0, [%1, %2]" : "=l" (count) : "l" (stack), \
+            "i" (offsetof(__typeof__(work), frame.objects.length)) : "memory"); \
+    } \
+    DrawSpriteFrameObjects(sprites, reinterpret_cast<SpriteAttributes const *>(list), count, &work.options); \
+} while (0)
+
+EC SECTION(".text.f3.0805A744") void DrawHorseRaceBettingScreenObjects(HorseRaceState * race)
+{
+    enum
+    {
+        RACER_SLOTS = 4,
+        ROW_SPACING = 16,
+        CURSOR_FIRST_ROW_X = 12,
+        CURSOR_FIRST_ROW_Y = 56,
+        CURSOR_CONFIRM_X = 28,
+        CURSOR_CONFIRM_Y = 128,
+        RACER_ICON_X = 16,
+        RACER_ICON_FIRST_Y = 48,
+        RACER_ICON_TILE_STRIDE = 4,
+        PALETTE_MASK = 0xF,
+        TILE_MASK = 0x3FF,
+        X_MASK = 0x1FF,
+        OBJECT_PRIORITY = 2,
+        PROMPT_GLYPH = 24,
+        SHAPE_TALL = 2 << 14,
+        SIZE_MASK = 3u << 30,
+    };
+    // Keep the frame copies and OAM scratch space in the original stack slots.
+    struct
+    {
+        SpriteFrameDrawOptions options;
+        RaceFrameView frame;
+        RaceFrameView fetched;
+        SpriteFrameObject glyph;
+        RaceFrameView * fetched_pointer;
+    } work;
+
+    register HorseRaceState * self asm("r5") = race;
+    asm ("" : "+l" (self));
+    register SpriteFrameDrawOptions * initial asm("r1") = &work.options;
+    asm ("" : "+l" (initial));
+    register u32 zero_byte asm("r2") = 0;
+    asm ("" : "+l" (zero_byte));
+    register u32 zero asm("r0") = 0;
+    asm ("" : "+l" (zero));
+    asm volatile (
+        "strh %0, [%2]\n\tstrh %0, [%2, #2]\n\tstrh %0, [%2, #4]\n\tstrh %0, [%2, #6]\n\tstrh %0, [%2, #8]\n\t"
+        "str %0, [sp, #12]\n\tstrb %1, [%2, #16]\n\tstrb %1, [%2, #17]\n\tstr %0, [sp, #20]\n\tstrb %1, [%2, #24]"
+        : : "l" (zero), "l" (zero_byte), "l" (initial) : "memory");
+
+#define CLEAR_SLICE(field, reg) do { \
+    register void * slice asm(reg); \
+    asm ("add %0, sp, %1" : "=l" (slice) : "i" (offsetof(__typeof__(work), frame.field))); \
+    asm volatile ("str %0, [sp, %2]\n\tstrh %0, [%1, #4]" : : \
+        "l" (zero), "l" (slice), "i" (offsetof(__typeof__(work), frame.field)) : "memory"); \
+} while (0)
+    CLEAR_SLICE(objects, "r2");
+    CLEAR_SLICE(tiles, "r1");
+    CLEAR_SLICE(palette, "r1");
+    CLEAR_SLICE(extras, "r1");
+#undef CLEAR_SLICE
+
+    register uintptr_t selection_field asm("r0") = RACE_BETTING_LITERAL("r0", selection);
+    register i16 * selection asm("r6") = reinterpret_cast<i16 *>(reinterpret_cast<uintptr_t>(self) + selection_field);
+    asm ("" : "+l" (selection));
+    register u32 selection_start asm("r1") = 0;
+    asm ("" : "+l" (selection_start));
+    register int slot asm("r0");
+    asm ("ldrsh %0, [%1, %2]" : "=l" (slot) : "l" (selection), "l" (selection_start) : "memory");
+    register RaceFrameView * fetched = &work.fetched;
+    asm ("" : "+l" (fetched));
+    if (slot >= 0)
+    {
+        register SpriteAnimator * cursor asm("r4") = RACE_BETTING_FIELD("r2", betting_cursor);
+        asm ("" : "+l" (cursor));
+        AdvanceSpriteAnimator(cursor);
+        register RaceFrameSource const * source asm("r1") = reinterpret_cast<RaceFrameSource const *>(cursor->source);
+        register RaceFrameSourceVTable const * vtable asm("r3") = source->vtable;
+        register u32 keyframe asm("r2") = cursor->keyframe;
+        asm ("" : "+l" (source), "+l" (vtable), "+l" (keyframe));
+        register uintptr_t clip_field asm("r4") = RACE_BETTING_LITERAL("r4", cursor_clip);
+        register SpriteAnimationClip const * cursor_clip asm("r0") =
+            reinterpret_cast<SpriteAnimationClip const *>(reinterpret_cast<uintptr_t>(self) + clip_field);
+        asm ("" : "+l" (cursor_clip));
+        register u32 frame_index asm("r2") = keyframe * sizeof(SpriteKeyframe);
+        asm ("" : "+l" (frame_index));
+        register SpriteKeyframe const * keyframes asm("r0") = cursor_clip->keyframes;
+        asm ("" : "+l" (keyframes));
+        register u32 frame_id asm("r2") = reinterpret_cast<SpriteKeyframe const *>(
+            reinterpret_cast<uintptr_t>(keyframes) + frame_index)->frame;
+        asm ("" : "+l" (frame_id));
+        register RaceFrameView * target asm("r0") = fetched;
+        asm ("" : "+l" (target));
+        vtable->get_frame(target, source, frame_id);
+        RACE_BETTING_DRAW_FRAME(fetched, "r4");
+
+        register SpriteFrameDrawOptions * cursor_draw asm("r1") = &work.options;
+        asm ("" : "+l" (cursor_draw));
+        register uintptr_t style_field asm("r4") = RACE_BETTING_LITERAL("r4", cursor_style);
+        register SpriteFrameDrawOptions const * cursor_style asm("r0") =
+            reinterpret_cast<SpriteFrameDrawOptions const *>(reinterpret_cast<uintptr_t>(self) + style_field);
+        asm volatile ("ldmia %1!, {r2, r3, r4}\n\tstmia %0!, {r2, r3, r4}\n\t"
+            "ldmia %1!, {r2, r3, r4}\n\tstmia %0!, {r2, r3, r4}\n\t"
+            "ldr %1, [%1]\n\tstr %1, [%0]"
+            : "+l" (cursor_draw), "+l" (cursor_style) : : "r2", "r3", "r4", "memory");
+        register SpriteFrameDrawOptions * cursor_offset_x asm("r2") = &work.options;
+        asm ("" : "+l" (cursor_offset_x));
+        register u32 selection_offset asm("r1") = 0;
+        asm ("" : "+l" (selection_offset));
+        register int current_slot asm("r0");
+        asm ("ldrsh %0, [%1, %2]" : "=l" (current_slot) : "l" (selection), "l" (selection_offset) : "memory");
+        register u32 cursor_x asm("r1") = CURSOR_CONFIRM_X;
+        asm ("" : "+l" (cursor_x));
+        asm ("cmp %1, %2\n\tbgt 1f\n\tmov %0, %3\n1:" : "+l" (cursor_x)
+            : "l" (current_slot), "i" (RACER_SLOTS - 1), "i" (CURSOR_FIRST_ROW_X) : "cc");
+        asm volatile ("strh %0, [%1]" : : "l" (cursor_x), "l" (cursor_offset_x) : "memory");
+        register SpriteFrameDrawOptions * cursor_offset_y asm("r1") = &work.options;
+        asm ("" : "+l" (cursor_offset_y));
+        register int cursor_y asm("r0");
+        // The original literal pool occupies the gap between the two cursor positions.
+        typedef char CursorPoolOffsetsMatch[
+            offsetof(HorseRaceState, betting_menu_selection) == 0x140A &&
+            offsetof(HorseRaceState, betting_cursor.clip) == 0x554 &&
+            offsetof(HorseRaceState, cursor_options) == 0x564 ? 1 : -1];
+        asm ("cmp %1, %3\n\tbgt 1f\n\tmov r2, #0\n\tldrsh %0, [%2, r2]\n\tlsl %0, %0, %4\n\tadd %0, %5\n\tb 2f\n"
+            ".balign 4, 0\n"
+            ".Lrace_betting_objects_selection: .word 0x140A\n"
+            ".Lrace_betting_objects_cursor_clip: .word 0x554\n"
+            ".Lrace_betting_objects_cursor_style: .word 0x564\n"
+            "1:\n\tmov %0, %6\n2:" : "=l" (cursor_y)
+            : "l" (current_slot), "l" (selection), "i" (RACER_SLOTS - 1), "i" (4), "i" (CURSOR_FIRST_ROW_Y),
+              "i" (CURSOR_CONFIRM_Y) : "r2", "cc", "memory");
+        asm volatile ("strh %0, [%1, #2]" : : "l" (cursor_y), "l" (cursor_offset_y) : "memory");
+        register RaceObjAllocation * tiles asm("r0") = RACE_BETTING_FIELD("r3", betting_cursor_tiles);
+        asm ("" : "+l" (tiles));
+        work.options.tile_base = ResolveRaceObjTile(tiles, tiles->handle);
+        register RaceObjAllocation * palette asm("r0") = RACE_BETTING_FIELD("r4", betting_cursor_palette);
+        asm ("" : "+l" (palette));
+        work.options.palette_base = ResolveRaceObjPalette(palette, palette->handle);
+        work.options.priority = OBJECT_PRIORITY;
+        work.options.mosaic = true;
+        RACE_BETTING_SUBMIT_FRAME("r0");
+    }
+
+    register int racer asm("r6") = 0;
+    asm ("" : "+l" (racer));
+    register SpriteAnimationClip const * betting_clip asm("r10") = RACE_BETTING_FIELD("r1", betting_graphics.clip);
+    asm ("" : "+r" (betting_clip));
+    register SpriteFrameObject * glyph_stack asm("r2") = &work.glyph;
+    asm ("" : "+l" (glyph_stack));
+    register SpriteFrameObject * glyph asm("r9") = glyph_stack;
+    asm ("" : "+r" (glyph));
+    register SpriteAnimator * icon asm("r8") = RACE_BETTING_FIELD("r3", betting_graphics);
+    asm ("" : "+r" (icon));
+    register SpriteFrameDrawOptions * icon_draw asm("r4") = &work.options;
+    asm ("" : "+l" (icon_draw));
+    work.fetched_pointer = fetched;
+    do
+    {
+        SetSpriteAnimatorClip(icon, racer);
+        register SpriteAnimator * current_icon asm("r7") = icon;
+        asm ("" : "+l" (current_icon));
+        register RaceFrameSource const * source asm("r1");
+        asm ("ldr %0, [%1]" : "=l" (source) : "l" (current_icon) : "memory");
+        register RaceFrameSourceVTable const * vtable asm("r3") = source->vtable;
+        asm ("" : "+l" (vtable));
+        register u32 keyframe asm("r2");
+        asm ("ldrh %0, [%1, %2]" : "=l" (keyframe)
+            : "l" (current_icon), "i" (offsetof(SpriteAnimator, keyframe)) : "memory");
+        asm ("" : "+l" (source), "+l" (vtable), "+l" (keyframe));
+        register u32 frame_index asm("r2") = keyframe * sizeof(SpriteKeyframe);
+        asm ("" : "+l" (frame_index));
+        register SpriteAnimationClip const * clip asm("r7") = betting_clip;
+        asm ("" : "+l" (clip));
+        register SpriteKeyframe const * keyframes asm("r0") = clip->keyframes;
+        asm ("" : "+l" (keyframes));
+        register u32 frame_id asm("r2") = reinterpret_cast<SpriteKeyframe const *>(
+            reinterpret_cast<uintptr_t>(keyframes) + frame_index)->frame;
+        asm ("" : "+l" (frame_id));
+        register RaceFrameView * target asm("r0") = &work.fetched;
+        asm ("" : "+l" (target));
+        vtable->get_frame(target, source, frame_id);
+        RACE_BETTING_COPY_DRAW_FRAME();
+        icon_draw->offset_x = RACER_ICON_X;
+        icon_draw->offset_y = racer * ROW_SPACING + RACER_ICON_FIRST_Y;
+        RaceObjAllocation * palette = RACE_BETTING_FIELD("r7", betting_palette);
+        icon_draw->palette_base = ResolveRaceObjPalette(palette, palette->handle);
+        RaceObjAllocation * tiles = RACE_BETTING_FIELD("r1", betting_tiles);
+        icon_draw->tile_base = ResolveRaceObjTile(tiles, tiles->handle) + racer * RACER_ICON_TILE_STRIDE;
+        icon_draw->priority = OBJECT_PRIORITY;
+        icon_draw->mosaic = true;
+        RACE_BETTING_SUBMIT_FRAME("r7");
+        ++racer;
+        asm ("" : "+l" (racer));
+    } while (racer < static_cast<int>(RACER_SLOTS));
+
+    enum { AFFINE_MASK = 3 << 8, OBJECT_MODE_MASK = 3 << 10, MOSAIC = 1 << 12,
+        COLOR_MODE_MASK = 1 << 13, SHAPE_MASK = 3 << 14, AFFINE_PARAM_MASK = 7 << 25,
+        HFLIP_MASK = 1 << 28, VFLIP_MASK = 1 << 29 };
+
+#define CLEAR_GLYPH_BITS(field_mask) do { \
+    register u32 mask asm("r1") = ~(field_mask); \
+    asm ("" : "+l" (mask)); \
+    asm ("and %0, %1" : "+l" (flags) : "l" (mask) : "cc"); \
+} while (0)
+    register u32 mask asm("r1") = ~AFFINE_MASK;
+    asm ("" : "+l" (mask));
+    register u32 flags asm("r0");
+    asm ("ldr %0, [sp, %2]\n\tand %0, %1" : "=l" (flags) : "l" (mask),
+        "i" (offsetof(__typeof__(work), glyph.attributes[0])) : "cc", "memory");
+    CLEAR_GLYPH_BITS(OBJECT_MODE_MASK);
+    register u32 mosaic asm("r1") = MOSAIC;
+    asm ("" : "+l" (mosaic));
+    asm ("orr %0, %1" : "+l" (flags) : "l" (mosaic) : "cc");
+    CLEAR_GLYPH_BITS(COLOR_MODE_MASK);
+    CLEAR_GLYPH_BITS(SHAPE_MASK);
+    CLEAR_GLYPH_BITS(AFFINE_PARAM_MASK);
+    CLEAR_GLYPH_BITS(HFLIP_MASK);
+    CLEAR_GLYPH_BITS(VFLIP_MASK);
+    register u32 clear_size asm("r1") = ~SIZE_MASK;
+    asm ("" : "+l" (clear_size));
+    asm ("and %0, %1\n\tadd %1, #1\n\torr %0, %1" : "+l" (flags), "+l" (clear_size) : : "cc");
+    work.glyph.attributes[0] = flags;
+#undef CLEAR_GLYPH_BITS
+
+#define RACE_GLYPH_PALETTE(reg, field, glyph_reg) do { \
+    register RaceObjAllocation * palette asm("r0") = RACE_BETTING_FIELD(reg, field); \
+    asm ("" : "+l" (palette)); \
+    register u32 palette_index asm("r0") = ResolveRaceObjPalette(palette, palette->handle); \
+    register u32 palette_bits asm("r0"); \
+    asm ("lsl %0, %1, #16\n\tlsr %0, %0, #16" : "=l" (palette_bits) : "l" (palette_index) : "cc"); \
+    register u32 palette_mask asm("r1") = PALETTE_MASK; \
+    asm ("" : "+l" (palette_mask)); \
+    asm ("and %0, %1\n\tlsl %0, %0, #12" : "+l" (palette_bits) : "l" (palette_mask) : "cc"); \
+    register u32 clear_palette asm("r2") = ~(PALETTE_MASK << 12); \
+    asm ("" : "+l" (clear_palette)); \
+    register SpriteFrameObject * palette_out asm(glyph_reg) = glyph; \
+    asm ("" : "+l" (palette_out)); \
+    register u32 attrs asm("r1"); \
+    asm ("ldr %0, [%1, #4]\n\tand %0, %2\n\torr %0, %3" : "=&l" (attrs) : \
+        "l" (palette_out), "l" (clear_palette), "l" (palette_bits) : "cc", "memory"); \
+    FINISH_RACE_PALETTE(attrs, palette_out); \
+} while (0)
+
+#define FINISH_RACE_PALETTE(attrs, palette_out) do { \
+    register u32 mask asm("r0") = 0xFFFF; \
+    asm ("" : "+l" (mask)); \
+    asm volatile ("and %0, %2\n\tstr %0, [%1, #4]" : "+l" (attrs) : "l" (palette_out), "l" (mask) : "cc", "memory"); \
+} while (0)
+    RACE_GLYPH_PALETTE("r1", betting_glyph_palette, "r3");
+#undef FINISH_RACE_PALETTE
+
+    enum { GLYPH_STRIDE_SHIFT = 3 };
+    register uintptr_t count_offset asm("r2");
+#define POP_RACE_GLYPH() ({ \
+    count_offset = offsetof(HorseRaceState, glyph_count); \
+    asm ("" : "+l" (count_offset)); \
+    register i16 * glyph_count asm("r1") = reinterpret_cast<i16 *>(reinterpret_cast<uintptr_t>(self) + count_offset); \
+    asm ("" : "+l" (glyph_count)); \
+    register i32 glyph_index asm("r0"); \
+    asm volatile ("ldrh %0, [%1]\n\tsub %0, #1\n\tstrh %0, [%1]\n\tlsl %0, %0, #16" \
+        : "=l" (glyph_index) : "l" (glyph_count) : "cc", "memory"); \
+    asm ("" : "+l" (count_offset)); \
+    glyph_index; \
+})
+
+#define RACE_GLYPH_READ(name, field_offset_reg, zero_reg, is_signed, field) \
+    register u32 zero_idx asm(zero_reg) = 0; \
+    asm ("" : "+l" (zero_idx)); \
+    register int glyph_byte_offset asm("r1"); \
+    asm ("ldrsh %0, [%1, %2]\n\tlsl %0, %0, %3" : "=l" (glyph_byte_offset) \
+        : "l" (active_index), "l" (zero_idx), "i" (GLYPH_STRIDE_SHIFT) : "cc", "memory"); \
+    register uintptr_t member_offset asm(field_offset_reg) = \
+        offsetof(HorseRaceState, glyphs) + offsetof(RaceGlyph, field); \
+    asm ("" : "+l" (member_offset)); \
+    register uintptr_t field_base asm("r0") = reinterpret_cast<uintptr_t>(self) + member_offset; \
+    asm ("" : "+l" (field_base)); \
+    register void const * field_pointer asm("r0") = reinterpret_cast<void const *>(field_base + glyph_byte_offset); \
+    asm ("" : "+l" (field_pointer)); \
+    register u32 name asm("r1"); \
+    is_signed
+
+#define RACE_GLYPH_LDRH asm ("ldrh %0, [%1]" : "=l" (value) : "l" (field_pointer) : "memory");
+#define RACE_GLYPH_LDRB asm ("ldrb %0, [%1]" : "=l" (value) : "l" (field_pointer) : "memory");
+#define RACE_GLYPH_LDRSH \
+    register u32 zero_shift asm("r3") = 0; \
+    asm ("" : "+l" (zero_shift)); \
+    asm ("ldrsh %0, [%1, %2]" : "=l" (value) : "l" (field_pointer), "l" (zero_shift) : "memory");
+
+    register i32 remaining asm("r0") = POP_RACE_GLYPH();
+    if (remaining < 0)
+        return;
+    register SpriteFrameObject * glyph_output asm("r6") = glyph;
+    asm ("" : "+l" (glyph_output));
+    register uintptr_t tile_field asm("r4") = offsetof(HorseRaceState, glyphs) + offsetof(RaceGlyph, tile);
+    asm ("" : "+l" (tile_field));
+    register uintptr_t glyph_tile_base asm("r7") = reinterpret_cast<uintptr_t>(self) + tile_field;
+    asm ("" : "+l" (glyph_tile_base));
+    do
+    {
+        register i16 const * active_index asm("r4") =
+            reinterpret_cast<i16 const *>(reinterpret_cast<uintptr_t>(self) + count_offset);
+        asm ("" : "+l" (active_index));
+        {
+            RACE_GLYPH_READ(value, "r2", "r0", RACE_GLYPH_LDRH, oam_priority)
+            register u32 keep_priority asm("r0") = 3;
+            asm ("" : "+l" (keep_priority));
+            asm ("and %0, %1\n\tlsl %0, %0, #10" : "+l" (value) : "l" (keep_priority) : "cc");
+            register u32 clear_priority asm("r2") = ~OBJECT_MODE_MASK;
+            asm ("" : "+l" (clear_priority));
+            asm volatile ("ldr r0, [%0, #4]\n\tand r0, %2\n\torr r0, %1\n\tstr r0, [%0, #4]" :
+                : "l" (glyph_output), "l" (value), "l" (clear_priority) : "r0", "cc", "memory");
+        }
+        register u32 position asm("r2");
+        {
+            RACE_GLYPH_READ(value, "r2", "r3", RACE_GLYPH_LDRSH, x)
+            register u32 x_mask asm("r0") = X_MASK;
+            asm ("" : "+l" (x_mask));
+            asm ("and %0, %1\n\tlsl %0, %0, #16" : "+l" (value) : "l" (x_mask) : "cc");
+            register u32 clear_x asm("r0") = ~(X_MASK << 16);
+            asm ("" : "+l" (clear_x));
+            asm ("ldr %0, [sp, %3]\n\tand %0, %2\n\torr %0, %1"
+                : "=l" (position) : "l" (value), "l" (clear_x),
+                    "i" (offsetof(__typeof__(work), glyph.attributes[0])) : "cc", "memory");
+        }
+        {
+            RACE_GLYPH_READ(value, "r3", "r0", RACE_GLYPH_LDRB, y)
+            register u32 clear_y asm("r0") = ~0xFF;
+            asm ("" : "+l" (clear_y));
+            asm volatile ("and %0, %2\n\torr %0, %1\n\tstr %0, [sp, %3]" :
+                "+l" (position) : "l" (value), "l" (clear_y),
+                "i" (offsetof(__typeof__(work), glyph.attributes[0])) : "cc", "memory");
+        }
+        register RaceObjAllocation * tiles asm("r0") = RACE_BETTING_FIELD("r1", betting_glyph_tiles);
+        asm ("" : "+l" (tiles));
+        register u32 tile_base asm("r0") = ResolveRaceObjTile(tiles, tiles->handle);
+
+#define READ_RACE_GLYPH_TILE(out, zero_index_reg, zero_tile_reg) do { \
+    register u32 zero_index asm(zero_index_reg) = 0; \
+    asm ("" : "+l" (zero_index)); \
+    asm ("ldrsh %0, [%1, %2]\n\tlsl %0, %0, %3\n\tadd %0, %4, %0" : "=l" (out) \
+        : "l" (active_index), "l" (zero_index), "i" (GLYPH_STRIDE_SHIFT), "l" (glyph_tile_base) : "cc", "memory"); \
+    register u32 zero_tile asm(zero_tile_reg) = 0; \
+    asm ("" : "+l" (zero_tile)); \
+    asm ("ldrsh %0, [%0, %1]" : "+l" (out) : "l" (zero_tile) : "memory"); \
+} while (0)
+        register i32 tile asm("r1");
+        READ_RACE_GLYPH_TILE(tile, "r2", "r3");
+        asm ("lsl %1, %1, #1\n\tadd %0, %0, %1\n\tlsl %0, %0, #22\n\tlsr %0, %0, #22"
+            : "+l" (tile_base), "+l" (tile) : : "cc");
+        register u32 clear_tile asm("r2") = ~TILE_MASK;
+        asm ("" : "+l" (clear_tile));
+        asm volatile ("ldr r1, [%0, #4]\n\tand r1, %1\n\torr r1, %2\n\tstr r1, [%0, #4]" :
+            : "l" (glyph_output), "l" (clear_tile), "l" (tile_base) : "r1", "cc", "memory");
+        register i32 current_tile asm("r0");
+        READ_RACE_GLYPH_TILE(current_tile, "r1", "r2");
+#define FINISH_RACE_PALETTE(attrs, palette_out) \
+    asm volatile ("str %0, [%1, #4]" : : "l" (attrs), "l" (palette_out) : "memory")
+        register u32 shape_bits asm("r0");
+        if (current_tile != static_cast<int>(PROMPT_GLYPH))
+        {
+            RACE_GLYPH_PALETTE("r3", betting_glyph_palette, "r4");
+            register u32 clear_shape asm("r1") = ~SHAPE_MASK;
+            asm ("" : "+l" (clear_shape));
+            asm ("ldr %0, [sp, %2]\n\tand %0, %1" : "=l" (shape_bits) : "l" (clear_shape),
+                "i" (offsetof(__typeof__(work), glyph.attributes[0])) : "cc", "memory");
+            register u32 tall asm("r1") = SHAPE_TALL;
+            asm ("" : "+l" (tall));
+            asm ("orr %0, %1" : "+l" (shape_bits) : "l" (tall) : "cc");
+            register u32 clear_size asm("r1") = ~SIZE_MASK;
+            asm ("" : "+l" (clear_size));
+            asm ("and %0, %1" : "+l" (shape_bits) : "l" (clear_size) : "cc");
+        }
+        else
+        {
+            RACE_GLYPH_PALETTE("r1", prompt_palette, "r3");
+            register u32 clear_shape asm("r1") = ~SHAPE_MASK;
+            asm ("" : "+l" (clear_shape));
+            asm ("ldr %0, [sp, %2]\n\tand %0, %1" : "=l" (shape_bits) : "l" (clear_shape),
+                "i" (offsetof(__typeof__(work), glyph.attributes[0])) : "cc", "memory");
+            register u32 clear_size asm("r1") = ~SIZE_MASK;
+            asm ("" : "+l" (clear_size));
+            asm ("and %0, %1\n\tadd %1, #1\n\torr %0, %1" : "+l" (shape_bits), "+l" (clear_size) : : "cc");
+        }
+        work.glyph.attributes[0] = shape_bits;
+        SpriteOamBuffer * oam = GetRaceBettingOam(self);
+        u32 count = oam->sprite_count;
+        if (count < 128)
+        {
+            SpriteAttributes * output = &oam->sprites[count];
+            output->words[0] = work.glyph.attributes[0];
+            register SpriteFrameObject * source asm("r4") = glyph;
+            asm ("" : "+l" (source));
+            register u32 tile_and_palette asm("r0");
+            asm ("ldrh %0, [%1, #4]" : "=l" (tile_and_palette) : "l" (source) : "memory");
+            reinterpret_cast<u16 *>(output)[2] = tile_and_palette;
+            oam->sprite_count = count + 1;
+        }
+        remaining = POP_RACE_GLYPH();
+    } while (remaining >= 0);
+
+#undef FINISH_RACE_PALETTE
+#undef READ_RACE_GLYPH_TILE
+#undef RACE_GLYPH_LDRSH
+#undef RACE_GLYPH_LDRB
+#undef RACE_GLYPH_LDRH
+#undef RACE_GLYPH_READ
+#undef POP_RACE_GLYPH
+#undef RACE_GLYPH_PALETTE
+}
+
+#undef RACE_BETTING_SUBMIT_FRAME
+#undef RACE_BETTING_COPY_DRAW_FRAME
+#undef RACE_BETTING_DRAW_FRAME
+#undef RACE_BETTING_LITERAL
+#undef RACE_BETTING_FIELD

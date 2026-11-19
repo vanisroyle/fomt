@@ -340,9 +340,10 @@ gMissingChildName:
 gUnk_080F19A0:
 	.incbin "baserom.gba", 0xF19A0, 0xE
 
-	.global gUnk_080F19AE
-gUnk_080F19AE:
-	.incbin "baserom.gba", 0xF19AE, 0x1E
+	.global gScriptSceneScriptIds
+gScriptSceneScriptIds:
+	.2byte 0x0427, 0x0423
+	.incbin "baserom.gba", 0xF19B2, 0x1A
 
 	.global gUnk_080F19CC
 gUnk_080F19CC:
