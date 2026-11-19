@@ -28472,114 +28472,6 @@ ClearMessageTextCursor: @ 0x0804F0E0
 	pop {r0}
 	bx r0
 	.align 2, 0
-	.section .text.message_rendering.0804F19C
-	thumb_func_start LoadMessageWindowGraphics
-LoadMessageWindowGraphics: @ 0x0804F19C
-	push {r4, r5, lr}
-	sub sp, #0x60
-	adds r5, r0, #0
-	ldrh r2, [r5, #0xc]
-	lsls r2, r2, #0x11
-	lsrs r2, r2, #0x16
-	adds r2, #3
-	ldr r1, .L0804F270 @ =0x000003FF
-	adds r0, r1, #0
-	ands r2, r0
-	ldr r0, [r5, #0xc]
-	lsls r0, r0, #0xd
-	lsrs r0, r0, #0x1c
-	lsls r0, r0, #0xc
-	orrs r2, r0
-	lsls r0, r2, #0x10
-	orrs r2, r0
-	ldrb r1, [r5, #0xc]
-	lsls r1, r1, #0x1b
-	lsrs r1, r1, #0x10
-	movs r4, #0xc0
-	lsls r4, r4, #0x13
-	adds r1, r1, r4
-	str r2, [sp, #0xc]
-	add r0, sp, #0xc
-	ldr r2, .L0804F274 @ =0x010000A0
-	bl CpuFastSet
-	ldrb r0, [r5, #0xc]
-	lsls r0, r0, #0x1b
-	lsrs r0, r0, #0x10
-	adds r0, r0, r4
-	movs r1, #3
-	str r1, [sp]
-	ldrh r1, [r5, #0xc]
-	lsls r1, r1, #0x11
-	lsrs r1, r1, #0x16
-	str r1, [sp, #4]
-	ldr r1, [r5, #0xc]
-	lsls r1, r1, #0xd
-	lsrs r1, r1, #0x1c
-	str r1, [sp, #8]
-	movs r1, #0x10
-	movs r2, #0
-	movs r3, #0xe
-	bl DrawMessageFrame
-	ldrb r0, [r5, #0xc]
-	lsls r0, r0, #0x1b
-	lsrs r0, r0, #0x10
-	adds r0, r0, r4
-	movs r1, #7
-	str r1, [sp]
-	ldrh r1, [r5, #0xc]
-	lsls r1, r1, #0x11
-	lsrs r1, r1, #0x16
-	str r1, [sp, #4]
-	ldr r1, [r5, #0xc]
-	lsls r1, r1, #0xd
-	lsrs r1, r1, #0x1c
-	str r1, [sp, #8]
-	movs r1, #0
-	movs r2, #3
-	movs r3, #0x1e
-	bl DrawMessageFrame
-	ldr r1, [r5, #0xc]
-	lsls r1, r1, #0xd
-	lsrs r1, r1, #0x1c
-	ldr r0, .L0804F278 @ =gUnk_080F9F78
-	ldr r0, [r0]
-	lsls r1, r1, #5
-	movs r2, #0xa0
-	lsls r2, r2, #0x13
-	adds r1, r1, r2
-	movs r2, #8
-	bl CpuFastSet
-	add r4, sp, #0x30
-	ldr r1, .L0804F27C @ =gUnk_08728208
-	adds r0, r4, #0
-	bl func_0805E6CC
-	add r0, sp, #0x10
-	adds r1, r4, #0
-	movs r2, #0
-	bl func_0805E790
-	ldr r0, [sp, #0x20]
-	ldrb r1, [r5, #0xe]
-	lsls r1, r1, #0x19
-	lsrs r1, r1, #0x1c
-	lsls r1, r1, #5
-	ldr r2, .L0804F280 @ =0x05000200
-	adds r1, r1, r2
-	movs r2, #8
-	bl CpuFastSet
-	ldr r0, .L0804F284 @ =vtable_unk_080E5A28
-	str r0, [sp, #0x30]
-	movs r0, #0
-	add sp, #0x60
-	pop {r4, r5}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0804F270: .4byte 0x000003FF
-.L0804F274: .4byte 0x010000A0
-.L0804F278: .4byte gUnk_080F9F78
-.L0804F27C: .4byte gUnk_08728208
-.L0804F280: .4byte 0x05000200
-.L0804F284: .4byte vtable_unk_080E5A28
 
 	.section .text.message_window.0804F288
 	thumb_func_start InitializeMessageWindowState
@@ -31352,27 +31244,7 @@ SetMessageWindowStateSpeakerName: @ 0x08050B50
 	.byte 0x0C, 0xC8, 0x0C, 0xC1, 0x20, 0x1C, 0x03, 0xB0, 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
 	.byte 0x03, 0x21, 0x02, 0x48, 0x02, 0x40, 0x0A, 0x43, 0x10, 0x1C, 0x70, 0x47, 0x00, 0xFF, 0xFF, 0xFF
 
-	.section .text.message_window.08050E98
-	thumb_func_start ClearMessageWindowButtonMask
-ClearMessageWindowButtonMask: @ 0x08050E98
-	push {r4, lr}
-	ldr r3, [r0]
-	movs r0, #0xaa
-	lsls r0, r0, #3
-	adds r3, r3, r0
-	ldrb r4, [r3]
-	lsls r0, r4, #0x1a
-	lsrs r0, r0, #0x1a
-	adds r2, r0, #0
-	bics r2, r1
-	movs r1, #0x40
-	rsbs r1, r1, #0
-	ands r1, r4
-	orrs r1, r2
-	strb r1, [r3]
-	pop {r4}
-	pop {r1}
-	bx r1
+	.section .text.message_window.08050EBC
 
 	thumb_func_start SetMessageWindowButtonMask
 SetMessageWindowButtonMask: @ 0x08050EBC
