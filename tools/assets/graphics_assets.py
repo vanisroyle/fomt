@@ -147,11 +147,11 @@ def build(rom, assets, output):
         lines.append(f".global {label}")
         if overflow is not None:
             lines.extend(['.section .graphics_overflow, "a"', ".balign 4", label + ":",
-                          f'.incbin "build/assets/graphics-{name}-overflow.bin"', ".section .rodata"])
+                          f'.incbin "{(output / f"graphics-{name}-overflow.bin").as_posix()}"', ".section .rodata"])
             products[f"graphics-{name}-overflow.bin"] = overflow
         else:
             lines.append(label + ":")
-        lines.append(f'.incbin "build/assets/graphics-{name}-slot.bin"')
+        lines.append(f'.incbin "{(output / f"graphics-{name}-slot.bin").as_posix()}"')
         products[f"graphics-{name}-slot.bin"] = slot
         products[f"graphics-{name}-overflow.bin"] = overflow or b""
         layout[name] = {"overflow": overflow is not None, "decoded_bytes": len(data[name]),

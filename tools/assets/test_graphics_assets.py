@@ -158,6 +158,24 @@ class GraphicsTests(unittest.TestCase):
                 graphics.extract(rom, root, force=True)
                 self.assertNotEqual(png.read_bytes(), b"user edit")
 
+    def test_assembly_uses_custom_output_for_slots_and_overflow(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            output = root / "custom output"
+            data = {"tiles": bytes(32), "palette": bytes(32), "map": bytes(1280)}
+            parts = {"tiles": (0, 8, ()), "palette": (8, 32, ()), "map": (40, 8, ())}
+            with patch.object(graphics, "PARTS", parts), patch.object(graphics, "logo_data", return_value=data):
+                graphics.extract(bytes(48), root)
+                for overflow in (None, b"overflow stream"):
+                    with self.subTest(overflow=overflow), patch.object(graphics, "pack_part", return_value=(bytes(8), overflow)):
+                        graphics.build(bytes(48), root, output)
+                        assembly = (output / "graphics.s").read_text()
+                        for name in parts:
+                            self.assertIn(f'.incbin "{(output / f"graphics-{name}-slot.bin").as_posix()}"', assembly)
+                            if overflow is not None:
+                                self.assertIn(f'.incbin "{(output / f"graphics-{name}-overflow.bin").as_posix()}"', assembly)
+                        self.assertNotIn('"build/assets/', assembly)
+
 
 if __name__ == "__main__":
     unittest.main()
