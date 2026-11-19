@@ -35,6 +35,88 @@ struct FarmerIconGraphics : UnknownEntityThing
     FarmerIconState icon_state;
 };
 
+struct FarmerStepEffectSlot
+{
+    u8 active;
+    STRUCT_PAD(0x01, 0x2C);
+    SpriteAnimator animator;
+    FarmerIconState icon_state;
+    STRUCT_PAD(0x44, 0x48);
+};
+
+struct FarmerEffectGraphics : FarmerIconGraphics
+{
+    STRUCT_PAD(0xCC, 0xD0);
+    FarmerStepEffectSlot step_effects[6];
+};
+
+EC void func_0803260C(FarmerIconGraphics * graphics);
+EC void TickFarmerEffectGraphics(FarmerEffectGraphics * graphics) ENTITY_CODE(0802B3B4);
+EC void TickFarmerEffectGraphics(FarmerEffectGraphics * graphics)
+{
+    func_0803260C(graphics);
+    FarmerEntity * farmer = *reinterpret_cast<FarmerEntity **>(graphics);
+    register u8 base_frame_changed asm("r3") = graphics->unk_44;
+    register u16 * icon asm("r2") = &farmer->icon;
+    register u16 current_icon asm("r1") = *icon;
+    register u32 no_icon asm("r0") = 0xFFFF;
+    if (current_icon != no_icon && base_frame_changed == 0)
+    {
+        no_icon |= current_icon;
+        *icon = no_icon;
+    }
+
+    ThrownItemMotion const * item = &farmer->thrown_item;
+    bool show_icon = false;
+    if (item->active == 1)
+        show_icon = true;
+    if (show_icon)
+    {
+        if (graphics->icon_state.restart == 0)
+        {
+            if (i32(AdvanceSpriteAnimator(&graphics->icon_animator) << 30) < 0)
+                graphics->icon_state.enabled = 1;
+        }
+        else
+            graphics->icon_state.restart = 0;
+    }
+
+    u32 index = 0;
+    u32 clear = 0;
+    u8 * base = reinterpret_cast<u8 *>(graphics);
+    u8 * animator = base + 0xFC;
+    u8 * restart = base + 0x113;
+    u8 * active = base + 0xD0;
+    do
+    {
+        if (*active)
+        {
+            u32 status;
+            FarmerIconState * icon_state = reinterpret_cast<FarmerIconState *>(animator + sizeof(SpriteAnimator));
+            if (icon_state->restart == 0)
+            {
+                u32 flags = AdvanceSpriteAnimator(reinterpret_cast<SpriteAnimator *>(animator));
+                if (i32(flags << 30) < 0)
+                    icon_state->enabled = 1;
+                status = flags;
+            }
+            else
+            {
+                *restart = clear;
+                status = SpriteAnimator::FRAME_CHANGED;
+                goto test_completion;
+            }
+        test_completion:
+            if (i32(status << (31 - SpriteAnimator::LOOP_FLAG_BIT)) < 0)
+                *active = clear;
+        }
+        animator += sizeof(FarmerStepEffectSlot);
+        restart += sizeof(FarmerStepEffectSlot);
+        active += sizeof(FarmerStepEffectSlot);
+        ++index;
+    } while (index <= 5);
+}
+
 struct FarmerIconGameVTable
 {
     STRUCT_PAD(0x00, 0x64);
@@ -43,7 +125,6 @@ struct FarmerIconGameVTable
 };
 
 EC void func_0805E850(SpriteAnimator * animator, void * sprites, u32 animation);
-EC void func_0803260C(FarmerIconGraphics * graphics);
 EC u32 func_0805E8F0(SpriteAnimator * animator);
 
 inline void * FarmerItemSprites(FarmerIconGraphics * graphics)

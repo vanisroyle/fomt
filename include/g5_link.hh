@@ -21,7 +21,7 @@ struct JoybusState
     JoybusCommand commands[10];
     u32 busy;
     u32 status;
-    u32 unknown_184;
+    u32 transferred_halfwords;
 };
 
 enum
@@ -29,6 +29,11 @@ enum
     JOYBUS_ENABLED = 0,
     JOYBUS_HANDSHAKE_SEND = 1,
     JOYBUS_HANDSHAKE_EXPECTED = 2,
+    JOYBUS_RETRY_TICKS = 3,
+    JOYBUS_IDLE_TICKS = 4,
+    JOYBUS_TRANSFER_KIND = 5,
+    JOYBUS_TRANSFER_RESULT = 6,
+    JOYBUS_TRANSFER_PROGRESS = 7,
 };
 
 EC JoybusState * gJoybusState; // 0x03000420
@@ -40,12 +45,15 @@ EC void StopJoybus(); // 0x080D0340
 EC void ResetJoybusCommandQueue(); // 0x080D0B88
 EC void EnqueueJoybusCommand(JoybusCommand * command); // 0x080D0BA8
 EC void AdvanceJoybusCommandQueue(); // 0x080D0BE0
-EC bool IsJoybusCommandQueueEmpty(); // 0x080D0C10
+EC u32 IsJoybusCommandQueueEmpty(); // 0x080D0C10; returns 0 or 1
 EC void CancelJoybusCommands(); // 0x080D0C2C
 EC void CompleteJoybusCommand(u32 status); // 0x080D0A54
 EC void SetJoybusStatusWhileBusy(u32 status); // 0x080D0A94
 EC void ConfigureJoybus(u32 reset, u32 mode); // 0x080D0B14
 EC void EnableJoybusSerialInterrupt(); // 0x080D0ABC
 EC void DisableJoybusSerialInterrupt(); // 0x080D0AE0
+
+EC void Joybus_HandleSerialInterrupt(); // 0x080D0704
+EC void Joybus_UpdateTransfers(); // 0x080D035C
 
 #endif

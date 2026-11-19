@@ -31363,7 +31363,7 @@ func_080E3920: @ 0x080E3920
 	thumb_func_start func_080E392C
 func_080E392C: @ 0x080E392C
 	push {lr}
-	bl func_080D035C
+	bl Joybus_UpdateTransfers
 	pop {r0}
 	bx r0
 	.align 2, 0

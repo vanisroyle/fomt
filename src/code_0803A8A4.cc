@@ -12,6 +12,132 @@
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
 
+struct OverlaySpriteResources;
+
+struct OverlaySpriteResourceVtable
+{
+    STRUCT_PAD(0x00, 0x4C);
+    void (*releasePalette)(OverlaySpriteResources *, unsigned);
+};
+
+struct OverlaySpriteResources
+{
+    OverlaySpriteResourceVtable const * vtable;
+};
+
+struct OverlayTileAllocation
+{
+    STRUCT_PAD(0x00, 0x04);
+    u32 handle;
+};
+
+struct FixedSpriteOverlay
+{
+    struct Frame
+    {
+        STRUCT_PAD(0x00, 0x20);
+        OverlayTileAllocation tiles;
+        u16 baseTile;
+    };
+
+    OverlaySpriteResources * resources;
+    Frame frames[3];
+    unsigned paletteCount;
+    u8 paletteIds[16];
+    STRUCT_PAD(0x9C, 0xA0);
+};
+
+struct GameStateMapOverlay
+{
+    struct Frame
+    {
+        STRUCT_PAD(0x00, 0x20);
+        OverlayTileAllocation tiles;
+    };
+
+    struct Placement
+    {
+        STRUCT_PAD(0x00, 0x1C);
+    };
+
+    OverlaySpriteResources * resources;
+    struct FrameList
+    {
+        unsigned count;
+        Frame entries[5];
+    } frames;
+    unsigned paletteCount;
+    u8 paletteIds[16];
+    STRUCT_PAD(0xE4, 0xE8);
+    struct PlacementList
+    {
+        unsigned count;
+        Placement entries[32];
+    } placements;
+};
+
+EC void func_08007C28(OverlayTileAllocation *, u32);
+EC void func_080079E8(OverlayTileAllocation *, unsigned);
+EC void __builtin_delete(void *);
+
+ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOverlay, unsigned inputFlags)
+{
+    // Match the original Thumb register allocation for the destructor.
+    register FixedSpriteOverlay * overlay asm("r6") = inputOverlay;
+    asm("" : "+r"(overlay));
+    register unsigned destructorFlags asm("r8") = inputFlags;
+    asm("" : "+r"(destructorFlags) : "r"(overlay));
+    OverlaySpriteResources * resources = overlay->resources;
+    OverlaySpriteResourceVtable const * vtable = resources->vtable;
+    register FixedSpriteOverlay::Frame * end asm("r4") = overlay->frames + 3;
+    asm("" : "+r"(end) : "r"(resources), "r"(vtable));
+    vtable->releasePalette(resources, overlay->paletteIds[0]);
+
+    register FixedSpriteOverlay::Frame * firstFrame asm("r0") = overlay->frames;
+    asm("" : "+r"(firstFrame));
+    if (firstFrame)
+    {
+        FixedSpriteOverlay::Frame * frame = end;
+        if (firstFrame != frame)
+        {
+            FixedSpriteOverlay::Frame * first = firstFrame;
+            do
+            {
+                --frame;
+                OverlayTileAllocation * tiles = &frame->tiles;
+                func_08007C28(tiles, tiles->handle);
+                func_080079E8(tiles, 2);
+            }
+            while (first != frame);
+        }
+    }
+    if (destructorFlags & 1)
+        __builtin_delete(overlay);
+}
+
+ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
+{
+    overlay->resources->vtable->releasePalette(overlay->resources, overlay->paletteIds[0]);
+
+    // The original compiler emitted this traversal even though placements own no tiles.
+    GameStateMapOverlay::PlacementList & placements = overlay->placements;
+    GameStateMapOverlay::Placement * placementsEnd = placements.entries + placements.count;
+    for (GameStateMapOverlay::Placement * placement = placements.entries; placement != placementsEnd; ++placement)
+    {
+    }
+
+    GameStateMapOverlay::FrameList & frames = overlay->frames;
+    GameStateMapOverlay::Frame * framesEnd = frames.entries + frames.count;
+    for (GameStateMapOverlay::Frame * frame = frames.entries; frame != framesEnd; ++frame)
+    {
+        OverlayTileAllocation * tiles = &frame->tiles;
+        func_08007C28(tiles, tiles->handle);
+        func_080079E8(tiles, 2);
+    }
+    if (destructorFlags & 1)
+        __builtin_delete(overlay);
+}
+
 struct Unk_0803B454
 {
     u8 unk_00[16];
