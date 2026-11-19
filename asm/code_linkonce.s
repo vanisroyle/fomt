@@ -570,7 +570,7 @@ func_080D406C: @ 0x080D406C
 	adds r0, r5, #0
 	adds r0, #0x10
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r1, [r5, #0xc]
 	cmp r1, #0
 	beq .L080D40B8
@@ -8197,7 +8197,7 @@ func_080D7F60: @ 0x080D7F60
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L080D7F6E
-	bl func_08050E8C
+	bl ClearMessageWindowIndicator
 .L080D7F6E:
 	pop {r0}
 	bx r0
@@ -8210,7 +8210,7 @@ func_080D7F74: @ 0x080D7F74
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L080D7F82
-	bl func_08050E5C
+	bl ClearMessageWindowPortrait
 .L080D7F82:
 	pop {r0}
 	bx r0
@@ -8223,7 +8223,7 @@ func_080D7F88: @ 0x080D7F88
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L080D7F96
-	bl func_08050E74
+	bl ClearMessageWindowSpeakerName
 .L080D7F96:
 	pop {r0}
 	bx r0
@@ -9858,7 +9858,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -9869,7 +9869,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080D8D3E
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080D8D3E:
 	str r5, [r4]
 	ldr r0, .L080D8D88 @ =0x0000043C
@@ -9882,7 +9882,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #2
 	bl TilePool_Destroy
 	ldr r0, [r6]
-	bl func_08050D68
+	bl FinishOpeningMessageWindow
 	ldr r0, [r6]
 	ldr r1, .L080D8D8C @ =gUnk_080F05B8
 	ldr r2, .L080D8D90 @ =gUnk_080F05C0
@@ -9893,7 +9893,7 @@ sub_080D8178: @ 0x080D8178
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080D8D74:
 	ldr r1, .L080D8D9C @ =0x0000055C
 	add r1, sp
@@ -10426,7 +10426,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r4, .L080D9284 @ =0x00000544
 	add r4, sp
 	ldr r3, [r4]
-	bl func_08050D3C
+	bl UpdateMessageWindow
 .L080D924C:
 	mov r0, sl
 	adds r0, #0xe8
@@ -10482,7 +10482,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r4, .L080D92C0 @ =0x00000544
 	add r4, sp
 	ldr r3, [r4]
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	b .L080D93E8
 	.align 2, 0
 .L080D92BC: .4byte 0x0000056C
@@ -10555,7 +10555,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r7, .L080D9358 @ =0x00000544
 	add r7, sp
 	ldr r3, [r7]
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	b .L080D93E8
 	.align 2, 0
 .L080D9350: .4byte 0xFFFFFF00
@@ -10776,7 +10776,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, .L080D9598 @ =0x0000057C
 	add r1, sp
 	str r2, [r1]
-	bl func_08038108
+	bl IsSideSpriteLaunched
 	lsls r0, r0, #0x18
 	ldr r3, .L080D9598 @ =0x0000057C
 	add r3, sp
@@ -11242,7 +11242,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -11253,7 +11253,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080D994A
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080D994A:
 	str r5, [r4]
 	ldr r0, .L080D9970 @ =0x0000043C
@@ -11266,7 +11266,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #2
 	bl TilePool_Destroy
 	ldr r0, [r6]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r0, #0xc
 	bl .L080DA858
 	.align 2, 0
@@ -11275,7 +11275,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0xac
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080D9986
 	bl .L080DAAE6
@@ -11290,7 +11290,7 @@ sub_080D8178: @ 0x080D8178
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	movs r0, #6
 	bl .L080DAABA
 	.align 2, 0
@@ -11316,7 +11316,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0xac
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #6
 	bne .L080D9A00
 	add r0, sp, #0x10
@@ -11328,14 +11328,14 @@ sub_080D8178: @ 0x080D8178
 	bl .L080DAAE6
 .L080D99F0:
 	ldr r0, [r4]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #0xa
 	bl .L080DA804
 	.align 2, 0
 .L080D99FC: .4byte 0x0000055C
 .L080D9A00:
 	ldr r0, [r4]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #2
 	beq .L080D9AAC
 	cmp r0, #2
@@ -11586,14 +11586,14 @@ sub_080D8178: @ 0x080D8178
 .L080D9C18: .4byte vtable_unk_080E5D54
 .L080D9C1C:
 	ldr r0, [r4]
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r0, #0xa
 	bl .L080DA804
 .L080D9C28:
 	mov r4, sl
 	adds r4, #0xac
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #0
 	beq .L080D9C3A
 	bl .L080DAAE6
@@ -11605,7 +11605,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080D9C4C
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080D9C4C:
 	str r5, [r4]
 	movs r0, #0x10
@@ -12626,7 +12626,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r5, r0
 	beq .L080DA47E
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DA47E:
 	str r5, [r4]
 .L080DA480:
@@ -12758,7 +12758,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0xac
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080DA594
 	b .L080DAAE6
@@ -12768,7 +12768,7 @@ sub_080D8178: @ 0x080D8178
 	mov r4, sl
 	adds r4, #0xac
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #0
 	beq .L080DA5A6
 	b .L080DAAE6
@@ -12780,7 +12780,7 @@ sub_080D8178: @ 0x080D8178
 	cmp r0, #0
 	beq .L080DA5B8
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DA5B8:
 	str r5, [r4]
 	b .L080DA78E
@@ -12788,7 +12788,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0xac
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080DA5CC
 	b .L080DAAE6
@@ -12800,7 +12800,7 @@ sub_080D8178: @ 0x080D8178
 	mov r0, sl
 	adds r0, #0xac
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #6
 	bls .L080DA5E2
 	b .L080DAAE6
@@ -13029,7 +13029,7 @@ sub_080DA76C: @ 0x080DA76C
 	mov r5, sl
 	adds r5, #0xac
 	ldr r0, [r5]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #6
 	bne .L080DA7AC
 	b .L080DAAE6
@@ -13038,7 +13038,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r4, [r0]
 	adds r4, #8
 	ldr r0, [r5]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl Push__12ScriptEnginei
@@ -13401,7 +13401,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_0803880C
+	bl HasSideEntityParticles
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080DAAE6
@@ -13424,7 +13424,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_080387D8
+	bl IsSideEntityTransitionComplete
 .L080DAAB2:
 	lsls r0, r0, #0x18
 	cmp r0, #0
@@ -13782,7 +13782,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r0, [r6]
 	lsrs r1, r2, #0x1b
 	adds r0, #8
-	bl func_0803D240
+	bl SetClockHourTiles
 	ldr r7, .L080DAE48 @ =0x000004CC
 	add r7, sp
 	ldrb r1, [r7, #1]
@@ -13836,7 +13836,7 @@ sub_080DA76C: @ 0x080DA76C
 	mov r0, r8
 	adds r0, #8
 	adds r1, r4, #0
-	bl func_0803D0F0
+	bl SetClockDayAndWeekdayTiles
 	ldrb r1, [r7, #1]
 	lsls r1, r1, #0x1e
 	ldrb r0, [r5, #0x11]
@@ -13847,7 +13847,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r0, [r6]
 	adds r0, #8
 	adds r1, r2, #0
-	bl func_0803D080
+	bl SetClockSeasonTiles
 .L080DADEE:
 	ldr r0, [r6]
 	mov r1, sb
@@ -14294,7 +14294,7 @@ func_080DB0EC: @ 0x080DB0EC
 	cmp r0, #0
 	beq .L080DB164
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DB164:
 	adds r0, r4, #0
 	adds r0, #0xa8
@@ -14607,7 +14607,7 @@ func_080DB394: @ 0x080DB394
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805FCD0
+	bl InitChildhoodMemoryScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15081,7 +15081,7 @@ func_080DB8FC: @ 0x080DB8FC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805218C
+	bl InitializeFestivalResultsController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15199,7 +15199,7 @@ func_080DB9DC: @ 0x080DB9DC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805E624
+	bl InitMedalExchangeScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15259,7 +15259,7 @@ func_080DBA4C: @ 0x080DBA4C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_0805CEB8
+	bl InitHorseRaceScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -18481,7 +18481,7 @@ func_080DD460: @ 0x080DD460
 	bl func_0803A350
 .L080DD48C:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #6
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -19229,7 +19229,7 @@ func_080DD9CC: @ 0x080DD9CC
 	b .L080DDBD6
 .L080DD9F8:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #0x1e
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -19610,7 +19610,7 @@ func_080DDC78: @ 0x080DDC78
 	cmp r5, #1
 	bne .L080DDCEE
 	movs r0, #4
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #8
 	movs r2, #0x80
 	lsls r2, r2, #1
@@ -19628,7 +19628,7 @@ func_080DDC78: @ 0x080DDC78
 	b .L080DDD04
 .L080DDCEE:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r1, r0, #4
 	subs r1, r1, r0
 	lsls r1, r1, #2
@@ -19639,7 +19639,7 @@ func_080DDC78: @ 0x080DDC78
 	adds r4, r0, #0
 .L080DDD04:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #2
 	adds r0, #0xc
 	adds r1, r6, #0
@@ -19715,7 +19715,7 @@ func_080DDC78: @ 0x080DDC78
 	movs r5, #0xff
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A320
+	bl GetSideEntitySine
 	adds r4, r0, #0
 	lsls r4, r4, #0x10
 	asrs r4, r4, #0x10
@@ -19726,7 +19726,7 @@ func_080DDC78: @ 0x080DDC78
 	lsls r1, r1, #1
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A334
+	bl GetSideEntityCosine
 	lsls r0, r0, #0x10
 	adds r1, r6, #0
 	adds r1, #0x66
@@ -20765,7 +20765,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -20774,7 +20774,7 @@ func_080DE298: @ 0x080DE298
 	cmp r0, #0
 	beq .L080DE82A
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DE82A:
 	str r4, [r5]
 	add r0, sp, #0x14
@@ -20801,7 +20801,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -20810,7 +20810,7 @@ func_080DE298: @ 0x080DE298
 	cmp r0, #0
 	beq .L080DE87C
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080DE87C:
 	str r4, [r5]
 	add r0, sp, #0x14
@@ -20821,13 +20821,13 @@ func_080DE298: @ 0x080DE298
 	bl TilePool_Destroy
 .L080DE88E:
 	ldr r0, [r6]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	bne .L080DE89C
 	bl .L080E007C
 .L080DE89C:
 	ldr r0, [r6]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -20842,7 +20842,7 @@ func_080DE298: @ 0x080DE298
 	bne .L080DE8BE
 	bl .L080E007C
 .L080DE8BE:
-	bl func_08050D74
+	bl CloseMessageWindow
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -20885,7 +20885,7 @@ func_080DE298: @ 0x080DE298
 	bl .L080E007C
 .L080DE90E:
 	movs r2, #0x40
-	bl func_08050DB4
+	bl SetMessageWindowTextSpeed
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -20930,7 +20930,7 @@ func_080DE298: @ 0x080DE298
 	bl .L080E007C
 .L080DE964:
 	movs r2, #0
-	bl func_08050DB4
+	bl SetMessageWindowTextSpeed
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -20976,7 +20976,7 @@ func_080DE298: @ 0x080DE298
 .L080DE9BC:
 	movs r2, #0x80
 	lsls r2, r2, #1
-	bl func_08050DB4
+	bl SetMessageWindowTextSpeed
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -21087,7 +21087,7 @@ func_080DE298: @ 0x080DE298
 	str r1, [sp, #4]
 	str r1, [sp, #8]
 	adds r1, r6, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -21227,7 +21227,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	adds r1, r5, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	b .L080DEBAC
 	.align 2, 0
 .L080DEB9C: .4byte gUnk_080F19A0
@@ -21236,7 +21236,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #4]
 	str r4, [sp, #8]
 	adds r1, r5, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 .L080DEBAC:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -21412,7 +21412,7 @@ func_080DE298: @ 0x080DE298
 .L080DECE6:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	b .L080DED00
 .L080DECF0:
 	str r5, [sp]
@@ -21421,7 +21421,7 @@ func_080DE298: @ 0x080DE298
 	str r0, [sp, #8]
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 .L080DED00:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -21508,7 +21508,7 @@ func_080DE298: @ 0x080DE298
 	str r1, [sp, #0xc]
 	adds r1, r3, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	movs r1, #0xd9
 	lsls r1, r1, #2
 	add r1, r8
@@ -21623,7 +21623,7 @@ func_080DE298: @ 0x080DE298
 	str r3, [sp, #0xc]
 	adds r1, r5, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DEE92
 	.align 2, 0
 .L080DEE80: .4byte gUnk_080F19A0
@@ -21633,7 +21633,7 @@ func_080DE298: @ 0x080DE298
 	str r1, [sp, #8]
 	str r1, [sp, #0xc]
 	adds r1, r5, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080DEE92:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -21774,7 +21774,7 @@ func_080DE298: @ 0x080DE298
 	str r3, [sp, #0xc]
 	adds r1, r5, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DEFC2
 	.align 2, 0
 .L080DEF9C: .4byte gUnk_080F19A0
@@ -21786,7 +21786,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	adds r1, r5, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DEFC2
 .L080DEFB4:
 	str r1, [sp]
@@ -21794,7 +21794,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	adds r1, r5, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080DEFC2:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -21962,7 +21962,7 @@ func_080DE298: @ 0x080DE298
 	str r3, [sp, #0xc]
 	adds r1, r6, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DF12A
 	.align 2, 0
 .L080DF0FC: .4byte gUnk_080F19A0
@@ -21980,7 +21980,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	adds r1, r6, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DF12A
 .L080DF11C:
 	str r5, [sp]
@@ -21988,7 +21988,7 @@ func_080DE298: @ 0x080DE298
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	adds r1, r6, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080DF12A:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -22184,7 +22184,7 @@ func_080DE298: @ 0x080DE298
 	adds r0, r4, #0
 	adds r1, r7, #0
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DF2E0
 	.align 2, 0
 .L080DF298: .4byte gUnk_080F19A0
@@ -22214,7 +22214,7 @@ func_080DE298: @ 0x080DE298
 .L080DF2C4:
 	adds r0, r4, #0
 	adds r1, r7, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080DF2E0
 .L080DF2CE:
 	str r6, [sp]
@@ -22224,7 +22224,7 @@ func_080DE298: @ 0x080DE298
 	str r0, [sp, #0xc]
 	adds r0, r4, #0
 	adds r1, r7, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 .L080DF2E0:
 	movs r1, #0xd9
 	lsls r1, r1, #2
@@ -24579,11 +24579,11 @@ func_080E0094: @ 0x080E0094
 	ldr r0, [r4]
 	cmp r0, #0
 	beq .L080E04A2
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #1
 	beq .L080E04B2
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #2
 	beq .L080E04B2
 .L080E04A2:
@@ -24638,7 +24638,7 @@ func_080E0094: @ 0x080E0094
 	adds r1, r5, #0
 	mov r2, r8
 	adds r3, r6, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 .L080E0518:
 	movs r6, #0
 	movs r4, #0xd9
@@ -24725,7 +24725,7 @@ func_080E0094: @ 0x080E0094
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080E05E4
 	b .L080E075E
@@ -24740,7 +24740,7 @@ func_080E0094: @ 0x080E0094
 	lsls r3, r3, #2
 	adds r4, r7, r3
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #0
 	beq .L080E0600
 	b .L080E075E
@@ -24752,7 +24752,7 @@ func_080E0094: @ 0x080E0094
 	cmp r0, #0
 	beq .L080E0612
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E0612:
 	str r5, [r4]
 	b .L080E0728
@@ -24762,7 +24762,7 @@ func_080E0094: @ 0x080E0094
 	lsls r5, r5, #2
 	adds r0, r7, r5
 	ldr r0, [r0]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	beq .L080E062A
 	b .L080E075E
@@ -24777,13 +24777,13 @@ func_080E0094: @ 0x080E0094
 	lsls r1, r1, #2
 	adds r4, r7, r1
 	ldr r0, [r4]
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #6
 	bne .L080E0646
 	b .L080E075E
 .L080E0646:
 	ldr r0, [r4]
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	adds r1, r0, #0
 	adds r0, r7, #0
 	bl func_080E09E4
@@ -25180,7 +25180,7 @@ func_080E0908: @ 0x080E0908
 	cmp r0, #0
 	beq .L080E0954
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E0954:
 	movs r1, #0xda
 	lsls r1, r1, #2
@@ -26554,7 +26554,7 @@ func_080E11EC: @ 0x080E11EC
 	cmp r0, #0
 	beq .L080E1474
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E1474:
 	adds r0, r6, #0
 	mov r1, sl
@@ -26973,7 +26973,7 @@ func_080E15C0: @ 0x080E15C0
 	cmp r0, #0
 	beq .L080E180A
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E180A:
 	adds r0, r7, #0
 	mov r1, r8
@@ -27016,7 +27016,7 @@ func_080E1844: @ 0x080E1844
 	lsls r1, r0, #2
 	adds r1, r1, r0
 	lsls r1, r1, #2
-	ldr r0, .L080E1888 @ =gUnk_080FB000
+	ldr r0, .L080E1888 @ =gMedalExchangePrizes
 	adds r5, r1, r0
 	adds r0, r5, #0
 	bl strlen
@@ -27040,7 +27040,7 @@ func_080E1844: @ 0x080E1844
 	bl strcpy
 	b .L080E189A
 	.align 2, 0
-.L080E1888: .4byte gUnk_080FB000
+.L080E1888: .4byte gMedalExchangePrizes
 .L080E188C:
 	mov r1, sp
 	movs r0, #0
@@ -27125,7 +27125,7 @@ func_080E18A4: @ 0x080E18A4
 	cmp r0, #0
 	beq .L080E1948
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E1948:
 	adds r0, r5, #0
 	adds r1, r6, #0
@@ -27231,7 +27231,7 @@ func_080E19F8: @ 0x080E19F8
 	cmp r0, #0
 	beq .L080E1A12
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E1A12:
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -27907,7 +27907,7 @@ func_080E1E28: @ 0x080E1E28
 	lsls r1, r1, #1
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r0, .L080E1FA8 @ =vtable_unk_080E5A28
 	str r0, [r5, #0x54]
 	str r0, [r5, #0x24]
@@ -28006,7 +28006,7 @@ func_080E1FAC: @ 0x080E1FAC
 	cmp r0, #0
 	beq .L080E2008
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E2008:
 	adds r0, r5, #0
 	adds r1, r6, #0
@@ -30847,7 +30847,7 @@ func_080E3504: @ 0x080E3504
 	adds r0, r6, #0
 	adds r0, #0x80
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r1, [r6, #0x7c]
 	cmp r1, #0
 	beq .L080E35AE
@@ -30902,10 +30902,10 @@ func_080E35E8: @ 0x080E35E8
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x39
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -30937,10 +30937,10 @@ func_080E3628: @ 0x080E3628
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -30958,10 +30958,10 @@ func_080E3650: @ 0x080E3650
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -30988,10 +30988,10 @@ func_080E3678: @ 0x080E3678
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x3a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -31017,7 +31017,7 @@ func_080E36B4: @ 0x080E36B4
 	lsls r1, r1, #1
 	adds r5, r0, r1
 	adds r0, r5, #0
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	bne .L080E3726
 	movs r0, #1
@@ -31029,7 +31029,7 @@ func_080E36B4: @ 0x080E36B4
 	str r6, [sp, #4]
 	str r6, [sp, #8]
 	adds r0, r5, #0
-	bl func_08050E30
+	bl ConfigureMessageWindowPromptChoices
 	b .L080E3726
 	.align 2, 0
 .L080E36F4: .4byte gUnk_08100588
@@ -31040,11 +31040,11 @@ func_080E36B4: @ 0x080E36B4
 	lsls r1, r1, #1
 	adds r4, r0, r1
 	adds r0, r4, #0
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	cmp r0, #3
 	bne .L080E3726
 	adds r0, r4, #0
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L080E3720
 	cmp r0, #2
@@ -31078,10 +31078,10 @@ func_080E3734: @ 0x080E3734
 	adds r0, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_08050DC8
+	bl SetMessageWindowTextOptions
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -31111,10 +31111,10 @@ func_080E3774: @ 0x080E3774
 	adds r4, r4, r0
 	ldr r1, .L080E3794 @ =gUnk_081005D8
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x38
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	pop {r4}
 	pop {r0}
 	bx r0
@@ -31141,10 +31141,10 @@ func_080E379C: @ 0x080E379C
 	adds r4, r5, r0
 	ldr r1, .L080E37D8 @ =gUnk_081005EC
 	adds r0, r4, #0
-	bl func_08050D8C
+	bl SetMessageWindowText
 	adds r0, r4, #0
 	movs r1, #0x3a
-	bl func_08050E50
+	bl SetMessageWindowPortrait
 	movs r2, #0xea
 	lsls r2, r2, #1
 	adds r1, r5, r2
@@ -31190,7 +31190,7 @@ func_080E37DC: @ 0x080E37DC
 	str r4, [sp, #8]
 	str r4, [sp, #0xc]
 	movs r3, #0
-	bl func_08050E0C
+	bl ConfigureMessageWindowChoices
 	b .L080E384E
 	.align 2, 0
 .L080E3820: .4byte gUnk_0810058C
@@ -31205,7 +31205,7 @@ func_080E37DC: @ 0x080E37DC
 	movs r2, #0xe4
 	lsls r2, r2, #1
 	adds r0, r1, r2
-	bl func_08050DF0
+	bl GetMessageWindowSelection
 	cmp r0, #1
 	beq .L080E3848
 	cmp r0, #2
@@ -31363,7 +31363,7 @@ func_080E3920: @ 0x080E3920
 	thumb_func_start func_080E392C
 func_080E392C: @ 0x080E392C
 	push {lr}
-	bl func_080D035C
+	bl Joybus_UpdateTransfers
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -31898,7 +31898,7 @@ func_080E3C3C: @ 0x080E3C3C
 	str r4, [r0]
 	subs r0, #0x18
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r1, [r5, #0x7c]
 	cmp r1, #0
 	beq .L080E3D5E
@@ -32102,28 +32102,28 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3EAC:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32144,7 +32144,7 @@ func_080E3E9C: @ 0x080E3E9C
 	bne .L080E3F38
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32152,7 +32152,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F16:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32160,7 +32160,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F26:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080E3F38
@@ -32450,7 +32450,7 @@ func_080E40A0: @ 0x080E40A0
 	cmp r0, #0
 	beq .L080E4178
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E4178:
 	adds r0, r5, #0
 	adds r1, r6, #0
@@ -33323,7 +33323,7 @@ func_080E4564: @ 0x080E4564
 	cmp r0, #0
 	beq .L080E480A
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E480A:
 	adds r0, r5, #0
 	adds r1, r7, #0
@@ -33915,7 +33915,7 @@ func_080E4940: @ 0x080E4940
 	cmp r0, #0
 	beq .L080E4D36
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E4D36:
 	adds r0, r5, #0
 	adds r1, r7, #0
@@ -34120,7 +34120,7 @@ func_080E4D50: @ 0x080E4D50
 	cmp r0, #0
 	beq .L080E4EF2
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E4EF2:
 	adds r0, r4, #0
 	adds r1, r5, #0
@@ -34495,7 +34495,7 @@ func_080E4FF0: @ 0x080E4FF0
 	cmp r0, #0
 	beq .L080E5240
 	movs r1, #3
-	bl func_08050D0C
+	bl DestroyMessageWindow
 .L080E5240:
 	adds r0, r5, #0
 	adds r1, r7, #0
@@ -35423,7 +35423,7 @@ func_080E596C: @ 0x080E596C
 	adds r5, r1, #0
 	adds r0, #0x80
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r1, [r4, #0x7c]
 	cmp r1, #0
 	beq .L080E5992

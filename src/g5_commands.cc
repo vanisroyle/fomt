@@ -109,13 +109,13 @@ EC SECTION(".text.g5_080CAF6C") void PruneInactivePanelDrawCommands(u8 * self) /
 
 struct TileCommand { u8 data[0x20]; };
 struct NumberCommand { u8 data[0x1c]; };
-EC DrawCommand * func_0804EA58(void *, void *, u16, u32, u32, u16, u32);
-EC DrawCommand * func_0804EE64(void *, u32, void *, u16, u16, u32);
+EC DrawCommand * InitializeMessageTilemapRectCommand(void *, void *, u16, u32, u32, u16, u32);
+EC DrawCommand * InitializeSmallMessageNumberCommand(void *, u32, void *, u16, u16, u32);
 EC DrawCommand * HardwareContext_GetFrameTasks(void *);
 
 EC SECTION(".text.g5_080CAE60") void QueuePanelTileDraw(u8 * self, void * destination, u16 tile, u32 width, u32 height, u16 palette, u32 stride) // 0x080CAE60
 {
-    DrawCommand * command = func_0804EA58(new TileCommand, destination, tile, width, height, palette, stride);
+    DrawCommand * command = InitializeMessageTilemapRectCommand(new TileCommand, destination, tile, width, height, palette, stride);
     InsertCommand(CommandIterator(*(CommandNode **) (self + 8)), command);
     DrawCommand * owner = *(DrawCommand **) self;
     owner->vtable->add(owner, command);
@@ -123,7 +123,7 @@ EC SECTION(".text.g5_080CAE60") void QueuePanelTileDraw(u8 * self, void * destin
 
 EC SECTION(".text.g5_080CAE60") void QueuePanelNumberDraw(u8 * self, u32 value, void * destination, u16 style, u16 palette, u32 stride) // 0x080CAEEC
 {
-    DrawCommand * command = func_0804EE64(new NumberCommand, value, destination, style, palette, stride);
+    DrawCommand * command = InitializeSmallMessageNumberCommand(new NumberCommand, value, destination, style, palette, stride);
     InsertCommand(CommandIterator(*(CommandNode **) (self + 8)), command);
     DrawCommand * owner = *(DrawCommand **) self;
     owner->vtable->add(owner, command);
@@ -131,7 +131,7 @@ EC SECTION(".text.g5_080CAE60") void QueuePanelNumberDraw(u8 * self, u32 value, 
 
 EC SECTION(".text.g5_080CE480") void QueuePagedPanelTileDraw(u8 * self, void * destination, u16 tile, u32 width, u32 height, u16 palette, u32 stride) // 0x080CE480
 {
-    DrawCommand * command = func_0804EA58(new TileCommand, destination, tile, width, height, palette, stride);
+    DrawCommand * command = InitializeMessageTilemapRectCommand(new TileCommand, destination, tile, width, height, palette, stride);
     InsertCommand(CommandIterator(((CommandList *) (self + 0xc0))->sentinel), command);
     DrawCommand * owner = HardwareContext_GetFrameTasks(*(void **) self);
     owner->vtable->add(owner, command);
@@ -139,7 +139,7 @@ EC SECTION(".text.g5_080CE480") void QueuePagedPanelTileDraw(u8 * self, void * d
 
 EC SECTION(".text.g5_080CE480") void QueuePagedPanelNumberDraw(u8 * self, u32 value, void * destination, u16 style, u16 palette, u32 stride) // 0x080CE510
 {
-    DrawCommand * command = func_0804EE64(new NumberCommand, value, destination, style, palette, stride);
+    DrawCommand * command = InitializeSmallMessageNumberCommand(new NumberCommand, value, destination, style, palette, stride);
     InsertCommand(CommandIterator(((CommandList *) (self + 0xc0))->sentinel), command);
     DrawCommand * owner = HardwareContext_GetFrameTasks(*(void **) self);
     owner->vtable->add(owner, command);

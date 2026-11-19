@@ -1,13 +1,142 @@
 #include "prelude.h"
 
 #include "bachelorette.hh"
+#include "farm_house.hh"
 #include "npc.hh"
 #include "schedule_info.hh"
+#include "unknown_types.hh"
 
+#include <algorithm>
 #include <stdlib.h>
 #include <string.h>
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
+
+struct OverlaySpriteResources;
+
+struct OverlaySpriteResourceVtable
+{
+    STRUCT_PAD(0x00, 0x4C);
+    void (*releasePalette)(OverlaySpriteResources *, unsigned);
+};
+
+struct OverlaySpriteResources
+{
+    OverlaySpriteResourceVtable const * vtable;
+};
+
+struct OverlayTileAllocation
+{
+    STRUCT_PAD(0x00, 0x04);
+    u32 handle;
+};
+
+struct FixedSpriteOverlay
+{
+    struct Frame
+    {
+        STRUCT_PAD(0x00, 0x20);
+        OverlayTileAllocation tiles;
+        u16 baseTile;
+    };
+
+    OverlaySpriteResources * resources;
+    Frame frames[3];
+    unsigned paletteCount;
+    u8 paletteIds[16];
+    STRUCT_PAD(0x9C, 0xA0);
+};
+
+struct GameStateMapOverlay
+{
+    struct Frame
+    {
+        STRUCT_PAD(0x00, 0x20);
+        OverlayTileAllocation tiles;
+    };
+
+    struct Placement
+    {
+        STRUCT_PAD(0x00, 0x1C);
+    };
+
+    OverlaySpriteResources * resources;
+    struct FrameList
+    {
+        unsigned count;
+        Frame entries[5];
+    } frames;
+    unsigned paletteCount;
+    u8 paletteIds[16];
+    STRUCT_PAD(0xE4, 0xE8);
+    struct PlacementList
+    {
+        unsigned count;
+        Placement entries[32];
+    } placements;
+};
+
+EC void func_08007C28(OverlayTileAllocation *, u32);
+EC void TileHeapOwner_Destroy(OverlayTileAllocation *, unsigned);
+EC void __builtin_delete(void *);
+
+ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOverlay, unsigned inputFlags)
+{
+    // Match the original Thumb register allocation for the destructor.
+    register FixedSpriteOverlay * overlay asm("r6") = inputOverlay;
+    asm("" : "+r"(overlay));
+    register unsigned destructorFlags asm("r8") = inputFlags;
+    asm("" : "+r"(destructorFlags) : "r"(overlay));
+    OverlaySpriteResources * resources = overlay->resources;
+    OverlaySpriteResourceVtable const * vtable = resources->vtable;
+    register FixedSpriteOverlay::Frame * end asm("r4") = overlay->frames + 3;
+    asm("" : "+r"(end) : "r"(resources), "r"(vtable));
+    vtable->releasePalette(resources, overlay->paletteIds[0]);
+
+    register FixedSpriteOverlay::Frame * firstFrame asm("r0") = overlay->frames;
+    asm("" : "+r"(firstFrame));
+    if (firstFrame)
+    {
+        FixedSpriteOverlay::Frame * frame = end;
+        if (firstFrame != frame)
+        {
+            FixedSpriteOverlay::Frame * first = firstFrame;
+            do
+            {
+                --frame;
+                OverlayTileAllocation * tiles = &frame->tiles;
+                func_08007C28(tiles, tiles->handle);
+                TileHeapOwner_Destroy(tiles, 2);
+            }
+            while (first != frame);
+        }
+    }
+    if (destructorFlags & 1)
+        __builtin_delete(overlay);
+}
+
+ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
+{
+    overlay->resources->vtable->releasePalette(overlay->resources, overlay->paletteIds[0]);
+
+    // The original compiler emitted this traversal even though placements own no tiles.
+    GameStateMapOverlay::PlacementList & placements = overlay->placements;
+    GameStateMapOverlay::Placement * placementsEnd = placements.entries + placements.count;
+    for (GameStateMapOverlay::Placement * placement = placements.entries; placement != placementsEnd; ++placement)
+    {
+    }
+
+    GameStateMapOverlay::FrameList & frames = overlay->frames;
+    GameStateMapOverlay::Frame * framesEnd = frames.entries + frames.count;
+    for (GameStateMapOverlay::Frame * frame = frames.entries; frame != framesEnd; ++frame)
+    {
+        OverlayTileAllocation * tiles = &frame->tiles;
+        func_08007C28(tiles, tiles->handle);
+        TileHeapOwner_Destroy(tiles, 2);
+    }
+    if (destructorFlags & 1)
+        __builtin_delete(overlay);
+}
 
 struct Unk_0803B454
 {
@@ -92,73 +221,110 @@ ROM_TEXT(0803B6B8) Unk_0803B6FC & func_0803B6FC(Unk_0803B6FC & self, void *& own
     return self;
 }
 
-struct PACKED ALIGN(2) Unk_0803B8CC
+struct PACKED ALIGN(4) DialogWindowLayers
 {
     i16 x;
     i16 y;
-    STRUCT_PAD(0x04, 0x0B);
+    STRUCT_PAD(0x04, 0x0A);
     u16 : 7;
+    u16 layerMode : 8;
     u16 state : 8;
-    u16 : 1;
-    u8 unk_0D;
+    u8 : 1;
+    u8 animationFrames;
+    STRUCT_PAD(0x0E, 0x10);
+    u8 layerList[0x1C];
+    u8 backgroundLayer[0x18];
+    u8 foregroundLayer[0x20];
 };
 
-struct Unk_0803BDFC
+struct DialogWindow
 {
-    Unk_0803B8CC * inner;
+    DialogWindowLayers * inner;
     void const * vtable;
 };
 
-EC int func_0803BAAC(Unk_0803B8CC &, int, int, int);
-EC void func_0803BCF8(Unk_0803B8CC &);
-
-ROM_TEXT(0803BD60) void func_0803BD60(Unk_0803B8CC & self)
+enum DialogWindowState
 {
-    func_0803BCF8(self);
-    self.state = 3;
-    self.unk_0D = 9;
+    DIALOG_WINDOW_CLOSED,
+    DIALOG_WINDOW_OPENING,
+    DIALOG_WINDOW_CLOSING,
+    DIALOG_WINDOW_OPEN,
+};
+
+struct BackgroundVideoState;
+struct DialogLayerRenderer;
+struct TileTransferQueue;
+struct OamBuffer;
+
+EC int UpdateDialogWindowLayers(DialogWindowLayers &, BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *);
+EC void TaskList_Append(void *, void *);
+
+ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
+{
+    int state = self.state;
+    if (state == DIALOG_WINDOW_CLOSED)
+    {
+        u32 layerMode = self.layerMode;
+        if (layerMode != 1)
+            TaskList_Append(self.layerList, self.backgroundLayer);
+        TaskList_Append(self.layerList, self.foregroundLayer);
+        self.animationFrames = state;
+    }
+    int nextState = self.state;
+    if (nextState < 0)
+        return;
+    if (nextState > DIALOG_WINDOW_CLOSING)
+        return;
+    self.state = DIALOG_WINDOW_OPENING;
 }
 
-ROM_TEXT(0803BD60) void func_0803BD88(Unk_0803B8CC & self)
+ROM_TEXT(0803BD60) void func_0803BD60(DialogWindowLayers & self)
+{
+    OpenDialogWindowLayers(self);
+    self.state = DIALOG_WINDOW_OPEN;
+    self.animationFrames = 9;
+}
+
+ROM_TEXT(0803BD60) void func_0803BD88(DialogWindowLayers & self)
 {
     if (self.state)
-        self.state = 2;
+        self.state = DIALOG_WINDOW_CLOSING;
 }
 
-ROM_TEXT(0803BD60) void func_0803BDB8(Unk_0803B8CC & self)
+ROM_TEXT(0803BD60) void func_0803BDB8(DialogWindowLayers & self)
 {
     if (self.state)
-        self.state = 0;
+        self.state = DIALOG_WINDOW_CLOSED;
 }
 
-ROM_TEXT(0803BD60) void func_0803BDE4(Unk_0803B8CC & self, int x, int y)
+ROM_TEXT(0803BD60) void func_0803BDE4(DialogWindowLayers & self, int x, int y)
 {
     self.x = x;
     self.y = y;
 }
 
-ROM_TEXT(0803BD60) void func_0803BDEC(Unk_0803B8CC & self, int x, int y)
+ROM_TEXT(0803BD60) void func_0803BDEC(DialogWindowLayers & self, int x, int y)
 {
     self.x += x;
     self.y += y;
 }
 
 EC char const vtable_unk_080E7778[];
-EC Unk_0803B8CC * func_0803B8CC(void *, int, int, int, int, int, int, int, int);
+EC DialogWindowLayers * func_0803B8CC(void *, int, int, int, int, int, int, int, int);
 EC void TaskNode_Destroy(void *, int);
 EC void TaskList_Destroy(void *, int);
 
-ROM_TEXT(0803BD60) Unk_0803BDFC & func_0803BDFC(Unk_0803BDFC & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
+ROM_TEXT(0803BD60) DialogWindow & func_0803BDFC(DialogWindow & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
 {
     self.vtable = vtable_unk_080E7778;
     self.inner = func_0803B8CC(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
     return self;
 }
 
-ROM_TEXT(0803BD60) void func_0803BE50(Unk_0803BDFC & self, int flags)
+ROM_TEXT(0803BD60) void func_0803BE50(DialogWindow & self, int flags)
 {
     self.vtable = vtable_unk_080E7778;
-    if (Unk_0803B8CC * inner = self.inner)
+    if (DialogWindowLayers * inner = self.inner)
     {
         u8 * data = reinterpret_cast<u8 *>(inner);
         TaskNode_Destroy(data + 0x44, 2);
@@ -170,57 +336,58 @@ ROM_TEXT(0803BD60) void func_0803BE50(Unk_0803BDFC & self, int flags)
         ::operator delete(&self);
 }
 
-ROM_TEXT(0803BD60) unsigned func_0803BE9C(Unk_0803BDFC const & self)
+ROM_TEXT(0803BD60) unsigned func_0803BE9C(DialogWindow const & self)
 {
     return self.inner->state;
 }
 
-ROM_TEXT(0803BD60) int func_0803BEB0(Unk_0803BDFC & self, int arg1, int arg2, int arg3)
+ROM_TEXT(0803BD60) int UpdateDialogWindow(DialogWindow & self, BackgroundVideoState * video,
+    DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
 {
-    return func_0803BAAC(*self.inner, arg1, arg2, arg3);
+    return UpdateDialogWindowLayers(*self.inner, video, layerRenderer, tileTransfers);
 }
 
-ROM_TEXT(0803BD60) void func_0803BEBC(Unk_0803BDFC & self)
+ROM_TEXT(0803BD60) void func_0803BEBC(DialogWindow & self)
 {
-    func_0803BCF8(*self.inner);
+    OpenDialogWindowLayers(*self.inner);
 }
 
-ROM_TEXT(0803BD60) void func_0803BEC8(Unk_0803BDFC & self)
+ROM_TEXT(0803BD60) void func_0803BEC8(DialogWindow & self)
 {
     func_0803BD60(*self.inner);
 }
 
-ROM_TEXT(0803BD60) void func_0803BED4(Unk_0803BDFC & self)
+ROM_TEXT(0803BD60) void func_0803BED4(DialogWindow & self)
 {
     func_0803BD88(*self.inner);
 }
 
-ROM_TEXT(0803BD60) void func_0803BEE0(Unk_0803BDFC & self)
+ROM_TEXT(0803BD60) void func_0803BEE0(DialogWindow & self)
 {
     func_0803BDB8(*self.inner);
 }
 
-ROM_TEXT(0803BD60) int func_0803BEEC(Unk_0803BDFC const & self)
+ROM_TEXT(0803BD60) int func_0803BEEC(DialogWindow const & self)
 {
     return self.inner->x;
 }
 
-ROM_TEXT(0803BD60) int func_0803BEF4(Unk_0803BDFC const & self)
+ROM_TEXT(0803BD60) int func_0803BEF4(DialogWindow const & self)
 {
     return self.inner->y;
 }
 
-ROM_TEXT(0803BD60) void func_0803BEFC(Unk_0803BDFC & self, int x, int y)
+ROM_TEXT(0803BD60) void func_0803BEFC(DialogWindow & self, int x, int y)
 {
     func_0803BDE4(*self.inner, x, y);
 }
 
-ROM_TEXT(0803BD60) void func_0803BF08(Unk_0803BDFC & self, int x, int y)
+ROM_TEXT(0803BD60) void func_0803BF08(DialogWindow & self, int x, int y)
 {
     func_0803BDEC(*self.inner, x, y);
 }
 
-struct Unk_0803BF78 : Unk_0803BDFC
+struct Unk_0803BF78 : DialogWindow
 {
     void * unk_08;
     u8 unk_0C;
@@ -255,7 +422,22 @@ ROM_TEXT(0803C518) void func_0803C544(Unk_0803BF78 & self)
 
 struct ClockDisplayData
 {
-    STRUCT_PAD(0x000, 0x228);
+    STRUCT_PAD(0x000, 0x084);
+    u8 seasonFirstTiles[0x20];
+    u8 seasonSecondTiles[0x20];
+    u8 dayTensTiles[0x20];
+    u8 dayOnesTiles[0x20];
+    u8 meridiemTiles[0x20];
+    STRUCT_PAD(0x124, 0x144);
+    u8 hourTensTiles[0x20];
+    u8 hourOnesTiles[0x20];
+    STRUCT_PAD(0x184, 0x18C);
+    u8 dateTilesDirty;
+    STRUCT_PAD(0x18D, 0x1A8);
+    u8 weekdayFirstTiles[0x20];
+    u8 weekdaySecondTiles[0x20];
+    u8 weekdayThirdTiles[0x20];
+    STRUCT_PAD(0x208, 0x228);
     u8 colonTiles[0x20];
     u8 minuteTensTiles[0x20];
     u8 minuteOnesTiles[0x20];
@@ -277,6 +459,142 @@ struct ClockDisplay
 };
 
 EC u8 const gClockFont[][0x20];
+
+ROM_TEXT(0803D080) void SetClockSeasonTiles(ClockDisplay & self, Season season)
+{
+    ClockDisplayData & inner = *self.inner;
+    u32 seasonTileIds[2];
+    switch (season)
+    {
+    case SEASON_SPRING:
+    default: seasonTileIds[0] = 11; seasonTileIds[1] = 12; break;
+    case SEASON_SUMMER: seasonTileIds[0] = 13; seasonTileIds[1] = 14; break;
+    case SEASON_AUTUMN: seasonTileIds[0] = 15; seasonTileIds[1] = 16; break;
+    case SEASON_WINTER: seasonTileIds[0] = 17; seasonTileIds[1] = 18; break;
+    }
+    memcpy(inner.seasonFirstTiles,
+           gClockFont[seasonTileIds[0]],
+           sizeof(inner.seasonFirstTiles));
+    inner.dateTilesDirty = 1;
+    u8 const * secondTile = gClockFont[seasonTileIds[1]];
+    memcpy(inner.seasonSecondTiles, secondTile, sizeof(inner.seasonSecondTiles));
+    inner.dateTilesDirty = 1;
+}
+
+ROM_TEXT(0803D0F0) void SetClockDayAndWeekdayTiles(ClockDisplay & self, unsigned day, unsigned weekday)
+{
+    ClockDisplayData & inner = *self.inner;
+    int tens = day / 10;
+    unsigned ones = day % 10;
+    u32 weekdayTileIds[8]; // Also used as the blank tens tile when the day is one digit.
+    u8 * dateDirty;
+    if (tens > 0)
+    {
+        u8 const * tile = gClockFont[tens];
+        memcpy(inner.dayTensTiles, tile, sizeof(inner.dayTensTiles));
+        dateDirty = &inner.dateTilesDirty;
+    }
+    else
+    {
+        memset(weekdayTileIds, 0, sizeof(weekdayTileIds));
+        u8 * blankDest = inner.dayTensTiles;
+        asm("" : "+r"(blankDest));
+        memcpy(blankDest, weekdayTileIds, sizeof(inner.dayTensTiles));
+        register unsigned dirtyOffset asm("r2") = offsetof(ClockDisplayData, dateTilesDirty);
+        asm("" : "+r"(dirtyOffset));
+        dateDirty = reinterpret_cast<u8 *>(&inner) + dirtyOffset;
+    }
+    *dateDirty = 1;
+    u8 const * tile = gClockFont[ones];
+    memcpy(inner.dayOnesTiles, tile, sizeof(inner.dayOnesTiles));
+    inner.dateTilesDirty = 1;
+    switch (weekday)
+    {
+    case 0:
+    default: weekdayTileIds[0] = 0x60; weekdayTileIds[1] = 0x61; weekdayTileIds[2] = 0x62; break;
+    case 1: weekdayTileIds[0] = 0x63; weekdayTileIds[1] = 0x64; weekdayTileIds[2] = 0x65; break;
+    case 2: weekdayTileIds[0] = 0x66; weekdayTileIds[1] = 0x67; weekdayTileIds[2] = 0x68; break;
+    case 3: weekdayTileIds[0] = 0x69; weekdayTileIds[1] = 0x6A; weekdayTileIds[2] = 0x6B; break;
+    case 4: weekdayTileIds[0] = 0x6C; weekdayTileIds[1] = 0x6D; weekdayTileIds[2] = 0x6E; break;
+    case 5: weekdayTileIds[0] = 0x6F; weekdayTileIds[1] = 0x70; weekdayTileIds[2] = 0x71; break;
+    case 6: weekdayTileIds[0] = 0x72; weekdayTileIds[1] = 0x73; weekdayTileIds[2] = 0x74; break;
+    }
+    // Preserve the original tile copy order and register allocation.
+    u8 * firstDest = inner.weekdayFirstTiles;
+    register unsigned firstTileOffset asm("r1") = weekdayTileIds[0] * sizeof(inner.weekdayFirstTiles);
+    asm("" : "+r"(firstTileOffset) : "r"(firstDest));
+    u8 const * font = &gClockFont[0][0];
+    memcpy(firstDest, reinterpret_cast<u8 const *>(firstTileOffset + reinterpret_cast<uintptr_t>(font)), sizeof(inner.weekdayFirstTiles));
+    unsigned refreshOffset = offsetof(ClockDisplayData, tilesDirty);
+    asm("" : "+r"(refreshOffset));
+    u8 * dirty = reinterpret_cast<u8 *>(&inner) + refreshOffset;
+    *dirty = 1;
+    unsigned secondTileOffset = weekdayTileIds[1] * sizeof(inner.weekdaySecondTiles);
+    register u8 const * secondTile asm("r1") = reinterpret_cast<u8 const *>(secondTileOffset + reinterpret_cast<uintptr_t>(font));
+    asm("" : "+r"(secondTile));
+    register unsigned secondDestOffset asm("r2") = refreshOffset
+        - (offsetof(ClockDisplayData, tilesDirty) - offsetof(ClockDisplayData, weekdaySecondTiles));
+    memcpy(reinterpret_cast<u8 *>(&inner) + secondDestOffset, secondTile, sizeof(inner.weekdaySecondTiles));
+    *dirty = 1;
+    unsigned thirdTileOffset = weekdayTileIds[2] * sizeof(inner.weekdayThirdTiles);
+    register u8 const * thirdTile asm("r1") = reinterpret_cast<u8 const *>(thirdTileOffset + reinterpret_cast<uintptr_t>(font));
+    register unsigned thirdDestOffset asm("r2") = offsetof(ClockDisplayData, weekdayThirdTiles);
+    asm("" : "+r"(thirdDestOffset) : "r"(thirdTile));
+    memcpy(reinterpret_cast<u8 *>(&inner) + thirdDestOffset, thirdTile, sizeof(inner.weekdayThirdTiles));
+    *dirty = 1;
+}
+
+ROM_TEXT(0803D240) void SetClockHourTiles(ClockDisplay & self, unsigned hour)
+{
+    ClockDisplayData & inner = *self.inner;
+    const unsigned pmTileId = 30;
+    const unsigned amTileId = 28;
+    unsigned meridiemTileId = pmTileId;
+    if (hour <= 11)
+        meridiemTileId = amTileId;
+    u8 const * meridiemTile = gClockFont[meridiemTileId];
+    memcpy(inner.meridiemTiles, meridiemTile, sizeof(inner.meridiemTiles));
+    u8 * dirty = &inner.dateTilesDirty;
+    *dirty = 1;
+    // The clock keeps 12 at noon and subtracts 12 in the afternoon.
+    register unsigned displayedHour asm("r4") = 12;
+    u8 * dirtyForDigits = dirty;
+    if (hour != 12)
+    {
+        displayedHour = hour;
+        if (displayedHour > 11)
+            displayedHour -= 12;
+    }
+    int tens = displayedHour / 10;
+    displayedHour %= 10;
+    u8 blank[0x20];
+    u8 const * tensTile;
+    u8 * tensDest;
+    if (tens > 0)
+    {
+        tensTile = gClockFont[tens];
+        tensDest = inner.hourTensTiles;
+    }
+    else
+    {
+        memset(blank, 0, sizeof(blank));
+        tensDest = inner.hourTensTiles;
+        tensTile = blank;
+    }
+    memcpy(tensDest, tensTile, sizeof(inner.hourTensTiles));
+    {
+        register u8 dirtyValue asm("r0") = 1;
+        asm("" : "+r"(dirtyValue));
+        *dirtyForDigits = dirtyValue;
+    }
+    u8 const * onesTile = gClockFont[displayedHour];
+    memcpy(inner.hourOnesTiles, onesTile, sizeof(inner.hourOnesTiles));
+    {
+        register u8 dirtyValue asm("r0") = 1;
+        asm("" : "+r"(dirtyValue));
+        *dirtyForDigits = dirtyValue;
+    }
+}
 
 ROM_TEXT(0803D2E8) void SetClockColonVisible(ClockDisplay & self, bool visible)
 {
@@ -436,13 +754,13 @@ EC ScheduleInfo const gUnk_080F2AF8;
 EC ScheduleInfo const gUnk_080F42F0;
 EC ScheduleInfo const gUnk_080F43DC;
 EC ScheduleInfo const gUnk_080F6FF8;
-EC ScheduleInfo const gUnk_080F7B40;
+EC ScheduleInfo const gCarpenterScheduleInfo;
 EC ScheduleInfo const gUnk_080F2DC0;
 EC ScheduleInfo const gUnk_080F597C;
 EC ScheduleInfo const gUnk_080F6B10;
 EC ScheduleInfo const gUnk_080F4974;
 EC ScheduleInfo const gUnk_080F29C0;
-EC Npc * func_080A0A04(NpcScheduleRoster &);
+EC Npc * GetActiveScheduleNpc(NpcScheduleRoster &);
 EC void ResetNpcDailySchedule(Npc &, ScheduleInfo const &, void const *);
 
 ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void const * context)
@@ -473,19 +791,32 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_250, gUnk_080F42F0, context);
     ResetNpcDailySchedule(self.npc_264, gUnk_080F43DC, context);
     ResetNpcDailySchedule(self.npc_27C, gUnk_080F6FF8, context);
-    ResetNpcDailySchedule(self.npc_290, gUnk_080F7B40, context);
+    ResetNpcDailySchedule(self.npc_290, gCarpenterScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_2A8, gUnk_080F2DC0, context);
     ResetNpcDailySchedule(self.npc_2BC, gUnk_080F597C, context);
     ResetNpcDailySchedule(self.npc_310, gUnk_080F6B10, context);
     ResetNpcDailySchedule(self.npc_328, gUnk_080F4974, context);
 
-    if (Npc * npc = func_080A0A04(self))
+    if (Npc * npc = GetActiveScheduleNpc(self))
         ResetNpcDailySchedule(*npc, gUnk_080F29C0, context);
 }
 
 struct PACKED SavedCalendarDate
 {
-    u8 data[3];
+    u8 yearInCycle : 3;
+    u8 yearCycle : 5;
+    u8 packedDateAndTime[2];
+};
+
+enum NpcScheduleWeekday
+{
+    SCHEDULE_SUNDAY,
+    SCHEDULE_MONDAY,
+    SCHEDULE_TUESDAY,
+    SCHEDULE_WEDNESDAY,
+    SCHEDULE_THURSDAY,
+    SCHEDULE_FRIDAY,
+    SCHEDULE_SATURDAY,
 };
 
 struct CalendarDate
@@ -516,7 +847,8 @@ struct NpcScheduleContext
     Bachelorette npc_1E28;
     STRUCT_PAD(0x1E40, 0x215A);
     u8 unk_215A;
-    STRUCT_PAD(0x215B, 0x2178);
+    STRUCT_PAD(0x215B, 0x2174);
+    u32 unk_2174;
     union
     {
         u32 unk_2178;
@@ -552,7 +884,7 @@ ROM_TEXT(0803D7E4) unsigned SelectNpcSchedule_080F1A80(void const * context)
         return 4;
     if (self.weather == 0)
     {
-        if (weekday == 2)
+        if (weekday == SCHEDULE_TUESDAY)
             return 3;
         return 1;
     }
@@ -579,12 +911,28 @@ ROM_TEXT(0803DECC) unsigned SelectNpcSchedule_080F3010(NpcScheduleContext const 
     unsigned weekday = date.weekday;
     if (IsNpcScheduleFestivalDay(season, day))
         return 4;
-    if (weekday == 3)
+    if (weekday == SCHEDULE_WEDNESDAY)
     {
         if (self.weather == 0)
             return 2;
         return 3;
     }
+    return 1;
+}
+
+ROM_TEXT(0803DC64) unsigned SelectNpcSchedule_080F280C(NpcScheduleContext const & self)
+{
+    if (self.eventFlags & 0xC)
+        return 0;
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 3;
+    if (weekday == SCHEDULE_SUNDAY)
+        return 2;
     return 1;
 }
 
@@ -610,9 +958,9 @@ ROM_TEXT(0803DECC) unsigned SelectNpcSchedule_080F3408(NpcScheduleContext const 
     unsigned weekday = date.weekday;
     if (IsNpcScheduleFestivalDay(season, day))
         return 4;
-    if (weekday == 2)
+    if (weekday == SCHEDULE_TUESDAY)
         return 2;
-    if (weekday == 0)
+    if (weekday == SCHEDULE_SUNDAY)
         return 3;
     return 1;
 }
@@ -630,7 +978,7 @@ ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F3FD8(NpcScheduleContext const 
         return 4;
     if (self.weather == 0)
     {
-        if (weekday == 2)
+        if (weekday == SCHEDULE_TUESDAY)
             return 3;
         return 1;
     }
@@ -648,7 +996,7 @@ ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F42F0(NpcScheduleContext const 
     if (IsNpcScheduleFestivalDay(season, day))
         return 2;
     unsigned event = func_080A0490(self.unk_1CD4);
-    if (season == 2 && day == 5 && event != 25)
+    if (season == SEASON_AUTUMN && day == 5 && event != 25)
         return 3;
     return 1;
 }
@@ -661,7 +1009,7 @@ ROM_TEXT(0803E40C) unsigned SelectNpcSchedule_080F4974(NpcScheduleContext const 
     switch (self.unk_2187_3)
     {
     case 2:
-        if (weekday == 0)
+        if (weekday == SCHEDULE_SUNDAY)
             return 1;
         break;
     }
@@ -679,7 +1027,7 @@ ROM_TEXT(0803E40C) unsigned SelectNpcSchedule_080F49C0(NpcScheduleContext const 
     unsigned weekday = date.weekday;
     if (IsNpcScheduleFestivalDay(season, day))
         return 4;
-    if (weekday == 1)
+    if (weekday == SCHEDULE_MONDAY)
     {
         if (self.weather == 0)
             return 2;
@@ -699,7 +1047,7 @@ ROM_TEXT(0803E620) unsigned SelectNpcSchedule_080F5540(NpcScheduleContext const 
     unsigned weekday = date.weekday;
     if (IsNpcScheduleFestivalDay(season, day))
         return 5;
-    if (weekday == 1)
+    if (weekday == SCHEDULE_MONDAY)
     {
         if (self.weather == 0)
             return 3;
@@ -710,14 +1058,29 @@ ROM_TEXT(0803E620) unsigned SelectNpcSchedule_080F5540(NpcScheduleContext const 
     return 2;
 }
 
-ROM_TEXT(0803E6EC) unsigned SelectNpcSchedule_080F59CC(NpcScheduleContext const & self)
+ROM_TEXT(0803E620) unsigned SelectNpcSchedule_080F597C(NpcScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    u8 season = date.season;
+    u8 day = date.day;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 2;
+    unsigned maxYear = 200;
+    unsigned calendarYear = self.calendar.yearCycle * 7 + self.calendar.yearInCycle;
+    if (std::min(maxYear, calendarYear) <= 1 && season == SEASON_SPRING && day <= 2)
+        return 0;
+    return 1;
+}
+
+ROM_TEXT(0803E620) unsigned SelectNpcSchedule_080F59CC(NpcScheduleContext const & self)
 {
     CalendarDate date;
     DecodeNpcScheduleDate(date, self.calendar);
     unsigned season = date.season;
     unsigned day = date.day;
     unsigned weekday = date.weekday;
-    if (season == 3 && day == 2 && (self.unk_2178 & 0x43000) == 0x2000)
+    if (season == SEASON_WINTER && day == 2 && (self.unk_2178 & 0x43000) == 0x2000)
     {
         switch (self.scheduleFlags.unk_217A_3)
         {
@@ -728,13 +1091,13 @@ ROM_TEXT(0803E6EC) unsigned SelectNpcSchedule_080F59CC(NpcScheduleContext const 
     }
     if (IsNpcScheduleFestivalDay(season, day))
         return 6;
-    if (weekday == 6)
+    if (weekday == SCHEDULE_SATURDAY)
     {
         if (self.weather == 0)
             return 2;
         return 3;
     }
-    if (weekday == 0)
+    if (weekday == SCHEDULE_SUNDAY)
     {
         if (self.weather == 0)
             return 4;
@@ -753,7 +1116,7 @@ ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F61FC(NpcScheduleContext const 
         unsigned season = date.season;
         unsigned day = date.day;
         weekday = date.weekday;
-        if (season == 2 && day == 30 && (self.unk_21A2 >> 6) != 2)
+        if (season == SEASON_AUTUMN && day == 30 && (self.unk_21A2 >> 6) != 2)
             return 5;
         if (IsNpcScheduleFestivalDay(season, day))
             return 4;
@@ -762,14 +1125,62 @@ ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F61FC(NpcScheduleContext const 
     }
     return 0;
 active:
-    if (weekday == 1 || weekday == 3)
+    if (weekday == SCHEDULE_MONDAY || weekday == SCHEDULE_WEDNESDAY)
         return 3;
     if (self.weather == 0)
         return 1;
     return 2;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6B10(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6370(NpcScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    u32 weekday = date.weekday;
+    // Keep the copy for the original register allocation.
+    u32 weekdayForRegularSchedule = weekday;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 5;
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 6)) < 0)
+        return 0;
+    if ((self.unk_2174 & 0x61000) == 0x41000)
+    {
+        if (weekday == SCHEDULE_SATURDAY)
+            return 4;
+        return 3;
+    }
+    if (weekdayForRegularSchedule == SCHEDULE_SATURDAY)
+        return 2;
+    return 1;
+}
+
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F66C4(NpcScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    u8 weekday = date.weekday;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 5;
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 6)) < 0)
+        return 0;
+    if (self.weather == 0)
+    {
+        if (weekday == SCHEDULE_SATURDAY)
+        {
+            if ((self.unk_2174 & 0x61000) == 0x41000)
+                return 4;
+            return 3;
+        }
+        return 1;
+    }
+    return 2;
+}
+
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6B10(NpcScheduleContext const & self)
 {
     CalendarDate date;
     DecodeNpcScheduleDate(date, self.calendar);
@@ -777,14 +1188,14 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6B10(NpcScheduleContext const 
     switch (self.unk_2186_5)
     {
     case 2:
-        if (weekday == 3)
+        if (weekday == SCHEDULE_WEDNESDAY)
             return 1;
         break;
     }
     return 0;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6B4C(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6B4C(NpcScheduleContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 5)) < 0)
         return 0;
@@ -795,7 +1206,7 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6B4C(NpcScheduleContext const 
     return 1;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6DE8(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6DE8(NpcScheduleContext const & self)
 {
     if (self.eventFlags & 0x7C)
         return 0;
@@ -804,16 +1215,16 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6DE8(NpcScheduleContext const 
     unsigned season = date.season;
     unsigned day = date.day;
     unsigned weekday = date.weekday;
-    if (season == 2 && day == 3)
+    if (season == SEASON_AUTUMN && day == 3)
         return 9;
     if (IsNpcScheduleFestivalDay(season, day))
         return 8;
-    if (weekday == 1 || weekday == 3 || self.weather != 0)
+    if (weekday == SCHEDULE_MONDAY || weekday == SCHEDULE_WEDNESDAY || self.weather != 0)
         return 1;
     return 2;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6FF8(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6FF8(NpcScheduleContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 3)) >= 0)
     {
@@ -822,11 +1233,11 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6FF8(NpcScheduleContext const 
         unsigned season = date.season;
         unsigned day = date.day;
         unsigned weekday = date.weekday;
-        if (season == 1)
+        if (season == SEASON_SUMMER)
         {
             if (IsNpcScheduleFestivalDay(1, day))
                 return 4;
-            if (weekday == 0)
+            if (weekday == SCHEDULE_SUNDAY)
             {
                 if (self.weather == 0)
                     return 2;
@@ -838,7 +1249,7 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6FF8(NpcScheduleContext const 
     return 0;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 4)) < 0)
         return 0;
@@ -852,7 +1263,7 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const 
     {
         if (IsNpcScheduleFestivalDay(season, day))
             return 9;
-        if (weekday == 4)
+        if (weekday == SCHEDULE_THURSDAY)
         {
             if (self.weather == 0)
                 return 6;
@@ -864,19 +1275,19 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const 
         return 8;
     if (rivalEvents != 0)
     {
-        if (weekday == 1)
+        if (weekday == SCHEDULE_MONDAY)
             return 3;
-        if (weekday == 4)
+        if (weekday == SCHEDULE_THURSDAY)
             return 4;
         return 2;
     }
     return 1;
 }
 
-EC unsigned func_0809ECD8(void const *);
-EC bool func_0809ECE0(void const *);
+EC unsigned GetNpcMilestoneEventId(void const *);
+EC bool IsNpcMilestoneEventReady(void const *);
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 4)) < 0)
         return 0;
@@ -888,9 +1299,9 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const 
     if (IsNpcScheduleFestivalDay(season, day))
         return 4;
     void const * npc = self.unk_1DAC;
-    if (func_0809ECD8(npc) != 0 && !func_0809ECE0(npc))
+    if (GetNpcMilestoneEventId(npc) != 0 && !IsNpcMilestoneEventReady(npc))
         return 5;
-    if (weekday == 4)
+    if (weekday == SCHEDULE_THURSDAY)
     {
         if (self.weather == 0)
             return 2;
@@ -899,7 +1310,128 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const 
     return 1;
 }
 
-ROM_TEXT(0803EE50) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const & self)
+struct CarpenterConstructionState
+{
+    STRUCT_PAD(0, 0x14);
+    u8 jobAndProgress;
+    u8 dailyFlags;
+};
+
+enum ConstructionJob
+{
+    CONSTRUCTION_NONE = 0,
+    CONSTRUCTION_HOUSE_UPGRADE = 1,
+    CONSTRUCTION_COOP_UPGRADE = 2,
+    CONSTRUCTION_BARN_UPGRADE = 3,
+    CONSTRUCTION_WINDOW_FIRST = 5,
+    CONSTRUCTION_WINDOW_SECOND,
+    CONSTRUCTION_WINDOW_THIRD,
+    CONSTRUCTION_MAILBOX_FIRST,
+    CONSTRUCTION_MAILBOX_SECOND,
+    CONSTRUCTION_MAILBOX_THIRD,
+    CONSTRUCTION_DOGHOUSE_FIRST,
+    CONSTRUCTION_DOGHOUSE_SECOND,
+    CONSTRUCTION_DOGHOUSE_THIRD,
+};
+
+struct CarpenterScheduleContext
+{
+    STRUCT_PAD(0, 8);
+    unsigned weather;
+    STRUCT_PAD(0xC, 0x10);
+    SavedCalendarDate date;
+    STRUCT_PAD(0x13, 0x1F4);
+    FarmHouse farmHouse;
+    u8 padAfterFarmHouse[0x1F64 - 0x1F4 - sizeof(FarmHouse)];
+    CarpenterConstructionState construction;
+};
+
+EC unsigned GetConstructionJob(CarpenterConstructionState const &);
+EC bool IsConstructionComplete(CarpenterConstructionState const &);
+EC bool IsFirstConstructionDay(CarpenterConstructionState const &);
+
+ROM_TEXT(0803ECC0) unsigned SelectCarpenterSchedule(CarpenterScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.date);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    int weekday = date.weekday;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 5;
+    unsigned weather = self.weather;
+    if (GetConstructionJob(self.construction) != CONSTRUCTION_NONE && !IsConstructionComplete(self.construction) &&
+        !IsFirstConstructionDay(self.construction) && weather - 3 > 1)
+    {
+        switch (GetConstructionJob(self.construction))
+        {
+        case CONSTRUCTION_NONE: goto regular;
+        case CONSTRUCTION_HOUSE_UPGRADE:
+            switch (self.farmHouse.GetUpgradeLevel())
+            {
+            case 0: return 6;
+            case 1: return 7;
+            case 2: return 13;
+            }
+            break;
+        case CONSTRUCTION_COOP_UPGRADE: return 8;
+        case CONSTRUCTION_BARN_UPGRADE: return 9;
+        case 4: return 14;
+        case CONSTRUCTION_WINDOW_FIRST:
+        case CONSTRUCTION_WINDOW_SECOND:
+        case CONSTRUCTION_WINDOW_THIRD: return 10;
+        case CONSTRUCTION_MAILBOX_FIRST:
+        case CONSTRUCTION_MAILBOX_SECOND:
+        case CONSTRUCTION_MAILBOX_THIRD: return 11;
+        case CONSTRUCTION_DOGHOUSE_FIRST:
+        case CONSTRUCTION_DOGHOUSE_SECOND:
+        case CONSTRUCTION_DOGHOUSE_THIRD: return 12;
+        }
+    }
+regular:
+    switch (weekday)
+    {
+    default: return 1;
+    case SCHEDULE_THURSDAY:
+    case SCHEDULE_FRIDAY: return 2;
+    case SCHEDULE_SATURDAY: return 3;
+    case SCHEDULE_SUNDAY: return 4;
+    }
+}
+
+ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F81BC(NpcScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    u8 day = date.day;
+    unsigned weekday = date.weekday;
+    u8 festival = IsNpcScheduleFestivalDay(season, day);
+    if (festival != 0)
+        return 5;
+    if (season == SEASON_AUTUMN && day == 30)
+    {
+        switch ((static_cast<u32>(self.unk_21A2) << 26) >> 30)
+        {
+        case 2: goto regularDay;
+        }
+        return 6;
+    }
+regularDay:
+    if (static_cast<i32>(static_cast<u32>(self.unk_215A) << (31 - 3)) < 0)
+        return 0;
+    if (self.weather == 0)
+    {
+        if (weekday == SCHEDULE_MONDAY)
+            return 1;
+        if (weekday == SCHEDULE_WEDNESDAY)
+            return 2;
+        return 3;
+    }
+    return 4;
+}
+
+ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const & self)
 {
     CalendarDate date;
     DecodeNpcScheduleDate(date, self.calendar);
@@ -908,7 +1440,7 @@ ROM_TEXT(0803EE50) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const 
     unsigned weekday = date.weekday;
     if (IsNpcScheduleFestivalDay(season, day))
         return 4;
-    if (weekday == 1)
+    if (weekday == SCHEDULE_MONDAY)
     {
         if (self.weather == 0)
             return 2;
@@ -918,7 +1450,7 @@ ROM_TEXT(0803EE50) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const 
 }
 
 EC Unk_0803BF78 & func_0803C028(Unk_0803BF78 &, void *, int, int, int, int, int);
-EC void func_0803BE50(Unk_0803BDFC &, int);
+EC void func_0803BE50(DialogWindow &, int);
 EC void func_080E0C38(void *, int);
 EC void func_080E0D70(void *, int);
 EC char const vtable_unk_080E77A4[];
@@ -932,12 +1464,35 @@ struct Unk_0803C7A0
 EC void func_0803C7A0(Unk_0803C7A0 &, int);
 EC void func_0803C5B0(Unk_0803C7A0 &);
 
-struct Unk_0803C54C : Unk_0803BDFC
+struct DialogChoiceWindow : DialogWindow
 {
     Unk_0803C7A0 menu;
 };
 
-EC Unk_0803BDFC & func_0803BDFC(Unk_0803BDFC &, int, int, int, int, int, int, int, int);
+struct DialogChoiceWindowVtable
+{
+    STRUCT_PAD(0, 0x1C);
+    int (* getX)(DialogChoiceWindow &);
+    int (* getY)(DialogChoiceWindow &);
+};
+
+EC void DrawDialogChoices(Unk_0803C7A0 &, int x, int y, OamBuffer *, DialogLayerRenderer *);
+
+ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBuffer * oam,
+    BackgroundVideoState * video, DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
+{
+    // Preserve the original register allocation for the window state.
+    register int state asm("r6") = UpdateDialogWindow(self, video, layerRenderer, tileTransfers);
+    if (state == DIALOG_WINDOW_OPEN)
+    {
+        int x = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getX(self);
+        int y = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getY(self);
+        DrawDialogChoices(self.menu, x, y, oam, layerRenderer);
+    }
+    return state;
+}
+
+EC DialogWindow & func_0803BDFC(DialogWindow &, int, int, int, int, int, int, int, int);
 
 EC void * func_080E0A94(void *);
 
@@ -966,7 +1521,7 @@ ROM_TEXT(0803C00C) Unk_0803BF78 & func_0803C00C(Unk_0803BF78 & self, void * arg1
     return func_0803C028(self, arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
-ROM_TEXT(0803C518) Unk_0803C54C & func_0803C54C(Unk_0803C54C & self, int arg1, int arg2, int arg3, int arg4)
+ROM_TEXT(0803C518) DialogChoiceWindow & func_0803C54C(DialogChoiceWindow & self, int arg1, int arg2, int arg3, int arg4)
 {
     func_0803BDFC(self, 128, 136, 112, 24, arg1, arg2, arg3, arg4);
     self.vtable = vtable_unk_080E77E0;
@@ -974,7 +1529,7 @@ ROM_TEXT(0803C518) Unk_0803C54C & func_0803C54C(Unk_0803C54C & self, int arg1, i
     return self;
 }
 
-ROM_TEXT(0803C518) void func_0803C588(Unk_0803C54C & self, int flags)
+ROM_TEXT(0803C518) void func_0803C588(DialogChoiceWindow & self, int flags)
 {
     self.vtable = vtable_unk_080E77E0;
     func_0803C7A0(self.menu, 2);

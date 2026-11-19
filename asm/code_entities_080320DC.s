@@ -1,6 +1,8 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
 
+    .section .text.npc_side.0803242C, "ax", %progbits
+
     thumb_func_start func_0803242C
 func_0803242C: @ 0x0803242C
     push {r4, r5, r6, r7, lr}
@@ -85,10 +87,7 @@ func_0803242C: @ 0x0803242C
     pop {r0}
     bx r0
 
-    thumb_func_start func_080324B8
-func_080324B8: @ 0x080324B8
-    movs r0, #0
-    bx lr
+    .section .text.npc_side.080324BC, "ax", %progbits
 
     thumb_func_start func_080324BC
 func_080324BC: @ 0x080324BC
@@ -254,6 +253,8 @@ func_08032560: @ 0x08032560
     .align 2, 0
 .L08032608: .4byte vtable_unk_080E68B4
 
+    .section .text.npc_side.0803260C, "ax", %progbits
+
     thumb_func_start func_0803260C
 func_0803260C: @ 0x0803260C
     push {r4, r5, r6, r7, lr}
@@ -328,6 +329,8 @@ func_0803260C: @ 0x0803260C
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
+
+    .section .text.npc_side.08032690, "ax", %progbits
 
     thumb_func_start func_08032690
 func_08032690: @ 0x08032690
@@ -651,35 +654,7 @@ func_08032690: @ 0x08032690
     pop {r0}
     bx r0
 
-    thumb_func_start func_08032900
-func_08032900: @ 0x08032900
-    push {lr}
-    cmp r0, #2
-    bne .L0803292C
-    ldr r0, .L08032920 @ =0xFFFFFEF0
-    adds r1, r1, r0
-    ldr r0, .L08032924 @ =0x000002AF
-    cmp r1, r0
-    bhi .L08032928
-    cmp r2, #0xaf
-    ble .L08032928
-    subs r0, #0x60
-    cmp r2, r0
-    bgt .L08032928
-    movs r0, #1
-    b .L0803292E
-    .align 2, 0
-.L08032920: .4byte 0xFFFFFEF0
-.L08032924: .4byte 0x000002AF
-.L08032928:
-    movs r0, #2
-    b .L0803292E
-.L0803292C:
-    movs r0, #0
-.L0803292E:
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_side.08032934, "ax", %progbits
 
     thumb_func_start func_08032934
 func_08032934: @ 0x08032934
@@ -702,376 +677,86 @@ func_08032934: @ 0x08032934
     bx r1
     .align 2, 0
 .L08032958: .4byte vtable_unk_080E6828
-.L0803295C:
-    .byte 0x70, 0xB5, 0x82, 0xB0
-    .byte 0x05, 0x1C, 0x0E, 0x1C, 0x11, 0x48, 0x68, 0x61, 0x2C, 0x6B, 0x68, 0x46, 0x29, 0x1C, 0xFF, 0xF7
-    .byte 0xFF, 0xFB, 0x68, 0x46, 0x06, 0xC8, 0x06, 0xC4, 0x69, 0x8C, 0x28, 0x6B, 0x01, 0x81, 0x0C, 0x48
-    .byte 0x68, 0x61, 0x29, 0x69, 0x00, 0x29, 0x05, 0xD0, 0x48, 0x68, 0x82, 0x68, 0x08, 0x1C, 0x03, 0x21
-    .byte 0xA0, 0xF0, 0xC0, 0xFF, 0x01, 0x20, 0x30, 0x40, 0x00, 0x28, 0x02, 0xD0, 0x28, 0x1C, 0xCD, 0xF7
-    .byte 0x33, 0xFE, 0x02, 0xB0, 0x70, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0x28, 0x68, 0x0E, 0x08
-    .byte 0x50, 0x62, 0x0E, 0x08, 0x10, 0xB5, 0x04, 0x1C, 0x8C, 0x20, 0xCD, 0xF7, 0x0B, 0xFE, 0x21, 0x1C
-    .byte 0x00, 0xF0, 0x1E, 0xF8, 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00, 0x00, 0x6B, 0x40, 0x89
-    .byte 0x70, 0x47, 0x00, 0x00, 0x00, 0x6B, 0x41, 0x81, 0x70, 0x47, 0x00, 0x00, 0x10, 0xB5, 0x0A, 0x23
-    .byte 0xCA, 0x5E, 0x0E, 0x24, 0x0B, 0x5F, 0xD1, 0x1F, 0x01, 0x80, 0x19, 0x1C, 0x0A, 0x39, 0x41, 0x80
-    .byte 0x07, 0x32, 0x82, 0x80, 0x04, 0x33, 0xC3, 0x80, 0x10, 0xBC, 0x04, 0xBC, 0x10, 0x47, 0x00, 0x00
-
-    @ 3295c:       b570            push    {r4, r5, r6, lr}
-    @ 3295e:       b082            sub     sp, #8
-    @ 32960:       1c05            adds    r5, r0, #0
-    @ 32962:       1c0e            adds    r6, r1, #0
-    @ 32964:       4811            ldr     r0, [pc, #68]   @ (0x329ac)
-    @ 32966:       6168            str     r0, [r5, #20]
-    @ 32968:       6b2c            ldr     r4, [r5, #48]   @ 0x30
-    @ 3296a:       4668            mov     r0, sp
-    @ 3296c:       1c29            adds    r1, r5, #0
-    @ 3296e:       f7ff fbff       bl      0x32170
-    @ 32972:       4668            mov     r0, sp
-    @ 32974:       c806            ldmia   r0!, {r1, r2}
-    @ 32976:       c406            stmia   r4!, {r1, r2}
-    @ 32978:       8c69            ldrh    r1, [r5, #34]   @ 0x22
-    @ 3297a:       6b28            ldr     r0, [r5, #48]   @ 0x30
-    @ 3297c:       8101            strh    r1, [r0, #8]
-    @ 3297e:       480c            ldr     r0, [pc, #48]   @ (0x329b0)
-    @ 32980:       6168            str     r0, [r5, #20]
-    @ 32982:       6929            ldr     r1, [r5, #16]
-    @ 32984:       2900            cmp     r1, #0
-    @ 32986:       d005            beq.n   0x32994
-    @ 32988:       6848            ldr     r0, [r1, #4]
-    @ 3298a:       6882            ldr     r2, [r0, #8]
-    @ 3298c:       1c08            adds    r0, r1, #0
-    @ 3298e:       2103            movs    r1, #3
-    @ 32990:       f0a0 ffc0       bl      0xd3914
-    @ 32994:       2001            movs    r0, #1
-    @ 32996:       4030            ands    r0, r6
-    @ 32998:       2800            cmp     r0, #0
-    @ 3299a:       d002            beq.n   0x329a2
-    @ 3299c:       1c28            adds    r0, r5, #0
-    @ 3299e:       f7cd fe33       bl      0x608
-    @ 329a2:       b002            add     sp, #8
-    @ 329a4:       bc70            pop     {r4, r5, r6}
-    @ 329a6:       bc01            pop     {r0}
-    @ 329a8:       4700            bx      r0
-    @ 329aa:       0000            movs    r0, r0
-    @ 329ac:       6828            ldr     r0, [r5, #0]
-    @ 329ae:       080e            lsrs    r6, r1, #32
-    @ 329b0:       6250            str     r0, [r2, #36]   @ 0x24
-    @ 329b2:       080e            lsrs    r6, r1, #32
-    @ 329b4:       b510            push    {r4, lr}
-    @ 329b6:       1c04            adds    r4, r0, #0
-    @ 329b8:       208c            movs    r0, #140        @ 0x8c
-    @ 329ba:       f7cd fe0b       bl      __builtin_new
-    @ 329be:       1c21            adds    r1, r4, #0
-    @ 329c0:       f000 f81e       bl      0x32a00
-    @ 329c4:       bc10            pop     {r4}
-    @ 329c6:       bc02            pop     {r1}
-    @ 329c8:       4708            bx      r1
-    @ 329ca:       0000            movs    r0, r0
-    @ 329cc:       6b00            ldr     r0, [r0, #48]   @ 0x30
-    @ 329ce:       8940            ldrh    r0, [r0, #10]
-    @ 329d0:       4770            bx      lr
-    @ 329d2:       0000            movs    r0, r0
-    @ 329d4:       6b00            ldr     r0, [r0, #48]   @ 0x30
-    @ 329d6:       8141            strh    r1, [r0, #10]
-    @ 329d8:       4770            bx      lr
-    @ 329da:       0000            movs    r0, r0
-    @ 329dc:       b510            push    {r4, lr}
-    @ 329de:       230a            movs    r3, #10
-    @ 329e0:       5eca            ldrsh   r2, [r1, r3]
-    @ 329e2:       240e            movs    r4, #14
-    @ 329e4:       5f0b            ldrsh   r3, [r1, r4]
-    @ 329e6:       1fd1            subs    r1, r2, #7
-    @ 329e8:       8001            strh    r1, [r0, #0]
-    @ 329ea:       1c19            adds    r1, r3, #0
-    @ 329ec:       390a            subs    r1, #10
-    @ 329ee:       8041            strh    r1, [r0, #2]
-    @ 329f0:       3207            adds    r2, #7
-    @ 329f2:       8082            strh    r2, [r0, #4]
-    @ 329f4:       3304            adds    r3, #4
-    @ 329f6:       80c3            strh    r3, [r0, #6]
-    @ 329f8:       bc10            pop     {r4}
-    @ 329fa:       bc04            pop     {r2}
-    @ 329fc:       4710            bx      r2
-    @ 329fe:       0000            movs    r0, r0
-
-    thumb_func_start func_08032A00
-func_08032A00: @ 0x08032A00
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
+    thumb_func_start func_0803295C
+func_0803295C: @ 0x0803295C
+    push {r4, r5, r6, lr}
+    sub sp, #8
+    adds r5, r0, #0
+    adds r6, r1, #0
+    ldr r0, .L080329AC @ =vtable_unk_080E6828
+    str r0, [r5, #0x14]
+    ldr r4, [r5, #0x30]
+    mov r0, sp
+    adds r1, r5, #0
+    bl GetLocation__C12AActorEntity
+    mov r0, sp
+    ldm r0!, {r1, r2}
+    stm r4!, {r1, r2}
+    ldrh r1, [r5, #0x22]
+    ldr r0, [r5, #0x30]
+    strh r1, [r0, #8]
+    ldr r0, .L080329B0 @ =__vt_7AEntity
+    str r0, [r5, #0x14]
+    ldr r1, [r5, #0x10]
+    cmp r1, #0
+    beq .L08032994
+    ldr r0, [r1, #4]
+    ldr r2, [r0, #8]
+    adds r0, r1, #0
+    movs r1, #3
+    bl _call_via_r2
+.L08032994:
     movs r0, #1
-    str r0, [sp]
-    movs r0, #0
-    str r0, [sp, #4]
-    str r0, [sp, #8]
-    add r2, sp, #0xc
-    strb r0, [r2]
-    adds r0, r4, #0
-    movs r2, #6
-    movs r3, #0x20
-    bl func_080324BC
-    ldr r0, .L08032A2C @ =vtable_unk_080E6864
-    str r0, [r4, #4]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08032A2C: .4byte vtable_unk_080E6864
-
-    thumb_func_start func_08032A30
-func_08032A30: @ 0x08032A30
-    push {lr}
-    adds r1, r0, #0
-    ldrh r0, [r1, #0x24]
+    ands r0, r6
     cmp r0, #0
-    beq .L08032A3E
-    subs r0, #1
-    b .L08032A40
-.L08032A3E:
-    ldrh r0, [r1, #0x26]
-.L08032A40:
-    strh r0, [r1, #0x24]
-    ldr r2, [r1, #0x10]
-    cmp r2, #0
-    beq .L08032A52
-    ldr r0, [r2, #4]
-    ldr r1, [r0, #0xc]
-    adds r0, r2, #0
-    bl _call_via_r1
-.L08032A52:
+    beq .L080329A2
+    adds r0, r5, #0
+    bl __builtin_delete
+.L080329A2:
+    add sp, #8
+    pop {r4, r5, r6}
     pop {r0}
     bx r0
     .align 2, 0
-.L08032A58:
-    .byte 0x00, 0xB5, 0x30, 0x30, 0x2B, 0xF0, 0x1A, 0xFF
-    .byte 0x02, 0xBC, 0x08, 0x47, 0x00, 0xB5, 0x01, 0x1C, 0x30, 0x31, 0x00, 0x22, 0xC8, 0x89, 0x00, 0x28
-    .byte 0x04, 0xD0, 0x10, 0x20, 0x09, 0x5E, 0x48, 0x42, 0x08, 0x43, 0xC2, 0x0F, 0x10, 0x1C, 0x02, 0xBC
-    .byte 0x08, 0x47, 0x00, 0x00, 0x44, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0x8B, 0x30, 0x01, 0x70
-    .byte 0x70, 0x47, 0x00, 0x00, 0x89, 0x30, 0x01, 0x70, 0x70, 0x47, 0x00, 0x00, 0x88, 0x30, 0x01, 0x70
-    .byte 0x70, 0x47, 0x00, 0x00, 0x8A, 0x30, 0x02, 0x78, 0x04, 0x21, 0x49, 0x42, 0x11, 0x40, 0x01, 0x70
-    .byte 0x70, 0x47, 0x00, 0x00, 0x30, 0xB5, 0x05, 0x1C, 0x14, 0x06, 0x24, 0x0E, 0x70, 0x30, 0x2B, 0xF0
-    .byte 0xCF, 0xFE, 0x28, 0x1C, 0x84, 0x30, 0x00, 0x22, 0x01, 0x21, 0x01, 0x70, 0x02, 0x30, 0x02, 0x70
-    .byte 0x01, 0x30, 0x01, 0x70, 0x01, 0x23, 0x00, 0x2C, 0x00, 0xD0, 0x02, 0x23, 0x2A, 0x1C, 0x8A, 0x32
-    .byte 0x11, 0x78, 0x04, 0x20, 0x40, 0x42, 0x08, 0x40, 0x18, 0x43, 0x10, 0x70, 0x30, 0xBC, 0x01, 0xBC
-    .byte 0x00, 0x47, 0x00, 0x00, 0x8A, 0x30, 0x89, 0x00, 0x03, 0x78, 0x03, 0x22, 0x1A, 0x40, 0x0A, 0x43
-    .byte 0x02, 0x70, 0x70, 0x47, 0x10, 0xB5, 0x04, 0x1C, 0x30, 0x30, 0x2B, 0xF0, 0xA9, 0xFE, 0x20, 0x1C
-    .byte 0x44, 0x30, 0x00, 0x22, 0x01, 0x21, 0x01, 0x70, 0x02, 0x30, 0x02, 0x70, 0x01, 0x30, 0x01, 0x70
-    .byte 0x10, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0x80, 0x8C, 0x70, 0x47, 0x00, 0xB5, 0x00, 0x21
-    .byte 0x80, 0x8C, 0x00, 0x28, 0x00, 0xD1, 0x01, 0x21, 0x08, 0x1C, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
-    .byte 0x70, 0x47, 0x00, 0x00, 0x00, 0xB5, 0x02, 0x1C, 0x50, 0x8C, 0x88, 0x42, 0x02, 0xD0, 0x10, 0x1C
-    .byte 0xFF, 0xF7, 0x2E, 0xFB, 0x01, 0xBC, 0x00, 0x47, 0x40, 0x8C, 0x70, 0x47, 0x41, 0x8C, 0x20, 0x30
-    .byte 0x00, 0x78, 0x09, 0x18, 0x08, 0x1C, 0x70, 0x47, 0x00, 0xB5, 0x02, 0x1C, 0x20, 0x30, 0x00, 0x78
-    .byte 0x88, 0x42, 0x02, 0xD0, 0x10, 0x1C, 0xFF, 0xF7, 0x0F, 0xFB, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
-    .byte 0x20, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0x0E, 0x22, 0x81, 0x5E, 0x80, 0x20, 0x00, 0x02
-    .byte 0x40, 0x1A, 0x70, 0x47, 0x21, 0x30, 0x01, 0x70, 0x70, 0x47, 0x00, 0x00, 0x21, 0x30, 0x00, 0x78
-    .byte 0x70, 0x47, 0x00, 0x00, 0xC1, 0x61, 0x70, 0x47, 0xC0, 0x69, 0x70, 0x47, 0x81, 0x61, 0x70, 0x47
-    .byte 0x80, 0x69, 0x70, 0x47
+.L080329AC: .4byte vtable_unk_080E6828
+.L080329B0: .4byte __vt_7AEntity
+    .section .text.npc_side.080329DC, "ax", %progbits
 
-    @ 32a58:       b500            push    {lr}
-    @ 32a5a:       3030            adds    r0, #48 @ 0x30
-    @ 32a5c:       f02b ff1a       bl      func_0805E894
-    @ 32a60:       bc02            pop     {r1}
-    @ 32a62:       4708            bx      r1
+    thumb_func_start func_080329DC
+func_080329DC: @ 0x080329DC
+    push {r4, lr}
+    movs r3, #10
+    ldrsh r2, [r1, r3]
+    movs r4, #14
+    ldrsh r3, [r1, r4]
+    subs r1, r2, #7
+    strh r1, [r0]
+    adds r1, r3, #0
+    subs r1, #10
+    strh r1, [r0, #2]
+    adds r2, #7
+    strh r2, [r0, #4]
+    adds r3, #4
+    strh r3, [r0, #6]
+    pop {r4}
+    pop {r2}
+    bx r2
+    .align 2, 0
 
-    @ 32a64:       b500            push    {lr}
-    @ 32a66:       1c01            adds    r1, r0, #0
-    @ 32a68:       3130            adds    r1, #48 @ 0x30
-    @ 32a6a:       2200            movs    r2, #0
-    @ 32a6c:       89c8            ldrh    r0, [r1, #14]
-    @ 32a6e:       2800            cmp     r0, #0
-    @ 32a70:       d004            beq.n   0x32a7c
-    @ 32a72:       2010            movs    r0, #16
-    @ 32a74:       5e09            ldrsh   r1, [r1, r0]
-    @ 32a76:       4248            negs    r0, r1
-    @ 32a78:       4308            orrs    r0, r1
-    @ 32a7a:       0fc2            lsrs    r2, r0, #31
-    @ 32a7c:       1c10            adds    r0, r2, #0
-    @ 32a7e:       bc02            pop     {r1}
-    @ 32a80:       4708            bx      r1
+    .section .text.npc_side.08032A58, "ax", %progbits
 
-    @ 32a82:       0000            movs    r0, r0
+    .section .text.npc_side.08032A64, "ax", %progbits
 
-    @ 32a84:       3044            adds    r0, #68 @ 0x44
-    @ 32a86:       7800            ldrb    r0, [r0, #0]
-    @ 32a88:       4770            bx      lr
+    .section .text.npc_side.08032AB4, "ax", %progbits
+    .section .text.npc_side.08032B44, "ax", %progbits
 
-    @ 32a8a:       0000            movs    r0, r0
-    @ 32a8c:       308b            adds    r0, #139        @ 0x8b
-    @ 32a8e:       7001            strb    r1, [r0, #0]
-    @ 32a90:       4770            bx      lr
+    .section .text.npc_side.08032B5C, "ax", %progbits
 
-    @ 32a92:       0000            movs    r0, r0
-    @ 32a94:       3089            adds    r0, #137        @ 0x89
-    @ 32a96:       7001            strb    r1, [r0, #0]
-    @ 32a98:       4770            bx      lr
+    .section .text.npc_side.08032B68, "ax", %progbits
 
-    @ 32a9a:       0000            movs    r0, r0
-    @ 32a9c:       3088            adds    r0, #136        @ 0x88
-    @ 32a9e:       7001            strb    r1, [r0, #0]
-    @ 32aa0:       4770            bx      lr
+    .section .text.npc_side.08032B88, "ax", %progbits
 
-    @ 32aa2:       0000            movs    r0, r0
-    @ 32aa4:       308a            adds    r0, #138        @ 0x8a
-    @ 32aa6:       7802            ldrb    r2, [r0, #0]
-    @ 32aa8:       2104            movs    r1, #4
-    @ 32aaa:       4249            negs    r1, r1
-    @ 32aac:       4011            ands    r1, r2
-    @ 32aae:       7001            strb    r1, [r0, #0]
-    @ 32ab0:       4770            bx      lr
-
-    @ 32ab2:       0000            movs    r0, r0
-
-    @ 32ab4:       b530            push    {r4, r5, lr}
-    @ 32ab6:       1c05            adds    r5, r0, #0
-    @ 32ab8:       0614            lsls    r4, r2, #24
-    @ 32aba:       0e24            lsrs    r4, r4, #24
-    @ 32abc:       3070            adds    r0, #112        @ 0x70
-    @ 32abe:       f02b fecf       bl      func_0805E860
-    @ 32ac2:       1c28            adds    r0, r5, #0
-    @ 32ac4:       3084            adds    r0, #132        @ 0x84
-    @ 32ac6:       2200            movs    r2, #0
-    @ 32ac8:       2101            movs    r1, #1
-    @ 32aca:       7001            strb    r1, [r0, #0]
-    @ 32acc:       3002            adds    r0, #2
-    @ 32ace:       7002            strb    r2, [r0, #0]
-    @ 32ad0:       3001            adds    r0, #1
-    @ 32ad2:       7001            strb    r1, [r0, #0]
-    @ 32ad4:       2301            movs    r3, #1
-    @ 32ad6:       2c00            cmp     r4, #0
-    @ 32ad8:       d000            beq.n   0x32adc
-    @ 32ada:       2302            movs    r3, #2
-    @ 32adc:       1c2a            adds    r2, r5, #0
-    @ 32ade:       328a            adds    r2, #138        @ 0x8a
-    @ 32ae0:       7811            ldrb    r1, [r2, #0]
-    @ 32ae2:       2004            movs    r0, #4
-    @ 32ae4:       4240            negs    r0, r0
-    @ 32ae6:       4008            ands    r0, r1
-    @ 32ae8:       4318            orrs    r0, r3
-    @ 32aea:       7010            strb    r0, [r2, #0]
-    @ 32aec:       bc30            pop     {r4, r5}
-    @ 32aee:       bc01            pop     {r0}
-    @ 32af0:       4700            bx      r0
-
-    @ 32af2:       0000            movs    r0, r0
-
-    @ 32af4:       308a            adds    r0, #138        @ 0x8a
-    @ 32af6:       0089            lsls    r1, r1, #2
-    @ 32af8:       7803            ldrb    r3, [r0, #0]
-    @ 32afa:       2203            movs    r2, #3
-    @ 32afc:       401a            ands    r2, r3
-    @ 32afe:       430a            orrs    r2, r1
-    @ 32b00:       7002            strb    r2, [r0, #0]
-    @ 32b02:       4770            bx      lr
-
-    @ 32b04:       b510            push    {r4, lr}
-    @ 32b06:       1c04            adds    r4, r0, #0
-    @ 32b08:       3030            adds    r0, #48 @ 0x30
-    @ 32b0a:       f02b fea9       bl      func_0805E860
-    @ 32b0e:       1c20            adds    r0, r4, #0
-    @ 32b10:       3044            adds    r0, #68 @ 0x44
-    @ 32b12:       2200            movs    r2, #0
-    @ 32b14:       2101            movs    r1, #1
-    @ 32b16:       7001            strb    r1, [r0, #0]
-    @ 32b18:       3002            adds    r0, #2
-    @ 32b1a:       7002            strb    r2, [r0, #0]
-    @ 32b1c:       3001            adds    r0, #1
-    @ 32b1e:       7001            strb    r1, [r0, #0]
-    @ 32b20:       bc10            pop     {r4}
-    @ 32b22:       bc01            pop     {r0}
-    @ 32b24:       4700            bx      r0
-
-    @ 32b26:       0000            movs    r0, r0
-
-    @ 32b28:       8c80            ldrh    r0, [r0, #36]   @ 0x24
-    @ 32b2a:       4770            bx      lr
-
-    @ 32b2c:       b500            push    {lr}
-    @ 32b2e:       2100            movs    r1, #0
-    @ 32b30:       8c80            ldrh    r0, [r0, #36]   @ 0x24
-    @ 32b32:       2800            cmp     r0, #0
-    @ 32b34:       d100            bne.n   0x32b38
-    @ 32b36:       2101            movs    r1, #1
-    @ 32b38:       1c08            adds    r0, r1, #0
-    @ 32b3a:       bc02            pop     {r1}
-    @ 32b3c:       4708            bx      r1
-
-    @ 32b3e:       0000            movs    r0, r0
-    @ 32b40:       4770            bx      lr
-
-    @ 32b42:       0000            movs    r0, r0
-
-    @ SetAnim2
-    @ 32b44:       b500            push    {lr}
-    @ 32b46:       1c02            adds    r2, r0, #0
-    @ 32b48:       8c50            ldrh    r0, [r2, #34]   @ 0x22
-    @ 32b4a:       4288            cmp     r0, r1
-    @ 32b4c:       d002            beq.n   0x32b54
-    @ 32b4e:       1c10            adds    r0, r2, #0
-    @ 32b50:       f7ff fb2e       bl      SetAnim__12AActorEntityUi
-    @ 32b54:       bc01            pop     {r0}
-    @ 32b56:       4700            bx      r0
-
-    @ GetAnim?
-    @ 32b58:       8c40            ldrh    r0, [r0, #34]   @ 0x22
-    @ 32b5a:       4770            bx      lr
-
-    @ 32b5c:       8c41            ldrh    r1, [r0, #34]   @ 0x22
-    @ 32b5e:       3020            adds    r0, #32
-    @ 32b60:       7800            ldrb    r0, [r0, #0]
-    @ 32b62:       1809            adds    r1, r1, r0
-    @ 32b64:       1c08            adds    r0, r1, #0
-    @ 32b66:       4770            bx      lr
-
-    @ 32b68:       b500            push    {lr}
-    @ 32b6a:       1c02            adds    r2, r0, #0
-    @ 32b6c:       3020            adds    r0, #32
-    @ 32b6e:       7800            ldrb    r0, [r0, #0]
-    @ 32b70:       4288            cmp     r0, r1
-    @ 32b72:       d002            beq.n   0x32b7a
-    @ 32b74:       1c10            adds    r0, r2, #0
-    @ 32b76:       f7ff fb0f       bl      0x32198
-    @ 32b7a:       bc01            pop     {r0}
-    @ 32b7c:       4700            bx      r0
-
-    @ 32b7e:       0000            movs    r0, r0
-
-    @ 32b80:       3020            adds    r0, #32
-    @ 32b82:       7800            ldrb    r0, [r0, #0]
-    @ 32b84:       4770            bx      lr
-
-    @ 32b86:       0000            movs    r0, r0
-
-    @ 32b88:       220e            movs    r2, #14
-    @ 32b8a:       5e81            ldrsh   r1, [r0, r2]
-    @ 32b8c:       2080            movs    r0, #128        @ 0x80
-    @ 32b8e:       0200            lsls    r0, r0, #8
-    @ 32b90:       1a40            subs    r0, r0, r1
-    @ 32b92:       4770            bx      lr
-
-    @ 32b94:       3021            adds    r0, #33 @ 0x21
-    @ 32b96:       7001            strb    r1, [r0, #0]
-    @ 32b98:       4770            bx      lr
-
-    @ 32b9a:       0000            movs    r0, r0
-
-    @ 32b9c:       3021            adds    r0, #33 @ 0x21
-    @ 32b9e:       7800            ldrb    r0, [r0, #0]
-    @ 32ba0:       4770            bx      lr
-
-    @ 32ba2:       0000            movs    r0, r0
-
-    @ 32ba4:       61c1            str     r1, [r0, #28]
-    @ 32ba6:       4770            bx      lr
-
-    @ 32ba8:       69c0            ldr     r0, [r0, #28]
-    @ 32baa:       4770            bx      lr
-
-    @ 32bac:       6181            str     r1, [r0, #24]
-    @ 32bae:       4770            bx      lr
-
-    @ 32bb0:       6980            ldr     r0, [r0, #24]
-    @ 32bb2:       4770            bx      lr
+    .section .text.npc_side.08032BB4, "ax", %progbits
 
     thumb_func_start func_08032BB4
 func_08032BB4: @ 0x08032BB4
@@ -2606,6 +2291,8 @@ func_08033584: @ 0x08033584
     bx r1
     .align 2, 0
 
+    .section .text.npc_side.08033784, "ax", %progbits
+
     thumb_func_start func_08033784
 func_08033784: @ 0x08033784
     push {r4, lr}
@@ -2671,148 +2358,7 @@ func_08033784: @ 0x08033784
     pop {r1}
     bx r1
 
-    thumb_func_start func_08033800
-func_08033800: @ 0x08033800
-    push {r4, lr}
-    adds r4, r0, #0
-    adds r0, r1, #0
-    adds r1, r2, #0
-    ldr r2, [r0]
-    ldr r2, [r2, #0x44]
-    bl _call_via_r2
-    adds r1, r0, #0
-    cmp r1, #0
-    beq .L08033822
-    movs r2, #0xa
-    ldrsh r0, [r1, r2]
-    movs r2, #0xe
-    ldrsh r1, [r1, r2]
-    strh r0, [r4]
-    b .L08033824
-.L08033822:
-    strh r1, [r4]
-.L08033824:
-    strh r1, [r4, #2]
-    adds r0, r4, #0
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
-    thumb_func_start func_08033830
-func_08033830: @ 0x08033830
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    ldrb r0, [r4]
-    lsls r0, r0, #0x1c
-    lsrs r0, r0, #0x1c
-    cmp r0, #8
-    bhi .L08033874
-    lsls r0, r0, #2
-    ldr r1, .L0803384C @ =.L08033850
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0803384C: .4byte .L08033850
-.L08033850: @ jump table
-    .4byte .L08033874 @ case 0
-    .4byte .L0803387C @ case 1
-    .4byte .L0803387C @ case 2
-    .4byte .L08033892 @ case 3
-    .4byte .L080338A2 @ case 4
-    .4byte .L080338B4 @ case 5
-    .4byte .L080338C8 @ case 6
-    .4byte .L080338CE @ case 7
-    .4byte .L080338DC @ case 8
-.L08033874:
-    movs r0, #0
-    strh r0, [r5]
-    strh r0, [r5, #2]
-    b .L080338E8
-.L0803387C:
-    ldrb r0, [r4, #1]
-    ldrb r1, [r4, #2]
-    lsls r0, r0, #4
-    movs r2, #0x8c
-    lsls r2, r2, #1
-    adds r0, r0, r2
-    lsls r1, r1, #4
-    adds r1, #0xb8
-    strh r0, [r5]
-    strh r1, [r5, #2]
-    b .L080338E8
-.L08033892:
-    movs r0, #0xff
-    lsls r0, r0, #2
-    adds r1, r2, r0
-    ldrb r2, [r4, #1]
-    adds r0, r5, #0
-    bl method_0800C6F0__C4CoopUi
-    b .L080338E8
-.L080338A2:
-    ldr r0, .L080338B0 @ =0x000005DC
-    adds r1, r2, r0
-    ldrb r2, [r4, #1]
-    adds r0, r5, #0
-    bl method_0800D074__C4BarnUi
-    b .L080338E8
-    .align 2, 0
-.L080338B0: .4byte 0x000005DC
-.L080338B4:
-    ldr r0, .L080338C4 @ =0x000005DC
-    adds r1, r2, r0
-    ldrb r2, [r4, #1]
-    adds r0, r5, #0
-    bl method_0800D0C0__C4BarnUi
-    b .L080338E8
-    .align 2, 0
-.L080338C4: .4byte 0x000005DC
-.L080338C8:
-    ldrb r2, [r4, #1]
-    adds r2, #0x36
-    b .L080338D2
-.L080338CE:
-    ldrb r2, [r4, #1]
-    adds r2, #0x2e
-.L080338D2:
-    adds r0, r5, #0
-    adds r1, r3, #0
-    bl func_08033800
-    b .L080338E8
-.L080338DC:
-    ldrb r2, [r4, #1]
-    adds r2, #0x4c
-    adds r0, r5, #0
-    adds r1, r3, #0
-    bl func_08033800
-.L080338E8:
-    adds r0, r5, #0
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-
-    thumb_func_start func_080338F0
-func_080338F0: @ 0x080338F0
-    push {r4, lr}
-    adds r4, r0, #0
-    movs r0, #0x80
-    lsls r0, r0, #2
-    bl func_080AB788
-    movs r1, #0
-    movs r2, #0x80
-    lsls r2, r2, #1
-    adds r4, r4, r2
-    cmp r0, r4
-    bhs .L0803390A
-    movs r1, #1
-.L0803390A:
-    adds r0, r1, #0
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_side.08033914, "ax", %progbits
 
     thumb_func_start func_08033914
 func_08033914: @ 0x08033914
@@ -2826,6 +2372,8 @@ func_08033914: @ 0x08033914
     adds r0, r0, r1
     bx lr
     .align 2, 0
+
+    .section .text.npc_side.08033928, "ax", %progbits
 
     thumb_func_start func_08033928
 func_08033928: @ 0x08033928
@@ -3013,23 +2561,10 @@ func_08033B24: @ 0x08033B24
     pop {r1}
     bx r1
 
-    thumb_func_start func_08033B7C
-func_08033B7C: @ 0x08033B7C
-    adds r0, #0x41
-    movs r1, #0
-    strb r1, [r0]
-    bx lr
+    .section .text.npc_side.08033B84, "ax", %progbits
 
-    thumb_func_start func_08033B84
-func_08033B84: @ 0x08033B84
-    push {lr}
-    ldr r0, [r0, #0x10]
-    cmp r0, #0
-    beq .L08033B90
-    bl func_08034BFC
-.L08033B90:
-    pop {r0}
-    bx r0
+    .section .text.npc_side.08033B94, "ax", %progbits
+
 .L08033B94:
     .byte 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0xAB, 0xB0
     .byte 0x07, 0x1C, 0x0A, 0x1C, 0x78, 0x6B, 0x80, 0x46, 0x39, 0x68, 0x8A, 0x46, 0xC0, 0x69, 0x05, 0x28
@@ -3134,7 +2669,7 @@ func_08034180: @ 0x08034180
     adds r7, r1, #0
     adds r5, r2, #0
     adds r6, r3, #0
-    bl func_08034248
+    bl GetSpriteTaskAnimation
     adds r1, r0, #0
     ldrh r0, [r4, #0x22]
     cmp r0, r1
@@ -3244,20 +2779,7 @@ func_08034180: @ 0x08034180
     bx r0
     .align 2, 0
 
-    thumb_func_start func_08034248
-func_08034248: @ 0x08034248
-    ldr r3, .L0803425C @ =gUnk_080F1450
-    adds r0, #0x30
-    ldrb r2, [r0]
-    lsls r0, r2, #2
-    adds r0, r0, r2
-    adds r0, r0, r1
-    lsls r0, r0, #1
-    adds r0, r0, r3
-    ldrh r0, [r0]
-    bx lr
-    .align 2, 0
-.L0803425C: .4byte gUnk_080F1450
+    .section .text.npc_side.08034260, "ax", %progbits
 
     thumb_func_start func_08034260
 func_08034260: @ 0x08034260
@@ -3302,7 +2824,7 @@ func_08034260: @ 0x08034260
     adds r1, #0x30
     ldrb r1, [r1]
     add r2, sp, #8
-    bl func_0809E988
+    bl SetNpcEventSlot
     ldr r1, .L080342D4 @ =0xFFFF0000
     ldr r0, [sp, #0x18]
     ands r0, r1
@@ -3326,7 +2848,7 @@ func_080342D8: @ 0x080342D8
     adds r5, r0, #0
     ldr r0, [r5, #0x34]
     bl GetFriendship__C3Npc
-    bl func_080338F0
+    bl RollSpriteWorkChance
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080342FA
@@ -3337,7 +2859,7 @@ func_080342D8: @ 0x080342D8
     bne .L08034356
 .L080342FA:
     movs r0, #0xb4
-    bl func_080AB788
+    bl RollEntityMovementRandom
     lsls r0, r0, #0x10
     lsrs r0, r0, #0x10
     ldr r2, .L08034360 @ =0xFFFF0000
@@ -3357,7 +2879,7 @@ func_080342D8: @ 0x080342D8
     movs r0, #0x80
     lsls r0, r0, #1
     subs r0, r0, r1
-    bl func_080AB788
+    bl RollEntityMovementRandom
     lsrs r0, r0, #6
     adds r0, #2
     lsls r0, r0, #0x18
@@ -3408,7 +2930,7 @@ func_0803436C: @ 0x0803436C
     ldm r1!, {r4, r5}
     stm r2!, {r4, r5}
     ldrb r1, [r3]
-    bl func_0809E994
+    bl ClearNpcEventSlot
     ldr r0, [sp, #0x24]
     ldr r1, [r0, #0x3c]
     mov r0, sp
@@ -3428,7 +2950,7 @@ func_0803436C: @ 0x0803436C
     adds r0, r4, #0
     mov r1, sp
     ldr r3, [sp, #0x28]
-    bl func_08033830
+    bl GetSpriteWorkTargetCoordinates
     mov r0, sp
     ldrb r0, [r0]
     lsls r0, r0, #0x1c
@@ -3478,7 +3000,7 @@ func_0803436C: @ 0x0803436C
     movs r4, #2
     ldrsh r3, [r0, r4]
     adds r0, r5, #0
-    bl func_08034BFC
+    bl StartSpriteWorkerEffect
 .L0803441A:
     mov r0, sp
     ldrb r0, [r0]
@@ -4085,7 +3607,7 @@ func_0803436C: @ 0x0803436C
     cmp r6, #3
     beq .L08034928
     movs r0, #0xc8
-    bl func_080AB788
+    bl RollEntityMovementRandom
     mov r2, r8
     adds r1, r2, r6
     ldrb r1, [r1]
@@ -4179,7 +3701,7 @@ func_08034940: @ 0x08034940
     adds r1, r5, #0
     adds r1, #0x30
     ldrb r1, [r1]
-    bl func_0809E994
+    bl ClearNpcEventSlot
     ldr r0, [r5, #0x34]
     add r1, sp, #8
     bl method_0809E7FC__13HarvestSprite
@@ -4307,63 +3829,11 @@ func_08034A14: @ 0x08034A14
     .byte 0xB1, 0xFE, 0x01, 0x20, 0x20, 0x70, 0x00, 0x20, 0x28, 0x70, 0x0F, 0xB0, 0x38, 0xBC, 0x98, 0x46
     .byte 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
 
-    thumb_func_start func_08034BFC
-func_08034BFC: @ 0x08034BFC
-    push {r4, r5, r6, lr}
-    adds r6, r0, #0
-    adds r4, r2, #0
-    adds r5, r3, #0
-    ldr r0, .L08034C3C @ =gUnk_080F14F0
-    lsls r1, r1, #1
-    adds r1, r1, r0
-    ldrh r1, [r1]
-    adds r0, r6, #0
-    adds r0, #0xb4
-    bl func_0805E860
-    adds r0, r6, #0
-    adds r0, #0xc8
-    movs r2, #0
-    movs r1, #1
-    strb r1, [r0]
-    adds r0, #2
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-    adds r0, #1
-    strh r4, [r0]
-    adds r0, #2
-    strh r5, [r0]
-    adds r1, r6, #0
-    adds r1, #0xd0
-    movs r0, #0x3c
-    strh r0, [r1]
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08034C3C: .4byte gUnk_080F14F0
-.L08034C40:
-    .byte 0x30, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0x00, 0x69, 0x70, 0x47, 0x10, 0xB5, 0x0C, 0x1C
-    .byte 0x13, 0x1C, 0x01, 0x1C, 0x30, 0x31, 0x09, 0x78, 0x22, 0x1C, 0xFE, 0xF7, 0x93, 0xFF, 0x10, 0xBC
-    .byte 0x01, 0xBC, 0x00, 0x47
+    .section .text.npc_side.08034C40, "ax", %progbits
 
-    @ 34c40:       3030            adds    r0, #48 @ 0x30
-    @ 34c42:       7800            ldrb    r0, [r0, #0]
-    @ 34c44:       4770            bx      lr
-    @ 34c46:       0000            movs    r0, r0
-    @ 34c48:       6900            ldr     r0, [r0, #16]
-    @ 34c4a:       4770            bx      lr
-    @ 34c4c:       b510            push    {r4, lr}
-    @ 34c4e:       1c0c            adds    r4, r1, #0
-    @ 34c50:       1c13            adds    r3, r2, #0
-    @ 34c52:       1c01            adds    r1, r0, #0
-    @ 34c54:       3130            adds    r1, #48 @ 0x30
-    @ 34c56:       7809            ldrb    r1, [r1, #0]
-    @ 34c58:       1c22            adds    r2, r4, #0
-    @ 34c5a:       f7fe ff93       bl      func_08033B84
-    @ 34c5e:       bc10            pop     {r4}
-    @ 34c60:       bc01            pop     {r0}
-    @ 34c62:       4700            bx      r0
+    .section .text.npc_side.08034C4C, "ax", %progbits
+
+    .section .text.npc_side.08034C64, "ax", %progbits
 
     thumb_func_start func_08034C64
 func_08034C64: @ 0x08034C64

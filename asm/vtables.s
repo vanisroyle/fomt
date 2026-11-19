@@ -311,48 +311,48 @@ vtable_unk_080E5EC4: @ game object
 	.word func_080179CC @ 08
 	.word func_08017C30 @ 0C
 	.word func_080182C8 @ 10
-	.word 0x0801FD59
-	.word 0x0801FD51
-	.word 0x0801FD49
-	.word func_0801FD6C
-	.word func_0801FD60 @ 20
-	.word func_0801FD3C
-	.word func_08019F7C
-	.word func_08019FE8
-	.word func_0801A054 @ 30
+	.word GameStateGetMapViewId
+	.word GameStateGetCameraX
+	.word GameStateGetCameraY
+	.word GameStateSetCameraCenter
+	.word GameStatePanCamera @ 20
+	.word GameStateIsCameraIdle
+	.word GameStateGetMapWidthPixels
+	.word GameStateGetMapHeightPixels
+	.word GameStateGetMapTerrain @ 34
 	.word func_0801A8E0
-	.word func_0801FD0C
-	.word 0x0801FD01
-	.word 0x0801FCF5
+	.word GameStateRemoveEntitySlot
+	.word GameStateGetEntitySlot
+	.word GameStateGetConstEntitySlot
 	.word 0x0801B5C1
-	.word 0x0801FCDD
-	.word 0x0801FCB5
+	.word GameStateClearSpriteCacheEntry
+	.word GameStateGetCachedSpriteSlot
 	.word 0x0801B9E9
-	.word 0x0801FD31
-	.word 0x0801FC55
-	.word 0x0801FC49
-	.word 0x0801FC61
-	.word 0x0801FC6D
-	.word 0x0801FC3D
-	.word 0x0801FC0D
-	.word 0x0801FC01
-	.word 0x0801FBF5
-	.word 0x0801FBE9
-	.word func_0801DD78
-	.word func_0801DD18
-	.word func_0801DD24
-	.word func_0801DD30
-	.word 0x0801DD3D
-	.word 0x0801DD49
-	.word 0x0801DD55
-	.word 0x0801DD61
-	.word 0x0801DD6D
-	.word 0x0801DD85
-	.word 0x0801DE55
-	.word func_0801DE24
+	.word GameStateGetMapEffect
+	.word GameStateGetSpriteArchive2
+	.word GameStateGetSpriteArchive3
+	.word GameStateGetSpriteArchive1
+	.word GameStateGetSpriteArchive0
+	.word GameStateGetSpriteArchive4
+	.word GameStateGetSpriteArchive8
+	.word GameStateGetSpriteArchive9
+	.word GameStateGetSpriteArchive10
+	.word GameStateGetSpriteArchive11
+	.word GameStateStartMapViewTimer
+	.word GameStateApplyRow15TilePatchVariant1
+	.word GameStateApplyRow15TilePatchVariant2
+	.word GameStateApplyRow3TilePatchVariant1
+	.word GameStateApplyRow3TilePatchVariant2
+	.word GameStateApplyRow2TilePatchVariant1
+	.word GameStateApplyRow2TilePatchVariant2
+	.word GameStateApplyMapTilePatchAtIndex
+	.word GameStateApplyMapTilePatchInColumn
+	.word GameStateRemoveRecordPlayerAlbum
+	.word GameStateSetRecordPlayerAlbum
+	.word GameStateApplyMapTilePatchWithAlternateRow
 	.word func_08017C00
 	.word func_08019BEC
-	.word func_08019B90
+	.word GameStateRefreshMapDaylight
 	.word func_0801EAA0
 	.word func_0801C29C
 	.word 0x0801CA1D
@@ -364,34 +364,34 @@ vtable_unk_080E5EC4: @ game object
 	.word 0x0801D4E1
 	.word 0x0801D5BD
 	.word 0x0801D7B1
-	.word 0x0801D88D
+	.word GameStateCheckFarmPlotPlacement
 	.word 0x0801CBB1
 	.word 0x0801CFB9
-	.word 0x0801C3DD
+	.word GameStateNoOpMapAction
 	.word 0x0801C3E1
-	.word 0x0801DE31
-	.word func_0801DE3C
-	.word func_0801DE48
+	.word GameStateApplyMapTilePatchAtRow20
+	.word GameStateApplyMapTilePatchAtRow23
+	.word GameStateQueueMapEvent1D
 	.word func_0801DEB4
-	.word func_0801DDCC
-	.word func_0801DDF8
-	.word func_0801DCD4
-	.word func_0801DC24
-	.word func_0801DCA8
-	.word func_08019F38
-	.word func_0801D8CC
-	.word func_0801D948
-	.word func_0801FAA8
-	.word func_0801FAB8
+	.word GameStateSetMapTileVariant
+	.word GameStateClearMapTileVariant
+	.word GameStateSettleShippingBin
+	.word GameStateStartMapInteraction
+	.word GameStateClearMapInteraction
+	.word GameStateIsWinterOrSpecialOutdoorTile
+	.word GameStateEnableEntities
+	.word GameStateDisableEntities
+	.word GameStateLookupEntitySlot
+	.word GameStateLookupConstEntitySlot
 	.word 0x0801B499
 	.word 0x0801E085
-	.word 0x0801C0E1
-	.word func_0801D9A8
-	.word 0x0801FCA5
+	.word GameStateRequestDayUpdate
+	.word GameStateQueueScriptEvent
+	.word GameStateGetPlayerData
 	.word 0x0801D9BD
-	.word func_0801DB44
+	.word GameStateGetAudioList
 	.word 0x0801F519
-	.word func_0801F5F0
+	.word GameStateSetVaseArticle
 	.word func_0801EE00
 	.word func_0801F924
 	.word 0x0801C551
@@ -912,9 +912,11 @@ vtable_unk_080E7970:
 vtable_unk_080E797C:
 	.incbin "baserom.gba", 0xE797C, 0x10
 
-	.global vtable_unk_080E798C
-vtable_unk_080E798C:
-	.incbin "baserom.gba", 0xE798C, 0x10
+	.global gHorseRaceSceneVTable
+gHorseRaceSceneVTable:
+	.4byte 0, 0
+	.4byte DestroyHorseRaceScene
+	.4byte RunHorseRaceScene
 
 	.global vtable_unk_080E799C
 vtable_unk_080E799C:
@@ -924,13 +926,16 @@ vtable_unk_080E799C:
 vtable_unk_080E79A8:
 	.incbin "baserom.gba", 0xE79A8, 0x10
 
-	.global vtable_unk_080E79B8
-vtable_unk_080E79B8:
+	.global gMedalExchangeSceneVTable
+gMedalExchangeSceneVTable:
 	.incbin "baserom.gba", 0xE79B8, 0x10
 
-	.global vtable_unk_080E79C8
-vtable_unk_080E79C8:
-	.incbin "baserom.gba", 0xE79C8, 0x14
+	.global gSpriteAnimationDataVTable
+gSpriteAnimationDataVTable:
+	.4byte 0, 0
+	.4byte func_080E1984
+	.4byte GetSpriteAnimationDataClip
+	.4byte GetSpriteAnimationDataFrame
 
 	.global vtable_unk_080E79DC
 vtable_unk_080E79DC:
@@ -940,8 +945,8 @@ vtable_unk_080E79DC:
 vtable_unk_080E79E8:
 	.incbin "baserom.gba", 0xE79E8, 0x10
 
-	.global vtable_unk_080E79F8
-vtable_unk_080E79F8:
+	.global gChildhoodMemorySceneVTable
+gChildhoodMemorySceneVTable:
 	.incbin "baserom.gba", 0xE79F8, 0x10
 
 	.global vtable_unk_080E7A08
@@ -958,19 +963,23 @@ vtable_unk_080E7A28:
 
 	.global vtable_unk_080E7A38
 vtable_unk_080E7A38:
-	.incbin "baserom.gba", 0xE7A38, 0x10
+	.incbin "baserom.gba", 0xE7A38, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A48
 vtable_unk_080E7A48:
-	.incbin "baserom.gba", 0xE7A48, 0x10
+	.incbin "baserom.gba", 0xE7A48, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A58
 vtable_unk_080E7A58:
-	.incbin "baserom.gba", 0xE7A58, 0x10
+	.incbin "baserom.gba", 0xE7A58, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A68
 vtable_unk_080E7A68:
-	.incbin "baserom.gba", 0xE7A68, 0x10
+	.incbin "baserom.gba", 0xE7A68, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A78
 vtable_unk_080E7A78:
