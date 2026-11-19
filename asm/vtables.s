@@ -457,7 +457,9 @@ vtable_unk_080E6658:
 
 	.global vtable_unk_080E6708
 vtable_unk_080E6708:
-	.incbin "baserom.gba", 0xE6708, 0x14
+	.incbin "baserom.gba", 0xE6708, 0xC
+	.4byte TickFarmerEffectGraphics
+	.incbin "baserom.gba", 0xE6718, 0x4
 
 	.global vtable_unk_080E671C
 vtable_unk_080E671C:
