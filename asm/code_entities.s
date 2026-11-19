@@ -6592,7 +6592,7 @@ func_0802CDCC: @ 0x0802CDCC
     adds r0, r7, #0
     movs r1, #3
     adds r2, r5, #0
-    bl func_0802536C
+    bl FarmerEntity_MoveWithSliding
     b .L0802D122
 .L0802D0F4:
     cmp r5, #0
@@ -6600,7 +6600,7 @@ func_0802CDCC: @ 0x0802CDCC
     rsbs r2, r5, #0
     adds r0, r7, #0
     movs r1, #2
-    bl func_0802536C
+    bl FarmerEntity_MoveWithSliding
     b .L0802D122
 .L0802D104:
     cmp r6, #0
@@ -6608,7 +6608,7 @@ func_0802CDCC: @ 0x0802CDCC
     adds r0, r7, #0
     movs r1, #0
     adds r2, r6, #0
-    bl func_0802536C
+    bl FarmerEntity_MoveWithSliding
     b .L0802D122
 .L0802D114:
     cmp r6, #0
@@ -6616,7 +6616,7 @@ func_0802CDCC: @ 0x0802CDCC
     rsbs r2, r6, #0
     adds r0, r7, #0
     movs r1, #1
-    bl func_0802536C
+    bl FarmerEntity_MoveWithSliding
 .L0802D122:
     ldr r0, [r7, #0x14]
     ldr r1, [r0, #0x40]
@@ -8943,7 +8943,7 @@ func_0802E0FC: @ 0x0802E0FC
     add r0, sp, #0x4c
     mov r1, r8
     adds r2, r6, #0
-    bl func_08024724
+    bl Map_FindCollisionEscapeOffset
     ldr r0, [sp, #0x4c]
     str r0, [sp, #0x50]
     add r1, sp, #0x50
