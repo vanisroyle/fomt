@@ -1,4 +1,12 @@
 #include "sprite_animation.hh"
+#include "sprite_rendering.hh"
+#include "utility/vec2.hh"
+
+struct MedalExchangeGameState
+{
+    STRUCT_PAD(0, 0x2C48);
+    u32 medal_save_word;
+};
 
 struct MedalPrize
 {
@@ -35,16 +43,28 @@ struct MedalExchange
 {
     enum { PRIZE_ROWS = 10, MAX_GLYPHS = 48 };
 
-    STRUCT_PAD(0, 0x10);
+    void * hardware_state;
+    void const * vtable;
+    MedalExchangeGameState * game_state;
+    u32 dialogue_style;
     MessageWindow * message_window;
     AudioPlayer text_audio;
-    STRUCT_PAD(0x18, 0x50);
+    AudioPlayer music;
+    AudioPlayer sound_effects;
+    u32 menu_graphics_data[12];
     u8 prize_graphics_data[0x30];
     SpriteAnimator cursor;
-    STRUCT_PAD(0x94, 0x11C);
+    SpriteFrameDrawOptions cursor_draw;
+    u8 cursor_draw_flag;
+    SpriteAnimator menu_icon;
+    SpriteFrameDrawOptions menu_icon_draw;
+    u8 menu_icon_draw_flag;
+    SpriteAnimator prize_indicator;
+    SpriteFrameDrawOptions prize_indicator_draw;
+    u8 prize_indicator_draw_flag;
     MedalExchangeObjAllocation glyph_tiles;
     MedalExchangeObjAllocation glyph_palette;
-    STRUCT_PAD(0x12C, 0x134);
+    MedalExchangeObjAllocation cursor_tiles;
     MedalExchangeObjAllocation cursor_palette;
     MedalExchangeObjAllocation prize_tiles;
     MedalExchangeObjAllocation prize_palette;
@@ -61,6 +81,173 @@ struct MedalExchange
     STRUCT_PAD(0xAEA, 0xAEC);
     MedalExchangeTextSubstitutions text_substitutions;
 };
+
+
+
+struct TileResources { void * handles; };
+struct ResourcePool { void * storage; };
+
+EC void * __builtin_new(size_t);
+EC void InitMedalExchangeHardware(MedalExchange *, Vec2 const *) asm("func_080084DC");
+EC void InitTileResources(TileResources *) asm("TilePool_Initialize");
+EC void DestroyTileResources(TileResources *, int) asm("TilePool_Destroy");
+EC ResourcePool * ResourcePool_Initialize(ResourcePool *);
+EC void DestroyResourcePool(ResourcePool *, int) asm("ResourcePool_Destroy");
+EC MessageWindow * CreateMessageWindow(MessageWindow *, u32, u32, u32, u32, TileResources *, ResourcePool *);
+EC AudioPlayer * AudioPlayer_Initialize(AudioPlayer *, u8);
+EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void const *);
+EC void InitMedalExchangeTiles(MedalExchangeObjAllocation *) asm("func_08007874");
+EC u32 AllocateMedalExchangeTiles(MedalExchangeObjAllocation *, u32) asm("func_08007B54");
+EC void ResourceHandles_Initialize(MedalExchangeObjAllocation *);
+EC u32 AllocateMedalExchangePalette(MedalExchangeObjAllocation *) asm("func_0800736C");
+EC char const gMedalExchangeScreenVTable[] asm("vtable_unk_080E799C");
+EC char const gMedalExchangeTextSubstitutionsVTable[] asm("vtable_unk_080E79A8");
+EC u8 const gMedalExchangeMenuAnimation[] asm("gUnk_08527094");
+EC u8 const gMedalExchangeSelectionAnimation[] asm("gUnk_08728208");
+
+#define INIT_MEDAL_DRAW_OPTIONS(field, byte_reg) \
+    register SpriteFrameDrawOptions * options asm("r0") = &self->field; \
+    asm ("" : "+l" (options)); \
+    register u16 halfword_zero asm("r5"); \
+    asm ("" : "=l" (halfword_zero) : "0" (zero)); \
+    options->offset_x = halfword_zero; \
+    options->offset_y = halfword_zero; \
+    options->palette_base = halfword_zero; \
+    options->tile_base = halfword_zero; \
+    options->priority = halfword_zero; \
+    options->object_mode = zero; \
+    register u8 flag_zero asm(byte_reg); \
+    asm ("mov %0, %1" : "=l" (flag_zero) : "r" (byte_zero)); \
+    options->flip = flag_zero; \
+    options->affine_index = flag_zero; \
+    options->affine_mode = zero; \
+    options->mosaic = flag_zero;
+
+#define MEDAL_INIT_FIELD(reg, type, offset, base) ({ \
+    register u32 field_offset asm(reg) = offset; \
+    asm ("" : "+l" (field_offset)); \
+    reinterpret_cast<type *>(reinterpret_cast<u8 *>(base) + field_offset); \
+})
+
+#define INIT_MEDAL_ANIMATOR(animator, graphics, clip_id) do { \
+    register SpriteAnimator * cursor_slot asm("r0") = animator; \
+    register SpriteAnimationSource const * source asm("r1") = reinterpret_cast<SpriteAnimationSource *>(graphics); \
+    register u32 clip asm("r2") = clip_id; \
+    asm ("" : "+l" (cursor_slot), "+l" (source), "+l" (clip)); \
+    register int speed asm("r3") = 256; \
+    asm ("" : "+l" (speed)); \
+    InitSpriteAnimator(cursor_slot, source, clip, speed); \
+} while (0)
+
+#define ALLOCATE_MEDAL_TILES(field, count, reg) do { \
+    MedalExchangeObjAllocation * tiles = MEDAL_INIT_FIELD(reg, MedalExchangeObjAllocation, offsetof(MedalExchange, field), self); \
+    InitMedalExchangeTiles(tiles); \
+    tiles->handle = AllocateMedalExchangeTiles(tiles, count); \
+} while (0)
+
+#define ALLOCATE_MEDAL_PALETTE(field, reg) do { \
+    MedalExchangeObjAllocation * palette = MEDAL_INIT_FIELD(reg, MedalExchangeObjAllocation, offsetof(MedalExchange, field), self); \
+    ResourceHandles_Initialize(palette); \
+    palette->handle = AllocateMedalExchangePalette(palette); \
+} while (0)
+
+EC SECTION(".text.f3.0805CF70") MedalExchange * InitMedalExchangeScreen(
+    MedalExchange * self, MedalExchangeGameState * game_state)
+{
+    enum { KEY_REPEAT_DELAY = 30, KEY_REPEAT_PERIOD = 1, MAX_MEDAL_BALANCE = 99999 };
+    struct
+    {
+        TileResources graphics;
+        ResourcePool font;
+        Vec2 key_repeat;
+    } scratch;
+    register Vec2 * key_repeat asm("r1") = &scratch.key_repeat;
+    register u32 key_delay asm("r0") = KEY_REPEAT_DELAY;
+    register u32 key_period asm("r2") = KEY_REPEAT_PERIOD;
+    asm ("" : "+l" (key_repeat), "+l" (key_delay), "+l" (key_period));
+    register u32 low_zero asm("r3") = 0;
+    asm ("" : "+l" (low_zero));
+    register u32 byte_zero asm("r8") = low_zero;
+    register u32 zero asm("r5") = 0;
+    asm ("" : "+r" (byte_zero), "+l" (zero));
+    key_repeat->x = key_delay;
+    key_repeat->y = key_period;
+    InitMedalExchangeHardware(self, key_repeat);
+    self->vtable = gMedalExchangeScreenVTable;
+    self->game_state = game_state;
+    self->dialogue_style = zero;
+    register MessageWindow * window_storage asm("r6") = static_cast<MessageWindow *>(__builtin_new(4));
+    asm ("" : "+l" (window_storage));
+    InitTileResources(&scratch.graphics);
+    ResourcePool_Initialize(&scratch.font);
+    self->message_window = CreateMessageWindow(window_storage, 0, 31, 0, self->dialogue_style,
+        &scratch.graphics, &scratch.font);
+    DestroyResourcePool(&scratch.font, 2);
+    DestroyTileResources(&scratch.graphics, 2);
+    AudioPlayer_Initialize(&self->text_audio, 1);
+    AudioPlayer_Initialize(&self->music, 0);
+    AudioPlayer_Initialize(&self->sound_effects, 2);
+
+    register SpriteAnimationData * menu_graphics asm("r4") = reinterpret_cast<SpriteAnimationData *>(self->menu_graphics_data);
+    asm ("" : "+l" (menu_graphics));
+    InitSpriteAnimationData(menu_graphics, gMedalExchangeMenuAnimation);
+    register SpriteAnimationData * prize_graphics asm("r6") = reinterpret_cast<SpriteAnimationData *>(self->prize_graphics_data);
+    asm ("" : "+l" (prize_graphics));
+    InitSpriteAnimationData(prize_graphics, gMedalExchangeSelectionAnimation);
+    INIT_MEDAL_ANIMATOR(&self->cursor, menu_graphics, 0);
+    {
+        INIT_MEDAL_DRAW_OPTIONS(cursor_draw, "r1")
+        register u8 * draw_flag asm("r0") = reinterpret_cast<u8 *>(options) +
+            (offsetof(MedalExchange, cursor_draw_flag) - offsetof(MedalExchange, cursor_draw));
+        asm ("" : "+l" (draw_flag));
+        *draw_flag = flag_zero;
+        INIT_MEDAL_ANIMATOR(reinterpret_cast<SpriteAnimator *>(draw_flag +
+            (offsetof(MedalExchange, menu_icon) - offsetof(MedalExchange, cursor_draw_flag))), menu_graphics, 1);
+    }
+    {
+        INIT_MEDAL_DRAW_OPTIONS(menu_icon_draw, "r3")
+        register u8 * draw_flag asm("r0") = reinterpret_cast<u8 *>(options) +
+            (offsetof(MedalExchange, menu_icon_draw_flag) - offsetof(MedalExchange, menu_icon_draw));
+        asm ("" : "+l" (draw_flag));
+        *draw_flag = flag_zero;
+        INIT_MEDAL_ANIMATOR(reinterpret_cast<SpriteAnimator *>(draw_flag +
+            (offsetof(MedalExchange, prize_indicator) - offsetof(MedalExchange, menu_icon_draw_flag))), prize_graphics, 0);
+    }
+    {
+        INIT_MEDAL_DRAW_OPTIONS(prize_indicator_draw, "r1")
+        register u8 * draw_flag asm("r0") = MEDAL_INIT_FIELD("r3", u8, offsetof(MedalExchange, prize_indicator_draw_flag), self);
+        asm ("" : "+l" (draw_flag));
+        *draw_flag = flag_zero;
+    }
+    ALLOCATE_MEDAL_TILES(glyph_tiles, 7, "r0");
+    ALLOCATE_MEDAL_PALETTE(glyph_palette, "r1");
+    ALLOCATE_MEDAL_TILES(cursor_tiles, 4, "r3");
+    ALLOCATE_MEDAL_PALETTE(cursor_palette, "r0");
+    ALLOCATE_MEDAL_TILES(prize_tiles, 2, "r1");
+    ALLOCATE_MEDAL_PALETTE(prize_palette, "r3");
+    register MedalExchangeTextSubstitutions * substitutions asm("r1") = &self->text_substitutions;
+    asm ("" : "+l" (substitutions));
+    substitutions->vtable = gMedalExchangeTextSubstitutionsVTable;
+    substitutions->prize_name = reinterpret_cast<char const *>(zero);
+    register int * balance asm("r2") = MEDAL_INIT_FIELD("r1", int, offsetof(MedalExchange, medal_balance), self);
+    asm ("" : "+l" (balance));
+    register MedalExchangeGameState * game asm("r0") = self->game_state;
+    asm ("" : "+l" (game));
+    u32 const * saved_medals = MEDAL_INIT_FIELD("r3", u32, offsetof(MedalExchangeGameState, medal_save_word), game);
+    *balance = (*saved_medals >> 2) & 0x1FFFF;
+    if (*balance > MAX_MEDAL_BALANCE)
+        *balance = MAX_MEDAL_BALANCE;
+    register u16 * scroll asm("r0") = MEDAL_INIT_FIELD("r1", u16, offsetof(MedalExchange, scroll_y), self);
+    asm ("" : "+l" (scroll));
+    *scroll = zero;
+    return self;
+}
+
+#undef ALLOCATE_MEDAL_PALETTE
+#undef ALLOCATE_MEDAL_TILES
+#undef INIT_MEDAL_DRAW_OPTIONS
+#undef INIT_MEDAL_ANIMATOR
+#undef MEDAL_INIT_FIELD
 
 EC MedalPrize const gMedalExchangePrizes[];
 
