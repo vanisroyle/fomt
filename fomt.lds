@@ -110,6 +110,8 @@ SECTIONS
         src/more_items.o(.text.set);
         asm/more_items.o(.text.clear);
         asm/game_scene.o(.text);
+        src/game_scene.o(.text);
+        asm/game_scene.o(.text.tail);
         asm/game_state.o(.text);
         src/entity.o(.text);
         src/code_entity_08020018.o(.text);
