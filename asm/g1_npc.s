@@ -1,121 +1,6 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
 
-    .section .text.g1_start, "ax", %progbits
-
-	thumb_func_start func_0809E804
-func_0809E804: @ 0x0809E804
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #8
-	adds r7, r0, #0
-	cmp r1, #6
-	bhi .L0809E894
-	ldr r0, .L0809E88C @ =gUnk_081040EC
-	lsls r1, r1, #2
-	mov r8, r1
-	add r8, r0
-	mov r0, r8
-	ldrb r6, [r0]
-	ldrb r1, [r0, #1]
-	mov sb, r1
-	mov r3, sp
-	movs r2, #0x1c
-	ldrh r1, [r3]
-	ldr r4, .L0809E890 @ =0xFFFFFC00
-	adds r0, r4, #0
-	ands r0, r1
-	orrs r0, r2
-	strh r0, [r3]
-	movs r0, #0x3f
-	mov sl, r0
-	adds r1, r6, #0
-	ands r1, r0
-	lsls r1, r1, #2
-	ldrb r5, [r3, #1]
-	movs r2, #3
-	adds r0, r2, #0
-	ands r0, r5
-	orrs r0, r1
-	strb r0, [r3, #1]
-	lsrs r6, r6, #6
-	ldrh r1, [r3, #2]
-	adds r0, r4, #0
-	ands r0, r1
-	orrs r0, r6
-	strh r0, [r3, #2]
-	mov r0, sb
-	mov r1, sl
-	ands r0, r1
-	lsls r0, r0, #2
-	ldrb r1, [r3, #3]
-	ands r2, r1
-	orrs r2, r0
-	strb r2, [r3, #3]
-	mov r0, sb
-	lsrs r0, r0, #6
-	mov sb, r0
-	ldrh r0, [r3, #4]
-	ands r4, r0
-	mov r1, sb
-	orrs r4, r1
-	strh r4, [r3, #4]
-	mov r0, r8
-	ldrb r4, [r0, #2]
-	adds r0, r7, #0
-	mov r1, sp
-	movs r2, #6
-	bl memcpy
-	strb r4, [r7, #6]
-	b .L0809E8CE
-	.align 2, 0
-.L0809E88C: .4byte gUnk_081040EC
-.L0809E890: .4byte 0xFFFFFC00
-.L0809E894:
-	mov r1, sp
-	movs r4, #0x1c
-	ldrh r2, [r1]
-	ldr r3, .L0809E8E0 @ =0xFFFFFC00
-	adds r0, r3, #0
-	ands r0, r2
-	orrs r0, r4
-	strh r0, [r1]
-	movs r5, #0
-	ldrb r4, [r1, #1]
-	movs r2, #3
-	adds r0, r2, #0
-	ands r0, r4
-	strb r0, [r1, #1]
-	ldrh r4, [r1, #2]
-	adds r0, r3, #0
-	ands r0, r4
-	strh r0, [r1, #2]
-	ldrb r0, [r1, #3]
-	ands r2, r0
-	strb r2, [r1, #3]
-	ldrh r0, [r1, #4]
-	ands r3, r0
-	strh r3, [r1, #4]
-	adds r0, r7, #0
-	movs r2, #6
-	bl memcpy
-	strb r5, [r7, #6]
-.L0809E8CE:
-	adds r0, r7, #0
-	add sp, #8
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0809E8E0: .4byte 0xFFFFFC00
-
     .section .text.g1_after_b2_0809E8E4, "ax", %progbits
 
 
@@ -2730,7 +2615,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #0
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2752,7 +2637,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #1
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2770,7 +2655,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #2
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2788,7 +2673,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #3
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2806,7 +2691,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #4
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2824,7 +2709,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #5
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2841,7 +2726,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #6
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
