@@ -509,7 +509,7 @@ EC ScheduleInfo const gUnk_080F597C;
 EC ScheduleInfo const gUnk_080F6B10;
 EC ScheduleInfo const gUnk_080F4974;
 EC ScheduleInfo const gUnk_080F29C0;
-EC Npc * func_080A0A04(NpcScheduleRoster &);
+EC Npc * GetActiveScheduleNpc(NpcScheduleRoster &);
 EC void ResetNpcDailySchedule(Npc &, ScheduleInfo const &, void const *);
 
 ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void const * context)
@@ -546,7 +546,7 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_310, gUnk_080F6B10, context);
     ResetNpcDailySchedule(self.npc_328, gUnk_080F4974, context);
 
-    if (Npc * npc = func_080A0A04(self))
+    if (Npc * npc = GetActiveScheduleNpc(self))
         ResetNpcDailySchedule(*npc, gUnk_080F29C0, context);
 }
 
@@ -1033,8 +1033,8 @@ ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const 
     return 1;
 }
 
-EC unsigned func_0809ECD8(void const *);
-EC bool func_0809ECE0(void const *);
+EC unsigned GetNpcMilestoneEventId(void const *);
+EC bool IsNpcMilestoneEventReady(void const *);
 
 ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const & self)
 {
@@ -1048,7 +1048,7 @@ ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const 
     if (IsNpcScheduleFestivalDay(season, day))
         return 4;
     void const * npc = self.unk_1DAC;
-    if (func_0809ECD8(npc) != 0 && !func_0809ECE0(npc))
+    if (GetNpcMilestoneEventId(npc) != 0 && !IsNpcMilestoneEventReady(npc))
         return 5;
     if (weekday == SCHEDULE_THURSDAY)
     {
