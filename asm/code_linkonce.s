@@ -13782,7 +13782,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r0, [r6]
 	lsrs r1, r2, #0x1b
 	adds r0, #8
-	bl func_0803D240
+	bl SetClockHourTiles
 	ldr r7, .L080DAE48 @ =0x000004CC
 	add r7, sp
 	ldrb r1, [r7, #1]
@@ -13836,7 +13836,7 @@ sub_080DA76C: @ 0x080DA76C
 	mov r0, r8
 	adds r0, #8
 	adds r1, r4, #0
-	bl func_0803D0F0
+	bl SetClockDayAndWeekdayTiles
 	ldrb r1, [r7, #1]
 	lsls r1, r1, #0x1e
 	ldrb r0, [r5, #0x11]
