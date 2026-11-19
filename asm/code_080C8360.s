@@ -10461,36 +10461,7 @@ func_080CDCD0: @ 0x080CDCD0
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_080CDD7C
-func_080CDD7C: @ 0x080CDD7C
-	push {lr}
-	adds r1, r0, #0
-	movs r3, #0xa
-	ldr r2, [r1, #4]
-	cmp r2, #8
-	bgt .L080CDD8E
-	ldr r0, [r1]
-	ldr r0, [r0, #0x7c]
-	b .L080CDD94
-.L080CDD8E:
-	ldr r0, [r1]
-	ldr r0, [r0, #0x78]
-	movs r3, #1
-.L080CDD94:
-	cmp r0, #0
-	bne .L080CDD9A
-	adds r3, r2, #0
-.L080CDD9A:
-	ldr r0, [r1, #4]
-	cmp r3, r0
-	beq .L080CDDA4
-	str r0, [r1, #8]
-	str r3, [r1, #4]
-.L080CDDA4:
-	adds r0, r3, #0
-	pop {r1}
-	bx r1
-	.align 2, 0
+
 .section .text.g5_after_080CDDAC, "ax"
 
 	thumb_func_start func_080CDDD4
@@ -13569,44 +13540,8 @@ func_080CF67C: @ 0x080CF67C
 
 .section .text.g5_after_080CFB28, "ax"
 
-	thumb_func_start func_080CFB5C
-func_080CFB5C: @ 0x080CFB5C
-	push {r4, r5, lr}
-	adds r5, r0, #0
-	adds r4, r2, #0
-	ldr r0, [r5, #4]
-	bl GetMapData
-	ldr r0, [r0, #4]
-	lsls r4, r4, #2
-	adds r1, r5, #0
-	adds r1, #0x1c
-	adds r4, r1, r4
-	ldr r1, [r4]
-	bl Unpack
-	ldr r0, [r5, #4]
-	cmp r0, #0x3e
-	bne .L080CFB9E
-	ldr r0, .L080CFBA4 @ =gUnk_086D6368
-	ldr r1, [r4]
-	movs r2, #0x80
-	lsls r2, r2, #1
-	adds r1, r1, r2
-	movs r2, #0x60
-	bl Dma3_Copy
-	ldr r0, .L080CFBA8 @ =gUnk_08699FF4
-	ldr r1, [r4]
-	movs r2, #0xb0
-	lsls r2, r2, #1
-	adds r1, r1, r2
-	movs r2, #0x80
-	bl Dma3_Copy
-.L080CFB9E:
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080CFBA4: .4byte gUnk_086D6368
-.L080CFBA8: .4byte gUnk_08699FF4
+
+.section .text.g5_after_080CFB5C, "ax"
 
 	thumb_func_start func_080CFBAC
 func_080CFBAC: @ 0x080CFBAC

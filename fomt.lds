@@ -1440,6 +1440,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CD950);
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
+        src/g5_navigation.o(.text.g5_080CDD7C);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);
         src/g5_positions.o(.text.g5_080CE120);
@@ -1465,6 +1466,8 @@ SECTIONS
         src/g5_item_text.o(.text.g5_080CFA38);
         src/g5_panels.o(.text.g5_080CFB28);
         asm/code_080C8360.o(.text.g5_after_080CFB28);
+        src/g5_map_graphics.o(.text.g5_080CFB5C);
+        asm/code_080C8360.o(.text.g5_after_080CFB5C);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
         src/g5_runtime.o(.text.g5_080D035C);
@@ -1482,6 +1485,7 @@ SECTIONS
         src/g5_records.o(.text.g5_080D0C78);
         src/g5_encoding.o(.text.g5_080D0CD4);
         asm/code_080D0C68.o(.text.g5_after_080D0CD4);
+        src/g5_irq.o(.text.g5_080D100C);
         asm/code_080D102C.o(.text);
 
         src/m4a_1.o(.text);
