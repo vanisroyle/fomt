@@ -1,5 +1,7 @@
 #include "prelude.h"
 
+#include "entity_actor.hh"
+
 #include <stdlib.h>
 
 struct PACKED GameStateHeader
@@ -119,8 +121,6 @@ EC void SECTION(".text.game_state_08012218") func_08012218()
 {
 }
 
-struct AEntity;
-
 struct GameStateObject
 {
     virtual ~GameStateObject();
@@ -137,7 +137,7 @@ struct GameStateObject
     virtual void vfunc_34();
     virtual void vfunc_38();
     virtual void vfunc_3C();
-    virtual AEntity * vfunc_40(u32 id);
+    virtual AActorEntity * vfunc_40(u32 id);
     virtual void vfunc_44();
     virtual void vfunc_48();
     virtual void vfunc_4C();
@@ -256,6 +256,9 @@ EC void func_0803B6B8(void * self, u32 index, char const * text);
 EC void func_08050E74(void * self);
 EC void func_08050E5C(void * self);
 EC void func_08050E8C(void * self);
+EC void func_080323C8(AActorEntity & self);
+EC void func_080387B8(void * self);
+EC void func_080387EC(void * self);
 
 EC void SECTION(".text.game_state_08012454") func_08012454(GameStateScript & self)
 {
@@ -395,4 +398,82 @@ EC void SECTION(".text.game_state_08016BDC") func_08016BDC(GameStateScript & sel
 EC void SECTION(".text.game_state_08016BDC") func_08016BF4(GameStateScript & self)
 {
     self.runtime->object->vfunc_100();
+}
+
+EC void SECTION(".text.game_state_080114F8") func_080114F8(GameStateHeader & self)
+{
+    self.flag_0 = 0;
+    self.flag_1 = 1;
+    self.flag_2 = 1;
+    self.flag_3 = 1;
+}
+
+EC bool SECTION(".text.game_state_08011524") func_08011524(GameStateSelection const & self)
+{
+    return self.previous != 0x10 && self.delay == 0;
+}
+
+EC void SECTION(".text.game_state_08011550") func_08011550(GameStateSelection & self)
+{
+    if (self.previous == self.current)
+        self.current = 0x10;
+    self.previous = 0x10;
+}
+
+EC void SECTION(".text.game_state_08011568") func_08011568(GameStateSelection & self)
+{
+    if (self.current != 0x10 && self.previous != 0x10 && self.delay != 0)
+        self.delay--;
+}
+
+EC void SECTION(".text.game_state_080122A0") func_080122A0(GameStateScript & self, u32 id)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+        func_080323C8(*entity);
+}
+
+EC void SECTION(".text.game_state_080142D4") func_080142D4(GameStateScript & self)
+{
+    self.runtime->object->vfunc_11C();
+}
+
+EC void SECTION(".text.game_state_08014694") func_08014694(GameStateScript & self, u32 value)
+{
+    self.runtime->object->vfunc_150(value);
+}
+
+EC void SECTION(".text.game_state_080146B0") func_080146B0(GameStateScript & self, u32 value)
+{
+    self.runtime->object->vfunc_154(value);
+}
+
+EC void SECTION(".text.game_state_08016BA4") func_08016BA4(GameStateScript & self, u32 value)
+{
+    self.runtime->object->vfunc_10C(value);
+}
+
+EC void SECTION(".text.game_state_08016BC0") func_08016BC0(GameStateScript & self, u32 value)
+{
+    self.runtime->object->vfunc_110(value);
+}
+
+EC void SECTION(".text.game_state_08016C10") func_08016C10(GameStateScript & self)
+{
+    self.runtime->object->vfunc_104();
+}
+
+EC void SECTION(".text.game_state_08016C2C") func_08016C2C(GameStateScript & self)
+{
+    func_080387B8(self.runtime->object->vfunc_40(0x5D));
+}
+
+EC void SECTION(".text.game_state_08016C6C") func_08016C6C(GameStateScript & self)
+{
+    func_080387EC(self.runtime->object->vfunc_40(0x5D));
+}
+
+EC void SECTION(".text.game_state_08016EF0") func_08016EF0(GameStateScript & self, u32 value)
+{
+    self.runtime->object->vfunc_164(value);
 }
