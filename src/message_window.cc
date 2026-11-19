@@ -124,8 +124,9 @@ EC u8 vtable_unk_080E7868[], vtable_unk_080E7858[], vtable_unk_080E7848[], vtabl
 EC MessageWindowState * InitializeMessageWindowState(MessageWindowState *, u32, u32, u32, u32, void *, void *);
 EC void ClearMessageTextCursor(MessageTextCursor *);
 EC void TaskList_Append(void *, void *);
-EC void func_080ADD5C(void *, const char *, const void *);
-EC void func_080ADD74(void *, u16);
+struct MessageScript;
+EC void StartMessageScript(MessageScript &, const char *, const void *);
+EC void SetMessageScriptRate(MessageScript &, u16);
 EC u32 func_080ADD20();
 EC void func_080ADCA4(void *, u32);
 EC void func_0805E860(void *, u32);
@@ -304,9 +305,9 @@ EC SECTION(".text.message_window.08050424") void SetMessageWindowStateText(Messa
         else if (window->phase <= 6)
             ClearMessageTextCursor(&window->textCursor);
     }
-    void * parser = (u8 *) window + 0xec;
-    func_080ADD5C(parser, text, substitutions);
-    func_080ADD74(parser, speed);
+    MessageScript * parser = (MessageScript *) ((u8 *) window + 0xec);
+    StartMessageScript(*parser, text, substitutions);
+    SetMessageScriptRate(*parser, speed);
     window->phase = 4;
 }
 

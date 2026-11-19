@@ -506,56 +506,8 @@ func_0803AB30: @ 0x0803AB30
 	.align 2, 0
 .L0803AC74: .4byte 0x0000091A
 
-	thumb_func_start func_0803AC78
-func_0803AC78: @ 0x0803AC78
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	adds r6, r0, #0
-	mov r8, r1
-	ldr r0, [r6]
-	ldr r2, [r0]
-	adds r4, r6, #0
-	adds r4, #0x88
-	adds r1, r6, #0
-	adds r1, #0x8c
-	ldrb r1, [r1]
-	ldr r2, [r2, #0x4c]
-	bl _call_via_r2
-	adds r0, r6, #4
-	cmp r0, #0
-	beq .L0803ACBE
-	adds r5, r4, #0
-	cmp r0, r5
-	beq .L0803ACBE
-	adds r7, r0, #0
-.L0803ACA4:
-	subs r5, #0x2c
-	adds r4, r5, #0
-	adds r4, #0x20
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	cmp r7, r5
-	bne .L0803ACA4
-.L0803ACBE:
-	movs r0, #1
-	mov r1, r8
-	ands r0, r1
-	cmp r0, #0
-	beq .L0803ACCE
-	adds r0, r6, #0
-	bl __builtin_delete
-.L0803ACCE:
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.0803ACD8
+	.align 2, 0
 	thumb_func_start func_0803ACD8
 func_0803ACD8: @ 0x0803ACD8
 	push {r4, r5, r6, r7, lr}
@@ -1071,74 +1023,8 @@ func_0803AEA0: @ 0x0803AEA0
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_0803B0A8
-func_0803B0A8: @ 0x0803B0A8
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	adds r7, r0, #0
-	mov r8, r1
-	ldr r0, [r7]
-	ldr r2, [r0]
-	adds r1, r7, #0
-	adds r1, #0xd4
-	ldrb r1, [r1]
-	ldr r2, [r2, #0x4c]
-	bl _call_via_r2
-	adds r2, r7, #0
-	adds r2, #0xe8
-	ldr r1, [r2]
-	lsls r0, r1, #3
-	subs r0, r0, r1
-	lsls r0, r0, #2
-	adds r0, #4
-	adds r2, r2, r0
-	adds r0, r7, #0
-	adds r0, #0xec
-	cmp r0, r2
-	beq .L0803B0E0
-.L0803B0DA:
-	adds r0, #0x1c
-	cmp r0, r2
-	bne .L0803B0DA
-.L0803B0E0:
-	adds r2, r7, #4
-	ldr r1, [r7, #4]
-	lsls r0, r1, #2
-	adds r0, r0, r1
-	lsls r0, r0, #3
-	adds r0, #4
-	adds r6, r2, r0
-	adds r5, r2, #4
-	cmp r5, r6
-	beq .L0803B10E
-.L0803B0F4:
-	adds r4, r5, #0
-	adds r4, #0x20
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	adds r5, #0x28
-	cmp r5, r6
-	bne .L0803B0F4
-.L0803B10E:
-	movs r0, #1
-	mov r1, r8
-	ands r0, r1
-	cmp r0, #0
-	beq .L0803B11E
-	adds r0, r7, #0
-	bl __builtin_delete
-.L0803B11E:
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.0803B128
+	.align 2, 0
 	thumb_func_start func_0803B128
 func_0803B128: @ 0x0803B128
 	push {r4, r5, r6, r7, lr}

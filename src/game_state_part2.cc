@@ -197,7 +197,7 @@ struct GameStateMapOwner
     bool skip_day_update_events;
 };
 
-EC void func_0803B0A8(GameStateMapOverlay * overlay, u32 destructor_flags);
+EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
 EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
     GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
 EC i32 func_080AC96C(GameStateSpriteCache & cache, u32 slot);
@@ -228,13 +228,13 @@ EC MapData const * GetMapData(u32 map_variant);
 EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 barn_level);
 EC u32 func_0800E324(Unk_0800E324 const & clock);
 EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
-EC u8 * func_0801468C(GameStateScript & script);
+EC u8 * GameScript_GetSoundPlayers(GameStateScript & script);
 EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
 EC void func_0801F3E4(GameStateMapOwner & game);
-EC bool func_0801140C(GameStateMapData & state);
+EC bool SaveData_CollectShippingValue(GameStateMapData & state);
 EC bool func_0801C0F8(GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result);
 EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
-EC void func_080123CC(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
+EC void GameScript_ConfigureMusic(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
 EC void func_080AA6D0(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * adjacent);
 EC void func_0805E860(SpriteAnimator & animator, u32 animation);
 EC GameStateMapInteraction * func_080A4A00(GameStateMapInteraction * interaction,
@@ -431,7 +431,7 @@ EC SECTION(".text.game_state_c2.0801D9A8") void GameStateQueueScriptEvent(GameSt
 
 EC SECTION(".text.game_state_c2.0801DB44") GameStateAudioList * GameStateGetAudioList(GameStateMapOwner & game)
 {
-    return reinterpret_cast<GameStateAudioList *>(func_0801468C(*game.script));
+    return reinterpret_cast<GameStateAudioList *>(GameScript_GetSoundPlayers(*game.script));
 }
 
 EC SECTION(".text.game_state_c2.0801DB58") void GameStateRefreshMapMusic(GameStateMapOwner & game)
@@ -462,7 +462,7 @@ EC SECTION(".text.game_state_c2.0801DB58") void GameStateRefreshMapMusic(GameSta
     }
     GameStateScript * script = game.script;
     u32 track = game.vtable->get_music_track(game);
-    func_080123CC(*script, 1, track, params);
+    GameScript_ConfigureMusic(*script, 1, track, params);
 }
 
 EC SECTION(".text.game_state_c2.0801DCA8") void GameStateClearMapInteraction(GameStateMapOwner & game)
@@ -493,7 +493,7 @@ EC SECTION(".text.game_state_c2.0801DCD4") void GameStateSettleShippingBin(GameS
 {
     GameStateMapData * & state = game.map_data;
     u32 proceeds = state->farm.shipping_bin.GetValueShipped();
-    func_0801140C(*state);
+    SaveData_CollectShippingValue(*state);
     void (* const * queue_event)(GameStateMapOwner &, GameStateScriptEvent const &, u32) = &game.vtable->queue_event;
     GameStateScriptEvent event(0x3DB, proceeds);
     (*queue_event)(game, event, 1);
@@ -683,7 +683,7 @@ EC SECTION(".text.game_state_c2.0801FC18") GameStatePackedSpriteArchive const * 
 static inline void InstallMapOverlay(GameStateMapOverlay * & overlay, GameStateMapOverlay * replacement)
 {
     if (replacement != overlay && overlay != nullptr)
-        func_0803B0A8(overlay, 3);
+        DestroyGameStateMapOverlay(overlay, 3);
     overlay = replacement;
 }
 

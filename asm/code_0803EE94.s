@@ -426,7 +426,7 @@ func_0803F8DC: @ 0x0803F8DC
 	mov r6, r8
 	str r6, [sp]
 	adds r2, r7, #0
-	bl func_08012064
+	bl GameScript_StartRuntimeOperation
 	bl .L08045572
 .L0803FEB2:
 	adds r6, r5, #0
@@ -454,7 +454,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L0803FEDE:
 	adds r0, r1, #0
 	adds r1, r3, #0
-	bl func_080120A4
+	bl GameScript_GetActorX
 	adds r2, r0, #0
 	bl .L08045166
 .L0803FEEC:
@@ -483,7 +483,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L0803FF18:
 	adds r0, r1, #0
 	adds r1, r3, #0
-	bl func_080120C4
+	bl GameScript_GetActorY
 	adds r2, r0, #0
 	bl .L08045166
 .L0803FF26:
@@ -520,7 +520,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0803FF64
 	bl .L08045572
 .L0803FF64:
-	bl func_080120E4
+	bl GameScript_SetActorFacing
 	bl .L08045572
 .L0803FF6C:
 	adds r7, r5, #0
@@ -566,7 +566,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0803FFBC
 	bl .L08045572
 .L0803FFBC:
-	bl func_0801223C
+	bl GameScript_OffsetActorPosition
 	bl .L08045572
 .L0803FFC4:
 	adds r6, r5, #0
@@ -602,7 +602,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040002
 	bl .L08045572
 .L08040002:
-	bl func_08012154
+	bl GameScript_SetActorStateByte
 	bl .L08045572
 .L0804000A:
 	adds r6, r5, #0
@@ -630,7 +630,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L08040036:
 	adds r0, r1, #0
 	adds r1, r3, #0
-	bl func_08012114
+	bl GameScript_GetActorFacing
 	adds r2, r0, #0
 	bl .L08045166
 .L08040044:
@@ -678,7 +678,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bl .L08045572
 .L08040094:
 	lsls r3, r3, #0x10
-	bl func_08012174
+	bl GameScript_MoveActorX
 	bl .L08045572
 .L0804009E:
 	adds r7, r5, #0
@@ -724,7 +724,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080400EE
 	bl .L08045572
 .L080400EE:
-	bl func_08012174
+	bl GameScript_MoveActorX
 	bl .L08045572
 .L080400F6:
 	adds r7, r5, #0
@@ -771,7 +771,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bl .L08045572
 .L08040146:
 	lsls r3, r3, #0x10
-	bl func_0801219C
+	bl GameScript_MoveActorY
 	bl .L08045572
 .L08040150:
 	adds r7, r5, #0
@@ -817,7 +817,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080401A0
 	bl .L08045572
 .L080401A0:
-	bl func_0801219C
+	bl GameScript_MoveActorY
 	bl .L08045572
 .L080401A8:
 	movs r6, #0xda
@@ -840,7 +840,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080401CE
 	bl .L0804168A
 .L080401CE:
-	bl func_080121C4
+	bl GameScript_WaitForActor
 	bl .L0804168A
 .L080401D6:
 	adds r6, r5, #0
@@ -876,7 +876,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040214
 	bl .L08045572
 .L08040214:
-	bl func_080121EC
+	bl GameScript_SetActorAnimation
 	bl .L08045572
 .L0804021C:
 	movs r6, #0xda
@@ -899,7 +899,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040242
 	bl .L08045572
 .L08040242:
-	bl func_08012218
+	bl GameScript_NoOp
 	bl .L08045572
 .L0804024A:
 	movs r4, #0xda
@@ -922,7 +922,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040270
 	bl .L08045572
 .L08040270:
-	bl func_0801221C
+	bl GameScript_ClearActorMap
 	bl .L08045572
 .L08040278:
 	adds r7, r5, #0
@@ -968,7 +968,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080402C8
 	bl .L08045572
 .L080402C8:
-	bl func_08012274
+	bl GameScript_SetActorMovementOption
 	bl .L08045572
 .L080402D0:
 	movs r6, #0xda
@@ -991,7 +991,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080402F6
 	bl .L08045572
 .L080402F6:
-	bl func_080122A0
+	bl GameScript_StopActorMovement
 	bl .L08045572
 .L080402FE:
 	adds r6, r5, #0
@@ -1027,7 +1027,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804033C
 	bl .L08045572
 .L0804033C:
-	bl func_080122BC
+	bl GameScript_SetActorMovementValue
 	bl .L08045572
 .L08040344:
 	adds r7, r5, #0
@@ -1127,7 +1127,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080403FC
 	bl .L08045572
 .L080403FC:
-	bl func_0801238C
+	bl GameScript_InvokeSceneAction24
 	bl .L08045572
 .L08040404:
 	movs r6, #0xd5
@@ -1138,7 +1138,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040414
 	bl .L0804168A
 .L08040414:
-	bl func_080123A4
+	bl GameScript_WaitForScene
 	bl .L0804168A
 .L0804041C:
 	adds r4, r5, #0
@@ -1189,7 +1189,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r1, r6, #0
 	adds r2, r7, #0
 	add r3, sp, #0xc
-	bl func_080123CC
+	bl GameScript_ConfigureMusic
 	bl .L08045572
 .L08040480:
 	movs r2, #0xd5
@@ -1200,7 +1200,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040490
 	bl .L08045572
 .L08040490:
-	bl func_08012454
+	bl GameScript_StopMusic
 	bl .L08045572
 .L08040498:
 	adds r6, r5, #0
@@ -1236,7 +1236,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080404D6
 	bl .L08045572
 .L080404D6:
-	bl func_08012464
+	bl GameScript_PlaySound
 	bl .L08045572
 .L080404DE:
 	movs r6, #0xd5
@@ -1247,7 +1247,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080404EE
 	bl .L08045572
 .L080404EE:
-	bl func_080124C4
+	bl GameScript_ResetAudio
 	bl .L08045572
 .L080404F6:
 	movs r1, #0xd5
@@ -1258,7 +1258,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040506
 	bl .L08045572
 .L08040506:
-	bl func_080125EC
+	bl GameScript_CloseDialoguePanels
 	bl .L08045572
 .L0804050E:
 	movs r2, #0xd5
@@ -1280,7 +1280,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040536
 	bl .L0804168A
 .L08040536:
-	bl func_08012658
+	bl GameScript_ResetDialogue
 	bl .L0804168A
 .L0804053E:
 	movs r4, #0xda
@@ -1319,7 +1319,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L0804057C:
 	adds r0, r2, #0
 	movs r2, #0x40
-	bl func_0801268C
+	bl GameScript_StartDialogue
 	bl .L0804168A
 	.align 2, 0
 .L08040588: .4byte 0x080F9EB8
@@ -1360,7 +1360,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L080405CA:
 	adds r0, r2, #0
 	movs r2, #0
-	bl func_0801268C
+	bl GameScript_StartDialogue
 	bl .L0804168A
 	.align 2, 0
 .L080405D8: .4byte 0x080F9EB8
@@ -1402,7 +1402,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r2, #0x80
 	lsls r2, r2, #1
 	adds r0, r4, #0
-	bl func_0801268C
+	bl GameScript_StartDialogue
 	bl .L0804168A
 	.align 2, 0
 .L08040628: .4byte 0x080F9EB8
@@ -1427,7 +1427,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040652
 	bl .L08045572
 .L08040652:
-	bl func_080126E4
+	bl GameScript_SetDialogueCharacterName
 	bl .L08045572
 .L0804065A:
 	movs r3, #0xda
@@ -1465,7 +1465,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r1, .L080406A4 @ =0x080F9EB8
 .L08040698:
 	adds r0, r2, #0
-	bl func_08012720
+	bl GameScript_SetDialogueSpeakerName
 	bl .L08045572
 	.align 2, 0
 .L080406A4: .4byte 0x080F9EB8
@@ -1478,7 +1478,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080406B8
 	bl .L08045572
 .L080406B8:
-	bl func_0801274C
+	bl GameScript_ClearDialogueSpeakerName
 	bl .L08045572
 .L080406C0:
 	adds r3, r5, #0
@@ -1575,7 +1575,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp]
 	str r1, [sp, #4]
 	adds r1, r6, #0
-	bl func_08012860
+	bl GameScript_StartPromptChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040778: .4byte 0x080F9EB8
@@ -1700,7 +1700,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r1, #0
 	str r1, [sp, #4]
 	adds r1, r7, #0
-	bl func_08012860
+	bl GameScript_StartPromptChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040864: .4byte 0x080F9EB8
@@ -1850,7 +1850,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r6, [sp]
 	str r1, [sp, #4]
 	adds r1, r7, #0
-	bl func_08012860
+	bl GameScript_StartPromptChoices
 	bl .L0804168A
 	.align 2, 0
 .L0804097C: .4byte 0x080F9EB8
@@ -1925,7 +1925,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp, #8]
 	adds r1, r3, #0
 	movs r3, #0
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040A0C: .4byte 0x080F9EB8
@@ -2025,7 +2025,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp, #4]
 	str r1, [sp, #8]
 	adds r1, r6, #0
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040AC8: .4byte 0x080F9EB8
@@ -2151,7 +2151,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp, #4]
 	str r1, [sp, #8]
 	adds r1, r7, #0
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040BB4: .4byte 0x080F9EB8
@@ -2303,7 +2303,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r1, #0
 	str r1, [sp, #8]
 	adds r1, r7, #0
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040CD0: .4byte 0x080F9EB8
@@ -2480,7 +2480,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r6, [sp, #4]
 	str r1, [sp, #8]
 	mov r1, r8
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040E18: .4byte 0x080F9EB8
@@ -2505,7 +2505,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040E42
 	bl .L08045572
 .L08040E42:
-	bl func_08012760
+	bl GameScript_SetDialoguePortrait
 	bl .L08045572
 .L08040E4A:
 	movs r3, #0xd5
@@ -2516,7 +2516,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040E5A
 	bl .L08045572
 .L08040E5A:
-	bl func_0801278C
+	bl GameScript_ClearDialoguePortrait
 	bl .L08045572
 .L08040E62:
 	movs r4, #0xda
@@ -2539,7 +2539,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040E88
 	bl .L08045572
 .L08040E88:
-	bl func_080127A0
+	bl GameScript_SetDialogueLoveIndicator
 	bl .L08045572
 .L08040E90:
 	movs r1, #0xd5
@@ -2550,7 +2550,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040EA0
 	bl .L08045572
 .L08040EA0:
-	bl func_0801284C
+	bl GameScript_ClearDialogueIndicator
 	bl .L08045572
 .L08040EA8:
 	adds r6, r5, #0
@@ -2699,7 +2699,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040FB6
 	b .L0804168A
 .L08040FB6:
-	bl func_08012BAC
+	bl GameScript_SetPendingArgument
 	b .L0804168A
 .L08040FBC:
 	movs r0, #0xda
@@ -2723,7 +2723,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bl .L08045572
 .L08040FE2:
 	movs r2, #0
-	bl func_08012B04
+	bl GameScript_LoadScript
 	bl .L08045572
 .L08040FEC:
 	adds r6, r5, #0
@@ -2759,7 +2759,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804102A
 	bl .L08045572
 .L0804102A:
-	bl func_08012AA4
+	bl GameScript_SetIntegerTextVariable
 	bl .L08045572
 .L08041032:
 	adds r7, r5, #0
@@ -2805,7 +2805,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08041082
 	bl .L08045572
 .L08041082:
-	bl func_08012ADC
+	bl GameScript_SetPaddedIntegerTextVariable
 	bl .L08045572
 .L0804108A:
 	adds r4, r5, #0
@@ -2857,7 +2857,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L080410E0:
 	adds r0, r3, #0
 	adds r1, r4, #0
-	bl func_08012ACC
+	bl GameScript_SetTextVariable
 	bl .L08045572
 	.align 2, 0
 .L080410EC: .4byte 0x080F9EB8
@@ -3074,7 +3074,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L0804128C:
 	adds r0, r1, #0
 	adds r1, r3, #0
-	bl func_08012134
+	bl GameScript_GetActorMap
 	adds r2, r0, #0
 	bl .L08045166
 .L0804129A:
@@ -3371,7 +3371,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804150E
 	b .L0804168A
 .L0804150E:
-	bl func_080141EC
+	bl GameScript_BeginPlayerAction50
 	b .L0804168A
 .L08041514:
 	movs r1, #0xd5
@@ -3382,7 +3382,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08041524
 	bl .L08045572
 .L08041524:
-	bl func_08014214
+	bl GameScript_InvokePlayerAction54
 	bl .L08045572
 .L0804152C:
 	movs r2, #0xda
@@ -3424,7 +3424,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r5, #0
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_08014164
+	bl GameScript_BeginPlayerAction5C
 	b .L0804168A
 .L08041580:
 	movs r4, #0xda
@@ -3455,7 +3455,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r5, #0
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_08014164
+	bl GameScript_BeginPlayerAction5C
 	b .L0804168A
 .L080415C0:
 	movs r0, #0xda
@@ -3495,7 +3495,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r5, #0
 	add r1, sp, #0xc
 	movs r2, #1
-	bl func_08014164
+	bl GameScript_BeginPlayerAction5C
 	b .L0804168A
 .L08041612:
 	movs r4, #0xda
@@ -3526,7 +3526,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r5, #0
 	add r1, sp, #0xc
 	movs r2, #1
-	bl func_08014164
+	bl GameScript_BeginPlayerAction5C
 	b .L0804168A
 .L08041652:
 	movs r4, #0
@@ -3536,7 +3536,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08041668
-	bl func_0801412C
+	bl GameScript_BeginPlayerAction48
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 .L08041668:
@@ -3567,7 +3567,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L0804168A
-	bl func_080141C4
+	bl GameScript_BeginPlayerAction4C
 	b .L0804168A
 .L080416A2:
 	movs r6, #0xd4
@@ -4707,7 +4707,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08041FBE
 	bl .L08045572
 .L08041FBE:
-	bl func_08014264
+	bl GameScript_InvokeActorAction38
 	bl .L08045572
 .L08041FC6:
 	movs r6, #0xda
@@ -4730,7 +4730,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08041FEC
 	bl .L08045572
 .L08041FEC:
-	bl func_08014290
+	bl GameScript_ResetActorAction38
 	bl .L08045572
 .L08041FF4:
 	movs r3, #0xd5
@@ -4741,7 +4741,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042004
 	bl .L0804168A
 .L08042004:
-	bl func_08012BBC
+	bl GameScript_QueueCondition0A
 	bl .L0804168A
 .L0804200C:
 	movs r4, #0xda
@@ -4996,7 +4996,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042228
 	bl .L08045572
 .L08042228:
-	bl func_08014034
+	bl GameScript_InvokeSceneAction84
 	bl .L08045572
 .L08042230:
 	movs r2, #0xd5
@@ -5007,7 +5007,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042240
 	bl .L08045572
 .L08042240:
-	bl func_0801404C
+	bl GameScript_InvokeSceneAction88
 	bl .L08045572
 .L08042248:
 	movs r3, #0xd5
@@ -5018,7 +5018,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042258
 	bl .L08045572
 .L08042258:
-	bl func_08014064
+	bl GameScript_InvokeSceneAction8C
 	bl .L08045572
 .L08042260:
 	movs r4, #0xd5
@@ -5029,7 +5029,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042270
 	bl .L08045572
 .L08042270:
-	bl func_0801407C
+	bl GameScript_InvokeSceneAction90
 	bl .L08045572
 .L08042278:
 	movs r6, #0xd5
@@ -5040,7 +5040,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042288
 	bl .L08045572
 .L08042288:
-	bl func_08014094
+	bl GameScript_InvokeSceneAction94
 	bl .L08045572
 .L08042290:
 	movs r1, #0xd5
@@ -5051,7 +5051,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080422A0
 	bl .L08045572
 .L080422A0:
-	bl func_080140AC
+	bl GameScript_InvokeSceneAction98
 	bl .L08045572
 .L080422A8:
 	adds r6, r5, #0
@@ -5111,7 +5111,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bl .L08045572
 .L08042318:
 	adds r1, r4, #0
-	bl func_080140DC
+	bl GameScript_InvokeSceneActionA0
 	bl .L08045572
 .L08042322:
 	adds r6, r5, #0
@@ -5201,7 +5201,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bl .L08045572
 .L080423CE:
 	adds r1, r4, #0
-	bl func_080140C4
+	bl GameScript_InvokeSceneAction9C
 	bl .L08045572
 .L080423D8:
 	movs r1, #0xd5
@@ -5212,7 +5212,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080423E8
 	bl .L08045572
 .L080423E8:
-	bl func_080140F4
+	bl GameScript_InvokeSceneAction80
 	bl .L08045572
 .L080423F0:
 	movs r2, #0xda
@@ -5235,7 +5235,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042416
 	bl .L08045572
 .L08042416:
-	bl func_080142B8
+	bl GameScript_InvokeSceneAction118
 	bl .L08045572
 .L0804241E:
 	movs r4, #0xd5
@@ -5246,7 +5246,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804242E
 	bl .L08045572
 .L0804242E:
-	bl func_080142D4
+	bl GameScript_InvokeSceneAction11C
 	bl .L08045572
 .L08042436:
 	movs r6, #0xd4
@@ -5288,7 +5288,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L0804248C
-	bl func_0801424C
+	bl GameScript_QueryScenePropertyA8
 	adds r1, r0, #0
 .L0804248C:
 	ldr r2, [r4]
@@ -5308,7 +5308,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080424AE
 	bl .L08045572
 .L080424AE:
-	bl func_08016BDC
+	bl GameScript_InvokeSceneActionFC
 	bl .L08045572
 .L080424B6:
 	movs r4, #0xd5
@@ -5319,7 +5319,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080424C6
 	bl .L08045572
 .L080424C6:
-	bl func_08016BF4
+	bl GameScript_InvokeSceneAction100
 	bl .L08045572
 .L080424CE:
 	movs r4, #0
@@ -5329,7 +5329,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L080424E2
-	bl func_08014234
+	bl GameScript_GetScenePropertyA4
 	adds r4, r0, #0
 .L080424E2:
 	adds r2, r5, #0
@@ -5451,7 +5451,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080425DA
 	bl .L0804168A
 .L080425DA:
-	bl func_08013E6C
+	bl GameScript_QueueCondition2E
 	bl .L0804168A
 .L080425E2:
 	movs r6, #0xda
@@ -5474,7 +5474,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042608
 	bl .L0804168A
 .L08042608:
-	bl func_08013EF8
+	bl GameScript_QueueCondition2F
 	bl .L0804168A
 .L08042610:
 	adds r6, r5, #0
@@ -5778,7 +5778,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042872
 	bl .L08045166
 .L08042872:
-	bl func_08015920
+	bl GameScript_GetFarmActorProperty
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	bl .L08045166
@@ -6002,7 +6002,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r6, .L08042A54 @ =0x00002C74
 	adds r0, r0, r6
-	bl func_0801151C
+	bl Selection_GetCurrent
 	adds r4, r0, #0
 	adds r2, r5, #0
 	adds r2, #0x24
@@ -6019,7 +6019,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r2, .L08042A78 @ =0x00002C74
 	adds r0, r0, r2
-	bl func_08011520
+	bl Selection_GetPrevious
 	adds r4, r0, #0
 	adds r2, r5, #0
 	adds r2, #0x24
@@ -6036,7 +6036,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r6, .L08042AA0 @ =0x00002C74
 	adds r0, r0, r6
-	bl func_08011524
+	bl Selection_IsPreviousReady
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	adds r2, r5, #0
@@ -6066,7 +6066,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r3, .L08042AD0 @ =0x00002C74
 	adds r0, r0, r3
-	bl func_08011540
+	bl Selection_SetCurrent
 	bl .L08045572
 	.align 2, 0
 .L08042AD0: .4byte 0x00002C74
@@ -6077,7 +6077,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r6, .L08042AE8 @ =0x00002C74
 	adds r0, r0, r6
-	bl func_08011544
+	bl Selection_Commit
 	bl .L08045572
 	.align 2, 0
 .L08042AE8: .4byte 0x00002C74
@@ -6088,7 +6088,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r2, .L08042B0C @ =0x00002C74
 	adds r0, r0, r2
-	bl func_08011520
+	bl Selection_GetPrevious
 	cmp r0, #0xf
 	bls .L08042B02
 	b .L08042C7E
@@ -6274,7 +6274,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r4, .L08042C94 @ =0x00002C74
 	adds r0, r0, r4
-	bl func_08011550
+	bl Selection_ClearPrevious
 	bl .L08045572
 	.align 2, 0
 .L08042C94: .4byte 0x00002C74
@@ -6344,7 +6344,7 @@ func_0803F8DC: @ 0x0803F8DC
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	ldr r0, [r0]
-	bl func_08010E68
+	bl SaveData_HaveAllAnimalsHighAffection
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	adds r2, r5, #0
@@ -6401,7 +6401,7 @@ func_0803F8DC: @ 0x0803F8DC
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	ldr r0, [r0]
-	bl func_08010E60
+	bl SaveProgress_GetFlagD
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	adds r2, r5, #0
@@ -7399,7 +7399,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08043628
 	bl .L08045572
 .L08043628:
-	bl func_080142F0
+	bl GameScript_EnableSaveFlag
 	bl .L08045572
 .L08043630:
 	movs r2, #0xd5
@@ -7410,7 +7410,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08043640
 	bl .L08045572
 .L08043640:
-	bl func_08014304
+	bl GameScript_DisableSaveFlag
 	bl .L08045572
 .L08043648:
 	movs r4, #0xda
@@ -7433,7 +7433,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804366E
 	bl .L08045572
 .L0804366E:
-	bl func_08014694
+	bl GameScript_InvokeSceneAction150
 	bl .L08045572
 .L08043676:
 	adds r2, r5, #0
@@ -7543,7 +7543,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804373E
 	bl .L08045572
 .L0804373E:
-	bl func_080146B0
+	bl GameScript_InvokeSceneAction154
 	bl .L08045572
 .L08043746:
 	movs r3, #0xd4
@@ -7605,7 +7605,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080437BE
 	bl .L08045572
 .L080437BE:
-	bl func_080146CC
+	bl GameScript_BeginEggIncubation
 	bl .L08045572
 .L080437C6:
 	adds r6, r5, #0
@@ -8209,7 +8209,7 @@ func_0803F8DC: @ 0x0803F8DC
 	lsls r2, r2, #2
 	adds r0, r5, r2
 	ldr r0, [r0]
-	bl func_08010F48
+	bl SaveProgress_SetFlagD
 	b .L08043D82
 .L08043D06:
 	cmp r7, #0x5f
@@ -8356,7 +8356,7 @@ func_0803F8DC: @ 0x0803F8DC
 	orrs r0, r2
 	strh r0, [r1]
 	adds r0, r5, #0
-	bl func_08014318
+	bl GameScript_UpdateTextPanel
 	bl .L08045572
 	.align 2, 0
 .L08043E2C: .4byte 0xFFFFF81F
@@ -8517,7 +8517,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r1, #0
 	adds r2, r4, #0
 	movs r3, #0x70
-	bl func_08012064
+	bl GameScript_StartRuntimeOperation
 	bl .L08045572
 	.align 2, 0
 .L08043F78: .4byte gUnk_080F9EF4
@@ -8577,7 +8577,7 @@ func_0803F8DC: @ 0x0803F8DC
 	lsls r3, r3, #2
 	adds r0, r5, r3
 	ldr r0, [r0]
-	bl func_08014D7C
+	bl GameScript_GetPlayerProperty44
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	bl .L080454A8
@@ -8859,7 +8859,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044226
 	bl .L0804168A
 .L08044226:
-	bl func_08014198
+	bl GameScript_BeginPlayerAction60
 	bl .L0804168A
 	.align 2, 0
 .L08044230: .4byte 0x00001BD8
@@ -8937,7 +8937,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080442CA
 	bl .L08045572
 .L080442CA:
-	bl func_08014C0C
+	bl GameScript_InvokePlayerAction64
 	bl .L08045572
 .L080442D2:
 	movs r4, #0xd5
@@ -8948,7 +8948,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080442E2
 	bl .L08045572
 .L080442E2:
-	bl func_08014BD8
+	bl GameScript_SetNonPlayerActorMode
 	bl .L08045572
 .L080442EA:
 	adds r6, r5, #0
@@ -9096,7 +9096,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080443FE
 	bl .L08045572
 .L080443FE:
-	bl func_08014D30
+	bl GameScript_RemoveHorse
 	bl .L08045572
 .L08044406:
 	adds r6, r5, #0
@@ -9163,7 +9163,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044484
 	bl .L080454A8
 .L08044484:
-	bl func_08014D5C
+	bl GameScript_GetPlayerProperty78
 	bl .L080454A6
 .L0804448C:
 	adds r6, r5, #0
@@ -9682,7 +9682,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804488E
 	bl .L08045572
 .L0804488E:
-	bl func_08016834
+	bl GameScript_ClearFarmAnimalActor
 	bl .L08045572
 .L08044896:
 	movs r4, #0xda
@@ -9731,7 +9731,7 @@ func_0803F8DC: @ 0x0803F8DC
 	beq .L080448FA
 	adds r0, r1, #0
 	adds r1, r3, #0
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	bl .L08045166
 .L080448FA:
@@ -9946,7 +9946,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044AA4
 	bl .L0804168A
 .L08044AA4:
-	bl func_080158CC
+	bl GameScript_BeginPlayerAction80
 	bl .L0804168A
 .L08044AAC:
 	movs r3, #0xd5
@@ -9957,7 +9957,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044ABC
 	bl .L0804168A
 .L08044ABC:
-	bl func_080158F8
+	bl GameScript_BeginPlayerAction7C
 	bl .L0804168A
 .L08044AC4:
 	movs r4, #0
@@ -9967,7 +9967,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08044ADA
-	bl func_0801410C
+	bl GameScript_GetPlayerProperty40
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 .L08044ADA:
@@ -9985,7 +9985,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08044AFC
-	bl func_08015950
+	bl GameScript_GetPlayerProperty84
 	adds r4, r0, #0
 .L08044AFC:
 	adds r2, r5, #0
@@ -10002,7 +10002,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08044B1E
-	bl func_08015970
+	bl GameScript_GetPlayerProperty88
 	adds r4, r0, #0
 .L08044B1E:
 	adds r2, r5, #0
@@ -10019,7 +10019,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08044B40
-	bl func_08015990
+	bl GameScript_GetPlayerProperty8C
 	adds r4, r0, #0
 .L08044B40:
 	adds r2, r5, #0
@@ -10114,7 +10114,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bl .L08045572
 .L08044BF4:
 	adds r1, #0x2e
-	bl func_08016CEC
+	bl GameScript_ActivateActor
 	bl .L08045572
 .L08044BFE:
 	movs r6, #0xd4
@@ -10202,7 +10202,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bl .L08045572
 .L08044CA4:
 	adds r1, #0x36
-	bl func_08016CEC
+	bl GameScript_ActivateActor
 	bl .L08045572
 .L08044CAE:
 	adds r6, r5, #0
@@ -10276,7 +10276,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044D38
 	bl .L08045572
 .L08044D38:
-	bl func_080167DC
+	bl GameScript_RefreshActor23
 	bl .L08045572
 .L08044D40:
 	movs r6, #0xd5
@@ -10311,12 +10311,12 @@ func_0803F8DC: @ 0x0803F8DC
 	bl .L08045572
 .L08044D7E:
 	adds r0, r4, #0
-	bl func_080167AC
+	bl GameScript_GetPlayerProperty90
 	ldr r2, [r0]
 .L08044D86:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_08012ACC
+	bl GameScript_SetTextVariable
 	b .L08045572
 .L08044D90:
 	movs r4, #0
@@ -10326,7 +10326,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08044DA4
-	bl func_080167AC
+	bl GameScript_GetPlayerProperty90
 	ldrh r4, [r0, #4]
 .L08044DA4:
 	adds r2, r5, #0
@@ -10343,7 +10343,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08044DC4
-	bl func_080167AC
+	bl GameScript_GetPlayerProperty90
 	ldrb r4, [r0, #0x14]
 .L08044DC4:
 	adds r2, r5, #0
@@ -10360,7 +10360,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08044DE4
-	bl func_080167AC
+	bl GameScript_GetPlayerProperty90
 	ldrb r4, [r0, #0xd]
 .L08044DE4:
 	adds r2, r5, #0
@@ -10405,7 +10405,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r1, .L08044E38 @ =0x080F9EB8
 .L08044E2E:
 	adds r0, r2, #0
-	bl func_080126BC
+	bl GameScript_StartDialogueWithDefaultSpeed
 	bl .L0804168A
 	.align 2, 0
 .L08044E38: .4byte 0x080F9EB8
@@ -10414,14 +10414,14 @@ func_0803F8DC: @ 0x0803F8DC
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	ldr r0, [r0]
-	bl func_08010F24
+	bl SaveProgress_SetFlagA
 	b .L08045572
 .L08044E4A:
 	movs r2, #0xd4
 	lsls r2, r2, #2
 	adds r0, r5, r2
 	ldr r0, [r0]
-	bl func_08010F3C
+	bl SaveProgress_SetFlagC
 	b .L08045572
 .L08044E58:
 	movs r4, #0xda
@@ -10444,7 +10444,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044E7C
 	b .L08045572
 .L08044E7C:
-	bl func_08016BA4
+	bl GameScript_InvokeSceneAction10C
 	b .L08045572
 .L08044E82:
 	movs r0, #0xda
@@ -10467,7 +10467,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044EA6
 	b .L08045572
 .L08044EA6:
-	bl func_08016BC0
+	bl GameScript_InvokeSceneAction110
 	b .L08045572
 .L08044EAC:
 	adds r6, r5, #0
@@ -10559,7 +10559,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044F56
 	b .L08045572
 .L08044F56:
-	bl func_08016C2C
+	bl GameScript_InvokeSpecialActorActionA
 	b .L08045572
 .L08044F5C:
 	movs r6, #0xd5
@@ -10570,7 +10570,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044F6C
 	bl .L0804168A
 .L08044F6C:
-	bl func_08016C48
+	bl GameScript_BeginSpecialActorActionA
 	bl .L0804168A
 .L08044F74:
 	movs r1, #0xd5
@@ -10581,7 +10581,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044F82
 	b .L08045572
 .L08044F82:
-	bl func_08016C6C
+	bl GameScript_InvokeSpecialActorActionB
 	b .L08045572
 .L08044F88:
 	movs r2, #0xd5
@@ -10592,7 +10592,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044F98
 	bl .L0804168A
 .L08044F98:
-	bl func_08016C88
+	bl GameScript_BeginSpecialActorActionB
 	bl .L0804168A
 .L08044FA0:
 	movs r3, #0xd5
@@ -10601,7 +10601,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08044FB0
-	bl func_08016CAC
+	bl GameScript_InvokePlayerActionA8
 .L08044FB0:
 	movs r0, #2
 	b .L08045574
@@ -10614,7 +10614,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044FC2
 	b .L08045572
 .L08044FC2:
-	bl func_08016CCC
+	bl GameScript_InvokePlayerActionAC
 	b .L08045572
 .L08044FC8:
 	movs r6, #0xd5
@@ -10625,7 +10625,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044FD6
 	b .L08045572
 .L08044FD6:
-	bl func_08016D48
+	bl GameScript_SaveReturnLocation
 	b .L08045572
 .L08044FDC:
 	movs r1, #0xd5
@@ -10636,7 +10636,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044FEA
 	b .L08045572
 .L08044FEA:
-	bl func_08016D80
+	bl GameScript_ClearReturnLocation
 	b .L08045572
 .L08044FF0:
 	movs r4, #0x1d
@@ -10646,7 +10646,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08045004
-	bl func_08016D9C
+	bl GameScript_GetReturnMap
 	adds r4, r0, #0
 .L08045004:
 	adds r2, r5, #0
@@ -10675,7 +10675,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08045036
 	b .L08045572
 .L08045036:
-	bl func_08016E7C
+	bl GameScript_InvokePlayerAction6C
 	b .L08045572
 .L0804503C:
 	movs r1, #0xd5
@@ -10686,7 +10686,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804504C
 	bl .L0804168A
 .L0804504C:
-	bl func_08016E9C
+	bl GameScript_BeginPlayerAction70
 	bl .L0804168A
 .L08045054:
 	adds r6, r5, #0
@@ -10763,7 +10763,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r1, #0
 	adds r1, r6, #0
 	adds r2, r7, #0
-	bl func_08016EC4
+	bl GameScript_InvokeSceneAction160
 	b .L08045572
 .L080450E2:
 	movs r4, #0xda
@@ -10786,7 +10786,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08045106
 	b .L08045572
 .L08045106:
-	bl func_08016EF0
+	bl GameScript_InvokeSceneAction164
 	b .L08045572
 .L0804510C:
 	adds r6, r5, #0
@@ -10906,7 +10906,7 @@ func_0803F8DC: @ 0x0803F8DC
 	rsbs r1, r3, #0
 	orrs r1, r3
 	lsrs r1, r1, #0x1f
-	bl func_08016F0C
+	bl GameScript_InvokePlayerAction9C
 	b .L08045572
 .L080451EE:
 	movs r6, #0xda
@@ -11145,7 +11145,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080453DA
 	b .L08045572
 .L080453DA:
-	bl func_08016F60
+	bl GameScript_UpdateActiveActors
 	b .L08045572
 .L080453E0:
 	adds r6, r5, #0
@@ -11232,7 +11232,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804547C
 	bl .L0804168A
 .L0804547C:
-	bl func_08016F34
+	bl GameScript_BeginPlayerAction74
 	bl .L0804168A
 .L08045484:
 	movs r1, #0xd5
@@ -11241,7 +11241,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08045572
-	bl func_08016784
+	bl GameScript_FadeMusicIfPlaying
 	b .L08045572
 .L08045496:
 	movs r2, #0xd4
@@ -11295,7 +11295,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L080454EE:
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
-	bl func_0801589C
+	bl GameScript_BeginPlayerAction68
 	bl .L0804168A
 .L080454FA:
 	adds r4, r5, #0
@@ -11358,7 +11358,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r2, r0, #0
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_08012ACC
+	bl GameScript_SetTextVariable
 .L08045572:
 	movs r0, #0
 .L08045574:
@@ -12687,21 +12687,21 @@ func_0804590C: @ 0x0804590C
 	lsls r1, r1, #2
 	adds r0, r2, r1
 	ldr r0, [r0]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	b .L080466D4
 .L0804645E:
 	movs r1, #0xd4
 	lsls r1, r1, #2
 	adds r0, r2, r1
 	ldr r0, [r0]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	b .L080466D4
 .L0804646C:
 	movs r1, #0xd4
 	lsls r1, r1, #2
 	adds r0, r2, r1
 	ldr r0, [r0]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	b .L080466D4
 .L0804647A:
 	movs r1, #0xd4
@@ -18983,7 +18983,7 @@ func_08048FFC: @ 0x08048FFC
 	movs r1, #0
 .L08049B0A:
 	movs r2, #0
-	bl func_08016834
+	bl GameScript_ClearFarmAnimalActor
 	bl .L0804DA2E
 	.align 2, 0
 .L08049B14: .4byte 0x000021A1
@@ -19031,7 +19031,7 @@ func_08048FFC: @ 0x08048FFC
 	bne .L08049B70
 	bl .L0804DA2E
 .L08049B70:
-	bl func_08016C10
+	bl GameScript_InvokeSceneAction104
 	bl .L0804DA2E
 .L08049B78:
 	movs r1, #0xd4
@@ -19075,7 +19075,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049BCC:
 	movs r1, #0
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #0
@@ -19108,7 +19108,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049C10:
 	movs r1, #4
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #4
@@ -19145,7 +19145,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049C5C:
 	movs r1, #3
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #3
@@ -19182,7 +19182,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049CA8:
 	movs r1, #1
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #1
@@ -19219,7 +19219,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049CF4:
 	movs r1, #0
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #0
@@ -19256,7 +19256,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049D40:
 	movs r1, #2
-	bl func_08016AFC
+	bl GameScript_GetFarmAnimalEventIndex
 	adds r2, r0, #0
 	adds r0, r7, #0
 	movs r1, #2
@@ -27420,7 +27420,7 @@ func_08048FFC: @ 0x08048FFC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L0804E0B4
-	bl func_080125EC
+	bl GameScript_CloseDialoguePanels
 .L0804E0B4:
 	movs r2, #0xd4
 	lsls r2, r2, #2
@@ -28978,7 +28978,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	mov r2, sl
 	strb r0, [r2, #0x1a]
 	ldr r0, [sp, #0x14]
-	bl func_080ADD44
+	bl ResetMessageScript
 	movs r0, #0x90
 	lsls r0, r0, #1
 	add r0, r8
@@ -30973,7 +30973,7 @@ DrawMessageChoiceText: @ 0x080507F8
 	adds r0, r4, #0
 	adds r1, r7, #0
 	mov r2, r8
-	bl func_080ADD5C
+	bl StartMessageScript
 	adds r6, r5, #0
 	adds r5, r4, #0
 	ldr r4, .L08050864 @ =vtable_unk_080E78F0
@@ -45817,7 +45817,7 @@ func_080588AC: @ 0x080588AC
 	cmp r4, #3
 	ble .L08058906
 	adds r0, r6, #0
-	bl func_0805C80C
+	bl InitHorseRaceEntrants
 	ldr r1, [r6, #8]
 	ldr r3, .L080589B0 @ =0x00002C4A
 	adds r1, r1, r3
@@ -53156,175 +53156,7 @@ func_0805C63C: @ 0x0805C63C
 .L0805C804: .4byte 0xFFFFFCFF
 .L0805C808: .4byte 0xFFFFEFFF
 
-	thumb_func_start func_0805C80C
-func_0805C80C: @ 0x0805C80C
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	mov r8, r0
-	ldr r6, .L0805C90C @ =0x0000142C
-	add r6, r8
-	ldr r0, .L0805C910 @ =0x0000140E
-	add r0, r8
-	ldrb r0, [r0]
-	cmp r0, #1
-	bne .L0805C872
-	ldr r1, .L0805C914 @ =0x000014A4
-	add r1, r8
-	movs r0, #0x80
-	strh r0, [r1]
-	ldr r4, .L0805C918 @ =0x000014DC
-	add r4, r8
-	ldr r0, [r4]
-	bl GetAdequacy__C3Pet
-	ldr r5, .L0805C91C @ =0x000014A1
-	add r5, r8
-	strb r0, [r5]
-	ldr r0, [r4]
-	bl GetAffection__C6Animal
-	ldr r1, .L0805C920 @ =0x000014A2
-	add r1, r8
-	strb r0, [r1]
-	ldrb r1, [r5]
-	movs r0, #0xfa
-	subs r0, r0, r1
-	adds r1, r0, #0
-	muls r1, r0, r1
-	adds r0, r1, #0
-	movs r1, #0xfa
-	lsls r1, r1, #2
-	bl __divsi3
-	adds r4, r0, #0
-	bl rand
-	movs r1, #3
-	ands r0, r1
-	adds r0, #1
-	adds r4, r4, r0
-	ldr r0, .L0805C924 @ =0x000014AC
-	add r0, r8
-	strh r4, [r0]
-.L0805C872:
-	movs r5, #0
-	ldr r0, .L0805C928 @ =0x00000C49
-	mov sl, r0
-	mov sb, r5
-.L0805C87A:
-	ldrb r0, [r6, #0x1d]
-	mov r1, sl
-	muls r1, r0, r1
-	adds r0, r1, #0
-	movs r1, #0xb0
-	lsls r1, r1, #0xf
-	adds r0, r0, r1
-	movs r1, #0x3c
-	bl __divsi3
-	adds r4, r0, #0
-	str r4, [r6]
-	ldrb r0, [r6, #0x1e]
-	mov r1, sl
-	muls r1, r0, r1
-	adds r0, r1, #0
-	movs r1, #0xc0
-	lsls r1, r1, #0xc
-	adds r0, r0, r1
-	movs r1, #0x3c
-	bl __divsi3
-	adds r0, r0, r4
-	str r0, [r6, #4]
-	subs r0, r0, r4
-	movs r1, #0x3c
-	bl __divsi3
-	str r0, [r6, #8]
-	mov r0, sb
-	str r0, [r6, #0xc]
-	movs r0, #0xc
-	strh r0, [r6, #0x18]
-	movs r0, #0xff
-	strh r0, [r6, #0x1a]
-	mov r1, sb
-	strb r1, [r6, #0x1c]
-	str r4, [r6, #0x10]
-	movs r0, #0xd7
-	lsls r0, r0, #0x13
-	str r0, [r6, #0x14]
-	movs r0, #0xff
-	strb r0, [r6, #0x1f]
-	mov r0, sb
-	strh r0, [r6, #0x22]
-	strh r0, [r6, #0x2a]
-	ldr r0, .L0805C92C @ =0x00001424
-	add r0, r8
-	movs r1, #0
-	ldrsh r0, [r0, r1]
-	adds r4, r5, #1
-	adds r7, r6, #0
-	adds r7, #0x2c
-	cmp r0, #0
-	bne .L0805C952
-	ldr r0, .L0805C910 @ =0x0000140E
-	add r0, r8
-	ldrb r0, [r0]
-	cmp r0, #1
-	bne .L0805C930
-	cmp r5, #2
-	bne .L0805C930
-	adds r1, r6, #0
-	adds r1, #0x24
-	movs r2, #0
-	adds r0, r6, #0
-	adds r0, #0x27
-.L0805C900:
-	strb r2, [r0]
-	subs r0, #1
-	cmp r0, r1
-	bge .L0805C900
-	b .L0805C952
-	.align 2, 0
-.L0805C90C: .4byte 0x0000142C
-.L0805C910: .4byte 0x0000140E
-.L0805C914: .4byte 0x000014A4
-.L0805C918: .4byte 0x000014DC
-.L0805C91C: .4byte 0x000014A1
-.L0805C920: .4byte 0x000014A2
-.L0805C924: .4byte 0x000014AC
-.L0805C928: .4byte 0x00000C49
-.L0805C92C: .4byte 0x00001424
-.L0805C930:
-	movs r2, #0
-	adds r4, r5, #1
-	adds r7, r6, #0
-	adds r7, #0x2c
-	adds r3, r6, #0
-	adds r3, #0x24
-	ldr r5, .L0805C968 @ =gUnk_080FA99E
-.L0805C93E:
-	adds r0, r3, r2
-	ldrh r1, [r6, #0x20]
-	lsls r1, r1, #2
-	adds r1, r2, r1
-	adds r1, r1, r5
-	ldrb r1, [r1]
-	strb r1, [r0]
-	adds r2, #1
-	cmp r2, #3
-	ble .L0805C93E
-.L0805C952:
-	adds r5, r4, #0
-	adds r6, r7, #0
-	cmp r5, #3
-	ble .L0805C87A
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805C968: .4byte gUnk_080FA99E
-
+	.section .text.f3.0805C96C, "ax", %progbits
 	thumb_func_start func_0805C96C
 func_0805C96C: @ 0x0805C96C
 	push {r4, r5, r6, r7, lr}
@@ -98919,7 +98751,7 @@ func_080722DC: @ 0x080722DC
 	ldr r6, .L080733F4 @ =0x0000058C
 	add r6, sb
 	ldr r0, [r6]
-	bl func_08010F0C
+	bl SaveProgress_GetWordCounter
 	ldr r7, [sp, #0x208]
 	ldr r1, [r7, #0x18]
 	adds r1, r1, r4
@@ -98971,7 +98803,7 @@ func_080722DC: @ 0x080722DC
 	movs r3, #2
 	bl FillMessageTilemapRect
 	ldr r0, [r6]
-	bl func_08010F0C
+	bl SaveProgress_GetWordCounter
 	ldr r7, [sp, #0x208]
 	ldr r1, [r7, #0x18]
 	adds r1, r1, r4
@@ -99023,7 +98855,7 @@ func_080722DC: @ 0x080722DC
 	movs r3, #2
 	bl FillMessageTilemapRect
 	ldr r0, [r6]
-	bl func_08010F1C
+	bl SaveProgress_GetByteCounter
 	ldr r5, [sp, #0x208]
 	ldr r1, [r5, #0x18]
 	adds r1, r1, r4
@@ -108915,7 +108747,7 @@ func_08077EC0: @ 0x08077EC0
 	bl func_08077E64
 .L08077F98:
 	ldr r0, [r4, #8]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08077FD0
@@ -108942,7 +108774,7 @@ func_08077EC0: @ 0x08077EC0
 	bl func_08077E64
 .L08077FD0:
 	ldr r0, [r4, #8]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08078004
@@ -108967,7 +108799,7 @@ func_08077EC0: @ 0x08077EC0
 	bl func_08077E64
 .L08078004:
 	ldr r0, [r4, #8]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08078038
@@ -109127,7 +108959,7 @@ func_08078044: @ 0x08078044
 .L0807813A:
 	movs r6, #0x28
 	ldr r0, [r7, #8]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08078164
@@ -109145,7 +108977,7 @@ func_08078044: @ 0x08078044
 .L08078160: .4byte gUnk_080FD080
 .L08078164:
 	ldr r0, [r7, #8]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0807818C
@@ -109163,7 +108995,7 @@ func_08078044: @ 0x08078044
 .L08078188: .4byte gUnk_080FD0A8
 .L0807818C:
 	ldr r0, [r7, #8]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080781B4
@@ -131765,7 +131597,7 @@ func_08083C64: @ 0x08083C64
 	str r0, [r1]
 .L08083DC0:
 	ldr r0, [r7, #8]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L08083DEC

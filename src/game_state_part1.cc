@@ -5,20 +5,22 @@
 #include "coop.hh"
 #include "script_engine.hh"
 #include "scene.hh"
+#include "shipping_bin.hh"
+#include "bachelorette.hh"
 
 #include <stdlib.h>
 
 struct PACKED GameStateHeader
 {
-    u8 flag_0 : 1;
-    u8 flag_1 : 1;
-    u8 flag_2 : 1;
-    u8 flag_3 : 1;
-    u8 flag_4 : 1;
-    u8 unused_0 : 3;
-    u8 unused_1[2];
-    u8 unused_3 : 1;
-    u8 value_3 : 6;
+    u8 flagA : 1;
+    u8 flagB : 1;
+    u8 flagC : 1;
+    u8 flagD : 1;
+    u8 flagE : 1;
+    u8 reservedBits : 3;
+    u8 reservedBytes[2];
+    u8 reservedBit : 1;
+    u8 counter : 6;
 };
 
 struct GameStateSelection
@@ -31,15 +33,17 @@ struct GameStateSelection
 struct GameStateWordHeader
 {
     u32 unused : 13;
-    u32 value : 5;
+    u32 counter : 5;
 };
 
-EC u32 SECTION(".text.game_state_08010F0C") func_08010F0C(GameStateWordHeader const & self)
+// 0x08010F0C
+EC u32 SECTION(".text.game_state_08010F0C") SaveProgress_GetWordCounter(GameStateWordHeader const & header)
 {
-    return self.value;
+    return header.counter;
 }
 
-EC u32 SECTION(".text.game_state_08011588") func_08011588(void const * data, u32 length)
+// 0x08011588
+EC u32 SECTION(".text.game_state_08011588") SaveData_SumBytes(void const * data, u32 length)
 {
     u32 sum = 0;
     if (data != nullptr && length != 0)
@@ -53,7 +57,8 @@ EC u32 SECTION(".text.game_state_08011588") func_08011588(void const * data, u32
     return sum;
 }
 
-EC int SECTION(".text.game_state_08010348") func_08010348()
+// 0x08010348
+EC int SECTION(".text.game_state_08010348") Random_NonZero()
 {
     int value;
     do
@@ -63,90 +68,107 @@ EC int SECTION(".text.game_state_08010348") func_08010348()
     return value;
 }
 
-EC u32 SECTION(".text.game_state_08010E48") func_08010E48(GameStateHeader const & self)
+// 0x08010E48
+EC u32 SECTION(".text.game_state_08010E48") SaveProgress_GetFlagA(GameStateHeader const & header)
 {
-    return self.flag_0;
+    return header.flagA;
 }
 
-EC u32 SECTION(".text.game_state_08010E48") func_08010E50(GameStateHeader const & self)
+// 0x08010E50
+EC u32 SECTION(".text.game_state_08010E48") SaveProgress_GetFlagB(GameStateHeader const & header)
 {
-    return self.flag_1;
+    return header.flagB;
 }
 
-EC u32 SECTION(".text.game_state_08010E48") func_08010E58(GameStateHeader const & self)
+// 0x08010E58
+EC u32 SECTION(".text.game_state_08010E48") SaveProgress_GetFlagC(GameStateHeader const & header)
 {
-    return self.flag_2;
+    return header.flagC;
 }
 
-EC u32 SECTION(".text.game_state_08010E48") func_08010E60(GameStateHeader const & self)
+// 0x08010E60
+EC u32 SECTION(".text.game_state_08010E48") SaveProgress_GetFlagD(GameStateHeader const & header)
 {
-    return self.flag_3;
+    return header.flagD;
 }
 
-EC u32 SECTION(".text.game_state_08010F04") func_08010F04(GameStateHeader const & self)
+// 0x08010F04
+EC u32 SECTION(".text.game_state_08010F04") SaveProgress_GetFlagE(GameStateHeader const & header)
 {
-    return self.flag_4;
+    return header.flagE;
 }
 
-EC u32 SECTION(".text.game_state_08010F1C") func_08010F1C(GameStateHeader const & self)
+// 0x08010F1C
+EC u32 SECTION(".text.game_state_08010F1C") SaveProgress_GetByteCounter(GameStateHeader const & header)
 {
-    return self.value_3;
+    return header.counter;
 }
 
-EC void SECTION(".text.game_state_08010F1C") func_08010F24(GameStateHeader & self)
+// 0x08010F24
+EC void SECTION(".text.game_state_08010F1C") SaveProgress_SetFlagA(GameStateHeader & header)
 {
-    self.flag_0 = 1;
+    header.flagA = 1;
 }
 
-EC void SECTION(".text.game_state_08010F1C") func_08010F30(GameStateHeader & self)
+// 0x08010F30
+EC void SECTION(".text.game_state_08010F1C") SaveProgress_SetFlagB(GameStateHeader & header)
 {
-    self.flag_1 = 1;
+    header.flagB = 1;
 }
 
-EC void SECTION(".text.game_state_08010F1C") func_08010F3C(GameStateHeader & self)
+// 0x08010F3C
+EC void SECTION(".text.game_state_08010F1C") SaveProgress_SetFlagC(GameStateHeader & header)
 {
-    self.flag_2 = 1;
+    header.flagC = 1;
 }
 
-EC void SECTION(".text.game_state_08010F1C") func_08010F48(GameStateHeader & self)
+// 0x08010F48
+EC void SECTION(".text.game_state_08010F1C") SaveProgress_SetFlagD(GameStateHeader & header)
 {
-    self.flag_3 = 1;
+    header.flagD = 1;
 }
 
-EC void SECTION(".text.game_state_08011458") func_08011458(GameStateHeader & self)
+// 0x08011458
+EC void SECTION(".text.game_state_08011458") SaveProgress_SetFlagE(GameStateHeader & header)
 {
-    self.flag_4 = 1;
+    header.flagE = 1;
 }
 
-EC void SECTION(".text.game_state_08011510") func_08011510(GameStateSelection & self)
+// 0x08011510
+EC void SECTION(".text.game_state_08011510") Selection_Reset(GameStateSelection & selection)
 {
-    self.current = 0x10;
-    self.previous = 0x10;
-    self.delay = 0;
+    selection.current = 0x10;
+    selection.previous = 0x10;
+    selection.delay = 0;
 }
 
-EC u32 SECTION(".text.game_state_08011510") func_0801151C(GameStateSelection const & self)
+// 0x0801151C
+EC u32 SECTION(".text.game_state_08011510") Selection_GetCurrent(GameStateSelection const & selection)
 {
-    return self.current;
+    return selection.current;
 }
 
-EC u32 SECTION(".text.game_state_08011510") func_08011520(GameStateSelection const & self)
+// 0x08011520
+EC u32 SECTION(".text.game_state_08011510") Selection_GetPrevious(GameStateSelection const & selection)
 {
-    return self.previous;
+    return selection.previous;
 }
 
-EC void SECTION(".text.game_state_08011540") func_08011540(GameStateSelection & self, u32 value)
+// 0x08011540
+EC void SECTION(".text.game_state_08011540") Selection_SetCurrent(GameStateSelection & selection, u32 value)
 {
-    self.current = value;
+    selection.current = value;
 }
 
-EC void SECTION(".text.game_state_08011540") func_08011544(GameStateSelection & self)
+// 0x08011544
+EC void SECTION(".text.game_state_08011540") Selection_Commit(GameStateSelection & selection)
 {
-    self.previous = self.current;
-    self.delay = 2;
+    selection.previous = selection.current;
+    selection.delay = 2;
 }
 
-EC void SECTION(".text.game_state_08012218") func_08012218()
+// 0x08012218
+EC void SECTION(".text.game_state_08012218") GameScript_NoOp()
 {
 }
 
@@ -154,10 +176,10 @@ struct GameStateActorEntity : public AActorEntity
 {
     GameStateActorEntity();
 
-    virtual void vfunc_3C();
+    virtual void vfunc_3C(u32 mode);
     virtual u32 vfunc_40();
     virtual u32 vfunc_44();
-    virtual void vfunc_48();
+    virtual bool vfunc_48();
     virtual void vfunc_4C();
     virtual void vfunc_50();
     virtual void vfunc_54();
@@ -225,7 +247,7 @@ struct GameStateObject
     virtual void vfunc_34();
     virtual void vfunc_38(u32 id);
     virtual void vfunc_3C(u32 value);
-    virtual GameStateActorEntity * vfunc_40(u32 id);
+    virtual GameStateActorEntity * GetActor(u32 actorId);
     virtual void vfunc_44();
     virtual void vfunc_48();
     virtual void vfunc_4C();
@@ -306,43 +328,145 @@ struct GameStateAudioList
     void ** begin;
     void ** end;
     void ** capacity;
-    u32 unk_0C;
+    u32 reserved;
+};
+
+struct GameStateTextPanel
+{
+    u32 reserved;
+    virtual ~GameStateTextPanel();
+};
+
+EC void DestroyMessageWindow(void * dialogue, u32 mode);
+
+struct GameStateDialogueOwner
+{
+    ~GameStateDialogueOwner()
+    {
+        if (inner != nullptr)
+            DestroyMessageWindow(inner, 3);
+    }
+
+    void operator=(void * dialogue)
+    {
+        if (dialogue != inner)
+            if (inner != nullptr)
+                DestroyMessageWindow(inner, 3);
+        inner = dialogue;
+    }
+
+    void * Get() const { return inner; }
+    void * inner;
 };
 
 struct GameStateRuntime
 {
-    STRUCT_PAD(0x00, 0x8C);
-    u8 * state;
+    STRUCT_PAD(0x00, 0x10);
+    u16 flags;
+    STRUCT_PAD(0x12, 0x8C);
+    u8 * saveData;
     STRUCT_PAD(0x90, 0x9C);
-    u32 command;
+    u32 pendingCommand;
     STRUCT_PAD(0xA0, 0xA8);
-    GameStateObject * object;
-    void * actor;
-    void * text;
-    STRUCT_PAD(0xB4, 0xBC);
-    u8 music[0x14];
-    GameStateAudioList audio;
-    u16 unk_E0;
+    GameStateObject * scene;
+    GameStateDialogueOwner dialogue;
+    void * textVariables;
+    SmartPtr<GameStateTextPanel> textPanel;
+    SmartPtr<GameStateTextPanel> secondaryTextPanel;
+    u8 musicPlayer[0x14];
+    GameStateAudioList soundPlayers;
+    u16 pendingArgument;
     STRUCT_PAD(0xE2, 0xE4);
-    GameStateActorEntity * target;
+    GameStateActorEntity * waitActor;
     STRUCT_PAD(0xE8, 0xF4);
     virtual ~GameStateRuntime();
+
+    void * GetTextVariables() const { return textVariables; }
 };
 
 struct GameStateScript
 {
-    u32 unk_00;
+    u32 vtable;
     GameStateRuntime * runtime;
 };
+
+// 0x080125EC
+EC void SECTION(".text.game_state_080125EC") GameScript_CloseDialoguePanels(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.textPanel = nullptr;
+    runtime.secondaryTextPanel = nullptr;
+    runtime.dialogue = nullptr;
+    runtime.flags &= ~0x100;
+}
+
+
+
+struct GameStateShippingView
+{
+    ShippingBin & GetShippingBin() { return shippingBin; }
+
+    STRUCT_PAD(0x00, 0x54);
+    ShippingBin shippingBin;
+    u8 reserved[0x1AA8 - 0x54 - sizeof(ShippingBin)];
+    u8 earnings[0x34C5 - 0x1AA8];
+    u8 doubleShippingValue;
+};
+
+struct GameStateMapQuery
+{
+    struct MapContext
+    {
+        u32 reserved;
+        u32 mapId;
+    };
+
+    u32 vtable;
+    MapContext * context;
+    STRUCT_PAD(0x08, 0x103C);
+    u8 forceInterior;
+};
+
+EC MapData const * GetMapData(u32 mapId);
+EC void func_0809ABD8(void * earnings, u32 amount);
+
+// 0x0801140C
+EC bool SECTION(".text.game_state_0801140C") SaveData_CollectShippingValue(GameStateShippingView & save)
+{
+    ShippingBin & shipping = save.GetShippingBin();
+    u32 amount = shipping.GetValueShipped();
+    void * earnings = save.earnings;
+    func_0809ABD8(earnings, amount);
+    u8 & doubled = save.doubleShippingValue;
+    if (doubled != 0)
+    {
+        func_0809ABD8(earnings, amount);
+        doubled = 0;
+    }
+    shipping.ResetValueShipped();
+    return amount != 0;
+}
+
+
+// 0x08017C00
+EC u32 SECTION(".text.game_state_08017C00") GameMap_IsInteriorOrForced(GameStateMapQuery & query)
+{
+    if (query.forceInterior != 0)
+        goto interior;
+    if (!GetMapData(query.context->mapId)->is_interior)
+        return 0;
+interior:
+    return 1;
+}
 
 
 struct GameStateGlobalStatus
 {
-    u32 GetValue() const { return unk_04; }
+    u32 GetMapId() const { return mapId; }
 
-    u8 unk_00;
-    u32 unk_04;
-    u16 unk_08;
+    u8 hasReturnLocation;
+    u32 mapId;
+    u16 mapFlags;
 };
 
 struct GameStateScriptEngine : public ScriptEngine
@@ -364,9 +488,10 @@ struct GameStateGlobal
 
 extern GameStateGlobal * gActiveGameScene;
 
-EC u32 SECTION(".text.game_state_08016D9C") func_08016D9C()
+// 0x08016D9C
+EC u32 SECTION(".text.game_state_08016D9C") GameScript_GetReturnMap()
 {
-    return gActiveGameScene->status.GetValue();
+    return gActiveGameScene->status.GetMapId();
 }
 
 EC void Audio_StopAllPlayers();
@@ -404,322 +529,615 @@ EC void func_080A05E8(void * self, void * value);
 EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
+EC void AudioPlayer_FadeOut(void * self, u32 speed);
 
-EC void SECTION(".text.game_state_08012454") func_08012454(GameStateScript & self)
+EC Bachelorette const * func_080A0878(void * data, u32 characterId);
+EC void SetMessageWindowIndicator(void * dialogue, u32 level);
+EC void ConfigureMessageWindowChoices(void * dialogue, char const * first, char const * second, char const * third, char const * fourth, char const * fifth, char const * sixth, void const * substitutions);
+
+// 0x080128D0
+EC void SECTION(".text.game_state_080128D0") GameScript_StartChoices(GameStateScript & script, char const * first, char const * second, char const * third, char const * fourth, char const * fifth, char const * sixth)
 {
-    AudioPlayer_Stop(self.runtime->music);
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr && first != nullptr && second != nullptr)
+    {
+        if (third == nullptr)
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, nullptr, nullptr, nullptr, nullptr, runtime.GetTextVariables());
+        else if (fourth == nullptr)
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, third, nullptr, nullptr, nullptr, runtime.GetTextVariables());
+        else if (fifth == nullptr)
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, third, fourth, nullptr, nullptr, runtime.GetTextVariables());
+        else if (sixth == nullptr)
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, third, fourth, fifth, nullptr, runtime.GetTextVariables());
+        else
+            ConfigureMessageWindowChoices(runtime.dialogue.Get(), first, second, third, fourth, fifth, sixth, runtime.GetTextVariables());
+        runtime.pendingCommand = 0x14;
+    }
 }
 
-EC void SECTION(".text.game_state_080124C4") func_080124C4()
+// 0x08016AFC
+EC i32 SECTION(".text.game_state_08016AFC") GameScript_GetFarmAnimalEventIndex(GameStateScript & script, u32 kind)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    i32 index;
+    u32 eventFlag;
+    switch (kind)
+    {
+    case 0:
+        if ((runtime.saveData[0x219A] & 2) != 0 || (runtime.saveData[0x21A1] & 4) != 0)
+            goto firstAnimal;
+    default:
+        index = -1;
+        break;
+    case 4:
+    {
+        eventFlag = runtime.saveData[0x219C] & 0x10;
+        index = -1;
+        if (eventFlag != 0)
+        {
+        firstAnimal:
+            index = 0;
+        }
+        break;
+    }
+    case 1:
+    case 2:
+        index = reinterpret_cast<Barn const *>(runtime.saveData + 0x5F0)->method_0800D058();
+        break;
+    case 3:
+        index = reinterpret_cast<Coop const *>(runtime.saveData + 0x410)->GetUnkEnt();
+        break;
+    }
+    return index;
+}
+
+
+// 0x08016834
+EC void SECTION(".text.game_state_08016834") GameScript_ClearFarmAnimalActor(GameStateScript & script, u32 kind, u32 index)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    switch (kind)
+    {
+    case 0:
+        runtime.scene->vfunc_3C(0x2C);
+        break;
+    case 4:
+        runtime.scene->vfunc_3C(0x2B);
+        break;
+    case 1:
+    case 2:
+        reinterpret_cast<Barn *>(runtime.saveData + 0x5F0)->method_0800D80C(index);
+        runtime.scene->vfunc_3C(index + 0x36);
+        break;
+    case 3:
+        reinterpret_cast<Coop *>(runtime.saveData + 0x410)->method_0800CB7C(index);
+        runtime.scene->vfunc_3C(index + 0x2E);
+        break;
+    }
+}
+
+// 0x080127A0
+EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveIndicator(GameStateScript & script, u32 characterId)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0) && characterId != 0x1F)
+    {
+        Bachelorette const * character = func_080A0878(runtime.saveData + 0x1CD4, characterId);
+        if (character != nullptr)
+        {
+            u32 love = character->GetLove();
+            u32 indicator;
+            if (love >= 60000)
+                indicator = 6;
+            else if (love >= 50000)
+                indicator = 5;
+            else if (love >= 40000)
+                indicator = 4;
+            else if (love >= 30000)
+                indicator = 3;
+            else if (love >= 20000)
+                indicator = 2;
+            else if (love >= 10000)
+                indicator = 1;
+            else
+                indicator = 0;
+            SetMessageWindowIndicator(runtime.dialogue.Get(), indicator);
+        }
+    }
+}
+struct GameStateVariant
+{
+    u32 reserved : 2;
+    u32 variant : 6;
+};
+
+// 0x0801740C
+EC u32 SECTION(".text.game_state_0801740C") GameStateVariant_GetColumn(GameStateVariant const & header)
+{
+    switch (header.variant)
+    {
+    default:
+    case 27: case 31: case 35:
+        return 0;
+    case 28: case 32: case 36:
+        return 1;
+    case 29: case 33: case 37:
+        return 2;
+    case 30: case 34: case 38:
+        return 3;
+    }
+}
+
+// 0x0801746C
+EC u32 SECTION(".text.game_state_0801746C") GameStateVariant_GetRow(GameStateVariant const & header)
+{
+    switch (header.variant)
+    {
+    default:
+    case 27: case 28: case 29: case 30:
+        return 0;
+    case 31: case 32: case 33: case 34:
+        return 1;
+    case 35: case 36: case 37: case 38:
+        return 2;
+    }
+}
+
+
+struct __attribute__((packed, aligned(2))) GameStateHalfCounter
+{
+    u16 reserved;
+    struct __attribute__((packed, aligned(2)))
+    {
+        u16 reserved : 2;
+        u16 counter : 7;
+    } progress;
+};
+
+// 0x08010F14
+EC u32 SECTION(".text.game_state_08010F14") GameProgress_GetHalfCounter(GameStateHalfCounter const & header)
+{
+    return header.progress.counter;
+}
+
+// 0x08011498
+EC u32 SECTION(".text.game_state_08011498") GameProgress_RaiseHalfCounter(GameStateHalfCounter & header, u32 minimum)
+{
+    if (minimum > 99)
+        minimum = 99;
+    u32 changed;
+    if (header.progress.counter >= minimum)
+        changed = 0;
+    else
+    {
+        header.progress.counter = minimum;
+        changed = 1;
+    }
+    return changed;
+}
+
+// 0x0801412C
+EC u32 SECTION(".text.game_state_0801412C") GameScript_BeginPlayerAction48(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u32 started;
+    if (runtime.scene->GetActor(0)->vfunc_48())
+    {
+        runtime.pendingCommand = 0x19;
+        started = 1;
+    }
+    else
+        started = 0;
+    return started;
+}
+
+// 0x08014BD8
+EC void SECTION(".text.game_state_08014BD8") GameScript_SetNonPlayerActorMode(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u32 actorId = 1;
+    GameStateObject * & scene = runtime.scene;
+    for (; actorId <= 0x23; actorId++)
+    {
+        GameStateActorEntity * actor = scene->GetActor(actorId);
+        if (actor != nullptr)
+            actor->vfunc_3C(3);
+    }
+}
+
+// 0x08016784
+EC u32 SECTION(".text.game_state_08016784") GameScript_FadeMusicIfPlaying(GameStateScript & script)
+{
+    u8 * music = script.runtime->musicPlayer;
+    u32 started;
+    if ((u8) AudioPlayer_IsPlaying(music))
+    {
+        AudioPlayer_FadeOut(music, 5);
+        started = 1;
+    }
+    else
+        started = 0;
+    return started;
+}
+
+// 0x08016D34
+EC void SECTION(".text.game_state_08016D34") GameScript_InvokeSceneActorAction(GameStateScript & script, u32 actorId)
+{
+    script.runtime->scene->vfunc_3C(actorId);
+}
+
+// 0x08012454
+EC void SECTION(".text.game_state_08012454") GameScript_StopMusic(GameStateScript & script)
+{
+    AudioPlayer_Stop(script.runtime->musicPlayer);
+}
+
+// 0x080124C4
+EC void SECTION(".text.game_state_080124C4") GameScript_ResetAudio()
 {
     Audio_StopAllPlayers();
 }
 
-EC void SECTION(".text.game_state_0801274C") func_0801274C(GameStateScript & self)
+// 0x0801274C
+EC void SECTION(".text.game_state_0801274C") GameScript_ClearDialogueSpeakerName(GameStateScript & script)
 {
-    void * actor = self.runtime->actor;
-    if (actor != nullptr)
-        ClearMessageWindowSpeakerName(actor);
+    void * window = script.runtime->dialogue.Get();
+    if (window != nullptr)
+        ClearMessageWindowSpeakerName(window);
 }
 
-EC void SECTION(".text.game_state_0801278C") func_0801278C(GameStateScript & self)
+// 0x0801278C
+EC void SECTION(".text.game_state_0801278C") GameScript_ClearDialoguePortrait(GameStateScript & script)
 {
-    void * actor = self.runtime->actor;
-    if (actor != nullptr)
-        ClearMessageWindowPortrait(actor);
+    void * window = script.runtime->dialogue.Get();
+    if (window != nullptr)
+        ClearMessageWindowPortrait(window);
 }
 
-EC void SECTION(".text.game_state_0801284C") func_0801284C(GameStateScript & self)
+// 0x0801284C
+EC void SECTION(".text.game_state_0801284C") GameScript_ClearDialogueIndicator(GameStateScript & script)
 {
-    void * actor = self.runtime->actor;
-    if (actor != nullptr)
-        ClearMessageWindowIndicator(actor);
+    void * window = script.runtime->dialogue.Get();
+    if (window != nullptr)
+        ClearMessageWindowIndicator(window);
 }
 
-EC void SECTION(".text.game_state_08012ACC") func_08012ACC(GameStateScript & self, u32 index, char const * text)
+// 0x08012ACC
+EC void SECTION(".text.game_state_08012ACC") GameScript_SetTextVariable(GameStateScript & script, u32 variableIndex, char const * text)
 {
-    func_0803B6B8(self.runtime->text, index, text);
+    func_0803B6B8(script.runtime->textVariables, variableIndex, text);
 }
 
-EC void SECTION(".text.game_state_08012BAC") func_08012BAC(GameStateScript & self, u32 value)
+// 0x08012BAC
+EC void SECTION(".text.game_state_08012BAC") GameScript_SetPendingArgument(GameStateScript & script, u32 value)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.unk_E0 = value;
-    runtime.command = 0x15;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.pendingArgument = value;
+    runtime.pendingCommand = 0x15;
 }
 
-EC void SECTION(".text.game_state_080142F0") func_080142F0(GameStateScript & self)
+// 0x080142F0
+EC void SECTION(".text.game_state_080142F0") GameScript_EnableSaveFlag(GameStateScript & script)
 {
-    self.runtime->state[0x34C4] = 1;
+    script.runtime->saveData[0x34C4] = 1;
 }
 
-EC void SECTION(".text.game_state_08014304") func_08014304(GameStateScript & self)
+// 0x08014304
+EC void SECTION(".text.game_state_08014304") GameScript_DisableSaveFlag(GameStateScript & script)
 {
-    self.runtime->state[0x34C4] = 0;
+    script.runtime->saveData[0x34C4] = 0;
 }
 
-EC SECTION(".text.game_state_0801468C") u8 * func_0801468C(GameStateScript & self)
+// 0x0801468C
+EC SECTION(".text.game_state_0801468C") u8 * GameScript_GetSoundPlayers(GameStateScript & script)
 {
-    return reinterpret_cast<u8 *>(&self.runtime->audio);
+    return reinterpret_cast<u8 *>(&script.runtime->soundPlayers);
 }
 
-EC u32 SECTION(".text.game_state_080167CC") func_080167CC(GameStateScript & self)
+// 0x080167CC
+EC u32 SECTION(".text.game_state_080167CC") GameScript_IsMusicActive(GameStateScript & script)
 {
-    return AudioPlayer_IsPlaying(self.runtime->music);
+    return AudioPlayer_IsPlaying(script.runtime->musicPlayer);
 }
 
-EC void SECTION(".text.game_state_08016D80") func_08016D80()
+// 0x08016D80
+EC void SECTION(".text.game_state_08016D80") GameScript_ClearReturnLocation()
 {
     GameStateGlobalStatus & status = gActiveGameScene->status;
-    status.unk_00 = 0;
-    status.unk_04 = 0x234;
+    status.hasReturnLocation = 0;
+    status.mapId = 0x234;
 }
 
-EC void SECTION(".text.game_state_08014034") func_08014034(GameStateScript & self)
+// 0x08014034
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction84(GameStateScript & script)
 {
-    self.runtime->object->vfunc_84();
+    script.runtime->scene->vfunc_84();
 }
 
-EC void SECTION(".text.game_state_08014034") func_0801404C(GameStateScript & self)
+// 0x0801404C
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction88(GameStateScript & script)
 {
-    self.runtime->object->vfunc_88();
+    script.runtime->scene->vfunc_88();
 }
 
-EC void SECTION(".text.game_state_08014034") func_08014064(GameStateScript & self)
+// 0x08014064
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction8C(GameStateScript & script)
 {
-    self.runtime->object->vfunc_8C();
+    script.runtime->scene->vfunc_8C();
 }
 
-EC void SECTION(".text.game_state_08014034") func_0801407C(GameStateScript & self)
+// 0x0801407C
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction90(GameStateScript & script)
 {
-    self.runtime->object->vfunc_90();
+    script.runtime->scene->vfunc_90();
 }
 
-EC void SECTION(".text.game_state_08014034") func_08014094(GameStateScript & self)
+// 0x08014094
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction94(GameStateScript & script)
 {
-    self.runtime->object->vfunc_94();
+    script.runtime->scene->vfunc_94();
 }
 
-EC void SECTION(".text.game_state_08014034") func_080140AC(GameStateScript & self)
+// 0x080140AC
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction98(GameStateScript & script)
 {
-    self.runtime->object->vfunc_98();
+    script.runtime->scene->vfunc_98();
 }
 
-EC void SECTION(".text.game_state_08014034") func_080140C4(GameStateScript & self, u32 value)
+// 0x080140C4
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction9C(GameStateScript & script, u32 value)
 {
-    self.runtime->object->vfunc_9C(value);
+    script.runtime->scene->vfunc_9C(value);
 }
 
-EC void SECTION(".text.game_state_08014034") func_080140DC(GameStateScript & self, u32 value)
+// 0x080140DC
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneActionA0(GameStateScript & script, u32 value)
 {
-    self.runtime->object->vfunc_A0(value);
+    script.runtime->scene->vfunc_A0(value);
 }
 
-EC void SECTION(".text.game_state_08014034") func_080140F4(GameStateScript & self)
+// 0x080140F4
+EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction80(GameStateScript & script)
 {
-    self.runtime->object->vfunc_80();
+    script.runtime->scene->vfunc_80();
 }
 
-EC u32 SECTION(".text.game_state_08014234") func_08014234(GameStateScript & self)
+// 0x08014234
+EC u32 SECTION(".text.game_state_08014234") GameScript_GetScenePropertyA4(GameStateScript & script)
 {
-    return self.runtime->object->vfunc_A4();
+    return script.runtime->scene->vfunc_A4();
 }
 
-EC u32 SECTION(".text.game_state_08014234") func_0801424C(GameStateScript & self, u32 value)
+// 0x0801424C
+EC u32 SECTION(".text.game_state_08014234") GameScript_QueryScenePropertyA8(GameStateScript & script, u32 value)
 {
-    return self.runtime->object->vfunc_A8(value);
+    return script.runtime->scene->vfunc_A8(value);
 }
 
-EC void SECTION(".text.game_state_080142B8") func_080142B8(GameStateScript & self, u32 value)
+// 0x080142B8
+EC void SECTION(".text.game_state_080142B8") GameScript_InvokeSceneAction118(GameStateScript & script, u32 value)
 {
-    self.runtime->object->vfunc_118(value);
+    script.runtime->scene->vfunc_118(value);
 }
 
-EC void SECTION(".text.game_state_08016BDC") func_08016BDC(GameStateScript & self)
+// 0x08016BDC
+EC void SECTION(".text.game_state_08016BDC") GameScript_InvokeSceneActionFC(GameStateScript & script)
 {
-    self.runtime->object->vfunc_FC();
+    script.runtime->scene->vfunc_FC();
 }
 
-EC void SECTION(".text.game_state_08016BDC") func_08016BF4(GameStateScript & self)
+// 0x08016BF4
+EC void SECTION(".text.game_state_08016BDC") GameScript_InvokeSceneAction100(GameStateScript & script)
 {
-    self.runtime->object->vfunc_100();
+    script.runtime->scene->vfunc_100();
 }
 
-EC void SECTION(".text.game_state_080114F8") func_080114F8(GameStateHeader & self)
+// 0x080114F8
+EC void SECTION(".text.game_state_080114F8") SaveProgress_ResetPrimaryFlags(GameStateHeader & header)
 {
-    self.flag_0 = 0;
-    self.flag_1 = 1;
-    self.flag_2 = 1;
-    self.flag_3 = 1;
+    header.flagA = 0;
+    header.flagB = 1;
+    header.flagC = 1;
+    header.flagD = 1;
 }
 
-EC bool SECTION(".text.game_state_08011524") func_08011524(GameStateSelection const & self)
+// 0x08011524
+EC bool SECTION(".text.game_state_08011524") Selection_IsPreviousReady(GameStateSelection const & selection)
 {
-    return self.previous != 0x10 && self.delay == 0;
+    return selection.previous != 0x10 && selection.delay == 0;
 }
 
-EC void SECTION(".text.game_state_08011550") func_08011550(GameStateSelection & self)
+// 0x08011550
+EC void SECTION(".text.game_state_08011550") Selection_ClearPrevious(GameStateSelection & selection)
 {
-    if (self.previous == self.current)
-        self.current = 0x10;
-    self.previous = 0x10;
+    if (selection.previous == selection.current)
+        selection.current = 0x10;
+    selection.previous = 0x10;
 }
 
-EC void SECTION(".text.game_state_08011568") func_08011568(GameStateSelection & self)
+// 0x08011568
+EC void SECTION(".text.game_state_08011568") Selection_TickDelay(GameStateSelection & selection)
 {
-    if (self.current != 0x10 && self.previous != 0x10 && self.delay != 0)
-        self.delay--;
+    if (selection.current != 0x10 && selection.previous != 0x10 && selection.delay != 0)
+        selection.delay--;
 }
 
-EC void SECTION(".text.game_state_080122A0") func_080122A0(GameStateScript & self, u32 id)
+// 0x080122A0
+EC void SECTION(".text.game_state_080122A0") GameScript_StopActorMovement(GameStateScript & script, u32 actorId)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         func_080323C8(*entity);
 }
 
-EC void SECTION(".text.game_state_080142D4") func_080142D4(GameStateScript & self)
+// 0x080142D4
+EC void SECTION(".text.game_state_080142D4") GameScript_InvokeSceneAction11C(GameStateScript & script)
 {
-    self.runtime->object->vfunc_11C();
+    script.runtime->scene->vfunc_11C();
 }
 
-EC void SECTION(".text.game_state_08014694") func_08014694(GameStateScript & self, u32 value)
+// 0x08014694
+EC void SECTION(".text.game_state_08014694") GameScript_InvokeSceneAction150(GameStateScript & script, u32 value)
 {
-    self.runtime->object->vfunc_150(value);
+    script.runtime->scene->vfunc_150(value);
 }
 
-EC void SECTION(".text.game_state_080146B0") func_080146B0(GameStateScript & self, u32 value)
+// 0x080146B0
+EC void SECTION(".text.game_state_080146B0") GameScript_InvokeSceneAction154(GameStateScript & script, u32 value)
 {
-    self.runtime->object->vfunc_154(value);
+    script.runtime->scene->vfunc_154(value);
 }
 
-EC void SECTION(".text.game_state_08016BA4") func_08016BA4(GameStateScript & self, u32 value)
+// 0x08016BA4
+EC void SECTION(".text.game_state_08016BA4") GameScript_InvokeSceneAction10C(GameStateScript & script, u32 value)
 {
-    self.runtime->object->vfunc_10C(value);
+    script.runtime->scene->vfunc_10C(value);
 }
 
-EC void SECTION(".text.game_state_08016BC0") func_08016BC0(GameStateScript & self, u32 value)
+// 0x08016BC0
+EC void SECTION(".text.game_state_08016BC0") GameScript_InvokeSceneAction110(GameStateScript & script, u32 value)
 {
-    self.runtime->object->vfunc_110(value);
+    script.runtime->scene->vfunc_110(value);
 }
 
-EC void SECTION(".text.game_state_08016C10") func_08016C10(GameStateScript & self)
+// 0x08016C10
+EC void SECTION(".text.game_state_08016C10") GameScript_InvokeSceneAction104(GameStateScript & script)
 {
-    self.runtime->object->vfunc_104();
+    script.runtime->scene->vfunc_104();
 }
 
-EC void SECTION(".text.game_state_08016C2C") func_08016C2C(GameStateScript & self)
+// 0x08016C2C
+EC void SECTION(".text.game_state_08016C2C") GameScript_InvokeSpecialActorActionA(GameStateScript & script)
 {
-    CreateSideEntityEffectSprite(self.runtime->object->vfunc_40(0x5D));
+    CreateSideEntityEffectSprite(script.runtime->scene->GetActor(0x5D));
 }
 
-EC void SECTION(".text.game_state_08016C6C") func_08016C6C(GameStateScript & self)
+// 0x08016C6C
+EC void SECTION(".text.game_state_08016C6C") GameScript_InvokeSpecialActorActionB(GameStateScript & script)
 {
-    ClearSideEntityEffectSprite(self.runtime->object->vfunc_40(0x5D));
+    ClearSideEntityEffectSprite(script.runtime->scene->GetActor(0x5D));
 }
 
-EC void SECTION(".text.game_state_08016EF0") func_08016EF0(GameStateScript & self, u32 value)
+// 0x08016EF0
+EC void SECTION(".text.game_state_08016EF0") GameScript_InvokeSceneAction164(GameStateScript & script, u32 value)
 {
-    self.runtime->object->vfunc_164(value);
+    script.runtime->scene->vfunc_164(value);
 }
 
-EC u32 SECTION(".text.game_state_0801410C") func_0801410C(GameStateScript & self)
+// 0x0801410C
+EC u32 SECTION(".text.game_state_0801410C") GameScript_GetPlayerProperty40(GameStateScript & script)
 {
-    return self.runtime->object->vfunc_40(0)->vfunc_40();
+    return script.runtime->scene->GetActor(0)->vfunc_40();
 }
 
-EC void SECTION(".text.game_state_08014214") func_08014214(GameStateScript & self)
+// 0x08014214
+EC void SECTION(".text.game_state_08014214") GameScript_InvokePlayerAction54(GameStateScript & script)
 {
-    self.runtime->object->vfunc_40(0)->vfunc_54();
+    script.runtime->scene->GetActor(0)->vfunc_54();
 }
 
-EC u32 SECTION(".text.game_state_08014D5C") func_08014D5C(GameStateScript & self)
+// 0x08014D5C
+EC u32 SECTION(".text.game_state_08014D5C") GameScript_GetPlayerProperty78(GameStateScript & script)
 {
-    return self.runtime->object->vfunc_40(0)->vfunc_78();
+    return script.runtime->scene->GetActor(0)->vfunc_78();
 }
 
-EC u32 SECTION(".text.game_state_08014D7C") func_08014D7C(GameStateScript & self)
+// 0x08014D7C
+EC u32 SECTION(".text.game_state_08014D7C") GameScript_GetPlayerProperty44(GameStateScript & script)
 {
-    return self.runtime->object->vfunc_40(0)->vfunc_44();
+    return script.runtime->scene->GetActor(0)->vfunc_44();
 }
 
-EC u32 SECTION(".text.game_state_08015950") func_08015950(GameStateScript & self)
+// 0x08015950
+EC u32 SECTION(".text.game_state_08015950") GameScript_GetPlayerProperty84(GameStateScript & script)
 {
-    return self.runtime->object->vfunc_40(0)->vfunc_84();
+    return script.runtime->scene->GetActor(0)->vfunc_84();
 }
 
-EC u32 SECTION(".text.game_state_08015970") func_08015970(GameStateScript & self)
+// 0x08015970
+EC u32 SECTION(".text.game_state_08015970") GameScript_GetPlayerProperty88(GameStateScript & script)
 {
-    return self.runtime->object->vfunc_40(0)->vfunc_88();
+    return script.runtime->scene->GetActor(0)->vfunc_88();
 }
 
-EC u32 SECTION(".text.game_state_08015990") func_08015990(GameStateScript & self)
+// 0x08015990
+EC u32 SECTION(".text.game_state_08015990") GameScript_GetPlayerProperty8C(GameStateScript & script)
 {
-    return self.runtime->object->vfunc_40(0)->vfunc_8C();
+    return script.runtime->scene->GetActor(0)->vfunc_8C();
 }
 
-EC u32 SECTION(".text.game_state_080167AC") func_080167AC(GameStateScript & self)
+// 0x080167AC
+EC u32 SECTION(".text.game_state_080167AC") GameScript_GetPlayerProperty90(GameStateScript & script)
 {
-    return self.runtime->object->vfunc_40(0)->vfunc_90();
+    return script.runtime->scene->GetActor(0)->vfunc_90();
 }
 
-EC void SECTION(".text.game_state_08016CAC") func_08016CAC(GameStateScript & self)
+// 0x08016CAC
+EC void SECTION(".text.game_state_08016CAC") GameScript_InvokePlayerActionA8(GameStateScript & script)
 {
-    self.runtime->object->vfunc_40(0)->vfunc_A8();
+    script.runtime->scene->GetActor(0)->vfunc_A8();
 }
 
-EC void SECTION(".text.game_state_08016CCC") func_08016CCC(GameStateScript & self)
+// 0x08016CCC
+EC void SECTION(".text.game_state_08016CCC") GameScript_InvokePlayerActionAC(GameStateScript & script)
 {
-    self.runtime->object->vfunc_40(0)->vfunc_AC();
+    script.runtime->scene->GetActor(0)->vfunc_AC();
 }
 
-EC void SECTION(".text.game_state_08016E7C") func_08016E7C(GameStateScript & self)
+// 0x08016E7C
+EC void SECTION(".text.game_state_08016E7C") GameScript_InvokePlayerAction6C(GameStateScript & script)
 {
-    self.runtime->object->vfunc_40(0)->vfunc_6C();
+    script.runtime->scene->GetActor(0)->vfunc_6C();
 }
 
-EC void SECTION(".text.game_state_08016C48") func_08016C48(GameStateScript & self)
+// 0x08016C48
+EC void SECTION(".text.game_state_08016C48") GameScript_BeginSpecialActorActionA(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    BeginSideEntityTransition(runtime.object->vfunc_40(0x5D));
-    runtime.command = 0x1C;
+    GameStateRuntime & runtime = *script.runtime;
+    BeginSideEntityTransition(runtime.scene->GetActor(0x5D));
+    runtime.pendingCommand = 0x1C;
 }
 
-EC void SECTION(".text.game_state_08016C88") func_08016C88(GameStateScript & self)
+// 0x08016C88
+EC void SECTION(".text.game_state_08016C88") GameScript_BeginSpecialActorActionB(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    CreateSideEntityParticleSprites(runtime.object->vfunc_40(0x5D));
-    runtime.command = 0x1B;
+    GameStateRuntime & runtime = *script.runtime;
+    CreateSideEntityParticleSprites(runtime.scene->GetActor(0x5D));
+    runtime.pendingCommand = 0x1B;
 }
 
-EC void SECTION(".text.game_state_0801221C") func_0801221C(GameStateScript & self, u32 id)
+// 0x0801221C
+EC void SECTION(".text.game_state_0801221C") GameScript_ClearActorMap(GameStateScript & script, u32 actorId)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         entity->SetMap(0x234);
 }
 
-EC i32 SECTION(".text.game_state_080120A4") func_080120A4(GameStateScript & self, u32 id)
+// 0x080120A4
+EC i32 SECTION(".text.game_state_080120A4") GameScript_GetActorX(GameStateScript & script, u32 actorId)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     i32 x = 0;
     if (entity != nullptr)
         x = entity->x_q16;
     return x >> 16;
 }
 
-EC i32 SECTION(".text.game_state_080120C4") func_080120C4(GameStateScript & self, u32 id)
+// 0x080120C4
+EC i32 SECTION(".text.game_state_080120C4") GameScript_GetActorY(GameStateScript & script, u32 actorId)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     i32 y = 0;
     if (entity != nullptr)
         y = entity->y_q16;
     return y >> 16;
 }
 
-EC u32 SECTION(".text.game_state_08012114") func_08012114(GameStateScript & self, u32 id)
+// 0x08012114
+EC u32 SECTION(".text.game_state_08012114") GameScript_GetActorFacing(GameStateScript & script, u32 actorId)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     u32 facing;
     if (entity != nullptr)
         facing = entity->facing;
@@ -728,424 +1146,472 @@ EC u32 SECTION(".text.game_state_08012114") func_08012114(GameStateScript & self
     return facing;
 }
 
-EC u32 SECTION(".text.game_state_08012134") func_08012134(GameStateScript & self, u32 id)
+// 0x08012134
+EC u32 SECTION(".text.game_state_08012134") GameScript_GetActorMap(GameStateScript & script, u32 actorId)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     u32 map = 0x234;
     if (entity != nullptr)
         map = entity->location_map;
     return map;
 }
 
-EC void SECTION(".text.game_state_08012154") func_08012154(GameStateScript & self, u32 id, u32 value)
+// 0x08012154
+EC void SECTION(".text.game_state_08012154") GameScript_SetActorStateByte(GameStateScript & script, u32 actorId, u32 value)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         entity->unk_21 = value;
 }
 
-EC void SECTION(".text.game_state_08012174") func_08012174(GameStateScript & self, u32 id, u32 target, i32 speed)
+// 0x08012174
+EC void SECTION(".text.game_state_08012174") GameScript_MoveActorX(GameStateScript & script, u32 actorId, u32 target, i32 speed)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         func_08032308(*entity, target, speed);
 }
 
-EC void SECTION(".text.game_state_0801219C") func_0801219C(GameStateScript & self, u32 id, u32 target, i32 speed)
+// 0x0801219C
+EC void SECTION(".text.game_state_0801219C") GameScript_MoveActorY(GameStateScript & script, u32 actorId, u32 target, i32 speed)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         func_0803233C(*entity, target, speed);
 }
 
-EC void SECTION(".text.game_state_080122BC") func_080122BC(GameStateScript & self, u32 id, u32 value)
+// 0x080122BC
+EC void SECTION(".text.game_state_080122BC") GameScript_SetActorMovementValue(GameStateScript & script, u32 actorId, u32 value)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         func_080323E0(*entity, value);
 }
 
-EC void SECTION(".text.game_state_080141C4") func_080141C4(GameStateScript & self)
+// 0x080141C4
+EC void SECTION(".text.game_state_080141C4") GameScript_BeginPlayerAction4C(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_4C();
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_4C();
+    runtime.pendingCommand = 0x19;
 }
 
-EC void SECTION(".text.game_state_080141EC") func_080141EC(GameStateScript & self)
+// 0x080141EC
+EC void SECTION(".text.game_state_080141EC") GameScript_BeginPlayerAction50(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_50();
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_50();
+    runtime.pendingCommand = 0x19;
 }
 
-EC void SECTION(".text.game_state_08014C0C") func_08014C0C(GameStateScript & self, u32 value_1, u32 value_2)
+// 0x08014C0C
+EC void SECTION(".text.game_state_08014C0C") GameScript_InvokePlayerAction64(GameStateScript & script, u32 value_1, u32 value_2)
 {
-    self.runtime->object->vfunc_40(0)->vfunc_64(value_1, value_2);
+    script.runtime->scene->GetActor(0)->vfunc_64(value_1, value_2);
 }
 
-EC void SECTION(".text.game_state_080158F8") func_080158F8(GameStateScript & self)
+// 0x080158F8
+EC void SECTION(".text.game_state_080158F8") GameScript_BeginPlayerAction7C(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_7C();
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_7C();
+    runtime.pendingCommand = 0x19;
 }
 
-EC void SECTION(".text.game_state_08016E9C") func_08016E9C(GameStateScript & self)
+// 0x08016E9C
+EC void SECTION(".text.game_state_08016E9C") GameScript_BeginPlayerAction70(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_70();
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_70();
+    runtime.pendingCommand = 0x19;
 }
 
-EC void SECTION(".text.game_state_0801238C") func_0801238C(GameStateScript & self, u32 value_1, u32 value_2, u32 value_3)
+// 0x0801238C
+EC void SECTION(".text.game_state_0801238C") GameScript_InvokeSceneAction24(GameStateScript & script, u32 value_1, u32 value_2, u32 value_3)
 {
-    self.runtime->object->vfunc_24(value_1, value_2, value_3);
+    script.runtime->scene->vfunc_24(value_1, value_2, value_3);
 }
 
-EC void SECTION(".text.game_state_08012B04") func_08012B04(GameStateScript & self, int id, int value)
+// 0x08012B04
+EC void SECTION(".text.game_state_08012B04") GameScript_LoadScript(GameStateScript & script, int scriptId, int argument)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    gActiveGameScene->engine.LoadById(id, value);
+    GameStateRuntime & runtime = *script.runtime;
+    gActiveGameScene->engine.LoadById(scriptId, argument);
     func_080D7F3C(runtime);
 }
 
-EC void SECTION(".text.game_state_08012AA4") func_08012AA4(GameStateScript & self, u32 index, i32 value)
+// 0x08012AA4
+EC void SECTION(".text.game_state_08012AA4") GameScript_SetIntegerTextVariable(GameStateScript & script, u32 variableIndex, i32 value)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    char text[50];
-    FormatMessageInteger(value, text, 0);
-    func_0803B6B8(runtime.text, index, text);
+    GameStateRuntime & runtime = *script.runtime;
+    char formattedNumber[50];
+    FormatMessageInteger(value, formattedNumber, 0);
+    func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
 }
 
-EC void SECTION(".text.game_state_08012ADC") func_08012ADC(GameStateScript & self, u32 index, i32 value, u32 digits)
+// 0x08012ADC
+EC void SECTION(".text.game_state_08012ADC") GameScript_SetPaddedIntegerTextVariable(GameStateScript & script, u32 variableIndex, i32 value, u32 minimumDigits)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    char text[50];
-    FormatMessageInteger(value, text, digits);
-    func_0803B6B8(runtime.text, index, text);
+    GameStateRuntime & runtime = *script.runtime;
+    char formattedNumber[50];
+    FormatMessageInteger(value, formattedNumber, minimumDigits);
+    func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
 }
 
-EC void SECTION(".text.game_state_08016F0C") func_08016F0C(GameStateScript & self, u8 value)
+// 0x08016F0C
+EC void SECTION(".text.game_state_08016F0C") GameScript_InvokePlayerAction9C(GameStateScript & script, u8 value)
 {
-    self.runtime->object->vfunc_40(0)->vfunc_9C(value);
+    script.runtime->scene->GetActor(0)->vfunc_9C(value);
 }
 
-EC void SECTION(".text.game_state_08014290") func_08014290(GameStateScript & self, u32 id)
+// 0x08014290
+EC void SECTION(".text.game_state_08014290") GameScript_ResetActorAction38(GameStateScript & script, u32 actorId)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         entity->vfunc_38(0);
 }
 
-EC void SECTION(".text.game_state_080121C4") func_080121C4(GameStateScript & self, u32 id)
+// 0x080121C4
+EC void SECTION(".text.game_state_080121C4") GameScript_WaitForActor(GameStateScript & script, u32 actorId)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.target = runtime.object->vfunc_40(id);
-    if (runtime.target != nullptr)
-        runtime.command = 0x16;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.waitActor = runtime.scene->GetActor(actorId);
+    if (runtime.waitActor != nullptr)
+        runtime.pendingCommand = 0x16;
 }
 
-EC void SECTION(".text.game_state_080123A4") func_080123A4(GameStateScript & self)
+// 0x080123A4
+EC void SECTION(".text.game_state_080123A4") GameScript_WaitForScene(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    if (!runtime.object->vfunc_28())
-        runtime.command = 0x17;
+    GameStateRuntime & runtime = *script.runtime;
+    if (!runtime.scene->vfunc_28())
+        runtime.pendingCommand = 0x17;
 }
 
-EC void SECTION(".text.game_state_080126BC") func_080126BC(GameStateScript & self, u32 value)
+// 0x080126BC
+EC void SECTION(".text.game_state_080126BC") GameScript_StartDialogueWithDefaultSpeed(GameStateScript & script, char const * text)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    if (runtime.actor != nullptr)
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr)
     {
-        SetMessageWindowTextOptions(runtime.actor, (const char *) value, 0x40, runtime.text);
-        runtime.command = 0x11;
+        SetMessageWindowTextOptions(runtime.dialogue.Get(), text, 0x40, runtime.textVariables);
+        runtime.pendingCommand = 0x11;
     }
 }
 
-EC bool SECTION(".text.game_state_08014198") func_08014198(GameStateScript & self)
+// 0x08014198
+EC bool SECTION(".text.game_state_08014198") GameScript_BeginPlayerAction60(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_60();
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_60();
+    runtime.pendingCommand = 0x19;
     return true;
 }
 
-EC void SECTION(".text.game_state_080158CC") func_080158CC(GameStateScript & self)
+// 0x080158CC
+EC void SECTION(".text.game_state_080158CC") GameScript_BeginPlayerAction80(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_80();
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_80();
+    runtime.pendingCommand = 0x19;
 }
 
-EC void SECTION(".text.game_state_08016F34") func_08016F34(GameStateScript & self, u32 value)
+// 0x08016F34
+EC void SECTION(".text.game_state_08016F34") GameScript_BeginPlayerAction74(GameStateScript & script, u32 value)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_74(value);
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_74(value);
+    runtime.pendingCommand = 0x19;
 }
 
-EC void SECTION(".text.game_state_080121EC") func_080121EC(GameStateScript & self, u32 id, u32 anim)
+// 0x080121EC
+EC void SECTION(".text.game_state_080121EC") GameScript_SetActorAnimation(GameStateScript & script, u32 actorId, u32 animationId)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
-    if (entity != nullptr && entity->anim_id != anim)
-        entity->SetAnim(anim);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
+    if (entity != nullptr && entity->anim_id != animationId)
+        entity->SetAnim(animationId);
 }
 
-EC void SECTION(".text.game_state_08012274") func_08012274(GameStateScript & self, u32 id, u32 value, u32 enabled)
+// 0x08012274
+EC void SECTION(".text.game_state_08012274") GameScript_SetActorMovementOption(GameStateScript & script, u32 actorId, u32 value, u32 enabled)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         func_08032384(*entity, value, enabled != 0);
 }
 
-EC void SECTION(".text.game_state_08014264") func_08014264(GameStateScript & self, u32 id, u32 value)
+// 0x08014264
+EC void SECTION(".text.game_state_08014264") GameScript_InvokeActorAction38(GameStateScript & script, u32 actorId, u32 value)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
         entity->vfunc_38(value);
 }
 
-EC void SECTION(".text.game_state_080120E4") func_080120E4(GameStateScript & self, u32 id, u32 facing)
+// 0x080120E4
+EC void SECTION(".text.game_state_080120E4") GameScript_SetActorFacing(GameStateScript & script, u32 actorId, u32 facing)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr && entity->facing != facing)
         entity->SetAnimFacing(facing);
 }
 
-EC void SECTION(".text.game_state_08012658") func_08012658(GameStateScript & self)
+// 0x08012658
+EC void SECTION(".text.game_state_08012658") GameScript_ResetDialogue(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    if (runtime.actor != nullptr)
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr)
     {
-        CloseMessageWindow(runtime.actor);
+        CloseMessageWindow(runtime.dialogue.Get());
         func_080D7F88(runtime);
         func_080D7F74(runtime);
         func_080D7F60(runtime);
-        runtime.command = 0xF;
+        runtime.pendingCommand = 0xF;
     }
 }
 
-EC void SECTION(".text.game_state_0801268C") func_0801268C(GameStateScript & self, u32 value, u32 flags)
+// 0x0801268C
+EC void SECTION(".text.game_state_0801268C") GameScript_StartDialogue(GameStateScript & script, char const * text, u32 speed)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    if (runtime.actor != nullptr)
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr)
     {
-        SetMessageWindowTextOptions(runtime.actor, (const char *) value, (u16) flags, runtime.text);
-        runtime.command = 0x10;
+        SetMessageWindowTextOptions(runtime.dialogue.Get(), text, (u16) speed, runtime.textVariables);
+        runtime.pendingCommand = 0x10;
     }
 }
 
-EC void SECTION(".text.game_state_0801589C") func_0801589C(GameStateScript & self, u16 value)
+// 0x0801589C
+EC void SECTION(".text.game_state_0801589C") GameScript_BeginPlayerAction68(GameStateScript & script, u16 value)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_68(value);
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_68(value);
+    runtime.pendingCommand = 0x19;
 }
 
-EC bool SECTION(".text.game_state_08014164") func_08014164(GameStateScript & self, u32 value, u8 enabled)
+// 0x08014164
+EC bool SECTION(".text.game_state_08014164") GameScript_BeginPlayerAction5C(GameStateScript & script, u32 value, u8 enabled)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    runtime.object->vfunc_40(0)->vfunc_5C(value, enabled);
-    runtime.command = 0x19;
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->GetActor(0)->vfunc_5C(value, enabled);
+    runtime.pendingCommand = 0x19;
     return true;
 }
 
-EC u32 SECTION(".text.game_state_08015920") func_08015920(GameStateScript & self, u32 id)
+// 0x08015920
+EC u32 SECTION(".text.game_state_08015920") GameScript_GetFarmActorProperty(GameStateScript & script, u32 actorId)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    if (id - 0x24 <= 6)
+    GameStateRuntime & runtime = *script.runtime;
+    if (actorId - 0x24 <= 6)
     {
-        AActorEntity * entity = runtime.object->vfunc_40(id);
+        AActorEntity * entity = runtime.scene->GetActor(actorId);
         if (entity != nullptr)
             return func_08033B24(*entity);
     }
     return 0;
 }
 
-EC void SECTION(".text.game_state_08016EC4") func_08016EC4(GameStateScript & self, u32 value_1, u32 value_2, u32 value_3, u32 value_4, u16 value_5)
+// 0x08016EC4
+EC void SECTION(".text.game_state_08016EC4") GameScript_InvokeSceneAction160(GameStateScript & script, u32 value_1, u32 value_2, u32 value_3, u32 value_4, u16 value_5)
 {
-    self.runtime->object->vfunc_160(value_1, value_2, value_3, value_4, value_5);
+    script.runtime->scene->vfunc_160(value_1, value_2, value_3, value_4, value_5);
 }
 
-EC void SECTION(".text.game_state_08014D30") func_08014D30(GameStateScript & self, u32 value)
+// 0x08014D30
+EC void SECTION(".text.game_state_08014D30") GameScript_RemoveHorse(GameStateScript & script, u32 value)
 {
-    GameStateRuntime & runtime = *self.runtime;
+    GameStateRuntime & runtime = *script.runtime;
     if (value == 0)
     {
-        runtime.object->vfunc_3C(0x2C);
-        reinterpret_cast<Farm *>(runtime.state + 0x14)->RemoveHorse();
+        runtime.scene->vfunc_3C(0x2C);
+        reinterpret_cast<Farm *>(runtime.saveData + 0x14)->RemoveHorse();
     }
 }
 
-EC void SECTION(".text.game_state_080146CC") func_080146CC(GameStateScript & self, u32 index)
+// 0x080146CC
+EC void SECTION(".text.game_state_080146CC") GameScript_BeginEggIncubation(GameStateScript & script, u32 index)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    reinterpret_cast<Coop *>(runtime.state + 0x410)->BeginIncubation(index);
-    runtime.object->vfunc_AC(index);
+    GameStateRuntime & runtime = *script.runtime;
+    reinterpret_cast<Coop *>(runtime.saveData + 0x410)->BeginIncubation(index);
+    runtime.scene->vfunc_AC(index);
 }
 
-EC u32 SECTION(".text.game_state_080115A8") func_080115A8()
+// 0x080115A8
+EC u32 SECTION(".text.game_state_080115A8") SaveData_GetSize()
 {
     return 0x34FC;
 }
 
-EC u32 SECTION(".text.game_state_08011464") func_08011464(GameStateWordHeader & self, u32 value)
+// 0x08011464
+EC u32 SECTION(".text.game_state_08011464") SaveProgress_RaiseWordCounter(GameStateWordHeader & header, u32 value)
 {
     if (value > 99)
         value = 99;
     u32 result;
-    if (self.value >= value)
+    if (header.counter >= value)
         result = 0;
     else
     {
-        self.value = value;
+        header.counter = value;
         result = 1;
     }
     return result;
 }
 
-EC u32 SECTION(".text.game_state_080114C8") func_080114C8(GameStateHeader & self, u32 value)
+// 0x080114C8
+EC u32 SECTION(".text.game_state_080114C8") SaveProgress_RaiseByteCounter(GameStateHeader & header, u32 value)
 {
     if (value > 99)
         value = 99;
     u32 result;
-    if (self.value_3 >= value)
+    if (header.counter >= value)
         result = 0;
     else
     {
-        self.value_3 = value;
+        header.counter = value;
         result = 1;
     }
     return result;
 }
 
-EC void SECTION(".text.game_state_08012720") func_08012720(GameStateScript & self, u32 value)
+// 0x08012720
+EC void SECTION(".text.game_state_08012720") GameScript_SetDialogueSpeakerName(GameStateScript & script, char const * speakerName)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    if (runtime.actor != nullptr && (i32(u32(runtime.state[0x2210]) << 28) < 0))
-        SetMessageWindowSpeakerName(runtime.actor, (const char *) value);
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
+        SetMessageWindowSpeakerName(runtime.dialogue.Get(), speakerName);
 }
 
-EC void SECTION(".text.game_state_08012760") func_08012760(GameStateScript & self, u32 value)
+// 0x08012760
+EC void SECTION(".text.game_state_08012760") GameScript_SetDialoguePortrait(GameStateScript & script, u32 portraitId)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    if (runtime.actor != nullptr && (i32(u32(runtime.state[0x2210]) << 29) < 0))
-        SetMessageWindowPortrait(runtime.actor, value);
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0))
+        SetMessageWindowPortrait(runtime.dialogue.Get(), portraitId);
 }
 
-EC void SECTION(".text.game_state_080126E4") func_080126E4(GameStateScript & self, u32 value)
+// 0x080126E4
+EC void SECTION(".text.game_state_080126E4") GameScript_SetDialogueCharacterName(GameStateScript & script, u32 characterId)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    void * actor = runtime.actor;
-    if (actor != nullptr && (i32(u32(runtime.state[0x2210]) << 28) < 0))
-        SetMessageWindowSpeakerName(actor, (const char *) func_0809FE3C(runtime.state + 0x1CD4, value));
+    GameStateRuntime & runtime = *script.runtime;
+    void * window = runtime.dialogue.Get();
+    if (window != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
+        SetMessageWindowSpeakerName(window, (char const *) func_0809FE3C(runtime.saveData + 0x1CD4, characterId));
 }
 
-EC void SECTION(".text.game_state_0801223C") func_0801223C(GameStateScript & self, u32 id, i32 x, i32 y)
+// 0x0801223C
+EC void SECTION(".text.game_state_0801223C") GameScript_OffsetActorPosition(GameStateScript & script, u32 actorId, i32 deltaX, i32 deltaY)
 {
-    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    AActorEntity * entity = script.runtime->scene->GetActor(actorId);
     if (entity != nullptr)
     {
-        i32 current_x = reinterpret_cast<i16 const *>(&entity->x_q16)[1];
-        i32 current_y = reinterpret_cast<i16 const *>(&entity->y_q16)[1];
-        current_x += x;
-        current_y += y;
-        ShowSpriteWorkerEffect(*entity, reinterpret_cast<u8 *>(entity)[0x30], current_x, current_y);
+        i32 currentX = reinterpret_cast<i16 const *>(&entity->x_q16)[1];
+        i32 currentY = reinterpret_cast<i16 const *>(&entity->y_q16)[1];
+        currentX += deltaX;
+        currentY += deltaY;
+        ShowSpriteWorkerEffect(*entity, reinterpret_cast<u8 *>(entity)[0x30], currentX, currentY);
     }
 }
 
-EC void SECTION(".text.game_state_08016D48") func_08016D48(GameStateScript & self)
+// 0x08016D48
+EC void SECTION(".text.game_state_08016D48") GameScript_SaveReturnLocation(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    AActorEntity * entity = runtime.object->vfunc_40(0);
+    GameStateRuntime & runtime = *script.runtime;
+    AActorEntity * entity = runtime.scene->GetActor(0);
     GameStateGlobalStatus & status = gActiveGameScene->status;
     u16 map = entity->location_map;
-    u8 * state = runtime.state;
-    status.unk_00 = 1;
-    status.unk_04 = map;
-    status.unk_08 = *reinterpret_cast<u16 *>(state + 0x12);
+    u8 * state = runtime.saveData;
+    status.hasReturnLocation = 1;
+    status.mapId = map;
+    status.mapFlags = *reinterpret_cast<u16 *>(state + 0x12);
 }
 
-EC void SECTION(".text.game_state_08016F60") func_08016F60(GameStateScript & self)
+// 0x08016F60
+EC void SECTION(".text.game_state_08016F60") GameScript_UpdateActiveActors(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    u32 id = 0x2E;
-    GameStateObject * & object = runtime.object;
-    for (; id <= 0x45; id++)
+    GameStateRuntime & runtime = *script.runtime;
+    u32 actorId = 0x2E;
+    GameStateObject * & object = runtime.scene;
+    for (; actorId <= 0x45; actorId++)
     {
-        GameStateActiveEntity * entity = reinterpret_cast<GameStateActiveEntity *>(object->vfunc_40(id));
+        GameStateActiveEntity * entity = reinterpret_cast<GameStateActiveEntity *>(object->GetActor(actorId));
         if (entity != nullptr && entity->vfunc_5C())
             entity->vfunc_7C();
     }
 }
 
-EC SECTION(".text.game_state_08011FE8") void func_08011FE8(GameStateScript & self, u32 flags)
+// 0x08011FE8
+EC SECTION(".text.game_state_08011FE8") void GameScript_Destroy(GameStateScript & script, u32 flags)
 {
-    self.unk_00 = reinterpret_cast<u32>(vtable_unk_080E5E64);
+    script.vtable = reinterpret_cast<u32>(vtable_unk_080E5E64);
     gActiveGameScene->engine.ClearUnk();
-    delete self.runtime;
-    Scene_DestroyBase(self, flags);
+    delete script.runtime;
+    Scene_DestroyBase(script, flags);
 }
 
-EC SECTION(".text.game_state_08012064") void func_08012064(GameStateScript & self, i32 id, u32 value_2, u32 value_3, u32 value_4)
+// 0x08012064
+EC SECTION(".text.game_state_08012064") void GameScript_StartRuntimeOperation(GameStateScript & script, i32 id, u32 value_2, u32 value_3, u32 value_4)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    u32 value_1 = runtime.object->vfunc_14();
+    GameStateRuntime & runtime = *script.runtime;
+    u32 value_1 = runtime.scene->vfunc_14();
     func_080D7F9C(runtime, id, value_1, value_2, value_3, value_4);
 }
 
-EC SECTION(".text.game_state_08016CEC") void func_08016CEC(GameStateScript & self, u32 id)
+// 0x08016CEC
+EC SECTION(".text.game_state_08016CEC") void GameScript_ActivateActor(GameStateScript & script, u32 actorId)
 {
-    GameStateObject * & object = self.runtime->object;
-    object->vfunc_38(id);
-    AActorEntity * entity = object->vfunc_40(id);
+    GameStateObject * & object = script.runtime->scene;
+    object->vfunc_38(actorId);
+    AActorEntity * entity = object->GetActor(actorId);
     if (entity != nullptr && !entity->vfunc_28())
         entity->vfunc_20();
 }
 
-EC SECTION(".text.game_state_080167DC") void func_080167DC(GameStateScript & self)
+// 0x080167DC
+EC SECTION(".text.game_state_080167DC") void GameScript_RefreshActor23(GameStateScript & script)
 {
-    GameStateRuntime & runtime = *self.runtime;
-    func_080A05E8(runtime.state + 0x1CD4, runtime.state + 0x11);
-    GameStateObject * & object = runtime.object;
+    GameStateRuntime & runtime = *script.runtime;
+    func_080A05E8(runtime.saveData + 0x1CD4, runtime.saveData + 0x11);
+    GameStateObject * & object = runtime.scene;
     object->vfunc_38(0x23);
-    AActorEntity * entity = object->vfunc_40(0x23);
+    AActorEntity * entity = object->GetActor(0x23);
     if (entity != nullptr && !entity->vfunc_28())
         entity->vfunc_20();
 }
 
-EC SECTION(".text.game_state_08012464") void func_08012464(GameStateScript & self, i32 mode, u32 value)
+// 0x08012464
+EC SECTION(".text.game_state_08012464") void GameScript_PlaySound(GameStateScript & script, i32 mode, u32 songId)
 {
-    GameStateAudioList & audio = self.runtime->audio;
-    void ** current = audio.begin;
-    void ** end = audio.end;
-    void * music;
-    if (current != end)
+    GameStateAudioList & players = script.runtime->soundPlayers;
+    void ** cursor = players.begin;
+    void ** end = players.end;
+    void * player;
+    if (cursor != end)
     {
         do
         {
-            if (!(u8) AudioPlayer_IsPlaying(*current))
+            if (!(u8) AudioPlayer_IsPlaying(*cursor))
             {
-                music = *current;
+                player = *cursor;
                 goto play;
             }
-            current++;
-        } while (current != end);
+            cursor++;
+        } while (cursor != end);
     }
-    music = end[-1];
+    player = end[-1];
 play:
-    u16 amount = value;
+    u16 song = songId;
     switch (mode)
     {
     case 0:
-        AudioPlayer_StartSong(music, amount);
+        AudioPlayer_StartSong(player, song);
         break;
     case 1:
-        AudioPlayer_StartSongIfStoppedOrChanged(music, amount);
+        AudioPlayer_StartSongIfStoppedOrChanged(player, song);
         break;
     case 2:
-        AudioPlayer_StartOrResumeSong(music, amount);
+        AudioPlayer_StartOrResumeSong(player, song);
         break;
     }
 }
