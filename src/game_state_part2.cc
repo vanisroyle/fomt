@@ -8,6 +8,8 @@
 #include "rucksack_item.hh"
 #include "utility/vec2.hh"
 
+#include <string.h>
+
 struct GameStateAudioList;
 struct GameStateMapEffect;
 struct GameStatePlayerData;
@@ -35,8 +37,11 @@ struct GameStateMapView
     u32 map;
     GameStateCameraCoordinate camera_x;
     GameStateCameraCoordinate camera_y;
-    STRUCT_PAD(0x10, 0x2C);
-    TerrainInfo const * expanded_terrain;
+    u16 * tilemaps[3];
+    STRUCT_PAD(0x1C, 0x29);
+    u8 tilemapsDirty;
+    STRUCT_PAD(0x2A, 0x2C);
+    TerrainInfo * expanded_terrain;
     STRUCT_PAD(0x30, 0x90);
     GameStateMapDisplayVtable const * display_vtable;
 };
@@ -379,7 +384,256 @@ EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & eve
 EC bool SaveData_CollectShippingValue(GameStateMapData & state);
 EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
 EC void GameScript_ConfigureMusic(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
-EC void func_080AA6D0(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * adjacent);
+EC SECTION(".text.080AA6D0") void ApplyFieldPlotToMap(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * volatile adjacent)
+{
+    GameStateMapView * map = &view;
+    asm ("" : "+l" (map));
+    volatile unsigned column = x;
+    register unsigned row asm("r6") = y;
+    asm ("" : "+l" (row));
+    FieldPlot const * volatile currentPlot = &plot;
+    register unsigned width asm("sl") = GetMapData(map->map)->width;
+    asm ("" : "+h" (width));
+    register u8 const * groundArt asm("r5") = static_cast<u8 const *>(currentPlot->method_0800AF20());
+    asm ("" : "+l" (groundArt));
+    if (groundArt)
+    {
+        register unsigned rowOffset asm("r0") = width;
+        asm ("" : "+l" (rowOffset));
+        rowOffset = rowOffset * row;
+        asm ("" : "+l" (rowOffset));
+        register u16 * tiles asm("r1") = map->tilemaps[0];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowOffset * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        register unsigned tileX asm("r2") = column;
+        asm ("" : "+l" (tileX));
+        register unsigned columnOffset asm("r4") = tileX * sizeof(u16);
+        asm ("" : "+l" (columnOffset));
+        asm ("add %0, %1, %2" : "=l" (tiles) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (tiles) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), groundArt, 4);
+
+        register unsigned followingRow asm("r0") = row + 1;
+        asm ("" : "+l" (followingRow));
+        register unsigned index asm("r1") = width;
+        asm ("" : "+l" (index));
+        index = index * followingRow;
+        asm ("" : "+l" (index));
+        rowOffset = index;
+        asm ("" : "+l" (rowOffset));
+        tiles = map->tilemaps[0];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowOffset * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        asm ("add %0, %1, %2" : "=l" (columnOffset) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (columnOffset) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), groundArt + 4, 4);
+        register GameStateMapView * dirtyMap asm("r1") = map;
+        asm ("" : "+l" (dirtyMap));
+        register u8 * dirty asm("r1") = &dirtyMap->tilemapsDirty;
+        asm ("" : "+l" (dirty));
+        *dirty = 1;
+    }
+
+    register unsigned rowIndex asm("r5") = width;
+    asm ("" : "+l" (rowIndex));
+    rowIndex = rowIndex * row;
+    asm ("" : "+l" (rowIndex));
+    register unsigned followingRow asm("r2") = row + 1;
+    asm ("" : "+l" (followingRow));
+    volatile unsigned nextRow = followingRow;
+    if (adjacent)
+    {
+        register unsigned previousRow asm("r0") = row - 1;
+        asm ("" : "+l" (previousRow));
+        register unsigned index asm("r1") = width;
+        asm ("" : "+l" (index));
+        index = index * previousRow;
+        asm ("" : "+l" (index));
+        register unsigned rowOffset asm("r0") = index;
+        asm ("" : "+l" (rowOffset));
+        register u16 * tiles asm("r1") = map->tilemaps[2];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowOffset * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        register unsigned tileX asm("r2") = column;
+        asm ("" : "+l" (tileX));
+        register unsigned columnOffset asm("r4") = tileX * sizeof(u16);
+        asm ("" : "+l" (columnOffset));
+        asm ("add %0, %1, %2" : "=l" (tiles) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (tiles) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), adjacent, 4);
+
+        tiles = map->tilemaps[1];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowIndex * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        asm ("add %0, %1, %2" : "=l" (tiles) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (tiles) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), reinterpret_cast<u8 const *>(adjacent) + 4, 4);
+
+        register unsigned lowerRow asm("r1") = nextRow;
+        asm ("" : "+l" (lowerRow));
+        rowOffset = width;
+        asm ("" : "+l" (rowOffset));
+        rowOffset = rowOffset * lowerRow;
+        asm ("" : "+l" (rowOffset));
+        tiles = map->tilemaps[1];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowOffset * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        asm ("add %0, %1, %2" : "=l" (columnOffset) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (columnOffset) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), reinterpret_cast<u8 const *>(adjacent) + 8, 4);
+        register GameStateMapView * dirtyMap asm("r1") = map;
+        asm ("" : "+l" (dirtyMap));
+        register u8 * dirty asm("r1") = &dirtyMap->tilemapsDirty;
+        asm ("" : "+l" (dirty));
+        *dirty = 1;
+    }
+
+    register bool isSolid asm("r0") = currentPlot->method_0800A07C();
+    register unsigned plotSolid asm("r0");
+    asm ("" : "=l" (plotSolid) : "0" (isSolid));
+    register unsigned upperIndex asm("r2") = column;
+    asm ("" : "+l" (upperIndex));
+    asm ("add %0, %1, %2" : "=l" (upperIndex) : "l" (upperIndex), "l" (rowIndex) : "cc");
+    register unsigned upperOffset asm("r8") = upperIndex;
+    asm ("" : "+h" (upperOffset));
+    register u8 * terrain asm("r2") = reinterpret_cast<u8 *>(map->expanded_terrain);
+    asm ("" : "+l" (terrain));
+    register unsigned offset asm("r1") = upperOffset;
+    asm ("" : "+l" (offset));
+    offset = offset * sizeof(TerrainInfo);
+    asm ("" : "+l" (offset));
+    upperOffset = offset;
+    asm ("" : "+h" (upperOffset));
+    asm ("add %0, %1, %2" : "=l" (offset) : "l" (offset), "l" (terrain) : "cc");
+    register u8 * upper asm("sb") = reinterpret_cast<u8 *>(offset);
+    asm ("" : "+h" (upper));
+    register unsigned lowerRow asm("r1") = nextRow;
+    asm ("" : "+l" (lowerRow));
+    register unsigned lowerOffset asm("r4") = width;
+    asm ("" : "+l" (lowerOffset));
+    lowerOffset = lowerOffset * lowerRow;
+    asm ("" : "+l" (lowerOffset));
+    register unsigned tileX asm("r1") = column;
+    asm ("" : "+l" (tileX));
+    asm ("add %0, %1, %2" : "=l" (lowerOffset) : "l" (tileX), "l" (lowerOffset) : "cc");
+    lowerOffset = lowerOffset * sizeof(TerrainInfo);
+    asm ("" : "+l" (lowerOffset));
+    register u8 * lower asm("r2") = terrain;
+    asm ("" : "+l" (lower));
+    asm ("add %0, %1, %2" : "=l" (lower) : "l" (lowerOffset), "l" (lower) : "cc");
+    register unsigned solidBit asm("r6") = 1;
+    asm ("" : "+l" (solidBit));
+    register unsigned solid asm("r5") = solidBit;
+    asm ("" : "+l" (solid));
+    solid = solid & plotSolid;
+    asm ("" : "+l" (solid));
+    register unsigned oldFlags asm("r3") = lower[4];
+    asm ("" : "+l" (oldFlags));
+    register unsigned clearSolid asm("r1") = ~1u;
+    asm ("" : "+l" (clearSolid));
+    register unsigned merged asm("r0") = clearSolid;
+    asm ("" : "+l" (merged));
+    merged = merged & oldFlags;
+    asm ("" : "+l" (merged));
+    lower[4] = merged | solid;
+    oldFlags = lower[0];
+    asm ("" : "+l" (oldFlags));
+    merged = clearSolid;
+    asm ("" : "+l" (merged));
+    merged = merged & oldFlags;
+    asm ("" : "+l" (merged));
+    lower[0] = merged | solid;
+    register u8 * upperBase asm("r0") = upper;
+    asm ("" : "+l" (upperBase));
+    register unsigned upperFlags asm("r2") = upperBase[4];
+    asm ("" : "+l" (upperFlags));
+    merged = clearSolid;
+    asm ("" : "+l" (merged));
+    merged = merged & upperFlags;
+    asm ("" : "+l" (merged));
+    merged = merged | solid;
+    asm ("" : "+l" (merged));
+    lower = upper;
+    asm ("" : "+l" (lower));
+    lower[4] = merged;
+    merged = lower[0];
+    asm ("" : "+l" (merged));
+    clearSolid = clearSolid & merged;
+    asm ("" : "+l" (clearSolid));
+    lower[0] = clearSolid | solid;
+
+    register unsigned terrainTag asm("r0") = currentPlot->method_0800A0A4();
+    asm ("" : "+l" (terrainTag));
+    register u8 * updatedTerrain asm("r1") = reinterpret_cast<u8 *>(map->expanded_terrain);
+    asm ("" : "+l" (updatedTerrain));
+    asm ("add %0, %1" : "+h" (upperOffset) : "l" (updatedTerrain));
+    register unsigned rightTile asm("r2") = sizeof(TerrainInfo);
+    asm ("" : "+l" (rightTile));
+    asm ("add %0, %1" : "+l" (rightTile) : "h" (upperOffset));
+    upper = reinterpret_cast<u8 *>(rightTile);
+    asm ("" : "+h" (upper));
+    asm ("add %0, %1, %2" : "=l" (lowerOffset) : "l" (lowerOffset), "l" (updatedTerrain) : "cc");
+    register u8 * lowerRight asm("r3") = reinterpret_cast<u8 *>(lowerOffset) + sizeof(TerrainInfo);
+    asm ("" : "+l" (lowerRight));
+    register unsigned packedTag asm("r5") = terrainTag << 1;
+    asm ("" : "+l" (packedTag));
+    register unsigned existingTag asm("r2") = *reinterpret_cast<u16 *>(lowerRight + 2);
+    asm ("" : "+l" (existingTag));
+    register unsigned tagAndSolid asm("r1") = solidBit;
+    asm ("" : "+l" (tagAndSolid));
+    tagAndSolid = tagAndSolid & existingTag;
+    asm ("" : "+l" (tagAndSolid));
+    *reinterpret_cast<u16 *>(lowerRight + 2) = tagAndSolid | packedTag;
+    register unsigned tagMask asm("r1") = 0x7fff;
+    asm ("" : "+l" (tagMask));
+    packedTag = tagMask;
+    asm ("" : "+l" (packedTag));
+    terrainTag = terrainTag & packedTag;
+    asm ("" : "+l" (terrainTag));
+    register unsigned shiftedTag asm("r3") = terrainTag << 1;
+    asm ("" : "+l" (shiftedTag));
+    existingTag = *reinterpret_cast<u16 *>(lowerOffset + 2);
+    asm ("" : "+l" (existingTag));
+    tagAndSolid = solidBit;
+    asm ("" : "+l" (tagAndSolid));
+    tagAndSolid = tagAndSolid & existingTag;
+    asm ("" : "+l" (tagAndSolid));
+    *reinterpret_cast<u16 *>(lowerOffset + 2) = tagAndSolid | shiftedTag;
+    terrainTag = terrainTag & packedTag;
+    asm ("" : "+l" (terrainTag));
+    shiftedTag = terrainTag << 1;
+    asm ("" : "+l" (shiftedTag));
+    updatedTerrain = upper;
+    asm ("" : "+l" (updatedTerrain));
+    existingTag = *reinterpret_cast<u16 *>(updatedTerrain + 2);
+    asm ("" : "+l" (existingTag));
+    tagAndSolid = solidBit;
+    asm ("" : "+l" (tagAndSolid));
+    tagAndSolid = tagAndSolid & existingTag;
+    asm ("" : "+l" (tagAndSolid));
+    tagAndSolid = tagAndSolid | shiftedTag;
+    asm ("" : "+l" (tagAndSolid));
+    lower = upper;
+    asm ("" : "+l" (lower));
+    *reinterpret_cast<u16 *>(lower + 2) = tagAndSolid;
+    terrainTag = terrainTag & packedTag;
+    asm ("" : "+l" (terrainTag));
+    terrainTag = terrainTag << 1;
+    asm ("" : "+l" (terrainTag));
+    lower = reinterpret_cast<u8 *>(upperOffset);
+    asm ("" : "+l" (lower));
+    tagAndSolid = *reinterpret_cast<u16 *>(lower + 2);
+    asm ("" : "+l" (tagAndSolid));
+    solidBit = solidBit & tagAndSolid;
+    asm ("" : "+l" (solidBit));
+    *reinterpret_cast<u16 *>(lower + 2) = solidBit | terrainTag;
+}
+
 EC void func_0805E860(SpriteAnimator & animator, u32 animation);
 EC GameStateMapInteraction * InitializeAnimatedMapSpriteSinglePalette(GameStateMapInteraction * interaction,
     GameStatePackedSpriteArchive const * archive, u32 animation, GameStateMapOwner & game,
@@ -1037,7 +1291,7 @@ EC SECTION(".text.game_state_c2.0801C6EC") u32 GameStateHitFieldPlot(GameStateMa
             FieldPlot * south = GetFieldNeighbor(field, x, y + 1);
             FieldPlot * north = GetFieldNeighbor(field, x, y - 1);
             Unk_Something const * adjacent = current.method_0800AF5C(south, north);
-            func_080AA6D0(*view, tile_x, tile_y, plot, adjacent);
+            ApplyFieldPlotToMap(*view, tile_x, tile_y, plot, adjacent);
         }
     }
     return hit;
@@ -1056,7 +1310,7 @@ EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameSt
         FieldPlot * south = GetFieldNeighbor(field, x, y + 1);
         FieldPlot * north = GetFieldNeighbor(field, x, y - 1);
         Unk_Something const * adjacent = current.method_0800AF5C(south, north);
-        func_080AA6D0(*view, x * 2 + 34, y * 2 + 22, plot, adjacent);
+        ApplyFieldPlotToMap(*view, x * 2 + 34, y * 2 + 22, plot, adjacent);
     }
     return result;
 }
@@ -1454,7 +1708,7 @@ EC SECTION(".text.game_state_c2.0801C29C") u32 GameStateHoeFarmPlot(GameStateMap
             bool north_valid = x >= 0 && north_y >= 0 && x < Farm::FIELD_WIDTH && north_y < Farm::FIELD_HEIGHT;
             FieldPlot * north = north_valid ? GetHoeFieldPlot(field, x, north_y) : nullptr;
             Unk_Something const * adjacent = current->method_0800AF5C(south, north);
-            func_080AA6D0(*view, plot.tile_x, plot.tile_y, *plot.plot, adjacent);
+            ApplyFieldPlotToMap(*view, plot.tile_x, plot.tile_y, *plot.plot, adjacent);
         }
         if (result == 3)
         {
@@ -1567,7 +1821,7 @@ EC int FindLooseItem(GameStateLooseItemStore const &, u32, GameStateLooseItemRec
 EC void ReadLooseItemInfo(GameStateLooseItemInfo &, GameStateLooseItemStore const &, int)
     asm("GetMapForageObstacle");
 EC void RefreshLooseItemTile(GameStateMapView &, u32, GameStateLooseItemTile const &, u32, u32)
-    asm("func_080A5F78");
+    asm("ClearMapTileRectangle");
 
 struct GameStateLooseItemInteraction
 {
@@ -2326,7 +2580,7 @@ EC SECTION(".text.game_state_c2.0801DEB4") bool GameStateClearNearestEligibleFar
                         "ldr r1, %3\n\t"
                         "mov r2, %4\n\t"
                         "add r3, %5, #0\n\t"
-                        "bl func_080AA6D0"
+                        "bl ApplyFieldPlotToMap"
                         : "+l"(adjacent), "=m"(scratch.outgoing_neighbor_tiles)
                         : "m"(scratch.view), "m"(scratch.tile_x), "h"(tile_y), "l"(selected)
                         : "r1", "r2", "r3", "ip", "lr", "cc", "memory");
@@ -3047,12 +3301,12 @@ struct GameStateDropWork
     i16 * position_ptr;
 };
 
-EC u32 IsDropTile(UnkMap const &, int, int) asm("func_080AC5D0");
+EC u32 IsDropTile(UnkMap const &, int, int) asm("AreEntityFootTilesMarked");
 EC i32 GetSpecialDropType(Location const &) asm("func_080A45A8");
 EC bool AudioPlayer_IsPlaying(AudioPlayer *);
 EC void AudioPlayer_StartSong(AudioPlayer *, u32);
 EC void SaveProgress_SetFlagE(GameStateMapData &);
-EC void TrackDroppedItem(void *, Location const &, void *) asm("func_080A1484");
+EC void TrackDroppedItem(void *, Location const &, void *) asm("ApplyRosterLitteringPenalty");
 EC void ReadDropFood(Food *, RucksackItem const &) asm("GetFood__C12RucksackItem");
 EC void InitDropFood(Food *, u32) asm("__4FoodUi");
 EC void InitDropItem(RucksackItem *, u32) asm("__12RucksackItemG4Food");

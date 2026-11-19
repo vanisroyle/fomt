@@ -142,8 +142,8 @@ gUnk_080FA71C:
 gUnk_080FA728:
 	.incbin "baserom.gba", 0xFA728, 0x6E
 
-	.global gUnk_080FA796
-gUnk_080FA796:
+	.global gHorseRaceOpponentNames
+gHorseRaceOpponentNames:
 	.incbin "baserom.gba", 0xFA796, 0x208
 
 	.global gUnk_080FA99E
@@ -243,17 +243,21 @@ gHorseRaceBettingGlyphCodes:
 	.2byte '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', 'x', 'G'
 	.2byte 'Y', 'o', 'u', 'r', ' ', 'm', 'e', 'd', 'a', 'l', 's', 0
 
-	.global gUnk_080FAE9C
-gUnk_080FAE9C:
-	.incbin "baserom.gba", 0xFAE9C, 0x1C
+	.global gHorseRaceBettingTableHeader
+gHorseRaceBettingTableHeader:
+	.asciz "Race  Winning Ticket    "
+	.zero 3
 
-	.global gUnk_080FAEB8
-gUnk_080FAEB8:
-	.incbin "baserom.gba", 0xFAEB8, 0xC
+	.global gHorseRaceEnterLabel
+gHorseRaceEnterLabel:
+	.asciz "   Enter"
+	.zero 3
 
-	.global gUnk_080FAEC4
-gUnk_080FAEC4:
-	.incbin "baserom.gba", 0xFAEC4, 0x104
+	.global gHorseRaceMedalsToWinLabel
+gHorseRaceMedalsToWinLabel:
+	.asciz "  Medals to Win     "
+	.zero 3
+	.incbin "baserom.gba", 0xFAEDC, 0xEC
 
 	.global gUnk_080FAFC8
 gUnk_080FAFC8:
@@ -307,116 +311,116 @@ gUnk_080FB1A6:
 gUnk_080FB1E4:
 	.incbin "baserom.gba", 0xFB1E4, 0x50
 
-	.global gUnk_080FB234
-gUnk_080FB234:
+	.global gChildhoodMemorySpeakerMother
+gChildhoodMemorySpeakerMother:
 	.incbin "baserom.gba", 0xFB234, 0x8
 
-	.global gUnk_080FB23C
-gUnk_080FB23C:
+	.global gChildhoodMemoryTripOpening
+gChildhoodMemoryTripOpening:
 	.incbin "baserom.gba", 0xFB23C, 0x40
 
-	.global gUnk_080FB27C
-gUnk_080FB27C:
+	.global gChildhoodMemorySpeakerFather
+gChildhoodMemorySpeakerFather:
 	.incbin "baserom.gba", 0xFB27C, 0x8
 
-	.global gUnk_080FB284
-gUnk_080FB284:
+	.global gChildhoodMemoryFishingInvite
+gChildhoodMemoryFishingInvite:
 	.incbin "baserom.gba", 0xFB284, 0x4C
 
-	.global gUnk_080FB2D0
-gUnk_080FB2D0:
+	.global gChildhoodMemoryLostChild
+gChildhoodMemoryLostChild:
 	.incbin "baserom.gba", 0xFB2D0, 0x24
 
-	.global gUnk_080FB2F4
-gUnk_080FB2F4:
+	.global gChildhoodMemoryLostChildReaction
+gChildhoodMemoryLostChildReaction:
 	.incbin "baserom.gba", 0xFB2F4, 0xC
 
-	.global gUnk_080FB300
-gUnk_080FB300:
+	.global gChildhoodMemorySpeakerOldMan
+gChildhoodMemorySpeakerOldMan:
 	.incbin "baserom.gba", 0xFB300, 0x8
 
-	.global gUnk_080FB308
-gUnk_080FB308:
+	.global gChildhoodMemoryFoundChild
+gChildhoodMemoryFoundChild:
 	.incbin "baserom.gba", 0xFB308, 0x90
 
-	.global gUnk_080FB398
-gUnk_080FB398:
+	.global gChildhoodMemoryThankYou
+gChildhoodMemoryThankYou:
 	.incbin "baserom.gba", 0xFB398, 0x34
 
-	.global gUnk_080FB3CC
-gUnk_080FB3CC:
+	.global gChildhoodMemoryCountryTrip
+gChildhoodMemoryCountryTrip:
 	.incbin "baserom.gba", 0xFB3CC, 0x54
 
-	.global gUnk_080FB420
-gUnk_080FB420:
+	.global gChildhoodMemoryFarmInvite
+gChildhoodMemoryFarmInvite:
 	.incbin "baserom.gba", 0xFB420, 0x4C
 
-	.global gUnk_080FB46C
-gUnk_080FB46C:
+	.global gChildhoodMemoryFarmInviteReaction
+gChildhoodMemoryFarmInviteReaction:
 	.incbin "baserom.gba", 0xFB46C, 0x18
 
-	.global gUnk_080FB484
-gUnk_080FB484:
+	.global gChildhoodMemoryWelcomeToFarm
+gChildhoodMemoryWelcomeToFarm:
 	.incbin "baserom.gba", 0xFB484, 0x50
 
-	.global gUnk_080FB4D4
-gUnk_080FB4D4:
+	.global gChildhoodMemoryFarmPlay
+gChildhoodMemoryFarmPlay:
 	.incbin "baserom.gba", 0xFB4D4, 0x48
 
-	.global gUnk_080FB51C
-gUnk_080FB51C:
+	.global gChildhoodMemorySpeakerUnseenGirl
+gChildhoodMemorySpeakerUnseenGirl:
 	.incbin "baserom.gba", 0xFB51C, 0x4
 
-	.global gUnk_080FB520
-gUnk_080FB520:
+	.global gChildhoodMemoryCallingOut
+gChildhoodMemoryCallingOut:
 	.incbin "baserom.gba", 0xFB520, 0x14
 
-	.global gUnk_080FB534
-gUnk_080FB534:
+	.global gChildhoodMemorySurprise
+gChildhoodMemorySurprise:
 	.incbin "baserom.gba", 0xFB534, 0x8
 
-	.global gUnk_080FB53C
-gUnk_080FB53C:
+	.global gChildhoodMemorySpeakerGirl
+gChildhoodMemorySpeakerGirl:
 	.incbin "baserom.gba", 0xFB53C, 0x8
 
-	.global gUnk_080FB544
-gUnk_080FB544:
+	.global gChildhoodMemoryCheckingOnChild
+gChildhoodMemoryCheckingOnChild:
 	.incbin "baserom.gba", 0xFB544, 0x34
 
-	.global gUnk_080FB578
-gUnk_080FB578:
+	.global gChildhoodMemoryPlayInvite
+gChildhoodMemoryPlayInvite:
 	.incbin "baserom.gba", 0xFB578, 0x5C
 
-	.global gUnk_080FB5D4
-gUnk_080FB5D4:
+	.global gChildhoodMemoryTellMeAboutYourself
+gChildhoodMemoryTellMeAboutYourself:
 	.incbin "baserom.gba", 0xFB5D4, 0x60
 
-	.global gUnk_080FB634
-gUnk_080FB634:
+	.global gChildhoodMemoryFarmFarewell
+gChildhoodMemoryFarmFarewell:
 	.incbin "baserom.gba", 0xFB634, 0x8C
 
-	.global gUnk_080FB6C0
-gUnk_080FB6C0:
+	.global gChildhoodMemoryLetterRequest
+gChildhoodMemoryLetterRequest:
 	.incbin "baserom.gba", 0xFB6C0, 0x50
 
-	.global gUnk_080FB710
-gUnk_080FB710:
+	.global gChildhoodMemoryFarmAddress
+gChildhoodMemoryFarmAddress:
 	.incbin "baserom.gba", 0xFB710, 0x28
 
-	.global gUnk_080FB738
-gUnk_080FB738:
+	.global gChildhoodMemoryLeavingReaction
+gChildhoodMemoryLeavingReaction:
 	.incbin "baserom.gba", 0xFB738, 0x1C
 
-	.global gUnk_080FB754
-gUnk_080FB754:
+	.global gChildhoodMemoryPromiseToReturn
+gChildhoodMemoryPromiseToReturn:
 	.incbin "baserom.gba", 0xFB754, 0x4C
 
-	.global gUnk_080FB7A0
-gUnk_080FB7A0:
+	.global gChildhoodMemoryMadeAFriend
+gChildhoodMemoryMadeAFriend:
 	.incbin "baserom.gba", 0xFB7A0, 0x50
 
-	.global gUnk_080FB7F0
-gUnk_080FB7F0:
+	.global gChildhoodMemoryWaitingForLetter
+gChildhoodMemoryWaitingForLetter:
 	.incbin "baserom.gba", 0xFB7F0, 0x34
 
 	.global gUnk_080FB824

@@ -12312,7 +12312,7 @@ func_080179CC: @ 0x080179CC
     ldr r1, .L08017A6C @ =0x0000214C
     adds r2, r2, r1
     adds r1, r7, #0
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
     b .L08017A86
     .align 2, 0
 .L08017A50: .4byte vtable_unk_080E5EC4
@@ -12610,7 +12610,7 @@ func_08017C30: @ 0x08017C30
     ldr r1, .L08017D8C @ =0x0000214C
     adds r2, r2, r1
     adds r1, r6, #0
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
     ldrb r0, [r6, #1]
     lsrs r0, r0, #2
     ldrh r2, [r6, #2]
