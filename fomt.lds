@@ -278,7 +278,7 @@ SECTIONS
         src/entity.o(.text);
         src/code_entity_08020018.o(.text);
         *(SORT_BY_NAME(.text.entities_part1.*));
-        asm/code_entities.o(.text);
+        *(SORT_BY_NAME(.text.entities_part2.*));
         src/entity_actor.o(.text);
         asm/code_entities_080320DC.o(.text.npc_side.0803242C);
         src/npc_side_entities.o(.text.npc_side.080324B8);
