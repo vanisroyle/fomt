@@ -154,7 +154,7 @@ func_080D0D28: @ 0x080D0D28
 	cmp r2, r0
 	bgt .L080D0E58
 	adds r0, r2, #0
-	bl func_080D0CD4
+	bl GetShiftJisGlyphIndex
 	cmp r0, #0
 	blt .L080D0E58
 	ldr r1, .L080D0E7C @ =gUnk_08523290

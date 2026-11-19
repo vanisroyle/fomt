@@ -1,4 +1,5 @@
 #include "prelude.h"
+#include "g5_graphics.hh"
 
 EC void Dma3_Fill(u32, void *, u32);
 EC void func_0804EDB4(void *, void *, u32, u32, u32);
@@ -9,7 +10,6 @@ EC void func_080CDDD4(void *);
 EC void func_080CECE8(void *);
 EC void func_080CE790(void *);
 EC void func_080CD8A0(void *);
-EC void func_080CE510(void *, u32, void *, u32, u32, u32);
 EC u8 vtable_unk_080E85DC[];
 EC u8 vtable_unk_080E85E8[];
 EC void func_080A4A94(void *);
@@ -63,25 +63,25 @@ EC SECTION(".text.g5_080CE294") void func_080CE2C4(void ** self)
     func_080CD8A0(self);
 }
 
-EC SECTION(".text.g5_080CEB80") u32 func_080CEB80(u8 * self)
+EC SECTION(".text.g5_080CEB80") u32 NextInventoryPage(u8 * self) // 0x080CEB80
 {
     if (*(u32 *) (self + 0xbc) < 7)
         ++*(u32 *) (self + 0xbc);
     else
         *(u32 *) (self + 0xbc) = 0;
     u32 * page = (u32 *) (self + 0xbc);
-    func_080CE510(self, *page + 1, (void *) 0x0600f0f6, 0x20, 0, 0x20);
+    QueuePagedPanelNumberDraw(self, *page + 1, (void *) 0x0600f0f6, 0x20, 0, 0x20);
     return *page;
 }
 
-EC SECTION(".text.g5_080CEB80") u32 func_080CEBC0(u8 * self)
+EC SECTION(".text.g5_080CEB80") u32 PreviousInventoryPage(u8 * self) // 0x080CEBC0
 {
     if (*(u32 *) (self + 0xbc) != 0)
         --*(u32 *) (self + 0xbc);
     else
         *(u32 *) (self + 0xbc) = 7;
     u32 * page = (u32 *) (self + 0xbc);
-    func_080CE510(self, *page + 1, (void *) 0x0600f0f6, 0x20, 0, 0x20);
+    QueuePagedPanelNumberDraw(self, *page + 1, (void *) 0x0600f0f6, 0x20, 0, 0x20);
     return *page;
 }
 
@@ -90,15 +90,15 @@ struct PanelCursor
     u8 pad_00[0x68];
     u8 enabled;
     u8 pad_69[0x13];
-    u32 current;
-    u32 next;
+    u32 slot_index;
+    u32 page_index;
     u8 active;
 };
 
-EC SECTION(".text.g5_080CECD0") void func_080CECD0(PanelCursor * self)
+EC SECTION(".text.g5_080CECD0") void ResetInventoryCursor(PanelCursor * self) // 0x080CECD0
 {
     self->active = 0;
     self->enabled = 0;
-    self->current = 0x12;
-    self->next = 0;
+    self->slot_index = 0x12;
+    self->page_index = 0;
 }

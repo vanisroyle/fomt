@@ -5396,248 +5396,11 @@ func_080CADB4: @ 0x080CADB4
 	.align 2, 0
 .L080CADEC: .4byte vtable_unk_080E85CC
 
-	thumb_func_start func_080CADF0
-func_080CADF0: @ 0x080CADF0
-	push {r4, r5, r6, lr}
-	sub sp, #8
-	adds r5, r0, #0
-	adds r6, r1, #0
-	movs r0, #0x84
-	lsls r0, r0, #2
-	adds r1, r5, r0
-	ldr r0, .L080CAE0C @ =vtable_unk_080E85CC
-	str r0, [r1]
-	ldr r0, [r5, #8]
-	ldr r1, [r0]
-	str r1, [sp]
-	str r0, [sp, #4]
-	b .L080CAE2C
-	.align 2, 0
-.L080CAE0C: .4byte vtable_unk_080E85CC
-.L080CAE10:
-	ldr r0, [sp]
-	ldr r1, [r0, #8]
-	cmp r1, #0
-	beq .L080CAE24
-	ldr r0, [r1, #8]
-	ldr r2, [r0, #0xc]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L080CAE24:
-	ldr r0, [sp]
-	ldr r0, [r0]
-	str r0, [sp]
-	ldr r1, [sp, #4]
-.L080CAE2C:
-	eors r1, r0
-	rsbs r0, r1, #0
-	orrs r0, r1
-	cmp r0, #0
-	blt .L080CAE10
-	adds r4, r5, #4
-	adds r0, r4, #0
-	bl func_080E586C
-	ldr r0, [r4, #4]
-	cmp r0, #0
-	beq .L080CAE48
-	bl free
-.L080CAE48:
-	movs r0, #1
-	ands r0, r6
-	cmp r0, #0
-	beq .L080CAE56
-	adds r0, r5, #0
-	bl __builtin_delete
-.L080CAE56:
-	add sp, #8
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
+.section .text.g5_after_080CADF0, "ax"
 
-	thumb_func_start func_080CAE60
-func_080CAE60: @ 0x080CAE60
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x14
-	mov sl, r0
-	mov r8, r1
-	adds r5, r2, #0
-	mov sb, r3
-	ldr r6, [sp, #0x34]
-	ldr r4, [sp, #0x38]
-	ldr r7, [sp, #0x3c]
-	lsls r5, r5, #0x10
-	lsrs r5, r5, #0x10
-	lsls r4, r4, #0x10
-	lsrs r4, r4, #0x10
-	movs r0, #0x20
-	bl __builtin_new
-	str r6, [sp]
-	str r4, [sp, #4]
-	str r7, [sp, #8]
-	mov r1, r8
-	adds r2, r5, #0
-	mov r3, sb
-	bl func_0804EA58
-	adds r4, r0, #0
-	mov r1, sl
-	ldr r0, [r1, #8]
-	str r0, [sp, #0x10]
-	movs r0, #0xc
-	bl malloc
-	adds r2, r0, #0
-	cmp r2, #0
-	bne .L080CAEB4
-	movs r0, #0xc
-	bl func_080D3BC0
-	adds r2, r0, #0
-.L080CAEB4:
-	adds r0, r2, #0
-	adds r0, #8
-	cmp r0, #0
-	beq .L080CAEBE
-	str r4, [r2, #8]
-.L080CAEBE:
-	ldr r0, [sp, #0x10]
-	ldr r1, [r0, #4]
-	str r0, [r2]
-	str r1, [r2, #4]
-	str r2, [r1]
-	str r2, [r0, #4]
-	str r2, [sp, #0xc]
-	mov r1, sl
-	ldr r0, [r1]
-	ldr r1, [r0, #8]
-	ldr r2, [r1, #0x10]
-	adds r1, r4, #0
-	bl _call_via_r2
-	add sp, #0x14
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
+.section .text.g5_after_080CAE60, "ax"
 
-	thumb_func_start func_080CAEEC
-func_080CAEEC: @ 0x080CAEEC
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0x10
-	adds r7, r0, #0
-	mov r8, r1
-	mov sb, r2
-	adds r5, r3, #0
-	ldr r4, [sp, #0x2c]
-	ldr r6, [sp, #0x30]
-	lsls r5, r5, #0x10
-	lsrs r5, r5, #0x10
-	lsls r4, r4, #0x10
-	lsrs r4, r4, #0x10
-	movs r0, #0x1c
-	bl __builtin_new
-	str r4, [sp]
-	str r6, [sp, #4]
-	mov r1, r8
-	mov r2, sb
-	adds r3, r5, #0
-	bl func_0804EE64
-	adds r4, r0, #0
-	ldr r0, [r7, #8]
-	str r0, [sp, #0xc]
-	movs r0, #0xc
-	bl malloc
-	adds r2, r0, #0
-	cmp r2, #0
-	bne .L080CAF38
-	movs r0, #0xc
-	bl func_080D3BC0
-	adds r2, r0, #0
-.L080CAF38:
-	adds r0, r2, #0
-	adds r0, #8
-	cmp r0, #0
-	beq .L080CAF42
-	str r4, [r2, #8]
-.L080CAF42:
-	ldr r0, [sp, #0xc]
-	ldr r1, [r0, #4]
-	str r0, [r2]
-	str r1, [r2, #4]
-	str r2, [r1]
-	str r2, [r0, #4]
-	str r2, [sp, #8]
-	ldr r0, [r7]
-	ldr r1, [r0, #8]
-	ldr r2, [r1, #0x10]
-	adds r1, r4, #0
-	bl _call_via_r2
-	add sp, #0x10
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080CAF6C
-func_080CAF6C: @ 0x080CAF6C
-	push {r4, lr}
-	sub sp, #0x10
-	ldr r0, [r0, #8]
-	ldr r1, [r0]
-	str r1, [sp]
-	str r0, [sp, #4]
-	b .L080CAFB2
-.L080CAF7A:
-	ldr r2, [sp]
-	ldr r3, [r2, #8]
-	ldr r1, [r3]
-	rsbs r0, r1, #0
-	orrs r0, r1
-	cmp r0, #0
-	blt .L080CAFAA
-	ldr r0, [r3, #8]
-	ldr r2, [r0, #0xc]
-	adds r0, r3, #0
-	movs r1, #3
-	bl _call_via_r2
-	ldr r0, [sp]
-	str r0, [sp, #0xc]
-	ldr r4, [r0]
-	ldr r1, [r0, #4]
-	str r4, [r1]
-	str r1, [r4, #4]
-	bl free
-	str r4, [sp, #8]
-	str r4, [sp]
-	b .L080CAFAE
-.L080CAFAA:
-	ldr r0, [r2]
-	str r0, [sp]
-.L080CAFAE:
-	ldr r1, [sp]
-	ldr r0, [sp, #4]
-.L080CAFB2:
-	eors r1, r0
-	rsbs r0, r1, #0
-	orrs r0, r1
-	cmp r0, #0
-	blt .L080CAF7A
-	add sp, #0x10
-	pop {r4}
-	pop {r0}
-	bx r0
+.section .text.g5_after_080CAF6C, "ax"
 
 	thumb_func_start func_080CAFC4
 func_080CAFC4: @ 0x080CAFC4
@@ -5662,7 +5425,7 @@ func_080CAFC4: @ 0x080CAFC4
 	ldr r0, .L080CB08C @ =vtable_unk_080E85BC
 	str r0, [r1]
 	mov r0, sp
-	bl func_080CAC70
+	bl InitializeUiEntry
 	movs r1, #0x85
 	lsls r1, r1, #2
 	adds r1, r5, r1
@@ -5710,7 +5473,7 @@ func_080CAFC4: @ 0x080CAFC4
 	strb r1, [r0]
 	adds r4, #8
 	adds r0, r5, r4
-	bl func_080CAC70
+	bl InitializeUiEntry
 	adds r7, #0x10
 	adds r6, r5, r7
 	ldr r0, [sp, #0x34]
@@ -5770,7 +5533,7 @@ func_080CB090: @ 0x080CB090
 	subs r4, #1
 	cmp r4, #0
 	bge .L080CB0A4
-	ldr r0, .L080CB1E8 @ =gUnk_0811785C
+	ldr r0, .L080CB1E8 @ =gInventorySpecialSlotCountPosition
 	ldr r0, [r0]
 	str r0, [sp, #0x1c]
 	movs r0, #0x9f
@@ -5796,7 +5559,7 @@ func_080CB090: @ 0x080CB090
 	mov r0, r8
 	movs r2, #0x1c
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 .L080CB0FA:
 	movs r4, #0
 	movs r0, #0x85
@@ -5808,7 +5571,7 @@ func_080CB090: @ 0x080CB090
 	add r5, sp, #0x1c
 .L080CB10A:
 	lsls r0, r4, #2
-	ldr r1, .L080CB1EC @ =gUnk_08117860
+	ldr r1, .L080CB1EC @ =gInventorySlotCountPositions
 	adds r0, r0, r1
 	ldr r0, [r0]
 	str r0, [sp, #0x1c]
@@ -5828,7 +5591,7 @@ func_080CB090: @ 0x080CB090
 	mov r0, r8
 	movs r2, #0x1c
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	adds r4, #1
 	movs r0, #0x85
 	lsls r0, r0, #2
@@ -5913,8 +5676,8 @@ func_080CB090: @ 0x080CB090
 .L080CB1DC: .4byte 0x0600F800
 .L080CB1E0: .4byte 0x00030003
 .L080CB1E4: .4byte 0x03FF03FF
-.L080CB1E8: .4byte gUnk_0811785C
-.L080CB1EC: .4byte gUnk_08117860
+.L080CB1E8: .4byte gInventorySpecialSlotCountPosition
+.L080CB1EC: .4byte gInventorySlotCountPositions
 .L080CB1F0: .4byte 0x06000B00
 .L080CB1F4:
 	str r1, [sp, #0x30]
@@ -6040,7 +5803,7 @@ func_080CB090: @ 0x080CB090
 	mov r0, r8
 	movs r2, #0x58
 	movs r3, #8
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 .L080CB2D2:
 	add sp, #0x38
 	pop {r3, r4, r5}
@@ -6417,7 +6180,7 @@ func_080CB304: @ 0x080CB304
 	str r4, [r5, #4]
 	str r0, [r5, #0xc]
 .L080CB59A:
-	ldr r0, .L080CB62C @ =gUnk_08117860
+	ldr r0, .L080CB62C @ =gInventorySlotCountPositions
 	ldr r2, [sp, #0x3c]
 	adds r0, r2, r0
 	ldr r0, [r0]
@@ -6445,7 +6208,7 @@ func_080CB304: @ 0x080CB304
 	str r5, [sp, #8]
 	ldr r0, [sp, #0x30]
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r7, [sp, #0x40]
 	ldrb r1, [r7, #1]
 	lsls r1, r1, #6
@@ -6462,7 +6225,7 @@ func_080CB304: @ 0x080CB304
 	ldr r0, [sp, #0x30]
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r3, [sp, #0x70]
 	cmp r3, #1
 	bls .L080CB61C
@@ -6478,7 +6241,7 @@ func_080CB304: @ 0x080CB304
 	ldr r0, [sp, #0x30]
 	adds r1, r3, #0
 	movs r3, #0x20
-	bl func_080CAEEC
+	bl QueuePanelNumberDraw
 .L080CB61C:
 	add sp, #0x50
 	pop {r3, r4, r5}
@@ -6489,7 +6252,7 @@ func_080CB304: @ 0x080CB304
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CB62C: .4byte gUnk_08117860
+.L080CB62C: .4byte gInventorySlotCountPositions
 .L080CB630: .4byte 0x0600F000
 .L080CB634: .4byte 0x0600F080
 .L080CB638: .4byte 0x0600F082
@@ -6517,7 +6280,7 @@ func_080CB63C: @ 0x080CB63C
 	adds r1, r4, #0
 	adds r2, r3, #0
 	ldr r3, [sp, #0x6c]
-	bl func_080CADA0
+	bl SetUiEntry
 	ldr r3, [sp, #0x30]
 	movs r6, #0x9e
 	lsls r6, r6, #2
@@ -6832,7 +6595,7 @@ func_080CB63C: @ 0x080CB63C
 	str r4, [r5, #4]
 	str r0, [r5, #0xc]
 .L080CB8A6:
-	ldr r0, .L080CB938 @ =gUnk_08117860
+	ldr r0, .L080CB938 @ =gInventorySlotCountPositions
 	ldr r2, [sp, #0x3c]
 	adds r0, r2, r0
 	ldr r0, [r0]
@@ -6860,7 +6623,7 @@ func_080CB63C: @ 0x080CB63C
 	str r5, [sp, #8]
 	ldr r0, [sp, #0x30]
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r6, [sp, #0x40]
 	ldrb r1, [r6, #1]
 	lsls r1, r1, #6
@@ -6877,7 +6640,7 @@ func_080CB63C: @ 0x080CB63C
 	ldr r0, [sp, #0x30]
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r0, [sp, #0x6c]
 	cmp r0, #1
 	bls .L080CB928
@@ -6893,7 +6656,7 @@ func_080CB63C: @ 0x080CB63C
 	ldr r0, [sp, #0x30]
 	ldr r1, [sp, #0x6c]
 	movs r3, #0x20
-	bl func_080CAEEC
+	bl QueuePanelNumberDraw
 .L080CB928:
 	add sp, #0x4c
 	pop {r3, r4, r5}
@@ -6904,7 +6667,7 @@ func_080CB63C: @ 0x080CB63C
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CB938: .4byte gUnk_08117860
+.L080CB938: .4byte gInventorySlotCountPositions
 .L080CB93C: .4byte 0x0600F000
 .L080CB940: .4byte 0x0600F080
 .L080CB944: .4byte 0x0600F082
@@ -7228,7 +6991,7 @@ func_080CBAF0: @ 0x080CBAF0
 	str r4, [r5, #4]
 	str r0, [r5, #0xc]
 .L080CBD2E:
-	ldr r0, .L080CBDC4 @ =gUnk_0811785C
+	ldr r0, .L080CBDC4 @ =gInventorySpecialSlotCountPosition
 	ldr r0, [r0]
 	str r0, [sp, #0x2c]
 	ldr r0, [sp, #0x30]
@@ -7248,7 +7011,7 @@ func_080CBAF0: @ 0x080CBAF0
 	mov r0, sl
 	movs r2, #0x30
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r2, [sp, #0x30]
 	ldrb r1, [r2, #1]
 	lsls r1, r1, #6
@@ -7265,16 +7028,16 @@ func_080CBAF0: @ 0x080CBAF0
 	mov r0, sl
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	movs r4, #0xa0
 	lsls r4, r4, #2
 	add r4, sl
 	adds r0, r4, #0
-	bl func_080CAD14
+	bl GetUiEntryValue
 	cmp r0, #1
 	bls .L080CBDB2
 	adds r0, r4, #0
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r1, r0, #0
 	ldr r4, [sp, #0x30]
 	ldrb r2, [r4, #1]
@@ -7288,7 +7051,7 @@ func_080CBAF0: @ 0x080CBAF0
 	str r5, [sp, #4]
 	mov r0, sl
 	movs r3, #0x20
-	bl func_080CAEEC
+	bl QueuePanelNumberDraw
 .L080CBDB2:
 	add sp, #0x3c
 	pop {r3, r4, r5}
@@ -7299,7 +7062,7 @@ func_080CBAF0: @ 0x080CBAF0
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CBDC4: .4byte gUnk_0811785C
+.L080CBDC4: .4byte gInventorySpecialSlotCountPosition
 .L080CBDC8: .4byte 0x0600F000
 .L080CBDCC: .4byte 0x0600F080
 .L080CBDD0: .4byte 0x0600F082
@@ -7317,7 +7080,7 @@ func_080CBDD4: @ 0x080CBDD4
 	lsls r4, r4, #2
 	add r4, sl
 	adds r0, r4, #0
-	bl func_080CADA0
+	bl SetUiEntry
 	ldr r1, [r4, #4]
 	movs r0, #0x9e
 	lsls r0, r0, #2
@@ -7619,7 +7382,7 @@ func_080CBDD4: @ 0x080CBDD4
 	str r4, [r5, #4]
 	str r0, [r5, #0xc]
 .L080CC00E:
-	ldr r0, .L080CC0A4 @ =gUnk_0811785C
+	ldr r0, .L080CC0A4 @ =gInventorySpecialSlotCountPosition
 	ldr r0, [r0]
 	str r0, [sp, #0x2c]
 	ldr r0, [sp, #0x30]
@@ -7639,7 +7402,7 @@ func_080CBDD4: @ 0x080CBDD4
 	mov r0, sl
 	movs r2, #0x30
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r2, [sp, #0x30]
 	ldrb r1, [r2, #1]
 	lsls r1, r1, #6
@@ -7656,16 +7419,16 @@ func_080CBDD4: @ 0x080CBDD4
 	mov r0, sl
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	movs r4, #0xa0
 	lsls r4, r4, #2
 	add r4, sl
 	adds r0, r4, #0
-	bl func_080CAD14
+	bl GetUiEntryValue
 	cmp r0, #1
 	bls .L080CC092
 	adds r0, r4, #0
-	bl func_080CAD14
+	bl GetUiEntryValue
 	adds r1, r0, #0
 	ldr r4, [sp, #0x30]
 	ldrb r2, [r4, #1]
@@ -7679,7 +7442,7 @@ func_080CBDD4: @ 0x080CBDD4
 	str r5, [sp, #4]
 	mov r0, sl
 	movs r3, #0x20
-	bl func_080CAEEC
+	bl QueuePanelNumberDraw
 .L080CC092:
 	add sp, #0x3c
 	pop {r3, r4, r5}
@@ -7690,7 +7453,7 @@ func_080CBDD4: @ 0x080CBDD4
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CC0A4: .4byte gUnk_0811785C
+.L080CC0A4: .4byte gInventorySpecialSlotCountPosition
 .L080CC0A8: .4byte 0x0600F000
 .L080CC0AC: .4byte 0x0600F080
 .L080CC0B0: .4byte 0x0600F082
@@ -7705,8 +7468,8 @@ func_080CC0B4: @ 0x080CC0B4
 	movs r1, #0xa0
 	lsls r1, r1, #2
 	adds r0, r4, r1
-	bl func_080CADA8
-	ldr r0, .L080CC128 @ =gUnk_0811785C
+	bl ClearUiEntry
+	ldr r0, .L080CC128 @ =gInventorySpecialSlotCountPosition
 	ldr r0, [r0]
 	str r0, [sp, #0xc]
 	add r2, sp, #0xc
@@ -7728,7 +7491,7 @@ func_080CC0B4: @ 0x080CC0B4
 	adds r0, r4, #0
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	mov r0, r8
 	ldrb r1, [r0, #1]
 	lsls r1, r1, #6
@@ -7745,7 +7508,7 @@ func_080CC0B4: @ 0x080CC0B4
 	adds r0, r4, #0
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	add sp, #0x10
 	pop {r3}
 	mov r8, r3
@@ -7753,7 +7516,7 @@ func_080CC0B4: @ 0x080CC0B4
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CC128: .4byte gUnk_0811785C
+.L080CC128: .4byte gInventorySpecialSlotCountPosition
 .L080CC12C: .4byte 0x0600F000
 .L080CC130: .4byte 0x0600F080
 
@@ -7782,7 +7545,7 @@ func_080CC15C: @ 0x080CC15C
 	ldr r0, .L080CC30C @ =vtable_unk_080E85AC
 	str r0, [r1]
 	mov r0, sp
-	bl func_080CAC70
+	bl InitializeUiEntry
 	movs r1, #0x85
 	lsls r1, r1, #2
 	adds r1, r1, r7
@@ -7833,7 +7596,7 @@ func_080CC15C: @ 0x080CC15C
 	movs r5, #0xa0
 	lsls r5, r5, #2
 	adds r0, r7, r5
-	bl func_080CAC70
+	bl InitializeUiEntry
 	adds r6, #0x10
 	adds r5, r7, r6
 	ldr r0, [sp, #0x34]
@@ -7997,7 +7760,7 @@ func_080CC310: @ 0x080CC310
 	subs r4, #1
 	cmp r4, #0
 	bge .L080CC324
-	ldr r0, .L080CC484 @ =gUnk_0811785C
+	ldr r0, .L080CC484 @ =gInventorySpecialSlotCountPosition
 	ldr r1, [r0]
 	adds r0, r1, #0
 	adds r0, #0xf
@@ -8030,7 +7793,7 @@ func_080CC310: @ 0x080CC310
 	mov r0, r8
 	movs r2, #0x1c
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 .L080CC388:
 	movs r4, #0
 	movs r0, #0x85
@@ -8042,7 +7805,7 @@ func_080CC310: @ 0x080CC310
 	add r5, sp, #0x1c
 .L080CC398:
 	lsls r0, r4, #2
-	ldr r1, .L080CC490 @ =gUnk_08117860
+	ldr r1, .L080CC490 @ =gInventorySlotCountPositions
 	adds r0, r0, r1
 	ldr r2, [r0]
 	adds r1, r2, #0
@@ -8069,7 +7832,7 @@ func_080CC310: @ 0x080CC310
 	mov r0, r8
 	movs r2, #0x1c
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	adds r4, #1
 	movs r0, #0x85
 	lsls r0, r0, #2
@@ -8154,10 +7917,10 @@ func_080CC310: @ 0x080CC310
 .L080CC478: .4byte 0x0600F822
 .L080CC47C: .4byte 0x00030003
 .L080CC480: .4byte 0x03FF03FF
-.L080CC484: .4byte gUnk_0811785C
+.L080CC484: .4byte gInventorySpecialSlotCountPosition
 .L080CC488: .4byte 0xFFFFFF00
 .L080CC48C: .4byte 0x0600F800
-.L080CC490: .4byte gUnk_08117860
+.L080CC490: .4byte gInventorySlotCountPositions
 .L080CC494: .4byte 0x06000D00
 .L080CC498:
 	str r1, [sp, #0x30]
@@ -8283,7 +8046,7 @@ func_080CC310: @ 0x080CC310
 	mov r0, r8
 	movs r2, #0x68
 	movs r3, #8
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 .L080CC576:
 	add sp, #0x38
 	pop {r3, r4, r5}
@@ -8306,7 +8069,7 @@ func_080CC58C: @ 0x080CC58C
 	sub sp, #0x30
 	mov sl, r0
 	str r1, [sp, #0x20]
-	bl func_080CAF6C
+	bl PruneInactivePanelDrawCommands
 	movs r0, #0
 	str r0, [sp, #0x24]
 	movs r0, #0x85
@@ -8343,7 +8106,7 @@ func_080CC58C: @ 0x080CC58C
 	bne .L080CC65A
 	ldr r1, [sp, #0x24]
 	lsls r0, r1, #2
-	ldr r1, .L080CC700 @ =gUnk_08117860
+	ldr r1, .L080CC700 @ =gInventorySlotCountPositions
 	adds r0, r0, r1
 	ldr r5, [r0]
 	adds r6, r5, #0
@@ -8429,7 +8192,7 @@ func_080CC58C: @ 0x080CC58C
 	adds r7, r2, #0
 	cmp r7, #0
 	bne .L080CC6EE
-	ldr r0, .L080CC708 @ =gUnk_0811785C
+	ldr r0, .L080CC708 @ =gInventorySpecialSlotCountPosition
 	ldr r4, [r0]
 	adds r5, r4, #0
 	adds r5, #0xf
@@ -8485,9 +8248,9 @@ func_080CC58C: @ 0x080CC58C
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CC700: .4byte gUnk_08117860
+.L080CC700: .4byte gInventorySlotCountPositions
 .L080CC704: .4byte 0xFFFFFF00
-.L080CC708: .4byte gUnk_0811785C
+.L080CC708: .4byte gInventorySpecialSlotCountPosition
 
 .section .text.g5_080CC728, "ax"
 
@@ -8539,7 +8302,7 @@ func_080CC728: @ 0x080CC728
 	bl func_080074C0
 	str r0, [sp, #0x3c]
 	lsls r5, r5, #2
-	ldr r0, .L080CC7EC @ =gUnk_08117860
+	ldr r0, .L080CC7EC @ =gInventorySlotCountPositions
 	adds r5, r5, r0
 	ldr r1, [r5]
 	adds r0, r1, #0
@@ -8588,7 +8351,7 @@ func_080CC728: @ 0x080CC728
 	str r6, [sp, #0x40]
 	b .L080CC8CE
 	.align 2, 0
-.L080CC7EC: .4byte gUnk_08117860
+.L080CC7EC: .4byte gInventorySlotCountPositions
 .L080CC7F0: .4byte 0xFFFFFF00
 .L080CC7F4: .4byte 0x06010000
 .L080CC7F8:
@@ -8879,7 +8642,7 @@ func_080CC728: @ 0x080CC728
 	mov r0, sl
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r3, [sp, #0x74]
 	cmp r3, #1
 	bls .L080CCA26
@@ -8896,7 +8659,7 @@ func_080CC728: @ 0x080CC728
 	mov r0, sl
 	adds r1, r3, #0
 	movs r3, #0x20
-	bl func_080CAEEC
+	bl QueuePanelNumberDraw
 .L080CCA26:
 	add sp, #0x54
 	pop {r3, r4, r5}
@@ -8932,7 +8695,7 @@ func_080CCA40: @ 0x080CCA40
 	mov r1, r8
 	adds r2, r3, #0
 	ldr r3, [sp, #0x6c]
-	bl func_080CADA0
+	bl SetUiEntry
 	lsls r4, r5, #3
 	mov r2, sl
 	adds r0, r4, r2
@@ -8951,7 +8714,7 @@ func_080CCA40: @ 0x080CCA40
 	bl func_080074C0
 	str r0, [sp, #0x34]
 	lsls r5, r5, #2
-	ldr r0, .L080CCAF4 @ =gUnk_08117860
+	ldr r0, .L080CCAF4 @ =gInventorySlotCountPositions
 	adds r5, r5, r0
 	ldr r1, [r5]
 	adds r0, r1, #0
@@ -9000,7 +8763,7 @@ func_080CCA40: @ 0x080CCA40
 	str r6, [sp, #0x38]
 	b .L080CCBD6
 	.align 2, 0
-.L080CCAF4: .4byte gUnk_08117860
+.L080CCAF4: .4byte gInventorySlotCountPositions
 .L080CCAF8: .4byte 0xFFFFFF00
 .L080CCAFC: .4byte 0x06010000
 .L080CCB00:
@@ -9291,7 +9054,7 @@ func_080CCA40: @ 0x080CCA40
 	mov r0, sl
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r3, [sp, #0x6c]
 	cmp r3, #1
 	bls .L080CCD2E
@@ -9308,7 +9071,7 @@ func_080CCA40: @ 0x080CCA40
 	mov r0, sl
 	adds r1, r3, #0
 	movs r3, #0x20
-	bl func_080CAEEC
+	bl QueuePanelNumberDraw
 .L080CCD2E:
 	add sp, #0x4c
 	pop {r3, r4, r5}
@@ -9665,7 +9428,7 @@ func_080CCE58: @ 0x080CCE58
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080CD0CA:
-	ldr r0, .L080CD13C @ =gUnk_0811785C
+	ldr r0, .L080CD13C @ =gInventorySpecialSlotCountPosition
 	ldr r1, [r0]
 	adds r0, r1, #0
 	adds r0, #0xf
@@ -9693,7 +9456,7 @@ func_080CCE58: @ 0x080CCE58
 	mov r0, sl
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r7, [sp, #0x30]
 	cmp r7, #1
 	bls .L080CD12A
@@ -9710,7 +9473,7 @@ func_080CCE58: @ 0x080CCE58
 	mov r0, sl
 	adds r1, r7, #0
 	movs r3, #0x20
-	bl func_080CAEEC
+	bl QueuePanelNumberDraw
 .L080CD12A:
 	add sp, #0x48
 	pop {r3, r4, r5}
@@ -9721,7 +9484,7 @@ func_080CCE58: @ 0x080CCE58
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CD13C: .4byte gUnk_0811785C
+.L080CD13C: .4byte gInventorySpecialSlotCountPosition
 .L080CD140: .4byte 0xFFFFFF00
 .L080CD144: .4byte 0x0600F080
 .L080CD148: .4byte 0x0600F082
@@ -9740,7 +9503,7 @@ func_080CD14C: @ 0x080CD14C
 	lsls r5, r5, #2
 	add r5, sl
 	adds r0, r5, #0
-	bl func_080CADA0
+	bl SetUiEntry
 	movs r0, #0xa7
 	lsls r0, r0, #2
 	add r0, sl
@@ -10065,7 +9828,7 @@ func_080CD14C: @ 0x080CD14C
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080CD3BA:
-	ldr r0, .L080CD42C @ =gUnk_0811785C
+	ldr r0, .L080CD42C @ =gInventorySpecialSlotCountPosition
 	ldr r1, [r0]
 	adds r0, r1, #0
 	adds r0, #0xf
@@ -10093,7 +9856,7 @@ func_080CD14C: @ 0x080CD14C
 	mov r0, sl
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	ldr r7, [sp, #0x30]
 	cmp r7, #1
 	bls .L080CD41A
@@ -10110,7 +9873,7 @@ func_080CD14C: @ 0x080CD14C
 	mov r0, sl
 	adds r1, r7, #0
 	movs r3, #0x20
-	bl func_080CAEEC
+	bl QueuePanelNumberDraw
 .L080CD41A:
 	add sp, #0x48
 	pop {r3, r4, r5}
@@ -10121,7 +9884,7 @@ func_080CD14C: @ 0x080CD14C
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CD42C: .4byte gUnk_0811785C
+.L080CD42C: .4byte gInventorySpecialSlotCountPosition
 .L080CD430: .4byte 0xFFFFFF00
 .L080CD434: .4byte 0x0600F080
 .L080CD438: .4byte 0x0600F082
@@ -10146,8 +9909,8 @@ func_080CD4D4: @ 0x080CD4D4
 	movs r1, #0xa0
 	lsls r1, r1, #2
 	adds r0, r4, r1
-	bl func_080CADA8
-	ldr r0, .L080CD528 @ =gUnk_0811785C
+	bl ClearUiEntry
+	ldr r0, .L080CD528 @ =gInventorySpecialSlotCountPosition
 	ldr r1, [r0]
 	adds r0, r1, #0
 	adds r0, #0xf
@@ -10174,13 +9937,13 @@ func_080CD4D4: @ 0x080CD4D4
 	adds r0, r4, #0
 	movs r2, #0x54
 	movs r3, #2
-	bl func_080CAE60
+	bl QueuePanelTileDraw
 	add sp, #0x10
 	pop {r4}
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080CD528: .4byte gUnk_0811785C
+.L080CD528: .4byte gInventorySpecialSlotCountPosition
 .L080CD52C: .4byte 0xFFFFFF00
 .L080CD530: .4byte 0x0600F080
 
@@ -10726,114 +10489,7 @@ func_080CD9B0: @ 0x080CD9B0
 	.align 2, 0
 .L080CDA40: .4byte gUnk_08728208
 
-	thumb_func_start func_080CDA44
-func_080CDA44: @ 0x080CDA44
-	push {r4, r5, lr}
-	adds r3, r0, #0
-	ldr r1, [r3]
-	ldr r0, [r1, #0x78]
-	movs r2, #0xa6
-	lsls r2, r2, #2
-	adds r0, r0, r2
-	ldr r0, [r0]
-	str r0, [r3, #0xc]
-	ldr r0, [r1, #0x7c]
-	adds r0, r0, r2
-	ldr r0, [r0]
-	adds r0, #9
-	str r0, [r3, #0x10]
-	ldr r1, .L080CDA78 @ =gUnk_0811788C
-	ldr r2, [r3, #4]
-	lsls r0, r2, #4
-	adds r0, r0, r1
-	ldr r1, [r0]
-	cmp r2, #0
-	bne .L080CDA7C
-	ldr r2, [r3, #8]
-	cmp r2, #9
-	beq .L080CDA92
-	subs r0, r2, #5
-	b .L080CDA8A
-	.align 2, 0
-.L080CDA78: .4byte gUnk_0811788C
-.L080CDA7C:
-	cmp r2, #9
-	bne .L080CDA92
-	ldr r2, [r3, #8]
-	cmp r2, #0
-	beq .L080CDA92
-	adds r0, r2, #0
-	subs r0, #0xe
-.L080CDA8A:
-	adds r1, r2, #4
-	cmp r0, #3
-	bhi .L080CDA92
-	adds r1, r2, #0
-.L080CDA92:
-	cmp r1, #8
-	bgt .L080CDAC8
-	ldr r4, [r3, #4]
-	cmp r1, #0
-	bne .L080CDAAE
-	ldr r0, [r3]
-	ldr r0, [r0, #0x78]
-	movs r2, #0x9f
-	lsls r2, r2, #2
-	adds r0, r0, r2
-	ldrb r0, [r0]
-	cmp r0, #0
-	bne .L080CDAAE
-	adds r1, r4, #4
-.L080CDAAE:
-	ldr r2, [r3, #0xc]
-	cmp r1, r2
-	ble .L080CDAF2
-	ldr r5, .L080CDAC4 @ =gUnk_0811788C
-.L080CDAB6:
-	lsls r0, r1, #4
-	adds r0, r0, r5
-	ldr r1, [r0]
-	cmp r1, r2
-	bgt .L080CDAB6
-	b .L080CDAF2
-	.align 2, 0
-.L080CDAC4: .4byte gUnk_0811788C
-.L080CDAC8:
-	ldr r4, [r3, #4]
-	cmp r1, #9
-	bne .L080CDAE0
-	ldr r0, [r3]
-	ldr r0, [r0, #0x7c]
-	movs r2, #0x9f
-	lsls r2, r2, #2
-	adds r0, r0, r2
-	ldrb r0, [r0]
-	cmp r0, #0
-	bne .L080CDAE0
-	adds r1, r4, #4
-.L080CDAE0:
-	ldr r2, [r3, #0x10]
-	cmp r1, r2
-	ble .L080CDAF2
-	ldr r5, .L080CDB04 @ =gUnk_0811788C
-.L080CDAE8:
-	lsls r0, r1, #4
-	adds r0, r0, r5
-	ldr r1, [r0]
-	cmp r1, r2
-	bgt .L080CDAE8
-.L080CDAF2:
-	cmp r1, r4
-	beq .L080CDAFA
-	str r4, [r3, #8]
-	str r1, [r3, #4]
-.L080CDAFA:
-	adds r0, r1, #0
-	pop {r4, r5}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080CDB04: .4byte gUnk_0811788C
+.section .text.g5_after_080CDA44, "ax"
 
 	thumb_func_start func_080CDB08
 func_080CDB08: @ 0x080CDB08
@@ -11692,7 +11348,7 @@ func_080CE120: @ 0x080CE120
 	cmp r1, #0
 	beq .L080CE176
 	mov r0, sp
-	bl func_080CC144
+	bl GetInventorySpecialSlotPosition
 	ldr r3, [sp]
 	b .L080CE176
 .L080CE14A:
@@ -11700,13 +11356,13 @@ func_080CE120: @ 0x080CE120
 	cmp r1, #0
 	beq .L080CE176
 	add r0, sp, #4
-	bl func_080CD558
+	bl GetRightInventorySpecialSlotPosition
 	ldr r3, [sp, #4]
 	b .L080CE176
 .L080CE15A:
 	subs r2, #1
 	add r0, sp, #8
-	bl func_080CC134
+	bl GetInventorySlotPosition
 	ldr r3, [sp, #8]
 	b .L080CE176
 .L080CE166:
@@ -11715,7 +11371,7 @@ func_080CE120: @ 0x080CE120
 	beq .L080CE176
 	subs r2, #0xa
 	add r0, sp, #0xc
-	bl func_080CD534
+	bl GetRightInventorySlotPosition
 	ldr r3, [sp, #0xc]
 .L080CE176:
 	str r3, [r4]
@@ -11836,223 +11492,9 @@ func_080CE2FC: @ 0x080CE2FC
 	.align 2, 0
 .L080CE3D8: .4byte gUnk_08527094
 
-	thumb_func_start func_080CE3DC
-func_080CE3DC: @ 0x080CE3DC
-	push {r4, r5, r6, lr}
-	sub sp, #8
-	adds r5, r0, #0
-	adds r6, r1, #0
-	adds r0, #0xc0
-	ldr r0, [r0, #4]
-	ldr r1, [r0]
-	str r1, [sp]
-	str r0, [sp, #4]
-	b .L080CE40C
-.L080CE3F0:
-	ldr r0, [sp]
-	ldr r1, [r0, #8]
-	cmp r1, #0
-	beq .L080CE404
-	ldr r0, [r1, #8]
-	ldr r2, [r0, #0xc]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L080CE404:
-	ldr r0, [sp]
-	ldr r0, [r0]
-	str r0, [sp]
-	ldr r1, [sp, #4]
-.L080CE40C:
-	eors r1, r0
-	rsbs r0, r1, #0
-	orrs r0, r1
-	cmp r0, #0
-	blt .L080CE3F0
-	adds r4, r5, #0
-	adds r4, #0xc0
-	adds r0, r4, #0
-	bl func_080E586C
-	ldr r0, [r4, #4]
-	cmp r0, #0
-	beq .L080CE42A
-	bl free
-.L080CE42A:
-	ldr r0, .L080CE47C @ =vtable_unk_080E5A28
-	str r0, [r5, #0x1c]
-	adds r4, r5, #0
-	adds r4, #0x14
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080073E0
-	adds r0, r4, #0
-	movs r1, #2
-	bl ResourceHandles_Destroy
-	subs r4, #8
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	adds r4, r5, #4
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	movs r0, #1
-	ands r0, r6
-	cmp r0, #0
-	beq .L080CE474
-	adds r0, r5, #0
-	bl __builtin_delete
-.L080CE474:
-	add sp, #8
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080CE47C: .4byte vtable_unk_080E5A28
+.section .text.g5_after_080CE3DC, "ax"
 
-	thumb_func_start func_080CE480
-func_080CE480: @ 0x080CE480
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x14
-	mov sl, r0
-	mov r8, r1
-	adds r5, r2, #0
-	mov sb, r3
-	ldr r6, [sp, #0x34]
-	ldr r4, [sp, #0x38]
-	ldr r7, [sp, #0x3c]
-	lsls r5, r5, #0x10
-	lsrs r5, r5, #0x10
-	lsls r4, r4, #0x10
-	lsrs r4, r4, #0x10
-	movs r0, #0x20
-	bl __builtin_new
-	str r6, [sp]
-	str r4, [sp, #4]
-	str r7, [sp, #8]
-	mov r1, r8
-	adds r2, r5, #0
-	mov r3, sb
-	bl func_0804EA58
-	adds r4, r0, #0
-	mov r0, sl
-	adds r0, #0xc0
-	ldr r0, [r0, #4]
-	str r0, [sp, #0x10]
-	movs r0, #0xc
-	bl malloc
-	adds r2, r0, #0
-	cmp r2, #0
-	bne .L080CE4D6
-	movs r0, #0xc
-	bl func_080D3BC0
-	adds r2, r0, #0
-.L080CE4D6:
-	adds r0, r2, #0
-	adds r0, #8
-	cmp r0, #0
-	beq .L080CE4E0
-	str r4, [r2, #8]
-.L080CE4E0:
-	ldr r0, [sp, #0x10]
-	ldr r1, [r0, #4]
-	str r0, [r2]
-	str r1, [r2, #4]
-	str r2, [r1]
-	str r2, [r0, #4]
-	str r2, [sp, #0xc]
-	mov r1, sl
-	ldr r0, [r1]
-	bl HardwareContext_GetFrameTasks
-	ldr r1, [r0, #8]
-	ldr r2, [r1, #0x10]
-	adds r1, r4, #0
-	bl _call_via_r2
-	add sp, #0x14
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080CE510
-func_080CE510: @ 0x080CE510
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0x10
-	adds r7, r0, #0
-	mov r8, r1
-	mov sb, r2
-	adds r5, r3, #0
-	ldr r4, [sp, #0x2c]
-	ldr r6, [sp, #0x30]
-	lsls r5, r5, #0x10
-	lsrs r5, r5, #0x10
-	lsls r4, r4, #0x10
-	lsrs r4, r4, #0x10
-	movs r0, #0x1c
-	bl __builtin_new
-	str r4, [sp]
-	str r6, [sp, #4]
-	mov r1, r8
-	mov r2, sb
-	adds r3, r5, #0
-	bl func_0804EE64
-	adds r4, r0, #0
-	adds r0, r7, #0
-	adds r0, #0xc0
-	ldr r0, [r0, #4]
-	str r0, [sp, #0xc]
-	movs r0, #0xc
-	bl malloc
-	adds r2, r0, #0
-	cmp r2, #0
-	bne .L080CE560
-	movs r0, #0xc
-	bl func_080D3BC0
-	adds r2, r0, #0
-.L080CE560:
-	adds r0, r2, #0
-	adds r0, #8
-	cmp r0, #0
-	beq .L080CE56A
-	str r4, [r2, #8]
-.L080CE56A:
-	ldr r0, [sp, #0xc]
-	ldr r1, [r0, #4]
-	str r0, [r2]
-	str r1, [r2, #4]
-	str r2, [r1]
-	str r2, [r0, #4]
-	str r2, [sp, #8]
-	ldr r0, [r7]
-	bl HardwareContext_GetFrameTasks
-	ldr r1, [r0, #8]
-	ldr r2, [r1, #0x10]
-	adds r1, r4, #0
-	bl _call_via_r2
-	add sp, #0x10
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
+.section .text.g5_after_080CE480, "ax"
 
 	thumb_func_start func_080CE598
 func_080CE598: @ 0x080CE598
@@ -12285,7 +11727,7 @@ func_080CE598: @ 0x080CE598
 	str r4, [sp, #4]
 	adds r0, r6, #0
 	movs r3, #0x20
-	bl func_080CE510
+	bl QueuePagedPanelNumberDraw
 	ldr r1, .L080CE788 @ =0x0600F0F8
 	movs r0, #1
 	str r0, [sp]
@@ -12294,14 +11736,14 @@ func_080CE598: @ 0x080CE598
 	adds r0, r6, #0
 	movs r2, #0x2d
 	movs r3, #1
-	bl func_080CE480
+	bl QueuePagedPanelTileDraw
 	ldr r2, .L080CE78C @ =0x0600F0FA
 	str r5, [sp]
 	str r4, [sp, #4]
 	adds r0, r6, #0
 	movs r1, #8
 	movs r3, #0x20
-	bl func_080CE510
+	bl QueuePagedPanelNumberDraw
 	add sp, #0x60
 	pop {r3, r4, r5}
 	mov r8, r3

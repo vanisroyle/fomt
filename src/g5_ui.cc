@@ -1,16 +1,9 @@
-#include "prelude.h"
+#include "g5_inventory.hh"
 
 EC void func_08050EBC(void *, u32);
 EC void func_08050E98(void *, u32);
 EC void func_08050D8C(void *, u32);
 EC void func_08050DC8(void *, u32, u32, u32);
-
-struct UiEntry
-{
-    u32 value;
-    u32 first;
-    u32 second;
-};
 
 EC SECTION(".text.g5_buttons") void func_080CABA0(u8 * self, u32 value)
 {
@@ -36,33 +29,33 @@ EC SECTION(".text.g5_buttons") void func_080CABEC(u8 * self, u32 value)
     func_08050DC8(buttons, value, 0, 0);
 }
 
-EC SECTION(".text.g5_entry_init") void func_080CAC70(UiEntry * self)
+EC SECTION(".text.g5_entry_init") void InitializeUiEntry(UiEntry * self) // 0x080CAC70
 {
     self->value = 0;
-    self->first = 0;
-    self->second = 0;
+    self->unknown_04 = 0;
+    self->unknown_08 = 0;
 }
 
-EC SECTION(".text.g5_entry_access") void func_080CAD10(UiEntry * self, u32 value)
+EC SECTION(".text.g5_entry_access") void SetUiEntryValue(UiEntry * self, u32 value) // 0x080CAD10
 {
     self->value = value;
 }
 
-EC SECTION(".text.g5_entry_access") u32 func_080CAD14(UiEntry * self)
+EC SECTION(".text.g5_entry_access") u32 GetUiEntryValue(UiEntry * self) // 0x080CAD14
 {
     return self->value;
 }
 
-EC SECTION(".text.g5_entry_update") void func_080CADA0(UiEntry * self, u32 first, u32 second, u32 value)
+EC SECTION(".text.g5_entry_update") void SetUiEntry(UiEntry * self, u32 unknown_04, u32 unknown_08, u32 value) // 0x080CADA0
 {
-    self->first = first;
-    self->second = second;
+    self->unknown_04 = unknown_04;
+    self->unknown_08 = unknown_08;
     self->value = value;
 }
 
-EC SECTION(".text.g5_entry_update") void func_080CADA8(UiEntry * self)
+EC SECTION(".text.g5_entry_update") void ClearUiEntry(UiEntry * self) // 0x080CADA8
 {
     self->value = 0;
-    self->first = 0;
-    self->second = 0;
+    self->unknown_04 = 0;
+    self->unknown_08 = 0;
 }

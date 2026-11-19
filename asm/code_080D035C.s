@@ -4,7 +4,7 @@
 	thumb_func_start func_080D035C
 func_080D035C: @ 0x080D035C
 	push {r4, r5, lr}
-	ldr r5, .L080D039C @ =gUnk_03000420
+	ldr r5, .L080D039C @ =gJoybusState
 	ldr r1, [r5]
 	ldr r0, [r1]
 	cmp r0, #0
@@ -14,12 +14,12 @@ func_080D035C: @ 0x080D035C
 	adds r0, r1, r2
 	ldr r0, [r0]
 	str r0, [r1, #0x1c]
-	ldr r0, .L080D03A0 @ =gUnk_0300041C
+	ldr r0, .L080D03A0 @ =gCurrentJoybusCommand
 	ldr r0, [r0]
 	ldr r0, [r0]
 	cmp r0, #0
 	bne .L080D03C2
-	bl func_080D0C10
+	bl IsJoybusCommandQueueEmpty
 	cmp r0, #0
 	bne .L080D03A4
 	ldr r0, [r5]
@@ -29,15 +29,15 @@ func_080D035C: @ 0x080D035C
 	ldr r4, [r0]
 	cmp r4, #0
 	bne .L080D03A4
-	bl func_080D0BE0
+	bl AdvanceJoybusCommandQueue
 	ldr r0, [r5]
 	str r4, [r0, #0x10]
 	b .L080D03C2
 	.align 2, 0
-.L080D039C: .4byte gUnk_03000420
-.L080D03A0: .4byte gUnk_0300041C
+.L080D039C: .4byte gJoybusState
+.L080D03A0: .4byte gCurrentJoybusCommand
 .L080D03A4:
-	ldr r0, .L080D03F0 @ =gUnk_03000420
+	ldr r0, .L080D03F0 @ =gJoybusState
 	ldr r3, [r0]
 	ldr r0, [r3, #0x14]
 	cmp r0, #0
@@ -50,9 +50,9 @@ func_080D035C: @ 0x080D035C
 	ldr r0, [r1]
 	str r0, [r3, #0x18]
 	str r2, [r1]
-	bl func_080D0C2C
+	bl CancelJoybusCommands
 .L080D03C2:
-	ldr r0, .L080D03F0 @ =gUnk_03000420
+	ldr r0, .L080D03F0 @ =gJoybusState
 	ldr r1, [r0]
 	ldr r0, [r1, #0xc]
 	adds r0, #1
@@ -62,7 +62,7 @@ func_080D035C: @ 0x080D035C
 	bls .L080D0400
 	movs r0, #0
 	str r0, [r1, #0xc]
-	ldr r0, .L080D03F4 @ =gUnk_0300041C
+	ldr r0, .L080D03F4 @ =gCurrentJoybusCommand
 	ldr r0, [r0]
 	ldr r0, [r0]
 	cmp r0, #0
@@ -71,22 +71,22 @@ func_080D035C: @ 0x080D035C
 	bne .L080D03F8
 	movs r0, #1
 	movs r1, #0
-	bl func_080D0B14
+	bl ConfigureJoybus
 	b .L080D0400
 	.align 2, 0
-.L080D03F0: .4byte gUnk_03000420
-.L080D03F4: .4byte gUnk_0300041C
+.L080D03F0: .4byte gJoybusState
+.L080D03F4: .4byte gCurrentJoybusCommand
 .L080D03F8:
 	movs r0, #1
 	movs r1, #1
-	bl func_080D0B14
+	bl ConfigureJoybus
 .L080D0400:
-	ldr r4, .L080D043C @ =gUnk_03000420
+	ldr r4, .L080D043C @ =gJoybusState
 	ldr r1, [r4]
 	ldr r0, [r1, #0x10]
 	adds r0, #1
 	str r0, [r1, #0x10]
-	ldr r0, .L080D0440 @ =gUnk_0300041C
+	ldr r0, .L080D0440 @ =gCurrentJoybusCommand
 	ldr r0, [r0]
 	ldr r0, [r0]
 	cmp r0, #1
@@ -95,7 +95,7 @@ func_080D035C: @ 0x080D035C
 	cmp r0, #0xb4
 	bls .L080D0436
 	movs r0, #0xb
-	bl func_080D0A94
+	bl SetJoybusStatusWhileBusy
 	ldr r0, [r4]
 	movs r2, #0
 	str r2, [r0, #0x14]
@@ -105,14 +105,14 @@ func_080D035C: @ 0x080D035C
 	lsls r1, r1, #1
 	adds r0, r0, r1
 	str r2, [r0]
-	bl func_080D0C2C
+	bl CancelJoybusCommands
 .L080D0436:
 	pop {r4, r5}
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D043C: .4byte gUnk_03000420
-.L080D0440: .4byte gUnk_0300041C
+.L080D043C: .4byte gJoybusState
+.L080D0440: .4byte gCurrentJoybusCommand
 
 .section .text.g5_0490, "ax"
 .L080D0490:
@@ -142,7 +142,7 @@ func_080D0558: @ 0x080D0558
 	adds r4, r1, #0
 	mov sb, r2
 	adds r6, r3, #0
-	ldr r0, .L080D05D8 @ =gUnk_03000420
+	ldr r0, .L080D05D8 @ =gJoybusState
 	mov sl, r0
 	ldr r0, [r0]
 	movs r1, #4
@@ -156,7 +156,7 @@ func_080D0558: @ 0x080D0558
 	mov r0, sp
 	movs r5, #0
 	strh r5, [r0, #0x1c]
-	bl func_080D0BA8
+	bl EnqueueJoybusCommand
 	movs r0, #3
 	str r0, [sp]
 	mov r0, sb
@@ -166,7 +166,7 @@ func_080D0558: @ 0x080D0558
 	str r6, [sp, #0x18]
 	mov r0, sp
 	strh r5, [r0, #0x1c]
-	bl func_080D0BA8
+	bl EnqueueJoybusCommand
 	mov r1, r8
 	str r1, [sp]
 	str r7, [sp, #0x10]
@@ -175,7 +175,7 @@ func_080D0558: @ 0x080D0558
 	str r4, [sp, #0x18]
 	mov r0, sp
 	strh r5, [r0, #0x1c]
-	bl func_080D0BA8
+	bl EnqueueJoybusCommand
 	mov r1, sl
 	ldr r0, [r1]
 	str r5, [r0, #0x1c]
@@ -194,14 +194,14 @@ func_080D0558: @ 0x080D0558
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D05D8: .4byte gUnk_03000420
+.L080D05D8: .4byte gJoybusState
 
 .section .text.g5_after_transfer, "ax"
 
 	thumb_func_start func_080D0644
 func_080D0644: @ 0x080D0644
 	push {r4, lr}
-	ldr r4, .L080D0674 @ =gUnk_03000420
+	ldr r4, .L080D0674 @ =gJoybusState
 	ldr r2, [r4]
 	adds r2, #0x28
 	strb r0, [r2]
@@ -224,7 +224,7 @@ func_080D0644: @ 0x080D0644
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D0674: .4byte gUnk_03000420
+.L080D0674: .4byte gJoybusState
 
 .section .text.g5_06DC, "ax"
 .L080D06DC:
@@ -241,7 +241,7 @@ func_080D0704: @ 0x080D0704
 	ldr r0, .L080D077C @ =0x04000140
 	ldrh r0, [r0]
 	adds r4, r0, #0
-	ldr r0, .L080D0780 @ =gUnk_03000420
+	ldr r0, .L080D0780 @ =gJoybusState
 	ldr r0, [r0]
 	movs r1, #0xbe
 	lsls r1, r1, #1
@@ -273,7 +273,7 @@ func_080D0704: @ 0x080D0704
 	ands r0, r4
 	cmp r0, #0
 	beq .L080D0754
-	bl func_080D0A14
+	bl RetryJoybusHandshake
 .L080D0754:
 	cmp r5, #0
 	beq .L080D0764
@@ -281,11 +281,11 @@ func_080D0704: @ 0x080D0704
 	movs r0, #0
 	strh r0, [r1]
 	adds r0, r5, #0
-	bl func_080D0A54
+	bl CompleteJoybusCommand
 .L080D0764:
 	ldr r0, .L080D077C @ =0x04000140
 	strh r4, [r0]
-	ldr r0, .L080D0780 @ =gUnk_03000420
+	ldr r0, .L080D0780 @ =gJoybusState
 	ldr r1, [r0]
 	movs r0, #0
 	str r0, [r1, #0xc]
@@ -296,7 +296,7 @@ func_080D0704: @ 0x080D0704
 	bx r0
 	.align 2, 0
 .L080D077C: .4byte 0x04000140
-.L080D0780: .4byte gUnk_03000420
+.L080D0780: .4byte gJoybusState
 .L080D0784: .4byte 0x04000150
 .L080D0788: .4byte 0x04000158
 
@@ -305,7 +305,7 @@ func_080D078C: @ 0x080D078C
 	push {r4, r5, lr}
 	sub sp, #8
 	adds r3, r0, #0
-	ldr r0, .L080D07AC @ =gUnk_0300041C
+	ldr r0, .L080D07AC @ =gCurrentJoybusCommand
 	ldr r2, [r0]
 	ldr r1, [r2]
 	adds r5, r0, #0
@@ -320,7 +320,7 @@ func_080D078C: @ 0x080D078C
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L080D07AC: .4byte gUnk_0300041C
+.L080D07AC: .4byte gCurrentJoybusCommand
 .L080D07B0: .4byte .L080D07B4
 .L080D07B4: @ jump table
 	.4byte .L080D0910 @ case 0
@@ -339,7 +339,7 @@ func_080D078C: @ 0x080D078C
 	beq .L080D07D8
 	b .L080D0910
 .L080D07D8:
-	ldr r0, .L080D07E8 @ =gUnk_03000420
+	ldr r0, .L080D07E8 @ =gJoybusState
 	ldr r0, [r0]
 	ldr r1, [r3]
 	ldr r0, [r0, #8]
@@ -348,13 +348,13 @@ func_080D078C: @ 0x080D078C
 	movs r0, #1
 	b .L080D0912
 	.align 2, 0
-.L080D07E8: .4byte gUnk_03000420
+.L080D07E8: .4byte gJoybusState
 .L080D07EC:
 	ldr r1, .L080D07F8 @ =0x04000158
 	movs r0, #0x30
 	strh r0, [r1]
 .L080D07F2:
-	bl func_080D0A74
+	bl ClearJoybusCommandStatus
 	b .L080D0910
 	.align 2, 0
 .L080D07F8: .4byte 0x04000158
@@ -464,7 +464,7 @@ func_080D078C: @ 0x080D078C
 	ldr r0, [r2, #8]
 	adds r0, #1
 	str r0, [r2, #8]
-	ldr r0, .L080D08CC @ =gUnk_03000420
+	ldr r0, .L080D08CC @ =gJoybusState
 	ldr r1, [r0]
 	movs r0, #0xc2
 	lsls r0, r0, #1
@@ -474,7 +474,7 @@ func_080D078C: @ 0x080D078C
 	str r0, [r1]
 	b .L080D0910
 	.align 2, 0
-.L080D08CC: .4byte gUnk_03000420
+.L080D08CC: .4byte gJoybusState
 .L080D08D0:
 	ldrb r0, [r3]
 	cmp r0, #0x45
@@ -525,7 +525,7 @@ func_080D078C: @ 0x080D078C
 func_080D091C: @ 0x080D091C
 	push {r4, r5, lr}
 	sub sp, #4
-	ldr r0, .L080D0938 @ =gUnk_0300041C
+	ldr r0, .L080D0938 @ =gCurrentJoybusCommand
 	ldr r2, [r0]
 	ldr r1, [r2]
 	adds r3, r0, #0
@@ -538,7 +538,7 @@ func_080D091C: @ 0x080D091C
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L080D0938: .4byte gUnk_0300041C
+.L080D0938: .4byte gCurrentJoybusCommand
 .L080D093C: .4byte .L080D0940
 .L080D0940: @ jump table
 	.4byte .L080D0A0A @ case 0
@@ -597,7 +597,7 @@ func_080D091C: @ 0x080D091C
 	ldr r0, [r5]
 	cmp r0, #4
 	beq .L080D0A0A
-	ldr r0, .L080D09CC @ =gUnk_03000420
+	ldr r0, .L080D09CC @ =gJoybusState
 	ldr r1, [r0]
 	movs r0, #0xc2
 	lsls r0, r0, #1
@@ -608,7 +608,7 @@ func_080D091C: @ 0x080D091C
 	b .L080D0A0A
 	.align 2, 0
 .L080D09C8: .4byte 0x04000154
-.L080D09CC: .4byte gUnk_03000420
+.L080D09CC: .4byte gJoybusState
 .L080D09D0:
 	ldrh r2, [r5, #0x1c]
 	mov r1, sp
@@ -635,7 +635,7 @@ func_080D091C: @ 0x080D091C
 	bls .L080D0A0A
 	cmp r0, #2
 	bne .L080D0A0A
-	bl func_080D0A74
+	bl ClearJoybusCommandStatus
 	b .L080D0A0A
 .L080D0A06:
 	movs r0, #9
