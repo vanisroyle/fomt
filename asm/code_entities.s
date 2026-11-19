@@ -1808,144 +1808,6 @@ func_08029F30: @ 0x08029F30
     bx r0
     .align 2, 0
 
-    thumb_func_start func_0802A400
-func_0802A400: @ 0x0802A400
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    adds r6, r0, #0
-    adds r7, r1, #0
-    adds r0, #0xa4
-    movs r1, #0
-    mov r8, r1
-    movs r2, #1
-    mov sb, r2
-    mov r1, sb
-    strb r1, [r0]
-    subs r0, #0x1c
-    strb r1, [r0]
-    mov r2, r8
-    strb r2, [r0, #1]
-    movs r1, #0xa8
-    lsls r1, r1, #0xd
-    mov r2, r8
-    str r2, [r0, #4]
-    str r2, [r0, #8]
-    str r1, [r0, #0x14]
-    ldr r5, [r6, #0x10]
-    cmp r5, #0
-    beq .L0802A46A
-    adds r0, r7, #0
-    bl GetIconId__C4Food
-    adds r4, r0, #0
-    lsls r4, r4, #0x10
-    lsrs r4, r4, #0x10
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    adds r2, r4, #0
-    bl func_0805E850
-    adds r0, r5, #0
-    adds r0, #0xc8
-    mov r1, sb
-    strb r1, [r0]
-    adds r0, #2
-    mov r2, r8
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-.L0802A46A:
-    ldr r5, [r6, #0x14]
-    adds r0, r7, #0
-    bl GetStaminaGain__C4Food
-    adds r4, r0, #0
-    adds r0, r7, #0
-    bl GetFatigueGain__C4Food
-    adds r2, r0, #0
-    ldr r3, [r5, #0x64]
-    adds r0, r6, #0
-    adds r1, r4, #0
-    bl _call_via_r3
-    adds r0, r7, #0
-    bl IsDrink__C4Food
-    cmp r0, #0
-    bne .L0802A498
-    adds r1, r6, #0
-    adds r1, #0x3c
-    movs r0, #0x36
-    b .L0802A49E
-.L0802A498:
-    adds r1, r6, #0
-    adds r1, #0x3c
-    movs r0, #0x37
-.L0802A49E:
-    strb r0, [r1]
-    adds r0, r6, #0
-    adds r0, #0xc0
-    movs r1, #1
-    strb r1, [r0]
-    movs r1, #0xa3
-    lsls r1, r1, #1
-    adds r0, r6, #0
-    bl SetAnim__12AActorEntityUi
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_0802A4C0
-func_0802A4C0: @ 0x0802A4C0
-    push {r4, r5, lr}
-    adds r3, r0, #0
-    adds r5, r1, #0
-    adds r1, r3, #0
-    adds r1, #0x88
-    movs r0, #1
-    strb r0, [r1]
-    cmp r2, #1
-    beq .L0802A4D6
-    cmp r2, #0
-    bne .L0802A4D8
-.L0802A4D6:
-    strb r2, [r1, #1]
-.L0802A4D8:
-    ldr r4, [r3, #0x10]
-    cmp r4, #0
-    beq .L0802A508
-    ldr r0, [r4]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r4, #0
-    adds r0, #0xb4
-    adds r2, r5, #0
-    bl func_0805E850
-    adds r0, r4, #0
-    adds r0, #0xc8
-    movs r2, #0
-    movs r1, #1
-    strb r1, [r0]
-    adds r0, #2
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-.L0802A508:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
     .section .text.entities_part2.0802A588,"ax",%progbits
 
     thumb_func_start func_0802A588
@@ -2540,217 +2402,7 @@ func_0802A7E0: @ 0x0802A7E0
     pop {r1}
     bx r1
 
-    thumb_func_start func_0802AA84
-func_0802AA84: @ 0x0802AA84
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0xc
-    mov r8, r0
-    movs r0, #0
-    mov sb, r0
-    mov r1, r8
-    ldr r0, [r1, #0x34]
-    ldr r1, .L0802AAD8 @ =0x00001C34
-    adds r5, r0, r1
-    adds r0, r5, #0
-    bl IsEmpty__C9ToolStack
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0802AACA
-    mov r0, r8
-    ldr r4, [r0, #0x34]
-    ldr r1, .L0802AADC @ =0x00001BD8
-    adds r4, r4, r1
-    adds r0, r5, #0
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    add r1, sp, #8
-    strb r0, [r1]
-    movs r0, #0
-    bl WateringCan_GetEffectiveLevel
-    mov sb, r0
-.L0802AACA:
-    mov r1, r8
-    ldr r0, [r1, #0x34]
-    ldr r1, .L0802AAE0 @ =0x00001C38
-    adds r7, r0, r1
-    movs r6, #0
-    b .L0802AB1E
-    .align 2, 0
-.L0802AAD8: .4byte 0x00001C34
-.L0802AADC: .4byte 0x00001BD8
-.L0802AAE0: .4byte 0x00001C38
-.L0802AAE4:
-    adds r0, r7, #0
-    adds r1, r6, #0
-    bl GetToolAt__C8RucksackUi
-    adds r5, r0, #0
-    bl IsEmpty__C9ToolStack
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0802AB1C
-    mov r0, r8
-    ldr r4, [r0, #0x34]
-    ldr r1, .L0802AB90 @ =0x00001BD8
-    adds r4, r4, r1
-    adds r0, r5, #0
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    mov r1, sp
-    adds r1, #9
-    strb r0, [r1]
-    mov r0, sb
-    bl WateringCan_GetEffectiveLevel
-    mov sb, r0
-.L0802AB1C:
-    adds r6, #1
-.L0802AB1E:
-    adds r0, r7, #0
-    bl GetSize__C8Rucksack
-    cmp r6, r0
-    blo .L0802AAE4
-    mov r1, r8
-    ldr r0, [r1, #0x34]
-    movs r1, #0xe0
-    lsls r1, r1, #2
-    adds r7, r0, r1
-    movs r6, #0
-.L0802AB34:
-    adds r0, r7, #0
-    adds r1, r6, #0
-    bl GetToolStackAt__C9ToolChestUi
-    adds r5, r0, #0
-    bl IsEmpty__C9ToolStack
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0802AB6C
-    mov r0, r8
-    ldr r4, [r0, #0x34]
-    ldr r1, .L0802AB90 @ =0x00001BD8
-    adds r4, r4, r1
-    adds r0, r5, #0
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    mov r1, sp
-    adds r1, #0xa
-    strb r0, [r1]
-    mov r0, sb
-    bl WateringCan_GetEffectiveLevel
-    mov sb, r0
-.L0802AB6C:
-    adds r6, #1
-    cmp r6, #0x3f
-    bls .L0802AB34
-    ldr r1, .L0802AB94 @ =gUnk_080F11B4
-    mov r0, sp
-    movs r2, #7
-    bl memcpy
-    mov r0, sp
-    add r0, sb
-    ldrb r0, [r0]
-    add sp, #0xc
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0802AB90: .4byte 0x00001BD8
-.L0802AB94: .4byte gUnk_080F11B4
-
-    thumb_func_start func_0802AB98
-func_0802AB98: @ 0x0802AB98
-    push {r4, lr}
-    adds r3, r0, #0
-    adds r0, r1, #0
-    cmp r2, #1
-    beq .L0802ABB6
-    cmp r2, #1
-    bgt .L0802ABAC
-    cmp r2, #0
-    beq .L0802ABCC
-    b .L0802AC1A
-.L0802ABAC:
-    cmp r2, #2
-    beq .L0802ABE6
-    cmp r2, #3
-    beq .L0802ABFE
-    b .L0802AC1A
-.L0802ABB6:
-    movs r2, #0xa
-    ldrsh r1, [r0, r2]
-    movs r4, #0xe
-    ldrsh r2, [r0, r4]
-    subs r0, r1, #4
-    strh r0, [r3]
-    adds r0, r2, #0
-    subs r0, #0x14
-    strh r0, [r3, #2]
-    adds r1, #4
-    b .L0802AC12
-.L0802ABCC:
-    movs r2, #0xa
-    ldrsh r1, [r0, r2]
-    movs r4, #0xe
-    ldrsh r2, [r0, r4]
-    subs r0, r1, #4
-    strh r0, [r3]
-    subs r0, r2, #6
-    strh r0, [r3, #2]
-    adds r1, #4
-    strh r1, [r3, #4]
-    adds r2, #0x12
-    strh r2, [r3, #6]
-    b .L0802AC24
-.L0802ABE6:
-    movs r2, #0xa
-    ldrsh r1, [r0, r2]
-    movs r4, #0xe
-    ldrsh r2, [r0, r4]
-    adds r0, r1, #0
-    subs r0, #0x14
-    strh r0, [r3]
-    adds r0, r2, #0
-    subs r0, #0xe
-    strh r0, [r3, #2]
-    adds r1, #4
-    b .L0802AC12
-.L0802ABFE:
-    movs r2, #0xa
-    ldrsh r1, [r0, r2]
-    movs r4, #0xe
-    ldrsh r2, [r0, r4]
-    subs r0, r1, #4
-    strh r0, [r3]
-    adds r0, r2, #0
-    subs r0, #0xe
-    strh r0, [r3, #2]
-    adds r1, #0x14
-.L0802AC12:
-    strh r1, [r3, #4]
-    adds r2, #2
-    strh r2, [r3, #6]
-    b .L0802AC24
-.L0802AC1A:
-    movs r0, #0
-    strh r0, [r3]
-    strh r0, [r3, #2]
-    strh r0, [r3, #4]
-    strh r0, [r3, #6]
-.L0802AC24:
-    adds r0, r3, #0
-    pop {r4}
-    pop {r2}
-    bx r2
+    .section .text.entities_part2.0802AC2C,"ax",%progbits
 
     thumb_func_start func_0802AC2C
 func_0802AC2C: @ 0x0802AC2C
@@ -2781,7 +2433,7 @@ func_0802AC2C: @ 0x0802AC2C
     ldrb r2, [r0]
     mov r0, sp
     mov r1, sb
-    bl func_0802AB98
+    bl GetFarmerInteractionBox
     ldr r0, [sp]
     ldr r1, [sp, #4]
     str r0, [sp, #8]
@@ -3328,7 +2980,7 @@ func_0802B054: @ 0x0802B054
     ldr r0, [r5, #0x34]
     ldr r1, .L0802B130 @ =0x00002E58
     adds r0, r0, r1
-    bl func_0809DFAC
+    bl CountHarvestGoddessJewels
     lsls r0, r0, #0x18
     lsrs r0, r0, #0x18
     cmp r0, #9
@@ -3372,7 +3024,7 @@ func_0802B054: @ 0x0802B054
     ldr r0, [r5, #0x34]
     ldr r1, .L0802B130 @ =0x00002E58
     adds r0, r0, r1
-    bl func_0809E02C
+    bl CountKappaJewels
     lsls r0, r0, #0x18
     lsrs r0, r0, #0x18
     cmp r0, #9
@@ -3463,7 +3115,7 @@ func_0802B054: @ 0x0802B054
     beq .L0802B1BC
     ldr r0, [r5, #0x34]
     adds r0, r0, r4
-    bl func_0809DFAC
+    bl CountHarvestGoddessJewels
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802B1BC
@@ -3539,7 +3191,7 @@ func_0802B054: @ 0x0802B054
     ldr r0, [r5, #0x34]
     ldr r1, .L0802B258 @ =0x00002E58
     adds r0, r0, r1
-    bl func_0809E02C
+    bl CountKappaJewels
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802B250
@@ -3991,117 +3643,7 @@ func_0802B46C: @ 0x0802B46C
     .byte 0x00, 0x47, 0x00, 0x00, 0x81, 0x02, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00
 
 
-    .section .text.entities_part2.0802B944,"ax",%progbits
-
-    thumb_func_start func_0802B944
-func_0802B944: @ 0x0802B944
-    push {r4, r5, r6, lr}
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6}
-    sub sp, #0x14
-    adds r5, r0, #0
-    mov sb, r1
-    add r1, sp, #0xc
-    movs r4, #0x8d
-    lsls r4, r4, #2
-    movs r0, #0
-    mov r8, r0
-    ldrh r2, [r1]
-    ldr r3, .L0802B9B8 @ =0xFFFFFC00
-    adds r0, r3, #0
-    ands r0, r2
-    orrs r0, r4
-    strh r0, [r1]
-    movs r6, #0
-    ldrb r4, [r1, #1]
-    movs r2, #3
-    adds r0, r2, #0
-    ands r0, r4
-    strb r0, [r1, #1]
-    ldrh r4, [r1, #2]
-    adds r0, r3, #0
-    ands r0, r4
-    strh r0, [r1, #2]
-    ldrb r0, [r1, #3]
-    ands r2, r0
-    strb r2, [r1, #3]
-    ldrh r0, [r1, #4]
-    ands r3, r0
-    strh r3, [r1, #4]
-    add r4, sp, #4
-    adds r0, r4, #0
-    movs r2, #6
-    bl memcpy
-    strb r6, [r4, #6]
-    mov r0, r8
-    str r0, [sp]
-    adds r0, r5, #0
-    mov r1, sb
-    add r2, sp, #4
-    movs r3, #2
-    bl __12AActorEntityP10GameObjectRC13ActorLocationUiUi
-    ldr r0, .L0802B9BC @ =vtable_unk_080E671C
-    str r0, [r5, #0x14]
-    adds r0, r5, #0
-    add sp, #0x14
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0802B9B8: .4byte 0xFFFFFC00
-.L0802B9BC: .4byte vtable_unk_080E671C
-
-    thumb_func_start func_0802B9C0
-func_0802B9C0: @ 0x0802B9C0
-    push {r4, lr}
-    adds r4, r0, #0
-    bl func_0802B944
-    ldr r0, .L0802BA0C @ =vtable_unk_080E65F4
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    adds r0, #0x34
-    movs r1, #0
-    strb r1, [r0]
-    adds r0, #1
-    strb r1, [r0]
-    adds r0, #3
-    strb r1, [r0]
-    strb r1, [r0, #1]
-    str r1, [r0, #4]
-    str r1, [r0, #8]
-    str r1, [r0, #0xc]
-    str r1, [r0, #0x10]
-    str r1, [r0, #0x14]
-    str r1, [r0, #0x18]
-    adds r0, #0x1c
-    strb r1, [r0]
-    adds r0, #2
-    movs r2, #0
-    strh r1, [r0]
-    adds r0, #2
-    strb r2, [r0]
-    adds r0, #1
-    strb r2, [r0]
-    adds r0, r4, #0
-    bl vfunc_10__7AEntity
-    adds r0, r4, #0
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0802BA0C: .4byte vtable_unk_080E65F4
-.L0802BA10:
-    .byte 0x10, 0xB5, 0x04, 0x1C, 0xD0, 0x20, 0xD4, 0xF7, 0xDD, 0xFD, 0x21, 0x1C, 0x00, 0xF0, 0x86, 0xFA
-    .byte 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00, 0x30, 0xB5, 0x04, 0x1C, 0x0D, 0x1C, 0x21, 0x1C
-    .byte 0x58, 0x31, 0x08, 0x78, 0x00, 0x28, 0x13, 0xD1, 0x20, 0x1C, 0x54, 0x30, 0x00, 0x78, 0x00, 0x28
-    .byte 0x10, 0xD0, 0x20, 0x1C, 0x00, 0xF0, 0x16, 0xF8, 0x20, 0x1C, 0x00, 0xF0, 0xFD, 0xF8, 0x00, 0x04
-    .byte 0x01, 0x0C, 0x60, 0x8C, 0x88, 0x42, 0x05, 0xD0, 0x20, 0x1C, 0x06, 0xF0, 0xA9, 0xFB, 0x01, 0xE0
-    .byte 0x00, 0x20, 0x08, 0x70, 0x20, 0x1C, 0x29, 0x1C, 0x06, 0xF0, 0xE0, 0xFC, 0x30, 0xBC, 0x01, 0xBC
-    .byte 0x00, 0x47, 0x00, 0x00
+    .section .text.entities_part2.0802BA74,"ax",%progbits
 
     thumb_func_start func_0802BA74
 func_0802BA74: @ 0x0802BA74
@@ -4463,101 +4005,7 @@ func_0802BE68: @ 0x0802BE68
     .align 2, 0
 .L0802BEF8: .4byte 0x0001AAAA
 
-    .section .text.entities_part2.0802BF2C,"ax",%progbits
-
-    thumb_func_start func_0802BF2C
-func_0802BF2C: @ 0x0802BF2C
-    push {r4, r5, r6, lr}
-    mov r6, r8
-    push {r6}
-    sub sp, #0x14
-    mov r8, r0
-    adds r4, r1, #0
-    ldr r3, .L0802BF94 @ =gUnk_080F1224
-    movs r0, #3
-    str r0, [sp]
-    movs r5, #1
-    str r5, [sp, #4]
-    movs r6, #0
-    str r6, [sp, #8]
-    str r6, [sp, #0xc]
-    add r0, sp, #0x10
-    strb r5, [r0]
-    mov r0, r8
-    movs r2, #6
-    bl func_08032560
-    ldr r0, .L0802BF98 @ =vtable_unk_080E6644
-    mov r1, r8
-    str r0, [r1, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldr r3, [r4]
-    mov r0, r8
-    adds r0, #0x8c
-    movs r2, #2
-    str r2, [sp]
-    str r5, [sp, #4]
-    add r2, sp, #8
-    strb r6, [r2]
-    movs r2, #0
-    bl func_080A4A00
-    mov r1, r8
-    adds r1, #0xcc
-    ldr r0, .L0802BF9C @ =0x0000FFFF
-    strh r0, [r1]
-    mov r0, r8
-    add sp, #0x14
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0802BF94: .4byte gUnk_080F1224
-.L0802BF98: .4byte vtable_unk_080E6644
-.L0802BF9C: .4byte 0x0000FFFF
-
-    thumb_func_start func_0802BFA0
-func_0802BFA0: @ 0x0802BFA0
-    push {r4, lr}
-    adds r4, r0, #0
-    bl func_0803260C
-    ldr r0, [r4]
-    adds r0, #0x38
-    movs r1, #0
-    ldrb r0, [r0]
-    cmp r0, #1
-    bne .L0802BFB6
-    movs r1, #1
-.L0802BFB6:
-    cmp r1, #0
-    beq .L0802BFDE
-    adds r1, r4, #0
-    adds r1, #0xcb
-    ldrb r0, [r1]
-    cmp r0, #0
-    bne .L0802BFDA
-    adds r0, r4, #0
-    adds r0, #0xb4
-    bl func_0805E8F0
-    lsls r0, r0, #0x1e
-    cmp r0, #0
-    bge .L0802BFDE
-    adds r1, r4, #0
-    adds r1, #0xc8
-    movs r0, #1
-    b .L0802BFDC
-.L0802BFDA:
-    movs r0, #0
-.L0802BFDC:
-    strb r0, [r1]
-.L0802BFDE:
-    pop {r4}
-    pop {r0}
-    bx r0
+    .section .text.entities_part2.0802BFE4,"ax",%progbits
 
     thumb_func_start func_0802BFE4
 func_0802BFE4: @ 0x0802BFE4
@@ -4839,21 +4287,6 @@ func_0802BFE4: @ 0x0802BFE4
     .align 2, 0
 .L0802C20C: .4byte 0x0000FFFF
 
-    .section .text.entities_part2.0802C228,"ax",%progbits
-.L0802C228:
-    .byte 0x30, 0xB5, 0x05, 0x1C, 0x0C, 0x1C, 0x28, 0x68
-    .byte 0x00, 0x68, 0x01, 0x68, 0x49, 0x6E, 0xA7, 0xF0, 0x6B, 0xFB, 0x01, 0x1C, 0x28, 0x1C, 0xB4, 0x30
-    .byte 0x22, 0x1C, 0x32, 0xF0, 0x05, 0xFB, 0x28, 0x1C, 0xC8, 0x30, 0x00, 0x22, 0x01, 0x21, 0x01, 0x70
-    .byte 0x02, 0x30, 0x02, 0x70, 0x01, 0x30, 0x01, 0x70, 0x01, 0x30, 0x04, 0x80, 0x30, 0xBC, 0x01, 0xBC
-    .byte 0x00, 0x47, 0x00, 0x00, 0x30, 0xB5, 0x05, 0x1C, 0x0C, 0x1C, 0x28, 0x68, 0x00, 0x68, 0x01, 0x68
-    .byte 0x89, 0x6E, 0xA7, 0xF0, 0x4D, 0xFB, 0x01, 0x1C, 0x28, 0x1C, 0xB4, 0x30, 0x22, 0x1C, 0x32, 0xF0
-    .byte 0xE7, 0xFA, 0x28, 0x1C, 0xC8, 0x30, 0x00, 0x22, 0x01, 0x21, 0x01, 0x70, 0x02, 0x30, 0x02, 0x70
-    .byte 0x01, 0x30, 0x01, 0x70, 0x30, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0x30, 0xB5, 0x05, 0x1C
-    .byte 0x0C, 0x1C, 0x28, 0x68, 0x00, 0x68, 0x01, 0x68, 0x49, 0x6E, 0xA7, 0xF0, 0x31, 0xFB, 0x01, 0x1C
-    .byte 0x28, 0x1C, 0xB4, 0x30, 0x22, 0x1C, 0x32, 0xF0, 0xCB, 0xFA, 0x28, 0x1C, 0xC8, 0x30, 0x00, 0x22
-    .byte 0x01, 0x21, 0x01, 0x70, 0x02, 0x30, 0x02, 0x70, 0x01, 0x30, 0x01, 0x70, 0x30, 0xBC, 0x01, 0xBC
-    .byte 0x00, 0x47, 0x00, 0x00, 0x54, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00
-
     .section .text.entities_part2.0802C2E0,"ax",%progbits
 
     thumb_func_start func_0802C2E0
@@ -4900,7 +4333,7 @@ func_0802C2E0: @ 0x0802C2E0
     mov r0, r8
     movs r1, #0xa2
     movs r2, #1
-    bl func_0802A4C0
+    bl SetFarmerThrownItemIcon
     mov r2, r8
     adds r2, #0x88
     movs r4, #0
@@ -5577,154 +5010,7 @@ func_0802C2E0: @ 0x0802C2E0
     pop {r0}
     bx r0
 
-    thumb_func_start func_0802C860
-func_0802C860: @ 0x0802C860
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r6, r0, #0
-    adds r1, r6, #0
-    adds r1, #0x3c
-    movs r0, #0xa
-    strb r0, [r1]
-    adds r1, #1
-    movs r0, #0x14
-    strb r0, [r1]
-    adds r0, r6, #0
-    bl ShowFarmerToolDisplay
-    ldr r0, [r6]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L0802C8A4
-.L0802C892:
-    ldr r0, [r4]
-    bl AudioPlayer_IsPlaying
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802C8E8
-    adds r4, #4
-    cmp r4, r5
-    bne .L0802C892
-.L0802C8A4:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L0802C8A8:
-    movs r1, #0xbc
-    bl AudioPlayer_StartSong
-    ldr r4, [r6, #0x38]
-    adds r0, r4, #0
-    adds r0, #0x5c
-    bl GetTool__C9ToolStack
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_0800E550
-    mov r1, sp
-    strb r0, [r1]
-    mov r0, sp
-    bl GetId__C4Tool
-    cmp r0, #0x4d
-    bne .L0802C8EC
-    ldr r4, [r6, #0x14]
-    movs r5, #2
-    rsbs r5, r5, #0
-    adds r0, r6, #0
-    bl FarmerEntity_GetToolFatiguePenalty
-    adds r2, r0, #0
-    ldr r3, [r4, #0x64]
-    adds r0, r6, #0
-    adds r1, r5, #0
-    bl _call_via_r3
-    b .L0802C900
-.L0802C8E8:
-    ldr r0, [r4]
-    b .L0802C8A8
-.L0802C8EC:
-    ldr r4, [r6, #0x14]
-    adds r0, r6, #0
-    bl FarmerEntity_GetToolFatiguePenalty
-    adds r2, r0, #0
-    ldr r3, [r4, #0x64]
-    adds r0, r6, #0
-    movs r1, #0
-    bl _call_via_r3
-.L0802C900:
-    add sp, #4
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_0802C908
-func_0802C908: @ 0x0802C908
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r3, r4, #0
-    adds r3, #0x41
-    ldrb r0, [r3]
-    cmp r0, #0
-    beq .L0802C97E
-    adds r2, r4, #0
-    adds r2, #0x40
-    ldrb r1, [r2]
-    subs r0, #1
-    cmp r1, r0
-    bge .L0802C97E
-    adds r1, r4, #0
-    adds r1, #0x42
-    ldrb r0, [r1]
-    adds r0, #1
-    strb r0, [r1]
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-    cmp r0, #0x14
-    bne .L0802C97E
-    movs r0, #0
-    strb r0, [r1]
-    ldrb r0, [r2]
-    adds r0, #1
-    strb r0, [r2]
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-    cmp r0, #5
-    bne .L0802C97E
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    cmp r4, r5
-    beq .L0802C974
-.L0802C95E:
-    ldr r0, [r4]
-    bl AudioPlayer_IsPlaying
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0802C96E
-    ldr r0, [r4]
-    b .L0802C978
-.L0802C96E:
-    adds r4, #4
-    cmp r4, r5
-    bne .L0802C95E
-.L0802C974:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L0802C978:
-    movs r1, #0xb8
-    bl AudioPlayer_StartSong
-.L0802C97E:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
+    .section .text.entities_part2.0802C984,"ax",%progbits
 
     thumb_func_start func_0802C984
 func_0802C984: @ 0x0802C984
@@ -7536,91 +6822,7 @@ func_0802D59C: @ 0x0802D59C
     bx r0
     .align 2, 0
 
-    thumb_func_start func_0802D844
-func_0802D844: @ 0x0802D844
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    movs r5, #0
-    cmp r1, #0
-    beq .L0802D850
-    ldrh r5, [r1, #4]
-.L0802D850:
-    adds r0, r4, #0
-    adds r0, #0xc3
-    ldrb r0, [r0]
-    cmp r0, #0
-    bne .L0802D862
-    ldr r0, .L0802D88C @ =0x000003F3
-    ands r0, r5
-    cmp r0, #0
-    beq .L0802D8E2
-.L0802D862:
-    adds r0, r4, #0
-    bl func_080323C8
-    adds r1, r4, #0
-    adds r1, #0x3c
-    movs r0, #0x18
-    strb r0, [r1]
-    movs r0, #0x20
-    ands r0, r5
-    cmp r0, #0
-    beq .L0802D890
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, #2
-    beq .L0802D8E2
-    adds r0, r4, #0
-    movs r1, #2
-    bl SetAnimFacing__12AActorEntityUi
-    b .L0802D8E2
-    .align 2, 0
-.L0802D88C: .4byte 0x000003F3
-.L0802D890:
-    movs r0, #0x10
-    ands r0, r5
-    cmp r0, #0
-    beq .L0802D8AC
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, #3
-    beq .L0802D8E2
-    adds r0, r4, #0
-    movs r1, #3
-    bl SetAnimFacing__12AActorEntityUi
-    b .L0802D8E2
-.L0802D8AC:
-    movs r0, #0x40
-    ands r0, r5
-    cmp r0, #0
-    beq .L0802D8C8
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, #1
-    beq .L0802D8E2
-    adds r0, r4, #0
-    movs r1, #1
-    bl SetAnimFacing__12AActorEntityUi
-    b .L0802D8E2
-.L0802D8C8:
-    movs r0, #0x80
-    ands r5, r0
-    cmp r5, #0
-    beq .L0802D8E2
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, #0
-    beq .L0802D8E2
-    adds r0, r4, #0
-    movs r1, #0
-    bl SetAnimFacing__12AActorEntityUi
-.L0802D8E2:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
+    .section .text.entities_part2.0802D8E8,"ax",%progbits
 
     thumb_func_start func_0802D8E8
 func_0802D8E8: @ 0x0802D8E8
@@ -8402,7 +7604,7 @@ func_0802DE94: @ 0x0802DE94
     cmp r0, #0
     beq .L0802DED6
     adds r0, r6, #0
-    bl func_0802C908
+    bl TickFarmerToolCharge
 .L0802DED6:
     ldr r2, [sp, #4]
     lsls r1, r2, #0x19
@@ -8671,7 +7873,7 @@ func_0802DE94: @ 0x0802DE94
     cmp r0, #0xe
     bne .L0802E0EC
     adds r0, r6, #0
-    bl func_0802C860
+    bl BeginFarmerToolDisplay
     b .L0802E0F2
 .L0802E0EC:
     adds r0, r6, #0
@@ -8791,7 +7993,7 @@ func_0802E0FC: @ 0x0802E0FC
     ldrb r2, [r4]
     add r0, sp, #0x2c
     adds r1, r7, #0
-    bl func_0802AB98
+    bl GetFarmerInteractionBox
     ldr r0, [sp, #0x2c]
     ldr r1, [sp, #0x30]
     str r0, [sp, #0x34]
@@ -10844,7 +10046,7 @@ func_0802F0EC: @ 0x0802F0EC
 .L0802F27C:
     mov r0, sl
     adds r1, r4, #0
-    bl func_0802D844
+    bl UpdateFarmerTurnInput
     movs r1, #0
     ldr r4, [sp, #0x13c]
     ldrb r0, [r4]
@@ -11872,7 +11074,7 @@ func_0802F0EC: @ 0x0802F0EC
     ldrb r2, [r4]
     add r0, sp, #0x4c
     mov r1, sl
-    bl func_0802AB98
+    bl GetFarmerInteractionBox
     ldr r0, [sp, #0x4c]
     ldr r1, [sp, #0x50]
     str r0, [sp, #0x54]
@@ -13554,7 +12756,7 @@ sub_0802FBFC: @ 0x0802FBFC
     mov r0, sl
     movs r1, #0xa0
     movs r2, #0
-    bl func_0802A4C0
+    bl SetFarmerThrownItemIcon
     bl .L08031F0E
 .L080307D8:
     add r4, sp, #0x10
@@ -14423,7 +13625,7 @@ sub_08030E0A: @ 0x08030E0A
     mov r0, sl
     movs r1, #0xa1
     movs r2, #0
-    bl func_0802A4C0
+    bl SetFarmerThrownItemIcon
     mov r0, sl
     movs r1, #2
     movs r2, #0
@@ -14454,7 +13656,7 @@ sub_08030E0A: @ 0x08030E0A
     mov r0, sl
     movs r1, #0xa0
     movs r2, #0
-    bl func_0802A4C0
+    bl SetFarmerThrownItemIcon
 .L08030F0E:
     cmp r4, #0
     bne .L08030F16
@@ -14491,7 +13693,7 @@ sub_08030E0A: @ 0x08030E0A
     mov r0, sl
     movs r1, #0xa2
     movs r2, #1
-    bl func_0802A4C0
+    bl SetFarmerThrownItemIcon
     bl .L08031F0E
 .L08030F5A:
     movs r1, #0
@@ -15460,7 +14662,7 @@ sub_08030E0A: @ 0x08030E0A
     ldr r7, [sp, #0x13c]
     strb r0, [r7]
     mov r0, sl
-    bl func_0802AA84
+    bl GetFarmerWateringCanCapacity
     adds r1, r0, #0
     mov r2, sl
     ldr r0, [r2, #0x38]
@@ -16634,29 +15836,11 @@ sub_08031E0A: @ 0x08031E0A
     pop {r0}
     bx r0
     .align 2, 0
-.L08031F20:
-    .byte 0x02, 0x49, 0x40, 0x18, 0x01, 0x21, 0x01, 0x70, 0x70, 0x47, 0x00, 0x00, 0x81, 0x02, 0x00, 0x00
-    .byte 0x30, 0xB5, 0x05, 0x1C, 0x0C, 0x1C, 0x28, 0x68, 0x00, 0x68, 0x01, 0x68, 0x89, 0x6E, 0xA1, 0xF0
-    .byte 0xE7, 0xFC, 0x01, 0x1C, 0x28, 0x1C, 0xB4, 0x30, 0x22, 0x1C, 0x2C, 0xF0, 0x81, 0xFC, 0x28, 0x1C
-    .byte 0xC8, 0x30, 0x00, 0x22, 0x01, 0x21, 0x01, 0x70, 0x02, 0x30, 0x02, 0x70, 0x01, 0x30, 0x01, 0x70
-    .byte 0x30, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0x30, 0xB5, 0x05, 0x1C, 0x0C, 0x1C, 0x28, 0x68
-    .byte 0x00, 0x68, 0x01, 0x68, 0x49, 0x6E, 0xA1, 0xF0, 0xCB, 0xFC, 0x01, 0x1C, 0x28, 0x1C, 0xB4, 0x30
-    .byte 0x22, 0x1C, 0x2C, 0xF0, 0x65, 0xFC, 0x28, 0x1C, 0xC8, 0x30, 0x00, 0x22, 0x01, 0x21, 0x01, 0x70
-    .byte 0x02, 0x30, 0x02, 0x70, 0x01, 0x30, 0x01, 0x70, 0x30, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
-    .byte 0x00, 0xB5, 0x02, 0x1C, 0xB2, 0x30, 0x03, 0x78, 0x00, 0x21, 0x18, 0x1C, 0x2B, 0x38, 0x1A, 0x28
-    .byte 0x00, 0xD8, 0x01, 0x21, 0x00, 0x29, 0x01, 0xD1, 0x00, 0x20, 0x05, 0xE0, 0x10, 0x68, 0x01, 0x68
-    .byte 0x0A, 0x6C, 0x19, 0x1C, 0xA1, 0xF0, 0xA6, 0xFC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0xB5, 0x00, 0x20
-    .byte 0x2B, 0x39, 0x1A, 0x29, 0x00, 0xD8, 0x01, 0x20, 0x02, 0xBC, 0x08, 0x47, 0x00, 0xB5, 0x01, 0x2A
-    .byte 0x0C, 0xD0, 0x01, 0x2A, 0x02, 0xDC, 0x00, 0x2A, 0x03, 0xD0, 0x11, 0xE0, 0x02, 0x2A, 0x0C, 0xD0
-    .byte 0x0E, 0xE0, 0x0A, 0x68, 0x48, 0x68, 0x08, 0x60, 0x4A, 0x60, 0x09, 0xE0, 0x0A, 0x68, 0x48, 0x68
-    .byte 0x40, 0x42, 0x08, 0x60, 0x50, 0x42, 0x48, 0x60, 0x02, 0xE0, 0x08, 0x68, 0x40, 0x42, 0x08, 0x60
-    .byte 0x01, 0xBC, 0x00, 0x47, 0x88, 0x30, 0x70, 0x47, 0xC2, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00
-    .byte 0xC2, 0x30, 0x01, 0x70, 0x70, 0x47, 0x00, 0x00, 0x60, 0x30, 0x70, 0x47, 0xC1, 0x30, 0x00, 0x78
-    .byte 0x70, 0x47, 0x00, 0x00, 0xB0, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0xAC, 0x30, 0x00, 0x68
-    .byte 0x70, 0x47, 0x00, 0x00, 0xA8, 0x30, 0x00, 0x68, 0x70, 0x47, 0x00, 0x00, 0xB1, 0x30, 0x00, 0x78
-    .byte 0x70, 0x47, 0x00, 0x00, 0x7A, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00
 
-    .section .text.entities_part2.08032074,"ax",%progbits
-.L08032074:
-    .byte 0xC0, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0xCB, 0x1F, 0x03, 0x80
-    .byte 0x13, 0x1C, 0x09, 0x3B, 0x43, 0x80, 0x07, 0x31, 0x81, 0x80, 0x05, 0x32, 0xC2, 0x80, 0x70, 0x47
+    .section .text.entities_part2.0803202C,"ax",%progbits
+
+    .byte 0xC1, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00
+
+    .section .text.entities_part2.08032054,"ax",%progbits
+
+    .byte 0x7A, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00
