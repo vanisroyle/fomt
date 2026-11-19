@@ -917,7 +917,7 @@ func_08003F9C: @ 0x08003F9C
     ldr r0, [r5, #8]
     adds r1, r7, #0
     ldr r2, [sp, #4]
-    bl func_080115B0
+    bl SaveData_WriteToStorage
     cmp r0, #0
     bne .L08004052
     adds r1, r6, #0
@@ -1291,7 +1291,7 @@ func_080041DC: @ 0x080041DC
     rsbs r6, r6, #0
 .L08004316:
     adds r0, r4, #0
-    bl func_080114F8
+    bl SaveProgress_ResetPrimaryFlags
     adds r4, #4
     subs r5, #1
     cmp r5, r6

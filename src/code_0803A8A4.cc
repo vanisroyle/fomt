@@ -2,6 +2,7 @@
 
 #include "bachelorette.hh"
 #include "farm_house.hh"
+#include "gbasvc.h"
 #include "npc.hh"
 #include "schedule_info.hh"
 #include "unknown_types.hh"
@@ -11,6 +12,132 @@
 #include <string.h>
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
+
+struct OverlaySpriteResources;
+
+struct OverlaySpriteResourceVtable
+{
+    STRUCT_PAD(0x00, 0x4C);
+    void (*releasePalette)(OverlaySpriteResources *, unsigned);
+};
+
+struct OverlaySpriteResources
+{
+    OverlaySpriteResourceVtable const * vtable;
+};
+
+struct OverlayTileAllocation
+{
+    STRUCT_PAD(0x00, 0x04);
+    u32 handle;
+};
+
+struct FixedSpriteOverlay
+{
+    struct Frame
+    {
+        STRUCT_PAD(0x00, 0x20);
+        OverlayTileAllocation tiles;
+        u16 baseTile;
+    };
+
+    OverlaySpriteResources * resources;
+    Frame frames[3];
+    unsigned paletteCount;
+    u8 paletteIds[16];
+    STRUCT_PAD(0x9C, 0xA0);
+};
+
+struct GameStateMapOverlay
+{
+    struct Frame
+    {
+        STRUCT_PAD(0x00, 0x20);
+        OverlayTileAllocation tiles;
+    };
+
+    struct Placement
+    {
+        STRUCT_PAD(0x00, 0x1C);
+    };
+
+    OverlaySpriteResources * resources;
+    struct FrameList
+    {
+        unsigned count;
+        Frame entries[5];
+    } frames;
+    unsigned paletteCount;
+    u8 paletteIds[16];
+    STRUCT_PAD(0xE4, 0xE8);
+    struct PlacementList
+    {
+        unsigned count;
+        Placement entries[32];
+    } placements;
+};
+
+EC void func_08007C28(OverlayTileAllocation *, u32);
+EC void func_080079E8(OverlayTileAllocation *, unsigned);
+EC void __builtin_delete(void *);
+
+ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOverlay, unsigned inputFlags)
+{
+    // Match the original Thumb register allocation for the destructor.
+    register FixedSpriteOverlay * overlay asm("r6") = inputOverlay;
+    asm("" : "+r"(overlay));
+    register unsigned destructorFlags asm("r8") = inputFlags;
+    asm("" : "+r"(destructorFlags) : "r"(overlay));
+    OverlaySpriteResources * resources = overlay->resources;
+    OverlaySpriteResourceVtable const * vtable = resources->vtable;
+    register FixedSpriteOverlay::Frame * end asm("r4") = overlay->frames + 3;
+    asm("" : "+r"(end) : "r"(resources), "r"(vtable));
+    vtable->releasePalette(resources, overlay->paletteIds[0]);
+
+    register FixedSpriteOverlay::Frame * firstFrame asm("r0") = overlay->frames;
+    asm("" : "+r"(firstFrame));
+    if (firstFrame)
+    {
+        FixedSpriteOverlay::Frame * frame = end;
+        if (firstFrame != frame)
+        {
+            FixedSpriteOverlay::Frame * first = firstFrame;
+            do
+            {
+                --frame;
+                OverlayTileAllocation * tiles = &frame->tiles;
+                func_08007C28(tiles, tiles->handle);
+                func_080079E8(tiles, 2);
+            }
+            while (first != frame);
+        }
+    }
+    if (destructorFlags & 1)
+        __builtin_delete(overlay);
+}
+
+ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
+{
+    overlay->resources->vtable->releasePalette(overlay->resources, overlay->paletteIds[0]);
+
+    // The original compiler emitted this traversal even though placements own no tiles.
+    GameStateMapOverlay::PlacementList & placements = overlay->placements;
+    GameStateMapOverlay::Placement * placementsEnd = placements.entries + placements.count;
+    for (GameStateMapOverlay::Placement * placement = placements.entries; placement != placementsEnd; ++placement)
+    {
+    }
+
+    GameStateMapOverlay::FrameList & frames = overlay->frames;
+    GameStateMapOverlay::Frame * framesEnd = frames.entries + frames.count;
+    for (GameStateMapOverlay::Frame * frame = frames.entries; frame != framesEnd; ++frame)
+    {
+        OverlayTileAllocation * tiles = &frame->tiles;
+        func_08007C28(tiles, tiles->handle);
+        func_080079E8(tiles, 2);
+    }
+    if (destructorFlags & 1)
+        __builtin_delete(overlay);
+}
 
 struct Unk_0803B454
 {
@@ -95,6 +222,69 @@ ROM_TEXT(0803B6B8) Unk_0803B6FC & func_0803B6FC(Unk_0803B6FC & self, void *& own
     return self;
 }
 
+struct DialogWindowTilemapTask
+{
+    STRUCT_PAD(0x00, 0x0C);
+    int left;
+    int top;
+    unsigned width;
+    unsigned height;
+    unsigned screenBlock : 5;
+    unsigned firstTile : 10;
+    unsigned paletteBank : 4;
+};
+
+EC void func_08051320(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
+    unsigned firstTile, unsigned paletteBank);
+EC u16 const * const gUnk_080F9F78;
+
+ROM_TEXT(0803B840) bool RunDialogWindowTilemapTask(DialogWindowTilemapTask & task)
+{
+    enum
+    {
+        VideoRam = 0x06000000,
+        BackgroundPaletteRam = 0x05000000,
+        ScreenBlockBytes = 0x800,
+        PaletteBankBytes = 32,
+        FillWords = 32 * 10 / 2,
+        FillMode = 1 << 24,
+        TileIndexMask = 0x3FF,
+        CenterTileOffset = 3,
+    };
+
+    // Keep the original Thumb register allocation for the VRAM fill and palette copy.
+    register unsigned tile asm("r2") = task.firstTile + CenterTileOffset;
+    asm("" : "+r"(tile));
+    register unsigned mask asm("r1") = TileIndexMask;
+    asm("" : "+r"(mask) : "r"(tile));
+    register unsigned tileMask asm("r0") = mask;
+    asm("" : "+r"(tileMask));
+    tile = (tile & tileMask) | (task.paletteBank << 12);
+    register unsigned highHalf asm("r0") = tile << 16;
+    asm("" : "+r"(highHalf) : "r"(tile));
+    tile |= highHalf;
+
+    register unsigned screenOffset asm("r1") = task.screenBlock * ScreenBlockBytes;
+    asm("" : "+r"(screenOffset) : "r"(tile));
+    register u16 * screen asm("r1") = reinterpret_cast<u16 *>(VideoRam + screenOffset);
+    asm("" : "+r"(screen) : "r"(tile));
+    u32 repeatedTile = tile;
+    register u32 * source asm("r0") = &repeatedTile;
+    asm("" : "+r"(source) : "m"(repeatedTile));
+    CpuFastSet(source, screen, FillMode | FillWords);
+
+    func_08051320(reinterpret_cast<u16 *>(VideoRam + task.screenBlock * ScreenBlockBytes),
+        task.left, 0, task.width, task.height, task.firstTile, task.paletteBank);
+
+    register unsigned paletteBank asm("r1") = task.paletteBank;
+    asm("" : "+r"(paletteBank));
+    register u16 const * palette asm("r0") = gUnk_080F9F78;
+    asm("" : "+r"(palette) : "r"(paletteBank));
+    CpuFastSet(palette, reinterpret_cast<u16 *>(BackgroundPaletteRam + paletteBank * PaletteBankBytes),
+        PaletteBankBytes / sizeof(u32));
+    return false;
+}
+
 struct PACKED ALIGN(4) DialogWindowLayers
 {
     i16 x;
@@ -108,7 +298,7 @@ struct PACKED ALIGN(4) DialogWindowLayers
     STRUCT_PAD(0x0E, 0x10);
     u8 layerList[0x1C];
     u8 backgroundLayer[0x18];
-    u8 foregroundLayer[0x20];
+    DialogWindowTilemapTask tilemapTask;
 };
 
 struct DialogWindow
@@ -141,7 +331,7 @@ ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
         u32 layerMode = self.layerMode;
         if (layerMode != 1)
             TaskList_Append(self.layerList, self.backgroundLayer);
-        TaskList_Append(self.layerList, self.foregroundLayer);
+        TaskList_Append(self.layerList, &self.tilemapTask);
         self.animationFrames = state;
     }
     int nextState = self.state;
@@ -184,14 +374,14 @@ ROM_TEXT(0803BD60) void func_0803BDEC(DialogWindowLayers & self, int x, int y)
 }
 
 EC char const vtable_unk_080E7778[];
-EC DialogWindowLayers * func_0803B8CC(void *, int, int, int, int, int, int, int, int);
+EC DialogWindowLayers * InitializeDialogWindowLayers(void *, int, int, int, int, int, int, int, int);
 EC void TaskNode_Destroy(void *, int);
 EC void TaskList_Destroy(void *, int);
 
 ROM_TEXT(0803BD60) DialogWindow & func_0803BDFC(DialogWindow & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
 {
     self.vtable = vtable_unk_080E7778;
-    self.inner = func_0803B8CC(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
+    self.inner = InitializeDialogWindowLayers(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
     return self;
 }
 

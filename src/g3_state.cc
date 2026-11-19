@@ -6,7 +6,8 @@ EC u16 gUnk_0810788A[];
 EC u16 gUnk_08107890[];
 EC u16 gUnk_0810789A[];
 EC u16 gUnk_081078A0[];
-EC u32 func_080AE4D8(void *);
+struct ChickenFeedingScene;
+EC u32 GetChickenFeedingResult(ChickenFeedingScene const & scene);
 EC void func_08008724(void *);
 
 struct ChickenFeedingAnimations
@@ -44,7 +45,7 @@ EC SECTION(".text.g3_080B3A10") u16 GetFeedingDialogueFrame(u8 * state) // 0x080
 
 EC SECTION(".text.g3_080B3C78") u32 DidChickenFeedingSucceed(u8 ** wrapper) // 0x080B3C78
 {
-    return func_080AE4D8(wrapper[1]);
+    return GetChickenFeedingResult(*reinterpret_cast<ChickenFeedingScene const *>(wrapper[1]));
 }
 
 EC SECTION(".text.g3_080B3C84") u32 GetChickenFeedingScore(u8 ** wrapper) // 0x080B3C84
