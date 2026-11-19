@@ -578,25 +578,25 @@ EC UnknownEntityThing * CreateScheduledNpcVariantSixSprite(AActorEntity * self)
     return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }
 
-EC void RefreshNpcVariantSevenAnimations(NpcAnimationSlots * self);
-EC void RefreshScheduledNpcVariantSeven(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036B00);
-EC void RefreshScheduledNpcVariantSeven(AActorEntity * self, i32 reason)
+EC void RefreshCarpenterAnimations(NpcAnimationSlots * self);
+EC void RefreshCarpenterNpc(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036B00);
+EC void RefreshCarpenterNpc(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        RefreshNpcVariantSevenAnimations(static_cast<NpcAnimationSlots *>(self));
+        RefreshCarpenterAnimations(static_cast<NpcAnimationSlots *>(self));
 }
 
-EC UnknownEntityThing * CreateScheduledNpcVariantSevenSprite(AActorEntity * self) NPC_EXTRA_CODE(08036B1C);
-EC UnknownEntityThing * CreateScheduledNpcVariantSevenSprite(AActorEntity * self)
+EC UnknownEntityThing * CreateCarpenterSprite(AActorEntity * self) NPC_EXTRA_CODE(08036B1C);
+EC UnknownEntityThing * CreateCarpenterSprite(AActorEntity * self)
 {
-    RefreshNpcVariantSevenAnimations(static_cast<NpcAnimationSlots *>(self));
+    RefreshCarpenterAnimations(static_cast<NpcAnimationSlots *>(self));
     struct Storage { u8 bytes[0x8C]; };
     return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }
 
-EC void RefreshNpcVariantSevenAnimations(NpcAnimationSlots * self) NPC_EXTRA_CODE(08036AB4);
-EC void RefreshNpcVariantSevenAnimations(NpcAnimationSlots * self)
+EC void RefreshCarpenterAnimations(NpcAnimationSlots * self) NPC_EXTRA_CODE(08036AB4);
+EC void RefreshCarpenterAnimations(NpcAnimationSlots * self)
 {
     u32 walking_animation = 0x9D3;
     u32 idle_animation = 0x9D7;

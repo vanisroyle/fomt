@@ -685,7 +685,7 @@ struct FestivalCheerContest
     void * reactions[2];
 };
 
-EC void func_0805E860(void *, u16);
+EC void SetSpriteAnimatorClip(void *, u16);
 
 EC SECTION(".text.g3_080B9734") void ResolveFestivalCheerClash(FestivalCheerContest * state)
 {
@@ -696,14 +696,14 @@ EC SECTION(".text.g3_080B9734") void ResolveFestivalCheerClash(FestivalCheerCont
         if (roll <= 89)
         {
             state->chickens[0].reaction = 3;
-            func_0805E860(state->reactions[1], 2);
+            SetSpriteAnimatorClip(state->reactions[1], 2);
             state->chickens[1].unknown_31[14] = 1;
             state->chickens[1].reaction = 5;
         }
         else
         {
             state->chickens[0].reaction = 5;
-            func_0805E860(state->reactions[0], 2);
+            SetSpriteAnimatorClip(state->reactions[0], 2);
             state->chickens[0].unknown_31[14] = 1;
             state->chickens[1].reaction = 3;
         }
@@ -713,14 +713,14 @@ EC SECTION(".text.g3_080B9734") void ResolveFestivalCheerClash(FestivalCheerCont
         if (roll > 89)
         {
             state->chickens[0].reaction = 3;
-            func_0805E860(state->reactions[1], 2);
+            SetSpriteAnimatorClip(state->reactions[1], 2);
             state->chickens[1].unknown_31[14] = 1;
             state->chickens[1].reaction = 5;
         }
         else
         {
             state->chickens[0].reaction = 5;
-            func_0805E860(state->reactions[0], 2);
+            SetSpriteAnimatorClip(state->reactions[0], 2);
             state->chickens[0].unknown_31[14] = 1;
             state->chickens[1].reaction = 3;
         }
@@ -854,7 +854,7 @@ EC SECTION(".text.g3_080B94A8") void UpdateFestivalCheerWindup(FestivalCheerReso
                 state->radius, state->halfAngle))
         {
             SetFestivalCheerReactions((ChickenFestivalCombat *) state, chicken);
-            func_0805E860(*(void **) ((u8 *) state + rival * 4 + 0x91c), 2);
+            SetSpriteAnimatorClip(*(void **) ((u8 *) state + rival * 4 + 0x91c), 2);
             state->chickens[rival].unknown_31[14] = 1;
             state->chickens[chicken].movementBias = 1;
             state->chickens[chicken].animationDirty = 0;
@@ -1046,7 +1046,7 @@ EC SECTION(".text.g3_080B5318") void UpdateFestivalCheerDemonstration(FestivalCh
         if (state->frames == 1)
         {
             AudioPlayer_StartSong((u8 *) state + 0x70c, 0xa6);
-            func_0805E860(state->reactions[1], 2);
+            SetSpriteAnimatorClip(state->reactions[1], 2);
             state->chickens[1].unknown_31[14] = 1;
         }
         if (state->frames <= 59)
