@@ -1530,7 +1530,7 @@ func_080A6660: @ 0x080A6660
 	beq .L080A7360
 	mov r0, r8
 	adds r1, r4, #0
-	bl func_080A607C
+	bl ApplyMapIndexedOverlayPatch
 .L080A7360:
 	adds r4, #1
 .L080A7362:
@@ -1550,7 +1550,7 @@ func_080A6660: @ 0x080A6660
 	adds r1, r4, #0
 	adds r1, #0x10
 	mov r0, r8
-	bl func_080A607C
+	bl ApplyMapIndexedOverlayPatch
 .L080A7388:
 	adds r4, #1
 .L080A738A:
@@ -1576,7 +1576,7 @@ func_080A6660: @ 0x080A6660
 	beq .L080A73BA
 	mov r0, r8
 	adds r1, r4, #0
-	bl func_080A607C
+	bl ApplyMapIndexedOverlayPatch
 .L080A73BA:
 	adds r4, #1
 .L080A73BC:
@@ -1596,7 +1596,7 @@ func_080A6660: @ 0x080A6660
 	adds r1, r4, #0
 	adds r1, #0x10
 	mov r0, r8
-	bl func_080A607C
+	bl ApplyMapIndexedOverlayPatch
 .L080A73E2:
 	adds r4, #1
 .L080A73E4:

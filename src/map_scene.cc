@@ -58,7 +58,7 @@ EC void ApplyMapBuildingDoorPatch(G1MapState * map, u32 useUpperPosition);
 EC void ApplyMapRow17PatchB(G1MapState * map);
 EC void ApplyMapRow17PatchA(G1MapState * map);
 EC void ApplyMapIndexedFixturePatch(G1MapState * map, u32 columnIndex);
-EC void func_080A607C(MapUpdateState & map, u32 tileIndex);
+EC void ApplyMapIndexedOverlayPatch(G1MapState * map, u32 tileIndex);
 EC void ApplyMapRow2PatchB(G1MapState * map);
 EC void ApplyMapRow2PatchA(G1MapState * map);
 EC void ApplyMapRow3PatchB(G1MapState * map);
@@ -119,7 +119,7 @@ EC SECTION(".text.080AD970") void ApplyMapPatchFromColumnIndex(MapScene & scene,
 
 EC SECTION(".text.080AD97C") void ApplyMapPatchFromTileIndex(MapScene & scene, u32 tileIndex)
 {
-    func_080A607C(*scene.map, tileIndex);
+    ApplyMapIndexedOverlayPatch(reinterpret_cast<G1MapState *>(scene.map), tileIndex);
 }
 
 EC SECTION(".text.080AD988") void ApplyMapPatchAtY2VariantB(MapScene & scene)
