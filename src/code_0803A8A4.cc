@@ -845,9 +845,29 @@ EC ScheduleInfo const gUnk_080F2DC0;
 EC ScheduleInfo const gUnk_080F597C;
 EC ScheduleInfo const gUnk_080F6B10;
 EC ScheduleInfo const gUnk_080F4974;
-EC ScheduleInfo const gUnk_080F29C0;
+EC ScheduleInfo const gChildScheduleInfo;
 EC Npc * GetActiveScheduleNpc(NpcScheduleRoster &);
-EC void ResetNpcDailySchedule(Npc &, ScheduleInfo const &, void const *);
+ROM_TEXT(0803D688) void ResetNpcDailySchedule(Npc & npc, ScheduleInfo const & info, void const * context)
+{
+    unsigned scheduleIndex = info.select_schedule(context);
+    PathInfo const * firstPath = nullptr;
+    if (info.schedules)
+    {
+        Schedule const * schedule = info.schedules[scheduleIndex];
+        if (schedule && schedule->num_time_entries && schedule->time_entries)
+            firstPath = schedule->time_entries[0].path;
+    }
+
+    ActorLocation start = firstPath
+        ? ActorLocation(Location(firstPath->location_start, firstPath->x_start, firstPath->y_start),
+            firstPath->facing_start)
+        : ActorLocation(Location(MAP_NONE, 0, 0), 0);
+    npc.SetLocation(start);
+    npc.schedule_index = scheduleIndex;
+    npc.schedule_path_index = 0;
+    npc.path_point_index = 0;
+    npc.path_point_elapsed_ticks = 0;
+}
 
 ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void const * context)
 {
@@ -884,7 +904,7 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_328, gUnk_080F4974, context);
 
     if (Npc * npc = GetActiveScheduleNpc(self))
-        ResetNpcDailySchedule(*npc, gUnk_080F29C0, context);
+        ResetNpcDailySchedule(*npc, gChildScheduleInfo, context);
 }
 
 struct PACKED SavedCalendarDate
@@ -1714,6 +1734,79 @@ ROM_TEXT(0803E780) unsigned SelectElliSchedule(NpcScheduleContext const & self)
     if (weekday == SCHEDULE_WEDNESDAY)
         return ELLI_SCHEDULE_WEDNESDAY;
     return ELLI_SCHEDULE_REGULAR;
+}
+
+enum ChildSchedule
+{
+    CHILD_SCHEDULE_ABSENT,
+    CHILD_SCHEDULE_REGULAR,
+    CHILD_SCHEDULE_LATE_MORNING,
+    CHILD_SCHEDULE_HOME_ALL_DAY,
+    CHILD_SCHEDULE_WALKING_AGE,
+    CHILD_SCHEDULE_AUTUMN_13,
+};
+
+enum { HARVEST_GODDESS_NPC_ID = 31 };
+
+EC u32 GetNamedNpcAgeDays(u8 *);
+
+ROM_TEXT(0803DCB4) unsigned SelectChildSchedule(NpcScheduleContext const & self)
+{
+    unsigned spouseNpcId, season, day, weekday, marriedVariant;
+    CalendarDate date;
+    u8 * roster = const_cast<u8 *>(self.unk_1CD4);
+    u8 * child = GetActiveRosterNpc(roster);
+    if (!child)
+        goto absent;
+    if (GetNamedNpcAgeDays(child) > 59)
+        goto walkingAge;
+    spouseNpcId = GetRosterMarriageCandidate(roster);
+    if (spouseNpcId == HARVEST_GODDESS_NPC_ID)
+        return CHILD_SCHEDULE_HOME_ALL_DAY;
+    DecodeNpcScheduleDate(date, self.calendar);
+    season = date.season;
+    day = date.day;
+    weekday = date.weekday;
+    if (season == SEASON_AUTUMN && day == 13)
+        return CHILD_SCHEDULE_AUTUMN_13;
+    if (IsNpcScheduleFestivalDay(season, day) || self.weather == 3 || self.weather == 4)
+        goto lateMorning;
+    marriedVariant = self.marriedScheduleVariant;
+    switch (spouseNpcId)
+    {
+    case MARY_NPC_ID:
+        if (weekday != SCHEDULE_MONDAY)
+            break;
+    lateMorning:
+        return CHILD_SCHEDULE_LATE_MORNING;
+    case POPURI_NPC_ID:
+        if (!marriedVariant)
+            goto lateMorning;
+        if (weekday != SCHEDULE_SUNDAY)
+            break;
+        // Keep the two Sunday checks separate for the original branch layout.
+        asm("" : : "r"(weekday));
+        goto lateMorning;
+    case KAREN_NPC_ID:
+        if (!marriedVariant || weekday == SCHEDULE_TUESDAY || weekday == SCHEDULE_SUNDAY)
+            goto lateMorning;
+        break;
+    case ELLI_NPC_ID:
+        if (weekday != SCHEDULE_WEDNESDAY)
+            break;
+        goto lateMorning;
+    case ANN_NPC_ID:
+        if (!marriedVariant)
+            goto lateMorning;
+        break;
+    case HARVEST_GODDESS_NPC_ID:
+        break;
+    }
+    return CHILD_SCHEDULE_REGULAR;
+walkingAge:
+    return CHILD_SCHEDULE_WALKING_AGE;
+absent:
+    return CHILD_SCHEDULE_ABSENT;
 }
 
 ROM_TEXT(0803E40C) unsigned SelectNpcSchedule_080F4974(NpcScheduleContext const & self)
