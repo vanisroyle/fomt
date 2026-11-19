@@ -6372,7 +6372,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r2, #0xb2
 	lsls r2, r2, #6
 	adds r0, r0, r2
-	bl func_0809CDCC
+	bl HasCaughtEveryFish
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	adds r2, r5, #0
@@ -6389,7 +6389,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r6, #0xb2
 	lsls r6, r6, #6
 	adds r0, r0, r6
-	bl func_0809CDEC
+	bl GetTotalFishCaught
 	adds r4, r0, #0
 	adds r2, r5, #0
 	adds r2, #0x24
@@ -100161,7 +100161,7 @@ func_080713B8: @ 0x080713B8
 	lsls r4, r4, #6
 	adds r0, r0, r4
 	adds r1, r6, #0
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	ldr r1, [sp, #0x108]
 	adds r1, #1
 	str r1, [sp, #0x14c]
@@ -100183,7 +100183,7 @@ func_080713B8: @ 0x080713B8
 	ldr r0, [r7]
 	adds r0, r0, r4
 	ldr r1, [sp, #0x108]
-	bl func_0809CE30
+	bl GetKingFishIconId
 	adds r2, r0, #0
 	lsls r2, r2, #0x10
 	lsrs r2, r2, #0x10
@@ -100444,7 +100444,7 @@ func_080713B8: @ 0x080713B8
 	lsls r4, r4, #6
 	adds r0, r0, r4
 	ldr r1, [sp, #0x110]
-	bl func_0809CE7C
+	bl GetFishingCatchName
 	adds r5, r0, #0
 	bl strlen
 	adds r4, r0, #0
@@ -100756,7 +100756,7 @@ func_080713B8: @ 0x080713B8
 	lsls r7, r7, #6
 	adds r0, r0, r7
 	ldr r1, [sp, #0x110]
-	bl func_0809CE24
+	bl GetLongestFishLength
 	adds r4, r0, #0
 	cmp r4, #0
 	beq .L08072220
@@ -100838,7 +100838,7 @@ func_080713B8: @ 0x080713B8
 	lsls r1, r1, #6
 	adds r0, r0, r1
 	ldr r1, [sp, #0x110]
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	ldr r2, [sp, #0x10c]
 	ldr r1, [r2, #0x18]
 	adds r1, r1, r4

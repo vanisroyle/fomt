@@ -2102,8 +2102,8 @@ gCursedToolProgressThresholds:
 gUnk_081036D4:
 	.incbin "baserom.gba", 0x1036D4, 0x344
 
-	.global gUnk_08103A18
-gUnk_08103A18:
+	.global gFishingCatchNames
+gFishingCatchNames:
 	.incbin "baserom.gba", 0x103A18, 0xF8
 
 	.global gUnk_08103B10

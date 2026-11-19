@@ -11158,7 +11158,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	movs r1, #2
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	bne .L080A4286
 	b .L080A445A
@@ -11169,7 +11169,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	movs r1, #3
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	bne .L080A429A
 	b .L080A445A
@@ -11180,7 +11180,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	movs r1, #0x35
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	beq .L080A42AE
 	b .L080A4456
@@ -11257,7 +11257,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	movs r1, #0x36
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	beq .L080A4342
 	b .L080A4456
@@ -11280,7 +11280,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	movs r1, #0x37
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	beq .L080A445A
 	b .L080A4456
@@ -11289,7 +11289,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	movs r1, #0x38
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	bne .L080A4456
 	movs r5, #0
@@ -11337,25 +11337,25 @@ func_080A3F4C: @ 0x080A3F4C
 	add r5, sb
 	adds r0, r5, #0
 	movs r1, #0x39
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	bne .L080A4456
 	adds r0, r5, #0
 	movs r1, #0x35
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
 	adds r0, r5, #0
 	movs r1, #0x36
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	beq .L080A43FE
 	adds r4, #1
 .L080A43FE:
 	adds r0, r5, #0
 	movs r1, #0x37
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	beq .L080A4410
 	adds r0, r4, #1
@@ -11364,7 +11364,7 @@ func_080A3F4C: @ 0x080A3F4C
 .L080A4410:
 	adds r0, r5, #0
 	movs r1, #0x38
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	beq .L080A4422
 	adds r0, r4, #1
@@ -11373,7 +11373,7 @@ func_080A3F4C: @ 0x080A3F4C
 .L080A4422:
 	adds r0, r5, #0
 	movs r1, #0x3a
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	beq .L080A4434
 	adds r0, r4, #1
@@ -11388,7 +11388,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	movs r1, #0x3a
-	bl func_0809CE1C
+	bl GetFishingCatchCount
 	cmp r0, #0
 	bne .L080A4456
 	mov r0, sb
@@ -11445,7 +11445,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	movs r1, #2
-	bl func_0809CE7C
+	bl GetFishingCatchName
 	str r0, [sp]
 	mov r0, sp
 	strh r4, [r0, #4]
@@ -11509,7 +11509,7 @@ func_080A3F4C: @ 0x080A3F4C
 	lsls r0, r0, #6
 	add r0, sb
 	adds r1, r7, #0
-	bl func_0809CE7C
+	bl GetFishingCatchName
 	str r0, [sp]
 	cmp r7, #0x34
 	ble .L080A454C
@@ -11527,7 +11527,7 @@ func_080A3F4C: @ 0x080A3F4C
 	add r4, sb
 	adds r0, r4, #0
 	adds r1, r7, #0
-	bl func_0809CE24
+	bl GetLongestFishLength
 	movs r5, #0
 	cmp r0, #0
 	bne .L080A456A
@@ -11537,7 +11537,7 @@ func_080A3F4C: @ 0x080A3F4C
 	ldrh r2, [r0, #4]
 	adds r0, r4, #0
 	adds r1, r7, #0
-	bl func_0809CD98
+	bl RecordFishingCatch
 	lsls r0, r0, #0x18
 	lsrs r0, r0, #0x18
 	cmp r5, #0

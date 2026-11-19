@@ -347,75 +347,77 @@ ROM_TEXT(0809C5B4) void DeselectScriptEvent(ScriptEventSelection & self)
     self.selectedId = 0xFFFF;
 }
 
-struct Record
+enum { FIRST_FISH_CATCH_ID = 8, MAX_CATCH_COUNT = 1000000000 };
+
+struct FishingRecord
 {
-    u32 count;
-    u32 best;
+    u32 catchCount;
+    u32 longestLength;
 };
 
-struct RecordBook
+struct FishingRecords
 {
-    Record records[59];
+    FishingRecord records[59];
 };
 
-ROM_TEXT(0809CD78) RecordBook & func_0809CD78(RecordBook & self)
+ROM_TEXT(0809CD78) FishingRecords & ResetFishingRecords(FishingRecords & self)
 {
-    Record * record = self.records;
+    FishingRecord * record = self.records;
     for (int remaining = ARRAY_COUNT(self.records) - 1; remaining != -1; ++record, --remaining)
     {
-        record->count = 0;
-        record->best = 0;
+        record->catchCount = 0;
+        record->longestLength = 0;
     }
     return self;
 }
 
-ROM_TEXT(0809CD78) bool func_0809CD98(RecordBook & self, unsigned index, u32 value)
+ROM_TEXT(0809CD78) bool RecordFishingCatch(FishingRecords & self, unsigned catchId, u32 length)
 {
     bool improved = false;
-    if (self.records[index].count < 1000000000)
-        ++self.records[index].count;
-    if (value > self.records[index].best)
+    if (self.records[catchId].catchCount < MAX_CATCH_COUNT)
+        ++self.records[catchId].catchCount;
+    if (length > self.records[catchId].longestLength)
     {
-        self.records[index].best = value;
+        self.records[catchId].longestLength = length;
         improved = true;
     }
     return improved;
 }
 
-ROM_TEXT(0809CD78) bool func_0809CDCC(RecordBook const & self)
+ROM_TEXT(0809CD78) bool HasCaughtEveryFish(FishingRecords const & self)
 {
     bool allRecorded = true;
-    for (unsigned i = 8; i < ARRAY_COUNT(self.records); ++i)
-        if (self.records[i].count == 0)
+    for (unsigned i = FIRST_FISH_CATCH_ID; i < ARRAY_COUNT(self.records); ++i)
+        if (self.records[i].catchCount == 0)
             allRecorded = false;
     return allRecorded;
 }
 
-ROM_TEXT(0809CD78) u32 func_0809CDEC(RecordBook const & self)
+ROM_TEXT(0809CD78) u32 GetTotalFishCaught(FishingRecords const & self)
 {
     u32 total = 0;
-    for (unsigned i = 8; i < ARRAY_COUNT(self.records); ++i)
+    for (unsigned i = FIRST_FISH_CATCH_ID; i < ARRAY_COUNT(self.records); ++i)
     {
-        total += self.records[i].count;
-        if (total >= 1000000000)
-            total = 1000000000;
+        total += self.records[i].catchCount;
+        if (total >= MAX_CATCH_COUNT)
+            total = MAX_CATCH_COUNT;
     }
     return total;
 }
 
-ROM_TEXT(0809CD78) u32 func_0809CE1C(RecordBook const & self, unsigned index)
+ROM_TEXT(0809CD78) u32 GetFishingCatchCount(FishingRecords const & self, unsigned catchId)
 {
-    return self.records[index].count;
+    return self.records[catchId].catchCount;
 }
 
-ROM_TEXT(0809CD78) u32 func_0809CE24(RecordBook const & self, unsigned index)
+ROM_TEXT(0809CD78) u32 GetLongestFishLength(FishingRecords const & self, unsigned catchId)
 {
-    return self.records[index].best;
+    return self.records[catchId].longestLength;
 }
 
-ROM_TEXT(0809CD78) unsigned func_0809CE30(RecordBook const &, unsigned index)
+ROM_TEXT(0809CD78) unsigned GetKingFishIconId(FishingRecords const &, unsigned catchId)
 {
-    switch (index)
+    switch (catchId)
     {
     default:
     case 53: return 252;
@@ -427,11 +429,11 @@ ROM_TEXT(0809CD78) unsigned func_0809CE30(RecordBook const &, unsigned index)
     }
 }
 
-EC u32 const gUnk_08103A18[];
+EC char const * const gFishingCatchNames[];
 
-ROM_TEXT(0809CD78) u32 func_0809CE7C(RecordBook const &, unsigned index)
+ROM_TEXT(0809CD78) char const * GetFishingCatchName(FishingRecords const &, unsigned catchId)
 {
-    return gUnk_08103A18[index];
+    return gFishingCatchNames[catchId];
 }
 
 struct Unk_0809D8A0

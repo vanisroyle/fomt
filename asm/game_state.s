@@ -253,7 +253,7 @@ func_08010358: @ 0x08010358
     movs r1, #0xb2
     lsls r1, r1, #6
     adds r0, r6, r1
-    bl func_0809CD78
+    bl ResetFishingRecords
     ldr r2, .L08010644 @ =0x00002E58
     adds r0, r6, r2
     bl func_0809CE8C
@@ -2375,7 +2375,7 @@ func_08011650: @ 0x08011650
     movs r1, #0xb2
     lsls r1, r1, #6
     adds r0, r7, r1
-    bl func_0809CD78
+    bl ResetFishingRecords
     ldr r2, .L080118BC @ =0x00002E58
     adds r0, r7, r2
     bl func_0809CE8C
