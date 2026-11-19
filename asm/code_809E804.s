@@ -10426,49 +10426,7 @@ func_080AB9C4: @ 0x080AB9C4
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080ABA3C
-func_080ABA3C: @ 0x080ABA3C
-	push {r4, lr}
-	sub sp, #0x34
-	adds r4, r0, #0
-	mov r1, sp
-	movs r0, #0
-	str r0, [sp]
-	str r0, [sp, #4]
-	str r0, [sp, #8]
-	str r0, [sp, #0xc]
-	strb r0, [r1, #0x10]
-	strb r0, [r1, #0x11]
-	strb r0, [r1, #0x12]
-	strb r0, [r1, #0x13]
-	add r1, sp, #0x14
-	str r0, [sp, #0x14]
-	str r0, [r1, #4]
-	strh r0, [r1, #8]
-	strh r0, [r1, #0xa]
-	add r1, sp, #0x20
-	strh r0, [r1]
-	strh r0, [r1, #2]
-	strh r0, [r1, #4]
-	strh r0, [r1, #6]
-	movs r1, #1
-	str r1, [sp, #0x28]
-	str r0, [sp, #0x2c]
-	str r0, [sp, #0x30]
-	mov r0, sp
-	strb r1, [r0, #0x10]
-	strb r1, [r0, #0x11]
-	strb r1, [r0, #0x12]
-	strb r1, [r0, #0x13]
-	adds r0, r4, #0
-	mov r1, sp
-	movs r2, #0x34
-	bl memcpy
-	adds r0, r4, #0
-	add sp, #0x34
-	pop {r4}
-	pop {r1}
-	bx r1
+	.section .text.080ABA90, "ax", %progbits
 
 	thumb_func_start func_080ABA90
 func_080ABA90: @ 0x080ABA90
