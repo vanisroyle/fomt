@@ -2,6 +2,29 @@
 
 EC int const gUnk_0811788C[][4];
 
+EC SECTION(".text.g5_080CDD7C") int InventoryMenu_SwitchSelectionPanel(InventoryNavigation * navigation) // 0x080CDD7C
+{
+    register int next_slot asm("r3") = 10;
+    asm ("" : "+l" (next_slot));
+    int selected_slot = navigation->selected_slot;
+    InventoryNavigationPanel * panel;
+    if (selected_slot <= 8)
+        panel = navigation->owner->right_panel;
+    else
+    {
+        panel = navigation->owner->left_panel;
+        next_slot = 1;
+    }
+    if (panel == nullptr)
+        next_slot = selected_slot;
+    if (next_slot != navigation->selected_slot)
+    {
+        navigation->previous_slot = navigation->selected_slot;
+        navigation->selected_slot = next_slot;
+    }
+    return next_slot;
+}
+
 EC SECTION(".text.g5_080CD938") int InventoryMenu_GetPanelSlotLimit(InventoryNavigationPanel * panel) // 0x080CD938
 {
     return panel->last_slot;

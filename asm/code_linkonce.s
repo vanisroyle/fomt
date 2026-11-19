@@ -31535,7 +31535,7 @@ func_080E3A5C: @ 0x080E3A5C
 	adds r0, r1, #0
 	lsls r1, r2, #0x18
 	lsrs r1, r1, #0x18
-	bl func_080D0644
+	bl Joybus_QueueWordExchange
 	pop {r0}
 	bx r0
 

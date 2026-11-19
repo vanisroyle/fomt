@@ -29205,7 +29205,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	adds r1, r7, #0
 	adds r1, #0xd0
 	mov r2, sp
-	bl func_080ADD78
+	bl UpdateMessageScript
 	cmp r0, #1
 	beq .L0804F8B8
 	cmp r0, #1
@@ -30844,7 +30844,7 @@ DrawMessageChoiceText: @ 0x080507F8
 	adds r0, r5, #0
 	adds r1, r6, #0
 	mov r2, sp
-	bl func_080ADD78
+	bl UpdateMessageScript
 	str r4, [sp]
 	cmp r0, #1
 	beq .L08050844
@@ -31219,7 +31219,7 @@ SetMessageWindowStatePortrait: @ 0x08050AD8
 	lsls r1, r1, #1
 	adds r0, r4, r1
 	adds r1, r5, #0
-	bl func_080ADCA4
+	bl LoadMessagePortraitAnimationFrame
 	movs r1, #0xf0
 	lsls r1, r1, #1
 	adds r0, r4, r1
@@ -141423,7 +141423,7 @@ func_0808A55C: @ 0x0808A55C
 	bl __builtin_new
 	adds r1, r7, #0
 	movs r2, #1
-	bl func_080CD9B0
+	bl InventoryMenu_InitializeNavigation
 	movs r1, #0x8c
 	adds r1, r1, r7
 	mov r8, r1
@@ -141460,7 +141460,7 @@ func_0808A55C: @ 0x0808A55C
 	movs r0, #0x88
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CEC00
+	bl InventoryMenu_InitializeCursor
 	movs r1, #0x90
 	adds r1, r1, r7
 	mov r8, r1
@@ -141656,7 +141656,7 @@ func_0808A55C: @ 0x0808A55C
 	cmp r4, #0
 	beq .L0808A8A6
 	ldr r0, [r6]
-	bl func_080CDD7C
+	bl InventoryMenu_SwitchSelectionPanel
 .L0808A89A:
 	adds r0, r7, #0
 	adds r0, #0xc
@@ -144592,7 +144592,7 @@ func_0808C0BC: @ 0x0808C0BC
 	bl __builtin_new
 	adds r1, r7, #0
 	movs r2, #1
-	bl func_080CD9B0
+	bl InventoryMenu_InitializeNavigation
 	adds r6, r7, #0
 	adds r6, #0x8c
 	mov sb, r0
@@ -144627,7 +144627,7 @@ func_0808C0BC: @ 0x0808C0BC
 	movs r0, #0x88
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CEC00
+	bl InventoryMenu_InitializeCursor
 	adds r6, r7, #0
 	adds r6, #0x90
 	mov sl, r0
@@ -144809,7 +144809,7 @@ func_0808C0BC: @ 0x0808C0BC
 	beq .L0808C3A0
 	mov r1, r8
 	ldr r0, [r1]
-	bl func_080CDD7C
+	bl InventoryMenu_SwitchSelectionPanel
 .L0808C394:
 	adds r0, r7, #0
 	adds r0, #0xc
@@ -149008,7 +149008,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl __builtin_new
 	adds r1, r7, #0
 	movs r2, #1
-	bl func_080CD9B0
+	bl InventoryMenu_InitializeNavigation
 	movs r1, #0x8c
 	adds r1, r1, r7
 	mov r8, r1
@@ -149045,7 +149045,7 @@ func_0808E6FC: @ 0x0808E6FC
 	movs r0, #0x88
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CEC00
+	bl InventoryMenu_InitializeCursor
 	movs r1, #0x90
 	adds r1, r1, r7
 	mov r8, r1
@@ -149241,7 +149241,7 @@ func_0808E6FC: @ 0x0808E6FC
 	cmp r4, #0
 	beq .L0808EA46
 	ldr r0, [r6]
-	bl func_080CDD7C
+	bl InventoryMenu_SwitchSelectionPanel
 .L0808EA3A:
 	adds r0, r7, #0
 	adds r0, #0xc
@@ -152918,7 +152918,7 @@ func_08090960: @ 0x08090960
 	bl __builtin_new
 	adds r1, r7, #0
 	movs r2, #1
-	bl func_080CD9B0
+	bl InventoryMenu_InitializeNavigation
 	movs r1, #0x8c
 	adds r1, r1, r7
 	mov r8, r1
@@ -152955,7 +152955,7 @@ func_08090960: @ 0x08090960
 	movs r0, #0x88
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CEC00
+	bl InventoryMenu_InitializeCursor
 	movs r1, #0x90
 	adds r1, r1, r7
 	mov r8, r1
@@ -153144,7 +153144,7 @@ func_08090960: @ 0x08090960
 	cmp r4, #0
 	beq .L08090C8E
 	ldr r0, [r6]
-	bl func_080CDD7C
+	bl InventoryMenu_SwitchSelectionPanel
 .L08090C82:
 	adds r0, r7, #0
 	adds r0, #0xc
@@ -154326,7 +154326,7 @@ func_0809152C: @ 0x0809152C
 	bl __builtin_new
 	adds r1, r7, #0
 	movs r2, #1
-	bl func_080CD9B0
+	bl InventoryMenu_InitializeNavigation
 	adds r6, r7, #0
 	adds r6, #0x8c
 	mov r8, r0
@@ -154361,7 +154361,7 @@ func_0809152C: @ 0x0809152C
 	movs r0, #0x88
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CEC00
+	bl InventoryMenu_InitializeCursor
 	adds r6, r7, #0
 	adds r6, #0x90
 	mov r8, r0
@@ -154396,7 +154396,7 @@ func_0809152C: @ 0x0809152C
 	movs r0, #0x88
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CEC00
+	bl InventoryMenu_InitializeCursor
 	movs r2, #0x86
 	lsls r2, r2, #1
 	adds r2, r2, r7
@@ -154632,7 +154632,7 @@ func_0809152C: @ 0x0809152C
 	beq .L080918F0
 	ldr r2, [sp, #0x60]
 	ldr r0, [r2]
-	bl func_080CDD7C
+	bl InventoryMenu_SwitchSelectionPanel
 .L080918E4:
 	adds r0, r7, #0
 	adds r0, #0xc
@@ -157183,7 +157183,7 @@ func_08092D64: @ 0x08092D64
 	bl __builtin_new
 	adds r1, r7, #0
 	movs r2, #1
-	bl func_080CD9B0
+	bl InventoryMenu_InitializeNavigation
 	adds r6, r7, #0
 	adds r6, #0x8c
 	mov r8, r0
@@ -157218,7 +157218,7 @@ func_08092D64: @ 0x08092D64
 	movs r0, #0x88
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CEC00
+	bl InventoryMenu_InitializeCursor
 	movs r1, #0x90
 	adds r1, r1, r7
 	mov r8, r1
@@ -157403,7 +157403,7 @@ func_08092D64: @ 0x08092D64
 	beq .L08093050
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_080CDD7C
+	bl InventoryMenu_SwitchSelectionPanel
 .L08093044:
 	adds r0, r7, #0
 	adds r0, #0xc
@@ -160423,7 +160423,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r2, r2, #0x18
 	lsrs r2, r2, #0x18
 	str r2, [sp, #4]
-	bl func_080CD578
+	bl InventoryMenu_InitializeContext
 	ldr r0, .L08094E9C @ =vtable_unk_080E8230
 	str r0, [r7, #4]
 	adds r0, r7, #0
