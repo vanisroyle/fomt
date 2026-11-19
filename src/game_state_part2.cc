@@ -64,8 +64,12 @@ struct GameStateMapData
 };
 
 struct GameStateMapOwner;
-struct GameStateMapOverlay;
 struct GameStatePackedSpriteArchive;
+
+struct GameStateMapOverlay
+{
+    STRUCT_PAD(0x0, 0x46C);
+};
 
 struct GameStateMapInteractionBase
 {
@@ -194,6 +198,8 @@ struct GameStateMapOwner
 };
 
 EC void func_0803B0A8(GameStateMapOverlay * overlay, u32 destructor_flags);
+EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
+    GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
 EC i32 func_080AC96C(GameStateSpriteCache & cache, u32 slot);
 
 EC void func_080A6138(GameStateMapView & view);
@@ -673,6 +679,49 @@ EC SECTION(".text.game_state_c2.0801FC18") GameStatePackedSpriteArchive const * 
     return &game.sprite_archives[7];
 }
 
+static inline void InstallMapOverlay(GameStateMapOverlay * & overlay, GameStateMapOverlay * replacement)
+{
+    if (replacement != overlay && overlay != nullptr)
+        func_0803B0A8(overlay, 3);
+    overlay = replacement;
+}
+
+EC SECTION(".text.game_state_c2.0801FAC8") void GameStateCreateMapOverlay(GameStateMapOwner & game, u32 kind)
+{
+    GameStatePackedSpriteArchive const * archive = nullptr;
+    if (kind == 0)
+        goto first;
+    if (kind == 1)
+        archive = &game.sprite_archives[6];
+    goto selected;
+first:
+    archive = &game.sprite_archives[5];
+selected:
+    if (archive != nullptr)
+    {
+        int capacity = 32;
+        u32 map = game.map_view->id;
+        if (map == 2)
+        {
+            int count = 0;
+            AEntity ** slot = game.entities;
+            AEntity ** end = game.entities + 100;
+            for (; slot != end; ++slot)
+                if (*slot != nullptr && (*slot)->GetMap() == map)
+                    ++count;
+            if (static_cast<u32>(count + 10) > 10u)
+            {
+                if (static_cast<u32>(count) <= 21u)
+                    capacity = 32 - count;
+                else
+                    capacity = 10;
+            }
+        }
+        GameStateMapOverlay * storage = static_cast<GameStateMapOverlay *>(::operator new(sizeof(GameStateMapOverlay)));
+        InstallMapOverlay(game.map_overlay, func_0803AEA0(storage, game, *archive, kind, capacity));
+    }
+}
+
 EC SECTION(".text.game_state_c2.0801FC24") GameStatePackedSpriteArchive const * GameStateGetSpriteArchive6(GameStateMapOwner const & game)
 {
     return &game.sprite_archives[6];
@@ -710,11 +759,7 @@ EC SECTION(".text.game_state_c2.0801FC6C") GameStatePackedSpriteArchive const * 
 
 EC SECTION(".text.game_state_c2.0801FC78") void GameStateClearMapOverlay(GameStateMapOwner & game)
 {
-    GameStateMapOverlay * & overlay = game.map_overlay;
-    GameStateMapOverlay * replacement = nullptr;
-    if (replacement != overlay && overlay != nullptr)
-        func_0803B0A8(overlay, 3);
-    overlay = replacement;
+    InstallMapOverlay(game.map_overlay, nullptr);
 }
 
 EC SECTION(".text.game_state_c2.0801FC9C") GameStateMapView * GameStateGetMapView(GameStateMapOwner & game)
