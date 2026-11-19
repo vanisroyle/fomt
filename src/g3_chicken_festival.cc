@@ -1,5 +1,6 @@
 // Chicken Festival contestants, combat reactions, movement, and instruction dialogue.
 #include "prelude.h"
+#include "scene.hh"
 #include "utility/fixed_str.hh"
 #include <new>
 #include <stdlib.h>
@@ -357,6 +358,101 @@ struct FestivalPauseState
 };
 
 EC u32 func_080088CC(void *);
+
+struct FestivalSceneResult
+{
+    struct Transfer
+    {
+        FestivalSceneResult * source;
+        AUnk_0800080C * value;
+        Transfer(FestivalSceneResult * owner, AUnk_0800080C * ptr) : source(owner), value(ptr) {}
+    };
+
+    mutable AUnk_0800080C * inner;
+
+    explicit FestivalSceneResult(AUnk_0800080C * value = nullptr) : inner(value) {}
+    FestivalSceneResult(FestivalSceneResult const & other) : inner(other.inner) { other.inner = nullptr; }
+    FestivalSceneResult(Transfer const & transfer)
+    {
+        AUnk_0800080C * value = transfer.value;
+        transfer.source->inner = nullptr;
+        inner = value;
+    }
+    ~FestivalSceneResult() { delete inner; }
+
+    Transfer Move()
+    {
+        return Transfer(this, inner);
+    }
+};
+
+EC FestivalSceneResult func_080AE4E4(void *);
+EC FestivalSceneResult func_080B44EC(void *);
+
+EC SECTION(".text.g3_080B3C3C") FestivalSceneResult RunChickenFeedingWrapper(MinigameWrapper * self)
+{
+    FestivalSceneResult result = func_080AE4E4(self->state);
+    return result.Move();
+}
+
+EC SECTION(".text.g3_080BC8FC") FestivalSceneResult RunChickenFestivalWrapper(MinigameWrapper * self)
+{
+    FestivalSceneResult result = func_080B44EC(self->state);
+    return result.Move();
+}
+
+EC SECTION(".text.g3_080B9828") void ResetFestivalCheerReaction(u8 * state, u8 chicken)
+{
+    if (chicken)
+        *(u32 *) (state + 0xc0) = 1;
+    else
+        *(u32 *) (state + 0x80) = 1;
+}
+
+EC u16 ArcTan2(i32, i32);
+
+EC SECTION(".text.g3_080B96AC") u8 IsFestivalRivalInCheerCone(void *, u16 x, u16 y, i32 facing, u16 rivalX, u16 rivalY, u8 radius, u16 halfAngle)
+{
+    i32 dx = (rivalX >> 8) - (x >> 8);
+    i32 dy = (y >> 8) - (rivalY >> 8);
+    if (dx * dx + dy * dy > radius * radius)
+        return 0;
+    u16 angle = ArcTan2(dx, dy);
+    if (facing == 1)
+    {
+        if (angle < halfAngle || angle > 0x10000 - halfAngle)
+            return 1;
+    }
+    else
+    {
+        i32 direction = facing;
+        if (direction == 3)
+            direction = 1;
+        ++direction;
+        direction <<= 14;
+        if (angle < halfAngle + direction && angle > direction - halfAngle)
+            return 1;
+    }
+    return 0;
+}
+
+EC SECTION(".text.g3_080BC254") u8 * CopyFestivalDialogueSpan(u8 * state, i32 characters, i32 start, u8 const * text)
+{
+    int i = 0;
+    int bytes = characters * 2;
+    if (i < bytes)
+    {
+        u8 * destination = state + 0xb35;
+        u8 const * source = (u8 const *) (start * 2 + (u32) text);
+        do
+        {
+            destination[i] = *source++;
+            ++i;
+        }
+        while (i < bytes);
+    }
+    return state + 0xb35;
+}
 
 EC SECTION(".text.g3_080BA608") void ToggleFestivalPause(FestivalPauseState * state)
 {

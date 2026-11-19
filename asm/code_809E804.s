@@ -9982,7 +9982,7 @@ func_080A37A8: @ 0x080A37A8
 	bl CreateChickenFestivalWrapper
 	mov r0, sp
 	adds r1, r6, #0
-	bl func_080BC8FC
+	bl RunChickenFestivalWrapper
 	ldr r1, [sp]
 	cmp r1, #0
 	beq .L080A389E
@@ -10114,7 +10114,7 @@ func_080A3900: @ 0x080A3900
 	add r7, sp, #8
 	adds r0, r7, #0
 	mov r1, sp
-	bl func_080B3C3C
+	bl RunChickenFeedingWrapper
 	ldr r1, [sp, #8]
 	cmp r1, #0
 	beq .L080A39A6
@@ -43079,37 +43079,7 @@ func_080B3A28: @ 0x080B3A28
 
 	.section .text.g3_after_080B3C0C, "ax", %progbits
 
-	thumb_func_start func_080B3C3C
-func_080B3C3C: @ 0x080B3C3C
-	push {r4, lr}
-	sub sp, #0xc
-	adds r4, r0, #0
-	ldr r1, [r1, #4]
-	mov r0, sp
-	bl func_080AE4E4
-	ldr r2, [sp]
-	mov r0, sp
-	str r0, [sp, #4]
-	str r2, [sp, #8]
-	adds r1, r0, #0
-	movs r0, #0
-	str r0, [r1]
-	str r2, [r4]
-	ldr r1, [sp]
-	cmp r1, #0
-	beq .L080B3C6C
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L080B3C6C:
-	adds r0, r4, #0
-	add sp, #0xc
-	pop {r4}
-	pop {r1}
-	bx r1
-	.align 2, 0
+	.section .text.g3_after_080B3C3C, "ax", %progbits
 
 	.section .text.g3_after_080B3C78, "ax", %progbits
 
@@ -49825,7 +49795,7 @@ func_080B7164: @ 0x080B7164
 	adds r2, r6, #0
 	mov r3, sb
 	adds r3, #0x9e
-	bl func_080BC254
+	bl CopyFestivalDialogueSpan
 	adds r2, r0, #0
 	mov r0, sb
 	adds r1, r4, r0
@@ -50043,7 +50013,7 @@ func_080B7164: @ 0x080B7164
 	movs r1, #2
 	ldr r2, [sp, #0x58]
 	ldr r3, [sp, #0x48]
-	bl func_080BC254
+	bl CopyFestivalDialogueSpan
 	adds r2, r0, #0
 	mov r0, sb
 	adds r1, r4, r0
@@ -53949,7 +53919,7 @@ func_080B92B4: @ 0x080B92B4
 	ldrh r0, [r0]
 	str r0, [sp, #0xc]
 	adds r0, r4, #0
-	bl func_080B96AC
+	bl IsFestivalRivalInCheerCone
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080B9340
@@ -54175,7 +54145,7 @@ func_080B94A8: @ 0x080B94A8
 	ldrh r0, [r7]
 	str r0, [sp, #0xc]
 	adds r0, r5, #0
-	bl func_080B96AC
+	bl IsFestivalRivalInCheerCone
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080B954A
@@ -54201,7 +54171,7 @@ func_080B94A8: @ 0x080B94A8
 	ldrh r0, [r7]
 	str r0, [sp, #0xc]
 	adds r0, r5, #0
-	bl func_080B96AC
+	bl IsFestivalRivalInCheerCone
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080B9654
@@ -54265,7 +54235,7 @@ func_080B94A8: @ 0x080B94A8
 	ldrh r0, [r0]
 	str r0, [sp, #0xc]
 	adds r0, r5, #0
-	bl func_080B96AC
+	bl IsFestivalRivalInCheerCone
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080B9654
@@ -54326,7 +54296,7 @@ func_080B94A8: @ 0x080B94A8
 	strb r4, [r1]
 	adds r0, r5, #0
 	ldr r1, [sp, #0x10]
-	bl func_080B9828
+	bl ResetFestivalCheerReaction
 	adds r0, r6, #0
 	adds r0, #0x9b
 	strb r4, [r0]
@@ -54351,81 +54321,7 @@ func_080B94A8: @ 0x080B94A8
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080B96AC
-func_080B96AC: @ 0x080B96AC
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	mov r8, r3
-	ldr r3, [sp, #0x18]
-	ldr r4, [sp, #0x1c]
-	ldr r5, [sp, #0x20]
-	ldr r0, [sp, #0x24]
-	lsls r1, r1, #0x10
-	lsls r2, r2, #0x10
-	lsls r3, r3, #0x10
-	lsls r4, r4, #0x10
-	lsls r5, r5, #0x18
-	lsrs r5, r5, #0x18
-	lsls r0, r0, #0x10
-	lsrs r6, r0, #0x10
-	adds r7, r6, #0
-	lsrs r3, r3, #0x18
-	lsrs r1, r1, #0x18
-	subs r3, r3, r1
-	lsrs r2, r2, #0x18
-	lsrs r4, r4, #0x18
-	subs r2, r2, r4
-	adds r0, r3, #0
-	muls r0, r3, r0
-	adds r1, r2, #0
-	muls r1, r2, r1
-	adds r0, r0, r1
-	adds r1, r5, #0
-	muls r1, r5, r1
-	cmp r0, r1
-	bgt .L080B9726
-	adds r0, r3, #0
-	adds r1, r2, #0
-	bl ArcTan2
-	lsls r0, r0, #0x10
-	lsrs r1, r0, #0x10
-	mov r0, r8
-	cmp r0, #1
-	bne .L080B970A
-	cmp r1, r6
-	blo .L080B9722
-	movs r0, #0x80
-	lsls r0, r0, #9
-	subs r0, r0, r6
-	b .L080B971E
-.L080B970A:
-	mov r3, r8
-	cmp r3, #3
-	bne .L080B9712
-	movs r3, #1
-.L080B9712:
-	adds r3, #1
-	lsls r3, r3, #0xe
-	adds r0, r7, r3
-	cmp r1, r0
-	bge .L080B9726
-	subs r0, r3, r7
-.L080B971E:
-	cmp r1, r0
-	ble .L080B9726
-.L080B9722:
-	movs r0, #1
-	b .L080B9728
-.L080B9726:
-	movs r0, #0
-.L080B9728:
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
+	.section .text.g3_after_080B96AC, "ax", %progbits
 
 	thumb_func_start func_080B9734
 func_080B9734: @ 0x080B9734
@@ -54533,24 +54429,7 @@ func_080B9734: @ 0x080B9734
 
 	.section .text.g3_after_080B97FC, "ax", %progbits
 
-	thumb_func_start func_080B9828
-func_080B9828: @ 0x080B9828
-	push {lr}
-	lsls r1, r1, #0x18
-	cmp r1, #0
-	beq .L080B9836
-	adds r1, r0, #0
-	adds r1, #0xc0
-	b .L080B983A
-.L080B9836:
-	adds r1, r0, #0
-	adds r1, #0x80
-.L080B983A:
-	movs r0, #1
-	str r0, [r1]
-	pop {r0}
-	bx r0
-	.align 2, 0
+	.section .text.g3_after_080B9828, "ax", %progbits
 
 	thumb_func_start func_080B9844
 func_080B9844: @ 0x080B9844
@@ -55210,7 +55089,7 @@ func_080B9B50: @ 0x080B9B50
 	lsls r0, r0, #6
 	str r0, [sp, #0xc]
 	mov r0, r8
-	bl func_080B96AC
+	bl IsFestivalRivalInCheerCone
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080B9DB2
@@ -59731,35 +59610,7 @@ func_080BB8EC: @ 0x080BB8EC
 	.align 2, 0
 .L080BC250: .4byte 0x000008D4
 
-	thumb_func_start func_080BC254
-func_080BC254: @ 0x080BC254
-	push {r4, r5, r6, r7, lr}
-	adds r7, r0, #0
-	adds r6, r3, #0
-	movs r3, #0
-	lsls r4, r1, #1
-	cmp r3, r4
-	bge .L080BC278
-	ldr r0, .L080BC284 @ =0x00000B35
-	adds r5, r7, r0
-	lsls r0, r2, #1
-	adds r2, r0, r6
-.L080BC26A:
-	adds r1, r5, r3
-	ldrb r0, [r2]
-	strb r0, [r1]
-	adds r2, #1
-	adds r3, #1
-	cmp r3, r4
-	blt .L080BC26A
-.L080BC278:
-	ldr r1, .L080BC284 @ =0x00000B35
-	adds r0, r7, r1
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080BC284: .4byte 0x00000B35
+	.section .text.g3_after_080BC254, "ax", %progbits
 
 	thumb_func_start func_080BC288
 func_080BC288: @ 0x080BC288
@@ -60544,37 +60395,7 @@ func_080BC288: @ 0x080BC288
 
 	.section .text.g3_after_080BC8F0, "ax", %progbits
 
-	thumb_func_start func_080BC8FC
-func_080BC8FC: @ 0x080BC8FC
-	push {r4, lr}
-	sub sp, #0xc
-	adds r4, r0, #0
-	ldr r1, [r1, #4]
-	mov r0, sp
-	bl func_080B44EC
-	ldr r2, [sp]
-	mov r0, sp
-	str r0, [sp, #4]
-	str r2, [sp, #8]
-	adds r1, r0, #0
-	movs r0, #0
-	str r0, [r1]
-	str r2, [r4]
-	ldr r1, [sp]
-	cmp r1, #0
-	beq .L080BC92C
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L080BC92C:
-	adds r0, r4, #0
-	add sp, #0xc
-	pop {r4}
-	pop {r1}
-	bx r1
-	.align 2, 0
+	.section .text.g3_after_080BC8FC, "ax", %progbits
 
 	thumb_func_start func_080BC938
 func_080BC938: @ 0x080BC938
