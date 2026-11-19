@@ -4,6 +4,8 @@
 #include "farm.hh"
 #include "farmer.hh"
 
+#include <string.h>
+
 struct GameStateAudioList;
 struct GameStateMapEffect;
 struct GameStatePlayerData;
@@ -31,8 +33,11 @@ struct GameStateMapView
     u32 map;
     GameStateCameraCoordinate camera_x;
     GameStateCameraCoordinate camera_y;
-    STRUCT_PAD(0x10, 0x2C);
-    TerrainInfo const * expanded_terrain;
+    u16 * tilemaps[3];
+    STRUCT_PAD(0x1C, 0x29);
+    u8 tilemapsDirty;
+    STRUCT_PAD(0x2A, 0x2C);
+    TerrainInfo * expanded_terrain;
     STRUCT_PAD(0x30, 0x90);
     GameStateMapDisplayVtable const * display_vtable;
 };
@@ -64,7 +69,9 @@ struct GameStateMapData
     u8 : 7;
     u8 map_12_scenery_variant : 1;
     u8 map_27_scenery_variant : 1;
-    STRUCT_PAD(0x5, 0x10);
+    STRUCT_PAD(0x5, 0x8);
+    u32 farm_layout;
+    STRUCT_PAD(0xC, 0x10);
     GameStateMapCalendar clock;
     Farm farm;
     u8 reserved[0x1BD8 - 0x14 - sizeof(Farm)];
@@ -78,6 +85,7 @@ struct GameStateMapData
 };
 
 struct GameStateMapOwner;
+struct GameStateVaseDisplay;
 struct GameStatePackedSpriteArchive;
 
 struct GameStateMapOverlay
@@ -179,7 +187,8 @@ struct GameStateEntitySlotVtable
     STRUCT_PAD(0x48, 0x5C);
     GameStatePackedSpriteArchive const * (*get_interaction_archive)(GameStateMapOwner const & game);
     GameStatePackedSpriteArchive const * (*get_scenery_archive)(GameStateMapOwner const & game);
-    STRUCT_PAD(0x64, 0x140);
+    GameStatePackedSpriteArchive const * (*get_vase_archive)(GameStateMapOwner const & game);
+    STRUCT_PAD(0x68, 0x140);
     void (*queue_event)(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue);
     STRUCT_PAD(0x144, 0x148);
     u32 (*get_music_track)(GameStateMapOwner const & game);
@@ -187,16 +196,28 @@ struct GameStateEntitySlotVtable
 
 struct GameStateSpriteCacheEntry
 {
-    STRUCT_PAD(0x0, 0x81);
+    STRUCT_PAD(0x0, 0x80);
+    i8 resourceIndex;
     bool active;
     STRUCT_PAD(0x82, 0x84);
+};
+
+struct GameStateSpriteCacheResource
+{
+    STRUCT_PAD(0, 8);
+    u8 spriteSlot;
+    i8 paletteIndex;
+    u8 flags;
+    STRUCT_PAD(0xB, 0xC);
 };
 
 struct GameStateSpriteCache
 {
     u8 slot_ids[32];
     GameStateSpriteCacheEntry entries[22];
-    STRUCT_PAD(0xB78, 0xC18);
+    GameStateSpriteCacheResource resources[13];
+    u8 assignedResources;
+    STRUCT_PAD(0xC15, 0xC18);
 };
 
 struct GameStatePackedSpriteArchive
@@ -232,7 +253,7 @@ struct GameStateMapOwner
     bool scenery_active;
     STRUCT_PAD(0x1061, 0x1064);
     SmartPtr<GameStateMapInteraction> timed_interaction;
-    STRUCT_PAD(0x1068, 0x106C);
+    GameStateVaseDisplay * vase_display;
     SmartPtr<GameStateMapInteraction> paired_scenery_first;
     SmartPtr<GameStateMapInteraction> paired_scenery_second;
     SmartPtr<GameStateMapInteraction> seasonal_scenery;
@@ -247,7 +268,84 @@ struct GameStateMapOwner
 EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
 EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
     GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
-EC i32 func_080AC96C(GameStateSpriteCache & cache, u32 slot);
+EC SECTION(".text.080AC96C") i32 AssignMapSceneSpriteCacheSlot(GameStateSpriteCache & inputCache, u32 slot)
+{
+    register GameStateSpriteCache * receivedCache asm("r0") = &inputCache;
+    register u32 receivedPaletteIndex asm("r1") = slot;
+    register GameStateSpriteCache * cache asm("r4");
+    register u32 paletteIndex asm("r5");
+    asm ("add %0, %2, #0\n\tadd %1, %3, #0" : "=l" (cache), "=l" (paletteIndex) : "l" (receivedCache), "l" (receivedPaletteIndex));
+    register u32 entryOffset asm("r0") = paletteIndex * sizeof(GameStateSpriteCacheEntry);
+    asm ("" : "+l" (entryOffset));
+    register u8 * entryBase asm("r0") = reinterpret_cast<u8 *>(cache) + entryOffset;
+    asm ("" : "+l" (entryBase));
+    register i8 * resourceIndex asm("r6") = reinterpret_cast<i8 *>(entryBase);
+    asm ("" : "+l" (resourceIndex));
+    resourceIndex += offsetof(GameStateSpriteCache, entries) + offsetof(GameStateSpriteCacheEntry, resourceIndex);
+    asm ("" : "+l" (resourceIndex));
+    register unsigned invertedIndex asm("r0") = ~static_cast<u8>(*resourceIndex) << 24;
+    asm ("" : "+l" (invertedIndex));
+    u32 alreadyAssigned = invertedIndex >> 31;
+    asm ("" : "+l" (alreadyAssigned));
+    register GameStateSpriteCacheResource * resource asm("r1");
+    asm volatile ("" : : "X" (&&getSlot), "X" (&&capacityReached));
+    if (!alreadyAssigned)
+        goto assignResource;
+    {
+        register i32 index asm("r2") = *resourceIndex;
+        asm ("" : "+l" (index));
+        register u32 resourcesOffset asm("r0") = offsetof(GameStateSpriteCache, resources);
+        asm ("" : "+l" (resourcesOffset));
+        register u8 * resources asm("r1") = reinterpret_cast<u8 *>(cache) + resourcesOffset;
+        asm ("" : "+l" (resources));
+        register i32 offset asm("r0") = index * sizeof(GameStateSpriteCacheResource);
+        asm ("" : "+l" (offset));
+        resource = reinterpret_cast<GameStateSpriteCacheResource *>(resources + offset);
+        asm ("" : "+l" (resource));
+    }
+getSlot:
+    return resource->spriteSlot;
+assignResource:
+    {
+        register unsigned counterOffset asm("r0") = offsetof(GameStateSpriteCache, assignedResources);
+        asm ("" : "+l" (counterOffset));
+        register u8 * counter asm("r2") = reinterpret_cast<u8 *>(cache) + counterOffset;
+        asm ("" : "+l" (counter));
+        register u32 nextIndex asm("r3") = *counter;
+        asm ("" : "+l" (nextIndex));
+        u32 capacity = ARRAY_COUNT(cache->resources);
+        if (nextIndex < capacity)
+            goto slotAvailable;
+        goto capacityReached;
+    slotAvailable:
+        register u32 newIndex asm("r1") = nextIndex;
+        asm ("" : "+l" (newIndex));
+        *counter = newIndex + 1;
+        register unsigned resourcesOffset asm("r0") = offsetof(GameStateSpriteCache, resources);
+        asm ("" : "+l" (resourcesOffset));
+        register u8 * resources asm("r2") = reinterpret_cast<u8 *>(cache) + resourcesOffset;
+        asm ("" : "+l" (resources));
+        register unsigned offset asm("r0") = newIndex * sizeof(GameStateSpriteCacheResource);
+        asm ("" : "+l" (offset));
+        resource = reinterpret_cast<GameStateSpriteCacheResource *>(resources + offset);
+        asm ("" : "+l" (resource));
+        register i32 previousPalette asm("r0") = resource->paletteIndex;
+        asm ("" : "+l" (previousPalette));
+        if (previousPalette != static_cast<i32>(paletteIndex))
+        {
+            resource->paletteIndex = paletteIndex;
+            resource->flags = alreadyAssigned;
+        }
+        register i32 previousResource asm("r0") = *resourceIndex;
+        asm ("" : "+l" (previousResource));
+        if (previousResource == static_cast<i32>(nextIndex))
+            goto getSlot;
+        *resourceIndex = nextIndex;
+        goto getSlot;
+    }
+capacityReached:
+    return -1;
+}
 
 EC void ApplyMapRow15PatchA(GameStateMapView & view);
 EC void ApplyMapRow15PatchB(GameStateMapView & view);
@@ -272,18 +370,265 @@ EC void SetAlternateMapPatch(u32 & flags, u32 index);
 EC void ClearAlternateMapPatch(u32 & flags, u32 index);
 EC void ApplySavedMapTilePatch(MapUpdateState & map, u32 index);
 EC MapData const * GetMapData(u32 map_variant);
-EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 barn_level);
 EC u32 func_0800E324(Unk_0800E324 const & clock);
 EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
 EC u8 * GameScript_GetSoundPlayers(GameStateScript & script);
 EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
-EC void func_0801F3E4(GameStateMapOwner & game);
 EC bool SaveData_CollectShippingValue(GameStateMapData & state);
 EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
 EC void GameScript_ConfigureMusic(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
-EC void func_080AA6D0(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * adjacent);
+EC SECTION(".text.080AA6D0") void ApplyFieldPlotToMap(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * volatile adjacent)
+{
+    GameStateMapView * map = &view;
+    asm ("" : "+l" (map));
+    volatile unsigned column = x;
+    register unsigned row asm("r6") = y;
+    asm ("" : "+l" (row));
+    FieldPlot const * volatile currentPlot = &plot;
+    register unsigned width asm("sl") = GetMapData(map->map)->width;
+    asm ("" : "+h" (width));
+    register u8 const * groundArt asm("r5") = static_cast<u8 const *>(currentPlot->method_0800AF20());
+    asm ("" : "+l" (groundArt));
+    if (groundArt)
+    {
+        register unsigned rowOffset asm("r0") = width;
+        asm ("" : "+l" (rowOffset));
+        rowOffset = rowOffset * row;
+        asm ("" : "+l" (rowOffset));
+        register u16 * tiles asm("r1") = map->tilemaps[0];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowOffset * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        register unsigned tileX asm("r2") = column;
+        asm ("" : "+l" (tileX));
+        register unsigned columnOffset asm("r4") = tileX * sizeof(u16);
+        asm ("" : "+l" (columnOffset));
+        asm ("add %0, %1, %2" : "=l" (tiles) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (tiles) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), groundArt, 4);
+
+        register unsigned followingRow asm("r0") = row + 1;
+        asm ("" : "+l" (followingRow));
+        register unsigned index asm("r1") = width;
+        asm ("" : "+l" (index));
+        index = index * followingRow;
+        asm ("" : "+l" (index));
+        rowOffset = index;
+        asm ("" : "+l" (rowOffset));
+        tiles = map->tilemaps[0];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowOffset * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        asm ("add %0, %1, %2" : "=l" (columnOffset) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (columnOffset) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), groundArt + 4, 4);
+        register GameStateMapView * dirtyMap asm("r1") = map;
+        asm ("" : "+l" (dirtyMap));
+        register u8 * dirty asm("r1") = &dirtyMap->tilemapsDirty;
+        asm ("" : "+l" (dirty));
+        *dirty = 1;
+    }
+
+    register unsigned rowIndex asm("r5") = width;
+    asm ("" : "+l" (rowIndex));
+    rowIndex = rowIndex * row;
+    asm ("" : "+l" (rowIndex));
+    register unsigned followingRow asm("r2") = row + 1;
+    asm ("" : "+l" (followingRow));
+    volatile unsigned nextRow = followingRow;
+    if (adjacent)
+    {
+        register unsigned previousRow asm("r0") = row - 1;
+        asm ("" : "+l" (previousRow));
+        register unsigned index asm("r1") = width;
+        asm ("" : "+l" (index));
+        index = index * previousRow;
+        asm ("" : "+l" (index));
+        register unsigned rowOffset asm("r0") = index;
+        asm ("" : "+l" (rowOffset));
+        register u16 * tiles asm("r1") = map->tilemaps[2];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowOffset * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        register unsigned tileX asm("r2") = column;
+        asm ("" : "+l" (tileX));
+        register unsigned columnOffset asm("r4") = tileX * sizeof(u16);
+        asm ("" : "+l" (columnOffset));
+        asm ("add %0, %1, %2" : "=l" (tiles) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (tiles) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), adjacent, 4);
+
+        tiles = map->tilemaps[1];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowIndex * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        asm ("add %0, %1, %2" : "=l" (tiles) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (tiles) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), reinterpret_cast<u8 const *>(adjacent) + 4, 4);
+
+        register unsigned lowerRow asm("r1") = nextRow;
+        asm ("" : "+l" (lowerRow));
+        rowOffset = width;
+        asm ("" : "+l" (rowOffset));
+        rowOffset = rowOffset * lowerRow;
+        asm ("" : "+l" (rowOffset));
+        tiles = map->tilemaps[1];
+        asm ("" : "+l" (tiles));
+        rowOffset = rowOffset * sizeof(u16);
+        asm ("" : "+l" (rowOffset));
+        asm ("add %0, %1, %2" : "=l" (columnOffset) : "l" (columnOffset), "l" (tiles) : "cc");
+        asm ("add %0, %1, %2" : "=l" (rowOffset) : "l" (rowOffset), "l" (columnOffset) : "cc");
+        memcpy(reinterpret_cast<void *>(rowOffset), reinterpret_cast<u8 const *>(adjacent) + 8, 4);
+        register GameStateMapView * dirtyMap asm("r1") = map;
+        asm ("" : "+l" (dirtyMap));
+        register u8 * dirty asm("r1") = &dirtyMap->tilemapsDirty;
+        asm ("" : "+l" (dirty));
+        *dirty = 1;
+    }
+
+    register bool isSolid asm("r0") = currentPlot->method_0800A07C();
+    register unsigned plotSolid asm("r0");
+    asm ("" : "=l" (plotSolid) : "0" (isSolid));
+    register unsigned upperIndex asm("r2") = column;
+    asm ("" : "+l" (upperIndex));
+    asm ("add %0, %1, %2" : "=l" (upperIndex) : "l" (upperIndex), "l" (rowIndex) : "cc");
+    register unsigned upperOffset asm("r8") = upperIndex;
+    asm ("" : "+h" (upperOffset));
+    register u8 * terrain asm("r2") = reinterpret_cast<u8 *>(map->expanded_terrain);
+    asm ("" : "+l" (terrain));
+    register unsigned offset asm("r1") = upperOffset;
+    asm ("" : "+l" (offset));
+    offset = offset * sizeof(TerrainInfo);
+    asm ("" : "+l" (offset));
+    upperOffset = offset;
+    asm ("" : "+h" (upperOffset));
+    asm ("add %0, %1, %2" : "=l" (offset) : "l" (offset), "l" (terrain) : "cc");
+    register u8 * upper asm("sb") = reinterpret_cast<u8 *>(offset);
+    asm ("" : "+h" (upper));
+    register unsigned lowerRow asm("r1") = nextRow;
+    asm ("" : "+l" (lowerRow));
+    register unsigned lowerOffset asm("r4") = width;
+    asm ("" : "+l" (lowerOffset));
+    lowerOffset = lowerOffset * lowerRow;
+    asm ("" : "+l" (lowerOffset));
+    register unsigned tileX asm("r1") = column;
+    asm ("" : "+l" (tileX));
+    asm ("add %0, %1, %2" : "=l" (lowerOffset) : "l" (tileX), "l" (lowerOffset) : "cc");
+    lowerOffset = lowerOffset * sizeof(TerrainInfo);
+    asm ("" : "+l" (lowerOffset));
+    register u8 * lower asm("r2") = terrain;
+    asm ("" : "+l" (lower));
+    asm ("add %0, %1, %2" : "=l" (lower) : "l" (lowerOffset), "l" (lower) : "cc");
+    register unsigned solidBit asm("r6") = 1;
+    asm ("" : "+l" (solidBit));
+    register unsigned solid asm("r5") = solidBit;
+    asm ("" : "+l" (solid));
+    solid = solid & plotSolid;
+    asm ("" : "+l" (solid));
+    register unsigned oldFlags asm("r3") = lower[4];
+    asm ("" : "+l" (oldFlags));
+    register unsigned clearSolid asm("r1") = ~1u;
+    asm ("" : "+l" (clearSolid));
+    register unsigned merged asm("r0") = clearSolid;
+    asm ("" : "+l" (merged));
+    merged = merged & oldFlags;
+    asm ("" : "+l" (merged));
+    lower[4] = merged | solid;
+    oldFlags = lower[0];
+    asm ("" : "+l" (oldFlags));
+    merged = clearSolid;
+    asm ("" : "+l" (merged));
+    merged = merged & oldFlags;
+    asm ("" : "+l" (merged));
+    lower[0] = merged | solid;
+    register u8 * upperBase asm("r0") = upper;
+    asm ("" : "+l" (upperBase));
+    register unsigned upperFlags asm("r2") = upperBase[4];
+    asm ("" : "+l" (upperFlags));
+    merged = clearSolid;
+    asm ("" : "+l" (merged));
+    merged = merged & upperFlags;
+    asm ("" : "+l" (merged));
+    merged = merged | solid;
+    asm ("" : "+l" (merged));
+    lower = upper;
+    asm ("" : "+l" (lower));
+    lower[4] = merged;
+    merged = lower[0];
+    asm ("" : "+l" (merged));
+    clearSolid = clearSolid & merged;
+    asm ("" : "+l" (clearSolid));
+    lower[0] = clearSolid | solid;
+
+    register unsigned terrainTag asm("r0") = currentPlot->method_0800A0A4();
+    asm ("" : "+l" (terrainTag));
+    register u8 * updatedTerrain asm("r1") = reinterpret_cast<u8 *>(map->expanded_terrain);
+    asm ("" : "+l" (updatedTerrain));
+    asm ("add %0, %1" : "+h" (upperOffset) : "l" (updatedTerrain));
+    register unsigned rightTile asm("r2") = sizeof(TerrainInfo);
+    asm ("" : "+l" (rightTile));
+    asm ("add %0, %1" : "+l" (rightTile) : "h" (upperOffset));
+    upper = reinterpret_cast<u8 *>(rightTile);
+    asm ("" : "+h" (upper));
+    asm ("add %0, %1, %2" : "=l" (lowerOffset) : "l" (lowerOffset), "l" (updatedTerrain) : "cc");
+    register u8 * lowerRight asm("r3") = reinterpret_cast<u8 *>(lowerOffset) + sizeof(TerrainInfo);
+    asm ("" : "+l" (lowerRight));
+    register unsigned packedTag asm("r5") = terrainTag << 1;
+    asm ("" : "+l" (packedTag));
+    register unsigned existingTag asm("r2") = *reinterpret_cast<u16 *>(lowerRight + 2);
+    asm ("" : "+l" (existingTag));
+    register unsigned tagAndSolid asm("r1") = solidBit;
+    asm ("" : "+l" (tagAndSolid));
+    tagAndSolid = tagAndSolid & existingTag;
+    asm ("" : "+l" (tagAndSolid));
+    *reinterpret_cast<u16 *>(lowerRight + 2) = tagAndSolid | packedTag;
+    register unsigned tagMask asm("r1") = 0x7fff;
+    asm ("" : "+l" (tagMask));
+    packedTag = tagMask;
+    asm ("" : "+l" (packedTag));
+    terrainTag = terrainTag & packedTag;
+    asm ("" : "+l" (terrainTag));
+    register unsigned shiftedTag asm("r3") = terrainTag << 1;
+    asm ("" : "+l" (shiftedTag));
+    existingTag = *reinterpret_cast<u16 *>(lowerOffset + 2);
+    asm ("" : "+l" (existingTag));
+    tagAndSolid = solidBit;
+    asm ("" : "+l" (tagAndSolid));
+    tagAndSolid = tagAndSolid & existingTag;
+    asm ("" : "+l" (tagAndSolid));
+    *reinterpret_cast<u16 *>(lowerOffset + 2) = tagAndSolid | shiftedTag;
+    terrainTag = terrainTag & packedTag;
+    asm ("" : "+l" (terrainTag));
+    shiftedTag = terrainTag << 1;
+    asm ("" : "+l" (shiftedTag));
+    updatedTerrain = upper;
+    asm ("" : "+l" (updatedTerrain));
+    existingTag = *reinterpret_cast<u16 *>(updatedTerrain + 2);
+    asm ("" : "+l" (existingTag));
+    tagAndSolid = solidBit;
+    asm ("" : "+l" (tagAndSolid));
+    tagAndSolid = tagAndSolid & existingTag;
+    asm ("" : "+l" (tagAndSolid));
+    tagAndSolid = tagAndSolid | shiftedTag;
+    asm ("" : "+l" (tagAndSolid));
+    lower = upper;
+    asm ("" : "+l" (lower));
+    *reinterpret_cast<u16 *>(lower + 2) = tagAndSolid;
+    terrainTag = terrainTag & packedTag;
+    asm ("" : "+l" (terrainTag));
+    terrainTag = terrainTag << 1;
+    asm ("" : "+l" (terrainTag));
+    lower = reinterpret_cast<u8 *>(upperOffset);
+    asm ("" : "+l" (lower));
+    tagAndSolid = *reinterpret_cast<u16 *>(lower + 2);
+    asm ("" : "+l" (tagAndSolid));
+    solidBit = solidBit & tagAndSolid;
+    asm ("" : "+l" (solidBit));
+    *reinterpret_cast<u16 *>(lower + 2) = solidBit | terrainTag;
+}
+
 EC void func_0805E860(SpriteAnimator & animator, u32 animation);
-EC GameStateMapInteraction * func_080A4A00(GameStateMapInteraction * interaction,
+EC GameStateMapInteraction * InitializeAnimatedMapSpriteSinglePalette(GameStateMapInteraction * interaction,
     GameStatePackedSpriteArchive const * archive, u32 animation, GameStateMapOwner & game,
     u32 layer, u32 kind, bool start);
 
@@ -315,7 +660,7 @@ EC SECTION(".text.game_state_c2.08019F7C") u32 GameStateGetMapWidthPixels(GameSt
     u32 house_level = state->farm.farm_house.GetUpgradeLevel();
     u32 coop_level = state->farm.coop.GetUpgradeLevel();
     u32 barn_level = state->farm.barn.GetUpgradeLevel();
-    return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->width * 8;
+    return GetMapData(GetMapGraphicsVariantId(map, season, house_level, coop_level, barn_level))->width * 8;
 }
 
 EC SECTION(".text.game_state_c2.08019FE8") u32 GameStateGetMapHeightPixels(GameStateMapOwner const & game, u32 map)
@@ -325,7 +670,7 @@ EC SECTION(".text.game_state_c2.08019FE8") u32 GameStateGetMapHeightPixels(GameS
     u32 house_level = state->farm.farm_house.GetUpgradeLevel();
     u32 coop_level = state->farm.coop.GetUpgradeLevel();
     u32 barn_level = state->farm.barn.GetUpgradeLevel();
-    return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->height * 8;
+    return GetMapData(GetMapGraphicsVariantId(map, season, house_level, coop_level, barn_level))->height * 8;
 }
 
 EC SECTION(".text.game_state_c2.0801A054") GameStateMapTerrain GameStateGetMapTerrain(GameStateMapOwner const & game, u32 map)
@@ -349,7 +694,7 @@ EC SECTION(".text.game_state_c2.0801A054") GameStateMapTerrain GameStateGetMapTe
         u32 house_level = state->farm.farm_house.GetUpgradeLevel();
         u32 coop_level = state->farm.coop.GetUpgradeLevel();
         u32 barn_level = state->farm.barn.GetUpgradeLevel();
-        variant = func_0803A8A4(map, season, house_level, coop_level, barn_level);
+        variant = GetMapGraphicsVariantId(map, season, house_level, coop_level, barn_level);
     }
 
     MapData const * data = GetMapData(variant);
@@ -381,6 +726,497 @@ EC SECTION(".text.game_state_c2.0801A8C0") u32 GameStateGetTimeOfDayBand(GameSta
     if (hour > 17)
         return 2;
     return 1;
+}
+
+EC AEntity * InitializeScheduledNpc01(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc02(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc03(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc04(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc05(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc06(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc07(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc08(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc09(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc10(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc11(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc12(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc13(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc14(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc15(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc16(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc17(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc18(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc19(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc20(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc21(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc22(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc23(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc24(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc26(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc27(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeCarpenterNpc(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc29(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc30(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeUnscheduledNpcOne(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeUnscheduledNpcTwo(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeUnscheduledNpcThree(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc34(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+EC AEntity * InitializeScheduledNpc25(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
+
+EC AEntity * SpawnFarmer(GameStateMapOwner &, GameStateMapData *) asm("NewFarmerMapEntity");
+EC AEntity * SpawnSoldier(void *, GameStateMapOwner &, u32, void *, Farm &) asm("func_08033928");
+EC bool ShouldSpawnDog(void const *) asm("func_0800F190");
+EC u32 DogPlacementState(void const *) asm("func_0800F204");
+EC AEntity * InitDog(void *, GameStateMapOwner &, void *, void *) asm("DogEntity_Init");
+EC AEntity * InitHorse(void *, GameStateMapOwner &, Horse *) asm("HorseEntity_Init");
+
+EC AEntity * MakeArrivalNpc(void *, GameStateMapOwner &, void *, u32) asm("InitializeArrivalReactionNpc");
+EC AEntity * MakeChicken(void *, GameStateMapOwner &, Chicken *) asm("ChickenEntity_Init");
+EC AEntity * MakeCow(void *, GameStateMapOwner &, Cow *) asm("CowEntity_Init");
+EC AEntity * MakeSheep(void *, GameStateMapOwner &, Sheep *) asm("SheepEntity_Init");
+EC AEntity * MakeEgg(void *, GameStateMapOwner &, Location const &) asm("InitializeReactionEntity");
+EC AEntity * MakeTimedReaction(void *, GameStateMapOwner &, void *) asm("InitializeTimedReactionEntity");
+EC AEntity * MakePickupSprite(void *, GameStateMapOwner &, void *) asm("InitializeLaunchedSideSprite");
+EC AEntity * MakeSpecialFieldActor(void *, GameStateMapOwner &, void *) asm("func_080398A4");
+EC AEntity * MakeActiveSceneEffect(GameStateMapOwner &, void *) asm("CreateActiveSideEffectEntity");
+EC AEntity * MakeUpdateEffect(void *, GameStateMapOwner &, void *) asm("InitializeSideEffectEntity");
+EC AEntity * MakeRecordedActor(void *, GameStateMapOwner &, void *) asm("InitializeRecordedSideActor");
+EC void * FindArrivalNpc(void *) asm("GetActiveScheduleNpc");
+EC void * FindDayNpc(void *, u32) asm("GetNpcScheduleDaySlot");
+EC void * FindNightNpc(void *, u32) asm("GetNpcScheduleNightSlot");
+EC void * FindCurrentNpc(void *) asm("GetNpcScheduleCurrentSlot");
+EC void * FindPreviousNpc(void *) asm("GetNpcSchedulePreviousSlot");
+EC AEntity * MakeDayNpc(GameStateMapOwner &, void *, u32) asm("func_08037A5C");
+EC AEntity * MakeNightNpc(GameStateMapOwner &, void *, u32) asm("func_08037AD0");
+EC AEntity * MakeCurrentNpc(GameStateMapOwner &, void *) asm("CreateMovingNpcVariantSeven");
+EC AEntity * MakePreviousNpc(GameStateMapOwner &, void *) asm("CreateMovingNpcVariantSix");
+EC u32 ChickenPlacementIndex(void const *) asm("func_0800F344");
+EC u8 HeldArticleByte(void const *) asm("func_0800F258");
+EC u32 GetHeldArticleId(u8 const *) asm("GetId__C7Article");
+EC bool CanSpawnTimedReaction(void const *) asm("func_0800E934");
+EC bool CanSpawnPickupSprite(void const *) asm("func_0800E940");
+EC void * FindHouseShelf(FarmHouse &) asm("GetShelf__9FarmHouse");
+EC u32 FindShelfArticle(void const *, u32) asm("GetFirstSlotWith__C5ShelfUi");
+EC u32 FindRucksackArticle(void const *, u32) asm("GetFirstSlotWithArticle__C8RucksackUi");
+struct GameStateGlobal;
+extern GameStateGlobal * gActiveGameScene;
+
+EC SECTION(".text.game_state_c2.0801A8E0") void GameStateRespawnActor(GameStateMapOwner & owner, u32 entity_slot)
+{
+    register GameStateMapOwner & game = owner;
+    register u32 slot = entity_slot;
+    AEntity ** entries = owner.entities;
+    AEntity * & entry = entries[entity_slot];
+    if (entry)
+    {
+        delete entry;
+        entry = nullptr;
+    }
+    register AEntity * actor asm("r5") = nullptr;
+    switch (slot)
+    {
+        case 0:
+            actor = SpawnFarmer(game, game.map_data);
+            break;
+        case 43:
+        {
+            register GameStateMapData ** map = &game.map_data;
+            register u8 * state = reinterpret_cast<u8 *>(*map);
+            if (state[0x219C] & 0x10)
+                break;
+            register u8 * placement = state + 0x1C2C;
+            if (!ShouldSpawnDog(placement) && DogPlacementState(placement) == 2)
+                break;
+            void * storage = ::operator new(0x44);
+            u8 * current_state = reinterpret_cast<u8 *>(*map);
+            actor = InitDog(storage, game, current_state + 0x1C70, current_state + 0x1CCC);
+            break;
+        }
+        case 44:
+            if (!(reinterpret_cast<u8 *>(game.map_data)[0x219A] & 2) && !(reinterpret_cast<u8 *>(game.map_data)[0x21A1] & 4))
+                if (Horse * horse = game.map_data->farm.GetHorse())
+                    actor = InitHorse(::operator new(0x40), game, horse);
+            break;
+        case 46: case 47: case 48: case 49: case 50: case 51: case 52: case 53:
+        {
+            u32 index = slot - 46;
+            void * placement = reinterpret_cast<u8 *>(game.map_data) + 0x1C2C;
+            if (!ShouldSpawnDog(placement) && DogPlacementState(placement) == 3 && ChickenPlacementIndex(placement) == index)
+                break;
+            if (index == game.map_data->farm.coop.GetUnkEnt() || index >= game.map_data->farm.coop.GetCapacity())
+                break;
+            if (Chicken * chicken = game.map_data->farm.coop.GetChicken(index))
+                actor = MakeChicken(::operator new(0x3C), game, chicken);
+            break;
+        }
+        case 54: case 55: case 56: case 57: case 58: case 59: case 60: case 61:
+        case 62: case 63: case 64: case 65: case 66: case 67: case 68: case 69:
+        {
+            register u32 index = slot - 54;
+            register u32 sheep_index asm("r9") = index;
+            asm("" : : "r"(sheep_index));
+            register GameStateMapData ** map = &game.map_data;
+            if (index == (*map)->farm.barn.method_0800D058() || index >= (*map)->farm.barn.GetCapacity())
+                break;
+            register Cow * cow = (*map)->farm.barn.GetCow(index);
+            if (cow)
+                actor = MakeCow(::operator new(0x3C), game, cow);
+            else if (Sheep * sheep = (*map)->farm.barn.GetSheep(sheep_index))
+                actor = MakeSheep(::operator new(0x3C), game, sheep);
+            break;
+        }
+        case 76: case 77: case 78: case 79: case 80: case 81: case 82: case 83:
+        {
+            u32 index = slot - 76;
+            if (index < game.map_data->farm.coop.GetCapacity())
+                if (Coop::Egg const * egg = game.map_data->farm.coop.GetEgg(index))
+                    actor = MakeEgg(::operator new(0x18), game, egg->location);
+            break;
+        }
+        case 75:
+        {
+            if (!CanSpawnPickupSprite(reinterpret_cast<u8 *>(game.map_data) + 0x1BD8))
+                break;
+            void * placement = reinterpret_cast<u8 *>(game.map_data) + 0x1C2C;
+            if (!ShouldSpawnDog(placement) && DogPlacementState(placement) == 1)
+            {
+                u8 held_article = HeldArticleByte(placement);
+                if (GetHeldArticleId(&held_article) == 0x35)
+                    break;
+            }
+            GameStateMapData ** state = &game.map_data;
+            register u32 found = FindRucksackArticle(reinterpret_cast<u8 *>(*state) + 0x1C38, 0x35);
+            if (found != static_cast<u32>(-1))
+                break;
+            void * shelf = FindHouseShelf((*state)->farm.farm_house);
+            if (shelf && FindShelfArticle(shelf, 0x35) != found)
+                break;
+            void * storage = ::operator new(0x2C);
+            actor = MakePickupSprite(storage, game, reinterpret_cast<u8 *>(*state) + 0x1CCC);
+            break;
+        }
+        case 74:
+        {
+            if (!CanSpawnTimedReaction(reinterpret_cast<u8 *>(game.map_data) + 0x1BD8))
+                break;
+            void * placement = reinterpret_cast<u8 *>(game.map_data) + 0x1C2C;
+            if (!ShouldSpawnDog(placement) && DogPlacementState(placement) == 4)
+                break;
+            actor = MakeTimedReaction(::operator new(0x1C), game, reinterpret_cast<u8 *>(game.map_data) + 0x1CA0);
+            break;
+        }
+        case 36:
+            actor = SpawnSoldier(::operator new(0x44), game, 0, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 37:
+            actor = SpawnSoldier(::operator new(0x44), game, 1, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 38:
+            actor = SpawnSoldier(::operator new(0x44), game, 2, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 39:
+            actor = SpawnSoldier(::operator new(0x44), game, 3, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 40:
+            actor = SpawnSoldier(::operator new(0x44), game, 4, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 41:
+            actor = SpawnSoldier(::operator new(0x44), game, 5, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 42:
+            actor = SpawnSoldier(::operator new(0x44), game, 6, reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, game.map_data->farm);
+            break;
+        case 1:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc01(storage, game, state + 0x1D44, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 2:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc02(storage, game, state + 0x1D58, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 3:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc03(storage, game, state + 0x1D6C, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 4:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc04(storage, game, state + 0x1D84, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 5:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc05(storage, game, state + 0x1D98, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 6:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc06(storage, game, state + 0x1DAC, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 7:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc07(storage, game, state + 0x1DC4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 8:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc08(storage, game, state + 0x1DD8, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 9:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc09(storage, game, state + 0x1DEC, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 10:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc10(storage, game, state + 0x1E00, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 11:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc11(storage, game, state + 0x1E14, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 12:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc12(storage, game, state + 0x1E28, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 13:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc13(storage, game, state + 0x1E40, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 14:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc14(storage, game, state + 0x1E54, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 15:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc15(storage, game, state + 0x1E68, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 16:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc16(storage, game, state + 0x1E7C, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 17:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc17(storage, game, state + 0x1E90, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 18:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc18(storage, game, state + 0x1EA4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 19:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc19(storage, game, state + 0x1EB8, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 20:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc20(storage, game, state + 0x1ED0, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 21:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc21(storage, game, state + 0x1EE4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 22:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc22(storage, game, state + 0x1EFC, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 23:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc23(storage, game, state + 0x1F10, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 24:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc24(storage, game, state + 0x1F24, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 25:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc26(storage, game, state + 0x1F38, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 26:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc27(storage, game, state + 0x1F50, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 27:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeCarpenterNpc(storage, game, state + 0x1F64, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 28:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc29(storage, game, state + 0x1F7C, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 29:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc30(storage, game, state + 0x1F90, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 30:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeUnscheduledNpcOne(storage, game, state + 0x1FA4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 31:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeUnscheduledNpcTwo(storage, game, state + 0x1FB8, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 32:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeUnscheduledNpcThree(storage, game, state + 0x1FD0, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 33:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc34(storage, game, state + 0x1FE4, reinterpret_cast<u32>(state));
+            break;
+        }
+        case 34:
+        {
+            void * storage = ::operator new(72);
+            register u8 * state asm("r3") = reinterpret_cast<u8 *>(game.map_data);
+            actor = InitializeScheduledNpc25(storage, game, state + 0x1FFC, reinterpret_cast<u32>(state));
+            break;
+        }
+
+        case 35:
+        {
+            void * npc = FindArrivalNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4);
+            if (npc)
+                actor = MakeArrivalNpc(::operator new(0x4C), game, npc, reinterpret_cast<u32>(game.map_data));
+            break;
+        }
+        case 84:
+            actor = MakeActiveSceneEffect(game, reinterpret_cast<u8 *>(game.map_data) + 0x3494);
+            break;
+        case 45:
+            actor = MakeSpecialFieldActor(::operator new(0x54), game, reinterpret_cast<u8 *>(game.map_data) + 0x34DC);
+            break;
+        case 70: case 71: case 72: case 73:
+        {
+            register u32 index asm("r5") = slot - 70;
+            asm("" : : "l"(index));
+            u8 * records = reinterpret_cast<u8 *>(gActiveGameScene) + 0x524;
+            actor = MakeRecordedActor(::operator new(0x34), game, records + index * 12);
+            break;
+        }
+        case 85: case 86: case 87:
+        {
+            u32 index = slot - 85;
+            actor = MakeDayNpc(game, FindDayNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, index), index);
+            break;
+        }
+        case 88: case 89: case 90:
+        {
+            u32 index = slot - 88;
+            actor = MakeNightNpc(game, FindNightNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4, index), index);
+            break;
+        }
+        case 91:
+            actor = MakeCurrentNpc(game, FindCurrentNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4));
+            break;
+        case 92:
+            actor = MakePreviousNpc(game, FindPreviousNpc(reinterpret_cast<u8 *>(game.map_data) + 0x1CD4));
+            break;
+        case 93:
+            actor = MakeUpdateEffect(::operator new(0x1C), game, reinterpret_cast<u8 *>(game.map_data) + 0x214C);
+            break;
+    }
+    asm("" : : "l"(actor));
+    if (actor)
+    {
+        register AEntity ** entries asm("r0") = game.entities;
+        register u32 offset asm("r1") = slot * sizeof(*entries);
+        asm("" : "=l"(entries) : "0"(entries));
+        *reinterpret_cast<AEntity **>(reinterpret_cast<u8 *>(entries) + offset) = actor;
+        actor->vfunc_10();
+    }
 }
 
 EC SECTION(".text.game_state_c2.0801C0E0") void GameStateRequestDayUpdate(GameStateMapOwner & game, bool skip_events)
@@ -448,7 +1284,7 @@ EC SECTION(".text.game_state_c2.0801C6EC") u32 GameStateHitFieldPlot(GameStateMa
             FieldPlot * south = GetFieldNeighbor(field, x, y + 1);
             FieldPlot * north = GetFieldNeighbor(field, x, y - 1);
             Unk_Something const * adjacent = current.method_0800AF5C(south, north);
-            func_080AA6D0(*view, tile_x, tile_y, plot, adjacent);
+            ApplyFieldPlotToMap(*view, tile_x, tile_y, plot, adjacent);
         }
     }
     return hit;
@@ -467,7 +1303,7 @@ EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameSt
         FieldPlot * south = GetFieldNeighbor(field, x, y + 1);
         FieldPlot * north = GetFieldNeighbor(field, x, y - 1);
         Unk_Something const * adjacent = current.method_0800AF5C(south, north);
-        func_080AA6D0(*view, x * 2 + 34, y * 2 + 22, plot, adjacent);
+        ApplyFieldPlotToMap(*view, x * 2 + 34, y * 2 + 22, plot, adjacent);
     }
     return result;
 }
@@ -496,6 +1332,58 @@ EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
     }
 done:
     return found;
+}
+
+static inline FieldPlot * GetHoeFieldPlot(FieldPlot * field, int x, int row)
+{
+    register int index asm("r0") = x + row * Farm::FIELD_WIDTH;
+    asm("" : "=l"(index) : "0"(index));
+    return field + index;
+}
+
+EC SECTION(".text.game_state_c2.0801C29C") u32 GameStateHoeFarmPlot(GameStateMapOwner & game, Location const & location)
+{
+    u32 result = 0;
+    GameStateFarmPlot plot;
+    if (GameStateFindFarmPlot(game, location, plot))
+    {
+        FieldPlot * farm_plot = plot.plot;
+        bool default_layout = game.map_data->farm_layout == 0;
+        result = farm_plot->method_0800A190(default_layout);
+        if (game.vtable->get_map_id(game) == ((u32(*reinterpret_cast<u16 const *>(&location) << 22)) >> 22))
+        {
+            GameStateMapView * view = game.map_view;
+            register GameStateFarmPlot * coords = &plot;
+            register GameStateFarmPlot * row_coords = coords;
+            FieldPlot * field = game.map_data->farm.field.plots;
+            register int x asm("r3") = coords->plot_x;
+            register int y asm("r2") = row_coords->plot_y;
+            asm("" : : "l"(x), "l"(y));
+            FieldPlot * current = GetHoeFieldPlot(field, x, y);
+            int south_y = y + 1;
+            bool south_valid = x >= 0 && south_y >= 0 && x < Farm::FIELD_WIDTH && south_y < Farm::FIELD_HEIGHT;
+            FieldPlot * south = south_valid ? GetHoeFieldPlot(field, x, south_y) : nullptr;
+            int north_y = y - 1;
+            bool north_valid = x >= 0 && north_y >= 0 && x < Farm::FIELD_WIDTH && north_y < Farm::FIELD_HEIGHT;
+            FieldPlot * north = north_valid ? GetHoeFieldPlot(field, x, north_y) : nullptr;
+            Unk_Something const * adjacent = current->method_0800AF5C(south, north);
+            ApplyFieldPlotToMap(*view, plot.tile_x, plot.tile_y, *plot.plot, adjacent);
+        }
+        if (result == 3)
+        {
+            for (u32 i = 0; i < 4; ++i)
+            {
+                if (game.field_objects[i].kind == 0)
+                {
+                    game.field_objects[i].kind = 2;
+                    game.field_objects[i].tile_x = plot.tile_x;
+                    game.field_objects[i].tile_y = plot.tile_y;
+                    break;
+                }
+            }
+        }
+    }
+    return result;
 }
 
 EC SECTION(".text.game_state_c2.0801C198") bool GameStateFindMinePlot(
@@ -677,7 +1565,7 @@ EC SECTION(".text.game_state_c2.0801DC24") void GameStateStartMapInteraction(Gam
     {
         GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
         GameStatePackedSpriteArchive const * archive = game.vtable->get_interaction_archive(game);
-        game.interaction = func_080A4A00(storage, archive, animation, game, 3, 0x1B, true);
+        game.interaction = InitializeAnimatedMapSpriteSinglePalette(storage, archive, animation, game, 3, 0x1B, true);
     }
 }
 
@@ -723,13 +1611,13 @@ EC SECTION(".text.game_state_c2.0801F14C") void GameStateRefreshMapScenery(GameS
 
     GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
     GameStatePackedSpriteArchive const * archive = game.vtable->get_scenery_archive(game);
-    game.scenery = func_080A4A00(storage, archive, variant, game, 2, 0x1B, false);
+    game.scenery = InitializeAnimatedMapSpriteSinglePalette(storage, archive, variant, game, 2, 0x1B, false);
 }
 
 static inline GameStateMapInteraction * MakeTimedMapInteraction(GameStateMapOwner & game, u32 animation)
 {
     GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
-    return func_080A4A00(storage, &game.sprite_archives[12], animation, game, 5, 0x1B, false);
+    return InitializeAnimatedMapSpriteSinglePalette(storage, &game.sprite_archives[12], animation, game, 5, 0x1B, false);
 }
 
 EC SECTION(".text.game_state_c2.0801F2DC") void GameStateRefreshTimedMapInteraction(GameStateMapOwner & game)
@@ -755,10 +1643,139 @@ EC SECTION(".text.game_state_c2.0801F2DC") void GameStateRefreshTimedMapInteract
         game.timed_interaction = nullptr;
 }
 
+struct GameStateVaseFrame
+{
+    u32 words[8];
+};
+
+struct GameStateVaseClip
+{
+    SpriteKeyframe const * keyframes;
+    u16 length;
+};
+
+struct GameStateVaseDisplay;
+struct GameStateVaseDisplayVtable
+{
+    STRUCT_PAD(0, 8);
+    void (*destroy)(GameStateVaseDisplay *, u32);
+};
+
+struct GameStateVaseDisplay
+{
+    STRUCT_PAD(0, 0x24);
+    GameStateVaseDisplayVtable const * vtable;
+    GameStateVaseFrame frame;
+    bool active;
+};
+
+struct GameStateVaseArchiveVtable
+{
+    STRUCT_PAD(0, 0xC);
+    void (*get_clip)(GameStateVaseClip *, GameStatePackedSpriteArchive const *, u32);
+    void (*decode)(GameStateVaseFrame *, GameStatePackedSpriteArchive const *, u32);
+};
+
+struct GameStateVaseAnimator
+{
+    GameStatePackedSpriteArchive const * source;
+    SpriteKeyframe const * keyframes;
+    STRUCT_PAD(8, 12);
+    u16 keyframe;
+    STRUCT_PAD(14, 20);
+};
+
+struct GameStateVaseScratch
+{
+    GameStateVaseFrame frame;
+    GameStateVaseAnimator animator;
+};
+
+EC void InitGameStateVaseAnimator(GameStateVaseAnimator *, GameStatePackedSpriteArchive const *, u32, int) asm("InitSpriteAnimator");
+EC void InitGameStateVaseDisplay(GameStateVaseDisplay *, GameStateMapOwner &, u32, u32) asm("InitializeMapSpriteSinglePalette");
+EC GameStateVaseDisplayVtable const vtable_unk_080E602C;
+EC void * CopyGameStateVaseFrame(void *, void const *, size_t) asm("memcpy");
+
+static inline GameStateVaseArchiveVtable const * GetVaseArchiveVtable(GameStatePackedSpriteArchive const * archive)
+{
+    return static_cast<GameStateVaseArchiveVtable const *>(archive->vtable);
+}
+
+static inline SpriteKeyframe const * GetVaseKeyframes(GameStateVaseClip clip)
+{
+    return clip.keyframes;
+}
+
+EC SECTION(".text.game_state_c2.0801F3E4") void GameStateRefreshVase(GameStateMapOwner & game)
+{
+    GameStateVaseScratch scratch;
+    register GameStateVaseDisplay * replacement asm("r5");
+    GameStateVaseDisplay ** slot;
+    int speed_q8;
+    if (game.vtable->get_map_id(game) == 0x1D)
+    {
+        u32 article_id = game.map_data->farm.farm_house.GetVaseArticleId();
+        if (article_id == 0x5F)
+            return;
+
+        Article article(article_id);
+        register u16 icon = article.GetIconId();
+        register GameStateVaseDisplay ** base = &game.vase_display;
+        register GameStateVaseDisplay ** vase_slot = base;
+        register GameStateVaseDisplay * display asm("r4") = *base;
+        speed_q8 = 0x100;
+        if (display)
+        {
+            GameStatePackedSpriteArchive const * archive = game.vtable->get_vase_archive(game);
+            register GameStateVaseAnimator * init = &scratch.animator;
+            asm("" : "=l"(init) : "0"(init));
+            InitGameStateVaseAnimator(init, archive, icon, speed_q8);
+            register GameStateVaseAnimator * animator asm("r0") = &scratch.animator;
+            GameStatePackedSpriteArchive const * source = scratch.animator.source;
+            GameStateVaseArchiveVtable const * methods = GetVaseArchiveVtable(source);
+            register u32 offset = animator->keyframe * sizeof(SpriteKeyframe);
+            SpriteKeyframe const * keyframes = scratch.animator.keyframes;
+            register u32 frame_id = reinterpret_cast<SpriteKeyframe const *>(reinterpret_cast<u8 const *>(keyframes) + offset)->frame;
+            register GameStateVaseFrame * frame asm("r0") = &scratch.frame;
+            methods->decode(frame, source, frame_id);
+            CopyGameStateVaseFrame(&scratch.frame, &scratch.frame, sizeof(scratch.frame));
+            display->frame = scratch.frame;
+            display->active = true;
+            asm("" : : "l"(display));
+            return;
+        }
+
+        replacement = static_cast<GameStateVaseDisplay *>(::operator new(sizeof(GameStateVaseDisplay)));
+        GameStatePackedSpriteArchive const * archive = game.vtable->get_vase_archive(game);
+        InitGameStateVaseDisplay(replacement, game, 2, 0x1B);
+        replacement->vtable = &vtable_unk_080E602C;
+        GameStateVaseFrame * dest = &replacement->frame;
+        GameStateVaseClip clip;
+        GameStateVaseArchiveVtable const * methods = GetVaseArchiveVtable(archive);
+        methods->get_clip(&clip, archive, icon);
+        register u32 frame_id asm("r2") = GetVaseKeyframes(clip)->frame;
+        register GameStateVaseFrame * frame asm("r0") = dest;
+        asm("" : "=l"(frame_id), "=l"(frame) : "0"(frame_id), "1"(frame));
+        methods->decode(frame, archive, frame_id);
+        replacement->active = true;
+        slot = vase_slot;
+    }
+    else
+    {
+        slot = &game.vase_display;
+        replacement = nullptr;
+    }
+
+    GameStateVaseDisplay * previous = *slot;
+    if (replacement != previous && previous)
+        previous->vtable->destroy(previous, 3);
+    *slot = replacement;
+}
+
 EC SECTION(".text.game_state_c2.0801F5F0") void GameStateSetVaseArticle(GameStateMapOwner & game, u32 article_id)
 {
     game.map_data->farm.farm_house.SetVaseArticleId(article_id);
-    func_0801F3E4(game);
+    GameStateRefreshVase(game);
 }
 
 EC SECTION(".text.game_state_c2.0801FCA4") GameStatePlayerData const * GameStateGetPlayerData(GameStateMapOwner const & game)
@@ -989,17 +2006,17 @@ EC SECTION(".text.game_state_c2.0801F614") void GameStateRefreshPairedScenery(Ga
         {
             GameStateMapInteraction * first = AllocateMapInteraction();
             register GameStatePackedSpriteArchive const * archive asm("r5") = &game.sprite_archives[7];
-            game.paired_scenery_first = func_080A4A00(first, archive, 0, game, 3, 0x1E, map);
+            game.paired_scenery_first = InitializeAnimatedMapSpriteSinglePalette(first, archive, 0, game, 3, 0x1E, map);
             GameStateMapInteraction * second = AllocateMapInteraction();
-            game.paired_scenery_second = func_080A4A00(second, archive, 0, game, 3, 0x1E, false);
+            game.paired_scenery_second = InitializeAnimatedMapSpriteSinglePalette(second, archive, 0, game, 3, 0x1E, false);
         }
         else
         {
             GameStateMapInteraction * first = AllocateMapInteraction();
             register GameStatePackedSpriteArchive const * archive asm("r5") = &game.sprite_archives[7];
-            game.paired_scenery_first = func_080A4A00(first, archive, 1, game, season, 0x1E, map);
+            game.paired_scenery_first = InitializeAnimatedMapSpriteSinglePalette(first, archive, 1, game, season, 0x1E, map);
             GameStateMapInteraction * second = AllocateMapInteraction();
-            game.paired_scenery_second = func_080A4A00(second, archive, 1, game, 3, 0x1E, false);
+            game.paired_scenery_second = InitializeAnimatedMapSpriteSinglePalette(second, archive, 1, game, 3, 0x1E, false);
         }
     }
     asm("" : : "l"(&game));
@@ -1016,21 +2033,21 @@ EC SECTION(".text.game_state_c2.0801F77C") void GameStateRefreshSeasonalScenery(
     {
         case 7:
             if ((static_cast<u32>(reinterpret_cast<u8 const *>(game.map_data)[4]) << 31) != 0)
-                game.alternate_seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+                game.alternate_seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
             if (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER)
-                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+                game.seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
             break;
         case 3:
             if (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER)
-                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+                game.seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
             break;
         case 0:
             if (reinterpret_cast<u8 const *>(game.map_data)[3] >> 7)
-                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, map);
+                game.seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, map);
             break;
         case 2:
             if (game.map_data->farm.farm_house.IsFireplaceLighted())
-                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, map, 0x1F, false);
+                game.seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, map, 0x1F, false);
             break;
     }
 }
@@ -1189,7 +2206,7 @@ EC SECTION(".text.game_state_c2.0801FCB4") i32 GameStateGetCachedSpriteSlot(Game
     i32 sprite_slot = cached - 0x10;
     if (sprite_slot < 0)
     {
-        sprite_slot = func_080AC96C(cache, slot);
+        sprite_slot = AssignMapSceneSpriteCacheSlot(cache, slot);
         cached = sprite_slot + 0x10;
     }
     return sprite_slot;

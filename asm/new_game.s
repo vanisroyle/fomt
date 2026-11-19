@@ -330,7 +330,7 @@ func_08003788: @ 0x08003788
 .L08003A2A:
     ldr r0, [sp, #0x24]
     adds r0, #0x14
-    bl method_08009AF4__C4Farm
+    bl GetName__C4Farm
     mov r8, r0
     mov r4, r8
     adds r0, r6, #0
@@ -414,7 +414,7 @@ func_08003788: @ 0x08003788
     ldr r1, [sp, #0x24]
     ldr r2, .L08003B3C @ =0x00001BD8
     adds r0, r1, r2
-    bl func_0800E4E0
+    bl GetFarmerName
     adds r7, r0, #0
     adds r4, r7, #0
     adds r0, r6, #0

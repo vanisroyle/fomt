@@ -2272,7 +2272,7 @@ func_0802A7E0: @ 0x0802A7E0
     adds r0, r5, #0
     mov r1, sb
     mov r2, sl
-    bl func_080AC5D0
+    bl AreEntityFootTilesMarked
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802A9A2
@@ -2869,7 +2869,7 @@ func_0802B260: @ 0x0802B260
     add r4, sp, #8
     strb r5, [r4]
     movs r2, #0
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     mov r1, sb
     adds r1, #0xcc
     str r5, [r1]
@@ -2907,7 +2907,7 @@ func_0802B260: @ 0x0802B260
     strb r7, [r0]
     add r0, sp, #0x18
     movs r2, #0
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     ldr r1, [sp, #0x64]
     strh r7, [r1]
     strh r7, [r1, #2]
@@ -13346,7 +13346,7 @@ sub_08030E0A: @ 0x08030E0A
     cmp r0, #0
     beq .L08031928
     mov r1, sp
-    bl func_08035A48
+    bl ReactToNearbyNpcLocation
 .L08031928:
     adds r4, #1
     cmp r4, #0x23

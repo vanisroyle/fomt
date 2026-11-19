@@ -51,11 +51,11 @@ struct FarmerEffectGraphics : FarmerIconGraphics
     u8 next_step_effect;
 };
 
-EC void func_0803260C(FarmerIconGraphics * graphics);
+EC void UpdateSideActorAnimationLayers(FarmerIconGraphics * graphics);
 EC void TickFarmerEffectGraphics(FarmerEffectGraphics * graphics) ENTITY_CODE(0802B3B4);
 EC void TickFarmerEffectGraphics(FarmerEffectGraphics * graphics)
 {
-    func_0803260C(graphics);
+    UpdateSideActorAnimationLayers(graphics);
     FarmerEntity * farmer = *reinterpret_cast<FarmerEntity **>(graphics);
     register u8 base_frame_changed asm("r3") = graphics->unk_44;
     register u16 * icon asm("r2") = &farmer->icon;
@@ -495,7 +495,7 @@ struct ItemDisplayGraphics : FarmerIconGraphics
 
 EC void InitializePrioritizedSideActorSprite(UnknownEntityThing * graphics, AEntity * entity, u32 sprite_mode, void const * config,
     u32 priority, u32 layer, u32 x, u32 y, bool enabled);
-EC void func_080A4A00(void * sprite, void * sprites, u32 animation, GameObject * game,
+EC void InitializeAnimatedMapSpriteSinglePalette(void * sprite, void * sprites, u32 animation, GameObject * game,
     u32 priority, u32 layer, bool mirrored);
 EC char const gUnk_080F1224[];
 EC char const vtable_unk_080E6644[];
@@ -509,7 +509,7 @@ EC ItemDisplayGraphics * InitItemDisplayGraphics(ItemDisplayGraphics * graphics,
     FarmerIconGameVTable const * table = *reinterpret_cast<FarmerIconGameVTable const **>(game);
     void * sprites = table->get_item_sprites(game);
     GameObject * sprite_game = display->game_object;
-    func_080A4A00(reinterpret_cast<u8 *>(graphics) + 0x8C, sprites, 0, sprite_game, 2, 1, false);
+    InitializeAnimatedMapSpriteSinglePalette(reinterpret_cast<u8 *>(graphics) + 0x8C, sprites, 0, sprite_game, 2, 1, false);
     graphics->icon = 0xFFFF;
     return graphics;
 }
@@ -896,7 +896,7 @@ EC void BeginItemDisplayStateTwo(ItemDisplayEntity * display)
 EC void TickItemDisplayIcon(FarmerIconGraphics * graphics) ENTITY_CODE(0802BFA0);
 EC void TickItemDisplayIcon(FarmerIconGraphics * graphics)
 {
-    func_0803260C(graphics);
+    UpdateSideActorAnimationLayers(graphics);
     ItemDisplayEntity * display = *reinterpret_cast<ItemDisplayEntity **>(graphics);
     if (display->HasThrownItem())
     {

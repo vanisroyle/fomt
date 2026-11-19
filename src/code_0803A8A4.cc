@@ -1,11 +1,17 @@
 #include "prelude.h"
 
 #include "bachelorette.hh"
+#include "dog.hh"
+#include "farm.hh"
 #include "farm_house.hh"
+#include "farmer.hh"
 #include "fixed_sprite_overlay.hh"
 #include "gbasvc.h"
+#include "map_overlay.hh"
+#include "message_script.hh"
 #include "npc.hh"
 #include "schedule_info.hh"
+#include "sprite_animation.hh"
 #include "unknown_types.hh"
 
 #include <algorithm>
@@ -14,34 +20,187 @@
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
 
-struct GameStateMapOverlay
+ROM_TEXT(0803A8A4) u32 GetMapGraphicsVariantId(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel)
 {
-    struct Frame
+    enum
     {
-        STRUCT_PAD(0x00, 0x20);
-        OverlayTileAllocation tiles;
+        FARM_MAP = 2,
+        COOP_MAP = 17,
+        FARMHOUSE_MAP = 29,
+        BARN_MAP = 37,
+        SPRING_MINE_FIRST_MAP = 52,
+        MAPS_PER_MINE = 256,
+        LAKE_MINE_FIRST_MAP = SPRING_MINE_FIRST_MAP + MAPS_PER_MINE,
+    };
+    enum Mine { SPRING_MINE, LAKE_MINE };
+    enum
+    {
+        MINE_FLOOR_ZERO_GRAPHICS = 56,
+        MINE_MULTIPLE_OF_FIVE_GRAPHICS = 57,
+        MINE_MULTIPLE_OF_THREE_GRAPHICS = 58,
+        MINE_DEFAULT_GRAPHICS = 59,
+        LAKE_MINE_FLOOR_NINE_GRAPHICS = 61,
     };
 
-    struct Placement
+    u32 mineMapOffset = mapId - SPRING_MINE_FIRST_MAP;
+    if (mineMapOffset < 2 * MAPS_PER_MINE)
     {
-        STRUCT_PAD(0x00, 0x1C);
-    };
+        unsigned floor;
+        Mine mine;
+        if (static_cast<i32>(mapId) >= LAKE_MINE_FIRST_MAP)
+        {
+            floor = mapId - LAKE_MINE_FIRST_MAP;
+            mine = LAKE_MINE;
+        }
+        else
+        {
+            floor = mineMapOffset;
+            mine = SPRING_MINE;
+        }
+        if (floor == 0)
+            return MINE_FLOOR_ZERO_GRAPHICS;
+        if (floor == 9 && mine == LAKE_MINE)
+            return LAKE_MINE_FLOOR_NINE_GRAPHICS;
+        if (floor % 5 == 0)
+            return MINE_MULTIPLE_OF_FIVE_GRAPHICS;
+        if (floor % 3 == 0)
+            return MINE_MULTIPLE_OF_THREE_GRAPHICS;
+        return MINE_DEFAULT_GRAPHICS;
+    }
 
-    OverlaySpriteResources * resources;
-    struct FrameList
+    // Keep the original case order for the Thumb jump table. Return values index MapData.
+    switch (mapId)
     {
-        unsigned count;
-        Frame entries[5];
-    } frames;
-    unsigned paletteCount;
-    u8 paletteIds[16];
-    STRUCT_PAD(0xE4, 0xE8);
-    struct PlacementList
-    {
-        unsigned count;
-        Placement entries[32];
-    } placements;
+    case FARM_MAP: return season == SEASON_WINTER ? 1 : 0;
+    case 6: return season != SEASON_WINTER ? 2 : 3;
+    case 5: return season != SEASON_WINTER ? 4 : 5;
+    case 7: return season != SEASON_WINTER ? 6 : 7;
+    case 1: return season != SEASON_WINTER ? 8 : 9;
+    case 3: return season != SEASON_WINTER ? 12 : 13;
+    case 4: return season != SEASON_WINTER ? 10 : 11;
+    case 0: return season != SEASON_WINTER ? 14 : 15;
+    case 8: return season != SEASON_WINTER ? 16 : 17;
+    case COOP_MAP:
+        switch (coopLevel)
+        {
+        case 0: return 36;
+        case 1: return 37;
+        }
+        break;
+    case BARN_MAP:
+        switch (barnLevel)
+        {
+        case 0: return 38;
+        case 1: return 39;
+        }
+        break;
+    case FARMHOUSE_MAP:
+        switch (houseLevel)
+        {
+        case 0: return 41;
+        case 1: return 42;
+        case 2: return 43;
+        }
+        break;
+    case 31: return 18;
+    case 32: return 19;
+    case 33: return 20;
+    case 34: return 21;
+    case 21: return 22;
+    case 22: return 23;
+    case 23: return 24;
+    case 15: return 25;
+    case 16: return 26;
+    case 36: return 27;
+    case 13: return 28;
+    case 19: return 29;
+    case 20: return 30;
+    case 12: return 31;
+    case 24: return 32;
+    case 25: return 33;
+    case 26: return 34;
+    case 27: return 35;
+    case 9: return 40;
+    case 10: return 44;
+    case 11: return 45;
+    case 41: return 46;
+    case 42: return 47;
+    case 38: return 48;
+    case 40: return 49;
+    case 30: return 50;
+    case 14: return 51;
+    case 28: return 52;
+    case 18: return 53;
+    case 35: return 54;
+    case 39: return 55;
+    case 43: return 60;
+    case 48: return 62;
+    case 49: return 63;
+    case 50: return 64;
+    case 51: return 65;
+    case 44:
+    case 45:
+    case 46: return 16;
+    case 47: return 17;
+    }
+    return 0;
+}
+
+struct MapOverlayParticleMotion
+{
+    i32 dxQ16;
+    i32 dyQ16;
 };
+
+EC MapOverlayParticleMotion const gMapOverlayParticleMotion[][2];
+EC void ResetMapOverlayParticle(MapOverlayParticle &, int cameraX, int cameraY);
+
+ROM_TEXT(0803B2A8) void UpdateGameStateMapOverlay(GameStateMapOverlay & overlay)
+{
+    unsigned kind = overlay.kind;
+    MapOverlayParticleMotion const * motion = gMapOverlayParticleMotion[kind];
+    unsigned motionIndex = 0;
+    unsigned particlesInGroup = 0;
+    unsigned groupSize;
+    switch (kind)
+    {
+    case 0:
+    default: groupSize = 2; break;
+    case 1: groupSize = 3; break;
+    }
+
+    int cameraX = overlay.scene->vtable->getCameraX(overlay.scene);
+    int cameraY = overlay.scene->vtable->getCameraY(overlay.scene);
+    unsigned count = overlay.particles.count;
+    unsigned index = 0;
+    if (index >= count)
+        return;
+
+    MapOverlayParticle * particle = overlay.particles.entries;
+    // Preserve the scaled index and address addition in the original Thumb code.
+    MapOverlayParticleMotion const * step = reinterpret_cast<MapOverlayParticleMotion const *>(
+        motionIndex * sizeof(MapOverlayParticleMotion) + reinterpret_cast<uintptr_t>(motion));
+    do
+    {
+        if (static_cast<i32>(AdvanceSpriteAnimator(&particle->animation) << (31 - SpriteAnimator::LOOP_FLAG_BIT)) < 0)
+            ResetMapOverlayParticle(*particle, cameraX, cameraY);
+
+        if (++particlesInGroup >= groupSize)
+        {
+            ++step;
+            if (++motionIndex >= ARRAY_COUNT(gMapOverlayParticleMotion[0]))
+            {
+                step = motion;
+                motionIndex = 0;
+            }
+            particlesInGroup = 0;
+        }
+        particle->xQ16 += step->dxQ16;
+        particle->yQ16 += step->dyQ16;
+        ++particle;
+        ++index;
+    } while (index < count);
+}
 
 EC void func_08007C28(OverlayTileAllocation *, u32);
 EC void TileHeapOwner_Destroy(OverlayTileAllocation *, unsigned);
@@ -84,12 +243,12 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
 
 ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
 {
-    overlay->resources->vtable->releasePalette(overlay->resources, overlay->paletteIds[0]);
+    overlay->scene->vtable->releasePalette(overlay->scene, overlay->palettes.ids[0]);
 
-    // The original compiler emitted this traversal even though placements own no tiles.
-    GameStateMapOverlay::PlacementList & placements = overlay->placements;
-    GameStateMapOverlay::Placement * placementsEnd = placements.entries + placements.count;
-    for (GameStateMapOverlay::Placement * placement = placements.entries; placement != placementsEnd; ++placement)
+    // The original compiler emitted this traversal even though particles own no tiles.
+    GameStateMapOverlay::ParticleList & particles = overlay->particles;
+    MapOverlayParticle * particlesEnd = particles.entries + particles.count;
+    for (MapOverlayParticle * particle = particles.entries; particle != particlesEnd; ++particle)
     {
     }
 
@@ -105,58 +264,217 @@ ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay
         __builtin_delete(overlay);
 }
 
-struct Unk_0803B454
+ROM_TEXT(0803B454) MapOverlayParticle & InitMapOverlayParticle(MapOverlayParticle & particle,
+    SpriteAnimator const & animation, int cameraX, int cameraY)
 {
-    u8 unk_00[16];
-    u16 unk_10;
-    u16 unk_12;
-};
-
-struct Unk_0803B474 : Unk_0803B454
-{
-    u32 x;
-    u32 y;
-};
-
-EC void func_0803B474(Unk_0803B474 &, int, int);
-
-ROM_TEXT(0803B454) Unk_0803B474 & func_0803B454(Unk_0803B474 & self, Unk_0803B454 const & source, int x, int y)
-{
-    static_cast<Unk_0803B454 &>(self) = source;
-    func_0803B474(self, x, y);
-    return self;
+    particle.animation = animation;
+    ResetMapOverlayParticle(particle, cameraX, cameraY);
+    return particle;
 }
 
-ROM_TEXT(0803B454) void func_0803B474(Unk_0803B474 & self, int x, int y)
+ROM_TEXT(0803B454) void ResetMapOverlayParticle(MapOverlayParticle & particle, int cameraX, int cameraY)
 {
-    self.x = (static_cast<u32>(x) + rand() % 240) << 16;
-    self.y = (static_cast<u32>(y) + rand() % 160) << 16;
+    particle.xQ16 = (static_cast<u32>(cameraX) + rand() % 240) << 16;
+    particle.yQ16 = (static_cast<u32>(cameraY) + rand() % 160) << 16;
     int sample = rand();
     int variation = 0x90;
     variation &= sample;
-    self.unk_10 = variation + 0x60;
+    particle.animation.speed_q8 = variation + 0x60;
 }
 
-struct Unk_0803B4B0
+struct GameScriptTextVariables
 {
     void const * vtable;
-    void * unk_04;
+    u8 * saveData;
     char labels[4][24];
 };
 
-EC char const vtable_unk_080E76E8[];
+EC char const gGameScriptTextVariablesVTable[];
+EC char const gGoldenLumberNickname[];
+EC char const gMissingHorseName[];
+EC char const gMissingChildName[];
+EC u8 * GetActiveRosterNpc(u8 *);
+EC char * GetNamedNpcName(u8 *);
 
-ROM_TEXT(0803B454) Unk_0803B4B0 & func_0803B4B0(Unk_0803B4B0 & self, void * unk)
+ROM_TEXT(0803B454) GameScriptTextVariables & InitializeGameScriptTextVariables(GameScriptTextVariables & self, u8 * saveData)
 {
-    self.vtable = vtable_unk_080E76E8;
-    self.unk_04 = unk;
+    self.vtable = gGameScriptTextVariablesVTable;
+    self.saveData = saveData;
     char (* label)[24] = self.labels;
     for (int remaining = ARRAY_COUNT(self.labels) - 1; remaining != -1; ++label, --remaining)
         (*label)[0] = '\0';
     return self;
 }
 
-ROM_TEXT(0803B6B8) void func_0803B6B8(Unk_0803B4B0 & self, unsigned index, char const * label)
+ROM_TEXT(0803B4DC) MessageScriptReplacement & ResolveGameScriptTextVariable(
+    MessageScriptReplacement & output, GameScriptTextVariables const & lookup, u32 placeholder)
+{
+    enum
+    {
+        PLAYER_NAME = 0xFF21,
+        HORSE_NAME = 0xFF22,
+        DOG_NAME = 0xFF23,
+        FARM_NAME = 0xFF24,
+        FIRST_SCRIPT_LABEL = 0xFF25,
+        SECOND_SCRIPT_LABEL = 0xFF26,
+        THIRD_SCRIPT_LABEL = 0xFF27,
+        FOURTH_SCRIPT_LABEL = 0xFF28,
+        PLAYER_DIALOGUE_ALIAS = 0xFF29,
+        CHILD_NAME = 0xFF2A,
+        FIRST_SAVED_LABEL = 0xFF2B,
+        SECOND_SAVED_LABEL = 0xFF2C,
+        THIRD_SAVED_LABEL = 0xFF2D,
+    };
+    enum
+    {
+        FARM_OFFSET = 0x14,
+        FARMER_OFFSET = 0x1BD8,
+        DOG_OFFSET = 0x1C70,
+        NPC_ROSTER_OFFSET = 0x1CD4,
+        DIALOGUE_FLAGS_OFFSET = 0x21C8,
+        GOLDEN_LUMBER_NICKNAME_BIT = 2,
+        FIRST_SAVED_LABEL_OFFSET = 0x21E0,
+        SECOND_SAVED_LABEL_OFFSET = 0x21F0,
+        THIRD_SAVED_LABEL_OFFSET = 0x2200,
+    };
+
+    // Keep the shared copy paths in the original Thumb register layout.
+    register MessageScriptReplacement * result asm("r6") = &output;
+    asm("" : "+l"(result));
+    register GameScriptTextVariables const * variables asm("r5") = &lookup;
+    asm("" : "+l"(variables));
+    char text[sizeof(output.text)];
+    register char const * source asm("r5");
+    register size_t length asm("r4");
+    char * terminator;
+    register u8 const * saveData asm("r0");
+    register unsigned offset asm("r1");
+    register char const * name asm("r0");
+    switch (placeholder)
+    {
+    case PLAYER_NAME:
+    {
+        Farm const & farm = *reinterpret_cast<Farm const *>(variables->saveData + FARM_OFFSET);
+        if (farm.HasGoldenLumberOnField()
+            && static_cast<i32>(static_cast<u32>(variables->saveData[DIALOGUE_FLAGS_OFFSET])
+                << (31 - GOLDEN_LUMBER_NICKNAME_BIT)) < 0)
+        {
+            source = gGoldenLumberNickname;
+            goto copyName;
+        }
+        name = GetFarmerName(*reinterpret_cast<Farmer const *>(variables->saveData + FARMER_OFFSET));
+        source = name;
+        asm("" : "+l"(source), "+l"(name));
+        goto returnedName;
+    }
+    case HORSE_NAME:
+    {
+        Horse const * horse = reinterpret_cast<Farm const *>(variables->saveData + FARM_OFFSET)->GetHorse();
+        char * horseNameBuffer = text;
+        source = horse ? horse->GetName() : gMissingHorseName;
+        length = strlen(source);
+        if (length > sizeof(text) - 1)
+            length = sizeof(text) - 1;
+        memcpy(horseNameBuffer, source, length);
+        terminator = horseNameBuffer + length;
+        goto terminate;
+    }
+    case DOG_NAME:
+        name = reinterpret_cast<Dog const *>(variables->saveData + DOG_OFFSET)->GetName();
+        source = name;
+        asm("" : "+l"(source), "+l"(name));
+        goto returnedName;
+    case PLAYER_DIALOGUE_ALIAS:
+        name = GetFarmerDialogueAlias(*reinterpret_cast<Farmer const *>(variables->saveData + FARMER_OFFSET));
+        source = name;
+        asm("" : "+l"(source), "+l"(name));
+        goto returnedName;
+    case CHILD_NAME:
+    {
+        u8 * child = GetActiveRosterNpc(variables->saveData + NPC_ROSTER_OFFSET);
+        asm("" : "+l"(child));
+        if (child)
+        {
+            name = GetNamedNpcName(GetActiveRosterNpc(variables->saveData + NPC_ROSTER_OFFSET));
+            source = name;
+            asm("" : "+l"(source), "+l"(name));
+            goto returnedName;
+        }
+        source = gMissingChildName;
+        length = strlen(source);
+        if (length > sizeof(text) - 1)
+            length = sizeof(text) - 1;
+        memcpy(text, source, length);
+        register char * buffer asm("r1") = text;
+        asm volatile("" : : "l"(buffer) : "memory");
+        register char * end asm("r0") = buffer + length;
+        asm("" : "+l"(end));
+        *end = static_cast<char>(reinterpret_cast<uintptr_t>(child)); // Reuse the null child pointer for the terminator.
+        result->found = 1;
+        strcpy(result->text, buffer);
+        break;
+    }
+    case FARM_NAME:
+        name = reinterpret_cast<Farm const *>(variables->saveData + FARM_OFFSET)->GetName();
+        source = name;
+        asm("" : "+l"(source), "+l"(name));
+        goto returnedName;
+    case FIRST_SCRIPT_LABEL:
+    case SECOND_SCRIPT_LABEL:
+    case THIRD_SCRIPT_LABEL:
+    case FOURTH_SCRIPT_LABEL:
+    {
+        register unsigned found asm("r4") = 1;
+        asm("" : "+l"(found));
+        register unsigned relativeOffset asm("r1") = placeholder * sizeof(variables->labels[0]);
+        asm("" : "+l"(relativeOffset));
+        unsigned labelBias = offsetof(GameScriptTextVariables, labels) - FIRST_SCRIPT_LABEL * sizeof(variables->labels[0]);
+        strcpy(text, reinterpret_cast<char const *>(relativeOffset + reinterpret_cast<uintptr_t>(variables) + labelBias));
+        result->found = found;
+        goto copyToOutput;
+    }
+    case FIRST_SAVED_LABEL:
+        saveData = variables->saveData;
+        offset = FIRST_SAVED_LABEL_OFFSET;
+        asm("" : "+l"(saveData), "+l"(offset));
+        goto savedLabel;
+    case SECOND_SAVED_LABEL:
+        saveData = variables->saveData;
+        offset = SECOND_SAVED_LABEL_OFFSET;
+        asm("" : "+l"(saveData), "+l"(offset));
+        goto savedLabel;
+    case THIRD_SAVED_LABEL:
+        saveData = variables->saveData;
+        offset = THIRD_SAVED_LABEL_OFFSET;
+        asm("" : "+l"(saveData), "+l"(offset));
+    savedLabel:
+        source = reinterpret_cast<char const *>(saveData + offset);
+        asm("" : "+l"(source));
+    copyName:
+        name = source;
+        asm("" : "+l"(name) : "l"(source));
+    returnedName:
+        length = strlen(name);
+        if (length > sizeof(text) - 1)
+            length = sizeof(text) - 1;
+        memcpy(text, source, length);
+        terminator = text + length;
+    terminate:
+        *terminator = '\0';
+        result->found = 1;
+    copyToOutput:
+        strcpy(result->text, text);
+        break;
+    default:
+        text[0] = '\0';
+        result->found = 0;
+        strcpy(result->text, text);
+        break;
+    }
+    return *result;
+}
+
+ROM_TEXT(0803B6B8) void SetGameScriptTextVariable(GameScriptTextVariables & self, unsigned index, char const * label)
 {
     char buf[24];
     size_t length = strlen(label);
@@ -166,26 +484,7 @@ ROM_TEXT(0803B6B8) void func_0803B6B8(Unk_0803B4B0 & self, unsigned index, char 
     buf[length] = '\0';
     unsigned offset = index * sizeof(self.labels[0]);
     char * record = reinterpret_cast<char *>(offset + reinterpret_cast<uintptr_t>(&self));
-    strcpy(record + offsetof(Unk_0803B4B0, labels), buf);
-}
-
-struct Unk_0803B6FC
-{
-    void const * vtable;
-    void * unk_04;
-    void * unk_08;
-};
-
-EC char const vtable_unk_080E7748[];
-
-ROM_TEXT(0803B6B8) Unk_0803B6FC & func_0803B6FC(Unk_0803B6FC & self, void *& owned, void * arg)
-{
-    self.vtable = vtable_unk_080E7748;
-    void * taken = owned;
-    owned = nullptr;
-    self.unk_04 = taken;
-    self.unk_08 = arg;
-    return self;
+    strcpy(record + offsetof(GameScriptTextVariables, labels), buf);
 }
 
 struct DialogWindowTilemapTask
@@ -845,9 +1144,29 @@ EC ScheduleInfo const gUnk_080F2DC0;
 EC ScheduleInfo const gUnk_080F597C;
 EC ScheduleInfo const gUnk_080F6B10;
 EC ScheduleInfo const gUnk_080F4974;
-EC ScheduleInfo const gUnk_080F29C0;
+EC ScheduleInfo const gChildScheduleInfo;
 EC Npc * GetActiveScheduleNpc(NpcScheduleRoster &);
-EC void ResetNpcDailySchedule(Npc &, ScheduleInfo const &, void const *);
+ROM_TEXT(0803D688) void ResetNpcDailySchedule(Npc & npc, ScheduleInfo const & info, void const * context)
+{
+    unsigned scheduleIndex = info.select_schedule(context);
+    PathInfo const * firstPath = nullptr;
+    if (info.schedules)
+    {
+        Schedule const * schedule = info.schedules[scheduleIndex];
+        if (schedule && schedule->num_time_entries && schedule->time_entries)
+            firstPath = schedule->time_entries[0].path;
+    }
+
+    ActorLocation start = firstPath
+        ? ActorLocation(Location(firstPath->location_start, firstPath->x_start, firstPath->y_start),
+            firstPath->facing_start)
+        : ActorLocation(Location(MAP_NONE, 0, 0), 0);
+    npc.SetLocation(start);
+    npc.schedule_index = scheduleIndex;
+    npc.schedule_path_index = 0;
+    npc.path_point_index = 0;
+    npc.path_point_elapsed_ticks = 0;
+}
 
 ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void const * context)
 {
@@ -884,7 +1203,7 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_328, gUnk_080F4974, context);
 
     if (Npc * npc = GetActiveScheduleNpc(self))
-        ResetNpcDailySchedule(*npc, gUnk_080F29C0, context);
+        ResetNpcDailySchedule(*npc, gChildScheduleInfo, context);
 }
 
 struct PACKED SavedCalendarDate
@@ -1199,7 +1518,6 @@ enum { KAREN_NPC_ID = 19 };
 
 struct G1NpcRoster;
 
-EC u8 * GetActiveRosterNpc(u8 *);
 EC Bachelorette * GetRosterBacheloretteById(G1NpcRoster *, u32);
 
 ROM_TEXT(0803DFE8) unsigned SelectKarenSchedule(NpcScheduleContext const & self)
@@ -1714,6 +2032,79 @@ ROM_TEXT(0803E780) unsigned SelectElliSchedule(NpcScheduleContext const & self)
     if (weekday == SCHEDULE_WEDNESDAY)
         return ELLI_SCHEDULE_WEDNESDAY;
     return ELLI_SCHEDULE_REGULAR;
+}
+
+enum ChildSchedule
+{
+    CHILD_SCHEDULE_ABSENT,
+    CHILD_SCHEDULE_REGULAR,
+    CHILD_SCHEDULE_LATE_MORNING,
+    CHILD_SCHEDULE_HOME_ALL_DAY,
+    CHILD_SCHEDULE_WALKING_AGE,
+    CHILD_SCHEDULE_AUTUMN_13,
+};
+
+enum { HARVEST_GODDESS_NPC_ID = 31 };
+
+EC u32 GetNamedNpcAgeDays(u8 *);
+
+ROM_TEXT(0803DCB4) unsigned SelectChildSchedule(NpcScheduleContext const & self)
+{
+    unsigned spouseNpcId, season, day, weekday, marriedVariant;
+    CalendarDate date;
+    u8 * roster = const_cast<u8 *>(self.unk_1CD4);
+    u8 * child = GetActiveRosterNpc(roster);
+    if (!child)
+        goto absent;
+    if (GetNamedNpcAgeDays(child) > 59)
+        goto walkingAge;
+    spouseNpcId = GetRosterMarriageCandidate(roster);
+    if (spouseNpcId == HARVEST_GODDESS_NPC_ID)
+        return CHILD_SCHEDULE_HOME_ALL_DAY;
+    DecodeNpcScheduleDate(date, self.calendar);
+    season = date.season;
+    day = date.day;
+    weekday = date.weekday;
+    if (season == SEASON_AUTUMN && day == 13)
+        return CHILD_SCHEDULE_AUTUMN_13;
+    if (IsNpcScheduleFestivalDay(season, day) || self.weather == 3 || self.weather == 4)
+        goto lateMorning;
+    marriedVariant = self.marriedScheduleVariant;
+    switch (spouseNpcId)
+    {
+    case MARY_NPC_ID:
+        if (weekday != SCHEDULE_MONDAY)
+            break;
+    lateMorning:
+        return CHILD_SCHEDULE_LATE_MORNING;
+    case POPURI_NPC_ID:
+        if (!marriedVariant)
+            goto lateMorning;
+        if (weekday != SCHEDULE_SUNDAY)
+            break;
+        // Keep the two Sunday checks separate for the original branch layout.
+        asm("" : : "r"(weekday));
+        goto lateMorning;
+    case KAREN_NPC_ID:
+        if (!marriedVariant || weekday == SCHEDULE_TUESDAY || weekday == SCHEDULE_SUNDAY)
+            goto lateMorning;
+        break;
+    case ELLI_NPC_ID:
+        if (weekday != SCHEDULE_WEDNESDAY)
+            break;
+        goto lateMorning;
+    case ANN_NPC_ID:
+        if (!marriedVariant)
+            goto lateMorning;
+        break;
+    case HARVEST_GODDESS_NPC_ID:
+        break;
+    }
+    return CHILD_SCHEDULE_REGULAR;
+walkingAge:
+    return CHILD_SCHEDULE_WALKING_AGE;
+absent:
+    return CHILD_SCHEDULE_ABSENT;
 }
 
 ROM_TEXT(0803E40C) unsigned SelectNpcSchedule_080F4974(NpcScheduleContext const & self)
