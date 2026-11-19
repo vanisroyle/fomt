@@ -1362,6 +1362,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B3C84);
         src/g3_chicken_festival.o(.text.g3_080B3C90);
         asm/code_809E804.o(.text.g3_after_080B3C90);
+        src/g3_minigame_scenes.o(.text.g3_080B3CC8);
+        asm/code_809E804.o(.text.g3_after_080B3CC8);
         src/g3_state.o(.text.g3_080B44E0);
         asm/code_809E804.o(.text.g3_after_080B44E0);
         src/g3_state.o(.text.g3_080B45E4);
@@ -1438,6 +1440,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080BC8F0);
         src/g3_chicken_festival.o(.text.g3_080BC8FC);
         asm/code_809E804.o(.text.g3_after_080BC8FC);
+        src/g3_minigame_scenes.o(.text.g3_080BC938);
+        asm/code_809E804.o(.text.g3_after_080BC938);
         src/g3_state.o(.text.g3_080BCCD4);
         asm/code_809E804.o(.text.g3_after_080BCCD4);
         src/g3_state.o(.text.g3_080BCEBC);
