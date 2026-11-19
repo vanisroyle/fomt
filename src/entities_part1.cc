@@ -8,6 +8,7 @@
 #include "item.hh"
 #include "farmer.hh"
 #include "farmer_entity_layout.hh"
+#include "entity_sound_channel.hh"
 #include "shipping_bin.hh"
 #include "coop.hh"
 #include <stdlib.h>
@@ -102,22 +103,8 @@ struct AnimalBehaviorTimer
     u32 unused : 8;
 };
 
-struct EntitySoundChannels
-{
-    void ** begin;
-    void ** end;
-};
-
 EC bool FarmerEntity_IsUsingCursedTool(FarmerEntity * self);
 
-struct EntitySoundGameVTable
-{
-    STRUCT_PAD(0x00, 0x14C);
-    EntitySoundChannels const * (*get_channels)(GameObject * game);
-};
-
-EC bool func_08008CD0(void * channel);
-EC void func_08008B6C(void * channel, u16 sound);
 EC void CancelFarmerItemDisplay(FarmerEntity * self);
 EC void ShowFarmerToolDisplay(FarmerEntity * self);
 EC void func_0800F4C0(HeldItem * self);
@@ -278,20 +265,6 @@ struct EntityMovementBounds
         return positive_x;
     }
 };
-
-inline void * FindEntitySoundChannel(GameObject * game)
-{
-    EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
-    EntitySoundChannels const * channels = table->get_channels(game);
-    void ** it = channels->begin;
-    void ** end = channels->end;
-    for (; it != end; ++it)
-    {
-        if (!func_08008CD0(*it))
-            return *it;
-    }
-    return end[-1];
-}
 
 inline i32 GetEntityFacing(AActorEntity const * self)
 {
@@ -551,8 +524,8 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->motion = 0;
     self->tool_state = 15;
     self->tool_level = 0;
-    self->unk_41 = false;
-    self->unk_42 = false;
+    self->tool_charge_limit = 0;
+    self->tool_charge_ticks = 0;
     self->unk_44 = 0;
     self->held_anim.Init();
     self->unk_78 = false;

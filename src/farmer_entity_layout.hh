@@ -75,8 +75,8 @@ struct FarmerEntity : AActorEntity
     u8 motion;
     u8 tool_state;
     u8 tool_level;
-    bool unk_41;
-    bool unk_42;
+    u8 tool_charge_limit;
+    u8 tool_charge_ticks;
     u8 unk_43;
     u16 unk_44;
     STRUCT_PAD(0x46, 0x60);
