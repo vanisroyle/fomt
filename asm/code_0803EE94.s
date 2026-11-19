@@ -29356,7 +29356,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	mov r2, sl
 	strb r0, [r2, #0x1a]
 	ldr r0, [sp, #0x14]
-	bl func_080ADD44
+	bl ResetMessageScript
 	movs r0, #0x90
 	lsls r0, r0, #1
 	add r0, r8
@@ -31350,7 +31350,7 @@ DrawMessageChoiceText: @ 0x080507F8
 	adds r0, r4, #0
 	adds r1, r7, #0
 	mov r2, r8
-	bl func_080ADD5C
+	bl StartMessageScript
 	adds r6, r5, #0
 	adds r5, r4, #0
 	ldr r4, .L08050864 @ =vtable_unk_080E78F0
