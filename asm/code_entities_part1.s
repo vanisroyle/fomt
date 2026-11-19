@@ -173,7 +173,7 @@ AEntity_PlayAnimationSound: @ 0x080200C4
     beq .L08020118
 .L08020102:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08020112
@@ -188,7 +188,7 @@ AEntity_PlayAnimationSound: @ 0x080200C4
     ldr r0, [r0]
 .L0802011C:
     lsrs r1, r6, #0x10
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r0, #1
     strb r0, [r7]
 .L08020126:
@@ -4313,7 +4313,7 @@ func_0802536C: @ 0x0802536C
     beq .L080256C0
 .L080256AE:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08025612
@@ -4325,7 +4325,7 @@ func_0802536C: @ 0x0802536C
     ldr r0, [r0]
 .L080256C4:
     movs r1, #0x69
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r3, #0
     movs r5, #0
     mov r0, r8
@@ -4611,7 +4611,7 @@ func_08025B64: @ 0x08025B64
     beq .L08025CA6
 .L08025C94:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08025C64
@@ -4623,7 +4623,7 @@ func_08025B64: @ 0x08025B64
     ldr r0, [r0]
 .L08025CAA:
     movs r1, #0xb6
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L08025E2E
 .L08025CB2:
     bl rand
@@ -5444,7 +5444,7 @@ func_0802634C: @ 0x0802634C
     beq .L0802681A
 .L08026808:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080267D6
@@ -5456,7 +5456,7 @@ func_0802634C: @ 0x0802634C
     ldr r0, [r0]
 .L0802681E:
     movs r1, #0xb6
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r0, #1
     strb r0, [r6]
     add sp, #8
@@ -6048,7 +6048,7 @@ func_08026830: @ 0x08026830
     beq .L08026CFE
 .L08026CEC:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08026CBA
@@ -6060,7 +6060,7 @@ func_08026830: @ 0x08026830
     ldr r0, [r0]
 .L08026D02:
     movs r1, #0xb6
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r0, #1
     strb r0, [r6]
     add sp, #8
@@ -7291,7 +7291,7 @@ func_0802720C: @ 0x0802720C
     beq .L080276FE
 .L080276EC:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080276BA
@@ -7303,7 +7303,7 @@ func_0802720C: @ 0x0802720C
     ldr r0, [r0]
 .L08027702:
     movs r1, #0xbc
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r0, #1
     strb r0, [r6]
     add sp, #8
@@ -7897,7 +7897,7 @@ func_0802771C: @ 0x0802771C
     beq .L08027BE6
 .L08027BD4:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08027B9E
@@ -7909,7 +7909,7 @@ func_0802771C: @ 0x0802771C
     ldr r0, [r0]
 .L08027BEA:
     movs r1, #0x6a
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r0, #1
     strb r0, [r6]
     add sp, #8
@@ -7947,7 +7947,7 @@ func_08027BFC: @ 0x08027BFC
     movs r2, #0xe5
     lsls r2, r2, #5
     adds r0, r0, r2
-    bl func_0800FFD0
+    bl ItemCollection_GetByteCount
     cmp r0, #0
     bne .L08027C3C
     b .L08028182
@@ -7956,13 +7956,13 @@ func_08027BFC: @ 0x08027BFC
     movs r3, #0xe5
     lsls r3, r3, #5
     adds r0, r0, r3
-    bl func_0800FFD4
+    bl ItemCollection_Begin
     adds r4, r0, #0
     ldr r0, [r6, #0x34]
     movs r1, #0xe5
     lsls r1, r1, #5
     adds r0, r0, r1
-    bl func_0800FFD8
+    bl ItemCollection_End
     adds r5, r0, #0
     adds r7, r6, #0
     adds r7, #0x88
@@ -8576,7 +8576,7 @@ func_08027BFC: @ 0x08027BFC
     beq .L08028164
 .L08028152:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802811E
@@ -9161,7 +9161,7 @@ func_08027BFC: @ 0x08027BFC
     beq .L08028628
 .L08028616:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080285E2
@@ -9174,7 +9174,7 @@ func_08027BFC: @ 0x08027BFC
 .L0802862C:
     movs r1, #0x6c
 .L0802862E:
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     movs r0, #1
 .L08028634:
     add sp, #0x14
@@ -9798,7 +9798,7 @@ func_08028644: @ 0x08028644
     beq .L08028B3C
 .L08028B2A:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08028AF6
@@ -9810,7 +9810,7 @@ func_08028644: @ 0x08028644
     ldr r0, [r0]
 .L08028B40:
     movs r1, #0x6c
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
 .L08028B46:
     add sp, #8
     pop {r4, r5, r6, r7}
@@ -10447,7 +10447,7 @@ func_08028B50: @ 0x08028B50
     beq .L08029068
 .L08029056:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08029022
@@ -10459,7 +10459,7 @@ func_08028B50: @ 0x08028B50
     ldr r0, [r0]
 .L0802906C:
     movs r1, #0x6c
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     add sp, #8
     pop {r4, r5, r6, r7}
     pop {r0}

@@ -109,24 +109,24 @@ vtable_unk_080E5B70:
 vtable_unk_080E5B80:
 	.incbin "baserom.gba", 0xE5B80, 0x10
 
-	.global vtable_unk_080E5B90
-vtable_unk_080E5B90:
+	.global gIrqTaskListVtable
+gIrqTaskListVtable:
 	.incbin "baserom.gba", 0xE5B90, 0x24
 
-	.global vtable_unk_080E5BB4
-vtable_unk_080E5BB4:
+	.global gTaskListVtable
+gTaskListVtable:
 	.incbin "baserom.gba", 0xE5BB4, 0x24
 
 	.global vtable_unk_080E5BD8
 vtable_unk_080E5BD8:
 	.incbin "baserom.gba", 0xE5BD8, 0x10
 
-	.global vtable_unk_080E5BE8
-vtable_unk_080E5BE8:
+	.global gTaskNodeVtable
+gTaskNodeVtable:
 	.incbin "baserom.gba", 0xE5BE8, 0x10
 
-	.global vtable_unk_080E5BF8
-vtable_unk_080E5BF8:
+	.global gGameSceneVtable
+gGameSceneVtable:
 	.incbin "baserom.gba", 0xE5BF8, 0x10
 
 	.global vtable_unk_080E5C08
@@ -958,19 +958,23 @@ vtable_unk_080E7A28:
 
 	.global vtable_unk_080E7A38
 vtable_unk_080E7A38:
-	.incbin "baserom.gba", 0xE7A38, 0x10
+	.incbin "baserom.gba", 0xE7A38, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A48
 vtable_unk_080E7A48:
-	.incbin "baserom.gba", 0xE7A48, 0x10
+	.incbin "baserom.gba", 0xE7A48, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A58
 vtable_unk_080E7A58:
-	.incbin "baserom.gba", 0xE7A58, 0x10
+	.incbin "baserom.gba", 0xE7A58, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A68
 vtable_unk_080E7A68:
-	.incbin "baserom.gba", 0xE7A68, 0x10
+	.incbin "baserom.gba", 0xE7A68, 0xC
+	.4byte DrawLivestockReport
 
 	.global vtable_unk_080E7A78
 vtable_unk_080E7A78:
