@@ -322,6 +322,8 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803EE50);
         src/script_engine.o(.text);
         asm/code_0803EE94.o(.text);
+        src/f2_dialogue.o(.text.f2_dialogue);
+        asm/code_0803EE94.o(.text.f2_after_dialogue);
 
         src/actor.o(.text);
         src/animal.o(.text);
