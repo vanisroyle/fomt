@@ -1085,7 +1085,7 @@ EC SECTION(".text.080ADB24") void ClearMapSceneObjectPaletteFlag(MapScene & scen
 {
     scene.objectPalettes[slot].flag = false;
 }
-EC void func_080A59BC(MapUpdateState & map, int x, int y, u32 pixelsPerStep);
+EC void StartMapCameraPan(MapUpdateState & map, int x, int y, u32 pixelsPerStep);
 EC void func_080A5960(MapUpdateState & map, int x, int y);
 
 EC SECTION(".text.080AD938") void SetMapGridCell(MapScene & scene, int column, int row, u32 const & value)
@@ -1228,7 +1228,7 @@ EC SECTION(".text.080ADB78") bool IsMapScrollIdle(MapScene & scene)
 
 EC SECTION(".text.080ADB9C") void ScrollMapTowardPixel(MapScene & scene, int x, int y, u32 pixelsPerStep)
 {
-    func_080A59BC(*scene.map, x, y, pixelsPerStep);
+    StartMapCameraPan(*scene.map, x, y, pixelsPerStep);
 }
 
 EC SECTION(".text.080ADBA8") void CenterMapScrollOnPixel(MapScene & scene, int x, int y)

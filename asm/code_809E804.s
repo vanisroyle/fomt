@@ -11879,7 +11879,7 @@ func_080ACC10: @ 0x080ACC10
 	adds r1, #0x10
 	adds r0, r6, #0
 	movs r2, #1
-	bl func_080A4944
+	bl LoadMapSpriteResourcePalettes
 	b .L080ACF52
 	.align 2, 0
 .L080ACF34: .4byte 0x00000C5C
@@ -11893,7 +11893,7 @@ func_080ACC10: @ 0x080ACC10
 	adds r1, #0x10
 	adds r0, r6, #0
 	movs r2, #1
-	bl func_080A4944
+	bl LoadMapSpriteResourcePalettes
 	movs r0, #1
 	strb r0, [r4]
 .L080ACF52:
@@ -11987,7 +11987,7 @@ func_080ACC10: @ 0x080ACC10
 	adds r1, #0x10
 	adds r0, r5, #0
 	movs r2, #1
-	bl func_080A4944
+	bl LoadMapSpriteResourcePalettes
 	b .L080AD02E
 	.align 2, 0
 .L080AD010: .4byte 0x00000C5C
@@ -12001,7 +12001,7 @@ func_080ACC10: @ 0x080ACC10
 	adds r1, #0x10
 	adds r0, r5, #0
 	movs r2, #1
-	bl func_080A4944
+	bl LoadMapSpriteResourcePalettes
 	movs r0, #1
 	strb r0, [r4]
 .L080AD02E:

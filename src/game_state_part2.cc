@@ -266,7 +266,7 @@ EC void ClearSupermarketRucksackDisplay(MapUpdateState & map);
 EC void ClearSupermarketBlueFeatherDisplay(MapUpdateState & map);
 EC void RequestMap29Refresh(MapUpdateState & map);
 EC bool IsMapTransitionIdle(GameStateMapView & view);
-EC void func_080A59BC(GameStateMapView & view, i32 x, i32 y, u32 speed);
+EC void StartMapCameraPan(GameStateMapView & view, i32 x, i32 y, u32 speed);
 EC void func_080A5960(GameStateMapView & view, i32 x, i32 y);
 EC void SetAlternateMapPatch(u32 & flags, u32 index);
 EC void ClearAlternateMapPatch(u32 & flags, u32 index);
@@ -888,7 +888,7 @@ EC SECTION(".text.game_state_c2.0801FD58") u32 GameStateGetMapViewId(GameStateMa
 
 EC SECTION(".text.game_state_c2.0801FD60") void GameStatePanCamera(GameStateMapOwner & game, i32 x, i32 y, u32 speed)
 {
-    func_080A59BC(*game.map_view, x, y, speed);
+    StartMapCameraPan(*game.map_view, x, y, speed);
 }
 
 EC SECTION(".text.game_state_c2.0801FD6C") void GameStateSetCameraCenter(GameStateMapOwner & game, i32 x, i32 y)
