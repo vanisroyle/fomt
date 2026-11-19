@@ -485,7 +485,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CFB28);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
-        asm/code_080D035C.o(.text);
+        src/g5_runtime.o(.text.g5_080D035C);
         src/g5_runtime.o(.text.g5_requests);
         asm/code_080D035C.o(.text.g5_0490);
         src/g5_runtime.o(.text.g5_transfer);
