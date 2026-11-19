@@ -14,7 +14,7 @@ EC void * __builtin_new(size_t size);
 EC NewGameRenderTask * NameEntryScene_CreateTask(void * storage, void * promptText, u32 initialNameAddress) __asm__("func_08005A58");
 EC void NewGameScene_DestroyBase(void * self, int destructorFlags) __asm__("func_080007EC");
 EC NewGameRenderTask * NewGameMenu_CreateTask(void * storage, void * gameData, void * transitionOwner) __asm__("func_080041DC");
-EC NewGameRenderTask * NewGameChoiceDialog_CreateTask(void * storage, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) __asm__("func_08004EFC");
+EC NewGameRenderTask * NewGameChoiceDialog_CreateTask(void * storage, void * farmerName, void * packedBirthday, u32 farmNameAddress, u32 dogNameAddress) __asm__("func_08004EFC");
 EC void DestroyMessageWindow(void * self, int destructorFlags);
 EC void NewGameScene_DestroyRenderTaskBase(void * self, int destructorFlags) __asm__("func_080086BC");
 EC void * NewGameScene_GetRenderContext(void * self) __asm__("func_080088DC");
@@ -250,11 +250,11 @@ EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, 
     NewGameScene_DestroyRenderTaskBase(self, destructorFlags);
 }
 
-EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) SECTION(".text.func_0800598C");
-EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress)
+EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * farmerName, void * packedBirthday, u32 farmNameAddress, u32 dogNameAddress) SECTION(".text.func_0800598C");
+EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * farmerName, void * packedBirthday, u32 farmNameAddress, u32 dogNameAddress)
 {
     self->vtable = gNewGameChoiceDialogSceneVtable;
-    self->task = NewGameChoiceDialog_CreateTask(__builtin_new(0x1A78), summaryText, selectionContext, detailTextAddress, footerTextAddress);
+    self->task = NewGameChoiceDialog_CreateTask(__builtin_new(0x1A78), farmerName, packedBirthday, farmNameAddress, dogNameAddress);
     return self;
 }
 
@@ -397,7 +397,7 @@ EC void func_08006858(NameEntrySceneTask * self) ALIAS(NameEntryScene_SubmitSpri
 EC void func_08003C28(char * self) ALIAS(NewGameMenu_UpdateMessage);
 EC NewGameSceneTaskOwner * func_08004B58(NewGameSceneTaskOwner * self) ALIAS(NewGameMenuScene_Initialize);
 EC NewGameSceneTaskOwner * func_08004B94(NewGameSceneTaskOwner * self, void * gameData, NewGameSceneTransitionOwner & transitionOwner) ALIAS(NewGameMenuScene_InitializeWithTransition);
-EC NewGameSceneTaskOwner * func_0800598C(NewGameSceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) ALIAS(NewGameChoiceDialogScene_Initialize);
+EC NewGameSceneTaskOwner * func_0800598C(NewGameSceneTaskOwner * self, void * farmerName, void * packedBirthday, u32 farmNameAddress, u32 dogNameAddress) ALIAS(NewGameChoiceDialogScene_Initialize);
 EC bool func_08006C60(NameEntrySceneTask * self) ALIAS(NameEntryScene_PrepareConfirmedName);
 EC void * func_08004C48(void ** self) ALIAS(NewGameSetupScene_Initialize);
 EC void func_080059D0(NewGameSceneTaskOwner * self, int destructorFlags) ALIAS(NewGameChoiceDialogScene_Destroy);

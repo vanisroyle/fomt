@@ -144,7 +144,8 @@ EC void NewGameMenu_UpdateMessage(char * self);
 EC NewGameSceneTaskOwner * NewGameMenuScene_Initialize(NewGameSceneTaskOwner * self);
 EC NewGameSceneTaskOwner * NewGameMenuScene_InitializeWithTransition(NewGameSceneTaskOwner * self, void * gameData, NewGameSceneTransitionOwner & transitionOwner);
 EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, int destructorFlags);
-EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress);
+// The legacy assembly ABI carries packed birthday bits in the pointer-sized r2 argument.
+EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * farmerName, void * packedBirthday, u32 farmNameAddress, u32 dogNameAddress);
 EC void NameEntryScene_DestroyTask(NameEntrySceneTaskLifetime * self, int destructorFlags);
 EC bool NameEntryScene_PrepareConfirmedName(NameEntrySceneTask * self);
 EC void NewGameMenuScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags);
