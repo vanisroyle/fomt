@@ -260,7 +260,7 @@ func_08010358: @ 0x08010358
     movs r3, #0xd2
     lsls r3, r3, #6
     adds r0, r6, r3
-    bl func_0809C144
+    bl InitCursedToolProgress
     ldr r0, .L08010648 @ =0x00003494
     adds r2, r6, r0
     movs r3, #2
@@ -292,7 +292,7 @@ func_08010358: @ 0x08010358
     ldr r2, [sp, #0x48]
     ldr r3, .L08010658 @ =0x000034D8
     adds r0, r2, r3
-    bl func_0809C4E4
+    bl ResetMapPatchVariants
     ldr r6, [sp, #0x48]
     ldr r1, .L0801065C @ =0x000034DC
     adds r0, r6, r1
@@ -1758,7 +1758,7 @@ func_08010F54: @ 0x08010F54
     bl func_080A0B18
     adds r0, r4, #0
     adds r1, r6, #0
-    bl func_0803D7E4
+    bl ResetAllNpcDailySchedules
     ldr r1, .L0801121C @ =0x00001F64
     adds r4, r6, r1
     adds r0, r4, #0
@@ -2382,7 +2382,7 @@ func_08011650: @ 0x08011650
     movs r3, #0xd2
     lsls r3, r3, #6
     adds r0, r7, r3
-    bl func_0809C144
+    bl InitCursedToolProgress
     ldr r0, .L080118C0 @ =0x00003494
     adds r2, r7, r0
     movs r3, #2
@@ -2404,7 +2404,7 @@ func_08011650: @ 0x08011650
     bl NpcScheduleNoOp
     ldr r2, .L080118C8 @ =0x000034D8
     adds r0, r7, r2
-    bl func_0809C4E4
+    bl ResetMapPatchVariants
     ldr r3, .L080118CC @ =0x000034DC
     adds r0, r7, r3
     bl func_0809BFE8
@@ -21500,7 +21500,7 @@ func_0801DDCC: @ 0x0801DDCC
     ldr r1, .L0801DDF4 @ =0x000034D8
     adds r0, r0, r1
     adds r1, r5, #0
-    bl func_0809C5B4
+    bl SetAlternateMapPatch
     ldr r0, [r4, #4]
     adds r1, r5, #0
     bl func_080AA850
@@ -21522,7 +21522,7 @@ func_0801DDF8: @ 0x0801DDF8
     ldr r1, .L0801DE20 @ =0x000034D8
     adds r0, r0, r1
     adds r1, r5, #0
-    bl func_0809C5D0
+    bl ClearAlternateMapPatch
     ldr r0, [r4, #4]
     adds r1, r5, #0
     bl func_080AA850
