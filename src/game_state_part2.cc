@@ -8,6 +8,7 @@ struct GameStateAudioList;
 struct GameStateMapEffect;
 struct GameStatePlayerData;
 struct GameStateScript;
+struct MineFloor;
 struct Unk_0800E324;
 
 struct GameStateCameraCoordinate
@@ -121,6 +122,18 @@ struct GameStateFarmPlot
     u16 plot_x;
     u16 plot_y;
 };
+
+struct GameStateMinePlot
+{
+    u16 tile_x;
+    u16 tile_y;
+    u16 plot_x;
+    u16 plot_y;
+};
+
+EC u32 GetMineFloorKind(MineFloor const & floor);
+EC int GetMineFloorWidth(MineFloor const & floor);
+EC int GetMineFloorHeight(MineFloor const & floor);
 
 enum GameStatePlotPlacement
 {
@@ -479,6 +492,73 @@ EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
         result.tile_y = plot_y * 2 + origin_y;
         result.plot_x = plot_x;
         result.plot_y = plot_y;
+        found = true;
+    }
+done:
+    return found;
+}
+
+EC SECTION(".text.game_state_c2.0801C198") bool GameStateFindMinePlot(
+    GameStateMapOwner & game, Location const & location, GameStateMinePlot & result)
+{
+    bool found = false;
+    if (location.GetMap() - 0x34 <= 0x1FF)
+    {
+        MineFloor const & floor = *reinterpret_cast<MineFloor const *>(reinterpret_cast<u8 const *>(game.map_data) + 0x2E58);
+        u32 tile_x = location.GetX() / 8;
+        u32 tile_y = location.GetY() / 8;
+        register u32 left asm("r8");
+        switch (GetMineFloorKind(floor))
+        {
+            case 1:
+            {
+                register u32 origin_x asm("r1") = 2;
+                asm("" : "=l"(origin_x) : "0"(origin_x), "i"(1));
+                left = origin_x;
+                break;
+            }
+            case 3:
+            {
+                register u32 origin_x asm("r1") = 2;
+                asm("" : "=l"(origin_x) : "0"(origin_x), "i"(3));
+                left = origin_x;
+                break;
+            }
+            case 0:
+            case 2:
+            case 4:
+            default:
+                left = 2;
+                asm("" : "=h"(left) : "0"(left), "i"(0));
+                break;
+        }
+        register u32 top asm("r3") = 7;
+        asm("" : "=l"(top) : "0"(top));
+        u32 min_x = 2;
+        if (tile_x < min_x || tile_y < top)
+            goto done;
+
+        register MineFloor const * width_floor asm("r0") = &floor;
+        asm("" : "=l"(width_floor) : "0"(width_floor));
+        u32 saved_top = top;
+        asm("" : : "m"(saved_top));
+        u32 width = GetMineFloorWidth(*width_floor);
+        if (width * 2 + left <= tile_x)
+            goto done;
+
+        u32 height = GetMineFloorHeight(floor) * 2;
+        asm("" : "=m"(saved_top) : "m"(saved_top));
+        top = saved_top;
+        if (top + height <= tile_y)
+            goto done;
+
+        u32 plot_x = (tile_x - left) / 2;
+        u32 plot_y = (tile_y - top) / 2;
+        result.tile_x = plot_x * 2 + left;
+        result.tile_y = plot_y * 2 + top;
+        result.plot_x = plot_x;
+        result.plot_y = plot_y;
+        asm("" : : "l"(top));
         found = true;
     }
 done:
