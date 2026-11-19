@@ -319,7 +319,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateIsCameraIdle
 	.word GameStateGetMapWidthPixels
 	.word GameStateGetMapHeightPixels
-	.word func_0801A054 @ 30
+	.word GameStateGetMapTerrain @ 34
 	.word func_0801A8E0
 	.word GameStateRemoveEntitySlot
 	.word GameStateGetEntitySlot

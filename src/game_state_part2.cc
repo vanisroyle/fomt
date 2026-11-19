@@ -30,8 +30,24 @@ struct GameStateMapView
     u32 map;
     GameStateCameraCoordinate camera_x;
     GameStateCameraCoordinate camera_y;
-    STRUCT_PAD(0x10, 0x90);
+    STRUCT_PAD(0x10, 0x2C);
+    TerrainInfo const * expanded_terrain;
+    STRUCT_PAD(0x30, 0x90);
     GameStateMapDisplayVtable const * display_vtable;
+};
+
+struct GameStateMapTerrain
+{
+    GameStateMapTerrain(TerrainInfo const * info, u8 const * map, u16 width, u16 height)
+        : info(info), map(map), width(width), height(height) {}
+
+    GameStateMapTerrain(TerrainInfo const * info, u16 width, u16 height)
+        : info(info), map(nullptr), width(width), height(height) {}
+
+    TerrainInfo const * info;
+    u8 const * map;
+    u16 width;
+    u16 height;
 };
 
 struct GameStateMapData
@@ -166,7 +182,8 @@ struct GameStateMapOwner
     STRUCT_PAD(0x1044, 0x1048);
     u32 daylight_band;
     u8 daylight_amount;
-    STRUCT_PAD(0x104D, 0x1054);
+    STRUCT_PAD(0x104D, 0x1050);
+    TerrainInfo const * farm_terrain;
     GameStateScript * script;
     SmartPtr<GameStateMapInteraction> interaction;
     STRUCT_PAD(0x105C, 0x107C);
@@ -256,6 +273,50 @@ EC SECTION(".text.game_state_c2.08019FE8") u32 GameStateGetMapHeightPixels(GameS
     u32 coop_level = state->farm.coop.GetUpgradeLevel();
     u32 barn_level = state->farm.barn.GetUpgradeLevel();
     return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->height * 8;
+}
+
+EC SECTION(".text.game_state_c2.0801A054") GameStateMapTerrain GameStateGetMapTerrain(GameStateMapOwner const & game, u32 map)
+{
+    if (map >= MAP_NONE)
+        return GameStateMapTerrain(nullptr, nullptr, 0, 0);
+
+    u32 current_map = game.map_view->id;
+    if (map == 2 && current_map != 2)
+        return GameStateMapTerrain(game.farm_terrain, 128, 88);
+
+    u32 variant;
+    if (current_map == map)
+    {
+        variant = game.map_view->map;
+    }
+    else
+    {
+        GameStateMapData * const & state = game.map_data;
+        u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+        u32 house_level = state->farm.farm_house.GetUpgradeLevel();
+        u32 coop_level = state->farm.coop.GetUpgradeLevel();
+        u32 barn_level = state->farm.barn.GetUpgradeLevel();
+        variant = func_0803A8A4(map, season, house_level, coop_level, barn_level);
+    }
+
+    MapData const * data = GetMapData(variant);
+    u16 width = data->width;
+    u16 height = data->height;
+    TerrainInfo const * info;
+    u8 const * terrain_map;
+    if (current_map == map)
+    {
+        GameStateMapView const & view = *game.map_view;
+        GetMapData(view.map);
+        terrain_map = nullptr;
+        info = view.expanded_terrain;
+    }
+    else
+    {
+        terrain_map = data->terrain_map;
+        info = data->terrain_info;
+    }
+    return GameStateMapTerrain(info, terrain_map, width, height);
 }
 
 EC SECTION(".text.game_state_c2.0801A8C0") u32 GameStateGetTimeOfDayBand(GameStateMapOwner const &, u32 hour)
