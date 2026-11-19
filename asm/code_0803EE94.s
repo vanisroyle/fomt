@@ -1190,7 +1190,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r1, r6, #0
 	adds r2, r7, #0
 	add r3, sp, #0xc
-	bl func_080123CC
+	bl GameScript_ConfigureMusic
 	bl .L08045572
 .L08040480:
 	movs r2, #0xd5
@@ -1576,7 +1576,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp]
 	str r1, [sp, #4]
 	adds r1, r6, #0
-	bl func_08012860
+	bl GameScript_StartDialogueWithOptions
 	bl .L0804168A
 	.align 2, 0
 .L08040778: .4byte 0x080F9EB8
@@ -1701,7 +1701,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r1, #0
 	str r1, [sp, #4]
 	adds r1, r7, #0
-	bl func_08012860
+	bl GameScript_StartDialogueWithOptions
 	bl .L0804168A
 	.align 2, 0
 .L08040864: .4byte 0x080F9EB8
@@ -1851,7 +1851,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r6, [sp]
 	str r1, [sp, #4]
 	adds r1, r7, #0
-	bl func_08012860
+	bl GameScript_StartDialogueWithOptions
 	bl .L0804168A
 	.align 2, 0
 .L0804097C: .4byte 0x080F9EB8
@@ -8357,7 +8357,7 @@ func_0803F8DC: @ 0x0803F8DC
 	orrs r0, r2
 	strh r0, [r1]
 	adds r0, r5, #0
-	bl func_08014318
+	bl GameScript_UpdateTextPanel
 	bl .L08045572
 	.align 2, 0
 .L08043E2C: .4byte 0xFFFFF81F

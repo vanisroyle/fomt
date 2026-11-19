@@ -3292,8 +3292,9 @@ func_080122E0: @ 0x080122E0
 
     .section .text.game_state_080123CC, "ax", %progbits
 
-    thumb_func_start func_080123CC
-func_080123CC: @ 0x080123CC
+
+    thumb_func_start GameScript_ConfigureMusic
+GameScript_ConfigureMusic: @ 0x080123CC
     push {r4, r5, lr}
     adds r5, r3, #0
     ldr r4, [r0, #4]
@@ -3357,7 +3358,6 @@ func_080123CC: @ 0x080123CC
     bx r0
     .align 2, 0
 .L08012450: .4byte 0x0000FFFF
-
     .section .text.game_state_08012464, "ax", %progbits
 
 
@@ -3654,8 +3654,9 @@ func_080127A0: @ 0x080127A0
 
     .section .text.game_state_08012860, "ax", %progbits
 
-    thumb_func_start func_08012860
-func_08012860: @ 0x08012860
+
+    thumb_func_start GameScript_StartDialogueWithOptions
+GameScript_StartDialogueWithOptions: @ 0x08012860
     push {r4, r5, r6, r7, lr}
     sub sp, #0xc
     adds r6, r1, #0
@@ -3715,7 +3716,7 @@ func_08012860: @ 0x08012860
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
+    .section .text.game_state_080128D0, "ax", %progbits
     thumb_func_start func_080128D0
 func_080128D0: @ 0x080128D0
     push {r4, r5, r6, r7, lr}
@@ -6686,8 +6687,9 @@ func_08013F88: @ 0x08013F88
 
     .section .text.game_state_08014318, "ax", %progbits
 
-    thumb_func_start func_08014318
-func_08014318: @ 0x08014318
+
+    thumb_func_start GameScript_UpdateTextPanel
+GameScript_UpdateTextPanel: @ 0x08014318
     push {r4, r5, r6, r7, lr}
     ldr r4, [r0, #4]
     adds r5, r4, #0
@@ -6737,7 +6739,7 @@ func_08014318: @ 0x08014318
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
+    .section .text.game_state_0801437C, "ax", %progbits
     thumb_func_start func_0801437C
 func_0801437C: @ 0x0801437C
     push {r4, r5, r6, r7, lr}
@@ -11972,8 +11974,9 @@ func_08016FA4: @ 0x08016FA4
 .L08017178: .4byte 0xFFFFFECC
 .L0801717C: .4byte 0x00001BD8
 
-    thumb_func_start func_08017180
-func_08017180: @ 0x08017180
+
+    thumb_func_start GameStateGraphics_BlitIndexedTileBlock
+GameStateGraphics_BlitIndexedTileBlock: @ 0x08017180
     push {r4, r5, r6, r7, lr}
     mov r7, sb
     mov r6, r8
@@ -12038,7 +12041,7 @@ func_08017180: @ 0x08017180
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
+    .section .text.game_state_080171F8, "ax", %progbits
     thumb_func_start func_080171F8
 func_080171F8: @ 0x080171F8
     push {r4, r5, r6, r7, lr}
@@ -12168,7 +12171,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0x1a
-    bl func_08017180
+    bl GameStateGraphics_BlitIndexedTileBlock
     b .L0801733A
     .align 2, 0
 .L080172F8: .4byte gUnk_0810692C
@@ -12185,7 +12188,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0x12
-    bl func_08017180
+    bl GameStateGraphics_BlitIndexedTileBlock
     b .L0801733A
     .align 2, 0
 .L0801731C: .4byte gUnk_0810695C
@@ -12201,7 +12204,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0xa
-    bl func_08017180
+    bl GameStateGraphics_BlitIndexedTileBlock
 .L0801733A:
     ldr r2, [sp, #8]
     ldr r1, .L08017358 @ =0x000005DC
@@ -12228,7 +12231,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0x3a
-    bl func_08017180
+    bl GameStateGraphics_BlitIndexedTileBlock
     b .L08017398
     .align 2, 0
 .L08017378: .4byte gUnk_081069BC
@@ -12245,7 +12248,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0x3a
-    bl func_08017180
+    bl GameStateGraphics_BlitIndexedTileBlock
 .L08017398:
     ldr r2, [sp, #8]
     movs r1, #0xff
@@ -12272,7 +12275,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0xe
-    bl func_08017180
+    bl GameStateGraphics_BlitIndexedTileBlock
     b .L080173F4
     .align 2, 0
 .L080173D4: .4byte gUnk_08106A1C
@@ -12289,7 +12292,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0xe
-    bl func_08017180
+    bl GameStateGraphics_BlitIndexedTileBlock
 .L080173F4:
     add sp, #0x18
     pop {r3, r4, r5}
@@ -12303,59 +12306,8 @@ func_080171F8: @ 0x080171F8
 .L08017404: .4byte gUnk_08106A4C
 .L08017408: .4byte gUnk_08106A64
 
-    thumb_func_start func_0801740C
-func_0801740C: @ 0x0801740C
-    push {lr}
-    ldr r0, [r0]
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x1a
-    subs r0, #0x1b
-    cmp r0, #0xb
-    bhi .L08017458
-    lsls r0, r0, #2
-    ldr r1, .L08017424 @ =.L08017428
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L08017424: .4byte .L08017428
-.L08017428: @ jump table
-    .4byte .L08017458 @ case 0
-    .4byte .L0801745C @ case 1
-    .4byte .L08017460 @ case 2
-    .4byte .L08017464 @ case 3
-    .4byte .L08017458 @ case 4
-    .4byte .L0801745C @ case 5
-    .4byte .L08017460 @ case 6
-    .4byte .L08017464 @ case 7
-    .4byte .L08017458 @ case 8
-    .4byte .L0801745C @ case 9
-    .4byte .L08017460 @ case 10
-    .4byte .L08017464 @ case 11
-.L08017458:
-    movs r0, #0
-    b .L08017466
-.L0801745C:
-    movs r0, #1
-    b .L08017466
-.L08017460:
-    movs r0, #2
-    b .L08017466
-.L08017464:
-    movs r0, #3
-.L08017466:
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801746C:
-    .byte 0x00, 0xB5, 0x00, 0x68
-    .byte 0x00, 0x06, 0x80, 0x0E, 0x1B, 0x38, 0x0B, 0x28, 0x1E, 0xD8, 0x80, 0x00, 0x01, 0x49, 0x40, 0x18
-    .byte 0x00, 0x68, 0x87, 0x46, 0x88, 0x74, 0x01, 0x08, 0xB8, 0x74, 0x01, 0x08, 0xB8, 0x74, 0x01, 0x08
-    .byte 0xB8, 0x74, 0x01, 0x08, 0xB8, 0x74, 0x01, 0x08, 0xBC, 0x74, 0x01, 0x08, 0xBC, 0x74, 0x01, 0x08
-    .byte 0xBC, 0x74, 0x01, 0x08, 0xBC, 0x74, 0x01, 0x08, 0xC0, 0x74, 0x01, 0x08, 0xC0, 0x74, 0x01, 0x08
-    .byte 0xC0, 0x74, 0x01, 0x08, 0xC0, 0x74, 0x01, 0x08, 0x00, 0x20, 0x02, 0xE0, 0x01, 0x20, 0x00, 0xE0
-    .byte 0x02, 0x20, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
 
+    .section .text.game_state_080174C8, "ax", %progbits
     thumb_func_start func_080174C8
 func_080174C8: @ 0x080174C8
     push {r4, r5, r6, r7, lr}
@@ -19957,7 +19909,7 @@ func_0801C874: @ 0x0801C874
     cmp r0, #0
     beq .L0801C916
     adds r0, r4, #0
-    bl func_0801740C
+    bl GameStateVariant_GetColumn
     cmp r0, #1
     beq .L0801C8C8
     cmp r0, #1
@@ -20319,7 +20271,7 @@ func_0801CDBC: @ 0x0801CDBC
     cmp r0, #0
     beq .L0801CE5E
     adds r0, r4, #0
-    bl func_0801740C
+    bl GameStateVariant_GetColumn
     cmp r0, #1
     beq .L0801CE10
     cmp r0, #1
@@ -21124,7 +21076,7 @@ func_0801DB58: @ 0x0801DB58
     adds r0, r4, #0
     movs r1, #1
     mov r3, sp
-    bl func_080123CC
+    bl GameScript_ConfigureMusic
     add sp, #0xc
     pop {r4, r5}
     pop {r0}

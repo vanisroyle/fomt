@@ -340,7 +340,8 @@ struct GameStateRuntime
     GameStateObject * scene;
     void * dialogue;
     void * textVariables;
-    STRUCT_PAD(0xB4, 0xBC);
+    void * textPanel;
+    void * secondaryTextPanel;
     u8 musicPlayer[0x14];
     GameStateAudioList soundPlayers;
     u16 pendingArgument;
@@ -485,6 +486,44 @@ EC void func_08008B6C(void * self, u16 amount);
 EC void func_08008B88(void * self, u16 amount);
 EC void func_08008BB0(void * self, u16 amount);
 EC void func_08008BF8(void * self, u32 speed);
+struct GameStateVariant
+{
+    u32 reserved : 2;
+    u32 variant : 6;
+};
+
+// 0x0801740C
+EC u32 SECTION(".text.game_state_0801740C") GameStateVariant_GetColumn(GameStateVariant const & header)
+{
+    switch (header.variant)
+    {
+    default:
+    case 27: case 31: case 35:
+        return 0;
+    case 28: case 32: case 36:
+        return 1;
+    case 29: case 33: case 37:
+        return 2;
+    case 30: case 34: case 38:
+        return 3;
+    }
+}
+
+// 0x0801746C
+EC u32 SECTION(".text.game_state_0801746C") GameStateVariant_GetRow(GameStateVariant const & header)
+{
+    switch (header.variant)
+    {
+    default:
+    case 27: case 28: case 29: case 30:
+        return 0;
+    case 31: case 32: case 33: case 34:
+        return 1;
+    case 35: case 36: case 37: case 38:
+        return 2;
+    }
+}
+
 
 struct __attribute__((packed, aligned(2))) GameStateHalfCounter
 {
