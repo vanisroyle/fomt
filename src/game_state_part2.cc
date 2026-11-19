@@ -50,6 +50,13 @@ struct GameStateMapTerrain
     u16 height;
 };
 
+struct GameStateMapCalendar
+{
+    u8 year;
+    GameDate date;
+    u8 hour : 5;
+};
+
 struct GameStateMapData
 {
     STRUCT_PAD(0x0, 0x3);
@@ -57,7 +64,7 @@ struct GameStateMapData
     u8 map_12_scenery_variant : 1;
     u8 map_27_scenery_variant : 1;
     STRUCT_PAD(0x5, 0x10);
-    u8 clock[4];
+    GameStateMapCalendar clock;
     Farm farm;
     u8 reserved[0x1BD8 - 0x14 - sizeof(Farm)];
     Farmer farmer;
@@ -199,7 +206,9 @@ struct GameStateMapOwner
     SmartPtr<GameStateMapInteraction> interaction;
     SmartPtr<GameStateMapInteraction> scenery;
     bool scenery_active;
-    STRUCT_PAD(0x1061, 0x107C);
+    STRUCT_PAD(0x1061, 0x1064);
+    SmartPtr<GameStateMapInteraction> timed_interaction;
+    STRUCT_PAD(0x1068, 0x107C);
     GameStateMapOverlay * map_overlay;
     STRUCT_PAD(0x1080, 0x10C8);
     bool day_update_requested;
@@ -540,6 +549,35 @@ EC SECTION(".text.game_state_c2.0801F14C") void GameStateRefreshMapScenery(GameS
     GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
     GameStatePackedSpriteArchive const * archive = game.vtable->get_scenery_archive(game);
     game.scenery = func_080A4A00(storage, archive, variant, game, 2, 0x1B, false);
+}
+
+static inline GameStateMapInteraction * MakeTimedMapInteraction(GameStateMapOwner & game, u32 animation)
+{
+    GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
+    return func_080A4A00(storage, &game.sprite_archives[12], animation, game, 5, 0x1B, false);
+}
+
+EC SECTION(".text.game_state_c2.0801F2DC") void GameStateRefreshTimedMapInteraction(GameStateMapOwner & game)
+{
+    if (game.vtable->get_map_id(game) == 0x23)
+    {
+        u32 hour = game.map_data->clock.hour;
+        if (hour <= 3)
+            goto night;
+        if (hour <= 8)
+            game.timed_interaction = MakeTimedMapInteraction(game, 0);
+        else if (hour <= 15)
+            game.timed_interaction = MakeTimedMapInteraction(game, 1);
+        else if (hour <= 18)
+            game.timed_interaction = MakeTimedMapInteraction(game, 2);
+        else
+        {
+        night:
+            game.timed_interaction = MakeTimedMapInteraction(game, 3);
+        }
+    }
+    else
+        game.timed_interaction = nullptr;
 }
 
 EC SECTION(".text.game_state_c2.0801F5F0") void GameStateSetVaseArticle(GameStateMapOwner & game, u32 article_id)
