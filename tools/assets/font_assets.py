@@ -18,6 +18,7 @@ COLUMNS = 32
 FONTS = {"small": (0x4F90CC, 487, 8), "large": (0x4FA9A0, 6922, 16)}
 MAPS = {"single": (0x4FA7A0, 256, 487), "double": (0x523290, 7938, 6922)}
 SIGNATURE = b"\x89PNG\r\n\x1a\n"
+SPECIAL_CODES = frozenset((0xB1, 0xB2, 0xB3, 0xB4, 0xB6, 0xB7, *range(0xBB, 0xC4)))
 
 
 def png_chunk(tag, data):
@@ -247,7 +248,8 @@ def build(assets, output):
 
 def safe_codes(single):
     return [code for code, index in single.items() if index == -1 and code > 0x1F
-            and code != 0xFF and not 0x81 <= code <= 0x9F and not 0xE0 <= code <= 0xEA]
+            and code != 0xFF and code not in SPECIAL_CODES
+            and not 0x81 <= code <= 0x9F and not 0xE0 <= code <= 0xEA]
 
 
 def vietnamese_letters():
@@ -278,8 +280,7 @@ def stream_codes(data, single, double):
         pending |= byte
         if pending <= 0xFF:
             # These special single-byte codes bypass the ordinary font table.
-            special = pending in (0xB1, 0xB2, 0xB3, 0xB4, 0xB6, 0xB7, *range(0xBB, 0xC4))
-            if single.get(pending, -1) >= 0 or special:
+            if single.get(pending, -1) >= 0 or pending in SPECIAL_CODES:
                 pending = 0
                 continue
         elif pending in double:

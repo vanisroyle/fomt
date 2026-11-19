@@ -100,6 +100,14 @@ class FontTests(unittest.TestCase):
         self.assertIn(0xEB, safe)
         self.assertEqual(len(font.vietnamese_letters()), 134)
 
+    def test_safe_codes_excludes_hardcoded_glyphs_even_when_unmapped(self):
+        single = dict.fromkeys(range(256), -1)
+        safe = set(font.safe_codes(single))
+        hardcoded = {0xB1, 0xB2, 0xB3, 0xB4, 0xB6, 0xB7,
+                     0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xC0, 0xC1, 0xC2, 0xC3}
+        self.assertEqual(safe & hardcoded, set())
+        self.assertTrue({0xB5, 0xB8, 0xB9, 0xBA, 0xEB} <= safe)
+
     def sample_fixture(self):
         root = self.root / "fonts"
         root.mkdir()
