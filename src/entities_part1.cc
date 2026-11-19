@@ -228,7 +228,7 @@ EC void func_0800F4C0(HeldItem * self);
 EC void func_0800F4F0(HeldItem * self, u8 value);
 EC void func_0800F4D8(HeldItem * self);
 EC u32 func_08020018(u32 value);
-EC void func_080200C4(AActorEntity * self, u32 sound);
+EC void AEntity_PlayAnimationSound(AActorEntity * self, u32 sound);
 
 struct AnimalBehaviorTimerPair
 {
@@ -269,6 +269,10 @@ EC void __builtin_delete(void * ptr);
 EC void * __builtin_new(size_t size);
 EC UnknownEntityThing * func_0802B260(void * memory, FarmerEntity * self);
 EC bool func_0809C694(void * flags, u32 flag);
+EC u32 func_08022320(u32 growth_stage);
+EC u32 func_08022334(u32 growth_stage);
+EC void func_080324BC(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
+EC char const vtable_unk_080E64B4[];
 
 struct FarmerEventStateView
 {
@@ -416,6 +420,17 @@ inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+// 0x080222A8
+EC UnknownEntityThing * ChickenEntitySprite_Init(UnknownEntityThing * self, AActorEntity * entity, u32 growth_stage) ENTITY_CODE(080222A8);
+EC UnknownEntityThing * ChickenEntitySprite_Init(UnknownEntityThing * self, AActorEntity * entity, u32 growth_stage)
+{
+    u32 size = func_08022320(growth_stage);
+    u32 variant = func_08022334(growth_stage);
+    func_080324BC(self, entity, 5, 13, size, variant, 0, false);
+    reinterpret_cast<void const **>(self)[1] = vtable_unk_080E64B4;
+    return self;
+}
 
 // 0x08025294
 EC bool FarmerEntity_IsAdjacentBoxClear(FarmerEntity const * self, void * map, i32 facing, Box const * box) ENTITY_CODE(08025294);
@@ -921,7 +936,7 @@ EC void DogEntity_PlayIfNearby(DogEntity * self, Location const * target)
         i32 dy = target->GetY() - y;
         if (dx * dx + dy * dy <= radius * radius)
         {
-            func_080200C4(self, 169);
+            AEntity_PlayAnimationSound(self, 169);
             if (self->dog->unk_20 == 5)
                 DogEntity_PlaceCarriedTarget(self);
             AnimalBehaviorTimerPair timer;

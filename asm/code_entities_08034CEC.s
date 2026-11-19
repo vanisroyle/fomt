@@ -8263,7 +8263,7 @@ func_08039310: @ 0x08039310
     bl func_0809C0BC
     adds r0, r5, #0
     movs r1, #0xab
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
     b .L08039548
     .align 2, 0
 .L0803947C: .4byte 0xFFFF0000
@@ -8288,7 +8288,7 @@ func_08039310: @ 0x08039310
 .L080394AA:
     adds r0, r5, #0
     movs r1, #0xaa
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L080394B2:
     cmp r6, #0x64
     beq .L08039534
@@ -8477,7 +8477,7 @@ func_0803955C: @ 0x0803955C
 .L0803962C:
     adds r0, r5, #0
     movs r1, #0xaa
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L08039634:
     cmp r6, #0x64
     beq .L080396B8
@@ -8555,7 +8555,7 @@ func_0803955C: @ 0x0803955C
     strb r0, [r6, #2]
     adds r0, r5, #0
     movs r1, #0xab
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L080396E2:
     strh r4, [r6]
 .L080396E4:
@@ -8702,7 +8702,7 @@ func_08039708: @ 0x08039708
 .L080397EE:
     adds r0, r6, #0
     movs r1, #0xaa
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L080397F6:
     cmp r5, #0x64
     beq .L08039878
@@ -9163,7 +9163,7 @@ func_08039A60: @ 0x08039A60
     bl func_0809C0AC
     adds r0, r7, #0
     movs r1, #0xab
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L08039BAC:
     ldrh r5, [r7, #4]
     movs r0, #0x8d
@@ -9459,7 +9459,7 @@ func_08039DA8: @ 0x08039DA8
     bl func_08032384
     adds r0, r4, #0
     movs r1, #0xaa
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L08039E00:
     add sp, #4
     pop {r4}
@@ -9512,7 +9512,7 @@ func_08039E18: @ 0x08039E18
     bl func_08032384
     adds r0, r4, #0
     movs r1, #0xaa
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L08039E72:
     add sp, #4
     pop {r4}

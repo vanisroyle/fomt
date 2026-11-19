@@ -140,8 +140,8 @@ func_0802405C: @ 0x0802405C
     bx r1
     .align 2, 0
     .section .text.entities_part1.080200C4, "ax", %progbits
-    thumb_func_start func_080200C4
-func_080200C4: @ 0x080200C4
+    thumb_func_start AEntity_PlayAnimationSound
+AEntity_PlayAnimationSound: @ 0x080200C4
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -853,7 +853,7 @@ func_080204CC: @ 0x080204CC
     bne .L080209C8
     adds r0, r6, #0
     movs r1, #0xa9
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
     ldr r2, .L080209C0 @ =0xFFFF0000
     add r1, sp, #0xac
     ldr r0, [r1]
@@ -1303,7 +1303,7 @@ func_080204CC: @ 0x080204CC
 .L08020D12:
     adds r0, r6, #0
     movs r1, #0xaa
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L08020D1A:
     ldr r2, .L08020D30 @ =0xFFFF0000
     add r1, sp, #0xbc
@@ -1343,7 +1343,7 @@ func_080204CC: @ 0x080204CC
     bne .L08020DBA
     adds r0, r6, #0
     movs r1, #0xa9
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
     mov r0, sl
     bl GetAffection__C6Animal
     adds r1, r0, #0
@@ -1384,7 +1384,7 @@ func_080204CC: @ 0x080204CC
 .L08020DC0:
     adds r0, r6, #0
     movs r1, #0xaa
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
     ldr r2, .L08020DDC @ =0xFFFF0000
     add r1, sp, #0xc8
     ldr r0, [r1]
@@ -1523,7 +1523,7 @@ func_080204CC: @ 0x080204CC
 .L08020ECE:
     adds r0, r6, #0
     movs r1, #0xa9
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
     b .L08020EEA
 .L08020ED8:
     cmp r2, #0
@@ -1535,7 +1535,7 @@ func_080204CC: @ 0x080204CC
 .L08020EE2:
     adds r0, r6, #0
     movs r1, #0xaa
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
 .L08020EEA:
     adds r0, r6, #0
     bl DogEntity_PlaceCarriedTarget
@@ -1720,7 +1720,7 @@ func_080204CC: @ 0x080204CC
 .L08021050:
     adds r0, r6, #0
     movs r1, #0xd2
-    bl func_080200C4
+    bl AEntity_PlayAnimationSound
     adds r0, r6, #0
     adds r0, #0x20
     ldrb r2, [r0]
@@ -2168,43 +2168,7 @@ func_08021FAC: @ 0x08021FAC
     .byte 0xFF, 0xF7, 0x32, 0xFF, 0x01, 0xB0, 0x30, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0xFF, 0xFF
 
 
-    .section .text.entities_part1.080222A8, "ax", %progbits
-    thumb_func_start func_080222A8
-func_080222A8: @ 0x080222A8
-    push {r4, r5, r6, lr}
-    mov r6, r8
-    push {r6}
-    sub sp, #0x10
-    adds r6, r0, #0
-    mov r8, r1
-    adds r4, r2, #0
-    adds r0, r4, #0
-    bl func_08022320
-    adds r5, r0, #0
-    adds r0, r4, #0
-    bl func_08022334
-    str r5, [sp]
-    str r0, [sp, #4]
-    movs r1, #0
-    str r1, [sp, #8]
-    add r0, sp, #0xc
-    strb r1, [r0]
-    adds r0, r6, #0
-    mov r1, r8
-    movs r2, #5
-    movs r3, #0xd
-    bl func_080324BC
-    ldr r0, .L080222F0 @ =vtable_unk_080E64B4
-    str r0, [r6, #4]
-    adds r0, r6, #0
-    add sp, #0x10
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L080222F0: .4byte vtable_unk_080E64B4
+    .section .text.entities_part1.080222A8.tail, "ax", %progbits
 .L080222F4:
     .byte 0x30, 0xB5, 0x04, 0x1C, 0x0D, 0x1C, 0x22, 0x68, 0x90, 0x88, 0x0A, 0x23
     .byte 0xD1, 0x5E, 0x0E, 0x23, 0xD2, 0x5E, 0x10, 0xF0, 0xFB, 0xFA, 0x21, 0x1C, 0x8B, 0x31, 0x08, 0x70
