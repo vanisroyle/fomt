@@ -3525,7 +3525,7 @@ func_0802B054: @ 0x0802B054
     movs r1, #0xd2
     lsls r1, r1, #6
     adds r0, r0, r1
-    bl func_0809C32C
+    bl HaveAllCursedToolsStarted
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802B250
@@ -12148,7 +12148,7 @@ sub_0802FBFC: @ 0x0802FBFC
     lsls r4, r4, #6
     adds r0, r0, r4
     movs r1, #0x15
-    bl func_0809C4B4
+    bl AdvanceCursedAxeOrRodProgress
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802FD9A
@@ -12192,7 +12192,7 @@ sub_0802FBFC: @ 0x0802FBFC
     lsls r5, r5, #6
     adds r0, r0, r5
     movs r1, #0x2d
-    bl func_0809C4B4
+    bl AdvanceCursedAxeOrRodProgress
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802FD9A
