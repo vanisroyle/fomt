@@ -151,7 +151,8 @@ EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 state);
 EC void __builtin_delete(void * ptr);
 EC void * __builtin_new(size_t size);
 EC UnknownEntityThing * func_0802B260(void * memory, FarmerEntity * self);
-EC bool func_0809C694(void * flags, u32 flag);
+struct ScriptEventSelection;
+EC bool IsSelectedScriptEvent(ScriptEventSelection const & events, u16 eventId);
 EC u32 func_08022320(u32 growth_stage);
 EC u32 func_08022334(u32 growth_stage);
 EC void func_080324BC(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
@@ -328,7 +329,8 @@ EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self)
     {
         FarmerEventStateView * events = reinterpret_cast<FarmerEventStateView *>(self->game_state);
         u32 event_state = events->unk_2171_3;
-        if (event_state == 1 || func_0809C694(reinterpret_cast<u8 *>(events) + 0x214C, 74))
+        if (event_state == 1 || IsSelectedScriptEvent(*reinterpret_cast<ScriptEventSelection const *>(
+            reinterpret_cast<u8 *>(events) + 0x214C), 74))
             priority = 1;
     }
     self->unk_21 = priority;

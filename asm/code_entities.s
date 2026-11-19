@@ -4039,7 +4039,7 @@ func_0802BFE4: @ 0x0802BFE4
     str r0, [sp, #0x34]
     str r3, [r5, #4]
     ldr r0, [sp, #0x44]
-    bl func_08032900
+    bl ClassifySideEntityFarmRegion
     str r0, [sp, #0x50]
     adds r0, r6, #0
     adds r0, #0x8b
