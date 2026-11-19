@@ -13014,7 +13014,7 @@ func_080175B4: @ 0x080175B4
     adds r0, r7, #0
     bl GameStateRefreshTimedMapInteraction
     adds r0, r7, #0
-    bl func_0801F614
+    bl GameStateRefreshPairedScenery
     adds r0, r7, #0
     bl GameStateRefreshSeasonalScenery
     ldr r0, .L080179B4 @ =gActiveGameScene
@@ -17675,7 +17675,7 @@ func_08019BEC: @ 0x08019BEC
     adds r0, r7, #0
     bl GameStateRefreshTimedMapInteraction
     adds r0, r7, #0
-    bl func_0801F614
+    bl GameStateRefreshPairedScenery
     adds r0, r7, #0
     bl GameStateRefreshSeasonalScenery
     adds r0, r7, #0
@@ -22382,175 +22382,3 @@ func_0801F3E4: @ 0x0801F3E4
     .byte 0x1F, 0xFA, 0x0A, 0x49, 0x75, 0x18, 0x04, 0x1C, 0x29, 0x68, 0x8C, 0x42, 0x07, 0xD0, 0x00, 0x29
     .byte 0x05, 0xD0, 0x48, 0x6A, 0x82, 0x68, 0x08, 0x1C, 0x03, 0x21, 0xB4, 0xF0, 0x9B, 0xF9, 0x2C, 0x60
     .byte 0x03, 0xB0, 0x70, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x38, 0x10, 0x00, 0x00, 0x5C, 0x10, 0x00, 0x00
-
-    .section .text.game_state_c2.0801F614, "ax", %progbits
-
-    thumb_func_start func_0801F614
-func_0801F614: @ 0x0801F614
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0xc
-    adds r6, r0, #0
-    ldr r0, .L0801F6D8 @ =0x0000106C
-    adds r4, r6, r0
-    movs r5, #0
-    ldr r1, [r4]
-    cmp r5, r1
-    beq .L0801F63A
-    cmp r1, #0
-    beq .L0801F63A
-    ldr r0, [r1, #0x24]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801F63A:
-    str r5, [r4]
-    ldr r1, .L0801F6DC @ =0x00001070
-    adds r4, r6, r1
-    movs r5, #0
-    ldr r1, [r4]
-    cmp r5, r1
-    beq .L0801F658
-    cmp r1, #0
-    beq .L0801F658
-    ldr r0, [r1, #0x24]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801F658:
-    str r5, [r4]
-    ldr r0, [r6]
-    ldr r1, [r0, #0x14]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r7, r0, #0
-    cmp r7, #0
-    bne .L0801F762
-    ldr r1, .L0801F6E0 @ =0x00001038
-    adds r0, r6, r1
-    ldr r0, [r0]
-    adds r0, #0x10
-    bl func_0800E324
-    adds r4, r0, #0
-    cmp r4, #3
-    beq .L0801F6E8
-    movs r0, #0x40
-    bl __builtin_new
-    ldr r1, .L0801F6E4 @ =0x00000F04
-    adds r5, r6, r1
-    movs r1, #3
-    str r1, [sp]
-    movs r1, #0x1e
-    str r1, [sp, #4]
-    add r4, sp, #8
-    strb r7, [r4]
-    adds r1, r5, #0
-    movs r2, #0
-    adds r3, r6, #0
-    bl func_080A4A00
-    ldr r1, .L0801F6D8 @ =0x0000106C
-    adds r1, r1, r6
-    mov r8, r1
-    adds r7, r0, #0
-    ldr r1, [r1]
-    cmp r7, r1
-    beq .L0801F6BA
-    cmp r1, #0
-    beq .L0801F6BA
-    ldr r0, [r1, #0x24]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801F6BA:
-    mov r0, r8
-    str r7, [r0]
-    movs r0, #0x40
-    bl __builtin_new
-    movs r1, #3
-    str r1, [sp]
-    movs r1, #0x1e
-    str r1, [sp, #4]
-    movs r1, #0
-    strb r1, [r4]
-    adds r1, r5, #0
-    movs r2, #0
-    b .L0801F73E
-    .align 2, 0
-.L0801F6D8: .4byte 0x0000106C
-.L0801F6DC: .4byte 0x00001070
-.L0801F6E0: .4byte 0x00001038
-.L0801F6E4: .4byte 0x00000F04
-.L0801F6E8:
-    movs r0, #0x40
-    bl __builtin_new
-    ldr r1, .L0801F770 @ =0x00000F04
-    adds r5, r6, r1
-    str r4, [sp]
-    movs r1, #0x1e
-    str r1, [sp, #4]
-    add r4, sp, #8
-    strb r7, [r4]
-    adds r1, r5, #0
-    movs r2, #1
-    adds r3, r6, #0
-    bl func_080A4A00
-    ldr r1, .L0801F774 @ =0x0000106C
-    adds r1, r1, r6
-    mov r8, r1
-    adds r7, r0, #0
-    ldr r1, [r1]
-    cmp r7, r1
-    beq .L0801F724
-    cmp r1, #0
-    beq .L0801F724
-    ldr r0, [r1, #0x24]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801F724:
-    mov r0, r8
-    str r7, [r0]
-    movs r0, #0x40
-    bl __builtin_new
-    movs r1, #3
-    str r1, [sp]
-    movs r1, #0x1e
-    str r1, [sp, #4]
-    movs r1, #0
-    strb r1, [r4]
-    adds r1, r5, #0
-    movs r2, #1
-.L0801F73E:
-    adds r3, r6, #0
-    bl func_080A4A00
-    ldr r1, .L0801F778 @ =0x00001070
-    adds r5, r6, r1
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L0801F760
-    cmp r1, #0
-    beq .L0801F760
-    ldr r0, [r1, #0x24]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801F760:
-    str r4, [r5]
-.L0801F762:
-    add sp, #0xc
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801F770: .4byte 0x00000F04
-.L0801F774: .4byte 0x0000106C
-.L0801F778: .4byte 0x00001070

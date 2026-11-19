@@ -208,7 +208,9 @@ struct GameStateMapOwner
     bool scenery_active;
     STRUCT_PAD(0x1061, 0x1064);
     SmartPtr<GameStateMapInteraction> timed_interaction;
-    STRUCT_PAD(0x1068, 0x1074);
+    STRUCT_PAD(0x1068, 0x106C);
+    SmartPtr<GameStateMapInteraction> paired_scenery_first;
+    SmartPtr<GameStateMapInteraction> paired_scenery_second;
     SmartPtr<GameStateMapInteraction> seasonal_scenery;
     SmartPtr<GameStateMapInteraction> alternate_seasonal_scenery;
     GameStateMapOverlay * map_overlay;
@@ -826,6 +828,36 @@ collection:
 static inline GameStateMapInteraction * AllocateMapInteraction()
 {
     return static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
+}
+
+EC SECTION(".text.game_state_c2.0801F614") void GameStateRefreshPairedScenery(GameStateMapOwner & owner)
+{
+    register GameStateMapOwner & game asm("r6") = owner;
+    game.paired_scenery_first = nullptr;
+    game.paired_scenery_second = nullptr;
+
+    u32 map = game.vtable->get_map_id(game);
+    if (map == 0)
+    {
+        u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock));
+        if (season != SEASON_WINTER)
+        {
+            GameStateMapInteraction * first = AllocateMapInteraction();
+            register GameStatePackedSpriteArchive const * archive asm("r5") = &game.sprite_archives[7];
+            game.paired_scenery_first = func_080A4A00(first, archive, 0, game, 3, 0x1E, map);
+            GameStateMapInteraction * second = AllocateMapInteraction();
+            game.paired_scenery_second = func_080A4A00(second, archive, 0, game, 3, 0x1E, false);
+        }
+        else
+        {
+            GameStateMapInteraction * first = AllocateMapInteraction();
+            register GameStatePackedSpriteArchive const * archive asm("r5") = &game.sprite_archives[7];
+            game.paired_scenery_first = func_080A4A00(first, archive, 1, game, season, 0x1E, map);
+            GameStateMapInteraction * second = AllocateMapInteraction();
+            game.paired_scenery_second = func_080A4A00(second, archive, 1, game, 3, 0x1E, false);
+        }
+    }
+    asm("" : : "l"(&game));
 }
 
 EC SECTION(".text.game_state_c2.0801F77C") void GameStateRefreshSeasonalScenery(GameStateMapOwner & owner)
