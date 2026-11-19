@@ -43,7 +43,7 @@ func_080C8360: @ 0x080C8360
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -83,7 +83,7 @@ func_080C8360: @ 0x080C8360
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -110,7 +110,7 @@ func_080C8360: @ 0x080C8360
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -137,7 +137,7 @@ func_080C8360: @ 0x080C8360
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -155,7 +155,7 @@ func_080C8360: @ 0x080C8360
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -7434,7 +7434,7 @@ func_080CC15C: @ 0x080CC15C
 	adds r5, r5, r4
 	ldr r1, [r6, #0x40]
 	adds r0, r5, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r6, #0x40]
@@ -7462,7 +7462,7 @@ func_080CC15C: @ 0x080CC15C
 	adds r4, r7, r6
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]

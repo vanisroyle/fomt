@@ -134,6 +134,31 @@ ResourceHandleOwner::~ResourceHandleOwner()
     }
 }
 
+// 0x080073E0
+EC void SECTION(".text.ResourceHandle_Release") ResourceHandle_Release(ResourceHandleOwner * self, u32 handle)
+{
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
+    bool generation_matches;
+    int generation_status;
+    if (handle != 0)
+    {
+        u32 index = HardwareHandle(handle).Index();
+        if (registry->IsAllocated(index))
+        {
+            ResourceHandleEntry * entry = &registry->GetEntry(index);
+            generation_status = registry->Matches(*entry, handle);
+            generation_matches = generation_status;
+            if (generation_matches && --entry->params.ref_count == 0)
+            {
+                entry->params.generation = 0;
+                registry->FreeEntry(entry);
+                registry->ClearAllocated(index);
+                --registry->allocated_count;
+            }
+        }
+    }
+}
+
 // 0x0800745C
 EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner * self, u32 handle)
 {
@@ -222,7 +247,7 @@ EC SECTION(".text.ResourcePool_Initialize") ResourcePool * ResourcePool_Initiali
     return self;
 }
 
-EC void func_080073E0(ResourceHandleOwner *, u32);
+EC void ResourceHandle_Release(ResourceHandleOwner *, u32);
 EC u32 func_0800736C(ResourceHandleOwner *);
 EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
 
@@ -235,7 +260,7 @@ EC void SECTION(".text.ResourcePool_Destroy") ResourcePool_Destroy(ResourcePool 
         ResourceHandleValue * end = storage->end;
         for (ResourceHandleValue * value = storage->begin; value != end; ++value)
         {
-            func_080073E0(&value->owner, value->handle);
+            ResourceHandle_Release(&value->owner, value->handle);
             ResourceHandles_Destroy(&value->owner, 2);
         }
         if (storage->begin != nullptr)

@@ -34460,7 +34460,7 @@ func_080522F8: @ 0x080522F8
 	adds r4, #8
 	ldr r1, [r5]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r5]
@@ -40026,7 +40026,7 @@ func_08055264: @ 0x08055264
 .L080556DC:
 	ldr r1, [r5, #0xc]
 	adds r0, r6, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r6, #0
 	bl func_0800736C
 	str r0, [r5, #0xc]
@@ -40153,7 +40153,7 @@ func_08055264: @ 0x08055264
 	adds r4, r7, r5
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -40226,7 +40226,7 @@ func_08055264: @ 0x08055264
 	adds r4, r7, r5
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -46240,7 +46240,7 @@ func_0805806C: @ 0x0805806C
 	adds r4, #8
 	ldr r1, [r5]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r5]
@@ -47087,7 +47087,7 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	movs r5, #0
 	str r5, [r4, #4]
 	movs r3, #0xc3
@@ -47095,28 +47095,28 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	str r5, [r4, #4]
 	movs r7, #0xc4
 	lsls r7, r7, #3
 	adds r4, r6, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	str r5, [r4, #4]
 	movs r0, #0xc9
 	lsls r0, r0, #3
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	str r5, [r4, #4]
 	movs r1, #0xb9
 	lsls r1, r1, #3
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -47125,7 +47125,7 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -47134,7 +47134,7 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -47142,7 +47142,7 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -47151,7 +47151,7 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -47667,12 +47667,12 @@ func_080588AC: @ 0x080588AC
 .L08059370:
 	ldr r1, [r4]
 	adds r0, r5, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	mov r3, sb
 	str r3, [r4]
 	ldr r1, [r4, #8]
 	adds r0, r7, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	mov r0, sb
 	str r0, [r4, #8]
 	adds r7, #0x18
@@ -47689,7 +47689,7 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -47698,7 +47698,7 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -47707,7 +47707,7 @@ func_080588AC: @ 0x080588AC
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -80722,7 +80722,7 @@ func_08069F14: @ 0x08069F14
 	adds r5, r5, r1
 	ldr r1, [r6, #0x50]
 	adds r0, r5, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r6, #0x50]
@@ -104265,7 +104265,7 @@ func_080756D0: @ 0x080756D0
 	ldr r0, [sp, #8]
 	ldr r1, [r0, #0x14]
 	adds r0, r6, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	ldr r0, [sp, #8]
 	bl func_080E2B28
 	str r0, [sp, #8]
@@ -144060,7 +144060,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r4, #0x1c
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -144095,7 +144095,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -147228,7 +147228,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r4, #0x1c
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -147261,7 +147261,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -151645,7 +151645,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r4, #0x1c
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -151680,7 +151680,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -155555,7 +155555,7 @@ func_08090960: @ 0x08090960
 	adds r4, #0x1c
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -155590,7 +155590,7 @@ func_08090960: @ 0x08090960
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -156148,7 +156148,7 @@ func_08090F58: @ 0x08090F58
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -156962,7 +156962,7 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x1c
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -156995,7 +156995,7 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -157031,7 +157031,7 @@ func_0809152C: @ 0x0809152C
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -159819,7 +159819,7 @@ func_08092D64: @ 0x08092D64
 	adds r4, #0x1c
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -159852,7 +159852,7 @@ func_08092D64: @ 0x08092D64
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -163909,7 +163909,7 @@ func_080951B4: @ 0x080951B4
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -163918,7 +163918,7 @@ func_080951B4: @ 0x080951B4
 	adds r4, r6, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -164325,7 +164325,7 @@ func_080951B4: @ 0x080951B4
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	movs r5, #0
 	str r5, [r4, #4]
 	movs r2, #0xc2
@@ -164333,7 +164333,7 @@ func_080951B4: @ 0x080951B4
 	adds r4, r6, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	str r5, [r4, #4]
 	mov r4, sb
 	ldr r1, [sp, #4]
@@ -164801,7 +164801,7 @@ func_080958C0: @ 0x080958C0
 	adds r4, r6, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -165337,7 +165337,7 @@ func_080958C0: @ 0x080958C0
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	movs r0, #0
 	str r0, [r4, #4]
 	mov r4, r8
@@ -165381,7 +165381,7 @@ func_08095D80: @ 0x08095D80
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -165390,7 +165390,7 @@ func_08095D80: @ 0x08095D80
 	adds r4, r6, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -165996,7 +165996,7 @@ func_08095D80: @ 0x08095D80
 	adds r4, r6, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	movs r5, #0
 	str r5, [r4, #4]
 	movs r0, #0xc2
@@ -166004,7 +166004,7 @@ func_08095D80: @ 0x08095D80
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	str r5, [r4, #4]
 	ldr r4, [sp, #8]
 	ldr r1, [sp, #4]
@@ -166056,7 +166056,7 @@ func_080962F0: @ 0x080962F0
 	adds r4, r7, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -166065,7 +166065,7 @@ func_080962F0: @ 0x080962F0
 	adds r4, r7, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -166074,7 +166074,7 @@ func_080962F0: @ 0x080962F0
 	adds r4, r7, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -167045,7 +167045,7 @@ func_080962F0: @ 0x080962F0
 	adds r4, r7, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	movs r5, #0
 	str r5, [r4, #4]
 	movs r1, #0xc8
@@ -167053,14 +167053,14 @@ func_080962F0: @ 0x080962F0
 	adds r4, r7, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	str r5, [r4, #4]
 	movs r2, #0xc2
 	lsls r2, r2, #2
 	adds r4, r7, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	str r5, [r4, #4]
 	ldr r4, [sp, #0xa8]
 	ldr r1, [sp, #0x90]
@@ -168020,7 +168020,7 @@ func_080972AC: @ 0x080972AC
 	adds r4, r6, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -168364,7 +168364,7 @@ func_080972AC: @ 0x080972AC
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	movs r0, #0
 	str r0, [r4, #4]
 	mov r4, r8
@@ -169064,7 +169064,7 @@ func_08097AE4: @ 0x08097AE4
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -169308,7 +169308,7 @@ func_08097AE4: @ 0x08097AE4
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	movs r0, #0
 	str r0, [r4, #4]
 	mov r4, sb

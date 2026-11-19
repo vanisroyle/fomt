@@ -12351,7 +12351,7 @@ func_080AC85C: @ 0x080AC85C
 	subs r4, #0xc
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -26746,7 +26746,7 @@ func_080B3CC8: @ 0x080B3CC8
 	adds r4, r6, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -26754,7 +26754,7 @@ func_080B3CC8: @ 0x080B3CC8
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -26769,7 +26769,7 @@ func_080B3CC8: @ 0x080B3CC8
 	adds r4, r4, r2
 	ldr r1, [r5]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r5]
@@ -26788,7 +26788,7 @@ func_080B3CC8: @ 0x080B3CC8
 	adds r4, r4, r0
 	ldr r1, [r5]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r5]
@@ -28483,7 +28483,7 @@ func_080B469C: @ 0x080B469C
 .L080B5298:
 	ldr r1, [sp, #0x38]
 	add r0, sp, #0x34
-	bl func_080073E0
+	bl ResourceHandle_Release
 	add r0, sp, #0x34
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -34525,7 +34525,7 @@ func_080B7648: @ 0x080B7648
 .L080B84EC:
 	ldr r1, [sp, #0x34]
 	add r0, sp, #0x30
-	bl func_080073E0
+	bl ResourceHandle_Release
 	add r0, sp, #0x30
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -35510,7 +35510,7 @@ func_080B888C: @ 0x080B888C
 .L080B8D30:
 	ldr r1, [sp, #0x38]
 	add r0, sp, #0x34
-	bl func_080073E0
+	bl ResourceHandle_Release
 	add r0, sp, #0x34
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -41219,7 +41219,7 @@ func_080BC288: @ 0x080BC288
 	ldr r5, [sp, #0x88]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	ldr r0, [sp, #0x88]
 	movs r1, #2
 	bl ResourceHandles_Destroy
@@ -64722,7 +64722,7 @@ func_080C7F58: @ 0x080C7F58
 	adds r5, r5, r0
 	ldr r1, [r6, #0x48]
 	adds r0, r5, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r6, #0x48]
