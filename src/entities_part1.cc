@@ -149,7 +149,7 @@ struct ScriptEventSelection;
 EC bool IsSelectedScriptEvent(ScriptEventSelection const & events, u16 eventId);
 EC u32 func_08022320(u32 growth_stage);
 EC u32 func_08022334(u32 growth_stage);
-EC void func_080324BC(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
+EC void InitializeSideActorSpriteLayers(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
 EC char const vtable_unk_080E64B4[];
 
 struct FarmerEventStateView
@@ -653,7 +653,7 @@ EC UnknownEntityThing * ChickenEntitySprite_Init(UnknownEntityThing * self, AAct
 {
     u32 size = func_08022320(growth_stage);
     u32 variant = func_08022334(growth_stage);
-    func_080324BC(self, entity, 5, 13, size, variant, 0, false);
+    InitializeSideActorSpriteLayers(self, entity, 5, 13, size, variant, 0, false);
     reinterpret_cast<void const **>(self)[1] = vtable_unk_080E64B4;
     return self;
 }

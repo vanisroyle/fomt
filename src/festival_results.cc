@@ -37,8 +37,8 @@ EC FestivalResultsScreen * InitializeFestivalResultsScreen(void *, void *);
 EC void RunFestivalResultsScreen(FestivalScene **, FestivalResultsScreen *);
 EC void Scene_DestroyBase(void *, u32);
 EC u8 vtable_unk_080E7960[];
-EC FestivalResultsScreen * InitializeAnimalFestivalScreen(void *, void *, u8);
-EC void RunAnimalFestivalScreen(FestivalScene **, FestivalResultsScreen *);
+EC FestivalResultsScreen * InitializeFrisbeeScreen(void *, void *, u8);
+EC void RunFrisbeeScreen(FestivalScene **, FestivalResultsScreen *);
 EC const u16 gUnk_080FA174[][10];
 
 EC SECTION(".text.festival_results.0805218C") FestivalResultsController * InitializeFestivalResultsController(FestivalResultsController * controller, FestivalScene ** continuation, void * game) // 0x0805218C
@@ -108,7 +108,7 @@ struct HorseRaceLineup
 
 EC void PrepareHorseRaceHeat(HorseRaceLineup *, u32);
 
-EC SECTION(".text.animal_festival.08057E90") void InitializeHorseRaceLineup(HorseRaceLineup * lineup, u8 specialRace, u32 kind)
+EC SECTION(".text.horse_race.08057E90") void InitializeHorseRaceLineup(HorseRaceLineup * lineup, u8 specialRace, u32 kind)
 {
     lineup->heat = 0;
     lineup->specialRace = specialRace;
@@ -127,13 +127,13 @@ EC SECTION(".text.animal_festival.08057E90") void InitializeHorseRaceLineup(Hors
     PrepareHorseRaceHeat(lineup, kind);
 }
 
-EC SECTION(".text.animal_festival.08057F24") void AdvanceHorseRaceHeat(HorseRaceLineup * lineup, u32 kind)
+EC SECTION(".text.horse_race.08057F24") void AdvanceHorseRaceHeat(HorseRaceLineup * lineup, u32 kind)
 {
     lineup->heat++;
     PrepareHorseRaceHeat(lineup, kind);
 }
 
-EC SECTION(".text.animal_festival.08057F4C") bool AreHorseRaceHeatsFinished(HorseRaceLineup * lineup)
+EC SECTION(".text.horse_race.08057F4C") bool AreHorseRaceHeatsFinished(HorseRaceLineup * lineup)
 {
     return lineup->heat == 3;
 }
@@ -157,17 +157,17 @@ EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(
     }
 }
 
-EC SECTION(".text.animal_festival.08057DD8") FestivalResultsController * InitializeAnimalFestivalController(FestivalResultsController * controller, FestivalScene ** continuation, void * game, u8 kind)
+EC SECTION(".text.frisbee.08057DD8") FestivalResultsController * InitializeFrisbeeController(FestivalResultsController * controller, FestivalScene ** continuation, void * game, u8 kind)
 {
     controller->vtable = vtable_unk_080E7960;
-    controller->screen = InitializeAnimalFestivalScreen(operator new(0x23a8), game, kind);
+    controller->screen = InitializeFrisbeeScreen(operator new(0x23a8), game, kind);
     FestivalScene * next = *continuation;
     *continuation = nullptr;
     controller->continuation = next;
     return controller;
 }
 
-EC SECTION(".text.animal_festival.08057E1C") void DestroyAnimalFestivalController(FestivalResultsController * controller, u32 flags)
+EC SECTION(".text.frisbee.08057E1C") void DestroyFrisbeeController(FestivalResultsController * controller, u32 flags)
 {
     controller->vtable = vtable_unk_080E7960;
     FestivalScene * next = controller->continuation;
@@ -177,10 +177,10 @@ EC SECTION(".text.animal_festival.08057E1C") void DestroyAnimalFestivalControlle
     Scene_DestroyBase(controller, flags);
 }
 
-EC SECTION(".text.animal_festival.08057E5C") FestivalScene ** RunAnimalFestivalController(FestivalScene ** result, FestivalResultsController * controller)
+EC SECTION(".text.frisbee.08057E5C") FestivalScene ** RunFrisbeeController(FestivalScene ** result, FestivalResultsController * controller)
 {
     FestivalScene * completed;
-    RunAnimalFestivalScreen(&completed, controller->screen);
+    RunFrisbeeScreen(&completed, controller->screen);
     if (completed != nullptr) completed->vtable->destroy(completed, 3);
     FestivalScene * next = controller->continuation;
     controller->continuation = nullptr;

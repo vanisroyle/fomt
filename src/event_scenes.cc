@@ -305,14 +305,14 @@ struct HorseRaceScene
 };
 
 EC char const gHorseRaceSceneVTable[];
-EC HorseRaceScreen * func_0805806C(void * storage, void * game_state, u32 mode);
-EC void func_080588AC(AUnk_0800080C ** result, HorseRaceScreen * screen);
+EC HorseRaceScreen * InitializeHorseRaceScreen(void * storage, void * game_state, u32 mode);
+EC void RunHorseRaceScreen(AUnk_0800080C ** result, HorseRaceScreen * screen);
 
 EC SECTION(".text.f3.0805CEB8") HorseRaceScene * InitHorseRaceScene(
     HorseRaceScene * self, AUnk_0800080C ** next, void * game_state, u8 mode)
 {
     self->vtable = gHorseRaceSceneVTable;
-    self->screen = func_0805806C(__builtin_new(0x14FC), game_state, mode);
+    self->screen = InitializeHorseRaceScreen(__builtin_new(0x14FC), game_state, mode);
     AUnk_0800080C * next_scene = *next;
     *next = nullptr;
     self->next_scene = next_scene;
@@ -331,7 +331,7 @@ EC SECTION(".text.f3.0805CF3C") AUnk_0800080C ** RunHorseRaceScene(
     AUnk_0800080C ** result, HorseRaceScene * self)
 {
     AUnk_0800080C * screen_result;
-    func_080588AC(&screen_result, self->screen);
+    RunHorseRaceScreen(&screen_result, self->screen);
     delete screen_result;
     AUnk_0800080C * next_scene = self->next_scene;
     self->next_scene = nullptr;

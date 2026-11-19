@@ -18,9 +18,87 @@ gUnk_080F280C:
 gUnk_080F29C0:
 	.incbin "baserom.gba", 0xF29C0, 0x138
 
-	.global gUnk_080F2AF8
-gUnk_080F2AF8:
-	.incbin "baserom.gba", 0xF2AF8, 0x2C8
+	.global gCliffScheduleInfo
+gCliffScheduleInfo:
+	.4byte SelectCliffSchedule
+	.4byte 6, .LCliffSchedules
+.LCliffSchedules: @ In CliffSchedule order.
+	.4byte 0, .LCliffRegularSchedule, .LCliffWorkingSchedule
+	.4byte .LCliffEmployedSaturdaySchedule, .LCliffFestivalSchedule, .LCliffStoryOverrideSchedule
+
+.LCliffRegularSchedule:
+	.2byte 5, 0
+	.4byte .LCliffRegularEntries
+.LCliffWorkingSchedule:
+	.2byte 9, 0
+	.4byte .LCliffWorkingEntries
+.LCliffEmployedSaturdaySchedule:
+	.2byte 6, 0
+	.4byte .LCliffEmployedSaturdayEntries
+.LCliffFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LCliffFestivalEntries
+.LCliffStoryOverrideSchedule:
+	.2byte 1, 0
+	.4byte .LCliffStoryOverrideEntries
+
+	.macro cliff_schedule_entry time, path
+	.2byte \time, 0
+	.4byte \path
+	.endm
+
+.LCliffRegularEntries:
+	cliff_schedule_entry 0, .LCliffStartOfDay
+	cliff_schedule_entry 180, .LCliffRegularDeparture
+	cliff_schedule_entry 224, .LCliffRegularMidday
+	cliff_schedule_entry 605, .LCliffRegularEvening
+	cliff_schedule_entry 646, .LCliffStartOfDay
+.LCliffWorkingEntries:
+	cliff_schedule_entry 0, .LCliffStartOfDay
+	cliff_schedule_entry 240, .LCliffWorkDeparture
+	cliff_schedule_entry 265, .LCliffWorkMorning
+	cliff_schedule_entry 420, .LCliffWorkMidday
+	cliff_schedule_entry 427, .LCliffWorkAfternoon
+	cliff_schedule_entry 600, .LCliffWorkEvening
+	cliff_schedule_entry 667, .LCliffRegularMidday
+	cliff_schedule_entry 783, .LCliffRegularEvening
+	cliff_schedule_entry 824, .LCliffStartOfDay
+.LCliffEmployedSaturdayEntries:
+	cliff_schedule_entry 0, .LCliffStartOfDay
+	cliff_schedule_entry 420, .LCliffSaturdayOuting
+	cliff_schedule_entry 611, .LCliffRegularDeparture
+	cliff_schedule_entry 655, .LCliffRegularMidday
+	cliff_schedule_entry 780, .LCliffSaturdayReturn
+	cliff_schedule_entry 824, .LCliffStartOfDay
+.LCliffFestivalEntries:
+	cliff_schedule_entry 0, .LCliffStartOfDay
+.LCliffStoryOverrideEntries:
+	cliff_schedule_entry 0, .LCliffStoryOverridePath
+
+.LCliffStartOfDay:
+	.incbin "baserom.gba", 0xF2BF4, 0xC
+.LCliffRegularDeparture:
+	.incbin "baserom.gba", 0xF2C00, 0xC
+.LCliffRegularMidday:
+	.incbin "baserom.gba", 0xF2C0C, 0xC
+.LCliffRegularEvening:
+	.incbin "baserom.gba", 0xF2C18, 0xC
+.LCliffWorkDeparture:
+	.incbin "baserom.gba", 0xF2C24, 0xC
+.LCliffWorkMorning:
+	.incbin "baserom.gba", 0xF2C30, 0xC
+.LCliffWorkMidday:
+	.incbin "baserom.gba", 0xF2C3C, 0xC
+.LCliffWorkAfternoon:
+	.incbin "baserom.gba", 0xF2C48, 0xC
+.LCliffWorkEvening:
+	.incbin "baserom.gba", 0xF2C54, 0xC
+.LCliffSaturdayOuting:
+	.incbin "baserom.gba", 0xF2C60, 0xC
+.LCliffSaturdayReturn:
+	.incbin "baserom.gba", 0xF2C6C, 0xC
+.LCliffStoryOverridePath:
+	.incbin "baserom.gba", 0xF2C78, 0x148
 
 	.global gUnk_080F2DC0
 gUnk_080F2DC0:
