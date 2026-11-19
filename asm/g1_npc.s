@@ -9832,7 +9832,7 @@ func_080A37A8: @ 0x080A37A8
 	bl CreateChickenFestivalWrapper
 	mov r0, sp
 	adds r1, r6, #0
-	bl func_080BC8FC
+	bl RunChickenFestivalWrapper
 	ldr r1, [sp]
 	cmp r1, #0
 	beq .L080A389E
@@ -9964,7 +9964,7 @@ func_080A3900: @ 0x080A3900
 	add r7, sp, #8
 	adds r0, r7, #0
 	mov r1, sp
-	bl func_080B3C3C
+	bl RunChickenFeedingWrapper
 	ldr r1, [sp, #8]
 	cmp r1, #0
 	beq .L080A39A6
