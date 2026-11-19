@@ -1,23 +1,25 @@
 #include "prelude.h"
 
-extern u16 gUnk_03000400;
-EC bool func_080002E0(void * self);
-EC bool func_080006E4(void * self, void * dst, u32 offset, u32 size);
-EC bool func_080006A4(void * self, u32 offset, void const * src, u32 size);
+extern u16 gSramErrorFlags; // 0x03000400
+EC bool SaveHeader_IsValid(void * proxy);
+EC bool SramProxy_Read(void * proxy, void * destination, u32 sram_offset, u32 byte_count);
+EC bool SramProxy_Write(void * proxy, u32 sram_offset, void const * source, u32 byte_count);
 
-EC void func_08000470(void * self, u32 value)
+// 0x08000470
+EC void SaveHeader_SetSelectedSlot(void * proxy, u32 selected_slot)
 {
-    func_080006A4(self, 36, &value, 4);
+    SramProxy_Write(proxy, 36, &selected_slot, 4);
 }
 
-EC u32 func_08000488(void * self)
+// 0x08000488
+EC u32 SaveHeader_GetSelectedSlot(void * proxy)
 {
-    if (func_080002E0(self))
+    if (SaveHeader_IsValid(proxy))
     {
-        u32 value = 0;
-        func_080006E4(self, &value, 36, 4);
-        if (gUnk_03000400 == 0)
-            return value;
+        u32 selected_slot = 0;
+        SramProxy_Read(proxy, &selected_slot, 36, 4);
+        if (gSramErrorFlags == 0)
+            return selected_slot;
     }
     return 0;
 }

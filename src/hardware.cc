@@ -3,86 +3,86 @@
 #include "gbasvc.h"
 #include "unknown_inlines.hh"
 
-union Unk_hardware_ent_080D6D98
+union ResourceHandleEntry
 {
-    Unk_hardware_ent_080D6D98 * next_free;
+    ResourceHandleEntry * next_free;
 
     struct
     {
-        u16 unk_00;
-        u16 unk_02;
+        u16 ref_count;
+        u16 generation;
     } params;
 };
 
-EC Unk_hardware_ent_080D6D98 * func_080D6D98(Unk_hardware_ent_080D6D98 * self, int num, int val);
+EC ResourceHandleEntry * ResourceHandleEntries_InitializeFreeList(ResourceHandleEntry * self, int count, int initial_value);
 
-struct Unk_hardware_03000404
+struct ResourceHandleRegistry
 {
-    Unk_hardware_03000404()
+    ResourceHandleRegistry()
     {
-        unk_00 = func_080D6D98(unk_04, 0x10, 0);
-        unk_44 = 0;
-        unk_48 = 0;
-        unk_4C = 0;
-        unk_50 = 0;
-        unk_51 = 0;
-        unk_44 = 0;
+        free_head = ResourceHandleEntries_InitializeFreeList(entries, 0x10, 0);
+        allocated_mask = 0;
+        allocated_count = 0;
+        owner_count = 0;
+        reserved_start = 0;
+        reserved_count = 0;
+        allocated_mask = 0;
     }
 
-    bool inl_pred_0(unsigned int idx) const { return idx < 0x10 && (unk_44 & (1 << (idx % 0x20u))) != 0; }
+    bool IsAllocated(unsigned int index) const { return index < 0x10 && (allocated_mask & (1 << (index % 0x20u))) != 0; }
 
-    void inl_func_0(unsigned int idx)
+    void ClearAllocated(unsigned int index)
     {
-        if (idx < 0x10)
-            unk_44 &= ~(1 << (idx % 0x20u));
+        if (index < 0x10)
+            allocated_mask &= ~(1 << (index % 0x20u));
     }
 
-    void inl_func_1(unsigned int idx)
+    void SetAllocated(unsigned int index)
     {
-        if (idx < 0x10)
-            unk_44 |= (1 << (idx % 0x20u));
+        if (index < 0x10)
+            allocated_mask |= (1 << (index % 0x20u));
     }
 
-    Unk_hardware_ent_080D6D98 & GetEntry(unsigned int idx) { return unk_04[idx]; }
+    ResourceHandleEntry & GetEntry(unsigned int index) { return entries[index]; }
 
-    unsigned int IndexOf(Unk_hardware_ent_080D6D98 const * ent) const { return ent - unk_04; }
+    unsigned int IndexOf(ResourceHandleEntry const * entry) const { return entry - entries; }
 
-    bool Matches(Unk_hardware_ent_080D6D98 const & ent, u32 handle) const
+    bool Matches(ResourceHandleEntry const & entry, u32 handle) const
     {
-        return u16(handle >> 4) == ent.params.unk_02;
+        return u16(handle >> 4) == entry.params.generation;
     }
 
-    void FreeEntry(Unk_hardware_ent_080D6D98 * ent)
+    void FreeEntry(ResourceHandleEntry * entry)
     {
-        ent->next_free = unk_00;
-        unk_00 = ent;
+        entry->next_free = free_head;
+        free_head = entry;
     }
 
-    Unk_hardware_ent_080D6D98 * AllocEntry(Unk_hardware_ent_080D6D98 * ent)
+    ResourceHandleEntry * AllocEntry(ResourceHandleEntry * entry)
     {
-        Unk_hardware_ent_080D6D98 * prev = unk_00;
+        ResourceHandleEntry * prev = free_head;
 
-        if (ent != nullptr)
-            unk_00 = ent->next_free;
+        if (entry != nullptr)
+            free_head = entry->next_free;
 
         return prev;
     }
 
-    /* +00 */ Unk_hardware_ent_080D6D98 * unk_00;
-    /* +04 */ Unk_hardware_ent_080D6D98 unk_04[0x10];
-    /* +44 */ u32 unk_44;
-    /* +48 */ u16 unk_48;
-    /* +4A */ u16 unk_4A;
-    /* +4C */ u32 unk_4C;
-    /* +50 */ u8 unk_50;
-    /* +51 */ u8 unk_51;
+    /* +00 */ ResourceHandleEntry * free_head;
+    /* +04 */ ResourceHandleEntry entries[0x10];
+    /* +44 */ u32 allocated_mask;
+    /* +48 */ u16 allocated_count;
+    /* +4A */ u16 next_generation;
+    /* +4C */ u32 owner_count;
+    /* +50 */ u8 reserved_start;
+    /* +51 */ u8 reserved_count;
 };
 
-extern Unk_hardware_03000404 * gUnk_03000404;
+extern ResourceHandleRegistry * gResourceHandleRegistry; // 0x03000404
 
-struct Unk_hardware_H
+struct ResourceHandleOwner
 {
-    ~Unk_hardware_H();
+    ~ResourceHandleOwner();
 };
 
 union HardwareHandle
@@ -98,92 +98,99 @@ union HardwareHandle
     u32 Index() const { return fields.index; }
 };
 
-EC Unk_hardware_H * func_08007128(Unk_hardware_H * self)
+// 0x08007128
+EC ResourceHandleOwner * ResourceHandles_Initialize(ResourceHandleOwner * self)
 {
-    if (gUnk_03000404 == nullptr)
+    if (gResourceHandleRegistry == nullptr)
     {
-        gUnk_03000404 = new Unk_hardware_03000404;
+        gResourceHandleRegistry = new ResourceHandleRegistry;
     }
 
-    gUnk_03000404->unk_4C++;
+    gResourceHandleRegistry->owner_count++;
 
     return self;
 }
 
-EC Unk_hardware_H * func_08007174(Unk_hardware_H * self, Unk_hardware_H const & other)
+// 0x08007174
+EC ResourceHandleOwner * ResourceHandles_Copy(ResourceHandleOwner * self, ResourceHandleOwner const & other)
 {
-    gUnk_03000404->unk_4C++;
+    gResourceHandleRegistry->owner_count++;
 
     return self;
 }
 
-Unk_hardware_H::~Unk_hardware_H()
+// 0x08007184
+ResourceHandleOwner::~ResourceHandleOwner()
 {
-    gUnk_03000404->unk_4C--;
+    gResourceHandleRegistry->owner_count--;
 
-    if (gUnk_03000404->unk_4C == 0)
+    if (gResourceHandleRegistry->owner_count == 0)
     {
-        if (gUnk_03000404 != nullptr)
-            delete gUnk_03000404;
+        if (gResourceHandleRegistry != nullptr)
+            delete gResourceHandleRegistry;
 
-        gUnk_03000404 = nullptr;
+        gResourceHandleRegistry = nullptr;
     }
 }
 
-EC u32 SECTION(".text.handle_retain") func_0800745C(Unk_hardware_H * self, u32 handle)
+// 0x0800745C
+EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner * self, u32 handle)
 {
-    Unk_hardware_03000404 * h = gUnk_03000404;
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
     if (handle != 0)
     {
-        unsigned int idx = HardwareHandle(handle).Index();
-        if (h->inl_pred_0(idx))
+        unsigned int index = HardwareHandle(handle).Index();
+        if (registry->IsAllocated(index))
         {
-            Unk_hardware_ent_080D6D98 & ent = h->GetEntry(idx);
-            if (h->Matches(ent, handle))
+            ResourceHandleEntry & entry = registry->GetEntry(index);
+            if (registry->Matches(entry, handle))
             {
-                u16 previous = ent.params.unk_00;
-                if (++ent.params.unk_00 != 0)
+                u16 previous = entry.params.ref_count;
+                if (++entry.params.ref_count != 0)
                     return handle;
-                ent.params.unk_00 = previous;
+                entry.params.ref_count = previous;
             }
         }
     }
     return 0;
 }
 
-EC u16 SECTION(".text.handle_count") func_08007510(Unk_hardware_H * self, u32 handle)
+// 0x08007510
+EC u16 SECTION(".text.handle_count") ResourceHandle_GetRefCount(ResourceHandleOwner * self, u32 handle)
 {
-    Unk_hardware_03000404 * h = gUnk_03000404;
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
     if (handle != 0)
     {
-        unsigned int idx = HardwareHandle(handle).Index();
-        if (h->inl_pred_0(idx))
+        unsigned int index = HardwareHandle(handle).Index();
+        if (registry->IsAllocated(index))
         {
-            Unk_hardware_ent_080D6D98 & ent = h->GetEntry(idx);
-            if (h->Matches(ent, handle))
-                return ent.params.unk_00;
+            ResourceHandleEntry & entry = registry->GetEntry(index);
+            if (registry->Matches(entry, handle))
+                return entry.params.ref_count;
         }
     }
     return 0;
 }
 
-struct HardwarePool
+struct ResourcePool
 {
-    void * data;
+    void * storage;
 };
 
-EC SECTION(".text.func_0800770C") HardwarePool * func_0800770C(HardwarePool * self)
+// 0x0800770C
+EC SECTION(".text.ResourcePool_Initialize") ResourcePool * ResourcePool_Initialize(ResourcePool * self)
 {
-    self->data = nullptr;
+    self->storage = nullptr;
     return self;
 }
 
-struct HardwareBitset
+struct AllocationBitset
 {
     u32 bits;
 };
 
-EC void SECTION(".text.func_08007844") func_08007844(HardwareBitset * self, u32 index, u32 order)
+// 0x08007844
+EC void SECTION(".text.AllocationBitset_FreeBlock") AllocationBitset_FreeBlock(AllocationBitset * self, u32 index, u32 order)
 {
     if (order <= 4)
         self->bits &= ~(((1u << (1u << order)) - 1) << (index % 32));
@@ -191,173 +198,194 @@ EC void SECTION(".text.func_08007844") func_08007844(HardwareBitset * self, u32 
         self->bits = 0;
 }
 
-struct HardwareTreeNode
+struct AllocationTreeBranch
 {
     u8 full;
     u8 empty;
-    u8 data[122];
+    u8 subtree_storage[122];
 };
 
-struct HardwareTree
+struct AllocationTree
 {
     u8 full;
     u8 empty;
-    u16 pad;
-    HardwareTreeNode children[2];
+    u16 alignment_padding;
+    AllocationTreeBranch children[2];
 };
 
-EC void func_080D6EEC(HardwareTreeNode *);
-EC void func_080D6F5C(HardwareTreeNode *);
+EC void AllocationTreeBranch_MarkFull(AllocationTreeBranch *);
+EC void AllocationTreeBranch_MarkEmpty(AllocationTreeBranch *);
 
-EC void SECTION(".text.func_08007EA8") func_08007EA8(HardwareTree * self)
+// 0x08007EA8
+EC void SECTION(".text.AllocationTree_MarkFull") AllocationTree_MarkFull(AllocationTree * self)
 {
-    func_080D6EEC(&self->children[0]);
-    func_080D6EEC(&self->children[1]);
+    AllocationTreeBranch_MarkFull(&self->children[0]);
+    AllocationTreeBranch_MarkFull(&self->children[1]);
     self->full = 1;
     self->empty = 0;
 }
 
-EC void SECTION(".text.func_08007EC8") func_08007EC8(HardwareTree * self)
+// 0x08007EC8
+EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(AllocationTree * self)
 {
-    func_080D6F5C(&self->children[1]);
-    func_080D6F5C(&self->children[0]);
+    AllocationTreeBranch_MarkEmpty(&self->children[1]);
+    AllocationTreeBranch_MarkEmpty(&self->children[0]);
     self->full = 0;
     self->empty = 1;
 }
 
-struct HardwareDisplayState
+struct HardwareContextState
 {
-    u16 unk_00;
-    u16 unk_02;
-    u16 unk_04;
-    u16 unk_06;
-    u16 unk_08;
+    u16 held_keys;
+    u16 held_padding;
+    u16 pressed_keys;
+    u16 pressed_padding;
+    u16 repeated_keys;
     STRUCT_PAD(0x0A, 0x24);
-    u8 unk_24[0x10];
-    u8 unk_34[0x58];
-    u8 unk_8C[0x404];
-    u8 unk_490[4];
-    u8 unk_494[0x1C];
+    u8 dma_queue[0x10];
+    u8 display_registers[0x58];
+    u8 oam_buffer[0x404];
+    u8 vblank_dispatcher[4];
+    u8 frame_tasks[0x1C];
 };
 
-struct HardwareDisplay
+struct HardwareContext
 {
-    HardwareDisplayState * state;
+    HardwareContextState * state;
 };
 
-EC u32 func_08009268(void *);
+EC u32 KeyRepeat_Poll(void *);
 
-EC void SECTION(".text.func_080088B8") func_080088B8(HardwareDisplay * self)
+// 0x080088B8
+EC void SECTION(".text.HardwareContext_UpdateKeys") HardwareContext_UpdateKeys(HardwareContext * self)
 {
-    func_08009268(self->state);
+    KeyRepeat_Poll(self->state);
 }
 
-EC u16 SECTION(".text.func_080088C4") func_080088C4(HardwareDisplay * self)
+// 0x080088C4
+EC u16 SECTION(".text.HardwareContext_GetHeldKeys") HardwareContext_GetHeldKeys(HardwareContext * self)
 {
-    return self->state->unk_00;
+    return self->state->held_keys;
 }
 
-EC u16 SECTION(".text.func_080088CC") func_080088CC(HardwareDisplay * self)
+// 0x080088CC
+EC u16 SECTION(".text.HardwareContext_GetPressedKeys") HardwareContext_GetPressedKeys(HardwareContext * self)
 {
-    return self->state->unk_04;
+    return self->state->pressed_keys;
 }
 
-EC u16 SECTION(".text.func_080088D4") func_080088D4(HardwareDisplay * self)
+// 0x080088D4
+EC u16 SECTION(".text.HardwareContext_GetRepeatedKeys") HardwareContext_GetRepeatedKeys(HardwareContext * self)
 {
-    return self->state->unk_08;
+    return self->state->repeated_keys;
 }
 
-EC SECTION(".text.func_080088DC") HardwareDisplayState * func_080088DC(HardwareDisplay * self)
+// 0x080088DC
+EC SECTION(".text.HardwareContext_GetState") HardwareContextState * HardwareContext_GetState(HardwareContext * self)
 {
     return self->state;
 }
 
-EC SECTION(".text.func_08008910") void * func_08008910(HardwareDisplay * self)
+// 0x08008910
+EC SECTION(".text.HardwareContext_GetDmaQueue") void * HardwareContext_GetDmaQueue(HardwareContext * self)
 {
-    return self->state->unk_24;
+    return self->state->dma_queue;
 }
 
-EC SECTION(".text.func_08008918") void * func_08008918(HardwareDisplay * self)
+// 0x08008918
+EC SECTION(".text.HardwareContext_GetDisplayRegisters") void * HardwareContext_GetDisplayRegisters(HardwareContext * self)
 {
-    return self->state->unk_34;
+    return self->state->display_registers;
 }
 
-EC SECTION(".text.func_08008920") void * func_08008920(HardwareDisplay * self)
+// 0x08008920
+EC SECTION(".text.HardwareContext_GetOamBuffer") void * HardwareContext_GetOamBuffer(HardwareContext * self)
 {
-    return self->state->unk_8C;
+    return self->state->oam_buffer;
 }
 
-EC SECTION(".text.func_08008940") void * func_08008940(HardwareDisplay * self)
+// 0x08008940
+EC SECTION(".text.HardwareContext_GetFrameTasks") void * HardwareContext_GetFrameTasks(HardwareContext * self)
 {
-    return self->state->unk_494;
+    return self->state->frame_tasks;
 }
 
-EC void * func_08008AE0(void ** self);
+EC void * VBlankDispatcher_GetTasks(void ** self);
 
-EC SECTION(".text.func_0800894C") void * func_0800894C(HardwareDisplay * self)
+// 0x0800894C
+EC SECTION(".text.HardwareContext_GetVBlankTasks") void * HardwareContext_GetVBlankTasks(HardwareContext * self)
 {
-    return func_08008AE0(reinterpret_cast<void **>(self->state->unk_490));
+    return VBlankDispatcher_GetTasks(reinterpret_cast<void **>(self->state->vblank_dispatcher));
 }
 
-EC SECTION(".text.func_08008AE0") void * func_08008AE0(void ** self)
+// 0x08008AE0
+EC SECTION(".text.VBlankDispatcher_GetTasks") void * VBlankDispatcher_GetTasks(void ** self)
 {
     return static_cast<u8 *>(*self) + 0xC;
 }
 
-EC void func_08000568(u16 flags);
+EC void Irq_Wait(u16 irq_mask);
 
-EC void SECTION(".text.func_08008AF0") func_08008AF0(void * self)
+// 0x08008AF0
+EC void SECTION(".text.VBlankDispatcher_Wait") VBlankDispatcher_Wait(void * self)
 {
-    func_08000568(1);
+    Irq_Wait(1);
 }
 
-EC void SECTION(".text.func_08008AFC") func_08008AFC()
+// 0x08008AFC
+EC void SECTION(".text.Audio_Initialize") Audio_Initialize()
 {
     m4aSoundInit();
     m4aSoundVSyncOff();
 }
 
-EC bool SECTION(".text.func_08008B0C") func_08008B0C()
+// 0x08008B0C
+EC bool SECTION(".text.Audio_OnVBlank") Audio_OnVBlank()
 {
     m4aSoundVSync();
     return true;
 }
 
-EC bool SECTION(".text.func_08008B18") func_08008B18()
+// 0x08008B18
+EC bool SECTION(".text.Audio_Update") Audio_Update()
 {
     m4aSoundMain();
     return true;
 }
 
-struct HardwareMusicPlayer
+struct AudioPlayer
 {
     MusicPlayer * player;
 };
 
-EC MusicPlayer * func_08008B24(u32 index);
+EC MusicPlayer * Audio_GetPlayerByIndex(u32 index);
 
-EC SECTION(".text.func_08008B54") HardwareMusicPlayer * func_08008B54(HardwareMusicPlayer * self, u8 index)
+// 0x08008B54
+EC SECTION(".text.AudioPlayer_Initialize") AudioPlayer * AudioPlayer_Initialize(AudioPlayer * self, u8 index)
 {
-    self->player = func_08008B24(index);
+    self->player = Audio_GetPlayerByIndex(index);
     return self;
 }
 
-EC void SECTION(".text.func_08008B6C") func_08008B6C(HardwareMusicPlayer * self, u16 song)
+// 0x08008B6C
+EC void SECTION(".text.AudioPlayer_StartSong") AudioPlayer_StartSong(AudioPlayer * self, u16 song_id)
 {
-    m4aMPlayStart(self->player, gSongTable[song].song);
+    m4aMPlayStart(self->player, gSongTable[song_id].song);
 }
 
-EC void SECTION(".text.func_08008B88") func_08008B88(HardwareMusicPlayer * self, u16 song)
+// 0x08008B88
+EC void SECTION(".text.AudioPlayer_StartSongIfStoppedOrChanged") AudioPlayer_StartSongIfStoppedOrChanged(AudioPlayer * self, u16 song_id)
 {
-    Song * target = gSongTable[song].song;
+    Song * target = gSongTable[song_id].song;
     MusicPlayer * player = self->player;
     if (player->song != target || i32(player->status) < 0)
         m4aMPlayStart(player, target);
 }
 
-EC void SECTION(".text.func_08008BB0") func_08008BB0(HardwareMusicPlayer * self, u16 song)
+// 0x08008BB0
+EC void SECTION(".text.AudioPlayer_StartOrResumeSong") AudioPlayer_StartOrResumeSong(AudioPlayer * self, u16 song_id)
 {
-    Song * target = gSongTable[song].song;
+    Song * target = gSongTable[song_id].song;
     MusicPlayer * player = self->player;
     if (player->song != target)
         m4aMPlayStart(player, target);
@@ -365,580 +393,635 @@ EC void SECTION(".text.func_08008BB0") func_08008BB0(HardwareMusicPlayer * self,
         m4aMPlayContinue(player);
 }
 
-EC void SECTION(".text.func_08008BE0") func_08008BE0(HardwareMusicPlayer * self)
+// 0x08008BE0
+EC void SECTION(".text.AudioPlayer_Stop") AudioPlayer_Stop(AudioPlayer * self)
 {
     m4aMPlayStop(self->player);
 }
 
-EC void SECTION(".text.func_08008BF8") func_08008BF8(HardwareMusicPlayer * self, u16 speed)
+// 0x08008BF8
+EC void SECTION(".text.AudioPlayer_FadeOut") AudioPlayer_FadeOut(AudioPlayer * self, u16 speed)
 {
     m4aMPlayFadeOut(self->player, speed);
 }
 
-EC void SECTION(".text.func_08008C28") func_08008C28(HardwareMusicPlayer * self, u16 tempo)
+// 0x08008C28
+EC void SECTION(".text.AudioPlayer_SetTempo") AudioPlayer_SetTempo(AudioPlayer * self, u16 tempo)
 {
     m4aMPlayTempoControl(self->player, tempo);
 }
 
-EC void SECTION(".text.func_08008C38") func_08008C38(HardwareMusicPlayer * self, u16 volume, u16 tracks)
+// 0x08008C38
+EC void SECTION(".text.AudioPlayer_SetTrackVolume") AudioPlayer_SetTrackVolume(AudioPlayer * self, u16 volume, u16 track_mask)
 {
-    m4aMPlayVolumeControl(self->player, tracks, volume);
+    m4aMPlayVolumeControl(self->player, track_mask, volume);
 }
 
-EC void SECTION(".text.func_08008C54") func_08008C54(HardwareMusicPlayer * self, i16 pitch, u16 tracks)
+// 0x08008C54
+EC void SECTION(".text.AudioPlayer_SetTrackPitch") AudioPlayer_SetTrackPitch(AudioPlayer * self, i16 pitch, u16 track_mask)
 {
-    m4aMPlayPitchControl(self->player, tracks, pitch);
+    m4aMPlayPitchControl(self->player, track_mask, pitch);
 }
 
-EC void SECTION(".text.func_08008C70") func_08008C70(HardwareMusicPlayer * self, i8 pan, u16 tracks)
+// 0x08008C70
+EC void SECTION(".text.AudioPlayer_SetTrackPan") AudioPlayer_SetTrackPan(AudioPlayer * self, i8 pan, u16 track_mask)
 {
-    m4aMPlayPanpotControl(self->player, tracks, pan);
+    m4aMPlayPanpotControl(self->player, track_mask, pan);
 }
 
-EC void SECTION(".text.func_08008C8C") func_08008C8C(HardwareMusicPlayer * self, u8 depth, u16 tracks)
+// 0x08008C8C
+EC void SECTION(".text.AudioPlayer_SetTrackModDepth") AudioPlayer_SetTrackModDepth(AudioPlayer * self, u8 depth, u16 track_mask)
 {
-    m4aMPlayModDepthSet(self->player, tracks, depth);
+    m4aMPlayModDepthSet(self->player, track_mask, depth);
 }
 
-EC void SECTION(".text.func_08008CA8") func_08008CA8(HardwareMusicPlayer * self, u8 speed, u16 tracks)
+// 0x08008CA8
+EC void SECTION(".text.AudioPlayer_SetTrackLfoSpeed") AudioPlayer_SetTrackLfoSpeed(AudioPlayer * self, u8 speed, u16 track_mask)
 {
-    m4aMPlayLFOSpeedSet(self->player, tracks, speed);
+    m4aMPlayLFOSpeedSet(self->player, track_mask, speed);
 }
 
-EC void SECTION(".text.func_08008CC4") func_08008CC4(HardwareMusicPlayer * self)
+// 0x08008CC4
+EC void SECTION(".text.AudioPlayer_ResetChannels") AudioPlayer_ResetChannels(AudioPlayer * self)
 {
     m4aMPlayImmInit(self->player);
 }
 
-EC bool SECTION(".text.func_08008CD0") func_08008CD0(HardwareMusicPlayer * self)
+// 0x08008CD0
+EC bool SECTION(".text.AudioPlayer_IsPlaying") AudioPlayer_IsPlaying(AudioPlayer * self)
 {
     return (self->player->status >> 31) ^ 1;
 }
 
-EC SECTION(".text.func_08008D3C") MusicPlayer * func_08008D3C(u16 song)
+// 0x08008D3C
+EC SECTION(".text.Audio_GetSongPlayer") MusicPlayer * Audio_GetSongPlayer(u16 song_id)
 {
-    HardwareMusicPlayer result;
-    func_08008B54(&result, gSongTable[song].ms);
-    return result.player;
+    AudioPlayer song_player;
+    AudioPlayer_Initialize(&song_player, gSongTable[song_id].ms);
+    return song_player.player;
 }
 
-EC void SECTION(".text.func_08008D84") func_08008D84()
+// 0x08008D84
+EC void SECTION(".text.Audio_EnableVBlankDma") Audio_EnableVBlankDma()
 {
     m4aSoundVSyncOn();
 }
 
-EC void SECTION(".text.func_08008D90") func_08008D90()
+// 0x08008D90
+EC void SECTION(".text.Audio_DisableVBlankDma") Audio_DisableVBlankDma()
 {
     m4aSoundVSyncOff();
 }
 
-EC bool SECTION(".text.func_08008D9C") func_08008D9C()
+// 0x08008D9C
+EC bool SECTION(".text.Audio_IsDma1Enabled") Audio_IsDma1Enabled()
 {
     return *reinterpret_cast<u32 volatile *>(0x040000C4) >> 31;
 }
 
-EC void SECTION(".text.func_08008DA8") func_08008DA8(u16 song)
+// 0x08008DA8
+EC void SECTION(".text.Audio_StartSong") Audio_StartSong(u16 song_id)
 {
-    m4aSongNumStart(song);
+    m4aSongNumStart(song_id);
 }
 
-EC void SECTION(".text.func_08008DB8") func_08008DB8(u16 song)
+// 0x08008DB8
+EC void SECTION(".text.Audio_StartOrChangeSong") Audio_StartOrChangeSong(u16 song_id)
 {
-    m4aSongNumStartOrChange(song);
+    m4aSongNumStartOrChange(song_id);
 }
 
-EC void SECTION(".text.func_08008DE8") func_08008DE8()
+// 0x08008DE8
+EC void SECTION(".text.Audio_StopAllPlayers") Audio_StopAllPlayers()
 {
     m4aMPlayAllStop();
 }
 
-inline u32 HardwareDmaControl(u32 src, u32 dst, u32 size)
+inline u32 Dma_BuildCopyControl(u32 source, u32 destination, u32 byte_count)
 {
-    if (size != 0 && ((src | dst | size) & 1) == 0)
+    if (byte_count != 0 && ((source | destination | byte_count) & 1) == 0)
     {
-        if (((src | dst | size) & 3) == 0)
-            return u16(size / 4) | 0x84000000;
-        return u16(size / 2) | 0x80000000;
+        if (((source | destination | byte_count) & 3) == 0)
+            return u16(byte_count / 4) | 0x84000000;
+        return u16(byte_count / 2) | 0x80000000;
     }
     return 0;
 }
 
-EC void func_080D0EBC(void const *, void *, u32, void volatile *);
+EC void Dma_ExecuteTransfer(void const *, void *, u32, void volatile *);
 
-EC void SECTION(".text.func_08008EB8") func_08008EB8(u32 value, void * dst, u32 size)
+// 0x08008EB8
+EC void SECTION(".text.Dma3_Fill") Dma3_Fill(u32 fill_value, void * destination, u32 byte_count)
 {
-    if (dst != nullptr)
+    if (destination != nullptr)
     {
-        u32 control = HardwareDmaControl(0, u32(dst), size) | 0x01000000;
-        func_080D0EBC(&value, dst, control,
+        u32 control_flags = Dma_BuildCopyControl(0, u32(destination), byte_count) | 0x01000000;
+        Dma_ExecuteTransfer(&fill_value, destination, control_flags,
             reinterpret_cast<void volatile *>(0x040000D4));
     }
 }
 
-struct HardwareDmaCommand
+struct DmaCommand
 {
-    u32 fill;
-    u32 src;
-    void * dst;
-    u32 control;
+    u32 is_fill;
+    u32 source_or_fill_value;
+    void * destination;
+    u32 control_flags;
 };
 
-EC SECTION(".text.func_08008F0C") HardwareDmaCommand * func_08008F0C(
-    HardwareDmaCommand * self, void const * src, void * dst, u32 size)
+// 0x08008F0C
+EC SECTION(".text.DmaCommand_InitializeCopy") DmaCommand * DmaCommand_InitializeCopy(
+    DmaCommand * self, void const * source, void * destination, u32 byte_count)
 {
-    u32 control = src != nullptr && dst != nullptr ? HardwareDmaControl(u32(src), u32(dst), size) : 0;
-    self->fill = 0;
-    self->src = u32(src);
-    self->dst = dst;
-    self->control = control;
+    u32 control_flags = source != nullptr && destination != nullptr ? Dma_BuildCopyControl(u32(source), u32(destination), byte_count) : 0;
+    self->is_fill = 0;
+    self->source_or_fill_value = u32(source);
+    self->destination = destination;
+    self->control_flags = control_flags;
     return self;
 }
 
-EC SECTION(".text.func_08008F60") HardwareDmaCommand * func_08008F60(
-    HardwareDmaCommand * self, u32 value, void * dst, u32 size)
+// 0x08008F60
+EC SECTION(".text.DmaCommand_InitializeFill") DmaCommand * DmaCommand_InitializeFill(
+    DmaCommand * self, u32 fill_value, void * destination, u32 byte_count)
 {
-    u32 control = dst != nullptr ? HardwareDmaControl(0, u32(dst), size) | 0x01000000 : 0;
-    self->fill = 1;
-    self->src = value;
-    self->dst = dst;
-    self->control = control;
+    u32 control_flags = destination != nullptr ? Dma_BuildCopyControl(0, u32(destination), byte_count) | 0x01000000 : 0;
+    self->is_fill = 1;
+    self->source_or_fill_value = fill_value;
+    self->destination = destination;
+    self->control_flags = control_flags;
     return self;
 }
 
-struct HardwareKeys
+struct KeyRepeatState
 {
-    u16 current;
-    u16 pad;
-    u16 pressed;
-    u16 pad_06;
-    u16 repeat;
-    u16 delay;
-    u16 period;
-    i16 counters[10];
+    u16 held_keys;
+    u16 alignment_padding;
+    u16 pressed_keys;
+    u16 edge_padding;
+    u16 repeated_keys;
+    u16 repeat_delay;
+    u16 repeat_period;
+    i16 repeat_counters[10];
 };
 
-EC u32 SECTION(".text.func_0800912C") func_0800912C()
+// 0x0800912C
+EC u32 SECTION(".text.Keys_ReadHardware") Keys_ReadHardware()
 {
     return ~*reinterpret_cast<u16 volatile *>(0x04000130) & 0x3FF;
 }
 
-EC SECTION(".text.func_08009140") HardwareKeys * func_08009140(HardwareKeys * self)
+// 0x08009140
+EC SECTION(".text.Keys_InitializeFromHardware") KeyRepeatState * Keys_InitializeFromHardware(KeyRepeatState * self)
 {
-    self->current = func_0800912C();
+    self->held_keys = Keys_ReadHardware();
     return self;
 }
 
-EC SECTION(".text.func_08009154") HardwareKeys * func_08009154(HardwareKeys * self, u32 keys)
+// 0x08009154
+EC SECTION(".text.Keys_Initialize") KeyRepeatState * Keys_Initialize(KeyRepeatState * self, u32 keys)
 {
-    self->current = keys;
+    self->held_keys = keys;
     return self;
 }
 
-EC u32 SECTION(".text.func_08009158") func_08009158(HardwareKeys * self)
+// 0x08009158
+EC u32 SECTION(".text.Keys_PollHeld") Keys_PollHeld(KeyRepeatState * self)
 {
-    u32 keys = func_0800912C();
-    self->current = keys;
+    u32 keys = Keys_ReadHardware();
+    self->held_keys = keys;
     return keys;
 }
 
-EC SECTION(".text.func_08009168") HardwareKeys * func_08009168(HardwareKeys * self)
+// 0x08009168
+EC SECTION(".text.KeyEdges_InitializeFromHardware") KeyRepeatState * KeyEdges_InitializeFromHardware(KeyRepeatState * self)
 {
-    func_08009140(self);
-    self->pressed = self->current;
+    Keys_InitializeFromHardware(self);
+    self->pressed_keys = self->held_keys;
     return self;
 }
 
-EC SECTION(".text.func_0800917C") HardwareKeys * func_0800917C(HardwareKeys * self, u32 keys)
+// 0x0800917C
+EC SECTION(".text.KeyEdges_Initialize") KeyRepeatState * KeyEdges_Initialize(KeyRepeatState * self, u32 keys)
 {
-    func_08009154(self, keys);
-    self->pressed = self->current;
+    Keys_Initialize(self, keys);
+    self->pressed_keys = self->held_keys;
     return self;
 }
 
-EC u32 SECTION(".text.func_08009190") func_08009190(HardwareKeys * self)
+// 0x08009190
+EC u32 SECTION(".text.KeyEdges_PollPressed") KeyEdges_PollPressed(KeyRepeatState * self)
 {
-    u16 previous = self->current;
-    u32 pressed = func_08009158(self) & ~previous;
-    self->pressed = pressed;
-    return pressed;
+    u16 previous = self->held_keys;
+    u32 pressed_keys = Keys_PollHeld(self) & ~previous;
+    self->pressed_keys = pressed_keys;
+    return pressed_keys;
 }
 
-EC SECTION(".text.func_080091A4") HardwareKeys * func_080091A4(HardwareKeys * self, u16 delay, u16 period)
+// 0x080091A4
+EC SECTION(".text.KeyRepeat_Initialize") KeyRepeatState * KeyRepeat_Initialize(KeyRepeatState * self, u16 delay, u16 period)
 {
-    func_08009168(self);
-    self->repeat = self->pressed;
-    self->delay = delay;
-    self->period = period;
-    fill_inl(self->counters, self->counters + 10, 0);
+    KeyEdges_InitializeFromHardware(self);
+    self->repeated_keys = self->pressed_keys;
+    self->repeat_delay = delay;
+    self->repeat_period = period;
+    fill_inl(self->repeat_counters, self->repeat_counters + 10, 0);
     return self;
 }
 
-EC SECTION(".text.func_080091E8") HardwareKeys * func_080091E8(HardwareKeys * self, u32 keys)
+// 0x080091E8
+EC SECTION(".text.KeyRepeat_InitializeWithHeldKeys") KeyRepeatState * KeyRepeat_InitializeWithHeldKeys(KeyRepeatState * self, u32 keys)
 {
-    func_0800917C(self, keys);
-    self->repeat = self->pressed;
-    self->delay = 30;
-    self->period = 4;
-    fill_inl(self->counters, self->counters + 10, 0);
+    KeyEdges_Initialize(self, keys);
+    self->repeated_keys = self->pressed_keys;
+    self->repeat_delay = 30;
+    self->repeat_period = 4;
+    fill_inl(self->repeat_counters, self->repeat_counters + 10, 0);
     return self;
 }
 
-EC u32 SECTION(".text.func_08009268") func_08009268(void * ptr)
+// 0x08009268
+EC u32 SECTION(".text.KeyRepeat_Poll") KeyRepeat_Poll(void * key_state)
 {
-    HardwareKeys * self = static_cast<HardwareKeys *>(ptr);
-    u32 pressed = func_08009190(self);
-    u32 current = self->current;
-    u32 period = self->period;
-    u32 delay = self->delay;
-    u32 repeat = 0;
-    u32 mask = 0x200;
-    i16 * counter = self->counters + 9;
+    KeyRepeatState * self = static_cast<KeyRepeatState *>(key_state);
+    u32 pressed_keys = KeyEdges_PollPressed(self);
+    u32 held_keys = self->held_keys;
+    u32 period = self->repeat_period;
+    u32 delay = self->repeat_delay;
+    u32 repeated_keys = 0;
+    u32 key_mask = 0x200;
+    i16 * repeat_counter = self->repeat_counters + 9;
     do
     {
-        if (current & mask)
+        if (held_keys & key_mask)
         {
-            int value;
-            if ((pressed & mask) == 0)
+            int counter_value;
+            if ((pressed_keys & key_mask) == 0)
             {
-                value = *counter;
-                if (value != delay)
-                    ++value;
+                counter_value = *repeat_counter;
+                if (counter_value != delay)
+                    ++counter_value;
                 else
                 {
-                    repeat |= mask;
-                    value -= period;
+                    repeated_keys |= key_mask;
+                    counter_value -= period;
                 }
             }
             else
             {
-                repeat |= mask;
-                value = 0;
+                repeated_keys |= key_mask;
+                counter_value = 0;
             }
-            *counter = value;
+            *repeat_counter = counter_value;
         }
-        --counter;
-        mask >>= 1;
+        --repeat_counter;
+        key_mask >>= 1;
     }
-    while (mask != 0);
-    self->repeat = repeat;
-    return repeat;
+    while (key_mask != 0);
+    self->repeated_keys = repeated_keys;
+    return repeated_keys;
 }
 
-EC void SECTION(".text.func_080092C8") func_080092C8(HardwareKeys * self, u16 delay)
+// 0x080092C8
+EC void SECTION(".text.KeyRepeat_SetDelay") KeyRepeat_SetDelay(KeyRepeatState * self, u16 delay)
 {
-    u32 current = self->current;
-    u32 mask = 0x200;
-    i16 * counter = self->counters + 9;
-    int delta = delay - self->delay;
+    u32 held_keys = self->held_keys;
+    u32 key_mask = 0x200;
+    i16 * repeat_counter = self->repeat_counters + 9;
+    int delta = delay - self->repeat_delay;
     do
     {
-        if (current & mask)
-            *counter += delta;
-        --counter;
-        mask >>= 1;
+        if (held_keys & key_mask)
+            *repeat_counter += delta;
+        --repeat_counter;
+        key_mask >>= 1;
     }
-    while (mask != 0);
-    self->delay = delay;
+    while (key_mask != 0);
+    self->repeat_delay = delay;
 }
 
-EC void SECTION(".text.func_080092FC") func_080092FC(HardwareKeys * self, u32 period)
+// 0x080092FC
+EC void SECTION(".text.KeyRepeat_SetPeriod") KeyRepeat_SetPeriod(KeyRepeatState * self, u32 period)
 {
-    self->period = period;
+    self->repeat_period = period;
 }
 
-struct HardwareFadeState
+struct DisplayFadeState
 {
-    HardwareFadeState(void * registers)
-        : registers(registers), speed(0), mode(0), mosaic(false), progress(0) {}
-    void * registers;
-    i16 speed;
-    u32 mode;
-    bool mosaic;
-    u16 progress;
+    DisplayFadeState(void * register_buffer)
+        : register_buffer(register_buffer), step(0), blend_mode(0), mosaic_enabled(false), intensity(0) {}
+    void * register_buffer;
+    i16 step;
+    u32 blend_mode;
+    bool mosaic_enabled;
+    u16 intensity;
 };
 
-struct HardwareFade
+struct DisplayFade
 {
-    HardwareFadeState * state;
+    DisplayFadeState * state;
 };
 
-EC SECTION(".text.func_08009300") HardwareFade * func_08009300(HardwareFade * self, void * registers)
+// 0x08009300
+EC SECTION(".text.DisplayFade_Initialize") DisplayFade * DisplayFade_Initialize(DisplayFade * self, void * register_buffer)
 {
-    self->state = new HardwareFadeState(registers);
+    self->state = new DisplayFadeState(register_buffer);
     return self;
 }
 
-EC void SECTION(".text.func_08009324") func_08009324(HardwareFade * self, u32 flags)
+// 0x08009324
+EC void SECTION(".text.DisplayFade_Destroy") DisplayFade_Destroy(DisplayFade * self, u32 destructor_flags)
 {
     delete self->state;
-    if (flags & 1)
+    if (destructor_flags & 1)
         delete self;
 }
 
-EC SECTION(".text.func_08009344") void * func_08009344(HardwareFade * self, void * registers)
+// 0x08009344
+EC SECTION(".text.DisplayFade_SetRegisterBuffer") void * DisplayFade_SetRegisterBuffer(DisplayFade * self, void * register_buffer)
 {
-    void * previous = self->state->registers;
-    self->state->registers = registers;
+    void * previous = self->state->register_buffer;
+    self->state->register_buffer = register_buffer;
     return previous;
 }
 
-EC void SECTION(".text.func_0800934C") func_0800934C(HardwareFade * self, i16 speed, u32 mode, u32 mosaic)
+// 0x0800934C
+EC void SECTION(".text.DisplayFade_StartIn") DisplayFade_StartIn(DisplayFade * self, i16 step, u32 blend_mode, u32 mosaic_enabled)
 {
-    HardwareFadeState * state = self->state;
-    int value = -(speed < 0 ? -speed : speed);
-    bool mosaic_enabled = mosaic != 0;
-    state->speed = value;
-    state->mode = mode;
-    state->mosaic = mosaic_enabled;
-    state->progress = 0xFFFF;
+    DisplayFadeState * state = self->state;
+    int signed_step = -(step < 0 ? -step : step);
+    bool use_mosaic = mosaic_enabled != 0;
+    state->step = signed_step;
+    state->blend_mode = blend_mode;
+    state->mosaic_enabled = use_mosaic;
+    state->intensity = 0xFFFF;
 }
 
-EC void SECTION(".text.func_08009378") func_08009378(HardwareFade * self, i16 speed, u32 mode, u32 mosaic)
+// 0x08009378
+EC void SECTION(".text.DisplayFade_StartOut") DisplayFade_StartOut(DisplayFade * self, i16 step, u32 blend_mode, u32 mosaic_enabled)
 {
-    HardwareFadeState * state = self->state;
-    int value = speed < 0 ? -speed : speed;
-    bool mosaic_enabled = mosaic != 0;
-    state->speed = value;
-    state->mode = mode;
-    state->mosaic = mosaic_enabled;
-    state->progress = 0;
+    DisplayFadeState * state = self->state;
+    int signed_step = step < 0 ? -step : step;
+    bool use_mosaic = mosaic_enabled != 0;
+    state->step = signed_step;
+    state->blend_mode = blend_mode;
+    state->mosaic_enabled = use_mosaic;
+    state->intensity = 0;
 }
 
-EC i16 SECTION(".text.func_080093A0") func_080093A0(HardwareFade * self, i16 speed)
+// 0x080093A0
+EC i16 SECTION(".text.DisplayFade_SetSpeed") DisplayFade_SetSpeed(DisplayFade * self, i16 step)
 {
-    i16 previous = self->state->speed;
-    self->state->speed = speed;
+    i16 previous = self->state->step;
+    self->state->step = step;
     return previous;
 }
 
-EC i16 SECTION(".text.func_080094A4") func_080094A4(HardwareFade * self)
+// 0x080094A4
+EC i16 SECTION(".text.DisplayFade_GetSpeed") DisplayFade_GetSpeed(DisplayFade * self)
 {
-    return self->state->speed;
+    return self->state->step;
 }
 
-EC bool func_080093AC(HardwareFade *);
+EC bool DisplayFade_Update(DisplayFade *);
 
-EC bool SECTION(".text.func_080094AC") func_080094AC(u8 * self)
+// 0x080094AC
+EC bool SECTION(".text.DisplayFadeTask_Update") DisplayFadeTask_Update(u8 * self)
 {
-    return func_080093AC(reinterpret_cast<HardwareFade *>(self + 0xC));
+    return DisplayFade_Update(reinterpret_cast<DisplayFade *>(self + 0xC));
 }
 
-struct HardwareRegisters
+struct DisplayRegisterBuffer
 {
     union
     {
-        u32 control;
-        u16 halfwords[0x2B];
+        u32 display_control;
+        u16 register_halfwords[0x2B];
     };
 };
 
-EC SECTION(".text.func_080096B0") HardwareRegisters * func_080096B0(HardwareRegisters * self)
+// 0x080096B0
+EC SECTION(".text.DisplayRegisters_Initialize") DisplayRegisterBuffer * DisplayRegisters_Initialize(DisplayRegisterBuffer * self)
 {
     CpuFill16(0, self, 0x56);
-    self->control = 0x80;
-    self->halfwords[0x20 / 2] = 0x100;
-    self->halfwords[0x22 / 2] = 0;
-    self->halfwords[0x24 / 2] = 0;
-    self->halfwords[0x26 / 2] = 0x100;
-    self->halfwords[0x30 / 2] = 0x100;
-    self->halfwords[0x32 / 2] = 0;
-    self->halfwords[0x34 / 2] = 0;
-    self->halfwords[0x36 / 2] = 0x100;
+    self->display_control = 0x80;
+    self->register_halfwords[0x20 / 2] = 0x100;
+    self->register_halfwords[0x22 / 2] = 0;
+    self->register_halfwords[0x24 / 2] = 0;
+    self->register_halfwords[0x26 / 2] = 0x100;
+    self->register_halfwords[0x30 / 2] = 0x100;
+    self->register_halfwords[0x32 / 2] = 0;
+    self->register_halfwords[0x34 / 2] = 0;
+    self->register_halfwords[0x36 / 2] = 0x100;
     return self;
 }
 
-EC void func_08008E64(void const *, void *, u32);
+EC void Dma3_Copy(void const *, void *, u32);
 
-EC void SECTION(".text.func_080096F0") func_080096F0(HardwareRegisters * self)
+// 0x080096F0
+EC void SECTION(".text.DisplayRegisters_Commit") DisplayRegisters_Commit(DisplayRegisterBuffer * self)
 {
-    func_08008E64(self, reinterpret_cast<void *>(0x04000000), 0x54);
-    *reinterpret_cast<u16 volatile *>(0x04000054) = self->halfwords[0x54 / 2];
+    Dma3_Copy(self, reinterpret_cast<void *>(0x04000000), 0x54);
+    *reinterpret_cast<u16 volatile *>(0x04000054) = self->register_halfwords[0x54 / 2];
 }
 
-struct HardwareSprite
+struct OamEntry
 {
     u8 y;
-    u8 flags;
-    u16 x;
-    u16 tile;
-    u16 affine;
+    u8 attribute0_high;
+    u16 attribute1;
+    u16 attribute2;
+    u16 affine_parameter;
 };
 
-struct HardwareSprites
+struct OamBuffer
 {
-    u8 count;
-    u8 initial_count;
+    u8 sprite_count;
+    u8 reserved_sprite_count;
     u8 affine_count;
-    u8 initial_affine_count;
-    HardwareSprite sprites[128];
+    u8 reserved_affine_count;
+    OamEntry sprites[128];
 };
 
-EC SECTION(".text.func_08009744") HardwareSprites * func_08009744(HardwareSprites * self, u8 count, u8 affine_count)
+// 0x08009744
+EC SECTION(".text.OamBuffer_Initialize") OamBuffer * OamBuffer_Initialize(OamBuffer * self, u8 sprite_count, u8 affine_count)
 {
-    self->count = self->initial_count = count & 0x7F;
-    self->affine_count = self->initial_affine_count = affine_count & 0x1F;
-    HardwareSprite * it = self->sprites;
-    HardwareSprite * end = self->sprites + 128;
+    self->sprite_count = self->reserved_sprite_count = sprite_count & 0x7F;
+    self->affine_count = self->reserved_affine_count = affine_count & 0x1F;
+    OamEntry * sprite = self->sprites;
+    OamEntry * end = self->sprites + 128;
     do
     {
-        it->flags = 2;
-        ++it;
+        sprite->attribute0_high = 2;
+        ++sprite;
     }
-    while (it != end);
+    while (sprite != end);
     return self;
 }
 
-EC void SECTION(".text.func_0800977C") func_0800977C(HardwareSprites * self)
+// 0x0800977C
+EC void SECTION(".text.OamBuffer_Commit") OamBuffer_Commit(OamBuffer * self)
 {
-    func_08008E64(self->sprites, reinterpret_cast<void *>(0x07000000), 0x400);
+    Dma3_Copy(self->sprites, reinterpret_cast<void *>(0x07000000), 0x400);
 }
 
-EC void SECTION(".text.func_08009834") func_08009834(HardwareSprites * self)
+// 0x08009834
+EC void SECTION(".text.OamBuffer_Reset") OamBuffer_Reset(OamBuffer * self)
 {
-    u32 count = self->count;
-    u32 initial = self->initial_count;
-    if (count > initial)
+    u32 sprite_count = self->sprite_count;
+    u32 reserved_count = self->reserved_sprite_count;
+    if (sprite_count > reserved_count)
     {
-        HardwareSprite * it = self->sprites + initial;
-        HardwareSprite * end = self->sprites + count;
+        OamEntry * sprite = self->sprites + reserved_count;
+        OamEntry * end = self->sprites + sprite_count;
         do
         {
-            it->flags = 2;
-            ++it;
+            sprite->attribute0_high = 2;
+            ++sprite;
         }
-        while (it != end);
+        while (sprite != end);
     }
-    self->count = initial;
-    self->affine_count = self->initial_affine_count;
+    self->sprite_count = reserved_count;
+    self->affine_count = self->reserved_affine_count;
 }
 
-EC void SECTION(".text.func_08009864") func_08009864(HardwareSprites * self)
+// 0x08009864
+EC void SECTION(".text.OamBuffer_CommitAndReset") OamBuffer_CommitAndReset(OamBuffer * self)
 {
-    func_0800977C(self);
-    func_08009834(self);
+    OamBuffer_Commit(self);
+    OamBuffer_Reset(self);
 }
 
-struct HardwareTaskNode;
-struct HardwareTaskList;
+struct TaskNode;
+struct TaskList;
 
-struct HardwareTaskVtable
+struct TaskVtable
 {
-    void (*unk_00)();
-    void (*unk_04)();
-    bool (*run)(HardwareTaskNode *);
-    void (*unk_0C)();
-    void (*unk_10)();
-    void (*remove)(HardwareTaskList *, HardwareTaskNode *);
+    void (*abi_header_00)();
+    void (*abi_header_04)();
+    bool (*run)(TaskNode *);
+    void (*destroy)();
+    void (*append)();
+    void (*remove)(TaskList *, TaskNode *);
 };
 
-extern HardwareTaskVtable vtable_unk_080E5BE8;
-extern HardwareTaskVtable vtable_unk_080E5BB4;
-extern HardwareTaskVtable vtable_unk_080E5B90;
+extern TaskVtable gTaskNodeVtable; // 0x080E5BE8
+extern TaskVtable gTaskListVtable; // 0x080E5BB4
+extern TaskVtable gIrqTaskListVtable; // 0x080E5B90
 
-struct HardwareTaskNode
+struct TaskNode
 {
     void Unlink()
     {
-        if (previous != nullptr)
+        if (previous_link != nullptr)
         {
-            *previous = next;
-            next->previous = previous;
+            *previous_link = next;
+            next->previous_link = previous_link;
         }
     }
 
-    HardwareTaskNode ** previous;
-    HardwareTaskNode * next;
-    HardwareTaskVtable * vtable;
+    TaskNode ** previous_link;
+    TaskNode * next;
+    TaskVtable * vtable;
 };
 
-struct HardwareTaskList
+struct TaskList
 {
-    HardwareTaskNode node;
-    HardwareTaskNode * first;
-    HardwareTaskNode sentinel;
+    TaskNode node;
+    TaskNode * first;
+    TaskNode sentinel;
 };
 
-EC void func_08009940(HardwareTaskList *, HardwareTaskNode *);
-EC void func_08009968(HardwareTaskList *, HardwareTaskNode *);
-EC void func_08009984(HardwareTaskList *);
-EC void func_080099B0(HardwareTaskList *, HardwareTaskList *);
-EC void func_080099D4(HardwareTaskList *, HardwareTaskList *);
-EC void func_080098AC(HardwareTaskNode *, u32);
-EC void func_080098DC(HardwareTaskList *, u32);
-EC u16 func_08000528(u16);
-EC u16 func_080004F4(u16);
+EC void TaskList_Append(TaskList *, TaskNode *);
+EC void TaskList_Remove(TaskList *, TaskNode *);
+EC void TaskList_Clear(TaskList *);
+EC void TaskList_Splice(TaskList *, TaskList *);
+EC void TaskList_SwapHeads(TaskList *, TaskList *);
+EC void TaskNode_Destroy(TaskNode *, u32);
+EC void TaskList_Destroy(TaskList *, u32);
+EC u16 Irq_Disable(u16);
+EC u16 Irq_Enable(u16);
 
-struct HardwareInterruptLock
+struct ScopedIrqDisable
 {
-    HardwareInterruptLock(u16 mask) { saved = mask & func_08000528(mask); }
-    ~HardwareInterruptLock()
+    ScopedIrqDisable(u16 mask) { previously_enabled = mask & Irq_Disable(mask); }
+    ~ScopedIrqDisable()
     {
-        if (saved != 0)
-            func_080004F4(saved);
+        if (previously_enabled != 0)
+            Irq_Enable(previously_enabled);
     }
-    u16 saved;
+    u16 previously_enabled;
 };
 
-EC void SECTION(".text.func_0800956C") func_0800956C(HardwareTaskList * self)
+// 0x0800956C
+EC void SECTION(".text.IrqTaskList_Clear") IrqTaskList_Clear(TaskList * self)
 {
-    HardwareInterruptLock lock(1);
-    func_08009984(self);
+    ScopedIrqDisable lock(1);
+    TaskList_Clear(self);
 }
 
-EC void SECTION(".text.func_0800959C") func_0800959C(HardwareTaskList * self, u32 flags)
+// 0x0800959C
+EC void SECTION(".text.IrqTaskList_Destroy") IrqTaskList_Destroy(TaskList * self, u32 destructor_flags)
 {
-    self->node.vtable = &vtable_unk_080E5B90;
-    func_0800956C(self);
-    func_080098DC(self, flags);
+    self->node.vtable = &gIrqTaskListVtable;
+    IrqTaskList_Clear(self);
+    TaskList_Destroy(self, destructor_flags);
 }
 
-EC void SECTION(".text.func_080095C0") func_080095C0(HardwareTaskList * self, HardwareTaskNode * node)
+// 0x080095C0
+EC void SECTION(".text.IrqTaskList_Append") IrqTaskList_Append(TaskList * self, TaskNode * node)
 {
-    HardwareInterruptLock lock(1);
-    func_08009940(self, node);
+    ScopedIrqDisable lock(1);
+    TaskList_Append(self, node);
 }
 
-EC void SECTION(".text.func_080095FC") func_080095FC(HardwareTaskList * self, HardwareTaskNode * node)
+// 0x080095FC
+EC void SECTION(".text.IrqTaskList_Remove") IrqTaskList_Remove(TaskList * self, TaskNode * node)
 {
-    HardwareInterruptLock lock(1);
-    func_08009968(self, node);
+    ScopedIrqDisable lock(1);
+    TaskList_Remove(self, node);
 }
 
-EC void SECTION(".text.func_08009638") func_08009638(HardwareTaskList * self, HardwareTaskList * other)
+// 0x08009638
+EC void SECTION(".text.IrqTaskList_Splice") IrqTaskList_Splice(TaskList * self, TaskList * other)
 {
-    HardwareInterruptLock lock(1);
-    func_080099B0(self, other);
+    ScopedIrqDisable lock(1);
+    TaskList_Splice(self, other);
 }
 
-EC void SECTION(".text.func_08009674") func_08009674(HardwareTaskList * self, HardwareTaskList * other)
+// 0x08009674
+EC void SECTION(".text.IrqTaskList_SwapHeads") IrqTaskList_SwapHeads(TaskList * self, TaskList * other)
 {
-    HardwareInterruptLock lock(1);
-    func_080099D4(self, other);
+    ScopedIrqDisable lock(1);
+    TaskList_SwapHeads(self, other);
 }
 
-EC void SECTION(".text.func_080098AC") func_080098AC(HardwareTaskNode * self, u32 flags)
+// 0x080098AC
+EC void SECTION(".text.TaskNode_Destroy") TaskNode_Destroy(TaskNode * self, u32 destructor_flags)
 {
-    self->vtable = &vtable_unk_080E5BE8;
+    self->vtable = &gTaskNodeVtable;
     self->Unlink();
-    if (flags & 1)
+    if (destructor_flags & 1)
         delete self;
 }
 
-EC void SECTION(".text.func_080098DC") func_080098DC(HardwareTaskList * self, u32 flags)
+// 0x080098DC
+EC void SECTION(".text.TaskList_Destroy") TaskList_Destroy(TaskList * self, u32 destructor_flags)
 {
-    self->node.vtable = &vtable_unk_080E5BB4;
-    func_08009984(self);
-    func_080098AC(&self->sentinel, 2);
-    func_080098AC(&self->node, flags);
+    self->node.vtable = &gTaskListVtable;
+    TaskList_Clear(self);
+    TaskNode_Destroy(&self->sentinel, 2);
+    TaskNode_Destroy(&self->node, destructor_flags);
 }
 
-EC bool SECTION(".text.func_08009908") func_08009908(HardwareTaskList * self)
+// 0x08009908
+EC bool SECTION(".text.TaskList_Update") TaskList_Update(TaskList * self)
 {
-    HardwareTaskNode * next = self->first;
-    HardwareTaskNode * end = &self->sentinel;
+    TaskNode * next = self->first;
+    TaskNode * end = &self->sentinel;
     while (next != end)
     {
-        HardwareTaskNode * current = next;
+        TaskNode * current = next;
         next = next->next;
         if (!current->vtable->run(current))
             self->node.vtable->remove(self, current);
@@ -946,139 +1029,145 @@ EC bool SECTION(".text.func_08009908") func_08009908(HardwareTaskList * self)
     return true;
 }
 
-EC void SECTION(".text.func_08009940") func_08009940(HardwareTaskList * self, HardwareTaskNode * node)
+// 0x08009940
+EC void SECTION(".text.TaskList_Append") TaskList_Append(TaskList * self, TaskNode * node)
 {
     node->Unlink();
-    HardwareTaskNode ** last = self->sentinel.previous;
+    TaskNode ** last = self->sentinel.previous_link;
     *last = node;
-    node->previous = last;
+    node->previous_link = last;
     node->next = &self->sentinel;
-    self->sentinel.previous = &node->next;
+    self->sentinel.previous_link = &node->next;
 }
 
-EC void SECTION(".text.func_08009968") func_08009968(HardwareTaskList * self, HardwareTaskNode * node)
+// 0x08009968
+EC void SECTION(".text.TaskList_Remove") TaskList_Remove(TaskList * self, TaskNode * node)
 {
-    if (node->previous != nullptr)
+    if (node->previous_link != nullptr)
     {
         node->Unlink();
-        node->previous = nullptr;
+        node->previous_link = nullptr;
         node->next = nullptr;
     }
 }
 
-EC void SECTION(".text.func_08009984") func_08009984(HardwareTaskList * self)
+// 0x08009984
+EC void SECTION(".text.TaskList_Clear") TaskList_Clear(TaskList * self)
 {
-    HardwareTaskNode * node = self->first;
-    HardwareTaskNode * end = &self->sentinel;
+    TaskNode * node = self->first;
+    TaskNode * end = &self->sentinel;
     while (node != end)
     {
-        HardwareTaskNode * current = node;
+        TaskNode * current = node;
         node = node->next;
-        current->previous = nullptr;
+        current->previous_link = nullptr;
         current->next = nullptr;
     }
     self->first = &self->sentinel;
-    self->sentinel.previous = &self->first;
+    self->sentinel.previous_link = &self->first;
 }
 
-EC void SECTION(".text.func_080099B0") func_080099B0(HardwareTaskList * self, HardwareTaskList * other)
+// 0x080099B0
+EC void SECTION(".text.TaskList_Splice") TaskList_Splice(TaskList * self, TaskList * other)
 {
-    HardwareTaskNode ** last = self->sentinel.previous;
+    TaskNode ** last = self->sentinel.previous_link;
     *last = other->first;
-    other->first->previous = last;
-    HardwareTaskNode ** other_last = other->sentinel.previous;
+    other->first->previous_link = last;
+    TaskNode ** other_last = other->sentinel.previous_link;
     *other_last = &self->sentinel;
-    self->sentinel.previous = other_last;
+    self->sentinel.previous_link = other_last;
     other->first = &other->sentinel;
-    other->sentinel.previous = &other->first;
+    other->sentinel.previous_link = &other->first;
 }
 
-EC void SECTION(".text.func_080099D4") func_080099D4(HardwareTaskList * self, HardwareTaskList * other)
+// 0x080099D4
+EC void SECTION(".text.TaskList_SwapHeads") TaskList_SwapHeads(TaskList * self, TaskList * other)
 {
-    HardwareTaskNode * first = self->first;
+    TaskNode * first = self->first;
     self->first = other->first;
     other->first = first;
-    HardwareTaskNode ** last = self->sentinel.previous;
-    HardwareTaskNode ** other_last = other->sentinel.previous;
-    HardwareTaskNode * end = *last;
+    TaskNode ** last = self->sentinel.previous_link;
+    TaskNode ** other_last = other->sentinel.previous_link;
+    TaskNode * end = *last;
     *last = *other_last;
     *other_last = end;
 }
 
-EC void func_08007184(Unk_hardware_H * self) ALIAS(_._14Unk_hardware_H);
+EC void ResourceHandles_Destroy(ResourceHandleOwner * self) ALIAS(_._19ResourceHandleOwner);
 
-EC void func_080071BC(Unk_hardware_H * self, unsigned int from, unsigned int count)
+// 0x080071BC
+EC void ResourceHandles_ReserveRange(ResourceHandleOwner * self, unsigned int first_index, unsigned int entry_count)
 {
     // https://decomp.me/scratch/e4deE (solved, but messy)
 
     (void)self;
 
-    Unk_hardware_03000404 * h = gUnk_03000404;
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
 
-    if (h->unk_51 != 0)
+    if (registry->reserved_count != 0)
     {
-        for (unsigned int i = h->unk_50, end = h->unk_50 + h->unk_51; i < end; i++)
+        for (unsigned int index = registry->reserved_start, end = registry->reserved_start + registry->reserved_count; index < end; index++)
         {
-            if (h->inl_pred_0(i))
+            if (registry->IsAllocated(index))
             {
-                h->FreeEntry(&h->GetEntry(i));
-                h->inl_func_0(i);
+                registry->FreeEntry(&registry->GetEntry(index));
+                registry->ClearAllocated(index);
             }
         }
 
-        h->unk_51 = 0;
+        registry->reserved_count = 0;
     }
 
-    if (count != 0)
+    if (entry_count != 0)
     {
-        unsigned int to = count + from;
+        unsigned int end_index = entry_count + first_index;
 
-        for (unsigned int i = 0; i < 0x10; i++)
+        for (unsigned int index = 0; index < 0x10; index++)
         {
-            if (h->inl_pred_0(i))
+            if (registry->IsAllocated(index))
             {
-                if (from <= i && i < to)
+                if (first_index <= index && index < end_index)
                 {
-                    h->GetEntry(i).params.unk_02 = 0;
-                    h->FreeEntry(&h->GetEntry(i));
-                    h->inl_func_0(i);
-                    h->unk_48--;
+                    registry->GetEntry(index).params.generation = 0;
+                    registry->FreeEntry(&registry->GetEntry(index));
+                    registry->ClearAllocated(index);
+                    registry->allocated_count--;
                 }
             }
         }
 
         unsigned int alloc_mask = 0;
-        unsigned int target_mask = ((1 << count) - 1u) << from;
+        unsigned int target_mask = ((1 << entry_count) - 1u) << first_index;
 
         for (;;)
         {
-            Unk_hardware_ent_080D6D98 * ent = h->AllocEntry(h->unk_00);
+            ResourceHandleEntry * entry = registry->AllocEntry(registry->free_head);
 
-            if (ent == nullptr)
+            if (entry == nullptr)
                 goto alloc_loop; /* break doesn't match D= */
 
-            h->inl_func_1(h->IndexOf(ent));
-            alloc_mask |= 1u << h->IndexOf(ent);
+            registry->SetAllocated(registry->IndexOf(entry));
+            alloc_mask |= 1u << registry->IndexOf(entry);
 
             if ((alloc_mask & target_mask) == target_mask)
                 break;
         }
 
     alloc_loop:
-        for (unsigned int i = 0; (alloc_mask & ~target_mask) != 0 && i < 0x10; i++)
+        for (unsigned int index = 0; (alloc_mask & ~target_mask) != 0 && index < 0x10; index++)
         {
-            unsigned int bit = 1u << i;
+            unsigned int bit = 1u << index;
 
             if (alloc_mask & bit & ~target_mask)
             {
-                h->FreeEntry(&h->GetEntry(i));
-                h->inl_func_0(i);
+                registry->FreeEntry(&registry->GetEntry(index));
+                registry->ClearAllocated(index);
 
                 alloc_mask &= ~bit;
             }
         }
 
-        h->unk_50 = from;
-        h->unk_51 = count;
+        registry->reserved_start = first_index;
+        registry->reserved_count = entry_count;
     }
 }

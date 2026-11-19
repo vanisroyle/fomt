@@ -1,44 +1,49 @@
 #include "prelude.h"
 
-struct PACKED ALIGN(2) MoreItem
+struct PACKED ALIGN(2) PackedExtraItem
 {
-    u32 id : 10;
-    u32 flags : 6;
+    u32 item_id : 10;
+    u32 item_flags : 6;
 };
 
-struct PACKED ALIGN(2) MoreItemSet
+struct PACKED ALIGN(2) ExtraItemSet
 {
-    MoreItem items[3];
+    PackedExtraItem items[3];
 };
 
-struct MoreItems
+struct ItemCollection
 {
-    u32 size;
-    u32 data[8];
-    MoreItemSet extra;
+    u32 byte_count;
+    u32 item_bytes[8];
+    ExtraItemSet extra_items;
 };
 
-EC u32 func_0800FFD0(MoreItems const * self)
+// 0x0800FFD0
+EC u32 ItemCollection_GetByteCount(ItemCollection const * self)
 {
-    return self->size;
+    return self->byte_count;
 }
 
-EC u8 * func_0800FFD4(MoreItems * self)
+// 0x0800FFD4
+EC u8 * ItemCollection_Begin(ItemCollection * self)
 {
-    return reinterpret_cast<u8 *>(self->data);
+    return reinterpret_cast<u8 *>(self->item_bytes);
 }
 
-EC u8 * func_0800FFD8(MoreItems * self)
+// 0x0800FFD8
+EC u8 * ItemCollection_End(ItemCollection * self)
 {
-    return reinterpret_cast<u8 *>(self->data) + self->size;
+    return reinterpret_cast<u8 *>(self->item_bytes) + self->byte_count;
 }
 
-EC MoreItemSet func_0800FFE0(MoreItems const * self)
+// 0x0800FFE0
+EC ExtraItemSet ItemCollection_GetExtraItems(ItemCollection const * self)
 {
-    return self->extra;
+    return self->extra_items;
 }
 
-EC void SECTION(".text.set") func_08010014(MoreItems * self, MoreItemSet const & value)
+// 0x08010014
+EC void SECTION(".text.set") ItemCollection_SetExtraItems(ItemCollection * self, ExtraItemSet const & extra_items)
 {
-    self->extra = value;
+    self->extra_items = extra_items;
 }

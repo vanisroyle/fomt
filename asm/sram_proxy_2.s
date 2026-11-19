@@ -9,14 +9,14 @@
     .byte 0x02, 0xBC, 0x08, 0x47
 
     .section .text.write, "ax"
-    thumb_func_start func_080006A4
-func_080006A4: @ 0x080006A4
+    thumb_func_start SramProxy_Write
+SramProxy_Write: @ 0x080006A4
     push {r4, r5, r6, r7, lr}
     adds r7, r0, #0
     adds r4, r1, #0
     adds r5, r2, #0
     adds r2, r3, #0
-    ldr r1, .L080006E0 @ =gUnk_03000400
+    ldr r1, .L080006E0 @ =gSramErrorFlags
     movs r0, #0
     strh r0, [r1]
     cmp r2, #0
@@ -32,7 +32,7 @@ func_080006A4: @ 0x080006A4
     movs r1, #0x80
     lsls r1, r1, #1
     adds r0, r7, #0
-    bl func_08000728
+    bl SramProxy_RecordError
     movs r6, #0
 .L080006D6:
     adds r0, r6, #0
@@ -41,7 +41,7 @@ func_080006A4: @ 0x080006A4
     pop {r1}
     bx r1
     .align 2, 0
-.L080006E0: .4byte gUnk_03000400
+.L080006E0: .4byte gSramErrorFlags
 
     .section .text.tail, "ax"
 .L08000714:

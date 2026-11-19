@@ -1,16 +1,18 @@
 #include "prelude.h"
 
-extern u16 gUnk_03000400;
-extern u8 gUnk_03000402;
+extern u16 gSramErrorFlags; // 0x03000400
+extern u8 gSramProxyInitialized; // 0x03000402
 
-EC void func_0800063C() {}
+// 0x0800063C
+EC void SramProxy_Shutdown() {}
 
-EC void * func_08000640(void * self)
+// 0x08000640
+EC void * SramProxy_Initialize(void * proxy)
 {
-    if (gUnk_03000402 == 0)
+    if (gSramProxyInitialized == 0)
     {
-        gUnk_03000402 = 1;
-        gUnk_03000400 = 0;
+        gSramProxyInitialized = 1;
+        gSramErrorFlags = 0;
     }
-    return self;
+    return proxy;
 }

@@ -2370,35 +2370,35 @@ func_080115B0: @ 0x080115B0
     adds r1, r4, #0
     mov r2, sp
     movs r3, #4
-    bl func_080006A4
+    bl SramProxy_Write
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080115E8
-    ldr r0, .L080115E4 @ =gUnk_03000400
+    ldr r0, .L080115E4 @ =gSramErrorFlags
     ldrh r0, [r0]
     movs r1, #0x80
     lsls r1, r1, #9
     b .L0801163C
     .align 2, 0
 .L080115E0: .4byte 0x000034F4
-.L080115E4: .4byte gUnk_03000400
+.L080115E4: .4byte gSramErrorFlags
 .L080115E8:
     adds r4, #4
     adds r0, r5, #0
     adds r1, r4, #0
     adds r2, r7, #0
     adds r3, r6, #0
-    bl func_080006A4
+    bl SramProxy_Write
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0801160C
-    ldr r0, .L08011608 @ =gUnk_03000400
+    ldr r0, .L08011608 @ =gSramErrorFlags
     ldrh r0, [r0]
     movs r1, #0x80
     lsls r1, r1, #0xa
     b .L0801163C
     .align 2, 0
-.L08011608: .4byte gUnk_03000400
+.L08011608: .4byte gSramErrorFlags
 .L0801160C:
     ldr r4, .L08011630 @ =0x000034F8
     add r4, r8
@@ -2410,7 +2410,7 @@ func_080115B0: @ 0x080115B0
     adds r0, r5, #0
     adds r1, r4, #0
     movs r3, #4
-    bl func_080006A4
+    bl SramProxy_Write
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08011634
@@ -2419,7 +2419,7 @@ func_080115B0: @ 0x080115B0
     .align 2, 0
 .L08011630: .4byte 0x000034F8
 .L08011634:
-    ldr r0, .L0801164C @ =gUnk_03000400
+    ldr r0, .L0801164C @ =gSramErrorFlags
     ldrh r0, [r0]
     movs r1, #0xc0
     lsls r1, r1, #0xa
@@ -2433,7 +2433,7 @@ func_080115B0: @ 0x080115B0
     pop {r1}
     bx r1
     .align 2, 0
-.L0801164C: .4byte gUnk_03000400
+.L0801164C: .4byte gSramErrorFlags
 
     thumb_func_start func_08011650
 func_08011650: @ 0x08011650
@@ -2673,7 +2673,7 @@ func_08011650: @ 0x08011650
     mov r1, sb
     mov r2, sl
     movs r3, #4
-    bl func_080006E4
+    bl SramProxy_Read
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0801190E
@@ -2686,11 +2686,11 @@ func_08011650: @ 0x08011650
     ldr r0, [sp, #0x14]
     adds r1, r7, #0
     adds r3, r4, #0
-    bl func_080006E4
+    bl SramProxy_Read
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080118D8
-    ldr r2, .L080118D4 @ =gUnk_03000400
+    ldr r2, .L080118D4 @ =gSramErrorFlags
     ldr r0, [r6]
     movs r1, #0x80
     lsls r1, r1, #0xa
@@ -2721,7 +2721,7 @@ func_08011650: @ 0x08011650
 .L080118C8: .4byte 0x000034D8
 .L080118CC: .4byte 0x000034DC
 .L080118D0: .4byte 0x000034F4
-.L080118D4: .4byte gUnk_03000400
+.L080118D4: .4byte gSramErrorFlags
 .L080118D8:
     ldr r2, .L080118F8 @ =0x000034F8
     add r2, sl
@@ -2729,18 +2729,18 @@ func_08011650: @ 0x08011650
     add r1, sp, #0x10
     ldr r0, [sp, #0x14]
     movs r3, #4
-    bl func_080006E4
+    bl SramProxy_Read
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08011900
-    ldr r2, .L080118FC @ =gUnk_03000400
+    ldr r2, .L080118FC @ =gSramErrorFlags
     ldr r0, [r6]
     movs r1, #0xc0
     lsls r1, r1, #0xa
     b .L08011916
     .align 2, 0
 .L080118F8: .4byte 0x000034F8
-.L080118FC: .4byte gUnk_03000400
+.L080118FC: .4byte gSramErrorFlags
 .L08011900:
     adds r0, r7, #0
     adds r1, r4, #0
@@ -2749,7 +2749,7 @@ func_08011650: @ 0x08011650
     cmp r0, r1
     beq .L0801191E
 .L0801190E:
-    ldr r2, .L08011930 @ =gUnk_03000400
+    ldr r2, .L08011930 @ =gSramErrorFlags
     ldr r0, [r6]
     movs r1, #0x80
     lsls r1, r1, #9
@@ -2769,7 +2769,7 @@ func_08011650: @ 0x08011650
     pop {r1}
     bx r1
     .align 2, 0
-.L08011930: .4byte gUnk_03000400
+.L08011930: .4byte gSramErrorFlags
 
     thumb_func_start func_08011934
 func_08011934: @ 0x08011934
@@ -3230,7 +3230,7 @@ func_08011CD8: @ 0x08011CD8
     adds r5, r0, #0
     adds r3, r5, #0
     adds r3, #0x10
-    ldr r0, .L08011DAC @ =vtable_unk_080E5BE8
+    ldr r0, .L08011DAC @ =gTaskNodeVtable
     mov sb, r0
     movs r2, #0
     str r2, [sp]
@@ -3254,7 +3254,7 @@ func_08011CD8: @ 0x08011CD8
     add r4, sp, #0x30
     str r2, [sp, #0x30]
     str r2, [r4, #4]
-    ldr r0, .L08011DBC @ =vtable_unk_080E5BB4
+    ldr r0, .L08011DBC @ =gTaskListVtable
     str r0, [sp, #0x38]
     add r1, sp, #0x40
     str r1, [r4, #0xc]
@@ -3270,43 +3270,43 @@ func_08011CD8: @ 0x08011CD8
     adds r1, r5, #0
     adds r1, #0x6c
     adds r0, r4, #0
-    bl func_08009940
+    bl TaskList_Append
     adds r0, r4, #0
     mov r1, sp
-    bl func_08009940
+    bl TaskList_Append
     adds r0, r4, #0
     adds r1, r6, #0
-    bl func_08009940
+    bl TaskList_Append
     adds r0, r4, #0
     mov r1, r8
-    bl func_08009940
+    bl TaskList_Append
     adds r5, #0x68
     adds r0, r5, #0
-    bl func_08008AE0
+    bl VBlankDispatcher_GetTasks
     ldr r1, [r0, #8]
     ldr r2, [r1, #0x10]
     adds r1, r4, #0
     bl _call_via_r2
     adds r0, r5, #0
-    bl func_08008AF0
+    bl VBlankDispatcher_Wait
     adds r0, r5, #0
-    bl func_08008AE0
+    bl VBlankDispatcher_GetTasks
     ldr r1, [r0, #8]
     ldr r2, [r1, #0x14]
     adds r1, r4, #0
     bl _call_via_r2
     adds r0, r4, #0
     movs r1, #2
-    bl func_080098DC
+    bl TaskList_Destroy
     adds r0, r6, #0
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     mov r0, r8
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     mov r0, sp
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     add sp, #0x4c
     pop {r3, r4}
     mov r8, r3
@@ -3315,11 +3315,11 @@ func_08011CD8: @ 0x08011CD8
     pop {r0}
     bx r0
     .align 2, 0
-.L08011DAC: .4byte vtable_unk_080E5BE8
+.L08011DAC: .4byte gTaskNodeVtable
 .L08011DB0: .4byte vtable_unk_080E5AF0
 .L08011DB4: .4byte vtable_unk_080E5AE0
 .L08011DB8: .4byte vtable_unk_080E5AD0
-.L08011DBC: .4byte vtable_unk_080E5BB4
+.L08011DBC: .4byte gTaskListVtable
 .L08011DC0: .4byte vtable_unk_080E5BD8
 
     thumb_func_start func_08011DC4
@@ -3347,7 +3347,7 @@ func_08011DC4: @ 0x08011DC4
     adds r0, #8
     str r4, [r0, #4]
     adds r0, #8
-    bl func_080096B0
+    bl DisplayRegisters_Initialize
     adds r0, r7, #0
     adds r0, #0x68
     bl func_08008980
@@ -3355,7 +3355,7 @@ func_08011DC4: @ 0x08011DC4
     adds r2, #0x6c
     str r4, [r7, #0x6c]
     str r4, [r2, #4]
-    ldr r0, .L08011EC8 @ =vtable_unk_080E5BB4
+    ldr r0, .L08011EC8 @ =gTaskListVtable
     str r0, [r2, #8]
     adds r1, r7, #0
     adds r1, #0x7c
@@ -3393,23 +3393,23 @@ func_08011DC4: @ 0x08011DC4
     str r4, [r0]
     adds r0, #4
     movs r1, #0
-    bl func_08008B54
+    bl AudioPlayer_Initialize
     adds r0, r7, #0
     adds r0, #0xc0
     movs r1, #1
-    bl func_08008B54
+    bl AudioPlayer_Initialize
     adds r0, r7, #0
     adds r0, #0xc4
     movs r1, #2
-    bl func_08008B54
+    bl AudioPlayer_Initialize
     adds r0, r7, #0
     adds r0, #0xc8
     movs r1, #3
-    bl func_08008B54
+    bl AudioPlayer_Initialize
     adds r0, r7, #0
     adds r0, #0xcc
     movs r1, #4
-    bl func_08008B54
+    bl AudioPlayer_Initialize
     adds r0, r7, #0
     adds r0, #0xd0
     str r4, [r0]
@@ -3429,7 +3429,7 @@ func_08011DC4: @ 0x08011DC4
     ldr r1, .L08011ED0 @ =0x04000004
     strh r0, [r1]
     str r7, [r6, #4]
-    ldr r0, .L08011ED4 @ =gUnk_0300040C
+    ldr r0, .L08011ED4 @ =gActiveGameScene
     ldr r0, [r0]
     adds r0, #8
     adds r1, r6, #0
@@ -3444,10 +3444,10 @@ func_08011DC4: @ 0x08011DC4
     .align 2, 0
 .L08011EC0: .4byte vtable_unk_080E5E64
 .L08011EC4: .4byte vtable_unk_080E5C08
-.L08011EC8: .4byte vtable_unk_080E5BB4
+.L08011EC8: .4byte gTaskListVtable
 .L08011ECC: .4byte vtable_unk_080E5BD8
 .L08011ED0: .4byte 0x04000004
-.L08011ED4: .4byte gUnk_0300040C
+.L08011ED4: .4byte gActiveGameScene
 .L08011ED8:
     .byte 0xF0, 0xB5, 0x85, 0xB0, 0x05, 0x1C, 0x0E, 0x1C
     .byte 0x3B, 0x48, 0x28, 0x60, 0xF8, 0x20, 0xEE, 0xF7, 0x75, 0xFB, 0x07, 0x1C, 0x02, 0x20, 0x00, 0x90
@@ -3475,7 +3475,7 @@ func_08011FE8: @ 0x08011FE8
     adds r5, r1, #0
     ldr r0, .L08012020 @ =vtable_unk_080E5E64
     str r0, [r4]
-    ldr r0, .L08012024 @ =gUnk_0300040C
+    ldr r0, .L08012024 @ =gActiveGameScene
     ldr r0, [r0]
     adds r0, #8
     bl ClearUnk__12ScriptEngine
@@ -3492,13 +3492,13 @@ func_08011FE8: @ 0x08011FE8
 .L08012012:
     adds r0, r4, #0
     adds r1, r5, #0
-    bl func_080007EC
+    bl Scene_DestroyBase
     pop {r4, r5}
     pop {r0}
     bx r0
     .align 2, 0
 .L08012020: .4byte vtable_unk_080E5E64
-.L08012024: .4byte gUnk_0300040C
+.L08012024: .4byte gActiveGameScene
 
     thumb_func_start func_08012028
 func_08012028: @ 0x08012028
@@ -4036,44 +4036,44 @@ func_080123CC: @ 0x080123CC
     b .L08012404
 .L080123EE:
     adds r1, r2, #0
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L08012404
 .L080123F6:
     adds r1, r2, #0
-    bl func_08008B88
+    bl AudioPlayer_StartSongIfStoppedOrChanged
     b .L08012404
 .L080123FE:
     adds r1, r2, #0
-    bl func_08008BB0
+    bl AudioPlayer_StartOrResumeSong
 .L08012404:
     adds r4, #0xbc
     adds r0, r4, #0
-    bl func_08008CC4
+    bl AudioPlayer_ResetChannels
     ldrh r1, [r5]
     adds r0, r4, #0
-    bl func_08008C28
+    bl AudioPlayer_SetTempo
     ldrh r1, [r5, #2]
     adds r0, r4, #0
     ldr r2, .L08012450 @ =0x0000FFFF
-    bl func_08008C38
+    bl AudioPlayer_SetTrackVolume
     movs r0, #4
     ldrsh r1, [r5, r0]
     adds r0, r4, #0
     ldr r2, .L08012450 @ =0x0000FFFF
-    bl func_08008C54
+    bl AudioPlayer_SetTrackPitch
     movs r1, #6
     ldrsb r1, [r5, r1]
     adds r0, r4, #0
     ldr r2, .L08012450 @ =0x0000FFFF
-    bl func_08008C70
+    bl AudioPlayer_SetTrackPan
     ldrb r1, [r5, #7]
     adds r0, r4, #0
     ldr r2, .L08012450 @ =0x0000FFFF
-    bl func_08008C8C
+    bl AudioPlayer_SetTrackModDepth
     ldrb r1, [r5, #8]
     adds r0, r4, #0
     ldr r2, .L08012450 @ =0x0000FFFF
-    bl func_08008CA8
+    bl AudioPlayer_SetTrackLfoSpeed
     pop {r4, r5}
     pop {r0}
     bx r0
@@ -4085,7 +4085,7 @@ func_08012454: @ 0x08012454
     push {lr}
     ldr r0, [r0, #4]
     adds r0, #0xbc
-    bl func_08008BE0
+    bl AudioPlayer_Stop
     pop {r0}
     bx r0
     .align 2, 0
@@ -4103,7 +4103,7 @@ func_08012464: @ 0x08012464
     beq .L08012488
 .L08012476:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0801249E
@@ -4132,15 +4132,15 @@ func_08012464: @ 0x08012464
     b .L080124BE
 .L080124A8:
     adds r0, r3, #0
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     b .L080124BE
 .L080124B0:
     adds r0, r3, #0
-    bl func_08008B88
+    bl AudioPlayer_StartSongIfStoppedOrChanged
     b .L080124BE
 .L080124B8:
     adds r0, r3, #0
-    bl func_08008BB0
+    bl AudioPlayer_StartOrResumeSong
 .L080124BE:
     pop {r4, r5, r6, r7}
     pop {r0}
@@ -4149,7 +4149,7 @@ func_08012464: @ 0x08012464
     thumb_func_start func_080124C4
 func_080124C4: @ 0x080124C4
     push {lr}
-    bl func_08008DE8
+    bl Audio_StopAllPlayers
     pop {r0}
     bx r0
     .align 2, 0
@@ -4205,7 +4205,7 @@ func_080124D0: @ 0x080124D0
     add r0, sp, #0xc
     bl func_0800835C
     add r0, sp, #0x10
-    bl func_0800770C
+    bl ResourcePool_Initialize
     add r1, sp, #0x10
     movs r0, #1
     str r0, [sp]
@@ -4242,7 +4242,7 @@ func_080124D0: @ 0x080124D0
     add r0, sp, #0xc
     bl func_0800835C
     add r0, sp, #0x10
-    bl func_0800770C
+    bl ResourcePool_Initialize
     add r0, sp, #0x10
     str r5, [sp]
     add r1, sp, #0xc
@@ -4863,7 +4863,7 @@ func_0801297C: @ 0x0801297C
     adds r1, r5, #0
     adds r2, r6, #0
     adds r3, r7, #0
-    bl func_08009378
+    bl DisplayFade_StartOut
     adds r1, r4, #0
     adds r1, #0x9c
     movs r0, #0x12
@@ -4899,7 +4899,7 @@ func_0801297C: @ 0x0801297C
     adds r1, r5, #0
     adds r2, r6, #0
     adds r3, r7, #0
-    bl func_0800934C
+    bl DisplayFade_StartIn
     adds r1, r4, #0
     adds r1, #0x9c
     movs r0, #0x13
@@ -5001,7 +5001,7 @@ func_08012ADC: @ 0x08012ADC
 func_08012B04: @ 0x08012B04
     push {r4, lr}
     ldr r4, [r0, #4]
-    ldr r0, .L08012B20 @ =gUnk_0300040C
+    ldr r0, .L08012B20 @ =gActiveGameScene
     ldr r0, [r0]
     adds r0, #8
     bl LoadById__12ScriptEngineii
@@ -5011,12 +5011,12 @@ func_08012B04: @ 0x08012B04
     pop {r0}
     bx r0
     .align 2, 0
-.L08012B20: .4byte gUnk_0300040C
+.L08012B20: .4byte gActiveGameScene
 
     thumb_func_start func_08012B24
 func_08012B24: @ 0x08012B24
     push {r4, lr}
-    ldr r0, .L08012B40 @ =gUnk_0300040C
+    ldr r0, .L08012B40 @ =gActiveGameScene
     ldr r3, [r0]
     movs r0, #0xde
     lsls r0, r0, #2
@@ -5029,7 +5029,7 @@ func_08012B24: @ 0x08012B24
     beq .L08012B4A
     b .L08012BA0
     .align 2, 0
-.L08012B40: .4byte gUnk_0300040C
+.L08012B40: .4byte gActiveGameScene
 .L08012B44:
     cmp r2, #2
     beq .L08012B7E
@@ -8670,7 +8670,7 @@ func_080146FC: @ 0x080146FC
     add r0, sp, #4
     ldr r2, .L080147A8 @ =0x05000002
     movs r3, #2
-    bl func_08008F60
+    bl DmaCommand_InitializeFill
     add r2, sp, #4
     mov sb, r2
     ldr r1, [r5, #4]
@@ -8864,7 +8864,7 @@ func_080146FC: @ 0x080146FC
     adds r2, r2, r6
     mov r0, sp
     movs r3, #0x20
-    bl func_08008F60
+    bl DmaCommand_InitializeFill
     mov sl, sp
     ldr r1, [r5, #4]
     ldr r0, [r5, #0xc]
@@ -9018,7 +9018,7 @@ func_080146FC: @ 0x080146FC
     mov r0, sp
     movs r3, #0xa0
     lsls r3, r3, #3
-    bl func_08008F60
+    bl DmaCommand_InitializeFill
     mov sb, sp
     ldr r1, [r5, #4]
     ldr r0, [r5, #0xc]
@@ -9253,7 +9253,7 @@ func_08014AF8: @ 0x08014AF8
     movs r1, #0
     bl _call_via_r2
     adds r4, r0, #0
-    ldr r0, .L08014BB4 @ =gUnk_0300040C
+    ldr r0, .L08014BB4 @ =gActiveGameScene
     ldr r1, [r0]
     movs r2, #0xdb
     lsls r2, r2, #2
@@ -9271,7 +9271,7 @@ func_08014AF8: @ 0x08014AF8
     movs r0, #6
     b .L08014BBA
     .align 2, 0
-.L08014BB4: .4byte gUnk_0300040C
+.L08014BB4: .4byte gActiveGameScene
 .L08014BB8:
     movs r0, #0x1e
 .L08014BBA:
@@ -12905,13 +12905,13 @@ func_08016784: @ 0x08016784
     adds r4, r0, #0
     adds r4, #0xbc
     adds r0, r4, #0
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080167A4
     adds r0, r4, #0
     movs r1, #5
-    bl func_08008BF8
+    bl AudioPlayer_FadeOut
     movs r0, #1
     b .L080167A6
 .L080167A4:
@@ -12943,7 +12943,7 @@ func_080167CC: @ 0x080167CC
     push {lr}
     ldr r0, [r0, #4]
     adds r0, #0xbc
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     pop {r1}
     bx r1
     .align 2, 0
@@ -13646,7 +13646,7 @@ func_08016D48: @ 0x08016D48
     ldr r2, [r1, #0x40]
     movs r1, #0
     bl _call_via_r2
-    ldr r1, .L08016D7C @ =gUnk_0300040C
+    ldr r1, .L08016D7C @ =gActiveGameScene
     ldr r1, [r1]
     movs r2, #0xdb
     lsls r2, r2, #2
@@ -13663,11 +13663,11 @@ func_08016D48: @ 0x08016D48
     pop {r0}
     bx r0
     .align 2, 0
-.L08016D7C: .4byte gUnk_0300040C
+.L08016D7C: .4byte gActiveGameScene
 
     thumb_func_start func_08016D80
 func_08016D80: @ 0x08016D80
-    ldr r0, .L08016D98 @ =gUnk_0300040C
+    ldr r0, .L08016D98 @ =gActiveGameScene
     ldr r0, [r0]
     movs r1, #0xdb
     lsls r1, r1, #2
@@ -13679,11 +13679,11 @@ func_08016D80: @ 0x08016D80
     str r1, [r0, #4]
     bx lr
     .align 2, 0
-.L08016D98: .4byte gUnk_0300040C
+.L08016D98: .4byte gActiveGameScene
 
     thumb_func_start func_08016D9C
 func_08016D9C: @ 0x08016D9C
-    ldr r0, .L08016DAC @ =gUnk_0300040C
+    ldr r0, .L08016DAC @ =gActiveGameScene
     ldr r0, [r0]
     movs r1, #0xdb
     lsls r1, r1, #2
@@ -13691,7 +13691,7 @@ func_08016D9C: @ 0x08016D9C
     ldr r0, [r0, #4]
     bx lr
     .align 2, 0
-.L08016DAC: .4byte gUnk_0300040C
+.L08016DAC: .4byte gActiveGameScene
 
     thumb_func_start func_08016DB0
 func_08016DB0: @ 0x08016DB0
@@ -15063,7 +15063,7 @@ func_080175B4: @ 0x080175B4
     bl func_0801F614
     adds r0, r7, #0
     bl func_0801F77C
-    ldr r0, .L080179B4 @ =gUnk_0300040C
+    ldr r0, .L080179B4 @ =gActiveGameScene
     ldr r0, [r0]
     movs r3, #0
     str r3, [sp, #0x24]
@@ -15176,7 +15176,7 @@ func_080175B4: @ 0x080175B4
     pop {r1}
     bx r1
     .align 2, 0
-.L080179B4: .4byte gUnk_0300040C
+.L080179B4: .4byte gActiveGameScene
 .L080179B8: .4byte 0x00000DE4
 .L080179BC: .4byte 0x000004DC
 .L080179C0: .4byte 0x000010B0
@@ -15220,7 +15220,7 @@ func_080179CC: @ 0x080179CC
     beq .L08017A24
 .L08017A12:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08017A70
@@ -15232,7 +15232,7 @@ func_080179CC: @ 0x080179CC
     ldr r0, [r0]
 .L08017A28:
     movs r1, #0x6d
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     adds r0, r7, #0
     bl func_080A45A8
     cmp r0, #2
@@ -15543,7 +15543,7 @@ func_08017C30: @ 0x08017C30
     beq .L08017CBA
 .L08017CA8:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08017D9C
@@ -15555,7 +15555,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r0]
 .L08017CBE:
     movs r1, #0x6d
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     adds r0, r6, #0
     bl func_080A45A8
     cmp r0, #2
@@ -18747,7 +18747,7 @@ func_080182C8: @ 0x080182C8
     bhi .L08019668
     b .L08019518
 .L08019668:
-    ldr r0, .L08019760 @ =gUnk_0300040C
+    ldr r0, .L08019760 @ =gActiveGameScene
     ldr r0, [r0]
     movs r2, #0
     movs r3, #0xc9
@@ -18869,7 +18869,7 @@ func_080182C8: @ 0x080182C8
     .align 2, 0
 .L08019758: .4byte 0x00000CCC
 .L0801975C: .4byte 0x00000C84
-.L08019760: .4byte gUnk_0300040C
+.L08019760: .4byte gActiveGameScene
 .L08019764: .4byte 0x000004DC
 .L08019768: .4byte 0x000003FF
 .L0801976C: .4byte 0x000010B0
@@ -19104,7 +19104,7 @@ func_080182C8: @ 0x080182C8
     adds r2, r2, r5
     add r0, sp, #0x14
     movs r3, #0x20
-    bl func_08008F0C
+    bl DmaCommand_InitializeCopy
     mov r6, sp
     adds r6, #0x14
     ldr r0, .L080199A4 @ =0x00000CAC
@@ -19473,7 +19473,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r4, r5
     bne .L08019C10
 .L08019C26:
-    ldr r0, .L08019DF8 @ =gUnk_0300040C
+    ldr r0, .L08019DF8 @ =gActiveGameScene
     ldr r0, [r0]
     ldr r1, .L08019DFC @ =0x000004DC
     adds r1, r1, r0
@@ -19526,7 +19526,7 @@ func_08019BEC: @ 0x08019BEC
     ldr r0, [r2, #0x2c]
     movs r2, #0xb0
     lsls r2, r2, #8
-    bl func_08008E64
+    bl Dma3_Copy
 .L08019C92:
     ldr r0, [r7, #4]
     ldr r2, .L08019E0C @ =0x00001048
@@ -19699,7 +19699,7 @@ func_08019BEC: @ 0x08019BEC
     beq .L08019E30
     b .L08019E34
     .align 2, 0
-.L08019DF8: .4byte gUnk_0300040C
+.L08019DF8: .4byte gActiveGameScene
 .L08019DFC: .4byte 0x000004DC
 .L08019E00: .4byte 0x0000107C
 .L08019E04: .4byte 0x000010B0
@@ -24935,7 +24935,7 @@ func_0801EE00: @ 0x0801EE00
     beq .L0801EEA2
 .L0801EE90:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0801EEC4
@@ -24947,7 +24947,7 @@ func_0801EE00: @ 0x0801EE00
     ldr r0, [r0]
 .L0801EEA6:
     movs r1, #0x6d
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     mov r0, sb
     bl func_080A45A8
     cmp r0, #2

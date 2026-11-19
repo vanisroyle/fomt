@@ -1,16 +1,17 @@
 #include "prelude.h"
 
-extern u16 gUnk_03000400;
-EC void func_080D379C(void const * src, void * dst, u32 size);
+extern u16 gSramErrorFlags; // 0x03000400
+EC void Sram_CopyBytes(void const * source, void * destination, u32 byte_count);
 
-EC bool func_080006E4(void * self, void * dst, u32 offset, u32 size)
+// 0x080006E4
+EC bool SramProxy_Read(void * proxy, void * destination, u32 sram_offset, u32 byte_count)
 {
-    gUnk_03000400 = 0;
-    if (size == 0)
+    gSramErrorFlags = 0;
+    if (byte_count == 0)
         return false;
     else
     {
-        func_080D379C(reinterpret_cast<void *>(0x0E000000 | offset), dst, size);
+        Sram_CopyBytes(reinterpret_cast<void *>(0x0E000000 | sram_offset), destination, byte_count);
         return true;
     }
 }

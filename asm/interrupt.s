@@ -1,8 +1,8 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
     .section .text.enable, "ax"
-    thumb_func_start func_080004F4
-func_080004F4: @ 0x080004F4
+    thumb_func_start Irq_Enable
+Irq_Enable: @ 0x080004F4
     push {lr}
     lsls r0, r0, #0x10
     ldr r1, .L08000508 @ =func_03000A1C
@@ -15,8 +15,8 @@ func_080004F4: @ 0x080004F4
 .L08000508: .4byte func_03000A1C
 
     .section .text.disable, "ax"
-    thumb_func_start func_08000528
-func_08000528: @ 0x08000528
+    thumb_func_start Irq_Disable
+Irq_Disable: @ 0x08000528
     push {lr}
     lsls r0, r0, #0x10
     lsrs r0, r0, #0x10

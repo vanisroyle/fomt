@@ -6862,7 +6862,7 @@ func_0803F8DC: @ 0x0803F8DC
 	cmp r0, #0
 	beq .L08043198
 .L0804317E:
-	ldr r0, .L08043194 @ =gUnk_0300040C
+	ldr r0, .L08043194 @ =gActiveGameScene
 	ldr r0, [r0]
 	movs r1, #0xda
 	lsls r1, r1, #2
@@ -6872,13 +6872,13 @@ func_0803F8DC: @ 0x0803F8DC
 	b .L0804343A
 	.align 2, 0
 .L08043190: .4byte 0x00001C2C
-.L08043194: .4byte gUnk_0300040C
+.L08043194: .4byte gActiveGameScene
 .L08043198:
 	add r0, sp, #0xc
 	adds r1, r4, #0
 	bl func_0800F20C
 	add r6, sp, #0xc
-	ldr r0, .L080431D0 @ =gUnk_0300040C
+	ldr r0, .L080431D0 @ =gActiveGameScene
 	ldr r4, [r0]
 	movs r2, #0xda
 	lsls r2, r2, #2
@@ -6902,7 +6902,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L080431D0: .4byte gUnk_0300040C
+.L080431D0: .4byte gActiveGameScene
 .L080431D4: .4byte 0x0000219B
 .L080431D8: .4byte .L080431DC
 .L080431DC: @ jump table
@@ -13208,7 +13208,7 @@ func_0804590C: @ 0x0804590C
 	bl GetAffection__C6Animal
 	bl .L08048FEE
 .L08046884:
-	ldr r0, .L08046894 @ =gUnk_0300040C
+	ldr r0, .L08046894 @ =gActiveGameScene
 	ldr r0, [r0]
 	movs r2, #0xda
 	lsls r2, r2, #2
@@ -13218,7 +13218,7 @@ func_0804590C: @ 0x0804590C
 	ldr r0, [r0]
 	bl .L08048FEE
 	.align 2, 0
-.L08046894: .4byte gUnk_0300040C
+.L08046894: .4byte gActiveGameScene
 .L08046898:
 	mov r1, sp
 	movs r0, #0
@@ -28730,7 +28730,7 @@ func_0804EA80: @ 0x0804EA80
 	push {lr}
 	ldr r2, .L0804EA90 @ =vtable_unk_080E7868
 	str r2, [r0, #8]
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -29001,7 +29001,7 @@ func_0804EDA0: @ 0x0804EDA0
 	push {lr}
 	ldr r2, .L0804EDB0 @ =vtable_unk_080E7858
 	str r2, [r0, #8]
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -29053,7 +29053,7 @@ func_0804EE1C: @ 0x0804EE1C
 	push {lr}
 	ldr r2, .L0804EE2C @ =vtable_unk_080E7848
 	str r2, [r0, #8]
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -29114,7 +29114,7 @@ func_0804EE88: @ 0x0804EE88
 	push {lr}
 	ldr r2, .L0804EE98 @ =vtable_unk_080E7838
 	str r2, [r0, #8]
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -29738,7 +29738,7 @@ func_0804F288: @ 0x0804F288
 	mov r1, r8
 	str r4, [r1, #0x20]
 	str r4, [r2, #4]
-	ldr r0, .L0804F654 @ =vtable_unk_080E5BB4
+	ldr r0, .L0804F654 @ =gTaskListVtable
 	str r0, [r2, #8]
 	adds r1, #0x30
 	str r1, [r2, #0xc]
@@ -30129,7 +30129,7 @@ func_0804F288: @ 0x0804F288
 	.align 2, 0
 .L0804F64C: .4byte 0xFFFFFE7F
 .L0804F650: .4byte 0xFFF801FF
-.L0804F654: .4byte vtable_unk_080E5BB4
+.L0804F654: .4byte gTaskListVtable
 .L0804F658: .4byte vtable_unk_080E5BD8
 .L0804F65C: .4byte vtable_unk_080E7898
 .L0804F660: .4byte vtable_unk_080E78C0
@@ -30161,7 +30161,7 @@ func_0804F69C: @ 0x0804F69C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	ldr r1, .L0804F79C @ =0x00000504
 	adds r0, r6, r1
 	ldr r5, .L0804F7A0 @ =vtable_unk_080E5A28
@@ -30174,7 +30174,7 @@ func_0804F69C: @ 0x0804F69C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r1, #0xf2
 	lsls r1, r1, #1
 	adds r0, r6, r1
@@ -30199,17 +30199,17 @@ func_0804F69C: @ 0x0804F69C
 	subs r1, #0x18
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r1, #0x98
 	lsls r1, r1, #1
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	movs r1, #0x90
 	lsls r1, r1, #1
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	adds r0, r6, #0
 	adds r0, #0xd0
 	movs r1, #2
@@ -30217,7 +30217,7 @@ func_0804F69C: @ 0x0804F69C
 	adds r0, r6, #0
 	adds r0, #0xc0
 	movs r1, #2
-	bl func_080098AC
+	bl TaskNode_Destroy
 	adds r1, r6, #0
 	adds r1, #0x3c
 	ldr r0, [r6, #0x3c]
@@ -30236,7 +30236,7 @@ func_0804F69C: @ 0x0804F69C
 	adds r0, r6, #0
 	adds r0, #0x20
 	movs r1, #2
-	bl func_080098DC
+	bl TaskList_Destroy
 	adds r4, r6, #0
 	adds r4, #0x18
 	ldr r1, [r4, #4]
@@ -30251,7 +30251,7 @@ func_0804F69C: @ 0x0804F69C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	movs r0, #1
 	ands r0, r7
 	cmp r0, #0
@@ -30370,7 +30370,7 @@ func_0804F7A4: @ 0x0804F7A4
 	b .L0804F99C
 .L0804F868:
 	mov r0, sl
-	bl func_08008CD0
+	bl AudioPlayer_IsPlaying
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0804F876
@@ -30378,7 +30378,7 @@ func_0804F7A4: @ 0x0804F7A4
 .L0804F876:
 	mov r0, sl
 	movs r1, #0xc8
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0804F99C
 .L0804F880:
 	ldrb r0, [r7, #0xc]
@@ -30451,7 +30451,7 @@ func_0804F7A4: @ 0x0804F7A4
 	cmp r0, #0
 	beq .L0804F904
 	movs r1, #0xc9
-	bl func_08008B88
+	bl AudioPlayer_StartSongIfStoppedOrChanged
 .L0804F904:
 	movs r0, #0
 	strb r0, [r4]
@@ -30483,7 +30483,7 @@ func_0804F7A4: @ 0x0804F7A4
 	beq .L0804F99C
 	mov r0, sl
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0804F99C
 .L0804F944:
 	lsls r3, r6, #0x18
@@ -30527,7 +30527,7 @@ func_0804F7A4: @ 0x0804F7A4
 	beq .L0804F99C
 	mov r0, sl
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L0804F99C:
 	adds r3, r7, #0
 	adds r3, #0x20
@@ -30614,7 +30614,7 @@ func_0804F7A4: @ 0x0804F7A4
 	adds r2, r2, r6
 	add r0, sp, #0x2c
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r0, [r7, #0x3c]
 	add r6, sp, #0x2c
 	cmp r0, #7
@@ -30729,7 +30729,7 @@ func_0804F7A4: @ 0x0804F7A4
 	beq .L0804FB32
 	mov r0, sl
 	movs r1, #0xca
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L0804FB32:
 	adds r0, r7, #0
 	adds r0, #0x10
@@ -31126,7 +31126,7 @@ func_0804F7A4: @ 0x0804F7A4
 	adds r0, r6, #0
 	mov r1, r8
 	adds r3, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r0, [r7, #0x3c]
 	cmp r0, #7
 	bhi .L0804FE68
@@ -31170,7 +31170,7 @@ func_0804F7A4: @ 0x0804F7A4
 	add r0, sp, #0x2c
 	mov r1, r8
 	adds r3, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r0, [r7, #0x3c]
 	cmp r0, #7
 	bhi .L0804FEBC
@@ -31272,7 +31272,7 @@ func_0804F7A4: @ 0x0804F7A4
 	add r0, sp, #0x2c
 	mov r1, r8
 	adds r3, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r0, [r7, #0x3c]
 	cmp r0, #7
 	bhi .L0804FF88
@@ -31316,7 +31316,7 @@ func_0804F7A4: @ 0x0804F7A4
 	add r0, sp, #0x2c
 	mov r1, r8
 	adds r3, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r0, [r7, #0x3c]
 	cmp r0, #7
 	bhi .L0804FFDC
@@ -31474,7 +31474,7 @@ func_0804F7A4: @ 0x0804F7A4
 	ldr r2, [sp, #0xb4]
 	movs r3, #0x80
 	lsls r3, r3, #1
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r0, [r7, #0x3c]
 	cmp r0, #7
 	bhi .L08050120
@@ -31819,13 +31819,13 @@ func_0805039C: @ 0x0805039C
 	lsls r0, r0, #1
 	adds r1, r4, r0
 	adds r0, r5, #0
-	bl func_08009940
+	bl TaskList_Append
 .L080503C2:
 	movs r0, #0xa4
 	lsls r0, r0, #1
 	adds r1, r4, r0
 	adds r0, r5, #0
-	bl func_08009940
+	bl TaskList_Append
 	strb r6, [r4, #0xc]
 .L080503D0:
 	ldr r0, [r4, #8]
@@ -33568,7 +33568,7 @@ func_0805143C: @ 0x0805143C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r4, r7, #0
 	adds r4, #0x10
 	ldr r1, .L080514FC @ =gUnk_08527094
@@ -33620,7 +33620,7 @@ func_0805143C: @ 0x0805143C
 	str r0, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -33650,7 +33650,7 @@ func_08051504: @ 0x08051504
 	adds r0, r6, #0
 	bl func_08008724
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -33660,7 +33660,7 @@ func_08051504: @ 0x08051504
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r5, #0
 	str r5, [r4]
@@ -33669,7 +33669,7 @@ func_08051504: @ 0x08051504
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	adds r0, r6, #0
 	bl func_080516F0
@@ -33678,9 +33678,9 @@ func_08051504: @ 0x08051504
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -33698,7 +33698,7 @@ func_08051504: @ 0x08051504
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r0, [r5]
 	cmp r0, #1
 	beq .L080515C8
@@ -33729,7 +33729,7 @@ func_08051504: @ 0x08051504
 	b .L0805169A
 .L080515C8:
 	adds r0, r6, #0
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	movs r1, #0x80
 	ands r0, r1
 	lsls r0, r0, #0x18
@@ -33752,7 +33752,7 @@ func_08051504: @ 0x08051504
 .L080515F4: .4byte 0x000008B8
 .L080515F8:
 	adds r0, r6, #0
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -33769,13 +33769,13 @@ func_08051504: @ 0x08051504
 .L08051618:
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
 	bne .L08051636
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -33788,12 +33788,12 @@ func_08051504: @ 0x08051504
 	adds r0, r6, #0
 	adds r0, #0xc
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #2
 	str r0, [r5]
 .L0805164A:
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L08051660 @ =0x000008B8
 	adds r1, r6, r3
@@ -33809,9 +33809,9 @@ func_08051504: @ 0x08051504
 	ldr r1, .L08051688 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -33884,51 +33884,51 @@ func_080516F0: @ 0x080516F0
 	ldr r4, .L080519B8 @ =0xFFFFF58C
 	add sp, r4
 	mov sl, r0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r4, #0
 	strh r4, [r1]
 	strh r4, [r0, #0x10]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	movs r1, #4
 	strh r1, [r2]
 	strh r1, [r0, #0x12]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x14]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x16]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x18]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1c]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
 	ldr r1, .L080519BC @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r4, #1
 	rsbs r4, r4, #0
 	ldr r0, .L080519C0 @ =0x0600E000
@@ -33938,22 +33938,22 @@ func_080516F0: @ 0x080516F0
 	adds r0, r4, #0
 	mov r1, r8
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L080519C4 @ =0x0600E800
 	mov sb, r1
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L080519C8 @ =0x0600F000
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L080519CC @ =0x0600F800
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r2, #0xfa
 	lsls r2, r2, #5
@@ -33962,28 +33962,28 @@ func_080516F0: @ 0x080516F0
 	movs r6, #0
 	strh r4, [r0]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L080519D0 @ =0x00001C43
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L080519D4 @ =0x00001D41
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L080519D8 @ =0x00001E42
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xa]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #8]
@@ -33993,11 +33993,11 @@ func_080516F0: @ 0x080516F0
 	lsls r1, r1, #0x13
 	ldr r2, .L080519E0 @ =gUnk_080F9F74
 	ldr r2, [r2]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L080519E4 @ =0x00030003
 	mov r1, r8
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r0, #3
 	str r0, [sp]
 	str r6, [sp, #4]
@@ -34012,7 +34012,7 @@ func_080516F0: @ 0x080516F0
 	movs r1, #0xa0
 	lsls r1, r1, #0x13
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, .L080519EC @ =0x05000040
 	movs r4, #0xf8
 	lsls r4, r4, #2
@@ -34099,7 +34099,7 @@ func_080516F0: @ 0x080516F0
 	ldr r0, [r3]
 	adds r1, r5, #0
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #0x40
 	adds r4, #2
 	movs r0, #1
@@ -34113,7 +34113,7 @@ func_080516F0: @ 0x080516F0
 	movs r2, #0x80
 	lsls r2, r2, #4
 	adds r1, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r1, #0
 	movs r0, #0xa2
 	lsls r0, r0, #4
@@ -34276,7 +34276,7 @@ func_080516F0: @ 0x080516F0
 	ldr r0, [r2]
 	movs r2, #0xc0
 	lsls r2, r2, #2
-	bl func_08008E64
+	bl Dma3_Copy
 	lsls r4, r4, #0x13
 	movs r3, #0x85
 	lsls r3, r3, #0x16
@@ -34436,13 +34436,13 @@ func_080516F0: @ 0x080516F0
 	add r2, sp
 	ldr r0, [r2]
 	adds r2, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L08051D08 @ =0x03FF03FF
 	ldr r3, .L08051CF4 @ =0x00000A44
 	add r3, sp
 	ldr r1, [r3]
 	adds r2, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r4, #0x1b
 	movs r5, #2
 	movs r6, #0
@@ -34482,7 +34482,7 @@ func_080516F0: @ 0x080516F0
 	ldr r4, .L08051D1C @ =0x00000A54
 	add r4, sp
 	ldr r0, [r4]
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r5, #0x84
 	lsls r5, r5, #6
 	movs r3, #0
@@ -34511,7 +34511,7 @@ func_080516F0: @ 0x080516F0
 	ldr r3, .L08051CF4 @ =0x00000A44
 	add r3, sp
 	ldr r0, [r3]
-	bl func_08008E64
+	bl Dma3_Copy
 	mov r4, sl
 	ldr r1, [r4, #0x40]
 	ldr r3, [r1]
@@ -34552,7 +34552,7 @@ func_080516F0: @ 0x080516F0
 	ldrh r2, [r3, #4]
 .L08051CC6:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r3, .L08051D2C @ =0x00000A74
 	add sp, r3
 	pop {r3, r4, r5}
@@ -34723,7 +34723,7 @@ func_08051D70: @ 0x08051D70
 	strh r5, [r0, #8]
 	strb r1, [r0, #0x18]
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r0, [sp, #0x24]
 	mov r8, r0
@@ -34744,7 +34744,7 @@ func_08051D70: @ 0x08051D70
 	adds r2, r2, r4
 	adds r0, r6, #0
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sl, r6
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
@@ -34888,7 +34888,7 @@ func_08051D70: @ 0x08051D70
 	str r0, [r2, #0xc]
 .L08051F74:
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -34973,7 +34973,7 @@ func_08051D70: @ 0x08051D70
 	strh r2, [r0, #8]
 	strb r1, [r0, #0x18]
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r3, [sp, #0x24]
 	mov r8, r3
@@ -34994,7 +34994,7 @@ func_08051D70: @ 0x08051D70
 	adds r2, r2, r5
 	adds r0, r6, #0
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sl, r6
 	ldr r6, [sp, #0x6c]
 	ldr r1, [r6, #4]
@@ -35139,7 +35139,7 @@ func_08051D70: @ 0x08051D70
 	str r0, [r6, #0xc]
 .L0805215C:
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -35215,7 +35215,7 @@ func_080521BC: @ 0x080521BC
 .L080521EA:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -35392,7 +35392,7 @@ func_080522F8: @ 0x080522F8
 	bl func_0800835C
 	add r6, sp, #0x10
 	adds r0, r6, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	ldr r0, [r7, #0xc]
 	str r0, [sp]
 	add r0, sp, #0xc
@@ -35413,15 +35413,15 @@ func_080522F8: @ 0x080522F8
 	adds r0, r7, #0
 	adds r0, #0x14
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r7, #0
 	adds r0, #0x18
 	movs r1, #0
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r7, #0
 	adds r0, #0x1c
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r6, r7, #0
 	adds r6, #0x20
 	ldr r1, .L08052714 @ =gUnk_0858BA28
@@ -35750,7 +35750,7 @@ func_080522F8: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -35767,7 +35767,7 @@ func_080522F8: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -35784,7 +35784,7 @@ func_080522F8: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -35801,7 +35801,7 @@ func_080522F8: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -35818,7 +35818,7 @@ func_080522F8: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -35856,7 +35856,7 @@ func_080522F8: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -35882,7 +35882,7 @@ func_080522F8: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -35899,7 +35899,7 @@ func_080522F8: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r5, [r4, #4]
 	movs r1, #0x9e
 	lsls r1, r1, #3
@@ -35914,7 +35914,7 @@ func_080522F8: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r5, [r4, #4]
 	movs r0, #0xa0
 	lsls r0, r0, #3
@@ -35930,7 +35930,7 @@ func_080522F8: @ 0x080522F8
 	adds r4, r5, #0
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	movs r0, #0
 	str r0, [r4, #4]
 	adds r5, #0x10
@@ -35957,7 +35957,7 @@ func_080522F8: @ 0x080522F8
 	mov sb, r1
 .L0805284C:
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	mov r2, sb
 	str r2, [r4, #4]
 	adds r4, #8
@@ -36109,14 +36109,14 @@ func_08052984: @ 0x08052984
 	adds r0, r5, #0
 	bl func_08008724
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0xbf
 	strh r2, [r1]
 	adds r0, #0x50
 	strh r2, [r0]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x10
 	strh r2, [r1]
@@ -36126,7 +36126,7 @@ func_08052984: @ 0x08052984
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	ldr r2, [sp, #0x30]
 	str r2, [r4]
@@ -36135,7 +36135,7 @@ func_08052984: @ 0x08052984
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	adds r0, r5, #0
 	bl func_08054F40
@@ -36148,7 +36148,7 @@ func_08052984: @ 0x08052984
 	adds r0, r5, #0
 	adds r0, #0x18
 	movs r1, #0x21
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r4, .L08052A7C @ =0x00002328
 	adds r0, r5, r4
 	mov r6, sp
@@ -36170,7 +36170,7 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
 	bl func_080087C8
 	adds r0, r5, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	bl rand
 	ldr r3, .L08052A80 @ =0x00002321
 	adds r4, r5, r3
@@ -36180,7 +36180,7 @@ sub_08052A1E: @ 0x08052A1E
 	cmp r0, #0
 	beq .L08052A84
 	adds r0, r5, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -36192,7 +36192,7 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
 	adds r0, #0x1c
 	movs r1, #0xb8
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L08052A5C:
 	ldrb r1, [r4]
 	movs r0, #1
@@ -36341,9 +36341,9 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -36619,7 +36619,7 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
 	adds r0, #0x1c
 	movs r1, #0xbb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r7, .L08052E44 @ =0x000022D8
 	adds r1, r5, r7
 	movs r0, #0x8f
@@ -36667,7 +36667,7 @@ sub_08052A1E: @ 0x08052A1E
 .L08052E84: .4byte 0x00002328
 .L08052E88:
 	adds r0, r5, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -36763,7 +36763,7 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
 	adds r0, #0x1c
 	movs r1, #0xbc
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r3, .L08052F7C @ =0x00002322
 	adds r1, r5, r3
 	movs r0, #0x3c
@@ -36816,7 +36816,7 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
 	adds r0, #0x1c
 	movs r1, #0xb7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r0, .L08052FEC @ =0x00002322
 	adds r1, r5, r0
 	movs r0, #0x3c
@@ -36852,7 +36852,7 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
 	adds r0, #0x1c
 	movs r1, #0xbc
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r7, .L08053030 @ =0x0000232C
 	adds r1, r5, r7
 	movs r0, #0
@@ -36869,7 +36869,7 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
 	adds r0, #0x1c
 	movs r1, #0xb7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r2, .L08053054 @ =0x0000232C
 	adds r1, r5, r2
 	movs r0, #0
@@ -37185,9 +37185,9 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -37390,7 +37390,7 @@ sub_08052A1E: @ 0x08052A1E
 	lsrs r0, r0, #0x10
 	str r0, [sp, #0x30]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r7, .L0805349C @ =0x00002330
 	adds r1, r5, r7
@@ -37422,7 +37422,7 @@ sub_08052A1E: @ 0x08052A1E
 	ands r0, r1
 	strb r0, [r4]
 	adds r0, r5, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldrb r2, [r4]
 	adds r6, r0, #0
 	lsls r1, r2, #1
@@ -37437,7 +37437,7 @@ sub_08052A1E: @ 0x08052A1E
 	lsls r2, r2, #0x13
 	movs r3, #0xc0
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r3, [sp, #0x3c]
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -37636,19 +37636,19 @@ func_08053634: @ 0x08053634
 	ldr r0, [r7, #0x10]
 	mov sb, r0
 	adds r0, r7, #0
-	bl func_080088DC
+	bl HardwareContext_GetState
 	mov r8, r0
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	adds r1, r7, #0
 	adds r1, #0x14
 	str r4, [sp]
@@ -38421,7 +38421,7 @@ func_08053960: @ 0x08053960
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0x95
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r2, .L08053D60 @ =0x0000229C
 	adds r1, r6, r2
 	movs r0, #0
@@ -39214,7 +39214,7 @@ func_08053960: @ 0x08053960
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xa9
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r5, #0x8a
 	lsls r5, r5, #6
 	adds r1, r6, r5
@@ -39600,7 +39600,7 @@ func_08053960: @ 0x08053960
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xa9
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08054C4A
 	.align 2, 0
 .L08054770: .4byte 0x00002284
@@ -39850,7 +39850,7 @@ func_08053960: @ 0x08053960
 	ldr r3, [r3, #0x10]
 	bl _call_via_r3
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x10]
 	movs r7, #0x9f
@@ -39872,7 +39872,7 @@ func_08053960: @ 0x08053960
 	adds r2, r2, r1
 	add r0, sp, #0x20
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r2, [sp, #0x4c]
 	mov sl, r2
 	ldr r1, [r4, #4]
@@ -40015,7 +40015,7 @@ func_08053960: @ 0x08053960
 	str r0, [r2, #0xc]
 .L08054AA6:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #8]
 	movs r3, #0x9e
@@ -40037,7 +40037,7 @@ func_08053960: @ 0x08053960
 	adds r2, r2, r0
 	add r0, sp, #0x20
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [sp, #0x4c]
 	mov sb, r1
 	ldr r1, [r4, #4]
@@ -40623,7 +40623,7 @@ func_08054F40: @ 0x08054F40
 	ldr r1, .L08055074 @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r4, #1
 	rsbs r4, r4, #0
 	ldr r0, .L08055078 @ =0x0600E000
@@ -40633,16 +40633,16 @@ func_08054F40: @ 0x08054F40
 	adds r0, r4, #0
 	mov r1, sb
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0805507C @ =0x0600E800
 	mov r8, r1
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L08055080 @ =0x0600F000
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r0, .L08055084 @ =gUnk_08738AD8
 	ldr r2, .L08055088 @ =0x00001D5A
 	adds r4, r6, r2
@@ -40652,11 +40652,11 @@ func_08054F40: @ 0x08054F40
 	lsls r2, r2, #3
 	adds r0, r4, #0
 	mov r1, sb
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r0, r4, #0
 	mov r1, r8
 	movs r2, #0xc0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0805508C @ =gUnk_08738CC8
 	adds r1, r4, #0
 	bl Unpack
@@ -40672,14 +40672,14 @@ func_08054F40: @ 0x08054F40
 	lsls r1, r1, #0x13
 	movs r2, #0x80
 	lsls r2, r2, #2
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0805509C @ =gUnk_08739A64
 	movs r3, #0xab
 	lsls r3, r3, #3
 	adds r1, r6, r3
 	bl Unpack
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r3, #0xf2
 	lsls r3, r3, #5
@@ -40688,53 +40688,53 @@ func_08054F40: @ 0x08054F40
 	movs r4, #0
 	strh r2, [r0]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L080550A0 @ =0x00001C43
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L080550A4 @ =0x00001D42
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L080550A8 @ =0x00001E41
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xa]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x14]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x16]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1c]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
@@ -40828,7 +40828,7 @@ func_080550AC: @ 0x080550AC
 	bgt .L08055118
 .L08055124:
 	adds r0, r5, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r2, .L08055184 @ =0x00001D5A
 	adds r1, r5, r2
@@ -40836,7 +40836,7 @@ func_080550AC: @ 0x080550AC
 	ldr r2, .L08055188 @ =0x0600F000
 	movs r3, #0xa0
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sp
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -41062,7 +41062,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #0x14]
 .L080552F0:
 	mov r0, r8
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r4, #0x9c
 	lsls r4, r4, #2
 	adds r0, r7, r4
@@ -41109,7 +41109,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #0x14]
 .L08055354:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r6, #0
 	movs r5, #0
 	movs r4, #0xab
@@ -41187,7 +41187,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #0xc]
 .L080553F6:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, [sp, #8]
 	movs r1, #0
 	cmp r0, #0
@@ -41243,7 +41243,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r0, #0x14]
 .L0805546A:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r6, #0
 	movs r5, #0
 	mov sb, sl
@@ -41283,7 +41283,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #0xc]
 .L080554BC:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, [sp, #8]
 	movs r1, #0
 	cmp r0, #0
@@ -41346,7 +41346,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #4]
 .L08055540:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	add r5, sp, #8
 	mov sb, r5
 	ldr r0, [sp, #8]
@@ -41368,7 +41368,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #4]
 .L0805556E:
 	mov r0, r8
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, .L0805569C @ =0x0000091B
 	adds r0, r6, #0
 	bl func_0805E860
@@ -41410,7 +41410,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r0, #4]
 .L080555CA:
 	adds r0, r6, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r1, #0xc6
 	lsls r1, r1, #2
 	adds r0, r7, r1
@@ -41454,7 +41454,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #4]
 .L08055628:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r5, #0xd3
 	lsls r5, r5, #2
 	adds r0, r7, r5
@@ -41512,7 +41512,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #4]
 .L080556AA:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, .L080557A4 @ =0x00002324
 	adds r0, r7, r4
 	ldrb r0, [r0]
@@ -41589,7 +41589,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #0x14]
 .L0805574C:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, [sp, #8]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
@@ -41605,7 +41605,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #0xc]
 .L0805576E:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #0x10
 	adds r6, #0x10
 	movs r4, #1
@@ -41712,7 +41712,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r0, #0x14]
 .L08055854:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, [sp, #8]
 	movs r1, #0x9c
 	lsls r1, r1, #3
@@ -41730,7 +41730,7 @@ func_08055264: @ 0x08055264
 	ldrh r2, [r3, #0xc]
 .L0805587A:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, .L080558BC @ =0x0000042C
 	adds r0, r7, r4
 	strb r6, [r0]
@@ -41820,7 +41820,7 @@ func_080558C4: @ 0x080558C4
 	ldm r0!, {r4, r5}
 	stm r1!, {r4, r5}
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x28]
 	movs r7, #0x93
@@ -41842,7 +41842,7 @@ func_080558C4: @ 0x080558C4
 	adds r2, r2, r1
 	mov r0, sb
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r4, #4]
 	ldr r0, [r4, #0xc]
 	cmp r1, r0
@@ -41979,7 +41979,7 @@ func_080558C4: @ 0x080558C4
 	str r0, [r2, #0xc]
 .L08055A5C:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x30]
 	movs r3, #0x94
@@ -42001,7 +42001,7 @@ func_080558C4: @ 0x080558C4
 	adds r2, r2, r0
 	add r0, sp, #0x40
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r1, sb
 	str r1, [sp, #0xe8]
 	ldr r1, [r4, #4]
@@ -42161,7 +42161,7 @@ func_080558C4: @ 0x080558C4
 	movs r0, #1
 	strb r0, [r1, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -42233,7 +42233,7 @@ func_080558C4: @ 0x080558C4
 	b .L080563F4
 .L08055C40:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x28]
 	mov r8, r7
@@ -42256,7 +42256,7 @@ func_080558C4: @ 0x080558C4
 	adds r2, r2, r0
 	mov r0, sb
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -42404,7 +42404,7 @@ func_080558C4: @ 0x080558C4
 	str r0, [r2, #0xc]
 .L08055D7E:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x30]
 	movs r3, #0x94
@@ -42426,7 +42426,7 @@ func_080558C4: @ 0x080558C4
 	adds r2, r2, r0
 	add r0, sp, #0x40
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r1, sb
 	str r1, [sp, #0xec]
 	ldr r1, [r4, #4]
@@ -42592,7 +42592,7 @@ func_080558C4: @ 0x080558C4
 	b .L080563F4
 .L08055EDA:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x28]
 	movs r7, #0x93
@@ -42614,7 +42614,7 @@ func_080558C4: @ 0x080558C4
 	adds r2, r2, r1
 	mov r0, sb
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r4, #4]
 	ldr r0, [r4, #0xc]
 	cmp r1, r0
@@ -42765,7 +42765,7 @@ func_080558C4: @ 0x080558C4
 	str r0, [r2, #0xc]
 .L0805601C:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x30]
 	movs r3, #0x94
@@ -42787,7 +42787,7 @@ func_080558C4: @ 0x080558C4
 	adds r2, r2, r0
 	add r0, sp, #0x40
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r1, sb
 	str r1, [sp, #0xf0]
 	ldr r1, [r4, #4]
@@ -42955,7 +42955,7 @@ func_080558C4: @ 0x080558C4
 	b .L080563F4
 .L0805617E:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x28]
 	movs r7, #0x93
@@ -42977,7 +42977,7 @@ func_080558C4: @ 0x080558C4
 	adds r2, r2, r1
 	mov r0, sb
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r4, #4]
 	ldr r0, [r4, #0xc]
 	cmp r1, r0
@@ -43128,7 +43128,7 @@ func_080558C4: @ 0x080558C4
 	str r0, [r2, #0xc]
 .L080562C0:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x30]
 	movs r3, #0x94
@@ -43150,7 +43150,7 @@ func_080558C4: @ 0x080558C4
 	adds r2, r2, r0
 	add r0, sp, #0x40
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r1, sb
 	str r1, [sp, #0xf4]
 	ldr r1, [r4, #4]
@@ -43318,7 +43318,7 @@ func_080558C4: @ 0x080558C4
 	movs r0, #1
 	strb r0, [r1, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -43413,7 +43413,7 @@ sub_08056442: @ 0x08056442
 	movs r0, #1
 	strb r0, [r1, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -43530,7 +43530,7 @@ sub_08056442: @ 0x08056442
 	mov r4, sl
 	strb r4, [r5, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -43607,7 +43607,7 @@ sub_08056442: @ 0x08056442
 	mov r3, sl
 	strb r3, [r5, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	ldr r1, [sp, #0x20]
 	movs r2, #0
 	cmp r1, #0
@@ -43711,7 +43711,7 @@ sub_08056442: @ 0x08056442
 	b .L08056AFC
 .L08056754:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x28]
 	mov r8, r7
@@ -43732,7 +43732,7 @@ sub_08056442: @ 0x08056442
 	adds r2, r2, r1
 	mov r0, sb
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -43877,7 +43877,7 @@ sub_08056442: @ 0x08056442
 	str r0, [r2, #0xc]
 .L08056894:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x30]
 	movs r3, #0xa9
@@ -43900,7 +43900,7 @@ sub_08056442: @ 0x08056442
 	adds r2, r2, r0
 	add r0, sp, #0x40
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r1, sb
 	str r1, [sp, #0x104]
 	ldr r1, [r4, #4]
@@ -44040,7 +44040,7 @@ sub_08056442: @ 0x08056442
 	str r0, [r2, #0xc]
 .L080569C0:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r7, r0, #0
 	ldr r0, [sp, #0x30]
 	adds r4, r0, #0
@@ -44071,7 +44071,7 @@ sub_08056442: @ 0x08056442
 	ldr r4, .L08056A2C @ =0x05000200
 	adds r2, r2, r4
 	add r0, sp, #0x40
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r5, sb
 	str r5, [sp, #0x108]
 	ldr r1, [r7, #4]
@@ -44319,7 +44319,7 @@ sub_08056442: @ 0x08056442
 	b .L08056D08
 .L08056BD6:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x28]
 	mov r8, r7
@@ -44340,7 +44340,7 @@ sub_08056442: @ 0x08056442
 	adds r2, r2, r1
 	mov r0, sb
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -44481,7 +44481,7 @@ sub_08056442: @ 0x08056442
 	str r0, [r2, #0xc]
 .L08056D08:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -44579,7 +44579,7 @@ sub_08056442: @ 0x08056442
 	b .L08056F04
 .L08056DD2:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x28]
 	mov r8, r7
@@ -44600,7 +44600,7 @@ sub_08056442: @ 0x08056442
 	adds r2, r2, r1
 	mov r0, sb
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -44741,7 +44741,7 @@ sub_08056442: @ 0x08056442
 	str r0, [r2, #0xc]
 .L08056F04:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -44847,7 +44847,7 @@ sub_08056442: @ 0x08056442
 	b .L08057118
 .L08056FDE:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x28]
 	mov r8, r7
@@ -44868,7 +44868,7 @@ sub_08056442: @ 0x08056442
 	adds r2, r2, r1
 	mov r0, sb
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -45011,7 +45011,7 @@ sub_08056442: @ 0x08056442
 	str r0, [r2, #0xc]
 .L08057118:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -45120,7 +45120,7 @@ sub_08056442: @ 0x08056442
 	b .L08057338
 .L080571F6:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x28]
 	mov r8, r7
@@ -45141,7 +45141,7 @@ sub_08056442: @ 0x08056442
 	adds r2, r2, r1
 	mov r0, sb
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -45286,7 +45286,7 @@ sub_08056442: @ 0x08056442
 	str r0, [r2, #0xc]
 .L08057338:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -45393,7 +45393,7 @@ sub_08056442: @ 0x08056442
 	b .L08057544
 .L08057412:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x28]
 	mov r8, r7
@@ -45414,7 +45414,7 @@ sub_08056442: @ 0x08056442
 	adds r2, r2, r1
 	mov r0, sb
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -45555,7 +45555,7 @@ sub_08056442: @ 0x08056442
 	str r0, [r2, #0xc]
 .L08057544:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -45662,7 +45662,7 @@ sub_08056442: @ 0x08056442
 	b .L08057750
 .L0805761E:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x28]
 	mov r8, r7
@@ -45683,7 +45683,7 @@ sub_08056442: @ 0x08056442
 	adds r2, r2, r1
 	mov r0, sb
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -45824,7 +45824,7 @@ sub_08056442: @ 0x08056442
 	str r0, [r2, #0xc]
 .L08057750:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -45910,7 +45910,7 @@ sub_08056442: @ 0x08056442
 	movs r0, #1
 	strb r0, [r1, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -46002,7 +46002,7 @@ sub_08056442: @ 0x08056442
 	movs r0, #1
 	strb r0, [r1, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -46084,7 +46084,7 @@ sub_08056442: @ 0x08056442
 	mov r2, r8
 	strb r2, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	ldr r1, [sp, #0x20]
 	movs r2, #0
 	cmp r1, #0
@@ -46301,7 +46301,7 @@ func_080579B4: @ 0x080579B4
 	orrs r1, r2
 	str r1, [sp]
 	ldr r0, [sp, #8]
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -46612,7 +46612,7 @@ func_08057D34: @ 0x08057D34
 	mov r0, sp
 	strb r2, [r0, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -46694,7 +46694,7 @@ func_08057E1C: @ 0x08057E1C
 .L08057E4A:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -47017,7 +47017,7 @@ func_0805806C: @ 0x0805806C
 	bl func_0800835C
 	add r6, sp, #0x10
 	adds r0, r6, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	mov r2, sl
 	ldr r0, [r2, #0xc]
 	str r0, [sp]
@@ -47040,15 +47040,15 @@ func_0805806C: @ 0x0805806C
 	mov r0, sl
 	adds r0, #0x14
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	mov r0, sl
 	adds r0, #0x18
 	movs r1, #0
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	mov r0, sl
 	adds r0, #0x1c
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r2, #0x20
 	add r2, sl
 	mov r8, r2
@@ -47575,7 +47575,7 @@ func_0805806C: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r4, [r5, #4]
 	movs r5, #0xba
 	lsls r5, r5, #3
@@ -47590,7 +47590,7 @@ func_0805806C: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r4, [r5, #4]
 	movs r5, #0xbc
 	lsls r5, r5, #3
@@ -47605,7 +47605,7 @@ func_0805806C: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r4, [r5, #4]
 	movs r5, #0xbe
 	lsls r5, r5, #3
@@ -47620,7 +47620,7 @@ func_0805806C: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r4, [r5, #4]
 	movs r5, #0xc0
 	lsls r5, r5, #3
@@ -47635,7 +47635,7 @@ func_0805806C: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r5, #4]
@@ -47652,7 +47652,7 @@ func_0805806C: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r5, #4]
@@ -47660,7 +47660,7 @@ func_0805806C: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r5, #4]
@@ -47686,7 +47686,7 @@ func_0805806C: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r4, [r5, #4]
 	movs r4, #0xc8
 	lsls r4, r4, #3
@@ -47701,7 +47701,7 @@ func_0805806C: @ 0x0805806C
 	lsls r4, r4, #3
 	add r4, sl
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -47735,7 +47735,7 @@ func_0805806C: @ 0x0805806C
 	mov r8, r7
 .L08058700:
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	movs r2, #0
 	str r2, [r4, #4]
 	adds r4, #8
@@ -47934,7 +47934,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	bl func_08008724
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -47944,7 +47944,7 @@ func_080588AC: @ 0x080588AC
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -47953,7 +47953,7 @@ func_080588AC: @ 0x080588AC
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	ldr r0, [r6, #0x10]
 	movs r1, #0x75
@@ -48056,9 +48056,9 @@ func_080588AC: @ 0x080588AC
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -48075,7 +48075,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r7, .L08058A24 @ =0x00001424
 	adds r0, r6, r7
 	movs r1, #0
@@ -48132,13 +48132,13 @@ func_080588AC: @ 0x080588AC
 	cmp r0, #0
 	bne .L08058AC8
 	adds r0, r6, #0
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	movs r1, #4
 	ands r0, r1
 	cmp r0, #0
 	beq .L08058B08
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r7, #0xc4
 	lsls r7, r7, #4
@@ -48146,7 +48146,7 @@ func_080588AC: @ 0x080588AC
 	strh r1, [r2]
 	strh r1, [r0]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L08058AC4 @ =0x00001F49
 	adds r1, r3, #0
@@ -48160,7 +48160,7 @@ func_080588AC: @ 0x080588AC
 .L08058AC4: .4byte 0x00001F49
 .L08058AC8:
 	adds r0, r6, #0
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	movs r1, #4
 	ands r0, r1
 	lsls r0, r0, #0x18
@@ -48170,7 +48170,7 @@ func_080588AC: @ 0x080588AC
 	b .L08058E30
 .L08058ADC:
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r7, #0xf2
 	lsls r7, r7, #5
@@ -48178,7 +48178,7 @@ func_080588AC: @ 0x080588AC
 	strh r1, [r2]
 	strh r1, [r0]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L08058B04 @ =0x00001D41
 	adds r1, r3, #0
@@ -48190,7 +48190,7 @@ func_080588AC: @ 0x080588AC
 .L08058B04: .4byte 0x00001D41
 .L08058B08:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -48215,13 +48215,13 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08058B7A
 	.align 2, 0
 .L08058B40: .4byte 0x0000140A
 .L08058B44:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -48246,7 +48246,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L08058B7A:
 	ldr r1, .L08058B9C @ =0x0000140A
 	adds r0, r6, r1
@@ -48256,7 +48256,7 @@ func_080588AC: @ 0x080588AC
 	beq .L08058BF4
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -48267,7 +48267,7 @@ func_080588AC: @ 0x080588AC
 .L08058B9C: .4byte 0x0000140A
 .L08058BA0:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -48277,7 +48277,7 @@ func_080588AC: @ 0x080588AC
 	b .L08058BE0
 .L08058BB4:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
@@ -48287,7 +48287,7 @@ func_080588AC: @ 0x080588AC
 	b .L08058BE0
 .L08058BC8:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
@@ -48305,11 +48305,11 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08058E30
 .L08058BF4:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -48317,7 +48317,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r3, .L08058C1C @ =0x00001429
 	adds r1, r6, r3
 	movs r0, #0
@@ -48331,13 +48331,13 @@ func_080588AC: @ 0x080588AC
 .L08058C24:
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
 	bne .L08058C4E
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -48358,7 +48358,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r2, #0xa1
 	lsls r2, r2, #5
 	adds r1, r6, r2
@@ -48482,9 +48482,9 @@ func_080588AC: @ 0x080588AC
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -48677,15 +48677,15 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x18
 	movs r1, #0x21
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r0, [sp, #4]
 	ldr r1, .L08058FB8 @ =0x00000889
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -48704,10 +48704,10 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -48737,7 +48737,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xb8
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L08058F9E:
 	ldr r1, .L08058FBC @ =0x00001427
 	adds r0, r6, r1
@@ -48963,7 +48963,7 @@ func_080588AC: @ 0x080588AC
 	cmp r2, #0
 	bge .L08059192
 	movs r1, #0xb9
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08059334
 	.align 2, 0
 .L080591A4: .4byte 0x00001406
@@ -49123,9 +49123,9 @@ func_080588AC: @ 0x080588AC
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -49257,9 +49257,9 @@ func_080588AC: @ 0x080588AC
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -49280,7 +49280,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r2, .L08059488 @ =0x00001424
 	adds r0, r6, r2
 	ldrh r0, [r0]
@@ -49371,7 +49371,7 @@ func_080588AC: @ 0x080588AC
 .L08059530: .4byte 0x00001424
 .L08059534:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -49404,7 +49404,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xba
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L0805957C:
 	ldr r1, .L08059594 @ =0x00001406
 	adds r5, r6, r1
@@ -49431,7 +49431,7 @@ func_080588AC: @ 0x080588AC
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xba
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldrh r0, [r4]
 	subs r0, #1
 	strh r0, [r4]
@@ -49539,7 +49539,7 @@ func_080588AC: @ 0x080588AC
 	cmp r0, #2
 	bne .L08059712
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -49556,9 +49556,9 @@ func_080588AC: @ 0x080588AC
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -49786,19 +49786,19 @@ func_08059878: @ 0x08059878
 	ldr r0, [r7, #0x10]
 	mov sb, r0
 	adds r0, r7, #0
-	bl func_080088DC
+	bl HardwareContext_GetState
 	mov r8, r0
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	adds r1, r7, #0
 	adds r1, #0x14
 	str r4, [sp]
@@ -50354,7 +50354,7 @@ func_08059C94: @ 0x08059C94
 	ldrh r2, [r3, #4]
 .L08059D52:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r4, #0
 	mov sb, r4
 	movs r6, #0
@@ -50415,7 +50415,7 @@ func_08059C94: @ 0x08059C94
 	ldrh r2, [r3, #0x18]
 .L08059DD2:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, [sp, #0x14]
 	movs r1, #0
 	cmp r0, #0
@@ -50431,7 +50431,7 @@ func_08059C94: @ 0x08059C94
 	ldr r1, .L08059FA0 @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r4, #1
 	rsbs r4, r4, #0
 	ldr r5, .L08059FA4 @ =0x0600E000
@@ -50441,19 +50441,19 @@ func_08059C94: @ 0x08059C94
 	adds r0, r4, #0
 	mov r1, r8
 	adds r2, r6, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r0, .L08059FA8 @ =0x0600E800
 	mov sb, r0
 	adds r0, r4, #0
 	mov r1, sb
 	adds r2, r6, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L08059FAC @ =0x0600F000
 	adds r0, r4, #0
 	adds r2, r6, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	movs r2, #0xf2
 	lsls r2, r2, #5
 	adds r1, r2, #0
@@ -50462,21 +50462,21 @@ func_08059C94: @ 0x08059C94
 	movs r5, #0
 	strh r1, [r0]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	ldr r4, .L08059FB0 @ =0x00005C43
 	adds r1, r4, #0
 	mov r2, sl
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	ldr r3, .L08059FB4 @ =0x00001D41
 	adds r1, r3, #0
 	mov r4, sl
 	strh r1, [r4]
 	strh r1, [r0, #0xc]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	ldr r2, .L08059FB8 @ =0x00005E42
 	adds r1, r2, #0
 	strh r1, [r4]
@@ -50487,17 +50487,17 @@ func_08059C94: @ 0x08059C94
 	lsls r1, r1, #0x13
 	ldr r2, .L08059FC0 @ =gUnk_080F9F74
 	ldr r2, [r2]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L08059FC4 @ =0x00030003
 	mov r1, r8
 	adds r2, r6, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	strh r5, [r4]
 	strh r5, [r0, #0x1c]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	strh r5, [r4]
 	strh r5, [r0, #0x1e]
 	movs r0, #3
@@ -50510,19 +50510,19 @@ func_08059C94: @ 0x08059C94
 	movs r3, #0x20
 	bl func_08051320
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	strh r5, [r4]
 	strh r5, [r0, #0x18]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	strh r5, [r4]
 	strh r5, [r0, #0x1a]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	strh r5, [r4]
 	strh r5, [r0, #0x14]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	strh r5, [r4]
 	strh r5, [r0, #0x16]
 	ldr r0, .L08059FC8 @ =gUnk_080F9F78
@@ -50530,7 +50530,7 @@ func_08059C94: @ 0x08059C94
 	movs r1, #0xa0
 	lsls r1, r1, #0x13
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L08059FCC @ =0x05000040
 	movs r3, #0xf8
 	lsls r3, r3, #2
@@ -50605,7 +50605,7 @@ func_08059C94: @ 0x08059C94
 	adds r1, r1, r4
 	ldr r0, [sp, #0x9c]
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #1
 	cmp r5, #0x17
 	ble .L08059F3A
@@ -50675,7 +50675,7 @@ func_08059FE0: @ 0x08059FE0
 	ldrh r2, [r5, #4]
 .L0805A028:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	add r4, sp, #0x14
 	ldr r5, [sp, #0x14]
 	movs r0, #0xc8
@@ -50693,7 +50693,7 @@ func_08059FE0: @ 0x08059FE0
 	ldrh r2, [r4, #4]
 .L0805A04E:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, .L0805A0A0 @ =gUnk_08752F8C
 	movs r0, #0xc2
 	lsls r0, r0, #3
@@ -50706,7 +50706,7 @@ func_08059FE0: @ 0x08059FE0
 	adds r1, r1, r3
 	adds r0, r4, #0
 	movs r2, #0x80
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, .L0805A0A8 @ =gUnk_0875300C
 	movs r0, #0xc4
 	lsls r0, r0, #3
@@ -50718,7 +50718,7 @@ func_08059FE0: @ 0x08059FE0
 	adds r1, r1, r6
 	adds r0, r4, #0
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	b .L0805A0E8
 	.align 2, 0
 .L0805A090: .4byte 0xFFFFF490
@@ -50741,7 +50741,7 @@ func_08059FE0: @ 0x08059FE0
 	adds r1, r1, r7
 	adds r0, r4, #0
 	movs r2, #0x80
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, .L0805A194 @ =gUnk_087519EC
 	movs r0, #0xc4
 	lsls r0, r0, #3
@@ -50754,7 +50754,7 @@ func_08059FE0: @ 0x08059FE0
 	adds r1, r1, r0
 	adds r0, r4, #0
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 .L0805A0E8:
 	ldr r4, .L0805A19C @ =0x0000142C
 	add r4, r8
@@ -50881,7 +50881,7 @@ func_08059FE0: @ 0x08059FE0
 	mov r1, sb
 	movs r2, #0xc0
 	lsls r2, r2, #2
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r2, #0xc0
 	lsls r2, r2, #2
 	add sb, r2
@@ -50928,7 +50928,7 @@ func_08059FE0: @ 0x08059FE0
 	ldr r3, .L0805A2D0 @ =0x00000B58
 	add r3, sp
 	ldr r0, [r3]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0805A2D4 @ =0x00000B48
 	add r0, sp
 	strh r4, [r0]
@@ -51006,13 +51006,13 @@ func_08059FE0: @ 0x08059FE0
 	add r3, sp
 	ldr r0, [r3]
 	adds r2, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #1
 	rsbs r0, r0, #0
 	ldr r1, .L0805A3E4 @ =0x00000BEA
 	add r1, r8
 	adds r2, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r5, #0x85
 	lsls r5, r5, #6
 	movs r1, #0
@@ -51088,7 +51088,7 @@ func_08059FE0: @ 0x08059FE0
 	ldr r1, .L0805A3EC @ =0x0600F000
 	movs r2, #0x80
 	lsls r2, r2, #4
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r3, #0xb7
 	lsls r3, r3, #4
 	add sp, r3
@@ -51120,13 +51120,13 @@ func_0805A3F0: @ 0x0805A3F0
 	movs r2, #0xb0
 	lsls r2, r2, #6
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r4, .L0805A4CC @ =0x0600F800
 	movs r2, #0x80
 	lsls r2, r2, #4
 	movs r0, #0
 	adds r1, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r2, #0
 	ldr r0, .L0805A4D0 @ =gUnk_080FAFC8
 	mov r8, r0
@@ -51196,7 +51196,7 @@ func_0805A3F0: @ 0x0805A3F0
 	adds r1, r7, #0
 	movs r2, #0x80
 	lsls r2, r2, #4
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #0x80
 	lsls r0, r0, #4
 	adds r7, r7, r0
@@ -51653,7 +51653,7 @@ func_0805A744: @ 0x0805A744
 	movs r0, #1
 	strb r0, [r1, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -51732,7 +51732,7 @@ func_0805A744: @ 0x0805A744
 	movs r0, #1
 	strb r0, [r4, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -51945,7 +51945,7 @@ func_0805A744: @ 0x0805A744
 .L0805AAB0:
 	str r0, [sp, #0x5c]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -51997,7 +51997,7 @@ func_0805AB08: @ 0x0805AB08
 	ldr r1, .L0805AC20 @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r4, #1
 	rsbs r4, r4, #0
 	ldr r1, .L0805AC24 @ =0x0600C800
@@ -52005,15 +52005,15 @@ func_0805AB08: @ 0x0805AB08
 	lsls r5, r5, #5
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0805AC28 @ =0x0600D800
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0805AC2C @ =0x0600E800
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r0, .L0805AC30 @ =gUnk_0872F11C
 	ldr r2, .L0805AC34 @ =0x00000BEA
 	adds r1, r7, r2
@@ -52039,9 +52039,9 @@ func_0805AB08: @ 0x0805AB08
 	lsls r1, r1, #0x13
 	movs r2, #0x80
 	lsls r2, r2, #2
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r3, #0xf2
 	lsls r3, r3, #5
@@ -52049,21 +52049,21 @@ func_0805AB08: @ 0x0805AB08
 	strh r1, [r2]
 	strh r1, [r0]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L0805AC58 @ =0x00005943
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L0805AC5C @ =0x00005B42
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L0805AC60 @ =0x00005D41
 	adds r1, r3, #0
@@ -52103,7 +52103,7 @@ func_0805AB08: @ 0x0805AB08
 	adds r0, r7, r2
 	adds r1, r4, #0
 	movs r2, #0xc
-	bl func_08008E64
+	bl Dma3_Copy
 	mov r3, sb
 	cmp r3, #0x12
 	beq .L0805AC64
@@ -52111,7 +52111,7 @@ func_0805AB08: @ 0x0805AB08
 	adds r0, r7, r1
 	adds r1, r5, #0
 	movs r2, #0xc
-	bl func_08008E64
+	bl Dma3_Copy
 	b .L0805AC72
 	.align 2, 0
 .L0805AC20: .4byte 0x06007FE0
@@ -52137,13 +52137,13 @@ func_0805AB08: @ 0x0805AB08
 	ldr r1, .L0805AD04 @ =0x0600D824
 	add r1, r8
 	movs r2, #0xc
-	bl func_08008E64
+	bl Dma3_Copy
 .L0805AC72:
 	ldr r3, [sp, #0xc]
 	adds r0, r7, r3
 	adds r1, r6, #0
 	movs r2, #0xc
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r6, #0xc
 	adds r5, #0xc
 	adds r4, #0xc
@@ -52186,17 +52186,17 @@ func_0805AB08: @ 0x0805AB08
 	adds r0, r7, r2
 	strh r4, [r0]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x16]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
@@ -52223,7 +52223,7 @@ func_0805AD14: @ 0x0805AD14
 	push {r5, r6, r7}
 	sub sp, #0x68
 	mov sl, r0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r1, .L0805ADF8 @ =0x000013EA
 	add r1, sl
@@ -52231,7 +52231,7 @@ func_0805AD14: @ 0x0805AD14
 	strh r1, [r2]
 	strh r1, [r0, #0x14]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r1, .L0805ADFC @ =0x000013EC
 	add r1, sl
@@ -52239,7 +52239,7 @@ func_0805AD14: @ 0x0805AD14
 	strh r1, [r2]
 	strh r1, [r0, #0x18]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L0805AE00 @ =0x000013EE
 	add r3, sl
@@ -52287,7 +52287,7 @@ func_0805AD14: @ 0x0805AD14
 	str r2, [sp, #0x34]
 .L0805ADA0:
 	mov r0, sl
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805AE0C @ =0x000013FA
 	add r1, sl
 	movs r3, #0
@@ -52309,7 +52309,7 @@ func_0805AD14: @ 0x0805AD14
 	adds r2, r2, r3
 	add r0, sp, #4
 	movs r3, #4
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -52510,7 +52510,7 @@ func_0805AD14: @ 0x0805AD14
 	str r2, [sp, #0x44]
 .L0805AF48:
 	mov r0, sl
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805AFB0 @ =0x000013F8
 	add r1, sl
 	movs r3, #0
@@ -52533,7 +52533,7 @@ func_0805AD14: @ 0x0805AD14
 	adds r2, r2, r3
 	mov r0, sp
 	movs r3, #4
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -52696,7 +52696,7 @@ func_0805AD14: @ 0x0805AD14
 	str r2, [sp, #0x4c]
 .L0805B0A8:
 	mov r0, sl
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805B104 @ =0x000013F8
 	add r1, sl
 	movs r3, #0
@@ -52719,7 +52719,7 @@ func_0805AD14: @ 0x0805AD14
 	adds r2, r2, r3
 	mov r0, sp
 	movs r3, #4
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -52908,7 +52908,7 @@ func_0805AD14: @ 0x0805AD14
 	str r2, [sp, #0x50]
 .L0805B234:
 	mov r0, sl
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805B298 @ =0x000013F6
 	add r1, sl
 	movs r4, #0
@@ -52930,7 +52930,7 @@ func_0805AD14: @ 0x0805AD14
 	adds r2, r2, r4
 	mov r0, sp
 	movs r3, #4
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -53158,7 +53158,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r3, #0x14]
 .L0805B414:
 	adds r0, r7, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r7, #0
 	movs r6, #0
 	mov sl, sb
@@ -53252,7 +53252,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r3, #0xc]
 .L0805B4D6:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, [sp, #8]
 	movs r1, #0
 	cmp r0, #0
@@ -53309,7 +53309,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B54A:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, [sp, #0x10]
 	movs r0, #0
 	cmp r1, #0
@@ -53335,7 +53335,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B57E:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #0x90
 	lsls r0, r0, #2
 	add r0, r8
@@ -53379,7 +53379,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B5DC:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, [sp, #0x10]
 	movs r0, #0
 	cmp r1, #0
@@ -53405,7 +53405,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B610:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0805B6CC @ =0x0000140E
 	add r0, r8
 	ldrb r0, [r0]
@@ -53456,7 +53456,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B67C:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, [sp, #0x10]
 	movs r0, #0
 	cmp r1, #0
@@ -53482,7 +53482,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B6B0:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	b .L0805B766
 	.align 2, 0
 .L0805B6BC: .4byte 0x05000200
@@ -53536,7 +53536,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B72A:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, [sp, #0x10]
 	movs r0, #0
 	cmp r1, #0
@@ -53562,7 +53562,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B75E:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 .L0805B766:
 	movs r0, #0xac
 	lsls r0, r0, #2
@@ -53608,7 +53608,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B7BE:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, [sp, #0x10]
 	movs r0, #0
 	cmp r1, #0
@@ -53634,7 +53634,7 @@ func_0805B38C: @ 0x0805B38C
 .L0805B7F2:
 	lsrs r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, [sp, #0x6c]
 	add r0, sp, #0x20
 	movs r2, #0
@@ -53663,7 +53663,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r0, #0x14]
 .L0805B832:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r5, [sp, #8]
 	movs r4, #0xba
 	lsls r4, r4, #3
@@ -53682,7 +53682,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r3, #0xc]
 .L0805B85A:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	add r0, sp, #0x20
 	ldr r1, [sp, #0x6c]
 	movs r2, #1
@@ -53710,7 +53710,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r7, #0xc]
 .L0805B896:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r3, #0
 	ldr r0, .L0805BB54 @ =0x0000FFFF
 	adds r4, r0, #0
@@ -53774,7 +53774,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r5, #0x14]
 .L0805B91A:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r7, #0
 	movs r0, #0
 	mov sl, r0
@@ -53834,7 +53834,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r3, #0xc]
 .L0805B996:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, [sp, #8]
 	movs r1, #0
 	cmp r0, #0
@@ -53880,7 +53880,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r7, #0x14]
 .L0805B9F4:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, [sp, #8]
 	movs r0, #0xbe
 	lsls r0, r0, #3
@@ -53898,7 +53898,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r3, #0xc]
 .L0805BA1A:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r7, #0
 	movs r5, #0
 	movs r6, #0x88
@@ -53958,7 +53958,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r3, #0xc]
 .L0805BA98:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, [sp, #8]
 	movs r1, #0
 	cmp r0, #0
@@ -54014,7 +54014,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r7, #0x14]
 .L0805BB0C:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r7, #0
 	movs r5, #0
 	movs r6, #0xa0
@@ -54083,7 +54083,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r3, #0xc]
 .L0805BBA6:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, [sp, #8]
 	movs r1, #0
 	cmp r0, #0
@@ -54139,7 +54139,7 @@ func_0805B38C: @ 0x0805B38C
 	ldrh r2, [r7, #0xc]
 .L0805BC1A:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	add sp, #0x90
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -54246,7 +54246,7 @@ func_0805BC34: @ 0x0805BC34
 	adds r0, r1, #0
 	strb r4, [r0, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -54342,7 +54342,7 @@ func_0805BC34: @ 0x0805BC34
 	movs r0, #1
 	strb r0, [r4, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -54710,7 +54710,7 @@ func_0805BC34: @ 0x0805BC34
 	movs r1, #1
 	strb r1, [r0, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -54800,7 +54800,7 @@ func_0805BC34: @ 0x0805BC34
 	movs r6, #1
 	strb r6, [r4, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	ldr r1, [sp, #0x20]
 	movs r2, #0
 	cmp r1, #0
@@ -54947,7 +54947,7 @@ func_0805BC34: @ 0x0805BC34
 	b .L0805C3BA
 .L0805C288:
 	adds r0, r5, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r7, [sp, #0x28]
 	adds r0, r4, r5
@@ -54969,7 +54969,7 @@ func_0805BC34: @ 0x0805BC34
 	adds r2, r2, r0
 	ldr r0, [sp, #0x84]
 	adds r1, r7, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
 	cmp r1, r0
@@ -55212,7 +55212,7 @@ func_0805BC34: @ 0x0805BC34
 	adds r0, r0, r1
 	strh r0, [r6, #6]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	ldr r1, [sp, #0x20]
 	movs r2, #0
 	cmp r1, #0
@@ -55296,7 +55296,7 @@ func_0805BC34: @ 0x0805BC34
 	movs r0, #1
 	strb r0, [r6, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -55385,7 +55385,7 @@ func_0805BC34: @ 0x0805BC34
 	mov r3, sb
 	strb r3, [r7, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x20]
 	adds r1, r0, #0
@@ -55610,7 +55610,7 @@ func_0805C63C: @ 0x0805C63C
 	orrs r1, r2
 	str r1, [sp]
 	ldr r0, [sp, #8]
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -56328,7 +56328,7 @@ func_0805C96C: @ 0x0805C96C
 	cmp r3, #2
 	bne .L0805CD88
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -56338,7 +56338,7 @@ func_0805C96C: @ 0x0805C96C
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xa8
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r3, #0x1a
 	ldrsh r0, [r5, r3]
 	cmp r0, #0x28
@@ -56442,7 +56442,7 @@ func_0805C96C: @ 0x0805C96C
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xa8
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0805CE34
 	.align 2, 0
 .L0805CE14: .4byte 0x001FFFFF
@@ -56589,7 +56589,7 @@ func_0805CEFC: @ 0x0805CEFC
 .L0805CF2A:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -56653,7 +56653,7 @@ func_0805CF70: @ 0x0805CF70
 	bl func_0800835C
 	add r4, sp, #0x10
 	adds r0, r4, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	ldr r0, [r7, #0xc]
 	str r0, [sp]
 	add r0, sp, #0xc
@@ -56674,15 +56674,15 @@ func_0805CF70: @ 0x0805CF70
 	adds r0, r7, #0
 	adds r0, #0x14
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r7, #0
 	adds r0, #0x18
 	movs r1, #0
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r7, #0
 	adds r0, #0x1c
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r4, r7, #0
 	adds r4, #0x20
 	ldr r1, .L0805D158 @ =gUnk_08527094
@@ -56772,7 +56772,7 @@ func_0805CF70: @ 0x0805CF70
 	lsls r1, r1, #1
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -56789,7 +56789,7 @@ func_0805CF70: @ 0x0805CF70
 	lsls r0, r0, #1
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -56806,7 +56806,7 @@ func_0805CF70: @ 0x0805CF70
 	lsls r3, r3, #1
 	adds r4, r7, r3
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -56863,7 +56863,7 @@ func_0805D170: @ 0x0805D170
 	adds r0, r6, #0
 	bl func_08008724
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -56873,7 +56873,7 @@ func_0805D170: @ 0x0805D170
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -56882,7 +56882,7 @@ func_0805D170: @ 0x0805D170
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	ldr r0, [r6, #0x10]
 	movs r1, #0x75
@@ -56949,9 +56949,9 @@ func_0805D170: @ 0x0805D170
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -56962,7 +56962,7 @@ func_0805D170: @ 0x0805D170
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r4, .L0805D298 @ =0x00000ADA
 	adds r0, r6, r4
 	movs r1, #0
@@ -57018,7 +57018,7 @@ func_0805D170: @ 0x0805D170
 .L0805D2EC: .4byte 0x00000ADA
 .L0805D2F0:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -57026,7 +57026,7 @@ func_0805D170: @ 0x0805D170
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r3, .L0805D320 @ =0x00000AD4
 	adds r1, r6, r3
 	ldrh r2, [r1]
@@ -57070,7 +57070,7 @@ func_0805D170: @ 0x0805D170
 .L0805D358: .4byte 0x00000ADA
 .L0805D35C:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	lsls r0, r0, #0x18
@@ -57080,7 +57080,7 @@ func_0805D170: @ 0x0805D170
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r2, .L0805D390 @ =0x00000AD4
 	adds r1, r6, r2
 	ldrh r2, [r1]
@@ -57125,7 +57125,7 @@ func_0805D170: @ 0x0805D170
 .L0805D3C8: .4byte 0x00000ADA
 .L0805D3CC:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -57134,7 +57134,7 @@ func_0805D170: @ 0x0805D170
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r1, .L0805D434 @ =0x00000ADC
 	adds r0, r6, r1
 	strh r5, [r0]
@@ -57189,7 +57189,7 @@ func_0805D170: @ 0x0805D170
 .L0805D450: .4byte 0x00000ADA
 .L0805D454:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -57199,7 +57199,7 @@ func_0805D170: @ 0x0805D170
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r1, .L0805D480 @ =0x00000ADC
 	adds r0, r6, r1
 	strh r4, [r0]
@@ -57481,9 +57481,9 @@ func_0805D170: @ 0x0805D170
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -57511,7 +57511,7 @@ func_0805D170: @ 0x0805D170
 	adds r0, r6, #0
 	bl func_0805D760
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r3, #0xa6
 	lsls r3, r3, #1
@@ -57575,19 +57575,19 @@ func_0805D760: @ 0x0805D760
 	ldr r0, [r7, #0x10]
 	mov sb, r0
 	adds r0, r7, #0
-	bl func_080088DC
+	bl HardwareContext_GetState
 	mov r8, r0
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	adds r1, r7, #0
 	adds r1, #0x14
 	str r4, [sp]
@@ -57853,13 +57853,13 @@ func_0805D9C0: @ 0x0805D9C0
 	push {r5, r6, r7}
 	sub sp, #0x58
 	adds r6, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r4, #0
 	strh r4, [r1]
 	strh r4, [r0, #0x14]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	movs r3, #0xa6
 	lsls r3, r3, #1
@@ -57868,29 +57868,29 @@ func_0805D9C0: @ 0x0805D9C0
 	strh r1, [r2]
 	strh r1, [r0, #0x16]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1c]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
 	ldr r1, .L0805DBDC @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r4, #1
 	rsbs r4, r4, #0
 	ldr r0, .L0805DBE0 @ =0x0600E000
@@ -57901,19 +57901,19 @@ func_0805D9C0: @ 0x0805D9C0
 	adds r0, r4, #0
 	mov r1, sb
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r2, .L0805DBE4 @ =0x0600E800
 	mov sl, r2
 	adds r0, r4, #0
 	mov r1, sl
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0805DBE8 @ =0x0600F000
 	adds r0, r4, #0
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r3, #0xf2
 	lsls r3, r3, #5
@@ -57922,21 +57922,21 @@ func_0805D9C0: @ 0x0805D9C0
 	movs r5, #0
 	strh r2, [r0]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L0805DBEC @ =0x00005C43
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L0805DBF0 @ =0x00001D41
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L0805DBF4 @ =0x00005E42
 	adds r1, r3, #0
@@ -57948,18 +57948,18 @@ func_0805D9C0: @ 0x0805D9C0
 	lsls r1, r1, #0x13
 	ldr r2, .L0805DBFC @ =gUnk_080F9F74
 	ldr r2, [r2]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0805DC00 @ =0x00030003
 	mov r1, sb
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x1c]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x1e]
@@ -57973,22 +57973,22 @@ func_0805D9C0: @ 0x0805D9C0
 	movs r3, #0x20
 	bl func_08051320
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x1a]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x14]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x16]
@@ -57997,7 +57997,7 @@ func_0805D9C0: @ 0x0805D9C0
 	movs r1, #0xa0
 	lsls r1, r1, #0x13
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0805DC08 @ =0x05000040
 	movs r1, #0xf8
 	lsls r1, r1, #2
@@ -58074,7 +58074,7 @@ func_0805D9C0: @ 0x0805D9C0
 	adds r1, r1, r2
 	mov r0, r8
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #1
 	cmp r5, #0x17
 	ble .L0805DB84
@@ -58172,7 +58172,7 @@ func_0805DC24: @ 0x0805DC24
 	ldrh r2, [r6, #4]
 .L0805DCA6:
 	adds r0, r5, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	mov r1, r8
 	adds r1, #0x50
 	adds r0, r4, #0
@@ -58201,7 +58201,7 @@ func_0805DC24: @ 0x0805DC24
 	ldrh r2, [r6, #4]
 .L0805DCE4:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, [sp, #0x14]
 	movs r0, #0x9e
 	lsls r0, r0, #1
@@ -58219,7 +58219,7 @@ func_0805DC24: @ 0x0805DC24
 	ldrh r2, [r0, #4]
 .L0805DD0A:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r4, #0
 	add r6, sp, #0x3d0
 	movs r1, #0xf5
@@ -58273,7 +58273,7 @@ func_0805DC24: @ 0x0805DC24
 	adds r1, r5, #0
 	movs r2, #0xe0
 	lsls r2, r2, #2
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r2, #0xe0
 	lsls r2, r2, #2
 	adds r5, r5, r2
@@ -58287,7 +58287,7 @@ func_0805DC24: @ 0x0805DC24
 	add r1, r8
 	movs r2, #0x80
 	lsls r2, r2, #4
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r5, #0x85
 	lsls r5, r5, #6
 	movs r1, #0
@@ -58332,7 +58332,7 @@ func_0805DC24: @ 0x0805DC24
 	ldr r1, .L0805DE20 @ =0x0600F000
 	movs r2, #0x80
 	lsls r2, r2, #4
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r3, #0xf8
 	lsls r3, r3, #2
 	add sp, r3
@@ -58684,7 +58684,7 @@ func_0805DFC4: @ 0x0805DFC4
 	movs r0, #1
 	strb r0, [r1, #0x18]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -58776,7 +58776,7 @@ func_0805DFC4: @ 0x0805DFC4
 	mov r3, sb
 	strb r3, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r0, [sp, #0x24]
 	mov r8, r0
@@ -58797,7 +58797,7 @@ func_0805DFC4: @ 0x0805DFC4
 	adds r2, r2, r4
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sl, r7
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
@@ -58946,7 +58946,7 @@ func_0805DFC4: @ 0x0805DFC4
 	str r0, [r7, #0xc]
 .L0805E2AA:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -59035,7 +59035,7 @@ func_0805DFC4: @ 0x0805DFC4
 	mov r3, sb
 	strb r3, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r0, [sp, #0x24]
 	mov r8, r0
@@ -59056,7 +59056,7 @@ func_0805DFC4: @ 0x0805DFC4
 	adds r2, r2, r4
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sl, r7
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
@@ -59199,7 +59199,7 @@ func_0805DFC4: @ 0x0805DFC4
 	str r0, [r2, #0xc]
 .L0805E494:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -59337,7 +59337,7 @@ func_0805DFC4: @ 0x0805DFC4
 	orrs r1, r0
 	str r1, [r5, #4]
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -59437,7 +59437,7 @@ func_0805E658: @ 0x0805E658
 .L0805E686:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -60390,7 +60390,7 @@ func_0805ED4C: @ 0x0805ED4C
 	bl func_0800835C
 	add r5, sp, #0x10
 	adds r0, r5, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	ldr r0, [r4, #0xc]
 	str r0, [sp]
 	add r1, sp, #0xc
@@ -60411,15 +60411,15 @@ func_0805ED4C: @ 0x0805ED4C
 	adds r0, r4, #0
 	adds r0, #0x14
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r4, #0
 	adds r0, #0x18
 	movs r1, #0
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r4, #0
 	adds r0, #0x1c
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	ldr r2, .L0805EE24 @ =0x00006428
 	adds r1, r4, r2
 	ldr r0, .L0805EE28 @ =vtable_unk_080E79E8
@@ -60485,7 +60485,7 @@ func_0805EE44: @ 0x0805EE44
 	adds r0, r5, #0
 	bl func_08008724
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -60495,7 +60495,7 @@ func_0805EE44: @ 0x0805EE44
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	ldr r2, [sp, #0x38]
 	str r2, [r4]
@@ -60504,22 +60504,22 @@ func_0805EE44: @ 0x0805EE44
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	adds r0, r5, #0
 	bl func_0805FBB8
 	adds r0, r5, #0
 	adds r0, #0x18
 	movs r1, #0x25
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r0, [sp, #4]
 	ldr r1, .L0805EF04 @ =0x00000889
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #0
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -60538,7 +60538,7 @@ func_0805EE44: @ 0x0805EE44
 	adds r0, r5, #0
 	bl func_080087C8
 	adds r0, r5, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r1, .L0805EF08 @ =0x00006422
 	adds r0, r5, r1
 	ldrh r0, [r0]
@@ -60576,9 +60576,9 @@ func_0805EE44: @ 0x0805EE44
 	adds r0, #0xc
 	movs r2, #2
 	movs r3, #0
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -60614,9 +60614,9 @@ func_0805EE44: @ 0x0805EE44
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #0
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -60850,9 +60850,9 @@ func_0805EE44: @ 0x0805EE44
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #0
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -60867,9 +60867,9 @@ func_0805EE44: @ 0x0805EE44
 	adds r0, #0xc
 	movs r2, #2
 	movs r3, #0
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -60888,9 +60888,9 @@ func_0805EE44: @ 0x0805EE44
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -60956,7 +60956,7 @@ func_0805EE44: @ 0x0805EE44
 .L0805F27C: .4byte 0x00006422
 .L0805F280:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r3, #0x92
 	lsls r3, r3, #5
@@ -60970,7 +60970,7 @@ func_0805EE44: @ 0x0805EE44
 .L0805F298: .4byte 0x00006422
 .L0805F29C:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r7, #0x82
 	lsls r7, r7, #5
@@ -61050,7 +61050,7 @@ func_0805EE44: @ 0x0805EE44
 	b .L0805F59E
 .L0805F338:
 	adds r0, r5, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	mov r3, sl
 	lsls r4, r3, #2
@@ -61062,7 +61062,7 @@ func_0805EE44: @ 0x0805EE44
 	ldr r2, .L0805F388 @ =0x0600F000
 	movs r3, #0xa0
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r7, [sp, #0x40]
 	str r7, [sp, #0x3c]
 	ldr r1, [r6, #4]
@@ -61209,7 +61209,7 @@ func_0805EE44: @ 0x0805EE44
 	str r0, [r6, #0xc]
 .L0805F460:
 	adds r0, r5, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, [sp, #0x48]
 	add r1, sl
@@ -61221,7 +61221,7 @@ func_0805EE44: @ 0x0805EE44
 	add r0, sp, #8
 	ldr r2, .L0805F4A4 @ =0x0600E800
 	subs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r4, [sp, #0x40]
 	mov sl, r4
 	ldr r1, [r6, #4]
@@ -61364,7 +61364,7 @@ func_0805EE44: @ 0x0805EE44
 	str r0, [r6, #0xc]
 .L0805F57A:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r3, #0xe2
 	lsls r3, r3, #5
@@ -61437,19 +61437,19 @@ func_0805F5F4: @ 0x0805F5F4
 	ldr r0, [r7, #0x10]
 	mov sb, r0
 	adds r0, r7, #0
-	bl func_080088DC
+	bl HardwareContext_GetState
 	mov r8, r0
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	adds r1, r7, #0
 	adds r1, #0x14
 	str r4, [sp]
@@ -62035,22 +62035,22 @@ func_0805FBB8: @ 0x0805FBB8
 	ldr r1, .L0805FCA0 @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r4, .L0805FCA4 @ =0x10661066
 	ldr r1, .L0805FCA8 @ =0x0600E000
 	movs r5, #0x80
 	lsls r5, r5, #4
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0805FCAC @ =0x0600E800
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0805FCB0 @ =0x0600F000
 	adds r0, r4, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r0, .L0805FCB4 @ =gUnk_08743058
 	movs r1, #0xc0
 	lsls r1, r1, #0x13
@@ -62060,12 +62060,12 @@ func_0805FBB8: @ 0x0805FBB8
 	lsls r4, r4, #0x13
 	adds r1, r4, #0
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, .L0805FCBC @ =0x00007FFF
 	adds r0, r1, #0
 	strh r0, [r4]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r3, #0xe2
 	lsls r3, r3, #5
@@ -62074,43 +62074,43 @@ func_0805FBB8: @ 0x0805FBB8
 	movs r4, #0
 	strh r2, [r0]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L0805FCC0 @ =0x00001E43
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L0805FCC4 @ =0x00001D42
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L0805FCC8 @ =0x00001C41
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xa]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1c]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
@@ -62197,7 +62197,7 @@ func_0805FD04: @ 0x0805FD04
 .L0805FD32:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -62539,7 +62539,7 @@ func_0805FF14: @ 0x0805FF14
 	movs r3, #0
 	bl func_0804E8F0
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r3, #0x38
 	lsls r2, r3, #5
@@ -62549,7 +62549,7 @@ func_0805FF14: @ 0x0805FF14
 	add r0, sp, #0x38
 	adds r1, r4, #0
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #0x38
 	mov r8, r4
 	ldr r1, [r6, #4]
@@ -62855,7 +62855,7 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r3, #0x3c
 	lsls r2, r3, #5
@@ -62865,7 +62865,7 @@ func_0805FF14: @ 0x0805FF14
 	add r0, sp, #0x38
 	ldr r1, [sp, #0x1f4]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -63018,13 +63018,13 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r2, .L080603BC @ =0x06000800
 	add r0, sp, #0x38
 	ldr r1, [sp, #0x1f8]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -63173,7 +63173,7 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r3, #0x44
 	lsls r2, r3, #5
@@ -63183,7 +63183,7 @@ func_0805FF14: @ 0x0805FF14
 	add r0, sp, #0x38
 	ldr r1, [sp, #0x1fc]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -63336,7 +63336,7 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r4, [sp, #0x1c4]
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r5, #0x48
 	lsls r2, r5, #5
@@ -63346,7 +63346,7 @@ func_0805FF14: @ 0x0805FF14
 	add r0, sp, #0x38
 	ldr r1, [sp, #0x200]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -63499,7 +63499,7 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r4, [sp, #0x1c4]
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r5, #0x4c
 	lsls r2, r5, #5
@@ -63509,7 +63509,7 @@ func_0805FF14: @ 0x0805FF14
 	add r0, sp, #0x38
 	ldr r1, [sp, #0x204]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -63662,7 +63662,7 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r4, [sp, #0x1c4]
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r5, #0x50
 	lsls r2, r5, #5
@@ -63672,7 +63672,7 @@ func_0805FF14: @ 0x0805FF14
 	add r0, sp, #0x38
 	ldr r1, [sp, #0x208]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -63813,7 +63813,7 @@ func_0805FF14: @ 0x0805FF14
 .L08060946:
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08060988 @ =gUnk_0875196C
 	movs r3, #0x54
@@ -63823,7 +63823,7 @@ func_0805FF14: @ 0x0805FF14
 	adds r2, r2, r0
 	add r0, sp, #0x38
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -63960,13 +63960,13 @@ func_0805FF14: @ 0x0805FF14
 .L08060A54:
 	ldr r2, [sp, #0x1c4]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08060A8C @ =gUnk_087519EC
 	add r0, sp, #0x38
 	ldr r2, .L08060A90 @ =0x05000020
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -64102,7 +64102,7 @@ func_0805FF14: @ 0x0805FF14
 .L08060B58:
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08060B98 @ =gUnk_0875254C
 	movs r3, #0x58
@@ -64112,7 +64112,7 @@ func_0805FF14: @ 0x0805FF14
 	adds r2, r2, r0
 	add r0, sp, #0x38
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -64249,13 +64249,13 @@ func_0805FF14: @ 0x0805FF14
 .L08060C64:
 	ldr r2, [sp, #0x1c4]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08060C9C @ =gUnk_087525CC
 	add r0, sp, #0x38
 	ldr r2, .L08060CA0 @ =0x05000040
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -64391,7 +64391,7 @@ func_0805FF14: @ 0x0805FF14
 .L08060D68:
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08060DA8 @ =gUnk_087530CC
 	movs r3, #0x5c
@@ -64401,7 +64401,7 @@ func_0805FF14: @ 0x0805FF14
 	adds r2, r2, r0
 	add r0, sp, #0x38
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -64538,13 +64538,13 @@ func_0805FF14: @ 0x0805FF14
 .L08060E74:
 	ldr r2, [sp, #0x1c4]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08060EAC @ =gUnk_0875314C
 	add r0, sp, #0x38
 	ldr r2, .L08060EB0 @ =0x05000060
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -64680,7 +64680,7 @@ func_0805FF14: @ 0x0805FF14
 .L08060F78:
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08060FB8 @ =gUnk_0875348C
 	movs r3, #0x5d
@@ -64690,7 +64690,7 @@ func_0805FF14: @ 0x0805FF14
 	adds r2, r2, r0
 	add r0, sp, #0x38
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -64827,13 +64827,13 @@ func_0805FF14: @ 0x0805FF14
 .L08061084:
 	ldr r2, [sp, #0x1c4]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L080610BC @ =gUnk_0875350C
 	add r0, sp, #0x38
 	ldr r2, .L080610C0 @ =0x05000080
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -65356,14 +65356,14 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r3, [sp, #0x1c4]
 	ldr r0, [r3]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #0x48
 	ldr r1, [sp, #0x20c]
 	ldr r2, .L080614A8 @ =0x06003000
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r4, [sp, #0x228]
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -65947,14 +65947,14 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r3, [sp, #0x1c4]
 	ldr r0, [r3]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #0x48
 	mov r1, sb
 	ldr r2, .L0806195C @ =0x06003300
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r4, [sp, #0x228]
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -66396,14 +66396,14 @@ func_0805FF14: @ 0x0805FF14
 	bl func_0804E8F0
 	ldr r3, [sp, #0x1c4]
 	ldr r0, [r3]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #0x48
 	mov r1, sb
 	ldr r2, .L08061CB4 @ =0x06003600
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r4, [sp, #0x228]
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -66822,14 +66822,14 @@ sub_08061E00: @ 0x08061E00
 	bl func_0804E8F0
 	ldr r3, [sp, #0x1c4]
 	ldr r0, [r3]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #0x48
 	ldr r1, [sp, #0x224]
 	ldr r2, .L08061FE0 @ =0x06003900
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r4, [sp, #0x228]
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -67289,14 +67289,14 @@ sub_08061E00: @ 0x08061E00
 	bl func_0804E8F0
 	ldr r5, [sp, #0x1c4]
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #0x48
 	mov r1, sb
 	ldr r2, .L0806235C @ =0x06003C00
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r7, [sp, #0x228]
 	mov r8, r7
 	ldr r1, [r6, #4]
@@ -68886,7 +68886,7 @@ func_08062E9C: @ 0x08062E9C
 	bne .L08062EF8
 	ldr r3, [sp, #0xa8]
 	ldr r0, [r3]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r7, r0, #0
 	movs r5, #8
 	movs r6, #2
@@ -68916,7 +68916,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	adds r1, r4, #0
 	ldr r2, .L08062FB4 @ =0x06000700
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #4
 	mov sb, r4
 	ldr r1, [r7, #4]
@@ -69145,7 +69145,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	mov r1, sl
 	ldr r2, .L08063140 @ =0x06000900
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r1, sp, #4
 	mov sb, r1
 	ldr r1, [r7, #4]
@@ -69308,7 +69308,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r1, [sp, #0xc8]
 	ldr r2, .L08063270 @ =0x06000B00
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #4
 	mov sb, r4
 	ldr r1, [r7, #4]
@@ -69463,7 +69463,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r1, [sp, #0xc4]
 	ldr r2, .L0806338C @ =0x06000D00
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r1, sp, #4
 	mov sb, r1
 	ldr r1, [r7, #4]
@@ -69618,7 +69618,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r1, [sp, #0xd0]
 	ldr r2, .L080634A8 @ =0x06000E80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #4
 	mov sb, r5
 	ldr r1, [r7, #4]
@@ -69773,7 +69773,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r1, [sp, #0xbc]
 	ldr r2, .L080635C4 @ =0x06001000
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #4
 	mov sb, r5
 	ldr r1, [r7, #4]
@@ -69928,7 +69928,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r1, [sp, #0xcc]
 	ldr r2, .L080636E0 @ =0x06001180
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #4
 	mov sb, r5
 	ldr r1, [r7, #4]
@@ -70081,7 +70081,7 @@ func_08062E9C: @ 0x08062E9C
 	ldr r1, [sp, #0xb8]
 	ldr r2, .L080637F8 @ =0x06001300
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #4
 	mov sb, r4
 	ldr r1, [r7, #4]
@@ -70234,7 +70234,7 @@ func_08062E9C: @ 0x08062E9C
 	ldr r1, [sp, #0xc0]
 	ldr r2, .L08063910 @ =0x06001380
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r1, sp, #4
 	mov sb, r1
 	ldr r1, [r7, #4]
@@ -70378,7 +70378,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r2, .L08063A18 @ =0x06001400
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #4
 	mov sb, r2
 	ldr r1, [r7, #4]
@@ -70520,7 +70520,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r2, .L08063B1C @ =0x05000020
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #4
 	mov sb, r2
 	ldr r1, [r7, #4]
@@ -70662,7 +70662,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r2, .L08063C20 @ =0x06001480
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #4
 	mov sb, r2
 	ldr r1, [r7, #4]
@@ -70804,7 +70804,7 @@ func_08062E9C: @ 0x08062E9C
 	add r0, sp, #4
 	ldr r2, .L08063D24 @ =0x05000040
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #4
 	mov sb, r2
 	ldr r1, [r7, #4]
@@ -72031,7 +72031,7 @@ func_080645F0: @ 0x080645F0
 	movs r3, #0
 	bl func_0804E8F0
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r0, #0x38
 	lsls r2, r0, #5
@@ -72041,7 +72041,7 @@ func_080645F0: @ 0x080645F0
 	add r0, sp, #8
 	adds r1, r4, #0
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r1, sp, #8
 	mov sb, r1
 	ldr r1, [r6, #4]
@@ -72225,7 +72225,7 @@ func_080645F0: @ 0x080645F0
 	bl func_0804E8F0
 	ldr r5, [sp, #0xf0]
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
@@ -72236,7 +72236,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	mov r1, sl
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r0, sp, #8
 	mov sb, r0
 	ldr r1, [r6, #4]
@@ -72383,7 +72383,7 @@ func_080645F0: @ 0x080645F0
 	bl func_0804E8F0
 	ldr r5, [sp, #0xf0]
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r6, r0, #0
@@ -72394,7 +72394,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	ldr r1, [sp, #0x10c]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r0, sp, #8
 	mov sb, r0
 	ldr r1, [r6, #4]
@@ -72541,7 +72541,7 @@ func_080645F0: @ 0x080645F0
 	bl func_0804E8F0
 	ldr r5, [sp, #0xf0]
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r6, r0, #0
@@ -72552,7 +72552,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	ldr r1, [sp, #0x130]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r0, sp, #8
 	mov sb, r0
 	ldr r1, [r6, #4]
@@ -72686,7 +72686,7 @@ func_080645F0: @ 0x080645F0
 .L08064B30:
 	ldr r2, [sp, #0xf0]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08064B74 @ =gUnk_0875254C
 	movs r3, #0x6c
@@ -72696,7 +72696,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -72834,13 +72834,13 @@ func_080645F0: @ 0x080645F0
 .L08064C3E:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08064C78 @ =gUnk_087525CC
 	add r0, sp, #8
 	ldr r2, .L08064C7C @ =0x05000020
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -72979,7 +72979,7 @@ func_080645F0: @ 0x080645F0
 .L08064D46:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08064D88 @ =gUnk_08752DCC
 	movs r3, #0x70
@@ -72989,7 +72989,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -73127,7 +73127,7 @@ func_080645F0: @ 0x080645F0
 .L08064E52:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08064E94 @ =gUnk_08752B4C
 	movs r3, #0x71
@@ -73137,7 +73137,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -73275,7 +73275,7 @@ func_080645F0: @ 0x080645F0
 .L08064F5E:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08064FA0 @ =gUnk_087529AC
 	movs r3, #0x72
@@ -73285,7 +73285,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -73423,7 +73423,7 @@ func_080645F0: @ 0x080645F0
 .L0806506A:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L080650AC @ =gUnk_08752D4C
 	movs r3, #0x73
@@ -73433,7 +73433,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -73571,7 +73571,7 @@ func_080645F0: @ 0x080645F0
 .L08065176:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L080651B8 @ =gUnk_08752ACC
 	movs r3, #0x77
@@ -73581,7 +73581,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -73721,7 +73721,7 @@ func_080645F0: @ 0x080645F0
 .L08065288:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L080652CC @ =gUnk_0875290C
 	movs r3, #0x7b
@@ -73731,7 +73731,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -73871,13 +73871,13 @@ func_080645F0: @ 0x080645F0
 .L0806539C:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L080653D8 @ =gUnk_0875298C
 	add r0, sp, #8
 	ldr r2, .L080653DC @ =0x05000040
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -74016,7 +74016,7 @@ func_080645F0: @ 0x080645F0
 .L080654A8:
 	ldr r2, [sp, #0xf0]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L080654EC @ =gUnk_087517AC
 	movs r3, #0x9c
@@ -74026,7 +74026,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	adds r3, #0x84
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -74166,7 +74166,7 @@ func_080645F0: @ 0x080645F0
 .L080655BC:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08065600 @ =gUnk_08750F8C
 	movs r3, #0xa5
@@ -74176,7 +74176,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	adds r3, #0x7b
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -74316,7 +74316,7 @@ func_080645F0: @ 0x080645F0
 .L080656D0:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08065714 @ =gUnk_08750E4C
 	movs r3, #0xae
@@ -74326,7 +74326,7 @@ func_080645F0: @ 0x080645F0
 	adds r2, r2, r0
 	add r0, sp, #8
 	adds r3, #0x72
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -74466,13 +74466,13 @@ func_080645F0: @ 0x080645F0
 .L080657E4:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08065820 @ =gUnk_08750F6C
 	add r0, sp, #8
 	ldr r2, .L08065824 @ =0x05000060
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -74611,13 +74611,13 @@ func_080645F0: @ 0x080645F0
 .L080658F0:
 	ldr r2, [sp, #0xf0]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L0806592C @ =gUnk_08750C4C
 	add r0, sp, #8
 	ldr r2, .L08065930 @ =0x060100A0
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -74758,13 +74758,13 @@ func_080645F0: @ 0x080645F0
 .L08065A00:
 	ldr r1, [sp, #0xf0]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08065A3C @ =gUnk_08750C6C
 	add r0, sp, #8
 	ldr r2, .L08065A40 @ =0x05000220
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -76143,7 +76143,7 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r3, #0x38
 	lsls r2, r3, #5
@@ -76153,7 +76153,7 @@ func_0806644C: @ 0x0806644C
 	add r0, sp, #8
 	adds r1, r4, #0
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -76461,7 +76461,7 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r3, #0x3c
 	lsls r2, r3, #5
@@ -76471,7 +76471,7 @@ func_0806644C: @ 0x0806644C
 	add r0, sp, #8
 	mov r1, sl
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -76625,7 +76625,7 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r4, [sp, #0xe8]
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	mov r5, sl
 	lsls r2, r5, #5
@@ -76635,7 +76635,7 @@ func_0806644C: @ 0x0806644C
 	add r0, sp, #8
 	ldr r1, [sp, #0x120]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sb, r7
 	ldr r1, [r6, #4]
@@ -76792,7 +76792,7 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r4, [sp, #0xe8]
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	mov r5, sl
 	lsls r2, r5, #5
@@ -76802,7 +76802,7 @@ func_0806644C: @ 0x0806644C
 	add r0, sp, #8
 	ldr r1, [sp, #0x128]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sb, r7
 	ldr r1, [r6, #4]
@@ -76958,7 +76958,7 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	adds r6, r0, #0
@@ -76969,7 +76969,7 @@ func_0806644C: @ 0x0806644C
 	adds r2, r2, r0
 	add r0, sp, #8
 	ldr r1, [sp, #0x170]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sb, r5
 	ldr r1, [r6, #4]
@@ -77116,14 +77116,14 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	ldr r2, .L08066C2C @ =0x06000A80
 	add r0, sp, #8
 	ldr r1, [sp, #0x180]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -77271,14 +77271,14 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r5, [sp, #0xe8]
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	ldr r2, .L08066D4C @ =0x06000C00
 	add r0, sp, #8
 	ldr r1, [sp, #0x10c]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sb, r7
 	ldr r1, [r6, #4]
@@ -77426,14 +77426,14 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r5, [sp, #0xe8]
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	ldr r2, .L08066E6C @ =0x06000D80
 	add r0, sp, #8
 	ldr r1, [sp, #0x11c]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sb, r7
 	ldr r1, [r6, #4]
@@ -77583,7 +77583,7 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r5, [sp, #0xe8]
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
@@ -77594,7 +77594,7 @@ func_0806644C: @ 0x0806644C
 	adds r2, r2, r0
 	add r0, sp, #8
 	ldr r1, [sp, #0x15c]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r0, sp, #8
 	mov sb, r0
 	ldr r1, [r6, #4]
@@ -77752,7 +77752,7 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r2, [sp, #0xe8]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	adds r6, r0, #0
@@ -77763,7 +77763,7 @@ func_0806644C: @ 0x0806644C
 	adds r2, r2, r0
 	add r0, sp, #8
 	ldr r1, [sp, #0x14c]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sb, r5
 	ldr r1, [r6, #4]
@@ -77920,7 +77920,7 @@ func_0806644C: @ 0x0806644C
 	bl func_0804E8F0
 	ldr r2, [sp, #0xe8]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r6, r0, #0
@@ -77931,7 +77931,7 @@ func_0806644C: @ 0x0806644C
 	adds r2, r2, r0
 	add r0, sp, #8
 	ldr r1, [sp, #0x178]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sb, r5
 	ldr r1, [r6, #4]
@@ -78073,13 +78073,13 @@ func_0806644C: @ 0x0806644C
 .L080672DE:
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08067318 @ =gUnk_08752F8C
 	add r0, sp, #8
 	ldr r2, .L0806731C @ =0x06010200
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -78218,13 +78218,13 @@ func_0806644C: @ 0x0806644C
 .L080673E8:
 	ldr r2, [sp, #0xe8]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08067424 @ =gUnk_0875300C
 	add r0, sp, #8
 	ldr r2, .L08067428 @ =0x05000240
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -78365,14 +78365,14 @@ func_0806644C: @ 0x0806644C
 .L080674F8:
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08067534 @ =gUnk_08750C8C
 	add r0, sp, #8
 	ldr r2, .L08067538 @ =0x06002A00
 	movs r3, #0xd0
 	lsls r3, r3, #1
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -78511,14 +78511,14 @@ func_0806644C: @ 0x0806644C
 .L08067604:
 	ldr r2, [sp, #0xe8]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08067640 @ =gUnk_0875166C
 	add r0, sp, #8
 	ldr r2, .L08067644 @ =0x06001380
 	movs r3, #0x90
 	lsls r3, r3, #1
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -78659,14 +78659,14 @@ func_0806644C: @ 0x0806644C
 .L08067714:
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08067750 @ =gUnk_087510AC
 	add r0, sp, #8
 	ldr r2, .L08067754 @ =0x060014A0
 	movs r3, #0x90
 	lsls r3, r3, #1
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -78805,13 +78805,13 @@ func_0806644C: @ 0x0806644C
 .L08067820:
 	ldr r2, [sp, #0xe8]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L0806785C @ =gUnk_0875178C
 	add r0, sp, #8
 	ldr r2, .L08067860 @ =0x05000040
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -78952,13 +78952,13 @@ func_0806644C: @ 0x0806644C
 .L08067930:
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L0806796C @ =gUnk_08750C4C
 	add r0, sp, #8
 	ldr r2, .L08067970 @ =0x060100A0
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -79097,13 +79097,13 @@ func_0806644C: @ 0x0806644C
 .L08067A3C:
 	ldr r2, [sp, #0xe8]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08067A78 @ =gUnk_08750C6C
 	add r0, sp, #8
 	ldr r2, .L08067A7C @ =0x05000220
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -80286,7 +80286,7 @@ func_08068344: @ 0x08068344
 	movs r3, #0
 	bl func_0804E8F0
 	ldr r0, [r7]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	adds r6, r0, #0
@@ -80297,7 +80297,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	adds r1, r4, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sb, r7
 	ldr r1, [r6, #4]
@@ -80485,7 +80485,7 @@ func_08068344: @ 0x08068344
 	bl func_0804E8F0
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r6, r0, #0
@@ -80496,7 +80496,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	mov r1, sl
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sb, r5
 	ldr r1, [r6, #4]
@@ -80642,7 +80642,7 @@ func_08068344: @ 0x08068344
 	bl func_0804E8F0
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r3, #0x54
 	lsls r2, r3, #5
@@ -80652,7 +80652,7 @@ func_08068344: @ 0x08068344
 	add r0, sp, #8
 	ldr r1, [sp, #0xdc]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -80786,7 +80786,7 @@ func_08068344: @ 0x08068344
 .L0806874C:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08068794 @ =gUnk_08752A2C
 	movs r3, #0x58
@@ -80796,7 +80796,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -80939,7 +80939,7 @@ func_08068344: @ 0x08068344
 .L08068864:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L080688A4 @ =gUnk_08752AAC
 	movs r2, #0xa0
@@ -80947,7 +80947,7 @@ func_08068344: @ 0x08068344
 	add r2, sl
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sb, r2
 	ldr r1, [r6, #4]
@@ -81085,7 +81085,7 @@ func_08068344: @ 0x08068344
 .L0806896E:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L080689B0 @ =gUnk_08752CCC
 	movs r3, #0x59
@@ -81095,7 +81095,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -81233,7 +81233,7 @@ func_08068344: @ 0x08068344
 .L08068A7A:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08068ABC @ =gUnk_08752BCC
 	movs r3, #0x5a
@@ -81243,7 +81243,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -81381,7 +81381,7 @@ func_08068344: @ 0x08068344
 .L08068B86:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08068BC8 @ =gUnk_08752C4C
 	movs r3, #0x5b
@@ -81391,7 +81391,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -81529,7 +81529,7 @@ func_08068344: @ 0x08068344
 .L08068C92:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08068CD8 @ =gUnk_087511CC
 	movs r3, #0x9c
@@ -81539,7 +81539,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	adds r3, #0x84
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -81684,7 +81684,7 @@ func_08068344: @ 0x08068344
 .L08068DAE:
 	ldr r2, [sp, #0xbc]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08068DF0 @ =gUnk_087512EC
 	movs r2, #0xa0
@@ -81693,7 +81693,7 @@ func_08068344: @ 0x08068344
 	adds r2, r3, r2
 	add r0, sp, #8
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -81833,7 +81833,7 @@ func_08068344: @ 0x08068344
 .L08068EC0:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08068F04 @ =gUnk_0875154C
 	movs r3, #0xa5
@@ -81843,7 +81843,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	adds r3, #0x7b
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -81983,7 +81983,7 @@ func_08068344: @ 0x08068344
 .L08068FD4:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L08069018 @ =gUnk_0875130C
 	movs r3, #0xae
@@ -81993,7 +81993,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	adds r3, #0x72
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -82133,7 +82133,7 @@ func_08068344: @ 0x08068344
 .L080690E8:
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, .L0806912C @ =gUnk_0875142C
 	movs r3, #0xb7
@@ -82143,7 +82143,7 @@ func_08068344: @ 0x08068344
 	adds r2, r2, r0
 	add r0, sp, #8
 	adds r3, #0x69
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #8
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -83883,7 +83883,7 @@ func_08069E58: @ 0x08069E58
 .L08069E86:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -84039,7 +84039,7 @@ func_08069F14: @ 0x08069F14
 	bl func_0800835C
 	add r5, sp, #0x10
 	adds r0, r5, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	movs r1, #0x9a
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -84092,7 +84092,7 @@ func_08069F14: @ 0x08069F14
 	ldr r1, .L0806A138 @ =0x000040B8
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -84107,7 +84107,7 @@ func_08069F14: @ 0x08069F14
 	ldr r0, .L0806A140 @ =0x000040C8
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -84136,7 +84136,7 @@ func_08069F14: @ 0x08069F14
 	rsbs r6, r6, #0
 .L0806A0EC:
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	mov r0, r8
 	str r0, [r4, #4]
 	adds r4, #8
@@ -84146,7 +84146,7 @@ func_08069F14: @ 0x08069F14
 	ldr r1, .L0806A14C @ =0x00004170
 	adds r0, r7, r1
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	ldr r2, .L0806A150 @ =0x00004174
 	adds r1, r7, r2
 	movs r0, #0
@@ -84267,7 +84267,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, r7, #0
 	bl func_08008724
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
 	movs r3, #0xea
 	lsls r3, r3, #5
@@ -84275,14 +84275,14 @@ func_0806A1F4: @ 0x0806A1F4
 	strh r1, [r2]
 	strh r1, [r0, #8]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
 	ldr r4, .L0806A460 @ =0x00001E41
 	adds r1, r4, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xa]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
 	ldr r5, .L0806A464 @ =0x00003F42
 	adds r1, r5, #0
@@ -84293,13 +84293,13 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r1, .L0806A468 @ =0x0600E800
 	movs r2, #0xc0
 	lsls r2, r2, #5
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0806A46C @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
 	movs r6, #0xb2
 	lsls r6, r6, #5
@@ -84312,12 +84312,12 @@ func_0806A1F4: @ 0x0806A1F4
 	lsls r1, r1, #0x13
 	ldr r2, .L0806A474 @ =gUnk_080F9F74
 	ldr r2, [r2]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0806A478 @ =0x00030003
 	ldr r1, .L0806A47C @ =0x0600F800
 	movs r2, #0x80
 	lsls r2, r2, #4
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r0, #0
 	mov sl, r0
 	add r1, sp, #0xf8
@@ -84414,7 +84414,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r0, [sp, #0x2b0]
 	adds r1, r5, #0
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #0x40
 	adds r4, #2
 	movs r3, #1
@@ -84461,7 +84461,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r3, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r6, [sp, #0x2b8]
 	ldrh r2, [r6]
 	movs r3, #0x80
@@ -84473,7 +84473,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r2, r2, r0
 	add r0, sp, #0x60
 	adds r1, r4, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r0, [sp, #0x2bc]
 	mov sl, r0
 	ldr r2, [sp, #0x380]
@@ -84766,7 +84766,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r3, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x2b8]
 	ldrh r2, [r1, #2]
 	movs r3, #0x80
@@ -84778,7 +84778,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r2, r2, r0
 	add r0, sp, #0x60
 	ldr r1, [sp, #0x368]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r2, [sp, #0x2bc]
 	mov sl, r2
 	ldr r3, [sp, #0x380]
@@ -84956,7 +84956,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r3, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r5, [sp, #0x2b8]
 	ldrh r2, [r5, #4]
 	movs r3, #0x80
@@ -84968,7 +84968,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r2, r2, r0
 	add r0, sp, #0x60
 	ldr r1, [sp, #0x36c]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r6, [sp, #0x2bc]
 	mov sl, r6
 	ldr r0, [sp, #0x380]
@@ -85143,7 +85143,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r3, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	str r0, [sp, #0x380]
@@ -85154,7 +85154,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r2, r2, r1
 	add r0, sp, #0x60
 	ldr r1, [sp, #0x288]
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r2, [sp, #0x2bc]
 	mov sl, r2
 	ldr r3, [sp, #0x380]
@@ -85324,7 +85324,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r3, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	str r0, [sp, #0x380]
@@ -85335,7 +85335,7 @@ func_0806A1F4: @ 0x0806A1F4
 	add r0, sp, #0x60
 	ldr r1, [sp, #0x29c]
 	adds r2, r4, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r3, [sp, #0x2bc]
 	mov sl, r3
 	ldr r4, [sp, #0x380]
@@ -85505,7 +85505,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r3, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	str r0, [sp, #0x380]
@@ -85516,7 +85516,7 @@ func_0806A1F4: @ 0x0806A1F4
 	add r0, sp, #0x60
 	ldr r1, [sp, #0x2a0]
 	adds r2, r4, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r3, [sp, #0x2bc]
 	mov sl, r3
 	ldr r4, [sp, #0x380]
@@ -85686,7 +85686,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r3, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	str r0, [sp, #0x380]
@@ -85697,7 +85697,7 @@ func_0806A1F4: @ 0x0806A1F4
 	add r0, sp, #0x60
 	ldr r1, [sp, #0x2cc]
 	adds r2, r4, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r3, [sp, #0x2bc]
 	mov sl, r3
 	ldr r4, [sp, #0x380]
@@ -85870,7 +85870,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r2, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x380]
 	ldr r6, [sp, #0x218]
 	lsls r2, r6, #5
@@ -85880,7 +85880,7 @@ func_0806A1F4: @ 0x0806A1F4
 	add r0, sp, #0x60
 	ldr r1, [sp, #0x378]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [sp, #0x2bc]
 	mov sl, r1
 	ldr r2, [sp, #0x380]
@@ -86046,7 +86046,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r2, #0
 	bl func_0804E958
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x380]
 	ldr r6, [sp, #0x21c]
 	lsls r2, r6, #5
@@ -86056,7 +86056,7 @@ func_0806A1F4: @ 0x0806A1F4
 	add r0, sp, #0x60
 	ldr r1, [sp, #0x37c]
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [sp, #0x2bc]
 	mov sl, r1
 	ldr r2, [sp, #0x380]
@@ -86207,7 +86207,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, #0x20
 	str r0, [sp, #0x220]
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x380]
 	ldr r1, .L0806B0EC @ =gUnk_0875196C
 	ldr r3, [sp, #0x220]
@@ -86217,7 +86217,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r2, r2, r4
 	add r0, sp, #0x60
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r5, [sp, #0x2bc]
 	mov sl, r5
 	ldr r6, [sp, #0x380]
@@ -86370,13 +86370,13 @@ func_0806A1F4: @ 0x0806A1F4
 	str r0, [r6, #0xc]
 .L0806B1CE:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x380]
 	ldr r1, .L0806B20C @ =gUnk_087519EC
 	add r0, sp, #0x60
 	ldr r2, .L0806B210 @ =0x05000020
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r0, [sp, #0x2bc]
 	mov sl, r0
 	ldr r2, [sp, #0x380]
@@ -86527,7 +86527,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, #0x20
 	str r0, [sp, #0x224]
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x380]
 	ldr r1, .L0806B338 @ =gUnk_0875254C
 	ldr r3, [sp, #0x224]
@@ -86537,7 +86537,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r2, r2, r4
 	add r0, sp, #0x60
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r5, [sp, #0x2bc]
 	mov sl, r5
 	ldr r6, [sp, #0x380]
@@ -86684,13 +86684,13 @@ func_0806A1F4: @ 0x0806A1F4
 	str r0, [r2, #0xc]
 .L0806B414:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x380]
 	ldr r1, .L0806B450 @ =gUnk_087525CC
 	add r0, sp, #0x60
 	ldr r2, .L0806B454 @ =0x05000040
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r3, [sp, #0x2bc]
 	mov sl, r3
 	ldr r4, [sp, #0x380]
@@ -86842,15 +86842,15 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r2, #0x80
 	lsls r2, r2, #4
 	adds r1, r6, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r0, #0x4c
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r3, r0, #0
 	str r6, [sp]
 	adds r0, r5, #0
@@ -88394,7 +88394,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r3, [r3, #0x10]
 	bl _call_via_r3
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x8c]
 	ldr r1, .L0806C204 @ =0x000040B8
@@ -88415,7 +88415,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r2, r2, r0
 	add r0, sp, #0x60
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [sp, #0x2bc]
 	mov sl, r1
 	ldr r1, [r4, #4]
@@ -88575,7 +88575,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r3, [r3, #0x10]
 	bl _call_via_r3
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r6, [sp, #0x2e8]
 	ldr r5, [r6]
@@ -88596,7 +88596,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r2, r2, r4
 	add r0, sp, #0x60
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r5, [sp, #0x2bc]
 	mov sb, r5
 	ldr r6, [sp, #0x380]
@@ -88744,7 +88744,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r0, [r2, #0xc]
 .L0806C43C:
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0x10
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -88754,7 +88754,7 @@ func_0806A1F4: @ 0x0806A1F4
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -88764,15 +88764,15 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0x60]
 	ldr r1, .L0806C518 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x60]
 	ldr r2, [r2, #0x10]
@@ -88785,21 +88785,21 @@ sub_0806C492: @ 0x0806C492
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
-	bl func_080088DC
+	bl HardwareContext_GetState
 	mov r8, r0
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	movs r1, #0x9a
 	lsls r1, r1, #1
 	adds r2, r7, r1
@@ -88971,7 +88971,7 @@ sub_0806C492: @ 0x0806C492
 	bl .L0806CDEA
 .L0806C628:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -89026,7 +89026,7 @@ sub_0806C492: @ 0x0806C492
 .L0806C688: .4byte 0x000040AC
 .L0806C68C:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -89064,7 +89064,7 @@ sub_0806C492: @ 0x0806C492
 	ldr r5, .L0806C6E0 @ =0x00004170
 	adds r0, r7, r5
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0806C714
 	.align 2, 0
 .L0806C6DC: .4byte 0x000040AC
@@ -89094,7 +89094,7 @@ sub_0806C492: @ 0x0806C492
 	ldr r1, .L0806C724 @ =0x00004170
 	adds r0, r7, r1
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L0806C714:
 	ldr r0, [r7, #0x1c]
 	movs r2, #0x20
@@ -89106,7 +89106,7 @@ sub_0806C492: @ 0x0806C492
 .L0806C724: .4byte 0x00004170
 .L0806C728:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -89279,7 +89279,7 @@ sub_0806C492: @ 0x0806C492
 .L0806C884: .4byte 0x00004174
 .L0806C888:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -89895,9 +89895,9 @@ sub_0806C492: @ 0x0806C492
 	ldr r1, .L0806CDA0 @ =0x00000889
 	adds r0, #0xc
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x60]
 	ldr r2, [r2, #0x10]
@@ -89928,9 +89928,9 @@ sub_0806C492: @ 0x0806C492
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x60]
 	ldr r2, [r2, #0x10]
@@ -90077,7 +90077,7 @@ sub_0806C492: @ 0x0806C492
 	strh r0, [r1, #6]
 	strb r4, [r1, #0x18]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	ldr r1, [r6]
 	movs r2, #0
 	cmp r1, #0
@@ -90087,7 +90087,7 @@ sub_0806C492: @ 0x0806C492
 	mov r3, sl
 	bl func_0805E99C
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r4, sp, #0xe0
 	ldr r2, [r4]
@@ -90107,7 +90107,7 @@ sub_0806C492: @ 0x0806C492
 	adds r2, r2, r4
 	add r0, sp, #0x64
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r5, [sp, #0x2c0]
 	str r5, [sp, #0x264]
 	ldr r1, [r6, #4]
@@ -90320,7 +90320,7 @@ sub_0806C492: @ 0x0806C492
 	mov r1, sl
 	strh r0, [r1, #6]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	ldr r1, [r4]
 	movs r2, #0
 	cmp r1, #0
@@ -90330,7 +90330,7 @@ sub_0806C492: @ 0x0806C492
 	mov r3, sl
 	bl func_0805E99C
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r4, sp, #0xe0
 	ldr r2, [r4]
@@ -90350,7 +90350,7 @@ sub_0806C492: @ 0x0806C492
 	adds r2, r2, r4
 	add r0, sp, #0x64
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r5, [sp, #0x2c0]
 	str r5, [sp, #0x268]
 	ldr r1, [r6, #4]
@@ -90553,7 +90553,7 @@ sub_0806C492: @ 0x0806C492
 	bl func_08007D4C
 	strh r0, [r4, #6]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	ldr r1, [r6]
 	movs r2, #0
 	cmp r1, #0
@@ -90563,7 +90563,7 @@ sub_0806C492: @ 0x0806C492
 	mov r3, sl
 	bl func_0805E99C
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r4, sp, #0xe0
 	ldr r1, [r4]
@@ -90583,7 +90583,7 @@ sub_0806C492: @ 0x0806C492
 	adds r2, r2, r4
 	add r0, sp, #0x64
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r5, [sp, #0x2c0]
 	mov sl, r5
 	ldr r1, [r6, #4]
@@ -90797,7 +90797,7 @@ sub_0806C492: @ 0x0806C492
 	bl func_080074C0
 	str r0, [sp, #0x278]
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, [r5, #8]
 	ldr r3, [sp, #0x274]
@@ -90806,7 +90806,7 @@ sub_0806C492: @ 0x0806C492
 	adds r2, r2, r4
 	add r0, sp, #0x64
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r5, [sp, #0x2c0]
 	str r5, [sp, #0x27c]
 	ldr r1, [r6, #4]
@@ -90972,7 +90972,7 @@ sub_0806C492: @ 0x0806C492
 	str r0, [r6, #0xc]
 .L0806D5B6:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x2ac]
 	adds r1, #4
 	ldr r2, [sp, #0x270]
@@ -90983,7 +90983,7 @@ sub_0806C492: @ 0x0806C492
 	add r2, sb
 	add r0, sp, #0x64
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r3, [sp, #0x2c0]
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -91123,7 +91123,7 @@ sub_0806C492: @ 0x0806C492
 	str r0, [r6, #0xc]
 .L0806D6CA:
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r4, r0, #0
 	ldr r1, [sp, #0x2ac]
 	adds r1, #4
@@ -91224,14 +91224,14 @@ sub_0806C492: @ 0x0806C492
 	b .L0806D8A0
 .L0806D78A:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	ldr r1, [r4, #4]
 	ldr r2, [r4, #8]
 	add r0, sp, #0x64
 	movs r3, #0xc0
 	lsls r3, r3, #2
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r3, [sp, #0x2c0]
 	str r3, [sp, #0x284]
 	ldr r1, [r6, #4]
@@ -91455,7 +91455,7 @@ func_0806D918: @ 0x0806D918
 .L0806D934:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -91524,7 +91524,7 @@ func_0806D990: @ 0x0806D990
 	bl func_0800835C
 	add r4, sp, #0x10
 	adds r0, r4, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	ldr r0, [r7, #8]
 	str r0, [sp]
 	add r1, sp, #0xc
@@ -91545,11 +91545,11 @@ func_0806D990: @ 0x0806D990
 	adds r0, r7, #0
 	adds r0, #0x10
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r7, #0
 	adds r0, #0x14
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r4, r7, #0
 	adds r4, #0x18
 	adds r0, r4, #0
@@ -91560,7 +91560,7 @@ func_0806D990: @ 0x0806D990
 	str r0, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -91573,7 +91573,7 @@ func_0806D990: @ 0x0806D990
 	str r0, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -91709,7 +91709,7 @@ func_0806DB38: @ 0x0806DB38
 	adds r0, r5, #0
 	bl func_08008724
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -91719,7 +91719,7 @@ func_0806DB38: @ 0x0806DB38
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -91728,7 +91728,7 @@ func_0806DB38: @ 0x0806DB38
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	adds r0, r5, #0
 	bl func_0806E234
@@ -91741,9 +91741,9 @@ func_0806DB38: @ 0x0806DB38
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -91759,7 +91759,7 @@ func_0806DB38: @ 0x0806DB38
 	adds r0, r5, #0
 	bl func_080087C8
 	adds r0, r5, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r1, .L0806DBEC @ =0x0000044C
 	adds r0, r5, r1
 	movs r1, #0
@@ -91915,9 +91915,9 @@ func_0806DB38: @ 0x0806DB38
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -92001,19 +92001,19 @@ func_0806DD9C: @ 0x0806DD9C
 	ldr r0, [r7, #0xc]
 	mov sb, r0
 	adds r0, r7, #0
-	bl func_080088DC
+	bl HardwareContext_GetState
 	mov r8, r0
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	adds r1, r7, #0
 	adds r1, #0x10
 	str r4, [sp]
@@ -92131,7 +92131,7 @@ func_0806DD9C: @ 0x0806DD9C
 func_0806DEC0: @ 0x0806DEC0
 	push {r4, r5, lr}
 	adds r4, r0, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	adds r1, r0, #0
 	movs r0, #0x40
 	ands r0, r1
@@ -92148,7 +92148,7 @@ func_0806DEC0: @ 0x0806DEC0
 	adds r0, r4, #0
 	adds r0, #0x14
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldrb r0, [r5]
 	movs r1, #0
 	ldrsb r1, [r5, r1]
@@ -92190,7 +92190,7 @@ func_0806DEC0: @ 0x0806DEC0
 	adds r0, r4, #0
 	adds r0, #0x14
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldrb r0, [r5]
 	adds r0, #1
 	strb r0, [r5]
@@ -92219,7 +92219,7 @@ func_0806DEC0: @ 0x0806DEC0
 	adds r0, r4, #0
 	adds r0, #0x14
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	adds r2, r4, #0
 	adds r2, #0x39
 	movs r0, #0
@@ -92269,7 +92269,7 @@ func_0806DEC0: @ 0x0806DEC0
 	adds r0, r4, #0
 	adds r0, #0x14
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	adds r2, r4, #0
 	adds r2, #0x39
 	movs r3, #0
@@ -92496,13 +92496,13 @@ func_0806E164: @ 0x0806E164
 	adds r4, r0, #0
 	movs r7, #0
 	movs r5, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
 	bne .L0806E186
 	adds r0, r4, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -92515,7 +92515,7 @@ func_0806E164: @ 0x0806E164
 	adds r0, r4, #0
 	adds r0, #0x14
 	movs r1, #0x6a
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	adds r6, r4, #0
 	adds r6, #0x39
 	movs r0, #0
@@ -92562,7 +92562,7 @@ func_0806E1E8: @ 0x0806E1E8
 	push {r4, r5, lr}
 	adds r4, r0, #0
 	movs r5, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -92570,7 +92570,7 @@ func_0806E1E8: @ 0x0806E1E8
 	adds r0, r4, #0
 	adds r0, #0x14
 	movs r1, #0x6c
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	adds r2, r4, #0
 	adds r2, #0x39
 	movs r0, #0
@@ -92607,30 +92607,30 @@ func_0806E234: @ 0x0806E234
 	push {r5, r6, r7}
 	sub sp, #0x58
 	adds r6, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r4, #0
 	strh r4, [r1]
 	strh r4, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1c]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
 	ldr r1, .L0806E400 @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r4, #1
 	rsbs r4, r4, #0
 	ldr r0, .L0806E404 @ =0x0600E000
@@ -92641,15 +92641,15 @@ func_0806E234: @ 0x0806E234
 	adds r0, r4, #0
 	mov r1, sb
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r2, .L0806E408 @ =0x0600E800
 	mov sl, r2
 	adds r0, r4, #0
 	mov r1, sl
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r3, #0xc2
 	lsls r3, r3, #5
@@ -92658,7 +92658,7 @@ func_0806E234: @ 0x0806E234
 	movs r5, #0
 	strh r2, [r0]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L0806E40C @ =0x00001C03
 	adds r1, r3, #0
@@ -92670,18 +92670,18 @@ func_0806E234: @ 0x0806E234
 	lsls r1, r1, #0x13
 	ldr r2, .L0806E414 @ =gUnk_080F9F74
 	ldr r2, [r2]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0806E418 @ =0x00030003
 	mov r1, sb
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x1c]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x1e]
@@ -92695,22 +92695,22 @@ func_0806E234: @ 0x0806E234
 	movs r3, #0x20
 	bl func_08051320
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x18]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x1a]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x14]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r5, [r1]
 	strh r5, [r0, #0x16]
@@ -92719,7 +92719,7 @@ func_0806E234: @ 0x0806E234
 	movs r1, #0xa0
 	lsls r1, r1, #0x13
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0806E420 @ =0x05000040
 	movs r1, #0xf8
 	lsls r1, r1, #2
@@ -92793,7 +92793,7 @@ func_0806E234: @ 0x0806E234
 	adds r1, r1, r2
 	mov r0, r8
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #1
 	cmp r5, #0x2a
 	ble .L0806E3A8
@@ -92843,7 +92843,7 @@ func_0806E43C: @ 0x0806E43C
 	adds r1, r1, r0
 	adds r0, r4, #0
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
 	bl func_080074C0
@@ -92858,7 +92858,7 @@ func_0806E43C: @ 0x0806E43C
 	movs r0, #0
 	adds r1, r6, #0
 	movs r2, #8
-	bl func_08008EB8
+	bl Dma3_Fill
 	mov r3, r8
 	adds r3, #0x3f
 	ldrb r2, [r3]
@@ -93394,7 +93394,7 @@ func_0806E7E0: @ 0x0806E7E0
 	orrs r1, r0
 	str r1, [r6, #4]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -93419,7 +93419,7 @@ func_0806E7E0: @ 0x0806E7E0
 	cmp r0, #0
 	beq .L0806E990
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -93459,7 +93459,7 @@ func_0806E7E0: @ 0x0806E7E0
 	orrs r1, r0
 	strh r1, [r5, #0x3e]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -93487,7 +93487,7 @@ func_0806E7E0: @ 0x0806E7E0
 	orrs r1, r0
 	strh r1, [r5, #0x3e]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -93564,7 +93564,7 @@ func_0806EA00: @ 0x0806EA00
 .L0806EA1C:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -93617,14 +93617,14 @@ func_0806EA78: @ 0x0806EA78
 	push {r4, r5, lr}
 	sub sp, #0x14
 	adds r5, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
 	adds r0, #0x50
 	strh r2, [r0]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	add r4, sp, #4
 	movs r0, #0
@@ -93633,14 +93633,14 @@ func_0806EA78: @ 0x0806EA78
 	ldr r0, .L0806EAC4 @ =vtable_unk_080E5B80
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r1, .L0806EAC8 @ =0x00000889
 	add r0, sp, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r1, [r0, #8]
 	ldr r2, [r1, #0x10]
 	adds r1, r4, #0
@@ -93674,14 +93674,14 @@ func_0806EAF4: @ 0x0806EAF4
 	push {r4, r5, lr}
 	sub sp, #0x14
 	adds r5, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
 	adds r0, #0x50
 	strh r2, [r0]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	add r4, sp, #4
 	movs r0, #0
@@ -93690,14 +93690,14 @@ func_0806EAF4: @ 0x0806EAF4
 	ldr r0, .L0806EB40 @ =vtable_unk_080E5B80
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r1, .L0806EB44 @ =0x00000889
 	add r0, sp, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r1, [r0, #8]
 	ldr r2, [r1, #0x10]
 	adds r1, r4, #0
@@ -93919,7 +93919,7 @@ func_0806EC94: @ 0x0806EC94
 	lsls r1, r1, #0x13
 	movs r2, #0x80
 	lsls r2, r2, #2
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r2, .L0806ED7C @ =gUnk_08527238
 	ldr r3, [sp, #0xc]
 	cmp r3, #0
@@ -94168,7 +94168,7 @@ func_0806EC94: @ 0x0806EC94
 	adds r0, r0, r1
 	ldr r1, .L0806EFA0 @ =0x060002C0
 	lsls r2, r2, #5
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r5, #2
 	str r5, [sp]
 	str r5, [sp, #4]
@@ -94200,7 +94200,7 @@ func_0806EC94: @ 0x0806EC94
 	adds r0, r0, r1
 	ldr r1, .L0806EFB0 @ =0x06000340
 	lsls r2, r2, #5
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #1
 	str r0, [sp]
 	str r5, [sp, #4]
@@ -94236,7 +94236,7 @@ func_0806EC94: @ 0x0806EC94
 	movs r1, #0xc0
 	lsls r1, r1, #0x13
 	lsls r2, r2, #5
-	bl func_08008E64
+	bl Dma3_Copy
 	add sp, #0x20
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -94298,7 +94298,7 @@ func_0806EFC0: @ 0x0806EFC0
 	adds r6, r0, #0
 .L0806EFFA:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r3, r0, #0
 	adds r0, r7, #0
 	cmp r7, #0
@@ -94344,7 +94344,7 @@ func_0806EFC0: @ 0x0806EFC0
 	mov sb, r0
 	bl func_0805E8F0
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	mov r8, r0
 	cmp r7, #0
 	ble .L0806F09C
@@ -96583,7 +96583,7 @@ func_08070140: @ 0x08070140
 	mov r8, r0
 .L0807015A:
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r6, r0, #0
 	ldr r1, [r4, #8]
 	ldr r3, [r1]
@@ -96913,7 +96913,7 @@ func_080701BC: @ 0x080701BC
 	lsls r0, r0, #5
 	adds r1, r1, r0
 	add r0, sp, #0xc
-	bl func_0800FFE0
+	bl ItemCollection_GetExtraItems
 	ldrh r1, [r6]
 	lsls r1, r1, #0x16
 	lsrs r1, r1, #0x16
@@ -97611,7 +97611,7 @@ func_080709D8: @ 0x080709D8
 .L080709F4:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -97630,7 +97630,7 @@ func_08070A08: @ 0x08070A08
 	str r0, [sp, #0x14]
 	ldr r6, [r1, #4]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #4
 	movs r3, #0xf2
 	lsls r3, r3, #5
@@ -97662,7 +97662,7 @@ func_08070A08: @ 0x08070A08
 .L08070A60: .4byte 0x0000D440
 .L08070A64:
 	adds r0, r6, #0
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	adds r3, r0, #0
 	str r3, [sp, #8]
 	movs r2, #0
@@ -97760,9 +97760,9 @@ func_08070A08: @ 0x08070A08
 	bl func_080087C8
 .L08070B1A:
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -98163,13 +98163,13 @@ func_08070DE4: @ 0x08070DE4
 	bl func_0804E8F0
 	ldr r6, [sp, #0xd0]
 	ldr r0, [r6]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #8
 	adds r1, r4, #0
 	ldr r2, .L08070E7C @ =0x06000700
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sb, r7
 	ldr r1, [r6, #4]
@@ -98934,14 +98934,14 @@ func_080713B8: @ 0x080713B8
 	movs r3, #0
 	bl func_0804E8F0
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	adds r1, r4, #0
 	ldr r2, .L080714A4 @ =0x06000700
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sb, r7
 	ldr r1, [r6, #4]
@@ -99189,14 +99189,14 @@ func_080713B8: @ 0x080713B8
 	bl func_0804E8F0
 	ldr r2, [sp, #0x100]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #8
 	mov r1, sl
 	ldr r2, .L08071644 @ =0x06000800
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -99350,14 +99350,14 @@ func_080713B8: @ 0x080713B8
 	bl func_0804E8F0
 	ldr r2, [sp, #0x100]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x168]
 	ldr r2, .L08071770 @ =0x06000B00
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -99511,14 +99511,14 @@ func_080713B8: @ 0x080713B8
 	bl func_0804E8F0
 	ldr r2, [sp, #0x100]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x160]
 	ldr r2, .L0807189C @ =0x06000D00
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -99671,13 +99671,13 @@ func_080713B8: @ 0x080713B8
 	bl func_0804E8F0
 	ldr r4, [sp, #0x100]
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x164]
 	ldr r2, .L080719C4 @ =0x06000E00
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sb, r5
 	ldr r1, [r6, #4]
@@ -99831,14 +99831,14 @@ func_080713B8: @ 0x080713B8
 	bl func_0804E8F0
 	ldr r2, [sp, #0x100]
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x16c]
 	ldr r2, .L08071AF0 @ =0x06000E80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sb, r3
 	ldr r1, [r6, #4]
@@ -99991,13 +99991,13 @@ func_080713B8: @ 0x080713B8
 	bl func_0804E8F0
 	ldr r4, [sp, #0x100]
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x13c]
 	ldr r2, .L08071C18 @ =0x06000F80
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sb, r5
 	ldr r1, [r6, #4]
@@ -100953,14 +100953,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xd0
 	lsls r3, r3, #3
 	adds r6, r0, #0
 	add r0, sp, #8
 	adds r1, r4, #0
 	ldr r2, .L080724D0 @ =0x06003000
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -101508,14 +101508,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2ac]
 	ldr r2, .L08072810 @ =0x06003980
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -101667,14 +101667,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r5, sb
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #3
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2c0]
 	ldr r2, .L08072938 @ =0x06003B80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -101826,14 +101826,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x284]
 	ldr r2, .L08072A60 @ =0x06003F80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -101985,14 +101985,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r5, sb
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x290]
 	ldr r2, .L08072B88 @ =0x06004180
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -102143,13 +102143,13 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r4, sb
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2a0]
 	ldr r2, .L08072CAC @ =0x06000700
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sl, r5
 	ldr r1, [r6, #4]
@@ -102300,13 +102300,13 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r4, sb
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2a8]
 	ldr r2, .L08072DD0 @ =0x06000780
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sl, r5
 	ldr r1, [r6, #4]
@@ -102458,14 +102458,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2b0]
 	ldr r2, .L08072EF8 @ =0x06000800
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -102617,14 +102617,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r5, sb
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2b4]
 	ldr r2, .L08073020 @ =0x06000900
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -103079,14 +103079,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r6, sb
 	ldr r0, [r6]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xd0
 	lsls r3, r3, #3
 	adds r5, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2c4]
 	ldr r2, .L08073408 @ =0x06004380
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r5, #4]
@@ -103260,14 +103260,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r5, sb
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xe0
 	lsls r3, r3, #2
 	adds r5, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x29c]
 	ldr r2, .L08073544 @ =0x06004A00
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r6, sp, #8
 	mov sl, r6
 	ldr r1, [r5, #4]
@@ -103422,14 +103422,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r5, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2b8]
 	ldr r2, .L08073674 @ =0x06004D80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sl, r3
 	ldr r1, [r5, #4]
@@ -103584,14 +103584,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r5, sb
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r5, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2cc]
 	ldr r2, .L080737A4 @ =0x06004F80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r6, sp, #8
 	mov sl, r6
 	ldr r1, [r5, #4]
@@ -103745,13 +103745,13 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r4, sb
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x27c]
 	ldr r2, .L080738D0 @ =0x06000A00
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r6, sp, #8
 	mov sl, r6
 	ldr r1, [r5, #4]
@@ -104212,14 +104212,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r6, sb
 	ldr r0, [r6]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xd0
 	lsls r3, r3, #3
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x280]
 	ldr r2, .L08073CA4 @ =0x06005180
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -104376,14 +104376,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2bc]
 	ldr r2, .L08073DD4 @ =0x06000A80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -104538,14 +104538,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r5, sb
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2d4]
 	ldr r2, .L08073F04 @ =0x06000C80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -104700,14 +104700,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x248]
 	ldr r2, .L08074034 @ =0x06000D80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -104862,14 +104862,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r5, sb
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x288]
 	ldr r2, .L08074164 @ =0x06000F00
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -105023,13 +105023,13 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r4, sb
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x28c]
 	ldr r2, .L08074290 @ =0x06001080
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sl, r5
 	ldr r1, [r6, #4]
@@ -105183,13 +105183,13 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r4, sb
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x294]
 	ldr r2, .L080743BC @ =0x06001100
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sl, r5
 	ldr r1, [r6, #4]
@@ -105435,14 +105435,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r5, r0, #0
 	add r0, sp, #8
 	adds r1, r4, #0
 	ldr r2, .L080745C4 @ =0x06006480
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sl, r2
 	ldr r1, [r5, #4]
@@ -105688,14 +105688,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r5, r0, #0
 	add r0, sp, #8
 	adds r1, r4, #0
 	ldr r2, .L080747BC @ =0x06006780
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sl, r2
 	ldr r1, [r5, #4]
@@ -105941,14 +105941,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r5, r0, #0
 	add r0, sp, #8
 	adds r1, r4, #0
 	ldr r2, .L080749B4 @ =0x06006A80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #8
 	mov sl, r2
 	ldr r1, [r5, #4]
@@ -106145,14 +106145,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r7, sb
 	ldr r0, [r7]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xd0
 	lsls r3, r3, #3
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x298]
 	ldr r2, .L08074B30 @ =0x06005800
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r0, sp, #8
 	mov sl, r0
 	ldr r1, [r6, #4]
@@ -106308,14 +106308,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
 	lsls r3, r3, #1
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x228]
 	ldr r2, .L08074C60 @ =0x06001180
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #8
 	mov sl, r3
 	ldr r1, [r6, #4]
@@ -106470,14 +106470,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r5, sb
 	ldr r0, [r5]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xa0
 	lsls r3, r3, #3
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x274]
 	ldr r2, .L08074D90 @ =0x06001280
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -106685,14 +106685,14 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r6, sb
 	ldr r0, [r6]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #3
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x2a4]
 	ldr r2, .L08074F38 @ =0x06005E80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #8
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -106848,13 +106848,13 @@ func_080722DC: @ 0x080722DC
 	bl func_0804E8F0
 	mov r4, sb
 	ldr r0, [r4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #8
 	ldr r1, [sp, #0x278]
 	ldr r2, .L08075064 @ =0x06001780
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r5, sp, #8
 	mov sl, r5
 	ldr r1, [r6, #4]
@@ -107658,7 +107658,7 @@ func_0807561C: @ 0x0807561C
 .L0807564A:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -107797,7 +107797,7 @@ func_080756D0: @ 0x080756D0
 .L08075784:
 	adds r0, r6, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	mov r4, sb
 	ldr r0, [r4, #8]
 	cmp r0, #0
@@ -108008,7 +108008,7 @@ func_080757E8: @ 0x080757E8
 	movs r2, #0x20
 	lsls r2, r6
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	b .L08075956
 	.align 2, 0
 .L0807592C: .4byte 0x06010000
@@ -108114,7 +108114,7 @@ func_080757E8: @ 0x080757E8
 	adds r1, r1, r2
 	adds r0, r4, #0
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 .L080759F4:
 	ldr r7, [sp, #0x34]
 	ldr r0, [sp, #0x2c]
@@ -108572,7 +108572,7 @@ func_08075DEC: @ 0x08075DEC
 	push {lr}
 	ldr r2, .L08075DFC @ =vtable_unk_080E7B68
 	str r2, [r0, #8]
-	bl func_080098AC
+	bl TaskNode_Destroy
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -108750,14 +108750,14 @@ func_08075E7C: @ 0x08075E7C
 	adds r0, r7, #0
 	bl func_08008724
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r5, .L08076164 @ =0x00001E41
 	adds r1, r5, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xa]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	movs r6, #0xea
 	lsls r6, r6, #5
@@ -108765,14 +108765,14 @@ func_08075E7C: @ 0x08075E7C
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L08076168 @ =0x00003F42
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r5, .L0807616C @ =0x00001C48
 	adds r1, r5, #0
@@ -108784,13 +108784,13 @@ func_08075E7C: @ 0x08075E7C
 	movs r2, #0x80
 	lsls r2, r2, #6
 	adds r1, r6, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L08076174 @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	movs r3, #0xfa
 	lsls r3, r3, #5
@@ -108803,15 +108803,15 @@ func_08075E7C: @ 0x08075E7C
 	lsls r1, r1, #0x13
 	ldr r2, .L0807617C @ =gUnk_080F9F74
 	ldr r2, [r2]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L08076180 @ =0x00030003
 	ldr r1, .L08076184 @ =0x0600F800
 	movs r5, #0x80
 	lsls r5, r5, #4
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
@@ -108825,7 +108825,7 @@ func_08075E7C: @ 0x08075E7C
 	movs r3, #0x1e
 	bl func_08051320
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	movs r3, #0xf4
 	lsls r3, r3, #1
@@ -108835,11 +108835,11 @@ func_08075E7C: @ 0x08075E7C
 	ldr r1, .L0807618C @ =0x06008000
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r0, #0
 	adds r1, r6, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r0, .L08076190 @ =0x0600E008
 	str r4, [sp]
 	movs r1, #0x20
@@ -108849,7 +108849,7 @@ func_08075E7C: @ 0x08075E7C
 	movs r3, #2
 	bl func_0804E9F4
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r4, .L08076194 @ =0x0000FFFC
 	adds r1, r4, #0
@@ -108861,11 +108861,11 @@ func_08075E7C: @ 0x08075E7C
 	lsls r1, r1, #0x13
 	adds r0, r4, #0
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, .L0807619C @ =0x05000200
 	adds r0, r4, #0
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r6, #0
 	add r5, sp, #0x84
 	mov sb, r5
@@ -108901,7 +108901,7 @@ func_08075E7C: @ 0x08075E7C
 	mov r0, r8
 	adds r1, r5, #0
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #0x40
 	adds r4, #2
 	adds r6, #1
@@ -108921,7 +108921,7 @@ func_08075E7C: @ 0x08075E7C
 	ldr r3, [r3, #0x10]
 	bl _call_via_r3
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r2, r0, #0
 	ldr r0, [sp, #0x64]
 	adds r1, r0, #0
@@ -108934,7 +108934,7 @@ func_08075E7C: @ 0x08075E7C
 	str r2, [sp, #0x9c]
 	add r0, sp, #0x74
 	ldr r2, .L0807619C @ =0x05000200
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r5, [sp, #0x98]
 	mov sb, r5
 	ldr r6, [sp, #0x9c]
@@ -109200,7 +109200,7 @@ func_0807628C: @ 0x0807628C
 	strh r6, [r0, #4]
 	strh r6, [r0, #6]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	ldr r1, [sp, #0x1c]
 	movs r2, #0
 	str r5, [sp, #0xc4]
@@ -109212,7 +109212,7 @@ func_0807628C: @ 0x0807628C
 	mov r3, sp
 	bl func_0805E99C
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x24]
 	add r2, sp, #0x24
 	movs r3, #0
@@ -109223,7 +109223,7 @@ func_0807628C: @ 0x0807628C
 	str r0, [sp, #0xd8]
 	add r0, sp, #0x3c
 	ldr r2, .L080763D8 @ =0x06010000
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r6, sp, #0x3c
 	mov sl, r6
 	ldr r0, [sp, #0xd8]
@@ -109456,7 +109456,7 @@ func_0807628C: @ 0x0807628C
 	movs r4, #1
 	strh r4, [r0, #6]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x4c]
 	adds r1, r0, #0
@@ -109470,7 +109470,7 @@ func_0807628C: @ 0x0807628C
 	mov r3, sp
 	bl func_0805E99C
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x54]
 	movs r3, #0
 	cmp r1, #0
@@ -109481,7 +109481,7 @@ func_0807628C: @ 0x0807628C
 	str r0, [sp, #0xdc]
 	add r0, sp, #0x3c
 	ldr r2, .L08076590 @ =0x06010020
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r0, sp, #0x3c
 	mov sl, r0
 	ldr r2, [sp, #0xdc]
@@ -109665,7 +109665,7 @@ func_0807628C: @ 0x0807628C
 	movs r0, #2
 	strh r0, [r1, #6]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x6c]
 	adds r1, r0, #0
@@ -109678,7 +109678,7 @@ func_0807628C: @ 0x0807628C
 	mov r3, sp
 	bl func_0805E99C
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x74]
 	add r2, sp, #0x74
 	movs r3, #0
@@ -109689,7 +109689,7 @@ func_0807628C: @ 0x0807628C
 	str r0, [sp, #0xd8]
 	add r0, sp, #0x3c
 	ldr r2, .L08076718 @ =0x06010040
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #0x3c
 	mov sl, r3
 	ldr r4, [sp, #0xd8]
@@ -109876,7 +109876,7 @@ func_0807628C: @ 0x0807628C
 	movs r0, #3
 	strh r0, [r1, #6]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x6c]
 	adds r1, r0, #0
@@ -109889,7 +109889,7 @@ func_0807628C: @ 0x0807628C
 	mov r3, sp
 	bl func_0805E99C
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x74]
 	add r2, sp, #0x74
 	movs r3, #0
@@ -109900,7 +109900,7 @@ func_0807628C: @ 0x0807628C
 	str r0, [sp, #0xd8]
 	add r0, sp, #0x3c
 	ldr r2, .L080768A8 @ =0x06010060
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #0x3c
 	mov sb, r3
 	ldr r4, [sp, #0xd8]
@@ -110068,14 +110068,14 @@ func_080769A0: @ 0x080769A0
 	push {r6, r7}
 	sub sp, #0x18
 	adds r6, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
 	adds r0, #0x50
 	strh r2, [r0]
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	add r4, sp, #4
 	movs r0, #0
@@ -110084,14 +110084,14 @@ func_080769A0: @ 0x080769A0
 	ldr r0, .L08076A60 @ =vtable_unk_080E5B80
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r1, .L08076A64 @ =0x00000889
 	add r0, sp, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r1, [r0, #8]
 	ldr r2, [r1, #0x10]
 	adds r1, r4, #0
@@ -110106,15 +110106,15 @@ func_080769A0: @ 0x080769A0
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r6, #0
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	str r0, [sp, #0x14]
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	adds r7, r0, #0
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -110136,9 +110136,9 @@ func_080769A0: @ 0x080769A0
 	ldr r1, .L08076A64 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r1, [r0, #8]
 	ldr r2, [r1, #0x10]
 	mov r1, sb
@@ -110164,9 +110164,9 @@ func_080769A0: @ 0x080769A0
 	ldr r1, .L08076ABC @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r1, [r0, #8]
 	ldr r2, [r1, #0x10]
 	mov r1, sb
@@ -110388,10 +110388,10 @@ func_08076BFC: @ 0x08076BFC
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r3, r0, #0
 	ldr r0, .L08076CC0 @ =0x0600F000
 	str r0, [sp]
@@ -110478,7 +110478,7 @@ func_08076BFC: @ 0x08076BFC
 	bl func_0804E8F0
 .L08076CF2:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	mov r1, sb
 	adds r1, #0xc
 	movs r3, #0xb0
@@ -110486,7 +110486,7 @@ func_08076BFC: @ 0x08076BFC
 	adds r6, r0, #0
 	add r0, sp, #0xc
 	ldr r2, .L08076D30 @ =0x06008020
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #0xc
 	mov r8, r7
 	ldr r1, [r6, #4]
@@ -110802,7 +110802,7 @@ func_08076EA8: @ 0x08076EA8
 	str r6, [sp, #0x4c]
 	mov r7, sl
 	ldr r0, [r7]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r2, [sp, #0x44]
 	ldr r1, [r2]
 	ldr r3, [sp, #0x60]
@@ -110815,7 +110815,7 @@ func_08076EA8: @ 0x08076EA8
 	adds r2, r2, r6
 	add r0, sp, #0x10
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r7, sp
 	adds r7, #0x10
 	str r7, [sp, #0x50]
@@ -110974,7 +110974,7 @@ func_08076EA8: @ 0x08076EA8
 .L08077084:
 	mov r1, sl
 	ldr r0, [r1]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r2, [sp, #0x44]
 	ldr r1, [r2]
 	ldr r3, [sp, #0x60]
@@ -110985,7 +110985,7 @@ func_08076EA8: @ 0x08076EA8
 	add r2, r8
 	add r0, sp, #0x10
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #0x10
 	mov sb, r4
 	ldr r1, [r5, #4]
@@ -111122,7 +111122,7 @@ func_08076EA8: @ 0x08076EA8
 .L08077192:
 	mov r2, sl
 	ldr r0, [r2]
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r4, r0, #0
 	ldr r3, [sp, #0x44]
 	ldr r1, [r3]
@@ -111247,7 +111247,7 @@ func_08076EA8: @ 0x08076EA8
 .L0807727E:
 	mov r6, sl
 	ldr r0, [r6]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r3, [r7]
 	adds r3, r3, r4
 	adds r5, r0, #0
@@ -111255,7 +111255,7 @@ func_08076EA8: @ 0x08076EA8
 	ldr r2, [r3, #8]
 	ldr r3, [r3, #0xc]
 	add r0, sp, #0x10
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r7, sp
 	adds r7, #0x10
 	str r7, [sp, #0x58]
@@ -111446,11 +111446,11 @@ func_080773E8: @ 0x080773E8
 	adds r0, r4, #0
 	adds r0, #8
 	movs r1, #0
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r4, #0
 	adds r0, #0xc
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	add r2, sp, #4
 	movs r0, #0x1c
 	movs r1, #2
@@ -111516,7 +111516,7 @@ func_08077490: @ 0x08077490
 	adds r0, r5, #0
 	bl func_08008724
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -111526,7 +111526,7 @@ func_08077490: @ 0x08077490
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -111535,7 +111535,7 @@ func_08077490: @ 0x08077490
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	adds r0, r5, #0
 	bl func_08077810
@@ -111544,15 +111544,15 @@ func_08077490: @ 0x08077490
 	adds r0, r5, #0
 	adds r0, #8
 	movs r1, #0x24
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r0, [sp, #4]
 	ldr r1, .L08077540 @ =0x00000889
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #0
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -111566,7 +111566,7 @@ func_08077490: @ 0x08077490
 	adds r0, r5, #0
 	bl func_080087C8
 	adds r0, r5, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r2, .L08077544 @ =0x0000072A
 	adds r0, r5, r2
 	movs r3, #0
@@ -111681,9 +111681,9 @@ func_08077490: @ 0x08077490
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #0
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -111717,7 +111717,7 @@ func_08077490: @ 0x08077490
 	adds r0, r5, #0
 	bl func_08077A1C
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r3, #0xc8
 	lsls r3, r3, #3
@@ -111729,9 +111729,9 @@ func_08077490: @ 0x08077490
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #0
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -111831,9 +111831,9 @@ func_08077490: @ 0x08077490
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #0
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -111856,7 +111856,7 @@ func_08077490: @ 0x08077490
 	movs r7, #1
 .L08077796:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L08077808 @ =0x00000716
 	adds r1, r5, r3
@@ -111864,7 +111864,7 @@ func_08077490: @ 0x08077490
 	strh r1, [r2]
 	strh r1, [r0, #0x16]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r4, .L0807780C @ =0x00000714
 	adds r1, r5, r4
@@ -111925,44 +111925,44 @@ func_08077810: @ 0x08077810
 	ldr r4, .L08077974 @ =0xFFFFF7FC
 	add sp, r4
 	adds r5, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r4, #0
 	strh r4, [r1]
 	strh r4, [r0, #0x14]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x16]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x18]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1c]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
 	ldr r1, .L08077978 @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0807797C @ =0x0600FFE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r6, #1
 	rsbs r6, r6, #0
 	ldr r0, .L08077980 @ =0x0600C800
@@ -111973,13 +111973,13 @@ func_08077810: @ 0x08077810
 	adds r0, r6, #0
 	mov r1, sb
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L08077984 @ =0x0600F000
 	adds r0, r6, #0
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r3, #0x90
 	lsls r3, r3, #2
@@ -111989,14 +111989,14 @@ func_08077810: @ 0x08077810
 	mov sl, r7
 	strh r2, [r0]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r3, .L08077988 @ =0x0000994A
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r7, .L0807798C @ =0x00001E42
 	adds r1, r7, #0
@@ -112010,7 +112010,7 @@ func_08077810: @ 0x08077810
 	lsls r4, r4, #0x13
 	adds r1, r4, #0
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L0807799C @ =gUnk_0874ECCC
 	mov r1, sb
 	bl Unpack
@@ -112028,7 +112028,7 @@ func_08077810: @ 0x08077810
 	adds r0, r6, #0
 	adds r1, r4, #0
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r6, .L080779AC @ =0x00002060
 	movs r2, #0
 	mov sb, r4
@@ -112069,7 +112069,7 @@ func_08077810: @ 0x08077810
 	movs r2, #0x80
 	lsls r2, r2, #4
 	mov r0, sb
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r3, .L080779B0 @ =0x00000804
 	add sp, r3
 	pop {r3, r4, r5}
@@ -112109,7 +112109,7 @@ func_080779B4: @ 0x080779B4
 	movs r2, #0xe0
 	lsls r2, r2, #4
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	mov r5, sp
 	movs r0, #0x1c
 	mov sb, r0
@@ -112131,7 +112131,7 @@ func_080779B4: @ 0x080779B4
 	adds r1, r7, #0
 	movs r2, #0xe0
 	lsls r2, r2, #3
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #0xe0
 	lsls r0, r0, #3
 	adds r7, r7, r0
@@ -112287,7 +112287,7 @@ func_08077A1C: @ 0x08077A1C
 	adds r0, #1
 	str r0, [r1]
 	adds r0, r5, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r1, r5, #0
 	adds r1, #0x14
 	adds r5, r0, #0
@@ -112300,7 +112300,7 @@ func_08077A1C: @ 0x08077A1C
 	add r0, sp, #0x30
 	movs r3, #0xe0
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov r8, r7
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
@@ -112478,14 +112478,14 @@ func_08077CE0: @ 0x08077CE0
 	push {r4, r5, lr}
 	sub sp, #0x14
 	adds r5, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
 	adds r0, #0x50
 	strh r2, [r0]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	add r4, sp, #4
 	movs r0, #0
@@ -112494,14 +112494,14 @@ func_08077CE0: @ 0x08077CE0
 	ldr r0, .L08077D2C @ =vtable_unk_080E5B80
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r1, .L08077D30 @ =0x00000889
 	add r0, sp, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r1, [r0, #8]
 	ldr r2, [r1, #0x10]
 	adds r1, r4, #0
@@ -112535,14 +112535,14 @@ func_08077D5C: @ 0x08077D5C
 	push {r4, r5, lr}
 	sub sp, #0x14
 	adds r5, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
 	adds r0, #0x50
 	strh r2, [r0]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	add r4, sp, #4
 	movs r0, #0
@@ -112551,14 +112551,14 @@ func_08077D5C: @ 0x08077D5C
 	ldr r0, .L08077DA8 @ =vtable_unk_080E5B80
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r1, .L08077DAC @ =0x00000889
 	add r0, sp, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r1, [r0, #8]
 	ldr r2, [r1, #0x10]
 	adds r1, r4, #0
@@ -112599,18 +112599,18 @@ func_08077DD8: @ 0x08077DD8
 	mov sb, r0
 	add r0, sp, #0xc
 	movs r1, #0
-	bl func_080091E8
+	bl KeyRepeat_InitializeWithHeldKeys
 	adds r0, r4, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	mov r8, r0
 	adds r0, r4, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r6, r0, #0
 	adds r0, r4, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r5, r0, #0
 	adds r0, r4, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	adds r4, #0x18
 	str r5, [sp]
 	str r0, [sp, #4]
@@ -112742,7 +112742,7 @@ func_08077EC0: @ 0x08077EC0
 .L08077EF2:
 	ldr r1, .L08077F48 @ =0x05000020
 	movs r2, #0xc0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r2, .L08077F4C @ =gUnk_08755230
 	cmp r5, #0
 	beq .L08077F02
@@ -112973,7 +112973,7 @@ func_08078044: @ 0x08078044
 	adds r0, r4, #0
 	bl func_0805E8F0
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r5, r0, #0
 	ldr r1, [r7, #0x78]
 	ldr r3, [r1]
@@ -113002,7 +113002,7 @@ func_08078044: @ 0x08078044
 .L08078108: .4byte 0x000003FF
 .L0807810C:
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r1, r0, #0
 	adds r0, r7, #0
 	adds r0, #0x20
@@ -113664,7 +113664,7 @@ func_080785C8: @ 0x080785C8
 	beq .L08078620
 .L080785E0:
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r4, r0, #0
 	ldr r1, [r5, #8]
 	ldr r3, [r1]
@@ -113700,10 +113700,10 @@ func_080785C8: @ 0x080785C8
 	cmp r0, #0
 	bge .L0807864E
 	adds r0, r6, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r1, r6, #0
 	adds r1, #0x1c
 	str r0, [sp]
@@ -113761,7 +113761,7 @@ func_0807865C: @ 0x0807865C
 	adds r0, r5, #0
 	bl func_0800835C
 	add r0, sp, #0x14
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	add r4, sp, #0x14
 	adds r0, r7, #0
 	adds r0, #0x18
@@ -114125,7 +114125,7 @@ func_0807865C: @ 0x0807865C
 	lsls r2, r2, #5
 	adds r1, r1, r2
 	add r0, sp, #0x2c
-	bl func_0800FFE0
+	bl ItemCollection_GetExtraItems
 	adds r0, r7, #0
 	add r1, sp, #0x2c
 	movs r2, #3
@@ -114343,7 +114343,7 @@ func_08078E40: @ 0x08078E40
 	adds r0, r6, #0
 	adds r0, #0xc
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	add r2, sp, #8
 	movs r0, #0x1c
 	movs r1, #2
@@ -114448,7 +114448,7 @@ func_08078E40: @ 0x08078E40
 	ldr r1, .L0807902C @ =0x00000818
 	adds r4, r6, r1
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -114464,7 +114464,7 @@ func_08078E40: @ 0x08078E40
 	ldr r0, .L08079030 @ =0x00000828
 	adds r4, r6, r0
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -114480,7 +114480,7 @@ func_08078E40: @ 0x08078E40
 	ldr r3, .L08079034 @ =0x00000838
 	adds r4, r6, r3
 	adds r0, r4, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -114633,7 +114633,7 @@ func_080790E4: @ 0x080790E4
 	adds r0, r5, #0
 	bl func_08008724
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -114643,7 +114643,7 @@ func_080790E4: @ 0x080790E4
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -114652,7 +114652,7 @@ func_080790E4: @ 0x080790E4
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	adds r0, r5, #0
 	bl func_08079860
@@ -114697,9 +114697,9 @@ func_080790E4: @ 0x080790E4
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -114709,7 +114709,7 @@ func_080790E4: @ 0x080790E4
 	adds r0, r5, #0
 	bl func_080087C8
 	adds r0, r5, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r6, .L080791C4 @ =0x00000A58
 	adds r0, r5, r6
 	ldr r0, [r0]
@@ -114759,7 +114759,7 @@ func_080790E4: @ 0x080790E4
 	b .L08079444
 .L0807921C:
 	adds r0, r5, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -114767,7 +114767,7 @@ func_080790E4: @ 0x080790E4
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r6, .L0807924C @ =0x0000084C
 	adds r1, r5, r6
 	ldrh r2, [r1]
@@ -114822,7 +114822,7 @@ func_080790E4: @ 0x080790E4
 .L0807929C: .4byte 0x00000A58
 .L080792A0:
 	adds r0, r5, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -114830,7 +114830,7 @@ func_080790E4: @ 0x080790E4
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r6, .L080792D8 @ =0x0000084C
 	adds r3, r5, r6
 	movs r0, #0
@@ -114891,7 +114891,7 @@ func_080790E4: @ 0x080790E4
 .L0807932C: .4byte 0x00000A58
 .L08079330:
 	adds r0, r5, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -114899,7 +114899,7 @@ func_080790E4: @ 0x080790E4
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r6, #0x84
 	lsls r6, r6, #4
 	adds r0, r5, r6
@@ -114939,7 +114939,7 @@ func_080790E4: @ 0x080790E4
 .L08079394: .4byte gUnk_0810828C
 .L08079398:
 	adds r0, r5, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -114949,7 +114949,7 @@ func_080790E4: @ 0x080790E4
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #0xa7
 	lsls r0, r0, #4
 	adds r1, r5, r0
@@ -115039,9 +115039,9 @@ func_080790E4: @ 0x080790E4
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -115080,7 +115080,7 @@ func_080790E4: @ 0x080790E4
 	movs r4, #1
 .L080794B6:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r6, #0x84
 	lsls r6, r6, #4
@@ -115127,9 +115127,9 @@ func_080790E4: @ 0x080790E4
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -115139,7 +115139,7 @@ func_080790E4: @ 0x080790E4
 	adds r0, r5, #0
 	bl func_080087C8
 	adds r0, r5, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r4, .L08079554 @ =0x00000A58
 	adds r0, r5, r4
 	ldr r0, [r0]
@@ -115207,10 +115207,10 @@ func_080790E4: @ 0x080790E4
 	b .L08079782
 .L080795D8:
 	adds r0, r5, #0
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	str r0, [sp, #0xc]
 	adds r0, r5, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r3, r0, #0
 	movs r0, #3
 	ands r0, r3
@@ -115219,7 +115219,7 @@ func_080790E4: @ 0x080790E4
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	ldr r4, .L08079604 @ =0x00000A58
 	adds r1, r5, r4
 	movs r0, #0xd
@@ -115405,7 +115405,7 @@ func_080790E4: @ 0x080790E4
 .L08079760: .4byte 0x00000A58
 .L08079764:
 	adds r0, r5, #0
-	bl func_080088C4
+	bl HardwareContext_GetHeldKeys
 	str r0, [sp, #0x10]
 	add r2, sp, #0x10
 	ldrb r1, [r2]
@@ -115432,9 +115432,9 @@ func_080790E4: @ 0x080790E4
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r5, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -115473,7 +115473,7 @@ func_080790E4: @ 0x080790E4
 	movs r7, #1
 .L080797EC:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r3, #0x84
 	lsls r3, r3, #4
@@ -115541,40 +115541,40 @@ func_08079860: @ 0x08079860
 	ldr r4, .L08079A18 @ =0xFFFFF7F0
 	add sp, r4
 	adds r5, r0, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r4, #0
 	strh r4, [r1]
 	strh r4, [r0, #0x14]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x16]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x18]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1c]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
 	ldr r1, .L08079A1C @ =0x06007FE0
 	movs r0, #0
 	movs r2, #0x20
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r0, #1
 	rsbs r0, r0, #0
 	mov sl, r0
@@ -115584,32 +115584,32 @@ func_08079860: @ 0x08079860
 	mov r8, r1
 	adds r1, r4, #0
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r6, .L08079A24 @ =0x0600E800
 	mov r0, sl
 	adds r1, r6, #0
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L08079A28 @ =0x0600F000
 	mov r0, sl
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L08079A2C @ =0x00001C43
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r7, .L08079A30 @ =0x00001D41
 	adds r1, r7, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L08079A34 @ =0x00001E42
 	adds r1, r3, #0
@@ -115621,11 +115621,11 @@ func_08079860: @ 0x08079860
 	lsls r1, r1, #0x13
 	ldr r2, .L08079A3C @ =gUnk_080F9F74
 	ldr r2, [r2]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L08079A40 @ =0x00030003
 	adds r1, r4, #0
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r0, #3
 	str r0, [sp]
 	movs r4, #0
@@ -115641,7 +115641,7 @@ func_08079860: @ 0x08079860
 	movs r1, #0xa0
 	lsls r1, r1, #0x13
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L08079A48 @ =0x05000040
 	movs r7, #0xf8
 	lsls r7, r7, #2
@@ -115681,7 +115681,7 @@ func_08079860: @ 0x08079860
 	mov r0, sl
 	adds r1, r4, #0
 	mov r2, r8
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r6, .L08079A60 @ =0x00002060
 	movs r2, #0
 	mov sb, r4
@@ -115722,7 +115722,7 @@ func_08079860: @ 0x08079860
 	movs r2, #0x80
 	lsls r2, r2, #4
 	mov r0, sb
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r3, #0x81
 	lsls r3, r3, #4
 	add sp, r3
@@ -116068,7 +116068,7 @@ func_08079A64: @ 0x08079A64
 	mov r0, sl
 	movs r2, #0xe0
 	lsls r2, r2, #3
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r4, #1
 	cmp r4, #0xa
 	ble .L08079C38
@@ -116084,7 +116084,7 @@ func_08079A64: @ 0x08079A64
 	movs r2, #0xe0
 	lsls r2, r2, #3
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r6, #0
 	movs r7, #1
 	add r3, sp, #0x78
@@ -116144,13 +116144,13 @@ func_08079A64: @ 0x08079A64
 	adds r1, r1, r0
 	ldr r0, [sp, #0x80]
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r6, #1
 	cmp r6, #0xb
 	ble .L08079D0E
 .L08079D7C:
 	adds r0, r5, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	movs r3, #0xf2
 	lsls r3, r3, #5
@@ -116263,7 +116263,7 @@ func_08079DC0: @ 0x08079DC0
 	bl func_0804E958
 .L08079E6A:
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	lsls r2, r5, #3
 	subs r2, r2, r5
@@ -116274,7 +116274,7 @@ func_08079DC0: @ 0x08079DC0
 	adds r1, r4, #0
 	movs r3, #0xe0
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #0xc
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -116655,7 +116655,7 @@ func_08079F8C: @ 0x08079F8C
 	movs r2, #0xe0
 	lsls r2, r2, #4
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r4, #0
 	movs r3, #2
 	mov sl, r3
@@ -116709,7 +116709,7 @@ func_08079F8C: @ 0x08079F8C
 	mov r1, r8
 	movs r2, #0xe0
 	lsls r2, r2, #3
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #0xe0
 	lsls r0, r0, #3
 	add r8, r0
@@ -116728,7 +116728,7 @@ func_08079F8C: @ 0x08079F8C
 	movs r2, #0xe0
 	lsls r2, r2, #3
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r0, .L0807A2A4 @ =0x00000A5C
 	add r0, sb
 	ldr r0, [r0]
@@ -116790,13 +116790,13 @@ func_08079F8C: @ 0x08079F8C
 	adds r1, r1, r0
 	ldr r0, [sp, #0x90]
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #1
 	cmp r5, #0x1b
 	ble .L0807A216
 .L0807A278:
 	mov r0, sb
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	movs r3, #0xf2
 	lsls r3, r3, #5
@@ -117211,7 +117211,7 @@ func_0807A554: @ 0x0807A554
 	bl func_0804E958
 .L0807A5EE:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	lsls r2, r5, #3
 	subs r2, r2, r5
@@ -117222,7 +117222,7 @@ func_0807A554: @ 0x0807A554
 	adds r1, r4, #0
 	movs r3, #0xe0
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #0xc
 	mov sb, r4
 	ldr r1, [r6, #4]
@@ -117633,7 +117633,7 @@ func_0807A878: @ 0x0807A878
 	ldrh r2, [r7, #4]
 .L0807A8FA:
 	adds r0, r6, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r2, .L0807A980 @ =0x00000744
 	adds r1, r5, r2
 	adds r0, r4, #0
@@ -117662,7 +117662,7 @@ func_0807A878: @ 0x0807A878
 	ldrh r2, [r7, #4]
 .L0807A938:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, [sp, #8]
 	movs r1, #0x83
 	lsls r1, r1, #4
@@ -117680,7 +117680,7 @@ func_0807A878: @ 0x0807A878
 	ldrh r2, [r3, #4]
 .L0807A95E:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	add sp, #0x40
 	pop {r3, r4}
 	mov r8, r3
@@ -117811,7 +117811,7 @@ func_0807A98C: @ 0x0807A98C
 	orrs r1, r0
 	str r1, [r3, #4]
 	mov r0, r8
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -117905,7 +117905,7 @@ func_0807A98C: @ 0x0807A98C
 	mov r1, sb
 	strb r1, [r0, #0x18]
 	mov r0, r8
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r6, [sp, #0x24]
 	ldr r1, [r4, #4]
@@ -117924,7 +117924,7 @@ func_0807A98C: @ 0x0807A98C
 	adds r2, r2, r0
 	adds r0, r7, #0
 	adds r1, r6, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sl, r7
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
@@ -118075,7 +118075,7 @@ func_0807A98C: @ 0x0807A98C
 	str r0, [r5, #0xc]
 .L0807AC92:
 	mov r0, r8
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -118164,7 +118164,7 @@ func_0807A98C: @ 0x0807A98C
 	movs r6, #1
 	strb r6, [r0, #0x18]
 	mov r0, r8
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r0, [sp, #0x24]
 	mov sb, r0
@@ -118185,7 +118185,7 @@ func_0807A98C: @ 0x0807A98C
 	adds r2, r2, r4
 	adds r0, r7, #0
 	mov r1, sb
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sl, r7
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -118325,7 +118325,7 @@ func_0807A98C: @ 0x0807A98C
 	str r0, [r6, #0xc]
 .L0807AE7E:
 	mov r0, r8
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -118411,7 +118411,7 @@ func_0807A98C: @ 0x0807A98C
 	mov r0, sp
 	strb r2, [r0, #0x18]
 	mov r0, r8
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -119086,7 +119086,7 @@ func_0807B3B0: @ 0x0807B3B0
 	adds r0, #0xd0
 	mov sb, r0
 	mov r0, r8
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	add r4, r8
 	adds r4, r4, r7
 	adds r4, #4
@@ -119100,7 +119100,7 @@ func_0807B3B0: @ 0x0807B3B0
 	adds r1, r4, #0
 	movs r3, #0xc0
 	lsls r3, r3, #2
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r0, sp, #0x1c
 	mov sl, r0
 	ldr r1, [r6, #4]
@@ -119279,7 +119279,7 @@ func_0807B3B0: @ 0x0807B3B0
 	movs r3, #2
 	bl func_0804E9F4
 	mov r0, r8
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	movs r0, #0xf8
 	lsls r0, r0, #1
@@ -119290,7 +119290,7 @@ func_0807B3B0: @ 0x0807B3B0
 	lsls r3, r3, #0x13
 	adds r2, r2, r3
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #0x1c
 	mov sl, r4
 	ldr r1, [r6, #4]
@@ -119429,13 +119429,13 @@ func_0807B3B0: @ 0x0807B3B0
 	str r0, [r6, #0xc]
 .L0807B766:
 	mov r0, r8
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
 	add r0, sp, #0x1c
 	ldr r1, .L0807B7A0 @ =gUnk_087525CC
 	ldr r2, .L0807B7A4 @ =0x05000020
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r2, sp, #0x1c
 	mov sl, r2
 	ldr r1, [r6, #4]
@@ -120499,7 +120499,7 @@ func_0807BEC8: @ 0x0807BEC8
 	lsls r4, r4, #3
 	adds r4, #0xd0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r1, r5, r7
 	movs r5, #0xe2
 	lsls r5, r5, #3
@@ -120514,7 +120514,7 @@ func_0807BEC8: @ 0x0807BEC8
 	adds r2, r4, #0
 	movs r3, #0xc0
 	lsls r3, r3, #2
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [sp, #0x98]
 	str r1, [sp, #0x8c]
 	ldr r1, [r6, #4]
@@ -120684,7 +120684,7 @@ func_0807BEC8: @ 0x0807BEC8
 	adds r0, r7, #0
 	bl func_0807B920
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -120694,7 +120694,7 @@ func_0807BEC8: @ 0x0807BEC8
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -120704,15 +120704,15 @@ func_0807BEC8: @ 0x0807BEC8
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0xc]
 	ldr r1, .L0807C1D0 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -120725,7 +120725,7 @@ sub_0807C194: @ 0x0807C194
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0xc]
 	ldr r1, [r3]
 	rsbs r0, r1, #0
@@ -121639,7 +121639,7 @@ sub_0807C194: @ 0x0807C194
 .L0807C96C: .4byte 0x000006A4
 .L0807C970:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -121868,7 +121868,7 @@ sub_0807C194: @ 0x0807C194
 .L0807CB5C: .4byte 0x000006A4
 .L0807CB60:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -122070,7 +122070,7 @@ sub_0807C194: @ 0x0807C194
 .L0807CD0C: .4byte 0x000006A4
 .L0807CD10:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -122186,9 +122186,9 @@ sub_0807C194: @ 0x0807C194
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -122426,9 +122426,9 @@ sub_0807C194: @ 0x0807C194
 	adds r0, r2, #0
 	adds r0, #0xc
 	movs r2, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -123162,7 +123162,7 @@ func_0807D218: @ 0x0807D218
 	adds r0, r7, #0
 	bl func_0807D1DC
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	movs r1, #0x3f
 	ldr r3, [sp, #0xe4]
 	strh r1, [r3]
@@ -123172,7 +123172,7 @@ func_0807D218: @ 0x0807D218
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -123182,16 +123182,16 @@ func_0807D218: @ 0x0807D218
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r0, [sp, #0xe4]
 	str r4, [r0]
 	ldr r1, .L0807D728 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r3, [sp, #0xe4]
 	ldr r1, [r3]
@@ -123203,7 +123203,7 @@ func_0807D218: @ 0x0807D218
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe4]
 	ldr r3, [r0]
 	ldr r1, [r3]
@@ -123593,7 +123593,7 @@ func_0807D218: @ 0x0807D218
 .L0807DA2C: .4byte gUnk_080FDE78
 .L0807DA30:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -123691,7 +123691,7 @@ func_0807D218: @ 0x0807D218
 	b .L0807DD08
 .L0807DAFC:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -123873,7 +123873,7 @@ func_0807D218: @ 0x0807D218
 .L0807DC84: .4byte 0x0000070C
 .L0807DC88:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -123923,9 +123923,9 @@ func_0807D218: @ 0x0807D218
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [r4]
 	ldr r2, [r2, #0x10]
@@ -124007,7 +124007,7 @@ func_0807DD68: @ 0x0807DD68
 .L0807DD96:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -124221,7 +124221,7 @@ func_0807DE3C: @ 0x0807DE3C
 	movs r3, #2
 	bl func_0804E9F4
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	movs r1, #0x3f
 	add r3, sp, #0xa0
 	strh r1, [r3]
@@ -124231,7 +124231,7 @@ func_0807DE3C: @ 0x0807DE3C
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	str r5, [r4]
 	str r5, [r4, #4]
@@ -124240,15 +124240,15 @@ func_0807DE3C: @ 0x0807DE3C
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0xa0]
 	ldr r1, .L0807E200 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xa0]
 	ldr r2, [r2, #0x10]
@@ -124536,7 +124536,7 @@ func_0807DE3C: @ 0x0807DE3C
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r1, [sp, #0xd4]
 	ldr r3, [r1]
 	ldr r1, [r3]
@@ -124568,7 +124568,7 @@ func_0807DE3C: @ 0x0807DE3C
 	b .L0807E406
 .L0807E276:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -124691,7 +124691,7 @@ func_0807DE3C: @ 0x0807DE3C
 .L0807E384: .4byte 0x0000070C
 .L0807E388:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -124738,9 +124738,9 @@ func_0807DE3C: @ 0x0807DE3C
 	ldr r1, .L0807E410 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r3, [sp, #0xd4]
 	ldr r1, [r3]
@@ -125186,7 +125186,7 @@ func_0807E558: @ 0x0807E558
 	adds r0, r7, #0
 	bl func_0807E51C
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	movs r1, #0x3f
 	ldr r3, [sp, #0xe8]
 	strh r1, [r3]
@@ -125196,7 +125196,7 @@ func_0807E558: @ 0x0807E558
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -125206,16 +125206,16 @@ func_0807E558: @ 0x0807E558
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r0, [sp, #0xe8]
 	str r4, [r0]
 	ldr r1, .L0807E84C @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r3, [sp, #0xe8]
 	ldr r1, [r3]
@@ -125227,7 +125227,7 @@ func_0807E558: @ 0x0807E558
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe8]
 	ldr r3, [r0]
 	ldr r1, [r3]
@@ -125620,7 +125620,7 @@ func_0807E558: @ 0x0807E558
 .L0807EB58: .4byte gUnk_080FE0C4
 .L0807EB5C:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -125713,7 +125713,7 @@ func_0807E558: @ 0x0807E558
 	b .L0807EDE4
 .L0807EC1C:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -125855,7 +125855,7 @@ func_0807E558: @ 0x0807E558
 .L0807ED54: .4byte 0x0000070C
 .L0807ED58:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -125910,9 +125910,9 @@ func_0807E558: @ 0x0807E558
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r3, [sp, #0xe8]
 	ldr r1, [r3]
@@ -125995,7 +125995,7 @@ func_0807EE44: @ 0x0807EE44
 .L0807EE72:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -126519,7 +126519,7 @@ func_0807EF90: @ 0x0807EF90
 	adds r0, r7, #0
 	bl func_0807EF14
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	movs r1, #0x3f
 	strh r1, [r6]
 	adds r0, #0x50
@@ -126528,7 +126528,7 @@ func_0807EF90: @ 0x0807EF90
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -126538,15 +126538,15 @@ func_0807EF90: @ 0x0807EF90
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [r6]
 	ldr r1, .L0807F310 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [r6]
 	ldr r2, [r2, #0x10]
@@ -126565,7 +126565,7 @@ func_0807EF90: @ 0x0807EF90
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	mov r0, sb
 	ldr r3, [r0]
 	ldr r1, [r3]
@@ -126732,7 +126732,7 @@ func_0807EF90: @ 0x0807EF90
 .L0807F42C: .4byte gUnk_080FE3D4
 .L0807F430:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -126854,9 +126854,9 @@ func_0807EF90: @ 0x0807EF90
 	adds r0, #0xc
 	ldr r1, .L0807F558 @ =0x00000889
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	mov r3, sb
 	ldr r1, [r3]
@@ -126939,7 +126939,7 @@ func_0807F5B0: @ 0x0807F5B0
 .L0807F5DE:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -127644,7 +127644,7 @@ func_0807F8C8: @ 0x0807F8C8
 	adds r0, r6, #0
 	bl func_0807F684
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -127654,7 +127654,7 @@ func_0807F8C8: @ 0x0807F8C8
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -127664,15 +127664,15 @@ func_0807F8C8: @ 0x0807F8C8
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	ldr r1, .L0807FC10 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -127683,7 +127683,7 @@ func_0807F8C8: @ 0x0807F8C8
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #4]
 	ldr r1, [r3]
 	rsbs r0, r1, #0
@@ -128352,7 +128352,7 @@ func_0807F8C8: @ 0x0807F8C8
 .L0808015C: .4byte gUnk_080FE66C
 .L08080160:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -128450,7 +128450,7 @@ func_0807F8C8: @ 0x0807F8C8
 	b .L08080430
 .L0808022C:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -128623,7 +128623,7 @@ func_0807F8C8: @ 0x0807F8C8
 .L080803A4: .4byte 0x0000070C
 .L080803A8:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -128677,9 +128677,9 @@ func_0807F8C8: @ 0x0807F8C8
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -128759,7 +128759,7 @@ func_0808048C: @ 0x0808048C
 .L080804BA:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -129069,7 +129069,7 @@ func_08080540: @ 0x08080540
 	adds r0, r7, #0
 	bl func_080CABEC
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	movs r1, #0x3f
 	ldr r4, [sp, #0xe8]
 	strh r1, [r4]
@@ -129079,7 +129079,7 @@ func_08080540: @ 0x08080540
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -129089,16 +129089,16 @@ func_08080540: @ 0x08080540
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	ldr r0, [sp, #0xe8]
 	str r4, [r0]
 	ldr r1, .L080807D8 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r3, [sp, #0xe8]
 	ldr r1, [r3]
@@ -129110,7 +129110,7 @@ func_08080540: @ 0x08080540
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe8]
 	ldr r3, [r0]
 	ldr r1, [r3]
@@ -129516,7 +129516,7 @@ func_08080540: @ 0x08080540
 .L08080B0C: .4byte 0x000006A4
 .L08080B10:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -129585,7 +129585,7 @@ func_08080540: @ 0x08080540
 .L08080B98: .4byte 0x000006A4
 .L08080B9C:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -129710,7 +129710,7 @@ func_08080540: @ 0x08080540
 .L08080CAC: .4byte 0x000006A4
 .L08080CB0:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -129783,9 +129783,9 @@ func_08080540: @ 0x08080540
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [r4]
 	ldr r2, [r2, #0x10]
@@ -129867,7 +129867,7 @@ func_08080DC4: @ 0x08080DC4
 .L08080DF2:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -130443,7 +130443,7 @@ func_0808114C: @ 0x0808114C
 	adds r0, r6, #0
 	bl func_08081108
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -130453,7 +130453,7 @@ func_0808114C: @ 0x0808114C
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -130463,15 +130463,15 @@ func_0808114C: @ 0x0808114C
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	ldr r1, .L08081300 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -130482,7 +130482,7 @@ func_0808114C: @ 0x0808114C
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #4]
 	ldr r1, [r3]
 	rsbs r0, r1, #0
@@ -130942,7 +130942,7 @@ func_0808114C: @ 0x0808114C
 .L080816A8: .4byte 0x000006A4
 .L080816AC:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -131176,7 +131176,7 @@ func_0808114C: @ 0x0808114C
 .L080818A0: .4byte 0x000006A4
 .L080818A4:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -131283,7 +131283,7 @@ func_0808114C: @ 0x0808114C
 .L08081994: .4byte 0x000006A4
 .L08081998:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -131332,9 +131332,9 @@ func_0808114C: @ 0x0808114C
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -131412,7 +131412,7 @@ func_08081A70: @ 0x08081A70
 .L08081A9E:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -131860,7 +131860,7 @@ func_08081BBC: @ 0x08081BBC
 	adds r0, r7, #0
 	bl func_08081B40
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	movs r1, #0x3f
 	strh r1, [r6]
 	adds r0, #0x50
@@ -131869,7 +131869,7 @@ func_08081BBC: @ 0x08081BBC
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -131879,15 +131879,15 @@ func_08081BBC: @ 0x08081BBC
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [r6]
 	ldr r1, .L08081EB8 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [r6]
 	ldr r2, [r2, #0x10]
@@ -131908,7 +131908,7 @@ func_08081BBC: @ 0x08081BBC
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r1, [sp, #0xf0]
 	ldr r3, [r1]
 	ldr r1, [r3]
@@ -132075,7 +132075,7 @@ func_08081BBC: @ 0x08081BBC
 .L08081FD8: .4byte gUnk_080FEBEC
 .L08081FDC:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -132186,9 +132186,9 @@ func_08081BBC: @ 0x08081BBC
 	adds r0, #0xc
 	ldr r1, .L080820EC @ =0x00000889
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r3, [sp, #0xf0]
 	ldr r1, [r3]
@@ -132271,7 +132271,7 @@ func_08082144: @ 0x08082144
 .L08082172:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -132581,7 +132581,7 @@ func_0808234C: @ 0x0808234C
 	adds r1, r1, r5
 	mov sb, r1
 	ldr r0, [sp, #0xc4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x78]
 	adds r6, r0, #0
 	mov r3, sb
@@ -132591,7 +132591,7 @@ func_0808234C: @ 0x0808234C
 	adds r2, r2, r7
 	adds r0, r4, #0
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
 	cmp r1, r0
@@ -132748,7 +132748,7 @@ func_0808234C: @ 0x0808234C
 	str r0, [r6, #0xc]
 .L08082540:
 	ldr r0, [sp, #0xc4]
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x80]
 	adds r6, r0, #0
 	mov r0, sl
@@ -132757,7 +132757,7 @@ func_0808234C: @ 0x0808234C
 	adds r2, r2, r3
 	add r0, sp, #0x90
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #0x90
 	mov r8, r4
 	ldr r1, [r6, #4]
@@ -133070,7 +133070,7 @@ func_0808268C: @ 0x0808268C
 	movs r3, #0
 	bl func_0804E958
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r2, [r4]
 	lsls r1, r2, #1
 	adds r1, r1, r2
@@ -133090,7 +133090,7 @@ func_0808268C: @ 0x0808268C
 	add r0, sp, #0x20
 	movs r3, #0xc0
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #0x20
 	mov sb, r7
 	ldr r1, [r5, #4]
@@ -134012,7 +134012,7 @@ func_08082CEC: @ 0x08082CEC
 	adds r0, r7, #0
 	bl func_08082C14
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r6, sp, #0x24
 	movs r1, #0x3f
 	strh r1, [r6]
@@ -134022,7 +134022,7 @@ func_08082CEC: @ 0x08082CEC
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -134032,15 +134032,15 @@ func_08082CEC: @ 0x08082CEC
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0x28]
 	ldr r1, .L08082F88 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x28]
 	ldr r2, [r2, #0x10]
@@ -134054,7 +134054,7 @@ sub_08082F50: @ 0x08082F50
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0x28]
 	ldr r1, [r3]
 	rsbs r0, r1, #0
@@ -134177,7 +134177,7 @@ sub_08082F50: @ 0x08082F50
 	.byte 0x16, 0x21, 0xFF, 0xF7, 0xA3, 0xFC, 0x21, 0xE0
 .L08083158:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -134892,9 +134892,9 @@ sub_08082F50: @ 0x08082F50
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x28]
 	ldr r2, [r2, #0x10]
@@ -135187,9 +135187,9 @@ sub_08082F50: @ 0x08082F50
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x28]
 	ldr r2, [r2, #0x10]
@@ -135320,7 +135320,7 @@ func_08083AEC: @ 0x08083AEC
 .L08083B1A:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -136241,7 +136241,7 @@ func_08084228: @ 0x08084228
 	lsls r5, r5, #2
 	adds r5, #0xd0
 	adds r0, r6, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r4, r6
 	movs r7, #0xe4
 	lsls r7, r7, #3
@@ -136257,7 +136257,7 @@ func_08084228: @ 0x08084228
 	adds r2, r5, #0
 	movs r3, #0x90
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r2, [sp, #0x68]
 	ldr r1, [r2, #4]
 	ldr r0, [r2, #0xc]
@@ -136431,7 +136431,7 @@ func_08084228: @ 0x08084228
 	adds r0, r6, #0
 	bl func_080840F4
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0x10
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -136441,7 +136441,7 @@ func_08084228: @ 0x08084228
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -136451,15 +136451,15 @@ func_08084228: @ 0x08084228
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0x10]
 	ldr r1, .L080844DC @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x10]
 	ldr r2, [r2, #0x10]
@@ -136480,7 +136480,7 @@ func_08084228: @ 0x08084228
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0x10]
 	ldr r1, [r3]
 	rsbs r0, r1, #0
@@ -136700,7 +136700,7 @@ func_08084228: @ 0x08084228
 	.byte 0x01, 0x20, 0x08, 0x60, 0x00, 0xF0, 0x20, 0xFC, 0x14, 0x07, 0x00, 0x00
 .L08084C8C:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -136975,7 +136975,7 @@ func_08084228: @ 0x08084228
 .L08084ED4: .4byte gUnk_080FF968
 .L08084ED8:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -137010,7 +137010,7 @@ func_08084228: @ 0x08084228
 	b .L0808518C
 .L08084F24:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -137183,7 +137183,7 @@ func_08084228: @ 0x08084228
 .L08085094: .4byte 0x000061F0
 .L08085098:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -137676,9 +137676,9 @@ func_08084228: @ 0x08084228
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x10]
 	ldr r2, [r2, #0x10]
@@ -137758,7 +137758,7 @@ func_08085528: @ 0x08085528
 .L08085556:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -138398,7 +138398,7 @@ func_0808586C: @ 0x0808586C
 	adds r0, #0xd0
 	mov sl, r0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	ldr r3, [sp, #0x58]
 	adds r1, r4, r3
 	lsls r1, r1, #6
@@ -138416,7 +138416,7 @@ func_0808586C: @ 0x0808586C
 	add r0, sp, #0x1c
 	movs r3, #0xc0
 	lsls r3, r3, #2
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r1, sp, #0x1c
 	mov sb, r1
 	ldr r1, [r5, #4]
@@ -138596,7 +138596,7 @@ func_0808586C: @ 0x0808586C
 	movs r3, #2
 	bl func_0804E9F4
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	movs r6, #0xca
 	lsls r6, r6, #2
@@ -138607,7 +138607,7 @@ func_0808586C: @ 0x0808586C
 	lsls r3, r3, #0x13
 	adds r2, r2, r3
 	movs r3, #0x80
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r4, sp, #0x1c
 	mov sl, r4
 	ldr r1, [r5, #4]
@@ -138751,13 +138751,13 @@ func_0808586C: @ 0x0808586C
 	str r0, [r5, #0xc]
 .L08085CE0:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	add r0, sp, #0x1c
 	ldr r1, .L08085D18 @ =gUnk_087525CC
 	ldr r2, .L08085D1C @ =0x05000020
 	movs r3, #0x20
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r3, sp, #0x1c
 	mov sl, r3
 	ldr r1, [r5, #4]
@@ -140683,7 +140683,7 @@ func_08086A08: @ 0x08086A08
 	lsls r5, r4, #3
 	adds r5, #0xd0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	lsls r4, r4, #6
 	add r4, sb
 	lsls r4, r4, #2
@@ -140700,7 +140700,7 @@ func_08086A08: @ 0x08086A08
 	adds r2, r5, #0
 	movs r3, #0xc0
 	lsls r3, r3, #2
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [sp, #0xa8]
 	str r1, [sp, #0x9c]
 	ldr r1, [r6, #4]
@@ -140882,7 +140882,7 @@ func_08086A08: @ 0x08086A08
 	adds r0, r7, #0
 	bl func_08085F08
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -140892,7 +140892,7 @@ func_08086A08: @ 0x08086A08
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -140902,15 +140902,15 @@ func_08086A08: @ 0x08086A08
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0xc]
 	ldr r1, .L08086E38 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -140923,7 +140923,7 @@ sub_08086DFA: @ 0x08086DFA
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0xc]
 	ldr r1, [r3]
 	rsbs r0, r1, #0
@@ -141991,7 +141991,7 @@ sub_08086DFA: @ 0x08086DFA
 	thumb_func_start sub_08087710
 sub_08087710: @ 0x08087710
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -142215,7 +142215,7 @@ sub_08087710: @ 0x08087710
 .L080878F8: .4byte 0x000006A4
 .L080878FC:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
@@ -142425,7 +142425,7 @@ sub_08087710: @ 0x08087710
 .L08087AB4: .4byte gUnk_080FFF84
 .L08087AB8:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -142842,9 +142842,9 @@ sub_08087710: @ 0x08087710
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -143187,9 +143187,9 @@ sub_08087710: @ 0x08087710
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -143292,7 +143292,7 @@ func_080881AC: @ 0x080881AC
 .L080881DA:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -147254,7 +147254,7 @@ func_0808A2F4: @ 0x0808A2F4
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808A4AC
 	.align 2, 0
 .L0808A41C: .4byte gUnk_08117ADC
@@ -147433,10 +147433,10 @@ func_0808A55C: @ 0x0808A55C
 	bl __builtin_new
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L0808A7C8 @ =gUnk_0810008C
 	str r0, [sp]
@@ -147476,10 +147476,10 @@ func_0808A55C: @ 0x0808A55C
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L0808A7CC @ =gUnk_08100094
 	str r0, [sp]
@@ -147560,7 +147560,7 @@ func_0808A55C: @ 0x0808A55C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -147595,7 +147595,7 @@ func_0808A55C: @ 0x0808A55C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -147616,7 +147616,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r7, #0
 	bl func_080885AC
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0x10
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -147626,7 +147626,7 @@ func_0808A55C: @ 0x0808A55C
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -147636,15 +147636,15 @@ func_0808A55C: @ 0x0808A55C
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0x14]
 	ldr r1, .L0808A7D8 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -147655,7 +147655,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	bl func_080CE2C4
 	ldr r3, [sp, #0x14]
@@ -147697,7 +147697,7 @@ func_0808A55C: @ 0x0808A55C
 	.4byte .L0808AAFA @ case 4
 .L0808A7F4:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -147716,7 +147716,7 @@ func_0808A55C: @ 0x0808A55C
 	b .L0808A89A
 .L0808A81C:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -147733,7 +147733,7 @@ func_0808A55C: @ 0x0808A55C
 	b .L0808A89A
 .L0808A840:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -147743,7 +147743,7 @@ func_0808A55C: @ 0x0808A55C
 	b .L0808A89A
 .L0808A856:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -147754,14 +147754,14 @@ func_0808A55C: @ 0x0808A55C
 .L0808A86C:
 	movs r4, #0
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
 	cmp r1, #0
 	bne .L0808A88E
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
@@ -147778,11 +147778,11 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808AA40
 .L0808A8A6:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -147871,7 +147871,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	mov r1, sb
 	ldr r0, [r1]
 	bl func_080CECD0
@@ -147900,7 +147900,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	mov r2, sb
 	ldr r0, [r2]
 	bl func_080CECD0
@@ -147916,11 +147916,11 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808AA40
 .L0808A9CE:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -147949,9 +147949,9 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -147961,7 +147961,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808AA24: .4byte 0x00000889
 .L0808AA28:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -148150,7 +148150,7 @@ func_0808AB68: @ 0x0808AB68
 .L0808AB96:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -149996,7 +149996,7 @@ func_0808BA60: @ 0x0808BA60
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808BC00
 	.align 2, 0
 .L0808BBB0: .4byte gUnk_08117ADC
@@ -150625,10 +150625,10 @@ func_0808C0BC: @ 0x0808C0BC
 	bl __builtin_new
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L0808C2F0 @ =gUnk_081000B4
 	str r0, [sp]
@@ -150668,10 +150668,10 @@ func_0808C0BC: @ 0x0808C0BC
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L0808C2F4 @ =gUnk_081000BC
 	str r0, [sp]
@@ -150728,7 +150728,7 @@ func_0808C0BC: @ 0x0808C0BC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -150761,7 +150761,7 @@ func_0808C0BC: @ 0x0808C0BC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -150782,7 +150782,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r7, #0
 	bl func_0808BF8C
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #8
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -150792,7 +150792,7 @@ func_0808C0BC: @ 0x0808C0BC
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -150802,15 +150802,15 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0xc]
 	ldr r1, .L0808C300 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -150821,7 +150821,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	bl func_080CE2C4
 	ldr r3, [sp, #0xc]
@@ -150865,7 +150865,7 @@ func_0808C0BC: @ 0x0808C0BC
 	b .L0808C2AC
 .L0808C30C:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -150875,7 +150875,7 @@ func_0808C0BC: @ 0x0808C0BC
 	b .L0808C394
 .L0808C322:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -150885,7 +150885,7 @@ func_0808C0BC: @ 0x0808C0BC
 	b .L0808C394
 .L0808C338:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -150895,7 +150895,7 @@ func_0808C0BC: @ 0x0808C0BC
 	b .L0808C394
 .L0808C34E:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -150906,14 +150906,14 @@ func_0808C0BC: @ 0x0808C0BC
 .L0808C364:
 	movs r4, #0
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
 	cmp r1, #0
 	bne .L0808C386
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
@@ -150931,11 +150931,11 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808C4EE
 .L0808C3A0:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -150978,7 +150978,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808C464
 .L0808C406:
 	mov r1, r8
@@ -151018,7 +151018,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	mov r1, r8
 	ldr r0, [r1]
 	ldr r1, [r0, #4]
@@ -151033,11 +151033,11 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808C4EE
 .L0808C47A:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -151066,9 +151066,9 @@ func_0808C0BC: @ 0x0808C0BC
 	ldr r1, .L0808C4D0 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -151078,7 +151078,7 @@ func_0808C0BC: @ 0x0808C0BC
 .L0808C4D0: .4byte 0x00000889
 .L0808C4D4:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -151206,7 +151206,7 @@ func_0808C59C: @ 0x0808C59C
 .L0808C5CA:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -154890,7 +154890,7 @@ func_0808E444: @ 0x0808E444
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808E648
 	.align 2, 0
 .L0808E624: .4byte gUnk_08117ADC
@@ -155018,10 +155018,10 @@ func_0808E6FC: @ 0x0808E6FC
 	bl __builtin_new
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L0808E968 @ =gUnk_08100128
 	str r0, [sp]
@@ -155061,10 +155061,10 @@ func_0808E6FC: @ 0x0808E6FC
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L0808E96C @ =gUnk_08100130
 	str r0, [sp]
@@ -155145,7 +155145,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -155180,7 +155180,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -155201,7 +155201,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r7, #0
 	bl func_0808C8F4
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0x10
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -155211,7 +155211,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -155221,15 +155221,15 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0x14]
 	ldr r1, .L0808E978 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -155240,7 +155240,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	bl func_080CE2C4
 	ldr r3, [sp, #0x14]
@@ -155282,7 +155282,7 @@ func_0808E6FC: @ 0x0808E6FC
 	.4byte .L0808EC9A @ case 4
 .L0808E994:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -155301,7 +155301,7 @@ func_0808E6FC: @ 0x0808E6FC
 	b .L0808EA3A
 .L0808E9BC:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -155318,7 +155318,7 @@ func_0808E6FC: @ 0x0808E6FC
 	b .L0808EA3A
 .L0808E9E0:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -155328,7 +155328,7 @@ func_0808E6FC: @ 0x0808E6FC
 	b .L0808EA3A
 .L0808E9F6:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -155339,14 +155339,14 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808EA0C:
 	movs r4, #0
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
 	cmp r1, #0
 	bne .L0808EA2E
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
@@ -155363,11 +155363,11 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808EBE0
 .L0808EA46:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -155456,7 +155456,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	mov r1, sb
 	ldr r0, [r1]
 	bl func_080CECD0
@@ -155485,7 +155485,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	mov r2, sb
 	ldr r0, [r2]
 	bl func_080CECD0
@@ -155501,11 +155501,11 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L0808EBE0
 .L0808EB6E:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -155534,9 +155534,9 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -155546,7 +155546,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808EBC4: .4byte 0x00000889
 .L0808EBC8:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -155735,7 +155735,7 @@ func_0808ED08: @ 0x0808ED08
 .L0808ED36:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -158896,7 +158896,7 @@ func_080908CC: @ 0x080908CC
 	adds r0, r6, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L08090952:
 	add sp, #0xc
 	pop {r4, r5, r6}
@@ -158928,10 +158928,10 @@ func_08090960: @ 0x08090960
 	bl __builtin_new
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08090BC8 @ =gUnk_08100148
 	str r0, [sp]
@@ -158971,10 +158971,10 @@ func_08090960: @ 0x08090960
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08090BCC @ =gUnk_08100150
 	str r0, [sp]
@@ -159055,7 +159055,7 @@ func_08090960: @ 0x08090960
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -159090,7 +159090,7 @@ func_08090960: @ 0x08090960
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -159111,7 +159111,7 @@ func_08090960: @ 0x08090960
 	adds r0, r7, #0
 	bl func_0808EF68
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #8
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -159121,7 +159121,7 @@ func_08090960: @ 0x08090960
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -159131,15 +159131,15 @@ func_08090960: @ 0x08090960
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0xc]
 	ldr r1, .L08090BD8 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -159150,7 +159150,7 @@ func_08090960: @ 0x08090960
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	bl func_080CE2C4
 	ldr r3, [sp, #0xc]
@@ -159185,7 +159185,7 @@ func_08090960: @ 0x08090960
 .L08090BD8: .4byte 0x00000889
 .L08090BDC:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -159204,7 +159204,7 @@ func_08090960: @ 0x08090960
 	b .L08090C82
 .L08090C04:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -159221,7 +159221,7 @@ func_08090960: @ 0x08090960
 	b .L08090C82
 .L08090C28:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -159231,7 +159231,7 @@ func_08090960: @ 0x08090960
 	b .L08090C82
 .L08090C3E:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -159242,14 +159242,14 @@ func_08090960: @ 0x08090960
 .L08090C54:
 	movs r4, #0
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
 	cmp r1, #0
 	bne .L08090C76
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
@@ -159266,11 +159266,11 @@ func_08090960: @ 0x08090960
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08090E0C
 .L08090C8E:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -159337,7 +159337,7 @@ func_08090960: @ 0x08090960
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	mov r1, sb
 	ldr r0, [r1]
 	bl func_080CECD0
@@ -159378,7 +159378,7 @@ func_08090960: @ 0x08090960
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	mov r2, sb
 	ldr r0, [r2]
 	bl func_080CECD0
@@ -159387,11 +159387,11 @@ func_08090960: @ 0x08090960
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08090E0C
 .L08090D9A:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -159420,9 +159420,9 @@ func_08090960: @ 0x08090960
 	ldr r1, .L08090DF0 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -159432,7 +159432,7 @@ func_08090960: @ 0x08090960
 .L08090DF0: .4byte 0x00000889
 .L08090DF4:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -159532,7 +159532,7 @@ func_08090E84: @ 0x08090E84
 .L08090EB2:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -159648,7 +159648,7 @@ func_08090F58: @ 0x08090F58
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -160359,10 +160359,10 @@ func_0809152C: @ 0x0809152C
 	bl __builtin_new
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L080917E4 @ =gUnk_0810016C
 	str r0, [sp]
@@ -160402,10 +160402,10 @@ func_0809152C: @ 0x0809152C
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L080917E8 @ =gUnk_08100174
 	str r0, [sp]
@@ -160462,7 +160462,7 @@ func_0809152C: @ 0x0809152C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -160495,7 +160495,7 @@ func_0809152C: @ 0x0809152C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -160531,7 +160531,7 @@ func_0809152C: @ 0x0809152C
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -160552,7 +160552,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	bl func_08091280
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0x10
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -160562,7 +160562,7 @@ func_0809152C: @ 0x0809152C
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -160572,15 +160572,15 @@ func_0809152C: @ 0x0809152C
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0x14]
 	ldr r1, .L080917F4 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -160602,7 +160602,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	bl func_080CE2C4
 	ldr r0, [sp, #0x14]
@@ -160684,7 +160684,7 @@ func_0809152C: @ 0x0809152C
 	.4byte .L08092514 @ case 7
 .L08091854:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -160695,7 +160695,7 @@ func_0809152C: @ 0x0809152C
 	b .L080918E4
 .L0809186C:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -160706,7 +160706,7 @@ func_0809152C: @ 0x0809152C
 	b .L080918E4
 .L08091884:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -160717,7 +160717,7 @@ func_0809152C: @ 0x0809152C
 	b .L080918E4
 .L0809189C:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -160729,14 +160729,14 @@ func_0809152C: @ 0x0809152C
 .L080918B4:
 	movs r4, #0
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
 	cmp r1, #0
 	bne .L080918D6
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
@@ -160754,11 +160754,11 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08091EE8
 .L080918F0:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -160825,7 +160825,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -160874,7 +160874,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -160941,7 +160941,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -160961,7 +160961,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -161032,7 +161032,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -161120,7 +161120,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -161140,7 +161140,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -161206,7 +161206,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -161261,7 +161261,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -161279,7 +161279,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r2, #0x84
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -161365,7 +161365,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r1, #0x84
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -161384,7 +161384,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #0x84
 	lsls r0, r0, #1
 	adds r1, r7, r0
@@ -161394,7 +161394,7 @@ func_0809152C: @ 0x0809152C
 .L08091E84: .4byte gUnk_08100224
 .L08091E88:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -162070,9 +162070,9 @@ func_0809152C: @ 0x0809152C
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -162200,9 +162200,9 @@ func_0809152C: @ 0x0809152C
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -162291,7 +162291,7 @@ func_080925C4: @ 0x080925C4
 .L080925F2:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -163091,7 +163091,7 @@ func_08092A70: @ 0x08092A70
 	adds r0, r5, #0
 	adds r0, #0xc
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08092CBC
 	.align 2, 0
 .L08092C90: .4byte gUnk_081003F4
@@ -163216,10 +163216,10 @@ func_08092D64: @ 0x08092D64
 	bl __builtin_new
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08092FA0 @ =gUnk_08100450
 	str r0, [sp]
@@ -163259,10 +163259,10 @@ func_08092D64: @ 0x08092D64
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08092FA4 @ =gUnk_08100458
 	str r0, [sp]
@@ -163319,7 +163319,7 @@ func_08092D64: @ 0x08092D64
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -163352,7 +163352,7 @@ func_08092D64: @ 0x08092D64
 	bl func_080073E0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007184
+	bl ResourceHandles_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
@@ -163373,7 +163373,7 @@ func_08092D64: @ 0x08092D64
 	adds r0, r7, #0
 	bl func_08092940
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #8
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -163383,7 +163383,7 @@ func_08092D64: @ 0x08092D64
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -163393,15 +163393,15 @@ func_08092D64: @ 0x08092D64
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0xc]
 	ldr r1, .L08092FB0 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -163413,7 +163413,7 @@ func_08092D64: @ 0x08092D64
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	bl func_080CE2C4
 	ldr r3, [sp, #0xc]
@@ -163459,7 +163459,7 @@ func_08092D64: @ 0x08092D64
 	b .L08092F56
 .L08092FBC:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -163469,7 +163469,7 @@ func_08092D64: @ 0x08092D64
 	b .L08093044
 .L08092FD2:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -163479,7 +163479,7 @@ func_08092D64: @ 0x08092D64
 	b .L08093044
 .L08092FE8:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -163489,7 +163489,7 @@ func_08092D64: @ 0x08092D64
 	b .L08093044
 .L08092FFE:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -163500,14 +163500,14 @@ func_08092D64: @ 0x08092D64
 .L08093014:
 	movs r4, #0
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
 	cmp r1, #0
 	bne .L08093036
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
@@ -163525,11 +163525,11 @@ func_08092D64: @ 0x08092D64
 	adds r0, r7, #0
 	adds r0, #0xc
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L080930A0
 .L08093050:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -163542,7 +163542,7 @@ func_08092D64: @ 0x08092D64
 	b .L080930A0
 .L0809306C:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -163657,9 +163657,9 @@ func_08092D64: @ 0x08092D64
 	ldr r1, .L08093178 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0xc]
 	ldr r2, [r2, #0x10]
@@ -163750,7 +163750,7 @@ func_080931E0: @ 0x080931E0
 .L0809320E:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -163817,7 +163817,7 @@ func_0809323C: @ 0x0809323C
 	bl func_0800835C
 	add r4, sp, #0x10
 	adds r0, r4, #0
-	bl func_0800770C
+	bl ResourcePool_Initialize
 	movs r2, #0xe8
 	lsls r2, r2, #1
 	adds r0, r7, r2
@@ -163840,7 +163840,7 @@ func_0809323C: @ 0x0809323C
 	lsls r2, r2, #1
 	adds r0, r7, r2
 	movs r1, #1
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	movs r1, #0xf0
 	lsls r1, r1, #1
 	adds r0, r7, r1
@@ -163916,7 +163916,7 @@ func_08093364: @ 0x08093364
 	adds r7, r0, #0
 	bl func_08008724
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
 	movs r3, #0xea
 	lsls r3, r3, #5
@@ -163924,14 +163924,14 @@ func_08093364: @ 0x08093364
 	strh r1, [r2]
 	strh r1, [r0, #8]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
 	ldr r3, .L0809355C @ =0x00001E41
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xa]
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
 	ldr r3, .L08093560 @ =0x00001F42
 	adds r1, r3, #0
@@ -163946,19 +163946,19 @@ func_08093364: @ 0x08093364
 	adds r0, r4, #0
 	mov r1, r8
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r6, .L08093568 @ =0x0600F800
 	adds r0, r4, #0
 	adds r1, r6, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0809356C @ =0x06007FE0
 	movs r2, #0x80
 	lsls r2, r2, #8
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0x10
 	movs r3, #0xb2
 	lsls r3, r3, #5
@@ -163973,21 +163973,21 @@ func_08093364: @ 0x08093364
 	lsls r1, r1, #0x13
 	ldr r2, .L08093574 @ =gUnk_080F9F74
 	ldr r2, [r2]
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L08093578 @ =0x00030003
 	adds r1, r6, #0
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r0, .L0809357C @ =gUnk_080F9F78
 	ldr r0, [r0]
 	movs r1, #0xa0
 	lsls r1, r1, #0x13
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L08093580 @ =0x03FF03FF
 	mov r1, r8
 	adds r2, r5, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r2, #0xe8
 	lsls r2, r2, #1
 	adds r4, r7, r2
@@ -164009,14 +164009,14 @@ func_08093364: @ 0x08093364
 	bl func_08050E68
 	ldr r1, .L08093588 @ =func_080D0704
 	movs r0, #7
-	bl func_080D100C
+	bl Irq_SetHandler
 	movs r0, #0x80
-	bl func_0800050C
+	bl Irq_AcknowledgeAndEnable
 	movs r0, #0
 	movs r1, #0x80
-	bl func_08000540
+	bl Irq_SetHandlerFlags
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0x10
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -164026,7 +164026,7 @@ func_08093364: @ 0x08093364
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	mov r2, sb
 	str r2, [r4]
@@ -164036,15 +164036,15 @@ func_08093364: @ 0x08093364
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #0x14]
 	ldr r1, .L08093590 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -164055,7 +164055,7 @@ func_08093364: @ 0x08093364
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r0, [r7, #8]
 	movs r1, #8
 	adds r1, r1, r7
@@ -164074,19 +164074,19 @@ func_08093364: @ 0x08093364
 	adds r1, r7, r3
 	str r0, [r1]
 	adds r0, r7, #0
-	bl func_080088DC
+	bl HardwareContext_GetState
 	mov sb, r0
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_0800894C
+	bl HardwareContext_GetVBlankTasks
 	movs r2, #0xea
 	lsls r2, r2, #1
 	adds r1, r7, r2
@@ -164648,9 +164648,9 @@ func_08093364: @ 0x08093364
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x14]
 	ldr r2, [r2, #0x10]
@@ -164754,7 +164754,7 @@ func_08093A88: @ 0x08093A88
 .L08093AB6:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -166548,11 +166548,11 @@ func_08094AC0: @ 0x08094AC0
 	str r4, [r0]
 	adds r0, #4
 	movs r1, #0
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r0, r7, #0
 	adds r0, #0x94
 	movs r1, #2
-	bl func_08008B54
+	bl AudioPlayer_Initialize
 	adds r6, r7, #0
 	adds r6, #0x98
 	ldr r1, .L08094EA0 @ =gUnk_08527094
@@ -166763,7 +166763,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r4, [r5, #4]
 	movs r1, #0xbc
 	lsls r1, r1, #2
@@ -166778,7 +166778,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r2, r2, #2
 	adds r5, r7, r2
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r5, #4]
@@ -166795,7 +166795,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r4, [r5, #4]
 	movs r1, #0xc4
 	lsls r1, r1, #2
@@ -166819,7 +166819,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r3, r3, #2
 	adds r5, r7, r3
 	adds r0, r5, #0
-	bl func_08007128
+	bl ResourceHandles_Initialize
 	str r4, [r5, #4]
 	movs r0, #0xca
 	lsls r0, r0, #2
@@ -167422,7 +167422,7 @@ func_080951B4: @ 0x080951B4
 	adds r0, r6, #0
 	bl func_0809800C
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -167432,7 +167432,7 @@ func_080951B4: @ 0x080951B4
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	mov r3, sb
 	str r3, [r4]
@@ -167442,15 +167442,15 @@ func_080951B4: @ 0x080951B4
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	ldr r1, .L08095280 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -167463,7 +167463,7 @@ func_080951B4: @ 0x080951B4
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	cmp r0, #4
 	bls .L08095270
@@ -167506,13 +167506,13 @@ func_080951B4: @ 0x080951B4
 	mov r8, r0
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
 	bne .L080952DE
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
@@ -167544,13 +167544,13 @@ func_080951B4: @ 0x080951B4
 .L08095308:
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
 	bne .L08095328
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
@@ -167587,7 +167587,7 @@ func_080951B4: @ 0x080951B4
 .L08095358: .4byte 0x00000366
 .L0809535C:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -167612,7 +167612,7 @@ func_080951B4: @ 0x080951B4
 	b .L080953B4
 .L0809538C:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -167645,7 +167645,7 @@ func_080951B4: @ 0x080951B4
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xca
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L080953F2
 	.align 2, 0
 .L080953D4: .4byte 0x00000365
@@ -167660,17 +167660,17 @@ func_080951B4: @ 0x080951B4
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L080953F2:
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
 	bne .L08095410
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -167726,7 +167726,7 @@ func_080951B4: @ 0x080951B4
 	beq .L0809549C
 	adds r0, r4, #0
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r4, #0xcd
 	lsls r4, r4, #2
 	adds r1, r6, r4
@@ -167746,11 +167746,11 @@ func_080951B4: @ 0x080951B4
 .L0809549C:
 	adds r0, r4, #0
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08095508
 .L080954A6:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -167758,7 +167758,7 @@ func_080951B4: @ 0x080951B4
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #1
 	rsbs r0, r0, #0
 	mov sb, r0
@@ -167775,9 +167775,9 @@ func_080951B4: @ 0x080951B4
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -168048,7 +168048,7 @@ func_08095580: @ 0x08095580
 	strb r0, [r1]
 .L08095702:
 	mov r0, sl
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	mov r7, r8
 	adds r2, r7, r6
 	lsls r1, r2, #6
@@ -168065,7 +168065,7 @@ func_08095580: @ 0x08095580
 	add r0, sp, #0x20
 	movs r3, #0xa0
 	lsls r3, r3, #3
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r6, [sp, #0x5c]
 	mov sb, r6
 	ldr r1, [r5, #4]
@@ -168329,7 +168329,7 @@ func_080958C0: @ 0x080958C0
 	adds r0, r6, #0
 	bl func_080989DC
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -168339,7 +168339,7 @@ func_080958C0: @ 0x080958C0
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -168349,15 +168349,15 @@ func_080958C0: @ 0x080958C0
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp]
 	ldr r1, .L080959B4 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp]
 	ldr r2, [r2, #0x10]
@@ -168372,7 +168372,7 @@ func_080958C0: @ 0x080958C0
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	cmp r0, #0xa
 	bls .L0809599E
@@ -168491,9 +168491,9 @@ func_080958C0: @ 0x080958C0
 	adds r0, #0xc
 	movs r2, #2
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp]
 	ldr r2, [r2, #0x10]
@@ -168514,7 +168514,7 @@ func_080958C0: @ 0x080958C0
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xad
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #0x78
 	mov sb, r0
 	movs r7, #4
@@ -168531,7 +168531,7 @@ func_080958C0: @ 0x080958C0
 	b .L08095D10
 .L08095AEA:
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #4
 	movs r4, #0x82
 	lsls r4, r4, #5
@@ -168585,9 +168585,9 @@ func_080958C0: @ 0x080958C0
 	adds r0, #0xc
 	movs r2, #2
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp]
 	ldr r2, [r2, #0x10]
@@ -168782,9 +168782,9 @@ func_080958C0: @ 0x080958C0
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp]
 	ldr r2, [r2, #0x10]
@@ -168897,7 +168897,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	bl func_08098CE8
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -168907,7 +168907,7 @@ func_08095D80: @ 0x08095D80
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	ldr r0, [sp, #8]
 	str r0, [r4]
@@ -168917,15 +168917,15 @@ func_08095D80: @ 0x08095D80
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	ldr r1, .L08095E68 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -168950,7 +168950,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	mov r0, sl
 	cmp r0, #6
 	bls .L08095E58
@@ -168990,7 +168990,7 @@ func_08095D80: @ 0x08095D80
 	mov r5, sb
 	ldr r7, [sp, #0xc]
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -169005,7 +169005,7 @@ func_08095D80: @ 0x08095D80
 	b .L08095EE0
 .L08095EC4:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -169024,13 +169024,13 @@ func_08095D80: @ 0x08095D80
 .L08095EE4:
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
 	bne .L08095F02
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -169054,7 +169054,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L08095F24:
 	ldr r1, [sp, #0xc]
 	lsls r0, r1, #2
@@ -169128,7 +169128,7 @@ func_08095D80: @ 0x08095D80
 	bl func_08050D8C
 .L08095FB6:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -169173,7 +169173,7 @@ func_08095D80: @ 0x08095D80
 	b .L08096066
 .L08096016:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -169215,7 +169215,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08096278
 	.align 2, 0
 .L08096074: .4byte 0xFFFFF000
@@ -169223,13 +169223,13 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08096278
 .L08096084:
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r3, #2
 	str r3, [sp, #8]
 	movs r4, #5
@@ -169243,7 +169243,7 @@ func_08095D80: @ 0x08095D80
 .L080960A4: .4byte gUnk_08100AC0
 .L080960A8:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -169253,14 +169253,14 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #3
 	mov sl, r0
 	b .L08096278
 .L080960C8:
 	mov r4, r8
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -169275,7 +169275,7 @@ func_08095D80: @ 0x08095D80
 	b .L08096102
 .L080960E6:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -169293,7 +169293,7 @@ func_08095D80: @ 0x08095D80
 	b .L08096144
 .L08096106:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -169309,7 +169309,7 @@ func_08095D80: @ 0x08095D80
 	b .L08096144
 .L08096126:
 	adds r0, r6, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -169328,7 +169328,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L08096152:
 	movs r4, #0xd8
 	lsls r4, r4, #2
@@ -169342,7 +169342,7 @@ func_08095D80: @ 0x08095D80
 	adds r1, r6, r2
 	strh r0, [r1]
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -169367,10 +169367,10 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L080961A2:
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -169382,7 +169382,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08096278
 	.align 2, 0
 .L080961C4: .4byte 0x00000362
@@ -169409,13 +169409,13 @@ func_08095D80: @ 0x08095D80
 .L080961F8:
 	movs r4, #0
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
 	bne .L08096216
 	adds r0, r6, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -169428,7 +169428,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	adds r0, r6, #0
 	adds r0, #0x80
 	ldr r1, .L0809623C @ =gUnk_08100AC0
@@ -169446,9 +169446,9 @@ func_08095D80: @ 0x08095D80
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -169578,7 +169578,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r7, #0
 	bl func_0809964C
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0x8c
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -169588,7 +169588,7 @@ func_080962F0: @ 0x080962F0
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	ldr r0, [sp, #0xa8]
 	str r0, [r4]
@@ -169597,7 +169597,7 @@ func_080962F0: @ 0x080962F0
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
-	bl func_08009300
+	bl DisplayFade_Initialize
 	add r5, sp, #0x90
 	str r4, [r5]
 	ldr r1, .L08096410 @ =0x00002B90
@@ -169625,9 +169625,9 @@ func_080962F0: @ 0x080962F0
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [r5]
 	ldr r2, [r2, #0x10]
@@ -169642,7 +169642,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r7, #0
 	bl func_080087C8
 	adds r0, r7, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xac]
 	cmp r0, #4
 	bls .L08096402
@@ -169685,14 +169685,14 @@ func_080962F0: @ 0x080962F0
 .L08096452:
 	movs r4, #0
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #2
 	ands r1, r0
 	cmp r1, #0
 	bne .L08096474
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	lsrs r0, r0, #8
 	movs r1, #1
 	ands r1, r0
@@ -169717,7 +169717,7 @@ func_080962F0: @ 0x080962F0
 .L0809648C: .4byte 0x00002B90
 .L08096490:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x10
 	ands r0, r1
 	cmp r0, #0
@@ -169736,7 +169736,7 @@ func_080962F0: @ 0x080962F0
 	b .L08096544
 .L080964B2:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x20
 	ands r0, r1
 	cmp r0, #0
@@ -169751,7 +169751,7 @@ func_080962F0: @ 0x080962F0
 	b .L080964AC
 .L080964CE:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
 	ands r0, r1
 	cmp r0, #0
@@ -169814,13 +169814,13 @@ func_080962F0: @ 0x080962F0
 	adds r0, r7, #0
 	adds r0, #0x94
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L080965E4
 	.align 2, 0
 .L08096550: .4byte 0x00002BA0
 .L08096554:
 	adds r0, r7, #0
-	bl func_080088D4
+	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
@@ -169890,7 +169890,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r7, #0
 	adds r0, #0x94
 	movs r1, #0xcb
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 .L080965E4:
 	ldr r1, .L08096620 @ =0x00002BA4
 	adds r0, r7, r1
@@ -170131,7 +170131,7 @@ func_080962F0: @ 0x080962F0
 	bl func_08050D8C
 .L080967D0:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #1
 	ands r0, r1
 	cmp r0, #0
@@ -170328,11 +170328,11 @@ func_080962F0: @ 0x080962F0
 	adds r0, #0x94
 .L08096978:
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08096B14
 .L08096980:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
@@ -170348,13 +170348,13 @@ func_080962F0: @ 0x080962F0
 	adds r0, r7, #0
 	adds r0, #0x94
 	movs r1, #0xc6
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08096B14
 	.align 2, 0
 .L080969AC: .4byte gUnk_08100AC0
 .L080969B0:
 	adds r0, r7, #0
-	bl func_080088CC
+	bl HardwareContext_GetPressedKeys
 	movs r1, #8
 	ands r0, r1
 	cmp r0, #0
@@ -170459,7 +170459,7 @@ func_080962F0: @ 0x080962F0
 	mov r0, sb
 .L08096A82:
 	movs r1, #0xc5
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	b .L08096B14
 	.align 2, 0
 .L08096A8C: .4byte 0x0000034A
@@ -170475,7 +170475,7 @@ func_080962F0: @ 0x080962F0
 	strb r2, [r0]
 	mov r0, sb
 	movs r1, #0xc7
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r0, #2
 	str r0, [sp, #0xac]
 	b .L08096B14
@@ -170504,9 +170504,9 @@ func_080962F0: @ 0x080962F0
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #0x90]
 	ldr r2, [r2, #0x10]
@@ -170800,7 +170800,7 @@ func_08096B88: @ 0x08096B88
 	cmp r1, #1
 	ble .L08096D24
 	adds r0, r5, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x28]
 	ldr r3, .L08096D7C @ =0x00002BD0
 	adds r1, r5, r3
@@ -170808,7 +170808,7 @@ func_08096B88: @ 0x08096B88
 	ldr r2, .L08096D84 @ =0x0600F800
 	movs r3, #0xc0
 	lsls r3, r3, #2
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	mov sb, sl
 	ldr r4, [sp, #0x28]
 	ldr r1, [r4, #4]
@@ -171527,7 +171527,7 @@ func_080972AC: @ 0x080972AC
 	adds r0, r6, #0
 	bl func_080989DC
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -171537,7 +171537,7 @@ func_080972AC: @ 0x080972AC
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	mov r2, r8
 	str r2, [r4]
@@ -171547,15 +171547,15 @@ func_080972AC: @ 0x080972AC
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	ldr r1, .L08097370 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -171570,7 +171570,7 @@ func_080972AC: @ 0x080972AC
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	cmp r0, #8
 	bls .L08097362
@@ -171661,9 +171661,9 @@ func_080972AC: @ 0x080972AC
 	adds r0, #0xc
 	movs r2, #2
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -171684,7 +171684,7 @@ func_080972AC: @ 0x080972AC
 	adds r0, r6, #0
 	adds r0, #0x94
 	movs r1, #0xad
-	bl func_08008B6C
+	bl AudioPlayer_StartSong
 	movs r3, #0x78
 	mov sb, r3
 	movs r7, #4
@@ -171701,7 +171701,7 @@ func_080972AC: @ 0x080972AC
 	b .L08097584
 .L0809746E:
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	movs r3, #0x82
 	lsls r3, r3, #5
@@ -171755,9 +171755,9 @@ func_080972AC: @ 0x080972AC
 	adds r0, #0xc
 	movs r2, #2
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -171810,9 +171810,9 @@ func_080972AC: @ 0x080972AC
 	adds r0, #0xc
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -172582,7 +172582,7 @@ func_08097AE4: @ 0x08097AE4
 	bl func_080989DC
 .L08097B34:
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
 	movs r2, #0x3f
 	strh r2, [r1]
@@ -172592,7 +172592,7 @@ func_08097AE4: @ 0x08097AE4
 	bl __builtin_new
 	adds r4, r0, #0
 	adds r0, r6, #0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
 	movs r0, #0
 	str r0, [r4]
@@ -172602,15 +172602,15 @@ func_08097AE4: @ 0x08097AE4
 	adds r5, r4, #0
 	adds r5, #0xc
 	adds r0, r5, #0
-	bl func_08009300
+	bl DisplayFade_Initialize
 	str r4, [sp, #4]
 	ldr r1, .L08097BB0 @ =0x00000889
 	adds r0, r5, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0800934C
+	bl DisplayFade_StartIn
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -172624,7 +172624,7 @@ func_08097AE4: @ 0x08097AE4
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
-	bl func_080088B8
+	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
 	cmp r0, #1
 	beq .L08097BFC
@@ -172739,9 +172739,9 @@ func_08097AE4: @ 0x08097AE4
 	ldr r1, .L08097C98 @ =0x00000889
 	movs r2, #1
 	movs r3, #1
-	bl func_08009378
+	bl DisplayFade_StartOut
 	adds r0, r6, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
 	ldr r1, [sp, #4]
 	ldr r2, [r2, #0x10]
@@ -173172,33 +173172,33 @@ func_0809800C: @ 0x0809800C
 	push {r5, r6, r7}
 	sub sp, #0xb8
 	mov sl, r0
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r4, #0
 	strh r4, [r1]
 	strh r4, [r0, #0x14]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x16]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x18]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1a]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1c]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	strh r4, [r1]
 	strh r4, [r0, #0x1e]
@@ -173208,7 +173208,7 @@ func_0809800C: @ 0x0809800C
 	lsls r2, r2, #8
 	movs r0, #0
 	adds r1, r7, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r6, #1
 	rsbs r6, r6, #0
 	ldr r0, .L08098394 @ =0x0600E000
@@ -173218,18 +173218,18 @@ func_0809800C: @ 0x0809800C
 	adds r0, r6, #0
 	mov r1, r8
 	adds r2, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L08098398 @ =0x0600F800
 	mov sb, r1
 	adds r0, r6, #0
 	adds r2, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	ldr r1, .L0809839C @ =0x0600F000
 	adds r0, r6, #0
 	adds r2, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
 	movs r3, #0xf2
 	lsls r3, r3, #5
@@ -173238,21 +173238,21 @@ func_0809800C: @ 0x0809800C
 	movs r5, #0
 	strh r2, [r0]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L080983A0 @ =0x00001C43
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xe]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L080983A4 @ =0x00001F41
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0, #0xc]
 	mov r0, sl
-	bl func_08008918
+	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
 	ldr r3, .L080983A8 @ =0x00001E42
 	adds r1, r3, #0
@@ -173263,11 +173263,11 @@ func_0809800C: @ 0x0809800C
 	ldr r1, .L080983B0 @ =gUnk_080F9F74
 	ldr r2, [r1]
 	adds r1, r7, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, .L080983B4 @ =0x00030003
 	mov r1, r8
 	adds r2, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r0, #3
 	str r0, [sp]
 	str r5, [sp, #4]
@@ -173282,7 +173282,7 @@ func_0809800C: @ 0x0809800C
 	movs r1, #0xa0
 	lsls r1, r1, #0x13
 	movs r2, #0x20
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r1, .L080983BC @ =0x05000040
 	movs r7, #0xf8
 	lsls r7, r7, #2
@@ -173298,7 +173298,7 @@ func_0809800C: @ 0x0809800C
 	add r1, sl
 	adds r0, r6, #0
 	adds r2, r4, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r5, #0x84
 	lsls r5, r5, #6
 	movs r1, #0
@@ -173362,7 +173362,7 @@ func_0809800C: @ 0x0809800C
 	ldr r1, .L0809839C @ =0x0600F000
 	movs r2, #0x80
 	lsls r2, r2, #4
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, .L080983D0 @ =gUnk_08750C8C
 	movs r0, #0xc4
 	lsls r0, r0, #2
@@ -173376,7 +173376,7 @@ func_0809800C: @ 0x0809800C
 	movs r2, #0xe0
 	lsls r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r5, [sp, #0xa4]
 	movs r0, #0
 	str r0, [sp, #0x10]
@@ -173431,7 +173431,7 @@ func_0809800C: @ 0x0809800C
 	ldrh r2, [r6, #4]
 .L0809824A:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	mov r0, sb
 	ldr r1, [sp, #0xac]
 	movs r2, #0
@@ -173460,7 +173460,7 @@ func_0809800C: @ 0x0809800C
 	ldrh r2, [r3, #4]
 .L08098288:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, [sp, #0x18]
 	movs r0, #0xbc
 	lsls r0, r0, #2
@@ -173477,7 +173477,7 @@ func_0809800C: @ 0x0809800C
 	ldrh r2, [r0, #4]
 .L080982AC:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #0xc0
 	lsls r0, r0, #2
 	add r0, sl
@@ -173489,7 +173489,7 @@ func_0809800C: @ 0x0809800C
 	movs r2, #0xe0
 	lsls r2, r2, #3
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r5, #0
 	add r7, sp, #0x94
 	movs r1, #1
@@ -173541,7 +173541,7 @@ func_0809800C: @ 0x0809800C
 	adds r1, r1, r2
 	ldr r0, [sp, #0x9c]
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 .L0809833C:
 	adds r5, #1
 	cmp r5, #0x15
@@ -173726,7 +173726,7 @@ func_080983E8: @ 0x080983E8
 	orrs r1, r0
 	str r1, [sp, #0x60]
 	mov r0, r8
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -173835,7 +173835,7 @@ func_080983E8: @ 0x080983E8
 	orrs r0, r1
 	str r0, [r5, #4]
 	mov r0, r8
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -173931,7 +173931,7 @@ func_080983E8: @ 0x080983E8
 	b .L080987CE
 .L08098676:
 	mov r0, r8
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x24]
 	ldr r1, [r4, #4]
@@ -173951,7 +173951,7 @@ func_080983E8: @ 0x080983E8
 	adds r2, r2, r5
 	ldr r0, [sp, #0x80]
 	adds r1, r7, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r7, [sp, #0x80]
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -174100,7 +174100,7 @@ func_080983E8: @ 0x080983E8
 	str r0, [r6, #0xc]
 .L080987CE:
 	mov r0, r8
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -174190,7 +174190,7 @@ func_080983E8: @ 0x080983E8
 	b .L080989A8
 .L0809888C:
 	mov r0, r8
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x24]
 	ldr r1, [r4, #4]
@@ -174210,7 +174210,7 @@ func_080983E8: @ 0x080983E8
 	adds r2, r2, r1
 	ldr r0, [sp, #0x80]
 	adds r1, r7, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r2, [sp, #0x80]
 	mov sl, r2
 	ldr r1, [r6, #4]
@@ -174345,7 +174345,7 @@ func_080983E8: @ 0x080983E8
 	str r0, [r6, #0xc]
 .L080989A8:
 	mov r0, r8
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -174403,10 +174403,10 @@ func_080989DC: @ 0x080989DC
 	bl __builtin_new
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08098BB0 @ =gUnk_08101020
 	str r0, [sp]
@@ -174510,10 +174510,10 @@ func_080989DC: @ 0x080989DC
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08098BBC @ =gUnk_0810102C
 	str r0, [sp]
@@ -174723,7 +174723,7 @@ func_080989DC: @ 0x080989DC
 	ldrh r2, [r3, #4]
 .L08098CCE:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	add sp, #0x84
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -174769,10 +174769,10 @@ func_08098CE8: @ 0x08098CE8
 	bl __builtin_new
 	adds r5, r0, #0
 	mov r0, r8
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	mov r0, r8
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08098FDC @ =gUnk_08101020
 	str r0, [sp]
@@ -174930,7 +174930,7 @@ func_08098CE8: @ 0x08098CE8
 	ldrh r2, [r5, #4]
 .L08098E78:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	mov r0, sb
 	ldr r1, [sp, #0xa0]
 	movs r2, #0
@@ -174959,7 +174959,7 @@ func_08098CE8: @ 0x08098CE8
 	ldrh r2, [r0, #4]
 .L08098EB6:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, [sp, #0x14]
 	movs r0, #0xbc
 	lsls r0, r0, #2
@@ -174977,7 +174977,7 @@ func_08098CE8: @ 0x08098CE8
 	ldrh r2, [r3, #4]
 .L08098EDC:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r0, #0xc0
 	lsls r0, r0, #2
 	add r0, r8
@@ -174989,7 +174989,7 @@ func_08098CE8: @ 0x08098CE8
 	movs r2, #0xe0
 	lsls r2, r2, #3
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r7, #0
 	movs r4, #1
 	mov sb, r4
@@ -175050,7 +175050,7 @@ func_08098CE8: @ 0x08098CE8
 	adds r1, r1, r3
 	ldr r0, [sp, #0xa4]
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 	adds r5, #1
 	adds r6, #1
 	cmp r6, #9
@@ -175211,7 +175211,7 @@ func_08099000: @ 0x08099000
 	orrs r1, r0
 	str r1, [r4, #4]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -175384,7 +175384,7 @@ func_08099144: @ 0x08099144
 	b .L0809935A
 .L0809923E:
 	mov r0, sb
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	ldr r5, [sp, #0x24]
 	ldr r1, [r7, #4]
@@ -175404,7 +175404,7 @@ func_08099144: @ 0x08099144
 	adds r2, r2, r0
 	add r0, sp, #0x3c
 	adds r1, r5, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r1, sp, #0x3c
 	mov sl, r1
 	ldr r1, [r6, #4]
@@ -175556,7 +175556,7 @@ func_08099144: @ 0x08099144
 	ldrb r0, [r1, #1]
 	strh r0, [r5, #2]
 	mov r0, sb
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -175590,7 +175590,7 @@ func_08099144: @ 0x08099144
 	ldrb r0, [r1]
 	strh r0, [r2, #2]
 	mov r0, sb
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -175626,7 +175626,7 @@ func_08099144: @ 0x08099144
 	ldrb r0, [r1, #1]
 	strh r0, [r5, #2]
 	mov r0, sb
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -175732,7 +175732,7 @@ func_08099144: @ 0x08099144
 	b .L080995FA
 .L080994DC:
 	mov r0, sb
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r7, [sp, #0x24]
 	ldr r1, [r4, #4]
@@ -175752,7 +175752,7 @@ func_08099144: @ 0x08099144
 	adds r2, r2, r5
 	add r0, sp, #0x3c
 	adds r1, r7, #0
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	add r7, sp, #0x3c
 	mov sl, r7
 	ldr r1, [r6, #4]
@@ -175902,7 +175902,7 @@ func_08099144: @ 0x08099144
 	adds r0, #0x10
 	strh r0, [r5, #2]
 	mov r0, sb
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -175963,10 +175963,10 @@ func_0809964C: @ 0x0809964C
 	bl __builtin_new
 	adds r6, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08099740 @ =gUnk_08101038
 	str r0, [sp]
@@ -176090,10 +176090,10 @@ func_0809964C: @ 0x0809964C
 	bl __builtin_new
 	adds r5, r0, #0
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
 	adds r0, r7, #0
-	bl func_08008940
+	bl HardwareContext_GetFrameTasks
 	adds r2, r0, #0
 	ldr r0, .L08099A98 @ =gUnk_08101044
 	str r0, [sp]
@@ -176136,7 +176136,7 @@ func_0809964C: @ 0x0809964C
 	movs r2, #0xe0
 	lsls r2, r2, #1
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r6, [sp, #0xb8]
 	movs r0, #0
 	str r0, [sp, #0x10]
@@ -176196,7 +176196,7 @@ func_0809964C: @ 0x0809964C
 	ldrh r2, [r3, #4]
 .L08099882:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	mov r0, sl
 	ldr r4, [r0]
 	ldr r0, [sp, #0xac]
@@ -176240,7 +176240,7 @@ func_0809964C: @ 0x0809964C
 	ldrh r2, [r3, #4]
 .L080998E2:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r0, [sp, #0xc4]
 	ldr r1, [sp, #0xb0]
 	movs r2, #0
@@ -176270,7 +176270,7 @@ func_0809964C: @ 0x0809964C
 	ldrh r2, [r3, #4]
 .L08099922:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	ldr r4, [sp, #0x18]
 	movs r1, #0xbc
 	lsls r1, r1, #2
@@ -176288,7 +176288,7 @@ func_0809964C: @ 0x0809964C
 	ldrh r2, [r3, #4]
 .L08099948:
 	adds r0, r4, #0
-	bl func_08008E64
+	bl Dma3_Copy
 	movs r4, #0xc0
 	lsls r4, r4, #2
 	adds r0, r7, r4
@@ -176301,7 +176301,7 @@ func_0809964C: @ 0x0809964C
 	movs r2, #0xe0
 	lsls r2, r2, #3
 	movs r0, #0
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r5, #0
 	add r1, sp, #0xa0
 	mov r8, r1
@@ -176355,7 +176355,7 @@ func_0809964C: @ 0x0809964C
 	adds r1, r1, r4
 	ldr r0, [sp, #0xa8]
 	movs r2, #0x40
-	bl func_08008E64
+	bl Dma3_Copy
 .L080999DE:
 	adds r5, #1
 	cmp r5, #0x10
@@ -176395,7 +176395,7 @@ func_0809964C: @ 0x0809964C
 	adds r1, r7, r4
 	movs r2, #0xc0
 	lsls r2, r2, #2
-	bl func_08008EB8
+	bl Dma3_Fill
 	movs r3, #0
 	ldr r6, .L08099AC0 @ =gUnk_0811785C
 	ldr r5, .L08099AC4 @ =0x0000101C
@@ -176607,7 +176607,7 @@ func_08099ACC: @ 0x08099ACC
 	orrs r1, r0
 	str r1, [r3, #4]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -176696,7 +176696,7 @@ func_08099ACC: @ 0x08099ACC
 	orrs r1, r0
 	strh r1, [r4, #4]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -176773,7 +176773,7 @@ func_08099ACC: @ 0x08099ACC
 	orrs r0, r2
 	strh r0, [r4, #4]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldrb r2, [r3]
 	cmp r2, #0x7f
@@ -176877,7 +176877,7 @@ func_08099ACC: @ 0x08099ACC
 	b .L08099F60
 .L08099E22:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r6, [sp, #0x24]
 	mov r8, r6
@@ -176898,7 +176898,7 @@ func_08099ACC: @ 0x08099ACC
 	adds r2, r2, r1
 	mov r0, sl
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -177064,7 +177064,7 @@ func_08099ACC: @ 0x08099ACC
 	ldrb r0, [r1, #1]
 	strh r0, [r5, #2]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -177098,7 +177098,7 @@ func_08099ACC: @ 0x08099ACC
 	ldrb r0, [r1, #1]
 	strh r0, [r5, #2]
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -177191,7 +177191,7 @@ func_08099ACC: @ 0x08099ACC
 	b .L0809A1C8
 .L0809A090:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r6, [sp, #0x24]
 	mov r8, r6
@@ -177212,7 +177212,7 @@ func_08099ACC: @ 0x08099ACC
 	adds r2, r2, r1
 	mov r0, sl
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -177356,7 +177356,7 @@ func_08099ACC: @ 0x08099ACC
 	str r0, [r2, #0xc]
 .L0809A1C8:
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -177446,7 +177446,7 @@ func_08099ACC: @ 0x08099ACC
 	b .L0809A3B0
 .L0809A286:
 	adds r0, r7, #0
-	bl func_08008910
+	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
 	ldr r6, [sp, #0x24]
 	mov r8, r6
@@ -177467,7 +177467,7 @@ func_08099ACC: @ 0x08099ACC
 	adds r2, r2, r1
 	mov r0, sl
 	mov r1, r8
-	bl func_08008F0C
+	bl DmaCommand_InitializeCopy
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
@@ -177607,7 +177607,7 @@ func_08099ACC: @ 0x08099ACC
 	str r0, [r2, #0xc]
 .L0809A3B0:
 	adds r0, r7, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -177729,7 +177729,7 @@ func_0809A3E0: @ 0x0809A3E0
 	mov r0, sp
 	strb r2, [r0, #0x18]
 	adds r0, r5, #0
-	bl func_08008920
+	bl HardwareContext_GetOamBuffer
 	adds r3, r0, #0
 	ldr r0, [sp, #0x1c]
 	adds r1, r0, #0
@@ -177809,7 +177809,7 @@ func_0809A518: @ 0x0809A518
 .L0809A546:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080007EC
+	bl Scene_DestroyBase
 	pop {r4, r5}
 	pop {r0}
 	bx r0

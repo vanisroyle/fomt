@@ -4,7 +4,7 @@
     thumb_func_start func_0800736C
 func_0800736C: @ 0x0800736C
     push {r4, r5, lr}
-    ldr r0, .L080073CC @ =gUnk_03000404
+    ldr r0, .L080073CC @ =gResourceHandleRegistry
     ldr r2, [r0]
     ldr r3, [r2]
     adds r5, r3, #0
@@ -53,7 +53,7 @@ func_0800736C: @ 0x0800736C
     orrs r2, r0
     b .L080073D6
     .align 2, 0
-.L080073CC: .4byte gUnk_03000404
+.L080073CC: .4byte gResourceHandleRegistry
 .L080073D0: .4byte 0x0000FFFF
 .L080073D4:
     movs r2, #0
@@ -68,7 +68,7 @@ func_0800736C: @ 0x0800736C
 func_080073E0: @ 0x080073E0
     push {r4, r5, lr}
     adds r4, r1, #0
-    ldr r0, .L08007458 @ =gUnk_03000404
+    ldr r0, .L08007458 @ =gResourceHandleRegistry
     ldr r3, [r0]
     cmp r4, #0
     beq .L08007450
@@ -130,14 +130,14 @@ func_080073E0: @ 0x080073E0
     pop {r0}
     bx r0
     .align 2, 0
-.L08007458: .4byte gUnk_03000404
+.L08007458: .4byte gResourceHandleRegistry
 
     .section .text.handle_index, "ax"
     thumb_func_start func_080074C0
 func_080074C0: @ 0x080074C0
     push {r4, r5, lr}
     adds r3, r1, #0
-    ldr r0, .L0800750C @ =gUnk_03000404
+    ldr r0, .L0800750C @ =gResourceHandleRegistry
     ldr r4, [r0]
     cmp r3, #0
     beq .L08007502
@@ -178,7 +178,7 @@ func_080074C0: @ 0x080074C0
     pop {r1}
     bx r1
     .align 2, 0
-.L0800750C: .4byte gUnk_03000404
+.L0800750C: .4byte gResourceHandleRegistry
 
     .text
 .L08007564:
@@ -232,7 +232,7 @@ func_08007714: @ 0x08007714
     bl func_080073E0
     adds r0, r4, #0
     movs r1, #2
-    bl func_08007184
+    bl ResourceHandles_Destroy
     adds r4, #8
     cmp r4, r5
     bne .L0800772E
@@ -286,17 +286,17 @@ func_08007770: @ 0x08007770
 .L08007798:
     ldr r1, [r5, #4]
     adds r0, r5, #0
-    bl func_08007510
+    bl ResourceHandle_GetRefCount
     cmp r0, #1
     beq .L080077B8
     cmp r4, sb
     bne .L0800778E
 .L080077A8:
     adds r0, r7, #0
-    bl func_08007128
+    bl ResourceHandles_Initialize
     ldr r1, [r4, #4]
     adds r0, r7, #0
-    bl func_0800745C
+    bl ResourceHandle_Retain
     b .L080077CA
 .L080077B8:
     str r4, [r6, #0x10]
@@ -304,7 +304,7 @@ func_08007770: @ 0x08007770
     b .L080077A8
 .L080077BE:
     adds r0, r7, #0
-    bl func_08007128
+    bl ResourceHandles_Initialize
     adds r0, r7, #0
     bl func_0800736C
 .L080077CA:
@@ -529,7 +529,7 @@ func_08007874: @ 0x08007874
     bne .L08007980
 .L08007986:
     ldr r0, [sp, #0xc]
-    bl func_08007EC8
+    bl AllocationTree_MarkEmpty
     mov r2, r8
     ldr r0, .L080079B4 @ =gUnk_03000408
     str r2, [r0]
@@ -1218,7 +1218,7 @@ func_08007EE8: @ 0x08007EE8
     cmp r0, r1
     bls .L08007F14
     adds r0, r5, #0
-    bl func_08007EA8
+    bl AllocationTree_MarkFull
     b .L08007F72
     .align 2, 0
 .L08007F10: .4byte 0x000003FF
@@ -1300,7 +1300,7 @@ func_08007F84: @ 0x08007F84
     cmp r0, r1
     bls .L08007FB0
     adds r0, r5, #0
-    bl func_08007EC8
+    bl AllocationTree_MarkEmpty
     b .L08008010
     .align 2, 0
 .L08007FAC: .4byte 0x000003FF
@@ -1423,7 +1423,7 @@ func_08008020: @ 0x08008020
     cmp r0, #0
     beq .L08008092
     adds r0, r6, #0
-    bl func_08007EA8
+    bl AllocationTree_MarkFull
     movs r0, #0
     b .L08008096
 .L08008092:
@@ -1472,7 +1472,7 @@ func_080080A0: @ 0x080080A0
     cmp r2, #0xa
     bne .L080080E4
     adds r0, r4, #0
-    bl func_08007EC8
+    bl AllocationTree_MarkEmpty
 .L080080E4:
     pop {r4, r5}
     pop {r0}
@@ -1660,7 +1660,7 @@ func_08008444: @ 0x08008444
     adds r4, r0, #0
     movs r1, #0x1e
     movs r2, #4
-    bl func_080091A4
+    bl KeyRepeat_Initialize
     movs r5, #0
     str r5, [r4, #0x24]
     str r5, [r4, #0x28]
@@ -1668,12 +1668,12 @@ func_08008444: @ 0x08008444
     adds r0, #0x2c
     str r5, [r0, #4]
     adds r0, #8
-    bl func_080096B0
+    bl DisplayRegisters_Initialize
     adds r0, r4, #0
     adds r0, #0x8c
     movs r1, #0
     movs r2, #0x20
-    bl func_08009744
+    bl OamBuffer_Initialize
     movs r1, #0x92
     lsls r1, r1, #3
     adds r0, r4, r1
@@ -1682,7 +1682,7 @@ func_08008444: @ 0x08008444
     adds r2, r4, r3
     str r5, [r2]
     str r5, [r2, #4]
-    ldr r0, .L080084CC @ =vtable_unk_080E5BB4
+    ldr r0, .L080084CC @ =gTaskListVtable
     str r0, [r2, #8]
     ldr r0, .L080084D0 @ =0x000004A4
     adds r1, r4, r0
@@ -1710,7 +1710,7 @@ func_08008444: @ 0x08008444
     .align 2, 0
 .L080084C4: .4byte vtable_unk_080E5B00
 .L080084C8: .4byte 0x00000494
-.L080084CC: .4byte vtable_unk_080E5BB4
+.L080084CC: .4byte gTaskListVtable
 .L080084D0: .4byte 0x000004A4
 .L080084D4: .4byte vtable_unk_080E5BD8
 .L080084D8: .4byte 0x04000004
@@ -1729,7 +1729,7 @@ func_080084DC: @ 0x080084DC
     adds r5, r0, #0
     ldrh r1, [r4]
     ldrh r2, [r4, #2]
-    bl func_080091A4
+    bl KeyRepeat_Initialize
     movs r4, #0
     str r4, [r5, #0x24]
     str r4, [r5, #0x28]
@@ -1737,12 +1737,12 @@ func_080084DC: @ 0x080084DC
     adds r0, #0x2c
     str r4, [r0, #4]
     adds r0, #8
-    bl func_080096B0
+    bl DisplayRegisters_Initialize
     adds r0, r5, #0
     adds r0, #0x8c
     movs r1, #0
     movs r2, #0x20
-    bl func_08009744
+    bl OamBuffer_Initialize
     movs r1, #0x92
     lsls r1, r1, #3
     adds r0, r5, r1
@@ -1751,7 +1751,7 @@ func_080084DC: @ 0x080084DC
     adds r2, r5, r3
     str r4, [r2]
     str r4, [r2, #4]
-    ldr r0, .L08008564 @ =vtable_unk_080E5BB4
+    ldr r0, .L08008564 @ =gTaskListVtable
     str r0, [r2, #8]
     ldr r0, .L08008568 @ =0x000004A4
     adds r1, r5, r0
@@ -1779,7 +1779,7 @@ func_080084DC: @ 0x080084DC
     .align 2, 0
 .L0800855C: .4byte vtable_unk_080E5B00
 .L08008560: .4byte 0x00000494
-.L08008564: .4byte vtable_unk_080E5BB4
+.L08008564: .4byte gTaskListVtable
 .L08008568: .4byte 0x000004A4
 .L0800856C: .4byte vtable_unk_080E5BD8
 .L08008570: .4byte 0x04000004
@@ -1800,7 +1800,7 @@ func_08008574: @ 0x08008574
     adds r4, r0, #0
     movs r1, #0x1e
     movs r2, #4
-    bl func_080091A4
+    bl KeyRepeat_Initialize
     movs r5, #0
     str r5, [r4, #0x24]
     str r5, [r4, #0x28]
@@ -1808,13 +1808,13 @@ func_08008574: @ 0x08008574
     adds r0, #0x2c
     str r5, [r0, #4]
     adds r0, #8
-    bl func_080096B0
+    bl DisplayRegisters_Initialize
     adds r0, r4, #0
     adds r0, #0x8c
     mov r2, r8
     ldrb r1, [r2]
     ldrb r2, [r2, #1]
-    bl func_08009744
+    bl OamBuffer_Initialize
     movs r3, #0x92
     lsls r3, r3, #3
     adds r0, r4, r3
@@ -1823,7 +1823,7 @@ func_08008574: @ 0x08008574
     adds r2, r4, r0
     str r5, [r2]
     str r5, [r2, #4]
-    ldr r0, .L08008608 @ =vtable_unk_080E5BB4
+    ldr r0, .L08008608 @ =gTaskListVtable
     str r0, [r2, #8]
     ldr r3, .L0800860C @ =0x000004A4
     adds r1, r4, r3
@@ -1853,7 +1853,7 @@ func_08008574: @ 0x08008574
     .align 2, 0
 .L08008600: .4byte vtable_unk_080E5B00
 .L08008604: .4byte 0x00000494
-.L08008608: .4byte vtable_unk_080E5BB4
+.L08008608: .4byte gTaskListVtable
 .L0800860C: .4byte 0x000004A4
 .L08008610: .4byte vtable_unk_080E5BD8
 .L08008614: .4byte 0x04000004
@@ -1884,7 +1884,7 @@ func_080086BC: @ 0x080086BC
     ldr r1, .L08008720 @ =0x00000494
     adds r0, r4, r1
     movs r1, #2
-    bl func_080098DC
+    bl TaskList_Destroy
     movs r1, #0x92
     lsls r1, r1, #3
     adds r0, r4, r1
@@ -1944,16 +1944,16 @@ func_08008724: @ 0x08008724
     lsls r0, r0, #3
     adds r4, r4, r0
     adds r0, r4, #0
-    bl func_08008AE0
+    bl VBlankDispatcher_GetTasks
     ldr r1, [r0, #8]
     ldr r2, [r1, #0x10]
     mov r1, sp
     bl _call_via_r2
     adds r0, r4, #0
-    bl func_08008AF0
+    bl VBlankDispatcher_Wait
     mov r0, sp
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     add sp, #0x10
     pop {r4}
     pop {r0}
@@ -1977,7 +1977,7 @@ func_080087C8: @ 0x080087C8
     ldr r5, [r0]
     adds r2, r5, #0
     adds r2, #0x34
-    ldr r3, .L0800889C @ =vtable_unk_080E5BE8
+    ldr r3, .L0800889C @ =gTaskNodeVtable
     movs r1, #0
     str r1, [sp]
     str r1, [sp, #4]
@@ -2002,7 +2002,7 @@ func_080087C8: @ 0x080087C8
     add r4, sp, #0x30
     str r1, [sp, #0x30]
     str r1, [r4, #4]
-    ldr r0, .L080088AC @ =vtable_unk_080E5BB4
+    ldr r0, .L080088AC @ =gTaskListVtable
     str r0, [sp, #0x38]
     add r2, sp, #0x40
     str r2, [r4, #0xc]
@@ -2017,45 +2017,45 @@ func_080087C8: @ 0x080087C8
     ldr r0, .L080088B4 @ =0x00000494
     adds r1, r5, r0
     adds r0, r4, #0
-    bl func_08009940
+    bl TaskList_Append
     adds r0, r4, #0
     mov r1, sp
-    bl func_08009940
+    bl TaskList_Append
     adds r0, r4, #0
     adds r1, r6, #0
-    bl func_08009940
+    bl TaskList_Append
     adds r0, r4, #0
     mov r1, r8
-    bl func_08009940
+    bl TaskList_Append
     movs r0, #0x92
     lsls r0, r0, #3
     adds r5, r5, r0
     adds r0, r5, #0
-    bl func_08008AE0
+    bl VBlankDispatcher_GetTasks
     ldr r1, [r0, #8]
     ldr r2, [r1, #0x10]
     adds r1, r4, #0
     bl _call_via_r2
     adds r0, r5, #0
-    bl func_08008AF0
+    bl VBlankDispatcher_Wait
     adds r0, r5, #0
-    bl func_08008AE0
+    bl VBlankDispatcher_GetTasks
     ldr r1, [r0, #8]
     ldr r2, [r1, #0x14]
     adds r1, r4, #0
     bl _call_via_r2
     adds r0, r4, #0
     movs r1, #2
-    bl func_080098DC
+    bl TaskList_Destroy
     adds r0, r6, #0
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     mov r0, r8
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     mov r0, sp
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     add sp, #0x4c
     pop {r3}
     mov r8, r3
@@ -2063,11 +2063,11 @@ func_080087C8: @ 0x080087C8
     pop {r0}
     bx r0
     .align 2, 0
-.L0800889C: .4byte vtable_unk_080E5BE8
+.L0800889C: .4byte gTaskNodeVtable
 .L080088A0: .4byte vtable_unk_080E5AF0
 .L080088A4: .4byte vtable_unk_080E5AE0
 .L080088A8: .4byte vtable_unk_080E5AD0
-.L080088AC: .4byte vtable_unk_080E5BB4
+.L080088AC: .4byte gTaskListVtable
 .L080088B0: .4byte vtable_unk_080E5BD8
 .L080088B4: .4byte 0x00000494
 
@@ -2114,7 +2114,7 @@ func_08008980: @ 0x08008980
     adds r5, #0xc
     str r2, [r6, #0xc]
     str r2, [r5, #4]
-    ldr r0, .L08008A50 @ =vtable_unk_080E5BB4
+    ldr r0, .L08008A50 @ =gTaskListVtable
     mov ip, r0
     str r0, [r5, #8]
     adds r1, r6, #0
@@ -2128,7 +2128,7 @@ func_08008980: @ 0x08008980
     adds r0, #0x18
     str r0, [r5, #0x10]
     str r1, [r5, #0x14]
-    ldr r3, .L08008A58 @ =vtable_unk_080E5B90
+    ldr r3, .L08008A58 @ =gIrqTaskListVtable
     str r3, [r5, #8]
     movs r1, #0x28
     adds r1, r1, r6
@@ -2164,24 +2164,24 @@ func_08008980: @ 0x08008980
     str r0, [r7, #8]
     adds r4, r6, #0
     adds r4, #0x68
-    bl func_08008D9C
+    bl Audio_IsDma1Enabled
     movs r1, #1
     eors r0, r1
     strb r0, [r4]
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08008A20
-    bl func_08008D84
+    bl Audio_EnableVBlankDma
 .L08008A20:
     adds r0, r7, #0
     adds r1, r6, #0
-    bl func_080095C0
+    bl IrqTaskList_Append
     adds r0, r7, #0
     adds r1, r5, #0
-    bl func_080095C0
+    bl IrqTaskList_Append
     adds r0, r7, #0
     mov r1, r8
-    bl func_080095C0
+    bl IrqTaskList_Append
     mov r1, sb
     str r6, [r1]
     mov r0, sb
@@ -2194,9 +2194,9 @@ func_08008980: @ 0x08008980
     bx r1
     .align 2, 0
 .L08008A4C: .4byte vtable_unk_080E5B70
-.L08008A50: .4byte vtable_unk_080E5BB4
+.L08008A50: .4byte gTaskListVtable
 .L08008A54: .4byte vtable_unk_080E5BD8
-.L08008A58: .4byte vtable_unk_080E5B90
+.L08008A58: .4byte gIrqTaskListVtable
 .L08008A5C: .4byte vtable_unk_080E5B60
 .L08008A60: .4byte vtable_unk_080E5B0C
 .L08008A64: .4byte vtable_unk_080E5B18
@@ -2214,7 +2214,7 @@ func_08008A68: @ 0x08008A68
     ldrb r0, [r0]
     cmp r0, #0
     beq .L08008A82
-    bl func_08008D90
+    bl Audio_DisableVBlankDma
 .L08008A82:
     adds r4, r5, #0
     adds r4, #0x34
@@ -2228,18 +2228,18 @@ func_08008A68: @ 0x08008A68
     bl func_080D7944
     adds r0, r4, #0
     movs r1, #2
-    bl func_0800959C
+    bl IrqTaskList_Destroy
     adds r0, r5, #0
     adds r0, #0x28
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     adds r0, r5, #0
     adds r0, #0xc
     movs r1, #2
-    bl func_0800959C
+    bl IrqTaskList_Destroy
     adds r0, r5, #0
     movs r1, #2
-    bl func_080098AC
+    bl TaskNode_Destroy
     adds r0, r5, #0
     bl __builtin_delete
 .L08008AC2:
@@ -2265,8 +2265,8 @@ func_08008A68: @ 0x08008A68
     .section .text.after_08008AFC, "ax"
     .section .text.after_08008B0C, "ax"
     .section .text.after_08008B18, "ax"
-    thumb_func_start func_08008B24
-func_08008B24: @ 0x08008B24
+    thumb_func_start Audio_GetPlayerByIndex
+Audio_GetPlayerByIndex: @ 0x08008B24
     push {lr}
     adds r2, r0, #0
     ldr r0, .L08008B4C @ =0x00000005
@@ -2350,8 +2350,8 @@ func_08008B24: @ 0x08008B24
     .byte 0x02, 0x0C, 0x80, 0x20, 0x00, 0x06, 0x02, 0x43, 0x00, 0xE0, 0x00, 0x22, 0x10, 0x1C, 0x02, 0xBC
     .byte 0x08, 0x47, 0x00, 0x00
 
-    thumb_func_start func_08008E64
-func_08008E64: @ 0x08008E64
+    thumb_func_start Dma3_Copy
+Dma3_Copy: @ 0x08008E64
     push {r4, lr}
     cmp r0, #0
     beq .L08008EAC
@@ -2389,7 +2389,7 @@ func_08008E64: @ 0x08008E64
 .L08008EA4:
     ldr r3, .L08008EB4 @ =0x040000D4
     adds r0, r4, #0
-    bl func_080D0EBC
+    bl Dma_ExecuteTransfer
 .L08008EAC:
     pop {r4}
     pop {r0}
@@ -2406,8 +2406,8 @@ func_08008E64: @ 0x08008E64
     .byte 0x20, 0x1C, 0xC7, 0xF0, 0x73, 0xFF, 0x01, 0xB0, 0x10, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
     .byte 0xD4, 0x00, 0x00, 0x04
 
-    thumb_func_start func_08008FE4
-func_08008FE4: @ 0x08008FE4
+    thumb_func_start DmaCommand_ExecuteRange
+DmaCommand_ExecuteRange: @ 0x08008FE4
     push {r4, r5, r6, lr}
     sub sp, #4
     adds r5, r1, #0
@@ -2427,7 +2427,7 @@ func_08008FE4: @ 0x08008FE4
     ldr r2, [r4, #0xc]
     adds r0, r3, #0
     adds r3, r6, #0
-    bl func_080D0EBC
+    bl Dma_ExecuteTransfer
     adds r4, #0x10
     cmp r4, r5
     bne .L08008FF2
@@ -2558,8 +2558,8 @@ func_08009094: @ 0x08009094
     .section .text.after_0800934C, "ax"
     .section .text.after_08009378, "ax"
     .section .text.after_080093A0, "ax"
-    thumb_func_start func_080093AC
-func_080093AC: @ 0x080093AC
+    thumb_func_start DisplayFade_Update
+DisplayFade_Update: @ 0x080093AC
     push {r4, r5, r6, r7, lr}
     ldr r5, [r0]
     movs r0, #4
@@ -2714,10 +2714,10 @@ func_080094B8: @ 0x080094B8
     adds r0, r4, #0
     adds r0, #0xc
     movs r1, #2
-    bl func_08009324
+    bl DisplayFade_Destroy
     adds r0, r4, #0
     adds r1, r5, #0
-    bl func_080098AC
+    bl TaskNode_Destroy
     pop {r4, r5}
     pop {r0}
     bx r0

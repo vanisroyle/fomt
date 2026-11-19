@@ -2,61 +2,65 @@
 
 #include <string.h>
 
-extern u16 gUnk_03000400;
-extern u8 const gUnk_080E862C[];
-EC bool func_080006E4(void * self, void * dst, u32 offset, u32 size);
-EC bool func_080006A4(void * self, u32 offset, void const * src, u32 size);
+extern u16 gSramErrorFlags; // 0x03000400
+extern u8 const gSaveHeaderSignature[]; // 0x080E862C
+EC bool SramProxy_Read(void * proxy, void * destination, u32 sram_offset, u32 byte_count);
+EC bool SramProxy_Write(void * proxy, u32 sram_offset, void const * source, u32 byte_count);
 
-EC bool func_080002E0(void * self)
+// 0x080002E0
+EC bool SaveHeader_IsValid(void * proxy)
 {
     u8 signature[32];
-    u32 slots;
-    u32 selected;
-    func_080006E4(self, signature, 0, 32);
-    if (gUnk_03000400 != 0)
+    u32 used_slot_mask;
+    u32 selected_slot;
+    SramProxy_Read(proxy, signature, 0, 32);
+    if (gSramErrorFlags != 0)
         return false;
-    slots = 0;
-    func_080006E4(self, &slots, 32, 4);
-    if (gUnk_03000400 != 0)
+    used_slot_mask = 0;
+    SramProxy_Read(proxy, &used_slot_mask, 32, 4);
+    if (gSramErrorFlags != 0)
         return false;
-    selected = 0;
-    func_080006E4(self, &selected, 36, 4);
-    if (gUnk_03000400 != 0)
+    selected_slot = 0;
+    SramProxy_Read(proxy, &selected_slot, 36, 4);
+    if (gSramErrorFlags != 0)
         return false;
-    return memcmp(signature, gUnk_080E862C, 32) == 0 && (slots & 3) == slots && selected <= 1;
+    return memcmp(signature, gSaveHeaderSignature, 32) == 0 && (used_slot_mask & 3) == used_slot_mask && selected_slot <= 1;
 }
 
-EC void func_08000358(void * self)
+// 0x08000358
+EC void SaveHeader_Initialize(void * proxy)
 {
-    func_080006A4(self, 0, gUnk_080E862C, 32);
-    if (gUnk_03000400 != 0)
+    SramProxy_Write(proxy, 0, gSaveHeaderSignature, 32);
+    if (gSramErrorFlags != 0)
         return;
-    u32 value = 0;
-    func_080006A4(self, 32, &value, 4);
-    if (gUnk_03000400 != 0)
+    u32 used_slot_mask = 0;
+    SramProxy_Write(proxy, 32, &used_slot_mask, 4);
+    if (gSramErrorFlags != 0)
         return;
-    func_080006A4(self, 36, &value, 4);
+    SramProxy_Write(proxy, 36, &used_slot_mask, 4);
 }
 
-EC u32 func_080003A0(void * self)
+// 0x080003A0
+EC u32 SaveHeader_GetUsedSlots(void * proxy)
 {
-    if (func_080002E0(self))
+    if (SaveHeader_IsValid(proxy))
     {
-        u32 value = 0;
-        func_080006E4(self, &value, 32, 4);
-        if (gUnk_03000400 == 0)
-            return value;
+        u32 used_slot_mask = 0;
+        SramProxy_Read(proxy, &used_slot_mask, 32, 4);
+        if (gSramErrorFlags == 0)
+            return used_slot_mask;
     }
     return 0;
 }
 
-EC void SECTION(".text.flags") func_080003E8(void * self, u32 slot)
+// 0x080003E8
+EC void SECTION(".text.flags") SaveHeader_MarkSlotUsed(void * proxy, u32 slot_index)
 {
-    u32 value = 0;
-    func_080006E4(self, &value, 32, 4);
-    if (gUnk_03000400 == 0)
+    u32 used_slot_mask = 0;
+    SramProxy_Read(proxy, &used_slot_mask, 32, 4);
+    if (gSramErrorFlags == 0)
     {
-        value |= 1 << slot;
-        func_080006A4(self, 32, &value, 4);
+        used_slot_mask |= 1 << slot_index;
+        SramProxy_Write(proxy, 32, &used_slot_mask, 4);
     }
 }
