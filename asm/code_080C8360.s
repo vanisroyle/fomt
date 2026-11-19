@@ -4658,72 +4658,7 @@ func_080C96C4: @ 0x080C96C4
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080CA6F4
-func_080CA6F4: @ 0x080CA6F4
-	push {lr}
-	ldr r0, .L080CA704 @ =0x04000006
-	ldrb r0, [r0]
-	cmp r0, #0x17
-	beq .L080CA708
-	cmp r0, #0x9f
-	beq .L080CA744
-	b .L080CA760
-	.align 2, 0
-.L080CA704: .4byte 0x04000006
-.L080CA708:
-	ldr r2, .L080CA738 @ =0x04000004
-	ldrh r1, [r2]
-	movs r0, #2
-	ands r0, r1
-	cmp r0, #0
-	bne .L080CA720
-	movs r3, #2
-.L080CA716:
-	ldrh r1, [r2]
-	adds r0, r3, #0
-	ands r0, r1
-	cmp r0, #0
-	beq .L080CA716
-.L080CA720:
-	ldr r1, .L080CA73C @ =0x0400000C
-	ldr r2, .L080CA740 @ =0x00003E43
-	adds r0, r2, #0
-	strh r0, [r1]
-	ldr r2, .L080CA738 @ =0x04000004
-	ldrh r1, [r2]
-	movs r0, #0xff
-	ands r0, r1
-	strh r0, [r2]
-	movs r0, #0x9f
-	lsls r0, r0, #8
-	b .L080CA75A
-	.align 2, 0
-.L080CA738: .4byte 0x04000004
-.L080CA73C: .4byte 0x0400000C
-.L080CA740: .4byte 0x00003E43
-.L080CA744:
-	ldr r1, .L080CA764 @ =0x0400000C
-	ldr r2, .L080CA768 @ =0x00003E41
-	adds r0, r2, #0
-	strh r0, [r1]
-	ldr r2, .L080CA76C @ =0x04000004
-	ldrh r1, [r2]
-	movs r0, #0xff
-	ands r0, r1
-	strh r0, [r2]
-	movs r0, #0xb8
-	lsls r0, r0, #5
-.L080CA75A:
-	ldrh r1, [r2]
-	orrs r0, r1
-	strh r0, [r2]
-.L080CA760:
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080CA764: .4byte 0x0400000C
-.L080CA768: .4byte 0x00003E41
-.L080CA76C: .4byte 0x04000004
+.section .text.g5_after_080CA6F4, "ax"
 
 	thumb_func_start func_080CA770
 func_080CA770: @ 0x080CA770

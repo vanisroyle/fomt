@@ -124,6 +124,8 @@ SECTIONS
         asm/code_080C8360.o(.text);
         src/g5_panels.o(.text.g5_080C8550);
         asm/code_080C8360.o(.text.g5_after_080C8550);
+        src/g5_encoding.o(.text.g5_080CA6F4);
+        asm/code_080C8360.o(.text.g5_after_080CA6F4);
         src/g5_ui.o(.text.g5_buttons);
         asm/code_080C8360.o(.text.g5_CAC3C);
         src/g5_ui.o(.text.g5_entry_init);
@@ -174,6 +176,8 @@ SECTIONS
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
         asm/code_080D0C68.o(.text);
+        src/g5_encoding.o(.text.g5_080D0CD4);
+        asm/code_080D0C68.o(.text.g5_after_080D0CD4);
         asm/code_080D102C.o(.text);
 
         src/m4a_1.o(.text);
