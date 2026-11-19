@@ -27,11 +27,11 @@ struct Farm
     static Vec2 smethod_08009ADC();
     static Vec2 smethod_08009AE8();
 
-    void method_08009AF4() const; // note: no-op
+    char const * GetName() const;
     u32 GetUnk10() const;
     Horse const * GetHorse() const;
     bool GetUnkFlag11() const;
-    bool method_08009B20() const;
+    bool HasGoldenLumberOnField() const;
     bool GetUnkFlag12() const;
 
     void method_08009B68(u32 added);
