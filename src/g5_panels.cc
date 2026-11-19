@@ -1,7 +1,7 @@
 #include "prelude.h"
 #include "g5_graphics.hh"
 
-EC void func_08008EB8(u32, void *, u32);
+EC void Dma3_Fill(u32, void *, u32);
 EC void func_0804EDB4(void *, void *, u32, u32, u32);
 EC void func_080CD578(void *);
 EC void func_080CD620(void *);
@@ -27,8 +27,8 @@ EC SECTION(".text.g5_080CFB28") void * func_080CFB28(u8 * self)
 
 EC SECTION(".text.g5_080C8550") void func_080C8550(void ** self)
 {
-    func_08008EB8(0x03ff03ff, (void *) 0x0600ff8a, 0x28);
-    func_08008EB8(0x03ff03ff, (void *) 0x0600ffca, 0x28);
+    Dma3_Fill(0x03ff03ff, (void *) 0x0600ff8a, 0x28);
+    Dma3_Fill(0x03ff03ff, (void *) 0x0600ffca, 0x28);
     func_0804EDB4(*(void **) ((u8 *) self[2] + 0x1aa8), (void *) 0x0600ffb2, 0xa0, 0, 0x20);
 }
 

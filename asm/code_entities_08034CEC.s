@@ -4802,7 +4802,7 @@ func_08037E18: @ 0x08037E18
     adds r6, r2, #0
     mov r0, sp
     adds r1, r6, #0
-    bl func_0800FFE0
+    bl ItemCollection_GetExtraItems
     adds r0, r4, #0
     adds r1, r5, #0
     mov r2, sp
@@ -4832,7 +4832,7 @@ func_08037E48: @ 0x08037E48
     bl GetLocation__C7AEntity
     adds r0, r4, #0
     mov r1, sp
-    bl func_08010014
+    bl ItemCollection_SetExtraItems
     ldr r0, .L08037E98 @ =__vt_7AEntity
     str r0, [r5, #0x14]
     ldr r1, [r5, #0x10]
@@ -9250,7 +9250,7 @@ func_0803A350: @ 0x0803A350
     beq .L0803A382
 .L0803A36C:
     ldr r0, [r4]
-    bl func_08008CD0
+    bl AudioPlayer_IsPlaying
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0803A37C
@@ -9266,7 +9266,7 @@ func_0803A350: @ 0x0803A350
 .L0803A386:
     lsls r1, r6, #0x10
     lsrs r1, r1, #0x10
-    bl func_08008B6C
+    bl AudioPlayer_StartSong
     pop {r4, r5, r6}
     pop {r0}
     bx r0

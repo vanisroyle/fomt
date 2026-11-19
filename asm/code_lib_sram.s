@@ -24,8 +24,8 @@ func_080D3778: @ 0x080D3778
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080D379C
-func_080D379C: @ 0x080D379C
+	thumb_func_start Sram_CopyBytes
+Sram_CopyBytes: @ 0x080D379C
 	push {r4, r5, r6, lr}
 	sub sp, #0x80
 	adds r4, r0, #0
@@ -42,7 +42,7 @@ func_080D379C: @ 0x080D379C
 	movs r0, #1
 	bics r3, r0
 	mov r2, sp
-	ldr r0, .L080D37D4 @ =func_080D379C
+	ldr r0, .L080D37D4 @ =Sram_CopyBytes
 	ldr r1, .L080D37D0 @ =func_080D3778
 	subs r0, r0, r1
 	lsls r0, r0, #0xf
@@ -51,7 +51,7 @@ func_080D379C: @ 0x080D379C
 .L080D37C8: .4byte 0x04000204
 .L080D37CC: .4byte 0x0000FFFC
 .L080D37D0: .4byte func_080D3778
-.L080D37D4: .4byte func_080D379C
+.L080D37D4: .4byte Sram_CopyBytes
 .L080D37D8:
 	ldrh r0, [r3]
 	strh r0, [r2]
