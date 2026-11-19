@@ -41,13 +41,14 @@ struct FarmerStepEffectSlot
     STRUCT_PAD(0x01, 0x2C);
     SpriteAnimator animator;
     FarmerIconState icon_state;
-    STRUCT_PAD(0x44, 0x48);
+    u32 packed_position;
 };
 
 struct FarmerEffectGraphics : FarmerIconGraphics
 {
     STRUCT_PAD(0xCC, 0xD0);
     FarmerStepEffectSlot step_effects[6];
+    u8 next_step_effect;
 };
 
 EC void func_0803260C(FarmerIconGraphics * graphics);
@@ -471,6 +472,84 @@ enum
     FACING_LEFT = 2,
     FACING_RIGHT = 3,
 };
+
+struct FarmerStepPosition
+{
+    i16 x;
+    i16 y;
+};
+
+union PackedFarmerStepPosition
+{
+    FarmerStepPosition coordinates;
+    u32 packed;
+};
+
+struct FarmerStepCoordinateQ16
+{
+    i16 fraction;
+    i16 pixel;
+};
+
+EC void SpawnFarmerStepEffect(FarmerEffectGraphics * graphics) ENTITY_CODE(0802B46C);
+EC void SpawnFarmerStepEffect(FarmerEffectGraphics * graphics)
+{
+    FarmerEntity * farmer = *reinterpret_cast<FarmerEntity **>(graphics);
+    u32 index = graphics->next_step_effect;
+    u8 * slots_base = reinterpret_cast<u8 *>(graphics) + 0xCC;
+    u32 stride = (index * sizeof(FarmerStepEffectSlot)) + 4;
+    register i32 x asm("r2") = reinterpret_cast<FarmerStepCoordinateQ16 *>(&farmer->x_q16)->pixel;
+    register i32 y asm("r3") = reinterpret_cast<FarmerStepCoordinateQ16 *>(&farmer->y_q16)->pixel;
+    asm volatile("" : : "r"(x), "r"(y));
+    i32 facing = farmer->facing;
+    register u32 parity asm("r5") = index & 1;
+    FarmerStepEffectSlot * effect = reinterpret_cast<FarmerStepEffectSlot *>(slots_base + stride);
+    effect->active = 1;
+    PackedFarmerStepPosition position;
+    volatile i16 * x_ptr = &position.coordinates.x;
+    volatile i16 * y_ptr = &position.coordinates.y;
+    *x_ptr = x;
+    *y_ptr = y;
+    effect->packed_position = position.packed;
+    u32 animation;
+    register u32 directional_base asm("r3");
+    if (facing == FACING_UP)
+        goto north;
+    if (facing <= FACING_UP)
+        goto south;
+    if (facing == FACING_LEFT)
+        goto west;
+    if (facing == FACING_RIGHT)
+        goto east;
+south:
+    animation = parity + 0x650;
+    goto apply_animation;
+north:
+    directional_base = 0x652;
+    goto select_directional_animation;
+west:
+    animation = parity + 0x654;
+    goto apply_animation;
+east:
+    directional_base = 0x656;
+select_directional_animation:
+    animation = parity + directional_base;
+apply_animation:
+    SetSpriteAnimatorClip(&effect->animator, animation);
+    u8 * flags = reinterpret_cast<u8 *>(&effect->icon_state);
+    register u32 zero asm("r2") = 0;
+    register u32 enabled asm("r1") = 1;
+    *flags = enabled;
+    flags += 2;
+    *flags = zero;
+    ++flags;
+    *flags = enabled;
+    u32 advanced = index + 1;
+    u32 next = 0;
+    if (advanced <= 5)
+        next = advanced;
+    graphics->next_step_effect = next;
+}
 
 EC void BeginItemDisplayThrow(ItemDisplayEntity * display) ENTITY_CODE(0802BE68);
 EC void BeginItemDisplayThrow(ItemDisplayEntity * display)

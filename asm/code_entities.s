@@ -3382,102 +3382,8 @@ func_0802B260: @ 0x0802B260
 .L0802B3AC: .4byte 0x00000281
 .L0802B3B0: .4byte vtable_unk_080E681C
 
-    .section .text.entities_part2.0802B46C,"ax",%progbits
+    .section .text.entities_part2.0802B51C,"ax",%progbits
 
-    thumb_func_start func_0802B46C
-func_0802B46C: @ 0x0802B46C
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #4
-    mov r8, r0
-    ldr r1, [r0]
-    movs r0, #0xa0
-    lsls r0, r0, #2
-    add r0, r8
-    ldrb r7, [r0]
-    mov r4, r8
-    adds r4, #0xcc
-    lsls r0, r7, #3
-    adds r0, r0, r7
-    lsls r0, r0, #3
-    adds r0, #4
-    movs r3, #0xa
-    ldrsh r2, [r1, r3]
-    movs r5, #0xe
-    ldrsh r3, [r1, r5]
-    adds r1, #0x20
-    ldrb r6, [r1]
-    movs r1, #1
-    adds r5, r7, #0
-    ands r5, r1
-    adds r4, r4, r0
-    strb r1, [r4]
-    mov r1, sp
-    mov r0, sp
-    strh r2, [r0]
-    strh r3, [r1, #2]
-    ldr r0, [sp]
-    str r0, [r4, #0x44]
-    cmp r6, #1
-    beq .L0802B4C6
-    cmp r6, #1
-    ble .L0802B4BE
-    cmp r6, #2
-    beq .L0802B4D0
-    cmp r6, #3
-    beq .L0802B4DC
-.L0802B4BE:
-    movs r0, #0xca
-    lsls r0, r0, #3
-    adds r1, r5, r0
-    b .L0802B4E0
-.L0802B4C6:
-    ldr r3, .L0802B4CC @ =0x00000652
-    b .L0802B4DE
-    .align 2, 0
-.L0802B4CC: .4byte 0x00000652
-.L0802B4D0:
-    ldr r0, .L0802B4D8 @ =0x00000654
-    adds r1, r5, r0
-    b .L0802B4E0
-    .align 2, 0
-.L0802B4D8: .4byte 0x00000654
-.L0802B4DC:
-    ldr r3, .L0802B518 @ =0x00000656
-.L0802B4DE:
-    adds r1, r5, r3
-.L0802B4E0:
-    adds r0, r4, #0
-    adds r0, #0x2c
-    bl func_0805E860
-    adds r0, r4, #0
-    adds r0, #0x40
-    movs r2, #0
-    movs r1, #1
-    strb r1, [r0]
-    adds r0, #2
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-    adds r0, r7, #1
-    movs r1, #0
-    cmp r0, #5
-    bhi .L0802B504
-    adds r1, r0, #0
-.L0802B504:
-    movs r0, #0xa0
-    lsls r0, r0, #2
-    add r0, r8
-    strb r1, [r0]
-    add sp, #4
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0802B518: .4byte 0x00000656
 .L0802B51C:
     .byte 0xF0, 0xB5, 0x57, 0x46
     .byte 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0x9E, 0xB0, 0x13, 0x90, 0x14, 0x91, 0x00, 0x68, 0x15, 0x90
@@ -9592,7 +9498,7 @@ func_0802EC00: @ 0x0802EC00
     ldr r0, [r7, #0x10]
     cmp r0, #0
     beq .L0802EFF4
-    bl func_0802B46C
+    bl SpawnFarmerStepEffect
 .L0802EFF4:
     ldr r0, [r7, #0x34]
     adds r0, #0x10
