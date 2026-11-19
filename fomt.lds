@@ -278,7 +278,7 @@ SECTIONS
         src/entity.o(.text);
         src/code_entity_08020018.o(.text);
         *(SORT_BY_NAME(.text.entities_part1.*));
-        asm/code_entities.o(.text);
+        *(SORT_BY_NAME(.text.entities_part2.*));
         src/entity_actor.o(.text);
         asm/code_entities_080320DC.o(.text.npc_side.0803242C);
         src/npc_side_entities.o(.text.npc_side.080324B8);
@@ -335,10 +335,11 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803E620);
         asm/code_0803A8A4.o(.text.0803E780);
         src/code_0803A8A4.o(.text.0803E8E8);
-        asm/code_0803A8A4.o(.text.0803ECC0);
+        src/code_0803A8A4.o(.text.0803ECC0);
         src/code_0803A8A4.o(.text.0803EDCC);
         src/script_engine.o(.text);
         asm/code_0803EE94.o(.text);
+        *(SORT_BY_NAME(.text.message_window.*));
 
         src/actor.o(.text);
         src/animal.o(.text);
@@ -355,8 +356,6 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809C4EC);
         asm/code_actor_0809BFE8.o(.text.0809C510);
         src/code_actor_0809BFE8.o(.text.0809C5B4);
-        asm/code_actor_0809BFE8.o(.text.0809C600);
-        src/code_actor_0809BFE8.o(.text.0809C644);
         asm/code_actor_0809BFE8.o(.text.0809C6BC);
         src/code_actor_0809BFE8.o(.text.0809CD78);
         asm/code_actor_0809BFE8.o(.text.0809CE8C);
