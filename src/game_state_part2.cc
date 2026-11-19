@@ -139,12 +139,12 @@ EC void func_080A6278(GameStateMapView & view);
 EC void func_080A62BC(GameStateMapView & view);
 EC void func_080A607C(GameStateMapView & view, u32 index);
 EC void func_080A6024(GameStateMapView & view, u32 index);
-EC void func_080A601C(GameStateMapView & view);
+EC void StartMapTransitionDelay(GameStateMapView & view);
 EC void func_080A63B8(GameStateMapView & view, u32 alternate);
 EC void func_080AA89C(GameStateMapView & view);
 EC void func_080AA8BC(GameStateMapView & view);
 EC void func_080AA8DC(GameStateMapView & view);
-EC bool func_080A5A9C(GameStateMapView & view);
+EC bool IsMapTransitionIdle(GameStateMapView & view);
 EC void func_080A59BC(GameStateMapView & view, i32 x, i32 y, u32 speed);
 EC void func_080A5960(GameStateMapView & view, i32 x, i32 y);
 EC void SetAlternateMapPatch(u32 & flags, u32 index);
@@ -351,7 +351,7 @@ EC SECTION(".text.game_state_c2.0801DD6C") void GameStateApplyMapTilePatchInColu
 
 EC SECTION(".text.game_state_c2.0801DD78") void GameStateStartMapViewTimer(GameStateMapOwner & game)
 {
-    func_080A601C(*game.map_view);
+    StartMapTransitionDelay(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DDCC") void GameStateSetMapTileVariant(GameStateMapOwner & game, u32 index)
@@ -388,7 +388,7 @@ EC SECTION(".text.game_state_c2.0801DE48") void GameStateQueueMapEvent1D(GameSta
 
 EC SECTION(".text.game_state_c2.0801FD3C") bool GameStateIsCameraIdle(GameStateMapOwner & game)
 {
-    return func_080A5A9C(*game.map_view);
+    return IsMapTransitionIdle(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801FD48") i32 GameStateGetCameraY(GameStateMapOwner const & game)

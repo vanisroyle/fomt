@@ -4968,7 +4968,7 @@ func_0803DA7C: @ 0x0803DA7C
 	ldrb r6, [r0]
 	ldr r1, .L0803DB24 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5379,7 +5379,7 @@ func_0803DFE8: @ 0x0803DFE8
 	ldrb r6, [r0]
 	ldr r1, .L0803E0A0 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5631,7 +5631,7 @@ func_0803E264: @ 0x0803E264
 	ldrb r4, [r0]
 	ldr r1, .L0803E334 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r7, r1, #0x1f
@@ -5837,7 +5837,7 @@ func_0803E4A0: @ 0x0803E4A0
 .L0803E514:
 	ldr r1, .L0803E548 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -6040,7 +6040,7 @@ func_0803E780: @ 0x0803E780
 .L0803E7F4:
 	ldr r1, .L0803E828 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f

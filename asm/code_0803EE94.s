@@ -7227,7 +7227,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r2, .L080434DC @ =0x00001FE4
 	adds r0, r0, r2
-	bl func_0809EED0
+	bl AdvanceNpcInteractionCount
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	adds r2, r5, #0
@@ -7642,7 +7642,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r6, .L0804381C @ =0x00001DAC
 	adds r0, r0, r6
-	bl func_0809ECD8
+	bl GetNpcMilestoneEventId
 	adds r4, r0, #0
 	adds r2, r5, #0
 	adds r2, #0x24
@@ -7659,7 +7659,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r2, .L08043844 @ =0x00001DAC
 	adds r0, r0, r2
-	bl func_0809ECE0
+	bl IsNpcMilestoneEventReady
 	lsls r0, r0, #0x18
 	lsrs r4, r0, #0x18
 	adds r2, r5, #0
@@ -7677,7 +7677,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	ldr r6, .L08043870 @ =0x00001DAC
 	adds r0, r0, r6
-	bl func_0809ECD8
+	bl GetNpcMilestoneEventId
 	mov sl, r0
 	movs r6, #0x51
 	movs r7, #0x5f
@@ -11827,7 +11827,7 @@ func_08045638: @ 0x08045638
 	ldr r2, [sp, #0x18]
 	strb r1, [r2, #1]
 	ldr r1, [sp, #0x18]
-	bl func_080A1478
+	bl SetNpcScheduleContext
 .L080458F8:
 	add sp, #0x1c
 	pop {r3, r4, r5}
@@ -12961,7 +12961,7 @@ func_0804590C: @ 0x0804590C
 	ldr r0, [r0]
 	ldr r2, .L08046690 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A039C
+	bl GetRosterSelection
 	bl .L08048FEE
 	.align 2, 0
 .L08046690: .4byte 0x00001CD4
@@ -12972,12 +12972,12 @@ func_0804590C: @ 0x0804590C
 	ldr r0, [r0]
 	ldr r2, .L080466B4 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0A04
+	bl GetActiveScheduleNpc
 	cmp r0, #0
 	bne .L080466AC
 	bl sub_08048FEC
 .L080466AC:
-	bl func_0809EAD8
+	bl GetNamedNpcAgeDays
 	bl .L08048FEE
 	.align 2, 0
 .L080466B4: .4byte 0x00001CD4
@@ -12988,12 +12988,12 @@ func_0804590C: @ 0x0804590C
 	ldr r0, [r0]
 	ldr r2, .L080466DC @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0A04
+	bl GetActiveScheduleNpc
 	cmp r0, #0
 	bne .L080466D0
 	bl sub_08048FEC
 .L080466D0:
-	bl func_0809EAE0
+	bl HasNamedNpcFlag
 .L080466D4:
 	lsls r0, r0, #0x18
 	lsrs r0, r0, #0x18
@@ -13007,12 +13007,12 @@ func_0804590C: @ 0x0804590C
 	ldr r0, [r0]
 	ldr r2, .L08046700 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0A04
+	bl GetActiveScheduleNpc
 	cmp r0, #0
 	bne .L080466F8
 	bl sub_08048FEC
 .L080466F8:
-	bl func_0809EAD0
+	bl GetNamedNpcVariant
 	bl .L08048F32
 	.align 2, 0
 .L08046700: .4byte 0x00001CD4
@@ -13023,12 +13023,12 @@ func_0804590C: @ 0x0804590C
 	ldr r0, [r0]
 	ldr r2, .L08046724 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0A04
+	bl GetActiveScheduleNpc
 	cmp r0, #0
 	bne .L0804671C
 	bl sub_08048FEC
 .L0804671C:
-	bl func_0809EAD0
+	bl GetNamedNpcVariant
 	b .L08046812
 	.align 2, 0
 .L08046724: .4byte 0x00001CD4
@@ -13141,7 +13141,7 @@ func_0804590C: @ 0x0804590C
 	ldr r0, [r0]
 	ldr r2, .L080467FC @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A1480
+	bl GetNpcScheduleContext
 	ldrb r0, [r0, #1]
 	bl .L08048F32
 	.align 2, 0
@@ -13153,7 +13153,7 @@ func_0804590C: @ 0x0804590C
 	ldr r0, [r0]
 	ldr r2, .L0804681C @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A1480
+	bl GetNpcScheduleContext
 	ldrb r0, [r0, #1]
 .L08046812:
 	lsls r0, r0, #0x19
@@ -18845,7 +18845,7 @@ func_08048FFC: @ 0x08048FFC
 	ldr r0, [r0]
 	ldr r2, .L08049A20 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0A04
+	bl GetActiveScheduleNpc
 	adds r4, r0, #0
 	cmp r4, #0
 	bne .L080499FE
@@ -18855,14 +18855,14 @@ func_08048FFC: @ 0x08048FFC
 	bne .L08049A06
 	bl .L0804DA2E
 .L08049A06:
-	bl func_0809EAE0
+	bl HasNamedNpcFlag
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08049A14
 	bl .L0804DA2E
 .L08049A14:
 	adds r0, r4, #0
-	bl func_0809EAEC
+	bl SetNamedNpcFlag
 	bl .L0804DA2E
 	.align 2, 0
 .L08049A20: .4byte 0x00001CD4
@@ -19042,7 +19042,7 @@ func_08048FFC: @ 0x08048FFC
 	ldr r2, .L08049B90 @ =0x00001CD4
 	adds r0, r0, r2
 	adds r1, r6, #0
-	bl func_080A03A4
+	bl SetRosterSelection
 	bl .L0804DA2E
 	.align 2, 0
 .L08049B90: .4byte 0x00001CD4
@@ -64010,7 +64010,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r0, [r4]
 	ldr r7, .L08061660 @ =0x00001CD4
 	adds r0, r0, r7
-	bl func_080A0504
+	bl HasRosterEntry
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L08061628
@@ -64587,7 +64587,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r0, [r0]
 	ldr r4, .L08061B30 @ =0x00001CD4
 	adds r0, r0, r4
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	str r0, [sp, #0x1dc]
 	cmp r0, #0
 	bne .L08061ABC
@@ -64810,7 +64810,7 @@ func_0805FF14: @ 0x0805FF14
 	movs r2, #0
 	bl func_0804E7A0
 	ldr r0, [sp, #0x1dc]
-	bl func_0809EACC
+	bl GetNamedNpcName
 	adds r1, r0, #0
 	add r0, sp, #0x138
 	strh r4, [r0]
@@ -95510,7 +95510,7 @@ func_080701BC: @ 0x080701BC
 	mov r0, r8
 	adds r1, r4, #0
 	movs r2, #2
-	bl func_080A1ED4
+	bl GetMapStateBit
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08070960
@@ -164203,8 +164203,8 @@ func_08094844: @ 0x08094844
 	ldr r0, [r4]
 	ldr r2, .L080948D8 @ =0x00001CD4
 	adds r0, r0, r2
-	bl func_080A0A04
-	bl func_0809EACC
+	bl GetActiveScheduleNpc
+	bl GetNamedNpcName
 	mov r8, r0
 	ldr r5, [r4]
 	ldr r0, .L080948DC @ =0x000021DC
