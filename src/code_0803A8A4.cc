@@ -487,25 +487,6 @@ ROM_TEXT(0803B6B8) void SetGameScriptTextVariable(GameScriptTextVariables & self
     strcpy(record + offsetof(GameScriptTextVariables, labels), buf);
 }
 
-struct Unk_0803B6FC
-{
-    void const * vtable;
-    void * unk_04;
-    void * unk_08;
-};
-
-EC char const vtable_unk_080E7748[];
-
-ROM_TEXT(0803B6B8) Unk_0803B6FC & func_0803B6FC(Unk_0803B6FC & self, void *& owned, void * arg)
-{
-    self.vtable = vtable_unk_080E7748;
-    void * taken = owned;
-    owned = nullptr;
-    self.unk_04 = taken;
-    self.unk_08 = arg;
-    return self;
-}
-
 struct DialogWindowTilemapTask
 {
     STRUCT_PAD(0x00, 0x0C);

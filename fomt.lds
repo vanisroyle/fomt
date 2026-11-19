@@ -898,7 +898,8 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803B454);
         src/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);
-        asm/code_0803A8A4.o(.text.0803B718);
+        src/script_scene.o(.text.0803B6FC);
+        src/script_scene.o(.text.0803B718);
         src/code_0803A8A4.o(.text.0803B840);
         asm/code_0803A8A4.o(.text.0803B8CC);
         src/code_0803A8A4.o(.text.0803BCF8);
@@ -985,7 +986,7 @@ SECTIONS
         src/bachelorette.o(.text);
         src/harvest_sprite.o(.text);
 
-        asm/g1_npc.o(.text.g1_start);
+        src/g1_sprite_location.o(.text.g1_0809E804);
         src/g1_events.o(.text.g1_0809E8E4);
         asm/g1_npc.o(.text.g1_after_b2_0809E8E4);
         src/g1_schedule_extra.o(.text.g1_0809E968);
@@ -1234,7 +1235,7 @@ SECTIONS
         asm/code_809E804.o(.text.080AA9C8);
         src/map_updates.o(.text.080AACB8);
         src/map_updates.o(.text.080AAE14);
-        asm/code_809E804.o(.text.080AAE44);
+        src/map_updates.o(.text.080AAE44);
         src/map_updates.o(.text.080AAF10);
         src/map_updates.o(.text.080AAF1C);
         src/map_updates.o(.text.080AAF28);
