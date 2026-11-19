@@ -104,46 +104,6 @@ func_080200C4: @ 0x080200C4
     pop {r0}
     bx r0
 
-    .section .text.entities_part1.08020130, "ax", %progbits
-    thumb_func_start func_08020130
-func_08020130: @ 0x08020130
-    push {r4, lr}
-    ldr r0, [r0, #0x10]
-    cmp r0, #0
-    beq .L08020166
-    movs r4, #0
-    adds r2, r0, #0
-    adds r2, #0x30
-    movs r1, #0
-    ldrh r0, [r2, #0xe]
-    cmp r0, #0
-    beq .L08020150
-    movs r0, #0x10
-    ldrsh r1, [r2, r0]
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r1, r0, #0x1f
-.L08020150:
-    cmp r1, #0
-    beq .L08020160
-    adds r0, r2, #0
-    bl func_0805E894
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08020162
-.L08020160:
-    movs r4, #1
-.L08020162:
-    adds r0, r4, #0
-    b .L08020168
-.L08020166:
-    movs r0, #1
-.L08020168:
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
     .section .text.entities_part1.08020170, "ax", %progbits
     thumb_func_start func_08020170
 func_08020170: @ 0x08020170
@@ -3053,37 +3013,7 @@ func_08022048: @ 0x08022048
     bx r0
     .align 2, 0
 
-    .section .text.entities_part1.080220D4, "ax", %progbits
-    thumb_func_start func_080220D4
-func_080220D4: @ 0x080220D4
-    push {lr}
-    ldr r0, [r0, #0x34]
-    ldr r1, [r0, #0x20]
-    cmp r1, #1
-    beq .L080220F6
-    cmp r1, #1
-    bgt .L080220E8
-    cmp r1, #0
-    beq .L080220F0
-    b .L080220EC
-.L080220E8:
-    cmp r1, #2
-    beq .L080220FA
-.L080220EC:
-    movs r0, #0
-    b .L080220FC
-.L080220F0:
-    adds r0, #0x26
-    ldrb r0, [r0]
-    b .L080220FC
-.L080220F6:
-    movs r0, #2
-    b .L080220FC
-.L080220FA:
-    movs r0, #1
-.L080220FC:
-    pop {r1}
-    bx r1
+    .section .text.entities_part1.080220D4.tail, "ax", %progbits
 .L08022100:
     .byte 0x10, 0xB5, 0x81, 0xB0, 0x04, 0x1C, 0x62, 0x6B, 0x10, 0x6A, 0x02, 0x28, 0x1A, 0xD1, 0x0F, 0x49
     .byte 0x00, 0x98, 0x08, 0x40, 0xB4, 0x21, 0x08, 0x43, 0x0D, 0x49, 0x08, 0x40, 0x00, 0x90, 0x10, 0x1C
@@ -3859,53 +3789,7 @@ func_080228B4: @ 0x080228B4
     bx r0
     .align 2, 0
 
-    .section .text.entities_part1.08022950, "ax", %progbits
-    thumb_func_start func_08022950
-func_08022950: @ 0x08022950
-    push {lr}
-    ldr r0, [r0, #0x34]
-    ldr r1, [r0, #0x24]
-    cmp r1, #0
-    beq .L08022962
-    cmp r1, #1
-    beq .L08022968
-    movs r0, #0
-    b .L0802297A
-.L08022962:
-    adds r0, #0x2a
-    ldrb r0, [r0]
-    b .L0802297A
-.L08022968:
-    adds r0, #0x2a
-    ldrb r1, [r0]
-    movs r0, #0x7f
-    ands r0, r1
-    movs r1, #1
-    cmp r0, #0
-    beq .L08022978
-    movs r1, #4
-.L08022978:
-    adds r0, r1, #0
-.L0802297A:
-    pop {r1}
-    bx r1
-    .align 2, 0
-
-    .section .text.entities_part1.080229A4, "ax", %progbits
-    thumb_func_start func_080229A4
-func_080229A4: @ 0x080229A4
-    push {lr}
-    cmp r1, #1
-    beq .L080229AE
-    movs r0, #0
-    b .L080229B2
-.L080229AE:
-    movs r0, #0x80
-    lsls r0, r0, #8
-.L080229B2:
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.entities_part1.080229A4.tail, "ax", %progbits
 .L080229B8:
     .byte 0x01, 0x20, 0x70, 0x47, 0x00, 0xB5, 0x40, 0x6B
     .byte 0x78, 0xF0, 0xA4, 0xFD, 0x02, 0xBC, 0x08, 0x47, 0x30, 0xB5, 0x04, 0x1C, 0x00, 0x25, 0xA0, 0x88
@@ -4151,47 +4035,6 @@ func_08023308: @ 0x08023308
     bx r0
     .align 2, 0
 
-    .section .text.entities_part1.08023378, "ax", %progbits
-    thumb_func_start func_08023378
-func_08023378: @ 0x08023378
-    push {lr}
-    ldr r0, [r0, #0x34]
-    ldr r1, [r0, #0x28]
-    cmp r1, #1
-    beq .L0802339A
-    cmp r1, #1
-    bgt .L0802338C
-    cmp r1, #0
-    beq .L08023394
-    b .L08023390
-.L0802338C:
-    cmp r1, #3
-    ble .L080233AE
-.L08023390:
-    movs r0, #0
-    b .L080233B0
-.L08023394:
-    adds r0, #0x2e
-    ldrb r0, [r0]
-    b .L080233B0
-.L0802339A:
-    adds r0, #0x2e
-    ldrb r1, [r0]
-    movs r0, #0x7f
-    ands r0, r1
-    movs r1, #1
-    cmp r0, #0
-    beq .L080233AA
-    movs r1, #6
-.L080233AA:
-    adds r0, r1, #0
-    b .L080233B0
-.L080233AE:
-    movs r0, #1
-.L080233B0:
-    pop {r1}
-    bx r1
-
     .section .text.entities_part1.080233B4, "ax", %progbits
     thumb_func_start func_080233B4
 func_080233B4: @ 0x080233B4
@@ -4233,21 +4076,7 @@ func_080233B4: @ 0x080233B4
     pop {r1}
     bx r1
 
-    .section .text.entities_part1.08023400, "ax", %progbits
-    thumb_func_start func_08023400
-func_08023400: @ 0x08023400
-    push {lr}
-    cmp r1, #1
-    beq .L0802340A
-    movs r0, #0
-    b .L0802340E
-.L0802340A:
-    movs r0, #0x80
-    lsls r0, r0, #8
-.L0802340E:
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.entities_part1.08023400.tail, "ax", %progbits
 .L08023414:
     .byte 0xF0, 0xB5, 0x47, 0x46, 0x80, 0xB4, 0x82, 0xB0, 0x06, 0x1C, 0x0F, 0x1C
     .byte 0x38, 0x88, 0x80, 0x05, 0x80, 0x0D, 0xB1, 0x88, 0x88, 0x42, 0x5F, 0xD1, 0x70, 0x6B, 0x78, 0xF0
@@ -4527,47 +4356,6 @@ func_08023FB0: @ 0x08023FB0
     bx r0
     .align 2, 0
 
-    .section .text.entities_part1.08024020, "ax", %progbits
-    thumb_func_start func_08024020
-func_08024020: @ 0x08024020
-    push {lr}
-    ldr r0, [r0, #0x34]
-    ldr r1, [r0, #0x28]
-    cmp r1, #1
-    beq .L08024042
-    cmp r1, #1
-    bgt .L08024034
-    cmp r1, #0
-    beq .L0802403C
-    b .L08024038
-.L08024034:
-    cmp r1, #3
-    ble .L08024056
-.L08024038:
-    movs r0, #0
-    b .L08024058
-.L0802403C:
-    adds r0, #0x2e
-    ldrb r0, [r0]
-    b .L08024058
-.L08024042:
-    adds r0, #0x2e
-    ldrb r1, [r0]
-    movs r0, #0x7f
-    ands r0, r1
-    movs r1, #1
-    cmp r0, #0
-    beq .L08024052
-    movs r1, #6
-.L08024052:
-    adds r0, r1, #0
-    b .L08024058
-.L08024056:
-    movs r0, #1
-.L08024058:
-    pop {r1}
-    bx r1
-
     .section .text.entities_part1.0802405C, "ax", %progbits
     thumb_func_start func_0802405C
 func_0802405C: @ 0x0802405C
@@ -4619,21 +4407,7 @@ func_0802405C: @ 0x0802405C
     bx r1
     .align 2, 0
 
-    .section .text.entities_part1.080240BC, "ax", %progbits
-    thumb_func_start func_080240BC
-func_080240BC: @ 0x080240BC
-    push {lr}
-    cmp r1, #1
-    beq .L080240C6
-    movs r0, #0
-    b .L080240CA
-.L080240C6:
-    movs r0, #0x80
-    lsls r0, r0, #8
-.L080240CA:
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.entities_part1.080240BC.tail, "ax", %progbits
 .L080240D0:
     .byte 0xF0, 0xB5, 0x82, 0xB0, 0x06, 0x1C, 0x0F, 0x1C, 0x38, 0x88, 0x80, 0x05, 0x80, 0x0D, 0xB1, 0x88
     .byte 0x88, 0x42, 0x5F, 0xD1, 0x70, 0x6B, 0x77, 0xF0, 0xE3, 0xFB, 0x00, 0x06, 0x00, 0x28, 0x59, 0xD1
