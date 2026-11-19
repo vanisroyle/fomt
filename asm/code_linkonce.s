@@ -15141,7 +15141,7 @@ func_080DB96C: @ 0x080DB96C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_08057DD8
+	bl InitializeAnimalFestivalController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -26617,7 +26617,7 @@ func_080E14B8: @ 0x080E14B8
 	ldr r0, [r3, #0x14]
 	mov r1, sp
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r5, sp, #8
 	mov r0, sp
 	bl strlen
@@ -32299,14 +32299,14 @@ func_080E3F40: @ 0x080E3F40
 	ldrsb r0, [r3, r0]
 	adds r1, #2
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	b .L080E4040
 .L080E4034:
 	movs r0, #4
 	ldrsb r0, [r3, r0]
 	mov r1, sp
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 .L080E4040:
 	add r5, sp, #0x20
 	mov r0, sp

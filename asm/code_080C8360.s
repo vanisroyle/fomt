@@ -320,7 +320,7 @@ func_080C85A0: @ 0x080C85A0
 	movs r1, #0
 	movs r2, #0
 	movs r3, #0x1e
-	bl func_08051320
+	bl DrawMessageFrame
 	ldr r0, .L080C87D0 @ =gUnk_080F9F78
 	ldr r0, [r0]
 	movs r1, #0xa0
@@ -12550,15 +12550,15 @@ func_080CF05C: @ 0x080CF05C
 	adds r0, r5, #0
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r1, sp, #8
 	adds r0, r6, #0
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r1, sp, #0x10
 	adds r0, r4, #0
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CF2A0 @ =gUnk_081179AC
 	mov r8, r0
 	adds r0, r7, #0
@@ -12798,7 +12798,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E958
 	mov r1, sp
 	movs r2, #0xa
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CF33C @ =gUnk_081179E0
 	mov r8, r0
 	adds r0, r7, #0
@@ -13098,7 +13098,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E94C
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	adds r0, r7, #0
 	bl strlen
 	adds r6, r7, r0
@@ -13161,7 +13161,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E94C
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	adds r0, r4, #0
 	bl GetDesc__C4Tool
 	mov r8, r0
@@ -13593,7 +13593,7 @@ func_080CF67C: @ 0x080CF67C
 	bl ItemCollection_GetByteCount
 	add r1, sp, #4
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CFA2C @ =gUnk_08117A5C
 	mov r8, r0
 	adds r0, r6, #0

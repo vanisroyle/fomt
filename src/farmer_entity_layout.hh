@@ -11,10 +11,10 @@ struct ThrownItemMotion
     STRUCT_PAD(0x02, 0x04);
     i32 x_speed;
     i32 y_speed;
-    i32 unk_0C;
-    i32 unk_10;
+    i32 x_velocity;
+    i32 y_velocity;
     i32 z_speed;
-    i32 unk_18;
+    i32 z_velocity;
 
     void Init()
     {
@@ -22,10 +22,10 @@ struct ThrownItemMotion
         display_mode = 0;
         x_speed = 0;
         y_speed = 0;
-        unk_0C = 0;
-        unk_10 = 0;
+        x_velocity = 0;
+        y_velocity = 0;
         z_speed = 0;
-        unk_18 = 0;
+        z_velocity = 0;
     }
 
     void Launch(i32 x, i32 y, i32 z)
