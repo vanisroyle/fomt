@@ -7,6 +7,7 @@
 #include "sheep.hh"
 #include "item.hh"
 #include "farmer.hh"
+#include "shipping_bin.hh"
 #include <stdlib.h>
 
 struct DogEntityPart1 : AActorEntity
@@ -184,6 +185,20 @@ EC char const vtable_unk_080E64C8[];
 EC void func_08038374(CarryEntityPart1 * self, i32 x, i32 y, u32 anim, u32 facing);
 EC void func_08020410(DogEntityPart1 * self, u32 time);
 EC Article func_0800F258(HeldItem const * self);
+EC Food func_0800F20C(HeldItem const * self);
+EC bool func_0800F388(HeldItem const * self);
+EC void func_0800F528(HeldItem * self);
+EC bool func_08025AFC(AEntity const * self);
+
+struct FarmerGameStatePart1
+{
+    STRUCT_PAD(0x00, 0x08);
+    u32 weather;
+    STRUCT_PAD(0x0C, 0x12);
+    GameTime time;
+    STRUCT_PAD(0x14, 0x54);
+    ShippingBin shipping_bin;
+};
 EC void func_080384FC(CarryEntityPart1 * self);
 EC void func_0802F0EC(FarmerEntityPart1 * self, u32 first, u32 second);
 EC u16 func_0802D158(FarmerEntityPart1 * self);
@@ -283,6 +298,60 @@ inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC u32 func_08025B10(FarmerEntityPart1 * self) ENTITY_CODE(08025B10);
+EC u32 func_08025B10(FarmerEntityPart1 * self)
+{
+    u32 result = 0;
+    if (func_08025AFC(self) && u32(reinterpret_cast<FarmerGameStatePart1 const *>(self->game_state)->weather - 1) <= 1)
+        result = 1;
+    FarmerGameStatePart1 const * game = reinterpret_cast<FarmerGameStatePart1 const *>(self->game_state);
+    if (game->time.GetHour() > 21)
+        ++result;
+    if (game->time.GetHour() <= 5)
+        result += 2;
+    if (func_0800E4F0(*self->farmer) == 0)
+        result += 2;
+    if (func_08025944(self))
+        result += 10;
+    return result;
+}
+
+EC void func_08026150(FarmerEntityPart1 * self, RucksackItem const * item, bool wrapped) ENTITY_CODE(08026150);
+EC void func_08026150(FarmerEntityPart1 * self, RucksackItem const * item, bool wrapped)
+{
+    Product product;
+    switch (item->GetKind())
+    {
+    case RucksackItem::KIND_FOOD: product = Product(item->GetFood()); break;
+    case RucksackItem::KIND_ARTICLE: product = Product(item->GetArticle()); break;
+    }
+    ShippingBin * shipping = &reinterpret_cast<FarmerGameStatePart1 *>(self->game_state)->shipping_bin;
+    if (product.GetPrice() != 0 && !shipping->IsDisplayEnabled(product.GetId()))
+        shipping->ForceEnableDisplay(product.GetId());
+    func_0800F418(&self->farmer->unk_54, *item);
+    if (wrapped)
+        func_0800F528(&self->farmer->unk_54);
+    func_0802A588(self);
+    self->state = 17;
+    LaunchHeldItemPart1(self);
+    func_08008B6C(EntitySoundChannelPart1(self->game_object), 106);
+}
+
+EC Product func_080262C4(FarmerEntityPart1 const * self) ENTITY_CODE(080262C4);
+EC Product func_080262C4(FarmerEntityPart1 const * self)
+{
+    HeldItem const * item = reinterpret_cast<HeldItem const *>(reinterpret_cast<u8 const *>(self->game_state) + 0x1C2C);
+    if (!func_0800F190(item) && !func_0800F388(item))
+    {
+        switch (func_0800F204(item))
+        {
+        case HeldItem::KIND_FOOD: return Product(func_0800F20C(item));
+        case HeldItem::KIND_ARTICLE: return Product(func_0800F258(item));
+        }
+    }
+    return Product();
+}
 
 EC bool func_08024CA0(FarmerEntityPart1 const * self) ENTITY_CODE(08024CA0);
 EC bool func_08024CA0(FarmerEntityPart1 const * self)
