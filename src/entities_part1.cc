@@ -80,11 +80,11 @@ EC char const vtable_unk_080E6310[];
 EC char const vtable_unk_080E6284[];
 EC void AActorEntity_SetFacingSpeed(AActorEntity * self, i32 speed);
 EC u32 DogEntity_GetStateAnimation(DogEntity * self, u32 state);
-EC i32 func_08021130(DogEntity * self, u32 state);
-EC i32 func_08021FAC(HorseEntity * self, u32 state);
+EC i32 DogEntity_GetStateSpeed(DogEntity * self, u32 state);
+EC i32 HorseEntity_GetStateSpeed(HorseEntity * self, u32 state);
 EC u32 HorseEntity_GetStateAnimation(HorseEntity * self, u32 state);
 EC u32 CowEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state);
-EC u32 func_0802405C(BarnAnimalEntity * self, u32 state);
+EC u32 SheepEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state);
 EC u32 CowEntity_GetStateSpeed(AEntity * self, u32 state);
 EC u32 SheepEntity_GetStateSpeed(AEntity * self, u32 state);
 EC void func_08032384(AEntity * self, u32 effect, u32 argument);
@@ -420,6 +420,80 @@ inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+// 0x0802405C
+EC u32 SheepEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state) ENTITY_CODE(0802405C);
+EC u32 SheepEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state)
+{
+    u32 const animation_state = state;
+    bool pregnant = false;
+    if (self->animal->IsPregnant())
+        pregnant = self->animal->GetDaysPregnant() != 0;
+    u16 const * table = gUnk_080F0E34;
+    u32 offset = animation_state * 2;
+    u32 index;
+    if (pregnant)
+        index = offset + 42;
+    else if (static_cast<Sheep *>(self->animal)->IsSheared())
+        index = offset + 28;
+    else
+        index = offset + static_cast<Sheep *>(self->animal)->GetGrowthStage() * 14;
+    return *reinterpret_cast<u16 const *>(reinterpret_cast<u8 const *>(table) + index);
+}
+
+// 0x08021FAC
+EC i32 HorseEntity_GetStateSpeed(HorseEntity * self, u32 state) ENTITY_CODE(08021FAC);
+EC i32 HorseEntity_GetStateSpeed(HorseEntity * self, u32 state)
+{
+    switch (state)
+    {
+    case 0: case 3: case 4: case 5: default: return 0;
+    case 1: return 0x8000;
+    case 2: return 0x10000;
+    case 6:
+    {
+        Box const & collision = self->GetBox();
+        Box box = collision;
+        Box const * bounds = &box;
+        i32 distance = 16;
+        switch (i32(self->facing))
+        {
+        default: break;
+        case 0: case 1: distance = bounds->y2 - bounds->y1 + 16; break;
+        case 2: case 3: distance = bounds->x2 - bounds->x1 + 16; break;
+        }
+        return (distance << 16) / 12;
+    }
+    }
+}
+
+// 0x08021130
+EC i32 DogEntity_GetStateSpeed(DogEntity * self, u32 state) ENTITY_CODE(08021130);
+EC i32 DogEntity_GetStateSpeed(DogEntity * self, u32 state)
+{
+    switch (state)
+    {
+    case 0: case 3: case 4: case 5: case 6: case 7:
+    case 8: case 9: case 10: case 11: default: return 0;
+    case 1: return 0x8000;
+    case 2: return 0x10000;
+    case 12:
+    {
+        Box const & collision = self->GetBox();
+        Box box = collision;
+        Box const * bounds = &box;
+        i32 distance = 16;
+        switch (i32(self->facing))
+        {
+        default: break;
+        case 0: case 1: distance = bounds->y2 - bounds->y1 + 16; break;
+        case 2: case 3: distance = bounds->x2 - bounds->x1 + 16; break;
+        }
+        return (distance << 16) / 30;
+    }
+    }
+}
+
 // 0x08025248
 EC u32 FarmerEntity_FindVerticalClearStep(FarmerEntity const * self, void * map, Box const * box, i32 delta, u32 limit) ENTITY_CODE(08025248);
 EC u32 FarmerEntity_FindVerticalClearStep(FarmerEntity const * self, void * map, Box const * box, i32 delta, u32 limit)
@@ -1224,7 +1298,7 @@ EC void HorseEntity_SetAnimationState(HorseEntity * self, u32 state, u32 facing)
         self->SetAnim(anim);
     if (self->facing != facing)
         self->SetAnimFacing(facing);
-    AActorEntity_SetFacingSpeed(self, func_08021FAC(self, state));
+    AActorEntity_SetFacingSpeed(self, HorseEntity_GetStateSpeed(self, state));
     if (state != self->state && !self->suppress_effect)
     {
         i32 effect = -1;
@@ -1249,7 +1323,7 @@ EC void DogEntity_SetAnimationState(DogEntity * self, u32 state, u32 facing)
         self->SetAnim(anim);
     if (self->facing != facing)
         self->SetAnimFacing(facing);
-    AActorEntity_SetFacingSpeed(self, func_08021130(self, state));
+    AActorEntity_SetFacingSpeed(self, DogEntity_GetStateSpeed(self, state));
     if (state != self->state)
     {
         i32 effect = -1;
@@ -1267,7 +1341,7 @@ EC void DogEntity_SetAnimationState(DogEntity * self, u32 state, u32 facing)
 EC void SheepEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing) ENTITY_CODE(08023FB0);
 EC void SheepEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing)
 {
-    u32 anim = func_0802405C(self, state);
+    u32 anim = SheepEntity_GetStateAnimation(self, state);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     if (self->facing != facing)
