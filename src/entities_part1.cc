@@ -97,6 +97,22 @@ struct AnimalTimerPart1
     u32 unused : 8;
 };
 
+struct ThrownItemPart1
+{
+    u32 unk_00;
+    i32 x_speed;
+    i32 y_speed;
+    STRUCT_PAD(0x0C, 0x14);
+    i32 z_speed;
+
+    void Launch(i32 x, i32 y, i32 z)
+    {
+        x_speed = x;
+        y_speed = y;
+        z_speed = z;
+    }
+};
+
 struct FarmerEntityPart1 : AActorEntity
 {
     FarmerEntityPart1();
@@ -106,7 +122,9 @@ struct FarmerEntityPart1 : AActorEntity
     u8 state;
     u8 unk_3D;
     u8 motion;
-    STRUCT_PAD(0x3F, 0xC0);
+    STRUCT_PAD(0x3F, 0x88);
+    ThrownItemPart1 thrown_item;
+    STRUCT_PAD(0xA0, 0xC0);
     bool unk_C0;
     bool unk_C1;
     bool unk_C2;
@@ -130,6 +148,9 @@ EC bool func_08008CD0(void * channel);
 EC void func_08008B6C(void * channel, u16 sound);
 EC void func_0802A7D8(FarmerEntityPart1 * self);
 EC void func_0802A510(FarmerEntityPart1 * self);
+EC void func_0800F4C0(HeldItem * self);
+EC void func_0800F4F0(HeldItem * self, u8 value);
+EC void func_0800F4D8(HeldItem * self);
 
 inline void * EntitySoundChannelPart1(GameObject * game)
 {
@@ -150,7 +171,63 @@ inline i32 EntityFacingPart1(AActorEntity const * self)
     return self->facing;
 }
 
+inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
+{
+    switch (EntityFacingPart1(self))
+    {
+    case 2: self->thrown_item.Launch(-0xA0000, 0, 0xC0000); break;
+    case 3: self->thrown_item.Launch(0xA0000, 0, 0xC0000); break;
+    case 1: self->thrown_item.Launch(0, -0xA0000, 0xC0000); break;
+    case 0: self->thrown_item.Launch(0, 0xA0000, 0xC0000); break;
+    }
+}
+
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC bool func_08025944(FarmerEntityPart1 * self) ENTITY_CODE(08025944);
+EC bool func_08025944(FarmerEntityPart1 * self)
+{
+    ToolStack * tools = &self->farmer->unk_5C;
+    if (!tools->IsEmpty())
+    {
+        Tool tool = func_0800E550(*self->farmer, tools->GetTool());
+        switch (tool.GetId())
+        {
+        case 5: case 13: case 21: case 29: case 37: case 45: return true;
+        }
+    }
+    return false;
+}
+
+EC void func_08025FC4(FarmerEntityPart1 * self) ENTITY_CODE(08025FC4);
+EC void func_08025FC4(FarmerEntityPart1 * self)
+{
+    func_0800F4D8(&self->farmer->unk_54);
+    func_0802A588(self);
+    self->state = 17;
+    LaunchHeldItemPart1(self);
+    func_08008B6C(EntitySoundChannelPart1(self->game_object), 106);
+}
+
+EC void func_08025EFC(FarmerEntityPart1 * self, u8 value) ENTITY_CODE(08025EFC);
+EC void func_08025EFC(FarmerEntityPart1 * self, u8 value)
+{
+    func_0800F4F0(&self->farmer->unk_54, value);
+    func_0802A588(self);
+    self->state = 17;
+    LaunchHeldItemPart1(self);
+    func_08008B6C(EntitySoundChannelPart1(self->game_object), 106);
+}
+
+EC void func_08025E38(FarmerEntityPart1 * self) ENTITY_CODE(08025E38);
+EC void func_08025E38(FarmerEntityPart1 * self)
+{
+    func_0800F4C0(&self->farmer->unk_54);
+    func_0802A588(self);
+    self->state = 17;
+    LaunchHeldItemPart1(self);
+    func_08008B6C(EntitySoundChannelPart1(self->game_object), 106);
+}
 
 EC void func_08025A40(FarmerEntityPart1 * self, bool next) ENTITY_CODE(08025A40);
 EC void func_08025A40(FarmerEntityPart1 * self, bool next)
