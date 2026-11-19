@@ -87,7 +87,67 @@ For the original maps:
 * Thus the full set **does not fit in safe single-byte codes** (111 short),
   although glyph storage has ample room. Even all 98 -1 entries would not fit.
   The ASCII consonants/base vowels already work. A short selected sample does
-  fit, but this is not yet a complete Vietnamese translation encoding.
+  fit in the original single-byte allocator. The opt-in full-width alternative
+  below can encode all 134, but trades unused-in-scripts kanji artwork for them.
+
+## Opt-in script-only kanji reclamation (no decoder change)
+
+The original double map has **606 accepted unmapped codes**, but **zero truly
+unreferenced large glyph slots**: all 6922 slots have at least one mapped code.
+That is different from whether a code occurs in dialogue. A renderer-style
+scan of **all 1328 original scripts / 8368 STR strings** finds **146 distinct
+double-byte codes**. **6776 large glyph slots have no alias occurring in those
+strings**; **6310** of them have aliases exclusively in the kanji ranges
+`889F..9FFC` / `E040..EAFC`. This includes checking every alias, not just the
+first code mapping to each glyph. Thus there is room for all 134 letters with
+the existing **16px full-width** renderer.
+
+```sh
+python3 tools/assets/font_assets.py capacity
+python3 tools/assets/font_assets.py sample --reclaim-large --placeholders \
+    --text 'Xin chào Việt Nam!'
+# Or assign the complete precomposed alphabet at once (Python standard library):
+python3 -c "import sys; sys.path.insert(0, 'tools/assets'); import font_assets as f; print(''.join(f.vietnamese_letters()))" > build/vietnamese.txt
+python3 tools/assets/font_assets.py sample --reclaim-large --placeholders \
+    --text "$(cat build/vietnamese.txt)"
+```
+
+Then type the same precomposed UTF-8 characters into the text assets and build
+with `make -j8 fomt.gba`. Two-byte charmap rows look like `U+1EA1 = 98 73`
+(illustrative; use the code actually printed by the allocator). Draw assigned
+cells in `assets/fonts/large.png`, not small.png. These glyphs consume **two
+text cells**, even if placeholder ink is narrow; dialogue wraps sooner.
+
+`--reclaim-large` is an explicit acceptance of **script-only** risk. It:
+
+* scans original ROM scripts and currently edited text, using the renderer's
+  accumulated lead/trail logic (not a byte-pair grep), skipping CRLF/control
+  bytes and FF substitution tokens;
+* allocates only unmapped accepted double codes whose lead remains unmapped
+  in the single table, preferring kanji-range gaps and ordinary trails over
+  accepted 7F trails;
+* reclaims only slots whose **every current and original alias is unused** in
+  those scripts, and whose aliases are all kanji-range codes (never kana or
+  punctuation slots, even if unused);
+* protects existing charmap assignments, original script uses even if you have
+  deleted them from edited text, and glyph cells hand-edited since extraction;
+* preserves old aliases rather than renumbering/removing codes, adds the new
+  code mapping, and leaves other art/map comments/charmap entries intact.
+
+**This is not a proof that a slot is unused throughout the game.** Non-script
+item/menu/name tables, hardcoded strings, save names, and dynamically expanded
+FF replacement text are deliberately **not audited**. A non-script consumer
+of an old alias will display the new Vietnamese glyph instead of the kanji.
+Adding that kanji to script text later will also show the replacement art;
+old aliases are retained. Do not ship a translation without auditing the
+non-script consumers and testing relevant gameplay. No runtime decoder or
+global pointer changes are made, and normal builds never reclaim automatically.
+
+Without `--placeholders`, chosen large cells keep their old artwork until you
+draw replacements. With the flag the base ASCII glyph is centered in a 16px
+cell and given a generic top accent marker: these are not finished Vietnamese
+typefaces. Capacity checks happen before modifications, and repeat assignments
+are no-ops. Existing single-byte assignments are kept, not migrated.
 
 ### Proposed next decoder change — NOT implemented
 
@@ -136,7 +196,8 @@ yourself. With the flag it copies each base ASCII letter and adds a simple
 top accent marker. These are **readable placeholders, not correct Vietnamese
 typography** (all accents intentionally share a marker). Review/redraw them.
 The command does not edit script text automatically or implement the proposed
-double-byte extension; requesting the full Vietnamese set fails safely.
+half-width double-byte extension. The default single-byte mode still fails
+safely for the full set; `--reclaim-large` enables the riskier full-width mode.
 
 ## Verification
 
@@ -151,6 +212,10 @@ Roundtrip compares all font and map bytes to the original ROM. The opt-in ROM
 check requires pristine extracted assets and compare-OK `fomt.gba`, toggles one
 PNG pixel and verifies exactly one expected ROM byte changes, then builds a
 Unicode/charmap/map/glyph sample and parses it through the built script table.
-It restores its edits in `finally` and finishes with compare; a local sample
-ROM is retained at `build/assets/font-sample.gba`. This synthetic long/short
-pipeline check is not an emulator rendering test.
+It additionally assigns all 134 letters via reclaimed large slots, builds the
+phrase plus the alphabet, and verifies every new two-byte code, glyph and
+script string in the ROM while protecting every original script-used alias.
+It restores its edits in `finally` and finishes with compare; local sample
+ROMs are retained at `build/assets/font-sample.gba` and
+`build/assets/font-reclaimed-sample.gba`. This pipeline check is not an emulator
+rendering test.

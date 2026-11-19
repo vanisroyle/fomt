@@ -2,6 +2,7 @@
 
 import argparse
 import binascii
+from collections import defaultdict
 import hashlib
 import math
 from pathlib import Path
@@ -262,7 +263,78 @@ def glyph_for(raw, single, double):
     return single.get(code, -1) if len(raw) == 1 else double.get(code, -1) if len(raw) == 2 else -1
 
 
-def capacity(assets):
+def rom_maps(rom):
+    return {kind: dict(zip(codes(kind), struct.unpack_from(f"<{count}h", rom, offset)))
+            for kind, (offset, count, _) in MAPS.items()}
+
+
+def stream_codes(data, single, double):
+    """Track the renderer's accumulated code, excluding FF substitutions."""
+    used = set()
+    pending = 0
+    for byte in data:
+        if byte <= 0x1F:
+            continue
+        pending |= byte
+        if pending <= 0xFF:
+            # These special single-byte codes bypass the ordinary font table.
+            special = pending in (0xB1, 0xB2, 0xB3, 0xB4, 0xB6, 0xB7, *range(0xBB, 0xC4))
+            if single.get(pending, -1) >= 0 or special:
+                pending = 0
+                continue
+        elif pending in double:
+            # Record attempts even if unmapped: do not allocate an in-use code.
+            used.add(pending)
+            if double[pending] >= 0:
+                pending = 0
+                continue
+        elif 0xFF00 <= pending <= 0xFFFF:
+            pending = 0
+            continue
+        pending = (pending << 8) & 0xFFFFFFFF
+    return used
+
+
+def script_usage(rom, assets=None, single=None, double=None):
+    original = rom_maps(rom)
+    used = set()
+    count = 0
+    for _, _, data in fa.rom_scripts(rom):
+        for tag, payload in fa.chunks(data):
+            if tag == b"STR ":
+                for entry in fa.strings(payload):
+                    used.update(stream_codes(entry, original["single"], original["double"]))
+                    count += 1
+    if assets is not None:
+        mapping = fa.charmap(assets / "charmap.txt")
+        for script_id in range(1, fa.COUNT + 1):
+            path = assets / "text" / f"{script_id:04d}.txt"
+            for entry in fa.read_text(path, mapping):
+                used.update(stream_codes(entry, single, double))
+    return used, count
+
+
+def kanji_code(code):
+    return 0x889F <= code <= 0x9FFC or 0xE040 <= code <= 0xEAFC
+
+
+def reclaimable_slots(double, used, original=None):
+    aliases = defaultdict(set)
+    for table in (double, original or {}):
+        for code, slot in table.items():
+            if slot >= 0:
+                aliases[slot].add(code)
+    unused = [slot for slot in range(6922) if not aliases[slot] & used]
+    kanji = [slot for slot in unused if aliases[slot] and all(kanji_code(code) for code in aliases[slot])]
+    return unused, kanji
+
+
+def accepted_free_codes(single, double):
+    return sorted((code for code, slot in double.items() if slot == -1 and single[code >> 8] == -1),
+                  key=lambda code: (not kanji_code(code), (code & 0xFF) == 0x7F, code))
+
+
+def capacity(assets, rom_path):
     single = read_map(assets / "fonts/single.map", "single")
     double = read_map(assets / "fonts/double.map", "double")
     missing = []
@@ -280,10 +352,18 @@ def capacity(assets):
     print(f"Unreferenced small-font slots: {len(unused)}")
     print(f"Vietnamese non-ASCII precomposed letters (both cases): {len(vietnamese_letters())}; "
           f"missing from CP932/current maps: {len(missing)}")
-    print("Full Vietnamese set fits: " + ("yes" if len(missing) <= min(len(unused), len(safe_codes(single))) else "no"))
+    print("Full Vietnamese set fits single-byte allocation: " + ("yes" if len(missing) <= min(len(unused), len(safe_codes(single))) else "no"))
+    rom = original_rom(rom_path)
+    used, count = script_usage(rom)
+    original = rom_maps(rom)
+    candidates, kanji = reclaimable_slots(original["double"], used)
+    print(f"Original scripts: {fa.COUNT} scripts / {count} strings; {len(used)} distinct double-byte codes")
+    print(f"Original large slots with every alias unused in scripts: {len(candidates)}; kanji-only: {len(kanji)}")
+    print(f"Original accepted unmapped double-byte codes: {len(accepted_free_codes(original['single'], original['double']))}")
+    print("WARNING: script-only reclamation does not audit non-script or dynamically substituted text")
 
 
-def sample(rom_path, assets, text, placeholders=False):
+def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
     text = unicodedata.normalize("NFC", text)
     root = assets / "fonts"
     single = read_map(root / "single.map", "single")
@@ -303,35 +383,51 @@ def sample(rom_path, assets, text, placeholders=False):
                 raise ValueError(f"existing charmap assignment for {char!r} is unmapped; fix it first")
             missing.append(char)
     reserved = {int.from_bytes(raw, "big") for raw in mapping.values()}
-    available = [code for code in safe_codes(single) if code not in reserved]
-    data = from_sheet(read_png((root / "small.png").read_bytes()), 487, 8)
+    name, kind = ("large", "double") if reclaim_large else ("small", "single")
+    offset, count, width = FONTS[name]
+    size = 12 * (width // 8)
+    data = from_sheet(read_png((root / (name + ".png")).read_bytes()), count, width)
     rom = original_rom(rom_path)
-    original = rom[0x4F90CC:0x4FA7A0]
+    original = rom[offset:offset + len(data)]
+    if reclaim_large:
+        used, _ = script_usage(rom, assets, single, double)
+        used.update(reserved)
+        _, candidates = reclaimable_slots(double, used, rom_maps(rom)["double"])
+        available = [code for code in accepted_free_codes(single, double) if code not in used]
+        print("WARNING: reclaiming script-unused kanji; non-script/substituted text is NOT audited")
+    else:
+        candidates = [i for i in range(count) if i not in single.values()]
+        available = [code for code in safe_codes(single) if code not in reserved]
     # Unmapped cells with hand-drawn edits are reserved for their author.
-    slots = [i for i in range(487) if i not in single.values()
-             and data[i * 12:i * 12 + 12] == original[i * 12:i * 12 + 12]]
+    slots = [i for i in candidates if data[i * size:i * size + size] == original[i * size:i * size + size]]
     if len(missing) > min(len(available), len(slots)):
         raise ValueError(f"need {len(missing)} codes/slots; only {len(available)} safe codes and {len(slots)} untouched free slots; no edits made")
     assignments = list(zip(missing, available, slots))
-    map_path = root / "single.map"
+    map_path = root / (kind + ".map")
     map_source = map_path.read_text(encoding="utf-8")
     additions = []
     pixels = bytearray(data)
+    small = from_sheet(read_png((root / "small.png").read_bytes()), 487, 8) if reclaim_large and placeholders else data
     for char, code, slot in assignments:
-        pattern = rf"(?mi)^({code:02x}\s*=\s*)-1(?=\s*(?:#|$))"
-        map_source, count = re.subn(pattern, lambda m: m[1] + str(slot), map_source)
-        if count != 1:
+        digits = 4 if reclaim_large else 2
+        pattern = rf"(?mi)^({code:0{digits}x}\s*=\s*)-1(?=\s*(?:#|$))"
+        map_source, matches = re.subn(pattern, lambda m: m[1] + str(slot), map_source)
+        if matches != 1:
             raise ValueError("cannot update map row safely")
-        additions.append(f"U+{ord(char):04X} = {code:02X}\n")
+        raw = code.to_bytes(2 if reclaim_large else 1, "big")
+        additions.append(f"U+{ord(char):04X} = {raw.hex(' ').upper()}\n")
         if placeholders:
             base = unicodedata.normalize("NFD", char)[0]
             if base in "Đđ":
                 base = "D" if base == "Đ" else "d"
             index = single.get(ord(base), -1) if ord(base) < 128 else -1
-            pixels[slot * 12:slot * 12 + 12] = data[index * 12:index * 12 + 12] if index >= 0 else bytes(12)
-            pixels[slot * 12] |= 0x18
-            pixels[slot * 12 + 1] |= 0x08
-        print(f"Assign {char} U+{ord(char):04X} -> {code:02X}, small glyph {slot}")
+            glyph = bytearray(small[index * 12:index * 12 + 12] if index >= 0 else bytes(12))
+            glyph[0] |= 0x18
+            glyph[1] |= 0x08
+            if reclaim_large:
+                glyph = b"".join((row << 4).to_bytes(2, "big") for row in glyph)
+            pixels[slot * size:slot * size + size] = glyph
+        print(f"Assign {char} U+{ord(char):04X} -> {raw.hex(' ').upper()}, {name} glyph {slot}")
     if not assignments:
         print("All characters already have mapped glyphs; no files changed")
         return
@@ -340,8 +436,9 @@ def sample(rom_path, assets, text, placeholders=False):
     separator = "" if old_charmap.endswith("\n") else "\n"
     fa.write_changed(assets / "charmap.txt", (old_charmap + separator + "".join(additions)).encode("utf-8"))
     if placeholders:
-        fa.write_changed(root / "small.png", write_png(to_sheet(bytes(pixels), 487, 8)))
-    print("Assignments added. " + ("Placeholder accents need artist review." if placeholders else "Draw the assigned cells in small.png."))
+        fa.write_changed(root / (name + ".png"), write_png(to_sheet(bytes(pixels), count, width)))
+    print(f"Added {len(assignments)} {kind}-byte assignments. "
+          + ("Placeholder accents need artist review." if placeholders else f"Draw the assigned cells in {name}.png."))
 
 
 def main():
@@ -353,6 +450,7 @@ def main():
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--text", default="Xin chào Việt Nam!")
     parser.add_argument("--placeholders", action="store_true")
+    parser.add_argument("--reclaim-large", action="store_true", help="opt in to script-only kanji reclamation; full-width output")
     args = parser.parse_args()
     try:
         if args.force and args.command != "extract":
@@ -364,9 +462,9 @@ def main():
         elif args.command == "build":
             build(args.assets, args.output)
         elif args.command == "capacity":
-            capacity(args.assets)
+            capacity(args.assets, args.rom)
         elif args.command == "sample":
-            sample(args.rom, args.assets, args.text, args.placeholders)
+            sample(args.rom, args.assets, args.text, args.placeholders, args.reclaim_large)
         else:
             rom = original_rom(args.rom)
             data = build_data(args.assets)

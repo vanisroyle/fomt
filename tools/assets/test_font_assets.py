@@ -137,6 +137,83 @@ class FontTests(unittest.TestCase):
                 font.sample(Path("unused"), self.root, "ạ")
         self.assertTrue(all(p.read_bytes() == data for p, data in before.items()))
 
+    def test_streaming_codes(self):
+        single = dict.fromkeys(range(256), -1)
+        single.update({ord("A"): 0, 0x7F: 1})
+        double = {0x889F: 0, 0x88A0: 1, 0x887F: 2}
+        data = b"A\x88\x9f\r\n\xff\x21\x88\xa0\x05\x88\x7f\x7f"
+        self.assertEqual(font.stream_codes(data, single, double), set(double))
+        self.assertEqual(font.stream_codes(b"", single, double), set())
+        # Mapped leads are rendered alone, not combined with the next byte.
+        single[0x88] = 2
+        self.assertEqual(font.stream_codes(b"\x88\x9f", single, double), set())
+
+    def test_reclaim_checks_every_alias_and_original_mapping(self):
+        double = {0x889F: 0, 0x88A0: 0, 0x88A1: 1, 0x8140: 2, 0x88A2: 3}
+        unused, kanji = font.reclaimable_slots(double, {0x88A0})
+        self.assertNotIn(0, unused)
+        self.assertIn(2, unused)
+        self.assertEqual(kanji, [1, 3])
+        _, kanji = font.reclaimable_slots(double, {0x88A3}, {0x88A3: 1})
+        self.assertNotIn(1, kanji)
+        single = dict.fromkeys(range(256), -1)
+        single[0x88] = 1
+        self.assertEqual(font.accepted_free_codes(single, {0x889F: -1, 0x8940: -1}), [0x8940])
+
+    def test_usage_includes_original_and_current_scripts(self):
+        maps = {"single": dict.fromkeys(range(256), -1), "double": {0x889F: 0, 0x88A0: 1}}
+        payload = font.fa.pack(1) + font.fa.pack(0) + b"\x88\x9f\0"
+        with (patch.object(font, "rom_maps", return_value=maps),
+              patch.object(font.fa, "COUNT", 1),
+              patch.object(font.fa, "rom_scripts", return_value=[(1, 0, b"script")]),
+              patch.object(font.fa, "chunks", return_value=[(b"STR ", payload)]),
+              patch.object(font.fa, "charmap", return_value={}),
+              patch.object(font.fa, "read_text", return_value=[b"\x88\xa0"])):
+            used, count = font.script_usage(b"rom", self.root, maps["single"], maps["double"])
+        self.assertEqual(used, {0x889F, 0x88A0})
+        self.assertEqual(count, 1)
+
+    def large_fixture(self):
+        self.sample_fixture()
+        path = self.root / "fonts/double.map"
+        source = path.read_text().replace("889F = -1", "889F = 0").replace("88A0 = -1", "88A0 = 1")
+        path.write_text(source)
+        pixels = bytearray(6922 * 24)
+        pixels[0] = 1  # edited, unused kanji: do not overwrite
+        (self.root / "fonts/large.png").write_bytes(font.write_png(font.to_sheet(pixels, 6922, 16)))
+
+    def test_large_sample_preserves_edits_and_reservations(self):
+        self.large_fixture()
+        with (patch.object(font, "original_rom", return_value=bytes(0x527094)),
+              patch.object(font, "rom_maps", return_value={"double": {0x889F: 0, 0x88A0: 1}}),
+              patch.object(font, "script_usage", return_value=(set(), 0))):
+            font.sample(Path("unused"), self.root, "ạ", placeholders=True, reclaim_large=True)
+            mapping = font.fa.charmap(self.root / "charmap.txt")
+            self.assertEqual(mapping["ạ"], b"\x88\xa1")
+            double = font.read_map(self.root / "fonts/double.map", "double")
+            self.assertEqual(double[0x88A1], 1)
+            self.assertEqual(double[0x88A0], 1)  # original alias retained
+            data = font.from_sheet(font.read_png((self.root / "fonts/large.png").read_bytes()), 6922, 16)
+            self.assertEqual(data[0], 1)
+            self.assertEqual(data[24:26], b"\x01\x80")
+            before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+            font.sample(Path("unused"), self.root, "ạ", placeholders=True, reclaim_large=True)
+            self.assertTrue(all(p.read_bytes() == raw for p, raw in before.items()))
+
+    def test_large_assignment_reserves_slot_without_placeholder(self):
+        self.large_fixture()
+        path = self.root / "fonts/large.png"
+        saved = path.read_bytes()
+        with (patch.object(font, "original_rom", return_value=bytes(0x527094)),
+              patch.object(font, "rom_maps", return_value={"double": {0x889F: 0, 0x88A0: 1}}),
+              patch.object(font, "script_usage", return_value=(set(), 0))):
+            font.sample(Path("unused"), self.root, "ạ", reclaim_large=True)
+            self.assertEqual(path.read_bytes(), saved)
+            before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+            with self.assertRaisesRegex(ValueError, "no edits made"):
+                font.sample(Path("unused"), self.root, "ạầ", reclaim_large=True)
+            self.assertTrue(all(p.read_bytes() == raw for p, raw in before.items()))
+
 
 if __name__ == "__main__":
     unittest.main()
