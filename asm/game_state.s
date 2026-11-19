@@ -3516,8 +3516,8 @@ func_080124D0: @ 0x080124D0
     .section .text.game_state_08012860, "ax", %progbits
 
 
-    thumb_func_start GameScript_StartDialogueWithOptions
-GameScript_StartDialogueWithOptions: @ 0x08012860
+    thumb_func_start GameScript_StartPromptChoices
+GameScript_StartPromptChoices: @ 0x08012860
     push {r4, r5, r6, r7, lr}
     sub sp, #0xc
     adds r6, r1, #0
@@ -3578,8 +3578,8 @@ GameScript_StartDialogueWithOptions: @ 0x08012860
     pop {r0}
     bx r0
     .section .text.game_state_080128D0, "ax", %progbits
-    thumb_func_start func_080128D0
-func_080128D0: @ 0x080128D0
+    thumb_func_start GameScript_StartChoices
+GameScript_StartChoices: @ 0x080128D0
     push {r4, r5, r6, r7, lr}
     sub sp, #0x10
     adds r5, r1, #0

@@ -558,7 +558,7 @@ EC void SECTION(".text.game_state_08016834") GameScript_ClearFarmAnimalActor(Gam
 }
 
 // 0x080127A0
-EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveLevel(GameStateScript & script, u32 characterId)
+EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveIndicator(GameStateScript & script, u32 characterId)
 {
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0) && characterId != 0x1F)
@@ -567,22 +567,22 @@ EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveLevel(Gam
         if (character != nullptr)
         {
             u32 love = character->GetLove();
-            u32 level;
+            u32 indicator;
             if (love >= 60000)
-                level = 6;
+                indicator = 6;
             else if (love >= 50000)
-                level = 5;
+                indicator = 5;
             else if (love >= 40000)
-                level = 4;
+                indicator = 4;
             else if (love >= 30000)
-                level = 3;
+                indicator = 3;
             else if (love >= 20000)
-                level = 2;
+                indicator = 2;
             else if (love >= 10000)
-                level = 1;
+                indicator = 1;
             else
-                level = 0;
-            SetMessageWindowIndicator(runtime.dialogue.Get(), level);
+                indicator = 0;
+            SetMessageWindowIndicator(runtime.dialogue.Get(), indicator);
         }
     }
 }
@@ -720,27 +720,27 @@ EC void SECTION(".text.game_state_080124C4") GameScript_ResetAudio()
 }
 
 // 0x0801274C
-EC void SECTION(".text.game_state_0801274C") GameScript_ResetDialogueValue(GameStateScript & script)
+EC void SECTION(".text.game_state_0801274C") GameScript_ClearDialogueSpeakerName(GameStateScript & script)
 {
-    void * actor = script.runtime->dialogue.Get();
-    if (actor != nullptr)
-        ClearMessageWindowSpeakerName(actor);
+    void * window = script.runtime->dialogue.Get();
+    if (window != nullptr)
+        ClearMessageWindowSpeakerName(window);
 }
 
 // 0x0801278C
-EC void SECTION(".text.game_state_0801278C") GameScript_ResetAlternateDialogueValue(GameStateScript & script)
+EC void SECTION(".text.game_state_0801278C") GameScript_ClearDialoguePortrait(GameStateScript & script)
 {
-    void * actor = script.runtime->dialogue.Get();
-    if (actor != nullptr)
-        ClearMessageWindowPortrait(actor);
+    void * window = script.runtime->dialogue.Get();
+    if (window != nullptr)
+        ClearMessageWindowPortrait(window);
 }
 
 // 0x0801284C
-EC void SECTION(".text.game_state_0801284C") GameScript_InvokeDialogueAction(GameStateScript & script)
+EC void SECTION(".text.game_state_0801284C") GameScript_ClearDialogueIndicator(GameStateScript & script)
 {
-    void * actor = script.runtime->dialogue.Get();
-    if (actor != nullptr)
-        ClearMessageWindowIndicator(actor);
+    void * window = script.runtime->dialogue.Get();
+    if (window != nullptr)
+        ClearMessageWindowIndicator(window);
 }
 
 // 0x08012ACC
@@ -1231,12 +1231,12 @@ EC void SECTION(".text.game_state_080123A4") GameScript_WaitForScene(GameStateSc
 }
 
 // 0x080126BC
-EC void SECTION(".text.game_state_080126BC") GameScript_StartDialogueWithDefaultFlags(GameStateScript & script, u32 messageId)
+EC void SECTION(".text.game_state_080126BC") GameScript_StartDialogueWithDefaultSpeed(GameStateScript & script, char const * text)
 {
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr)
     {
-        SetMessageWindowTextOptions(runtime.dialogue.Get(), (char const *) messageId, 0x40, runtime.textVariables);
+        SetMessageWindowTextOptions(runtime.dialogue.Get(), text, 0x40, runtime.textVariables);
         runtime.pendingCommand = 0x11;
     }
 }
@@ -1313,12 +1313,12 @@ EC void SECTION(".text.game_state_08012658") GameScript_ResetDialogue(GameStateS
 }
 
 // 0x0801268C
-EC void SECTION(".text.game_state_0801268C") GameScript_StartDialogue(GameStateScript & script, u32 messageId, u32 flags)
+EC void SECTION(".text.game_state_0801268C") GameScript_StartDialogue(GameStateScript & script, char const * text, u32 speed)
 {
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr)
     {
-        SetMessageWindowTextOptions(runtime.dialogue.Get(), (char const *) messageId, (u16) flags, runtime.textVariables);
+        SetMessageWindowTextOptions(runtime.dialogue.Get(), text, (u16) speed, runtime.textVariables);
         runtime.pendingCommand = 0x10;
     }
 }
@@ -1417,28 +1417,28 @@ EC u32 SECTION(".text.game_state_080114C8") SaveProgress_RaiseByteCounter(GameSt
 }
 
 // 0x08012720
-EC void SECTION(".text.game_state_08012720") GameScript_SetDialogueValue(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08012720") GameScript_SetDialogueSpeakerName(GameStateScript & script, char const * speakerName)
 {
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
-        SetMessageWindowSpeakerName(runtime.dialogue.Get(), (char const *) value);
+        SetMessageWindowSpeakerName(runtime.dialogue.Get(), speakerName);
 }
 
 // 0x08012760
-EC void SECTION(".text.game_state_08012760") GameScript_SetAlternateDialogueValue(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08012760") GameScript_SetDialoguePortrait(GameStateScript & script, u32 portraitId)
 {
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0))
-        SetMessageWindowPortrait(runtime.dialogue.Get(), value);
+        SetMessageWindowPortrait(runtime.dialogue.Get(), portraitId);
 }
 
 // 0x080126E4
-EC void SECTION(".text.game_state_080126E4") GameScript_SetMappedDialogueValue(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_080126E4") GameScript_SetDialogueCharacterName(GameStateScript & script, u32 characterId)
 {
     GameStateRuntime & runtime = *script.runtime;
-    void * actor = runtime.dialogue.Get();
-    if (actor != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
-        SetMessageWindowSpeakerName(actor, (char const *) func_0809FE3C(runtime.saveData + 0x1CD4, value));
+    void * window = runtime.dialogue.Get();
+    if (window != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
+        SetMessageWindowSpeakerName(window, (char const *) func_0809FE3C(runtime.saveData + 0x1CD4, characterId));
 }
 
 // 0x0801223C

@@ -1428,7 +1428,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040652
 	bl .L08045572
 .L08040652:
-	bl GameScript_SetMappedDialogueValue
+	bl GameScript_SetDialogueCharacterName
 	bl .L08045572
 .L0804065A:
 	movs r3, #0xda
@@ -1466,7 +1466,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r1, .L080406A4 @ =0x080F9EB8
 .L08040698:
 	adds r0, r2, #0
-	bl GameScript_SetDialogueValue
+	bl GameScript_SetDialogueSpeakerName
 	bl .L08045572
 	.align 2, 0
 .L080406A4: .4byte 0x080F9EB8
@@ -1479,7 +1479,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080406B8
 	bl .L08045572
 .L080406B8:
-	bl GameScript_ResetDialogueValue
+	bl GameScript_ClearDialogueSpeakerName
 	bl .L08045572
 .L080406C0:
 	adds r3, r5, #0
@@ -1576,7 +1576,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp]
 	str r1, [sp, #4]
 	adds r1, r6, #0
-	bl GameScript_StartDialogueWithOptions
+	bl GameScript_StartPromptChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040778: .4byte 0x080F9EB8
@@ -1701,7 +1701,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r1, #0
 	str r1, [sp, #4]
 	adds r1, r7, #0
-	bl GameScript_StartDialogueWithOptions
+	bl GameScript_StartPromptChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040864: .4byte 0x080F9EB8
@@ -1851,7 +1851,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r6, [sp]
 	str r1, [sp, #4]
 	adds r1, r7, #0
-	bl GameScript_StartDialogueWithOptions
+	bl GameScript_StartPromptChoices
 	bl .L0804168A
 	.align 2, 0
 .L0804097C: .4byte 0x080F9EB8
@@ -1926,7 +1926,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp, #8]
 	adds r1, r3, #0
 	movs r3, #0
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040A0C: .4byte 0x080F9EB8
@@ -2026,7 +2026,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp, #4]
 	str r1, [sp, #8]
 	adds r1, r6, #0
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040AC8: .4byte 0x080F9EB8
@@ -2152,7 +2152,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r1, [sp, #4]
 	str r1, [sp, #8]
 	adds r1, r7, #0
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040BB4: .4byte 0x080F9EB8
@@ -2304,7 +2304,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r1, #0
 	str r1, [sp, #8]
 	adds r1, r7, #0
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040CD0: .4byte 0x080F9EB8
@@ -2481,7 +2481,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r6, [sp, #4]
 	str r1, [sp, #8]
 	mov r1, r8
-	bl func_080128D0
+	bl GameScript_StartChoices
 	bl .L0804168A
 	.align 2, 0
 .L08040E18: .4byte 0x080F9EB8
@@ -2506,7 +2506,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040E42
 	bl .L08045572
 .L08040E42:
-	bl GameScript_SetAlternateDialogueValue
+	bl GameScript_SetDialoguePortrait
 	bl .L08045572
 .L08040E4A:
 	movs r3, #0xd5
@@ -2517,7 +2517,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040E5A
 	bl .L08045572
 .L08040E5A:
-	bl GameScript_ResetAlternateDialogueValue
+	bl GameScript_ClearDialoguePortrait
 	bl .L08045572
 .L08040E62:
 	movs r4, #0xda
@@ -2540,7 +2540,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040E88
 	bl .L08045572
 .L08040E88:
-	bl GameScript_SetDialogueLoveLevel
+	bl GameScript_SetDialogueLoveIndicator
 	bl .L08045572
 .L08040E90:
 	movs r1, #0xd5
@@ -2551,7 +2551,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08040EA0
 	bl .L08045572
 .L08040EA0:
-	bl GameScript_InvokeDialogueAction
+	bl GameScript_ClearDialogueIndicator
 	bl .L08045572
 .L08040EA8:
 	adds r6, r5, #0
@@ -10406,7 +10406,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r1, .L08044E38 @ =0x080F9EB8
 .L08044E2E:
 	adds r0, r2, #0
-	bl GameScript_StartDialogueWithDefaultFlags
+	bl GameScript_StartDialogueWithDefaultSpeed
 	bl .L0804168A
 	.align 2, 0
 .L08044E38: .4byte 0x080F9EB8
