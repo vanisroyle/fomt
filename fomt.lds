@@ -49,9 +49,9 @@ SECTIONS
         . = 0x00040C; gUnk_0300040C = .;
         . = 0x000410; gUnk_03000410 = .;
         . = 0x000414; gUnk_03000414 = .;
-        . = 0x000418; gUnk_03000418 = .;
-        . = 0x00041C; gUnk_0300041C = .;
-        . = 0x000420; gUnk_03000420 = .;
+        . = 0x000418; gHeapHead = .;
+        . = 0x00041C; gCurrentJoybusCommand = .;
+        . = 0x000420; gJoybusState = .;
         . = 0x000430; gUnk_03000430 = .;
         . = 0x000450; gUnk_03000450 = .;
         . = 0x000490; /* end */
@@ -372,6 +372,12 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
         asm/code_080C8360.o(.text.g5_CADB4);
+        src/g5_commands.o(.text.g5_080CADF0);
+        asm/code_080C8360.o(.text.g5_after_080CADF0);
+        src/g5_commands.o(.text.g5_080CAE60);
+        asm/code_080C8360.o(.text.g5_after_080CAE60);
+        src/g5_commands.o(.text.g5_080CAF6C);
+        asm/code_080C8360.o(.text.g5_after_080CAF6C);
         src/g5_helpers.o(.text.g5_080CB2E8);
         asm/code_080C8360.o(.text.g5_080CB304);
         src/g5_drawing.o(.text.g5_080CB948);
@@ -386,6 +392,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_080CD578);
         src/g5_objects.o(.text.g5_080CD950);
         asm/code_080C8360.o(.text.g5_after_080CD950);
+        src/g5_navigation.o(.text.g5_080CDA44);
+        asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_helpers.o(.text.g5_080CE184);
         asm/code_080C8360.o(.text.g5_080CE19C);
         src/g5_panels.o(.text.g5_080CE19C);
@@ -393,6 +401,10 @@ SECTIONS
         src/g5_helpers.o(.text.g5_080CE1C4);
         src/g5_panels.o(.text.g5_080CE294);
         asm/code_080C8360.o(.text.g5_after_080CE294);
+        src/g5_commands.o(.text.g5_080CE3DC);
+        asm/code_080C8360.o(.text.g5_after_080CE3DC);
+        src/g5_commands.o(.text.g5_080CE480);
+        asm/code_080C8360.o(.text.g5_after_080CE480);
         src/g5_panels.o(.text.g5_080CEB80);
         asm/code_080C8360.o(.text.g5_after_080CEB80);
         src/g5_objects.o(.text.g5_080CEC84);

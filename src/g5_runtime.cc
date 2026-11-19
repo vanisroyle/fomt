@@ -1,156 +1,127 @@
-#include "prelude.h"
+#include "g5_link.hh"
 
-struct RuntimeCommand
+EC SECTION(".text.g5_init") void InitializeJoybusState(JoybusState * state) // 0x080D02CC
 {
-    u32 kind;
-    u32 unk_04;
-    u32 unk_08;
-    u32 args[5];
-};
-
-struct RuntimeState
-{
-    u32 unk_00[13];
-    u32 read;
-    u32 write;
-    RuntimeCommand commands[10];
-    u32 busy;
-    u32 status;
-    u32 unk_184;
-};
-
-EC RuntimeState * gUnk_03000420;
-EC RuntimeCommand * gUnk_0300041C;
-
-EC void func_080D0B88();
-EC void func_080D0BA8(RuntimeCommand * command);
-EC void func_080D0B14(u32, u32);
-EC void func_080D0ABC();
-EC void func_080D0AE0();
-EC void func_080D0A94(u32 status);
-
-EC SECTION(".text.g5_init") void func_080D02CC(RuntimeState * state)
-{
-    gUnk_03000420 = state;
-    state->unk_00[0] = 0;
-    func_080D0B88();
-    gUnk_03000420->unk_00[1] = 0;
-    gUnk_03000420->unk_00[2] = 0;
+    gJoybusState = state;
+    state->unknown_00[JOYBUS_ENABLED] = 0;
+    ResetJoybusCommandQueue();
+    gJoybusState->unknown_00[JOYBUS_HANDSHAKE_SEND] = 0;
+    gJoybusState->unknown_00[JOYBUS_HANDSHAKE_EXPECTED] = 0;
 }
 
 EC SECTION(".text.g5_init") void func_080D02EC()
 {
 }
 
-EC SECTION(".text.g5_init") void func_080D02F0()
+EC SECTION(".text.g5_init") void StartJoybus() // 0x080D02F0
 {
-    RuntimeCommand command;
-    RuntimeState * state = gUnk_03000420;
-    if (state->unk_00[0] == 0)
+    JoybusCommand command;
+    JoybusState * state = gJoybusState;
+    if (state->unknown_00[JOYBUS_ENABLED] == 0)
     {
-        state->unk_00[0] = 1;
-        state->unk_00[5] = 0;
-        state->unk_00[6] = 0;
-        state->unk_00[7] = 0;
-        state->unk_00[8] = 1;
+        state->unknown_00[JOYBUS_ENABLED] = 1;
+        state->unknown_00[5] = 0;
+        state->unknown_00[6] = 0;
+        state->unknown_00[7] = 0;
+        state->unknown_00[8] = 1;
         state->status = 0;
-        state->unk_184 = 0;
+        state->unknown_184 = 0;
         state->busy = 0;
-        state->unk_00[3] = 0;
-        state->unk_00[4] = 0;
+        state->unknown_00[3] = 0;
+        state->unknown_00[4] = 0;
         command.kind = 0;
-        func_080D0BA8(&command);
-        func_080D0B14(0, 0);
-        func_080D0ABC();
+        EnqueueJoybusCommand(&command);
+        ConfigureJoybus(0, 0);
+        EnableJoybusSerialInterrupt();
     }
 }
 
-EC SECTION(".text.g5_init") void func_080D0340()
+EC SECTION(".text.g5_init") void StopJoybus() // 0x080D0340
 {
-    RuntimeState * state = gUnk_03000420;
-    if (state->unk_00[0] != 0)
+    JoybusState * state = gJoybusState;
+    if (state->unknown_00[JOYBUS_ENABLED] != 0)
     {
-        state->unk_00[0] = 0;
-        func_080D0AE0();
+        state->unknown_00[JOYBUS_ENABLED] = 0;
+        DisableJoybusSerialInterrupt();
     }
 }
 
-EC void func_080D0B88()
+EC void ResetJoybusCommandQueue() // 0x080D0B88
 {
-    RuntimeState * state = gUnk_03000420;
-    state->read = 0;
-    state->write = 0;
-    gUnk_0300041C = state->commands;
+    JoybusState * state = gJoybusState;
+    state->read_index = 0;
+    state->write_index = 0;
+    gCurrentJoybusCommand = state->commands;
     state->commands[0].kind = 0;
 }
 
-EC void func_080D0BA8(RuntimeCommand * command)
+EC void EnqueueJoybusCommand(JoybusCommand * command) // 0x080D0BA8
 {
-    RuntimeState * state = gUnk_03000420;
-    state->write = (state->write + 1) % 10;
-    command->unk_04 = 0;
-    command->unk_08 = 0;
-    RuntimeCommand * dest = (RuntimeCommand *) ((u8 *) state + state->write * sizeof(RuntimeCommand));
-    dest = (RuntimeCommand *) ((u8 *) dest + 0x3c);
+    JoybusState * state = gJoybusState;
+    state->write_index = (state->write_index + 1) % 10;
+    command->progress = 0;
+    command->unknown_08 = 0;
+    JoybusCommand * dest = (JoybusCommand *) ((u8 *) state + state->write_index * sizeof(JoybusCommand));
+    dest = (JoybusCommand *) ((u8 *) dest + 0x3c);
     *dest = *command;
 }
 
-EC void func_080D0BE0()
+EC void AdvanceJoybusCommandQueue() // 0x080D0BE0
 {
-    RuntimeState * state = gUnk_03000420;
-    if (state->read != state->write)
+    JoybusState * state = gJoybusState;
+    if (state->read_index != state->write_index)
     {
-        state->read = (state->read + 1) % 10;
-        gUnk_0300041C = &state->commands[state->read];
+        state->read_index = (state->read_index + 1) % 10;
+        gCurrentJoybusCommand = &state->commands[state->read_index];
     }
 }
 
-EC bool func_080D0C10()
+EC bool IsJoybusCommandQueueEmpty() // 0x080D0C10
 {
-    return gUnk_03000420->read == gUnk_03000420->write;
+    return gJoybusState->read_index == gJoybusState->write_index;
 }
 
-EC void func_080D0C2C()
+EC void CancelJoybusCommands() // 0x080D0C2C
 {
-    RuntimeState * state = gUnk_03000420;
-    state->write = (state->read + 1) % 10;
-    state->commands[state->write].kind = 0;
-    state->read = state->write;
-    gUnk_0300041C = &state->commands[state->write];
+    JoybusState * state = gJoybusState;
+    state->write_index = (state->read_index + 1) % 10;
+    state->commands[state->write_index].kind = 0;
+    state->read_index = state->write_index;
+    gCurrentJoybusCommand = &state->commands[state->write_index];
 }
 
-EC SECTION(".text.g5_commands") void func_080D0A14()
+EC SECTION(".text.g5_commands") void RetryJoybusHandshake() // 0x080D0A14
 {
-    RuntimeCommand * command = gUnk_0300041C;
-    if (command->kind == 1 && command->unk_04 <= 2)
+    JoybusCommand * command = gCurrentJoybusCommand;
+    if (command->kind == 1 && command->progress <= 2)
     {
         (void) *(volatile u32 *) 0x04000150;
-        *(volatile u32 *) 0x04000154 = gUnk_03000420->unk_00[1];
+        *(volatile u32 *) 0x04000154 = gJoybusState->unknown_00[JOYBUS_HANDSHAKE_SEND];
         *(volatile u16 *) 0x04000158 = 0x20;
-        command->unk_04++;
+        command->progress++;
     }
 }
 
-EC SECTION(".text.g5_commands") void func_080D0A54(u32 status)
+EC SECTION(".text.g5_commands") void CompleteJoybusCommand(u32 status) // 0x080D0A54
 {
-    gUnk_0300041C->kind = 0;
-    gUnk_03000420->status = status;
+    gCurrentJoybusCommand->kind = 0;
+    gJoybusState->status = status;
 }
 
-EC SECTION(".text.g5_commands") void func_080D0A74()
+EC SECTION(".text.g5_commands") void ClearJoybusCommandStatus() // 0x080D0A74
 {
-    gUnk_0300041C->kind = 0;
-    gUnk_03000420->status = 0;
+    gCurrentJoybusCommand->kind = 0;
+    gJoybusState->status = 0;
 }
 
-EC SECTION(".text.g5_commands") void func_080D0A94(u32 status)
+EC SECTION(".text.g5_commands") void SetJoybusStatusWhileBusy(u32 status) // 0x080D0A94
 {
-    gUnk_03000420->busy = 1;
-    func_080D0A54(status);
-    gUnk_03000420->busy = 0;
+    gJoybusState->busy = 1;
+    CompleteJoybusCommand(status);
+    gJoybusState->busy = 0;
 }
 
-EC SECTION(".text.g5_commands") void func_080D0ABC()
+EC SECTION(".text.g5_commands") void EnableJoybusSerialInterrupt() // 0x080D0ABC
 {
     u16 ime = *(volatile u16 *) 0x04000208;
     *(volatile u16 *) 0x04000208 = 0;
@@ -158,7 +129,7 @@ EC SECTION(".text.g5_commands") void func_080D0ABC()
     *(volatile u16 *) 0x04000208 = ime;
 }
 
-EC SECTION(".text.g5_commands") void func_080D0AE0()
+EC SECTION(".text.g5_commands") void DisableJoybusSerialInterrupt() // 0x080D0AE0
 {
     u16 ime = *(volatile u16 *) 0x04000208;
     *(volatile u16 *) 0x04000208 = 0;
@@ -167,7 +138,7 @@ EC SECTION(".text.g5_commands") void func_080D0AE0()
     *(volatile u16 *) 0x04000208 = ime;
 }
 
-EC SECTION(".text.g5_commands") void func_080D0B14(u32 reset, u32 mode)
+EC SECTION(".text.g5_commands") void ConfigureJoybus(u32 reset, u32 mode) // 0x080D0B14
 {
     u16 ime = *(volatile u16 *) 0x04000208;
     *(volatile u16 *) 0x04000208 = 0;
@@ -185,69 +156,69 @@ EC SECTION(".text.g5_commands") void func_080D0B14(u32 reset, u32 mode)
     *(volatile u16 *) 0x04000208 = ime;
 }
 
-EC SECTION(".text.g5_requests") void func_080D0444(u32 first, u32 second)
+EC SECTION(".text.g5_requests") void SetJoybusHandshakeWords(u32 handshake_send, u32 handshake_expected) // 0x080D0444
 {
-    gUnk_03000420->unk_00[1] = first;
-    gUnk_03000420->unk_00[2] = second;
+    gJoybusState->unknown_00[JOYBUS_HANDSHAKE_SEND] = handshake_send;
+    gJoybusState->unknown_00[JOYBUS_HANDSHAKE_EXPECTED] = handshake_expected;
 }
 
 EC SECTION(".text.g5_requests") void func_080D0454()
 {
-    RuntimeCommand command;
-    gUnk_03000420->unk_00[5] = 1;
+    JoybusCommand command;
+    gJoybusState->unknown_00[5] = 1;
     command.kind = 1;
-    func_080D0BA8(&command);
+    EnqueueJoybusCommand(&command);
     command.kind = 3;
-    command.args[1] = (u32) &gUnk_03000420->unk_00[9];
+    command.args[1] = (u32) &gJoybusState->unknown_00[9];
     command.args[3] = 2;
     *(u16 *) &command.args[4] = 0;
-    func_080D0BA8(&command);
+    EnqueueJoybusCommand(&command);
 }
 
 EC SECTION(".text.g5_queries") u32 func_080D0678()
 {
-    RuntimeState * state = gUnk_03000420;
+    JoybusState * state = gJoybusState;
     return ((u8 *) state)[0x2c] | ((u8 *) state)[0x2d] << 8 |
         ((u8 *) state)[0x2e] << 16 | ((u8 *) state)[0x2f] << 24;
 }
 
 EC SECTION(".text.g5_transfer") void func_080D05DC()
 {
-    RuntimeCommand command;
-    gUnk_03000420->unk_00[5] = 5;
-    if (gUnk_03000420->unk_00[12] != 0)
+    JoybusCommand command;
+    gJoybusState->unknown_00[5] = 5;
+    if (gJoybusState->unknown_00[12] != 0)
     {
         command.kind = 1;
-        func_080D0BA8(&command);
+        EnqueueJoybusCommand(&command);
     }
     command.kind = 4;
-    command.args[1] = (u32) &gUnk_03000420->unk_00[9];
+    command.args[1] = (u32) &gJoybusState->unknown_00[9];
     command.args[3] = 2;
     *(u16 *) &command.args[4] = 0;
-    func_080D0BA8(&command);
+    EnqueueJoybusCommand(&command);
     command.kind = 3;
-    command.args[1] = (u32) &gUnk_03000420->unk_00[11];
+    command.args[1] = (u32) &gJoybusState->unknown_00[11];
     command.args[3] = 2;
     *(u16 *) &command.args[4] = 0;
-    func_080D0BA8(&command);
+    EnqueueJoybusCommand(&command);
     command.kind = 2;
-    command.args[1] = (u32) &gUnk_03000420->unk_00[10];
+    command.args[1] = (u32) &gJoybusState->unknown_00[10];
     command.args[3] = 2;
     *(u16 *) &command.args[4] = 0;
-    func_080D0BA8(&command);
+    EnqueueJoybusCommand(&command);
 }
 
 EC SECTION(".text.g5_queries") void func_080D06A8()
 {
-    func_080D0A94(11);
+    SetJoybusStatusWhileBusy(11);
 }
 
 EC SECTION(".text.g5_queries") bool func_080D06B4()
 {
-    return gUnk_03000420->unk_00[5] == 0;
+    return gJoybusState->unknown_00[5] == 0;
 }
 
 EC SECTION(".text.g5_queries") u32 func_080D06D0()
 {
-    return gUnk_03000420->unk_00[6];
+    return gJoybusState->unknown_00[6];
 }
