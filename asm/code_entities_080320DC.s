@@ -4307,7 +4307,7 @@ func_08034C64: @ 0x08034C64
     push {r4, r5, r6, lr}
     sub sp, #8
     adds r6, r1, #0
-    ldr r4, .L08034CDC @ =gUnk_080F29C0
+    ldr r4, .L08034CDC @ =gChildScheduleInfo
     ldr r1, [r4]
     bl _call_via_r1
     ldr r1, [r4, #8]
@@ -4363,7 +4363,7 @@ func_08034C64: @ 0x08034C64
     lsrs r0, r0, #0x1f
     b .L08034CE2
     .align 2, 0
-.L08034CDC: .4byte gUnk_080F29C0
+.L08034CDC: .4byte gChildScheduleInfo
 .L08034CE0:
     movs r0, #0
 .L08034CE2:

@@ -920,7 +920,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803D7E4);
         src/code_0803A8A4.o(.text.0803DA7C);
         src/code_0803A8A4.o(.text.0803DC64);
-        asm/code_0803A8A4.o(.text.0803DCB4);
+        src/code_0803A8A4.o(.text.0803DCB4);
         src/code_0803A8A4.o(.text.0803DDE8);
         src/code_0803A8A4.o(.text.0803DECC);
         src/code_0803A8A4.o(.text.0803DFE8);
