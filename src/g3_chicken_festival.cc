@@ -10,7 +10,7 @@ struct FestivalChicken
     u32 action;
     u32 previousAction;
     u32 facing;
-    u32 unknown_0C;
+    u32 previousFacing;
     u32 movementDecision;
     u32 reaction;
     i32 ringDistance;
@@ -123,7 +123,7 @@ struct FestivalInstructionChickens
     u8 speed;
 };
 
-EC void func_080B8DF4(void *, u8);
+EC void CreateFestivalChickenSprites(void *, u8);
 
 EC SECTION(".text.g3_080B5788") void ResetFestivalInstructionChickens(FestivalInstructionChickens * state)
 {
@@ -139,11 +139,11 @@ EC SECTION(".text.g3_080B5788") void ResetFestivalInstructionChickens(FestivalIn
         state->chickens[i].unknown_31[14] = 0;
     }
     state->chickens[0].facing = 3;
-    state->chickens[0].unknown_0C = 3;
+    state->chickens[0].previousFacing = 3;
     state->chickens[1].facing = 1;
-    state->chickens[1].unknown_0C = 1;
-    func_080B8DF4(state, 0);
-    func_080B8DF4(state, 1);
+    state->chickens[1].previousFacing = 1;
+    CreateFestivalChickenSprites(state, 0);
+    CreateFestivalChickenSprites(state, 1);
 }
 
 EC SECTION(".text.g3_080B3BA8") void ToggleFeedingPause(u8 * state)

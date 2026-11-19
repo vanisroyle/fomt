@@ -917,6 +917,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B757C);
         src/g3_chicken_festival.o(.text.g3_080B8DAC);
         asm/code_809E804.o(.text.g3_after_080B8DAC);
+        src/g3_festival_graphics.o(.text.g3_080B8DF4);
+        asm/code_809E804.o(.text.g3_after_080B8DF4);
         src/g3_chicken_festival.o(.text.g3_080B92B4);
         asm/code_809E804.o(.text.g3_after_080B92B4);
         src/g3_chicken_festival.o(.text.g3_080B9428);

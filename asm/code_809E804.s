@@ -29362,7 +29362,7 @@ func_080B55D0: @ 0x080B55D0
 	ldrh r1, [r2]
 	strh r1, [r0, #0x1e]
 	adds r0, r7, #0
-	bl ResetFestivalInstructionChickens
+	bl func_080B5788
 	movs r1, #0xe3
 	lsls r1, r1, #3
 	adds r0, r7, r1
@@ -35358,10 +35358,10 @@ func_080B8578: @ 0x080B8578
 	str r4, [r0]
 	adds r0, r6, #0
 	movs r1, #0
-	bl func_080B8DF4
+	bl CreateFestivalChickenSprites
 	adds r0, r6, #0
 	movs r1, #1
-	bl func_080B8DF4
+	bl CreateFestivalChickenSprites
 	movs r3, #0xb4
 	lsls r3, r3, #4
 	adds r1, r6, r3
@@ -36192,101 +36192,7 @@ func_080B888C: @ 0x080B888C
 
 	.section .text.g3_after_080B8DAC, "ax", %progbits
 
-	thumb_func_start func_080B8DF4
-func_080B8DF4: @ 0x080B8DF4
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	adds r6, r0, #0
-	lsls r1, r1, #0x18
-	lsrs r1, r1, #0x18
-	mov r8, r1
-	movs r0, #0x14
-	bl __builtin_new
-	ldr r2, .L080B8EB0 @ =0x0000077C
-	adds r1, r6, r2
-	ldr r1, [r1]
-	movs r2, #0x80
-	lsls r2, r2, #1
-	mov sl, r2
-	movs r2, #0
-	mov r3, sl
-	bl func_0805E824
-	adds r4, r0, #0
-	mov r0, r8
-	lsls r7, r0, #2
-	adds r5, r7, r6
-	ldr r1, .L080B8EB4 @ =0x000007A4
-	mov sb, r1
-	add r5, sb
-	ldr r0, [r5]
-	cmp r4, r0
-	beq .L080B8E38
-	bl __builtin_delete
-.L080B8E38:
-	str r4, [r5]
-	movs r0, #0x1c
-	bl __builtin_new
-	adds r5, r0, #0
-	movs r1, #0
-	movs r0, #0
-	strh r0, [r5]
-	strh r0, [r5, #2]
-	strh r0, [r5, #4]
-	strh r0, [r5, #6]
-	strh r0, [r5, #8]
-	str r0, [r5, #0xc]
-	strb r1, [r5, #0x10]
-	strb r1, [r5, #0x11]
-	str r0, [r5, #0x14]
-	strb r1, [r5, #0x18]
-	adds r4, r7, r6
-	ldr r2, .L080B8EB8 @ =0x000007AC
-	adds r4, r4, r2
-	ldr r0, [r4]
-	adds r7, r7, r6
-	cmp r5, r0
-	beq .L080B8E6C
-	bl __builtin_delete
-.L080B8E6C:
-	str r5, [r4]
-	mov r0, sb
-	adds r4, r7, r0
-	ldr r5, [r4]
-	mov r1, r8
-	lsls r2, r1, #6
-	adds r0, r6, #0
-	adds r0, #0x6c
-	adds r0, r0, r2
-	ldr r1, [r0]
-	adds r0, r6, #0
-	adds r0, #0x74
-	adds r0, r0, r2
-	ldr r2, [r0]
-	adds r0, r6, #0
-	mov r3, r8
-	bl GetFestivalChickenAnimation
-	adds r1, r0, #0
-	lsls r1, r1, #0x10
-	lsrs r1, r1, #0x10
-	adds r0, r5, #0
-	bl SetSpriteAnimatorClip
-	ldr r0, [r4]
-	mov r2, sl
-	strh r2, [r0, #0x10]
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080B8EB0: .4byte 0x0000077C
-.L080B8EB4: .4byte 0x000007A4
-.L080B8EB8: .4byte 0x000007AC
+	.section .text.g3_after_080B8DF4, "ax", %progbits
 
 	thumb_func_start func_080B8EBC
 func_080B8EBC: @ 0x080B8EBC
