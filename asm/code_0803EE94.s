@@ -11209,7 +11209,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r1, #0
 	adds r1, r6, #0
 	adds r2, r7, #0
-	bl func_08016FA4
+	bl GameScript_SetActorMapLocation
 	b .L08045572
 .L08045456:
 	movs r4, #0xda

@@ -7,6 +7,7 @@
 #include "scene.hh"
 #include "shipping_bin.hh"
 #include "bachelorette.hh"
+#include "farmer.hh"
 
 #include <stdlib.h>
 #include <new>
@@ -850,6 +851,46 @@ EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 EC void AudioPlayer_FadeOut(void * self, u32 speed);
+
+struct G1NpcSchedule;
+EC void AdvanceNpcScheduleDailyCounter(G1NpcSchedule * schedule);
+
+// 0x08016FA4
+EC void SECTION(".text.game_state_08016FA4") GameScript_SetActorMapLocation(GameStateScript & script, i32 actorId, u32 mapId, i32 x, i32 y, i32 facing)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u32 targetMapId = mapId;
+    if (actorId <= 0x49)
+    {
+        AActorEntity * actor = runtime.scene->GetActor(actorId);
+        if (actor != nullptr)
+        {
+            actor->SetLocation(ActorLocation(Location(targetMapId, x, y), facing));
+            actor->vfunc_20();
+        }
+    }
+    else
+    {
+        AEntity * entity = runtime.scene->GetActor(actorId);
+        if (entity != nullptr)
+        {
+            entity->SetLocation(Location(targetMapId, x, y));
+            entity->vfunc_20();
+        }
+    }
+    if (actorId == 0)
+    {
+        if (targetMapId == 0x19)
+            AdvanceNpcScheduleDailyCounter(reinterpret_cast<G1NpcSchedule *>(runtime.saveData + 0x1CD4));
+        i32 mineFloor = 0;
+        if (targetMapId - 0x35 <= 0xFE)
+            mineFloor = targetMapId - 0x34;
+        else if (targetMapId - 0x135 <= 0xFE)
+            mineFloor = targetMapId - 0x134;
+        if (mineFloor > 0)
+            func_0800EECC(*reinterpret_cast<Farmer *>(runtime.saveData + 0x1BD8), mineFloor);
+    }
+}
 
 // 0x080122E0
 EC void SECTION(".text.game_state_080122E0") GameScript_WarpToLocation(GameStateScript & script, u32 mapId, i32 x, i32 y)
