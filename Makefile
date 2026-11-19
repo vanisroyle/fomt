@@ -15,6 +15,8 @@ SRC_DIR = src
 ASM_DIR = asm
 DATA_ASM_DIR = asm/data
 BUILD_DIR = build
+PYTHON ?= python3
+SCRIPTS_OVERFLOW_FROM ?= 1329
 
 # ====================
 # = TOOL DEFINITIONS =
@@ -88,6 +90,22 @@ compare: $(ROM)
 
 .PHONY: compare
 
+# The generator checks all editable inputs and only replaces changed outputs.
+$(BUILD_DIR)/assets/scripts.s: FORCE
+	@$(PYTHON) tools/assets/fomt_assets.py build --overflow-from $(SCRIPTS_OVERFLOW_FROM)
+
+$(BUILD_DIR)/asm/data/data_080F1A80.o $(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/scripts.s
+
+extract:
+	@$(PYTHON) tools/assets/fomt_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
+
+assets-test:
+	@$(PYTHON) -m unittest discover -s tools/assets -p 'test_*.py'
+
+FORCE:
+
+.PHONY: extract assets-test FORCE
+
 # ROM from ELF
 %.gba: %.elf
 	$(OBJCOPY) -O binary $< $@
@@ -139,7 +157,7 @@ clean:
 
 .PHONY: clean
 
-ifneq (clean,$(MAKECMDGOALS))
+ifeq (,$(filter clean extract assets-test,$(MAKECMDGOALS)))
 -include $(ALL_DEPS)
 .PRECIOUS: $(BUILD_DIR)/%.d
 endif

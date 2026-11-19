@@ -424,11 +424,15 @@ SECTIONS
     __iwram_vma_end = ADDR(.iwram) + SIZEOF(.iwram);
     __iwram_lma     = LOADADDR(.iwram);
 
-    .pad : ALIGN(4)
+    .rom_tail : ALIGN(4)
     {
         LONG(0);
-        . = 0x08800000 - 0x0875C240;
+        *(.script_overflow);
+        . = ALIGN(0x800000);
     } > ROM = 0xFF
+
+    ASSERT(ADDR(.rom_tail) == 0x0875C240, "original ROM suffix moved")
+    ASSERT(ADDR(.rom_tail) + SIZEOF(.rom_tail) <= 0x0A000000, "ROM exceeds 32 MiB")
 
     /* DWARF 2 sections */
     .debug_aranges  0 : { *(.debug_aranges) }
