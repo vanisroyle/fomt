@@ -13401,7 +13401,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_0803880C
+	bl HasSideEntityParticles
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080DAAE6

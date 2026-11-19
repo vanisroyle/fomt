@@ -14,6 +14,7 @@ struct NpcAnimationSlots : AActorEntity
 struct MovingNpcEntity : AActorEntity
 {
     MovingNpcEntity();
+    virtual void ChooseMovement();
     STRUCT_PAD(0x30, 0x3C);
     u16 animation;
     u16 timer;
@@ -307,4 +308,81 @@ EC void CreateSideEntityParticleSprites(AEntity * self)
 {
     if (self->unk_10.Get() != nullptr)
         func_08038EE0(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+}
+
+EC void ActivateMovingNpc(MovingNpcEntity * self) NPC_EXTRA_CODE(08037434);
+EC void ActivateMovingNpc(MovingNpcEntity * self)
+{
+    if (!self->hidden)
+        self->ChooseMovement();
+    self->timer = 0;
+    self->AEntity::vfunc_10();
+}
+
+EC Box GetMovingNpcBounds(AEntity * self) NPC_EXTRA_CODE(08037470);
+EC Box GetMovingNpcBounds(AEntity * self)
+{
+    i32 x = i16(self->x_q16 >> 16);
+    i32 y = i16(self->y_q16 >> 16);
+    return Box(x, y - 2, 14, 14);
+}
+
+EC Box GetReactionNpcBounds(AEntity * self) NPC_EXTRA_CODE(08037ED0);
+EC Box GetReactionNpcBounds(AEntity * self)
+{
+    i32 x = i16(self->x_q16 >> 16);
+    i32 y = i16(self->y_q16 >> 16);
+    return Box(x, y, 14, 9);
+}
+
+EC Box GetLaunchedSpriteBounds(AEntity * self) NPC_EXTRA_CODE(0803834C);
+EC Box GetLaunchedSpriteBounds(AEntity * self)
+{
+    i32 x = i16(self->x_q16 >> 16);
+    i32 y = i16(self->y_q16 >> 16);
+    return Box(x, y, 8, 8);
+}
+
+EC void func_08038110(AEntity * self);
+EC void UpdateLaunchedSideSprite(AEntity * self) NPC_EXTRA_CODE(08038300);
+EC void UpdateLaunchedSideSprite(AEntity * self)
+{
+    if (self->unk_10.Get() != nullptr)
+        self->unk_10.Get()->vfunc_0C();
+    func_08038110(self);
+}
+
+EC void RefreshLaunchedSideSprite(AEntity * self, u32 value) NPC_EXTRA_CODE(08038320);
+EC void RefreshLaunchedSideSprite(AEntity * self, u32 value)
+{
+    self->AEntity::vfunc_2C(value);
+    func_08038110(self);
+}
+
+EC void * func_0803853C(void * sprite, AEntity * self);
+EC void * CreateLaunchedSideSprite(AEntity * self) NPC_EXTRA_CODE(08038334);
+EC void * CreateLaunchedSideSprite(AEntity * self)
+{
+    struct Storage { u8 bytes[0x48]; };
+    return func_0803853C(new Storage, self);
+}
+
+EC void * func_08037D08(void * sprite, AEntity * self);
+EC void * CreateReactionNpcSprite(AEntity * self) NPC_EXTRA_CODE(08037CF0);
+EC void * CreateReactionNpcSprite(AEntity * self)
+{
+    struct Storage { u8 bytes[0x54]; };
+    return func_08037D08(new Storage, self);
+}
+
+EC u32 func_080390D0(SideEntityEffects * self);
+EC u32 HasSideEntityParticles(AEntity * self) NPC_EXTRA_CODE(0803880C);
+EC u32 HasSideEntityParticles(AEntity * self)
+{
+    u32 present;
+    if (self->unk_10.Get() == nullptr)
+        present = 0;
+    else
+        present = func_080390D0(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+    return present;
 }
