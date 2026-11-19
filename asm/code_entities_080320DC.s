@@ -4267,7 +4267,7 @@ DrawSpriteWorkerEffectLayer: @ 0x08034AE8
     adds	r1, #16
     adds	r0, r6, #0
     movs	r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08034BE6
 .L08034BCC:
     adds	r4, r6, #0
@@ -4279,7 +4279,7 @@ DrawSpriteWorkerEffectLayer: @ 0x08034AE8
     adds	r1, #16
     adds	r0, r6, #0
     movs	r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs	r0, #1
     strb	r0, [r4, #0]
 .L08034BE6:
