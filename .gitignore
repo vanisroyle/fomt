@@ -8,3 +8,5 @@
 *.sav
 
 build/
+/assets/
+__pycache__/

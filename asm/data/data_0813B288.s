@@ -2,7 +2,8 @@
 
     .LDATA_BEG = 0x13B288
 
-	.incbin "baserom.gba", (.LDATA_BEG), (0x4F90CC - .LDATA_BEG)
+	.incbin "baserom.gba", (.LDATA_BEG), (0x2AC0B0 - .LDATA_BEG)
+	.include "build/assets/scripts.s"
 
 	.global gUnk_084F90CC
 gUnk_084F90CC:
