@@ -4327,7 +4327,7 @@ func_08039708: @ 0x08039708
     str r4, [sp]
     mov r4, ip
     str r4, [sp, #4]
-    bl func_080ABE58
+    bl ChooseEntityFacingAwayFromPoint
     adds r1, r0, #0
     ldrb r0, [r5]
     cmp r0, r1

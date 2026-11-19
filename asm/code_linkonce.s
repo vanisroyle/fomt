@@ -18776,7 +18776,7 @@ func_080DD5E4: @ 0x080DD5E4
 	str r4, [sp, #4]
 	mov r2, sb
 	mov r3, r8
-	bl func_080ABE58
+	bl ChooseEntityFacingAwayFromPoint
 	adds r1, r0, #0
 	str r1, [r5, #0x50]
 	adds r6, r5, #0
@@ -31546,7 +31546,7 @@ func_080E3A6C: @ 0x080E3A6C
 	adds r1, r2, #0
 	adds r2, r3, #0
 	ldr r3, [sp, #4]
-	bl func_080D0558
+	bl Joybus_QueueBufferExchange
 	pop {r0}
 	bx r0
 	.align 2, 0
