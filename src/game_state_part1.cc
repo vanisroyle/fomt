@@ -121,6 +121,41 @@ EC void SECTION(".text.game_state_08012218") func_08012218()
 {
 }
 
+struct GameStateActorEntity : public AActorEntity
+{
+    GameStateActorEntity();
+
+    virtual void vfunc_3C();
+    virtual u32 vfunc_40();
+    virtual u32 vfunc_44();
+    virtual void vfunc_48();
+    virtual void vfunc_4C();
+    virtual void vfunc_50();
+    virtual void vfunc_54();
+    virtual void vfunc_58();
+    virtual void vfunc_5C();
+    virtual void vfunc_60();
+    virtual void vfunc_64();
+    virtual void vfunc_68();
+    virtual void vfunc_6C();
+    virtual void vfunc_70();
+    virtual void vfunc_74();
+    virtual u32 vfunc_78();
+    virtual void vfunc_7C();
+    virtual void vfunc_80();
+    virtual u32 vfunc_84();
+    virtual u32 vfunc_88();
+    virtual u32 vfunc_8C();
+    virtual u32 vfunc_90();
+    virtual void vfunc_94();
+    virtual void vfunc_98();
+    virtual void vfunc_9C();
+    virtual void vfunc_A0();
+    virtual void vfunc_A4();
+    virtual void vfunc_A8();
+    virtual void vfunc_AC();
+};
+
 struct GameStateObject
 {
     virtual ~GameStateObject();
@@ -137,7 +172,7 @@ struct GameStateObject
     virtual void vfunc_34();
     virtual void vfunc_38();
     virtual void vfunc_3C();
-    virtual AActorEntity * vfunc_40(u32 id);
+    virtual GameStateActorEntity * vfunc_40(u32 id);
     virtual void vfunc_44();
     virtual void vfunc_48();
     virtual void vfunc_4C();
@@ -259,6 +294,8 @@ EC void func_08050E8C(void * self);
 EC void func_080323C8(AActorEntity & self);
 EC void func_080387B8(void * self);
 EC void func_080387EC(void * self);
+EC void func_080387C8(void * self);
+EC void func_080387FC(void * self);
 
 EC void SECTION(".text.game_state_08012454") func_08012454(GameStateScript & self)
 {
@@ -476,4 +513,80 @@ EC void SECTION(".text.game_state_08016C6C") func_08016C6C(GameStateScript & sel
 EC void SECTION(".text.game_state_08016EF0") func_08016EF0(GameStateScript & self, u32 value)
 {
     self.runtime->object->vfunc_164(value);
+}
+
+EC u32 SECTION(".text.game_state_0801410C") func_0801410C(GameStateScript & self)
+{
+    return self.runtime->object->vfunc_40(0)->vfunc_40();
+}
+
+EC void SECTION(".text.game_state_08014214") func_08014214(GameStateScript & self)
+{
+    self.runtime->object->vfunc_40(0)->vfunc_54();
+}
+
+EC u32 SECTION(".text.game_state_08014D5C") func_08014D5C(GameStateScript & self)
+{
+    return self.runtime->object->vfunc_40(0)->vfunc_78();
+}
+
+EC u32 SECTION(".text.game_state_08014D7C") func_08014D7C(GameStateScript & self)
+{
+    return self.runtime->object->vfunc_40(0)->vfunc_44();
+}
+
+EC u32 SECTION(".text.game_state_08015950") func_08015950(GameStateScript & self)
+{
+    return self.runtime->object->vfunc_40(0)->vfunc_84();
+}
+
+EC u32 SECTION(".text.game_state_08015970") func_08015970(GameStateScript & self)
+{
+    return self.runtime->object->vfunc_40(0)->vfunc_88();
+}
+
+EC u32 SECTION(".text.game_state_08015990") func_08015990(GameStateScript & self)
+{
+    return self.runtime->object->vfunc_40(0)->vfunc_8C();
+}
+
+EC u32 SECTION(".text.game_state_080167AC") func_080167AC(GameStateScript & self)
+{
+    return self.runtime->object->vfunc_40(0)->vfunc_90();
+}
+
+EC void SECTION(".text.game_state_08016CAC") func_08016CAC(GameStateScript & self)
+{
+    self.runtime->object->vfunc_40(0)->vfunc_A8();
+}
+
+EC void SECTION(".text.game_state_08016CCC") func_08016CCC(GameStateScript & self)
+{
+    self.runtime->object->vfunc_40(0)->vfunc_AC();
+}
+
+EC void SECTION(".text.game_state_08016E7C") func_08016E7C(GameStateScript & self)
+{
+    self.runtime->object->vfunc_40(0)->vfunc_6C();
+}
+
+EC void SECTION(".text.game_state_08016C48") func_08016C48(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    func_080387C8(runtime.object->vfunc_40(0x5D));
+    runtime.command = 0x1C;
+}
+
+EC void SECTION(".text.game_state_08016C88") func_08016C88(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    func_080387FC(runtime.object->vfunc_40(0x5D));
+    runtime.command = 0x1B;
+}
+
+EC void SECTION(".text.game_state_0801221C") func_0801221C(GameStateScript & self, u32 id)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+        entity->SetMap(0x234);
 }
