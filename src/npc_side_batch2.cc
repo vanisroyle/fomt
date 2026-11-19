@@ -381,7 +381,7 @@ EC void * CreateReactionNpcSprite(AEntity * self)
     return InitializeReactionSpriteRenderer(new Storage, self);
 }
 
-EC u32 func_080390D0(SideEntityEffects * self);
+EC u32 HasSideEffectParticles(SideEntityEffects * self);
 EC u32 HasSideEntityParticles(AEntity * self) NPC_EXTRA_CODE(0803880C);
 EC u32 HasSideEntityParticles(AEntity * self)
 {
@@ -389,7 +389,7 @@ EC u32 HasSideEntityParticles(AEntity * self)
     if (self->unk_10.Get() == nullptr)
         present = 0;
     else
-        present = func_080390D0(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+        present = HasSideEffectParticles(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
     return present;
 }
 
@@ -475,70 +475,70 @@ EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x_q16, i32 y_
 
 EC void func_08034F00(AActorEntity * self, i32 reason);
 
-EC void func_08035C04(AActorEntity * self);
+EC void RefreshScheduledNpcOneAnimations(AActorEntity * self);
 EC void RefreshScheduledNpcVariantOne(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08035CB8);
 EC void RefreshScheduledNpcVariantOne(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        func_08035C04(self);
+        RefreshScheduledNpcOneAnimations(self);
 }
 
 EC UnknownEntityThing * CreateScheduledNpcVariantOneSprite(AActorEntity * self) NPC_EXTRA_CODE(08035CD4);
 EC UnknownEntityThing * CreateScheduledNpcVariantOneSprite(AActorEntity * self)
 {
-    func_08035C04(self);
+    RefreshScheduledNpcOneAnimations(self);
     struct Storage { u8 bytes[0x8C]; };
     return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }
 
-EC void func_08036084(AActorEntity * self);
+EC void RefreshScheduledNpcTwoAnimations(AActorEntity * self);
 EC void RefreshScheduledNpcVariantTwo(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036138);
 EC void RefreshScheduledNpcVariantTwo(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        func_08036084(self);
+        RefreshScheduledNpcTwoAnimations(self);
 }
 
 EC UnknownEntityThing * CreateScheduledNpcVariantTwoSprite(AActorEntity * self) NPC_EXTRA_CODE(08036154);
 EC UnknownEntityThing * CreateScheduledNpcVariantTwoSprite(AActorEntity * self)
 {
-    func_08036084(self);
+    RefreshScheduledNpcTwoAnimations(self);
     struct Storage { u8 bytes[0x8C]; };
     return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }
 
-EC void func_08036430(AActorEntity * self);
+EC void RefreshScheduledNpcThreeAnimations(AActorEntity * self);
 EC void RefreshScheduledNpcVariantThree(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(080364E4);
 EC void RefreshScheduledNpcVariantThree(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        func_08036430(self);
+        RefreshScheduledNpcThreeAnimations(self);
 }
 
 EC UnknownEntityThing * CreateScheduledNpcVariantThreeSprite(AActorEntity * self) NPC_EXTRA_CODE(08036500);
 EC UnknownEntityThing * CreateScheduledNpcVariantThreeSprite(AActorEntity * self)
 {
-    func_08036430(self);
+    RefreshScheduledNpcThreeAnimations(self);
     struct Storage { u8 bytes[0x8C]; };
     return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }
 
-EC void func_080365CC(AActorEntity * self);
+EC void RefreshScheduledNpcFourAnimations(AActorEntity * self);
 EC void RefreshScheduledNpcVariantFour(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036680);
 EC void RefreshScheduledNpcVariantFour(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        func_080365CC(self);
+        RefreshScheduledNpcFourAnimations(self);
 }
 
 EC UnknownEntityThing * CreateScheduledNpcVariantFourSprite(AActorEntity * self) NPC_EXTRA_CODE(0803669C);
 EC UnknownEntityThing * CreateScheduledNpcVariantFourSprite(AActorEntity * self)
 {
-    func_080365CC(self);
+    RefreshScheduledNpcFourAnimations(self);
     struct Storage { u8 bytes[0x8C]; };
     return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }

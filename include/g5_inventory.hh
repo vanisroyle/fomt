@@ -33,6 +33,7 @@ EC void SetUiEntryValue(UiEntry * entry, u32 value); // 0x080CAD10
 EC u32 GetUiEntryValue(UiEntry * entry); // 0x080CAD14
 EC void SetUiEntry(UiEntry * entry, u32 unknown_04, u32 unknown_08, u32 value); // 0x080CADA0
 EC void ClearUiEntry(UiEntry * entry); // 0x080CADA8
+EC void InitializeUiEntryWithValue(UiEntry * entry, u32 unknown_04, u32 unknown_08, u32 value); // 0x080CAD08
 EC void InventoryMenu_ClearLeftSpecialSlotCount(u8 * panel); // 0x080CC0B4
 EC void InventoryMenu_ClearRightSpecialSlotCount(u8 * panel); // 0x080CD4D4
 EC void InventoryMenu_GetSpecialSlotCountPosition(DrawingPosition * position, void * panel); // 0x080CD994

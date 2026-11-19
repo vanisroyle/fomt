@@ -116,9 +116,258 @@ gUnk_080F33B8:
 gUnk_080F3408:
 	.incbin "baserom.gba", 0xF3408, 0x1DC
 
-	.global gUnk_080F35E4
-gUnk_080F35E4:
-	.incbin "baserom.gba", 0xF35E4, 0x9F4
+	.global gKarenScheduleInfo
+gKarenScheduleInfo:
+	.4byte SelectKarenSchedule
+	.4byte 24, .LKarenSchedules
+.LKarenSchedules: @ In KarenSchedule order.
+	.4byte 0
+	.4byte .LKarenClearSchedule
+	.4byte .LKarenOtherWeatherSchedule
+	.4byte .LKarenSundaySchedule
+	.4byte .LKarenTuesdayClearSchedule
+	.4byte .LKarenTuesdayOtherWeatherSchedule
+	.4byte .LKarenAfterRivalEventsSchedule
+	.4byte .LKarenAfterRivalEventsSundaySchedule
+	.4byte .LKarenFestivalSchedule
+	.4byte .LKarenWinter14Schedule
+	.4byte .LKarenAfterRivalEventsFestivalSchedule
+	.4byte .LKarenMarriedActiveNpcSchedule
+	.4byte .LKarenMarriedActiveNpcVariantSchedule
+	.4byte .LKarenMarriedActiveNpcVariantSundayTuesdaySchedule
+	.4byte .LKarenMarriedSchedule
+	.4byte .LKarenMarriedVariantSchedule
+	.4byte .LKarenMarriedVariantSundayTuesdaySchedule
+	.4byte .LKarenMarriedActiveNpcFestivalOrStormSchedule
+	.4byte .LKarenMarriedActiveNpcVariantFestivalOrStormSchedule
+	.4byte .LKarenMarriedFestivalOrStormSchedule
+	.4byte .LKarenMarriedVariantFestivalOrStormSchedule
+	.4byte .LKarenMarriedAutumn9Schedule
+	.4byte .LKarenMarriedAutumn13Schedule
+	.4byte .LKarenMarriedEventOverrideSchedule
+
+.LKarenClearSchedule:
+	.2byte 13, 0
+	.4byte .LKarenClearEntries
+.LKarenOtherWeatherSchedule:
+	.2byte 5, 0
+	.4byte .LKarenOtherWeatherEntries
+.LKarenSundaySchedule:
+	.2byte 6, 0
+	.4byte .LKarenSundayEntries
+.LKarenTuesdayClearSchedule:
+	.2byte 15, 0
+	.4byte .LKarenTuesdayClearEntries
+.LKarenTuesdayOtherWeatherSchedule:
+	.2byte 13, 0
+	.4byte .LKarenTuesdayOtherWeatherEntries
+.LKarenAfterRivalEventsSchedule:
+	.2byte 6, 0
+	.4byte .LKarenAfterRivalEventsEntries
+.LKarenAfterRivalEventsSundaySchedule:
+	.2byte 7, 0
+	.4byte .LKarenAfterRivalEventsSundayEntries
+.LKarenFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LKarenFestivalEntries
+.LKarenWinter14Schedule:
+	.2byte 5, 0
+	.4byte .LKarenWinter14Entries
+.LKarenAfterRivalEventsFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LKarenAfterRivalEventsFestivalEntries
+.LKarenMarriedActiveNpcSchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedActiveNpcEntries
+.LKarenMarriedActiveNpcVariantSchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedActiveNpcVariantEntries
+.LKarenMarriedActiveNpcVariantSundayTuesdaySchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedActiveNpcVariantSundayTuesdayEntries
+.LKarenMarriedSchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedEntries
+.LKarenMarriedVariantSchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedVariantEntries
+.LKarenMarriedVariantSundayTuesdaySchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedVariantSundayTuesdayEntries
+.LKarenMarriedActiveNpcFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedActiveNpcFestivalOrStormEntries
+.LKarenMarriedActiveNpcVariantFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedActiveNpcVariantFestivalOrStormEntries
+.LKarenMarriedFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedFestivalOrStormEntries
+.LKarenMarriedVariantFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedVariantFestivalOrStormEntries
+.LKarenMarriedAutumn9Schedule:
+	.2byte 4, 0
+	.4byte .LKarenMarriedAutumn9Entries
+.LKarenMarriedAutumn13Schedule:
+	.2byte 3, 0
+	.4byte .LKarenMarriedAutumn13Entries
+.LKarenMarriedEventOverrideSchedule:
+	.2byte 1, 0
+	.4byte .LKarenMarriedEventOverrideEntries
+
+	@ Time is minutes since 06:00; route indices refer to the original path records.
+	.macro karen_schedule_entry time, path
+	.2byte \time, 0
+	.4byte .LKarenPaths + (\path * 12)
+	.endm
+
+.LKarenClearEntries:
+	karen_schedule_entry 0, 0
+	karen_schedule_entry 120, 1
+	karen_schedule_entry 126, 2
+	karen_schedule_entry 240, 3
+	karen_schedule_entry 246, 0
+	karen_schedule_entry 420, 4
+	karen_schedule_entry 600, 0
+	karen_schedule_entry 780, 5
+	karen_schedule_entry 826, 6
+	karen_schedule_entry 843, 7
+	karen_schedule_entry 960, 8
+	karen_schedule_entry 978, 9
+	karen_schedule_entry 1023, 0
+.LKarenOtherWeatherEntries:
+	karen_schedule_entry 0, 0
+	karen_schedule_entry 120, 4
+	karen_schedule_entry 240, 0
+	karen_schedule_entry 420, 4
+	karen_schedule_entry 600, 0
+.LKarenSundayEntries:
+	karen_schedule_entry 0, 0
+	karen_schedule_entry 120, 4
+	karen_schedule_entry 780, 11
+	karen_schedule_entry 809, 10
+	karen_schedule_entry 969, 12
+	karen_schedule_entry 998, 0
+.LKarenTuesdayClearEntries:
+	karen_schedule_entry 0, 0
+	karen_schedule_entry 120, 1
+	karen_schedule_entry 126, 2
+	karen_schedule_entry 240, 3
+	karen_schedule_entry 246, 0
+	karen_schedule_entry 420, 5
+	karen_schedule_entry 466, 13
+	karen_schedule_entry 480, 14
+	karen_schedule_entry 600, 15
+	karen_schedule_entry 615, 9
+	karen_schedule_entry 660, 0
+	karen_schedule_entry 780, 11
+	karen_schedule_entry 809, 10
+	karen_schedule_entry 969, 12
+	karen_schedule_entry 998, 0
+.LKarenTuesdayOtherWeatherEntries:
+	karen_schedule_entry 0, 0
+	karen_schedule_entry 120, 4
+	karen_schedule_entry 240, 0
+	karen_schedule_entry 420, 5
+	karen_schedule_entry 466, 16
+	karen_schedule_entry 489, 17
+	karen_schedule_entry 600, 18
+	karen_schedule_entry 623, 9
+	karen_schedule_entry 668, 0
+	karen_schedule_entry 780, 11
+	karen_schedule_entry 809, 10
+	karen_schedule_entry 969, 12
+	karen_schedule_entry 998, 0
+.LKarenAfterRivalEventsEntries:
+	karen_schedule_entry 0, 20
+	karen_schedule_entry 120, 21
+	karen_schedule_entry 125, 22
+	karen_schedule_entry 240, 23
+	karen_schedule_entry 245, 19
+	karen_schedule_entry 780, 20
+.LKarenAfterRivalEventsSundayEntries:
+	karen_schedule_entry 0, 20
+	karen_schedule_entry 65, 24
+	karen_schedule_entry 95, 25
+	karen_schedule_entry 140, 4
+	karen_schedule_entry 780, 32
+	karen_schedule_entry 826, 33
+	karen_schedule_entry 856, 20
+.LKarenFestivalEntries:
+	karen_schedule_entry 0, 0
+.LKarenWinter14Entries:
+	karen_schedule_entry 0, 0
+	karen_schedule_entry 360, 26
+	karen_schedule_entry 370, 27
+	karen_schedule_entry 420, 31
+	karen_schedule_entry 430, 0
+.LKarenAfterRivalEventsFestivalEntries:
+	karen_schedule_entry 0, 19
+.LKarenMarriedActiveNpcEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedActiveNpcVariantEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 180, 4
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedActiveNpcVariantSundayTuesdayEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedVariantEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 180, 4
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedVariantSundayTuesdayEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedActiveNpcFestivalOrStormEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedActiveNpcVariantFestivalOrStormEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedFestivalOrStormEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedVariantFestivalOrStormEntries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedAutumn9Entries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 240, 34
+	karen_schedule_entry 720, 30
+	karen_schedule_entry 840, 29
+.LKarenMarriedAutumn13Entries:
+	karen_schedule_entry 0, 30
+	karen_schedule_entry 300, 28
+	karen_schedule_entry 720, 34
+.LKarenMarriedEventOverrideEntries:
+	karen_schedule_entry 0, 29
+
+.LKarenPaths:
+	.incbin "baserom.gba", 0xF3AC8, 0x510
 
 	.global gUnk_080F3FD8
 gUnk_080F3FD8:
