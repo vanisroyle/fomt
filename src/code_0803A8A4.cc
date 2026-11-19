@@ -870,7 +870,7 @@ EC ScheduleInfo const gUnk_080F35E4;
 EC ScheduleInfo const gUnk_080F3010;
 EC ScheduleInfo const gUnk_080F5D94;
 EC ScheduleInfo const gUnk_080F6DE8;
-EC ScheduleInfo const gUnk_080F2AF8;
+EC ScheduleInfo const gCliffScheduleInfo;
 EC ScheduleInfo const gUnk_080F42F0;
 EC ScheduleInfo const gUnk_080F43DC;
 EC ScheduleInfo const gUnk_080F6FF8;
@@ -907,7 +907,7 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_1FC, gUnk_080F3010, context);
     ResetNpcDailySchedule(self.npc_210, gUnk_080F5D94, context);
     ResetNpcDailySchedule(self.npc_228, gUnk_080F6DE8, context);
-    ResetNpcDailySchedule(self.npc_23C, gUnk_080F2AF8, context);
+    ResetNpcDailySchedule(self.npc_23C, gCliffScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_250, gUnk_080F42F0, context);
     ResetNpcDailySchedule(self.npc_264, gUnk_080F43DC, context);
     ResetNpcDailySchedule(self.npc_27C, gUnk_080F6FF8, context);
@@ -974,7 +974,9 @@ struct NpcScheduleContext
         u32 unk_2178;
         EventScheduleFlags scheduleFlags;
     };
-    STRUCT_PAD(0x217C, 0x2186);
+    STRUCT_PAD(0x217C, 0x2181);
+    u8 cliffEventStates;
+    STRUCT_PAD(0x2182, 0x2186);
     u8 : 5;
     u8 unk_2186_5 : 2;
     u8 : 1;
@@ -1009,6 +1011,75 @@ ROM_TEXT(0803D7E4) unsigned SelectNpcSchedule_080F1A80(void const * context)
         return 1;
     }
     return 2;
+}
+
+enum CliffSchedule
+{
+    CLIFF_SCHEDULE_ABSENT,
+    CLIFF_SCHEDULE_REGULAR,
+    CLIFF_SCHEDULE_WORKING,
+    CLIFF_SCHEDULE_EMPLOYED_SATURDAY,
+    CLIFF_SCHEDULE_FESTIVAL,
+    CLIFF_SCHEDULE_STORY_OVERRIDE,
+};
+
+ROM_TEXT(0803DDE8) unsigned SelectCliffSchedule(NpcScheduleContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 6)) < 0)
+        return CLIFF_SCHEDULE_ABSENT;
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned year = date.year;
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+
+    // Retain the register used by both offsets and the original flag extraction.
+    register unsigned flagOffset asm("r1") = offsetof(NpcScheduleContext, cliffEventStates);
+    asm("" : "+r"(flagOffset));
+    unsigned departureState = static_cast<u32>(reinterpret_cast<u8 const *>(&self)[flagOffset]) << 26;
+    asm("" : "+r"(departureState) : "r"(flagOffset));
+    if ((departureState >> 30) == 2)
+        return CLIFF_SCHEDULE_ABSENT;
+    flagOffset -= offsetof(NpcScheduleContext, cliffEventStates) - offsetof(NpcScheduleContext, unk_2174) - 1;
+    asm("" : "+r"(flagOffset));
+    register u8 const * wineryEventByte asm("r0") = reinterpret_cast<u8 const *>(&self) + flagOffset;
+    asm("" : "+r"(wineryEventByte));
+    if (static_cast<i32>(static_cast<u32>(*wineryEventByte) << (31 - 4)) >= 0)
+    {
+        if (year > 1)
+            return CLIFF_SCHEDULE_ABSENT;
+        if (year == 1 && season == SEASON_WINTER)
+        {
+            register unsigned winterDay asm("r0") = day;
+            asm("" : "+r"(winterDay));
+            if (winterDay > 28)
+                return CLIFF_SCHEDULE_ABSENT;
+        }
+    }
+    unsigned storyState = static_cast<u32>(self.cliffEventStates) << 30;
+    asm("" : "+r"(storyState));
+    if ((storyState >> 30) == 1)
+        return CLIFF_SCHEDULE_STORY_OVERRIDE;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return CLIFF_SCHEDULE_FESTIVAL;
+    if (year != 1 || season != SEASON_AUTUMN || day != 15)
+        goto regularSchedule;
+    if (static_cast<i32>(static_cast<u32>(reinterpret_cast<u8 const *>(&self.unk_2174)[1]) << (31 - 4)) >= 0)
+        goto regularSchedule;
+workingSchedule:
+    return CLIFF_SCHEDULE_WORKING;
+regularSchedule:
+    unsigned schedule;
+    if ((self.unk_2174 & 0x61000) == 0x41000)
+    {
+        if (weekday != SCHEDULE_SATURDAY)
+            goto workingSchedule;
+        schedule = CLIFF_SCHEDULE_EMPLOYED_SATURDAY;
+    }
+    else
+        schedule = CLIFF_SCHEDULE_REGULAR;
+    return schedule;
 }
 
 ROM_TEXT(0803DECC) unsigned SelectNpcSchedule_080F2DC0(NpcScheduleContext const & self)
