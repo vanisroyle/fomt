@@ -722,7 +722,8 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803C7A0);
         asm/code_0803A8A4.o(.text.0803C7C8);
         src/code_0803A8A4.o(.text.0803D080);
-        asm/code_0803A8A4.o(.text.0803D0F0);
+        src/code_0803A8A4.o(.text.0803D0F0);
+        src/code_0803A8A4.o(.text.0803D240);
         src/code_0803A8A4.o(.text.0803D2E8);
         asm/code_0803A8A4.o(.text.0803D464);
         src/code_0803A8A4.o(.text.0803D4D8);
@@ -746,7 +747,11 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803EDCC);
         src/script_engine.o(.text);
         asm/code_0803EE94.o(.text);
+        *(SORT_BY_NAME(.text.item_storage_ui.*));
+        *(SORT_BY_NAME(.text.message_rendering.*));
         *(SORT_BY_NAME(.text.message_window.*));
+        *(SORT_BY_NAME(.text.festival_results.*));
+        asm/code_0803EE94.o(.text.after_festival_scores);
         *(SORT_BY_NAME(.text.f3.*));
         asm/code_0803EE94.o(.text.after_f3);
 
