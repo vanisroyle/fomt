@@ -133,53 +133,7 @@ func_080073E0: @ 0x080073E0
 .L08007458: .4byte gResourceHandleRegistry
 
     .section .text.handle_index, "ax"
-    thumb_func_start func_080074C0
-func_080074C0: @ 0x080074C0
-    push {r4, r5, lr}
-    adds r3, r1, #0
-    ldr r0, .L0800750C @ =gResourceHandleRegistry
-    ldr r4, [r0]
-    cmp r3, #0
-    beq .L08007502
-    lsls r0, r3, #0x1c
-    lsrs r2, r0, #0x1c
-    adds r5, r2, #0
-    movs r0, #0
-    cmp r2, #0xf
-    bhi .L080074E6
-    movs r0, #1
-    lsls r0, r2
-    ldr r1, [r4, #0x44]
-    ands r1, r0
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-.L080074E6:
-    cmp r0, #0
-    beq .L08007502
-    lsls r1, r2, #2
-    adds r1, r1, r4
-    movs r2, #0
-    lsls r0, r3, #0xc
-    lsrs r0, r0, #0x10
-    ldrh r1, [r1, #6]
-    cmp r0, r1
-    bne .L080074FC
-    movs r2, #1
-.L080074FC:
-    adds r0, r5, #0
-    cmp r2, #0
-    bne .L08007506
-.L08007502:
-    movs r0, #1
-    rsbs r0, r0, #0
-.L08007506:
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0800750C: .4byte gResourceHandleRegistry
-
+    .section .text.after_080074C0, "ax"
     .text
 .L08007564:
     .byte 0x02, 0x48, 0x00, 0x68, 0x48, 0x30, 0x00, 0x88, 0x70, 0x47, 0x00, 0x00

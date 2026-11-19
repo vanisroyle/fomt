@@ -1322,7 +1322,7 @@ func_080041DC: @ 0x080041DC
     ldr r3, [sp, #0x44]
     ldr r1, [r3, #4]
     adds r0, r3, #0
-    bl func_080074C0
+    bl ResourceHandle_GetIndex
     lsls r0, r0, #4
     ldr r1, [sp, #0x50]
     ldrb r2, [r1]
@@ -1669,7 +1669,7 @@ func_08004570: @ 0x08004570
     adds r0, r6, #0
     adds r0, #0x54
     ldr r1, [r0, #4]
-    bl func_080074C0
+    bl ResourceHandle_GetIndex
     adds r1, r0, #0
     lsls r1, r1, #5
     ldr r2, .L080046C4 @ =0x05000200

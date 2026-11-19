@@ -148,6 +148,8 @@ SECTIONS
         asm/hardware.o(.text.handle_alloc);
         src/hardware.o(.text.handle_retain);
         asm/hardware.o(.text.handle_index);
+        src/hardware.o(.text.ResourceHandle_GetIndex);
+        asm/hardware.o(.text.after_080074C0);
         src/hardware.o(.text.handle_count);
         asm/hardware.o(.text);
         src/hardware.o(.text.ResourcePool_Initialize);

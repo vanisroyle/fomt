@@ -156,6 +156,28 @@ EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner 
     return 0;
 }
 
+// 0x080074C0
+EC u32 SECTION(".text.ResourceHandle_GetIndex") ResourceHandle_GetIndex(ResourceHandleOwner * self, u32 handle)
+{
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
+    u32 result;
+    bool generation_matches;
+    if (handle != 0)
+    {
+        u32 index = HardwareHandle(handle).Index();
+        if (registry->IsAllocated(index))
+        {
+            ResourceHandleEntry * entry = &registry->GetEntry(index);
+            generation_matches = registry->Matches(*entry, handle);
+            result = index;
+            if (generation_matches)
+                return result;
+        }
+    }
+    result = ~0u;
+    return result;
+}
+
 // 0x08007510
 EC u32 SECTION(".text.handle_count") ResourceHandle_GetRefCount(ResourceHandleOwner * self, u32 handle)
 {

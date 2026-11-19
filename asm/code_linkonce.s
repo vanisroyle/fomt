@@ -29903,7 +29903,7 @@ func_080E2BB4: @ 0x080E2BB4
 	ldr r1, [r4, #0x14]
 	mov r0, sl
 	adds r0, #0x14
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r4, r0, #0
 	b .L080E2D3A
 .L080E2D36:

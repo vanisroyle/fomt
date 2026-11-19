@@ -7896,7 +7896,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	lsls r0, r0, #5
 	ldr r2, .L080A2FF0 @ =0x05000200
 	adds r1, r0, r2
@@ -7964,7 +7964,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r3, r3, #1
 	adds r0, r7, r3
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	lsls r0, r0, #5
 	ldr r5, .L080A2FF0 @ =0x05000200
 	adds r1, r0, r5
@@ -8010,7 +8010,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r6, r6, #1
 	adds r0, r7, r6
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	lsls r0, r0, #5
 	ldr r2, .L080A2FF0 @ =0x05000200
 	adds r1, r0, r2
@@ -8054,7 +8054,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r3, r3, #1
 	adds r0, r7, r3
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	lsls r0, r0, #5
 	ldr r5, .L080A2FF0 @ =0x05000200
 	adds r1, r0, r5
@@ -8173,7 +8173,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r5, r5, #1
 	adds r0, r7, r5
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	lsls r0, r0, #5
 	ldr r6, .L080A2FF0 @ =0x05000200
 	adds r1, r0, r6
@@ -8708,7 +8708,7 @@ func_080A32A4: @ 0x080A32A4
 	lsls r3, r3, #1
 	adds r0, r6, r3
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	add r1, sp, #8
 	strh r0, [r1, #4]
 	movs r2, #1
@@ -8820,7 +8820,7 @@ func_080A32A4: @ 0x080A32A4
 	lsls r5, r5, #1
 	adds r0, r6, r5
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	strh r0, [r7, #4]
 	movs r1, #1
 	movs r0, #1
@@ -9172,7 +9172,7 @@ func_080A3618: @ 0x080A3618
 	adds r0, r7, r3
 .L080A3704:
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	mov r1, sp
 	strh r0, [r1, #4]
 .L080A370E:
