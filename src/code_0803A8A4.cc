@@ -508,13 +508,13 @@ struct ClockDisplayData
     STRUCT_PAD(0x288, 0x2B0);
     u8 tilesDirty;
     STRUCT_PAD(0x2B1, 0x2CC);
-    u8 unk_2CC;
+    u8 weatherIcon;
     STRUCT_PAD(0x2CD, 0x2F0);
-    u8 unk_2F0;
-    u8 unk_2F1;
-    u16 unk_2F2;
+    u8 weatherIconDirty;
+    u8 toolIconVisible;
+    u16 toolIconId;
     STRUCT_PAD(0x2F4, 0x334);
-    u8 unk_334;
+    u8 toolIconDirty;
 };
 
 struct ClockDisplay
@@ -693,11 +693,11 @@ ROM_TEXT(0803D2E8) void SetClockMinuteTiles(ClockDisplay & self, unsigned minute
     inner.tilesDirty = 1;
 }
 
-ROM_TEXT(0803D2E8) void func_0803D3A0(ClockDisplay & self, unsigned selection)
+ROM_TEXT(0803D2E8) void SetClockWeatherIcon(ClockDisplay & self, unsigned weather)
 {
     ClockDisplayData & inner = *self.inner;
-    unsigned current = inner.unk_2CC;
-    switch (selection)
+    unsigned current = inner.weatherIcon;
+    switch (weather)
     {
         case 0: current = 0; break;
         case 1: current = 1; break;
@@ -705,32 +705,86 @@ ROM_TEXT(0803D2E8) void func_0803D3A0(ClockDisplay & self, unsigned selection)
         case 3: current = 3; break;
         case 4: current = 4; break;
     }
-    if (current != inner.unk_2CC)
+    if (current != inner.weatherIcon)
     {
-        inner.unk_2CC = current;
-        inner.unk_2F0 = 1;
+        inner.weatherIcon = current;
+        inner.weatherIconDirty = 1;
     }
 }
 
-ROM_TEXT(0803D2E8) void func_0803D404(ClockDisplay & self, int arg)
+ROM_TEXT(0803D2E8) void SetClockToolIcon(ClockDisplay & self, int iconId)
 {
     ClockDisplayData * inner = self.inner;
-    if (!inner->unk_2F1 || arg != inner->unk_2F2)
+    if (!inner->toolIconVisible || iconId != inner->toolIconId)
     {
-        inner->unk_2F1 = 1;
-        inner->unk_2F2 = arg;
-        inner->unk_334 = 1;
+        inner->toolIconVisible = 1;
+        inner->toolIconId = iconId;
+        inner->toolIconDirty = 1;
     }
 }
 
-ROM_TEXT(0803D2E8) void func_0803D440(ClockDisplay & self)
+ROM_TEXT(0803D2E8) void HideClockToolIcon(ClockDisplay & self)
 {
     ClockDisplayData & inner = *self.inner;
-    if (inner.unk_2F1)
+    if (inner.toolIconVisible)
     {
-        inner.unk_2F1 = 0;
-        inner.unk_334 = 1;
+        inner.toolIconVisible = 0;
+        inner.toolIconDirty = 1;
     }
+}
+
+struct SavedCalendarDate;
+EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, bool colonVisible);
+
+struct ClockHud
+{
+    STRUCT_PAD(0x00, 0x08);
+    ClockDisplay display;
+};
+
+ROM_TEXT(0803D464) void ClockHud_HideToolIcon(ClockHud & hud)
+{
+    HideClockToolIcon(hud.display);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetToolIcon(ClockHud & hud, int iconId)
+{
+    SetClockToolIcon(hud.display, iconId);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetWeatherIcon(ClockHud & hud, unsigned weather)
+{
+    SetClockWeatherIcon(hud.display, weather);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetMinute(ClockHud & hud, unsigned minute)
+{
+    SetClockMinuteTiles(hud.display, minute);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetColonVisible(ClockHud & hud, bool visible)
+{
+    SetClockColonVisible(hud.display, visible);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetHour(ClockHud & hud, unsigned hour)
+{
+    SetClockHourTiles(hud.display, hour);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetDayAndWeekday(ClockHud & hud, unsigned day, unsigned weekday)
+{
+    SetClockDayAndWeekdayTiles(hud.display, day, weekday);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetSeason(ClockHud & hud, Season season)
+{
+    SetClockSeasonTiles(hud.display, season);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetDateAndTime(ClockHud & hud, SavedCalendarDate const & calendar, bool colonVisible)
+{
+    SetClockDateAndTimeTiles(hud.display, calendar, colonVisible);
 }
 
 EC u8 const gNpcScheduleFestivalDays[14];

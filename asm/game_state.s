@@ -6503,7 +6503,7 @@ GameScript_UpdateTextPanel: @ 0x08014318
     adds r1, #0x10
     adds r0, r6, #0
     adds r0, #8
-    bl func_0803CD4C
+    bl SetClockDateAndTimeTiles
 .L08014370:
     adds r0, r4, #0
     bl func_080D7F08
