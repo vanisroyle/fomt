@@ -5434,7 +5434,7 @@ func_08037EB4: @ 0x08037EB4
     adds r4, r0, #0
     ldr r0, [r4, #0x18]
     ldrb r1, [r1]
-    bl func_0800FFF4
+    bl ItemCollection_Append
     ldr r0, [r4, #0x10]
     cmp r0, #0
     beq .L08037ECA

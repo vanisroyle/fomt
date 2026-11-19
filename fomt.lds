@@ -302,8 +302,12 @@ SECTIONS
         src/held_item.o(.text);
         src/rucksack.o(.text);
         asm/more_items.o(.text);
+        src/more_items.o(.text.ItemCollection_Initialize);
+        asm/more_items.o(.text.after_0800FF8C);
         src/more_items.o(.text);
         asm/more_items.o(.text.push);
+        src/more_items.o(.text.ItemCollection_Append);
+        asm/more_items.o(.text.after_0800FFF4);
         src/more_items.o(.text.set);
         asm/more_items.o(.text.clear);
         asm/game_scene.o(.text);
