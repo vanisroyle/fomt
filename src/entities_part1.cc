@@ -83,7 +83,7 @@ EC u32 DogEntity_GetStateAnimation(DogEntity * self, u32 state);
 EC i32 func_08021130(DogEntity * self, u32 state);
 EC i32 func_08021FAC(HorseEntity * self, u32 state);
 EC u32 HorseEntity_GetStateAnimation(HorseEntity * self, u32 state);
-EC u32 func_080233B4(BarnAnimalEntity * self, u32 state);
+EC u32 CowEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state);
 EC u32 func_0802405C(BarnAnimalEntity * self, u32 state);
 EC u32 CowEntity_GetStateSpeed(AEntity * self, u32 state);
 EC u32 SheepEntity_GetStateSpeed(AEntity * self, u32 state);
@@ -399,7 +399,26 @@ inline void LaunchFarmerHeldItem(FarmerEntity * self)
     }
 }
 
+
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+// 0x080233B4
+EC u32 CowEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state) ENTITY_CODE(080233B4);
+EC u32 CowEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state)
+{
+    u32 offset = state;
+    bool pregnant = false;
+    if (self->animal->IsPregnant())
+        pregnant = self->animal->GetDaysPregnant() != 0;
+    u16 const * table = gUnk_080F0C3C;
+    offset *= 2;
+    u32 index;
+    if (pregnant)
+        index = offset + 42;
+    else
+        index = offset + static_cast<Cow *>(self->animal)->GetGrowthStage() * 14;
+    return *reinterpret_cast<u16 const *>(reinterpret_cast<u8 const *>(table) + index);
+}
 
 // 0x08025AFC
 EC bool AEntity_IsOnOutdoorMap(AEntity const * self) ENTITY_CODE(08025AFC);
@@ -1162,7 +1181,7 @@ EC void SheepEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 fa
 EC void CowEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing) ENTITY_CODE(08023308);
 EC void CowEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing)
 {
-    u32 anim = func_080233B4(self, state);
+    u32 anim = CowEntity_GetStateAnimation(self, state);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     if (self->facing != facing)

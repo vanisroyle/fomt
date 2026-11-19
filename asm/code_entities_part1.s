@@ -139,46 +139,6 @@ func_0802405C: @ 0x0802405C
     pop {r1}
     bx r1
     .align 2, 0
-    .section .text.entities_part1.080233B4, "ax", %progbits
-    thumb_func_start func_080233B4
-func_080233B4: @ 0x080233B4
-    push {r4, r5, r6, r7, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    movs r6, #0
-    ldr r0, [r4, #0x34]
-    bl IsPregnant__C10BarnAnimal
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080233D4
-    ldr r0, [r4, #0x34]
-    bl GetDaysPregnant__C10BarnAnimal
-    rsbs r1, r0, #0
-    orrs r1, r0
-    lsrs r6, r1, #0x1f
-.L080233D4:
-    ldr r7, .L080233E4 @ =gUnk_080F0C3C
-    lsls r5, r5, #1
-    cmp r6, #0
-    beq .L080233E8
-    adds r0, r5, #0
-    adds r0, #0x2a
-    b .L080233F6
-    .align 2, 0
-.L080233E4: .4byte gUnk_080F0C3C
-.L080233E8:
-    ldr r0, [r4, #0x34]
-    bl GetGrowthStage__C3Cow
-    lsls r1, r0, #3
-    subs r1, r1, r0
-    lsls r1, r1, #1
-    adds r0, r5, r1
-.L080233F6:
-    adds r0, r7, r0
-    ldrh r0, [r0]
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
     .section .text.entities_part1.080200C4, "ax", %progbits
     thumb_func_start func_080200C4
 func_080200C4: @ 0x080200C4
