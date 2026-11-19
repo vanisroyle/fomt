@@ -489,12 +489,6 @@ EC void * func_08008920(void *);
 EC void * func_08008940(void *);
 EC void * func_0800894C(void *);
 EC i32 func_08050D3C(void *, void *, void *, void *, void *, void *, void *);
-EC void func_080087C8(void *);
-EC void BlankChickenFestivalDisplay(void *);
-EC void func_080B469C(void *);
-EC void func_080B7648(void *);
-EC void func_080B5824(void *);
-EC void func_080B888C(void *);
 
 struct FestivalSceneFlow
 {
@@ -533,13 +527,6 @@ EC SECTION(".text.g3_080B45F0") void ResetChickenFestivalScene(FestivalSceneFlow
 }
 
 
-EC void func_08008EB8(u32, void *, u32);
-EC void func_08008E64(void const *, void *, u32);
-EC void Unpack(void const *, void *);
-EC u8 gUnk_0873BE24[], gUnk_0873BF48[], gUnk_0873BFF0[], gUnk_0873CBF4[];
-
-
-
 struct SpriteHarvestingResource
 {
     u32 unknown_00;
@@ -573,10 +560,6 @@ EC SECTION(".text.g3_080BCEC8") void AllocateSpriteHarvestingResources(SpriteHar
     ResizeHarvestingResource(state->groups[7], 2);
     ResizeHarvestingResource(state->groups[6], 6);
 }
-
-EC void func_080B8DF4(void *, u8);
-
-
 
 EC char gUnk_081078BD[20][13];
 EC char * strcpy(char *, char const *);
