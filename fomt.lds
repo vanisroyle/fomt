@@ -1274,7 +1274,7 @@ SECTIONS
         src/message_window.o(.text.080ADC00);
         asm/code_809E804.o(.text.080ADC30);
         src/message_window.o(.text.080ADC84);
-        asm/code_809E804.o(.text.080ADCA4);
+        src/message_window.o(.text.080ADCA4);
         src/message_window.o(.text.080ADD08);
         src/message_window.o(.text.080ADD20);
         src/message_script.o(.text.080ADD44);

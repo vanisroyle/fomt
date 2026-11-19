@@ -31219,7 +31219,7 @@ SetMessageWindowStatePortrait: @ 0x08050AD8
 	lsls r1, r1, #1
 	adds r0, r4, r1
 	adds r1, r5, #0
-	bl func_080ADCA4
+	bl LoadMessagePortraitAnimationFrame
 	movs r1, #0xf0
 	lsls r1, r1, #1
 	adds r0, r4, r1
