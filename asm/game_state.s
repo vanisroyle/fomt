@@ -256,7 +256,7 @@ func_08010358: @ 0x08010358
     bl ResetFishingRecords
     ldr r2, .L08010644 @ =0x00002E58
     adds r0, r6, r2
-    bl func_0809CE8C
+    bl InitializeMineFloor
     movs r3, #0xd2
     lsls r3, r3, #6
     adds r0, r6, r3
@@ -2308,7 +2308,7 @@ func_08011650: @ 0x08011650
     bl ResetFishingRecords
     ldr r2, .L080118BC @ =0x00002E58
     adds r0, r7, r2
-    bl func_0809CE8C
+    bl InitializeMineFloor
     movs r3, #0xd2
     lsls r3, r3, #6
     adds r0, r7, r3
@@ -9646,7 +9646,7 @@ func_080159B0: @ 0x080159B0
     add r0, sp, #0x84
     adds r2, r5, #0
     adds r3, r6, #0
-    bl func_0809CF34
+    bl GenerateMineFloor
     ldr r0, [sp, #8]
     lsls r0, r0, #2
     adds r0, #4
@@ -10234,7 +10234,7 @@ func_08015E30: @ 0x08015E30
     add r0, sp, #0x88
     movs r2, #0
     adds r3, r6, #0
-    bl func_0809CF34
+    bl GenerateMineFloor
     ldr r0, [sp, #8]
     lsls r0, r0, #2
     adds r0, #4
@@ -10798,7 +10798,7 @@ func_08015E30: @ 0x08015E30
     add r0, sp, #0xd4
     movs r2, #1
     adds r3, r6, #0
-    bl func_0809CF34
+    bl GenerateMineFloor
     ldr r0, [sp, #8]
     lsls r0, r0, #2
     adds r0, #4
