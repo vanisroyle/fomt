@@ -2282,72 +2282,6 @@ func_08021130: @ 0x08021130
     bx r1
     .align 2, 0
 
-    .section .text.entities_part1.080211E4, "ax", %progbits
-    thumb_func_start func_080211E4
-func_080211E4: @ 0x080211E4
-    push {r4, r5, r6, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    adds r6, r2, #0
-    cmp r5, #0xc
-    beq .L080211FA
-    adds r0, #0x40
-    ldrb r0, [r0]
-    cmp r0, #0
-    beq .L080211FA
-    movs r5, #0xc
-.L080211FA:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl func_0802110C
-    adds r1, r0, #0
-    ldrh r0, [r4, #0x22]
-    cmp r0, r1
-    beq .L08021210
-    adds r0, r4, #0
-    bl SetAnim__12AActorEntityUi
-.L08021210:
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, r6
-    beq .L08021222
-    adds r0, r4, #0
-    adds r1, r6, #0
-    bl SetAnimFacing__12AActorEntityUi
-.L08021222:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl func_08021130
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_08020080
-    adds r0, r4, #0
-    adds r0, #0x41
-    adds r6, r0, #0
-    ldrb r0, [r6]
-    cmp r5, r0
-    beq .L0802125C
-    movs r1, #1
-    rsbs r1, r1, #0
-    cmp r5, #8
-    bne .L08021248
-    movs r1, #8
-.L08021248:
-    cmp r1, #0
-    blt .L08021256
-    adds r0, r4, #0
-    movs r2, #1
-    bl func_08032384
-    b .L0802125C
-.L08021256:
-    adds r0, r4, #0
-    bl func_080323C8
-.L0802125C:
-    strb r5, [r6]
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
 
 
     .section .text.entities_part1.080212C0, "ax", %progbits
@@ -3067,78 +3001,6 @@ func_08021FAC: @ 0x08021FAC
     bx r1
     .align 2, 0
 
-    .section .text.entities_part1.08022048, "ax", %progbits
-    thumb_func_start func_08022048
-func_08022048: @ 0x08022048
-    push {r4, r5, r6, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    adds r6, r2, #0
-    cmp r5, #6
-    beq .L0802205E
-    adds r0, #0x3d
-    ldrb r0, [r0]
-    cmp r0, #0
-    beq .L0802205E
-    movs r5, #6
-.L0802205E:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl func_08021F88
-    adds r1, r0, #0
-    ldrh r0, [r4, #0x22]
-    cmp r0, r1
-    beq .L08022074
-    adds r0, r4, #0
-    bl SetAnim__12AActorEntityUi
-.L08022074:
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, r6
-    beq .L08022086
-    adds r0, r4, #0
-    adds r1, r6, #0
-    bl SetAnimFacing__12AActorEntityUi
-.L08022086:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl func_08021FAC
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_08020080
-    adds r0, r4, #0
-    adds r0, #0x3c
-    adds r6, r0, #0
-    ldrb r0, [r6]
-    cmp r5, r0
-    beq .L080220CA
-    adds r0, r4, #0
-    adds r0, #0x3e
-    ldrb r0, [r0]
-    cmp r0, #0
-    bne .L080220CA
-    movs r1, #1
-    rsbs r1, r1, #0
-    cmp r5, #4
-    bne .L080220B6
-    movs r1, #8
-.L080220B6:
-    cmp r1, #0
-    blt .L080220C4
-    adds r0, r4, #0
-    movs r2, #1
-    bl func_08032384
-    b .L080220CA
-.L080220C4:
-    adds r0, r4, #0
-    bl func_080323C8
-.L080220CA:
-    strb r5, [r6]
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
     .section .text.entities_part1.080220D4.tail, "ax", %progbits
 .L08022100:
@@ -4036,63 +3898,6 @@ func_080228B4: @ 0x080228B4
     .byte 0xC1, 0x68, 0x10, 0x1C, 0xB0, 0xF0, 0x0C, 0xFB, 0x28, 0xB0, 0x38, 0xBC, 0x98, 0x46, 0xA1, 0x46
     .byte 0xAA, 0x46, 0xF0, 0xBC, 0x01, 0xBC, 0x00, 0x47
 
-    .section .text.entities_part1.08023308, "ax", %progbits
-    thumb_func_start func_08023308
-func_08023308: @ 0x08023308
-    push {r4, r5, r6, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    adds r6, r2, #0
-    bl func_080233B4
-    adds r1, r0, #0
-    ldrh r0, [r4, #0x22]
-    cmp r0, r1
-    beq .L08023322
-    adds r0, r4, #0
-    bl SetAnim__12AActorEntityUi
-.L08023322:
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, r6
-    beq .L08023334
-    adds r0, r4, #0
-    adds r1, r6, #0
-    bl SetAnimFacing__12AActorEntityUi
-.L08023334:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl func_08023400
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_08020080
-    adds r0, r4, #0
-    adds r0, #0x38
-    adds r6, r0, #0
-    ldrb r0, [r6]
-    cmp r5, r0
-    beq .L0802336E
-    movs r1, #1
-    rsbs r1, r1, #0
-    cmp r5, #4
-    bne .L0802335A
-    movs r1, #8
-.L0802335A:
-    cmp r1, #0
-    blt .L08023368
-    adds r0, r4, #0
-    movs r2, #1
-    bl func_08032384
-    b .L0802336E
-.L08023368:
-    adds r0, r4, #0
-    bl func_080323C8
-.L0802336E:
-    strb r5, [r6]
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
 
     .section .text.entities_part1.08023400.tail, "ax", %progbits
@@ -4283,63 +4088,6 @@ func_08023308: @ 0x08023308
     .byte 0x32, 0x69, 0x00, 0x2A, 0x04, 0xD0, 0x50, 0x68, 0xC1, 0x68, 0x10, 0x1C, 0xAF, 0xF0, 0xB8, 0xFC
     .byte 0x28, 0xB0, 0x38, 0xBC, 0x98, 0x46, 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC, 0x01, 0xBC, 0x00, 0x47
 
-    .section .text.entities_part1.08023FB0, "ax", %progbits
-    thumb_func_start func_08023FB0
-func_08023FB0: @ 0x08023FB0
-    push {r4, r5, r6, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    adds r6, r2, #0
-    bl func_0802405C
-    adds r1, r0, #0
-    ldrh r0, [r4, #0x22]
-    cmp r0, r1
-    beq .L08023FCA
-    adds r0, r4, #0
-    bl SetAnim__12AActorEntityUi
-.L08023FCA:
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, r6
-    beq .L08023FDC
-    adds r0, r4, #0
-    adds r1, r6, #0
-    bl SetAnimFacing__12AActorEntityUi
-.L08023FDC:
-    adds r0, r4, #0
-    adds r1, r5, #0
-    bl func_080240BC
-    adds r1, r0, #0
-    adds r0, r4, #0
-    bl func_08020080
-    adds r0, r4, #0
-    adds r0, #0x38
-    adds r6, r0, #0
-    ldrb r0, [r6]
-    cmp r5, r0
-    beq .L08024016
-    movs r1, #1
-    rsbs r1, r1, #0
-    cmp r5, #4
-    bne .L08024002
-    movs r1, #8
-.L08024002:
-    cmp r1, #0
-    blt .L08024010
-    adds r0, r4, #0
-    movs r2, #1
-    bl func_08032384
-    b .L08024016
-.L08024010:
-    adds r0, r4, #0
-    bl func_080323C8
-.L08024016:
-    strb r5, [r6]
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
 
     .section .text.entities_part1.080240BC.tail, "ax", %progbits

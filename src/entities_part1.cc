@@ -13,6 +13,11 @@ struct DogEntityPart1 : AActorEntity
     DogEntityPart1();
     u32 unk_30;
     Dog * dog;
+    void * unk_38;
+    i16 saved_x;
+    i16 saved_y;
+    bool override_state;
+    u8 state;
 };
 
 struct HorseEntityPart1 : AActorEntity
@@ -20,6 +25,10 @@ struct HorseEntityPart1 : AActorEntity
     HorseEntityPart1();
     u32 unk_30;
     Horse * horse;
+    STRUCT_PAD(0x38, 0x3C);
+    u8 state;
+    bool override_state;
+    bool suppress_effect;
 };
 
 struct ChickenEntityPart1 : AActorEntity
@@ -51,6 +60,7 @@ struct BarnEntityPart1 : AActorEntity
     BarnEntityPart1();
     u32 unk_30;
     BarnAnimal * animal;
+    u8 state;
 };
 
 EC void func_08020038(AActorEntity * self, GameObject * game, ActorLocation const * location, u32 speed);
@@ -63,8 +73,110 @@ EC void func_08023FB0(BarnEntityPart1 * self, u32 state, u32 facing);
 EC char const vtable_unk_080E639C[];
 EC char const vtable_unk_080E6310[];
 EC char const vtable_unk_080E6284[];
+EC void func_08020080(AActorEntity * self, i32 speed);
+EC u32 func_0802110C(DogEntityPart1 * self, u32 state);
+EC i32 func_08021130(DogEntityPart1 * self, u32 state);
+EC i32 func_08021FAC(HorseEntityPart1 * self, u32 state);
+EC u32 func_08021F88(HorseEntityPart1 * self, u32 state);
+EC u32 func_080233B4(BarnEntityPart1 * self, u32 state);
+EC u32 func_0802405C(BarnEntityPart1 * self, u32 state);
+EC u32 func_08023400(AEntity * self, u32 state);
+EC u32 func_080240BC(AEntity * self, u32 state);
+EC void func_08032384(AEntity * self, u32 effect, u32 argument);
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(08022048);
+EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing)
+{
+    if (state != 6 && self->override_state)
+        state = 6;
+    u32 anim = func_08021F88(self, state);
+    if (self->anim_id != anim)
+        self->SetAnim(anim);
+    if (self->facing != facing)
+        self->SetAnimFacing(facing);
+    func_08020080(self, func_08021FAC(self, state));
+    if (state != self->state && !self->suppress_effect)
+    {
+        i32 effect = -1;
+        if (state == 4)
+            effect = 8;
+        if (effect >= 0)
+            func_08032384(self, effect, 1);
+        else
+            func_080323C8(self);
+    }
+    self->state = state;
+}
+
+EC void func_080211E4(DogEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(080211E4);
+EC void func_080211E4(DogEntityPart1 * self, u32 state, u32 facing)
+{
+    if (state != 12 && self->override_state)
+        state = 12;
+    u32 anim = func_0802110C(self, state);
+    if (self->anim_id != anim)
+        self->SetAnim(anim);
+    if (self->facing != facing)
+        self->SetAnimFacing(facing);
+    func_08020080(self, func_08021130(self, state));
+    if (state != self->state)
+    {
+        i32 effect = -1;
+        if (state == 8)
+            effect = 8;
+        if (effect >= 0)
+            func_08032384(self, effect, 1);
+        else
+            func_080323C8(self);
+    }
+    self->state = state;
+}
+
+EC void func_08023FB0(BarnEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(08023FB0);
+EC void func_08023FB0(BarnEntityPart1 * self, u32 state, u32 facing)
+{
+    u32 anim = func_0802405C(self, state);
+    if (self->anim_id != anim)
+        self->SetAnim(anim);
+    if (self->facing != facing)
+        self->SetAnimFacing(facing);
+    func_08020080(self, func_080240BC(self, state));
+    if (state != self->state)
+    {
+        i32 effect = -1;
+        if (state == 4)
+            effect = 8;
+        if (effect >= 0)
+            func_08032384(self, effect, 1);
+        else
+            func_080323C8(self);
+    }
+    self->state = state;
+}
+
+EC void func_08023308(BarnEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(08023308);
+EC void func_08023308(BarnEntityPart1 * self, u32 state, u32 facing)
+{
+    u32 anim = func_080233B4(self, state);
+    if (self->anim_id != anim)
+        self->SetAnim(anim);
+    if (self->facing != facing)
+        self->SetAnimFacing(facing);
+    func_08020080(self, func_08023400(self, state));
+    if (state != self->state)
+    {
+        i32 effect = -1;
+        if (state == 4)
+            effect = 8;
+        if (effect >= 0)
+            func_08032384(self, effect, 1);
+        else
+            func_080323C8(self);
+    }
+    self->state = state;
+}
 
 EC BarnEntityPart1 * func_080238A8(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal) ENTITY_CODE(080238A8);
 EC BarnEntityPart1 * func_080238A8(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal)
