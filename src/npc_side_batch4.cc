@@ -16,7 +16,7 @@ struct ArrivalReactionNpc : AActorEntity
 };
 
 EC u8 const gUnk_080F6B10[];
-EC u8 const gUnk_080F29C0[];
+EC u8 const gChildScheduleInfo[];
 
 EC u8 const vtable_unk_080E6A18[];
 EC AActorEntity * InitializeUnscheduledNpcOne(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08036CAC);
@@ -58,7 +58,7 @@ EC u8 const vtable_unk_080E6918[];
 EC ArrivalReactionNpc * InitializeArrivalReactionNpc(ArrivalReactionNpc * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08036E2C);
 EC ArrivalReactionNpc * InitializeArrivalReactionNpc(ArrivalReactionNpc * self, GameObject * game, Npc * npc, u32 schedule_context)
 {
-    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F29C0, 615, 623, 995);
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gChildScheduleInfo, 615, 623, 995);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6918;
     self->arrival_timer = 0;
     return self;

@@ -16867,15 +16867,15 @@ func_080DC724: @ 0x080DC724
 	adds r4, r1, #0
 	adds r0, #0x8c
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r5, #0
 	adds r0, #0x48
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r5, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DC760 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -16911,7 +16911,7 @@ func_080DC764: @ 0x080DC764
 .L080DC782:
 	adds r0, r4, #4
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r4, #0x48
 	cmp r4, r5
 	bne .L080DC782
@@ -16919,15 +16919,15 @@ func_080DC764: @ 0x080DC764
 	adds r0, r6, #0
 	adds r0, #0x8c
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r6, #0
 	adds r0, #0x48
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r6, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DC7C8 @ =vtable_unk_080E65E0
 	str r0, [r6, #4]
 	movs r0, #1
@@ -17388,7 +17388,7 @@ func_080DCB7C: @ 0x080DCB7C
 	strb r0, [r4]
 	adds r0, r5, #0
 	mov r3, sl
-	bl func_080A4A00
+	bl InitializeAnimatedMapSpriteSinglePalette
 	movs r0, #0xc8
 	lsls r0, r0, #0xf
 	str r0, [r5, #0x40]
@@ -17430,7 +17430,7 @@ func_080DCB7C: @ 0x080DCB7C
 .L080DCC1E:
 	add r0, sp, #0xc
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	movs r2, #0
 	str r2, [sp, #0x60]
 	add r7, sp, #0xc
@@ -17495,7 +17495,7 @@ func_080DCB7C: @ 0x080DCB7C
 	strb r0, [r3]
 	adds r0, r7, #0
 	mov r3, sl
-	bl func_080A4A00
+	bl InitializeAnimatedMapSpriteSinglePalette
 	lsls r0, r5, #0x10
 	str r0, [r7, #0x40]
 	adds r0, r7, #0
@@ -17534,7 +17534,7 @@ func_080DCB7C: @ 0x080DCB7C
 .L080DCD04:
 	add r0, sp, #0xc
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r2, [sp, #0x60]
 	adds r2, #1
 	str r2, [sp, #0x60]
@@ -17642,7 +17642,7 @@ func_080DCDB0: @ 0x080DCDB0
 .L080DCDD4:
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r4, #0x50
 	cmp r4, r5
 	bne .L080DCDD4
@@ -17679,7 +17679,7 @@ func_080DCDB0: @ 0x080DCDB0
 	beq .L080DCE2A
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r4, #0
 	bl __builtin_delete
 .L080DCE2A:
@@ -17688,7 +17688,7 @@ func_080DCDB0: @ 0x080DCDB0
 	beq .L080DCE3E
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	adds r0, r4, #0
 	bl __builtin_delete
 .L080DCE3E:
@@ -17746,7 +17746,7 @@ func_080DCE94: @ 0x080DCE94
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCEBC @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -17769,7 +17769,7 @@ func_080DCEC0: @ 0x080DCEC0
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCEE8 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -17821,7 +17821,7 @@ func_080DCF20: @ 0x080DCF20
 	adds r4, r1, #0
 	adds r0, #8
 	movs r1, #2
-	bl func_080A47B4
+	bl DestroyMapSpriteResource
 	ldr r0, .L080DCF48 @ =vtable_unk_080E65E0
 	str r0, [r5, #4]
 	movs r0, #1
@@ -31535,7 +31535,7 @@ func_080E3A5C: @ 0x080E3A5C
 	adds r0, r1, #0
 	lsls r1, r2, #0x18
 	lsrs r1, r1, #0x18
-	bl func_080D0644
+	bl Joybus_QueueWordExchange
 	pop {r0}
 	bx r0
 
@@ -32910,7 +32910,7 @@ func_080E44B8: @ 0x080E44B8
 	adds r4, r1, #0
 	adds r0, r5, #4
 	movs r1, #2
-	bl func_080AC85C
+	bl DestroyMapSceneContents
 	ldr r0, .L080E44E0 @ =vtable_unk_080E61A0
 	str r0, [r5]
 	movs r0, #1

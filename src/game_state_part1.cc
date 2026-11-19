@@ -473,7 +473,7 @@ struct GameStateMapObstacleResult
     bool additionalAction;
 };
 
-EC void func_080A1CBC(GameStateMapObstacleRecord & record, u8 * mapState, u32 index);
+EC void GetMapForageObstacle(GameStateMapObstacleRecord & record, u8 * mapState, u32 index);
 EC void SubtractMapAvailabilityCount(u8 * mapState, u32 index, i32 amount);
 EC u32 GetMapAvailabilityCount(u8 const * mapState, u32 index);
 EC void ClearMapAvailabilityBit(u8 * mapState, u32 index, u32 bit);
@@ -482,7 +482,7 @@ EC void ClearMapAvailabilityBit(u8 * mapState, u32 index, u32 bit);
 EC bool SECTION(".text.game_state_080174C8") GameState_TryBreakMapObstacle(Farm & farm, u8 * mapState, u32 index, u32 bit, i32 power, bool stoneTool, GameStateMapObstacleResult & result)
 {
     GameStateMapObstacleRecord record;
-    func_080A1CBC(record, mapState, index);
+    GetMapForageObstacle(record, mapState, index);
     GameStateMapObstacleRecord & obstacle = record;
     i32 requiredPower = 0;
     if (stoneTool)

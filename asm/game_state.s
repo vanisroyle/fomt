@@ -11252,7 +11252,7 @@ func_080175B4: @ 0x080175B4
     str r3, [r2]
     str r1, [sp, #4]
     add r1, sp, #4
-    bl func_080AC674
+    bl InitializeMapSceneContents
     ldr r0, .L0801783C @ =0x00001038
     adds r0, r0, r7
     mov r8, r0
@@ -11634,7 +11634,7 @@ func_080175B4: @ 0x080175B4
     adds r1, r7, #0
     movs r2, #2
     movs r3, #0x1b
-    bl func_080A4740
+    bl InitializeMapSpriteSinglePalette
     ldr r0, .L080179C4 @ =vtable_unk_080E602C
     str r0, [r4, #0x24]
     adds r3, r4, #0
@@ -11961,7 +11961,7 @@ func_080179CC: @ 0x080179CC
 .L08017BB6:
     adds r0, r7, #0
     movs r1, #2
-    bl func_080AC85C
+    bl DestroyMapSceneContents
     ldr r0, .L08017BFC @ =vtable_unk_080E61A0
     str r0, [r6]
     movs r0, #1
@@ -12133,7 +12133,7 @@ func_08017C30: @ 0x08017C30
     adds r1, r6, #0
     ldr r2, .L08017D98 @ =0x000001A9
     mov r3, r8
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     adds r4, r0, #0
     ldr r1, [r5]
     cmp r4, r1
@@ -12522,7 +12522,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r0]
     cmp r0, #0
     beq .L08018072
-    bl func_0803B2A8
+    bl UpdateGameStateMapOverlay
 .L08018072:
     ldr r0, .L080180B0 @ =0x00001028
     add r0, r8
@@ -13489,7 +13489,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0801887A
 .L08018860:
     adds r4, r5, #0
@@ -13501,7 +13501,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0801887A:
@@ -13633,7 +13633,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L080189A2
 .L08018988:
     adds r4, r5, #0
@@ -13645,7 +13645,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L080189A2:
@@ -13773,7 +13773,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08018AC6
 .L08018AAC:
     adds r4, r5, #0
@@ -13785,7 +13785,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L08018AC6:
@@ -14110,7 +14110,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08018D72
 .L08018D58:
     adds r4, r5, #0
@@ -14122,7 +14122,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L08018D72:
@@ -14228,7 +14228,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08018E6A
 .L08018E50:
     adds r4, r5, #0
@@ -14240,7 +14240,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L08018E6A:
@@ -14519,7 +14519,7 @@ func_080182C8: @ 0x080182C8
     adds r0, r5, #0
 .L0801909C:
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L080190BE
 .L080190A4:
     adds r4, r5, #0
@@ -14532,7 +14532,7 @@ func_080182C8: @ 0x080182C8
     adds r0, r5, #0
 .L080190B4:
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L080190BE:
@@ -14715,7 +14715,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L08019232:
@@ -14958,7 +14958,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0801942A
     .align 2, 0
 .L0801940C: .4byte 0x00000C7C
@@ -14972,7 +14972,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0801942A:
@@ -15062,7 +15062,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L080194FE
     .align 2, 0
 .L080194E0: .4byte 0x00000C7C
@@ -15076,7 +15076,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L080194FE:
@@ -15219,7 +15219,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08019646
     .align 2, 0
 .L08019628: .4byte 0x00000C8C
@@ -15233,7 +15233,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L08019646:
@@ -15405,7 +15405,7 @@ func_080182C8: @ 0x080182C8
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L080197AA:
@@ -16083,7 +16083,7 @@ func_08019BEC: @ 0x08019BEC
     adds r1, r7, #0
     movs r2, #2
     movs r3, #0x1b
-    bl func_080A4740
+    bl InitializeMapSpriteSinglePalette
     ldr r0, .L08019E1C @ =vtable_unk_080E602C
     str r0, [r6, #0x24]
     movs r1, #0x28
@@ -18443,7 +18443,7 @@ func_0801D104: @ 0x0801D104
     lsrs r1, r1, #0x16
     adds r0, r6, #0
     mov r3, r8
-    bl func_080A1D20
+    bl FindMapForageLocation
     adds r4, r0, #0
     movs r0, #1
     rsbs r0, r0, #0
@@ -18452,7 +18452,7 @@ func_0801D104: @ 0x0801D104
     add r0, sp, #0xc
     adds r1, r6, #0
     adds r2, r4, #0
-    bl func_080A1CBC
+    bl GetMapForageObstacle
     add r6, sp, #0xc
     ldr r1, [r7]
     adds r0, r1, #0
@@ -18675,7 +18675,7 @@ func_0801D6AC: @ 0x0801D6AC
     adds r0, r6, #0
     adds r2, r4, #0
     mov r3, sb
-    bl func_080A1D20
+    bl FindMapForageLocation
     mov r8, r0
     add r0, sp, #4
     bl __12RucksackItem
@@ -18710,7 +18710,7 @@ func_0801D6AC: @ 0x0801D6AC
     adds r0, r4, #0
     adds r1, r6, #0
     mov r2, r8
-    bl func_080A1CBC
+    bl GetMapForageObstacle
     ldr r1, [r7, #4]
     movs r2, #8
     ldrsh r0, [r4, r2]
@@ -20396,7 +20396,7 @@ func_0801EE00: @ 0x0801EE00
     adds r1, r6, #0
     adds r2, r7, #0
     mov r3, sl
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     adds r5, r0, #0
     ldr r1, [r4]
     cmp r5, r1
@@ -20430,7 +20430,7 @@ func_0801EE00: @ 0x0801EE00
     adds r1, r6, #0
     ldr r2, .L0801F148 @ =0x000001A9
     mov r3, sl
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     adds r5, r0, #0
     ldr r1, [r4]
     cmp r5, r1
@@ -20551,7 +20551,7 @@ func_0801F3E4: @ 0x0801F3E4
     adds r1, r6, #0
     movs r2, #2
     movs r3, #0x1b
-    bl func_080A4740
+    bl InitializeMapSpriteSinglePalette
     ldr r0, .L0801F4E4 @ =vtable_unk_080E602C
     str r0, [r5, #0x24]
     movs r3, #0x28
