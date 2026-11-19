@@ -29916,7 +29916,7 @@ func_0804F288: @ 0x0804F288
 	mov r2, sl
 	strb r0, [r2, #0x1a]
 	ldr r0, [sp, #0x14]
-	bl func_080ADD44
+	bl ResetFrameScript
 	movs r0, #0x90
 	lsls r0, r0, #1
 	add r0, r8
@@ -31913,10 +31913,10 @@ func_08050424: @ 0x08050424
 	adds r0, r4, #0
 	adds r1, r7, #0
 	adds r2, r6, #0
-	bl func_080ADD5C
+	bl StartFrameScript
 	adds r0, r4, #0
 	mov r1, r8
-	bl func_080ADD74
+	bl SetFrameScriptRate
 	movs r0, #4
 	str r0, [r5, #8]
 	pop {r3}
@@ -32415,7 +32415,7 @@ func_080507F8: @ 0x080507F8
 	adds r0, r4, #0
 	adds r1, r7, #0
 	mov r2, r8
-	bl func_080ADD5C
+	bl StartFrameScript
 	adds r6, r5, #0
 	adds r5, r4, #0
 	ldr r4, .L08050864 @ =vtable_unk_080E78F0
