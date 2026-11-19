@@ -373,9 +373,9 @@ EC void func_08008DE8();
 EC void func_08008BE0(void * self);
 EC u32 func_08008CD0(void * self);
 EC void func_0803B6B8(void * self, u32 index, char const * text);
-EC void func_08050E74(void * self);
-EC void func_08050E5C(void * self);
-EC void func_08050E8C(void * self);
+EC void ClearMessageWindowSpeakerName(void * self);
+EC void ClearMessageWindowPortrait(void * self);
+EC void ClearMessageWindowIndicator(void * self);
 EC void func_080323C8(AActorEntity & self);
 EC void func_08032308(AActorEntity & self, u32 target, i32 speed);
 EC void func_0803233C(AActorEntity & self, u32 target, i32 speed);
@@ -386,15 +386,15 @@ EC void BeginSideEntityTransition(void * self);
 EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
 EC void func_0804EC84(i32 value, char * text, u32 digits);
-EC void func_08050DC8(void * self, u32 value, u32 flags, void * text);
+EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
 EC void func_08032384(AActorEntity & self, u32 value, bool enabled);
 EC u32 func_08033B24(AActorEntity & self);
-EC void func_08050D74(void * self);
+EC void CloseMessageWindow(void * self);
 EC void func_080D7F88(GameStateRuntime & self);
 EC void func_080D7F74(GameStateRuntime & self);
 EC void func_080D7F60(GameStateRuntime & self);
-EC void func_08050E68(void * self, u32 value);
-EC void func_08050E50(void * self, u32 value);
+EC void SetMessageWindowSpeakerName(void * self, const char * name);
+EC void SetMessageWindowPortrait(void * self, u32 value);
 EC u32 func_0809FE3C(void * self, u32 value);
 EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
@@ -419,21 +419,21 @@ EC void SECTION(".text.game_state_0801274C") func_0801274C(GameStateScript & sel
 {
     void * actor = self.runtime->actor;
     if (actor != nullptr)
-        func_08050E74(actor);
+        ClearMessageWindowSpeakerName(actor);
 }
 
 EC void SECTION(".text.game_state_0801278C") func_0801278C(GameStateScript & self)
 {
     void * actor = self.runtime->actor;
     if (actor != nullptr)
-        func_08050E5C(actor);
+        ClearMessageWindowPortrait(actor);
 }
 
 EC void SECTION(".text.game_state_0801284C") func_0801284C(GameStateScript & self)
 {
     void * actor = self.runtime->actor;
     if (actor != nullptr)
-        func_08050E8C(actor);
+        ClearMessageWindowIndicator(actor);
 }
 
 EC void SECTION(".text.game_state_08012ACC") func_08012ACC(GameStateScript & self, u32 index, char const * text)
@@ -858,7 +858,7 @@ EC void SECTION(".text.game_state_080126BC") func_080126BC(GameStateScript & sel
     GameStateRuntime & runtime = *self.runtime;
     if (runtime.actor != nullptr)
     {
-        func_08050DC8(runtime.actor, value, 0x40, runtime.text);
+        SetMessageWindowTextOptions(runtime.actor, (const char *) value, 0x40, runtime.text);
         runtime.command = 0x11;
     }
 }
@@ -918,7 +918,7 @@ EC void SECTION(".text.game_state_08012658") func_08012658(GameStateScript & sel
     GameStateRuntime & runtime = *self.runtime;
     if (runtime.actor != nullptr)
     {
-        func_08050D74(runtime.actor);
+        CloseMessageWindow(runtime.actor);
         func_080D7F88(runtime);
         func_080D7F74(runtime);
         func_080D7F60(runtime);
@@ -931,7 +931,7 @@ EC void SECTION(".text.game_state_0801268C") func_0801268C(GameStateScript & sel
     GameStateRuntime & runtime = *self.runtime;
     if (runtime.actor != nullptr)
     {
-        func_08050DC8(runtime.actor, value, (u16) flags, runtime.text);
+        SetMessageWindowTextOptions(runtime.actor, (const char *) value, (u16) flags, runtime.text);
         runtime.command = 0x10;
     }
 }
@@ -1024,14 +1024,14 @@ EC void SECTION(".text.game_state_08012720") func_08012720(GameStateScript & sel
 {
     GameStateRuntime & runtime = *self.runtime;
     if (runtime.actor != nullptr && (i32(u32(runtime.state[0x2210]) << 28) < 0))
-        func_08050E68(runtime.actor, value);
+        SetMessageWindowSpeakerName(runtime.actor, (const char *) value);
 }
 
 EC void SECTION(".text.game_state_08012760") func_08012760(GameStateScript & self, u32 value)
 {
     GameStateRuntime & runtime = *self.runtime;
     if (runtime.actor != nullptr && (i32(u32(runtime.state[0x2210]) << 29) < 0))
-        func_08050E50(runtime.actor, value);
+        SetMessageWindowPortrait(runtime.actor, value);
 }
 
 EC void SECTION(".text.game_state_080126E4") func_080126E4(GameStateScript & self, u32 value)
@@ -1039,7 +1039,7 @@ EC void SECTION(".text.game_state_080126E4") func_080126E4(GameStateScript & sel
     GameStateRuntime & runtime = *self.runtime;
     void * actor = runtime.actor;
     if (actor != nullptr && (i32(u32(runtime.state[0x2210]) << 28) < 0))
-        func_08050E68(actor, func_0809FE3C(runtime.state + 0x1CD4, value));
+        SetMessageWindowSpeakerName(actor, (const char *) func_0809FE3C(runtime.state + 0x1CD4, value));
 }
 
 EC void SECTION(".text.game_state_0801223C") func_0801223C(GameStateScript & self, u32 id, i32 x, i32 y)

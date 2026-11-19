@@ -2,8 +2,8 @@
 
 EC void func_08050EBC(void *, u32);
 EC void func_08050E98(void *, u32);
-EC void func_08050D8C(void *, u32);
-EC void func_08050DC8(void *, u32, u32, u32);
+EC void SetMessageWindowText(void *, const char *);
+EC void SetMessageWindowTextOptions(void *, const char *, u16, const void *);
 
 EC SECTION(".text.g5_buttons") void func_080CABA0(u8 * self, u32 value)
 {
@@ -14,7 +14,7 @@ EC SECTION(".text.g5_buttons") void func_080CABA0(u8 * self, u32 value)
     func_08050EBC(buttons, 2);
     func_08050EBC(buttons, 16);
     func_08050EBC(buttons, 32);
-    func_08050D8C(buttons, value);
+    SetMessageWindowText(buttons, (const char *) value);
 }
 
 EC SECTION(".text.g5_buttons") void func_080CABEC(u8 * self, u32 value)
@@ -26,7 +26,7 @@ EC SECTION(".text.g5_buttons") void func_080CABEC(u8 * self, u32 value)
     func_08050E98(buttons, 2);
     func_08050E98(buttons, 16);
     func_08050E98(buttons, 32);
-    func_08050DC8(buttons, value, 0, 0);
+    SetMessageWindowTextOptions(buttons, (const char *) value, 0, 0);
 }
 
 EC SECTION(".text.g5_entry_init") void InitializeUiEntry(UiEntry * self) // 0x080CAC70
