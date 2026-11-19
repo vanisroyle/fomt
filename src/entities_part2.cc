@@ -9,8 +9,8 @@ enum
     FARMER_STATE_45 = 45,
 };
 
-EC void ResetFarmerItemDisplayAnimation(FarmerEntityPart1 * farmer) ENTITY_CODE(080299D0);
-EC void ResetFarmerItemDisplayAnimation(FarmerEntityPart1 * farmer)
+EC void ResetFarmerItemDisplayAnimation(FarmerEntity * farmer) ENTITY_CODE(080299D0);
+EC void ResetFarmerItemDisplayAnimation(FarmerEntity * farmer)
 {
     farmer->item_animation_override = false;
     farmer->thrown_item.active = false;
@@ -58,10 +58,10 @@ inline void RestartFarmerIcon(FarmerIconState * state)
     *flags = 1;
 }
 
-EC void ShowFarmerToolDisplay(FarmerEntityPart1 * farmer) ENTITY_CODE(0802A510);
-EC void ShowFarmerToolDisplay(FarmerEntityPart1 * farmer)
+EC void ShowFarmerToolDisplay(FarmerEntity * farmer) ENTITY_CODE(0802A510);
+EC void ShowFarmerToolDisplay(FarmerEntity * farmer)
 {
-    ThrownItemPart1 * item = &farmer->thrown_item;
+    ThrownItemMotion * item = &farmer->thrown_item;
     item->active = true;
     item->display_mode = 0;
     item->Launch(-8 * 65536, 0, 17 * 65536);
@@ -77,25 +77,25 @@ EC void ShowFarmerToolDisplay(FarmerEntityPart1 * farmer)
     }
 }
 
-EC void CancelFarmerItemDisplay(FarmerEntityPart1 * farmer) ENTITY_CODE(0802A7D8);
-EC void CancelFarmerItemDisplay(FarmerEntityPart1 * farmer)
+EC void CancelFarmerItemDisplay(FarmerEntity * farmer) ENTITY_CODE(0802A7D8);
+EC void CancelFarmerItemDisplay(FarmerEntity * farmer)
 {
     farmer->thrown_item.active = false;
 }
 
-EC FarmerEntityPart1 * func_08024974(FarmerEntityPart1 * farmer, GameObject * game, void * state);
-EC FarmerEntityPart1 * NewFarmerMapEntity(GameObject * game, void * state) ENTITY_CODE(0802B8EC);
-EC FarmerEntityPart1 * NewFarmerMapEntity(GameObject * game, void * state)
+EC FarmerEntity * FarmerEntity_Init(FarmerEntity * farmer, GameObject * game, void * state);
+EC FarmerEntity * NewFarmerMapEntity(GameObject * game, void * state) ENTITY_CODE(0802B8EC);
+EC FarmerEntity * NewFarmerMapEntity(GameObject * game, void * state)
 {
-    return func_08024974(static_cast<FarmerEntityPart1 *>(::operator new(sizeof(FarmerEntityPart1))), game, state);
+    return FarmerEntity_Init(static_cast<FarmerEntity *>(::operator new(sizeof(FarmerEntity))), game, state);
 }
 
 EC AActorEntity * __12AActorEntityP10GameObjectRC13ActorLocationUiUi(AActorEntity * entity, GameObject * game,
     ActorLocation const & location, u32 sprite_mode, u32 animation);
 EC char const vtable_unk_080E676C[];
 
-EC FarmerEntityPart1 * InitFarmerMapActor(FarmerEntityPart1 * farmer, GameObject * game, void * state) ENTITY_CODE(0802B908);
-EC FarmerEntityPart1 * InitFarmerMapActor(FarmerEntityPart1 * farmer, GameObject * game, void * state)
+EC FarmerEntity * InitFarmerMapActor(FarmerEntity * farmer, GameObject * game, void * state) ENTITY_CODE(0802B908);
+EC FarmerEntity * InitFarmerMapActor(FarmerEntity * farmer, GameObject * game, void * state)
 {
     Farmer const * model = reinterpret_cast<Farmer const *>(static_cast<u8 *>(state) + 0x1BD8);
     ActorLocation location = func_0800E924(*model);
@@ -162,13 +162,13 @@ EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game)
     return func_0802B9C0(static_cast<ItemDisplayEntity *>(::operator new(sizeof(ItemDisplayEntity))), game);
 }
 
-EC void FarmerEntityInitNoOp(FarmerEntityPart1 * farmer) ENTITY_CODE(0802C2DC);
-EC void FarmerEntityInitNoOp(FarmerEntityPart1 * farmer)
+EC void FarmerEntityInitNoOp(FarmerEntity * farmer) ENTITY_CODE(0802C2DC);
+EC void FarmerEntityInitNoOp(FarmerEntity * farmer)
 {
 }
 
-EC bool IsFarmerState7Or45(FarmerEntityPart1 const * farmer) ENTITY_CODE(0803205C);
-EC bool IsFarmerState7Or45(FarmerEntityPart1 const * farmer)
+EC bool IsFarmerState7Or45(FarmerEntity const * farmer) ENTITY_CODE(0803205C);
+EC bool IsFarmerState7Or45(FarmerEntity const * farmer)
 {
     bool matches = false;
     if (farmer->state == FARMER_STATE_7 || farmer->state == FARMER_STATE_45)

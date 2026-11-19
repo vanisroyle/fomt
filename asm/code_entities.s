@@ -27,7 +27,7 @@ func_08029558: @ 0x08029558
     adds r0, #0xc0
     strb r4, [r0]
     adds r0, r6, #0
-    bl func_08025FC4
+    bl FarmerEntity_LiftObject
     movs r5, #0xc9
     lsls r5, r5, #1
     adds r1, r6, #0
@@ -2048,7 +2048,7 @@ func_0802A588: @ 0x0802A588
     cmp r0, #0x1b
     bne .L0802A6A4
     adds r0, r6, #0
-    bl func_08025AFC
+    bl AEntity_IsOnOutdoorMap
     lsls r0, r0, #0x18
     lsrs r4, r0, #0x18
     cmp r4, #0
@@ -2571,7 +2571,7 @@ func_0802AA84: @ 0x0802AA84
     add r1, sp, #8
     strb r0, [r1]
     movs r0, #0
-    bl func_080246BC
+    bl WateringCan_GetEffectiveLevel
     mov sb, r0
 .L0802AACA:
     mov r1, r8
@@ -2606,7 +2606,7 @@ func_0802AA84: @ 0x0802AA84
     adds r1, #9
     strb r0, [r1]
     mov r0, sb
-    bl func_080246BC
+    bl WateringCan_GetEffectiveLevel
     mov sb, r0
 .L0802AB1C:
     adds r6, #1
@@ -2643,7 +2643,7 @@ func_0802AA84: @ 0x0802AA84
     adds r1, #0xa
     strb r0, [r1]
     mov r0, sb
-    bl func_080246BC
+    bl WateringCan_GetEffectiveLevel
     mov sb, r0
 .L0802AB6C:
     adds r6, #1
@@ -5017,7 +5017,7 @@ func_0802C2E0: @ 0x0802C2E0
     adds r0, r2, #0
     bl func_08008B6C
     mov r0, r8
-    bl func_08025944
+    bl FarmerEntity_IsUsingCursedTool
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0802C4B4
@@ -5082,7 +5082,7 @@ func_0802C2E0: @ 0x0802C2E0
     adds r0, r2, #0
     bl func_08008B6C
     mov r0, r8
-    bl func_08025944
+    bl FarmerEntity_IsUsingCursedTool
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0802C4CC
@@ -5565,7 +5565,7 @@ func_0802C2E0: @ 0x0802C2E0
     mov r2, r8
     ldr r4, [r2, #0x14]
     mov r0, r8
-    bl func_08025B10
+    bl FarmerEntity_GetToolFatiguePenalty
     adds r2, r0, #0
     ldr r3, [r4, #0x64]
     mov r0, r8
@@ -5634,7 +5634,7 @@ func_0802C860: @ 0x0802C860
     movs r5, #2
     rsbs r5, r5, #0
     adds r0, r6, #0
-    bl func_08025B10
+    bl FarmerEntity_GetToolFatiguePenalty
     adds r2, r0, #0
     ldr r3, [r4, #0x64]
     adds r0, r6, #0
@@ -5647,7 +5647,7 @@ func_0802C860: @ 0x0802C860
 .L0802C8EC:
     ldr r4, [r6, #0x14]
     adds r0, r6, #0
-    bl func_08025B10
+    bl FarmerEntity_GetToolFatiguePenalty
     adds r2, r0, #0
     ldr r3, [r4, #0x64]
     adds r0, r6, #0
@@ -5958,7 +5958,7 @@ func_0802C984: @ 0x0802C984
     movs r5, #2
     rsbs r5, r5, #0
     adds r0, r6, #0
-    bl func_08025B10
+    bl FarmerEntity_GetToolFatiguePenalty
     adds r2, r0, #0
     ldr r3, [r4, #0x64]
     adds r0, r6, #0
@@ -7664,7 +7664,7 @@ func_0802D8E8: @ 0x0802D8E8
     beq .L0802D93A
     adds r0, r5, #0
     movs r1, #1
-    bl func_08025A40
+    bl FarmerEntity_CycleTool
     b .L0802D9A4
 .L0802D93A:
     lsls r2, r4, #0x18
@@ -7683,7 +7683,7 @@ func_0802D8E8: @ 0x0802D8E8
     beq .L0802D960
     adds r0, r5, #0
     movs r1, #0
-    bl func_08025A40
+    bl FarmerEntity_CycleTool
     b .L0802D9A4
 .L0802D960:
     add r1, sp, #8
@@ -7779,12 +7779,12 @@ func_0802D9AC: @ 0x0802D9AC
     bne .L0802DA12
     adds r0, r6, #0
     movs r1, #1
-    bl func_080257D0
+    bl FarmerEntity_CycleHeldItem
     b .L0802DBE6
 .L0802DA12:
     adds r0, r6, #0
     movs r1, #1
-    bl func_08025838
+    bl FarmerEntity_CycleHeldItemWithFeedback
     b .L0802DBE6
 .L0802DA1C:
     lsls r2, r3, #0x18
@@ -7809,12 +7809,12 @@ func_0802D9AC: @ 0x0802D9AC
     bne .L0802DA50
     adds r0, r6, #0
     movs r1, #0
-    bl func_080257D0
+    bl FarmerEntity_CycleHeldItem
     b .L0802DBE6
 .L0802DA50:
     adds r0, r6, #0
     movs r1, #0
-    bl func_08025838
+    bl FarmerEntity_CycleHeldItemWithFeedback
     b .L0802DBE6
 .L0802DA5A:
     add r2, sp, #0x18
@@ -7999,7 +7999,7 @@ func_0802D9AC: @ 0x0802D9AC
 .L0802DBC4:
     adds r0, r6, #0
     movs r1, #0
-    bl func_08025A40
+    bl FarmerEntity_CycleTool
     b .L0802DBE6
 .L0802DBCE:
     ldrb r1, [r2, #1]
@@ -8165,12 +8165,12 @@ func_0802DBF0: @ 0x0802DBF0
     beq .L0802DD08
     adds r0, r6, #0
     movs r1, #1
-    bl func_08025838
+    bl FarmerEntity_CycleHeldItemWithFeedback
     b .L0802DE8C
 .L0802DD08:
     adds r0, r6, #0
     movs r1, #1
-    bl func_080257D0
+    bl FarmerEntity_CycleHeldItem
     b .L0802DE8C
 .L0802DD12:
     adds r0, r5, #0
@@ -8187,7 +8187,7 @@ func_0802DBF0: @ 0x0802DBF0
     beq .L0802DD3A
     adds r0, r6, #0
     movs r1, #0
-    bl func_08025A40
+    bl FarmerEntity_CycleTool
     b .L0802DE8C
 .L0802DD36:
     ldr r0, [r4]
@@ -8532,7 +8532,7 @@ func_0802DE94: @ 0x0802DE94
     beq .L0802DFD6
     adds r0, r6, #0
     movs r1, #0
-    bl func_08025A40
+    bl FarmerEntity_CycleTool
     b .L0802E0F2
 .L0802DFD2:
     ldr r0, [r4]
@@ -8654,7 +8654,7 @@ func_0802DE94: @ 0x0802DE94
     cmp r0, #0
     bne .L0802E0CE
     adds r0, r6, #0
-    bl func_080258A0
+    bl FarmerEntity_StoreHeldItem
     b .L0802E0F2
 .L0802E0CE:
     adds r0, r6, #0
@@ -8757,12 +8757,12 @@ func_0802E0FC: @ 0x0802E0FC
     bne .L0802E198
     adds r0, r7, #0
     movs r1, #1
-    bl func_080257D0
+    bl FarmerEntity_CycleHeldItem
     bl .L0802EBE6
 .L0802E198:
     adds r0, r7, #0
     movs r1, #0
-    bl func_08025838
+    bl FarmerEntity_CycleHeldItemWithFeedback
     bl .L0802EBE6
 .L0802E1A4:
     adds r0, r5, #0
@@ -8982,7 +8982,7 @@ func_0802E0FC: @ 0x0802E0FC
     movs r1, #0x2c
     bl _call_via_r2
     adds r4, r0, #0
-    bl func_08021EE0
+    bl HorseEntity_BeginPlay
     str r6, [r4, #8]
     mov r3, r8
     str r3, [r4, #0xc]
@@ -9071,7 +9071,7 @@ func_0802E0FC: @ 0x0802E0FC
     b .L0802E7BA
 .L0802E486:
     adds r0, r7, #0
-    bl func_080262C4
+    bl FarmerEntity_GetHeldProduct
     add r4, sp, #0x5c
     strb r0, [r4]
     adds r0, r4, #0
@@ -9169,7 +9169,7 @@ func_0802E0FC: @ 0x0802E0FC
     adds r1, r6, #0
     bl _call_via_r2
     adds r0, r7, #0
-    bl func_08025E38
+    bl FarmerEntity_LiftDog
     b .L0802EBE6
 .L0802E55C:
     ldr r0, [r7, #0x38]
@@ -9184,14 +9184,14 @@ func_0802E0FC: @ 0x0802E0FC
     adds r1, r6, #0
     bl _call_via_r2
     adds r0, r7, #0
-    bl func_08025FC4
+    bl FarmerEntity_LiftObject
     b .L0802EBE6
 .L0802E57E:
     ldr r0, [r4]
     b .L0802E5FA
 .L0802E582:
     adds r0, r7, #0
-    bl func_080262C4
+    bl FarmerEntity_GetHeldProduct
     mov r4, sp
     adds r4, #0x5d
     strb r0, [r4]
@@ -9292,7 +9292,7 @@ func_0802E0FC: @ 0x0802E0FC
     lsls r1, r1, #0x18
     lsrs r1, r1, #0x18
     adds r0, r7, #0
-    bl func_08025EFC
+    bl FarmerEntity_LiftChicken
     b .L0802EBE6
 .L0802E65A:
     adds r1, r6, #0
@@ -9444,7 +9444,7 @@ func_0802E0FC: @ 0x0802E0FC
     adds r0, r7, #0
     adds r1, r5, #0
     movs r2, #0
-    bl func_08026150
+    bl FarmerEntity_LiftRucksackItem
     b .L0802EBE6
 .L0802E792:
     ldr r0, [r7]
@@ -10019,7 +10019,7 @@ func_0802E0FC: @ 0x0802E0FC
     adds r0, r7, #0
     add r1, sp, #8
     movs r2, #0
-    bl func_08026150
+    bl FarmerEntity_LiftRucksackItem
 .L0802EBE6:
     add sp, #0x84
     pop {r3, r4, r5}
@@ -13623,7 +13623,7 @@ sub_0802FBFC: @ 0x0802FBFC
     mov r0, sp
     adds r0, #0xa5
     bl GetId__C4Tool
-    bl func_080245E0
+    bl SeedTool_GetCropId
     adds r2, r0, #0
     mov r3, sl
     ldr r0, [r3]
@@ -13716,7 +13716,7 @@ sub_0802FBFC: @ 0x0802FBFC
     adds r0, #0xa6
     strb r1, [r0]
     bl GetId__C4Tool
-    bl func_080245E0
+    bl SeedTool_GetCropId
     str r0, [sp, #0x118]
     movs r0, #0
     mov r7, sp
@@ -15745,7 +15745,7 @@ sub_08030E0A: @ 0x08030E0A
     cmp r0, #0
     beq .L080318F0
     mov r1, sp
-    bl func_08021444
+    bl DogEntity_TalkIfNearby
 .L080318F0:
     ldrb r1, [r4]
     movs r0, #2
@@ -15760,7 +15760,7 @@ sub_08030E0A: @ 0x08030E0A
     cmp r0, #0
     beq .L08031910
     mov r1, sp
-    bl func_080221F0
+    bl HorseEntity_TalkIfNearby
 .L08031910:
     movs r4, #1
 .L08031912:
@@ -15944,7 +15944,7 @@ sub_0803192E: @ 0x0803192E
     ldr r2, [r1, #0x40]
     movs r1, #0x2c
     bl _call_via_r2
-    bl func_08021F3C
+    bl HorseEntity_EndPlay
 .L08031A5C:
     movs r0, #0
 

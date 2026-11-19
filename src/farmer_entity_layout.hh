@@ -4,7 +4,7 @@
 #include "entity_actor.hh"
 #include "farmer.hh"
 
-struct ThrownItemPart1
+struct ThrownItemMotion
 {
     bool active;
     u8 display_mode;
@@ -39,7 +39,7 @@ struct ThrownItemPart1
 EC char const gUnk_080F0E80[];
 EC void __12RucksackItem(RucksackItem * self);
 
-struct FarmerHeldAnimationPart1
+struct FarmerHeldItemAnimation
 {
     void const * data;
     u16 frame;
@@ -64,10 +64,10 @@ struct FarmerHeldAnimationPart1
     }
 };
 
-struct FarmerEntityPart1 : AActorEntity
+struct FarmerEntity : AActorEntity
 {
-    FarmerEntityPart1();
-    u32 unk_30;
+    FarmerEntity();
+    u32 sound_flags;
     void * game_state;
     Farmer * farmer;
     u8 state;
@@ -80,7 +80,7 @@ struct FarmerEntityPart1 : AActorEntity
     u8 unk_43;
     u16 unk_44;
     STRUCT_PAD(0x46, 0x60);
-    FarmerHeldAnimationPart1 held_anim;
+    FarmerHeldItemAnimation held_anim;
     bool unk_78;
     bool unk_79;
     bool unk_7A;
@@ -89,7 +89,7 @@ struct FarmerEntityPart1 : AActorEntity
     u16 unk_7E;
     i32 unk_80;
     STRUCT_PAD(0x84, 0x88);
-    ThrownItemPart1 thrown_item;
+    ThrownItemMotion thrown_item;
     bool item_animation_override;
     u8 unk_A5;
     u16 unk_A6;

@@ -12,10 +12,10 @@
 #include "coop.hh"
 #include <stdlib.h>
 
-struct DogEntityPart1 : AActorEntity
+struct DogEntity : AActorEntity
 {
-    DogEntityPart1();
-    u32 unk_30;
+    DogEntity();
+    u32 sound_flags;
     Dog * dog;
     void * unk_38;
     i16 saved_x;
@@ -24,10 +24,10 @@ struct DogEntityPart1 : AActorEntity
     u8 state;
 };
 
-struct HorseEntityPart1 : AActorEntity
+struct HorseEntity : AActorEntity
 {
-    HorseEntityPart1();
-    u32 unk_30;
+    HorseEntity();
+    u32 sound_flags;
     Horse * horse;
     STRUCT_PAD(0x38, 0x3C);
     u8 state;
@@ -35,156 +35,171 @@ struct HorseEntityPart1 : AActorEntity
     bool suppress_effect;
 };
 
-struct ChickenEntityPart1 : AActorEntity
+struct ChickenEntity : AActorEntity
 {
-    ChickenEntityPart1();
-    u32 unk_30;
+    ChickenEntity();
+    u32 sound_flags;
     Chicken * chicken;
     u8 state;
 };
 
 EC u16 const gUnk_080F09AC[];
+EC u16 const gUnk_080F0908[];
 EC u16 const gUnk_080F0A68[];
 EC u16 const gUnk_080F0C3C[];
 EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
 EC void func_0802A588(AEntity * self);
 
-struct AnimStatePart1
+struct EntityAnimationState
 {
     STRUCT_PAD(0x00, 0x0E);
     u16 frames;
     i16 count;
 };
 
-EC bool func_0805E894(AnimStatePart1 * state);
+EC bool func_0805E894(EntityAnimationState * state);
 EC bool func_080AC070(void * map, Box const * box);
 
-struct BarnEntityPart1 : AActorEntity
+struct BarnAnimalEntity : AActorEntity
 {
-    BarnEntityPart1();
-    u32 unk_30;
+    BarnAnimalEntity();
+    u32 sound_flags;
     BarnAnimal * animal;
     u8 state;
 };
 
 EC void func_08020038(AActorEntity * self, GameObject * game, ActorLocation const * location, u32 speed);
-EC u32 func_08022950(ChickenEntityPart1 * self);
-EC u32 func_08023378(BarnEntityPart1 * self);
-EC u32 func_08024020(BarnEntityPart1 * self);
-EC void func_080228B4(ChickenEntityPart1 * self, u32 state, u32 facing);
-EC void func_08023308(BarnEntityPart1 * self, u32 state, u32 facing);
-EC void func_08023FB0(BarnEntityPart1 * self, u32 state, u32 facing);
+EC u32 ChickenEntity_GetAnimationState(ChickenEntity * self);
+EC u32 CowEntity_GetAnimationState(BarnAnimalEntity * self);
+EC u32 SheepEntity_GetAnimationState(BarnAnimalEntity * self);
+EC void ChickenEntity_SetAnimationState(ChickenEntity * self, u32 state, u32 facing);
+EC void CowEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing);
+EC void SheepEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing);
 EC char const vtable_unk_080E639C[];
 EC char const vtable_unk_080E6310[];
 EC char const vtable_unk_080E6284[];
-EC void func_08020080(AActorEntity * self, i32 speed);
-EC u32 func_0802110C(DogEntityPart1 * self, u32 state);
-EC i32 func_08021130(DogEntityPart1 * self, u32 state);
-EC i32 func_08021FAC(HorseEntityPart1 * self, u32 state);
-EC u32 func_08021F88(HorseEntityPart1 * self, u32 state);
-EC u32 func_080233B4(BarnEntityPart1 * self, u32 state);
-EC u32 func_0802405C(BarnEntityPart1 * self, u32 state);
-EC u32 func_08023400(AEntity * self, u32 state);
-EC u32 func_080240BC(AEntity * self, u32 state);
+EC void AActorEntity_SetFacingSpeed(AActorEntity * self, i32 speed);
+EC u32 DogEntity_GetStateAnimation(DogEntity * self, u32 state);
+EC i32 func_08021130(DogEntity * self, u32 state);
+EC i32 func_08021FAC(HorseEntity * self, u32 state);
+EC u32 HorseEntity_GetStateAnimation(HorseEntity * self, u32 state);
+EC u32 CowEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state);
+EC u32 func_0802405C(BarnAnimalEntity * self, u32 state);
+EC u32 CowEntity_GetStateSpeed(AEntity * self, u32 state);
+EC u32 SheepEntity_GetStateSpeed(AEntity * self, u32 state);
 EC void func_08032384(AEntity * self, u32 effect, u32 argument);
-EC void func_080212C0(DogEntityPart1 * self);
-EC u32 func_08021264(DogEntityPart1 * self);
-EC u32 func_080220D4(HorseEntityPart1 * self);
-EC void func_080211E4(DogEntityPart1 * self, u32 state, u32 facing);
-EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing);
+EC void DogEntity_PlaceCarriedTarget(DogEntity * self);
+EC u32 DogEntity_GetAnimationState(DogEntity * self);
+EC u32 HorseEntity_GetAnimationState(HorseEntity * self);
+EC void DogEntity_SetAnimationState(DogEntity * self, u32 state, u32 facing);
+EC void HorseEntity_SetAnimationState(HorseEntity * self, u32 state, u32 facing);
 
-struct AnimalTimerPart1
+struct AnimalBehaviorTimer
 {
     u32 time : 16;
     u32 active : 8;
     u32 unused : 8;
 };
 
-struct SoundChannelsPart1
+struct EntitySoundChannels
 {
     void ** begin;
     void ** end;
 };
 
-EC bool func_08025944(FarmerEntityPart1 * self);
+EC bool FarmerEntity_IsUsingCursedTool(FarmerEntity * self);
 
-struct SoundGameVTablePart1
+struct EntitySoundGameVTable
 {
     STRUCT_PAD(0x00, 0x14C);
-    SoundChannelsPart1 const * (*get_channels)(GameObject * game);
+    EntitySoundChannels const * (*get_channels)(GameObject * game);
 };
 
 EC bool func_08008CD0(void * channel);
 EC void func_08008B6C(void * channel, u16 sound);
-EC void CancelFarmerItemDisplay(FarmerEntityPart1 * self);
-EC void ShowFarmerToolDisplay(FarmerEntityPart1 * self);
+EC void CancelFarmerItemDisplay(FarmerEntity * self);
+EC void ShowFarmerToolDisplay(FarmerEntity * self);
 EC void func_0800F4C0(HeldItem * self);
 EC void func_0800F4F0(HeldItem * self, u8 value);
 EC void func_0800F4D8(HeldItem * self);
 EC u32 func_08020018(u32 value);
-EC void func_080200C4(AActorEntity * self, u32 sound);
+EC void AEntity_PlayAnimationSound(AActorEntity * self, u32 sound);
 
-struct AnimalTimerPairPart1
+struct AnimalBehaviorTimerPair
 {
     u32 time;
     u32 unknown;
 };
 
-struct CarryEntityPart1 : AActorEntity
+struct CarryableActorEntity : AActorEntity
 {
-    CarryEntityPart1();
+    CarryableActorEntity();
     virtual void vfunc_3C();
     virtual bool vfunc_40();
 };
 
-struct EntityGameVTablePart1
+struct EntityLookupGameVTable
 {
     STRUCT_PAD(0x00, 0x40);
-    CarryEntityPart1 * (*get_entity)(GameObject * game, u32 id);
+    CarryableActorEntity * (*get_entity)(GameObject * game, u32 id);
 };
 
-inline CarryEntityPart1 * EntityByIdPart1(GameObject * game, u32 id)
+inline CarryableActorEntity * GetCarryableEntityById(GameObject * game, u32 id)
 {
-    EntityGameVTablePart1 const * table = *reinterpret_cast<EntityGameVTablePart1 const **>(game);
+    EntityLookupGameVTable const * table = *reinterpret_cast<EntityLookupGameVTable const **>(game);
     return table->get_entity(game, id);
 }
 
 EC char const vtable_unk_080E6428[];
 EC char const vtable_unk_080E64C8[];
-EC void func_08038374(CarryEntityPart1 * self, i32 x, i32 y, u32 anim, u32 facing);
-EC void func_08020410(DogEntityPart1 * self, u32 time);
+EC void func_08038374(CarryableActorEntity * self, i32 x, i32 y, u32 anim, u32 facing);
+EC void DogEntity_ResetBehavior(DogEntity * self, u32 time);
 EC Article func_0800F258(HeldItem const * self);
-EC u32 func_080229A4(AEntity * self, u32 value);
+EC u32 ChickenEntity_GetStateSpeed(AEntity * self, u32 value);
 EC Box func_0803240C(AActorEntity const * self);
 EC u32 func_0800F344(HeldItem const * self);
 EC void func_08010014(void * self, Location const & location);
-EC u32 func_08022980(ChickenEntityPart1 * self, u32 state);
+EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 state);
 EC void __builtin_delete(void * ptr);
+EC void * __builtin_new(size_t size);
+EC UnknownEntityThing * func_0802B260(void * memory, FarmerEntity * self);
+EC bool func_0809C694(void * flags, u32 flag);
+EC u32 func_08022320(u32 growth_stage);
+EC u32 func_08022334(u32 growth_stage);
+EC void func_080324BC(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
+EC char const vtable_unk_080E64B4[];
 
-struct CalendarPart1
+struct FarmerEventStateView
+{
+    STRUCT_PAD(0x00, 0x2171);
+    u8 unk_2171_0 : 3;
+    u8 unk_2171_3 : 2;
+};
+
+struct EntityGameCalendar
 {
     STRUCT_PAD(0x00, 0x0A);
     u8 hour : 5;
 };
 
-struct CalendarVTablePart1
+struct EntityCalendarGameVTable
 {
     STRUCT_PAD(0x00, 0x144);
-    CalendarPart1 const * (*get_calendar)(GameObject * game);
+    EntityGameCalendar const * (*get_calendar)(GameObject * game);
 };
 
-inline u32 EntityGameHourPart1(GameObject * game)
+inline u32 GetEntityGameHour(GameObject * game)
 {
-    CalendarVTablePart1 const * table = *reinterpret_cast<CalendarVTablePart1 const **>(game);
+    EntityCalendarGameVTable const * table = *reinterpret_cast<EntityCalendarGameVTable const **>(game);
     return table->get_calendar(game)->hour;
 }
 EC Food func_0800F20C(HeldItem const * self);
 EC bool func_0800F388(HeldItem const * self);
 EC void func_0800F528(HeldItem * self);
-EC bool func_08025AFC(AEntity const * self);
+EC bool AEntity_IsOnOutdoorMap(AEntity const * self);
 
-struct FarmerGameStatePart1
+struct FarmerGameStateView
 {
     STRUCT_PAD(0x00, 0x08);
     u32 weather;
@@ -193,26 +208,26 @@ struct FarmerGameStatePart1
     STRUCT_PAD(0x14, 0x54);
     ShippingBin shipping_bin;
 };
-EC void func_080384FC(CarryEntityPart1 * self);
-EC FarmerEntityPart1 * InitFarmerMapActor(FarmerEntityPart1 * self, GameObject * game, void * state);
-EC void FarmerEntityInitNoOp(FarmerEntityPart1 * self);
+EC void func_080384FC(CarryableActorEntity * self);
+EC FarmerEntity * InitFarmerMapActor(FarmerEntity * self, GameObject * game, void * state);
+EC void FarmerEntityInitNoOp(FarmerEntity * self);
 EC char const vtable_unk_080E6658[];
-EC void func_0802F0EC(FarmerEntityPart1 * self, u32 first, u32 second);
-EC u16 func_0802D158(FarmerEntityPart1 * self);
+EC void func_0802F0EC(FarmerEntity * self, u32 first, u32 second);
+EC u16 func_0802D158(FarmerEntity * self);
 EC void func_0803242C(AActorEntity * self, u32 argument);
 
-inline i32 FarmerStatePart1(FarmerEntityPart1 const * self)
+inline i32 GetFarmerAnimationState(FarmerEntity const * self)
 {
     return self->state;
 }
 
-struct MovementBoundsPart1;
-EC void func_080AB85C(MovementBoundsPart1 * self);
-EC void func_080AB8D0(MovementBoundsPart1 * self);
-EC void func_080AB948(MovementBoundsPart1 * self);
-EC void func_080AB9C4(MovementBoundsPart1 * self);
+struct EntityMovementBounds;
+EC void func_080AB85C(EntityMovementBounds * self);
+EC void func_080AB8D0(EntityMovementBounds * self);
+EC void func_080AB948(EntityMovementBounds * self);
+EC void func_080AB9C4(EntityMovementBounds * self);
 
-struct MovementBoundsPart1
+struct EntityMovementBounds
 {
     i32 positive_y;
     i32 negative_y;
@@ -264,10 +279,10 @@ struct MovementBoundsPart1
     }
 };
 
-inline void * EntitySoundChannelPart1(GameObject * game)
+inline void * FindEntitySoundChannel(GameObject * game)
 {
-    SoundGameVTablePart1 const * table = *reinterpret_cast<SoundGameVTablePart1 const **>(game);
-    SoundChannelsPart1 const * channels = table->get_channels(game);
+    EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+    EntitySoundChannels const * channels = table->get_channels(game);
     void ** it = channels->begin;
     void ** end = channels->end;
     for (; it != end; ++it)
@@ -278,14 +293,14 @@ inline void * EntitySoundChannelPart1(GameObject * game)
     return end[-1];
 }
 
-inline i32 EntityFacingPart1(AActorEntity const * self)
+inline i32 GetEntityFacing(AActorEntity const * self)
 {
     return self->facing;
 }
 
-inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
+inline void LaunchFarmerHeldItem(FarmerEntity * self)
 {
-    switch (EntityFacingPart1(self))
+    switch (GetEntityFacing(self))
     {
     case 2: self->thrown_item.Launch(-0xA0000, 0, 0xC0000); break;
     case 3: self->thrown_item.Launch(0xA0000, 0, 0xC0000); break;
@@ -294,10 +309,102 @@ inline void LaunchHeldItemPart1(FarmerEntityPart1 * self)
     }
 }
 
+
+inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
+{
+    return func_080AC070(map, &box);
+}
+
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
 
-EC void func_08024A80(FarmerEntityPart1 * self, u32 flags) ENTITY_CODE(08024A80);
-EC void func_08024A80(FarmerEntityPart1 * self, u32 flags)
+// 0x080222A8
+EC UnknownEntityThing * ChickenEntitySprite_Init(UnknownEntityThing * self, AActorEntity * entity, u32 growth_stage) ENTITY_CODE(080222A8);
+EC UnknownEntityThing * ChickenEntitySprite_Init(UnknownEntityThing * self, AActorEntity * entity, u32 growth_stage)
+{
+    u32 size = func_08022320(growth_stage);
+    u32 variant = func_08022334(growth_stage);
+    func_080324BC(self, entity, 5, 13, size, variant, 0, false);
+    reinterpret_cast<void const **>(self)[1] = vtable_unk_080E64B4;
+    return self;
+}
+
+// 0x08025294
+EC bool FarmerEntity_IsAdjacentBoxClear(FarmerEntity const * self, void * map, i32 facing, Box const * box) ENTITY_CODE(08025294);
+EC bool FarmerEntity_IsAdjacentBoxClear(FarmerEntity const * self, void * map, i32 facing, Box const * box)
+{
+    Box bounds(-1, -1, 689, 401, 272, 176);
+    if (((bounds.x1 - box->x2) & (box->x1 - bounds.x2) & (bounds.y1 - box->y2) & (box->y1 - bounds.y2)) < 0)
+    {
+        switch (facing)
+        {
+        case 0: if (!IsEntityCollisionBoxBlocked(map, box->Moved(0, box->y2 - box->y1 + 16))) return true; break;
+        case 1: if (!IsEntityCollisionBoxBlocked(map, box->Moved(0, -(box->y2 - box->y1 + 16)))) return true; break;
+        case 2: if (!IsEntityCollisionBoxBlocked(map, box->Moved(-(box->x2 - box->x1 + 16), 0))) return true; break;
+        case 3: if (!IsEntityCollisionBoxBlocked(map, box->Moved(box->x2 - box->x1 + 16, 0))) return true; break;
+        }
+    }
+    return false;
+}
+
+// 0x08024B9C
+EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self) ENTITY_CODE(08024B9C);
+EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self)
+{
+    u32 priority = 2;
+    if (self->location_map == 19)
+    {
+        FarmerEventStateView * events = reinterpret_cast<FarmerEventStateView *>(self->game_state);
+        u32 event_state = events->unk_2171_3;
+        if (event_state == 1 || func_0809C694(reinterpret_cast<u8 *>(events) + 0x214C, 74))
+            priority = 1;
+    }
+    self->unk_21 = priority;
+    return func_0802B260(__builtin_new(0x284), self);
+}
+
+// 0x080233B4
+EC u32 CowEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state) ENTITY_CODE(080233B4);
+EC u32 CowEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state)
+{
+    u32 offset = state;
+    bool pregnant = false;
+    if (self->animal->IsPregnant())
+        pregnant = self->animal->GetDaysPregnant() != 0;
+    u16 const * table = gUnk_080F0C3C;
+    offset *= 2;
+    u32 index;
+    if (pregnant)
+        index = offset + 42;
+    else
+        index = offset + static_cast<Cow *>(self->animal)->GetGrowthStage() * 14;
+    return *reinterpret_cast<u16 const *>(reinterpret_cast<u8 const *>(table) + index);
+}
+
+// 0x08025AFC
+EC bool AEntity_IsOnOutdoorMap(AEntity const * self) ENTITY_CODE(08025AFC);
+EC bool AEntity_IsOnOutdoorMap(AEntity const * self)
+{
+    i32 map = self->location_map;
+    if (map <= 8)
+        return true;
+    return false;
+}
+
+// 0x0802110C
+EC u32 DogEntity_GetStateAnimation(DogEntity * self, u32 state) ENTITY_CODE(0802110C);
+EC u32 DogEntity_GetStateAnimation(DogEntity * self, u32 state)
+{
+    u32 offset = state;
+    u16 const * table = gUnk_080F0908;
+    offset *= 2;
+    if (self->dog->GetGrowthStage() == 1)
+        offset += 26;
+    return *reinterpret_cast<u16 const *>(reinterpret_cast<u8 const *>(table) + offset);
+}
+
+// 0x08024A80
+EC void FarmerEntity_Destroy(FarmerEntity * self, u32 flags) ENTITY_CODE(08024A80);
+EC void FarmerEntity_Destroy(FarmerEntity * self, u32 flags)
 {
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6658;
     func_0800EB34(*self->farmer, self->AActorEntity::GetLocation());
@@ -337,10 +444,11 @@ EC void func_08024A80(FarmerEntityPart1 * self, u32 flags)
         __builtin_delete(self);
 }
 
-EC Box func_08024BFC(FarmerEntityPart1 const * self) ENTITY_CODE(08024BFC);
-EC Box func_08024BFC(FarmerEntityPart1 const * self)
+// 0x08024BFC
+EC Box FarmerEntity_GetCollisionBox(FarmerEntity const * self) ENTITY_CODE(08024BFC);
+EC Box FarmerEntity_GetCollisionBox(FarmerEntity const * self)
 {
-    if (reinterpret_cast<CarryEntityPart1 *>(const_cast<FarmerEntityPart1 *>(self))->vfunc_40())
+    if (reinterpret_cast<CarryableActorEntity *>(const_cast<FarmerEntity *>(self))->vfunc_40())
     {
         Box const & box = Box(-7, -9, 7, 5, self->GetQ16X() >> 16, self->GetQ16Y() >> 16);
         return box;
@@ -349,20 +457,21 @@ EC Box func_08024BFC(FarmerEntityPart1 const * self)
     return box;
 }
 
-EC void func_080228B4(ChickenEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(080228B4);
-EC void func_080228B4(ChickenEntityPart1 * self, u32 state, u32 facing)
+// 0x080228B4
+EC void ChickenEntity_SetAnimationState(ChickenEntity * self, u32 state, u32 facing) ENTITY_CODE(080228B4);
+EC void ChickenEntity_SetAnimationState(ChickenEntity * self, u32 state, u32 facing)
 {
-    u32 anim = func_08022980(self, state);
+    u32 anim = ChickenEntity_GetStateAnimation(self, state);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     if (self->facing != facing)
         self->SetAnimFacing(facing);
-    func_08020080(self, func_080229A4(self, state));
+    AActorEntity_SetFacingSpeed(self, ChickenEntity_GetStateSpeed(self, state));
     if (state != self->state)
     {
         i32 effect = -1;
         u32 sleep = self->chicken->GetGrowthStage() == 0 ? 0 : 3;
-        if (state == sleep && u32(EntityGameHourPart1(self->game_object) - 6) > 14)
+        if (state == sleep && u32(GetEntityGameHour(self->game_object) - 6) > 14)
             effect = 8;
         if (effect >= 0)
             func_08032384(self, effect, 1);
@@ -372,16 +481,18 @@ EC void func_080228B4(ChickenEntityPart1 * self, u32 state, u32 facing)
     self->state = state;
 }
 
-EC void func_08024C74(FarmerEntityPart1 * self) ENTITY_CODE(08024C74);
-EC void func_08024C74(FarmerEntityPart1 * self)
+// 0x08024C74
+EC void FarmerEntity_ResetAction(FarmerEntity * self) ENTITY_CODE(08024C74);
+EC void FarmerEntity_ResetAction(FarmerEntity * self)
 {
     self->state = 0;
     self->motion = 0;
     self->unk_A6 = 0;
 }
 
-EC bool func_08025068(FarmerEntityPart1 * self, i32 stamina, i32 fatigue) ENTITY_CODE(08025068);
-EC bool func_08025068(FarmerEntityPart1 * self, i32 stamina, i32 fatigue)
+// 0x08025068
+EC bool FarmerEntity_ChangeStaminaAndFatigue(FarmerEntity * self, i32 stamina, i32 fatigue) ENTITY_CODE(08025068);
+EC bool FarmerEntity_ChangeStaminaAndFatigue(FarmerEntity * self, i32 stamina, i32 fatigue)
 {
     if (reinterpret_cast<u8 const *>(self->game_state)[0x34C4])
         return false;
@@ -427,8 +538,9 @@ EC bool func_08025068(FarmerEntityPart1 * self, i32 stamina, i32 fatigue)
     return false;
 }
 
-EC FarmerEntityPart1 * func_08024974(FarmerEntityPart1 * self, GameObject * game, void * state) ENTITY_CODE(08024974);
-EC FarmerEntityPart1 * func_08024974(FarmerEntityPart1 * self, GameObject * game, void * state)
+// 0x08024974
+EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void * state) ENTITY_CODE(08024974);
+EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void * state)
 {
     InitFarmerMapActor(self, game, state);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6658;
@@ -471,26 +583,28 @@ EC FarmerEntityPart1 * func_08024974(FarmerEntityPart1 * self, GameObject * game
     return self;
 }
 
-EC u32 func_08025B10(FarmerEntityPart1 * self) ENTITY_CODE(08025B10);
-EC u32 func_08025B10(FarmerEntityPart1 * self)
+// 0x08025B10
+EC u32 FarmerEntity_GetToolFatiguePenalty(FarmerEntity * self) ENTITY_CODE(08025B10);
+EC u32 FarmerEntity_GetToolFatiguePenalty(FarmerEntity * self)
 {
     u32 result = 0;
-    if (func_08025AFC(self) && u32(reinterpret_cast<FarmerGameStatePart1 const *>(self->game_state)->weather - 1) <= 1)
+    if (AEntity_IsOnOutdoorMap(self) && u32(reinterpret_cast<FarmerGameStateView const *>(self->game_state)->weather - 1) <= 1)
         result = 1;
-    FarmerGameStatePart1 const * game = reinterpret_cast<FarmerGameStatePart1 const *>(self->game_state);
+    FarmerGameStateView const * game = reinterpret_cast<FarmerGameStateView const *>(self->game_state);
     if (game->time.GetHour() > 21)
         ++result;
     if (game->time.GetHour() <= 5)
         result += 2;
     if (func_0800E4F0(*self->farmer) == 0)
         result += 2;
-    if (func_08025944(self))
+    if (FarmerEntity_IsUsingCursedTool(self))
         result += 10;
     return result;
 }
 
-EC void func_08026150(FarmerEntityPart1 * self, RucksackItem const * item, bool wrapped) ENTITY_CODE(08026150);
-EC void func_08026150(FarmerEntityPart1 * self, RucksackItem const * item, bool wrapped)
+// 0x08026150
+EC void FarmerEntity_LiftRucksackItem(FarmerEntity * self, RucksackItem const * item, bool wrapped) ENTITY_CODE(08026150);
+EC void FarmerEntity_LiftRucksackItem(FarmerEntity * self, RucksackItem const * item, bool wrapped)
 {
     Product product;
     switch (item->GetKind())
@@ -498,7 +612,7 @@ EC void func_08026150(FarmerEntityPart1 * self, RucksackItem const * item, bool 
     case RucksackItem::KIND_FOOD: product = Product(item->GetFood()); break;
     case RucksackItem::KIND_ARTICLE: product = Product(item->GetArticle()); break;
     }
-    ShippingBin * shipping = &reinterpret_cast<FarmerGameStatePart1 *>(self->game_state)->shipping_bin;
+    ShippingBin * shipping = &reinterpret_cast<FarmerGameStateView *>(self->game_state)->shipping_bin;
     if (product.GetPrice() != 0 && !shipping->IsDisplayEnabled(product.GetId()))
         shipping->ForceEnableDisplay(product.GetId());
     func_0800F418(&self->farmer->unk_54, *item);
@@ -506,12 +620,13 @@ EC void func_08026150(FarmerEntityPart1 * self, RucksackItem const * item, bool 
         func_0800F528(&self->farmer->unk_54);
     func_0802A588(self);
     self->state = 17;
-    LaunchHeldItemPart1(self);
-    func_08008B6C(EntitySoundChannelPart1(self->game_object), 106);
+    LaunchFarmerHeldItem(self);
+    func_08008B6C(FindEntitySoundChannel(self->game_object), 106);
 }
 
-EC Product func_080262C4(FarmerEntityPart1 const * self) ENTITY_CODE(080262C4);
-EC Product func_080262C4(FarmerEntityPart1 const * self)
+// 0x080262C4
+EC Product FarmerEntity_GetHeldProduct(FarmerEntity const * self) ENTITY_CODE(080262C4);
+EC Product FarmerEntity_GetHeldProduct(FarmerEntity const * self)
 {
     HeldItem const * item = reinterpret_cast<HeldItem const *>(reinterpret_cast<u8 const *>(self->game_state) + 0x1C2C);
     if (!func_0800F190(item) && !func_0800F388(item))
@@ -525,12 +640,13 @@ EC Product func_080262C4(FarmerEntityPart1 const * self)
     return Product();
 }
 
-EC bool func_08024CA0(FarmerEntityPart1 const * self) ENTITY_CODE(08024CA0);
-EC bool func_08024CA0(FarmerEntityPart1 const * self)
+// 0x08024CA0
+EC bool FarmerEntity_IsExhaustionAnimationPending(FarmerEntity const * self) ENTITY_CODE(08024CA0);
+EC bool FarmerEntity_IsExhaustionAnimationPending(FarmerEntity const * self)
 {
     if (!self->vfunc_28())
     {
-        switch (FarmerStatePart1(self))
+        switch (GetFarmerAnimationState(self))
         {
         case 36: case 37: case 38: case 39: case 40: case 41: case 42: return true;
         }
@@ -538,8 +654,9 @@ EC bool func_08024CA0(FarmerEntityPart1 const * self)
     return false;
 }
 
-EC void func_08025018(FarmerEntityPart1 * self, u32 argument) ENTITY_CODE(08025018);
-EC void func_08025018(FarmerEntityPart1 * self, u32 argument)
+// 0x08025018
+EC void func_08025018(FarmerEntity * self, u32 argument) ENTITY_CODE(08025018);
+EC void func_08025018(FarmerEntity * self, u32 argument)
 {
     self->unk_C1 = false;
     if (!self->unk_C2)
@@ -555,8 +672,9 @@ EC void func_08025018(FarmerEntityPart1 * self, u32 argument)
     }
 }
 
-EC void func_08020170(AActorEntity * self, MovementBoundsPart1 * bounds) ENTITY_CODE(08020170);
-EC void func_08020170(AActorEntity * self, MovementBoundsPart1 * bounds)
+// 0x08020170
+EC void AActorEntity_ApplyBoundedMovement(AActorEntity * self, EntityMovementBounds * bounds) ENTITY_CODE(08020170);
+EC void AActorEntity_ApplyBoundedMovement(AActorEntity * self, EntityMovementBounds * bounds)
 {
     i32 old_x = self->x_q16;
     i32 old_y = self->y_q16;
@@ -564,7 +682,7 @@ EC void func_08020170(AActorEntity * self, MovementBoundsPart1 * bounds)
     i32 new_y = old_y + self->y_speed_q16;
     if (bounds != nullptr)
     {
-        MovementBoundsPart1 * movement = bounds;
+        EntityMovementBounds * movement = bounds;
         i32 x = old_x >> 16;
         i32 y = old_y >> 16;
         i32 dy = (new_y >> 16) - y;
@@ -582,10 +700,11 @@ EC void func_08020170(AActorEntity * self, MovementBoundsPart1 * bounds)
     self->y_q16 = new_y;
 }
 
-EC void func_080212C0(DogEntityPart1 * self) ENTITY_CODE(080212C0);
-EC void func_080212C0(DogEntityPart1 * self)
+// 0x080212C0
+EC void DogEntity_PlaceCarriedTarget(DogEntity * self) ENTITY_CODE(080212C0);
+EC void DogEntity_PlaceCarriedTarget(DogEntity * self)
 {
-    CarryEntityPart1 * target = EntityByIdPart1(self->game_object, 75);
+    CarryableActorEntity * target = GetCarryableEntityById(self->game_object, 75);
     if (target != nullptr && reinterpret_cast<u8 *>(target)[0x26] != 0)
     {
         i32 x = self->x_q16;
@@ -599,7 +718,7 @@ EC void func_080212C0(DogEntityPart1 * self)
         for (;;)
         {
             i32 delta = offset << 16;
-            switch (EntityFacingPart1(self))
+            switch (GetEntityFacing(self))
             {
             case 0: target->x_q16 = x; target->y_q16 = y + delta; break;
             case 1: target->x_q16 = x; target->y_q16 = y - delta; break;
@@ -617,8 +736,9 @@ EC void func_080212C0(DogEntityPart1 * self)
     }
 }
 
-EC void func_0802907C(FarmerEntityPart1 * self) ENTITY_CODE(0802907C);
-EC void func_0802907C(FarmerEntityPart1 * self)
+// 0x0802907C
+EC void FarmerEntity_ClearHeldItem(FarmerEntity * self) ENTITY_CODE(0802907C);
+EC void FarmerEntity_ClearHeldItem(FarmerEntity * self)
 {
     HeldItem * item = reinterpret_cast<HeldItem *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C2C);
     if (!func_0800F190(item))
@@ -634,8 +754,9 @@ EC void func_0802907C(FarmerEntityPart1 * self)
     }
 }
 
-EC DogEntityPart1 * func_08020310(DogEntityPart1 * self, GameObject * game, Dog * dog, void * object) ENTITY_CODE(08020310);
-EC DogEntityPart1 * func_08020310(DogEntityPart1 * self, GameObject * game, Dog * dog, void * object)
+// 0x08020310
+EC DogEntity * DogEntity_Init(DogEntity * self, GameObject * game, Dog * dog, void * object) ENTITY_CODE(08020310);
+EC DogEntity * DogEntity_Init(DogEntity * self, GameObject * game, Dog * dog, void * object)
 {
     Actor location(*dog);
     func_08020038(self, game, &location.location, 0x340);
@@ -645,35 +766,37 @@ EC DogEntityPart1 * func_08020310(DogEntityPart1 * self, GameObject * game, Dog 
     self->override_state = false;
     if (dog->unk_20 == 5)
     {
-        CarryEntityPart1 * target = EntityByIdPart1(game, 75);
+        CarryableActorEntity * target = GetCarryableEntityById(game, 75);
         if (target != nullptr)
         {
             if (target->location_map == self->location_map)
                 func_08038374(target, self->x_q16, self->y_q16, self->anim_id, self->facing);
             else
-                func_08020410(self, 0);
+                DogEntity_ResetBehavior(self, 0);
         }
     }
-    func_080211E4(self, func_08021264(self), self->facing);
+    DogEntity_SetAnimationState(self, DogEntity_GetAnimationState(self), self->facing);
     return self;
 }
 
-EC HorseEntityPart1 * func_080216BC(HorseEntityPart1 * self, GameObject * game, Horse * horse) ENTITY_CODE(080216BC);
-EC HorseEntityPart1 * func_080216BC(HorseEntityPart1 * self, GameObject * game, Horse * horse)
+// 0x080216BC
+EC HorseEntity * HorseEntity_Init(HorseEntity * self, GameObject * game, Horse * horse) ENTITY_CODE(080216BC);
+EC HorseEntity * HorseEntity_Init(HorseEntity * self, GameObject * game, Horse * horse)
 {
     Actor location(*horse);
     func_08020038(self, game, &location.location, 0x782);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6428;
     self->horse = horse;
     self->override_state = false;
-    CarryEntityPart1 * target = EntityByIdPart1(game, 0);
+    CarryableActorEntity * target = GetCarryableEntityById(game, 0);
     self->suppress_effect = target && target->vfunc_40();
-    func_08022048(self, func_080220D4(self), self->facing);
+    HorseEntity_SetAnimationState(self, HorseEntity_GetAnimationState(self), self->facing);
     return self;
 }
 
-EC void func_080221F0(HorseEntityPart1 * self, Location const * target) ENTITY_CODE(080221F0);
-EC void func_080221F0(HorseEntityPart1 * self, Location const * target)
+// 0x080221F0
+EC void HorseEntity_TalkIfNearby(HorseEntity * self, Location const * target) ENTITY_CODE(080221F0);
+EC void HorseEntity_TalkIfNearby(HorseEntity * self, Location const * target)
 {
     if (target->GetMap() == self->GetMap())
     {
@@ -685,18 +808,19 @@ EC void func_080221F0(HorseEntityPart1 * self, Location const * target)
         i32 dy = target->GetY() - y;
         if (dx * dx + dy * dy <= radius * radius)
         {
-            AnimalTimerPairPart1 timer;
+            AnimalBehaviorTimerPair timer;
             timer.time = u16(480 + self->horse->GetAffection() * 960 / 256);
             self->horse->method_0809BC30(reinterpret_cast<UnkBarnAnimal2C_x2 const *>(&timer));
             if (!self->override_state)
-                func_08022048(self, func_080220D4(self), self->facing);
+                HorseEntity_SetAnimationState(self, HorseEntity_GetAnimationState(self), self->facing);
             self->horse->SetHasTalkedToday();
         }
     }
 }
 
-EC void func_0802151C(DogEntityPart1 * self, Location const * target) ENTITY_CODE(0802151C);
-EC void func_0802151C(DogEntityPart1 * self, Location const * target)
+// 0x0802151C
+EC void DogEntity_PlayIfNearby(DogEntity * self, Location const * target) ENTITY_CODE(0802151C);
+EC void DogEntity_PlayIfNearby(DogEntity * self, Location const * target)
 {
     if (self->dog->GetGrowthStage() == 1 && target->GetMap() == self->GetMap())
     {
@@ -708,21 +832,22 @@ EC void func_0802151C(DogEntityPart1 * self, Location const * target)
         i32 dy = target->GetY() - y;
         if (dx * dx + dy * dy <= radius * radius)
         {
-            func_080200C4(self, 169);
+            AEntity_PlayAnimationSound(self, 169);
             if (self->dog->unk_20 == 5)
-                func_080212C0(self);
-            AnimalTimerPairPart1 timer;
+                DogEntity_PlaceCarriedTarget(self);
+            AnimalBehaviorTimerPair timer;
             timer.time = u16(480 + affection * 960 / 251);
             self->dog->method_0809BB70(reinterpret_cast<UnkBarnAnimal2C_x2 const *>(&timer));
             if (!self->override_state)
-                func_080211E4(self, func_08021264(self), self->facing);
+                DogEntity_SetAnimationState(self, DogEntity_GetAnimationState(self), self->facing);
             self->dog->SetHasPlayedToday();
         }
     }
 }
 
-EC void func_08021444(DogEntityPart1 * self, Location const * target) ENTITY_CODE(08021444);
-EC void func_08021444(DogEntityPart1 * self, Location const * target)
+// 0x08021444
+EC void DogEntity_TalkIfNearby(DogEntity * self, Location const * target) ENTITY_CODE(08021444);
+EC void DogEntity_TalkIfNearby(DogEntity * self, Location const * target)
 {
     if (target->GetMap() == self->GetMap() && self->dog->unk_20 != 5)
     {
@@ -735,19 +860,20 @@ EC void func_08021444(DogEntityPart1 * self, Location const * target)
         if (dx * dx + dy * dy <= radius * radius)
         {
             if (self->dog->unk_20 == 5)
-                func_080212C0(self);
-            AnimalTimerPairPart1 timer;
+                DogEntity_PlaceCarriedTarget(self);
+            AnimalBehaviorTimerPair timer;
             timer.time = u16(480 + affection * 960 / 251);
             self->dog->method_0809BB54(reinterpret_cast<UnkBarnAnimal2C_x2 const *>(&timer));
             if (!self->override_state)
-                func_080211E4(self, func_08021264(self), self->facing);
+                DogEntity_SetAnimationState(self, DogEntity_GetAnimationState(self), self->facing);
             self->dog->SetHasTalkedToday();
         }
     }
 }
 
-EC bool func_08025944(FarmerEntityPart1 * self) ENTITY_CODE(08025944);
-EC bool func_08025944(FarmerEntityPart1 * self)
+// 0x08025944
+EC bool FarmerEntity_IsUsingCursedTool(FarmerEntity * self) ENTITY_CODE(08025944);
+EC bool FarmerEntity_IsUsingCursedTool(FarmerEntity * self)
 {
     ToolStack * tools = &self->farmer->unk_5C;
     if (!tools->IsEmpty())
@@ -761,42 +887,46 @@ EC bool func_08025944(FarmerEntityPart1 * self)
     return false;
 }
 
-EC void func_08025FC4(FarmerEntityPart1 * self) ENTITY_CODE(08025FC4);
-EC void func_08025FC4(FarmerEntityPart1 * self)
+// 0x08025FC4
+EC void FarmerEntity_LiftObject(FarmerEntity * self) ENTITY_CODE(08025FC4);
+EC void FarmerEntity_LiftObject(FarmerEntity * self)
 {
     func_0800F4D8(&self->farmer->unk_54);
     func_0802A588(self);
     self->state = 17;
-    LaunchHeldItemPart1(self);
-    func_08008B6C(EntitySoundChannelPart1(self->game_object), 106);
+    LaunchFarmerHeldItem(self);
+    func_08008B6C(FindEntitySoundChannel(self->game_object), 106);
 }
 
-EC void func_08025EFC(FarmerEntityPart1 * self, u8 value) ENTITY_CODE(08025EFC);
-EC void func_08025EFC(FarmerEntityPart1 * self, u8 value)
+// 0x08025EFC
+EC void FarmerEntity_LiftChicken(FarmerEntity * self, u8 value) ENTITY_CODE(08025EFC);
+EC void FarmerEntity_LiftChicken(FarmerEntity * self, u8 value)
 {
     func_0800F4F0(&self->farmer->unk_54, value);
     func_0802A588(self);
     self->state = 17;
-    LaunchHeldItemPart1(self);
-    func_08008B6C(EntitySoundChannelPart1(self->game_object), 106);
+    LaunchFarmerHeldItem(self);
+    func_08008B6C(FindEntitySoundChannel(self->game_object), 106);
 }
 
-EC void func_08025E38(FarmerEntityPart1 * self) ENTITY_CODE(08025E38);
-EC void func_08025E38(FarmerEntityPart1 * self)
+// 0x08025E38
+EC void FarmerEntity_LiftDog(FarmerEntity * self) ENTITY_CODE(08025E38);
+EC void FarmerEntity_LiftDog(FarmerEntity * self)
 {
     func_0800F4C0(&self->farmer->unk_54);
     func_0802A588(self);
     self->state = 17;
-    LaunchHeldItemPart1(self);
-    func_08008B6C(EntitySoundChannelPart1(self->game_object), 106);
+    LaunchFarmerHeldItem(self);
+    func_08008B6C(FindEntitySoundChannel(self->game_object), 106);
 }
 
-EC void func_08025A40(FarmerEntityPart1 * self, bool next) ENTITY_CODE(08025A40);
-EC void func_08025A40(FarmerEntityPart1 * self, bool next)
+// 0x08025A40
+EC void FarmerEntity_CycleTool(FarmerEntity * self, bool next) ENTITY_CODE(08025A40);
+EC void FarmerEntity_CycleTool(FarmerEntity * self, bool next)
 {
-    if (func_08025944(self))
+    if (FarmerEntity_IsUsingCursedTool(self))
     {
-        func_08008B6C(EntitySoundChannelPart1(self->game_object), 199);
+        func_08008B6C(FindEntitySoundChannel(self->game_object), 199);
         self->state = 0;
     }
     else
@@ -811,13 +941,14 @@ EC void func_08025A40(FarmerEntityPart1 * self, bool next)
             self->state = 21;
             self->unk_3D = 20;
             ShowFarmerToolDisplay(self);
-            func_08008B6C(EntitySoundChannelPart1(self->game_object), 188);
+            func_08008B6C(FindEntitySoundChannel(self->game_object), 188);
         }
     }
 }
 
-EC void func_080258A0(FarmerEntityPart1 * self) ENTITY_CODE(080258A0);
-EC void func_080258A0(FarmerEntityPart1 * self)
+// 0x080258A0
+EC void FarmerEntity_StoreHeldItem(FarmerEntity * self) ENTITY_CODE(080258A0);
+EC void FarmerEntity_StoreHeldItem(FarmerEntity * self)
 {
     RucksackItem item = func_0800F294(&self->farmer->unk_54);
     if (!item.IsEmpty())
@@ -829,7 +960,7 @@ EC void func_080258A0(FarmerEntityPart1 * self)
             func_0800F390(&self->farmer->unk_54);
             self->state = 18;
             CancelFarmerItemDisplay(self);
-            func_08008B6C(EntitySoundChannelPart1(self->game_object), 107);
+            func_08008B6C(FindEntitySoundChannel(self->game_object), 107);
         }
         else
             self->state = 4;
@@ -838,8 +969,9 @@ EC void func_080258A0(FarmerEntityPart1 * self)
         self->state = 0;
 }
 
-EC void func_08025838(FarmerEntityPart1 * self, bool next) ENTITY_CODE(08025838);
-EC void func_08025838(FarmerEntityPart1 * self, bool next)
+// 0x08025838
+EC void FarmerEntity_CycleHeldItemWithFeedback(FarmerEntity * self, bool next) ENTITY_CODE(08025838);
+EC void FarmerEntity_CycleHeldItemWithFeedback(FarmerEntity * self, bool next)
 {
     u32 result;
     if (!next)
@@ -850,12 +982,13 @@ EC void func_08025838(FarmerEntityPart1 * self, bool next)
     {
         func_0802A588(self);
         self->state = 20;
-        func_08008B6C(EntitySoundChannelPart1(self->game_object), 107);
+        func_08008B6C(FindEntitySoundChannel(self->game_object), 107);
     }
 }
 
-EC void func_080257D0(FarmerEntityPart1 * self, bool next) ENTITY_CODE(080257D0);
-EC void func_080257D0(FarmerEntityPart1 * self, bool next)
+// 0x080257D0
+EC void FarmerEntity_CycleHeldItem(FarmerEntity * self, bool next) ENTITY_CODE(080257D0);
+EC void FarmerEntity_CycleHeldItem(FarmerEntity * self, bool next)
 {
     u32 result;
     if (!next)
@@ -866,56 +999,60 @@ EC void func_080257D0(FarmerEntityPart1 * self, bool next)
     {
         self->state = 19;
         CancelFarmerItemDisplay(self);
-        func_08008B6C(EntitySoundChannelPart1(self->game_object), 107);
+        func_08008B6C(FindEntitySoundChannel(self->game_object), 107);
     }
 }
 
-EC void func_08021F3C(HorseEntityPart1 * self) ENTITY_CODE(08021F3C);
-EC void func_08021F3C(HorseEntityPart1 * self)
+// 0x08021F3C
+EC void HorseEntity_EndPlay(HorseEntity * self) ENTITY_CODE(08021F3C);
+EC void HorseEntity_EndPlay(HorseEntity * self)
 {
     self->suppress_effect = false;
-    AnimalTimerPart1 timer;
+    AnimalBehaviorTimer timer;
     timer.time = 120;
     timer.active = 0;
     self->horse->method_0809BC24(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
-    func_08022048(self, func_080220D4(self), self->facing);
+    HorseEntity_SetAnimationState(self, HorseEntity_GetAnimationState(self), self->facing);
 }
 
-EC void func_08021EE0(HorseEntityPart1 * self) ENTITY_CODE(08021EE0);
-EC void func_08021EE0(HorseEntityPart1 * self)
+// 0x08021EE0
+EC void HorseEntity_BeginPlay(HorseEntity * self) ENTITY_CODE(08021EE0);
+EC void HorseEntity_BeginPlay(HorseEntity * self)
 {
     if (self->horse->GetGrowthStage() == 1)
     {
-        AnimalTimerPart1 timer;
+        AnimalBehaviorTimer timer;
         timer.time = 120;
         timer.active = 0;
         self->horse->method_0809BC24(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
-        func_08022048(self, func_080220D4(self), self->facing);
+        HorseEntity_SetAnimationState(self, HorseEntity_GetAnimationState(self), self->facing);
         self->suppress_effect = true;
         self->horse->SetHasPlayedToday();
     }
 }
 
-EC void func_08020410(DogEntityPart1 * self, u32 time) ENTITY_CODE(08020410);
-EC void func_08020410(DogEntityPart1 * self, u32 time)
+// 0x08020410
+EC void DogEntity_ResetBehavior(DogEntity * self, u32 time) ENTITY_CODE(08020410);
+EC void DogEntity_ResetBehavior(DogEntity * self, u32 time)
 {
     if (self->dog->unk_20 == 5)
-        func_080212C0(self);
-    AnimalTimerPart1 timer;
+        DogEntity_PlaceCarriedTarget(self);
+    AnimalBehaviorTimer timer;
     timer.time = time;
     timer.active = 0;
     self->dog->method_0809BB48(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
-    func_080211E4(self, 0, self->facing);
+    DogEntity_SetAnimationState(self, 0, self->facing);
 }
 
-EC void func_08020080(AActorEntity * self, i32 speed) ENTITY_CODE(08020080);
-EC void func_08020080(AActorEntity * self, i32 speed)
+// 0x08020080
+EC void AActorEntity_SetFacingSpeed(AActorEntity * self, i32 speed) ENTITY_CODE(08020080);
+EC void AActorEntity_SetFacingSpeed(AActorEntity * self, i32 speed)
 {
     i32 x = 0;
     i32 y = 0;
     if (speed != 0)
     {
-        switch (EntityFacingPart1(self))
+        switch (GetEntityFacing(self))
         {
         case 0: y = speed; break;
         case 1: y = -speed; break;
@@ -927,17 +1064,18 @@ EC void func_08020080(AActorEntity * self, i32 speed)
     self->y_speed_q16 = y;
 }
 
-EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(08022048);
-EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing)
+// 0x08022048
+EC void HorseEntity_SetAnimationState(HorseEntity * self, u32 state, u32 facing) ENTITY_CODE(08022048);
+EC void HorseEntity_SetAnimationState(HorseEntity * self, u32 state, u32 facing)
 {
     if (state != 6 && self->override_state)
         state = 6;
-    u32 anim = func_08021F88(self, state);
+    u32 anim = HorseEntity_GetStateAnimation(self, state);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     if (self->facing != facing)
         self->SetAnimFacing(facing);
-    func_08020080(self, func_08021FAC(self, state));
+    AActorEntity_SetFacingSpeed(self, func_08021FAC(self, state));
     if (state != self->state && !self->suppress_effect)
     {
         i32 effect = -1;
@@ -951,17 +1089,18 @@ EC void func_08022048(HorseEntityPart1 * self, u32 state, u32 facing)
     self->state = state;
 }
 
-EC void func_080211E4(DogEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(080211E4);
-EC void func_080211E4(DogEntityPart1 * self, u32 state, u32 facing)
+// 0x080211E4
+EC void DogEntity_SetAnimationState(DogEntity * self, u32 state, u32 facing) ENTITY_CODE(080211E4);
+EC void DogEntity_SetAnimationState(DogEntity * self, u32 state, u32 facing)
 {
     if (state != 12 && self->override_state)
         state = 12;
-    u32 anim = func_0802110C(self, state);
+    u32 anim = DogEntity_GetStateAnimation(self, state);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     if (self->facing != facing)
         self->SetAnimFacing(facing);
-    func_08020080(self, func_08021130(self, state));
+    AActorEntity_SetFacingSpeed(self, func_08021130(self, state));
     if (state != self->state)
     {
         i32 effect = -1;
@@ -975,15 +1114,16 @@ EC void func_080211E4(DogEntityPart1 * self, u32 state, u32 facing)
     self->state = state;
 }
 
-EC void func_08023FB0(BarnEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(08023FB0);
-EC void func_08023FB0(BarnEntityPart1 * self, u32 state, u32 facing)
+// 0x08023FB0
+EC void SheepEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing) ENTITY_CODE(08023FB0);
+EC void SheepEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing)
 {
     u32 anim = func_0802405C(self, state);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     if (self->facing != facing)
         self->SetAnimFacing(facing);
-    func_08020080(self, func_080240BC(self, state));
+    AActorEntity_SetFacingSpeed(self, SheepEntity_GetStateSpeed(self, state));
     if (state != self->state)
     {
         i32 effect = -1;
@@ -997,15 +1137,16 @@ EC void func_08023FB0(BarnEntityPart1 * self, u32 state, u32 facing)
     self->state = state;
 }
 
-EC void func_08023308(BarnEntityPart1 * self, u32 state, u32 facing) ENTITY_CODE(08023308);
-EC void func_08023308(BarnEntityPart1 * self, u32 state, u32 facing)
+// 0x08023308
+EC void CowEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing) ENTITY_CODE(08023308);
+EC void CowEntity_SetAnimationState(BarnAnimalEntity * self, u32 state, u32 facing)
 {
-    u32 anim = func_080233B4(self, state);
+    u32 anim = CowEntity_GetStateAnimation(self, state);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     if (self->facing != facing)
         self->SetAnimFacing(facing);
-    func_08020080(self, func_08023400(self, state));
+    AActorEntity_SetFacingSpeed(self, CowEntity_GetStateSpeed(self, state));
     if (state != self->state)
     {
         i32 effect = -1;
@@ -1019,41 +1160,45 @@ EC void func_08023308(BarnEntityPart1 * self, u32 state, u32 facing)
     self->state = state;
 }
 
-EC BarnEntityPart1 * func_080238A8(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal) ENTITY_CODE(080238A8);
-EC BarnEntityPart1 * func_080238A8(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal)
+// 0x080238A8
+EC BarnAnimalEntity * SheepEntity_Init(BarnAnimalEntity * self, GameObject * game, BarnAnimal * animal) ENTITY_CODE(080238A8);
+EC BarnAnimalEntity * SheepEntity_Init(BarnAnimalEntity * self, GameObject * game, BarnAnimal * animal)
 {
     Actor location(*animal);
     func_08020038(self, game, &location.location, 0x921);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6284;
     self->animal = animal;
-    func_08023FB0(self, func_08024020(self), self->facing);
+    SheepEntity_SetAnimationState(self, SheepEntity_GetAnimationState(self), self->facing);
     return self;
 }
 
-EC BarnEntityPart1 * func_08022C18(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal) ENTITY_CODE(08022C18);
-EC BarnEntityPart1 * func_08022C18(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal)
+// 0x08022C18
+EC BarnAnimalEntity * CowEntity_Init(BarnAnimalEntity * self, GameObject * game, BarnAnimal * animal) ENTITY_CODE(08022C18);
+EC BarnAnimalEntity * CowEntity_Init(BarnAnimalEntity * self, GameObject * game, BarnAnimal * animal)
 {
     Actor location(*animal);
     func_08020038(self, game, &location.location, 0x2B0);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6310;
     self->animal = animal;
-    func_08023308(self, func_08023378(self), self->facing);
+    CowEntity_SetAnimationState(self, CowEntity_GetAnimationState(self), self->facing);
     return self;
 }
 
-EC ChickenEntityPart1 * func_080223A8(ChickenEntityPart1 * self, GameObject * game, Chicken * animal) ENTITY_CODE(080223A8);
-EC ChickenEntityPart1 * func_080223A8(ChickenEntityPart1 * self, GameObject * game, Chicken * animal)
+// 0x080223A8
+EC ChickenEntity * ChickenEntity_Init(ChickenEntity * self, GameObject * game, Chicken * animal) ENTITY_CODE(080223A8);
+EC ChickenEntity * ChickenEntity_Init(ChickenEntity * self, GameObject * game, Chicken * animal)
 {
     Actor location(*animal);
     func_08020038(self, game, &location.location, 0x720);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E639C;
     self->chicken = animal;
-    func_080228B4(self, func_08022950(self), self->facing);
+    ChickenEntity_SetAnimationState(self, ChickenEntity_GetAnimationState(self), self->facing);
     return self;
 }
 
-EC u32 func_080246BC(u32 minimum, Tool const * tool) ENTITY_CODE(080246BC);
-EC u32 func_080246BC(u32 minimum, Tool const * tool)
+// 0x080246BC
+EC u32 WateringCan_GetEffectiveLevel(u32 minimum, Tool const * tool) ENTITY_CODE(080246BC);
+EC u32 WateringCan_GetEffectiveLevel(u32 minimum, Tool const * tool)
 {
     u32 level;
     switch (tool->GetId())
@@ -1073,8 +1218,9 @@ EC u32 func_080246BC(u32 minimum, Tool const * tool)
     return minimum;
 }
 
-EC u32 func_080245E0(u32 value) ENTITY_CODE(080245E0);
-EC u32 func_080245E0(u32 value)
+// 0x080245E0
+EC u32 SeedTool_GetCropId(u32 value) ENTITY_CODE(080245E0);
+EC u32 SeedTool_GetCropId(u32 value)
 {
     switch (value)
     {
@@ -1108,8 +1254,9 @@ EC u32 func_080245E0(u32 value)
     }
 }
 
-EC u32 func_08021264(DogEntityPart1 * self) ENTITY_CODE(08021264);
-EC u32 func_08021264(DogEntityPart1 * self)
+// 0x08021264
+EC u32 DogEntity_GetAnimationState(DogEntity * self) ENTITY_CODE(08021264);
+EC u32 DogEntity_GetAnimationState(DogEntity * self)
 {
     switch (self->dog->unk_20)
     {
@@ -1124,19 +1271,21 @@ EC u32 func_08021264(DogEntityPart1 * self)
 }
 
 
-EC bool func_08020060(AEntity * self) ENTITY_CODE(08020060);
-EC bool func_08020060(AEntity * self)
+// 0x08020060
+EC bool AEntity_IsOnCurrentMap(AEntity * self) ENTITY_CODE(08020060);
+EC bool AEntity_IsOnCurrentMap(AEntity * self)
 {
     return self->game_object->vfunc_14() == self->location_map;
 }
 
-EC bool func_08020130(AEntity * self) ENTITY_CODE(08020130);
-EC bool func_08020130(AEntity * self)
+// 0x08020130
+EC bool AEntity_IsAnimationFinished(AEntity * self) ENTITY_CODE(08020130);
+EC bool AEntity_IsAnimationFinished(AEntity * self)
 {
     if (self->unk_10.Get() != nullptr)
     {
         bool result = false;
-        AnimStatePart1 * state = reinterpret_cast<AnimStatePart1 *>(&self->unk_10.Get()->sprite_animator);
+        EntityAnimationState * state = reinterpret_cast<EntityAnimationState *>(&self->unk_10.Get()->sprite_animator);
         bool active = state->frames != 0 && state->count != 0;
         if (!active || func_0805E894(state))
             result = true;
@@ -1145,34 +1294,40 @@ EC bool func_08020130(AEntity * self)
     return true;
 }
 
-EC Box func_080202A0(AEntity const * self) ENTITY_CODE(080202A0);
-EC Box func_080202A0(AEntity const * self)
+// 0x080202A0
+EC Box AEntity_GetStandardCollisionBox(AEntity const * self) ENTITY_CODE(080202A0);
+EC Box AEntity_GetStandardCollisionBox(AEntity const * self)
 {
     return Box(-7, -9, 7, 5, self->x_q16 >> 16, self->y_q16 >> 16);
 }
 
+// 0x080202C4
 EC void func_080202C4(AEntity * self) ENTITY_CODE(080202C4);
 EC void func_080202C4(AEntity * self)
 {
 }
 
+// 0x080202C8
 EC void func_080202C8(AEntity * self) ENTITY_CODE(080202C8);
 EC void func_080202C8(AEntity * self)
 {
 }
 
-EC bool func_08020460(DogEntityPart1 * self) ENTITY_CODE(08020460);
-EC bool func_08020460(DogEntityPart1 * self)
+// 0x08020460
+EC bool DogEntity_IsCarryingTarget(DogEntity * self) ENTITY_CODE(08020460);
+EC bool DogEntity_IsCarryingTarget(DogEntity * self)
 {
     return self->dog->unk_20 == 5;
 }
 
+// 0x0802161C
 EC u32 func_0802161C(u32 value) ENTITY_CODE(0802161C);
 EC u32 func_0802161C(u32 value)
 {
     return 0;
 }
 
+// 0x08021620
 EC u32 func_08021620(u32 value) ENTITY_CODE(08021620);
 EC u32 func_08021620(u32 value)
 {
@@ -1184,15 +1339,17 @@ EC u32 func_08021620(u32 value)
     }
 }
 
-EC u32 func_08021F88(HorseEntityPart1 * self, u32 anim) ENTITY_CODE(08021F88);
-EC u32 func_08021F88(HorseEntityPart1 * self, u32 anim)
+// 0x08021F88
+EC u32 HorseEntity_GetStateAnimation(HorseEntity * self, u32 anim) ENTITY_CODE(08021F88);
+EC u32 HorseEntity_GetStateAnimation(HorseEntity * self, u32 anim)
 {
     u16 const * table = gUnk_080F09AC;
     return table[self->horse->GetGrowthStage() * 7 + anim];
 }
 
-EC u32 func_080220D4(HorseEntityPart1 * self) ENTITY_CODE(080220D4);
-EC u32 func_080220D4(HorseEntityPart1 * self)
+// 0x080220D4
+EC u32 HorseEntity_GetAnimationState(HorseEntity * self) ENTITY_CODE(080220D4);
+EC u32 HorseEntity_GetAnimationState(HorseEntity * self)
 {
     Horse * horse = self->horse;
     switch (i32(horse->unk_20))
@@ -1204,6 +1361,7 @@ EC u32 func_080220D4(HorseEntityPart1 * self)
     }
 }
 
+// 0x08022320
 EC u32 func_08022320(u32 value) ENTITY_CODE(08022320);
 EC u32 func_08022320(u32 value)
 {
@@ -1215,6 +1373,7 @@ EC u32 func_08022320(u32 value)
     }
 }
 
+// 0x08022334
 EC u32 func_08022334(u32 value) ENTITY_CODE(08022334);
 EC u32 func_08022334(u32 value)
 {
@@ -1226,8 +1385,9 @@ EC u32 func_08022334(u32 value)
     }
 }
 
-EC u32 func_08022950(ChickenEntityPart1 * self) ENTITY_CODE(08022950);
-EC u32 func_08022950(ChickenEntityPart1 * self)
+// 0x08022950
+EC u32 ChickenEntity_GetAnimationState(ChickenEntity * self) ENTITY_CODE(08022950);
+EC u32 ChickenEntity_GetAnimationState(ChickenEntity * self)
 {
     Chicken * chicken = self->chicken;
     switch (i32(chicken->unk_24))
@@ -1238,15 +1398,17 @@ EC u32 func_08022950(ChickenEntityPart1 * self)
     }
 }
 
-EC u32 func_08022980(ChickenEntityPart1 * self, u32 anim) ENTITY_CODE(08022980);
-EC u32 func_08022980(ChickenEntityPart1 * self, u32 anim)
+// 0x08022980
+EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 anim) ENTITY_CODE(08022980);
+EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 anim)
 {
     u16 const * table = gUnk_080F0A68;
     return table[self->chicken->GetGrowthStage() * 5 + anim];
 }
 
-EC u32 func_080229A4(AEntity * self, u32 value) ENTITY_CODE(080229A4);
-EC u32 func_080229A4(AEntity * self, u32 value)
+// 0x080229A4
+EC u32 ChickenEntity_GetStateSpeed(AEntity * self, u32 value) ENTITY_CODE(080229A4);
+EC u32 ChickenEntity_GetStateSpeed(AEntity * self, u32 value)
 {
     switch (value)
     {
@@ -1255,12 +1417,14 @@ EC u32 func_080229A4(AEntity * self, u32 value)
     }
 }
 
+// 0x08022B58
 EC u32 func_08022B58(u32 value) ENTITY_CODE(08022B58);
 EC u32 func_08022B58(u32 value)
 {
     return 0;
 }
 
+// 0x08022B5C
 EC u32 func_08022B5C(u32 value) ENTITY_CODE(08022B5C);
 EC u32 func_08022B5C(u32 value)
 {
@@ -1272,8 +1436,9 @@ EC u32 func_08022B5C(u32 value)
     }
 }
 
-EC u32 func_08023378(BarnEntityPart1 * self) ENTITY_CODE(08023378);
-EC u32 func_08023378(BarnEntityPart1 * self)
+// 0x08023378
+EC u32 CowEntity_GetAnimationState(BarnAnimalEntity * self) ENTITY_CODE(08023378);
+EC u32 CowEntity_GetAnimationState(BarnAnimalEntity * self)
 {
     BarnAnimal * animal = self->animal;
     switch (i32(animal->unk_28))
@@ -1286,8 +1451,9 @@ EC u32 func_08023378(BarnEntityPart1 * self)
     }
 }
 
-EC u32 func_08023400(AEntity * self, u32 value) ENTITY_CODE(08023400);
-EC u32 func_08023400(AEntity * self, u32 value)
+// 0x08023400
+EC u32 CowEntity_GetStateSpeed(AEntity * self, u32 value) ENTITY_CODE(08023400);
+EC u32 CowEntity_GetStateSpeed(AEntity * self, u32 value)
 {
     switch (value)
     {
@@ -1296,6 +1462,7 @@ EC u32 func_08023400(AEntity * self, u32 value)
     }
 }
 
+// 0x080237F0
 EC u32 func_080237F0(u32 value) ENTITY_CODE(080237F0);
 EC u32 func_080237F0(u32 value)
 {
@@ -1308,6 +1475,7 @@ EC u32 func_080237F0(u32 value)
     }
 }
 
+// 0x08023804
 EC u32 func_08023804(u32 value) ENTITY_CODE(08023804);
 EC u32 func_08023804(u32 value)
 {
@@ -1320,8 +1488,9 @@ EC u32 func_08023804(u32 value)
     }
 }
 
-EC u32 func_08024020(BarnEntityPart1 * self) ENTITY_CODE(08024020);
-EC u32 func_08024020(BarnEntityPart1 * self)
+// 0x08024020
+EC u32 SheepEntity_GetAnimationState(BarnAnimalEntity * self) ENTITY_CODE(08024020);
+EC u32 SheepEntity_GetAnimationState(BarnAnimalEntity * self)
 {
     BarnAnimal * animal = self->animal;
     switch (i32(animal->unk_28))
@@ -1334,8 +1503,9 @@ EC u32 func_08024020(BarnEntityPart1 * self)
     }
 }
 
-EC u32 func_080240BC(AEntity * self, u32 value) ENTITY_CODE(080240BC);
-EC u32 func_080240BC(AEntity * self, u32 value)
+// 0x080240BC
+EC u32 SheepEntity_GetStateSpeed(AEntity * self, u32 value) ENTITY_CODE(080240BC);
+EC u32 SheepEntity_GetStateSpeed(AEntity * self, u32 value)
 {
     switch (value)
     {
@@ -1344,6 +1514,7 @@ EC u32 func_080240BC(AEntity * self, u32 value)
     }
 }
 
+// 0x080244C4
 EC u32 func_080244C4(u32 value) ENTITY_CODE(080244C4);
 EC u32 func_080244C4(u32 value)
 {
@@ -1355,6 +1526,7 @@ EC u32 func_080244C4(u32 value)
     }
 }
 
+// 0x080244D8
 EC u32 func_080244D8(u32 value) ENTITY_CODE(080244D8);
 EC u32 func_080244D8(u32 value)
 {
@@ -1366,6 +1538,7 @@ EC u32 func_080244D8(u32 value)
     }
 }
 
+// 0x08024BE8
 EC void func_08024BE8(AEntity * self) ENTITY_CODE(08024BE8);
 EC void func_08024BE8(AEntity * self)
 {
@@ -1373,20 +1546,23 @@ EC void func_08024BE8(AEntity * self)
     func_0802A588(self);
 }
 
-EC void func_08024C54(AEntity * self) ENTITY_CODE(08024C54);
-EC void func_08024C54(AEntity * self)
+// 0x08024C54
+EC void FarmerEntity_EnableAndClearEffect(AEntity * self) ENTITY_CODE(08024C54);
+EC void FarmerEntity_EnableAndClearEffect(AEntity * self)
 {
     self->unk_06 = true;
     func_080323C8(self);
 }
 
-EC void func_08024C64(AEntity * self) ENTITY_CODE(08024C64);
-EC void func_08024C64(AEntity * self)
+// 0x08024C64
+EC void FarmerEntity_DisableAndClearEffect(AEntity * self) ENTITY_CODE(08024C64);
+EC void FarmerEntity_DisableAndClearEffect(AEntity * self)
 {
     self->unk_06 = false;
     func_080323C8(self);
 }
 
+// 0x08024C88
 EC void func_08024C88(u8 * self) ENTITY_CODE(08024C88);
 EC void func_08024C88(u8 * self)
 {
@@ -1394,8 +1570,9 @@ EC void func_08024C88(u8 * self)
     self[0x3D] = 255;
 }
 
-EC void func_08024C98(u8 * self) ENTITY_CODE(08024C98);
-EC void func_08024C98(u8 * self)
+// 0x08024C98
+EC void FarmerEntity_ClearAction(u8 * self) ENTITY_CODE(08024C98);
+EC void FarmerEntity_ClearAction(u8 * self)
 {
     self[0x3C] = 0;
 }
