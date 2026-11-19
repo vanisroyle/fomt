@@ -658,49 +658,6 @@ func_08032690: @ 0x08032690
 
     .section .text.npc_side.0803295C, "ax", %progbits
 
-    thumb_func_start func_0803295C
-func_0803295C: @ 0x0803295C
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L080329AC @ =vtable_unk_080E6828
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x30]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C12AActorEntity
-    mov r0, sp
-    ldm r0!, {r1, r2}
-    stm r4!, {r1, r2}
-    ldrh r1, [r5, #0x22]
-    ldr r0, [r5, #0x30]
-    strh r1, [r0, #8]
-    ldr r0, .L080329B0 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L08032994
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08032994:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L080329A2
-    adds r0, r5, #0
-    bl __builtin_delete
-.L080329A2:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080329AC: .4byte vtable_unk_080E6828
-.L080329B0: .4byte __vt_7AEntity
     .section .text.npc_side.080329DC, "ax", %progbits
 
     thumb_func_start func_080329DC
@@ -2476,14 +2433,6 @@ func_08033928: @ 0x08033928
     pop {r4, r5, r6, r7}
     pop {r1}
     bx r1
-    thumb_func_start func_08033A2C
-func_08033A2C: @ 0x08033A2C
-    .byte 0x70, 0xb5, 0x82, 0xb0, 0x05, 0x1c, 0x0e, 0x1c, 0x10, 0x48, 0x68, 0x61, 0x6c, 0x6b, 0x68, 0x46
-    .byte 0x29, 0x1c, 0xfe, 0xf7, 0x97, 0xfb, 0x20, 0x1c, 0x69, 0x46, 0x6a, 0xf0, 0x8f, 0xfc, 0x0c, 0x48
-    .byte 0x68, 0x61, 0x29, 0x69, 0x00, 0x29, 0x05, 0xd0, 0x48, 0x68, 0x82, 0x68, 0x08, 0x1c, 0x03, 0x21
-    .byte 0x9f, 0xf0, 0x5a, 0xff, 0x01, 0x20, 0x30, 0x40, 0x00, 0x28, 0x02, 0xd0, 0x28, 0x1c, 0xcc, 0xf7
-    .byte 0xcd, 0xfd, 0x02, 0xb0, 0x70, 0xbc, 0x01, 0xbc, 0x00, 0x47, 0x00, 0x00, 0xc8, 0x68, 0x0e, 0x08
-    .byte 0x50, 0x62, 0x0e, 0x08
     .section .text.npc_side.08033B10, "ax", %progbits
 
     .section .text.npc_side.08033B24, "ax", %progbits

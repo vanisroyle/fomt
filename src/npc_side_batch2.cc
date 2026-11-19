@@ -365,12 +365,12 @@ EC void RefreshLaunchedSideSprite(AEntity * self, u32 value)
     func_08038110(self);
 }
 
-EC void * func_0803853C(void * sprite, AEntity * self);
+EC void * InitializeLaunchedSpriteRenderer(void * sprite, AEntity * self);
 EC void * CreateLaunchedSideSprite(AEntity * self) NPC_EXTRA_CODE(08038334);
 EC void * CreateLaunchedSideSprite(AEntity * self)
 {
     struct Storage { u8 bytes[0x48]; };
-    return func_0803853C(new Storage, self);
+    return InitializeLaunchedSpriteRenderer(new Storage, self);
 }
 
 EC void * func_08037D08(void * sprite, AEntity * self);

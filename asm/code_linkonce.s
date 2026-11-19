@@ -17315,7 +17315,7 @@ func_080DCB40: @ 0x080DCB40
 	thumb_func_start func_080DCB4C
 func_080DCB4C: @ 0x080DCB4C
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17323,7 +17323,7 @@ func_080DCB4C: @ 0x080DCB4C
 	thumb_func_start func_080DCB58
 func_080DCB58: @ 0x080DCB58
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17331,7 +17331,7 @@ func_080DCB58: @ 0x080DCB58
 	thumb_func_start func_080DCB64
 func_080DCB64: @ 0x080DCB64
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -17339,7 +17339,7 @@ func_080DCB64: @ 0x080DCB64
 	thumb_func_start func_080DCB70
 func_080DCB70: @ 0x080DCB70
 	push {lr}
-	bl func_08037048
+	bl DestroyMovingNpc
 	pop {r0}
 	bx r0
 	.align 2, 0

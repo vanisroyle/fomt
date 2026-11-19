@@ -1363,7 +1363,6 @@ func_08036768: @ 0x08036768
 .L080367A4: .4byte 0x00002181
 .L080367A8: .4byte 0x0000027F
 
-
     .section .text.npc_extra.080367F8, "ax", %progbits
 
     .section .text.npc_extra.08036860, "ax", %progbits
@@ -1622,81 +1621,14 @@ func_08036E70: @ 0x08036E70
     .align 2, 0
 .L08036EE8: .4byte 0x0000026B
 .L08036EEC: .4byte 0x00000273
+
     .section .text.npc_extra.08036F0C, "ax", %progbits
 
-    thumb_func_start func_08036F0C
-func_08036F0C: @ 0x08036F0C
-    .byte 0x30, 0xb5, 0x84, 0xb0, 0x05, 0x1c, 0x68, 0x6b, 0x10, 0x49, 0x40, 0x18, 0x69, 0xf0, 0x34, 0xfa
-    .byte 0x04, 0x1c, 0x00, 0x2c, 0x1c, 0xd0, 0x28, 0x1c, 0xff, 0xf7, 0xa4, 0xff, 0x20, 0x1c, 0x67, 0xf0
-    .byte 0xd9, 0xfd, 0x00, 0x06, 0x01, 0x24, 0x00, 0x28, 0x00, 0xd0, 0x04, 0x24, 0x8c, 0x20, 0xc9, 0xf7
-    .byte 0x4b, 0xfb, 0x00, 0x22, 0x00, 0x92, 0x01, 0x94, 0x02, 0x92, 0x03, 0xa9, 0x0a, 0x70, 0x29, 0x1c
-    .byte 0x04, 0x22, 0x1b, 0x23, 0xfb, 0xf7, 0xb4, 0xfa, 0x03, 0xe0, 0x00, 0x00, 0xd4, 0x1c, 0x00, 0x00
-    .byte 0x00, 0x20, 0x04, 0xb0, 0x30, 0xbc, 0x02, 0xbc, 0x08, 0x47, 0x00, 0x00
-    thumb_func_start func_08036F68
-func_08036F68: @ 0x08036F68
-    .byte 0xf0, 0xb5, 0x84, 0xb0, 0x04, 0x1c, 0x0e, 0x1c, 0x20, 0x69, 0x00, 0x28, 0x3d, 0xd0, 0x60, 0x6b
-    .byte 0x0b, 0x49, 0x40, 0x18, 0x69, 0xf0, 0x02, 0xfa, 0x00, 0x28, 0x36, 0xd0, 0x67, 0xf0, 0xa8, 0xfd
-    .byte 0x3b, 0x28, 0x32, 0xd8, 0x20, 0x1c, 0xfe, 0xf7, 0xa7, 0xfd, 0x00, 0x06, 0x00, 0x28, 0x2c, 0xd0
-    .byte 0x20, 0x1c, 0x48, 0x30, 0x01, 0x88, 0x05, 0x1c, 0x00, 0x29, 0x03, 0xd0, 0x48, 0x1e, 0x23, 0xe0
-    .byte 0xd4, 0x1c, 0x00, 0x00, 0x69, 0x46, 0x06, 0x48, 0x8c, 0xc8, 0x8c, 0xc1, 0x00, 0x68, 0x08, 0x60
-    .byte 0x9a, 0xf0, 0x14, 0xf9, 0x64, 0x21, 0x99, 0xf0, 0x87, 0xff, 0x00, 0x23, 0x6a, 0x46, 0x04, 0xe0
-    .byte 0x14, 0x15, 0x0f, 0x08, 0x40, 0x1a, 0x04, 0x32, 0x01, 0x33, 0x03, 0x2b, 0x06, 0xd8, 0x11, 0x78
-    .byte 0x88, 0x42, 0xf7, 0xd2, 0x51, 0x88, 0x20, 0x1c, 0xfe, 0xf7, 0x92, 0xfc, 0x9a, 0xf0, 0xfe, 0xf8
-    .byte 0x78, 0x21, 0x99, 0xf0, 0x71, 0xff, 0x78, 0x30, 0x28, 0x80, 0x20, 0x1c, 0x31, 0x1c, 0xfd, 0xf7
-    .byte 0x5d, 0xff, 0x04, 0xb0, 0xf0, 0xbc, 0x01, 0xbc, 0x00, 0x47, 0x00, 0x00
     .section .text.npc_extra.08037008, "ax", %progbits
 
     .section .text.npc_extra.08037048, "ax", %progbits
 
-    thumb_func_start func_08037048
-func_08037048: @ 0x08037048
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L08037090 @ =vtable_unk_080E7328
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x30]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C12AActorEntity
-    mov r0, sp
-    ldm r0!, {r1, r2}
-    stm r4!, {r1, r2}
-    ldr r0, .L08037094 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L0803707A
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0803707A:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L08037088
-    adds r0, r5, #0
-    bl __builtin_delete
-.L08037088:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08037090: .4byte vtable_unk_080E7328
-.L08037094: .4byte __vt_7AEntity
-
     .section .text.npc_extra.080370D8, "ax", %progbits
-.L080370D8:
-    .byte 0x10, 0xB5, 0x00, 0x69, 0x00, 0x28, 0x16, 0xD0
-    .byte 0x00, 0x24, 0x02, 0x1C, 0x30, 0x32, 0x00, 0x21, 0xD0, 0x89, 0x00, 0x28, 0x04, 0xD0, 0x10, 0x20
-    .byte 0x11, 0x5E, 0x48, 0x42, 0x08, 0x43, 0xC1, 0x0F, 0x00, 0x29, 0x05, 0xD0, 0x10, 0x1C, 0x27, 0xF0
-    .byte 0xC9, 0xFB, 0x00, 0x06, 0x00, 0x28, 0x00, 0xD0, 0x01, 0x24, 0x20, 0x1C, 0x00, 0xE0, 0x01, 0x20
-    .byte 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
-
     .section .text.npc_extra.08037118, "ax", %progbits
 
     thumb_func_start func_08037118
@@ -2790,47 +2722,6 @@ func_08037D74: @ 0x08037D74
 
     .section .text.npc_extra.08037E48, "ax", %progbits
 
-    thumb_func_start func_08037E48
-func_08037E48: @ 0x08037E48
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L08037E94 @ =vtable_unk_080E73FC
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x18]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C7AEntity
-    adds r0, r4, #0
-    mov r1, sp
-    bl ItemCollection_SetExtraItems
-    ldr r0, .L08037E98 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L08037E7C
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08037E7C:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L08037E8A
-    adds r0, r5, #0
-    bl __builtin_delete
-.L08037E8A:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08037E94: .4byte vtable_unk_080E73FC
-.L08037E98: .4byte __vt_7AEntity
-
     .section .text.npc_extra.08037EF0, "ax", %progbits
 
     thumb_func_start func_08037EF0
@@ -2978,103 +2869,6 @@ func_08037F7C: @ 0x08037F7C
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
-    thumb_func_start func_08038028
-func_08038028: @ 0x08038028
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r6, r0, #0
-    adds r5, r1, #0
-    adds r4, r2, #0
-    bl __7AEntityP10GameObjectRC8Location
-    ldr r0, .L08038094 @ =vtable_unk_080E73B4
-    str r0, [r6, #0x14]
-    str r4, [r6, #0x18]
-    movs r0, #0
-    str r0, [r6, #0x1c]
-    adds r1, r6, #0
-    adds r1, #0x25
-    strb r0, [r1]
-    adds r1, #1
-    strb r0, [r1]
-    movs r0, #0x31
-    strh r0, [r6, #0x28]
-    ldr r0, [r5]
-    ldr r2, [r0, #0x40]
-    adds r0, r5, #0
-    movs r1, #0x2b
-    bl _call_via_r2
-    adds r4, r0, #0
-    cmp r4, #0
-    beq .L08038088
-    ldrh r0, [r4, #4]
-    ldrh r1, [r6, #4]
-    cmp r0, r1
-    bne .L08038088
-    adds r0, r4, #0
-    bl DogEntity_IsCarryingTarget
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08038088
-    ldr r1, [r4, #8]
-    ldr r2, [r4, #0xc]
-    ldrh r3, [r4, #0x22]
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    str r0, [sp]
-    adds r0, r6, #0
-    bl StartLaunchedSpriteMovement
-.L08038088:
-    adds r0, r6, #0
-    add sp, #4
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08038094: .4byte vtable_unk_080E73B4
-
-    thumb_func_start func_08038098
-func_08038098: @ 0x08038098
-    push {r4, r5, r6, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r6, r1, #0
-    ldr r0, .L080380E4 @ =vtable_unk_080E73B4
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x18]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C7AEntity
-    adds r0, r4, #0
-    mov r1, sp
-    movs r2, #6
-    bl memcpy
-    ldr r0, .L080380E8 @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L080380CE
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080380CE:
-    movs r0, #1
-    ands r0, r6
-    cmp r0, #0
-    beq .L080380DC
-    adds r0, r5, #0
-    bl __builtin_delete
-.L080380DC:
-    add sp, #8
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080380E4: .4byte vtable_unk_080E73B4
-.L080380E8: .4byte __vt_7AEntity
 
     .section .text.npc_extra.08038110, "ax", %progbits
 
@@ -3471,40 +3265,6 @@ func_08038398: @ 0x08038398
     bx r0
 
     .section .text.npc_extra.0803853C, "ax", %progbits
-
-    thumb_func_start func_0803853C
-func_0803853C: @ 0x0803853C
-    push {r4, r5, r6, lr}
-    sub sp, #0xc
-    adds r6, r0, #0
-    adds r4, r1, #0
-    str r4, [r6]
-    ldr r0, .L0803857C @ =vtable_unk_080E73E8
-    str r0, [r6, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    ldr r3, [r4]
-    adds r0, r6, #0
-    adds r0, #8
-    ldrh r2, [r4, #0x28]
-    movs r4, #2
-    str r4, [sp]
-    movs r4, #7
-    str r4, [sp, #4]
-    add r5, sp, #8
-    movs r4, #0
-    strb r4, [r5]
-    bl func_080A4A00
-    adds r0, r6, #0
-    add sp, #0xc
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0803857C: .4byte vtable_unk_080E73E8
 
     .section .text.npc_extra.080385B0, "ax", %progbits
 
@@ -5861,6 +5621,8 @@ func_080398A4: @ 0x080398A4
 .L080399B4: .4byte vtable_unk_080E74AC
 .L080399B8: .4byte vtable_unk_080E749C
 .L080399BC: .4byte vtable_unk_080E748C
+
+    .section .text.npc_extra.080399C0, "ax", %progbits
 
     thumb_func_start func_080399C0
 func_080399C0: @ 0x080399C0
