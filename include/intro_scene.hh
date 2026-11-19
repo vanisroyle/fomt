@@ -16,6 +16,7 @@ struct IntroSceneOwner
 };
 
 EC IntroSceneOwner * IntroScene_Initialize(IntroSceneOwner * self);
+EC IntroSceneTask * IntroScene_CreateTask(void * storage);
 EC void IntroScene_Destroy(IntroSceneOwner * self, int destructorFlags);
 
 #endif // INTRO_SCENE_HH

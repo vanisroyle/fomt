@@ -91,6 +91,8 @@ SECTIONS
         src/scene.o(.text);
         asm/scene.o(.text);
         asm/intro_scene.o(.text);
+        src/intro_scene.o(.text.func_08000914);
+        asm/intro_scene.o(.text.after_08000914);
         src/intro_scene.o(.text.func_080036F8);
         asm/intro_scene.o(.text.after_080036F8);
         src/intro_scene.o(.text.func_0800371C);
