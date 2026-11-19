@@ -113,7 +113,7 @@ func_08010358: @ 0x08010358
     movs r1, #0xe5
     lsls r1, r1, #5
     adds r0, r7, r1
-    bl func_0800FF8C
+    bl ItemCollection_Initialize
     ldr r2, .L0801060C @ =0x00001CCC
     adds r1, r7, r2
     movs r4, #0x8d
@@ -1508,7 +1508,7 @@ func_08010F54: @ 0x08010F54
     ldr r1, .L080110F0 @ =0x00001CD4
     adds r4, r6, r1
     adds r0, r4, #0
-    bl func_080A041C
+    bl GetRosterProposalCandidate
     cmp r0, #0
     bne .L08011056
     adds r0, r4, #0
@@ -2174,7 +2174,7 @@ func_08011650: @ 0x08011650
     movs r2, #0xe5
     lsls r2, r2, #5
     adds r0, r7, r2
-    bl func_0800FF8C
+    bl ItemCollection_Initialize
     ldr r3, .L08011884 @ =0x00001CCC
     adds r1, r7, r3
     movs r4, #0x8d
@@ -3413,7 +3413,7 @@ func_080124D0: @ 0x080124D0
     bl __builtin_new
     adds r4, r0, #0
     add r0, sp, #0xc
-    bl func_0800835C
+    bl TilePool_Initialize
     add r0, sp, #0x10
     bl ResourcePool_Initialize
     add r1, sp, #0x10
@@ -3440,17 +3440,17 @@ func_080124D0: @ 0x080124D0
     str r4, [r5]
     add r0, sp, #0x10
     movs r1, #2
-    bl func_08007714
+    bl ResourcePool_Destroy
     add r0, sp, #0xc
     movs r1, #2
-    bl func_08008364
+    bl TilePool_Destroy
     b .L080125CA
 .L0801257A:
     movs r0, #4
     bl __builtin_new
     adds r4, r0, #0
     add r0, sp, #0xc
-    bl func_0800835C
+    bl TilePool_Initialize
     add r0, sp, #0x10
     bl ResourcePool_Initialize
     add r0, sp, #0x10
@@ -3476,10 +3476,10 @@ func_080124D0: @ 0x080124D0
     str r4, [r5]
     add r0, sp, #0x10
     movs r1, #2
-    bl func_08007714
+    bl ResourcePool_Destroy
     add r0, sp, #0xc
     movs r1, #2
-    bl func_08008364
+    bl TilePool_Destroy
 .L080125CA:
     ldr r0, [r6]
     bl GetMessageWindowPhase
@@ -6503,7 +6503,7 @@ GameScript_UpdateTextPanel: @ 0x08014318
     adds r1, #0x10
     adds r0, r6, #0
     adds r0, #8
-    bl func_0803CD4C
+    bl SetClockDateAndTimeTiles
 .L08014370:
     adds r0, r4, #0
     bl func_080D7F08
@@ -11539,7 +11539,7 @@ func_08016FA4: @ 0x08016FA4
     ldr r0, [r0]
     ldr r4, .L08017140 @ =0x00001CD4
     adds r0, r0, r4
-    bl func_080A0A90
+    bl AdvanceNpcScheduleDailyCounter
 .L08017128:
     movs r1, #0
     mov r0, sl
@@ -12115,7 +12115,7 @@ func_080175B4: @ 0x080175B4
     ldr r3, [r0]
     adds r0, r5, #0
     adds r1, r4, #0
-    bl func_080A4650
+    bl GetMapTimePalette
     ldr r2, .L08017848 @ =0x0000104C
     adds r1, r7, r2
     strb r0, [r1]
@@ -17162,7 +17162,7 @@ func_0801A13C: @ 0x0801A13C
     str r1, [r2]
     ldr r6, [sp, #0x90]
     ldr r0, [r6, #4]
-    bl func_080A5D14
+    bl ReloadMapPalettePair
     ldr r0, [r6, #4]
     ldr r1, [r0]
     ldr r2, .L0801A19C @ =0x00001038
@@ -17991,7 +17991,7 @@ func_0801A13C: @ 0x0801A13C
     ldr r3, [r0]
     adds r0, r4, #0
     adds r1, r5, #0
-    bl func_080A4650
+    bl GetMapTimePalette
     lsls r0, r0, #0x18
     lsrs r1, r0, #0x18
     ldr r2, [sp, #0x90]

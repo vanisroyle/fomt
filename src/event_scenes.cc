@@ -97,10 +97,10 @@ struct ChildhoodMemoryScreenLayout
 };
 
 EC void InitScreenHardware(ChildhoodMemoryScreenLayout *, Vec2 const *) asm("func_080084DC");
-EC void InitTileResources(TileResources *) asm("func_0800835C");
-EC void DestroyTileResources(TileResources *, int) asm("func_08008364");
+EC void InitTileResources(TileResources *) asm("TilePool_Initialize");
+EC void DestroyTileResources(TileResources *, int) asm("TilePool_Destroy");
 EC ResourcePool * ResourcePool_Initialize(ResourcePool *);
-EC void DestroyResourcePool(ResourcePool *, int) asm("func_08007714");
+EC void DestroyResourcePool(ResourcePool *, int) asm("ResourcePool_Destroy");
 EC MessageWindow * CreateMessageWindow(MessageWindow *, u32, u32, u32, u32, void *, void *);
 EC void ClearMessageWindowButtonMask(MessageWindow *, u32);
 EC AudioPlayer * AudioPlayer_Initialize(AudioPlayer *, u8);

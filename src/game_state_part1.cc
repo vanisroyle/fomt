@@ -531,7 +531,7 @@ EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 EC void AudioPlayer_FadeOut(void * self, u32 speed);
 
-EC Bachelorette const * func_080A0878(void * data, u32 characterId);
+EC Bachelorette const * GetRosterBacheloretteByIdConst(void * data, u32 characterId);
 EC void SetMessageWindowIndicator(void * dialogue, u32 level);
 EC void ConfigureMessageWindowChoices(void * dialogue, char const * first, char const * second, char const * third, char const * fourth, char const * fifth, char const * sixth, void const * substitutions);
 
@@ -622,7 +622,7 @@ EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveIndicator
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0) && characterId != 0x1F)
     {
-        Bachelorette const * character = func_080A0878(runtime.saveData + 0x1CD4, characterId);
+        Bachelorette const * character = GetRosterBacheloretteByIdConst(runtime.saveData + 0x1CD4, characterId);
         if (character != nullptr)
         {
             u32 love = character->GetLove();

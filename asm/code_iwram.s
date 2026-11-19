@@ -39,10 +39,10 @@ func_0300085C:
 Irq_Dispatch:
     inc 0x03000958, 0x03000A1C
 
-    .global func_03000A1C
-    .type func_03000A1C, function
+    .global Irq_ApplyMaskArm
+    .type Irq_ApplyMaskArm, function
     .arm
-func_03000A1C:
+Irq_ApplyMaskArm:
     inc 0x03000A1C, 0x03000C08
 
     .global func_03000C08

@@ -56,8 +56,8 @@ EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 b
 EC MapPatchTiles const gUnk_08106DAC;
 EC u32 const gUnk_08107438[6];
 EC bool HasRosterEntry(void * self);
-EC u32 func_080A041C(BacheloretteRoster const & roster);
-EC Bachelorette const * func_080A01F8(BacheloretteRoster const & roster, u32 npcId);
+EC u32 GetRosterProposalCandidate(BacheloretteRoster const & roster);
+EC Bachelorette const * GetRosterBacheloretteById(BacheloretteRoster const & roster, u32 npcId);
 EC u32 GetFirstSlotWithTool__C8RucksackUi(void const * rucksack, u32 toolId);
 EC u32 GetFirstSlotWith__C9ToolChestUi(void const * chest, u32 toolId);
 
@@ -92,7 +92,7 @@ EC SECTION(".text.080AA8F0") bool CanStockBlueFeather(MapUpdateState const & map
 {
     MapUpdateSave * const & save = map.save;
     BacheloretteRoster const & roster = *reinterpret_cast<BacheloretteRoster const *>(save->bachelorettes);
-    if (HasRosterEntry(save->bachelorettes) || func_080A041C(roster) != 0)
+    if (HasRosterEntry(save->bachelorettes) || GetRosterProposalCandidate(roster) != 0)
         return false;
 
     ToolStack const & equippedTool = save->equippedTool;
@@ -119,7 +119,7 @@ checkFeather:
     CandidateIds candidates = *reinterpret_cast<CandidateIds const *>(gUnk_08107438);
     for (u32 i = 0; i < ARRAY_COUNT(candidates.ids); ++i)
     {
-        Bachelorette const * candidate = func_080A01F8(roster, candidates.ids[i]);
+        Bachelorette const * candidate = GetRosterBacheloretteById(roster, candidates.ids[i]);
         if (candidate != 0 && candidate->GetLove() >= 50000 && candidate->GetRivalEventCount() <= 3)
             return true;
     }
