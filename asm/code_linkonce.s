@@ -14607,7 +14607,7 @@ func_080DB394: @ 0x080DB394
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805FCD0
+	bl InitChildhoodMemoryScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15199,7 +15199,7 @@ func_080DB9DC: @ 0x080DB9DC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805E624
+	bl InitMedalExchangeScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -15259,7 +15259,7 @@ func_080DBA4C: @ 0x080DBA4C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_0805CEB8
+	bl InitHorseRaceScene
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -18481,7 +18481,7 @@ func_080DD460: @ 0x080DD460
 	bl func_0803A350
 .L080DD48C:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #6
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -19229,7 +19229,7 @@ func_080DD9CC: @ 0x080DD9CC
 	b .L080DDBD6
 .L080DD9F8:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	adds r0, #0x1e
 	lsls r1, r0, #4
 	subs r1, r1, r0
@@ -19610,7 +19610,7 @@ func_080DDC78: @ 0x080DDC78
 	cmp r5, #1
 	bne .L080DDCEE
 	movs r0, #4
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #8
 	movs r2, #0x80
 	lsls r2, r2, #1
@@ -19628,7 +19628,7 @@ func_080DDC78: @ 0x080DDC78
 	b .L080DDD04
 .L080DDCEE:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r1, r0, #4
 	subs r1, r1, r0
 	lsls r1, r1, #2
@@ -19639,7 +19639,7 @@ func_080DDC78: @ 0x080DDC78
 	adds r4, r0, #0
 .L080DDD04:
 	movs r0, #2
-	bl func_080AB788
+	bl RollEntityMovementRandom
 	lsls r0, r0, #2
 	adds r0, #0xc
 	adds r1, r6, #0

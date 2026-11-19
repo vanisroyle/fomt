@@ -912,9 +912,11 @@ vtable_unk_080E7970:
 vtable_unk_080E797C:
 	.incbin "baserom.gba", 0xE797C, 0x10
 
-	.global vtable_unk_080E798C
-vtable_unk_080E798C:
-	.incbin "baserom.gba", 0xE798C, 0x10
+	.global gHorseRaceSceneVTable
+gHorseRaceSceneVTable:
+	.4byte 0, 0
+	.4byte DestroyHorseRaceScene
+	.4byte RunHorseRaceScene
 
 	.global vtable_unk_080E799C
 vtable_unk_080E799C:
@@ -924,8 +926,8 @@ vtable_unk_080E799C:
 vtable_unk_080E79A8:
 	.incbin "baserom.gba", 0xE79A8, 0x10
 
-	.global vtable_unk_080E79B8
-vtable_unk_080E79B8:
+	.global gMedalExchangeSceneVTable
+gMedalExchangeSceneVTable:
 	.incbin "baserom.gba", 0xE79B8, 0x10
 
 	.global gSpriteAnimationDataVTable
@@ -943,8 +945,8 @@ vtable_unk_080E79DC:
 vtable_unk_080E79E8:
 	.incbin "baserom.gba", 0xE79E8, 0x10
 
-	.global vtable_unk_080E79F8
-vtable_unk_080E79F8:
+	.global gChildhoodMemorySceneVTable
+gChildhoodMemorySceneVTable:
 	.incbin "baserom.gba", 0xE79F8, 0x10
 
 	.global vtable_unk_080E7A08
