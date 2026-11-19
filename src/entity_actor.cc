@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-extern "C" bool func_080AC070(UnkMap & unk, Box const & box);
+extern "C" bool DoesEntityCollisionRectangleHitSolidTile(UnkMap & unk, Box const & box);
 
 AActorEntity::AActorEntity(GameObject * game_object, ActorLocation const & location, u32 arg_2, u32 anim_id)
     : AEntity(game_object, location), x_speed_q16(0), y_speed_q16(0), facing(location.facing), unk_21(arg_2)
@@ -101,7 +101,7 @@ void AActorEntity::method_08032208()
 
     UnkMap unk = go->vfunc_34(map);
 
-    if (func_080AC070(unk, box) || !func_080AC070(unk, box.Moved(x_diff, y_diff)))
+    if (DoesEntityCollisionRectangleHitSolidTile(unk, box) || !DoesEntityCollisionRectangleHitSolidTile(unk, box.Moved(x_diff, y_diff)))
     {
         x_q16 = x_new_q16;
         y_q16 = y_new_q16;
