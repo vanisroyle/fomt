@@ -1232,7 +1232,7 @@ SECTIONS
         asm/code_809E804.o(.text.080AA9C8);
         src/map_updates.o(.text.080AACB8);
         src/map_updates.o(.text.080AAE14);
-        asm/code_809E804.o(.text.080AAE44);
+        src/map_updates.o(.text.080AAE44);
         src/map_updates.o(.text.080AAF10);
         src/map_updates.o(.text.080AAF1C);
         src/map_updates.o(.text.080AAF28);
