@@ -3,6 +3,7 @@
 #include "farmer_entity_layout.hh"
 #include "entity_sound_channel.hh"
 #include "farm_house.hh"
+#include "shipping_bin.hh"
 #include "sprite_animation.hh"
 
 #define ENTITY_CODE(addr) SECTION(".text.entities_part2." #addr)
@@ -936,6 +937,196 @@ struct FarmerEventGameVTable
     STRUCT_PAD(0, 0x140);
     FarmerEventDispatch dispatch_event;
 };
+
+EC u32 CountHarvestGoddessJewels(void const *);
+EC u32 CountKappaJewels(void const *);
+EC bool HaveAllCursedToolsStarted(void const *);
+EC bool func_0809E174(void const *);
+EC bool func_0809E184(void const *);
+EC bool func_0809E194(void const *);
+EC bool func_0809E1A4(void const *);
+EC i32 const gHarvestGoddessCollectionProducts[] asm("gUnk_080F11BC");
+EC i32 const gKappaCollectionProducts[] asm("gUnk_080F11E0");
+struct FarmerCollectionEventLocals
+{
+    u8 goddess_jewel;
+    FarmerEventRequest goddess_jewel_event;
+    u8 kappa_jewel;
+    FarmerEventRequest kappa_jewel_event;
+    FarmerEventRequest goddess_collection_event;
+    FarmerEventRequest kappa_collection_event;
+};
+
+EC void CheckFarmerCollectionEvents(FarmerEntity *) ENTITY_CODE(0802B054);
+EC void CheckFarmerCollectionEvents(FarmerEntity * self)
+{
+    FarmerCollectionEventLocals locals;
+    register FarmerEntity * farmer asm("r5") = self;
+    asm volatile("" : : "r"(farmer));
+    {
+        register u32 jewels asm("r0") = CountHarvestGoddessJewels(reinterpret_cast<u8 const *>(farmer->game_state) + 0x2E58) << 24;
+        asm volatile("" : "+r"(jewels));
+        if ((jewels >> 24) != 9)
+            goto check_kappa_jewels;
+    }
+    {
+        register u32 flags asm("r0") = reinterpret_cast<u8 const *>(farmer->game_state)[0x2189];
+        asm volatile("" : : "r"(flags));
+        register u32 exchanged asm("r4") = 0x30;
+        exchanged &= flags;
+        asm volatile("" : : "r"(exchanged));
+        if (exchanged != 0)
+            goto check_kappa_jewels;
+        register u32 held_kind asm("r0") = func_0800F204(&farmer->farmer->unk_54);
+        asm volatile("" : : "r"(held_kind));
+        if (held_kind != HeldItem::KIND_ARTICLE)
+            goto check_kappa_jewels;
+        register u32 article_id asm("r0") = ReadHeldArticleId(&farmer->farmer->unk_54);
+        asm volatile("" : : "r"(article_id));
+        register u8 * value asm("r1") = &locals.goddess_jewel;
+        *value = article_id;
+        Article const * article = reinterpret_cast<Article const *>(&locals.goddess_jewel);
+        if (article->GetId() != ARTICLE_HARVEST_GODDESS_JEWEL)
+            goto check_kappa_jewels;
+        GameObject * game = farmer->game_object;
+        FarmerEventGameVTable const * table = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+        FarmerEventDispatch const * handler = &table->dispatch_event;
+        FarmerEventRequest * args = &locals.goddess_jewel_event;
+        args->id = 0x330;
+        args->argument = exchanged;
+        FarmerEventDispatch dispatch = *handler;
+        dispatch(game, args, 0);
+    }
+check_kappa_jewels:
+    {
+        register u32 jewels asm("r0") = CountKappaJewels(reinterpret_cast<u8 const *>(farmer->game_state) + 0x2E58) << 24;
+        asm volatile("" : "+r"(jewels));
+        if ((jewels >> 24) != 9)
+            goto check_goddess_shipping;
+    }
+    {
+        register u32 flags asm("r0") = reinterpret_cast<u8 const *>(farmer->game_state)[0x218b];
+        asm volatile("" : : "r"(flags));
+        register u32 exchanged asm("r4") = 0x18;
+        exchanged &= flags;
+        asm volatile("" : : "r"(exchanged));
+        if (exchanged != 0)
+            goto check_goddess_shipping;
+        register u32 held_kind asm("r0") = func_0800F204(&farmer->farmer->unk_54);
+        asm volatile("" : : "r"(held_kind));
+        if (held_kind != HeldItem::KIND_ARTICLE)
+            goto check_goddess_shipping;
+        register u32 article_id asm("r0") = ReadHeldArticleId(&farmer->farmer->unk_54);
+        asm volatile("" : : "r"(article_id));
+        register u32 encoded asm("r1") = article_id;
+        asm volatile("" : : "r"(encoded));
+        register u8 * value asm("r0") = &locals.kappa_jewel;
+        *value = encoded;
+        Article const * article = reinterpret_cast<Article const *>(&locals.kappa_jewel);
+        if (article->GetId() != ARTICLE_KAPPA_JEWEL)
+            goto check_goddess_shipping;
+        GameObject * game = farmer->game_object;
+        FarmerEventGameVTable const * table = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+        FarmerEventDispatch const * handler = &table->dispatch_event;
+        FarmerEventRequest * args = &locals.kappa_jewel_event;
+        args->id = 0x332;
+        args->argument = exchanged;
+        FarmerEventDispatch dispatch = *handler;
+        dispatch(game, args, 0);
+    }
+check_goddess_shipping:
+    if (reinterpret_cast<u8 const *>(farmer->game_state)[0x2194] & 0xc0)
+        goto check_kappa_shipping;
+    {
+        u32 have_shipped = 1;
+        u32 index = 0;
+        register i32 const * item asm("r4") = gHarvestGoddessCollectionProducts;
+        asm volatile("" : "+r"(have_shipped), "+r"(index), "+r"(item));
+        for (; index < 9; ++item, ++index)
+        {
+            if (!reinterpret_cast<ShippingBin const *>(reinterpret_cast<u8 const *>(farmer->game_state) + 0x54)->IsDisplayEnabled(*item))
+            {
+                have_shipped = 0;
+                break;
+            }
+        }
+        asm volatile("" : "+r"(have_shipped));
+        asm volatile("" : : "r"(index));
+        if (!have_shipped)
+            goto check_kappa_shipping;
+        register u8 const * state asm("r0") = reinterpret_cast<u8 const *>(farmer->game_state);
+        asm volatile("" : : "r"(state));
+        register u32 mine_record_offset asm("r4") = 0x2E58;
+        asm volatile("" : : "r"(mine_record_offset));
+        if (!func_0809E184(state + mine_record_offset))
+            goto check_kappa_shipping;
+        if (!func_0809E194(reinterpret_cast<u8 const *>(farmer->game_state) + mine_record_offset))
+            goto check_kappa_shipping;
+        if (!u8(CountHarvestGoddessJewels(reinterpret_cast<u8 const *>(farmer->game_state) + mine_record_offset)))
+            goto check_kappa_shipping;
+        if (!func_0809E1A4(reinterpret_cast<u8 const *>(farmer->game_state) + mine_record_offset))
+            goto check_kappa_shipping;
+        GameObject * game = farmer->game_object;
+        register FarmerEventGameVTable const * table asm("r2") = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+        asm volatile("" : : "r"(table));
+        register u32 dispatch_slot asm("r1") = 0x140;
+        asm volatile("" : : "r"(dispatch_slot));
+        register FarmerEventDispatch const * handler asm("r2") = reinterpret_cast<FarmerEventDispatch const *>(reinterpret_cast<u8 const *>(table) + dispatch_slot);
+        asm volatile("" : "+r"(handler));
+        FarmerEventRequest * args = &locals.goddess_collection_event;
+        register u32 event_id asm("r3") = 0x34d;
+        register u32 argument asm("r4") = 0;
+        asm volatile("" : : "r"(event_id), "r"(argument));
+        args->id = event_id;
+        args->argument = argument;
+        FarmerEventDispatch dispatch = *handler;
+        dispatch(game, args, 0);
+    }
+check_kappa_shipping:
+    if (reinterpret_cast<u8 const *>(farmer->game_state)[0x2195] & 0x3)
+        goto done;
+    {
+        u32 have_shipped = 1;
+        u32 index = 0;
+        register i32 const * item asm("r4") = gKappaCollectionProducts;
+        asm volatile("" : "+r"(have_shipped), "+r"(index), "+r"(item));
+        for (; index < 14; ++item, ++index)
+        {
+            if (!reinterpret_cast<ShippingBin const *>(reinterpret_cast<u8 const *>(farmer->game_state) + 0x54)->IsDisplayEnabled(*item))
+            {
+                have_shipped = 0;
+                break;
+            }
+        }
+        asm volatile("" : "+r"(have_shipped));
+        asm volatile("" : : "r"(index));
+        if (!have_shipped)
+            goto done;
+        if (!HaveAllCursedToolsStarted(reinterpret_cast<u8 const *>(farmer->game_state) + 0x3480))
+            goto done;
+        if (!func_0809E174(reinterpret_cast<u8 const *>(farmer->game_state) + 0x2e58))
+            goto done;
+        if (!u8(CountKappaJewels(reinterpret_cast<u8 const *>(farmer->game_state) + 0x2e58)))
+            goto done;
+        GameObject * game = farmer->game_object;
+        register FarmerEventGameVTable const * table asm("r2") = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+        asm volatile("" : : "r"(table));
+        register u32 dispatch_slot asm("r1") = 0x140;
+        asm volatile("" : : "r"(dispatch_slot));
+        register FarmerEventDispatch const * handler asm("r2") = reinterpret_cast<FarmerEventDispatch const *>(reinterpret_cast<u8 const *>(table) + dispatch_slot);
+        asm volatile("" : "+r"(handler));
+        FarmerEventRequest * args = &locals.kappa_collection_event;
+        register u32 event_id asm("r3") = 0x34e;
+        register u32 argument asm("r4") = 0;
+        asm volatile("" : : "r"(event_id), "r"(argument));
+        args->id = event_id;
+        args->argument = argument;
+        FarmerEventDispatch dispatch = *handler;
+        dispatch(game, args, 0);
+    }
+done:
+    return;
+}
 
 #define SEND_PEDOMETER_MILESTONE(id_value) \
     { \
