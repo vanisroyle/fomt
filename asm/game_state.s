@@ -13055,7 +13055,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r0]
     cmp r0, #0
     beq .L08018072
-    bl func_0803B2A8
+    bl UpdateGameStateMapOverlay
 .L08018072:
     ldr r0, .L080180B0 @ =0x00001028
     add r0, r8
