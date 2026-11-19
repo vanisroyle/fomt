@@ -8,6 +8,7 @@
 #include "shipping_bin.hh"
 #include "bachelorette.hh"
 #include "farmer.hh"
+#include "dog.hh"
 
 #include <stdlib.h>
 #include <new>
@@ -57,6 +58,60 @@ EC u32 SECTION(".text.game_state_08011588") SaveData_SumBytes(void const * data,
         } while (--length != 0);
     }
     return sum;
+}
+
+extern u16 gSramErrorFlags;
+EC bool SramProxy_Write(void * proxy, u32 offset, void const * data, u32 size);
+
+// 0x080115B0
+EC u32 SECTION(".text.game_state_080115B0") SaveData_WriteToStorage(void const * saveData, void * storage, u32 offset)
+{
+    u32 headerOffset = offset;
+    u32 const saveSize = 0x34F4;
+    if (!SramProxy_Write(storage, offset, &saveSize, sizeof(saveSize)))
+        return gSramErrorFlags | 0x10000;
+    offset += sizeof(saveSize);
+    if (!SramProxy_Write(storage, offset, saveData, saveSize))
+        return gSramErrorFlags | 0x20000;
+    offset = headerOffset + 0x34F8;
+    u32 checksum = SaveData_SumBytes(saveData, saveSize);
+    if (!SramProxy_Write(storage, offset, &checksum, sizeof(checksum)))
+        return gSramErrorFlags | 0x30000;
+    return 0;
+}
+
+struct GameStateAffectionSaveView
+{
+    STRUCT_PAD(0x00, 0x14);
+    Farm farm;
+    u8 beforeDog[0x1C70 - 0x14 - sizeof(Farm)];
+    Dog dog;
+};
+
+// 0x08010E68
+EC bool SECTION(".text.game_state_08010E68") SaveData_HaveAllAnimalsHighAffection(GameStateAffectionSaveView const & save)
+{
+    bool allHighAffection = true;
+    if (save.dog.GetAffection() < 200)
+        allHighAffection = false;
+    Horse const * horse = save.farm.GetHorse();
+    if (horse != nullptr && horse->GetAffection() < 200)
+        allHighAffection = false;
+    for (u32 index = 0; index < save.farm.coop.GetCapacity(); index++)
+    {
+        Chicken const * chicken = save.farm.coop.GetChicken(index);
+        if (chicken != nullptr && chicken->GetAffection() < 200)
+            allHighAffection = false;
+    }
+    for (u32 index = 0; index < save.farm.barn.GetCapacity(); index++)
+    {
+        Animal const * animal = save.farm.barn.GetCow(index);
+        if (animal == nullptr)
+            animal = save.farm.barn.GetSheep(index);
+        if (animal != nullptr && animal->GetAffection() < 200)
+            allHighAffection = false;
+    }
+    return allHighAffection;
 }
 
 // 0x08010348
@@ -443,6 +498,21 @@ struct GameStateScript
     u32 vtable;
     GameStateRuntime * runtime;
 };
+
+// 0x08014C34
+EC void SECTION(".text.game_state_08014C34") GameScript_CreateHorseActor(GameStateScript & script, u32 kind, u32 ageYears, u32 mapId, i32 x, i32 y)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    if (kind == 0)
+    {
+        Farm & farm = *reinterpret_cast<Farm *>(runtime.GetSaveData() + 0x14);
+        farm.SetHorse(Horse(ActorLocation(Location(mapId, x, y), 0), ageYears * 120));
+        runtime.scene->vfunc_38(0x2C);
+        GameStateActorEntity * horseActor = runtime.scene->GetActor(0x2C);
+        if (horseActor != nullptr && !horseActor->vfunc_28())
+            horseActor->vfunc_20();
+    }
+}
 
 extern u8 const gTaskNodeVtable[];
 extern u8 const gTaskListVtable[];
