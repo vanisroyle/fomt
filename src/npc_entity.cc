@@ -15,11 +15,11 @@ struct ANpcEntity : public AActorEntity
     /* +30 */ Npc * npc;
     /* +34 */ u32 unk_34;
     /* +38 */ UnkNpcSchedule const * unk_38;
-    /* +3C */ u8 unk_3C; /* current schedule */
-    /* +3D */ u8 unk_3D; /* current path */
-    /* +3E */ u8 unk_3E; /* current path point */
+    /* +3C */ u8 schedule_index;
+    /* +3D */ u8 schedule_path_index;
+    /* +3E */ u8 path_point_index;
     /* +3F */ u8 unk_3F; /* is frozen? */
-    /* +40 */ u16 unk_40;
+    /* +40 */ u16 path_point_elapsed_ticks;
     /* +42 */ u16 unk_42;
     /* +44 */ u16 unk_44; /* moving anim? */
     /* +44 */ u16 unk_46; /* frozen anim? */
@@ -46,11 +46,11 @@ ANpcEntity::ANpcEntity(GameObject * game_object, Npc * npc, u32 arg_3, void cons
       npc(npc),
       unk_34(arg_3),
       unk_38(reinterpret_cast<UnkNpcSchedule const *>(arg_4)),
-      unk_3C(npc->unk_0C_0),
-      unk_3D(npc->unk_0C_5),
-      unk_3E(npc->unk_0D_2),
+      schedule_index(npc->schedule_index),
+      schedule_path_index(npc->schedule_path_index),
+      path_point_index(npc->path_point_index),
       unk_3F(0),
-      unk_40(npc->unk_0D_7),
+      path_point_elapsed_ticks(npc->path_point_elapsed_ticks),
       unk_42(arg_7),
       unk_44(anim_id),
       unk_46(arg_6)
@@ -81,10 +81,10 @@ ANpcEntity::~ANpcEntity()
 
     if (unk_38 != nullptr)
     {
-        npc->unk_0C_0 = unk_3C;
-        npc->unk_0C_5 = unk_3D;
-        npc->unk_0D_2 = unk_3E;
-        npc->unk_0D_7 = unk_40;
+        npc->schedule_index = schedule_index;
+        npc->schedule_path_index = schedule_path_index;
+        npc->path_point_index = path_point_index;
+        npc->path_point_elapsed_ticks = path_point_elapsed_ticks;
     }
 }
 

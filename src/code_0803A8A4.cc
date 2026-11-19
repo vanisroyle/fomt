@@ -847,7 +847,27 @@ EC ScheduleInfo const gUnk_080F6B10;
 EC ScheduleInfo const gUnk_080F4974;
 EC ScheduleInfo const gUnk_080F29C0;
 EC Npc * GetActiveScheduleNpc(NpcScheduleRoster &);
-EC void ResetNpcDailySchedule(Npc &, ScheduleInfo const &, void const *);
+ROM_TEXT(0803D688) void ResetNpcDailySchedule(Npc & npc, ScheduleInfo const & info, void const * context)
+{
+    unsigned scheduleIndex = info.select_schedule(context);
+    PathInfo const * firstPath = nullptr;
+    if (info.schedules)
+    {
+        Schedule const * schedule = info.schedules[scheduleIndex];
+        if (schedule && schedule->num_time_entries && schedule->time_entries)
+            firstPath = schedule->time_entries[0].path;
+    }
+
+    ActorLocation start = firstPath
+        ? ActorLocation(Location(firstPath->location_start, firstPath->x_start, firstPath->y_start),
+            firstPath->facing_start)
+        : ActorLocation(Location(MAP_NONE, 0, 0), 0);
+    npc.SetLocation(start);
+    npc.schedule_index = scheduleIndex;
+    npc.schedule_path_index = 0;
+    npc.path_point_index = 0;
+    npc.path_point_elapsed_ticks = 0;
+}
 
 ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void const * context)
 {
