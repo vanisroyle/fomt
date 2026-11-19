@@ -179,7 +179,8 @@ struct GameStateEntitySlotVtable
 {
     STRUCT_PAD(0x0, 0x14);
     u32 (*get_map_id)(GameStateMapOwner const & game);
-    STRUCT_PAD(0x18, 0x40);
+    STRUCT_PAD(0x18, 0x3C);
+    void (*remove_entity)(GameStateMapOwner & game, u32 slot);
     AEntity * (*get_entity)(GameStateMapOwner & game, u32 slot);
     AEntity const * (*get_const_entity)(GameStateMapOwner const & game, u32 slot);
     STRUCT_PAD(0x48, 0x5C);
@@ -1224,6 +1225,114 @@ EC SECTION(".text.game_state_c2.0801CDBC") u32 GameStateStrikeFieldDebris(GameSt
     }
 done:
     return 0;
+}
+
+extern Vec2 const gUnk_080F0704[], gUnk_080F0718[], gUnk_080F0730[];
+EC bool DoesEntityCollisionRectangleHitSolidTile(GameStateMapTerrain const &, Box const &);
+
+EC SECTION(".text.game_state_c2.0801E67C") void GameStateRelocateObstructedFarmAnimals(GameStateMapOwner & owner)
+{
+    register GameStateMapOwner * game = &owner;
+    const u32 animal_map = 29;
+    register u32 position_count asm("sl");
+    struct Scratch
+    {
+        struct Terrain
+        {
+            TerrainInfo const * info;
+            u8 const * map;
+            u16 width, height;
+        } terrain;
+        u32 rectangle[sizeof(Box) / sizeof(u32)];
+        Vec2 const * positions;
+    } scratch;
+    asm("" : "+l"(game) : : "r4", "r5", "r6");
+    register int map asm("r0") = game->map_view->map;
+    switch (map)
+    {
+        case 41: scratch.positions = gUnk_080F0704; position_count = 5; break;
+        case 42: scratch.positions = gUnk_080F0718; position_count = 6; break;
+        case 43: scratch.positions = gUnk_080F0730; position_count = 6; break;
+        default: return;
+    }
+    MapData const * data = GetMapData(map);
+    register u16 width asm("r5") = data->width;
+    register u16 height asm("r6") = data->height;
+    register GameStateMapView & view asm("r4") = *game->map_view;
+    GetMapData(view.map);
+    register u32 empty asm("r2") = 0;
+    asm("" : "+l"(empty));
+    register TerrainInfo const * info asm("r0") = view.expanded_terrain;
+    register Scratch::Terrain * area asm("r1") = &scratch.terrain;
+    asm("" : "+l"(area), "+l"(info) : "l"(empty));
+    scratch.terrain.info = info;
+    scratch.terrain.map = reinterpret_cast<u8 *>(empty);
+    area->width = width;
+    area->height = height;
+    register int slot asm("r8") = empty;
+    do
+    {
+        register int current_slot asm("r6") = slot;
+        register AEntity * entity asm("r5") = game->vtable->get_entity(*game, slot);
+        if (!entity)
+            continue;
+        register u32 obstructed asm("r9") = 0;
+        switch (slot)
+        {
+        case 43:
+        case 46: case 47: case 48: case 49: case 50: case 51: case 52: case 53:
+        case 74: case 75: case 76: case 77: case 78: case 79: case 80: case 81: case 82: case 83:
+            if (entity->GetMap() == animal_map)
+            {
+                struct CollisionSlots
+                {
+                    STRUCT_PAD(0, 0xC);
+                    void (*get_box)(Box &, AEntity const &);
+                };
+                register CollisionSlots const * slots asm("r1") = *reinterpret_cast<CollisionSlots const *const *>(reinterpret_cast<u8 *>(entity) + 0x14);
+                asm("" : : "l"(slots));
+                register Box * box_storage asm("r4") = reinterpret_cast<Box *>(scratch.rectangle);
+                register Box * box_out asm("r0") = box_storage;
+                slots->get_box(*box_out, *entity);
+                Box const & box = *reinterpret_cast<Box *>(scratch.rectangle);
+                if (DoesEntityCollisionRectangleHitSolidTile(reinterpret_cast<GameStateMapTerrain const &>(scratch.terrain), box))
+                    obstructed = 1;
+            }
+            break;
+        }
+        if (!obstructed)
+            continue;
+        switch (current_slot)
+        {
+        case 43: case 46: case 47: case 48: case 49: case 50: case 51: case 52: case 53: case 74: case 75:
+            goto relocate;
+        default:
+        relocate:
+            if (entity)
+            {
+                register int offset asm("r0") = (static_cast<u32>(rand()) % position_count) * sizeof(Vec2);
+                register u8 const * table asm("r1") = reinterpret_cast<u8 const *>(scratch.positions);
+                asm("" : "+l"(table), "+l"(offset));
+                register Vec2 const * pos_ptr asm("r0") = reinterpret_cast<Vec2 const *>(table + offset);
+                asm("" : "+l"(pos_ptr));
+                Vec2 const & pos = *pos_ptr;
+                entity->SetLocation(animal_map, pos.x, pos.y);
+            }
+            break;
+        case 76: case 77: case 78: case 79: case 80: case 81: case 82: case 83:
+            if (entity)
+            {
+                game->vtable->remove_entity(*game, current_slot);
+                register u32 map_data_offset asm("r1") = offsetof(GameStateMapOwner, map_data);
+                asm("" : "+l"(map_data_offset) : "l"(game));
+                register GameStateMapData ** state_pointer asm("r0") = reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(game) + map_data_offset);
+                asm("" : "+l"(state_pointer));
+                register GameStateMapData * data asm("r0") = *state_pointer;
+                data->farm.coop.method_0800C9B8(current_slot - 76);
+            }
+            break;
+        }
+    } while (++slot < 100);
 }
 
 EC void RefreshOutsideFarmTerrain(TerrainInfo *, Farm &, bool) asm("func_080171F8");
