@@ -302,7 +302,7 @@ func_08032690: @ 0x08032690
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L080327BC
 .L080327A2:
     adds r4, r5, #0
@@ -314,7 +314,7 @@ func_08032690: @ 0x08032690
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L080327BC:
@@ -419,7 +419,7 @@ func_08032690: @ 0x08032690
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0803289E
 .L08032884:
     adds r4, r5, #0
@@ -431,7 +431,7 @@ func_08032690: @ 0x08032690
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0803289E:

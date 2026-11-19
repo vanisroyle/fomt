@@ -311,12 +311,12 @@ struct SideEntityAudioProvider
     SideEntityAudioProviderVTable * vtable;
 };
 
-EC void func_080A47B4(void * self, u32 flags);
+EC void DestroyMapSpriteResource(void * self, u32 flags);
 
 struct OwnedTransitionSprite
 {
     STRUCT_PAD(0x00, 0x54);
-    ~OwnedTransitionSprite() { func_080A47B4(this, 2); }
+    ~OwnedTransitionSprite() { DestroyMapSpriteResource(this, 2); }
 };
 
 struct SideTransitionOwner
@@ -441,7 +441,7 @@ EC void DestroyActivityRenderSprite(ActivityRenderSprite * self, u32 flags)
 {
     self->vtable = vtable_unk_080E76BC;
     delete self->overlay;
-    func_080A47B4(self->renderer, 2);
+    DestroyMapSpriteResource(self->renderer, 2);
     if (flags & 1)
         delete reinterpret_cast<u8 *>(self);
 }

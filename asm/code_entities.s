@@ -3209,7 +3209,7 @@ func_0802B260: @ 0x0802B260
 .L0802B374:
     ldr r0, [sp, #0x60]
     movs r1, #2
-    bl func_080A47B4
+    bl DestroyMapSpriteResource
     ldr r4, [sp, #0x5c]
     adds r4, #1
     str r4, [sp, #0x5c]
@@ -3784,7 +3784,7 @@ func_0802BFE4: @ 0x0802BFE4
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0802C186
 .L0802C16C:
     adds r4, r5, #0
@@ -3796,7 +3796,7 @@ func_0802BFE4: @ 0x0802BFE4
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0802C186:
@@ -12159,7 +12159,7 @@ sub_0802FBFC: @ 0x0802FBFC
     adds r2, #0xa
     ldr r0, [sp, #0x164]
     adds r1, r7, #0
-    bl func_080A3E90
+    bl GetMapLocationReward
     add r0, sp, #0x94
     ldr r1, [r0, #4]
     ldr r0, [r0]
