@@ -3,6 +3,18 @@
 
 #include "prelude.h"
 
+struct NewGameState
+{
+    u32 unk_00;
+    virtual ~NewGameState();
+};
+
+struct NewGameScene
+{
+    void * vtable;
+    NewGameState * state;
+};
+
 struct NewGameNameState
 {
     STRUCT_PAD(0x0000, 0x4600);

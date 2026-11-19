@@ -1,5 +1,60 @@
 #include "new_game.hh"
 
+extern char vtable_unk_080E5A68[];
+extern char vtable_unk_080E5A88[];
+extern char vtable_unk_080E5AA4[];
+extern char vtable_unk_080E5AC0[];
+
+EC void * __builtin_new(size_t size);
+EC NewGameState * func_08005A58(void * self, void * param, u32 value);
+EC void func_080007EC(void * self, int flags);
+
+EC void func_08004BDC(NewGameScene * self, int flags) SECTION(".text.func_08004BDC");
+EC void func_08004BDC(NewGameScene * self, int flags)
+{
+    self->vtable = vtable_unk_080E5A68;
+    delete self->state;
+    func_080007EC(self, flags);
+}
+
+EC void * func_08004C48(void ** self) SECTION(".text.func_08004C48");
+EC void * func_08004C48(void ** self)
+{
+    *self = vtable_unk_080E5A88;
+    return self;
+}
+
+EC void func_08004C54(void ** self, int flags) SECTION(".text.func_08004C54");
+EC void func_08004C54(void ** self, int flags)
+{
+    *self = vtable_unk_080E5A88;
+    func_080007EC(self, flags);
+}
+
+EC void func_080059D0(NewGameScene * self, int flags) SECTION(".text.func_080059D0");
+EC void func_080059D0(NewGameScene * self, int flags)
+{
+    self->vtable = vtable_unk_080E5AA4;
+    delete self->state;
+    func_080007EC(self, flags);
+}
+
+EC NewGameScene * func_08007078(NewGameScene * self, void * param, u32 value) SECTION(".text.func_08007078");
+EC NewGameScene * func_08007078(NewGameScene * self, void * param, u32 value)
+{
+    self->vtable = vtable_unk_080E5AC0;
+    self->state = func_08005A58(__builtin_new(0x4640), param, value);
+    return self;
+}
+
+EC void func_080070A4(NewGameScene * self, int flags) SECTION(".text.func_080070A4");
+EC void func_080070A4(NewGameScene * self, int flags)
+{
+    self->vtable = vtable_unk_080E5AC0;
+    delete self->state;
+    func_080007EC(self, flags);
+}
+
 EC void func_08008724(void * self);
 
 EC void func_08005254(void * self) SECTION(".text.func_08005254");
