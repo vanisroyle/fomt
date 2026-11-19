@@ -609,7 +609,7 @@ EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
 EC void Scene_DestroyBase(GameStateScript & self, u32 flags);
 EC void func_080D7F9C(GameStateRuntime & self, i32 id, u32 value_1, u32 value_2, u32 value_3, u32 value_4);
-EC void func_080A05E8(void * self, void * value);
+EC void ActivateRosterNamedNpc(void * self, void * value);
 EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
@@ -1681,7 +1681,7 @@ EC SECTION(".text.game_state_08016CEC") void GameScript_ActivateActor(GameStateS
 EC SECTION(".text.game_state_080167DC") void GameScript_RefreshActor23(GameStateScript & script)
 {
     GameStateRuntime & runtime = *script.runtime;
-    func_080A05E8(runtime.saveData + 0x1CD4, runtime.saveData + 0x11);
+    ActivateRosterNamedNpc(runtime.saveData + 0x1CD4, runtime.saveData + 0x11);
     GameStateObject * & object = runtime.scene;
     object->vfunc_38(0x23);
     AActorEntity * entity = object->GetActor(0x23);

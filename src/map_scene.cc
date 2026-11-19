@@ -91,7 +91,7 @@ struct MapScene
 };
 
 EC void func_080AB68C(MapTileEffectQueue *, int, int, u32);
-EC i32 func_080AC96C(GameStateSpriteCache &, u32);
+EC i32 AssignMapSceneSpriteCacheSlot(GameStateSpriteCache &, u32);
 
 struct MapSceneTerrainSource
 {
@@ -1068,7 +1068,7 @@ EC SECTION(".text.080ADAFC") i32 GetMapSceneCachedSpriteSlot(MapScene & scene, u
     i32 spriteSlot = cached - 0x10;
     if (spriteSlot < 0)
     {
-        spriteSlot = func_080AC96C(*reinterpret_cast<GameStateSpriteCache *>(cache), slot);
+        spriteSlot = AssignMapSceneSpriteCacheSlot(*reinterpret_cast<GameStateSpriteCache *>(cache), slot);
         cached = spriteSlot + 0x10;
     }
     return spriteSlot;
