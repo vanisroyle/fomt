@@ -848,3 +848,11 @@ EC SECTION(".text.message_rendering.0804F19C") u32 LoadMessageWindowGraphics(Mes
     scratch.resources.vtable = (const u32 *) vtable_unk_080E5A28;
     return 0;
 }
+
+EC SECTION(".text.message_window.08050E98") u32 ClearMessageWindowButtonMask(MessageWindow * window, u32 mask)
+{
+    MessageWindowState * state = window->state;
+    u32 previous = state->inputFlags.buttons;
+    state->inputFlags.buttons = previous & ~mask;
+    return previous;
+}
