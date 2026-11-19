@@ -569,40 +569,40 @@ struct MineFloor
     u8 unk_627;
 };
 
-ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(MineFloor const &, unsigned value)
+ROM_TEXT(0809D418) unsigned GetSpringMineDigWeightRow(MineFloor const &, unsigned floor)
 {
     unsigned row = 0;
-    if (value == 0)
+    if (floor == 0)
         goto done;
-    if (value <= 9)
+    if (floor <= 9)
         return 1;
-    if (value <= 99)
+    if (floor <= 99)
     {
         row = 2;
-        for (unsigned bound = 20; bound <= 99 && value >= bound; bound += 20)
+        for (unsigned bound = 20; bound <= 99 && floor >= bound; bound += 20)
             ++row;
         return row;
     }
-    if (value == 100)
+    if (floor == 100)
         return 7;
-    if (value <= 249)
+    if (floor <= 249)
     {
         row = 8;
-        for (unsigned bound = 130; bound <= 249 && value >= bound; bound += 30)
+        for (unsigned bound = 130; bound <= 249 && floor >= bound; bound += 30)
             ++row;
         return row;
     }
     row = 14;
-    if (value > 254)
+    if (floor > 254)
         goto done;
     row = 13;
 done:
     return row;
 }
 
-ROM_TEXT(0809D418) unsigned func_0809D470(MineFloor const &, unsigned value)
+ROM_TEXT(0809D418) unsigned GetSpringMineRockWeightRow(MineFloor const &, unsigned floor)
 {
-    switch (value)
+    switch (floor)
     {
     case 20:
         return 12;
@@ -624,27 +624,27 @@ ROM_TEXT(0809D418) unsigned func_0809D470(MineFloor const &, unsigned value)
         return 20;
     }
 
-    unsigned result = value;
+    unsigned result = floor;
     if (result <= 10)
         goto done;
     result = 11;
-    if (value <= 19)
+    if (floor <= 19)
         goto done;
     result = 13;
-    if (value <= 29)
+    if (floor <= 29)
         goto done;
     result = 15;
-    if (value <= 39)
+    if (floor <= 39)
         goto done;
     result = 19;
-    if (value > 230)
+    if (floor > 230)
         goto done;
     result = 17;
 done:
     return result;
 }
 
-ROM_TEXT(0809D79C) unsigned GetAlternateMineFloorChanceRow(MineFloor const &, unsigned floor)
+ROM_TEXT(0809D79C) unsigned GetLakeMineDigWeightRow(MineFloor const &, unsigned floor)
 {
     unsigned row = floor;
     unsigned lastFloorInGroup;
@@ -682,9 +682,9 @@ done:
     return row;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D7D8(MineFloor const &, unsigned value)
+ROM_TEXT(0809D7D8) unsigned GetLakeMineRockWeightRow(MineFloor const &, unsigned floor)
 {
-    switch (value)
+    switch (floor)
     {
         case 255: return 55;
         case 30:
@@ -706,15 +706,15 @@ ROM_TEXT(0809D7D8) unsigned func_0809D7D8(MineFloor const &, unsigned value)
         case 160:
         case 180: return 43;
     }
-    if (value <= 20)
-        return value;
-    if (value > 250)
+    if (floor <= 20)
+        return floor;
+    if (floor > 250)
         return 54;
-    if (value <= 99)
-        return value % 10 + 20;
-    if (value > 199)
-        return value % 10 + 43;
-    return value % 10 + 32;
+    if (floor <= 99)
+        return floor % 10 + 20;
+    if (floor > 199)
+        return floor % 10 + 43;
+    return floor % 10 + 32;
 }
 
 ROM_TEXT(0809D7D8) u32 GetMineFloorKind(MineFloor const & self)
@@ -880,6 +880,46 @@ ROM_TEXT(0809E0AC) MineTileGraphics const * GetMineTileGraphics(MineFloor const 
         case MINE_TILE_STAIRS_UP: return &gMineUpStairsTiles;
         case MINE_TILE_ROCK: return &gMineRockTiles;
         default: return 0;
+    }
+}
+
+ROM_TEXT(0809E118) void CountMineFloorOutcomes(MineFloor const & floor, u8 * outcomeCounts)
+{
+    register MineFloor const * mine asm("r5") = &floor;
+    u8 * counts = outcomeCounts;
+    register unsigned row asm("r6");
+    for (row = 0; row < static_cast<unsigned>(GetMineFloorHeight(*mine)); )
+    {
+        register unsigned column asm("r4") = 0;
+        register unsigned nextRow asm("r3") = row + 1;
+        volatile unsigned savedNextRow;
+
+        goto testColumn;
+    countTile:
+        {
+            register unsigned columnOffset asm("r2") = column * sizeof(MineFloor::Tile);
+            asm("" : "+r"(columnOffset));
+            unsigned offset = columnOffset + row * sizeof(mine->tiles[0]);
+            u8 const * tileBytes = reinterpret_cast<u8 const *>(mine) + offset + offsetof(MineFloor, tiles);
+            MineFloor::Tile const & tile = *reinterpret_cast<MineFloor::Tile const *>(tileBytes);
+            register u8 * rockCount asm("r0") = &counts[tile.rockOutcome];
+            asm("" : "+r"(rockCount));
+            ++*rockCount;
+            // The dig outcome occupies the upper six bits of the second byte.
+            unsigned digOutcome = reinterpret_cast<u8 const *>(&tile)[1] >> 2;
+            ++counts[digOutcome];
+            ++column;
+        }
+    testColumn:
+        // Match the original spill of the next row across the width call.
+        register MineFloor const * mineArg asm("r0") = mine;
+        asm("" : "+r"(mineArg));
+        savedNextRow = nextRow;
+        register unsigned width asm("r0") = GetMineFloorWidth(*mineArg);
+        nextRow = savedNextRow;
+        if (column < width)
+            goto countTile;
+        row = nextRow;
     }
 }
 

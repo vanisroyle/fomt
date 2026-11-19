@@ -244,7 +244,7 @@ EC void ApplyMapRow2PatchA(GameStateMapView & view);
 EC void ApplyMapRow2PatchB(GameStateMapView & view);
 EC void ApplyMapRow17PatchA(GameStateMapView & view);
 EC void ApplyMapRow17PatchB(GameStateMapView & view);
-EC void func_080A607C(GameStateMapView & view, u32 index);
+EC void ApplyMapIndexedOverlayPatch(GameStateMapView & view, u32 index);
 EC void ApplyMapIndexedFixturePatch(GameStateMapView & view, u32 index);
 EC void StartMapTransitionDelay(GameStateMapView & view);
 EC void ApplyMapBuildingDoorPatch(GameStateMapView & view, u32 alternate);
@@ -723,7 +723,7 @@ EC SECTION(".text.game_state_c2.0801DD54") void GameStateApplyRow2TilePatchVaria
 
 EC SECTION(".text.game_state_c2.0801DD60") void GameStateApplyMapTilePatchAtIndex(GameStateMapOwner & game, u32 index)
 {
-    func_080A607C(*game.map_view, index);
+    ApplyMapIndexedOverlayPatch(*game.map_view, index);
 }
 
 EC SECTION(".text.game_state_c2.0801DD6C") void GameStateApplyMapTilePatchInColumn(GameStateMapOwner & game, u32 index)

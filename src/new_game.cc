@@ -16,7 +16,7 @@ EC void Scene_DestroyBase(void * self, int flags);
 EC NewGameState * func_080041DC(void * self, void * param, void * owner);
 EC NewGameState * func_08004EFC(void * self, void * a, void * b, u32 c, u32 d);
 EC void DestroyMessageWindow(void * self, int flags);
-EC void func_080086BC(void * self, int flags);
+EC void HardwareContext_Destroy(void * self, int flags);
 EC void * HardwareContext_GetState(void * self);
 EC void * HardwareContext_GetOamBuffer(void * self);
 EC void * HardwareContext_GetDisplayRegisters(void * self);
@@ -246,7 +246,7 @@ EC void func_080050C8(NewGameChoiceLifetime * self, int flags)
     self->vtable = vtable_unk_080E5A98;
     if (self->resource != nullptr)
         DestroyMessageWindow(self->resource, 3);
-    func_080086BC(self, flags);
+    HardwareContext_Destroy(self, flags);
 }
 
 EC NewGameScene * func_0800598C(NewGameScene * self, void * a, void * b, u32 c, u32 d) SECTION(".text.func_0800598C");
@@ -263,7 +263,7 @@ EC void func_08005B38(NewGameNameLifetime * self, int flags)
     self->vtable = vtable_unk_080E5AB4;
     if (self->resource != nullptr)
         DestroyMessageWindow(self->resource, 3);
-    func_080086BC(self, flags);
+    HardwareContext_Destroy(self, flags);
 }
 
 EC bool func_08006C60(NewGameNameState * self) SECTION(".text.func_08006C60");

@@ -73,16 +73,16 @@ vtable_unk_080E5AE0:
 vtable_unk_080E5AF0:
 	.incbin "baserom.gba", 0xE5AF0, 0x10
 
-	.global vtable_unk_080E5B00
-vtable_unk_080E5B00:
+	.global gHardwareContextVtable
+gHardwareContextVtable:
 	.incbin "baserom.gba", 0xE5B00, 0xC
 
-	.global vtable_unk_080E5B0C
-vtable_unk_080E5B0C:
+	.global gVBlankIrqSubscriptionVtable
+gVBlankIrqSubscriptionVtable:
 	.incbin "baserom.gba", 0xE5B0C, 0xC
 
-	.global vtable_unk_080E5B18
-vtable_unk_080E5B18:
+	.global gVBlankRootTaskListVtable
+gVBlankRootTaskListVtable:
 	.incbin "baserom.gba", 0xE5B18, 0x24
 
 	.global vtable_unk_080E5B3C
@@ -105,8 +105,8 @@ vtable_unk_080E5B60:
 vtable_unk_080E5B70:
 	.incbin "baserom.gba", 0xE5B70, 0x10
 
-	.global vtable_unk_080E5B80
-vtable_unk_080E5B80:
+	.global gDisplayFadeTaskVtable
+gDisplayFadeTaskVtable:
 	.incbin "baserom.gba", 0xE5B80, 0x10
 
 	.global gIrqTaskListVtable
@@ -445,7 +445,9 @@ vtable_unk_080E65E0:
 
 	.global vtable_unk_080E65F4
 vtable_unk_080E65F4:
-	.incbin "baserom.gba", 0xE65F4, 0x50
+	.incbin "baserom.gba", 0xE65F4, 0x48
+	.4byte BeginItemDisplayThrow
+	.incbin "baserom.gba", 0xE6640, 0x4
 
 	.global vtable_unk_080E6644
 vtable_unk_080E6644:
@@ -819,9 +821,18 @@ vtable_unk_080E7768:
 vtable_unk_080E7778:
 	.incbin "baserom.gba", 0xE7778, 0x2C
 
-	.global vtable_unk_080E77A4
-vtable_unk_080E77A4:
-	.incbin "baserom.gba", 0xE77A4, 0x2C
+	.global gPauseMenuWindowVtable
+gPauseMenuWindowVtable:
+	.4byte 0, 0
+	.4byte DestroyPauseMenuWindow
+	.4byte OpenPauseMenuWindow
+	.4byte OpenPauseMenuWindowImmediately
+	.4byte func_0803BED4
+	.4byte func_0803BEE0
+	.4byte func_0803BEEC
+	.4byte func_0803BEF4
+	.4byte func_0803BEFC
+	.4byte func_0803BF08
 
 	.global vtable_unk_080E77D0
 vtable_unk_080E77D0:
