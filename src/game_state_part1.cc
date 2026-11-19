@@ -184,6 +184,30 @@ struct GameStateActorEntity : public AActorEntity
     virtual void vfunc_AC();
 };
 
+struct GameStateActiveEntity : public AActorEntity
+{
+    GameStateActiveEntity();
+
+    virtual void vfunc_3C();
+    virtual void vfunc_40();
+    virtual void vfunc_44();
+    virtual void vfunc_48();
+    virtual void vfunc_4C();
+    virtual void vfunc_50();
+    virtual void vfunc_54();
+    virtual void vfunc_58();
+    virtual bool vfunc_5C();
+    virtual void vfunc_60();
+    virtual void vfunc_64();
+    virtual void vfunc_68();
+    virtual void vfunc_6C();
+    virtual void vfunc_70();
+    virtual void vfunc_74();
+    virtual void vfunc_78();
+    virtual void vfunc_7C();
+};
+
+
 struct GameStateObject
 {
     virtual ~GameStateObject();
@@ -306,6 +330,7 @@ struct GameStateGlobalStatus
 
     u8 unk_00;
     u32 unk_04;
+    u16 unk_08;
 };
 
 struct GameStateScriptEngine : public ScriptEngine
@@ -356,6 +381,10 @@ EC void func_08050D74(void * self);
 EC void func_080D7F88(GameStateRuntime & self);
 EC void func_080D7F74(GameStateRuntime & self);
 EC void func_080D7F60(GameStateRuntime & self);
+EC void func_08050E68(void * self, u32 value);
+EC void func_08050E50(void * self, u32 value);
+EC u32 func_0809FE3C(void * self, u32 value);
+EC void func_08033B84(AActorEntity & self, u32 map, i32 x, i32 y);
 
 EC void SECTION(".text.game_state_08012454") func_08012454(GameStateScript & self)
 {
@@ -935,4 +964,99 @@ EC void SECTION(".text.game_state_080146CC") func_080146CC(GameStateScript & sel
     GameStateRuntime & runtime = *self.runtime;
     reinterpret_cast<Coop *>(runtime.state + 0x410)->BeginIncubation(index);
     runtime.object->vfunc_AC(index);
+}
+
+EC u32 SECTION(".text.game_state_080115A8") func_080115A8()
+{
+    return 0x34FC;
+}
+
+EC u32 SECTION(".text.game_state_08011464") func_08011464(GameStateWordHeader & self, u32 value)
+{
+    if (value > 99)
+        value = 99;
+    u32 result;
+    if (self.value >= value)
+        result = 0;
+    else
+    {
+        self.value = value;
+        result = 1;
+    }
+    return result;
+}
+
+EC u32 SECTION(".text.game_state_080114C8") func_080114C8(GameStateHeader & self, u32 value)
+{
+    if (value > 99)
+        value = 99;
+    u32 result;
+    if (self.value_3 >= value)
+        result = 0;
+    else
+    {
+        self.value_3 = value;
+        result = 1;
+    }
+    return result;
+}
+
+EC void SECTION(".text.game_state_08012720") func_08012720(GameStateScript & self, u32 value)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    if (runtime.actor != nullptr && (i32(u32(runtime.state[0x2210]) << 28) < 0))
+        func_08050E68(runtime.actor, value);
+}
+
+EC void SECTION(".text.game_state_08012760") func_08012760(GameStateScript & self, u32 value)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    if (runtime.actor != nullptr && (i32(u32(runtime.state[0x2210]) << 29) < 0))
+        func_08050E50(runtime.actor, value);
+}
+
+EC void SECTION(".text.game_state_080126E4") func_080126E4(GameStateScript & self, u32 value)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    void * actor = runtime.actor;
+    if (actor != nullptr && (i32(u32(runtime.state[0x2210]) << 28) < 0))
+        func_08050E68(actor, func_0809FE3C(runtime.state + 0x1CD4, value));
+}
+
+EC void SECTION(".text.game_state_0801223C") func_0801223C(GameStateScript & self, u32 id, i32 x, i32 y)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+    {
+        i32 current_x = reinterpret_cast<i16 const *>(&entity->x_q16)[1];
+        i32 current_y = reinterpret_cast<i16 const *>(&entity->y_q16)[1];
+        current_x += x;
+        current_y += y;
+        func_08033B84(*entity, reinterpret_cast<u8 *>(entity)[0x30], current_x, current_y);
+    }
+}
+
+EC void SECTION(".text.game_state_08016D48") func_08016D48(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    AActorEntity * entity = runtime.object->vfunc_40(0);
+    GameStateGlobalStatus & status = gUnk_0300040C->status;
+    u16 map = entity->location_map;
+    u8 * state = runtime.state;
+    status.unk_00 = 1;
+    status.unk_04 = map;
+    status.unk_08 = *reinterpret_cast<u16 *>(state + 0x12);
+}
+
+EC void SECTION(".text.game_state_08016F60") func_08016F60(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    u32 id = 0x2E;
+    GameStateObject * & object = runtime.object;
+    for (; id <= 0x45; id++)
+    {
+        GameStateActiveEntity * entity = reinterpret_cast<GameStateActiveEntity *>(object->vfunc_40(id));
+        if (entity != nullptr && entity->vfunc_5C())
+            entity->vfunc_7C();
+    }
 }
