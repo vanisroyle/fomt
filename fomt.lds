@@ -992,6 +992,8 @@ SECTIONS
         src/g1_construction.o(.text.g1_0809E988);
         asm/g1_npc.o(.text.g1_after_b3_0809E988);
         asm/g1_npc.o(.text.g1_after_0809E988);
+        src/g1_event_slot.o(.text.g1_0809E994);
+        asm/g1_npc.o(.text.g1_after_b7_0809E994);
         asm/g1_npc.o(.text.g1_after_0809E994);
         src/g1_named_npc.o(.text.g1_0809E9B8);
         asm/g1_npc.o(.text.g1_after_b4_0809E9B8);
@@ -1077,6 +1079,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A0504);
         src/g1_schedule_extra.o(.text.g1_080A0518);
         asm/g1_npc.o(.text.g1_after_b4_080A0518);
+        src/g1_roster_activation.o(.text.g1_080A05E8);
+        asm/g1_npc.o(.text.g1_after_b7_080A05E8);
         src/g1_schedule_extra.o(.text.g1_080A06B0);
         asm/g1_npc.o(.text.g1_after_b4_080A06B0);
         src/g1_roster.o(.text.g1_080A0878);
@@ -1250,7 +1254,7 @@ SECTIONS
         asm/code_809E804.o(.text.080AC124);
         src/map_scene.o(.text.080AC674);
         src/map_scene.o(.text.080AC85C);
-        asm/code_809E804.o(.text.080AC96C);
+        src/game_state_part2.o(.text.080AC96C);
         src/map_scene.o(.text.080AC9EC);
         src/map_scene.o(.text.080ACAF0);
         asm/code_809E804.o(.text.080ACC10);
