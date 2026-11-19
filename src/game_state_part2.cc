@@ -1,5 +1,7 @@
 #include "prelude.h"
 
+#include <new>
+
 #include "entity.hh"
 #include "farm.hh"
 #include "farmer.hh"
@@ -87,6 +89,7 @@ struct GameStateMapData
 struct GameStateMapOwner;
 struct GameStateVaseDisplay;
 struct GameStatePackedSpriteArchive;
+struct MapTileEffectQueue;
 
 struct GameStateMapOverlay
 {
@@ -237,7 +240,8 @@ struct GameStateMapOwner
     GameStateSpriteCache sprite_cache;
     GameStatePackedSpriteArchive sprite_archives[13];
     GameStateMapEffect * map_effect;
-    STRUCT_PAD(0x1028, 0x1038);
+    MapTileEffectQueue * tile_effects;
+    STRUCT_PAD(0x102C, 0x1038);
     GameStateMapData * map_data;
     bool entities_enabled;
     STRUCT_PAD(0x103D, 0x1040);
@@ -1308,6 +1312,232 @@ EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameSt
     return result;
 }
 
+EC void QueueDebrisEffect(MapTileEffectQueue *, int, int, u32) asm("ScheduleMapTileEffect");
+EC int GetFieldDebrisQuadrant(FieldPlot const &) asm("GameStateVariant_GetColumn");
+
+EC SECTION(".text.game_state_c2.0801C874") u32 GameStateStrikeFieldPlots(
+    GameStateMapOwner & game, int column, int row, int tool_strength)
+{
+    register int strength asm("sl") = tool_strength;
+    register u32 data_offset asm("r3") = 0x1038;
+    asm("" : "+l"(data_offset) : "h"(strength));
+    register GameStateMapData ** data_slot asm("r0") = reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(&game) + data_offset);
+    register GameStateMapData * state asm("r3") = *data_slot;
+    register u32 field_offset asm("r0") = 0x9DC;
+    asm("" : "+l"(field_offset) : "l"(state));
+    register u8 * field asm("r3") = reinterpret_cast<u8 *>(state) + field_offset;
+    register int index asm("r0") = row * Farm::FIELD_WIDTH;
+    index = column + index;
+    register FieldPlot & plot asm("r4") = *reinterpret_cast<FieldPlot *>(field + index * sizeof(FieldPlot));
+    register int x = column;
+    register int y asm("r8") = row;
+    register int result asm("r9");
+    if (plot.method_0800A78C())
+    {
+        register int quadrant asm("r0") = GetFieldDebrisQuadrant(plot);
+        if (quadrant == 1)
+            goto shift_left;
+        asm("" : "+l"(quadrant));
+        if (quadrant <= 1)
+            goto top_left;
+        if (quadrant == 2)
+            goto shift_up;
+        if (quadrant == 3)
+            goto shift_up_and_left;
+        goto top_left;
+    shift_left:
+        --x;
+        goto top_left;
+    shift_up:
+        {
+            register int back asm("r1") = -1;
+            asm("" : "+l"(back));
+            y += back;
+        }
+        goto top_left;
+    shift_up_and_left:
+        --x;
+        {
+            register int back asm("r2") = -1;
+            asm("" : "+l"(back));
+            y += back;
+        }
+    top_left:
+        result = GameStateHitFieldPlot(game, x, y, strength);
+        register int east asm("r5") = x + 1;
+        GameStateHitFieldPlot(game, east, y, strength);
+        register int south asm("r4") = y + 1;
+        GameStateHitFieldPlot(game, x, south, strength);
+        GameStateHitFieldPlot(game, east, south, strength);
+    }
+    else
+        result = GameStateHitFieldPlot(game, x, y, strength);
+    if (game.vtable->get_map_id(game) == 2)
+    {
+        register u32 effect asm("r3") = result;
+        asm("" : : "l"(effect));
+        switch (effect)
+        {
+        case 0: case 1: case 2: case 6: break;
+        case 3:
+            QueueDebrisEffect(game.tile_effects, x * 16 + 280, y * 16 + 192, 3);
+            break;
+        case 4:
+            QueueDebrisEffect(game.tile_effects, x * 16 + 280, y * 16 + 192, 1);
+            break;
+        case 5:
+            QueueDebrisEffect(game.tile_effects, x * 16 + 280, y * 16 + 192, 2);
+            break;
+        case 7:
+            QueueDebrisEffect(game.tile_effects, x * 16 + 288, y * 16 + 208, 8);
+            break;
+        case 8:
+            QueueDebrisEffect(game.tile_effects, x * 16 + 288, y * 16 + 208, 6);
+            break;
+        }
+        asm("" : : "l"(effect));
+    }
+    return 0;
+}
+
+EC SECTION(".text.game_state_c2.0801CDBC") u32 GameStateStrikeFieldDebris(GameStateMapOwner & game, int column, int row, int tool_strength)
+{
+    register int strength asm("sl") = tool_strength;
+    register u32 data_offset asm("r3") = 0x1038;
+    asm("" : "+l"(data_offset) : "h"(strength));
+    register GameStateMapData ** data_slot asm("r0") = reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(&game) + data_offset);
+    register GameStateMapData * state asm("r3") = *data_slot;
+    register u32 field_offset asm("r0") = 0x9DC;
+    asm("" : "+l"(field_offset) : "l"(state));
+    register u8 * field asm("r3") = reinterpret_cast<u8 *>(state) + field_offset;
+    register int index asm("r0") = row * Farm::FIELD_WIDTH;
+    index = column + index;
+    register FieldPlot & plot asm("r4") = *reinterpret_cast<FieldPlot *>(field + index * sizeof(FieldPlot));
+    register int x = column;
+    register int y asm("r8") = row;
+    register int result asm("r9");
+    if (plot.method_0800A78C())
+    {
+        register int quadrant asm("r0") = GetFieldDebrisQuadrant(plot);
+        if (quadrant == 1)
+            goto shift_left;
+        asm("" : "+l"(quadrant));
+        if (quadrant <= 1)
+            goto top_left;
+        if (quadrant == 2)
+            goto shift_up;
+        if (quadrant == 3)
+            goto shift_up_and_left;
+        goto top_left;
+    shift_left:
+        --x;
+        goto top_left;
+    shift_up:
+        {
+            register int back asm("r1") = -1;
+            asm("" : "+l"(back));
+            y += back;
+        }
+        goto top_left;
+    shift_up_and_left:
+        --x;
+        {
+            register int back asm("r2") = -1;
+            asm("" : "+l"(back));
+            y += back;
+        }
+    top_left:
+        result = GameStateDamageFieldDebris(game, x, y, strength);
+        register int east asm("r5") = x + 1;
+        GameStateDamageFieldDebris(game, east, y, strength);
+        register int south asm("r4") = y + 1;
+        GameStateDamageFieldDebris(game, x, south, strength);
+        GameStateDamageFieldDebris(game, east, south, strength);
+    }
+    else
+        result = GameStateDamageFieldDebris(game, x, y, strength);
+    if (game.vtable->get_map_id(game) == 2)
+    {
+        register int effect asm("r3") = result;
+        asm("" : "+l"(effect));
+        if (effect == 1)
+            goto small_debris;
+        asm("" : "+l"(effect));
+        if (effect <= 1)
+            goto done;
+        if (effect == 2)
+            goto stump;
+        goto done;
+    small_debris:
+        game.map_data->farm.method_08009B68(1);
+        QueueDebrisEffect(game.tile_effects, x * 16 + 280, y * 16 + 187, 4);
+        goto done;
+    stump:
+        game.map_data->farm.method_08009B68(6);
+        QueueDebrisEffect(game.tile_effects, x * 16 + 288, y * 16 + 208, 7);
+    }
+done:
+    return 0;
+}
+
+EC void RefreshOutsideFarmTerrain(TerrainInfo *, Farm &, bool) asm("func_080171F8");
+
+EC SECTION(".text.game_state_c2.0801E90C") void GameStateClearFieldPlotsUnderActors(GameStateMapOwner & owner)
+{
+    register GameStateMapOwner & game asm("r8") = owner;
+    u32 changed = false;
+    for (int i = 0; i < 100; ++i)
+    {
+        register GameStateMapOwner * map_owner asm("r1") = &game;
+        register GameStateEntitySlotVtable const * slots asm("r0") = map_owner->vtable;
+        AEntity * actor = slots->get_entity(game, i);
+        if (!actor || actor->GetMap() != 2)
+            continue;
+        Box box = actor->GetBox();
+        Box limits = box;
+        register Box * bounds asm("r4") = &limits;
+        asm("" : "+l"(bounds));
+        register Box * lower_bounds asm("r6") = bounds;
+        int left = std::max(0, ((bounds->x1 >> 3) - 34) >> 1);
+        int right = std::min<int>(Farm::FIELD_WIDTH - 1, (((bounds->x2 - 1) >> 3) - 34) >> 1);
+        int top = std::max(0, ((bounds->y1 >> 3) - 22) >> 1);
+        int bottom = std::min<int>(Farm::FIELD_HEIGHT - 1, (((lower_bounds->y2 - 1) >> 3) - 22) >> 1);
+        for (int y = top; y <= bottom; ++y)
+        {
+            for (int x = left; x <= right; ++x)
+            {
+                FieldPlot & plot = game.map_data->farm.field.PlotAt(x, y);
+                if (plot.GetUnk2() == 21)
+                {
+                    plot.method_0800A4A4();
+                    changed = true;
+                }
+            }
+        }
+    }
+    if (changed)
+    {
+        register GameStateMapOwner * map_owner asm("r2") = &game;
+        asm("" : "+l"(map_owner));
+        register GameStateMapView & view asm("r5") = *map_owner->map_view;
+        if (view.id == 2)
+        {
+            GameStateMapDisplayVtable const * display = view.display_vtable;
+            register u32 band asm("r1") = game.daylight_band;
+            register int amount asm("r2") = game.daylight_amount;
+            display->apply_daylight(view, band, amount, 30 - amount);
+        }
+        else
+        {
+            TerrainInfo * terrain = const_cast<TerrainInfo *>(game.farm_terrain);
+            GameStateMapData * state = game.map_data;
+            Farm & farm = state->farm;
+            u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+            RefreshOutsideFarmTerrain(terrain, farm, season == SEASON_WINTER);
+        }
+    }
+}
+
 EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
     GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result)
 {
@@ -1451,6 +1681,185 @@ EC SECTION(".text.game_state_c2.0801C198") bool GameStateFindMinePlot(
     }
 done:
     return found;
+}
+
+struct GameStateLooseItemRect
+{
+    i16 left, top, right, bottom;
+};
+
+struct GameStateLooseItemTile
+{
+    i16 x, y;
+};
+
+struct GameStateLooseItemInfo
+{
+    u32 kind, map;
+    i16 x, y;
+    u32 variant;
+};
+
+struct GameStateLooseItemStore
+{
+    RucksackItem PickUp(u32, GameStateLooseItemRect const &, u32) asm("func_080A1B38");
+};
+
+EC int FindLooseItem(GameStateLooseItemStore const &, u32, GameStateLooseItemRect const &, u32)
+    asm("FindMapForageLocation");
+EC void ReadLooseItemInfo(GameStateLooseItemInfo &, GameStateLooseItemStore const &, int)
+    asm("GetMapForageObstacle");
+EC void RefreshLooseItemTile(GameStateMapView &, u32, GameStateLooseItemTile const &, u32, u32)
+    asm("func_080A5F78");
+
+struct GameStateLooseItemInteraction
+{
+    bool removed;
+    i32 effect;
+    i32 x, y;
+    bool changed;
+};
+
+EC bool ApplyLooseItemInteraction(Farm &, GameStateLooseItemStore &, int, u32, u32, bool,
+    GameStateLooseItemInteraction &) asm("func_080174C8");
+
+EC SECTION(".text.game_state_c2.0801D104") bool GameStateBreakLooseItem(GameStateMapOwner & game, Location const & location,
+    u32 strength, bool heavyTool, GameStateLooseItemInteraction & result)
+{
+    GameStateMapData ** data_slot = &game.map_data;
+    GameStateMapData * state = *data_slot;
+    GameStateLooseItemStore & items = *reinterpret_cast<GameStateLooseItemStore *>(reinterpret_cast<u8 *>(state) + 0x34C8);
+    register u32 season asm("r8") = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+    GameStateLooseItemRect bounds;
+    u8 const * bytes = reinterpret_cast<u8 const *>(&location);
+    u16 const * words = reinterpret_cast<u16 const *>(&location);
+    register u32 low_x asm("r0") = bytes[1] >> 2;
+    asm("" : "=l"(low_x) : "0"(low_x));
+    register u32 high_x asm("r1") = words[1];
+    asm("" : "=l"(high_x) : "0"(high_x), "l"(low_x));
+    register u32 mask asm("r3") = 0x3FF;
+    asm("" : "=l"(mask) : "0"(mask), "l"(high_x));
+    high_x = mask & high_x;
+    asm("" : "=l"(high_x) : "0"(high_x), "l"(mask));
+    register int x asm("r1") = static_cast<i16>((high_x << 6) | low_x);
+    register u32 low_y asm("r2") = bytes[3] >> 2;
+    register u32 high_y asm("r0") = words[2];
+    asm("" : "=l"(high_y) : "0"(high_y), "l"(low_y));
+    high_y = mask & high_y;
+    asm("" : "=l"(high_y) : "0"(high_y), "l"(mask));
+    register int y asm("r0") = static_cast<i16>((high_y << 6) | low_y);
+    register GameStateLooseItemRect * rect asm("r2") = &bounds;
+    asm("" : "=l"(rect) : "0"(rect), "l"(x), "l"(y));
+    rect->left = x;
+    rect->top = y;
+    rect->right = x + 1;
+    rect->bottom = y + 1;
+
+    register int index asm("r4") = FindLooseItem(items, location.GetMap(), *rect, season);
+    if (index != -1)
+    {
+        GameStateLooseItemInfo record;
+        ReadLooseItemInfo(record, items, index);
+        register GameStateLooseItemInfo * info asm("r6") = &record;
+        asm("" : : "l"(info));
+        register GameStateMapData * current = *data_slot;
+        register Farm * farm = &current->farm;
+        register u32 store_offset = 0x34C8;
+        register GameStateLooseItemStore * current_items = reinterpret_cast<GameStateLooseItemStore *>(reinterpret_cast<u8 *>(current) + store_offset);
+        ApplyLooseItemInteraction(*farm, *current_items, index, season, strength, heavyTool, result);
+        if (result.removed)
+        {
+            u32 map = location.GetMap();
+            register GameStateMapView * active_view asm("r1") = game.map_view;
+            register u32 map_id asm("r2") = active_view->id;
+            register GameStateMapView * view asm("r5") = active_view;
+            if (map == map_id)
+            {
+                register int width asm("r3");
+                register int height asm("r4");
+                switch (result.effect)
+                {
+                case 4: width = 2; height = 2; break;
+                case 7: width = 4; asm("" : "+l"(width)); goto tall;
+                case 6: width = 4; asm("" : "+l"(width)); goto tall;
+                case 9: width = 6; tall: height = 4; break;
+                default: goto miss;
+                }
+                register int pixel_x asm("r0") = info->x;
+                asm("" : "=l"(pixel_x) : "0"(pixel_x));
+                register int tile_x asm("r1") = pixel_x / 8;
+                register int tile_y asm("r0") = info->y / 8;
+                asm("" : : "l"(tile_x), "l"(tile_y), "l"(width), "l"(height));
+                GameStateLooseItemTile origin;
+                register GameStateLooseItemTile * tile = &origin;
+                tile->x = tile_x;
+                tile->y = tile_y;
+                RefreshLooseItemTile(*view, 1, *tile, width, height);
+            }
+        }
+        return true;
+    }
+miss:
+    return false;
+}
+
+EC SECTION(".text.game_state_c2.0801D6AC") RucksackItem GameStateCollectLooseItem(
+    GameStateMapOwner & game, Location const & location)
+{
+    GameStateMapData * state = game.map_data;
+    GameStateLooseItemStore & items = *reinterpret_cast<GameStateLooseItemStore *>(reinterpret_cast<u8 *>(state) + 0x34C8);
+    register u32 season asm("r9") = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+    GameStateLooseItemRect bounds;
+
+    u8 const * bytes = reinterpret_cast<u8 const *>(&location);
+    u16 const * words = reinterpret_cast<u16 const *>(&location);
+    register u32 low_x asm("r0") = bytes[1] >> 2;
+    asm("" : "=l"(low_x) : "0"(low_x));
+    register u32 high_x asm("r1") = words[1];
+    asm("" : "=l"(high_x) : "0"(high_x), "l"(low_x));
+    register u32 mask asm("r3") = 0x3FF;
+    asm("" : "=l"(mask) : "0"(mask), "l"(high_x));
+    high_x = mask & high_x;
+    asm("" : "=l"(high_x) : "0"(high_x), "l"(mask));
+    register int x asm("r1") = static_cast<i16>((high_x << 6) | low_x);
+    register u32 low_y asm("r2") = bytes[3] >> 2;
+    register u32 high_y asm("r0") = words[2];
+    asm("" : "=l"(high_y) : "0"(high_y), "l"(low_y));
+    high_y = mask & high_y;
+    asm("" : "=l"(high_y) : "0"(high_y), "l"(mask));
+    register int y asm("r0") = static_cast<i16>((high_y << 6) | low_y);
+    register GameStateLooseItemRect * rect asm("r4") = &bounds;
+    asm("" : "=l"(rect) : "0"(rect), "l"(x), "l"(y));
+    rect->left = x;
+    rect->top = y;
+    rect->right = x + 1;
+    rect->bottom = y + 1;
+
+    u8 item_storage[sizeof(RucksackItem)] ALIGN(4);
+    register int index asm("r8") = FindLooseItem(items, location.GetMap(), *rect, season);
+    new (item_storage) RucksackItem;
+    if (index != -1)
+    {
+        RucksackItem & item = *reinterpret_cast<RucksackItem *>(item_storage);
+        item = items.PickUp(location.GetMap(), *rect, season);
+        GameStateLooseItemInfo record;
+        if (!item.IsEmpty() && location.GetMap() == game.map_view->id)
+        {
+            GameStateLooseItemTile redraw_origin;
+            ReadLooseItemInfo(record, items, index);
+            register GameStateMapView * view = game.map_view;
+            register int pixel_x asm("r0") = record.x;
+            asm("" : "=l"(pixel_x) : "0"(pixel_x));
+            register int tile_x asm("r3") = pixel_x / 8;
+            register int tile_y asm("r0") = record.y / 8;
+            asm("" : : "l"(tile_x), "l"(tile_y));
+            register GameStateLooseItemTile * tile = &redraw_origin;
+            tile->x = tile_x;
+            tile->y = tile_y;
+            RefreshLooseItemTile(*view, 1, *tile, 2, 2);
+        }
+    }
+    return *reinterpret_cast<RucksackItem const *>(item_storage);
 }
 
 EC SECTION(".text.game_state_c2.0801D88C") GameStatePlotPlacement GameStateCheckFarmPlotPlacement(

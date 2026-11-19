@@ -98,6 +98,8 @@ SECTIONS
         asm/new_game.o(.text);
         src/new_game.o(.text.func_08003C28);
         asm/new_game.o(.text.after_08003C28);
+        src/new_game.o(.text.func_08003DF0);
+        src/new_game.o(.text.func_08003E88);
         src/new_game.o(.text.func_08003EEC);
         asm/new_game.o(.text.after_08003EEC);
         src/new_game.o(.text.func_08004B58);
@@ -129,11 +131,13 @@ SECTIONS
         src/new_game.o(.text.func_08006334);
         asm/new_game.o(.text.after_08006334);
         src/new_game.o(.text.func_08006858);
-        asm/new_game.o(.text.after_08006858);
+        src/new_game.o(.text.func_080068CC);
+        asm/new_game.o(.text.after_080068CC);
         src/new_game.o(.text.func_08006C28);
         asm/new_game.o(.text.after_08006C28);
         src/new_game.o(.text.func_08006C60);
         asm/new_game.o(.text.after_08006C60);
+        src/new_game.o(.text.func_08006CDC);
         src/new_game.o(.text.func_08006ED8);
         asm/new_game.o(.text.after_08006ED8);
         src/new_game.o(.text.func_08007078);
@@ -141,7 +145,7 @@ SECTIONS
         src/new_game.o(.text.func_080070A4);
         asm/new_game.o(.text.after_080070A4);
         src/new_game.o(.text.func_08007110);
-        asm/new_game.o(.text.after_08007110);
+        src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
         asm/hardware.o(.text.handle_alloc);
         src/hardware.o(.text.handle_retain);
