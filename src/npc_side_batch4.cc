@@ -1,4 +1,5 @@
 #include "entity_actor.hh"
+#include "farm.hh"
 
 #define NPC_EXTRA_CODE(address) SECTION(".text.npc_extra." #address)
 #define NPC_SIDE_CODE(address) SECTION(".text.npc_side." #address)
@@ -190,4 +191,142 @@ EC AEntity * InitializeReactionEntity(AEntity * self, GameObject * game, Locatio
     InitializeEntityBase(self, game, location);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7444;
     return self;
+}
+
+struct PACKED SpriteWorkTarget
+{
+    u8 kind : 4;
+    u8 flags : 4;
+    u8 index;
+    u8 row;
+};
+
+struct SpriteTaskActor
+{
+    STRUCT_PAD(0x00, 0x04);
+    u16 map;
+    STRUCT_PAD(0x06, 0x0A);
+    i16 x;
+    STRUCT_PAD(0x0C, 0x0E);
+    i16 y;
+};
+
+struct SpriteTaskActorProvider;
+struct SpriteTaskActorProviderVTable
+{
+    STRUCT_PAD(0x00, 0x44);
+    SpriteTaskActor * (*get_actor)(SpriteTaskActorProvider *, u32);
+};
+
+struct SpriteTaskActorProvider
+{
+    SpriteTaskActorProviderVTable * vtable;
+};
+
+struct IndexedSpriteWorkerEntity : AActorEntity
+{
+    IndexedSpriteWorkerEntity();
+    u8 sprite_id;
+};
+
+struct SideEntityEffectFlags
+{
+    STRUCT_PAD(0x00, 0x26);
+    u8 effect_state;
+};
+
+struct SideEntityItemCounter : AEntity
+{
+    SideEntityItemCounter();
+    void * item_collection;
+};
+
+EC Vec2 GetSpriteTaskActorCoordinates(SpriteTaskActorProvider * actors, u32 actor_index) NPC_SIDE_CODE(08033800);
+EC Vec2 GetSpriteTaskActorCoordinates(SpriteTaskActorProvider * actors, u32 actor_index)
+{
+    SpriteTaskActor * actor = actors->vtable->get_actor(actors, actor_index);
+    if (actor != nullptr)
+        return Vec2(actor->x, actor->y);
+    return Vec2(0, 0);
+}
+
+EC Vec2 GetSpriteWorkTargetCoordinates(SpriteWorkTarget const * target, Farm const * farm, SpriteTaskActorProvider * actors) NPC_SIDE_CODE(08033830);
+EC Vec2 GetSpriteWorkTargetCoordinates(SpriteWorkTarget const * target, Farm const * farm, SpriteTaskActorProvider * actors)
+{
+    switch (target->kind)
+    {
+    case 0: default: return Vec2(0, 0);
+    case 1: case 2: return Vec2(target->index * 16 + 280, target->row * 16 + 184);
+    case 3: return farm->coop.method_0800C6F0(target->index);
+    case 4: return farm->barn.method_0800D074(target->index);
+    case 5: return farm->barn.method_0800D0C0(target->index);
+    case 6: return GetSpriteTaskActorCoordinates(actors, target->index + 54);
+    case 7: return GetSpriteTaskActorCoordinates(actors, target->index + 46);
+    case 8: return GetSpriteTaskActorCoordinates(actors, target->index + 76);
+    }
+}
+
+EC u8 GetSpriteWorkerIndex(IndexedSpriteWorkerEntity * self) NPC_SIDE_CODE(08034C40);
+EC u8 GetSpriteWorkerIndex(IndexedSpriteWorkerEntity * self)
+{
+    return self->sprite_id;
+}
+
+EC UnknownEntityThing * GetSideEntitySprite(AEntity * self) NPC_SIDE_CODE(08034C48);
+EC UnknownEntityThing * GetSideEntitySprite(AEntity * self)
+{
+    return self->unk_10.Get();
+}
+
+EC void ShowSpriteWorkerEffect(AEntity * self, u32 sprite, i32 x, i32 y);
+EC void ShowIndexedSpriteWorkerEffect(IndexedSpriteWorkerEntity * self, i32 x, i32 y) NPC_SIDE_CODE(08034C4C);
+EC void ShowIndexedSpriteWorkerEffect(IndexedSpriteWorkerEntity * self, i32 x, i32 y)
+{
+    ShowSpriteWorkerEffect(self, self->sprite_id, x, y);
+}
+
+EC void GetReactionSpriteBounds(Box * result, SpriteTaskActor const * actor) NPC_EXTRA_CODE(08037CDC);
+EC void GetReactionSpriteBounds(Box * result, SpriteTaskActor const * actor)
+{
+    i32 x = actor->x;
+    i32 y = actor->y;
+    result->x1 = x;
+    result->y1 = y + 1;
+    result->x2 = x;
+    result->y2 = y + 1;
+}
+
+EC void RefreshSideEntityEffectSprite(UnknownEntityThing * self, u32 clip_id) NPC_EXTRA_CODE(080390DC);
+EC void RefreshSideEntityEffectSprite(UnknownEntityThing * self, u32 clip_id)
+{
+    SetSpriteAnimatorClip(&self->sprite_animator, clip_id);
+    self->unk_44 = 1;
+    self->unk_46 = 0;
+    self->unk_47 = 1;
+}
+
+EC u8 GetSideEntityEffectState(SideEntityEffectFlags * self) NPC_EXTRA_CODE(08039100);
+EC u8 GetSideEntityEffectState(SideEntityEffectFlags * self)
+{
+    return self->effect_state;
+}
+
+EC void GetSideEntityEffectBounds(Box * result, i32 x, i32 y) NPC_EXTRA_CODE(08039108);
+EC void GetSideEntityEffectBounds(Box * result, i32 x, i32 y)
+{
+    result->x1 = x - 7;
+    result->y1 = y - 4;
+    result->x2 = x + 7;
+    result->y2 = y + 5;
+}
+
+EC u32 ItemCollection_GetByteCount(void * self);
+EC u32 HasThirtySideEntityItems(SideEntityItemCounter * self) NPC_EXTRA_CODE(0803911C);
+EC u32 HasThirtySideEntityItems(SideEntityItemCounter * self)
+{
+    u32 count = ItemCollection_GetByteCount(self->item_collection);
+    u32 active = 0;
+    if (count == 30)
+        active = 1;
+    return active;
 }

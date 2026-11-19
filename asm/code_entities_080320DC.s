@@ -2476,6 +2476,8 @@ func_08033584: @ 0x08033584
     bx r1
     .align 2, 0
 
+    .section .text.npc_side.08033784, "ax", %progbits
+
     thumb_func_start func_08033784
 func_08033784: @ 0x08033784
     push {r4, lr}
@@ -2538,128 +2540,6 @@ func_08033784: @ 0x08033784
     ldrh r0, [r0, #4]
 .L080337FA:
     pop {r4}
-    pop {r1}
-    bx r1
-
-    thumb_func_start func_08033800
-func_08033800: @ 0x08033800
-    push {r4, lr}
-    adds r4, r0, #0
-    adds r0, r1, #0
-    adds r1, r2, #0
-    ldr r2, [r0]
-    ldr r2, [r2, #0x44]
-    bl _call_via_r2
-    adds r1, r0, #0
-    cmp r1, #0
-    beq .L08033822
-    movs r2, #0xa
-    ldrsh r0, [r1, r2]
-    movs r2, #0xe
-    ldrsh r1, [r1, r2]
-    strh r0, [r4]
-    b .L08033824
-.L08033822:
-    strh r1, [r4]
-.L08033824:
-    strh r1, [r4, #2]
-    adds r0, r4, #0
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
-    thumb_func_start func_08033830
-func_08033830: @ 0x08033830
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    ldrb r0, [r4]
-    lsls r0, r0, #0x1c
-    lsrs r0, r0, #0x1c
-    cmp r0, #8
-    bhi .L08033874
-    lsls r0, r0, #2
-    ldr r1, .L0803384C @ =.L08033850
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0803384C: .4byte .L08033850
-.L08033850: @ jump table
-    .4byte .L08033874 @ case 0
-    .4byte .L0803387C @ case 1
-    .4byte .L0803387C @ case 2
-    .4byte .L08033892 @ case 3
-    .4byte .L080338A2 @ case 4
-    .4byte .L080338B4 @ case 5
-    .4byte .L080338C8 @ case 6
-    .4byte .L080338CE @ case 7
-    .4byte .L080338DC @ case 8
-.L08033874:
-    movs r0, #0
-    strh r0, [r5]
-    strh r0, [r5, #2]
-    b .L080338E8
-.L0803387C:
-    ldrb r0, [r4, #1]
-    ldrb r1, [r4, #2]
-    lsls r0, r0, #4
-    movs r2, #0x8c
-    lsls r2, r2, #1
-    adds r0, r0, r2
-    lsls r1, r1, #4
-    adds r1, #0xb8
-    strh r0, [r5]
-    strh r1, [r5, #2]
-    b .L080338E8
-.L08033892:
-    movs r0, #0xff
-    lsls r0, r0, #2
-    adds r1, r2, r0
-    ldrb r2, [r4, #1]
-    adds r0, r5, #0
-    bl method_0800C6F0__C4CoopUi
-    b .L080338E8
-.L080338A2:
-    ldr r0, .L080338B0 @ =0x000005DC
-    adds r1, r2, r0
-    ldrb r2, [r4, #1]
-    adds r0, r5, #0
-    bl method_0800D074__C4BarnUi
-    b .L080338E8
-    .align 2, 0
-.L080338B0: .4byte 0x000005DC
-.L080338B4:
-    ldr r0, .L080338C4 @ =0x000005DC
-    adds r1, r2, r0
-    ldrb r2, [r4, #1]
-    adds r0, r5, #0
-    bl method_0800D0C0__C4BarnUi
-    b .L080338E8
-    .align 2, 0
-.L080338C4: .4byte 0x000005DC
-.L080338C8:
-    ldrb r2, [r4, #1]
-    adds r2, #0x36
-    b .L080338D2
-.L080338CE:
-    ldrb r2, [r4, #1]
-    adds r2, #0x2e
-.L080338D2:
-    adds r0, r5, #0
-    adds r1, r3, #0
-    bl func_08033800
-    b .L080338E8
-.L080338DC:
-    ldrb r2, [r4, #1]
-    adds r2, #0x4c
-    adds r0, r5, #0
-    adds r1, r3, #0
-    bl func_08033800
-.L080338E8:
-    adds r0, r5, #0
-    pop {r4, r5}
     pop {r1}
     bx r1
 
@@ -3255,7 +3135,7 @@ func_0803436C: @ 0x0803436C
     adds r0, r4, #0
     mov r1, sp
     ldr r3, [sp, #0x28]
-    bl func_08033830
+    bl GetSpriteWorkTargetCoordinates
     mov r0, sp
     ldrb r0, [r0]
     lsls r0, r0, #0x1c
@@ -4136,28 +4016,9 @@ func_08034A14: @ 0x08034A14
 
     .section .text.npc_side.08034C40, "ax", %progbits
 
-.L08034C40:
-    .byte 0x30, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0x00, 0x69, 0x70, 0x47, 0x10, 0xB5, 0x0C, 0x1C
-    .byte 0x13, 0x1C, 0x01, 0x1C, 0x30, 0x31, 0x09, 0x78, 0x22, 0x1C, 0xFE, 0xF7, 0x93, 0xFF, 0x10, 0xBC
-    .byte 0x01, 0xBC, 0x00, 0x47
+    .section .text.npc_side.08034C4C, "ax", %progbits
 
-    @ 34c40:       3030            adds    r0, #48 @ 0x30
-    @ 34c42:       7800            ldrb    r0, [r0, #0]
-    @ 34c44:       4770            bx      lr
-    @ 34c46:       0000            movs    r0, r0
-    @ 34c48:       6900            ldr     r0, [r0, #16]
-    @ 34c4a:       4770            bx      lr
-    @ 34c4c:       b510            push    {r4, lr}
-    @ 34c4e:       1c0c            adds    r4, r1, #0
-    @ 34c50:       1c13            adds    r3, r2, #0
-    @ 34c52:       1c01            adds    r1, r0, #0
-    @ 34c54:       3130            adds    r1, #48 @ 0x30
-    @ 34c56:       7809            ldrb    r1, [r1, #0]
-    @ 34c58:       1c22            adds    r2, r4, #0
-    @ 34c5a:       f7fe ff93       bl      ShowSpriteWorkerEffect
-    @ 34c5e:       bc10            pop     {r4}
-    @ 34c60:       bc01            pop     {r0}
-    @ 34c62:       4700            bx      r0
+    .section .text.npc_side.08034C64, "ax", %progbits
 
     thumb_func_start func_08034C64
 func_08034C64: @ 0x08034C64
