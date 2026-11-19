@@ -1,10 +1,17 @@
 #include "prelude.h"
 
+#include "sprite_animation.hh"
 #include "unknown_types.hh"
 
 struct MapUpdateState;
 struct G1MapState;
 struct MapSceneEntity;
+
+struct MapSceneFrame
+{
+    u32 frameState;
+    u8 flags;
+};
 
 struct MapSceneEntityMethods
 {
@@ -13,6 +20,8 @@ struct MapSceneEntityMethods
     STRUCT_PAD(0x0C, 0x10);
     void (* finishMapChange)(MapSceneEntity &);
     void (* prepareMapChange)(MapSceneEntity &);
+    STRUCT_PAD(0x18, 0x2C);
+    void (* update)(MapSceneEntity &, MapSceneFrame const &);
 };
 
 struct MapSceneEntity
@@ -33,6 +42,25 @@ struct MapSceneAnimationSlot
 struct MapSceneOverlay;
 struct GameStateSpriteCache;
 struct MapTileEffectQueue;
+
+struct MapSceneEffect
+{
+    STRUCT_PAD(0x00, 0x24);
+    void (* const * methods)(MapSceneEffect &, unsigned);
+    SpriteAnimator animator;
+    u8 redraw;
+    STRUCT_PAD(0x3D, 0x3F);
+    u8 skipAnimationFrame;
+};
+
+struct MapSceneEffectSlot
+{
+    MapSceneEffect * effect;
+    u32 position;
+    bool timed;
+    u8 remainingFrames;
+    u8 phase;
+};
 
 struct MapSceneObjectPalette
 {
@@ -55,6 +83,7 @@ struct MapScene
     STRUCT_PAD(0x1020, 0x1024);
     MapSceneOverlay * overlay;
     MapTileEffectQueue * tileEffects;
+    MapSceneEffectSlot effect;
 };
 
 EC void func_080AB68C(MapTileEffectQueue *, int, int, u32);
@@ -103,6 +132,128 @@ EC void func_080AB2E4(MapTileEffectQueue *, unsigned);
 EC void func_080A56DC(MapUpdateState *, unsigned, unsigned, unsigned, unsigned);
 EC MapSceneOverlay * func_0803AB30(void *, MapScene *);
 EC MapTileEffectQueue * func_080AAFC8(void *, MapScene *, unsigned);
+EC void UpdateMapTileEffectQueue(MapTileEffectQueue &);
+
+EC SECTION(".text.080ACAF0") void UpdateMapSceneEntitiesAndEffects(MapScene & inputScene, u32 const & inputFrameState)
+{
+    register MapScene * scene asm("r6") = &inputScene;
+    register u32 const * frameSource asm("r1") = &inputFrameState;
+    asm ("" : "+l" (scene), "+l" (frameSource));
+    u32 const * frameState = frameSource;
+    typedef void (* UpdateMap)(MapUpdateState *);
+    MapUpdateState * map = scene->map;
+    (*reinterpret_cast<UpdateMap const **>(reinterpret_cast<u8 *>(map) + 0x90))[3](map);
+    MapTileEffectQueue * queue = scene->tileEffects;
+    if (queue)
+        UpdateMapTileEffectQueue(*queue);
+
+    register unsigned effectOffset asm("r0") = offsetof(MapScene, effect);
+    asm ("" : "+l" (effectOffset));
+    register MapSceneEffectSlot * effectSlot asm("r1") = reinterpret_cast<MapSceneEffectSlot *>(reinterpret_cast<u8 *>(scene) + effectOffset);
+    asm ("" : "+l" (effectSlot));
+    register MapSceneEffect * effect asm("r4") = effectSlot->effect;
+    asm ("" : "+l" (effect));
+    register unsigned address asm("r4") = reinterpret_cast<unsigned>(effect);
+    register unsigned negativeAddress asm("r0") = -address;
+    asm ("" : "+l" (negativeAddress));
+    asm ("orr %0, %1" : "+l" (negativeAddress) : "l" (address) : "cc");
+    if (i32(negativeAddress) < 0)
+    {
+        register MapSceneEffectSlot * activeSlot asm("r5") = effectSlot;
+        asm ("" : "+l" (activeSlot));
+        MapSceneEffectSlot & slot = *activeSlot;
+        if (slot.timed)
+        {
+            register unsigned remaining asm("r0") = slot.remainingFrames - 1;
+            asm ("" : "+l" (remaining));
+            register unsigned zero asm("r2") = 0;
+            asm ("" : "+l" (zero), "+l" (remaining));
+            slot.remainingFrames = remaining;
+            if (static_cast<u8>(remaining) == 0)
+            {
+                register MapSceneEffect * previous asm("r1") = slot.effect;
+                asm ("" : "+l" (previous));
+                if (zero != reinterpret_cast<unsigned>(previous) && previous)
+                    previous->methods[2](*previous, 3);
+                slot.effect = 0;
+            }
+            else
+            {
+                register MapSceneEffect * active asm("r4") = slot.effect;
+                asm ("" : "+l" (active));
+                register u8 * skip asm("r1") = &active->skipAnimationFrame;
+                asm ("" : "+l" (skip));
+                if (!*skip)
+                {
+                    if (i32(AdvanceSpriteAnimator(&active->animator) << 30) < 0)
+                    {
+                        register u8 * redraw asm("r1") = &active->redraw;
+                        asm ("" : "+l" (redraw));
+                        *redraw = 1;
+                    }
+                }
+                else
+                    *skip = zero;
+            }
+            slot.phase = (slot.phase + 1) & 7;
+        }
+        else
+        {
+            register u32 changes asm("r0");
+            register u8 * skip asm("r1") = &effect->skipAnimationFrame;
+            asm ("" : "+l" (skip));
+            if (!*skip)
+            {
+                register u32 animationChanges asm("r2") = AdvanceSpriteAnimator(&effect->animator);
+                asm ("" : "+l" (animationChanges));
+                if (i32(animationChanges << 30) < 0)
+                {
+                    register u8 * redraw asm("r1") = &effect->redraw;
+                    asm ("" : "+l" (redraw));
+                    *redraw = 1;
+                }
+                changes = animationChanges;
+            }
+            else
+            {
+                *skip = slot.timed;
+                changes = SpriteAnimator::FRAME_CHANGED;
+            }
+            asm ("" : "+l" (changes));
+            if (i32(changes << 29) < 0)
+            {
+                MapSceneEffect * cleared = 0;
+                asm ("" : "+l" (cleared));
+                MapSceneEffect * previous = slot.effect;
+                if (cleared != previous && previous)
+                    previous->methods[2](*previous, 3);
+                slot.effect = cleared;
+            }
+        }
+    }
+
+    MapSceneEntity ** entry = scene->entities;
+    register unsigned entitiesEndOffset asm("r1") = offsetof(MapScene, entities) + sizeof(scene->entities);
+    asm ("" : "+l" (entitiesEndOffset));
+    register MapSceneEntity ** end asm("r5") = reinterpret_cast<MapSceneEntity **>(reinterpret_cast<u8 *>(scene) + entitiesEndOffset);
+    asm ("" : "+l" (end));
+    MapSceneFrame frame;
+    register MapSceneFrame * frameOutput asm("r0") = &frame;
+    asm ("" : "+l" (frameOutput));
+    frame.frameState = *frameState;
+    frameOutput->flags = 0;
+    if (entry != end)
+    {
+        do
+        {
+            MapSceneEntity * entity = *entry;
+            if (entity)
+                entity->methods->update(*entity, frame);
+            ++entry;
+        }
+        while (entry != end);
+    }
+}
 
 struct MapSceneStartPosition
 {
