@@ -267,3 +267,107 @@ EC UnknownEntityThing * CreateScheduledNpcSprite26(AActorEntity * self)
     struct Storage { u8 bytes[0x8C]; };
     return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 4, 27, 1, 0, 0, false);
 }
+
+struct Npc;
+EC void InitializeScheduledNpcBase(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context, void const * schedule, u32 walking_animation, u32 idle_animation, u32 interaction)
+    asm("__10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi");
+
+EC u8 const gUnk_080F280C[];
+EC u8 const vtable_unk_080E7198[];
+EC AActorEntity * InitializeScheduledNpc01(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035AFC);
+EC AActorEntity * InitializeScheduledNpc01(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F280C, 607, 611, 994);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7198;
+    return self;
+}
+
+EC u8 const ScheduleInfo_Unk_080F1A80[];
+EC u8 const vtable_unk_080E7158[];
+EC AActorEntity * InitializeScheduledNpc02(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035B64);
+EC AActorEntity * InitializeScheduledNpc02(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, ScheduleInfo_Unk_080F1A80, 531, 535, 992);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7158;
+    return self;
+}
+
+EC u8 const gUnk_080F1FC0[];
+EC u8 const vtable_unk_080E7118[];
+EC AActorEntity * InitializeScheduledNpc03(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035BC8);
+EC AActorEntity * InitializeScheduledNpc03(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F1FC0, 559, 563, 993);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7118;
+    return self;
+}
+
+EC u8 const gUnk_080F8678[];
+EC u8 const vtable_unk_080E70D8[];
+EC AActorEntity * InitializeScheduledNpc04(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035D04);
+EC AActorEntity * InitializeScheduledNpc04(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F8678, 2543, 2547, 1030);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E70D8;
+    return self;
+}
+
+EC u8 const gUnk_080F81BC[];
+EC u8 const vtable_unk_080E7098[];
+EC AActorEntity * InitializeScheduledNpc05(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035D70);
+EC AActorEntity * InitializeScheduledNpc05(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F81BC, 2535, 2539, 1029);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7098;
+    return self;
+}
+
+EC u8 const gUnk_080F77FC[];
+EC u8 const vtable_unk_080E7058[];
+EC AActorEntity * InitializeScheduledNpc06(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035DD8);
+EC AActorEntity * InitializeScheduledNpc06(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F77FC, 2465, 2469, 1027);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7058;
+    return self;
+}
+
+EC u8 const gUnk_080F7294[];
+EC u8 const vtable_unk_080E7018[];
+EC AActorEntity * InitializeScheduledNpc07(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035E40);
+EC AActorEntity * InitializeScheduledNpc07(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F7294, 2441, 2445, 1026);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E7018;
+    return self;
+}
+
+EC u8 const gUnk_080F6370[];
+EC u8 const vtable_unk_080E6FD8[];
+EC AActorEntity * InitializeScheduledNpc08(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035EAC);
+EC AActorEntity * InitializeScheduledNpc08(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F6370, 2240, 2244, 1020);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6FD8;
+    return self;
+}
+
+EC u8 const gUnk_080F66C4[];
+EC u8 const vtable_unk_080E6F98[];
+EC AActorEntity * InitializeScheduledNpc09(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035F10);
+EC AActorEntity * InitializeScheduledNpc09(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F66C4, 2256, 2260, 1021);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6F98;
+    return self;
+}
+
+EC u8 const gUnk_080F49C0[];
+EC u8 const vtable_unk_080E6F58[];
+EC AActorEntity * InitializeScheduledNpc10(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08035F74);
+EC AActorEntity * InitializeScheduledNpc10(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
+{
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F49C0, 2059, 2063, 1013);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6F58;
+    return self;
+}
