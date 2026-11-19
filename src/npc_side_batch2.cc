@@ -236,7 +236,7 @@ struct SideEntityEffects
 
 EC i16 const gUnk_080F16D2[];
 EC void func_08038DF0(SideEntityEffects * self);
-EC void func_08038EB8(SideEntityEffects * self);
+EC void ClearSideTransitionSprite(SideEntityEffects * self);
 EC void func_08038EE0(SideEntityEffects * self);
 
 EC void LaunchSideSprite(LaunchedSideSprite * self, u8 variant) NPC_EXTRA_CODE(080380EC);
@@ -306,7 +306,7 @@ EC void ClearSideEntityEffectSprite(AEntity * self) NPC_EXTRA_CODE(080387EC);
 EC void ClearSideEntityEffectSprite(AEntity * self)
 {
     if (self->unk_10.Get() != nullptr)
-        func_08038EB8(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+        ClearSideTransitionSprite(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
 }
 
 EC void CreateSideEntityParticleSprites(AEntity * self) NPC_EXTRA_CODE(080387FC);
@@ -448,11 +448,11 @@ struct ReactiveNpcEntity : AEntity
     void * reaction_state;
 };
 
-EC void func_0800FFF4(void * state, u32 reaction);
+EC void ItemCollection_Append(void * state, u32 reaction);
 EC void SetNpcReaction(ReactiveNpcEntity * self, u8 const * reaction) NPC_EXTRA_CODE(08037EB4);
 EC void SetNpcReaction(ReactiveNpcEntity * self, u8 const * reaction)
 {
-    func_0800FFF4(self->reaction_state, *reaction);
+    ItemCollection_Append(self->reaction_state, *reaction);
     if (self->unk_10.Get() != nullptr)
         StartNpcReactionTimer(reinterpret_cast<NpcReactionSprite *>(self->unk_10.Get()));
 }
