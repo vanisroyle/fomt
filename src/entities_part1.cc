@@ -7,6 +7,7 @@
 #include "sheep.hh"
 #include "item.hh"
 #include "farmer.hh"
+#include "farmer_entity_layout.hh"
 #include "shipping_bin.hh"
 #include "coop.hh"
 #include <stdlib.h>
@@ -101,111 +102,6 @@ struct AnimalBehaviorTimer
     u32 unused : 8;
 };
 
-struct ThrownItemMotion
-{
-    bool active;
-    bool unk_01;
-    STRUCT_PAD(0x02, 0x04);
-    i32 x_speed;
-    i32 y_speed;
-    i32 unk_0C;
-    i32 unk_10;
-    i32 z_speed;
-    i32 unk_18;
-
-    void Init()
-    {
-        active = false;
-        unk_01 = false;
-        x_speed = 0;
-        y_speed = 0;
-        unk_0C = 0;
-        unk_10 = 0;
-        z_speed = 0;
-        unk_18 = 0;
-    }
-
-    void Launch(i32 x, i32 y, i32 z)
-    {
-        x_speed = x;
-        y_speed = y;
-        z_speed = z;
-    }
-};
-
-EC char const gUnk_080F0E80[];
-EC void __12RucksackItem(RucksackItem * self);
-
-struct FarmerHeldItemAnimation
-{
-    void const * data;
-    u16 frame;
-    STRUCT_PAD(0x06, 0x08);
-    RucksackItem item;
-    bool unk_0C;
-    bool unk_0D;
-    STRUCT_PAD(0x0E, 0x10);
-    i32 remaining;
-    bool unk_14;
-    STRUCT_PAD(0x15, 0x18);
-
-    void Init()
-    {
-        data = gUnk_080F0E80;
-        frame = 0;
-        __12RucksackItem(&item);
-        unk_0C = false;
-        unk_0D = false;
-        remaining = 59;
-        unk_14 = false;
-    }
-};
-
-struct FarmerEntity : AActorEntity
-{
-    FarmerEntity();
-    u32 sound_flags;
-    void * game_state;
-    Farmer * farmer;
-    u8 state;
-    u8 unk_3D;
-    u8 motion;
-    u8 tool_state;
-    u8 tool_level;
-    bool unk_41;
-    bool unk_42;
-    u8 unk_43;
-    u16 unk_44;
-    STRUCT_PAD(0x46, 0x60);
-    FarmerHeldItemAnimation held_anim;
-    bool unk_78;
-    bool unk_79;
-    bool unk_7A;
-    u8 unk_7B;
-    u16 icon;
-    u16 unk_7E;
-    i32 unk_80;
-    STRUCT_PAD(0x84, 0x88);
-    ThrownItemMotion thrown_item;
-    bool unk_A4;
-    u8 unk_A5;
-    u16 unk_A6;
-    i32 unk_A8;
-    i32 unk_AC;
-    bool unk_B0;
-    bool unk_B1;
-    u8 unk_B2;
-    bool unk_B3;
-    bool unk_B4;
-    STRUCT_PAD(0xB5, 0xC0);
-    bool unk_C0;
-    bool unk_C1;
-    bool unk_C2;
-    u8 exhaustion_state;
-    bool unk_C4;
-    bool unk_C5;
-};
-
 struct EntitySoundChannels
 {
     void ** begin;
@@ -222,8 +118,8 @@ struct EntitySoundGameVTable
 
 EC bool func_08008CD0(void * channel);
 EC void func_08008B6C(void * channel, u16 sound);
-EC void func_0802A7D8(FarmerEntity * self);
-EC void func_0802A510(FarmerEntity * self);
+EC void CancelFarmerItemDisplay(FarmerEntity * self);
+EC void ShowFarmerToolDisplay(FarmerEntity * self);
 EC void func_0800F4C0(HeldItem * self);
 EC void func_0800F4F0(HeldItem * self, u8 value);
 EC void func_0800F4D8(HeldItem * self);
@@ -268,7 +164,8 @@ EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 state);
 EC void __builtin_delete(void * ptr);
 EC void * __builtin_new(size_t size);
 EC UnknownEntityThing * func_0802B260(void * memory, FarmerEntity * self);
-EC bool func_0809C694(void * flags, u32 flag);
+struct ScriptEventSelection;
+EC bool IsSelectedScriptEvent(ScriptEventSelection const & events, u16 eventId);
 EC u32 func_08022320(u32 growth_stage);
 EC u32 func_08022334(u32 growth_stage);
 EC void func_080324BC(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
@@ -313,8 +210,8 @@ struct FarmerGameStateView
     ShippingBin shipping_bin;
 };
 EC void func_080384FC(CarryableActorEntity * self);
-EC void func_0802B908(FarmerEntity * self, GameObject * game, void * state);
-EC void func_0802C2DC(FarmerEntity * self);
+EC FarmerEntity * InitFarmerMapActor(FarmerEntity * self, GameObject * game, void * state);
+EC void FarmerEntityInitNoOp(FarmerEntity * self);
 EC char const vtable_unk_080E6658[];
 EC void func_0802F0EC(FarmerEntity * self, u32 first, u32 second);
 EC u16 func_0802D158(FarmerEntity * self);
@@ -578,7 +475,8 @@ EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self)
     {
         FarmerEventStateView * events = reinterpret_cast<FarmerEventStateView *>(self->game_state);
         u32 event_state = events->unk_2171_3;
-        if (event_state == 1 || func_0809C694(reinterpret_cast<u8 *>(events) + 0x214C, 74))
+        if (event_state == 1 || IsSelectedScriptEvent(*reinterpret_cast<ScriptEventSelection const *>(
+            reinterpret_cast<u8 *>(events) + 0x214C), 74))
             priority = 1;
     }
     self->unk_21 = priority;
@@ -765,7 +663,7 @@ EC bool FarmerEntity_ChangeStaminaAndFatigue(FarmerEntity * self, i32 stamina, i
 EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void * state) ENTITY_CODE(08024974);
 EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void * state)
 {
-    func_0802B908(self, game, state);
+    InitFarmerMapActor(self, game, state);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6658;
     self->game_state = state;
     self->farmer = reinterpret_cast<Farmer *>(reinterpret_cast<u8 *>(state) + 0x1BD8);
@@ -784,7 +682,7 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->icon = 0xFFFF;
     self->unk_80 = 0;
     self->thrown_item.Init();
-    self->unk_A4 = true;
+    self->item_animation_override = true;
     self->unk_A6 = 0;
     self->unk_A8 = -1;
     self->unk_AC = -1;
@@ -799,7 +697,7 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->exhaustion_state = 0;
     self->unk_C4 = false;
     self->unk_C5 = false;
-    func_0802C2DC(self);
+    FarmerEntityInitNoOp(self);
     u16 anim = func_0802D158(self);
     if (self->anim_id != anim)
         self->SetAnim(anim);
@@ -973,7 +871,7 @@ EC void FarmerEntity_ClearHeldItem(FarmerEntity * self)
                 func_0800ED2C(*self->farmer);
         }
         func_0800F390(&self->farmer->unk_54);
-        func_0802A7D8(self);
+        CancelFarmerItemDisplay(self);
     }
 }
 
@@ -1163,7 +1061,7 @@ EC void FarmerEntity_CycleTool(FarmerEntity * self, bool next)
         {
             self->state = 21;
             self->unk_3D = 20;
-            func_0802A510(self);
+            ShowFarmerToolDisplay(self);
             func_08008B6C(FindEntitySoundChannel(self->game_object), 188);
         }
     }
@@ -1182,7 +1080,7 @@ EC void FarmerEntity_StoreHeldItem(FarmerEntity * self)
             self->farmer->rucksack.GetItemAt(slot) = item;
             func_0800F390(&self->farmer->unk_54);
             self->state = 18;
-            func_0802A7D8(self);
+            CancelFarmerItemDisplay(self);
             func_08008B6C(FindEntitySoundChannel(self->game_object), 107);
         }
         else
@@ -1221,7 +1119,7 @@ EC void FarmerEntity_CycleHeldItem(FarmerEntity * self, bool next)
     if (result != 0)
     {
         self->state = 19;
-        func_0802A7D8(self);
+        CancelFarmerItemDisplay(self);
         func_08008B6C(FindEntitySoundChannel(self->game_object), 107);
     }
 }
