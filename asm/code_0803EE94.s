@@ -1269,7 +1269,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L0804051E
 	bl .L0804168A
 .L0804051E:
-	bl func_080124D0
+	bl GameScript_EnsureDialogueWindowOpen
 	bl .L0804168A
 .L08040526:
 	movs r3, #0xd5
@@ -2592,7 +2592,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r1, #0
 	adds r1, r6, #0
 	movs r3, #1
-	bl func_0801297C
+	bl GameScript_StartDisplayFade
 	b .L0804168A
 .L08040EF6:
 	adds r6, r5, #0
@@ -2634,7 +2634,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r1, #0
 	adds r1, r6, #0
 	movs r3, #0
-	bl func_0801297C
+	bl GameScript_StartDisplayFade
 	b .L0804168A
 .L08040F44:
 	adds r6, r5, #0
@@ -2676,7 +2676,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r1, #0
 	adds r1, r6, #0
 	movs r3, #0
-	bl func_0801297C
+	bl GameScript_StartDisplayFade
 	b .L0804168A
 .L08040F92:
 	movs r4, #0xda
@@ -5417,7 +5417,7 @@ func_0803F8DC: @ 0x0803F8DC
 	rsbs r1, r3, #0
 	orrs r1, r3
 	lsrs r1, r1, #0x1f
-	bl func_08013D04
+	bl GameScript_QueueModeFlagScene
 	bl .L0804168A
 .L0804259C:
 	movs r2, #0xda
@@ -8626,7 +8626,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044048
 	bl .L08045572
 .L08044048:
-	bl func_08014AF8
+	bl GameScript_RebuildMapScene
 	bl .L08045572
 .L08044050:
 	adds r6, r5, #0
@@ -9060,7 +9060,7 @@ func_0803F8DC: @ 0x0803F8DC
 	mov r6, sb
 	str r6, [sp, #4]
 	adds r2, r7, #0
-	bl func_08014C34
+	bl GameScript_CreateHorseActor
 	bl .L08045572
 .L080443C0:
 	adds r6, r5, #0
@@ -9935,7 +9935,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044A8C
 	bl .L08045572
 .L08044A8C:
-	bl func_08015790
+	bl GameScript_RemoveLivestockInState1
 	bl .L08045572
 .L08044A94:
 	movs r2, #0xd5
@@ -11209,7 +11209,7 @@ func_0803F8DC: @ 0x0803F8DC
 	adds r0, r1, #0
 	adds r1, r6, #0
 	adds r2, r7, #0
-	bl func_08016FA4
+	bl GameScript_SetActorMapLocation
 	b .L08045572
 .L08045456:
 	movs r4, #0xda
