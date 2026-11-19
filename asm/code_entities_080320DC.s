@@ -479,7 +479,7 @@ func_08032690: @ 0x08032690
     adds r3, r2, r3
     str r4, [sp]
     ldr r2, [sp, #0x40]
-    bl func_0803AE58
+    bl DrawFixedSpriteOverlay
 .L080328F0:
     add sp, #0x50
     pop {r3, r4, r5}

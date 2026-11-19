@@ -2,6 +2,7 @@
 
 #include "bachelorette.hh"
 #include "farm_house.hh"
+#include "fixed_sprite_overlay.hh"
 #include "gbasvc.h"
 #include "npc.hh"
 #include "schedule_info.hh"
@@ -12,41 +13,6 @@
 #include <string.h>
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
-
-struct OverlaySpriteResources;
-
-struct OverlaySpriteResourceVtable
-{
-    STRUCT_PAD(0x00, 0x4C);
-    void (*releasePalette)(OverlaySpriteResources *, unsigned);
-};
-
-struct OverlaySpriteResources
-{
-    OverlaySpriteResourceVtable const * vtable;
-};
-
-struct OverlayTileAllocation
-{
-    STRUCT_PAD(0x00, 0x04);
-    u32 handle;
-};
-
-struct FixedSpriteOverlay
-{
-    struct Frame
-    {
-        STRUCT_PAD(0x00, 0x20);
-        OverlayTileAllocation tiles;
-        u16 baseTile;
-    };
-
-    OverlaySpriteResources * resources;
-    Frame frames[3];
-    unsigned paletteCount;
-    u8 paletteIds[16];
-    STRUCT_PAD(0x9C, 0xA0);
-};
 
 struct GameStateMapOverlay
 {
@@ -92,7 +58,7 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
     OverlaySpriteResourceVtable const * vtable = resources->vtable;
     register FixedSpriteOverlay::Frame * end asm("r4") = overlay->frames + 3;
     asm("" : "+r"(end) : "r"(resources), "r"(vtable));
-    vtable->releasePalette(resources, overlay->paletteIds[0]);
+    vtable->releasePalette(resources, overlay->palettes.ids[0]);
 
     register FixedSpriteOverlay::Frame * firstFrame asm("r0") = overlay->frames;
     asm("" : "+r"(firstFrame));
