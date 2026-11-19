@@ -1080,11 +1080,14 @@ SECTIONS
         asm/code_809E804.o(.text.080AE4E4);
         src/chicken_feeding.o(.text.080AE6C0);
         src/chicken_feeding.o(.text.080AE6CC);
-        asm/code_809E804.o(.text.080AE7D0);
+        src/chicken_feeding.o(.text.080AE7D0);
+        asm/code_809E804.o(.text.080AE894);
         src/chicken_feeding.o(.text.080B0934);
         src/chicken_feeding.o(.text.080B0970);
         src/chicken_feeding.o(.text.080B09B0);
         asm/code_809E804.o(.text.080B0AA0);
+        src/chicken_feeding.o(.text.080B1D34);
+        asm/code_809E804.o(.text.080B1D94);
         src/chicken_feeding.o(.text.080B34DC);
         asm/code_809E804.o(.text.080B3518);
         src/g3_chicken_festival.o(.text.g3_080B3948);

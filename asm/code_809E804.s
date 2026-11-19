@@ -15203,7 +15203,7 @@ func_080AE4E4: @ 0x080AE4E4
 	adds r0, r7, #0
 	bl func_080B0AA0
 	adds r0, r7, #0
-	bl func_080AE7D0
+	bl LoadChickenFeedingBackground
 	adds r0, r7, #0
 	bl func_080AE894
 	ldr r1, .L080AE584 @ =0x0000080C
@@ -15255,7 +15255,7 @@ func_080AE4E4: @ 0x080AE4E4
 	b .L080AE5CA
 .L080AE5B4:
 	adds r0, r7, #0
-	bl func_080B1D34
+	bl RunChickenFeedingTransition
 	b .L080AE5CA
 .L080AE5BC:
 	adds r0, r7, #0
@@ -15379,91 +15379,7 @@ func_080AE4E4: @ 0x080AE4E4
 .L080AE6B8: .4byte 0x0000043C
 .L080AE6BC: .4byte 0x00000889
 
-	.section .text.080AE7D0, "ax", %progbits
-
-	thumb_func_start func_080AE7D0
-func_080AE7D0: @ 0x080AE7D0
-	push {r4, r5, r6, lr}
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6}
-	sub sp, #4
-	mov sb, r0
-	ldr r1, .L080AE870 @ =0x06007FE0
-	movs r0, #0
-	movs r2, #0x20
-	bl Dma3_Fill
-	movs r5, #1
-	rsbs r5, r5, #0
-	ldr r0, .L080AE874 @ =0x0600F000
-	mov r8, r0
-	movs r6, #0x80
-	lsls r6, r6, #4
-	adds r0, r5, #0
-	mov r1, r8
-	adds r2, r6, #0
-	bl Dma3_Fill
-	ldr r4, .L080AE878 @ =0x0600F800
-	adds r0, r5, #0
-	adds r1, r4, #0
-	adds r2, r6, #0
-	bl Dma3_Fill
-	ldr r0, .L080AE87C @ =gUnk_0872FC34
-	adds r1, r4, #0
-	bl Unpack
-	ldr r0, .L080AE880 @ =gUnk_0872FE6C
-	mov r1, r8
-	bl Unpack
-	ldr r0, .L080AE884 @ =gUnk_0872FEF8
-	movs r1, #0xc0
-	lsls r1, r1, #0x13
-	bl Unpack
-	ldr r0, .L080AE888 @ =gUnk_08731940
-	movs r1, #0xa0
-	lsls r1, r1, #0x13
-	movs r2, #0x80
-	lsls r2, r2, #2
-	bl Dma3_Copy
-	mov r0, sb
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	movs r3, #0xb2
-	lsls r3, r3, #5
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0]
-	mov r0, sb
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080AE88C @ =0x00001E41
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xa]
-	mov r0, sb
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080AE890 @ =0x00001F42
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xc]
-	add sp, #4
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080AE870: .4byte 0x06007FE0
-.L080AE874: .4byte 0x0600F000
-.L080AE878: .4byte 0x0600F800
-.L080AE87C: .4byte gUnk_0872FC34
-.L080AE880: .4byte gUnk_0872FE6C
-.L080AE884: .4byte gUnk_0872FEF8
-.L080AE888: .4byte gUnk_08731940
-.L080AE88C: .4byte 0x00001E41
-.L080AE890: .4byte 0x00001F42
-
+	.section .text.080AE894, "ax", %progbits
 	thumb_func_start func_080AE894
 func_080AE894: @ 0x080AE894
 	push {r4, r5, r6, r7, lr}
@@ -22014,54 +21930,7 @@ func_080B1B40: @ 0x080B1B40
 	.align 2, 0
 .L080B1D30: .4byte 0x00000838
 
-	thumb_func_start func_080B1D34
-func_080B1D34: @ 0x080B1D34
-	push {r4, r5, r6, r7, lr}
-	sub sp, #4
-	adds r4, r0, #0
-	movs r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	movs r3, #0xb2
-	lsls r3, r3, #5
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0]
-	adds r0, r4, #0
-	bl func_080AF814
-	ldr r1, .L080B1D8C @ =0x00000814
-	adds r0, r4, r1
-	movs r1, #0xbb
-	bl AudioPlayer_StartSong
-	ldr r3, .L080B1D90 @ =0x00000838
-	adds r0, r4, r3
-	ldr r0, [r0]
-	cmp r0, #2
-	bne .L080B1D84
-	adds r5, r4, r3
-	movs r7, #3
-.L080B1D6A:
-	adds r0, r4, #0
-	bl func_080087C8
-	adds r0, r4, #0
-	bl func_080AF814
-	adds r6, #1
-	cmp r6, #0x78
-	ble .L080B1D7E
-	str r7, [r5]
-.L080B1D7E:
-	ldr r0, [r5]
-	cmp r0, #2
-	beq .L080B1D6A
-.L080B1D84:
-	add sp, #4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080B1D8C: .4byte 0x00000814
-.L080B1D90: .4byte 0x00000838
-
+	.section .text.080B1D94, "ax", %progbits
 	thumb_func_start func_080B1D94
 func_080B1D94: @ 0x080B1D94
 	push {r4, r5, r6, r7, lr}
