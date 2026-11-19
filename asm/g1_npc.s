@@ -7933,7 +7933,7 @@ func_080A2BA4: @ 0x080A2BA4
 	mov r8, r1
 	mov r0, r8
 	movs r1, #0
-	bl func_0805E860
+	bl SetSpriteAnimatorClip
 	mov r2, r8
 	ldr r1, [r2]
 	ldr r3, [r1]
@@ -7981,7 +7981,7 @@ func_080A2BA4: @ 0x080A2BA4
 	bl Dma3_Copy
 	adds r0, r5, #0
 	movs r1, #0xf
-	bl func_0805E860
+	bl SetSpriteAnimatorClip
 	ldr r1, [r5]
 	ldr r3, [r1]
 	ldrh r2, [r5, #0xc]
@@ -8025,7 +8025,7 @@ func_080A2BA4: @ 0x080A2BA4
 	bl Dma3_Copy
 	adds r0, r5, #0
 	movs r1, #0x15
-	bl func_0805E860
+	bl SetSpriteAnimatorClip
 	ldr r1, [r5]
 	ldr r3, [r1]
 	ldrh r2, [r5, #0xc]
@@ -8079,7 +8079,7 @@ func_080A2BA4: @ 0x080A2BA4
 .L080A2E6C:
 	mov r0, r8
 	adds r1, r6, #0
-	bl func_0805E860
+	bl SetSpriteAnimatorClip
 	mov r2, r8
 	ldr r1, [r2]
 	ldr r3, [r1]
@@ -8143,7 +8143,7 @@ func_080A2BA4: @ 0x080A2BA4
 	ble .L080A2E6C
 	ldr r0, [sp, #0x4c]
 	movs r1, #0
-	bl func_0805E860
+	bl SetSpriteAnimatorClip
 	ldr r5, [sp, #0x4c]
 	ldr r1, [r5]
 	ldr r3, [r1]
@@ -8197,7 +8197,7 @@ func_080A2BA4: @ 0x080A2BA4
 .L080A2F64:
 	mov r0, r8
 	adds r1, r4, #0
-	bl func_0805E860
+	bl SetSpriteAnimatorClip
 	mov r3, r8
 	ldr r1, [r3]
 	ldr r3, [r1]
@@ -8751,7 +8751,7 @@ func_080A32A4: @ 0x080A32A4
 	lsls r1, r1, #0x1c
 	lsrs r1, r1, #0x1c
 	ldr r0, [sp, #0x64]
-	bl func_0805E860
+	bl SetSpriteAnimatorClip
 	ldr r2, [sp, #0x64]
 	ldr r1, [r2]
 	ldr r3, [r1]
@@ -9090,7 +9090,7 @@ func_080A3618: @ 0x080A3618
 	adds r4, #0xb0
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_0805E860
+	bl SetSpriteAnimatorClip
 	ldr r1, [r4]
 	ldr r3, [r1]
 	ldrh r2, [r4, #0xc]
