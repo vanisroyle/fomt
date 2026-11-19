@@ -12123,7 +12123,7 @@ func_080175B4: @ 0x080175B4
     adds r0, r7, #0
     bl GameStateRefreshMapScenery
     adds r0, r7, #0
-    bl func_0801F3E4
+    bl GameStateRefreshVase
     adds r0, r7, #0
     bl GameStateRefreshTimedMapInteraction
     adds r0, r7, #0
@@ -16759,7 +16759,7 @@ func_08019BEC: @ 0x08019BEC
     adds r0, r7, #0
     bl GameStateRefreshMapScenery
     adds r0, r7, #0
-    bl func_0801F3E4
+    bl GameStateRefreshVase
     adds r0, r7, #0
     bl GameStateRefreshTimedMapInteraction
     adds r0, r7, #0
@@ -20990,153 +20990,8 @@ func_0801EE00: @ 0x0801EE00
     .align 2, 0
 .L0801F148: .4byte 0x000001A9
 
-    .section .text.game_state_c2.0801F3E4, "ax", %progbits
+    .section .text.game_state_c2.0801F518, "ax", %progbits
 
-    thumb_func_start func_0801F3E4
-func_0801F3E4: @ 0x0801F3E4
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0x40
-    adds r6, r0, #0
-    ldr r0, [r6]
-    ldr r1, [r0, #0x14]
-    adds r0, r6, #0
-    bl _call_via_r1
-    cmp r0, #0x1d
-    bne .L0801F4E8
-    ldr r1, .L0801F488 @ =0x00001038
-    adds r0, r6, r1
-    ldr r0, [r0]
-    movs r2, #0xfa
-    lsls r2, r2, #1
-    adds r0, r0, r2
-    bl GetVaseArticleId__C9FarmHouse
-    adds r1, r0, #0
-    cmp r1, #0x5f
-    beq .L0801F506
-    add r4, sp, #0x34
-    adds r0, r4, #0
-    bl __7ArticleUi
-    adds r0, r4, #0
-    bl GetIconId__C7Article
-    lsls r0, r0, #0x10
-    lsrs r7, r0, #0x10
-    ldr r3, .L0801F48C @ =0x00001068
-    adds r3, r3, r6
-    mov sb, r3
-    ldr r4, [r3]
-    cmp r4, #0
-    beq .L0801F490
-    ldr r0, [r6]
-    ldr r1, [r0, #0x64]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r1, r0, #0
-    add r0, sp, #0x20
-    adds r2, r7, #0
-    movs r3, #0x80
-    lsls r3, r3, #1
-    bl func_0805E824
-    add r0, sp, #0x20
-    ldr r1, [sp, #0x20]
-    ldr r3, [r1]
-    ldrh r2, [r0, #0xc]
-    lsls r2, r2, #2
-    ldr r0, [sp, #0x24]
-    adds r0, r0, r2
-    ldrh r2, [r0]
-    mov r0, sp
-    ldr r3, [r3, #0x10]
-    bl _call_via_r3
-    mov r0, sp
-    mov r1, sp
-    movs r2, #0x20
-    bl memcpy
-    adds r1, r4, #0
-    adds r1, #0x28
-    mov r0, sp
-    ldm r0!, {r2, r3, r5}
-    stm r1!, {r2, r3, r5}
-    ldm r0!, {r2, r3, r5}
-    stm r1!, {r2, r3, r5}
-    ldm r0!, {r2, r5}
-    stm r1!, {r2, r5}
-    adds r1, r4, #0
-    adds r1, #0x48
-    movs r0, #1
-    strb r0, [r1]
-    b .L0801F506
-    .align 2, 0
-.L0801F488: .4byte 0x00001038
-.L0801F48C: .4byte 0x00001068
-.L0801F490:
-    movs r0, #0x4c
-    bl __builtin_new
-    adds r5, r0, #0
-    ldr r0, [r6]
-    ldr r1, [r0, #0x64]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r4, r0, #0
-    adds r0, r5, #0
-    adds r1, r6, #0
-    movs r2, #2
-    movs r3, #0x1b
-    bl func_080A4740
-    ldr r0, .L0801F4E4 @ =vtable_unk_080E602C
-    str r0, [r5, #0x24]
-    movs r3, #0x28
-    adds r3, r3, r5
-    mov r8, r3
-    ldr r6, [r4]
-    add r0, sp, #0x38
-    ldr r3, [r6, #0xc]
-    adds r1, r4, #0
-    adds r2, r7, #0
-    bl _call_via_r3
-    ldr r0, [sp, #0x38]
-    ldrh r2, [r0]
-    mov r0, r8
-    ldr r3, [r6, #0x10]
-    adds r1, r4, #0
-    bl _call_via_r3
-    adds r1, r5, #0
-    adds r1, #0x48
-    movs r0, #1
-    strb r0, [r1]
-    mov r4, sb
-    b .L0801F4EE
-    .align 2, 0
-.L0801F4E4: .4byte vtable_unk_080E602C
-.L0801F4E8:
-    ldr r5, .L0801F514 @ =0x00001068
-    adds r4, r6, r5
-    movs r5, #0
-.L0801F4EE:
-    ldr r1, [r4]
-    cmp r5, r1
-    beq .L0801F504
-    cmp r1, #0
-    beq .L0801F504
-    ldr r0, [r1, #0x24]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801F504:
-    str r5, [r4]
-.L0801F506:
-    add sp, #0x40
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801F514: .4byte 0x00001068
 .L0801F518:
     .byte 0x70, 0xB5, 0x83, 0xB0, 0x06, 0x1C, 0x0C, 0x1C
     .byte 0x1D, 0x2C, 0x07, 0xD0, 0x1D, 0x2C, 0x02, 0xDC, 0x12, 0x2C, 0x17, 0xD0, 0x58, 0xE0, 0x27, 0x2C
