@@ -289,7 +289,8 @@ struct FestivalMatchState
 };
 
 EC u32 func_080088D4(void *);
-EC void func_080B92B4(void *);
+struct FestivalCheerAI;
+EC void TryFestivalRivalCheer(FestivalCheerAI *);
 
 EC SECTION(".text.g3_080BA6B8") void HandleFestivalCheerInput(FestivalMatchState * state)
 {
@@ -312,7 +313,7 @@ EC SECTION(".text.g3_080BA6B8") void HandleFestivalCheerInput(FestivalMatchState
         if (state->rivalCheerTimer > state->rivalCheerInterval - 1)
         {
             state->rivalCheerTimer = 0;
-            func_080B92B4(state);
+            TryFestivalRivalCheer((FestivalCheerAI *) state);
         }
     }
 }
@@ -665,48 +666,130 @@ EC SECTION(".text.g3_080B9F64") u8 GetFestivalRivalRelativeDirection(ChickenFest
     return direction;
 }
 
-
-EC SECTION(".text.g3_080BB890") u16 GetFestivalResultAnimation(u8 * state, i32 kind, u32 round, u32 animation)
+struct FestivalCheerContest
 {
-    u16 result = 0;
-    switch (kind)
-    {
-    case 0: result = gUnk_08107D3C[round]; break;
-    case 1:
-        if (round != 0)
-            round += *(u32 *) (state + 0xb18);
-        result = gUnk_08107D46[round][animation];
-        break;
-    case 2: result = gUnk_08107D66[animation]; break;
-    }
-    return result;
-}
+    u8 unknown_000[0x6c];
+    FestivalChicken chickens[2];
+    u8 unknown_0EC[0x830];
+    void * reactions[2];
+};
 
+EC void func_0805E860(void *, u16);
 
-EC SECTION(".text.g3_080BA608") void ToggleFestivalPause(FestivalPauseState * state)
+EC SECTION(".text.g3_080B9734") void ResolveFestivalCheerClash(FestivalCheerContest * state)
 {
-    if (func_080088CC(state) & 8)
+    u32 range = 100;
+    u32 roll = (range * (rand() & 0xffff)) >> 16;
+    if (state->chickens[0].affection > state->chickens[1].affection)
     {
-        func_08008B6C((u8 *) state + 0x714, 0xb8);
-        if (state->paused)
+        if (roll <= 89)
         {
-            state->paused = 0;
-            state->chickens[0]->playbackRate = 0x100;
-            state->chickens[1]->playbackRate = 0x100;
-            state->shadows[0]->playbackRate = 0x100;
-            state->shadows[1]->playbackRate = 0x100;
-            state->reactions[0]->playbackRate = 0x100;
-            state->reactions[1]->playbackRate = 0x100;
+            state->chickens[0].reaction = 3;
+            func_0805E860(state->reactions[1], 2);
+            state->chickens[1].unknown_31[14] = 1;
+            state->chickens[1].reaction = 5;
         }
         else
         {
-            state->chickens[0]->playbackRate = 0;
-            state->chickens[1]->playbackRate = 0;
-            state->shadows[0]->playbackRate = 0;
-            state->shadows[1]->playbackRate = 0;
-            state->reactions[0]->playbackRate = 0;
-            state->reactions[1]->playbackRate = 0;
-            state->paused = 1;
+            state->chickens[0].reaction = 5;
+            func_0805E860(state->reactions[0], 2);
+            state->chickens[0].unknown_31[14] = 1;
+            state->chickens[1].reaction = 3;
+        }
+    }
+    else
+    {
+        if (roll > 89)
+        {
+            state->chickens[0].reaction = 3;
+            func_0805E860(state->reactions[1], 2);
+            state->chickens[1].unknown_31[14] = 1;
+            state->chickens[1].reaction = 5;
+        }
+        else
+        {
+            state->chickens[0].reaction = 5;
+            func_0805E860(state->reactions[0], 2);
+            state->chickens[0].unknown_31[14] = 1;
+            state->chickens[1].reaction = 3;
+        }
+    }
+    for (int i = 0; i < 2; ++i)
+    {
+        if (state->chickens[i].reaction == 5)
+            state->chickens[i].movementBias = 0;
+        else
+            state->chickens[i].movementBias = 1;
+    }
+}
+
+struct FestivalCheerAI
+{
+    u8 unknown_000[0x6c];
+    FestivalChicken chickens[2];
+    u8 unknown_0EC[0xa71];
+    u8 radius;
+    u8 unknown_B5E[0xc];
+    u8 cheerThresholds[8];
+    u16 halfAngle;
+};
+
+EC SECTION(".text.g3_080B92B4") void TryFestivalRivalCheer(FestivalCheerAI * state)
+{
+    if (state->chickens[1].action <= 1)
+    {
+        if (IsFestivalRivalInCheerCone(state, state->chickens[1].x, state->chickens[1].y,
+                state->chickens[1].facing, state->chickens[0].x, state->chickens[0].y, state->radius, state->halfAngle))
+        {
+            if (state->chickens[1].affection > 80)
+            {
+                if (((u32) (rand() & 0xffff) >> 9) < state->cheerThresholds[0])
+                    TriggerFestivalRivalCheer((ChickenFestivalCombat *) state);
+            }
+            else
+            {
+                if (((u32) (rand() & 0xffff) >> 9) > state->cheerThresholds[1])
+                    TriggerFestivalRivalCheer((ChickenFestivalCombat *) state);
+            }
+        }
+        else if (GetFestivalRivalRelativeDirection((ChickenFestivalCombat *) state, 1, 0) == 0)
+        {
+            if (state->chickens[1].affection > 80)
+            {
+                if (((u32) (rand() & 0xffff) >> 9) < state->cheerThresholds[2])
+                    TriggerFestivalRivalCheer((ChickenFestivalCombat *) state);
+            }
+            else
+            {
+                if (((u32) (rand() & 0xffff) >> 9) > state->cheerThresholds[3])
+                    TriggerFestivalRivalCheer((ChickenFestivalCombat *) state);
+            }
+        }
+        else
+        {
+            if (state->chickens[1].affection > 80)
+            {
+                if (((u32) (rand() & 0xffff) >> 9) > state->cheerThresholds[4])
+                    TriggerFestivalRivalCheer((ChickenFestivalCombat *) state);
+            }
+            else
+            {
+                if (((u32) (rand() & 0xffff) >> 9) < state->cheerThresholds[5])
+                    TriggerFestivalRivalCheer((ChickenFestivalCombat *) state);
+            }
+        }
+    }
+    else
+    {
+        if (state->chickens[1].affection > 80)
+        {
+            if (((u32) (rand() & 0xffff) >> 9) < state->cheerThresholds[6])
+                TriggerFestivalRivalCheer((ChickenFestivalCombat *) state);
+        }
+        else
+        {
+            if (((u32) (rand() & 0xffff) >> 9) > state->cheerThresholds[7])
+                TriggerFestivalRivalCheer((ChickenFestivalCombat *) state);
         }
     }
 }
