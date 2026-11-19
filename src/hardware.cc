@@ -44,6 +44,11 @@ struct Unk_hardware_03000404
 
     unsigned int IndexOf(Unk_hardware_ent_080D6D98 const * ent) const { return ent - unk_04; }
 
+    bool Matches(Unk_hardware_ent_080D6D98 const & ent, u32 handle) const
+    {
+        return u16(handle >> 4) == ent.params.unk_02;
+    }
+
     void FreeEntry(Unk_hardware_ent_080D6D98 * ent)
     {
         ent->next_free = unk_00;
@@ -77,6 +82,19 @@ struct Unk_hardware_H
     ~Unk_hardware_H();
 };
 
+union HardwareHandle
+{
+    u32 value;
+    struct
+    {
+        u32 index : 4;
+        u32 generation : 16;
+    } fields;
+
+    HardwareHandle(u32 value) : value(value) {}
+    u32 Index() const { return fields.index; }
+};
+
 EC Unk_hardware_H * func_08007128(Unk_hardware_H * self)
 {
     if (gUnk_03000404 == nullptr)
@@ -107,6 +125,175 @@ Unk_hardware_H::~Unk_hardware_H()
 
         gUnk_03000404 = nullptr;
     }
+}
+
+EC u32 SECTION(".text.handle_retain") func_0800745C(Unk_hardware_H * self, u32 handle)
+{
+    Unk_hardware_03000404 * h = gUnk_03000404;
+    if (handle != 0)
+    {
+        unsigned int idx = HardwareHandle(handle).Index();
+        if (h->inl_pred_0(idx))
+        {
+            Unk_hardware_ent_080D6D98 & ent = h->GetEntry(idx);
+            if (h->Matches(ent, handle))
+            {
+                u16 previous = ent.params.unk_00;
+                if (++ent.params.unk_00 != 0)
+                    return handle;
+                ent.params.unk_00 = previous;
+            }
+        }
+    }
+    return 0;
+}
+
+EC u16 SECTION(".text.handle_count") func_08007510(Unk_hardware_H * self, u32 handle)
+{
+    Unk_hardware_03000404 * h = gUnk_03000404;
+    if (handle != 0)
+    {
+        unsigned int idx = HardwareHandle(handle).Index();
+        if (h->inl_pred_0(idx))
+        {
+            Unk_hardware_ent_080D6D98 & ent = h->GetEntry(idx);
+            if (h->Matches(ent, handle))
+                return ent.params.unk_00;
+        }
+    }
+    return 0;
+}
+
+struct HardwarePool
+{
+    void * data;
+};
+
+EC SECTION(".text.func_0800770C") HardwarePool * func_0800770C(HardwarePool * self)
+{
+    self->data = nullptr;
+    return self;
+}
+
+struct HardwareBitset
+{
+    u32 bits;
+};
+
+EC void SECTION(".text.func_08007844") func_08007844(HardwareBitset * self, u32 index, u32 order)
+{
+    if (order <= 4)
+        self->bits &= ~(((1u << (1u << order)) - 1) << (index % 32));
+    else if (order == 5)
+        self->bits = 0;
+}
+
+struct HardwareTreeNode
+{
+    u8 full;
+    u8 empty;
+    u8 data[122];
+};
+
+struct HardwareTree
+{
+    u8 full;
+    u8 empty;
+    u16 pad;
+    HardwareTreeNode children[2];
+};
+
+EC void func_080D6EEC(HardwareTreeNode *);
+EC void func_080D6F5C(HardwareTreeNode *);
+
+EC void SECTION(".text.func_08007EA8") func_08007EA8(HardwareTree * self)
+{
+    func_080D6EEC(&self->children[0]);
+    func_080D6EEC(&self->children[1]);
+    self->full = 1;
+    self->empty = 0;
+}
+
+EC void SECTION(".text.func_08007EC8") func_08007EC8(HardwareTree * self)
+{
+    func_080D6F5C(&self->children[1]);
+    func_080D6F5C(&self->children[0]);
+    self->full = 0;
+    self->empty = 1;
+}
+
+struct HardwareDisplayState
+{
+    u16 unk_00;
+    u16 unk_02;
+    u16 unk_04;
+    u16 unk_06;
+    u16 unk_08;
+    STRUCT_PAD(0x0A, 0x24);
+    u8 unk_24[0x10];
+    u8 unk_34[0x58];
+    u8 unk_8C[0x404];
+    u8 unk_490[4];
+    u8 unk_494[0x1C];
+};
+
+struct HardwareDisplay
+{
+    HardwareDisplayState * state;
+};
+
+EC void func_08009268(HardwareDisplayState *);
+
+EC void SECTION(".text.func_080088B8") func_080088B8(HardwareDisplay * self)
+{
+    func_08009268(self->state);
+}
+
+EC u16 SECTION(".text.func_080088C4") func_080088C4(HardwareDisplay * self)
+{
+    return self->state->unk_00;
+}
+
+EC u16 SECTION(".text.func_080088CC") func_080088CC(HardwareDisplay * self)
+{
+    return self->state->unk_04;
+}
+
+EC u16 SECTION(".text.func_080088D4") func_080088D4(HardwareDisplay * self)
+{
+    return self->state->unk_08;
+}
+
+EC SECTION(".text.func_080088DC") HardwareDisplayState * func_080088DC(HardwareDisplay * self)
+{
+    return self->state;
+}
+
+EC SECTION(".text.func_08008910") void * func_08008910(HardwareDisplay * self)
+{
+    return self->state->unk_24;
+}
+
+EC SECTION(".text.func_08008918") void * func_08008918(HardwareDisplay * self)
+{
+    return self->state->unk_34;
+}
+
+EC SECTION(".text.func_08008920") void * func_08008920(HardwareDisplay * self)
+{
+    return self->state->unk_8C;
+}
+
+EC SECTION(".text.func_08008940") void * func_08008940(HardwareDisplay * self)
+{
+    return self->state->unk_494;
+}
+
+EC void * func_08008AE0(void ** self);
+
+EC SECTION(".text.func_0800894C") void * func_0800894C(HardwareDisplay * self)
+{
+    return func_08008AE0(reinterpret_cast<void **>(self->state->unk_490));
 }
 
 EC void func_08007184(Unk_hardware_H * self) ALIAS(_._14Unk_hardware_H);

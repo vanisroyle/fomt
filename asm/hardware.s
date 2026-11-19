@@ -1,6 +1,6 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
-
+    .section .text.handle_alloc, "ax"
     thumb_func_start func_0800736C
 func_0800736C: @ 0x0800736C
     push {r4, r5, lr}
@@ -132,63 +132,7 @@ func_080073E0: @ 0x080073E0
     .align 2, 0
 .L08007458: .4byte gUnk_03000404
 
-    thumb_func_start func_0800745C
-func_0800745C: @ 0x0800745C
-    push {r4, lr}
-    adds r3, r1, #0
-    ldr r0, .L080074B0 @ =gUnk_03000404
-    ldr r2, [r0]
-    cmp r3, #0
-    beq .L080074B6
-    lsls r0, r3, #0x1c
-    lsrs r1, r0, #0x1c
-    adds r4, r1, #0
-    movs r0, #0
-    cmp r1, #0xf
-    bhi .L08007482
-    movs r0, #1
-    lsls r0, r1
-    ldr r1, [r2, #0x44]
-    ands r1, r0
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-.L08007482:
-    cmp r0, #0
-    beq .L080074B6
-    lsls r0, r4, #2
-    adds r0, #4
-    adds r1, r2, r0
-    movs r2, #0
-    lsls r0, r3, #0xc
-    lsrs r0, r0, #0x10
-    ldrh r4, [r1, #2]
-    cmp r0, r4
-    bne .L0800749A
-    movs r2, #1
-.L0800749A:
-    cmp r2, #0
-    beq .L080074B6
-    ldrh r2, [r1]
-    adds r0, r2, #1
-    strh r0, [r1]
-    lsls r0, r0, #0x10
-    cmp r0, #0
-    beq .L080074B4
-    adds r0, r3, #0
-    b .L080074B8
-    .align 2, 0
-.L080074B0: .4byte gUnk_03000404
-.L080074B4:
-    strh r2, [r1]
-.L080074B6:
-    movs r0, #0
-.L080074B8:
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
+    .section .text.handle_index, "ax"
     thumb_func_start func_080074C0
 func_080074C0: @ 0x080074C0
     push {r4, r5, lr}
@@ -236,53 +180,7 @@ func_080074C0: @ 0x080074C0
     .align 2, 0
 .L0800750C: .4byte gUnk_03000404
 
-    thumb_func_start func_08007510
-func_08007510: @ 0x08007510
-    push {r4, lr}
-    adds r2, r1, #0
-    ldr r0, .L08007558 @ =gUnk_03000404
-    ldr r3, [r0]
-    cmp r2, #0
-    beq .L0800755C
-    lsls r0, r2, #0x1c
-    lsrs r1, r0, #0x1c
-    adds r4, r1, #0
-    movs r0, #0
-    cmp r1, #0xf
-    bhi .L08007536
-    movs r0, #1
-    lsls r0, r1
-    ldr r1, [r3, #0x44]
-    ands r1, r0
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-.L08007536:
-    cmp r0, #0
-    beq .L0800755C
-    lsls r0, r4, #2
-    adds r0, #4
-    adds r1, r3, r0
-    movs r3, #0
-    lsls r0, r2, #0xc
-    lsrs r0, r0, #0x10
-    ldrh r2, [r1, #2]
-    cmp r0, r2
-    bne .L0800754E
-    movs r3, #1
-.L0800754E:
-    cmp r3, #0
-    beq .L0800755C
-    ldrh r0, [r1]
-    b .L0800755E
-    .align 2, 0
-.L08007558: .4byte gUnk_03000404
-.L0800755C:
-    movs r0, #0
-.L0800755E:
-    pop {r4}
-    pop {r1}
-    bx r1
+    .text
 .L08007564:
     .byte 0x02, 0x48, 0x00, 0x68, 0x48, 0x30, 0x00, 0x88, 0x70, 0x47, 0x00, 0x00
     .byte 0x04, 0x04, 0x00, 0x03, 0x10, 0x20, 0x70, 0x47, 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46
@@ -312,13 +210,7 @@ func_08007510: @ 0x08007510
     .byte 0x61, 0xE7, 0x38, 0x68, 0x38, 0x61, 0x05, 0x98, 0x07, 0x60, 0x08, 0xB0, 0x38, 0xBC, 0x98, 0x46
     .byte 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
 
-    thumb_func_start func_0800770C
-func_0800770C: @ 0x0800770C
-    movs r1, #0
-    str r1, [r0]
-    bx lr
-    .align 2, 0
-
+    .section .text.after_0800770C, "ax"
     thumb_func_start func_08007714
 func_08007714: @ 0x08007714
     push {r4, r5, r6, r7, lr}
@@ -488,36 +380,7 @@ func_080077DC: @ 0x080077DC
     bx r1
     .align 2, 0
 
-    thumb_func_start func_08007844
-func_08007844: @ 0x08007844
-    push {r4, lr}
-    adds r3, r0, #0
-    adds r4, r1, #0
-    cmp r2, #4
-    bhi .L08007864
-    movs r1, #1
-    adds r0, r1, #0
-    lsls r0, r2
-    lsls r1, r0
-    subs r1, #1
-    movs r0, #0x1f
-    ands r0, r4
-    lsls r1, r0
-    ldr r0, [r3]
-    bics r0, r1
-    b .L0800786A
-.L08007864:
-    cmp r2, #5
-    bne .L0800786C
-    movs r0, #0
-.L0800786A:
-    str r0, [r3]
-.L0800786C:
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
+    .section .text.after_08007844, "ax"
     thumb_func_start func_08007874
 func_08007874: @ 0x08007874
     push {r4, r5, r6, r7, lr}
@@ -1335,40 +1198,8 @@ func_08007E24: @ 0x08007E24
     .byte 0x92, 0x21, 0x09, 0x01, 0x40, 0x18, 0x00, 0x88, 0x70, 0x47, 0x00, 0x00, 0x08, 0x04, 0x00, 0x03
     .byte 0x80, 0x20, 0x40, 0x00, 0x70, 0x47, 0x00, 0x00
 
-    thumb_func_start func_08007EA8
-func_08007EA8: @ 0x08007EA8
-    push {r4, lr}
-    adds r4, r0, #0
-    adds r0, r4, #4
-    bl func_080D6EEC
-    adds r0, r4, #0
-    adds r0, #0x80
-    bl func_080D6EEC
-    movs r1, #0
-    movs r0, #1
-    strb r0, [r4]
-    strb r1, [r4, #1]
-    pop {r4}
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_08007EC8
-func_08007EC8: @ 0x08007EC8
-    push {r4, lr}
-    adds r4, r0, #0
-    adds r0, #0x80
-    bl func_080D6F5C
-    adds r0, r4, #4
-    bl func_080D6F5C
-    movs r0, #0
-    strb r0, [r4]
-    movs r0, #1
-    strb r0, [r4, #1]
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
+    .section .text.after_08007EA8, "ax"
+    .section .text.after_08007EC8, "ax"
     thumb_func_start func_08007EE8
 func_08007EE8: @ 0x08007EE8
     push {r4, r5, lr}
@@ -2240,88 +2071,25 @@ func_080087C8: @ 0x080087C8
 .L080088B0: .4byte vtable_unk_080E5BD8
 .L080088B4: .4byte 0x00000494
 
-    thumb_func_start func_080088B8
-func_080088B8: @ 0x080088B8
-    push {lr}
-    ldr r0, [r0]
-    bl func_08009268
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_080088C4
-func_080088C4: @ 0x080088C4
-    ldr r0, [r0]
-    ldrh r0, [r0]
-    bx lr
-    .align 2, 0
-
-    thumb_func_start func_080088CC
-func_080088CC: @ 0x080088CC
-    ldr r0, [r0]
-    ldrh r0, [r0, #4]
-    bx lr
-    .align 2, 0
-
-    thumb_func_start func_080088D4
-func_080088D4: @ 0x080088D4
-    ldr r0, [r0]
-    ldrh r0, [r0, #8]
-    bx lr
-    .align 2, 0
-
-    thumb_func_start func_080088DC
-func_080088DC: @ 0x080088DC
-    ldr r0, [r0]
-    bx lr
+    .section .text.after_080088B8, "ax"
+    .section .text.after_080088C4, "ax"
+    .section .text.after_080088CC, "ax"
+    .section .text.after_080088D4, "ax"
+    .section .text.after_080088DC, "ax"
 .L080088E0:
     .byte 0x00, 0xB5, 0x09, 0x04, 0x09, 0x0C, 0x00, 0x68, 0x00, 0xF0, 0xEE, 0xFC, 0x01, 0xBC, 0x00, 0x47
     .byte 0x00, 0xB5, 0x09, 0x04, 0x09, 0x0C, 0x00, 0x68, 0x00, 0xF0, 0x00, 0xFD, 0x01, 0xBC, 0x00, 0x47
     .byte 0x00, 0x68, 0x40, 0x89, 0x70, 0x47, 0x00, 0x00, 0x00, 0x68, 0x80, 0x89, 0x70, 0x47, 0x00, 0x00
 
-    thumb_func_start func_08008910
-func_08008910: @ 0x08008910
-    ldr r0, [r0]
-    adds r0, #0x24
-    bx lr
-    .align 2, 0
-
-    thumb_func_start func_08008918
-func_08008918: @ 0x08008918
-    ldr r0, [r0]
-    adds r0, #0x34
-    bx lr
-    .align 2, 0
-
-    thumb_func_start func_08008920
-func_08008920: @ 0x08008920
-    ldr r0, [r0]
-    adds r0, #0x8c
-    bx lr
-    .align 2, 0
+    .section .text.after_08008910, "ax"
+    .section .text.after_08008918, "ax"
+    .section .text.after_08008920, "ax"
 .L08008928:
     .byte 0x00, 0x68, 0x24, 0x30, 0x70, 0x47, 0x00, 0x00
     .byte 0x00, 0x68, 0x34, 0x30, 0x70, 0x47, 0x00, 0x00, 0x00, 0x68, 0x8C, 0x30, 0x70, 0x47, 0x00, 0x00
 
-    thumb_func_start func_08008940
-func_08008940: @ 0x08008940
-    ldr r0, [r0]
-    ldr r1, .L08008948 @ =0x00000494
-    adds r0, r0, r1
-    bx lr
-    .align 2, 0
-.L08008948: .4byte 0x00000494
-
-    thumb_func_start func_0800894C
-func_0800894C: @ 0x0800894C
-    push {lr}
-    ldr r0, [r0]
-    movs r1, #0x92
-    lsls r1, r1, #3
-    adds r0, r0, r1
-    bl func_08008AE0
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.after_08008940, "ax"
+    .section .text.after_0800894C, "ax"
 .L08008960:
     .byte 0x00, 0x68, 0x01, 0x49, 0x40, 0x18, 0x70, 0x47, 0x94, 0x04, 0x00, 0x00, 0x00, 0xB5, 0x00, 0x68
     .byte 0x92, 0x21, 0xC9, 0x00, 0x40, 0x18, 0x00, 0xF0, 0xB3, 0xF8, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
