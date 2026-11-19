@@ -492,12 +492,12 @@ EC AActorEntity * InitializeScheduledNpc22(AActorEntity * self, GameObject * gam
     return self;
 }
 
-EC u8 const gUnk_080F2AF8[];
+EC u8 const gCliffScheduleInfo[];
 EC u8 const vtable_unk_080E6C18[];
 EC AActorEntity * InitializeScheduledNpc23(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context) NPC_EXTRA_CODE(08036730);
 EC AActorEntity * InitializeScheduledNpc23(AActorEntity * self, GameObject * game, Npc * npc, u32 schedule_context)
 {
-    InitializeScheduledNpcBase(self, game, npc, schedule_context, gUnk_080F2AF8, 635, 639, 996);
+    InitializeScheduledNpcBase(self, game, npc, schedule_context, gCliffScheduleInfo, 635, 639, 996);
     reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6C18;
     return self;
 }
