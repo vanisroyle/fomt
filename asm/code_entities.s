@@ -3092,7 +3092,7 @@ func_0802B260: @ 0x0802B260
     strb r4, [r0]
     mov r0, sb
     movs r2, #6
-    bl func_08032560
+    bl InitializePrioritizedSideActorSprite
     ldr r0, .L0802B3A8 @ =vtable_unk_080E6708
     mov r1, sb
     str r0, [r1, #4]
