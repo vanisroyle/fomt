@@ -314,9 +314,12 @@ gUnk_080F18D2:
 gUnk_080F1904:
 	.incbin "baserom.gba", 0xF1904, 0x44
 
-	.global gUnk_080F1948
-gUnk_080F1948:
-	.incbin "baserom.gba", 0xF1948, 0x58
+	.global gMapOverlayParticleMotion
+gMapOverlayParticleMotion:
+	@ Two (dx, dy) vectors per overlay kind, in signed Q16 pixels per update.
+	.4byte -0x3333, 0x10000, 0x3333, 0x10000
+	.4byte -0x3333, 0x40000, 0xCCCC, 0x40000
+	.incbin "baserom.gba", 0xF1968, 0x38
 
 	.global gUnk_080F19A0
 gUnk_080F19A0:
@@ -328,11 +331,40 @@ gUnk_080F19AE:
 
 	.global gUnk_080F19CC
 gUnk_080F19CC:
-	.incbin "baserom.gba", 0xF19CC, 0x68
+	.incbin "baserom.gba", 0xF19CC, 0x1C
 
-	.global gUnk_080F1A34
-gUnk_080F1A34:
-	.incbin "baserom.gba", 0xF1A34, 0x32
+.LPauseMenuDiaryLabel:
+	.asciz "Diary"
+	.align 2, 0
+.LPauseMenuRucksackLabel:
+	.asciz "Rucksack"
+	.align 2, 0
+.LPauseMenuWorldMapLabel:
+	.asciz "World Map"
+	.align 2, 0
+.LPauseMenuFarmMapLabel:
+	.asciz "Farm Map"
+	.align 2, 0
+.LPauseMenuEarningsLabel:
+	.asciz "Earnings"
+	.align 2, 0
+.LPauseMenuMemoLabel:
+	.asciz "Memo"
+	.align 2, 0
+.LPauseMenuTutorialLabel:
+	.asciz "Tutorial"
+	.align 2, 0
+
+	.global gPauseMenuTabLabels
+gPauseMenuTabLabels:
+	.4byte .LPauseMenuDiaryLabel
+	.4byte .LPauseMenuRucksackLabel
+	.4byte .LPauseMenuWorldMapLabel
+	.4byte .LPauseMenuFarmMapLabel
+	.4byte .LPauseMenuEarningsLabel
+	.4byte .LPauseMenuMemoLabel
+	.4byte .LPauseMenuTutorialLabel
+	.incbin "baserom.gba", 0xF1A50, 0x16
 
 	.global gNpcScheduleFestivalDays
 gNpcScheduleFestivalDays:
