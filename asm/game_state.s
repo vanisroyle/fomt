@@ -17349,7 +17349,7 @@ func_080182C8: @ 0x080182C8
 .L08019B88: .4byte 0x00000B81
 .L08019B8C: .4byte 0x00000DB1
 
-    .text
+    .section .text.game_state_c2.08019B90, "ax", %progbits
 
     thumb_func_start func_08019B90
 func_08019B90: @ 0x08019B90
@@ -21445,43 +21445,8 @@ func_0801DCD4: @ 0x0801DCD4
 .L0801DD10: .4byte 0x00001038
 .L0801DD14: .4byte 0x000003DB
 
-    thumb_func_start func_0801DD18
-func_0801DD18: @ 0x0801DD18
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080A6138
-    pop {r0}
-    bx r0
+    .section .text.game_state_c2.0801DD84, "ax", %progbits
 
-    thumb_func_start func_0801DD24
-func_0801DD24: @ 0x0801DD24
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080A6194
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_0801DD30
-func_0801DD30: @ 0x0801DD30
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080A61F0
-    pop {r0}
-    bx r0
-.L0801DD3C:
-    .byte 0x00, 0xB5, 0x40, 0x68
-    .byte 0x88, 0xF0, 0x78, 0xFA, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x40, 0x68, 0x88, 0xF0, 0x94, 0xFA
-    .byte 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x40, 0x68, 0x88, 0xF0, 0xB0, 0xFA, 0x01, 0xBC, 0x00, 0x47
-    .byte 0x00, 0xB5, 0x40, 0x68, 0x88, 0xF0, 0x8A, 0xF9, 0x01, 0xBC, 0x00, 0x47, 0x00, 0xB5, 0x40, 0x68
-    .byte 0x88, 0xF0, 0x58, 0xF9, 0x01, 0xBC, 0x00, 0x47
-
-    thumb_func_start func_0801DD78
-func_0801DD78: @ 0x0801DD78
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080A601C
-    pop {r0}
-    bx r0
 .L0801DD84:
     .byte 0x30, 0xB5, 0x82, 0xB0, 0x04, 0x1C, 0x0F, 0x49, 0x60, 0x18, 0x00, 0x68
     .byte 0xFA, 0x21, 0x49, 0x00, 0x40, 0x18, 0xEE, 0xF7, 0x71, 0xF9, 0x05, 0x1C, 0x60, 0x68, 0x88, 0xF0
@@ -21489,75 +21454,8 @@ func_0801DD78: @ 0x0801DD78
     .byte 0x68, 0x46, 0xF0, 0xF7, 0x51, 0xF9, 0x01, 0x1C, 0x01, 0xA8, 0x01, 0x70, 0xF0, 0xF7, 0xCA, 0xF8
     .byte 0x02, 0xB0, 0x30, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x38, 0x10, 0x00, 0x00
 
-    thumb_func_start func_0801DDCC
-func_0801DDCC: @ 0x0801DDCC
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    ldr r1, .L0801DDF0 @ =0x00001038
-    adds r0, r4, r1
-    ldr r0, [r0]
-    ldr r1, .L0801DDF4 @ =0x000034D8
-    adds r0, r0, r1
-    adds r1, r5, #0
-    bl func_0809C5B4
-    ldr r0, [r4, #4]
-    adds r1, r5, #0
-    bl func_080AA850
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801DDF0: .4byte 0x00001038
-.L0801DDF4: .4byte 0x000034D8
+    .section .text.game_state_c2.0801DE54, "ax", %progbits
 
-    thumb_func_start func_0801DDF8
-func_0801DDF8: @ 0x0801DDF8
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
-    ldr r1, .L0801DE1C @ =0x00001038
-    adds r0, r4, r1
-    ldr r0, [r0]
-    ldr r1, .L0801DE20 @ =0x000034D8
-    adds r0, r0, r1
-    adds r1, r5, #0
-    bl func_0809C5D0
-    ldr r0, [r4, #4]
-    adds r1, r5, #0
-    bl func_080AA850
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801DE1C: .4byte 0x00001038
-.L0801DE20: .4byte 0x000034D8
-
-    thumb_func_start func_0801DE24
-func_0801DE24: @ 0x0801DE24
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080A63B8
-    pop {r0}
-    bx r0
-.L0801DE30:
-    .byte 0x00, 0xB5, 0x40, 0x68, 0x8C, 0xF0, 0x32, 0xFD, 0x01, 0xBC, 0x00, 0x47
-
-    thumb_func_start func_0801DE3C
-func_0801DE3C: @ 0x0801DE3C
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080AA8BC
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_0801DE48
-func_0801DE48: @ 0x0801DE48
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080AA8DC
-    pop {r0}
-    bx r0
 .L0801DE54:
     .byte 0x70, 0xB5, 0x46, 0x46, 0x40, 0xB4, 0x82, 0xB0, 0x05, 0x1C, 0x88, 0x46
     .byte 0x13, 0x49, 0x68, 0x18, 0x00, 0x68, 0xFA, 0x21, 0x49, 0x00, 0x40, 0x18, 0xEE, 0xF7, 0x06, 0xF9
@@ -24480,30 +24378,3 @@ func_0801FD0C: @ 0x0801FD0C
     bx r0
 .L0801FD30:
     .byte 0x01, 0x49, 0x40, 0x18, 0x00, 0x68, 0x70, 0x47, 0x24, 0x10, 0x00, 0x00
-
-    thumb_func_start func_0801FD3C
-func_0801FD3C: @ 0x0801FD3C
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080A5A9C
-    pop {r1}
-    bx r1
-.L0801FD48:
-    .byte 0x40, 0x68, 0x0E, 0x21, 0x40, 0x5E, 0x70, 0x47
-    .byte 0x40, 0x68, 0x0A, 0x21, 0x40, 0x5E, 0x70, 0x47, 0x40, 0x68, 0x00, 0x68, 0x70, 0x47, 0x00, 0x00
-
-    thumb_func_start func_0801FD60
-func_0801FD60: @ 0x0801FD60
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080A59BC
-    pop {r0}
-    bx r0
-
-    thumb_func_start func_0801FD6C
-func_0801FD6C: @ 0x0801FD6C
-    push {lr}
-    ldr r0, [r0, #4]
-    bl func_080A5960
-    pop {r0}
-    bx r0
