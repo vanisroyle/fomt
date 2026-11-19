@@ -1218,7 +1218,8 @@ SECTIONS
         src/map_scene.o(.text.080ACAF0);
         asm/code_809E804.o(.text.080ACC10);
         src/map_scene.o(.text.080AD3B0);
-        asm/code_809E804.o(.text.080AD49C);
+        src/map_scene.o(.text.080AD49C);
+        asm/code_809E804.o(.text.080AD5D8);
         src/map_scene.o(.text.080AD69C);
         src/map_scene.o(.text.080AD724);
         asm/code_809E804.o(.text.080AD774);

@@ -1,7 +1,10 @@
 #include "prelude.h"
 
+#include "actor.hh"
 #include "sprite_animation.hh"
 #include "unknown_types.hh"
+
+#include <string.h>
 
 struct MapUpdateState;
 struct G1MapState;
@@ -264,9 +267,133 @@ struct MapSceneStartPosition
 };
 
 EC void func_080AC674(void *, void **);
-EC void func_080AD49C(MapScene &, unsigned);
 EC u8 vtable_unk_080E8440[];
 EC u8 vtable_unk_080E8344[];
+EC MapSceneEntity * NewItemDisplayEntity(MapScene *);
+EC MapSceneEntity * InitializeReactionEntity(void *, MapScene *, Location const &);
+EC void InitializeMapSceneActor(void *, MapScene *, ActorLocation const &, u32, u32)
+    asm("__12AActorEntityP10GameObjectRC13ActorLocationUiUi");
+EC MapSceneEntityMethods const vtable_unk_080E8404;
+
+EC SECTION(".text.080AD49C") void ResetMapSceneEntitySlot(MapScene & inputScene, unsigned inputSlot)
+{
+    MapScene * scene = &inputScene;
+    register MapScene * receivedScene asm("r0") = scene;
+    asm ("" : "+l" (receivedScene));
+    scene = receivedScene;
+    register unsigned slot asm("sb") = inputSlot;
+    asm ("" : "+h" (slot));
+    register MapSceneEntity ** entries asm("r1") = scene->entities;
+    asm ("" : "+l" (entries));
+    register unsigned slotIndex asm("r2") = slot;
+    asm ("" : "+l" (slotIndex));
+    register unsigned slotOffset asm("r0") = slotIndex * sizeof(*entries);
+    asm ("" : "+l" (slotOffset));
+    MapSceneEntity ** entitySlot = reinterpret_cast<MapSceneEntity **>(reinterpret_cast<u8 *>(entries) + slotOffset);
+    MapSceneEntity * previous = *entitySlot;
+    if (previous)
+    {
+        previous->methods->destroy(*previous, 3);
+        *entitySlot = 0;
+    }
+    struct DisplayLocation
+    {
+        ActorLocation actor;
+        Location offMap;
+    } location;
+    register MapSceneEntity * entity asm("r5") = 0;
+    asm ("" : "+l" (entity));
+    switch (slot)
+    {
+    case 94:
+        entity = NewItemDisplayEntity(scene);
+        break;
+    case 95:
+    case 96:
+    case 97:
+    {
+        entity = static_cast<MapSceneEntity *>(operator new(0x30));
+        asm ("" : "+l" (entity));
+        register Location * offMap asm("r1") = &location.offMap;
+        asm ("" : "+l" (offMap));
+        register unsigned mapId asm("r4") = MAP_NONE;
+        asm ("" : "+l" (mapId));
+        register unsigned zero asm("r8") = 0;
+        asm ("" : "+h" (zero));
+        register unsigned mapWord asm("r2") = *reinterpret_cast<u16 *>(offMap);
+        asm ("" : "+l" (mapWord));
+        register unsigned fieldMask asm("r3") = ~0x3FFu;
+        asm ("" : "+l" (fieldMask));
+        *reinterpret_cast<u16 *>(offMap) = (fieldMask & mapWord) | mapId;
+        register unsigned facing asm("r6") = 0;
+        asm ("" : "+l" (facing));
+        register u8 * bytes asm("r1") = reinterpret_cast<u8 *>(offMap);
+        register unsigned fraction asm("r4") = bytes[1];
+        register unsigned fractionMask asm("r2") = 3;
+        bytes[1] = fractionMask & fraction;
+        register unsigned xWord asm("r4") = reinterpret_cast<u16 *>(offMap)[1];
+        reinterpret_cast<u16 *>(offMap)[1] = fieldMask & xWord;
+        register unsigned yLow asm("r0") = bytes[3];
+        fractionMask &= yLow;
+        bytes[3] = fractionMask;
+        register unsigned yWord asm("r0") = reinterpret_cast<u16 *>(offMap)[2];
+        fieldMask &= yWord;
+        reinterpret_cast<u16 *>(offMap)[2] = fieldMask;
+        register ActorLocation * actor asm("r4") = &location.actor;
+        asm ("" : "+l" (actor));
+        memcpy(actor, offMap, sizeof(Location));
+        actor->facing = facing;
+        register unsigned animation asm("r2") = zero;
+        asm ("" : "+l" (animation));
+        InitializeMapSceneActor(entity, scene, location.actor, 2, animation);
+        entity->methods = &vtable_unk_080E8404;
+        break;
+    }
+    case 98:
+    case 99:
+    {
+        register void * memory asm("r0") = operator new(0x18);
+        asm ("" : "+l" (memory));
+        register Location * offMap asm("r2") = &location.actor;
+        asm ("" : "+l" (offMap));
+        register unsigned mapId asm("r5") = MAP_NONE;
+        asm ("" : "+l" (mapId));
+        register unsigned mapWord asm("r3") = *reinterpret_cast<u16 *>(offMap);
+        asm ("" : "+l" (mapWord));
+        register unsigned fieldMask asm("r4") = ~0x3FFu;
+        asm ("" : "+l" (fieldMask));
+        *reinterpret_cast<u16 *>(offMap) = (fieldMask & mapWord) | mapId;
+        register u8 * bytes asm("r2") = reinterpret_cast<u8 *>(offMap);
+        register unsigned fraction asm("r5") = bytes[1];
+        register unsigned fractionMask asm("r3") = 3;
+        bytes[1] = fractionMask & fraction;
+        register unsigned xWord asm("r5") = reinterpret_cast<u16 *>(offMap)[1];
+        reinterpret_cast<u16 *>(offMap)[1] = fieldMask & xWord;
+        register unsigned yLow asm("r1") = bytes[3];
+        fractionMask &= yLow;
+        bytes[3] = fractionMask;
+        register unsigned yWord asm("r1") = reinterpret_cast<u16 *>(offMap)[2];
+        fieldMask &= yWord;
+        reinterpret_cast<u16 *>(offMap)[2] = fieldMask;
+        asm ("" : "+l" (memory), "+l" (offMap));
+        entity = InitializeReactionEntity(memory, scene, *offMap);
+        break;
+    }
+    }
+    if (entity)
+    {
+        register MapSceneEntity ** entries asm("r0") = scene->entities;
+        asm ("" : "+l" (entries));
+        slotIndex = slot;
+        asm ("" : "+l" (slotIndex));
+        register unsigned slotOffset asm("r1") = slotIndex * sizeof(*entries);
+        asm ("" : "+l" (slotOffset));
+        entries = reinterpret_cast<MapSceneEntity **>(reinterpret_cast<u8 *>(entries) + slotOffset);
+        asm ("" : "+l" (entries));
+        *entries = entity;
+        entity->methods->finishMapChange(*entity);
+    }
+}
 
 EC SECTION(".text.080AC9EC") MapScene * ConstructMapScene(void * memory, void ** inputResource)
 {
@@ -355,7 +482,7 @@ EC SECTION(".text.080AC9EC") MapScene * ConstructMapScene(void * memory, void **
     *targetQueue = nextQueue;
 
     for (unsigned slot = 0; slot < 100; ++slot)
-        func_080AD49C(*scene, slot);
+        ResetMapSceneEntitySlot(*scene, slot);
 
     void * pending = *resource;
     if (pending)
