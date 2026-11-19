@@ -17,11 +17,22 @@ struct MapSceneEntity
     MapSceneEntityMethods const * methods;
 };
 
+struct SpriteAnimationClipHeader;
+
+struct MapSceneAnimationSlot
+{
+    STRUCT_PAD(0x00, 0x04);
+    SpriteAnimationClipHeader const * clips;
+    STRUCT_PAD(0x08, 0x30);
+};
+
 struct MapScene
 {
     STRUCT_PAD(0x00, 0x04);
     MapUpdateState * map;
     MapSceneEntity * entities[100];
+    STRUCT_PAD(0x198, 0xDB0);
+    MapSceneAnimationSlot animations[13];
 };
 
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
@@ -108,6 +119,72 @@ EC SECTION(".text.080AD9C4") void ApplyMapPatchAtY15VariantA(MapScene & scene)
 EC SECTION(".text.080AD9D0") void StartMapTileAnimationDelay(MapScene & scene)
 {
     StartMapTransitionDelay(reinterpret_cast<u8 *>(scene.map));
+}
+
+
+EC SECTION(".text.080AD9DC") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot12(MapScene const & scene)
+{
+    return scene.animations[12].clips;
+}
+
+EC SECTION(".text.080AD9E8") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot11(MapScene const & scene)
+{
+    return scene.animations[11].clips;
+}
+
+EC SECTION(".text.080AD9F4") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot10(MapScene const & scene)
+{
+    return scene.animations[10].clips;
+}
+
+EC SECTION(".text.080ADA00") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot9(MapScene const & scene)
+{
+    return scene.animations[9].clips;
+}
+
+EC SECTION(".text.080ADA0C") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot8(MapScene const & scene)
+{
+    return scene.animations[8].clips;
+}
+
+EC SECTION(".text.080ADA18") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot7(MapScene const & scene)
+{
+    return scene.animations[7].clips;
+}
+
+EC SECTION(".text.080ADA24") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot6(MapScene const & scene)
+{
+    return scene.animations[6].clips;
+}
+
+EC SECTION(".text.080ADA30") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot5(MapScene const & scene)
+{
+    return scene.animations[5].clips;
+}
+
+EC SECTION(".text.080ADA3C") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot4(MapScene const & scene)
+{
+    return scene.animations[4].clips;
+}
+
+EC SECTION(".text.080ADA48") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot3(MapScene const & scene)
+{
+    return scene.animations[3].clips;
+}
+
+EC SECTION(".text.080ADA54") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot2(MapScene const & scene)
+{
+    return scene.animations[2].clips;
+}
+
+EC SECTION(".text.080ADA60") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot1(MapScene const & scene)
+{
+    return scene.animations[1].clips;
+}
+
+EC SECTION(".text.080ADA6C") SpriteAnimationClipHeader const * const & GetMapSceneAnimationSlot0(MapScene const & scene)
+{
+    return scene.animations[0].clips;
 }
 
 EC SECTION(".text.080ADB78") bool IsMapScrollIdle(MapScene & scene)
