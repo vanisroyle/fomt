@@ -35,6 +35,9 @@ EC u8 vtable_unk_080E7934[];
 EC FestivalResultsScreen * InitializeFestivalResultsScreen(void *, void *);
 EC void RunFestivalResultsScreen(FestivalScene **, FestivalResultsScreen *);
 EC void Scene_DestroyBase(void *, u32);
+EC u8 vtable_unk_080E7960[];
+EC FestivalResultsScreen * InitializeAnimalFestivalScreen(void *, void *, u8);
+EC void RunAnimalFestivalScreen(FestivalScene **, FestivalResultsScreen *);
 
 EC SECTION(".text.festival_results.0805218C") FestivalResultsController * InitializeFestivalResultsController(FestivalResultsController * controller, FestivalScene ** continuation, void * game) // 0x0805218C
 {
@@ -82,4 +85,35 @@ EC SECTION(".text.festival_results.080522E8") void SetAnimalFestivalScore(Animal
     scores += index;
     scores->entryId = value->entryId;
     scores->score = value->score;
+}
+
+EC SECTION(".text.animal_festival.08057DD8") FestivalResultsController * InitializeAnimalFestivalController(FestivalResultsController * controller, FestivalScene ** continuation, void * game, u8 kind)
+{
+    controller->vtable = vtable_unk_080E7960;
+    controller->screen = InitializeAnimalFestivalScreen(operator new(0x23a8), game, kind);
+    FestivalScene * next = *continuation;
+    *continuation = nullptr;
+    controller->continuation = next;
+    return controller;
+}
+
+EC SECTION(".text.animal_festival.08057E1C") void DestroyAnimalFestivalController(FestivalResultsController * controller, u32 flags)
+{
+    controller->vtable = vtable_unk_080E7960;
+    FestivalScene * next = controller->continuation;
+    if (next != nullptr) next->vtable->destroy(next, 3);
+    FestivalResultsScreen * screen = controller->screen;
+    if (screen != nullptr) screen->vtable->destroy(screen, 3);
+    Scene_DestroyBase(controller, flags);
+}
+
+EC SECTION(".text.animal_festival.08057E5C") FestivalScene ** RunAnimalFestivalController(FestivalScene ** result, FestivalResultsController * controller)
+{
+    FestivalScene * completed;
+    RunAnimalFestivalScreen(&completed, controller->screen);
+    if (completed != nullptr) completed->vtable->destroy(completed, 3);
+    FestivalScene * next = controller->continuation;
+    controller->continuation = nullptr;
+    *result = next;
+    return result;
 }

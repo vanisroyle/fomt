@@ -7735,7 +7735,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L0804390C:
 	adds r0, r5, #0
 	movs r1, #0
-	bl func_0804E354
+	bl HasStoredTool
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08043958
@@ -7788,7 +7788,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L08043978:
 	adds r0, r5, #0
 	movs r1, #8
-	bl func_0804E354
+	bl HasStoredTool
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080439C4
@@ -7841,7 +7841,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L080439E4:
 	adds r0, r5, #0
 	movs r1, #0x10
-	bl func_0804E354
+	bl HasStoredTool
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08043A30
@@ -7894,7 +7894,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L08043A50:
 	adds r0, r5, #0
 	movs r1, #0x18
-	bl func_0804E354
+	bl HasStoredTool
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08043A9C
@@ -7947,7 +7947,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L08043ABC:
 	adds r0, r5, #0
 	movs r1, #0x20
-	bl func_0804E354
+	bl HasStoredTool
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08043B08
@@ -8000,7 +8000,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L08043B28:
 	adds r0, r5, #0
 	movs r1, #0x28
-	bl func_0804E354
+	bl HasStoredTool
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08043B74
@@ -8709,7 +8709,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L080440EA:
 	adds r0, r5, #0
-	bl func_0804E354
+	bl HasStoredTool
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	bl .L08045166
@@ -8730,7 +8730,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L08044114:
 	adds r0, r5, #0
-	bl func_0804E2C0
+	bl HasStoredFood
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	bl .L08045166
@@ -8751,7 +8751,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L0804413E:
 	adds r0, r5, #0
-	bl func_0804E22C
+	bl HasStoredArticle
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	bl .L08045166
@@ -8978,7 +8978,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L08044318:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r1, r1, #0x1f
@@ -9136,7 +9136,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L08044446:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	adds r1, r0, #0
 	cmp r1, #0
 	bne .L08044456
@@ -9193,7 +9193,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L080444BA:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	adds r2, r0, #0
 	cmp r2, #0
 	bne .L080444CA
@@ -9230,7 +9230,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L08044504:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	cmp r0, #0
 	bne .L08044512
 	bl .L08045572
@@ -9264,7 +9264,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L08044548:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	adds r2, r0, #0
 	cmp r2, #0
 	bne .L08044558
@@ -9310,7 +9310,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L080445A2:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	cmp r0, #0
 	bne .L080445B0
 	bl .L08045572
@@ -9345,7 +9345,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L080445E8:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	adds r2, r0, #0
 	cmp r2, #0
 	bne .L080445F8
@@ -9382,7 +9382,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L08044632:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	adds r2, r0, #0
 	cmp r2, #0
 	bne .L08044642
@@ -9419,7 +9419,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L0804467C:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	adds r2, r0, #0
 	cmp r2, #0
 	bne .L0804468C
@@ -9456,7 +9456,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L080446C6:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	adds r2, r0, #0
 	cmp r2, #0
 	bne .L080446D6
@@ -9492,7 +9492,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L0804470E:
 	adds r0, r5, #0
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	movs r2, #0
 	cmp r0, #0
 	bne .L0804471E
@@ -9639,7 +9639,7 @@ func_0803F8DC: @ 0x0803F8DC
 .L08044832:
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	adds r2, r0, #0
 	cmp r2, #0
 	bne .L08044844
@@ -19262,7 +19262,7 @@ func_08048FFC: @ 0x08048FFC
 	adds r0, r7, #0
 	movs r1, #2
 .L08049D4C:
-	bl func_0804E3D8
+	bl GetScriptAnimal
 	cmp r0, #0
 	bne .L08049D58
 	bl .L0804DA2E
@@ -27523,324 +27523,9 @@ CanReceiveStoredTool: @ 0x0804E0F8
 	bx r1
 	.align 2, 0
 
-	.section .text.item_storage_ui.0804E22C
-	thumb_func_start func_0804E22C
-func_0804E22C: @ 0x0804E22C
-	push {r4, r5, r6, lr}
-	sub sp, #4
-	adds r5, r0, #0
-	adds r6, r1, #0
-	movs r1, #0xd4
-	lsls r1, r1, #2
-	adds r0, r5, r1
-	ldr r0, [r0]
-	ldr r1, .L0804E2AC @ =0x00001C2C
-	adds r4, r0, r1
-	adds r0, r4, #0
-	bl func_0800F190
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	bne .L0804E272
-	adds r0, r4, #0
-	bl func_0800F204
-	cmp r0, #1
-	bne .L0804E272
-	adds r0, r4, #0
-	bl func_0800F258
-	mov r1, sp
-	strb r0, [r1]
-	mov r0, sp
-	bl GetId__C7Article
-	movs r1, #0
-	cmp r0, r6
-	bne .L0804E26E
-	movs r1, #1
-.L0804E26E:
-	cmp r1, #0
-	bne .L0804E2A8
-.L0804E272:
-	movs r0, #0xd4
-	lsls r0, r0, #2
-	adds r4, r5, r0
-	ldr r0, [r4]
-	ldr r1, .L0804E2B0 @ =0x00001C38
-	adds r0, r0, r1
-	adds r1, r6, #0
-	bl GetFirstSlotWithArticle__C8RucksackUi
-	adds r5, r0, #0
-	movs r0, #1
-	rsbs r0, r0, #0
-	cmp r5, r0
-	bne .L0804E2A8
-	ldr r0, [r4]
-	movs r1, #0xfa
-	lsls r1, r1, #1
-	adds r0, r0, r1
-	bl GetShelf__9FarmHouse
-	cmp r0, #0
-	beq .L0804E2B4
-	adds r1, r6, #0
-	bl GetFirstSlotWith__C5ShelfUi
-	cmp r0, r5
-	beq .L0804E2B4
-.L0804E2A8:
-	movs r0, #1
-	b .L0804E2B6
-	.align 2, 0
-.L0804E2AC: .4byte 0x00001C2C
-.L0804E2B0: .4byte 0x00001C38
-.L0804E2B4:
-	movs r0, #0
-.L0804E2B6:
-	add sp, #4
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
 
-	.section .text.item_storage_ui.0804E2C0
-	thumb_func_start func_0804E2C0
-func_0804E2C0: @ 0x0804E2C0
-	push {r4, r5, r6, lr}
-	sub sp, #4
-	adds r5, r0, #0
-	adds r6, r1, #0
-	movs r1, #0xd4
-	lsls r1, r1, #2
-	adds r0, r5, r1
-	ldr r0, [r0]
-	ldr r1, .L0804E340 @ =0x00001C2C
-	adds r4, r0, r1
-	adds r0, r4, #0
-	bl func_0800F190
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	bne .L0804E304
-	adds r0, r4, #0
-	bl func_0800F204
-	cmp r0, #0
-	bne .L0804E304
-	mov r0, sp
-	adds r1, r4, #0
-	bl func_0800F20C
-	mov r0, sp
-	bl GetId__C4Food
-	movs r1, #0
-	cmp r0, r6
-	bne .L0804E300
-	movs r1, #1
-.L0804E300:
-	cmp r1, #0
-	bne .L0804E33A
-.L0804E304:
-	movs r0, #0xd4
-	lsls r0, r0, #2
-	adds r4, r5, r0
-	ldr r0, [r4]
-	ldr r1, .L0804E344 @ =0x00001C38
-	adds r0, r0, r1
-	adds r1, r6, #0
-	bl GetFirstSlotWithFood__C8RucksackUi
-	adds r5, r0, #0
-	movs r0, #1
-	rsbs r0, r0, #0
-	cmp r5, r0
-	bne .L0804E33A
-	ldr r0, [r4]
-	movs r1, #0xfa
-	lsls r1, r1, #1
-	adds r0, r0, r1
-	bl GetFridge__9FarmHouse
-	cmp r0, #0
-	beq .L0804E348
-	adds r1, r6, #0
-	bl GetFirstSlotWith__C6FridgeUi
-	cmp r0, r5
-	beq .L0804E348
-.L0804E33A:
-	movs r0, #1
-	b .L0804E34A
-	.align 2, 0
-.L0804E340: .4byte 0x00001C2C
-.L0804E344: .4byte 0x00001C38
-.L0804E348:
-	movs r0, #0
-.L0804E34A:
-	add sp, #4
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
 
-	.section .text.item_storage_ui.0804E354
-	thumb_func_start func_0804E354
-func_0804E354: @ 0x0804E354
-	push {r4, r5, r6, lr}
-	sub sp, #4
-	adds r5, r0, #0
-	adds r6, r1, #0
-	movs r1, #0xd4
-	lsls r1, r1, #2
-	adds r0, r5, r1
-	ldr r0, [r0]
-	ldr r1, .L0804E3C4 @ =0x00001C34
-	adds r4, r0, r1
-	adds r0, r4, #0
-	bl IsEmpty__C9ToolStack
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	bne .L0804E390
-	adds r0, r4, #0
-	bl GetTool__C9ToolStack
-	mov r1, sp
-	strb r0, [r1]
-	mov r0, sp
-	bl GetId__C4Tool
-	movs r1, #0
-	cmp r0, r6
-	bne .L0804E38C
-	movs r1, #1
-.L0804E38C:
-	cmp r1, #0
-	bne .L0804E3CC
-.L0804E390:
-	movs r0, #0xd4
-	lsls r0, r0, #2
-	adds r4, r5, r0
-	ldr r0, [r4]
-	ldr r1, .L0804E3C8 @ =0x00001C38
-	adds r0, r0, r1
-	adds r1, r6, #0
-	bl GetFirstSlotWithTool__C8RucksackUi
-	adds r5, r0, #0
-	movs r0, #1
-	rsbs r0, r0, #0
-	cmp r5, r0
-	bne .L0804E3CC
-	ldr r0, [r4]
-	movs r1, #0xe0
-	lsls r1, r1, #2
-	adds r0, r0, r1
-	adds r1, r6, #0
-	bl GetFirstSlotWith__C9ToolChestUi
-	cmp r0, r5
-	bne .L0804E3CC
-	movs r0, #0
-	b .L0804E3CE
-	.align 2, 0
-.L0804E3C4: .4byte 0x00001C34
-.L0804E3C8: .4byte 0x00001C38
-.L0804E3CC:
-	movs r0, #1
-.L0804E3CE:
-	add sp, #4
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
 
-	.section .text.message_rendering.0804E3D8
-	thumb_func_start func_0804E3D8
-func_0804E3D8: @ 0x0804E3D8
-	push {r4, r5, r6, lr}
-	adds r3, r0, #0
-	adds r5, r2, #0
-	movs r6, #0
-	cmp r1, #4
-	bhi .L0804E49E
-	lsls r0, r1, #2
-	ldr r1, .L0804E3F0 @ =.L0804E3F4
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0804E3F0: .4byte .L0804E3F4
-.L0804E3F4: @ jump table
-	.4byte .L0804E408 @ case 0
-	.4byte .L0804E41A @ case 1
-	.4byte .L0804E442 @ case 2
-	.4byte .L0804E46A @ case 3
-	.4byte .L0804E492 @ case 4
-.L0804E408:
-	movs r1, #0xd4
-	lsls r1, r1, #2
-	adds r0, r3, r1
-	ldr r0, [r0]
-	adds r0, #0x14
-	bl GetHorse__4Farm
-	adds r6, r0, #0
-	b .L0804E49E
-.L0804E41A:
-	movs r0, #0xd4
-	lsls r0, r0, #2
-	adds r4, r3, r0
-	ldr r0, [r4]
-	movs r1, #0xbe
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	bl GetCapacity__C4Barn
-	cmp r5, r0
-	bge .L0804E49E
-	ldr r0, [r4]
-	movs r1, #0xbe
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	adds r1, r5, #0
-	bl GetCow__4BarnUi
-	adds r6, r0, #0
-	b .L0804E49E
-.L0804E442:
-	movs r0, #0xd4
-	lsls r0, r0, #2
-	adds r4, r3, r0
-	ldr r0, [r4]
-	movs r1, #0xbe
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	bl GetCapacity__C4Barn
-	cmp r5, r0
-	bge .L0804E49E
-	ldr r0, [r4]
-	movs r1, #0xbe
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	adds r1, r5, #0
-	bl GetSheep__4BarnUi
-	adds r6, r0, #0
-	b .L0804E49E
-.L0804E46A:
-	movs r0, #0xd4
-	lsls r0, r0, #2
-	adds r4, r3, r0
-	ldr r0, [r4]
-	movs r1, #0x82
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	bl GetCapacity__C4Coop
-	cmp r5, r0
-	bge .L0804E49E
-	ldr r0, [r4]
-	movs r1, #0x82
-	lsls r1, r1, #3
-	adds r0, r0, r1
-	adds r1, r5, #0
-	bl GetChicken__4CoopUi
-	adds r6, r0, #0
-	b .L0804E49E
-.L0804E492:
-	movs r1, #0xd4
-	lsls r1, r1, #2
-	adds r0, r3, r1
-	ldr r0, [r0]
-	ldr r1, .L0804E4A8 @ =0x00001C70
-	adds r6, r0, r1
-.L0804E49E:
-	adds r0, r6, #0
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0804E4A8: .4byte 0x00001C70
 
 	.section .text.message_rendering.0804E4AC
 	thumb_func_start func_0804E4AC
@@ -27960,7 +27645,7 @@ func_0804E4AC: @ 0x0804E4AC
 	mov r1, sb
 	adds r2, r6, #0
 	adds r3, r7, #0
-	bl func_0804E9C8
+	bl DrawUnalignedMessageGlyph
 .L0804E594:
 	mov r0, sl
 	b .L0804E59A
@@ -28231,7 +27916,7 @@ func_0804E5AC: @ 0x0804E5AC
 	mov r1, sl
 	adds r2, r5, #0
 	adds r3, r6, #0
-	bl func_0804E9CC
+	bl DrawUnalignedMessageGlyphWithColors
 .L0804E788:
 	ldr r0, [sp, #0x8c]
 	b .L0804E78E
@@ -28395,18 +28080,8 @@ func_0804E7DC: @ 0x0804E7DC
 .L0804E8E8: .4byte 0x3FFFFFF8
 .L0804E8EC: .4byte 0x001FFFFF
 
-	.section .text.message_rendering.0804E9C8
-	thumb_func_start func_0804E9C8
-func_0804E9C8: @ 0x0804E9C8
-	movs r0, #0
-	bx lr
 
-	.section .text.message_rendering.0804E9CC
-	thumb_func_start func_0804E9CC
-func_0804E9CC: @ 0x0804E9CC
-	movs r0, #0
-	bx lr
-.L0804E9D0:
+	.section .text.message_rendering.0804E9D0
 	.byte 0x00, 0xB5, 0x13, 0x1C, 0x02, 0x04, 0x12, 0x0C, 0x00, 0x0C, 0x42, 0x43, 0x52, 0x01, 0x92, 0x08
 	.byte 0x03, 0x48, 0x02, 0x40, 0x18, 0x1C, 0x84, 0xF0, 0xB1, 0xFE, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
 	.byte 0xFF, 0xFF, 0x1F, 0x00
@@ -28810,6 +28485,10 @@ func_0804EFAC: @ 0x0804EFAC
 .L0804F058:
 	.byte 0x00, 0x21, 0x81, 0x82, 0x70, 0x47, 0x00, 0x00
 
+
+
+
+
 	.section .text.message_rendering.0804F060
 	thumb_func_start AdvanceMessageTextLine
 AdvanceMessageTextLine: @ 0x0804F060
@@ -28948,46 +28627,6 @@ ClearMessageTextCursor: @ 0x0804F0E0
 	pop {r0}
 	bx r0
 	.align 2, 0
-
-	.section .text.message_rendering.0804F160
-	thumb_func_start IsMessageTextAdvanceEnabled
-IsMessageTextAdvanceEnabled: @ 0x0804F160
-	push {lr}
-	ldrb r0, [r0, #4]
-	adds r1, r0, #0
-	cmp r0, #0
-	beq .L0804F16C
-	movs r1, #1
-.L0804F16C:
-	adds r0, r1, #0
-	pop {r1}
-	bx r1
-	.align 2, 0
-
-	.section .text.message_rendering.0804F178
-	thumb_func_start ShouldMessageTextAdvance
-ShouldMessageTextAdvance: @ 0x0804F178
-	push {lr}
-	adds r1, r0, #0
-	movs r2, #0
-	ldrb r0, [r1, #8]
-	cmp r0, #0
-	beq .L0804F194
-	ldrb r0, [r1, #4]
-	adds r1, r0, #0
-	cmp r0, #0
-	beq .L0804F18E
-	movs r1, #1
-.L0804F18E:
-	cmp r1, #0
-	beq .L0804F194
-	movs r2, #1
-.L0804F194:
-	adds r0, r2, #0
-	pop {r1}
-	bx r1
-	.align 2, 0
-
 	.section .text.message_rendering.0804F19C
 	thumb_func_start func_0804F19C
 func_0804F19C: @ 0x0804F19C
@@ -33846,8 +33485,8 @@ func_08052230: @ 0x08052230
 .L080522D4: .4byte gUnk_080FA174
 
 	.section .text.after_festival_scores
-	thumb_func_start func_080522F8
-func_080522F8: @ 0x080522F8
+	thumb_func_start InitializeAnimalFestivalScreen
+InitializeAnimalFestivalScreen: @ 0x080522F8
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -34581,8 +34220,8 @@ func_080522F8: @ 0x080522F8
 .L0805297C: .4byte 0x00002326
 .L08052980: .4byte 0x00002321
 
-	thumb_func_start func_08052984
-func_08052984: @ 0x08052984
+	thumb_func_start RunAnimalFestivalScreen
+RunAnimalFestivalScreen: @ 0x08052984
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -45120,101 +44759,7 @@ func_08057D34: @ 0x08057D34
 	.align 2, 0
 .L08057DD4: .4byte 0x00002334
 
-	thumb_func_start func_08057DD8
-func_08057DD8: @ 0x08057DD8
-	push {r4, r5, r6, lr}
-	mov r6, r8
-	push {r6}
-	adds r5, r0, #0
-	mov r8, r1
-	adds r6, r2, #0
-	lsls r4, r3, #0x18
-	lsrs r4, r4, #0x18
-	ldr r0, .L08057E14 @ =vtable_unk_080E7960
-	str r0, [r5]
-	ldr r0, .L08057E18 @ =0x000023A8
-	bl __builtin_new
-	adds r1, r6, #0
-	adds r2, r4, #0
-	bl func_080522F8
-	str r0, [r5, #4]
-	mov r0, r8
-	ldr r1, [r0]
-	movs r0, #0
-	mov r2, r8
-	str r0, [r2]
-	str r1, [r5, #8]
-	adds r0, r5, #0
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L08057E14: .4byte vtable_unk_080E7960
-.L08057E18: .4byte 0x000023A8
-
-	thumb_func_start func_08057E1C
-func_08057E1C: @ 0x08057E1C
-	push {r4, r5, lr}
-	adds r4, r0, #0
-	adds r5, r1, #0
-	ldr r0, .L08057E58 @ =vtable_unk_080E7960
-	str r0, [r4]
-	ldr r1, [r4, #8]
-	cmp r1, #0
-	beq .L08057E38
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L08057E38:
-	ldr r1, [r4, #4]
-	cmp r1, #0
-	beq .L08057E4A
-	ldr r0, [r1, #4]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L08057E4A:
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl Scene_DestroyBase
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08057E58: .4byte vtable_unk_080E7960
-
-	thumb_func_start func_08057E5C
-func_08057E5C: @ 0x08057E5C
-	push {r4, r5, lr}
-	sub sp, #4
-	adds r5, r0, #0
-	adds r4, r1, #0
-	ldr r1, [r4, #4]
-	mov r0, sp
-	bl func_08052984
-	ldr r1, [sp]
-	cmp r1, #0
-	beq .L08057E7E
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L08057E7E:
-	ldr r1, [r4, #8]
-	movs r0, #0
-	str r0, [r4, #8]
-	str r1, [r5]
-	adds r0, r5, #0
-	add sp, #4
-	pop {r4, r5}
-	pop {r1}
-	bx r1
+	.section .text.animal_festival.08057E90
 
 	thumb_func_start func_08057E90
 func_08057E90: @ 0x08057E90

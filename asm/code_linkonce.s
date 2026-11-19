@@ -15141,7 +15141,7 @@ func_080DB96C: @ 0x080DB96C
 	add r1, sp, #4
 	ldr r2, [r4, #8]
 	ldrb r3, [r4, #0xc]
-	bl func_08057DD8
+	bl InitializeAnimalFestivalController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
