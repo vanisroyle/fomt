@@ -12337,7 +12337,7 @@ func_080AC85C: @ 0x080AC85C
 	cmp r0, #0
 	beq .L080AC8B8
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AC8B8:
 	movs r2, #0xff
 	lsls r2, r2, #4
@@ -12556,7 +12556,7 @@ func_080AC9EC: @ 0x080AC9EC
 	cmp r0, #0
 	beq .L080ACA6A
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080ACA6A:
 	str r4, [r5]
 	ldr r0, .L080ACAEC @ =0x00001028
@@ -13772,7 +13772,7 @@ func_080AD3B0: @ 0x080AD3B0
 	cmp r0, #0
 	beq .L080AD3F2
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AD3F2:
 	str r5, [r4]
 	ldr r0, .L080AD498 @ =0x00001028
@@ -13807,7 +13807,7 @@ func_080AD3B0: @ 0x080AD3B0
 	cmp r0, #0
 	beq .L080AD43E
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AD43E:
 	str r4, [r5]
 	movs r0, #4
