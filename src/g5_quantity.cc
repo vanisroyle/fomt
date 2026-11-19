@@ -1,10 +1,10 @@
 #include "g5_quantity.hh"
 
 EC void Dma3_Fill(u32, void *, u32);
-EC void func_0804EDB4(u32, void *, u32, u32, u32);
+EC void DrawTallMessageNumber(u32, void *, u32, u32, u32);
 EC void func_08075BC8(void *, int, int);
-EC void func_0804E9F4(void *, u32, u32, u32, u32, u32);
-EC void func_0804EE30(u32, void *, u32, u32, u32);
+EC void FillMessageTilemapRect(void *, u32, u32, u32, u32, u32);
+EC void DrawSmallMessageNumber(u32, void *, u32, u32, u32);
 EC int func_080088D4(void *);
 EC void func_08008B6C(void *, u32);
 
@@ -41,9 +41,9 @@ EC SECTION(".text.g5_080CA8B4") void InventoryMenu_OpenQuantitySelector(Quantity
     u32 affordable = *(u32 *) (context->game + 0x1aa8) / selector->unit_price;
     if (affordable < selector->limit)
         selector->limit = affordable;
-    func_0804E9F4(GetQuantityTile(GetQuantityRow(selector, 1), column), 0x2e, 1, 1, 0, 0x20);
-    func_0804EE30(selector->quantity, GetQuantityTile(GetQuantityRow(selector, 1), column + 2), 0x24, 0, 0x20);
-    func_0804E9F4(GetQuantityTile(GetQuantityRow(selector, 1), column + 4), 0x2f, 1, 1, 0, 0x20);
+    FillMessageTilemapRect(GetQuantityTile(GetQuantityRow(selector, 1), column), 0x2e, 1, 1, 0, 0x20);
+    DrawSmallMessageNumber(selector->quantity, GetQuantityTile(GetQuantityRow(selector, 1), column + 2), 0x24, 0, 0x20);
+    FillMessageTilemapRect(GetQuantityTile(GetQuantityRow(selector, 1), column + 4), 0x2f, 1, 1, 0, 0x20);
     RefreshQuantity(selector->context);
     selector->active = 1;
 }
@@ -53,7 +53,7 @@ EC SECTION(".text.g5_080CAAF4") void InventoryMenu_ClearQuantitySelector(Quantit
     Dma3_Fill(0x03ff03ff, GetQuantityRow(selector, 1) + selector->column, 0x10);
     Dma3_Fill(0x03ff03ff, GetQuantityRow(selector, 0) + 12, 0x1c);
     Dma3_Fill(0x03ff03ff, GetQuantityRow(selector, 1) + 12, 0x1c);
-    func_0804EDB4(selector->unit_price, GetQuantityRow(selector, 0) + 25, 0xa0, 0, 0x20);
+    DrawTallMessageNumber(selector->unit_price, GetQuantityRow(selector, 0) + 25, 0xa0, 0, 0x20);
     QuantityLayer * layer = selector->context->layer;
     int scroll = layer->scroll;
     func_08075BC8(layer, scroll / 8, (scroll + 256) / 8);

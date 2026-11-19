@@ -7079,7 +7079,7 @@ func_080A220C: @ 0x080A220C
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0xf
-	bl func_08050CC0
+	bl CreateMessageWindow
 	str r0, [r7, #0x10]
 	adds r0, r4, #0
 	movs r1, #2
@@ -9785,7 +9785,7 @@ func_080A37A8: @ 0x080A37A8
 .L080A381E:
 	add r7, sp, #4
 	adds r0, r7, #0
-	bl func_080B3C90
+	bl __22ChickenFestivalEntrant
 	ldr r0, [r5, #8]
 	movs r3, #0xc8
 	str r3, [sp, #0x30]
@@ -9829,7 +9829,7 @@ func_080A37A8: @ 0x080A37A8
 	add r6, sp, #0x18
 	adds r0, r6, #0
 	adds r1, r7, #0
-	bl func_080BC898
+	bl CreateChickenFestivalWrapper
 	mov r0, sp
 	adds r1, r6, #0
 	bl func_080BC8FC
@@ -9843,7 +9843,7 @@ func_080A37A8: @ 0x080A37A8
 	bl _call_via_r2
 .L080A389E:
 	adds r0, r6, #0
-	bl func_080BC8F0
+	bl DidWrappedChickenFestivalPlayerWin
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080A38B0
@@ -9852,7 +9852,7 @@ func_080A37A8: @ 0x080A37A8
 .L080A38B0:
 	ldr r4, [r5, #4]
 	adds r0, r6, #0
-	bl func_080BC8F0
+	bl DidWrappedChickenFestivalPlayerWin
 	strb r0, [r4, #0xc]
 	ldr r1, [r5, #4]
 	mov r0, sb
@@ -9877,7 +9877,7 @@ func_080A37A8: @ 0x080A37A8
 .L080A38E4:
 	adds r0, r6, #0
 	movs r1, #2
-	bl func_080BC8C0
+	bl DestroyChickenFestivalWrapper
 .L080A38EC:
 	mov r0, sl
 	add sp, #0x40
@@ -9960,7 +9960,7 @@ func_080A3900: @ 0x080A3900
 	strb r0, [r4, #4]
 	mov r0, sp
 	adds r1, r4, #0
-	bl func_080B3BE4
+	bl CreateChickenFeedingWrapper
 	add r7, sp, #8
 	adds r0, r7, #0
 	mov r1, sp
@@ -9975,7 +9975,7 @@ func_080A3900: @ 0x080A3900
 	bl _call_via_r2
 .L080A39A6:
 	mov r0, sp
-	bl func_080B3C78
+	bl DidChickenFeedingSucceed
 	adds r4, r0, #0
 	lsls r4, r4, #0x18
 	lsrs r4, r4, #0x18
@@ -9987,7 +9987,7 @@ func_080A3900: @ 0x080A3900
 	strb r4, [r0, #0xc]
 	ldr r4, [r5, #8]
 	mov r0, sp
-	bl func_080B3C84
+	bl GetChickenFeedingScore
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_08011498
@@ -10001,7 +10001,7 @@ func_080A3900: @ 0x080A3900
 	str r0, [r1]
 	mov r0, sp
 	movs r1, #2
-	bl func_080B3C0C
+	bl DestroyChickenFeedingWrapper
 	mov r0, sb
 	add sp, #0x1c
 	pop {r3, r4}

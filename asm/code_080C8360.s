@@ -416,7 +416,7 @@ func_080C85A0: @ 0x080C85A0
 	adds r5, r7, r3
 	adds r1, r5, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L080C87E8 @ =gUnk_0811780C
 	movs r0, #1
 	mov sb, r0
@@ -432,7 +432,7 @@ func_080C85A0: @ 0x080C85A0
 	adds r1, r5, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x138]
@@ -636,7 +636,7 @@ func_080C85A0: @ 0x080C85A0
 	str r1, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r0, r7, #0
 	bl func_080C8550
 	adds r0, r7, #0
@@ -4975,7 +4975,7 @@ func_080CA98C: @ 0x080CA98C
 	str r4, [sp]
 	movs r2, #0x24
 	movs r3, #0
-	bl func_0804EE30
+	bl DrawSmallMessageNumber
 	ldr r0, [r5, #0x18]
 	ldr r1, [r0, #0x1c]
 	ldr r0, [r5, #0xc]
@@ -4989,7 +4989,7 @@ func_080CA98C: @ 0x080CA98C
 	str r4, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r5, #0x18]
 	ldr r0, [r0, #0x1c]
 	movs r1, #0xc
@@ -5431,7 +5431,7 @@ func_080CB090: @ 0x080CB090
 	adds r4, #0x10
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	adds r0, r7, #0
 	bl strlen
 	lsls r0, r0, #3
@@ -5448,7 +5448,7 @@ func_080CB090: @ 0x080CB090
 	str r5, [sp, #8]
 	adds r1, r4, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	movs r3, #0x80
 	lsls r3, r3, #2
 	movs r0, #0x9e
@@ -7610,7 +7610,7 @@ func_080CC310: @ 0x080CC310
 	adds r4, #0x10
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	adds r0, r7, #0
 	bl strlen
 	lsls r0, r0, #3
@@ -7627,7 +7627,7 @@ func_080CC310: @ 0x080CC310
 	str r5, [sp, #8]
 	adds r1, r4, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	movs r3, #0x80
 	lsls r3, r3, #2
 	movs r0, #0x9e
@@ -9709,7 +9709,7 @@ func_080CD578: @ 0x080CD578
 	movs r1, #0
 	movs r2, #0x1d
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r0, r5, #0
 	movs r1, #2
 	bl func_08007714

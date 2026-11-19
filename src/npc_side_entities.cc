@@ -10,7 +10,7 @@ struct SpriteWorkerEntity : AActorEntity
     u8 work_pause;
 };
 
-EC u32 func_080AB788(u32 limit);
+EC u32 RollEntityMovementRandom(u32 limit);
 EC u16 const gUnk_080F1450[];
 
 EC bool SideEntityNeverBlocks() SIDE_CODE(080324B8);
@@ -75,7 +75,7 @@ EC void HideSideSpriteOverlay(UnknownEntityThing * self)
 EC bool RollSpriteWorkChance(u32 bias) SIDE_CODE(080338F0);
 EC bool RollSpriteWorkChance(u32 bias)
 {
-    return func_080AB788(512) < bias + 256;
+    return RollEntityMovementRandom(512) < bias + 256;
 }
 
 EC void ClearSpriteWorkPause(SpriteWorkerEntity * self) SIDE_CODE(08033B7C);

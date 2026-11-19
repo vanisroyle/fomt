@@ -3164,7 +3164,7 @@ func_080342D8: @ 0x080342D8
     bne .L08034356
 .L080342FA:
     movs r0, #0xb4
-    bl func_080AB788
+    bl RollEntityMovementRandom
     lsls r0, r0, #0x10
     lsrs r0, r0, #0x10
     ldr r2, .L08034360 @ =0xFFFF0000
@@ -3184,7 +3184,7 @@ func_080342D8: @ 0x080342D8
     movs r0, #0x80
     lsls r0, r0, #1
     subs r0, r0, r1
-    bl func_080AB788
+    bl RollEntityMovementRandom
     lsrs r0, r0, #6
     adds r0, #2
     lsls r0, r0, #0x18
@@ -3912,7 +3912,7 @@ func_0803436C: @ 0x0803436C
     cmp r6, #3
     beq .L08034928
     movs r0, #0xc8
-    bl func_080AB788
+    bl RollEntityMovementRandom
     mov r2, r8
     adds r1, r2, r6
     ldrb r1, [r1]
