@@ -6,6 +6,7 @@ import shutil
 from check_font_rom import make
 import fomt_assets as fa
 import font_assets as font
+import font_renderer
 
 
 def main():
@@ -44,6 +45,7 @@ def main():
             assert rom[offset:offset + 24] == font.vietnamese_glyph(char, small, single)
             slots.add(slot)
         assert len(slots) == 134
+        font_renderer.validate(rom, mapping, {char: font.vietnamese_glyph(char, small, single) for char in alphabet})
         output = Path("build/assets/vietnamese-thomas.gba")
         shutil.copyfile("fomt.gba", output)
         print("Composed Vietnamese ROM check: 134/134 glyphs match; 134 distinct large slots", flush=True)

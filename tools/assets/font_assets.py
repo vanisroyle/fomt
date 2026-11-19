@@ -24,10 +24,10 @@ ACCENTS = {
     "\u0301": (".#", "#."),
     "\u0300": ("#.", ".#"),
     "\u0309": (".##", "..#", ".#."),
-    "\u0303": (".##..", "#..##"),
+    "\u0303": (".#.#", "#.#."),
     "\u0323": ("#",),
     "\u0302": (".#.", "#.#"),
-    "\u0306": ("#...#", ".###."),
+    "\u0306": ("#.#", ".#."),
     "\u031b": ("..#", "..#", "##."),
 }
 
@@ -309,13 +309,20 @@ def vietnamese_glyph(char, small, single):
         source[4 if char == "Đ" else 2] |= 0xE0 if char == "Đ" else 0x1E
     body = [(y, row) for y, row in enumerate(source) if row]
     top, bottom = body[0][0], body[-1][0]
-    target_top = (4 if tone == "\u0309" else 3) if above else top
-    height = min(bottom - top + 1, 7 if base.isupper() and above else 12)
+    target_top = (3 if base.isupper() else 4) if tone == "\u0309" else 3 if above else top
+    if base.isupper() and above and tone == "\u0323":
+        target_top = 2
+    height = min(bottom - top + 1, 8 if base.isupper() and above else 12)
     height = min(height, (10 if tone == "\u0323" else 12) - target_top)
     rows = [0] * 12
     for y in range(top, bottom + 1):
-        target = target_top + (y - top) * height // (bottom - top + 1)
-        rows[target] |= source[y] << 4
+        if y == top:
+            target = target_top
+        elif y == bottom:
+            target = target_top + height - 1
+        else:
+            target = target_top + 1 + (y - top - 1) * (height - 2) // max(1, bottom - top - 1)
+        rows[target] |= source[y] << 8
 
     def stamp(mark, x, y):
         for dy, pattern in enumerate(ACCENTS[mark]):
@@ -325,13 +332,13 @@ def vietnamese_glyph(char, small, single):
 
     stacked = shape in ("\u0302", "\u0306") and tone not in (None, "\u0323")
     if shape == "\u031b":
-        stamp(shape, 9, target_top - 2)
+        stamp(shape, 5, target_top - 2)
     elif shape:
-        stamp(shape, (3 if shape == "\u0306" else 5) if stacked else (5 if shape == "\u0306" else 6), 0)
+        stamp(shape, 0 if stacked else 2, 0)
     if tone == "\u0323":
-        stamp(tone, 7, 11)
+        stamp(tone, 3, 11)
     elif tone:
-        stamp(tone, 9 if stacked else (5 if tone == "\u0303" else 6), 0)
+        stamp(tone, 4 if stacked else 5 if tone == "\u0309" and base.isupper() else 2, 0)
     return b"".join(row.to_bytes(2, "big") for row in rows)
 
 

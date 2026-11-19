@@ -8,6 +8,7 @@ from unittest.mock import patch
 import zlib
 
 import font_assets as font
+import font_renderer
 
 
 class FontTests(unittest.TestCase):
@@ -203,7 +204,7 @@ class FontTests(unittest.TestCase):
             self.assertEqual(double[0x88A0], 1)  # original alias retained
             data = font.from_sheet(font.read_png((self.root / "fonts/large.png").read_bytes()), 6922, 16)
             self.assertEqual(data[0], 1)
-            self.assertEqual(data[24:26], b"\x01\x80")
+            self.assertEqual(data[24:26], b"\x18\x00")
             before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
             font.sample(Path("unused"), self.root, "ạ", placeholders=True, reclaim_large=True)
             self.assertTrue(all(p.read_bytes() == raw for p, raw in before.items()))
@@ -260,7 +261,8 @@ class FontTests(unittest.TestCase):
                 self.assertEqual(len(glyph), 24)
                 self.assertTrue(any(glyph))
                 if "\u0323" in font.unicodedata.normalize("NFD", char):
-                    self.assertEqual(int.from_bytes(glyph[22:24], "big"), 1 << 8)
+                    self.assertEqual(int.from_bytes(glyph[22:24], "big"), 1 << 12)
+                self.assertFalse(any(glyph[1::2]))
         for family in ("ăằắẳẵặ", "âầấẩẫậ", "êềếểễệ", "ôồốổỗộ", "ơờớởỡợ", "ưừứửữự"):
             for letters in (family, family.upper()):
                 self.assertEqual(len({font.vietnamese_glyph(c, small, single) for c in letters}), 6)
@@ -280,6 +282,23 @@ class FontTests(unittest.TestCase):
         large = font.from_sheet(font.read_png((self.root / "fonts/large.png").read_bytes()), 6922, 16)
         single = font.read_map(self.root / "fonts/single.map", "single")
         self.assertEqual(large[24:48], font.vietnamese_glyph("ạ", small, single))
+
+    def test_runtime_decoder_and_dialogue_clipping(self):
+        for i, code in enumerate(font.codes("double")):
+            self.assertEqual(font_renderer.shift_jis_index(code), i)
+        for code in (0, 0x8040, 0xA040, 0xEAFE + 1, 0x8140 - 1, 0x10000):
+            self.assertEqual(font_renderer.shift_jis_index(code), -1)
+        rom = bytearray(0x527094)
+        struct.pack_into("<h", rom, 0x4FA7A0 + 0x85 * 2, -1)
+        struct.pack_into("<h", rom, 0x523290 + 757 * 2, 605)
+        offset = 0x4FA9A0 + 605 * 24
+        rom[offset:offset + 24] = b"\x18\x40" * 12
+        self.assertEqual(font_renderer.assignment(rom, b"\x85\x41"), (2, offset, b"\x18\x40" * 12))
+        with self.assertRaisesRegex(ValueError, "clipped"):
+            font_renderer.validate(rom, {"đ": b"\x85\x41"}, {"đ": b"\x18\x40" * 12})
+        for raw in (b"", b"\x05", b"\x41\x41"):
+            with self.assertRaises(ValueError):
+                font_renderer.assignment(rom, raw)
 
 
 if __name__ == "__main__":

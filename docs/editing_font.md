@@ -150,6 +150,11 @@ patterns. Circumflex or breve plus tone are placed side by side; horn attaches
 to the upper right of o/u. Accented i loses its original dot, dot-below letters
 reserve row 11, and marked capitals compress their base vertically while
 preserving strokes. Đ/đ add a crossbar to D/d. All ink fits a 16x12 cell.
+Ink is restricted to its left 8px: the dialogue callback divides each line
+into four-cell chunks and clips the second tile of a full-width glyph that
+starts in the fourth cell. Keeping that tile blank avoids position-dependent
+fragments without changing the vanilla decoder. Marked capitals retain an
+eight-row body (lowercase normally seven) to distinguish letters such as Ộ/ộ.
 Only accent patterns and algorithms are committed, never ROM-derived letters.
 
 The unmodified renderer has no per-glyph width table: double-byte map entries
@@ -245,7 +250,8 @@ rendering test.
 
 The Vietnamese-specific check assigns all 134 composed letters and replaces
 Thomas's script 0867 string 0 with a two-row Vietnamese sample. It validates
-the built script and all 134 bitmaps, saves `build/assets/vietnamese-thomas.gba`,
+the built script and all 134 bitmaps using an independent model of the ROM
+code-to-slot lookup and all four chunk alignments, saves `build/assets/vietnamese-thomas.gba`,
 then restores the edited files and compares the original ROM again. Start
 with pristine assets and a compare-OK build; do not run these edit checks in
 parallel with another build or asset editor.
