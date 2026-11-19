@@ -364,7 +364,7 @@ vtable_unk_080E5EC4: @ game object
 	.word 0x0801D4E1
 	.word 0x0801D5BD
 	.word 0x0801D7B1
-	.word 0x0801D88D
+	.word GameStateCheckFarmPlotPlacement
 	.word 0x0801CBB1
 	.word 0x0801CFB9
 	.word GameStateNoOpMapAction
@@ -375,12 +375,12 @@ vtable_unk_080E5EC4: @ game object
 	.word func_0801DEB4
 	.word GameStateSetMapTileVariant
 	.word GameStateClearMapTileVariant
-	.word func_0801DCD4
+	.word GameStateSettleShippingBin
 	.word func_0801DC24
 	.word GameStateClearMapInteraction
 	.word GameStateIsWinterOrSpecialOutdoorTile
-	.word func_0801D8CC
-	.word func_0801D948
+	.word GameStateEnableEntities
+	.word GameStateDisableEntities
 	.word GameStateLookupEntitySlot
 	.word GameStateLookupConstEntitySlot
 	.word 0x0801B499

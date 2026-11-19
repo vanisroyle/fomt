@@ -28,7 +28,9 @@ struct GameStateMapData
     STRUCT_PAD(0x0, 0x10);
     u8 clock[4];
     Farm farm;
-    u8 reserved[0x34D8 - 0x14 - sizeof(Farm)];
+    u8 reserved[0x34C4 - 0x14 - sizeof(Farm)];
+    bool player_only_when_disabled;
+    STRUCT_PAD(0x34C5, 0x34D8);
     u32 tile_variant_flags;
 };
 
@@ -47,8 +49,28 @@ struct GameStateMapInteraction
     Vtable const * vtable;
 };
 
+struct GameStateFarmPlot
+{
+    GameStateFarmPlot() : plot(nullptr), tile_x(0), tile_y(0), plot_x(0), plot_y(0) {}
+
+    FieldPlot * plot;
+    u16 tile_x;
+    u16 tile_y;
+    u16 plot_x;
+    u16 plot_y;
+};
+
+enum GameStatePlotPlacement
+{
+    GAME_STATE_PLOT_CAN_PLACE,
+    GAME_STATE_PLOT_CANNOT_PLACE,
+    GAME_STATE_PLOT_OUTSIDE_FIELD,
+};
+
 struct GameStateScriptEvent
 {
+    GameStateScriptEvent(u32 id, u32 argument) : id(id), argument(argument) {}
+
     u32 id;
     u32 argument;
 };
@@ -58,6 +80,8 @@ struct GameStateEntitySlotVtable
     STRUCT_PAD(0x0, 0x40);
     AEntity * (*get_entity)(GameStateMapOwner & game, u32 slot);
     AEntity const * (*get_const_entity)(GameStateMapOwner const & game, u32 slot);
+    STRUCT_PAD(0x48, 0x140);
+    void (*queue_event)(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue);
 };
 
 struct GameStateSpriteCacheEntry
@@ -93,7 +117,8 @@ struct GameStateMapOwner
     GameStateMapEffect * map_effect;
     STRUCT_PAD(0x1028, 0x1038);
     GameStateMapData * map_data;
-    STRUCT_PAD(0x103C, 0x1054);
+    bool entities_enabled;
+    STRUCT_PAD(0x103D, 0x1054);
     GameStateScript * script;
     GameStateMapInteraction * interaction;
     STRUCT_PAD(0x105C, 0x107C);
@@ -132,6 +157,8 @@ EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
 EC u8 * func_0801468C(GameStateScript & script);
 EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
 EC void func_0801F3E4(GameStateMapOwner & game);
+EC bool func_0801140C(GameStateMapData & state);
+EC bool func_0801C0F8(GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result);
 
 EC SECTION(".text.game_state_c2.08019F38") bool GameStateIsWinterOrSpecialOutdoorTile(GameStateMapOwner const & game, Location const & location)
 {
@@ -186,6 +213,57 @@ EC SECTION(".text.game_state_c2.0801C3DC") void GameStateNoOpMapAction(GameState
 {
 }
 
+EC SECTION(".text.game_state_c2.0801D88C") GameStatePlotPlacement GameStateCheckFarmPlotPlacement(
+    GameStateMapOwner & game, Location const & location, Article const & article)
+{
+    GameStateFarmPlot result;
+    if (func_0801C0F8(game, location, result))
+    {
+        if (result.plot->method_0800A6C8(article))
+            return GAME_STATE_PLOT_CAN_PLACE;
+        return GAME_STATE_PLOT_CANNOT_PLACE;
+    }
+    return GAME_STATE_PLOT_OUTSIDE_FIELD;
+}
+
+EC SECTION(".text.game_state_c2.0801D8CC") void GameStateEnableEntities(GameStateMapOwner & game)
+{
+    game.entities_enabled = true;
+    if (game.map_data->player_only_when_disabled)
+    {
+        AEntity ** slot = game.entities;
+        AEntity ** end = game.entities + 100;
+        for (; slot != end; ++slot)
+            if (*slot != nullptr)
+                (*slot)->vfunc_20();
+    }
+    else
+    {
+        AEntity ** slot = game.entities;
+        AEntity ** end = game.entities + 100;
+        for (; slot != end; ++slot)
+            if (*slot != nullptr)
+                (*slot)->vfunc_20();
+    }
+}
+
+EC SECTION(".text.game_state_c2.0801D948") void GameStateDisableEntities(GameStateMapOwner & game)
+{
+    game.entities_enabled = false;
+    if (game.map_data->player_only_when_disabled)
+    {
+        game.entities[0]->vfunc_24();
+    }
+    else
+    {
+        AEntity ** slot = game.entities;
+        AEntity ** end = game.entities + 100;
+        for (; slot != end; ++slot)
+            if (*slot != nullptr)
+                (*slot)->vfunc_24();
+    }
+}
+
 EC SECTION(".text.game_state_c2.0801D9A8") void GameStateQueueScriptEvent(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue)
 {
     func_08012B24(*game.script, event, queue);
@@ -203,6 +281,16 @@ EC SECTION(".text.game_state_c2.0801DCA8") void GameStateClearMapInteraction(Gam
     if (replacement != interaction && interaction != nullptr)
         interaction->vtable->destroy(interaction, 3);
     interaction = replacement;
+}
+
+EC SECTION(".text.game_state_c2.0801DCD4") void GameStateSettleShippingBin(GameStateMapOwner & game)
+{
+    GameStateMapData * & state = game.map_data;
+    u32 proceeds = state->farm.shipping_bin.GetValueShipped();
+    func_0801140C(*state);
+    void (* const * queue_event)(GameStateMapOwner &, GameStateScriptEvent const &, u32) = &game.vtable->queue_event;
+    GameStateScriptEvent event(0x3DB, proceeds);
+    (*queue_event)(game, event, 1);
 }
 
 EC SECTION(".text.game_state_c2.0801F5F0") void GameStateSetVaseArticle(GameStateMapOwner & game, u32 article_id)
