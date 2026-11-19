@@ -63,6 +63,43 @@ inline void RestartFarmerIcon(FarmerIconState * state)
     *flags = 1;
 }
 
+template<bool remember_icon>
+inline void SetItemDisplayGraphicsIconFlags(FarmerIconState * state, u32 animation)
+{
+    u8 * flags = reinterpret_cast<u8 *>(state);
+    int zero = 0;
+    int enabled = 1;
+    *flags = enabled;
+    flags += 2;
+    *flags = zero;
+    ++flags;
+    *flags = enabled;
+    ++flags;
+    if (remember_icon)
+        *reinterpret_cast<u16 *>(flags) = animation;
+}
+
+EC void SetFarmerThrownItemIcon(FarmerEntity * farmer, u32 animation, i32 mode) ENTITY_CODE(0802A4C0);
+EC void SetFarmerThrownItemIcon(FarmerEntity * farmer, u32 animation, i32 mode)
+{
+    ThrownItemMotion * item = &farmer->thrown_item;
+    item->active = true;
+    if (mode != 1)
+    {
+        if (mode != 0)
+            goto show_icon;
+    }
+    item->display_mode = mode;
+show_icon:
+    FarmerIconGraphics * graphics = static_cast<FarmerIconGraphics *>(farmer->unk_10.Get());
+    if (graphics != nullptr)
+    {
+        void * sprites = FarmerItemSprites(graphics);
+        func_0805E850(&graphics->icon_animator, sprites, animation);
+        SetItemDisplayGraphicsIconFlags<false>(&graphics->icon_state, animation);
+    }
+}
+
 struct FarmerActionVTable
 {
     STRUCT_PAD(0x00, 0x64);
@@ -233,12 +270,31 @@ struct ItemDisplayGraphics : FarmerIconGraphics
     u16 icon;
 };
 
-EC ItemDisplayGraphics * func_0802BF2C(ItemDisplayGraphics * graphics, ItemDisplayEntity * display);
+EC void func_08032560(UnknownEntityThing * graphics, AEntity * entity, u32 sprite_mode, void const * config,
+    u32 priority, u32 layer, u32 x, u32 y, bool enabled);
+EC void func_080A4A00(void * sprite, void * sprites, u32 animation, GameObject * game,
+    u32 priority, u32 layer, bool mirrored);
+EC char const gUnk_080F1224[];
+EC char const vtable_unk_080E6644[];
+
+EC ItemDisplayGraphics * InitItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayEntity * display) ENTITY_CODE(0802BF2C);
+EC ItemDisplayGraphics * InitItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayEntity * display)
+{
+    func_08032560(graphics, display, 6, gUnk_080F1224, 3, 1, 0, 0, true);
+    reinterpret_cast<void const **>(graphics)[1] = vtable_unk_080E6644;
+    GameObject * game = display->game_object;
+    FarmerIconGameVTable const * table = *reinterpret_cast<FarmerIconGameVTable const **>(game);
+    void * sprites = table->get_item_sprites(game);
+    GameObject * sprite_game = display->game_object;
+    func_080A4A00(reinterpret_cast<u8 *>(graphics) + 0x8C, sprites, 0, sprite_game, 2, 1, false);
+    graphics->icon = 0xFFFF;
+    return graphics;
+}
 
 EC ItemDisplayGraphics * NewItemDisplayGraphics(ItemDisplayEntity * display) ENTITY_CODE(0802BA10);
 EC ItemDisplayGraphics * NewItemDisplayGraphics(ItemDisplayEntity * display)
 {
-    return func_0802BF2C(static_cast<ItemDisplayGraphics *>(::operator new(sizeof(ItemDisplayGraphics))), display);
+    return InitItemDisplayGraphics(static_cast<ItemDisplayGraphics *>(::operator new(sizeof(ItemDisplayGraphics))), display);
 }
 
 EC void func_0802BA74(ItemDisplayEntity * display);
@@ -348,22 +404,6 @@ EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game) ENTITY_CODE(0802C
 EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game)
 {
     return InitItemDisplayEntity(static_cast<ItemDisplayEntity *>(::operator new(sizeof(ItemDisplayEntity))), game);
-}
-
-template<bool remember_icon>
-inline void SetItemDisplayGraphicsIconFlags(FarmerIconState * state, u32 animation)
-{
-    u8 * flags = reinterpret_cast<u8 *>(state);
-    int zero = 0;
-    int enabled = 1;
-    *flags = enabled;
-    flags += 2;
-    *flags = zero;
-    ++flags;
-    *flags = enabled;
-    ++flags;
-    if (remember_icon)
-        *reinterpret_cast<u16 *>(flags) = animation;
 }
 
 EC void SetItemDisplayGraphicsIcon(ItemDisplayGraphics * graphics, u32 animation) ENTITY_CODE(0802C228);
