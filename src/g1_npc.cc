@@ -5,7 +5,7 @@
 
 EC MapData * GetMapData(u32);
 EC void Unpack(void const *, void *);
-EC u32 func_080A1EA8(void *, u32, u32);
+EC u32 GetMapAvailabilityBitIndex(void *, u32, u32);
 EC void func_080A5760(void *);
 EC void DayUpdate__3NpcUi(void *, u32);
 
@@ -47,18 +47,18 @@ EC SECTION(".text.g1_0809EB20") void SetNamedNpcName(u8 * self, char const * nam
 
 EC SECTION(".text.g1_0809EB68") u32 GetConstructionJob(G1NpcEventState * self) // 0x0809EB68
 {
-    return self->event_id;
+    return self->bits.event_id;
 }
 
 EC SECTION(".text.g1_0809EBD4") void ClearNpcTimedEvent(G1NpcEventState * self) // 0x0809EBD4
 {
-    self->event_id = 0;
-    self->location_flag = 0;
+    self->bits.event_id = 0;
+    self->bits.location_flag = 0;
 }
 
 EC SECTION(".text.g1_0809ECD8") u32 GetNpcMilestoneEventId(G1NpcMilestoneState * self) // 0x0809ECD8
 {
-    return self->event_id;
+    return self->bits.event_id;
 }
 
 EC SECTION(".text.g1_080A0384") u8 * GetActiveRosterNpc(u8 * self) // 0x080A0384
@@ -141,7 +141,7 @@ EC SECTION(".text.g1_080A5EA0") void LoadMapBackgroundTiles(u32 * self) // 0x080
 }
 EC SECTION(".text.g1_080A1ED4") u32 GetMapStateBit(u8 * self, u32 index, u32 category) // 0x080A1ED4
 {
-    u32 bit = func_080A1EA8(self, index, category);
+    u32 bit = GetMapAvailabilityBitIndex(self, index, category);
     return (self[bit >> 3] >> (bit & 7)) & 1;
 }
 
