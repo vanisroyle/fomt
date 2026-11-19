@@ -320,7 +320,7 @@ func_080C85A0: @ 0x080C85A0
 	movs r1, #0
 	movs r2, #0
 	movs r3, #0x1e
-	bl func_08051320
+	bl DrawMessageFrame
 	ldr r0, .L080C87D0 @ =gUnk_080F9F78
 	ldr r0, [r0]
 	movs r1, #0xa0
@@ -389,7 +389,7 @@ func_080C85A0: @ 0x080C85A0
 	add r1, sp, #0x14
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E5AC
+	bl DrawMessageGlyphWithColors
 	ldr r0, [sp, #0x130]
 	adds r1, r5, #0
 	movs r2, #0x40
@@ -2552,7 +2552,7 @@ func_080C96C4: @ 0x080C96C4
 	movs r1, #0x10
 	movs r2, #4
 	adds r3, r4, #0
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r5]
 	cmp r2, #0x7f
 	bhi .L080C972A
@@ -3260,7 +3260,7 @@ func_080C96C4: @ 0x080C96C4
 	add r4, sp, #0x88
 	adds r0, r4, #0
 	ldr r3, [sp, #0xc8]
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldrb r2, [r5]
 	cmp r2, #0x7f
 	bhi .L080C9C64
@@ -7892,7 +7892,7 @@ func_080CC58C: @ 0x080CC58C
 	adds r1, r6, #0
 	adds r2, r5, #0
 	mov r3, r8
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r1, [sp, #0x20]
 	ldrb r2, [r1]
 	cmp r2, #0x7f
@@ -7967,7 +7967,7 @@ func_080CC58C: @ 0x080CC58C
 	adds r1, r5, #0
 	adds r2, r4, #0
 	adds r3, r6, #0
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x20]
 	ldrb r2, [r0]
 	cmp r2, #0x7f
@@ -10037,85 +10037,9 @@ func_080CD620: @ 0x080CD620
 .L080CD898: .4byte 0x06000380
 .L080CD89C: .4byte 0x05000020
 
-	thumb_func_start func_080CD8A0
-func_080CD8A0: @ 0x080CD8A0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0xc
-	adds r7, r0, #0
-	movs r0, #0x80
-	adds r0, r0, r7
-	mov r8, r0
-	bl GetMessageWindowPhase
-	adds r1, r7, #0
-	adds r1, #0x84
-	str r0, [r1]
-	adds r0, r7, #0
-	bl HardwareContext_GetState
-	mov sb, r0
-	adds r0, r7, #0
-	bl HardwareContext_GetOamBuffer
-	adds r6, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	adds r5, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetFrameTasks
-	adds r4, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetVBlankTasks
-	adds r1, r7, #0
-	adds r1, #0xc
-	str r4, [sp]
-	str r0, [sp, #4]
-	str r1, [sp, #8]
-	mov r0, r8
-	mov r1, sb
-	adds r2, r6, #0
-	adds r3, r5, #0
-	bl UpdateMessageWindow
-	adds r1, r7, #0
-	adds r1, #0x88
-	str r0, [r1]
-	ldr r2, [r7, #0x78]
-	cmp r2, #0
-	beq .L080CD914
-	movs r1, #0x84
-	lsls r1, r1, #2
-	adds r0, r2, r1
-	ldr r0, [r0]
-	ldr r1, [r0, #0xc]
-	adds r0, r2, #0
-	bl _call_via_r1
-.L080CD914:
-	ldr r4, [r7, #0x7c]
-	cmp r4, #0
-	beq .L080CD928
-	adds r0, r7, #0
-	bl HardwareContext_GetOamBuffer
-	adds r1, r0, #0
-	adds r0, r4, #0
-	bl func_080CC58C
-.L080CD928:
-	add sp, #0xc
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080CD938:
-	.byte 0xA6, 0x21, 0x89, 0x00, 0x40, 0x18, 0x00, 0x68
-	.byte 0x70, 0x47, 0x00, 0x00, 0x9F, 0x21, 0x89, 0x00, 0x40, 0x18, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00
 
 .section .text.g5_after_080CD950, "ax"
 
-.L080CD994:
-	.byte 0x01, 0x49, 0x09, 0x68, 0x01, 0x60, 0x70, 0x47, 0x5C, 0x78, 0x11, 0x08
-	.byte 0x92, 0x00, 0x02, 0x49, 0x52, 0x18, 0x11, 0x68, 0x01, 0x60, 0x70, 0x47, 0x60, 0x78, 0x11, 0x08
 
 	thumb_func_start func_080CD9B0
 func_080CD9B0: @ 0x080CD9B0
@@ -10574,11 +10498,7 @@ func_080CDD7C: @ 0x080CDD7C
 	pop {r1}
 	bx r1
 	.align 2, 0
-.L080CDDAC:
-	.byte 0x10, 0xB5, 0x03, 0x68
-	.byte 0x9A, 0x6F, 0xA6, 0x24, 0xA4, 0x00, 0x12, 0x19, 0x12, 0x68, 0xC2, 0x60, 0xDA, 0x6F, 0x12, 0x19
-	.byte 0x12, 0x68, 0x09, 0x32, 0x02, 0x61, 0x42, 0x68, 0x82, 0x60, 0x41, 0x60, 0x10, 0xBC, 0x01, 0xBC
-	.byte 0x00, 0x47, 0x00, 0x00
+.section .text.g5_after_080CDDAC, "ax"
 
 	thumb_func_start func_080CDDD4
 func_080CDDD4: @ 0x080CDDD4
@@ -10600,7 +10520,7 @@ func_080CDDD4: @ 0x080CDDD4
 	ldr r2, [r7, #4]
 	add r5, sp, #0x4c
 	adds r0, r5, #0
-	bl func_080CE120
+	bl InventoryMenu_GetSelectionPosition
 	ldrb r0, [r5]
 	movs r2, #0x54
 	adds r2, r2, r7
@@ -11027,59 +10947,6 @@ func_080CDDD4: @ 0x080CDDD4
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080CE120
-func_080CE120: @ 0x080CE120
-	push {r4, lr}
-	sub sp, #0x10
-	adds r4, r0, #0
-	cmp r2, #0
-	beq .L080CE13A
-	cmp r2, #9
-	beq .L080CE14A
-	cmp r2, #8
-	bgt .L080CE166
-	ldr r1, [r1, #0x78]
-	cmp r1, #0
-	beq .L080CE176
-	b .L080CE15A
-.L080CE13A:
-	ldr r1, [r1, #0x78]
-	cmp r1, #0
-	beq .L080CE176
-	mov r0, sp
-	bl GetInventorySpecialSlotPosition
-	ldr r3, [sp]
-	b .L080CE176
-.L080CE14A:
-	ldr r1, [r1, #0x7c]
-	cmp r1, #0
-	beq .L080CE176
-	add r0, sp, #4
-	bl GetRightInventorySpecialSlotPosition
-	ldr r3, [sp, #4]
-	b .L080CE176
-.L080CE15A:
-	subs r2, #1
-	add r0, sp, #8
-	bl GetInventorySlotPosition
-	ldr r3, [sp, #8]
-	b .L080CE176
-.L080CE166:
-	ldr r1, [r1, #0x7c]
-	cmp r1, #0
-	beq .L080CE176
-	subs r2, #0xa
-	add r0, sp, #0xc
-	bl GetRightInventorySlotPosition
-	ldr r3, [sp, #0xc]
-.L080CE176:
-	str r3, [r4]
-	adds r0, r4, #0
-	add sp, #0x10
-	pop {r4}
-	pop {r1}
-	bx r1
-	.align 2, 0
 
 .section .text.g5_080CE19C, "ax"
 
@@ -11963,10 +11830,6 @@ func_080CE790: @ 0x080CE790
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
-.L080CEB5C:
-	.byte 0x00, 0xB5, 0x82, 0xB0
-	.byte 0x02, 0x1C, 0xBC, 0x32, 0x11, 0x60, 0x01, 0x31, 0x04, 0x4A, 0x00, 0x23, 0x00, 0x93, 0x20, 0x23
-	.byte 0x01, 0x93, 0xFF, 0xF7, 0xCD, 0xFC, 0x02, 0xB0, 0x01, 0xBC, 0x00, 0x47, 0xF6, 0xF0, 0x00, 0x06
 
 .section .text.g5_after_080CEB80, "ax"
 
@@ -12550,15 +12413,15 @@ func_080CF05C: @ 0x080CF05C
 	adds r0, r5, #0
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r1, sp, #8
 	adds r0, r6, #0
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r1, sp, #0x10
 	adds r0, r4, #0
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CF2A0 @ =gUnk_081179AC
 	mov r8, r0
 	adds r0, r7, #0
@@ -12798,7 +12661,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E958
 	mov r1, sp
 	movs r2, #0xa
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CF33C @ =gUnk_081179E0
 	mov r8, r0
 	adds r0, r7, #0
@@ -13098,7 +12961,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E94C
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	adds r0, r7, #0
 	bl strlen
 	adds r6, r7, r0
@@ -13161,7 +13024,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E94C
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	adds r0, r4, #0
 	bl GetDesc__C4Tool
 	mov r8, r0
@@ -13593,7 +13456,7 @@ func_080CF67C: @ 0x080CF67C
 	bl ItemCollection_GetByteCount
 	add r1, sp, #4
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CFA2C @ =gUnk_08117A5C
 	mov r8, r0
 	adds r0, r6, #0

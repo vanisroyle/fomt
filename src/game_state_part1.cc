@@ -510,7 +510,7 @@ EC void ClearSideEntityEffectSprite(void * self);
 EC void BeginSideEntityTransition(void * self);
 EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
-EC void func_0804EC84(i32 value, char * text, u32 digits);
+EC void FormatMessageInteger(i32 value, char * text, u32 digits);
 EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
 EC void func_08032384(AActorEntity & self, u32 value, bool enabled);
 EC u32 func_08033B24(AActorEntity & self);
@@ -520,7 +520,7 @@ EC void func_080D7F74(GameStateRuntime & self);
 EC void func_080D7F60(GameStateRuntime & self);
 EC void SetMessageWindowSpeakerName(void * self, const char * name);
 EC void SetMessageWindowPortrait(void * self, u32 value);
-EC u32 func_0809FE3C(void * self, u32 value);
+EC u32 GetRosterNpcName(void * self, u32 value);
 EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
 EC void Scene_DestroyBase(GameStateScript & self, u32 flags);
@@ -1245,7 +1245,7 @@ EC void SECTION(".text.game_state_08012AA4") GameScript_SetIntegerTextVariable(G
 {
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
-    func_0804EC84(value, formattedNumber, 0);
+    FormatMessageInteger(value, formattedNumber, 0);
     func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
 }
 
@@ -1254,7 +1254,7 @@ EC void SECTION(".text.game_state_08012ADC") GameScript_SetPaddedIntegerTextVari
 {
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
-    func_0804EC84(value, formattedNumber, minimumDigits);
+    FormatMessageInteger(value, formattedNumber, minimumDigits);
     func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
 }
 
@@ -1497,7 +1497,7 @@ EC void SECTION(".text.game_state_080126E4") GameScript_SetDialogueCharacterName
     GameStateRuntime & runtime = *script.runtime;
     void * window = runtime.dialogue.Get();
     if (window != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
-        SetMessageWindowSpeakerName(window, (char const *) func_0809FE3C(runtime.saveData + 0x1CD4, characterId));
+        SetMessageWindowSpeakerName(window, (char const *) GetRosterNpcName(runtime.saveData + 0x1CD4, characterId));
 }
 
 // 0x0801223C

@@ -56,6 +56,18 @@ struct MessageNumberCommand
     u32 stride;
 };
 
+struct MessageTileCopyCommand
+{
+    u32 state;
+    u32 unknown_04;
+    void * vtable;
+    u32 * source;
+    u32 * destination;
+    u16 tileCount : 14;
+    u16 alternate : 1;
+    u16 masked : 1;
+};
+
 struct MessageTilemapRectCommand
 {
     u32 state;
@@ -93,12 +105,20 @@ struct MessageWindowState
     MessageWindowInputFlags inputFlags;
 };
 struct MessageWindow { MessageWindowState * state; };
-struct MessageTextAdvanceGate;
+struct MessageTextAdvanceGate
+{
+    void * vtable;
+    u8 enabled;
+    u8 unknown_05[3];
+    bool ready;
+    u8 GetEnabled() const { return enabled; }
+    bool IsEnabled() const { return GetEnabled(); }
+};
 
 EC void __builtin_delete(void *);
 EC void FillMessageTiles(MessageTileSize, void *, u32);
-EC u32 func_0804E4AC(MessageTileSize, void *, u32, u32, u32);
-EC u32 func_0804E5AC(MessageTileSize, void *, u32, u32, u32, u32, u32);
+EC u32 DrawMessageGlyph(MessageTileSize, void *, u32, u32, u32);
+EC u32 DrawMessageGlyphWithColors(MessageTileSize, void *, u32, u32, u32, u32, u32);
 EC void DrawMessageTileString(MessageTileSize, void *, u32, u32, const char *);
 EC void DrawMessageChoiceText(MessageWindowState *, const u8 &, const char *, const void *);
 EC u32 GetMessageChoicePosition(u32, u32);
@@ -496,7 +516,7 @@ EC SECTION(".text.message_rendering.0804E8F0") void DrawMessageTileString(Messag
     while (byte != 0 && x < lineWidth)
     {
         code |= byte;
-        switch (func_0804E4AC(size, pixels, x, y, code))
+        switch (DrawMessageGlyph(size, pixels, x, y, code))
         {
         case 1: code = 0; x += 8; break;
         case 2: code = 0; x += 16; break;
@@ -517,7 +537,7 @@ EC SECTION(".text.message_rendering.0804E958") void DrawMessageTileStringWithCol
     while (byte != 0 && x < lineWidth)
     {
         code |= byte;
-        switch (func_0804E5AC(size, pixels, x, y, code, foreground, background))
+        switch (DrawMessageGlyphWithColors(size, pixels, x, y, code, foreground, background))
         {
         case 1: code = 0; x += 8; break;
         case 2: code = 0; x += 16; break;
@@ -684,4 +704,88 @@ EC SECTION(".text.message_window.08050CC0") MessageWindow * CreateMessageWindow(
     MessageWindowState * state = (MessageWindowState *) operator new(0x554);
     window->state = InitializeMessageWindowState(state, background, tiles, palette, style, graphics, font);
     return window;
+}
+
+EC SECTION(".text.message_rendering.0804E9C8") u32 DrawUnalignedMessageGlyph(MessageTileSize, void *, u32, u32, const void *)
+{
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804E9CC") u32 DrawUnalignedMessageGlyphWithColors(MessageTileSize, void *, u32, u32, const void *, u32, u32)
+{
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804F160") bool IsMessageTextAdvanceEnabled(MessageTextAdvanceGate * gate)
+{
+    return gate->IsEnabled();
+}
+
+EC SECTION(".text.message_rendering.0804F178") bool ShouldMessageTextAdvance(MessageTextAdvanceGate * gate)
+{
+    return gate->ready && gate->IsEnabled();
+}
+
+EC SECTION(".text.message_rendering.0804E9D0") void CopyMessageTiles(MessageTileSize size, void * destination, const void * source)
+{
+    CpuFastSet(source, destination, ((size.width * size.height * 32u) >> 2) & 0x1fffff);
+}
+
+EC SECTION(".text.message_rendering.0804ED7C") MessageNumberCommand * InitializeLargeMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
+{
+    command->state = 0;
+    command->unknown_04 = 0;
+    command->vtable = vtable_unk_080E7858;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804EDF8") MessageNumberCommand * InitializeTallMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
+{
+    command->state = 0;
+    command->unknown_04 = 0;
+    command->vtable = vtable_unk_080E7848;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804F058") void ResetMessageTextColumn(MessageTextCursor * cursor)
+{
+    cursor->column = 0;
+}
+
+EC SECTION(".text.message_rendering.0804EF20") bool RunMessageTileCopyCommand(MessageTileCopyCommand * command)
+{
+    u32 * source = command->source;
+    u32 * destination = command->destination;
+    if (command->masked)
+    {
+        u32 * end = destination + command->tileCount * 8;
+        u32 alternate = command->alternate ^ 1;
+        command->alternate = alternate;
+        u32 mask = 0x0f0f0f0f << (alternate * 4);
+        u32 inverse = ~mask;
+        do
+        {
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+        } while (destination != end);
+        return true;
+    }
+    CpuFastSet(source, destination, command->tileCount * 8);
+    return false;
 }

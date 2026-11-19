@@ -10173,259 +10173,6 @@ func_080AB68C: @ 0x080AB68C
 	bx r0
 	.align 2, 0
 
-	.section .text.080AB85C, "ax", %progbits
-	thumb_func_start func_080AB85C
-func_080AB85C: @ 0x080AB85C
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #0x10
-	adds r7, r0, #0
-	ldr r0, [r7, #0x28]
-	str r0, [r7]
-	movs r0, #0x14
-	adds r0, r0, r7
-	mov r8, r0
-	adds r6, r7, #0
-	adds r6, #0x20
-	movs r0, #0
-	str r0, [sp]
-	str r0, [sp, #4]
-	mov r0, r8
-	adds r1, r6, #0
-	adds r2, r7, #0
-	movs r3, #0
-	bl func_080AC124
-	ldr r0, [r7, #0x30]
-	cmp r0, #0
-	beq .L080AB8C0
-	ldr r3, [r7]
-	adds r3, r3, r0
-	movs r0, #0x20
-	ldrsh r4, [r7, r0]
-	movs r0, #2
-	ldrsh r1, [r6, r0]
-	movs r0, #4
-	ldrsh r5, [r6, r0]
-	movs r0, #6
-	ldrsh r6, [r6, r0]
-	add r2, sp, #8
-	adds r0, r2, #0
-	strh r4, [r0]
-	adds r1, r3, r1
-	strh r1, [r2, #2]
-	strh r5, [r2, #4]
-	adds r3, r3, r6
-	strh r3, [r2, #6]
-	mov r0, r8
-	adds r1, r2, #0
-	bl func_080AC070
-	adds r1, r0, #0
-	movs r0, #1
-	eors r1, r0
-	b .L080AB8C2
-.L080AB8C0:
-	movs r1, #0
-.L080AB8C2:
-	strb r1, [r7, #0x10]
-	add sp, #0x10
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
-	thumb_func_start func_080AB8D0
-func_080AB8D0: @ 0x080AB8D0
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #0x10
-	adds r7, r0, #0
-	ldr r0, [r7, #0x28]
-	rsbs r0, r0, #0
-	str r0, [r7, #4]
-	movs r0, #0x14
-	adds r0, r0, r7
-	mov r8, r0
-	adds r6, r7, #0
-	adds r6, #0x20
-	adds r3, r7, #4
-	movs r0, #0
-	str r0, [sp]
-	str r0, [sp, #4]
-	mov r0, r8
-	adds r1, r6, #0
-	movs r2, #0
-	bl func_080AC124
-	ldr r0, [r7, #0x30]
-	cmp r0, #0
-	beq .L080AB936
-	ldr r3, [r7, #4]
-	subs r3, r3, r0
-	movs r0, #0x20
-	ldrsh r4, [r7, r0]
-	movs r0, #2
-	ldrsh r1, [r6, r0]
-	movs r0, #4
-	ldrsh r5, [r6, r0]
-	movs r0, #6
-	ldrsh r6, [r6, r0]
-	add r2, sp, #8
-	adds r0, r2, #0
-	strh r4, [r0]
-	adds r1, r3, r1
-	strh r1, [r2, #2]
-	strh r5, [r2, #4]
-	adds r3, r3, r6
-	strh r3, [r2, #6]
-	mov r0, r8
-	adds r1, r2, #0
-	bl func_080AC070
-	adds r1, r0, #0
-	movs r0, #1
-	eors r1, r0
-	b .L080AB938
-.L080AB936:
-	movs r1, #0
-.L080AB938:
-	strb r1, [r7, #0x11]
-	add sp, #0x10
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080AB948
-func_080AB948: @ 0x080AB948
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #0x10
-	adds r7, r0, #0
-	ldr r0, [r7, #0x28]
-	rsbs r0, r0, #0
-	str r0, [r7, #8]
-	movs r0, #0x14
-	adds r0, r0, r7
-	mov r8, r0
-	adds r6, r7, #0
-	adds r6, #0x20
-	adds r0, r7, #0
-	adds r0, #8
-	str r0, [sp]
-	movs r0, #0
-	str r0, [sp, #4]
-	mov r0, r8
-	adds r1, r6, #0
-	movs r2, #0
-	movs r3, #0
-	bl func_080AC124
-	ldr r0, [r7, #0x2c]
-	cmp r0, #0
-	beq .L080AB9B2
-	ldr r1, [r7, #8]
-	subs r1, r1, r0
-	movs r0, #0x20
-	ldrsh r2, [r7, r0]
-	movs r0, #2
-	ldrsh r4, [r6, r0]
-	movs r0, #4
-	ldrsh r5, [r6, r0]
-	movs r0, #6
-	ldrsh r6, [r6, r0]
-	add r3, sp, #8
-	adds r2, r1, r2
-	adds r0, r3, #0
-	strh r2, [r0]
-	strh r4, [r3, #2]
-	adds r1, r1, r5
-	strh r1, [r3, #4]
-	strh r6, [r3, #6]
-	mov r0, r8
-	adds r1, r3, #0
-	bl func_080AC070
-	adds r1, r0, #0
-	movs r0, #1
-	eors r1, r0
-	b .L080AB9B4
-.L080AB9B2:
-	movs r1, #0
-.L080AB9B4:
-	strb r1, [r7, #0x12]
-	add sp, #0x10
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080AB9C4
-func_080AB9C4: @ 0x080AB9C4
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #0x10
-	adds r7, r0, #0
-	ldr r0, [r7, #0x28]
-	str r0, [r7, #0xc]
-	movs r0, #0x14
-	adds r0, r0, r7
-	mov r8, r0
-	adds r6, r7, #0
-	adds r6, #0x20
-	movs r0, #0
-	str r0, [sp]
-	adds r0, r7, #0
-	adds r0, #0xc
-	str r0, [sp, #4]
-	mov r0, r8
-	adds r1, r6, #0
-	movs r2, #0
-	movs r3, #0
-	bl func_080AC124
-	ldr r0, [r7, #0x2c]
-	cmp r0, #0
-	beq .L080ABA2C
-	ldr r1, [r7, #0xc]
-	adds r1, r1, r0
-	movs r0, #0x20
-	ldrsh r2, [r7, r0]
-	movs r0, #2
-	ldrsh r4, [r6, r0]
-	movs r0, #4
-	ldrsh r5, [r6, r0]
-	movs r0, #6
-	ldrsh r6, [r6, r0]
-	add r3, sp, #8
-	adds r2, r1, r2
-	adds r0, r3, #0
-	strh r2, [r0]
-	strh r4, [r3, #2]
-	adds r1, r1, r5
-	strh r1, [r3, #4]
-	strh r6, [r3, #6]
-	mov r0, r8
-	adds r1, r3, #0
-	bl func_080AC070
-	adds r1, r0, #0
-	movs r0, #1
-	eors r1, r0
-	b .L080ABA2E
-.L080ABA2C:
-	movs r1, #0
-.L080ABA2E:
-	strb r1, [r7, #0x13]
-	add sp, #0x10
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
 	.section .text.080ABA90, "ax", %progbits
 
 	thumb_func_start func_080ABA90
@@ -10458,7 +10205,7 @@ func_080ABA90: @ 0x080ABA90
 	cmp r1, r0
 	ble .L080ABAD0
 	adds r0, r4, #0
-	bl func_080AB85C
+	bl ProbeEntityCollisionDown
 	ldr r0, [r4]
 	b .L080ABAD2
 .L080ABAD0:
@@ -10486,7 +10233,7 @@ func_080ABA90: @ 0x080ABA90
 	cmn r1, r0
 	bge .L080ABB04
 	adds r0, r4, #0
-	bl func_080AB8D0
+	bl ProbeEntityCollisionUp
 	ldr r0, [r4, #4]
 	b .L080ABB06
 .L080ABB04:
@@ -10526,7 +10273,7 @@ func_080ABA90: @ 0x080ABA90
 	cmn r1, r0
 	bge .L080ABB50
 	adds r0, r4, #0
-	bl func_080AB948
+	bl ProbeEntityCollisionLeft
 	ldr r0, [r4, #8]
 	b .L080ABB52
 .L080ABB50:
@@ -10554,7 +10301,7 @@ func_080ABA90: @ 0x080ABA90
 	cmp r1, r0
 	ble .L080ABB84
 	adds r0, r4, #0
-	bl func_080AB9C4
+	bl ProbeEntityCollisionRight
 	ldr r0, [r4, #0xc]
 	b .L080ABB86
 .L080ABB84:
@@ -10666,7 +10413,7 @@ func_080ABC40: @ 0x080ABC40
 	cmp r1, r0
 	ble .L080ABCEC
 	adds r0, r4, #0
-	bl func_080AB85C
+	bl ProbeEntityCollisionDown
 	ldr r0, [r4]
 	b .L080ABCEE
 .L080ABCEC:
@@ -10679,7 +10426,7 @@ func_080ABC40: @ 0x080ABC40
 	cmp r1, r0
 	ble .L080ABD00
 	adds r0, r4, #0
-	bl func_080AB85C
+	bl ProbeEntityCollisionDown
 .L080ABD00:
 	ldrb r0, [r4, #0x10]
 	b .L080ABDC0
@@ -10697,7 +10444,7 @@ func_080ABC40: @ 0x080ABC40
 	cmn r1, r0
 	bge .L080ABD26
 	adds r0, r4, #0
-	bl func_080AB8D0
+	bl ProbeEntityCollisionUp
 	ldr r0, [r4, #4]
 	b .L080ABD28
 .L080ABD26:
@@ -10710,7 +10457,7 @@ func_080ABC40: @ 0x080ABC40
 	cmn r0, r1
 	bge .L080ABD3A
 	adds r0, r4, #0
-	bl func_080AB8D0
+	bl ProbeEntityCollisionUp
 .L080ABD3A:
 	ldrb r0, [r4, #0x11]
 	b .L080ABDC0
@@ -10732,7 +10479,7 @@ func_080ABC40: @ 0x080ABC40
 	cmn r1, r0
 	bge .L080ABD66
 	adds r0, r4, #0
-	bl func_080AB948
+	bl ProbeEntityCollisionLeft
 	ldr r0, [r4, #8]
 	b .L080ABD68
 .L080ABD66:
@@ -10745,7 +10492,7 @@ func_080ABC40: @ 0x080ABC40
 	cmn r0, r1
 	bge .L080ABD7A
 	adds r0, r4, #0
-	bl func_080AB948
+	bl ProbeEntityCollisionLeft
 .L080ABD7A:
 	ldrb r0, [r4, #0x12]
 	b .L080ABDC0
@@ -10770,7 +10517,7 @@ func_080ABC40: @ 0x080ABC40
 	cmp r1, r0
 	ble .L080ABDAA
 	adds r0, r4, #0
-	bl func_080AB9C4
+	bl ProbeEntityCollisionRight
 	ldr r0, [r4, #0xc]
 	b .L080ABDAC
 .L080ABDAA:
@@ -10783,7 +10530,7 @@ func_080ABC40: @ 0x080ABC40
 	cmp r1, r0
 	ble .L080ABDBE
 	adds r0, r4, #0
-	bl func_080AB9C4
+	bl ProbeEntityCollisionRight
 .L080ABDBE:
 	ldrb r0, [r4, #0x13]
 .L080ABDC0:
@@ -10966,7 +10713,7 @@ func_080ABE58: @ 0x080ABE58
 	cmp r1, r0
 	ble .L080ABF04
 	adds r0, r4, #0
-	bl func_080AB85C
+	bl ProbeEntityCollisionDown
 	ldr r0, [r4]
 	b .L080ABF06
 .L080ABF04:
@@ -10979,7 +10726,7 @@ func_080ABE58: @ 0x080ABE58
 	cmp r1, r0
 	ble .L080ABF18
 	adds r0, r4, #0
-	bl func_080AB85C
+	bl ProbeEntityCollisionDown
 .L080ABF18:
 	ldrb r0, [r4, #0x10]
 	b .L080ABFD8
@@ -10997,7 +10744,7 @@ func_080ABE58: @ 0x080ABE58
 	cmn r1, r0
 	bge .L080ABF3E
 	adds r0, r4, #0
-	bl func_080AB8D0
+	bl ProbeEntityCollisionUp
 	ldr r0, [r4, #4]
 	b .L080ABF40
 .L080ABF3E:
@@ -11010,7 +10757,7 @@ func_080ABE58: @ 0x080ABE58
 	cmn r0, r1
 	bge .L080ABF52
 	adds r0, r4, #0
-	bl func_080AB8D0
+	bl ProbeEntityCollisionUp
 .L080ABF52:
 	ldrb r0, [r4, #0x11]
 	b .L080ABFD8
@@ -11032,7 +10779,7 @@ func_080ABE58: @ 0x080ABE58
 	cmn r1, r0
 	bge .L080ABF7E
 	adds r0, r4, #0
-	bl func_080AB948
+	bl ProbeEntityCollisionLeft
 	ldr r0, [r4, #8]
 	b .L080ABF80
 .L080ABF7E:
@@ -11045,7 +10792,7 @@ func_080ABE58: @ 0x080ABE58
 	cmn r0, r1
 	bge .L080ABF92
 	adds r0, r4, #0
-	bl func_080AB948
+	bl ProbeEntityCollisionLeft
 .L080ABF92:
 	ldrb r0, [r4, #0x12]
 	b .L080ABFD8
@@ -11070,7 +10817,7 @@ func_080ABE58: @ 0x080ABE58
 	cmp r1, r0
 	ble .L080ABFC2
 	adds r0, r4, #0
-	bl func_080AB9C4
+	bl ProbeEntityCollisionRight
 	ldr r0, [r4, #0xc]
 	b .L080ABFC4
 .L080ABFC2:
@@ -11083,7 +10830,7 @@ func_080ABE58: @ 0x080ABE58
 	cmp r1, r0
 	ble .L080ABFD6
 	adds r0, r4, #0
-	bl func_080AB9C4
+	bl ProbeEntityCollisionRight
 .L080ABFD6:
 	ldrb r0, [r4, #0x13]
 .L080ABFD8:
@@ -12500,7 +12247,7 @@ func_080AC9EC: @ 0x080AC9EC
 	str r2, [sp]
 	movs r2, #0
 	movs r3, #0
-	bl func_080A56DC
+	bl LoadMapAtLocation
 	movs r0, #0xa0
 	bl __builtin_new
 	adds r1, r6, #0
@@ -13751,7 +13498,7 @@ func_080AD3B0: @ 0x080AD3B0
 	adds r1, r7, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_080A56DC
+	bl LoadMapAtLocation
 	movs r0, #0xa0
 	bl __builtin_new
 	adds r1, r6, #0
@@ -15456,7 +15203,7 @@ func_080AE4E4: @ 0x080AE4E4
 	adds r0, r7, #0
 	bl func_080B0AA0
 	adds r0, r7, #0
-	bl func_080AE7D0
+	bl LoadChickenFeedingBackground
 	adds r0, r7, #0
 	bl func_080AE894
 	ldr r1, .L080AE584 @ =0x0000080C
@@ -15508,7 +15255,7 @@ func_080AE4E4: @ 0x080AE4E4
 	b .L080AE5CA
 .L080AE5B4:
 	adds r0, r7, #0
-	bl func_080B1D34
+	bl RunChickenFeedingTransition
 	b .L080AE5CA
 .L080AE5BC:
 	adds r0, r7, #0
@@ -15632,91 +15379,7 @@ func_080AE4E4: @ 0x080AE4E4
 .L080AE6B8: .4byte 0x0000043C
 .L080AE6BC: .4byte 0x00000889
 
-	.section .text.080AE7D0, "ax", %progbits
-
-	thumb_func_start func_080AE7D0
-func_080AE7D0: @ 0x080AE7D0
-	push {r4, r5, r6, lr}
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6}
-	sub sp, #4
-	mov sb, r0
-	ldr r1, .L080AE870 @ =0x06007FE0
-	movs r0, #0
-	movs r2, #0x20
-	bl Dma3_Fill
-	movs r5, #1
-	rsbs r5, r5, #0
-	ldr r0, .L080AE874 @ =0x0600F000
-	mov r8, r0
-	movs r6, #0x80
-	lsls r6, r6, #4
-	adds r0, r5, #0
-	mov r1, r8
-	adds r2, r6, #0
-	bl Dma3_Fill
-	ldr r4, .L080AE878 @ =0x0600F800
-	adds r0, r5, #0
-	adds r1, r4, #0
-	adds r2, r6, #0
-	bl Dma3_Fill
-	ldr r0, .L080AE87C @ =gUnk_0872FC34
-	adds r1, r4, #0
-	bl Unpack
-	ldr r0, .L080AE880 @ =gUnk_0872FE6C
-	mov r1, r8
-	bl Unpack
-	ldr r0, .L080AE884 @ =gUnk_0872FEF8
-	movs r1, #0xc0
-	lsls r1, r1, #0x13
-	bl Unpack
-	ldr r0, .L080AE888 @ =gUnk_08731940
-	movs r1, #0xa0
-	lsls r1, r1, #0x13
-	movs r2, #0x80
-	lsls r2, r2, #2
-	bl Dma3_Copy
-	mov r0, sb
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	movs r3, #0xb2
-	lsls r3, r3, #5
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0]
-	mov r0, sb
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080AE88C @ =0x00001E41
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xa]
-	mov r0, sb
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080AE890 @ =0x00001F42
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xc]
-	add sp, #4
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080AE870: .4byte 0x06007FE0
-.L080AE874: .4byte 0x0600F000
-.L080AE878: .4byte 0x0600F800
-.L080AE87C: .4byte gUnk_0872FC34
-.L080AE880: .4byte gUnk_0872FE6C
-.L080AE884: .4byte gUnk_0872FEF8
-.L080AE888: .4byte gUnk_08731940
-.L080AE88C: .4byte 0x00001E41
-.L080AE890: .4byte 0x00001F42
-
+	.section .text.080AE894, "ax", %progbits
 	thumb_func_start func_080AE894
 func_080AE894: @ 0x080AE894
 	push {r4, r5, r6, r7, lr}
@@ -15759,7 +15422,7 @@ func_080AE894: @ 0x080AE894
 	ldrb r0, [r0]
 	add r1, sp, #0x10
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, .L080AE9D4 @ =0x05000240
 	movs r3, #0xf8
 	lsls r3, r3, #2
@@ -16015,7 +15678,7 @@ func_080AE894: @ 0x080AE894
 	ldr r0, [sp, #0xc0]
 	movs r1, #0xd0
 	movs r2, #8
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x7c]
 	ldr r1, [sp, #0x80]
 	str r0, [r4]
@@ -19741,7 +19404,7 @@ func_080B0708: @ 0x080B0708
 	ldrb r0, [r5]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldrb r0, [r5]
 	cmp r0, #9
 	bhi .L080B0764
@@ -22063,7 +21726,7 @@ func_080B1B40: @ 0x080B1B40
 	ldrb r0, [r0]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r0, sp, #0x10
 	ldr r4, .L080B1C18 @ =gUnk_0810782C
 	adds r1, r4, #0
@@ -22267,54 +21930,7 @@ func_080B1B40: @ 0x080B1B40
 	.align 2, 0
 .L080B1D30: .4byte 0x00000838
 
-	thumb_func_start func_080B1D34
-func_080B1D34: @ 0x080B1D34
-	push {r4, r5, r6, r7, lr}
-	sub sp, #4
-	adds r4, r0, #0
-	movs r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	movs r3, #0xb2
-	lsls r3, r3, #5
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0]
-	adds r0, r4, #0
-	bl func_080AF814
-	ldr r1, .L080B1D8C @ =0x00000814
-	adds r0, r4, r1
-	movs r1, #0xbb
-	bl AudioPlayer_StartSong
-	ldr r3, .L080B1D90 @ =0x00000838
-	adds r0, r4, r3
-	ldr r0, [r0]
-	cmp r0, #2
-	bne .L080B1D84
-	adds r5, r4, r3
-	movs r7, #3
-.L080B1D6A:
-	adds r0, r4, #0
-	bl func_080087C8
-	adds r0, r4, #0
-	bl func_080AF814
-	adds r6, #1
-	cmp r6, #0x78
-	ble .L080B1D7E
-	str r7, [r5]
-.L080B1D7E:
-	ldr r0, [r5]
-	cmp r0, #2
-	beq .L080B1D6A
-.L080B1D84:
-	add sp, #4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080B1D8C: .4byte 0x00000814
-.L080B1D90: .4byte 0x00000838
-
+	.section .text.080B1D94, "ax", %progbits
 	thumb_func_start func_080B1D94
 func_080B1D94: @ 0x080B1D94
 	push {r4, r5, r6, r7, lr}
@@ -22988,7 +22604,7 @@ func_080B2114: @ 0x080B2114
 	movs r0, #0
 	ldr r1, [sp, #0x110]
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	movs r6, #0
 	mov sb, r6
 	ldr r7, [sp, #0x110]
@@ -23276,7 +22892,7 @@ func_080B2114: @ 0x080B2114
 	str r0, [sp, #0xc]
 	add r0, sp, #0x78
 	movs r1, #0x78
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x78]
 	ldr r1, [sp, #0x7c]
 	b .L080B253C
@@ -23300,7 +22916,7 @@ func_080B2114: @ 0x080B2114
 	add r0, sp, #0x80
 	movs r1, #0xb8
 	movs r2, #0x8d
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x80]
 	ldr r1, [sp, #0x84]
 .L080B253C:
@@ -24741,7 +24357,7 @@ func_080B2114: @ 0x080B2114
 	ldr r0, [r4]
 	ldr r1, [sp, #0x110]
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, [sp, #0xf8]
 	lsls r4, r1, #6
 	adds r0, r4, r1
@@ -25015,7 +24631,7 @@ func_080B2114: @ 0x080B2114
 	str r0, [r1]
 	ldr r1, [sp, #0x110]
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	mov r5, sb
 	lsls r4, r5, #6
 	adds r0, r4, r5
@@ -28651,7 +28267,7 @@ func_080B55D0: @ 0x080B55D0
 	ldrh r1, [r2]
 	strh r1, [r0, #0x1e]
 	adds r0, r7, #0
-	bl func_080B5788
+	bl ResetFestivalInstructionChickens
 	movs r1, #0xe3
 	lsls r1, r1, #3
 	adds r0, r7, r1
@@ -28712,85 +28328,7 @@ func_080B55D0: @ 0x080B55D0
 .L080B5780: .4byte 0x0600BFE0
 .L080B5784: .4byte 0x00002010
 
-	thumb_func_start func_080B5788
-func_080B5788: @ 0x080B5788
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	adds r4, r0, #0
-	movs r5, #0
-	movs r0, #0
-	mov sl, r0
-	ldr r1, .L080B5820 @ =0x00000B5E
-	adds r1, r1, r4
-	mov r8, r1
-	movs r7, #1
-	mov ip, r7
-	adds r2, r4, #0
-	adds r2, #0x8c
-	movs r6, #0xe8
-	lsls r6, r6, #6
-	adds r3, r4, #0
-	adds r3, #0x8a
-	movs r0, #0xf0
-	lsls r0, r0, #7
-	mov sb, r0
-.L080B57B6:
-	lsls r1, r5, #6
-	mov r7, sb
-	strh r7, [r3]
-	strh r6, [r2]
-	mov r7, r8
-	ldrb r0, [r7]
-	strb r0, [r2, #3]
-	mov r0, ip
-	strb r0, [r2, #0x11]
-	strb r0, [r2, #9]
-	adds r0, r4, #0
-	adds r0, #0x6c
-	adds r0, r0, r1
-	movs r7, #2
-	str r7, [r0]
-	adds r0, r4, #0
-	adds r0, #0x70
-	adds r0, r0, r1
-	str r7, [r0]
-	mov r0, sl
-	strb r0, [r2, #0x1f]
-	adds r2, #0x40
-	movs r1, #0xc0
-	lsls r1, r1, #5
-	adds r6, r6, r1
-	adds r3, #0x40
-	adds r5, #1
-	cmp r5, #1
-	ble .L080B57B6
-	movs r0, #3
-	str r0, [r4, #0x74]
-	str r0, [r4, #0x78]
-	adds r0, r4, #0
-	adds r0, #0xb4
-	movs r1, #1
-	str r1, [r0]
-	adds r0, #4
-	str r1, [r0]
-	adds r0, r4, #0
-	movs r1, #0
-	bl func_080B8DF4
-	adds r0, r4, #0
-	movs r1, #1
-	bl func_080B8DF4
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080B5820: .4byte 0x00000B5E
+	.section .text.g3_after_080B5788, "ax", %progbits
 
 	thumb_func_start func_080B5824
 func_080B5824: @ 0x080B5824
@@ -34725,10 +34263,10 @@ func_080B8578: @ 0x080B8578
 	str r4, [r0]
 	adds r0, r6, #0
 	movs r1, #0
-	bl func_080B8DF4
+	bl CreateFestivalChickenSprites
 	adds r0, r6, #0
 	movs r1, #1
-	bl func_080B8DF4
+	bl CreateFestivalChickenSprites
 	movs r3, #0xb4
 	lsls r3, r3, #4
 	adds r1, r6, r3
@@ -35559,101 +35097,7 @@ func_080B888C: @ 0x080B888C
 
 	.section .text.g3_after_080B8DAC, "ax", %progbits
 
-	thumb_func_start func_080B8DF4
-func_080B8DF4: @ 0x080B8DF4
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	adds r6, r0, #0
-	lsls r1, r1, #0x18
-	lsrs r1, r1, #0x18
-	mov r8, r1
-	movs r0, #0x14
-	bl __builtin_new
-	ldr r2, .L080B8EB0 @ =0x0000077C
-	adds r1, r6, r2
-	ldr r1, [r1]
-	movs r2, #0x80
-	lsls r2, r2, #1
-	mov sl, r2
-	movs r2, #0
-	mov r3, sl
-	bl func_0805E824
-	adds r4, r0, #0
-	mov r0, r8
-	lsls r7, r0, #2
-	adds r5, r7, r6
-	ldr r1, .L080B8EB4 @ =0x000007A4
-	mov sb, r1
-	add r5, sb
-	ldr r0, [r5]
-	cmp r4, r0
-	beq .L080B8E38
-	bl __builtin_delete
-.L080B8E38:
-	str r4, [r5]
-	movs r0, #0x1c
-	bl __builtin_new
-	adds r5, r0, #0
-	movs r1, #0
-	movs r0, #0
-	strh r0, [r5]
-	strh r0, [r5, #2]
-	strh r0, [r5, #4]
-	strh r0, [r5, #6]
-	strh r0, [r5, #8]
-	str r0, [r5, #0xc]
-	strb r1, [r5, #0x10]
-	strb r1, [r5, #0x11]
-	str r0, [r5, #0x14]
-	strb r1, [r5, #0x18]
-	adds r4, r7, r6
-	ldr r2, .L080B8EB8 @ =0x000007AC
-	adds r4, r4, r2
-	ldr r0, [r4]
-	adds r7, r7, r6
-	cmp r5, r0
-	beq .L080B8E6C
-	bl __builtin_delete
-.L080B8E6C:
-	str r5, [r4]
-	mov r0, sb
-	adds r4, r7, r0
-	ldr r5, [r4]
-	mov r1, r8
-	lsls r2, r1, #6
-	adds r0, r6, #0
-	adds r0, #0x6c
-	adds r0, r0, r2
-	ldr r1, [r0]
-	adds r0, r6, #0
-	adds r0, #0x74
-	adds r0, r0, r2
-	ldr r2, [r0]
-	adds r0, r6, #0
-	mov r3, r8
-	bl GetFestivalChickenAnimation
-	adds r1, r0, #0
-	lsls r1, r1, #0x10
-	lsrs r1, r1, #0x10
-	adds r0, r5, #0
-	bl SetSpriteAnimatorClip
-	ldr r0, [r4]
-	mov r2, sl
-	strh r2, [r0, #0x10]
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080B8EB0: .4byte 0x0000077C
-.L080B8EB4: .4byte 0x000007A4
-.L080B8EB8: .4byte 0x000007AC
+	.section .text.g3_after_080B8DF4, "ax", %progbits
 
 	thumb_func_start func_080B8EBC
 func_080B8EBC: @ 0x080B8EBC
@@ -37661,7 +37105,7 @@ func_080BAC9C: @ 0x080BAC9C
 	movs r1, #0
 	ldr r2, [sp, #0x94]
 	movs r3, #0
-	bl func_080BB890
+	bl GetFestivalCrowdAnimation
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -37803,7 +37247,7 @@ func_080BAC9C: @ 0x080BAC9C
 	mov r0, sb
 	movs r1, #1
 	ldr r2, [sp, #0x94]
-	bl func_080BB890
+	bl GetFestivalCrowdAnimation
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -37922,7 +37366,7 @@ func_080BAC9C: @ 0x080BAC9C
 	mov r0, sb
 	movs r1, #2
 	movs r2, #0
-	bl func_080BB890
+	bl GetFestivalCrowdAnimation
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -39144,58 +38588,7 @@ func_080BAC9C: @ 0x080BAC9C
 	.align 2, 0
 .L080BB88C: .4byte 0x000008D4
 
-	thumb_func_start func_080BB890
-func_080BB890: @ 0x080BB890
-	push {r4, lr}
-	adds r4, r0, #0
-	movs r0, #0
-	cmp r1, #1
-	beq .L080BB8B4
-	cmp r1, #1
-	bgt .L080BB8A4
-	cmp r1, #0
-	beq .L080BB8AA
-	b .L080BB8E0
-.L080BB8A4:
-	cmp r1, #2
-	beq .L080BB8D8
-	b .L080BB8E0
-.L080BB8AA:
-	ldr r1, .L080BB8B0 @ =gUnk_08107D3C
-	lsls r0, r2, #1
-	b .L080BB8DC
-	.align 2, 0
-.L080BB8B0: .4byte gUnk_08107D3C
-.L080BB8B4:
-	cmp r2, #0
-	beq .L080BB8C0
-	ldr r1, .L080BB8D0 @ =0x00000B18
-	adds r0, r4, r1
-	ldr r0, [r0]
-	adds r2, r2, r0
-.L080BB8C0:
-	ldr r0, .L080BB8D4 @ =gUnk_08107D46
-	lsls r1, r3, #1
-	lsls r2, r2, #3
-	adds r1, r1, r2
-	adds r1, r1, r0
-	ldrh r0, [r1]
-	b .L080BB8E0
-	.align 2, 0
-.L080BB8D0: .4byte 0x00000B18
-.L080BB8D4: .4byte gUnk_08107D46
-.L080BB8D8:
-	ldr r1, .L080BB8E8 @ =gUnk_08107D66
-	lsls r0, r3, #1
-.L080BB8DC:
-	adds r0, r0, r1
-	ldrh r0, [r0]
-.L080BB8E0:
-	pop {r4}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080BB8E8: .4byte gUnk_08107D66
+	.section .text.g3_after_080BB890, "ax", %progbits
 
 	thumb_func_start func_080BB8EC
 func_080BB8EC: @ 0x080BB8EC
@@ -39637,7 +39030,7 @@ func_080BB8EC: @ 0x080BB8EC
 	ldr r4, [r0]
 	mov r0, r8
 	movs r1, #1
-	bl func_080BB890
+	bl GetFestivalCrowdAnimation
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -40070,7 +39463,7 @@ func_080BB8EC: @ 0x080BB8EC
 	mov r0, r8
 	movs r1, #2
 	movs r2, #0
-	bl func_080BB890
+	bl GetFestivalCrowdAnimation
 	adds r1, r0, #0
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
@@ -41988,7 +41381,7 @@ func_080BD064: @ 0x080BD064
 	ldrb r0, [r0]
 	add r1, sp, #0x10
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, .L080BD198 @ =0x05000240
 	movs r3, #0xf8
 	lsls r3, r3, #2
@@ -42232,7 +41625,7 @@ func_080BD064: @ 0x080BD064
 	ldr r0, [sp, #0xa0]
 	movs r1, #0xd0
 	movs r2, #8
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x54]
 	ldr r1, [sp, #0x58]
 	str r0, [r4]
@@ -44986,7 +44379,7 @@ func_080BE728: @ 0x080BE728
 	ldrb r0, [r5]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldrb r0, [r5]
 	cmp r0, #9
 	bhi .L080BE786
@@ -46196,7 +45589,7 @@ func_080BF0EC: @ 0x080BF0EC
 	ldrb r0, [r0]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r0, sp, #0x10
 	ldr r4, .L080BF1CC @ =gUnk_08107F60
 	adds r1, r4, #0
@@ -47766,7 +47159,7 @@ func_080BF764: @ 0x080BF764
 	movs r0, #0
 	add r1, sp, #0x28
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r6, [sp, #0xc8]
 	lsls r4, r6, #6
 	adds r0, r4, r6
@@ -48027,7 +47420,7 @@ func_080BF764: @ 0x080BF764
 	str r0, [sp, #0xc]
 	add r0, sp, #0x80
 	movs r1, #0x68
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x80]
 	ldr r1, [sp, #0x84]
 	b .L080BFF8E
@@ -48051,7 +47444,7 @@ func_080BF764: @ 0x080BF764
 	add r0, sp, #0x88
 	movs r1, #0xb8
 	movs r2, #0x8d
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x88]
 	ldr r1, [sp, #0x8c]
 .L080BFF8E:
@@ -48686,7 +48079,7 @@ func_080BF764: @ 0x080BF764
 	ldr r0, [r4]
 	add r1, sp, #0x28
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, [sp, #0xdc]
 	lsls r4, r1, #6
 	adds r0, r4, r1
@@ -48959,7 +48352,7 @@ func_080BF764: @ 0x080BF764
 	str r0, [r1]
 	add r1, sp, #0x28
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r5, [sp, #0xc8]
 	lsls r4, r5, #6
 	adds r0, r4, r5
@@ -50977,7 +50370,7 @@ func_080C16D4: @ 0x080C16D4
 	ldrb r0, [r0]
 	add r1, sp, #0x10
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, .L080C1808 @ =0x05000240
 	movs r3, #0xf8
 	lsls r3, r3, #2
@@ -51220,7 +50613,7 @@ func_080C16D4: @ 0x080C16D4
 	ldr r0, [sp, #0xc0]
 	movs r1, #0xd0
 	movs r2, #8
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x54]
 	ldr r1, [sp, #0x58]
 	str r0, [r4]
@@ -55449,7 +54842,7 @@ func_080C38E4: @ 0x080C38E4
 	ldrb r0, [r5]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldrb r0, [r5]
 	cmp r0, #9
 	bhi .L080C3942
@@ -58380,7 +57773,7 @@ func_080C516C: @ 0x080C516C
 	ldrb r0, [r0]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r0, sp, #0x10
 	ldr r5, .L080C5254 @ =gUnk_08108218
 	adds r1, r5, #0
@@ -60098,7 +59491,7 @@ func_080C5A6C: @ 0x080C5A6C
 	strb r0, [r1]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	movs r4, #4
 	movs r5, #2
 	add r0, sp, #0x40
@@ -60890,7 +60283,7 @@ func_080C608C: @ 0x080C608C
 	movs r0, #0
 	add r1, sp, #0x30
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r6, [sp, #0xf4]
 	lsls r4, r6, #6
 	adds r0, r4, r6
@@ -61154,7 +60547,7 @@ func_080C608C: @ 0x080C608C
 	str r0, [sp, #0xc]
 	add r0, sp, #0x84
 	movs r1, #0x78
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	ldr r0, [sp, #0x84]
 	ldr r1, [sp, #0x88]
 	b .L080C677C
@@ -61178,7 +60571,7 @@ func_080C608C: @ 0x080C608C
 	add r0, sp, #0x8c
 	movs r1, #0xc8
 	movs r2, #0x8d
-	bl func_0804EA94
+	bl InitializeMessageSpriteAttributes
 	add r0, sp, #0x8c
 	ldr r1, [r0, #4]
 	ldr r0, [r0]
@@ -62581,7 +61974,7 @@ func_080C608C: @ 0x080C608C
 	ldr r0, [r0]
 	add r1, sp, #0x30
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r6, [sp, #0x104]
 	lsls r4, r6, #6
 	adds r0, r4, r6
@@ -62855,7 +62248,7 @@ func_080C608C: @ 0x080C608C
 	str r0, [r1]
 	add r1, sp, #0x30
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r5, [sp, #0xf4]
 	lsls r4, r5, #6
 	adds r0, r4, r5
