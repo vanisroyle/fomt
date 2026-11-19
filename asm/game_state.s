@@ -3375,31 +3375,6 @@ func_08012064: @ 0x08012064
 
     .section .text.game_state_080120E4, "ax", %progbits
 
-    thumb_func_start func_080120E4
-func_080120E4: @ 0x080120E4
-    push {r4, lr}
-    adds r4, r2, #0
-    ldr r0, [r0, #4]
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r2, [r0]
-    ldr r2, [r2, #0x40]
-    bl _call_via_r2
-    adds r1, r0, #0
-    cmp r1, #0
-    beq .L0801210C
-    adds r0, #0x20
-    ldrb r0, [r0]
-    cmp r0, r4
-    beq .L0801210C
-    adds r0, r1, #0
-    adds r1, r4, #0
-    bl SetAnimFacing__12AActorEntityUi
-.L0801210C:
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
     .section .text.game_state_08012134, "ax", %progbits
 
@@ -3448,29 +3423,6 @@ func_0801223C: @ 0x0801223C
     pop {r0}
     bx r0
 
-    thumb_func_start func_08012274
-func_08012274: @ 0x08012274
-    push {r4, r5, lr}
-    adds r5, r2, #0
-    adds r4, r3, #0
-    ldr r0, [r0, #4]
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r2, [r0]
-    ldr r2, [r2, #0x40]
-    bl _call_via_r2
-    cmp r0, #0
-    beq .L08012298
-    rsbs r2, r4, #0
-    orrs r2, r4
-    lsrs r2, r2, #0x1f
-    adds r1, r5, #0
-    bl func_08032384
-.L08012298:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
     .section .text.game_state_080122BC, "ax", %progbits
 
@@ -3882,58 +3834,8 @@ func_080125EC: @ 0x080125EC
     .align 2, 0
 .L08012654: .4byte 0x0000FEFF
 
-    thumb_func_start func_08012658
-func_08012658: @ 0x08012658
-    push {r4, lr}
-    ldr r4, [r0, #4]
-    adds r0, r4, #0
-    adds r0, #0xac
-    ldr r0, [r0]
-    cmp r0, #0
-    beq .L08012684
-    bl func_08050D74
-    adds r0, r4, #0
-    bl func_080D7F88
-    adds r0, r4, #0
-    bl func_080D7F74
-    adds r0, r4, #0
-    bl func_080D7F60
-    adds r1, r4, #0
-    adds r1, #0x9c
-    movs r0, #0xf
-    str r0, [r1]
-.L08012684:
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
+    .section .text.game_state_0801268C, "ax", %progbits
 
-    thumb_func_start func_0801268C
-func_0801268C: @ 0x0801268C
-    push {r4, r5, lr}
-    adds r5, r1, #0
-    ldr r4, [r0, #4]
-    adds r0, r4, #0
-    adds r0, #0xac
-    ldr r1, [r0]
-    cmp r1, #0
-    beq .L080126B4
-    lsls r2, r2, #0x10
-    lsrs r2, r2, #0x10
-    adds r0, #4
-    ldr r3, [r0]
-    adds r0, r1, #0
-    adds r1, r5, #0
-    bl func_08050DC8
-    adds r1, r4, #0
-    adds r1, #0x9c
-    movs r0, #0x10
-    str r0, [r1]
-.L080126B4:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
     .section .text.game_state_080126E4, "ax", %progbits
 
@@ -7155,32 +7057,6 @@ func_0801412C: @ 0x0801412C
     bx r1
     .align 2, 0
 
-    thumb_func_start func_08014164
-func_08014164: @ 0x08014164
-    push {r4, r5, r6, lr}
-    adds r6, r1, #0
-    lsls r5, r2, #0x18
-    lsrs r5, r5, #0x18
-    ldr r4, [r0, #4]
-    adds r0, r4, #0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x40]
-    movs r1, #0
-    bl _call_via_r2
-    ldr r1, [r0, #0x14]
-    ldr r3, [r1, #0x5c]
-    adds r1, r6, #0
-    adds r2, r5, #0
-    bl _call_via_r3
-    adds r4, #0x9c
-    movs r0, #0x19
-    str r0, [r4]
-    movs r0, #1
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
 
 
     .section .text.game_state_080141EC, "ax", %progbits
@@ -7189,29 +7065,6 @@ func_08014164: @ 0x08014164
 
     .section .text.game_state_08014264, "ax", %progbits
 
-    thumb_func_start func_08014264
-func_08014264: @ 0x08014264
-    push {r4, lr}
-    adds r4, r2, #0
-    ldr r0, [r0, #4]
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r2, [r0]
-    ldr r2, [r2, #0x40]
-    bl _call_via_r2
-    adds r1, r0, #0
-    cmp r1, #0
-    beq .L08014288
-    ldr r0, [r1, #0x14]
-    ldr r2, [r0, #0x38]
-    adds r0, r1, #0
-    adds r1, r4, #0
-    bl _call_via_r2
-.L08014288:
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
 
     .section .text.game_state_080142D4, "ax", %progbits
@@ -7670,30 +7523,7 @@ func_080145F8: @ 0x080145F8
 
     .section .text.game_state_080146CC, "ax", %progbits
 
-    thumb_func_start func_080146CC
-func_080146CC: @ 0x080146CC
-    push {r4, r5, lr}
-    adds r5, r1, #0
-    ldr r4, [r0, #4]
-    adds r0, r4, #0
-    adds r0, #0x8c
-    ldr r0, [r0]
-    movs r1, #0x82
-    lsls r1, r1, #3
-    adds r0, r0, r1
-    adds r1, r5, #0
-    bl BeginIncubation__4CoopUi
-    adds r4, #0xa8
-    ldr r0, [r4]
-    ldr r1, [r0]
-    adds r1, #0xac
-    ldr r2, [r1]
-    adds r1, r5, #0
-    bl _call_via_r2
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
+    .section .text.game_state_080146FC, "ax", %progbits
 
     thumb_func_start func_080146FC
 func_080146FC: @ 0x080146FC
@@ -8358,6 +8188,7 @@ func_08014AF8: @ 0x08014AF8
     bx r0
     .align 2, 0
 
+
     thumb_func_start func_08014BD8
 func_08014BD8: @ 0x08014BD8
     push {r4, r5, lr}
@@ -8511,29 +8342,6 @@ func_08014C34: @ 0x08014C34
 .L08014D28: .4byte 0x000003FF
 .L08014D2C: .4byte 0xFFFFFC00
 
-    thumb_func_start func_08014D30
-func_08014D30: @ 0x08014D30
-    push {r4, lr}
-    ldr r4, [r0, #4]
-    cmp r1, #0
-    bne .L08014D54
-    adds r0, r4, #0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x3c]
-    movs r1, #0x2c
-    bl _call_via_r2
-    adds r0, r4, #0
-    adds r0, #0x8c
-    ldr r0, [r0]
-    adds r0, #0x14
-    bl RemoveHorse__4Farm
-.L08014D54:
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
     .section .text.game_state_08014D7C, "ax", %progbits
 
@@ -9871,60 +9679,10 @@ func_08015790: @ 0x08015790
     .align 2, 0
 .L08015898: .4byte 0x00001C2C
 
-    thumb_func_start func_0801589C
-func_0801589C: @ 0x0801589C
-    push {r4, r5, lr}
-    lsls r5, r1, #0x10
-    lsrs r5, r5, #0x10
-    ldr r4, [r0, #4]
-    adds r0, r4, #0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x40]
-    movs r1, #0
-    bl _call_via_r2
-    ldr r1, [r0, #0x14]
-    ldr r2, [r1, #0x68]
-    adds r1, r5, #0
-    bl _call_via_r2
-    adds r4, #0x9c
-    movs r0, #0x19
-    str r0, [r4]
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
 
     .section .text.game_state_08015920, "ax", %progbits
 
-    thumb_func_start func_08015920
-func_08015920: @ 0x08015920
-    push {lr}
-    adds r3, r1, #0
-    ldr r1, [r0, #4]
-    adds r0, r3, #0
-    subs r0, #0x24
-    cmp r0, #6
-    bhi .L08015948
-    adds r0, r1, #0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x40]
-    adds r1, r3, #0
-    bl _call_via_r2
-    cmp r0, #0
-    beq .L08015948
-    bl func_08033B24
-    b .L0801594A
-.L08015948:
-    movs r0, #0
-.L0801594A:
-    pop {r1}
-    bx r1
-    .align 2, 0
 
     .section .text.game_state_08015970, "ax", %progbits
 
@@ -11830,6 +11588,8 @@ func_08015E30: @ 0x08015E30
     .byte 0xCF, 0xF8, 0x01, 0x1C, 0x09, 0x04, 0x09, 0x0C, 0x20, 0x1C, 0xF2, 0xF7, 0x05, 0xFA, 0x10, 0xBC
     .byte 0x01, 0xBC, 0x00, 0x47
 
+
+
     thumb_func_start func_08016784
 func_08016784: @ 0x08016784
     push {r4, lr}
@@ -11852,7 +11612,6 @@ func_08016784: @ 0x08016784
     pop {r4}
     pop {r1}
     bx r1
-
 
     .section .text.game_state_080167DC, "ax", %progbits
 
@@ -12515,29 +12274,6 @@ func_08016DB0: @ 0x08016DB0
 
     .section .text.game_state_08016EC4, "ax", %progbits
 
-    thumb_func_start func_08016EC4
-func_08016EC4: @ 0x08016EC4
-    push {r4, r5, r6, r7, lr}
-    sub sp, #8
-    ldr r6, [sp, #0x1c]
-    ldr r5, [sp, #0x20]
-    lsls r5, r5, #0x10
-    lsrs r5, r5, #0x10
-    ldr r0, [r0, #4]
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r4, [r0]
-    movs r7, #0xb0
-    lsls r7, r7, #1
-    adds r4, r4, r7
-    str r6, [sp]
-    str r5, [sp, #4]
-    ldr r4, [r4]
-    bl _call_via_r4
-    add sp, #8
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
 
     .section .text.game_state_08016F0C, "ax", %progbits
 

@@ -1,6 +1,8 @@
 #include "prelude.h"
 
 #include "entity_actor.hh"
+#include "farm.hh"
+#include "coop.hh"
 #include "script_engine.hh"
 
 #include <stdlib.h>
@@ -159,10 +161,10 @@ struct GameStateActorEntity : public AActorEntity
     virtual void vfunc_50();
     virtual void vfunc_54();
     virtual void vfunc_58();
-    virtual void vfunc_5C();
+    virtual void vfunc_5C(u32 value, u32 enabled);
     virtual void vfunc_60();
     virtual void vfunc_64(u32 value_1, u32 value_2);
-    virtual void vfunc_68();
+    virtual void vfunc_68(u32 value);
     virtual void vfunc_6C();
     virtual void vfunc_70();
     virtual void vfunc_74(u32 value);
@@ -197,7 +199,7 @@ struct GameStateObject
     virtual void vfunc_30();
     virtual void vfunc_34();
     virtual void vfunc_38();
-    virtual void vfunc_3C();
+    virtual void vfunc_3C(u32 value);
     virtual GameStateActorEntity * vfunc_40(u32 id);
     virtual void vfunc_44();
     virtual void vfunc_48();
@@ -225,7 +227,7 @@ struct GameStateObject
     virtual void vfunc_A0(u32 value);
     virtual u32 vfunc_A4();
     virtual u32 vfunc_A8(u32 value);
-    virtual void vfunc_AC();
+    virtual void vfunc_AC(u32 index);
     virtual void vfunc_B0();
     virtual void vfunc_B4();
     virtual void vfunc_B8();
@@ -270,7 +272,7 @@ struct GameStateObject
     virtual void vfunc_154(u32 value);
     virtual void vfunc_158();
     virtual void vfunc_15C();
-    virtual void vfunc_160();
+    virtual void vfunc_160(u32 value_1, u32 value_2, u32 value_3, u32 value_4, u16 value_5);
     virtual void vfunc_164(u32 value);
 };
 
@@ -348,6 +350,12 @@ EC void func_080387FC(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
 EC void func_0804EC84(i32 value, char * text, u32 digits);
 EC void func_08050DC8(void * self, u32 value, u32 flags, void * text);
+EC void func_08032384(AActorEntity & self, u32 value, bool enabled);
+EC u32 func_08033B24(AActorEntity & self);
+EC void func_08050D74(void * self);
+EC void func_080D7F88(GameStateRuntime & self);
+EC void func_080D7F74(GameStateRuntime & self);
+EC void func_080D7F60(GameStateRuntime & self);
 
 EC void SECTION(".text.game_state_08012454") func_08012454(GameStateScript & self)
 {
@@ -834,4 +842,97 @@ EC void SECTION(".text.game_state_080121EC") func_080121EC(GameStateScript & sel
     AActorEntity * entity = self.runtime->object->vfunc_40(id);
     if (entity != nullptr && entity->anim_id != anim)
         entity->SetAnim(anim);
+}
+
+EC void SECTION(".text.game_state_08012274") func_08012274(GameStateScript & self, u32 id, u32 value, u32 enabled)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+        func_08032384(*entity, value, enabled != 0);
+}
+
+EC void SECTION(".text.game_state_08014264") func_08014264(GameStateScript & self, u32 id, u32 value)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+        entity->vfunc_38(value);
+}
+
+EC void SECTION(".text.game_state_080120E4") func_080120E4(GameStateScript & self, u32 id, u32 facing)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr && entity->facing != facing)
+        entity->SetAnimFacing(facing);
+}
+
+EC void SECTION(".text.game_state_08012658") func_08012658(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    if (runtime.actor != nullptr)
+    {
+        func_08050D74(runtime.actor);
+        func_080D7F88(runtime);
+        func_080D7F74(runtime);
+        func_080D7F60(runtime);
+        runtime.command = 0xF;
+    }
+}
+
+EC void SECTION(".text.game_state_0801268C") func_0801268C(GameStateScript & self, u32 value, u32 flags)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    if (runtime.actor != nullptr)
+    {
+        func_08050DC8(runtime.actor, value, (u16) flags, runtime.text);
+        runtime.command = 0x10;
+    }
+}
+
+EC void SECTION(".text.game_state_0801589C") func_0801589C(GameStateScript & self, u16 value)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    runtime.object->vfunc_40(0)->vfunc_68(value);
+    runtime.command = 0x19;
+}
+
+EC bool SECTION(".text.game_state_08014164") func_08014164(GameStateScript & self, u32 value, u8 enabled)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    runtime.object->vfunc_40(0)->vfunc_5C(value, enabled);
+    runtime.command = 0x19;
+    return true;
+}
+
+EC u32 SECTION(".text.game_state_08015920") func_08015920(GameStateScript & self, u32 id)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    if (id - 0x24 <= 6)
+    {
+        AActorEntity * entity = runtime.object->vfunc_40(id);
+        if (entity != nullptr)
+            return func_08033B24(*entity);
+    }
+    return 0;
+}
+
+EC void SECTION(".text.game_state_08016EC4") func_08016EC4(GameStateScript & self, u32 value_1, u32 value_2, u32 value_3, u32 value_4, u16 value_5)
+{
+    self.runtime->object->vfunc_160(value_1, value_2, value_3, value_4, value_5);
+}
+
+EC void SECTION(".text.game_state_08014D30") func_08014D30(GameStateScript & self, u32 value)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    if (value == 0)
+    {
+        runtime.object->vfunc_3C(0x2C);
+        reinterpret_cast<Farm *>(runtime.state + 0x14)->RemoveHorse();
+    }
+}
+
+EC void SECTION(".text.game_state_080146CC") func_080146CC(GameStateScript & self, u32 index)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    reinterpret_cast<Coop *>(runtime.state + 0x410)->BeginIncubation(index);
+    runtime.object->vfunc_AC(index);
 }
