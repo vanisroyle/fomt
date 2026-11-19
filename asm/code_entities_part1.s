@@ -1,144 +1,10 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
-    .section .text.entities_part1.08025248, "ax", %progbits
-    thumb_func_start func_08025248
-func_08025248: @ 0x08025248
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    mov r8, r1
-    adds r6, r3, #0
-    ldr r7, [sp, #0x20]
-    ldr r0, [r2]
-    ldr r1, [r2, #4]
-    str r0, [sp]
-    str r1, [sp, #4]
-    movs r5, #1
-    cmp r5, r7
-    bhi .L08025286
-    mov r4, sp
-.L08025266:
-    ldrh r0, [r4, #2]
-    adds r0, r0, r6
-    strh r0, [r4, #2]
-    ldrh r0, [r4, #6]
-    adds r0, r0, r6
-    strh r0, [r4, #6]
-    mov r0, r8
-    mov r1, sp
-    bl func_080AC070
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08025286
-    adds r5, #1
-    cmp r5, r7
-    bls .L08025266
-.L08025286:
-    adds r0, r5, #0
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .section .text.entities_part1.080251FC, "ax", %progbits
-    thumb_func_start func_080251FC
-func_080251FC: @ 0x080251FC
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    mov r8, r1
-    adds r6, r3, #0
-    ldr r7, [sp, #0x20]
-    ldr r0, [r2]
-    ldr r1, [r2, #4]
-    str r0, [sp]
-    str r1, [sp, #4]
-    movs r5, #1
-    cmp r5, r7
-    bhi .L0802523A
-    mov r4, sp
-.L0802521A:
-    ldrh r0, [r4]
-    adds r0, r0, r6
-    strh r0, [r4]
-    ldrh r0, [r4, #4]
-    adds r0, r0, r6
-    strh r0, [r4, #4]
-    mov r0, r8
-    mov r1, sp
-    bl func_080AC070
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802523A
-    adds r5, #1
-    cmp r5, r7
-    bls .L0802521A
-.L0802523A:
-    adds r0, r5, #0
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
 
 
 
 
 
-    .section .text.entities_part1.0802405C, "ax", %progbits
-    thumb_func_start func_0802405C
-func_0802405C: @ 0x0802405C
-    push {r4, r5, r6, r7, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    movs r6, #0
-    ldr r0, [r5, #0x34]
-    bl IsPregnant__C10BarnAnimal
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802407C
-    ldr r0, [r5, #0x34]
-    bl GetDaysPregnant__C10BarnAnimal
-    rsbs r1, r0, #0
-    orrs r1, r0
-    lsrs r6, r1, #0x1f
-.L0802407C:
-    ldr r7, .L0802408C @ =gUnk_080F0E34
-    lsls r4, r4, #1
-    cmp r6, #0
-    beq .L08024090
-    adds r0, r4, #0
-    adds r0, #0x2a
-    b .L080240B0
-    .align 2, 0
-.L0802408C: .4byte gUnk_080F0E34
-.L08024090:
-    ldr r0, [r5, #0x34]
-    bl IsSheared__C5Sheep
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080240A2
-    adds r0, r4, #0
-    adds r0, #0x1c
-    b .L080240B0
-.L080240A2:
-    ldr r0, [r5, #0x34]
-    bl GetGrowthStage__C5Sheep
-    lsls r1, r0, #3
-    subs r1, r1, r0
-    lsls r1, r1, #1
-    adds r0, r4, r1
-.L080240B0:
-    adds r0, r7, r0
-    ldrh r0, [r0]
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
     .section .text.entities_part1.080200C4, "ax", %progbits
     thumb_func_start AEntity_PlayAnimationSound
 AEntity_PlayAnimationSound: @ 0x080200C4
@@ -1375,7 +1241,7 @@ func_080204CC: @ 0x080204CC
     ldrb r0, [r4]
     str r0, [sp]
     ldr r0, [sp, #0xe8]
-    bl func_08038374
+    bl StartLaunchedSpriteMovement
     b .L080210A0
 .L08020DBA:
     mov r0, sl
@@ -1816,94 +1682,6 @@ func_080204CC: @ 0x080204CC
 
 
 
-    .section .text.entities_part1.08021130, "ax", %progbits
-    thumb_func_start func_08021130
-func_08021130: @ 0x08021130
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    cmp r1, #0xc
-    bhi .L0802117C
-    lsls r0, r1, #2
-    ldr r1, .L08021144 @ =.L08021148
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L08021144: .4byte .L08021148
-.L08021148: @ jump table
-    .4byte .L0802117C @ case 0
-    .4byte .L08021180 @ case 1
-    .4byte .L08021186 @ case 2
-    .4byte .L0802117C @ case 3
-    .4byte .L0802117C @ case 4
-    .4byte .L0802117C @ case 5
-    .4byte .L0802117C @ case 6
-    .4byte .L0802117C @ case 7
-    .4byte .L0802117C @ case 8
-    .4byte .L0802117C @ case 9
-    .4byte .L0802117C @ case 10
-    .4byte .L0802117C @ case 11
-    .4byte .L0802118C @ case 12
-.L0802117C:
-    movs r0, #0
-    b .L080211DA
-.L08021180:
-    movs r0, #0x80
-    lsls r0, r0, #8
-    b .L080211DA
-.L08021186:
-    movs r0, #0x80
-    lsls r0, r0, #9
-    b .L080211DA
-.L0802118C:
-    ldr r1, [r4, #0x14]
-    mov r0, sp
-    ldr r2, [r1, #0xc]
-    adds r1, r4, #0
-    bl _call_via_r2
-    ldr r0, [sp]
-    ldr r1, [sp, #4]
-    str r0, [sp, #8]
-    str r1, [sp, #0xc]
-    add r1, sp, #8
-    movs r2, #0x10
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    adds r3, r1, #0
-    cmp r0, #0
-    blt .L080211D2
-    cmp r0, #1
-    ble .L080211BA
-    cmp r0, #3
-    ble .L080211C4
-    b .L080211D2
-.L080211BA:
-    movs r1, #6
-    ldrsh r0, [r3, r1]
-    movs r2, #2
-    ldrsh r1, [r3, r2]
-    b .L080211CC
-.L080211C4:
-    movs r2, #4
-    ldrsh r0, [r1, r2]
-    movs r2, #0
-    ldrsh r1, [r1, r2]
-.L080211CC:
-    subs r0, r0, r1
-    adds r2, r0, #0
-    adds r2, #0x10
-.L080211D2:
-    lsls r0, r2, #0x10
-    movs r1, #0x1e
-    bl __divsi3
-.L080211DA:
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
     .section .text.entities_part1.080212C0.tail, "ax", %progbits
 .L080213A4:
     .byte 0x40, 0x30, 0x00, 0x78, 0x01, 0x21, 0x48, 0x40, 0x70, 0x47, 0x00, 0x00
@@ -2067,88 +1845,6 @@ func_08021130: @ 0x08021130
 
 
 
-    .section .text.entities_part1.08021FAC, "ax", %progbits
-    thumb_func_start func_08021FAC
-func_08021FAC: @ 0x08021FAC
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    cmp r1, #6
-    bhi .L08021FE0
-    lsls r0, r1, #2
-    ldr r1, .L08021FC0 @ =.L08021FC4
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L08021FC0: .4byte .L08021FC4
-.L08021FC4: @ jump table
-    .4byte .L08021FE0 @ case 0
-    .4byte .L08021FE4 @ case 1
-    .4byte .L08021FEA @ case 2
-    .4byte .L08021FE0 @ case 3
-    .4byte .L08021FE0 @ case 4
-    .4byte .L08021FE0 @ case 5
-    .4byte .L08021FF0 @ case 6
-.L08021FE0:
-    movs r0, #0
-    b .L0802203E
-.L08021FE4:
-    movs r0, #0x80
-    lsls r0, r0, #8
-    b .L0802203E
-.L08021FEA:
-    movs r0, #0x80
-    lsls r0, r0, #9
-    b .L0802203E
-.L08021FF0:
-    ldr r1, [r4, #0x14]
-    mov r0, sp
-    ldr r2, [r1, #0xc]
-    adds r1, r4, #0
-    bl _call_via_r2
-    ldr r0, [sp]
-    ldr r1, [sp, #4]
-    str r0, [sp, #8]
-    str r1, [sp, #0xc]
-    add r1, sp, #8
-    movs r2, #0x10
-    adds r0, r4, #0
-    adds r0, #0x20
-    ldrb r0, [r0]
-    adds r3, r1, #0
-    cmp r0, #0
-    blt .L08022036
-    cmp r0, #1
-    ble .L0802201E
-    cmp r0, #3
-    ble .L08022028
-    b .L08022036
-.L0802201E:
-    movs r1, #6
-    ldrsh r0, [r3, r1]
-    movs r2, #2
-    ldrsh r1, [r3, r2]
-    b .L08022030
-.L08022028:
-    movs r2, #4
-    ldrsh r0, [r1, r2]
-    movs r2, #0
-    ldrsh r1, [r1, r2]
-.L08022030:
-    subs r0, r0, r1
-    adds r2, r0, #0
-    adds r2, #0x10
-.L08022036:
-    lsls r0, r2, #0x10
-    movs r1, #0xc
-    bl __divsi3
-.L0802203E:
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
     .section .text.entities_part1.080220D4.tail, "ax", %progbits
 .L08022100:
     .byte 0x10, 0xB5, 0x81, 0xB0, 0x04, 0x1C, 0x62, 0x6B, 0x10, 0x6A, 0x02, 0x28, 0x1A, 0xD1, 0x0F, 0x49
@@ -3123,8 +2819,8 @@ func_080224E4: @ 0x080224E4
 
 
     .section .text.entities_part1.08024724, "ax", %progbits
-    thumb_func_start func_08024724
-func_08024724: @ 0x08024724
+    thumb_func_start Map_FindCollisionEscapeOffset
+Map_FindCollisionEscapeOffset: @ 0x08024724
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -3882,8 +3578,8 @@ func_08024CD0: @ 0x08024CD0
 
 
     .section .text.entities_part1.0802536C, "ax", %progbits
-    thumb_func_start func_0802536C
-func_0802536C: @ 0x0802536C
+    thumb_func_start FarmerEntity_MoveWithSliding
+FarmerEntity_MoveWithSliding: @ 0x0802536C
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -4121,7 +3817,7 @@ func_0802536C: @ 0x0802536C
     mov r0, sb
     mov r1, sl
     adds r2, r4, #0
-    bl func_08025248
+    bl FarmerEntity_FindVerticalClearStep
     str r0, [sp, #0x48]
     cmp r0, #8
     bhi .L08025616
@@ -4159,7 +3855,7 @@ func_0802536C: @ 0x0802536C
     mov r0, sb
     mov r1, sl
     adds r2, r4, #0
-    bl func_080251FC
+    bl FarmerEntity_FindHorizontalClearStep
     str r0, [sp, #0x48]
     cmp r0, #8
     bhi .L080255BA
@@ -4196,7 +3892,7 @@ func_0802536C: @ 0x0802536C
     mov r1, sl
     add r2, sp, #0x20
     movs r3, #1
-    bl func_080251FC
+    bl FarmerEntity_FindHorizontalClearStep
     str r0, [sp, #0x48]
     cmp r0, #8
     bhi .L08025664
@@ -4243,7 +3939,7 @@ func_0802536C: @ 0x0802536C
     mov r1, sl
     add r2, sp, #0x20
     movs r3, #1
-    bl func_08025248
+    bl FarmerEntity_FindVerticalClearStep
     str r0, [sp, #0x48]
     cmp r0, #8
     bhi .L08025664

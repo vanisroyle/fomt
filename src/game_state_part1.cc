@@ -380,10 +380,10 @@ EC void func_080323C8(AActorEntity & self);
 EC void func_08032308(AActorEntity & self, u32 target, i32 speed);
 EC void func_0803233C(AActorEntity & self, u32 target, i32 speed);
 EC void func_080323E0(AActorEntity & self, u32 value);
-EC void func_080387B8(void * self);
-EC void func_080387EC(void * self);
-EC void func_080387C8(void * self);
-EC void func_080387FC(void * self);
+EC void CreateSideEntityEffectSprite(void * self);
+EC void ClearSideEntityEffectSprite(void * self);
+EC void BeginSideEntityTransition(void * self);
+EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
 EC void func_0804EC84(i32 value, char * text, u32 digits);
 EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
@@ -396,7 +396,7 @@ EC void func_080D7F60(GameStateRuntime & self);
 EC void SetMessageWindowSpeakerName(void * self, const char * name);
 EC void SetMessageWindowPortrait(void * self, u32 value);
 EC u32 func_0809FE3C(void * self, u32 value);
-EC void func_08033B84(AActorEntity & self, u32 map, i32 x, i32 y);
+EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
 EC void Scene_DestroyBase(GameStateScript & self, u32 flags);
 EC void func_080D7F9C(GameStateRuntime & self, i32 id, u32 value_1, u32 value_2, u32 value_3, u32 value_4);
@@ -610,12 +610,12 @@ EC void SECTION(".text.game_state_08016C10") func_08016C10(GameStateScript & sel
 
 EC void SECTION(".text.game_state_08016C2C") func_08016C2C(GameStateScript & self)
 {
-    func_080387B8(self.runtime->object->vfunc_40(0x5D));
+    CreateSideEntityEffectSprite(self.runtime->object->vfunc_40(0x5D));
 }
 
 EC void SECTION(".text.game_state_08016C6C") func_08016C6C(GameStateScript & self)
 {
-    func_080387EC(self.runtime->object->vfunc_40(0x5D));
+    ClearSideEntityEffectSprite(self.runtime->object->vfunc_40(0x5D));
 }
 
 EC void SECTION(".text.game_state_08016EF0") func_08016EF0(GameStateScript & self, u32 value)
@@ -681,14 +681,14 @@ EC void SECTION(".text.game_state_08016E7C") func_08016E7C(GameStateScript & sel
 EC void SECTION(".text.game_state_08016C48") func_08016C48(GameStateScript & self)
 {
     GameStateRuntime & runtime = *self.runtime;
-    func_080387C8(runtime.object->vfunc_40(0x5D));
+    BeginSideEntityTransition(runtime.object->vfunc_40(0x5D));
     runtime.command = 0x1C;
 }
 
 EC void SECTION(".text.game_state_08016C88") func_08016C88(GameStateScript & self)
 {
     GameStateRuntime & runtime = *self.runtime;
-    func_080387FC(runtime.object->vfunc_40(0x5D));
+    CreateSideEntityParticleSprites(runtime.object->vfunc_40(0x5D));
     runtime.command = 0x1B;
 }
 
@@ -1051,7 +1051,7 @@ EC void SECTION(".text.game_state_0801223C") func_0801223C(GameStateScript & sel
         i32 current_y = reinterpret_cast<i16 const *>(&entity->y_q16)[1];
         current_x += x;
         current_y += y;
-        func_08033B84(*entity, reinterpret_cast<u8 *>(entity)[0x30], current_x, current_y);
+        ShowSpriteWorkerEffect(*entity, reinterpret_cast<u8 *>(entity)[0x30], current_x, current_y);
     }
 }
 

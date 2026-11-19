@@ -928,9 +928,12 @@ vtable_unk_080E79A8:
 vtable_unk_080E79B8:
 	.incbin "baserom.gba", 0xE79B8, 0x10
 
-	.global vtable_unk_080E79C8
-vtable_unk_080E79C8:
-	.incbin "baserom.gba", 0xE79C8, 0x14
+	.global gSpriteAnimationDataVTable
+gSpriteAnimationDataVTable:
+	.4byte 0, 0
+	.4byte func_080E1984
+	.4byte GetSpriteAnimationDataClip
+	.4byte GetSpriteAnimationDataFrame
 
 	.global vtable_unk_080E79DC
 vtable_unk_080E79DC:
