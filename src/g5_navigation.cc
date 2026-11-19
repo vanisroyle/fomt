@@ -1,82 +1,82 @@
 #include "prelude.h"
 
-struct NavigationPanel
+struct InventoryNavigationPanel
 {
     u8 pad_00[0x27c];
     bool enabled;
     u8 pad_27d[0x1b];
-    int limit;
+    int last_slot;
 };
-struct NavigationOwner
+struct InventoryNavigationOwner
 {
     u8 pad_00[0x78];
-    NavigationPanel * first;
-    NavigationPanel * second;
+    InventoryNavigationPanel * left_panel;
+    InventoryNavigationPanel * right_panel;
 };
-struct Navigation
+struct InventoryNavigation
 {
-    NavigationOwner * owner;
-    int current;
-    int previous;
-    int first_limit;
-    int second_limit;
+    InventoryNavigationOwner * owner;
+    int selected_slot;
+    int previous_slot;
+    int left_last_slot;
+    int right_last_slot;
 
     void UpdateLimits()
     {
-        first_limit = owner->first->limit;
-        second_limit = owner->second->limit + 9;
+        left_last_slot = owner->left_panel->last_slot;
+        right_last_slot = owner->right_panel->last_slot + 9;
     }
 };
 EC int const gUnk_0811788C[][4];
 
-EC SECTION(".text.g5_080CDA44") int func_080CDA44(Navigation * self)
+EC SECTION(".text.g5_080CDA44") int MoveInventorySelectionDown(InventoryNavigation * self) // 0x080CDA44
 {
     self->UpdateLimits();
-    int next = gUnk_0811788C[self->current][0];
-    if (self->current == 0)
+    int next_slot = gUnk_0811788C[self->selected_slot][0];
+    if (self->selected_slot == 0)
     {
-        int previous = self->previous;
-        if (previous != 9)
+        int previous_slot = self->previous_slot;
+        if (previous_slot != 9)
         {
-            u32 index = previous - 5;
-            next = previous + 4;
-            if (index <= 3)
-                next = previous;
+            u32 column_index = previous_slot - 5;
+            next_slot = previous_slot + 4;
+            if (column_index <= 3)
+                next_slot = previous_slot;
         }
     }
-    else if (self->current == 9)
+    else if (self->selected_slot == 9)
     {
-        int previous = self->previous;
-        if (previous != 0)
+        int previous_slot = self->previous_slot;
+        if (previous_slot != 0)
         {
-            u32 index = previous - 14;
-            next = previous + 4;
-            if (index <= 3)
-                next = previous;
+            u32 column_index = previous_slot - 14;
+            next_slot = previous_slot + 4;
+            if (column_index <= 3)
+                next_slot = previous_slot;
         }
     }
-    int current;
-    if (next <= 8)
+    int selected_slot;
+    if (next_slot <= 8)
     {
-        current = self->current;
-        if (next == 0 && self->owner->first->enabled == 0)
-            next = current + 4;
-        while (next > self->first_limit)
-            next = gUnk_0811788C[next][0];
+        selected_slot = self->selected_slot;
+        if (next_slot == 0 && self->owner->left_panel->enabled == 0)
+            next_slot = selected_slot + 4;
+        while (next_slot > self->left_last_slot)
+            next_slot = gUnk_0811788C[next_slot][0];
     }
     else
     {
-        current = self->current;
-        if (next == 9 && self->owner->second->enabled == 0)
-            next = current + 4;
-        while (next > self->second_limit)
-            next = gUnk_0811788C[next][0];
+        selected_slot = self->selected_slot;
+        if (next_slot == 9 && self->owner->right_panel->enabled == 0)
+            next_slot = selected_slot + 4;
+        while (next_slot > self->right_last_slot)
+            next_slot = gUnk_0811788C[next_slot][0];
     }
-    if (next != current)
+    if (next_slot != selected_slot)
     {
-        self->previous = current;
-        self->current = next;
+        self->previous_slot = selected_slot;
+        self->selected_slot = next_slot;
     }
-    return next;
+    return next_slot;
 }
 

@@ -1,46 +1,36 @@
-#include "prelude.h"
+#include "g5_memory.hh"
 
-struct HeapBlock
+EC void InitializeHeap(HeapBlock * heap, u32 size) // 0x080D01E0
 {
-    u32 size;
-    u32 used;
-    HeapBlock * prev;
-    HeapBlock * next;
-};
-
-EC HeapBlock * gUnk_03000418;
-
-EC void func_080D01E0(HeapBlock * heap, u32 size)
-{
-    gUnk_03000418 = heap;
-    heap->size = size - sizeof(HeapBlock);
-    heap->used = 0;
-    heap->prev = nullptr;
+    gHeapHead = heap;
+    heap->payload_size = size - sizeof(HeapBlock);
+    heap->allocated = 0;
+    heap->previous = nullptr;
     heap->next = nullptr;
 }
 
-EC void * malloc(u32 requested)
+EC void * malloc(u32 requested) // 0x080D01F8
 {
-    u32 size = (requested + 3) / 4 * 4;
-    HeapBlock * block = gUnk_03000418;
+    u32 payload_size = (requested + 3) / 4 * 4;
+    HeapBlock * block = gHeapHead;
     for (; block != nullptr; block = block->next)
     {
-        if (block->used == 0 && block->size >= size)
+        if (block->allocated == 0 && block->payload_size >= payload_size)
         {
-            if (block->size >= size + 32)
+            if (block->payload_size >= payload_size + 32)
             {
-                HeapBlock * next = (HeapBlock *) ((u8 *) block + size + sizeof(HeapBlock));
-                next->size = block->size - 16;
-                next->size -= size;
-                next->used = 0;
-                next->prev = block;
+                HeapBlock * next = (HeapBlock *) ((u8 *) block + payload_size + sizeof(HeapBlock));
+                next->payload_size = block->payload_size - 16;
+                next->payload_size -= payload_size;
+                next->allocated = 0;
+                next->previous = block;
                 next->next = block->next;
                 if (block->next != nullptr)
-                    block->next->prev = next;
-                block->size = size;
+                    block->next->previous = next;
+                block->payload_size = payload_size;
                 block->next = next;
             }
-            block->used = 1;
+            block->allocated = 1;
             break;
         }
     }
@@ -50,33 +40,33 @@ EC void * malloc(u32 requested)
         return nullptr;
 }
 
-EC void free(void * ptr)
+EC void free(void * ptr) // 0x080D0260
 {
     if (ptr != nullptr)
     {
         HeapBlock * block = (HeapBlock *) ptr - 1;
-        HeapBlock * prev = block->prev;
-        if (prev != nullptr && prev->used == 0)
+        HeapBlock * previous = block->previous;
+        if (previous != nullptr && previous->allocated == 0)
         {
-            prev->size += sizeof(HeapBlock) + block->size;
-            prev->next = block->next;
+            previous->payload_size += sizeof(HeapBlock) + block->payload_size;
+            previous->next = block->next;
             if (block->next != nullptr)
-                block->next->prev = prev;
-            block = prev;
+                block->next->previous = previous;
+            block = previous;
         }
         HeapBlock * next = block->next;
-        if (next != nullptr && next->used == 0)
+        if (next != nullptr && next->allocated == 0)
         {
-            block->size += sizeof(HeapBlock) + next->size;
+            block->payload_size += sizeof(HeapBlock) + next->payload_size;
             block->next = next->next;
             if (next->next != nullptr)
-                next->next->prev = block;
+                next->next->previous = block;
         }
-        block->used = 0;
+        block->allocated = 0;
     }
 }
 
-EC u32 func_080D02B8(void * ptr)
+EC u32 GetHeapAllocationSize(void * ptr) // 0x080D02B8
 {
-    return ptr != nullptr ? ((HeapBlock *) ptr - 1)->size : 0;
+    return ptr != nullptr ? ((HeapBlock *) ptr - 1)->payload_size : 0;
 }
