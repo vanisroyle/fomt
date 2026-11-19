@@ -8,6 +8,8 @@ import re
 import struct
 import sys
 
+import event_scripts as events
+
 
 COUNT = 1328
 BASE = 0x08000000
@@ -216,6 +218,13 @@ def rom_scripts(rom):
         yield i, start, data
 
 
+def event_string_count(metadata):
+    payloads = [c["payload"] for c in metadata["chunks"] if bytes.fromhex(c["tag"]) == b"STR "]
+    if len(payloads) != 1:
+        raise ValueError("event metadata requires exactly one STR chunk")
+    return len(strings(bytes.fromhex(payloads[0])))
+
+
 def extract(rom_path, assets, force=False):
     rom = rom_path.read_bytes()
     if hashlib.sha1(rom).hexdigest() != SHA1:
@@ -242,6 +251,13 @@ def extract(rom_path, assets, force=False):
             metadata["chunks"].append(item)
         write_missing(assets / "scripts" / (name + ".json"),
                       (json.dumps(metadata, indent=2) + "\n").encode(), force)
+        event_path = assets / "scripts" / (name + ".evt")
+        if force or not event_path.exists():
+            current = json.loads((assets / "scripts" / (name + ".json")).read_text(encoding="utf-8"))
+            string_count = event_string_count(current)
+            code = (assets / "scripts" / (name + ".code.bin")).read_bytes()
+            jump = (assets / "scripts" / (name + ".jump.bin")).read_bytes() if any(bytes.fromhex(c["tag"]) == b"JUMP" for c in current["chunks"]) else None
+            write_missing(event_path, events.disassemble(code, jump, string_count).encode("utf-8"), force)
 
 
 def build_script(assets, script_id, mapping):
@@ -250,16 +266,24 @@ def build_script(assets, script_id, mapping):
     metadata = json.loads(path.read_text(encoding="utf-8"))
     if metadata["version"] != 1 or metadata["id"] != script_id:
         raise ValueError(f"{path}: unsupported metadata version or script ID")
+    event_path = assets / "scripts" / (name + ".evt")
+    event = None
+    if event_path.exists():
+        string_count = event_string_count(metadata)
+        event = events.assemble(event_path.read_text(encoding="utf-8-sig"), string_count, str(event_path))
+        jump_count = sum(bytes.fromhex(c["tag"]) == b"JUMP" for c in metadata["chunks"])
+        if jump_count != int(event[1] is not None):
+            raise ValueError(f"{event_path}: .jump presence must match metadata's JUMP chunk")
     result = bytearray()
     for item in metadata["chunks"]:
         tag = bytes.fromhex(item["tag"])
         if len(tag) != 4:
             raise ValueError(f"{path}: chunk tag must be four bytes")
         if tag == b"CODE":
-            code = (assets / "scripts" / (name + ".code.bin")).read_bytes()
+            code = event[0] if event is not None else (assets / "scripts" / (name + ".code.bin")).read_bytes()
             payload = pack(len(code)) + code + bytes.fromhex(item["tail"])
         elif tag == b"JUMP":
-            payload = (assets / "scripts" / (name + ".jump.bin")).read_bytes()
+            payload = event[1] if event is not None else (assets / "scripts" / (name + ".jump.bin")).read_bytes()
         else:
             payload = bytes.fromhex(item["payload"])
             if tag == b"STR ":
