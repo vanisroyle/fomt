@@ -93,7 +93,15 @@ struct MessageWindowState
     MessageWindowInputFlags inputFlags;
 };
 struct MessageWindow { MessageWindowState * state; };
-struct MessageTextAdvanceGate;
+struct MessageTextAdvanceGate
+{
+    void * vtable;
+    u8 enabled;
+    u8 unknown_05[3];
+    bool ready;
+    u8 GetEnabled() const { return enabled; }
+    bool IsEnabled() const { return GetEnabled(); }
+};
 
 EC void __builtin_delete(void *);
 EC void FillMessageTiles(MessageTileSize, void *, u32);
@@ -684,4 +692,60 @@ EC SECTION(".text.message_window.08050CC0") MessageWindow * CreateMessageWindow(
     MessageWindowState * state = (MessageWindowState *) operator new(0x554);
     window->state = InitializeMessageWindowState(state, background, tiles, palette, style, graphics, font);
     return window;
+}
+
+EC SECTION(".text.message_rendering.0804E9C8") u32 DrawUnalignedMessageGlyph(MessageTileSize, void *, u32, u32, const void *)
+{
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804E9CC") u32 DrawUnalignedMessageGlyphWithColors(MessageTileSize, void *, u32, u32, const void *, u32, u32)
+{
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804F160") bool IsMessageTextAdvanceEnabled(MessageTextAdvanceGate * gate)
+{
+    return gate->IsEnabled();
+}
+
+EC SECTION(".text.message_rendering.0804F178") bool ShouldMessageTextAdvance(MessageTextAdvanceGate * gate)
+{
+    return gate->ready && gate->IsEnabled();
+}
+
+EC SECTION(".text.message_rendering.0804E9D0") void CopyMessageTiles(MessageTileSize size, void * destination, const void * source)
+{
+    CpuFastSet(source, destination, ((size.width * size.height * 32u) >> 2) & 0x1fffff);
+}
+
+EC SECTION(".text.message_rendering.0804ED7C") MessageNumberCommand * InitializeLargeMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
+{
+    command->state = 0;
+    command->unknown_04 = 0;
+    command->vtable = vtable_unk_080E7858;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804EDF8") MessageNumberCommand * InitializeTallMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
+{
+    command->state = 0;
+    command->unknown_04 = 0;
+    command->vtable = vtable_unk_080E7848;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804F058") void ResetMessageTextColumn(MessageTextCursor * cursor)
+{
+    cursor->column = 0;
 }

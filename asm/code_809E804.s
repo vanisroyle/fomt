@@ -15759,7 +15759,7 @@ func_080AE894: @ 0x080AE894
 	ldrb r0, [r0]
 	add r1, sp, #0x10
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, .L080AE9D4 @ =0x05000240
 	movs r3, #0xf8
 	lsls r3, r3, #2
@@ -19741,7 +19741,7 @@ func_080B0708: @ 0x080B0708
 	ldrb r0, [r5]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldrb r0, [r5]
 	cmp r0, #9
 	bhi .L080B0764
@@ -22063,7 +22063,7 @@ func_080B1B40: @ 0x080B1B40
 	ldrb r0, [r0]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r0, sp, #0x10
 	ldr r4, .L080B1C18 @ =gUnk_0810782C
 	adds r1, r4, #0
@@ -22988,7 +22988,7 @@ func_080B2114: @ 0x080B2114
 	movs r0, #0
 	ldr r1, [sp, #0x110]
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	movs r6, #0
 	mov sb, r6
 	ldr r7, [sp, #0x110]
@@ -24741,7 +24741,7 @@ func_080B2114: @ 0x080B2114
 	ldr r0, [r4]
 	ldr r1, [sp, #0x110]
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, [sp, #0xf8]
 	lsls r4, r1, #6
 	adds r0, r4, r1
@@ -25015,7 +25015,7 @@ func_080B2114: @ 0x080B2114
 	str r0, [r1]
 	ldr r1, [sp, #0x110]
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	mov r5, sb
 	lsls r4, r5, #6
 	adds r0, r4, r5
@@ -41988,7 +41988,7 @@ func_080BD064: @ 0x080BD064
 	ldrb r0, [r0]
 	add r1, sp, #0x10
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, .L080BD198 @ =0x05000240
 	movs r3, #0xf8
 	lsls r3, r3, #2
@@ -44986,7 +44986,7 @@ func_080BE728: @ 0x080BE728
 	ldrb r0, [r5]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldrb r0, [r5]
 	cmp r0, #9
 	bhi .L080BE786
@@ -46196,7 +46196,7 @@ func_080BF0EC: @ 0x080BF0EC
 	ldrb r0, [r0]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r0, sp, #0x10
 	ldr r4, .L080BF1CC @ =gUnk_08107F60
 	adds r1, r4, #0
@@ -47766,7 +47766,7 @@ func_080BF764: @ 0x080BF764
 	movs r0, #0
 	add r1, sp, #0x28
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r6, [sp, #0xc8]
 	lsls r4, r6, #6
 	adds r0, r4, r6
@@ -48686,7 +48686,7 @@ func_080BF764: @ 0x080BF764
 	ldr r0, [r4]
 	add r1, sp, #0x28
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, [sp, #0xdc]
 	lsls r4, r1, #6
 	adds r0, r4, r1
@@ -48959,7 +48959,7 @@ func_080BF764: @ 0x080BF764
 	str r0, [r1]
 	add r1, sp, #0x28
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r5, [sp, #0xc8]
 	lsls r4, r5, #6
 	adds r0, r4, r5
@@ -50977,7 +50977,7 @@ func_080C16D4: @ 0x080C16D4
 	ldrb r0, [r0]
 	add r1, sp, #0x10
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r1, .L080C1808 @ =0x05000240
 	movs r3, #0xf8
 	lsls r3, r3, #2
@@ -55449,7 +55449,7 @@ func_080C38E4: @ 0x080C38E4
 	ldrb r0, [r5]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldrb r0, [r5]
 	cmp r0, #9
 	bhi .L080C3942
@@ -58380,7 +58380,7 @@ func_080C516C: @ 0x080C516C
 	ldrb r0, [r0]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r0, sp, #0x10
 	ldr r5, .L080C5254 @ =gUnk_08108218
 	adds r1, r5, #0
@@ -60098,7 +60098,7 @@ func_080C5A6C: @ 0x080C5A6C
 	strb r0, [r1]
 	add r1, sp, #0xc
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	movs r4, #4
 	movs r5, #2
 	add r0, sp, #0x40
@@ -60890,7 +60890,7 @@ func_080C608C: @ 0x080C608C
 	movs r0, #0
 	add r1, sp, #0x30
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r6, [sp, #0xf4]
 	lsls r4, r6, #6
 	adds r0, r4, r6
@@ -62581,7 +62581,7 @@ func_080C608C: @ 0x080C608C
 	ldr r0, [r0]
 	add r1, sp, #0x30
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r6, [sp, #0x104]
 	lsls r4, r6, #6
 	adds r0, r4, r6
@@ -62855,7 +62855,7 @@ func_080C608C: @ 0x080C608C
 	str r0, [r1]
 	add r1, sp, #0x30
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r5, [sp, #0xf4]
 	lsls r4, r5, #6
 	adds r0, r4, r5
