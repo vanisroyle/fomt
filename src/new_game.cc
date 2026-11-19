@@ -12,16 +12,16 @@ extern char gNameEntrySceneTaskVtable[] __asm__("vtable_unk_080E5AB4");
 
 EC void * __builtin_new(size_t size);
 EC NewGameRenderTask * NameEntryScene_CreateTask(void * storage, void * promptText, u32 initialNameAddress) __asm__("func_08005A58");
-EC void NewGameScene_DestroyBase(void * self, int destructorFlags) __asm__("func_080007EC");
+EC void Scene_DestroyBase(void * self, int destructorFlags);
 EC NewGameRenderTask * NewGameMenu_CreateTask(void * storage, void * gameData, void * transitionOwner) __asm__("func_080041DC");
 EC NewGameRenderTask * NewGameChoiceDialog_CreateTask(void * storage, void * farmerName, void * packedBirthday, u32 farmNameAddress, u32 dogNameAddress) __asm__("func_08004EFC");
 EC void DestroyMessageWindow(void * self, int destructorFlags);
 EC void NewGameScene_DestroyRenderTaskBase(void * self, int destructorFlags) __asm__("func_080086BC");
-EC void * NewGameScene_GetRenderContext(void * self) __asm__("func_080088DC");
-EC void * NewGameScene_GetOamBuffer(void * self) __asm__("func_08008920");
-EC void * NewGameScene_GetDisplayRegisters(void * self) __asm__("func_08008918");
-EC void * NewGameScene_GetRenderJobQueue(void * self) __asm__("func_08008940");
-EC void * NewGameScene_GetFrameJobQueue(void * self) __asm__("func_0800894C");
+EC void * HardwareContext_GetState(void * self);
+EC void * HardwareContext_GetOamBuffer(void * self);
+EC void * HardwareContext_GetDisplayRegisters(void * self);
+EC void * HardwareContext_GetFrameTasks(void * self);
+EC void * HardwareContext_GetVBlankTasks(void * self);
 EC unsigned int UpdateMessageWindow(void * dialog, void * renderContext, void * oamBuffer, void * displayRegisters, void * renderJobs, void * frameJobs, void * textSound);
 EC int GetMessageWindowPhase(void * self);
 EC void OpenMessageWindow(void * self);
@@ -42,11 +42,11 @@ EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self)
         return;
     int previousPhase = GetMessageWindowPhase(self->dialog);
     void * dialog = self->dialog;
-    void * renderContext = NewGameScene_GetRenderContext(self);
-    void * oamBuffer = NewGameScene_GetOamBuffer(self);
-    void * displayRegisters = NewGameScene_GetDisplayRegisters(self);
-    void * renderJobs = NewGameScene_GetRenderJobQueue(self);
-    void * frameJobs = NewGameScene_GetFrameJobQueue(self);
+    void * renderContext = HardwareContext_GetState(self);
+    void * oamBuffer = HardwareContext_GetOamBuffer(self);
+    void * displayRegisters = HardwareContext_GetDisplayRegisters(self);
+    void * renderJobs = HardwareContext_GetFrameTasks(self);
+    void * frameJobs = HardwareContext_GetVBlankTasks(self);
     void * textSound = &self->textSound;
     switch (UpdateMessageWindow(dialog, renderContext, oamBuffer, displayRegisters, renderJobs, frameJobs, textSound))
     {
@@ -98,11 +98,11 @@ EC void NewGameChoiceDialog_Update(NewGameChoiceDialogTask * self)
 {
     int previousPhase = GetMessageWindowPhase(self->dialog);
     void * dialog = self->dialog;
-    void * renderContext = NewGameScene_GetRenderContext(self);
-    void * oamBuffer = NewGameScene_GetOamBuffer(self);
-    void * displayRegisters = NewGameScene_GetDisplayRegisters(self);
-    void * renderJobs = NewGameScene_GetRenderJobQueue(self);
-    void * frameJobs = NewGameScene_GetFrameJobQueue(self);
+    void * renderContext = HardwareContext_GetState(self);
+    void * oamBuffer = HardwareContext_GetOamBuffer(self);
+    void * displayRegisters = HardwareContext_GetDisplayRegisters(self);
+    void * renderJobs = HardwareContext_GetFrameTasks(self);
+    void * frameJobs = HardwareContext_GetVBlankTasks(self);
     void * textSound = &self->textSound;
     switch (UpdateMessageWindow(dialog, renderContext, oamBuffer, displayRegisters, renderJobs, frameJobs, textSound))
     {
@@ -184,7 +184,7 @@ EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self)
 {
     if (self->confirmationMode == 0)
     {
-        NewGameOamSpriteBuffer * oamBuffer = static_cast<NewGameOamSpriteBuffer *>(NewGameScene_GetOamBuffer(self));
+        NewGameOamSpriteBuffer * oamBuffer = static_cast<NewGameOamSpriteBuffer *>(HardwareContext_GetOamBuffer(self));
         u32 const & positionAndShape = self->cursorPositionAndShape;
         unsigned int spriteIndex = oamBuffer->spriteCount;
         if (spriteIndex < 128)
@@ -195,7 +195,7 @@ EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self)
             oamBuffer->spriteCount = spriteIndex + 1;
         }
     }
-    NewGameOamSpriteBuffer * oamBuffer = static_cast<NewGameOamSpriteBuffer *>(NewGameScene_GetOamBuffer(self));
+    NewGameOamSpriteBuffer * oamBuffer = static_cast<NewGameOamSpriteBuffer *>(HardwareContext_GetOamBuffer(self));
     u32 const & positionAndShape = self->caretPositionAndShape;
     unsigned int spriteIndex = oamBuffer->spriteCount;
     if (spriteIndex < 128)
@@ -210,11 +210,11 @@ EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self)
 EC void NewGameMenu_UpdateMessage(char * self) SECTION(".text.func_08003C28");
 EC void NewGameMenu_UpdateMessage(char * self)
 {
-    void * renderContext = NewGameScene_GetRenderContext(self);
-    void * oamBuffer = NewGameScene_GetOamBuffer(self);
-    void * displayRegisters = NewGameScene_GetDisplayRegisters(self);
-    void * renderJobs = NewGameScene_GetRenderJobQueue(self);
-    void * frameJobs = NewGameScene_GetFrameJobQueue(self);
+    void * renderContext = HardwareContext_GetState(self);
+    void * oamBuffer = HardwareContext_GetOamBuffer(self);
+    void * displayRegisters = HardwareContext_GetDisplayRegisters(self);
+    void * renderJobs = HardwareContext_GetFrameTasks(self);
+    void * frameJobs = HardwareContext_GetVBlankTasks(self);
     void * dialog = self + 0x10;
     void * textSound = self + 0x14;
     UpdateMessageWindow(dialog, renderContext, oamBuffer, displayRegisters, renderJobs, frameJobs, textSound);
@@ -300,7 +300,7 @@ EC void NewGameMenuScene_Destroy(NewGameSceneTaskOwner * self, int destructorFla
 {
     self->vtable = gNewGameMenuSceneVtable;
     delete self->task;
-    NewGameScene_DestroyBase(self, destructorFlags);
+    Scene_DestroyBase(self, destructorFlags);
 }
 
 EC void * NewGameSetupScene_Initialize(void ** self) SECTION(".text.func_08004C48");
@@ -314,7 +314,7 @@ EC void NewGameSetupScene_Destroy(void ** self, int destructorFlags) SECTION(".t
 EC void NewGameSetupScene_Destroy(void ** self, int destructorFlags)
 {
     *self = gNewGameSetupSceneVtable;
-    NewGameScene_DestroyBase(self, destructorFlags);
+    Scene_DestroyBase(self, destructorFlags);
 }
 
 EC void NewGameChoiceDialogScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags) SECTION(".text.func_080059D0");
@@ -322,7 +322,7 @@ EC void NewGameChoiceDialogScene_Destroy(NewGameSceneTaskOwner * self, int destr
 {
     self->vtable = gNewGameChoiceDialogSceneVtable;
     delete self->task;
-    NewGameScene_DestroyBase(self, destructorFlags);
+    Scene_DestroyBase(self, destructorFlags);
 }
 
 EC NewGameSceneTaskOwner * NameEntryScene_Initialize(NewGameSceneTaskOwner * self, void * promptText, u32 initialNameAddress) SECTION(".text.func_08007078");
@@ -338,7 +338,7 @@ EC void NameEntryScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags
 {
     self->vtable = gNameEntrySceneVtable;
     delete self->task;
-    NewGameScene_DestroyBase(self, destructorFlags);
+    Scene_DestroyBase(self, destructorFlags);
 }
 
 EC void NewGameScene_BlankDisplay(void * self) __asm__("func_08008724");
