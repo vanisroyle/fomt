@@ -578,19 +578,36 @@ EC UnknownEntityThing * CreateScheduledNpcVariantSixSprite(AActorEntity * self)
     return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }
 
-EC void func_08036AB4(AActorEntity * self);
+EC void RefreshNpcVariantSevenAnimations(NpcAnimationSlots * self);
 EC void RefreshScheduledNpcVariantSeven(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036B00);
 EC void RefreshScheduledNpcVariantSeven(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        func_08036AB4(self);
+        RefreshNpcVariantSevenAnimations(static_cast<NpcAnimationSlots *>(self));
 }
 
 EC UnknownEntityThing * CreateScheduledNpcVariantSevenSprite(AActorEntity * self) NPC_EXTRA_CODE(08036B1C);
 EC UnknownEntityThing * CreateScheduledNpcVariantSevenSprite(AActorEntity * self)
 {
-    func_08036AB4(self);
+    RefreshNpcVariantSevenAnimations(static_cast<NpcAnimationSlots *>(self));
     struct Storage { u8 bytes[0x8C]; };
     return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
+}
+
+EC void RefreshNpcVariantSevenAnimations(NpcAnimationSlots * self) NPC_EXTRA_CODE(08036AB4);
+EC void RefreshNpcVariantSevenAnimations(NpcAnimationSlots * self)
+{
+    u32 walking_animation = 0x9D3;
+    u32 idle_animation = 0x9D7;
+    u16 map = self->location_map;
+    switch (map)
+    {
+    case 7: case 17: case 29: case 37:
+        walking_animation = 0x9DF;
+        idle_animation = 0x9E3;
+        break;
+    }
+    SetNpcWalkingAnimation(self, walking_animation);
+    SetNpcIdleAnimation(self, idle_animation);
 }
