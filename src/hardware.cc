@@ -309,8 +309,44 @@ EC SECTION(".text.ResourcePool_Acquire") ResourceHandleValue * ResourcePool_Acqu
 
 struct AllocationBitset
 {
+    bool IsFull() const { return bits + 1u == 0; }
+    bool IsEmpty() const { return bits == 0; }
     u32 bits;
 };
+
+// 0x080077DC
+EC u32 SECTION(".text.AllocationBitset_AllocateBlock") AllocationBitset_AllocateBlock(AllocationBitset * self, u32 order)
+{
+    u32 occupied_bits;
+    if (!self->IsFull())
+    {
+        if (self->IsEmpty())
+        {
+            self->bits |= (1u << (1u << order)) - 1;
+            return 0;
+        }
+        if (order <= 4)
+        {
+            u32 bits = self->bits;
+            u32 width = 1u << order;
+            u32 index = 0;
+            u32 mask = (1u << width) - 1;
+            occupied_bits = bits;
+            do
+            {
+                if ((occupied_bits & mask) == 0)
+                {
+                    self->bits |= mask;
+                    return index;
+                }
+                index += width;
+                mask <<= width;
+            }
+            while (mask != 0);
+        }
+    }
+    return 32;
+}
 
 // 0x08007844
 EC void SECTION(".text.AllocationBitset_FreeBlock") AllocationBitset_FreeBlock(AllocationBitset * self, u32 index, u32 order)

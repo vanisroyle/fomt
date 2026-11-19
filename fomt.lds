@@ -160,6 +160,8 @@ SECTIONS
         asm/hardware.o(.text.after_08007714);
         src/hardware.o(.text.ResourcePool_Acquire);
         asm/hardware.o(.text.after_08007770);
+        src/hardware.o(.text.AllocationBitset_AllocateBlock);
+        asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
         src/hardware.o(.text.TileHeapOwner_Destroy);

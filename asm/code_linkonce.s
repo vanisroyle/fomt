@@ -7161,7 +7161,7 @@ func_080D73E4: @ 0x080D73E4
 	bne .L080D7450
 	adds r0, r4, #0
 	adds r1, r7, #0
-	bl func_080077DC
+	bl AllocationBitset_AllocateBlock
 	adds r2, r0, #0
 	movs r0, #0
 	cmp r2, #0x1f

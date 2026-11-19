@@ -100,68 +100,7 @@ func_0800736C: @ 0x0800736C
     .section .text.after_0800770C, "ax"
     .section .text.after_08007714, "ax"
     .section .text.after_08007770, "ax"
-    thumb_func_start func_080077DC
-func_080077DC: @ 0x080077DC
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    movs r1, #0
-    ldr r3, [r5]
-    adds r0, r3, #1
-    cmp r0, #0
-    bne .L080077EE
-    movs r1, #1
-.L080077EE:
-    cmp r1, #0
-    bne .L0800783A
-    movs r0, #0
-    cmp r3, #0
-    bne .L080077FA
-    movs r0, #1
-.L080077FA:
-    cmp r0, #0
-    beq .L0800781A
-    movs r0, #1
-    adds r1, r0, #0
-    lsls r1, r4
-    lsls r0, r1
-    subs r0, #1
-    orrs r3, r0
-    str r3, [r5]
-    movs r0, #0
-    b .L0800783C
-.L08007810:
-    ldr r0, [r5]
-    orrs r0, r1
-    str r0, [r5]
-    adds r0, r4, #0
-    b .L0800783C
-.L0800781A:
-    cmp r4, #4
-    bhi .L0800783A
-    movs r0, #1
-    adds r2, r0, #0
-    lsls r2, r4
-    movs r4, #0
-    lsls r0, r2
-    subs r1, r0, #1
-.L0800782A:
-    adds r0, r3, #0
-    ands r0, r1
-    cmp r0, #0
-    beq .L08007810
-    adds r4, r4, r2
-    lsls r1, r2
-    cmp r1, #0
-    bne .L0800782A
-.L0800783A:
-    movs r0, #0x20
-.L0800783C:
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
+    .section .text.after_080077DC, "ax"
     .section .text.after_08007844, "ax"
     thumb_func_start func_08007874
 func_08007874: @ 0x08007874
