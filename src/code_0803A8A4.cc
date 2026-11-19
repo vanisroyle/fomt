@@ -1,9 +1,15 @@
 #include "prelude.h"
 
 #include "bachelorette.hh"
+#include "clock_display.hh"
+#include "dog.hh"
+#include "farm.hh"
 #include "farm_house.hh"
+#include "farmer.hh"
 #include "fixed_sprite_overlay.hh"
 #include "gbasvc.h"
+#include "map_overlay.hh"
+#include "message_script.hh"
 #include "npc.hh"
 #include "schedule_info.hh"
 #include "sprite_animation.hh"
@@ -141,55 +147,6 @@ ROM_TEXT(0803A8A4) u32 GetMapGraphicsVariantId(u32 mapId, u32 season, u32 houseL
     return 0;
 }
 
-struct MapOverlayScene;
-
-struct MapOverlaySceneVtable
-{
-    STRUCT_PAD(0x00, 0x18);
-    int (*getCameraX)(MapOverlayScene *);
-    int (*getCameraY)(MapOverlayScene *);
-    STRUCT_PAD(0x20, 0x4C);
-    void (*releasePalette)(MapOverlayScene *, unsigned);
-};
-
-struct MapOverlayScene
-{
-    MapOverlaySceneVtable const * vtable;
-};
-
-struct MapOverlayParticle
-{
-    SpriteAnimator animation;
-    u32 xQ16;
-    u32 yQ16;
-};
-
-struct GameStateMapOverlay
-{
-    struct Frame
-    {
-        STRUCT_PAD(0x00, 0x20);
-        OverlayTileAllocation tiles;
-    };
-
-    MapOverlayScene * scene;
-    struct FrameList
-    {
-        unsigned count;
-        Frame entries[5];
-    } frames;
-    OverlayPaletteTable palettes;
-    u8 kind;
-    u8 unk_E5;
-    u8 drawHalf;
-    STRUCT_PAD(0xE7, 0xE8);
-    struct ParticleList
-    {
-        unsigned count;
-        MapOverlayParticle entries[32];
-    } particles;
-};
-
 struct MapOverlayParticleMotion
 {
     i32 dxQ16;
@@ -326,26 +283,199 @@ ROM_TEXT(0803B454) void ResetMapOverlayParticle(MapOverlayParticle & particle, i
     particle.animation.speed_q8 = variation + 0x60;
 }
 
-struct Unk_0803B4B0
+struct GameScriptTextVariables
 {
     void const * vtable;
-    void * unk_04;
+    u8 * saveData;
     char labels[4][24];
 };
 
-EC char const vtable_unk_080E76E8[];
+EC char const gGameScriptTextVariablesVTable[];
+EC char const gGoldenLumberNickname[];
+EC char const gMissingHorseName[];
+EC char const gMissingChildName[];
+EC u8 * GetActiveRosterNpc(u8 *);
+EC char * GetNamedNpcName(u8 *);
 
-ROM_TEXT(0803B454) Unk_0803B4B0 & func_0803B4B0(Unk_0803B4B0 & self, void * unk)
+ROM_TEXT(0803B454) GameScriptTextVariables & InitializeGameScriptTextVariables(GameScriptTextVariables & self, u8 * saveData)
 {
-    self.vtable = vtable_unk_080E76E8;
-    self.unk_04 = unk;
+    self.vtable = gGameScriptTextVariablesVTable;
+    self.saveData = saveData;
     char (* label)[24] = self.labels;
     for (int remaining = ARRAY_COUNT(self.labels) - 1; remaining != -1; ++label, --remaining)
         (*label)[0] = '\0';
     return self;
 }
 
-ROM_TEXT(0803B6B8) void func_0803B6B8(Unk_0803B4B0 & self, unsigned index, char const * label)
+ROM_TEXT(0803B4DC) MessageScriptReplacement & ResolveGameScriptTextVariable(
+    MessageScriptReplacement & output, GameScriptTextVariables const & lookup, u32 placeholder)
+{
+    enum
+    {
+        PLAYER_NAME = 0xFF21,
+        HORSE_NAME = 0xFF22,
+        DOG_NAME = 0xFF23,
+        FARM_NAME = 0xFF24,
+        FIRST_SCRIPT_LABEL = 0xFF25,
+        SECOND_SCRIPT_LABEL = 0xFF26,
+        THIRD_SCRIPT_LABEL = 0xFF27,
+        FOURTH_SCRIPT_LABEL = 0xFF28,
+        PLAYER_DIALOGUE_ALIAS = 0xFF29,
+        CHILD_NAME = 0xFF2A,
+        FIRST_SAVED_LABEL = 0xFF2B,
+        SECOND_SAVED_LABEL = 0xFF2C,
+        THIRD_SAVED_LABEL = 0xFF2D,
+    };
+    enum
+    {
+        FARM_OFFSET = 0x14,
+        FARMER_OFFSET = 0x1BD8,
+        DOG_OFFSET = 0x1C70,
+        NPC_ROSTER_OFFSET = 0x1CD4,
+        DIALOGUE_FLAGS_OFFSET = 0x21C8,
+        GOLDEN_LUMBER_NICKNAME_BIT = 2,
+        FIRST_SAVED_LABEL_OFFSET = 0x21E0,
+        SECOND_SAVED_LABEL_OFFSET = 0x21F0,
+        THIRD_SAVED_LABEL_OFFSET = 0x2200,
+    };
+
+    // Keep the shared copy paths in the original Thumb register layout.
+    register MessageScriptReplacement * result asm("r6") = &output;
+    asm("" : "+l"(result));
+    register GameScriptTextVariables const * variables asm("r5") = &lookup;
+    asm("" : "+l"(variables));
+    char text[sizeof(output.text)];
+    register char const * source asm("r5");
+    register size_t length asm("r4");
+    char * terminator;
+    register u8 const * saveData asm("r0");
+    register unsigned offset asm("r1");
+    register char const * name asm("r0");
+    switch (placeholder)
+    {
+    case PLAYER_NAME:
+    {
+        Farm const & farm = *reinterpret_cast<Farm const *>(variables->saveData + FARM_OFFSET);
+        if (farm.HasGoldenLumberOnField()
+            && static_cast<i32>(static_cast<u32>(variables->saveData[DIALOGUE_FLAGS_OFFSET])
+                << (31 - GOLDEN_LUMBER_NICKNAME_BIT)) < 0)
+        {
+            source = gGoldenLumberNickname;
+            goto copyName;
+        }
+        name = GetFarmerName(*reinterpret_cast<Farmer const *>(variables->saveData + FARMER_OFFSET));
+        source = name;
+        asm("" : "+l"(source), "+l"(name));
+        goto returnedName;
+    }
+    case HORSE_NAME:
+    {
+        Horse const * horse = reinterpret_cast<Farm const *>(variables->saveData + FARM_OFFSET)->GetHorse();
+        char * horseNameBuffer = text;
+        source = horse ? horse->GetName() : gMissingHorseName;
+        length = strlen(source);
+        if (length > sizeof(text) - 1)
+            length = sizeof(text) - 1;
+        memcpy(horseNameBuffer, source, length);
+        terminator = horseNameBuffer + length;
+        goto terminate;
+    }
+    case DOG_NAME:
+        name = reinterpret_cast<Dog const *>(variables->saveData + DOG_OFFSET)->GetName();
+        source = name;
+        asm("" : "+l"(source), "+l"(name));
+        goto returnedName;
+    case PLAYER_DIALOGUE_ALIAS:
+        name = GetFarmerDialogueAlias(*reinterpret_cast<Farmer const *>(variables->saveData + FARMER_OFFSET));
+        source = name;
+        asm("" : "+l"(source), "+l"(name));
+        goto returnedName;
+    case CHILD_NAME:
+    {
+        u8 * child = GetActiveRosterNpc(variables->saveData + NPC_ROSTER_OFFSET);
+        asm("" : "+l"(child));
+        if (child)
+        {
+            name = GetNamedNpcName(GetActiveRosterNpc(variables->saveData + NPC_ROSTER_OFFSET));
+            source = name;
+            asm("" : "+l"(source), "+l"(name));
+            goto returnedName;
+        }
+        source = gMissingChildName;
+        length = strlen(source);
+        if (length > sizeof(text) - 1)
+            length = sizeof(text) - 1;
+        memcpy(text, source, length);
+        register char * buffer asm("r1") = text;
+        asm volatile("" : : "l"(buffer) : "memory");
+        register char * end asm("r0") = buffer + length;
+        asm("" : "+l"(end));
+        *end = static_cast<char>(reinterpret_cast<uintptr_t>(child)); // Reuse the null child pointer for the terminator.
+        result->found = 1;
+        strcpy(result->text, buffer);
+        break;
+    }
+    case FARM_NAME:
+        name = reinterpret_cast<Farm const *>(variables->saveData + FARM_OFFSET)->GetName();
+        source = name;
+        asm("" : "+l"(source), "+l"(name));
+        goto returnedName;
+    case FIRST_SCRIPT_LABEL:
+    case SECOND_SCRIPT_LABEL:
+    case THIRD_SCRIPT_LABEL:
+    case FOURTH_SCRIPT_LABEL:
+    {
+        register unsigned found asm("r4") = 1;
+        asm("" : "+l"(found));
+        register unsigned relativeOffset asm("r1") = placeholder * sizeof(variables->labels[0]);
+        asm("" : "+l"(relativeOffset));
+        unsigned labelBias = offsetof(GameScriptTextVariables, labels) - FIRST_SCRIPT_LABEL * sizeof(variables->labels[0]);
+        strcpy(text, reinterpret_cast<char const *>(relativeOffset + reinterpret_cast<uintptr_t>(variables) + labelBias));
+        result->found = found;
+        goto copyToOutput;
+    }
+    case FIRST_SAVED_LABEL:
+        saveData = variables->saveData;
+        offset = FIRST_SAVED_LABEL_OFFSET;
+        asm("" : "+l"(saveData), "+l"(offset));
+        goto savedLabel;
+    case SECOND_SAVED_LABEL:
+        saveData = variables->saveData;
+        offset = SECOND_SAVED_LABEL_OFFSET;
+        asm("" : "+l"(saveData), "+l"(offset));
+        goto savedLabel;
+    case THIRD_SAVED_LABEL:
+        saveData = variables->saveData;
+        offset = THIRD_SAVED_LABEL_OFFSET;
+        asm("" : "+l"(saveData), "+l"(offset));
+    savedLabel:
+        source = reinterpret_cast<char const *>(saveData + offset);
+        asm("" : "+l"(source));
+    copyName:
+        name = source;
+        asm("" : "+l"(name) : "l"(source));
+    returnedName:
+        length = strlen(name);
+        if (length > sizeof(text) - 1)
+            length = sizeof(text) - 1;
+        memcpy(text, source, length);
+        terminator = text + length;
+    terminate:
+        *terminator = '\0';
+        result->found = 1;
+    copyToOutput:
+        strcpy(result->text, text);
+        break;
+    default:
+        text[0] = '\0';
+        result->found = 0;
+        strcpy(result->text, text);
+        break;
+    }
+    return *result;
+}
+
+ROM_TEXT(0803B6B8) void SetGameScriptTextVariable(GameScriptTextVariables & self, unsigned index, char const * label)
 {
     char buf[24];
     size_t length = strlen(label);
@@ -355,26 +485,7 @@ ROM_TEXT(0803B6B8) void func_0803B6B8(Unk_0803B4B0 & self, unsigned index, char 
     buf[length] = '\0';
     unsigned offset = index * sizeof(self.labels[0]);
     char * record = reinterpret_cast<char *>(offset + reinterpret_cast<uintptr_t>(&self));
-    strcpy(record + offsetof(Unk_0803B4B0, labels), buf);
-}
-
-struct Unk_0803B6FC
-{
-    void const * vtable;
-    void * unk_04;
-    void * unk_08;
-};
-
-EC char const vtable_unk_080E7748[];
-
-ROM_TEXT(0803B6B8) Unk_0803B6FC & func_0803B6FC(Unk_0803B6FC & self, void *& owned, void * arg)
-{
-    self.vtable = vtable_unk_080E7748;
-    void * taken = owned;
-    owned = nullptr;
-    self.unk_04 = taken;
-    self.unk_08 = arg;
-    return self;
+    strcpy(record + offsetof(GameScriptTextVariables, labels), buf);
 }
 
 struct DialogWindowTilemapTask
@@ -641,45 +752,6 @@ ROM_TEXT(0803C518) void DisablePauseMenuSelection(PauseMenuWindow & self)
     self.selectionEnabled = false;
 }
 
-struct ClockDisplayData
-{
-    STRUCT_PAD(0x000, 0x084);
-    u8 seasonFirstTiles[0x20];
-    u8 seasonSecondTiles[0x20];
-    u8 dayTensTiles[0x20];
-    u8 dayOnesTiles[0x20];
-    u8 meridiemTiles[0x20];
-    STRUCT_PAD(0x124, 0x144);
-    u8 hourTensTiles[0x20];
-    u8 hourOnesTiles[0x20];
-    STRUCT_PAD(0x184, 0x18C);
-    u8 dateTilesDirty;
-    STRUCT_PAD(0x18D, 0x1A8);
-    u8 weekdayFirstTiles[0x20];
-    u8 weekdaySecondTiles[0x20];
-    u8 weekdayThirdTiles[0x20];
-    STRUCT_PAD(0x208, 0x228);
-    u8 colonTiles[0x20];
-    u8 minuteTensTiles[0x20];
-    u8 minuteOnesTiles[0x20];
-    STRUCT_PAD(0x288, 0x2B0);
-    u8 tilesDirty;
-    STRUCT_PAD(0x2B1, 0x2CC);
-    u8 weatherIcon;
-    STRUCT_PAD(0x2CD, 0x2F0);
-    u8 weatherIconDirty;
-    u8 toolIconVisible;
-    u16 toolIconId;
-    STRUCT_PAD(0x2F4, 0x334);
-    u8 toolIconDirty;
-};
-
-struct ClockDisplay
-{
-    ClockDisplayData * inner;
-};
-
-EC u8 const gClockFont[][0x20];
 
 ROM_TEXT(0803D080) void SetClockSeasonTiles(ClockDisplay & self, Season season)
 {
@@ -893,9 +965,8 @@ ROM_TEXT(0803D2E8) void HideClockToolIcon(ClockDisplay & self)
 struct SavedCalendarDate;
 EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, bool colonVisible);
 
-struct ClockHud
+struct ClockHud : DialogWindow
 {
-    STRUCT_PAD(0x00, 0x08);
     ClockDisplay display;
 };
 
@@ -1408,7 +1479,6 @@ enum { KAREN_NPC_ID = 19 };
 
 struct G1NpcRoster;
 
-EC u8 * GetActiveRosterNpc(u8 *);
 EC Bachelorette * GetRosterBacheloretteById(G1NpcRoster *, u32);
 
 ROM_TEXT(0803DFE8) unsigned SelectKarenSchedule(NpcScheduleContext const & self)
@@ -2453,42 +2523,26 @@ EC int UpdatePauseMenuWindow(PauseMenuWindow &, ControllerInput const &, OamBuff
     BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *, AudioPlayer *);
 EC void func_0803BE50(DialogWindow &, int);
 EC void func_080E0C38(PauseMenuGraphics *, int);
-EC void func_080E0D70(void *, int);
 EC char const gPauseMenuWindowVtable[];
-EC char const vtable_unk_080E77E0[];
+EC char const gClockHudVTable[];
 
-struct Unk_0803C7A0
-{
-    void * inner;
-};
-
-EC void func_0803C7A0(Unk_0803C7A0 &, int);
-EC void func_0803C5B0(Unk_0803C7A0 &);
-
-struct DialogChoiceWindow : DialogWindow
-{
-    Unk_0803C7A0 menu;
-};
-
-struct DialogChoiceWindowVtable
+struct ClockHudVTable
 {
     STRUCT_PAD(0, 0x1C);
-    int (* getX)(DialogChoiceWindow &);
-    int (* getY)(DialogChoiceWindow &);
+    int (* getX)(ClockHud &);
+    int (* getY)(ClockHud &);
 };
 
-EC void DrawDialogChoices(Unk_0803C7A0 &, int x, int y, OamBuffer *, DialogLayerRenderer *);
-
-ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBuffer * oam,
+ROM_TEXT(0803D4D8) int UpdateClockHud(ClockHud & self, OamBuffer * oam,
     BackgroundVideoState * video, DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
 {
     // Preserve the original register allocation for the window state.
     register int state asm("r6") = UpdateDialogWindow(self, video, layerRenderer, tileTransfers);
     if (state == DIALOG_WINDOW_OPEN)
     {
-        int x = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getX(self);
-        int y = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getY(self);
-        DrawDialogChoices(self.menu, x, y, oam, layerRenderer);
+        int x = static_cast<ClockHudVTable const *>(self.vtable)->getX(self);
+        int y = static_cast<ClockHudVTable const *>(self.vtable)->getY(self);
+        DrawClockDisplay(self.display, x, y, oam, layerRenderer);
     }
     return state;
 }
@@ -2531,27 +2585,17 @@ ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, Co
     return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, audio);
 }
 
-ROM_TEXT(0803C518) DialogChoiceWindow & func_0803C54C(DialogChoiceWindow & self, int arg1, int arg2, int arg3, int arg4)
+ROM_TEXT(0803C518) ClockHud & InitializeClockHud(ClockHud & self, int background, int screenBlock, int paletteBank, int layerMode)
 {
-    func_0803BDFC(self, 128, 136, 112, 24, arg1, arg2, arg3, arg4);
-    self.vtable = vtable_unk_080E77E0;
-    func_0803C5B0(self.menu);
+    func_0803BDFC(self, 128, 136, 112, 24, background, screenBlock, paletteBank, layerMode);
+    self.vtable = gClockHudVTable;
+    InitializeClockDisplay(self.display);
     return self;
 }
 
-ROM_TEXT(0803C518) void func_0803C588(DialogChoiceWindow & self, int flags)
+ROM_TEXT(0803C518) void DestroyClockHud(ClockHud & self, int flags)
 {
-    self.vtable = vtable_unk_080E77E0;
-    func_0803C7A0(self.menu, 2);
+    self.vtable = gClockHudVTable;
+    DestroyClockDisplay(self.display, 2);
     func_0803BE50(self, flags);
-}
-
-ROM_TEXT(0803C7A0) void func_0803C7A0(Unk_0803C7A0 & self, int flags)
-{
-    void * inner = self.inner;
-    if (inner != 0)
-        func_080E0D70(inner, 3);
-    flags &= 1;
-    if (flags != 0)
-        ::operator delete(&self);
 }

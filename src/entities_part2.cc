@@ -54,11 +54,11 @@ struct FarmerEffectGraphics : FarmerIconGraphics
     u8 next_step_effect;
 };
 
-EC void func_0803260C(FarmerIconGraphics * graphics);
+EC void UpdateSideActorAnimationLayers(FarmerIconGraphics * graphics);
 EC void TickFarmerEffectGraphics(FarmerEffectGraphics * graphics) ENTITY_CODE(0802B3B4);
 EC void TickFarmerEffectGraphics(FarmerEffectGraphics * graphics)
 {
-    func_0803260C(graphics);
+    UpdateSideActorAnimationLayers(graphics);
     FarmerEntity * farmer = *reinterpret_cast<FarmerEntity **>(graphics);
     register u8 base_frame_changed asm("r3") = graphics->unk_44;
     register u16 * icon asm("r2") = &farmer->icon;
@@ -1437,7 +1437,7 @@ EC void BeginItemDisplayStateTwo(ItemDisplayEntity * display)
 EC void TickItemDisplayIcon(FarmerIconGraphics * graphics) ENTITY_CODE(0802BFA0);
 EC void TickItemDisplayIcon(FarmerIconGraphics * graphics)
 {
-    func_0803260C(graphics);
+    UpdateSideActorAnimationLayers(graphics);
     ItemDisplayEntity * display = *reinterpret_cast<ItemDisplayEntity **>(graphics);
     if (display->HasThrownItem())
     {
