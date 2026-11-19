@@ -36,17 +36,22 @@ struct GameStateMapData
 
 struct GameStateMapOwner;
 struct GameStateMapOverlay;
+struct GameStatePackedSpriteArchive;
 
-struct GameStateMapInteraction
+struct GameStateMapInteractionBase
 {
-    struct Vtable
-    {
-        STRUCT_PAD(0x0, 0x8);
-        void (*destroy)(GameStateMapInteraction * interaction, u32 flags);
-    };
+    virtual ~GameStateMapInteractionBase();
 
     STRUCT_PAD(0x0, 0x24);
-    Vtable const * vtable;
+};
+
+struct GameStateMapInteraction : GameStateMapInteractionBase
+{
+    SpriteAnimator animator;
+    bool playing;
+    bool start;
+    bool ended;
+    bool restart;
 };
 
 struct GameStateFarmPlot
@@ -80,7 +85,9 @@ struct GameStateEntitySlotVtable
     STRUCT_PAD(0x0, 0x40);
     AEntity * (*get_entity)(GameStateMapOwner & game, u32 slot);
     AEntity const * (*get_const_entity)(GameStateMapOwner const & game, u32 slot);
-    STRUCT_PAD(0x48, 0x140);
+    STRUCT_PAD(0x48, 0x5C);
+    GameStatePackedSpriteArchive const * (*get_interaction_archive)(GameStateMapOwner const & game);
+    STRUCT_PAD(0x60, 0x140);
     void (*queue_event)(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue);
 };
 
@@ -120,7 +127,7 @@ struct GameStateMapOwner
     bool entities_enabled;
     STRUCT_PAD(0x103D, 0x1054);
     GameStateScript * script;
-    GameStateMapInteraction * interaction;
+    SmartPtr<GameStateMapInteraction> interaction;
     STRUCT_PAD(0x105C, 0x107C);
     GameStateMapOverlay * map_overlay;
     STRUCT_PAD(0x1080, 0x10C8);
@@ -137,6 +144,8 @@ EC void func_080A61F0(GameStateMapView & view);
 EC void func_080A6234(GameStateMapView & view);
 EC void func_080A6278(GameStateMapView & view);
 EC void func_080A62BC(GameStateMapView & view);
+EC void func_080A6300(GameStateMapView & view);
+EC void func_080A635C(GameStateMapView & view);
 EC void func_080A607C(GameStateMapView & view, u32 index);
 EC void func_080A6024(GameStateMapView & view, u32 index);
 EC void func_080A601C(GameStateMapView & view);
@@ -159,6 +168,11 @@ EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & eve
 EC void func_0801F3E4(GameStateMapOwner & game);
 EC bool func_0801140C(GameStateMapData & state);
 EC bool func_0801C0F8(GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result);
+EC void func_0801DB58(GameStateMapOwner & game);
+EC void func_0805E860(SpriteAnimator & animator, u32 animation);
+EC GameStateMapInteraction * func_080A4A00(GameStateMapInteraction * interaction,
+    GameStatePackedSpriteArchive const * archive, u32 animation, GameStateMapOwner & game,
+    u32 layer, u32 kind, bool start);
 
 EC SECTION(".text.game_state_c2.08019F38") bool GameStateIsWinterOrSpecialOutdoorTile(GameStateMapOwner const & game, Location const & location)
 {
@@ -276,11 +290,26 @@ EC SECTION(".text.game_state_c2.0801DB44") GameStateAudioList * GameStateGetAudi
 
 EC SECTION(".text.game_state_c2.0801DCA8") void GameStateClearMapInteraction(GameStateMapOwner & game)
 {
-    GameStateMapInteraction * & interaction = game.interaction;
-    GameStateMapInteraction * replacement = nullptr;
-    if (replacement != interaction && interaction != nullptr)
-        interaction->vtable->destroy(interaction, 3);
-    interaction = replacement;
+    game.interaction = nullptr;
+}
+
+EC SECTION(".text.game_state_c2.0801DC24") void GameStateStartMapInteraction(GameStateMapOwner & game, u32 animation)
+{
+    SmartPtr<GameStateMapInteraction> & active = game.interaction;
+    GameStateMapInteraction * interaction = active.Get();
+    if (interaction != nullptr)
+    {
+        func_0805E860(interaction->animator, animation);
+        interaction->playing = true;
+        interaction->ended = false;
+        interaction->restart = true;
+    }
+    else
+    {
+        GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
+        GameStatePackedSpriteArchive const * archive = game.vtable->get_interaction_archive(game);
+        game.interaction = func_080A4A00(storage, archive, animation, game, 3, 0x1B, true);
+    }
 }
 
 EC SECTION(".text.game_state_c2.0801DCD4") void GameStateSettleShippingBin(GameStateMapOwner & game)
@@ -354,6 +383,15 @@ EC SECTION(".text.game_state_c2.0801DD78") void GameStateStartMapViewTimer(GameS
     func_080A601C(*game.map_view);
 }
 
+EC SECTION(".text.game_state_c2.0801DD84") int GameStateRemoveRecordPlayerAlbum(GameStateMapOwner & game)
+{
+    RecordPlayer * record_player = game.map_data->farm.farm_house.GetRecordPlayer();
+    func_080A6300(*game.map_view);
+    ArticleStack previous_album = record_player->RemoveAlbum();
+    func_0801DB58(game);
+    return previous_album.GetArticle().GetId();
+}
+
 EC SECTION(".text.game_state_c2.0801DDCC") void GameStateSetMapTileVariant(GameStateMapOwner & game, u32 index)
 {
     SetAlternateMapPatch(game.map_data->tile_variant_flags, index);
@@ -384,6 +422,15 @@ EC SECTION(".text.game_state_c2.0801DE3C") void GameStateApplyMapTilePatchAtRow2
 EC SECTION(".text.game_state_c2.0801DE48") void GameStateQueueMapEvent1D(GameStateMapOwner & game)
 {
     func_080AA8DC(*game.map_view);
+}
+
+EC SECTION(".text.game_state_c2.0801DE54") int GameStateSetRecordPlayerAlbum(GameStateMapOwner & game, u32 album_id)
+{
+    RecordPlayer * record_player = game.map_data->farm.farm_house.GetRecordPlayer();
+    func_080A635C(*game.map_view);
+    ArticleStack previous_album = record_player->SetAlbum(Article(album_id));
+    func_0801DB58(game);
+    return previous_album.GetArticle().GetId();
 }
 
 EC SECTION(".text.game_state_c2.0801FD3C") bool GameStateIsCameraIdle(GameStateMapOwner & game)

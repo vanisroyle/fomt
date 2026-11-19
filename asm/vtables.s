@@ -347,8 +347,8 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateApplyRow2TilePatchVariant2
 	.word GameStateApplyMapTilePatchAtIndex
 	.word GameStateApplyMapTilePatchInColumn
-	.word 0x0801DD85
-	.word 0x0801DE55
+	.word GameStateRemoveRecordPlayerAlbum
+	.word GameStateSetRecordPlayerAlbum
 	.word GameStateApplyMapTilePatchWithAlternateRow
 	.word func_08017C00
 	.word func_08019BEC
@@ -376,7 +376,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateSetMapTileVariant
 	.word GameStateClearMapTileVariant
 	.word GameStateSettleShippingBin
-	.word func_0801DC24
+	.word GameStateStartMapInteraction
 	.word GameStateClearMapInteraction
 	.word GameStateIsWinterOrSpecialOutdoorTile
 	.word GameStateEnableEntities
