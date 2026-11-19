@@ -283,7 +283,7 @@ EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force
 EC void GameScript_ConfigureMusic(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
 EC void func_080AA6D0(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * adjacent);
 EC void func_0805E860(SpriteAnimator & animator, u32 animation);
-EC GameStateMapInteraction * func_080A4A00(GameStateMapInteraction * interaction,
+EC GameStateMapInteraction * InitializeAnimatedMapSpriteSinglePalette(GameStateMapInteraction * interaction,
     GameStatePackedSpriteArchive const * archive, u32 animation, GameStateMapOwner & game,
     u32 layer, u32 kind, bool start);
 
@@ -677,7 +677,7 @@ EC SECTION(".text.game_state_c2.0801DC24") void GameStateStartMapInteraction(Gam
     {
         GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
         GameStatePackedSpriteArchive const * archive = game.vtable->get_interaction_archive(game);
-        game.interaction = func_080A4A00(storage, archive, animation, game, 3, 0x1B, true);
+        game.interaction = InitializeAnimatedMapSpriteSinglePalette(storage, archive, animation, game, 3, 0x1B, true);
     }
 }
 
@@ -723,13 +723,13 @@ EC SECTION(".text.game_state_c2.0801F14C") void GameStateRefreshMapScenery(GameS
 
     GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
     GameStatePackedSpriteArchive const * archive = game.vtable->get_scenery_archive(game);
-    game.scenery = func_080A4A00(storage, archive, variant, game, 2, 0x1B, false);
+    game.scenery = InitializeAnimatedMapSpriteSinglePalette(storage, archive, variant, game, 2, 0x1B, false);
 }
 
 static inline GameStateMapInteraction * MakeTimedMapInteraction(GameStateMapOwner & game, u32 animation)
 {
     GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
-    return func_080A4A00(storage, &game.sprite_archives[12], animation, game, 5, 0x1B, false);
+    return InitializeAnimatedMapSpriteSinglePalette(storage, &game.sprite_archives[12], animation, game, 5, 0x1B, false);
 }
 
 EC SECTION(".text.game_state_c2.0801F2DC") void GameStateRefreshTimedMapInteraction(GameStateMapOwner & game)
@@ -989,17 +989,17 @@ EC SECTION(".text.game_state_c2.0801F614") void GameStateRefreshPairedScenery(Ga
         {
             GameStateMapInteraction * first = AllocateMapInteraction();
             register GameStatePackedSpriteArchive const * archive asm("r5") = &game.sprite_archives[7];
-            game.paired_scenery_first = func_080A4A00(first, archive, 0, game, 3, 0x1E, map);
+            game.paired_scenery_first = InitializeAnimatedMapSpriteSinglePalette(first, archive, 0, game, 3, 0x1E, map);
             GameStateMapInteraction * second = AllocateMapInteraction();
-            game.paired_scenery_second = func_080A4A00(second, archive, 0, game, 3, 0x1E, false);
+            game.paired_scenery_second = InitializeAnimatedMapSpriteSinglePalette(second, archive, 0, game, 3, 0x1E, false);
         }
         else
         {
             GameStateMapInteraction * first = AllocateMapInteraction();
             register GameStatePackedSpriteArchive const * archive asm("r5") = &game.sprite_archives[7];
-            game.paired_scenery_first = func_080A4A00(first, archive, 1, game, season, 0x1E, map);
+            game.paired_scenery_first = InitializeAnimatedMapSpriteSinglePalette(first, archive, 1, game, season, 0x1E, map);
             GameStateMapInteraction * second = AllocateMapInteraction();
-            game.paired_scenery_second = func_080A4A00(second, archive, 1, game, 3, 0x1E, false);
+            game.paired_scenery_second = InitializeAnimatedMapSpriteSinglePalette(second, archive, 1, game, 3, 0x1E, false);
         }
     }
     asm("" : : "l"(&game));
@@ -1016,21 +1016,21 @@ EC SECTION(".text.game_state_c2.0801F77C") void GameStateRefreshSeasonalScenery(
     {
         case 7:
             if ((static_cast<u32>(reinterpret_cast<u8 const *>(game.map_data)[4]) << 31) != 0)
-                game.alternate_seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+                game.alternate_seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
             if (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER)
-                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+                game.seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
             break;
         case 3:
             if (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER)
-                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+                game.seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
             break;
         case 0:
             if (reinterpret_cast<u8 const *>(game.map_data)[3] >> 7)
-                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, map);
+                game.seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, map);
             break;
         case 2:
             if (game.map_data->farm.farm_house.IsFireplaceLighted())
-                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, map, 0x1F, false);
+                game.seasonal_scenery = InitializeAnimatedMapSpriteSinglePalette(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, map, 0x1F, false);
             break;
     }
 }

@@ -1118,6 +1118,10 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1A4C);
         src/g1_map.o(.text.g1_080A1C94);
         asm/g1_npc.o(.text.g1_after_b2_080A1C94);
+        src/g1_map_forage.o(.text.g1_080A1CBC);
+        asm/g1_npc.o(.text.g1_after_b6_080A1CBC);
+        src/g1_map_forage.o(.text.g1_080A1D20);
+        asm/g1_npc.o(.text.g1_after_b6_080A1D20);
         src/g1_map.o(.text.g1_080A1EA8);
         asm/g1_npc.o(.text.g1_after_b2_080A1EA8);
         src/g1_npc.o(.text.g1_080A1ED4);
@@ -1150,6 +1154,10 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b5_080A47B4);
         src/g1_map_resources.o(.text.g1_080A4944);
         asm/g1_npc.o(.text.g1_after_b5_080A4944);
+        src/g1_map_resources.o(.text.g1_080A49A0);
+        asm/g1_npc.o(.text.g1_after_b6_080A49A0);
+        src/g1_map_resources.o(.text.g1_080A4A00);
+        asm/g1_npc.o(.text.g1_after_b6_080A4A00);
         src/g1_map_buffers.o(.text.g1_080A4A94);
         asm/g1_npc.o(.text.g1_after_b4_080A4A94);
         src/g1_map_buffers.o(.text.g1_080A4B6C);

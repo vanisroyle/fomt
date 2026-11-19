@@ -91665,7 +91665,7 @@ func_080701BC: @ 0x080701BC
 	add r0, sp, #0xc
 	mov r1, r8
 	adds r2, r4, #0
-	bl func_080A1CBC
+	bl GetMapForageObstacle
 	ldr r1, [sp, #0x10]
 	movs r0, #8
 	ldrsh r2, [r5, r0]
