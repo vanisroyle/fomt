@@ -50,7 +50,7 @@ EC u16 const gUnk_080F0A68[];
 EC u16 const gUnk_080F0C3C[];
 EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
-EC void func_0802A588(AEntity * self);
+EC void RefreshFarmerHeldItemDisplay(FarmerEntity * self);
 
 EC bool DoesEntityCollisionRectangleHitSolidTile(void * map, Box const * box);
 
@@ -949,7 +949,7 @@ EC void FarmerEntity_LiftRucksackItem(FarmerEntity * self, RucksackItem const * 
     func_0800F418(&self->farmer->unk_54, *item);
     if (wrapped)
         func_0800F528(&self->farmer->unk_54);
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
@@ -1223,7 +1223,7 @@ EC void FarmerEntity_LiftObject(FarmerEntity * self) ENTITY_CODE(08025FC4);
 EC void FarmerEntity_LiftObject(FarmerEntity * self)
 {
     func_0800F4D8(&self->farmer->unk_54);
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
@@ -1234,7 +1234,7 @@ EC void FarmerEntity_LiftChicken(FarmerEntity * self, u8 value) ENTITY_CODE(0802
 EC void FarmerEntity_LiftChicken(FarmerEntity * self, u8 value)
 {
     func_0800F4F0(&self->farmer->unk_54, value);
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
@@ -1245,7 +1245,7 @@ EC void FarmerEntity_LiftDog(FarmerEntity * self) ENTITY_CODE(08025E38);
 EC void FarmerEntity_LiftDog(FarmerEntity * self)
 {
     func_0800F4C0(&self->farmer->unk_54);
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
@@ -1311,7 +1311,7 @@ EC void FarmerEntity_CycleHeldItemWithFeedback(FarmerEntity * self, bool next)
         result = func_0800EBC4(*self->farmer);
     if (result != 0)
     {
-        func_0802A588(self);
+        RefreshFarmerHeldItemDisplay(self);
         self->state = 20;
         AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 107);
     }
@@ -1874,7 +1874,7 @@ EC void func_08024BE8(AEntity * self) ENTITY_CODE(08024BE8);
 EC void func_08024BE8(AEntity * self)
 {
     self->AEntity::vfunc_10();
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(static_cast<FarmerEntity *>(self));
 }
 
 // 0x08024C54

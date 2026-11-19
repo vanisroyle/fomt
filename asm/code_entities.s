@@ -571,7 +571,7 @@ func_080299EC: @ 0x080299EC
     movs r0, #1
     strb r0, [r1]
     adds r0, r6, #0
-    bl func_0802A588
+    bl RefreshFarmerHeldItemDisplay
     ldr r0, [r6, #0x38]
     adds r0, #0x54
     bl func_0800F190
@@ -1809,288 +1809,6 @@ func_08029F30: @ 0x08029F30
     .align 2, 0
 
     .section .text.entities_part2.0802A588,"ax",%progbits
-
-    thumb_func_start func_0802A588
-func_0802A588: @ 0x0802A588
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    adds r6, r0, #0
-    ldr r0, [r6, #0x38]
-    adds r4, r0, #0
-    adds r4, #0x54
-    adds r0, r4, #0
-    bl func_0800F190
-    lsls r0, r0, #0x18
-    lsrs r7, r0, #0x18
-    cmp r7, #0
-    beq .L0802A5A8
-    b .L0802A7C2
-.L0802A5A8:
-    adds r0, r6, #0
-    adds r0, #0x88
-    movs r1, #1
-    mov r8, r1
-    mov r2, r8
-    strb r2, [r0]
-    strb r7, [r0, #1]
-    movs r1, #0xa8
-    lsls r1, r1, #0xd
-    str r7, [r0, #4]
-    str r7, [r0, #8]
-    str r1, [r0, #0x14]
-    ldr r0, [r6, #0x10]
-    cmp r0, #0
-    bne .L0802A5C8
-    b .L0802A7CA
-.L0802A5C8:
-    adds r5, r0, #0
-    adds r0, r4, #0
-    bl func_0800F388
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802A5FE
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    movs r2, #0xb0
-    lsls r2, r2, #1
-    bl func_0805E850
-    adds r0, r5, #0
-    adds r0, #0xc8
-    mov r1, r8
-    strb r1, [r0]
-    adds r0, #2
-    strb r7, [r0]
-    b .L0802A7BC
-.L0802A5FE:
-    adds r0, r4, #0
-    bl func_0800F204
-    cmp r0, #5
-    bls .L0802A60A
-    b .L0802A7CA
-.L0802A60A:
-    lsls r0, r0, #2
-    ldr r1, .L0802A614 @ =.L0802A618
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0802A614: .4byte .L0802A618
-.L0802A618: @ jump table
-    .4byte .L0802A630 @ case 0
-    .4byte .L0802A646 @ case 1
-    .4byte .L0802A6BE @ case 2
-    .4byte .L0802A714 @ case 3
-    .4byte .L0802A778 @ case 4
-    .4byte .L0802A78E @ case 5
-.L0802A630:
-    mov r0, sp
-    adds r1, r4, #0
-    bl func_0800F20C
-    mov r0, sp
-    bl GetIconId__C4Food
-    adds r4, r0, #0
-    lsls r4, r4, #0x10
-    lsrs r4, r4, #0x10
-    b .L0802A796
-.L0802A646:
-    adds r0, r4, #0
-    bl func_0800F258
-    adds r1, r0, #0
-    add r0, sp, #4
-    strb r1, [r0]
-    bl GetId__C7Article
-    cmp r0, #0x1b
-    bne .L0802A6A4
-    adds r0, r6, #0
-    bl AEntity_IsOnOutdoorMap
-    lsls r0, r0, #0x18
-    lsrs r4, r0, #0x18
-    cmp r4, #0
-    beq .L0802A67E
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    movs r2, #4
-    b .L0802A7AA
-.L0802A67E:
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    movs r2, #3
-    bl func_0805E850
-    adds r0, r5, #0
-    adds r0, #0xc8
-    movs r1, #1
-    strb r1, [r0]
-    adds r0, #2
-    strb r4, [r0]
-    b .L0802A7BC
-.L0802A6A4:
-    adds r0, r4, #0
-    bl func_0800F258
-    adds r1, r0, #0
-    mov r0, sp
-    adds r0, #5
-    strb r1, [r0]
-    bl GetIconId__C7Article
-    adds r4, r0, #0
-    lsls r4, r4, #0x10
-    lsrs r4, r4, #0x10
-    b .L0802A796
-.L0802A6BE:
-    ldr r0, [r6, #0x34]
-    ldr r2, .L0802A6F4 @ =0x00001C70
-    adds r0, r0, r2
-    bl GetGrowthStage__C3Dog
-    adds r4, r0, #0
-    cmp r4, #0
-    bne .L0802A6FC
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x68]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    ldr r2, .L0802A6F8 @ =0x000003DA
-    bl func_0805E850
-    adds r0, r5, #0
-    adds r0, #0xc8
-    movs r1, #1
-    strb r1, [r0]
-    adds r0, #2
-    strb r4, [r0]
-    b .L0802A7BC
-    .align 2, 0
-.L0802A6F4: .4byte 0x00001C70
-.L0802A6F8: .4byte 0x000003DA
-.L0802A6FC:
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x68]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    movs r2, #0xdd
-    lsls r2, r2, #2
-    b .L0802A7AA
-.L0802A714:
-    adds r0, r4, #0
-    bl func_0800F344
-    adds r1, r0, #0
-    ldr r0, [r6, #0x34]
-    movs r2, #0x82
-    lsls r2, r2, #3
-    adds r0, r0, r2
-    bl GetChicken__4CoopUi
-    bl GetGrowthStage__C7Chicken
-    adds r4, r0, #0
-    cmp r4, #0
-    bne .L0802A75C
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x68]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    ldr r2, .L0802A758 @ =0x0000073D
-    bl func_0805E850
-    adds r0, r5, #0
-    adds r0, #0xc8
-    movs r1, #1
-    strb r1, [r0]
-    adds r0, #2
-    strb r4, [r0]
-    b .L0802A7BC
-    .align 2, 0
-.L0802A758: .4byte 0x0000073D
-.L0802A75C:
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x68]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    ldr r2, .L0802A774 @ =0x00000734
-    b .L0802A7AA
-    .align 2, 0
-.L0802A774: .4byte 0x00000734
-.L0802A778:
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    movs r2, #0x35
-    b .L0802A7AA
-.L0802A78E:
-    adds r0, r4, #0
-    bl func_0800F360
-    adds r4, r0, #0
-.L0802A796:
-    ldr r0, [r5]
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r5, #0
-    adds r0, #0xb4
-    adds r2, r4, #0
-.L0802A7AA:
-    bl func_0805E850
-    adds r0, r5, #0
-    adds r0, #0xc8
-    movs r2, #0
-    movs r1, #1
-    strb r1, [r0]
-    adds r0, #2
-    strb r2, [r0]
-.L0802A7BC:
-    adds r0, #1
-    strb r1, [r0]
-    b .L0802A7CA
-.L0802A7C2:
-    adds r1, r6, #0
-    adds r1, #0x88
-    movs r0, #0
-    strb r0, [r1]
-.L0802A7CA:
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
     .section .text.entities_part2.0802A7E0,"ax",%progbits
 
@@ -11866,7 +11584,7 @@ sub_08030E0A: @ 0x08030E0A
     bl func_0800F510
 .L0803107A:
     mov r0, sl
-    bl func_0802A588
+    bl RefreshFarmerHeldItemDisplay
     movs r4, #0
     movs r0, #0x21
     ldr r3, [sp, #0x13c]
@@ -11967,7 +11685,7 @@ sub_08030E0A: @ 0x08030E0A
     str r1, [sp]
     bl func_0800F418
     mov r0, sl
-    bl func_0802A588
+    bl RefreshFarmerHeldItemDisplay
     movs r0, #0x21
     ldr r7, [sp, #0x13c]
     strb r0, [r7]
@@ -13043,7 +12761,7 @@ sub_0803192E: @ 0x0803192E
     b .L08031F0E
 .L08031962:
     mov r0, sl
-    bl func_0802A588
+    bl RefreshFarmerHeldItemDisplay
     movs r0, #0x14
     ldr r5, [sp, #0x13c]
     strb r0, [r5]
@@ -13483,7 +13201,7 @@ sub_08031A5E: @ 0x08031A5E
     b .L08031F0E
 .L08031C76:
     mov r0, sl
-    bl func_0802A588
+    bl RefreshFarmerHeldItemDisplay
 .L08031C7C:
     movs r0, #0
 .L08031C7E:
