@@ -135,7 +135,7 @@ struct GameStateActorEntity : public AActorEntity
     virtual void vfunc_58();
     virtual void vfunc_5C();
     virtual void vfunc_60();
-    virtual void vfunc_64();
+    virtual void vfunc_64(u32 value_1, u32 value_2);
     virtual void vfunc_68();
     virtual void vfunc_6C();
     virtual void vfunc_70();
@@ -292,6 +292,9 @@ EC void func_08050E74(void * self);
 EC void func_08050E5C(void * self);
 EC void func_08050E8C(void * self);
 EC void func_080323C8(AActorEntity & self);
+EC void func_08032308(AActorEntity & self, u32 target, i32 speed);
+EC void func_0803233C(AActorEntity & self, u32 target, i32 speed);
+EC void func_080323E0(AActorEntity & self, u32 value);
 EC void func_080387B8(void * self);
 EC void func_080387EC(void * self);
 EC void func_080387C8(void * self);
@@ -589,4 +592,103 @@ EC void SECTION(".text.game_state_0801221C") func_0801221C(GameStateScript & sel
     AActorEntity * entity = self.runtime->object->vfunc_40(id);
     if (entity != nullptr)
         entity->SetMap(0x234);
+}
+
+EC i32 SECTION(".text.game_state_080120A4") func_080120A4(GameStateScript & self, u32 id)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    i32 x = 0;
+    if (entity != nullptr)
+        x = entity->x_q16;
+    return x >> 16;
+}
+
+EC i32 SECTION(".text.game_state_080120C4") func_080120C4(GameStateScript & self, u32 id)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    i32 y = 0;
+    if (entity != nullptr)
+        y = entity->y_q16;
+    return y >> 16;
+}
+
+EC u32 SECTION(".text.game_state_08012114") func_08012114(GameStateScript & self, u32 id)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    u32 facing;
+    if (entity != nullptr)
+        facing = entity->facing;
+    else
+        facing = 0;
+    return facing;
+}
+
+EC u32 SECTION(".text.game_state_08012134") func_08012134(GameStateScript & self, u32 id)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    u32 map = 0x234;
+    if (entity != nullptr)
+        map = entity->location_map;
+    return map;
+}
+
+EC void SECTION(".text.game_state_08012154") func_08012154(GameStateScript & self, u32 id, u32 value)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+        entity->unk_21 = value;
+}
+
+EC void SECTION(".text.game_state_08012174") func_08012174(GameStateScript & self, u32 id, u32 target, i32 speed)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+        func_08032308(*entity, target, speed);
+}
+
+EC void SECTION(".text.game_state_0801219C") func_0801219C(GameStateScript & self, u32 id, u32 target, i32 speed)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+        func_0803233C(*entity, target, speed);
+}
+
+EC void SECTION(".text.game_state_080122BC") func_080122BC(GameStateScript & self, u32 id, u32 value)
+{
+    AActorEntity * entity = self.runtime->object->vfunc_40(id);
+    if (entity != nullptr)
+        func_080323E0(*entity, value);
+}
+
+EC void SECTION(".text.game_state_080141C4") func_080141C4(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    runtime.object->vfunc_40(0)->vfunc_4C();
+    runtime.command = 0x19;
+}
+
+EC void SECTION(".text.game_state_080141EC") func_080141EC(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    runtime.object->vfunc_40(0)->vfunc_50();
+    runtime.command = 0x19;
+}
+
+EC void SECTION(".text.game_state_08014C0C") func_08014C0C(GameStateScript & self, u32 value_1, u32 value_2)
+{
+    self.runtime->object->vfunc_40(0)->vfunc_64(value_1, value_2);
+}
+
+EC void SECTION(".text.game_state_080158F8") func_080158F8(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    runtime.object->vfunc_40(0)->vfunc_7C();
+    runtime.command = 0x19;
+}
+
+EC void SECTION(".text.game_state_08016E9C") func_08016E9C(GameStateScript & self)
+{
+    GameStateRuntime & runtime = *self.runtime;
+    runtime.object->vfunc_40(0)->vfunc_70();
+    runtime.command = 0x19;
 }
