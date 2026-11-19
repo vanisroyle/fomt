@@ -215,23 +215,23 @@ struct GameStateMapOwner
     bool skip_day_update_events;
 };
 
-EC void func_0803B0A8(GameStateMapOverlay * overlay, u32 destructor_flags);
+EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
 EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
     GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
 EC i32 func_080AC96C(GameStateSpriteCache & cache, u32 slot);
 
-EC void func_080A6138(GameStateMapView & view);
-EC void func_080A6194(GameStateMapView & view);
-EC void func_080A61F0(GameStateMapView & view);
-EC void func_080A6234(GameStateMapView & view);
-EC void func_080A6278(GameStateMapView & view);
-EC void func_080A62BC(GameStateMapView & view);
-EC void func_080A6300(GameStateMapView & view);
-EC void func_080A635C(GameStateMapView & view);
+EC void ApplyMapRow15PatchA(GameStateMapView & view);
+EC void ApplyMapRow15PatchB(GameStateMapView & view);
+EC void ApplyMapRow3PatchA(GameStateMapView & view);
+EC void ApplyMapRow3PatchB(GameStateMapView & view);
+EC void ApplyMapRow2PatchA(GameStateMapView & view);
+EC void ApplyMapRow2PatchB(GameStateMapView & view);
+EC void ApplyMapRow17PatchA(GameStateMapView & view);
+EC void ApplyMapRow17PatchB(GameStateMapView & view);
 EC void func_080A607C(GameStateMapView & view, u32 index);
-EC void func_080A6024(GameStateMapView & view, u32 index);
+EC void ApplyMapIndexedFixturePatch(GameStateMapView & view, u32 index);
 EC void StartMapTransitionDelay(GameStateMapView & view);
-EC void func_080A63B8(GameStateMapView & view, u32 alternate);
+EC void ApplyMapBuildingDoorPatch(GameStateMapView & view, u32 alternate);
 struct MapUpdateState;
 EC void ClearSupermarketRucksackDisplay(MapUpdateState & map);
 EC void ClearSupermarketBlueFeatherDisplay(MapUpdateState & map);
@@ -246,12 +246,12 @@ EC MapData const * GetMapData(u32 map_variant);
 EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 barn_level);
 EC u32 func_0800E324(Unk_0800E324 const & clock);
 EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
-EC u8 * func_0801468C(GameStateScript & script);
+EC u8 * GameScript_GetSoundPlayers(GameStateScript & script);
 EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
 EC void func_0801F3E4(GameStateMapOwner & game);
-EC bool func_0801140C(GameStateMapData & state);
+EC bool SaveData_CollectShippingValue(GameStateMapData & state);
 EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
-EC void func_080123CC(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
+EC void GameScript_ConfigureMusic(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
 EC void func_080AA6D0(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * adjacent);
 EC void func_0805E860(SpriteAnimator & animator, u32 animation);
 EC GameStateMapInteraction * func_080A4A00(GameStateMapInteraction * interaction,
@@ -474,7 +474,7 @@ EC SECTION(".text.game_state_c2.0801D9A8") void GameStateQueueScriptEvent(GameSt
 
 EC SECTION(".text.game_state_c2.0801DB44") GameStateAudioList * GameStateGetAudioList(GameStateMapOwner & game)
 {
-    return reinterpret_cast<GameStateAudioList *>(func_0801468C(*game.script));
+    return reinterpret_cast<GameStateAudioList *>(GameScript_GetSoundPlayers(*game.script));
 }
 
 EC SECTION(".text.game_state_c2.0801DB58") void GameStateRefreshMapMusic(GameStateMapOwner & game)
@@ -505,7 +505,7 @@ EC SECTION(".text.game_state_c2.0801DB58") void GameStateRefreshMapMusic(GameSta
     }
     GameStateScript * script = game.script;
     u32 track = game.vtable->get_music_track(game);
-    func_080123CC(*script, 1, track, params);
+    GameScript_ConfigureMusic(*script, 1, track, params);
 }
 
 EC SECTION(".text.game_state_c2.0801DCA8") void GameStateClearMapInteraction(GameStateMapOwner & game)
@@ -536,7 +536,7 @@ EC SECTION(".text.game_state_c2.0801DCD4") void GameStateSettleShippingBin(GameS
 {
     GameStateMapData * & state = game.map_data;
     u32 proceeds = state->farm.shipping_bin.GetValueShipped();
-    func_0801140C(*state);
+    SaveData_CollectShippingValue(*state);
     void (* const * queue_event)(GameStateMapOwner &, GameStateScriptEvent const &, u32) = &game.vtable->queue_event;
     GameStateScriptEvent event(0x3DB, proceeds);
     (*queue_event)(game, event, 1);
@@ -624,32 +624,32 @@ EC SECTION(".text.game_state_c2.0801FD30") GameStateMapEffect * GameStateGetMapE
 
 EC SECTION(".text.game_state_c2.0801DD18") void GameStateApplyRow15TilePatchVariant1(GameStateMapOwner & game)
 {
-    func_080A6138(*game.map_view);
+    ApplyMapRow15PatchA(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD24") void GameStateApplyRow15TilePatchVariant2(GameStateMapOwner & game)
 {
-    func_080A6194(*game.map_view);
+    ApplyMapRow15PatchB(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD30") void GameStateApplyRow3TilePatchVariant1(GameStateMapOwner & game)
 {
-    func_080A61F0(*game.map_view);
+    ApplyMapRow3PatchA(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD3C") void GameStateApplyRow3TilePatchVariant2(GameStateMapOwner & game)
 {
-    func_080A6234(*game.map_view);
+    ApplyMapRow3PatchB(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD48") void GameStateApplyRow2TilePatchVariant1(GameStateMapOwner & game)
 {
-    func_080A6278(*game.map_view);
+    ApplyMapRow2PatchA(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD54") void GameStateApplyRow2TilePatchVariant2(GameStateMapOwner & game)
 {
-    func_080A62BC(*game.map_view);
+    ApplyMapRow2PatchB(*game.map_view);
 }
 
 EC SECTION(".text.game_state_c2.0801DD60") void GameStateApplyMapTilePatchAtIndex(GameStateMapOwner & game, u32 index)
@@ -659,7 +659,7 @@ EC SECTION(".text.game_state_c2.0801DD60") void GameStateApplyMapTilePatchAtInde
 
 EC SECTION(".text.game_state_c2.0801DD6C") void GameStateApplyMapTilePatchInColumn(GameStateMapOwner & game, u32 index)
 {
-    func_080A6024(*game.map_view, index);
+    ApplyMapIndexedFixturePatch(*game.map_view, index);
 }
 
 EC SECTION(".text.game_state_c2.0801DD78") void GameStateStartMapViewTimer(GameStateMapOwner & game)
@@ -670,7 +670,7 @@ EC SECTION(".text.game_state_c2.0801DD78") void GameStateStartMapViewTimer(GameS
 EC SECTION(".text.game_state_c2.0801DD84") int GameStateRemoveRecordPlayerAlbum(GameStateMapOwner & game)
 {
     RecordPlayer * record_player = game.map_data->farm.farm_house.GetRecordPlayer();
-    func_080A6300(*game.map_view);
+    ApplyMapRow17PatchA(*game.map_view);
     ArticleStack previous_album = record_player->RemoveAlbum();
     GameStateRefreshMapMusic(game);
     return previous_album.GetArticle().GetId();
@@ -690,7 +690,7 @@ EC SECTION(".text.game_state_c2.0801DDF8") void GameStateClearMapTileVariant(Gam
 
 EC SECTION(".text.game_state_c2.0801DE24") void GameStateApplyMapTilePatchWithAlternateRow(GameStateMapOwner & game, u32 alternate)
 {
-    func_080A63B8(*game.map_view, alternate);
+    ApplyMapBuildingDoorPatch(*game.map_view, alternate);
 }
 
 EC SECTION(".text.game_state_c2.0801DE30") void GameStateApplyMapTilePatchAtRow20(GameStateMapOwner & game)
@@ -711,7 +711,7 @@ EC SECTION(".text.game_state_c2.0801DE48") void GameStateQueueMapEvent1D(GameSta
 EC SECTION(".text.game_state_c2.0801DE54") int GameStateSetRecordPlayerAlbum(GameStateMapOwner & game, u32 album_id)
 {
     RecordPlayer * record_player = game.map_data->farm.farm_house.GetRecordPlayer();
-    func_080A635C(*game.map_view);
+    ApplyMapRow17PatchB(*game.map_view);
     ArticleStack previous_album = record_player->SetAlbum(Article(album_id));
     GameStateRefreshMapMusic(game);
     return previous_album.GetArticle().GetId();
@@ -824,7 +824,7 @@ collection:
 static inline void InstallMapOverlay(GameStateMapOverlay * & overlay, GameStateMapOverlay * replacement)
 {
     if (replacement != overlay && overlay != nullptr)
-        func_0803B0A8(overlay, 3);
+        DestroyGameStateMapOverlay(overlay, 3);
     overlay = replacement;
 }
 
