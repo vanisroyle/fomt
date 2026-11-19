@@ -596,7 +596,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_side.080329B4);
         src/npc_side_batch4.o(.text.npc_side.080329CC);
         src/npc_side_batch4.o(.text.npc_side.080329D4);
-        asm/code_entities_080320DC.o(.text.npc_side.080329DC);
+        src/npc_side_batch8.o(.text.npc_side.080329DC);
         src/npc_side_batch2.o(.text.npc_side.08032A00);
         src/npc_side_entities.o(.text.npc_side.08032A30);
         src/npc_side_batch4.o(.text.npc_side.08032A58);
@@ -625,7 +625,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_side.08032BAC);
         src/npc_side_batch4.o(.text.npc_side.08032BB0);
         asm/code_entities_080320DC.o(.text.npc_side.08032BB4);
-        asm/code_entities_080320DC.o(.text.npc_side.08033784);
+        src/npc_side_batch8.o(.text.npc_side.08033784);
         src/npc_side_batch4.o(.text.npc_side.08033800);
         src/npc_side_batch4.o(.text.npc_side.08033830);
         src/npc_side_entities.o(.text.npc_side.080338F0);
@@ -713,7 +713,7 @@ SECTIONS
         src/npc_side_batch3.o(.text.npc_extra.080366CC);
         src/npc_side_batch3.o(.text.npc_extra.08036704);
         src/npc_side_batch3.o(.text.npc_extra.08036730);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08036768);
+        src/npc_side_batch8.o(.text.npc_extra.08036768);
         src/npc_side_batch2.o(.text.npc_extra.080367AC);
         src/npc_side_batch2.o(.text.npc_extra.080367C8);
         src/npc_side_batch3.o(.text.npc_extra.080367F8);
@@ -732,8 +732,8 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.08036B1C);
         src/npc_side_batch3.o(.text.npc_extra.08036B4C);
         src/npc_side_batch3.o(.text.npc_extra.08036B80);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08036BB0);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08036BF8);
+        src/npc_side_batch8.o(.text.npc_extra.08036BB0);
+        src/npc_side_batch8.o(.text.npc_extra.08036BF8);
         src/npc_side_batch3.o(.text.npc_extra.08036C48);
         src/npc_side_batch3.o(.text.npc_extra.08036C80);
         src/npc_side_batch4.o(.text.npc_extra.08036CAC);

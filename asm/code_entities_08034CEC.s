@@ -1006,39 +1006,6 @@ func_08035A48: @ 0x08035A48
 
     .section .text.npc_extra.08036768, "ax", %progbits
 
-    thumb_func_start func_08036768
-func_08036768: @ 0x08036768
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    ldr r1, .L080367A0 @ =0x0000027B
-    movs r5, #2
-    ldr r0, [r4, #0x34]
-    ldr r2, .L080367A4 @ =0x00002181
-    adds r0, r0, r2
-    ldrb r0, [r0]
-    lsls r0, r0, #0x1e
-    lsrs r0, r0, #0x1e
-    cmp r0, #1
-    bne .L08036784
-    adds r1, #0x18
-    movs r5, #1
-.L08036784:
-    adds r0, r4, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    ldr r1, .L080367A8 @ =0x0000027F
-    bl SetNpcIdleAnimation
-    adds r0, r4, #0
-    adds r0, #0x21
-    strb r5, [r0]
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080367A0: .4byte 0x0000027B
-.L080367A4: .4byte 0x00002181
-.L080367A8: .4byte 0x0000027F
-
     .section .text.npc_extra.080367F8, "ax", %progbits
 
     .section .text.npc_extra.08036860, "ax", %progbits
@@ -1143,91 +1110,7 @@ func_08036900: @ 0x08036900
 
     .section .text.npc_extra.08036BB0, "ax", %progbits
 
-    thumb_func_start func_08036BB0
-func_08036BB0: @ 0x08036BB0
-    push {r4, r5, r6, lr}
-    adds r4, r0, #0
-    movs r0, #0xa
-    ldrsh r5, [r4, r0]
-    movs r2, #0xe
-    ldrsh r6, [r4, r2]
-    adds r0, r4, #0
-    bl func_08034EB4
-    ldrh r0, [r4, #4]
-    cmp r0, #2
-    bne .L08036BF0
-    cmp r5, #0xf4
-    bne .L08036BD0
-    cmp r6, #0xab
-    beq .L08036BF0
-.L08036BD0:
-    movs r1, #0xa
-    ldrsh r0, [r4, r1]
-    movs r2, #0xe
-    ldrsh r1, [r4, r2]
-    cmp r0, #0xf4
-    bne .L08036BF0
-    cmp r1, #0xab
-    bne .L08036BF0
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0x8a
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-.L08036BF0:
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
     .section .text.npc_extra.08036BF8, "ax", %progbits
-
-    thumb_func_start func_08036BF8
-func_08036BF8: @ 0x08036BF8
-    push {r4, r5, r6, r7, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    movs r0, #0xa
-    ldrsh r6, [r5, r0]
-    movs r1, #0xe
-    ldrsh r7, [r5, r1]
-    adds r0, r5, #0
-    adds r1, r4, #0
-    bl func_08034F00
-    cmp r4, #1
-    ble .L08036C40
-    ldrh r0, [r5, #4]
-    cmp r0, #2
-    bne .L08036C40
-    cmp r6, #0xf4
-    bne .L08036C20
-    cmp r7, #0xab
-    beq .L08036C40
-.L08036C20:
-    movs r2, #0xa
-    ldrsh r0, [r5, r2]
-    movs r2, #0xe
-    ldrsh r1, [r5, r2]
-    cmp r0, #0xf4
-    bne .L08036C40
-    cmp r1, #0xab
-    bne .L08036C40
-    ldr r0, [r5]
-    ldr r1, [r0]
-    movs r2, #0x8a
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-.L08036C40:
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-
 
     .section .text.npc_extra.08036CAC, "ax", %progbits
 

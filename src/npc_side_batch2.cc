@@ -544,19 +544,19 @@ EC UnknownEntityThing * CreateScheduledNpcVariantFourSprite(AActorEntity * self)
 }
 
 
-EC void func_08036768(AActorEntity * self);
+EC void RefreshNpcVariantFiveAnimations(AActorEntity * self);
 EC void RefreshScheduledNpcVariantFive(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(080367AC);
 EC void RefreshScheduledNpcVariantFive(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        func_08036768(self);
+        RefreshNpcVariantFiveAnimations(self);
 }
 
 EC UnknownEntityThing * CreateScheduledNpcVariantFiveSprite(AActorEntity * self) NPC_EXTRA_CODE(080367C8);
 EC UnknownEntityThing * CreateScheduledNpcVariantFiveSprite(AActorEntity * self)
 {
-    func_08036768(self);
+    RefreshNpcVariantFiveAnimations(self);
     struct Storage { u8 bytes[0x8C]; };
     return InitializeSideActorSpriteLayers(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }

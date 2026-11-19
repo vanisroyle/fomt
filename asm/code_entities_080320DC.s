@@ -496,27 +496,6 @@ func_08032690: @ 0x08032690
 
     .section .text.npc_side.080329DC, "ax", %progbits
 
-    thumb_func_start func_080329DC
-func_080329DC: @ 0x080329DC
-    push {r4, lr}
-    movs r3, #10
-    ldrsh r2, [r1, r3]
-    movs r4, #14
-    ldrsh r3, [r1, r4]
-    subs r1, r2, #7
-    strh r1, [r0]
-    adds r1, r3, #0
-    subs r1, #10
-    strh r1, [r0, #2]
-    adds r2, #7
-    strh r2, [r0, #4]
-    adds r3, #4
-    strh r3, [r0, #6]
-    pop {r4}
-    pop {r2}
-    bx r2
-    .align 2, 0
-
     .section .text.npc_side.08032A58, "ax", %progbits
 
     .section .text.npc_side.08032A64, "ax", %progbits
@@ -2067,71 +2046,6 @@ func_08033584: @ 0x08033584
 
     .section .text.npc_side.08033784, "ax", %progbits
 
-    thumb_func_start func_08033784
-func_08033784: @ 0x08033784
-    push {r4, lr}
-    adds r3, r0, #0
-    adds r4, r2, #0
-    ldrb r0, [r3]
-    lsls r0, r0, #0x1c
-    lsrs r0, r0, #0x1c
-    cmp r0, #8
-    bhi .L080337F2
-    lsls r0, r0, #2
-    ldr r1, .L080337A0 @ =.L080337A4
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L080337A0: .4byte .L080337A4
-.L080337A4: @ jump table
-    .4byte .L080337F2 @ case 0
-    .4byte .L080337C8 @ case 1
-    .4byte .L080337C8 @ case 2
-    .4byte .L080337CC @ case 3
-    .4byte .L080337D0 @ case 4
-    .4byte .L080337D0 @ case 5
-    .4byte .L080337D4 @ case 6
-    .4byte .L080337DA @ case 7
-    .4byte .L080337E0 @ case 8
-.L080337C8:
-    movs r0, #2
-    b .L080337FA
-.L080337CC:
-    movs r0, #0x11
-    b .L080337FA
-.L080337D0:
-    movs r0, #0x25
-    b .L080337FA
-.L080337D4:
-    ldrb r1, [r3, #1]
-    adds r1, #0x36
-    b .L080337E4
-.L080337DA:
-    ldrb r1, [r3, #1]
-    adds r1, #0x2e
-    b .L080337E4
-.L080337E0:
-    ldrb r1, [r3, #1]
-    adds r1, #0x4c
-.L080337E4:
-    ldr r0, [r4]
-    ldr r2, [r0, #0x44]
-    adds r0, r4, #0
-    bl _call_via_r2
-    cmp r0, #0
-    bne .L080337F8
-.L080337F2:
-    movs r0, #0x8d
-    lsls r0, r0, #2
-    b .L080337FA
-.L080337F8:
-    ldrh r0, [r0, #4]
-.L080337FA:
-    pop {r4}
-    pop {r1}
-    bx r1
-
     .section .text.npc_side.08033914, "ax", %progbits
 
     .section .text.npc_side.08033928, "ax", %progbits
@@ -2628,7 +2542,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     ldr	r1, [r7, #60]
     mov	r0, r9
     mov	r2, sl
-    bl func_08033784
+    bl GetSpriteWorkTargetMap
     adds	r6, r0, #0
     ldrh	r5, [r7, #4]
     movs	r0, #10
