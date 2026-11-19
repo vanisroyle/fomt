@@ -266,36 +266,36 @@ gMedalExchangePrizes:
 gUnk_080FB0F0:
 	.incbin "baserom.gba", 0xFB0F0, 0x18
 
-	.global gUnk_080FB108
-gUnk_080FB108:
+	.global gAskToExchangeMedals
+gAskToExchangeMedals:
 	.incbin "baserom.gba", 0xFB108, 0x18
 
-	.global gUnk_080FB120
-gUnk_080FB120:
+	.global gMedalDialogueYes
+gMedalDialogueYes:
 	.incbin "baserom.gba", 0xFB120, 0x4
 
-	.global gUnk_080FB124
-gUnk_080FB124:
+	.global gMedalDialogueNo
+gMedalDialogueNo:
 	.incbin "baserom.gba", 0xFB124, 0x4
 
-	.global gUnk_080FB128
-gUnk_080FB128:
+	.global gMedalExchangeFarewell
+gMedalExchangeFarewell:
 	.incbin "baserom.gba", 0xFB128, 0x18
 
-	.global gUnk_080FB140
-gUnk_080FB140:
+	.global gMedalExchangeKeepBrowsing
+gMedalExchangeKeepBrowsing:
 	.incbin "baserom.gba", 0xFB140, 0x18
 
-	.global gUnk_080FB158
-gUnk_080FB158:
+	.global gConfirmMedalExchangePrize
+gConfirmMedalExchangePrize:
 	.incbin "baserom.gba", 0xFB158, 0xC
 
-	.global gUnk_080FB164
-gUnk_080FB164:
+	.global gMedalExchangeLeaving
+gMedalExchangeLeaving:
 	.incbin "baserom.gba", 0xFB164, 0x18
 
-	.global gUnk_080FB17C
-gUnk_080FB17C:
+	.global gMedalExchangeNotEnoughMedals
+gMedalExchangeNotEnoughMedals:
 	.incbin "baserom.gba", 0xFB17C, 0x2A
 
 	.global gUnk_080FB1A6

@@ -884,6 +884,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.0803A870);
         src/npc_side_batch4.o(.text.npc_extra.0803A8A0);
 
+        src/code_0803A8A4.o(.text.0803A8A4);
         asm/code_0803A8A4.o(.text);
         src/code_0803A8A4.o(.text.0803AC78);
         asm/code_0803A8A4.o(.text.0803ACD8);
@@ -1248,7 +1249,8 @@ SECTIONS
         src/entity_movement.o(.text.080AC070);
         asm/code_809E804.o(.text.080AC124);
         src/map_scene.o(.text.080AC674);
-        asm/code_809E804.o(.text.080AC85C);
+        src/map_scene.o(.text.080AC85C);
+        asm/code_809E804.o(.text.080AC96C);
         src/map_scene.o(.text.080AC9EC);
         src/map_scene.o(.text.080ACAF0);
         asm/code_809E804.o(.text.080ACC10);

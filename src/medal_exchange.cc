@@ -21,11 +21,24 @@ struct MedalExchangeObjAllocation
     u32 handle;
 };
 
+struct MessageWindow;
+struct MusicPlayer;
+struct AudioPlayer { MusicPlayer * player; };
+
+struct MedalExchangeTextSubstitutions
+{
+    void const * vtable;
+    char const * prize_name;
+};
+
 struct MedalExchange
 {
     enum { PRIZE_ROWS = 10, MAX_GLYPHS = 48 };
 
-    STRUCT_PAD(0x00, 0x50);
+    STRUCT_PAD(0, 0x10);
+    MessageWindow * message_window;
+    AudioPlayer text_audio;
+    STRUCT_PAD(0x18, 0x50);
     u8 prize_graphics_data[0x30];
     SpriteAnimator cursor;
     STRUCT_PAD(0x94, 0x11C);
@@ -40,8 +53,13 @@ struct MedalExchange
     i16 glyph_count;
     u16 prize_name_tilemap[32][32];
     int medal_balance;
-    STRUCT_PAD(0xAD4, 0xAE0);
+    STRUCT_PAD(0xAD4, 0xADA);
+    i16 exchange_phase;
+    i16 dialogue_phase;
+    i16 declined_choice;
     u8 prize_indices[PRIZE_ROWS];
+    STRUCT_PAD(0xAEA, 0xAEC);
+    MedalExchangeTextSubstitutions text_substitutions;
 };
 
 EC MedalPrize const gMedalExchangePrizes[];
@@ -410,6 +428,241 @@ EC SECTION(".text.f3.0805D9C0") void LoadMedalExchangeScreenGraphics(MedalExchan
 
 #undef SET_MEDAL_SCROLL
 #undef SET_MEDAL_BG_CONTROL
+
+struct HardwareContextState;
+struct OamBuffer;
+struct FrameTaskList;
+struct VBlankTaskList;
+
+EC HardwareContextState * HardwareContext_GetState(MedalExchange *);
+EC OamBuffer * HardwareContext_GetOamBuffer(MedalExchange *);
+EC FrameTaskList * HardwareContext_GetFrameTasks(MedalExchange *);
+EC VBlankTaskList * HardwareContext_GetVBlankTasks(MedalExchange *);
+EC u32 UpdateMessageWindow(MessageWindow *, HardwareContextState *, OamBuffer *, MedalExchangeDisplayRegisters *,
+    FrameTaskList *, VBlankTaskList *, AudioPlayer *);
+EC void OpenMessageWindow(MessageWindow *);
+EC void CloseMessageWindow(MessageWindow *);
+EC u32 GetMessageWindowSelection(MessageWindow *);
+EC void SetMessageWindowTextSubstitutions(MessageWindow *, char const *, void const *);
+EC void ConfigureMessageWindowPromptChoices(MessageWindow *, char const *, char const *, char const *,
+    char const *, char const *, void const *);
+
+EC char const gAskToExchangeMedals[];
+EC char const gMedalDialogueYes[];
+EC char const gMedalDialogueNo[];
+EC char const gMedalExchangeFarewell[];
+EC char const gMedalExchangeKeepBrowsing[];
+EC char const gConfirmMedalExchangePrize[];
+EC char const gMedalExchangeLeaving[];
+EC char const gMedalExchangeNotEnoughMedals[];
+
+#define MEDAL_FIELD_PTR(name, field, offset_register, pointer_register) \
+    register u32 name##_offset asm(offset_register) = offsetof(MedalExchange, field); \
+    asm ("" : "+r" (name##_offset)); \
+    register __typeof__(&self->field) name asm(pointer_register) = \
+        reinterpret_cast<__typeof__(&self->field)>(reinterpret_cast<u8 *>(self) + name##_offset); \
+    asm ("" : "+r" (name));
+
+#define MEDAL_PROMPT(message, offset_register) \
+    do { \
+        register MessageWindow * prompt_window asm("r0") = self->message_window; \
+        register char const * prompt asm("r1") = message; \
+        register char const * yes asm("r2") = gMedalDialogueYes; \
+        register char const * no asm("r3") = gMedalDialogueNo; \
+        asm ("" : "+r" (prompt_window), "+r" (prompt), "+r" (yes), "+r" (no)); \
+        MEDAL_FIELD_PTR(substitutions, text_substitutions, offset_register, "r5"); \
+        register char const * none asm("r4") = 0; \
+        asm ("" : "+r" (none)); \
+        ConfigureMessageWindowPromptChoices(prompt_window, prompt, yes, no, none, none, substitutions); \
+    } while (0)
+
+#define MEDAL_TEXT(message, offset_register) \
+    do { \
+        register MessageWindow * text_window asm("r0") = self->message_window; \
+        register char const * text asm("r1") = message; \
+        asm ("" : "+r" (text_window), "+r" (text)); \
+        MEDAL_FIELD_PTR(substitutions, text_substitutions, offset_register, "r2"); \
+        SetMessageWindowTextSubstitutions(text_window, text, substitutions); \
+    } while (0)
+
+EC SECTION(".text.f3.0805D760") void UpdateMedalExchangeDialogue(MedalExchange * self)
+{
+    enum
+    {
+        WINDOW_CLOSED = 0, WINDOW_TEXT_COMPLETE = 3,
+        OPEN_REQUESTED = 0, CLOSING = 1, IDLE = 2, PREPARE_TEXT = 3, WAIT_CHOICE = 4, CLOSE_AFTER_TEXT = 5,
+        EXCHANGE_PROMPT = 2, EXCHANGE_ACCEPTED = 3, EXCHANGE_DECLINED = 4,
+        PRIZE_PROMPT = 8, PRIZE_ACCEPTED = 9, PRIZE_DECLINED = 10,
+        CHOICE_YES = 1, CHOICE_NO = 2,
+    };
+    MessageWindow * window = self->message_window;
+    HardwareContextState * hardware_state = HardwareContext_GetState(self);
+    OamBuffer * sprites = HardwareContext_GetOamBuffer(self);
+    MedalExchangeDisplayRegisters * display = GetMedalExchangeDisplayRegisters(self);
+    FrameTaskList * frame_tasks = HardwareContext_GetFrameTasks(self);
+    VBlankTaskList * vblank_tasks = HardwareContext_GetVBlankTasks(self);
+    AudioPlayer * text_audio = &self->text_audio;
+
+    switch (UpdateMessageWindow(window, hardware_state, sprites, display, frame_tasks, vblank_tasks, text_audio))
+    {
+    case WINDOW_CLOSED:
+        if (self->dialogue_phase == OPEN_REQUESTED)
+        {
+            OpenMessageWindow(self->message_window);
+            self->dialogue_phase = PREPARE_TEXT;
+        }
+        else
+            self->dialogue_phase = IDLE;
+        break;
+    case WINDOW_TEXT_COMPLETE:
+    {
+        MEDAL_FIELD_PTR(phase, dialogue_phase, "r4", "r5");
+        register int phase_value asm("r4");
+        asm ("mov r6, #0\n\tldrsh %0, [%1, r6]"
+            : "=l" (phase_value) : "l" (phase) : "r6", "cc", "memory");
+        if (phase_value == CLOSE_AFTER_TEXT)
+        {
+            CloseMessageWindow(self->message_window);
+            *phase = CLOSING;
+        }
+        else if (phase_value == WAIT_CHOICE)
+        {
+            register u32 selection asm("r0") = GetMessageWindowSelection(self->message_window);
+            asm ("" : "+r" (selection));
+            register int zero_low asm("r1") = 0;
+            asm ("" : "+r" (zero_low));
+            register int accepted asm("r8") = zero_low;
+            asm ("" : "+r" (accepted));
+            register int prepare asm("r3") = PREPARE_TEXT;
+            asm ("" : "+r" (prepare));
+            *phase = prepare;
+            MEDAL_FIELD_PTR(exchange, exchange_phase, "r6", "r2");
+            register int exchange_value asm("r1");
+            asm ("mov r6, #0\n\tldrsh %0, [%1, r6]"
+                : "=l" (exchange_value) : "l" (exchange) : "r6", "cc", "memory");
+            switch (exchange_value)
+            {
+            case EXCHANGE_PROMPT: goto exchange_choice;
+            case PRIZE_PROMPT: goto prize_choice;
+            default: return;
+            }
+        exchange_choice:
+            if (selection == CHOICE_YES)
+            {
+                MEDAL_FIELD_PTR(choice, declined_choice, "r1", "r0");
+                register int restore_accepted asm("r4") = accepted;
+                asm ("" : "+r" (restore_accepted));
+                *choice = restore_accepted;
+                *exchange = prepare;
+                return;
+            }
+            if (selection == CHOICE_NO)
+            {
+                MEDAL_FIELD_PTR(choice, declined_choice, "r6", "r1");
+                register int no asm("r0") = 1;
+                asm ("" : "+r" (no));
+                *choice = no;
+                *exchange = phase_value; // WAIT_CHOICE and EXCHANGE_DECLINED are both 4.
+            }
+            return;
+        prize_choice:
+            if (selection == CHOICE_YES)
+            {
+                MEDAL_FIELD_PTR(choice, declined_choice, "r1", "r0");
+                register int restore_accepted asm("r3") = accepted;
+                asm ("" : "+r" (restore_accepted));
+                *choice = restore_accepted;
+                *phase = CLOSE_AFTER_TEXT;
+                *exchange = PRIZE_ACCEPTED;
+                return;
+            }
+            if (selection == CHOICE_NO)
+            {
+                MEDAL_FIELD_PTR(choice, declined_choice, "r4", "r0");
+                *choice = 1;
+                *exchange = PRIZE_DECLINED;
+            }
+            return;
+        }
+        else if (phase_value == PREPARE_TEXT)
+        {
+            *phase = CLOSE_AFTER_TEXT;
+            // agbcp lowers this switch to a long branch; keep the original short branch and inline table.
+            typedef char VerifyExchangePhaseOffset[offsetof(MedalExchange, exchange_phase) == 0xADA ? 1 : -1];
+            register void * target asm("r0");
+            asm (
+                "ldr r6, .Lmedal_exchange_phase_offset\n\t"
+                "add r0, %1, r6\n\t"
+                "ldrh r0, [r0]\n\t"
+                "sub r0, %2\n\t"
+                "lsl r0, #16\n\t"
+                "asr r0, #16\n\t"
+                "cmp r0, %3\n\t"
+                "bhi .Lmedal_dialogue_done\n\t"
+                "lsl r0, #2\n\t"
+                "ldr r1, .Lmedal_dispatch_pointer\n\t"
+                "add r0, r0, r1\n\t"
+                "ldr r0, [r0]"
+                : "=l" (target)
+                : "l" (self), "i" (EXCHANGE_PROMPT), "i" (PRIZE_DECLINED - EXCHANGE_PROMPT),
+                  "X" (&&start_exchange_prompt), "X" (&&start_farewell),
+                  "X" (&&start_browsing_text), "X" (&&start_not_enough_text),
+                  "X" (&&start_prize_prompt), "X" (&&start_leaving_text)
+                : "r1", "r6", "cc", "memory");
+            goto *target;
+        start_exchange_prompt:
+            asm volatile (
+                ".balign 4, 0\n"
+                ".Lmedal_exchange_phase_offset: .word 0xADA\n"
+                ".Lmedal_dispatch_pointer: .word .Lmedal_dispatch\n"
+                ".Lmedal_dispatch:\n\t"
+                ".word .Lmedal_start_exchange_prompt, .Lmedal_start_farewell, .Lmedal_start_browsing_text\n\t"
+                ".word .Lmedal_dialogue_done, .Lmedal_dialogue_done, .Lmedal_start_not_enough_text\n\t"
+                ".word .Lmedal_start_prize_prompt, .Lmedal_dialogue_done, .Lmedal_start_leaving_text\n"
+                ".Lmedal_start_exchange_prompt:"
+                : : "X" (&&dialogue_done) : "memory");
+            MEDAL_PROMPT(gAskToExchangeMedals, "r4");
+            {
+                MEDAL_FIELD_PTR(choice_phase, dialogue_phase, "r6", "r1");
+                *choice_phase = WAIT_CHOICE;
+            }
+            return;
+        start_farewell:
+            asm volatile (".Lmedal_start_farewell:" : : : "memory");
+            SetMessageWindowTextSubstitutions(self->message_window, gMedalExchangeFarewell, &self->text_substitutions);
+            return;
+        start_browsing_text:
+            asm volatile (".Lmedal_start_browsing_text:" : : : "memory");
+            MEDAL_TEXT(gMedalExchangeKeepBrowsing, "r4");
+            return;
+        start_prize_prompt:
+            asm volatile (".Lmedal_start_prize_prompt:" : : : "memory");
+            MEDAL_PROMPT(gConfirmMedalExchangePrize, "r6");
+            {
+                MEDAL_FIELD_PTR(choice_phase, dialogue_phase, "r0", "r1");
+                *choice_phase = WAIT_CHOICE;
+            }
+            return;
+        start_leaving_text:
+            asm volatile (".Lmedal_start_leaving_text:" : : : "memory");
+            SetMessageWindowTextSubstitutions(self->message_window, gMedalExchangeLeaving, &self->text_substitutions);
+            return;
+        start_not_enough_text:
+            asm volatile (".Lmedal_start_not_enough_text:" : : : "memory");
+            MEDAL_TEXT(gMedalExchangeNotEnoughMedals, "r4");
+        }
+        break;
+    }
+    case 1: case 2: case 4: case 5: case 6:
+        break;
+    }
+dialogue_done:
+    asm volatile (".Lmedal_dialogue_done:" : : : "memory");
+}
+
+#undef MEDAL_FIELD_PTR
+#undef MEDAL_PROMPT
+#undef MEDAL_TEXT
 
 EC SECTION(".text.f3.0805DC24") void LoadMedalExchangePrizeGraphics(MedalExchange * self)
 {
