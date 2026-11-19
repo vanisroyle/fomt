@@ -46230,7 +46230,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r6, #0
 	bl LoadHorseRaceCourseGraphics
 	adds r0, r6, #0
-	bl func_0805AD14
+	bl UpdateHorseRaceCourseScroll
 	adds r0, r6, #0
 	bl func_0805B38C
 	adds r0, r6, #0
@@ -46549,7 +46549,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	strh r0, [r1]
 .L080591E0:
 	adds r0, r6, #0
-	bl func_0805AD14
+	bl UpdateHorseRaceCourseScroll
 	b .L0805933E
 	.align 2, 0
 .L080591E8: .4byte 0x00001406
@@ -47819,9 +47819,152 @@ UpdateHorseRaceDialogue: @ 0x08059878
 	.align 2, 0
 .L08059C90: .4byte gUnk_080FAE00
 
+	.equ .Lrace_bg1_scroll_x, 0x13EA
+	.equ .Lrace_bg2_scroll_x, 0x13EC
+	.equ .Lrace_bg3_scroll_x, 0x13EE
+	.equ .Lrace_bg1_last_tile_scroll, 0x13F0
+	.equ .Lrace_bg2_last_tile_scroll, 0x13F2
+	.equ .Lrace_bg3_last_tile_scroll, 0x13F4
+	.equ .Lrace_bg1_pattern_phase, 0x13F6
+	.equ .Lrace_bg2_pattern_phase, 0x13F8
+	.equ .Lrace_bg3_pattern_phase, 0x13FA
+
+	.equ .Lrace_course_bg3_pattern, 0xBEA
+	.equ .Lrace_course_bg2_pattern, 0xCEA
+	.equ .Lrace_course_bg1_pattern, 0xDEA
+	.equ .Lrace_course_bg2_alternate, 0xEEA
+	.equ .Lrace_course_bg3_tilemap, 0x0600C800
+	.equ .Lrace_course_bg2_tilemap, 0x0600D800
+	.equ .Lrace_course_bg1_tilemap, 0x0600E800
+	.equ .Lrace_course_scroll_mask, 0xFFF0
+
+	@ Expand the DMA queue to size + max(size, 1) when a tile copy fills it.
+	@ r5 = queue, r1 = old end, r7 = tile row. Scratch registers vary by loop.
+	.macro GrowRaceCourseDmaQueue old_size, command_ptr, tail_reg, next_row_reg, end_reg
+	str r1, [sp, #0x60]
+	movs r0, #1
+	str r0, [sp, #(\old_size + 4)]
+	ldr r0, [r5]
+	adds \tail_reg, r1, #0
+	subs r0, \tail_reg, r0
+	asrs r4, r0, #4
+	str r4, [sp, #\old_size]
+	add r1, sp, #(\old_size + 4)
+	add r0, sp, #\old_size
+	cmp r4, #1
+	bhs .Lrace_dma_use_growth\@
+	adds r0, r1, #0
+.Lrace_dma_use_growth\@:
+	ldr r0, [r0]
+	adds r0, r4, r0
+	cmp r0, #0
+	beq .Lrace_dma_empty_capacity\@
+	lsls r4, r0, #4
+	adds r0, r4, #0
+	bl malloc
+	mov sb, r4
+	cmp r0, #0
+	bne .Lrace_dma_have_storage\@
+	mov r0, sb
+	bl func_080D3BC0
+	b .Lrace_dma_have_storage\@
+.Lrace_dma_empty_capacity\@:
+	movs r0, #0
+	mov sb, r0
+	@ Copy the queued commands into the resized buffer.
+.Lrace_dma_have_storage\@:
+	adds r4, r0, #0
+	mov r8, r4
+	ldr r2, [r5]
+	mov r3, r8
+	adds \next_row_reg, r7, #1
+	str \next_row_reg, [sp, #0x64]
+	ldr \end_reg, [sp, #0x60]
+	cmp r2, \end_reg
+	beq .Lrace_dma_append_new_commands\@
+.Lrace_dma_copy_old_commands\@:
+	cmp r3, #0
+	beq .Lrace_dma_next_old_command\@
+	adds r0, r3, #0
+	adds r1, r2, #0
+	ldm r1!, {r4, r6, r7}
+	stm r0!, {r4, r6, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lrace_dma_next_old_command\@:
+	adds r2, #0x10
+	adds r3, #0x10
+	ldr r0, [sp, #0x60]
+	cmp r2, r0
+	bne .Lrace_dma_copy_old_commands\@
+	@ Append the new command with the original fill-insert branches.
+.Lrace_dma_append_new_commands\@:
+	adds r4, r3, #0
+	ldr r0, [sp, #(\old_size + 4)]
+	cmp r0, #1
+	bne .Lrace_dma_append_multiple_commands\@
+	cmp r4, #0
+	beq .Lrace_dma_advance_single_command\@
+	adds r0, r4, #0
+	ldr r1, [sp, #\command_ptr]
+	ldm r1!, {r2, r3, r6}
+	stm r0!, {r2, r3, r6}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lrace_dma_advance_single_command\@:
+	adds r4, #0x10
+	b .Lrace_dma_release_old_storage\@
+.Lrace_dma_append_multiple_commands\@:
+	mov ip, r0
+	adds r2, r4, #0
+	cmp r0, #0
+	beq .Lrace_dma_finish_append\@
+.Lrace_dma_append_next_command\@:
+	cmp r2, #0
+	beq .Lrace_dma_advance_appended_command\@
+	adds r0, r2, #0
+	ldr r1, [sp, #\command_ptr]
+	ldm r1!, {r3, r4, r7}
+	stm r0!, {r3, r4, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lrace_dma_advance_appended_command\@:
+	movs r6, #1
+	rsbs r6, r6, #0
+	add ip, r6
+	adds r2, #0x10
+	mov r7, ip
+	cmp r7, #0
+	bne .Lrace_dma_append_next_command\@
+.Lrace_dma_finish_append\@:
+	adds r4, r2, #0
+	@ Discard the old buffer and publish the new queue.
+.Lrace_dma_release_old_storage\@:
+	ldr r2, [r5, #4]
+	ldr r0, [r5]
+	adds r1, r0, #0
+	cmp r0, r2
+	beq .Lrace_dma_free_old_storage\@
+.Lrace_dma_destroy_old_commands\@:
+	adds r1, #0x10
+	cmp r1, r2
+	bne .Lrace_dma_destroy_old_commands\@
+.Lrace_dma_free_old_storage\@:
+	cmp r0, #0
+	beq .Lrace_dma_write_queue\@
+	bl free
+.Lrace_dma_write_queue\@:
+	mov r0, sb
+	add r0, r8
+	mov r1, r8
+	str r1, [r5]
+	str r4, [r5, #4]
+	str r0, [r5, #0xc]
+	.endm
+
 	.section .text.f3.0805AD14, "ax", %progbits
-	thumb_func_start func_0805AD14
-func_0805AD14: @ 0x0805AD14
+	thumb_func_start UpdateHorseRaceCourseScroll
+UpdateHorseRaceCourseScroll: @ 0x0805AD14
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -47829,6 +47972,7 @@ func_0805AD14: @ 0x0805AD14
 	push {r5, r6, r7}
 	sub sp, #0x68
 	mov sl, r0
+	@ Apply horizontal positions to the display shadow for all three layers.
 	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r1, .L0805ADF8 @ =0x000013EA
@@ -47859,9 +48003,10 @@ func_0805AD14: @ 0x0805AD14
 	ands r1, r0
 	ldrh r0, [r2]
 	cmp r0, r1
-	bne .L0805AD68
-	b .L0805AEF0
-.L0805AD68:
+	bne .Lrace_scroll_update_near_pattern
+	b .Lrace_scroll_check_middle_scroll
+.Lrace_scroll_update_near_pattern:
+	@ When the scroll moves by 16 pixels, stream a two-tile strip into the wrapping map.
 	strh r1, [r2]
 	ldr r1, .L0805AE0C @ =0x000013FA
 	add r1, sl
@@ -47870,10 +48015,10 @@ func_0805AD14: @ 0x0805AD14
 	strh r0, [r1]
 	lsls r0, r0, #0x10
 	cmp r0, #0
-	bge .L0805AD7E
+	bge .Lrace_scroll_near_pattern_wrapped
 	movs r0, #2
 	strh r0, [r1]
-.L0805AD7E:
+.Lrace_scroll_near_pattern_wrapped:
 	ldrh r0, [r2]
 	subs r0, #0x10
 	movs r1, #0xf8
@@ -47891,7 +48036,7 @@ func_0805AD14: @ 0x0805AD14
 	ands r2, r0
 	lsls r2, r2, #1
 	str r2, [sp, #0x34]
-.L0805ADA0:
+.Lrace_scroll_queue_near_row:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805AE0C @ =0x000013FA
@@ -47919,154 +48064,40 @@ func_0805AD14: @ 0x0805AD14
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
-	beq .L0805AE18
+	beq .Lrace_scroll_grow_near_dma_queue
 	cmp r1, #0
-	beq .L0805ADEC
+	beq .Lrace_scroll_advance_near_dma_end
 	adds r0, r1, #0
 	ldr r1, [sp, #0x3c]
 	ldm r1!, {r2, r4, r6}
 	stm r0!, {r2, r4, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805ADEC:
+.Lrace_scroll_advance_near_dma_end:
 	ldr r0, [r5, #4]
 	adds r0, #0x10
 	str r0, [r5, #4]
 	adds r3, r7, #1
 	str r3, [sp, #0x64]
-	b .L0805AEE8
+	b .Lrace_scroll_next_near_row
 	.align 2, 0
-.L0805ADF8: .4byte 0x000013EA
-.L0805ADFC: .4byte 0x000013EC
-.L0805AE00: .4byte 0x000013EE
-.L0805AE04: .4byte 0x000013F4
-.L0805AE08: .4byte 0x0000FFF0
-.L0805AE0C: .4byte 0x000013FA
-.L0805AE10: .4byte 0x00000BEA
-.L0805AE14: .4byte 0x0600C800
-.L0805AE18:
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #0x18]
-	ldr r0, [r5]
-	adds r4, r1, #0
-	subs r0, r4, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x14]
-	add r1, sp, #0x18
-	add r0, sp, #0x14
-	cmp r4, #1
-	bhs .L0805AE32
-	adds r0, r1, #0
-.L0805AE32:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805AE50
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805AE54
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805AE54
-.L0805AE50:
-	movs r0, #0
-	mov sb, r0
-.L0805AE54:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds r6, r7, #1
-	str r6, [sp, #0x64]
-	ldr r7, [sp, #0x60]
-	cmp r2, r7
-	beq .L0805AE80
-.L0805AE66:
-	cmp r3, #0
-	beq .L0805AE76
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805AE76:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .L0805AE66
-.L0805AE80:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x18]
-	cmp r0, #1
-	bne .L0805AE9C
-	cmp r4, #0
-	beq .L0805AE98
-	adds r0, r4, #0
-	ldr r1, [sp, #0x3c]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805AE98:
-	adds r4, #0x10
-	b .L0805AEC4
-.L0805AE9C:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805AEC2
-.L0805AEA4:
-	cmp r2, #0
-	beq .L0805AEB4
-	adds r0, r2, #0
-	ldr r1, [sp, #0x3c]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805AEB4:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805AEA4
-.L0805AEC2:
-	adds r4, r2, #0
-.L0805AEC4:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805AED4
-.L0805AECE:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805AECE
-.L0805AED4:
-	cmp r0, #0
-	beq .L0805AEDC
-	bl free
-.L0805AEDC:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-.L0805AEE8:
+.L0805ADF8: .4byte .Lrace_bg1_scroll_x
+.L0805ADFC: .4byte .Lrace_bg2_scroll_x
+.L0805AE00: .4byte .Lrace_bg3_scroll_x
+.L0805AE04: .4byte .Lrace_bg3_last_tile_scroll
+.L0805AE08: .4byte .Lrace_course_scroll_mask
+.L0805AE0C: .4byte .Lrace_bg3_pattern_phase
+.L0805AE10: .4byte .Lrace_course_bg3_pattern
+.L0805AE14: .4byte .Lrace_course_bg3_tilemap
+.Lrace_scroll_grow_near_dma_queue:
+	GrowRaceCourseDmaQueue 0x14, 0x3c, r4, r6, r7
+.Lrace_scroll_next_near_row:
 	ldr r7, [sp, #0x64]
 	cmp r7, #0x13
-	bgt .L0805AEF0
-	b .L0805ADA0
-.L0805AEF0:
+	bgt .Lrace_scroll_check_middle_scroll
+	b .Lrace_scroll_queue_near_row
+.Lrace_scroll_check_middle_scroll:
+	@ BG2 streams track tiles for rows 3-17; a short section uses the alternate pattern.
 	ldr r2, .L0805AFA4 @ =0x000013F2
 	add r2, sl
 	ldr r0, .L0805AFA8 @ =0x000013EC
@@ -48076,9 +48107,9 @@ func_0805AD14: @ 0x0805AD14
 	ands r1, r0
 	ldrh r0, [r2]
 	cmp r0, r1
-	bne .L0805AF06
-	b .L0805B1E8
-.L0805AF06:
+	bne .Lrace_scroll_update_middle_pattern
+	b .Lrace_scroll_check_far_scroll
+.Lrace_scroll_update_middle_pattern:
 	strh r1, [r2]
 	ldr r1, .L0805AFB0 @ =0x000013F8
 	add r1, sl
@@ -48087,10 +48118,10 @@ func_0805AD14: @ 0x0805AD14
 	strh r0, [r1]
 	lsls r0, r0, #0x10
 	cmp r0, #0
-	bge .L0805AF1C
+	bge .Lrace_scroll_middle_pattern_wrapped
 	movs r0, #2
 	strh r0, [r1]
-.L0805AF1C:
+.Lrace_scroll_middle_pattern_wrapped:
 	ldrh r0, [r2]
 	adds r3, r0, #0
 	subs r3, #0x10
@@ -48102,9 +48133,9 @@ func_0805AD14: @ 0x0805AD14
 	lsls r0, r0, #0x10
 	lsrs r0, r0, #0x10
 	cmp r0, #0x2f
-	bls .L0805AF36
-	b .L0805B096
-.L0805AF36:
+	bls .Lrace_scroll_use_alternate_middle_pattern
+	b .Lrace_scroll_use_default_middle_pattern
+.Lrace_scroll_use_alternate_middle_pattern:
 	movs r7, #3
 	asrs r3, r3, #8
 	str r3, [sp, #0x5c]
@@ -48114,7 +48145,7 @@ func_0805AD14: @ 0x0805AD14
 	str r2, [sp, #0x40]
 	mov r2, sp
 	str r2, [sp, #0x44]
-.L0805AF48:
+.Lrace_scroll_queue_alternate_middle_row:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805AFB0 @ =0x000013F8
@@ -48143,154 +48174,39 @@ func_0805AD14: @ 0x0805AD14
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
-	beq .L0805AFBC
+	beq .Lrace_scroll_grow_alternate_middle_dma_queue
 	cmp r1, #0
-	beq .L0805AF96
+	beq .Lrace_scroll_advance_alternate_middle_dma_end
 	adds r0, r1, #0
 	mov r1, sp
 	ldm r1!, {r2, r4, r6}
 	stm r0!, {r2, r4, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805AF96:
+.Lrace_scroll_advance_alternate_middle_dma_end:
 	ldr r0, [r5, #4]
 	adds r0, #0x10
 	str r0, [r5, #4]
 	adds r3, r7, #1
 	str r3, [sp, #0x64]
-	b .L0805B08C
+	b .Lrace_scroll_next_alternate_middle_row
 	.align 2, 0
-.L0805AFA4: .4byte 0x000013F2
-.L0805AFA8: .4byte 0x000013EC
-.L0805AFAC: .4byte 0x0000FFF0
-.L0805AFB0: .4byte 0x000013F8
-.L0805AFB4: .4byte 0x00000EEA
-.L0805AFB8: .4byte 0x0600D800
-.L0805AFBC:
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #0x20]
-	ldr r0, [r5]
-	adds r4, r1, #0
-	subs r0, r4, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x1c]
-	add r1, sp, #0x20
-	add r0, sp, #0x1c
-	cmp r4, #1
-	bhs .L0805AFD6
-	adds r0, r1, #0
-.L0805AFD6:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805AFF4
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805AFF8
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805AFF8
-.L0805AFF4:
-	movs r0, #0
-	mov sb, r0
-.L0805AFF8:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds r6, r7, #1
-	str r6, [sp, #0x64]
-	ldr r7, [sp, #0x60]
-	cmp r2, r7
-	beq .L0805B024
-.L0805B00A:
-	cmp r3, #0
-	beq .L0805B01A
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B01A:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .L0805B00A
-.L0805B024:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x20]
-	cmp r0, #1
-	bne .L0805B040
-	cmp r4, #0
-	beq .L0805B03C
-	adds r0, r4, #0
-	ldr r1, [sp, #0x44]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B03C:
-	adds r4, #0x10
-	b .L0805B068
-.L0805B040:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805B066
-.L0805B048:
-	cmp r2, #0
-	beq .L0805B058
-	adds r0, r2, #0
-	ldr r1, [sp, #0x44]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B058:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805B048
-.L0805B066:
-	adds r4, r2, #0
-.L0805B068:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805B078
-.L0805B072:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805B072
-.L0805B078:
-	cmp r0, #0
-	beq .L0805B080
-	bl free
-.L0805B080:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-.L0805B08C:
+.L0805AFA4: .4byte .Lrace_bg2_last_tile_scroll
+.L0805AFA8: .4byte .Lrace_bg2_scroll_x
+.L0805AFAC: .4byte .Lrace_course_scroll_mask
+.L0805AFB0: .4byte .Lrace_bg2_pattern_phase
+.L0805AFB4: .4byte .Lrace_course_bg2_alternate
+.L0805AFB8: .4byte .Lrace_course_bg2_tilemap
+.Lrace_scroll_grow_alternate_middle_dma_queue:
+	GrowRaceCourseDmaQueue 0x1c, 0x44, r4, r6, r7
+.Lrace_scroll_next_alternate_middle_row:
 	ldr r7, [sp, #0x64]
 	cmp r7, #0x11
-	bgt .L0805B094
-	b .L0805AF48
-.L0805B094:
-	b .L0805B1E8
-.L0805B096:
+	bgt .Lrace_scroll_skip_default_middle_pattern
+	b .Lrace_scroll_queue_alternate_middle_row
+.Lrace_scroll_skip_default_middle_pattern:
+	b .Lrace_scroll_check_far_scroll
+.Lrace_scroll_use_default_middle_pattern:
 	movs r7, #3
 	asrs r3, r3, #8
 	str r3, [sp, #0x5c]
@@ -48300,7 +48216,7 @@ func_0805AD14: @ 0x0805AD14
 	str r2, [sp, #0x48]
 	mov r2, sp
 	str r2, [sp, #0x4c]
-.L0805B0A8:
+.Lrace_scroll_queue_default_middle_row:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805B104 @ =0x000013F8
@@ -48329,149 +48245,35 @@ func_0805AD14: @ 0x0805AD14
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
-	beq .L0805B110
+	beq .Lrace_scroll_grow_default_middle_dma_queue
 	cmp r1, #0
-	beq .L0805B0F6
+	beq .Lrace_scroll_advance_default_middle_dma_end
 	adds r0, r1, #0
 	mov r1, sp
 	ldm r1!, {r2, r4, r6}
 	stm r0!, {r2, r4, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805B0F6:
+.Lrace_scroll_advance_default_middle_dma_end:
 	ldr r0, [r5, #4]
 	adds r0, #0x10
 	str r0, [r5, #4]
 	adds r3, r7, #1
 	str r3, [sp, #0x64]
-	b .L0805B1E0
+	b .Lrace_scroll_next_default_middle_row
 	.align 2, 0
-.L0805B104: .4byte 0x000013F8
-.L0805B108: .4byte 0x00000CEA
-.L0805B10C: .4byte 0x0600D800
-.L0805B110:
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #0x28]
-	ldr r0, [r5]
-	adds r4, r1, #0
-	subs r0, r4, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x24]
-	add r1, sp, #0x28
-	add r0, sp, #0x24
-	cmp r4, #1
-	bhs .L0805B12A
-	adds r0, r1, #0
-.L0805B12A:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805B148
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805B14C
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805B14C
-.L0805B148:
-	movs r0, #0
-	mov sb, r0
-.L0805B14C:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds r6, r7, #1
-	str r6, [sp, #0x64]
-	ldr r7, [sp, #0x60]
-	cmp r2, r7
-	beq .L0805B178
-.L0805B15E:
-	cmp r3, #0
-	beq .L0805B16E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B16E:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .L0805B15E
-.L0805B178:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x28]
-	cmp r0, #1
-	bne .L0805B194
-	cmp r4, #0
-	beq .L0805B190
-	adds r0, r4, #0
-	ldr r1, [sp, #0x4c]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B190:
-	adds r4, #0x10
-	b .L0805B1BC
-.L0805B194:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805B1BA
-.L0805B19C:
-	cmp r2, #0
-	beq .L0805B1AC
-	adds r0, r2, #0
-	ldr r1, [sp, #0x4c]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B1AC:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805B19C
-.L0805B1BA:
-	adds r4, r2, #0
-.L0805B1BC:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805B1CC
-.L0805B1C6:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805B1C6
-.L0805B1CC:
-	cmp r0, #0
-	beq .L0805B1D4
-	bl free
-.L0805B1D4:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-.L0805B1E0:
+.L0805B104: .4byte .Lrace_bg2_pattern_phase
+.L0805B108: .4byte .Lrace_course_bg2_pattern
+.L0805B10C: .4byte .Lrace_course_bg2_tilemap
+.Lrace_scroll_grow_default_middle_dma_queue:
+	GrowRaceCourseDmaQueue 0x24, 0x4c, r4, r6, r7
+.Lrace_scroll_next_default_middle_row:
 	ldr r7, [sp, #0x64]
 	cmp r7, #0x11
-	bgt .L0805B1E8
-	b .L0805B0A8
-.L0805B1E8:
+	bgt .Lrace_scroll_check_far_scroll
+	b .Lrace_scroll_queue_default_middle_row
+.Lrace_scroll_check_far_scroll:
+	@ BG1 only streams the three rows occupied by the distant scenery.
 	ldr r2, .L0805B28C @ =0x000013F0
 	add r2, sl
 	ldr r0, .L0805B290 @ =0x000013EA
@@ -48481,9 +48283,9 @@ func_0805AD14: @ 0x0805AD14
 	ands r1, r0
 	ldrh r0, [r2]
 	cmp r0, r1
-	bne .L0805B1FE
-	b .L0805B37C
-.L0805B1FE:
+	bne .Lrace_scroll_update_far_pattern
+	b .Lrace_scroll_done
+.Lrace_scroll_update_far_pattern:
 	strh r1, [r2]
 	ldr r1, .L0805B298 @ =0x000013F6
 	add r1, sl
@@ -48492,10 +48294,10 @@ func_0805AD14: @ 0x0805AD14
 	strh r0, [r1]
 	lsls r0, r0, #0x10
 	cmp r0, #0
-	bge .L0805B214
+	bge .Lrace_scroll_far_pattern_wrapped
 	movs r0, #2
 	strh r0, [r1]
-.L0805B214:
+.Lrace_scroll_far_pattern_wrapped:
 	ldrh r0, [r2]
 	subs r0, #0x10
 	movs r1, #0xf8
@@ -48512,7 +48314,7 @@ func_0805AD14: @ 0x0805AD14
 	ands r2, r0
 	lsls r2, r2, #1
 	str r2, [sp, #0x50]
-.L0805B234:
+.Lrace_scroll_queue_far_row:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805B298 @ =0x000013F6
@@ -48540,152 +48342,37 @@ func_0805AD14: @ 0x0805AD14
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
-	beq .L0805B2A4
+	beq .Lrace_scroll_grow_far_dma_queue
 	cmp r1, #0
-	beq .L0805B280
+	beq .Lrace_scroll_advance_far_dma_end
 	adds r0, r1, #0
 	mov r1, sp
 	ldm r1!, {r2, r3, r6}
 	stm r0!, {r2, r3, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805B280:
+.Lrace_scroll_advance_far_dma_end:
 	ldr r0, [r5, #4]
 	adds r0, #0x10
 	str r0, [r5, #4]
 	adds r4, r7, #1
 	str r4, [sp, #0x64]
-	b .L0805B374
+	b .Lrace_scroll_next_far_row
 	.align 2, 0
-.L0805B28C: .4byte 0x000013F0
-.L0805B290: .4byte 0x000013EA
-.L0805B294: .4byte 0x0000FFF0
-.L0805B298: .4byte 0x000013F6
-.L0805B29C: .4byte 0x00000DEA
-.L0805B2A0: .4byte 0x0600E800
-.L0805B2A4:
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #0x30]
-	ldr r0, [r5]
-	adds r6, r1, #0
-	subs r0, r6, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x2c]
-	add r1, sp, #0x30
-	add r0, sp, #0x2c
-	cmp r4, #1
-	bhs .L0805B2BE
-	adds r0, r1, #0
-.L0805B2BE:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805B2DC
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805B2E0
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805B2E0
-.L0805B2DC:
-	movs r0, #0
-	mov sb, r0
-.L0805B2E0:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds r0, r7, #1
-	str r0, [sp, #0x64]
-	ldr r1, [sp, #0x60]
-	cmp r2, r1
-	beq .L0805B30C
-.L0805B2F2:
-	cmp r3, #0
-	beq .L0805B302
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B302:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .L0805B2F2
-.L0805B30C:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x30]
-	cmp r0, #1
-	bne .L0805B328
-	cmp r4, #0
-	beq .L0805B324
-	adds r0, r4, #0
-	ldr r1, [sp, #0x58]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B324:
-	adds r4, #0x10
-	b .L0805B350
-.L0805B328:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805B34E
-.L0805B330:
-	cmp r2, #0
-	beq .L0805B340
-	adds r0, r2, #0
-	ldr r1, [sp, #0x58]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B340:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805B330
-.L0805B34E:
-	adds r4, r2, #0
-.L0805B350:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805B360
-.L0805B35A:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805B35A
-.L0805B360:
-	cmp r0, #0
-	beq .L0805B368
-	bl free
-.L0805B368:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-.L0805B374:
+.L0805B28C: .4byte .Lrace_bg1_last_tile_scroll
+.L0805B290: .4byte .Lrace_bg1_scroll_x
+.L0805B294: .4byte .Lrace_course_scroll_mask
+.L0805B298: .4byte .Lrace_bg1_pattern_phase
+.L0805B29C: .4byte .Lrace_course_bg1_pattern
+.L0805B2A0: .4byte .Lrace_course_bg1_tilemap
+.Lrace_scroll_grow_far_dma_queue:
+	GrowRaceCourseDmaQueue 0x2c, 0x58, r6, r0, r1
+.Lrace_scroll_next_far_row:
 	ldr r7, [sp, #0x64]
 	cmp r7, #0x13
-	bgt .L0805B37C
-	b .L0805B234
-.L0805B37C:
+	bgt .Lrace_scroll_done
+	b .Lrace_scroll_queue_far_row
+.Lrace_scroll_done:
 	add sp, #0x68
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -48694,6 +48381,8 @@ func_0805AD14: @ 0x0805AD14
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
+
+	.purgem GrowRaceCourseDmaQueue
 
 	thumb_func_start func_0805B38C
 func_0805B38C: @ 0x0805B38C
@@ -138966,7 +138655,7 @@ func_0808A55C: @ 0x0808A55C
 	bl func_08088574
 .L0808A838:
 	ldr r0, [r6]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L0808A89A
 .L0808A840:
 	adds r0, r7, #0
@@ -142118,7 +141807,7 @@ func_0808C0BC: @ 0x0808C0BC
 	cmp r0, #0
 	beq .L0808C338
 	ldr r0, [r4]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L0808C394
 .L0808C338:
 	adds r0, r7, #0
@@ -146551,7 +146240,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl func_0808C8BC
 .L0808E9D8:
 	ldr r0, [r6]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L0808EA3A
 .L0808E9E0:
 	adds r0, r7, #0
@@ -150454,7 +150143,7 @@ func_08090960: @ 0x08090960
 	bl func_0808EF30
 .L08090C20:
 	ldr r0, [r6]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L08090C82
 .L08090C28:
 	adds r0, r7, #0
@@ -151939,7 +151628,7 @@ func_0809152C: @ 0x0809152C
 	beq .L08091884
 	ldr r1, [sp, #0x60]
 	ldr r0, [r1]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L080918E4
 .L08091884:
 	adds r0, r7, #0
@@ -154712,7 +154401,7 @@ func_08092D64: @ 0x08092D64
 	cmp r0, #0
 	beq .L08092FE8
 	ldr r0, [r6]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L08093044
 .L08092FE8:
 	adds r0, r7, #0

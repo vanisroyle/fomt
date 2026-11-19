@@ -1171,7 +1171,8 @@ struct PACKED SavedCalendarDate
 {
     u8 yearInCycle : 3;
     u8 yearCycle : 5;
-    u8 packedDateAndTime[2];
+    u8 packedDate;
+    u8 packedTime;
 };
 
 enum NpcScheduleWeekday
@@ -1260,7 +1261,166 @@ struct NpcScheduleContext
     u8 eventFlags;
 };
 
-EC CalendarDate & DecodeNpcScheduleDate(CalendarDate &, SavedCalendarDate const &);
+#define EXTRACT_CALENDAR_FIELD(output, input, offset, width) \
+    asm(".syntax unified\n\tlsls %0, %1, %2\n\tlsrs %0, %0, %3\n\t.syntax divided" \
+        : "=l"(output) : "l"(input), "I"(32 - (offset) - (width)), "I"(32 - (width)))
+
+ROM_TEXT(0803D52C) CalendarDate & DecodeNpcScheduleDate(CalendarDate & result, SavedCalendarDate const & calendar)
+{
+    enum
+    {
+        DAYS_PER_SEASON = 30,
+        DAYS_PER_YEAR = 4 * DAYS_PER_SEASON,
+        DAYS_PER_WEEK = 7,
+        YEARS_PER_CALENDAR_CYCLE = 7,
+        WEEKDAY_YEAR_OFFSET = 6,
+        MAX_YEAR = 200,
+        SCHEDULE_DAY_START_HOUR = 6,
+        SEASON_BIT = 0,
+        SEASON_WIDTH = 2,
+        SEASON_MASK = (1u << SEASON_WIDTH) - 1,
+        DAY_BIT = 2,
+        DAY_WIDTH = 5,
+        DAY_MASK = (1u << DAY_WIDTH) - 1,
+        WEEKDAY_WIDTH = 3,
+        WEEKDAY_MASK = (1u << WEEKDAY_WIDTH) - 1,
+        HOUR_BIT = 16,
+        HOUR_WIDTH = 5,
+    };
+    struct LocalDate
+    {
+        unsigned maxYear;
+        unsigned year;
+        u8 date;
+    } local;
+    // Register and stack constraints below preserve agbcc's original Thumb layout.
+    asm("" : : : "r9", "r10");
+
+    unsigned dateByte = calendar.packedDate;
+    u8 * dateBuffer = &local.date;
+    *dateBuffer = dateByte;
+
+    unsigned yearInCycle = calendar.yearInCycle;
+    unsigned season;
+    EXTRACT_CALENDAR_FIELD(season, dateByte, SEASON_BIT, SEASON_WIDTH);
+    register unsigned dayCount asm("r3");
+    EXTRACT_CALENDAR_FIELD(dayCount, dateByte, DAY_BIT, DAY_WIDTH);
+    yearInCycle += WEEKDAY_YEAR_OFFSET;
+    dayCount += season * DAYS_PER_SEASON + yearInCycle * DAYS_PER_YEAR;
+    register u8 * date asm("r8");
+    date = dateBuffer;
+    asm("" : "+r"(date));
+    if (dayCount > DAYS_PER_WEEK - 1)
+        dayCount %= DAYS_PER_WEEK;
+    // The original keeps the weekday in the low three bits of a register.
+    unsigned weekdayStorage;
+    asm("" : "=l"(weekdayStorage));
+    unsigned weekdayMask = ~unsigned(WEEKDAY_MASK);
+    asm("" : "+l"(weekdayMask));
+    unsigned weekdayLow = dayCount & WEEKDAY_MASK;
+    asm("and %0, %1" : "+l"(weekdayMask) : "l"(weekdayStorage));
+    weekdayStorage = weekdayMask | weekdayLow;
+    asm("" : "+l"(weekdayStorage) : : "memory");
+
+    unsigned maxYear = MAX_YEAR;
+    local.maxYear = maxYear;
+    unsigned actualYear = calendar.yearCycle * unsigned(YEARS_PER_CALENDAR_CYCLE)
+        + calendar.yearInCycle;
+    local.year = actualYear;
+    unsigned * actualYearAddress = &local.year;
+    register unsigned * yearAddress asm("r2") = &local.maxYear;
+    if (maxYear > actualYear)
+        yearAddress = actualYearAddress;
+    register unsigned year asm("r4") = *yearAddress;
+    unsigned packedCalendar;
+    asm("ldr %0, [%1]" : "=l"(packedCalendar) : "l"(&calendar) : "memory");
+    unsigned hour;
+    EXTRACT_CALENDAR_FIELD(hour, packedCalendar, HOUR_BIT, HOUR_WIDTH);
+    // NPC schedules still use the previous date before 6 AM.
+    if (hour < SCHEDULE_DAY_START_HOUR)
+    {
+        u8 * rolledDate;
+        asm("mov %0, %1" : "=l"(rolledDate) : "r"(date));
+        unsigned currentDateByte = *rolledDate;
+        unsigned dayShift;
+        register unsigned previousDay asm("r2");
+        asm("lsl %0, %2, %3; lsr %1, %0, %4"
+            : "=&l"(dayShift), "=l"(previousDay)
+            : "l"(currentDateByte), "I"(32 - DAY_BIT - DAY_WIDTH), "I"(32 - DAY_WIDTH));
+        if (previousDay == 0)
+        {
+            unsigned previousSeason;
+            EXTRACT_CALENDAR_FIELD(previousSeason, currentDateByte, SEASON_BIT, SEASON_WIDTH);
+            unsigned seasonMask = ~unsigned(SEASON_MASK);
+            --previousSeason;
+            unsigned seasonBits = SEASON_MASK;
+            previousSeason &= seasonBits;
+            seasonMask &= currentDateByte;
+            seasonMask |= previousSeason;
+            *rolledDate = seasonMask;
+            previousDay = DAYS_PER_SEASON - 1;
+        }
+        else
+        {
+            --previousDay;
+        }
+        register unsigned dayMask asm("r0") = DAY_MASK;
+        asm("" : "+l"(dayMask));
+        previousDay = (previousDay & dayMask) << DAY_BIT;
+        unsigned unchangedDate = *rolledDate;
+        unsigned preserveOtherDateBits = ~(unsigned(DAY_MASK) << DAY_BIT);
+        preserveOtherDateBits &= unchangedDate;
+        *rolledDate = preserveOtherDateBits | previousDay;
+
+        u8 const * normalizedDate;
+        asm("mov %0, %1" : "=l"(normalizedDate) : "r"(date));
+        unsigned normalizedDateByte = *normalizedDate;
+        unsigned normalizedSeason;
+        EXTRACT_CALENDAR_FIELD(normalizedSeason, normalizedDateByte, SEASON_BIT, SEASON_WIDTH);
+        if (normalizedSeason == SEASON_WINTER)
+        {
+            unsigned normalizedDay;
+            EXTRACT_CALENDAR_FIELD(normalizedDay, normalizedDateByte, DAY_BIT, DAY_WIDTH);
+            if (normalizedDay == DAYS_PER_SEASON - 1)
+                --year;
+        }
+
+        int weekday;
+        EXTRACT_CALENDAR_FIELD(weekday, weekdayStorage, 0, WEEKDAY_WIDTH);
+        int previousWeekday = DAYS_PER_WEEK - 1;
+        if (weekday > SCHEDULE_MONDAY)
+            previousWeekday = weekday - 1;
+        unsigned weekdayBits = WEEKDAY_MASK;
+        asm("" : "+l"(weekdayBits));
+        previousWeekday &= weekdayBits;
+        register unsigned preserveOtherWeekdayBits asm("r0") = ~unsigned(WEEKDAY_MASK);
+        preserveOtherWeekdayBits &= weekdayStorage;
+        weekdayStorage = preserveOtherWeekdayBits | previousWeekday;
+    }
+
+    result.year = year;
+    register u8 const * scheduleDate asm("r1");
+    asm("mov %0, %1" : "=l"(scheduleDate) : "r"(date));
+    unsigned scheduleSeasonByte = *scheduleDate;
+    asm("" : "+l"(scheduleSeasonByte));
+    unsigned scheduleSeason;
+    EXTRACT_CALENDAR_FIELD(scheduleSeason, scheduleSeasonByte, SEASON_BIT, SEASON_WIDTH);
+    result.season = scheduleSeason;
+    u8 const * dayAddress;
+    asm("add %0, sp, %1"
+        : "=l"(dayAddress) : "I"(offsetof(LocalDate, date)) : "memory");
+    unsigned scheduleDayByte = *dayAddress;
+    unsigned scheduleDay;
+    EXTRACT_CALENDAR_FIELD(scheduleDay, scheduleDayByte, DAY_BIT, DAY_WIDTH);
+    result.day = scheduleDay + 1;
+    unsigned scheduleWeekday;
+    EXTRACT_CALENDAR_FIELD(scheduleWeekday, weekdayStorage, 0, WEEKDAY_WIDTH);
+    result.weekday = scheduleWeekday;
+    return result;
+}
+
+#undef EXTRACT_CALENDAR_FIELD
+
 EC unsigned GetRosterMarriageCandidate(void const *);
 
 ROM_TEXT(0803D7E4) unsigned SelectNpcSchedule_080F1A80(void const * context)
