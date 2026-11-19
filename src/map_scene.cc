@@ -10,6 +10,9 @@ struct MapSceneEntityMethods
 {
     STRUCT_PAD(0x00, 0x08);
     void (* destroy)(MapSceneEntity &, int);
+    STRUCT_PAD(0x0C, 0x10);
+    void (* finishMapChange)(MapSceneEntity &);
+    void (* prepareMapChange)(MapSceneEntity &);
 };
 
 struct MapSceneEntity
@@ -96,6 +99,82 @@ EC void ApplyMapRow15PatchB(G1MapState * map);
 EC void ApplyMapRow15PatchA(G1MapState * map);
 EC void StartMapTransitionDelay(u8 * self);
 EC bool IsMapTransitionIdle(u8 * self);
+EC void DestroyFixedSpriteOverlay(MapSceneOverlay *, unsigned);
+EC void func_080AB2E4(MapTileEffectQueue *, unsigned);
+EC void func_080A56DC(MapUpdateState *, unsigned, unsigned, unsigned, unsigned);
+EC MapSceneOverlay * func_0803AB30(void *, MapScene *);
+EC MapTileEffectQueue * func_080AAFC8(void *, MapScene *, unsigned);
+
+EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, unsigned mapId)
+{
+    MapSceneEntity ** entry = scene.entities;
+    MapSceneEntity ** end = entry + 100;
+    if (entry != end)
+    {
+        do
+        {
+            register MapSceneEntity * entity asm("r2") = *entry;
+            asm ("" : "+l" (entity));
+            if (entity)
+                entity->methods->prepareMapChange(*entity);
+            ++entry;
+        }
+        while (entry != end);
+    }
+    register unsigned overlayOffset asm("r1") = offsetof(MapScene, overlay);
+    asm ("" : "+l" (overlayOffset));
+    register MapSceneOverlay ** overlaySlot asm("r4") = reinterpret_cast<MapSceneOverlay **>(reinterpret_cast<u8 *>(&scene) + overlayOffset);
+    asm ("" : "+l" (overlaySlot));
+    register MapSceneOverlay * emptyOverlay asm("r5") = 0;
+    asm ("" : "+l" (emptyOverlay));
+    if (emptyOverlay != *overlaySlot && *overlaySlot)
+        DestroyFixedSpriteOverlay(*overlaySlot, 3);
+    *overlaySlot = emptyOverlay;
+    register unsigned queueOffset asm("r0") = offsetof(MapScene, tileEffects);
+    asm ("" : "+l" (queueOffset));
+    register MapTileEffectQueue ** queueSlot asm("r4") = reinterpret_cast<MapTileEffectQueue **>(reinterpret_cast<u8 *>(&scene) + queueOffset);
+    asm ("" : "+l" (queueSlot));
+    register MapTileEffectQueue * emptyQueue asm("r5") = 0;
+    asm ("" : "+l" (emptyQueue));
+    if (emptyQueue != *queueSlot && *queueSlot)
+        func_080AB2E4(*queueSlot, 3);
+    *queueSlot = emptyQueue;
+    func_080A56DC(scene.map, mapId, 0, 0, 30);
+    register MapSceneOverlay * overlay asm("r0") = func_0803AB30(operator new(0xA0), &scene);
+    asm ("" : "+l" (overlay));
+    register MapSceneOverlay ** targetOverlay asm("r5") = &scene.overlay;
+    asm ("" : "+l" (targetOverlay));
+    MapSceneOverlay * nextOverlay = overlay;
+    asm ("" : "+l" (nextOverlay));
+    if (nextOverlay != *targetOverlay && *targetOverlay)
+        DestroyFixedSpriteOverlay(*targetOverlay, 3);
+    *targetOverlay = nextOverlay;
+    void * queueMemory = operator new(4);
+    unsigned graphicsId = reinterpret_cast<MapSceneTerrainSource const *>(scene.map)->graphicsId;
+    register MapTileEffectQueue * queue asm("r0") = func_080AAFC8(queueMemory, &scene, graphicsId);
+    asm ("" : "+l" (queue));
+    register MapTileEffectQueue ** targetQueue asm("r5") = &scene.tileEffects;
+    asm ("" : "+l" (targetQueue));
+    MapTileEffectQueue * nextQueue = queue;
+    asm ("" : "+l" (nextQueue));
+    if (nextQueue != *targetQueue && *targetQueue)
+        func_080AB2E4(*targetQueue, 3);
+    *targetQueue = nextQueue;
+    entry = scene.entities;
+    end = entry + 100;
+    if (entry != end)
+    {
+        do
+        {
+            register MapSceneEntity * entity asm("r2") = *entry;
+            asm ("" : "+l" (entity));
+            if (entity)
+                entity->methods->finishMapChange(*entity);
+            ++entry;
+        }
+        while (entry != end);
+    }
+}
 
 EC SECTION(".text.080AD69C") MapSceneTerrainGrid & GetMapSceneTerrainGrid(MapSceneTerrainGrid & result, MapScene const & scene, u32 requestedMap)
 {
