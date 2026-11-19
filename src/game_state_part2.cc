@@ -87,8 +87,8 @@ EC void func_080AA8DC(GameStateMapView & view);
 EC bool func_080A5A9C(GameStateMapView & view);
 EC void func_080A59BC(GameStateMapView & view, i32 x, i32 y, u32 speed);
 EC void func_080A5960(GameStateMapView & view, i32 x, i32 y);
-EC void func_0809C5B4(u32 & flags, u32 index);
-EC void func_0809C5D0(u32 & flags, u32 index);
+EC void SetAlternateMapPatch(u32 & flags, u32 index);
+EC void ClearAlternateMapPatch(u32 & flags, u32 index);
 EC void func_080AA850(GameStateMapView & view, u32 index);
 
 EC SECTION(".text.game_state_c2.0801DD18") void GameStateApplyRow15TilePatchVariant1(GameStateMapOwner & game)
@@ -138,13 +138,13 @@ EC SECTION(".text.game_state_c2.0801DD78") void GameStateStartMapViewTimer(GameS
 
 EC SECTION(".text.game_state_c2.0801DDCC") void GameStateSetMapTileVariant(GameStateMapOwner & game, u32 index)
 {
-    func_0809C5B4(game.map_data->tile_variant_flags, index);
+    SetAlternateMapPatch(game.map_data->tile_variant_flags, index);
     func_080AA850(*game.map_view, index);
 }
 
 EC SECTION(".text.game_state_c2.0801DDF8") void GameStateClearMapTileVariant(GameStateMapOwner & game, u32 index)
 {
-    func_0809C5D0(game.map_data->tile_variant_flags, index);
+    ClearAlternateMapPatch(game.map_data->tile_variant_flags, index);
     func_080AA850(*game.map_view, index);
 }
 

@@ -292,7 +292,7 @@ func_08010358: @ 0x08010358
     ldr r2, [sp, #0x48]
     ldr r3, .L08010658 @ =0x000034D8
     adds r0, r2, r3
-    bl func_0809C4E4
+    bl ResetMapPatchVariants
     ldr r6, [sp, #0x48]
     ldr r1, .L0801065C @ =0x000034DC
     adds r0, r6, r1
@@ -2404,7 +2404,7 @@ func_08011650: @ 0x08011650
     bl func_080A1A48
     ldr r2, .L080118C8 @ =0x000034D8
     adds r0, r7, r2
-    bl func_0809C4E4
+    bl ResetMapPatchVariants
     ldr r3, .L080118CC @ =0x000034DC
     adds r0, r7, r3
     bl func_0809BFE8
