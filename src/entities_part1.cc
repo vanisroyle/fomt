@@ -53,7 +53,51 @@ struct BarnEntityPart1 : AActorEntity
     BarnAnimal * animal;
 };
 
+EC void func_08020038(AActorEntity * self, GameObject * game, ActorLocation const * location, u32 speed);
+EC u32 func_08022950(ChickenEntityPart1 * self);
+EC u32 func_08023378(BarnEntityPart1 * self);
+EC u32 func_08024020(BarnEntityPart1 * self);
+EC void func_080228B4(ChickenEntityPart1 * self, u32 state, u32 facing);
+EC void func_08023308(BarnEntityPart1 * self, u32 state, u32 facing);
+EC void func_08023FB0(BarnEntityPart1 * self, u32 state, u32 facing);
+EC char const vtable_unk_080E639C[];
+EC char const vtable_unk_080E6310[];
+EC char const vtable_unk_080E6284[];
+
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+EC BarnEntityPart1 * func_080238A8(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal) ENTITY_CODE(080238A8);
+EC BarnEntityPart1 * func_080238A8(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal)
+{
+    Actor location(*animal);
+    func_08020038(self, game, &location.location, 0x921);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6284;
+    self->animal = animal;
+    func_08023FB0(self, func_08024020(self), self->facing);
+    return self;
+}
+
+EC BarnEntityPart1 * func_08022C18(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal) ENTITY_CODE(08022C18);
+EC BarnEntityPart1 * func_08022C18(BarnEntityPart1 * self, GameObject * game, BarnAnimal * animal)
+{
+    Actor location(*animal);
+    func_08020038(self, game, &location.location, 0x2B0);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E6310;
+    self->animal = animal;
+    func_08023308(self, func_08023378(self), self->facing);
+    return self;
+}
+
+EC ChickenEntityPart1 * func_080223A8(ChickenEntityPart1 * self, GameObject * game, Chicken * animal) ENTITY_CODE(080223A8);
+EC ChickenEntityPart1 * func_080223A8(ChickenEntityPart1 * self, GameObject * game, Chicken * animal)
+{
+    Actor location(*animal);
+    func_08020038(self, game, &location.location, 0x720);
+    reinterpret_cast<void const **>(self)[5] = vtable_unk_080E639C;
+    self->chicken = animal;
+    func_080228B4(self, func_08022950(self), self->facing);
+    return self;
+}
 
 EC u32 func_080246BC(u32 minimum, Tool const * tool) ENTITY_CODE(080246BC);
 EC u32 func_080246BC(u32 minimum, Tool const * tool)
