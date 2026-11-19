@@ -128,3 +128,88 @@ EC u32 GetChildNpcSpeed(AEntity * self, u32 state)
         return 0x8000;
     return 0;
 }
+
+struct NpcReactionSprite
+{
+    STRUCT_PAD(0x00, 0x54);
+    u8 reaction_timer;
+};
+
+struct LaunchedSideSprite
+{
+    STRUCT_PAD(0x00, 0x1C);
+    i32 height_q16;
+    i32 rise_speed;
+    u8 variant;
+    u8 launched;
+};
+
+EC u16 const gUnk_080F15A4[];
+EC u16 const gUnk_080F161C[];
+EC u16 const gUnk_080F1644[];
+EC u16 const gUnk_080F16AE[];
+
+EC u32 GetNpcVariantTwoAnimation(AEntity * self, u32 state) NPC_EXTRA_CODE(080377C4);
+EC u32 GetNpcVariantTwoAnimation(AEntity * self, u32 state)
+{
+    return gUnk_080F15A4[state];
+}
+
+EC u32 GetNpcVariantTwoSpeed(AEntity * self, u32 state) NPC_EXTRA_CODE(080377D4);
+EC u32 GetNpcVariantTwoSpeed(AEntity * self, u32 state)
+{
+    if (state == 1)
+        return 0x8000;
+    return 0;
+}
+
+EC u32 GetNpcVariantThreeAnimation(AEntity * self, u32 state) NPC_EXTRA_CODE(080378EC);
+EC u32 GetNpcVariantThreeAnimation(AEntity * self, u32 state)
+{
+    return gUnk_080F161C[state];
+}
+
+EC u32 GetNpcVariantFourAnimation(AEntity * self, u32 state) NPC_EXTRA_CODE(08037A38);
+EC u32 GetNpcVariantFourAnimation(AEntity * self, u32 state)
+{
+    return gUnk_080F1644[state];
+}
+
+EC u32 GetNpcVariantFourSpeed(AEntity * self, u32 state) NPC_EXTRA_CODE(08037A48);
+EC u32 GetNpcVariantFourSpeed(AEntity * self, u32 state)
+{
+    if (state == 1)
+        return 0x8000;
+    return 0;
+}
+
+EC void TickNpcReactionTimer(NpcReactionSprite * self) NPC_EXTRA_CODE(08037F60);
+EC void TickNpcReactionTimer(NpcReactionSprite * self)
+{
+    if (self->reaction_timer != 0)
+        self->reaction_timer--;
+}
+
+EC void StartNpcReactionTimer(NpcReactionSprite * self) NPC_EXTRA_CODE(08037F74);
+EC void StartNpcReactionTimer(NpcReactionSprite * self)
+{
+    self->reaction_timer = 10;
+}
+
+EC u8 IsSideSpriteLaunched(LaunchedSideSprite * self) NPC_EXTRA_CODE(08038108);
+EC u8 IsSideSpriteLaunched(LaunchedSideSprite * self)
+{
+    return self->launched;
+}
+
+EC i32 GetSideSpriteHeight(LaunchedSideSprite * self) NPC_EXTRA_CODE(0803836C);
+EC i32 GetSideSpriteHeight(LaunchedSideSprite * self)
+{
+    return i16(self->height_q16 >> 16);
+}
+
+EC u32 GetNpcVariantFiveAnimation(AEntity * self, u32 state) NPC_EXTRA_CODE(08039D4C);
+EC u32 GetNpcVariantFiveAnimation(AEntity * self, u32 state)
+{
+    return gUnk_080F16AE[state];
+}

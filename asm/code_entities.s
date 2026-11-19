@@ -9620,7 +9620,7 @@ func_0802E0FC: @ 0x0802E0FC
     ldr r2, [r1, #0x40]
     movs r1, #0x4b
     bl _call_via_r2
-    bl func_08038108
+    bl IsSideSpriteLaunched
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0802E7BA
