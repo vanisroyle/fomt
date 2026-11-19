@@ -48,4 +48,6 @@ EC void ConfigureJoybus(u32 reset, u32 mode); // 0x080D0B14
 EC void EnableJoybusSerialInterrupt(); // 0x080D0ABC
 EC void DisableJoybusSerialInterrupt(); // 0x080D0AE0
 
+EC void Joybus_HandleSerialInterrupt(); // 0x080D0704
+
 #endif

@@ -1,5 +1,8 @@
 #include "g5_link.hh"
 
+EC u32 func_080D078C(u32 * packet);
+EC u32 func_080D091C();
+
 EC SECTION(".text.g5_init") void InitializeJoybusState(JoybusState * state) // 0x080D02CC
 {
     gJoybusState = state;
@@ -221,4 +224,30 @@ EC SECTION(".text.g5_queries") bool func_080D06B4()
 EC SECTION(".text.g5_queries") u32 func_080D06D0()
 {
     return gJoybusState->unknown_00[6];
+}
+
+EC SECTION(".text.g5_080D0704") void Joybus_HandleSerialInterrupt() // 0x080D0704
+{
+    u32 status = 0;
+    u32 control = *(volatile u16 *) 0x04000140;
+    if (gJoybusState->busy == 0)
+    {
+        if ((control & 2) != 0)
+        {
+            u32 packet = *(volatile u32 *) 0x04000150;
+            status = func_080D078C(&packet);
+        }
+        if (status == 0 && (control & 4) != 0)
+            status = func_080D091C();
+        if ((control & 1) != 0)
+            RetryJoybusHandshake();
+    }
+    if (status != 0)
+    {
+        *(volatile u16 *) 0x04000158 = 0;
+        CompleteJoybusCommand(status);
+    }
+    *(volatile u16 *) 0x04000140 = control;
+    gJoybusState->unknown_00[3] = 0;
+    gJoybusState->unknown_00[4] = 0;
 }

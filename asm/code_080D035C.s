@@ -233,72 +233,7 @@ func_080D0644: @ 0x080D0644
 	.byte 0x00, 0xF0, 0xF3, 0xFB, 0x03, 0xE0, 0x00, 0x00, 0x20, 0x04, 0x00, 0x03, 0x00, 0x20, 0x02, 0xBC
 	.byte 0x08, 0x47, 0x00, 0x00
 
-	thumb_func_start func_080D0704
-func_080D0704: @ 0x080D0704
-	push {r4, r5, lr}
-	sub sp, #4
-	movs r5, #0
-	ldr r0, .L080D077C @ =0x04000140
-	ldrh r0, [r0]
-	adds r4, r0, #0
-	ldr r0, .L080D0780 @ =gJoybusState
-	ldr r0, [r0]
-	movs r1, #0xbe
-	lsls r1, r1, #1
-	adds r0, r0, r1
-	ldr r0, [r0]
-	cmp r0, #0
-	bne .L080D0754
-	movs r0, #2
-	ands r0, r4
-	cmp r0, #0
-	beq .L080D0736
-	ldr r0, .L080D0784 @ =0x04000150
-	ldr r0, [r0]
-	str r0, [sp]
-	mov r0, sp
-	bl func_080D078C
-	adds r5, r0, #0
-.L080D0736:
-	cmp r5, #0
-	bne .L080D0748
-	movs r0, #4
-	ands r0, r4
-	cmp r0, #0
-	beq .L080D0748
-	bl func_080D091C
-	adds r5, r0, #0
-.L080D0748:
-	movs r0, #1
-	ands r0, r4
-	cmp r0, #0
-	beq .L080D0754
-	bl RetryJoybusHandshake
-.L080D0754:
-	cmp r5, #0
-	beq .L080D0764
-	ldr r1, .L080D0788 @ =0x04000158
-	movs r0, #0
-	strh r0, [r1]
-	adds r0, r5, #0
-	bl CompleteJoybusCommand
-.L080D0764:
-	ldr r0, .L080D077C @ =0x04000140
-	strh r4, [r0]
-	ldr r0, .L080D0780 @ =gJoybusState
-	ldr r1, [r0]
-	movs r0, #0
-	str r0, [r1, #0xc]
-	str r0, [r1, #0x10]
-	add sp, #4
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080D077C: .4byte 0x04000140
-.L080D0780: .4byte gJoybusState
-.L080D0784: .4byte 0x04000150
-.L080D0788: .4byte 0x04000158
+.section .text.g5_after_080D0704, "ax"
 
 	thumb_func_start func_080D078C
 func_080D078C: @ 0x080D078C

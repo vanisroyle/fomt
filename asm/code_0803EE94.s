@@ -164007,7 +164007,7 @@ func_08093364: @ 0x08093364
 	adds r1, r0, #0
 	adds r0, r4, #0
 	bl func_08050E68
-	ldr r1, .L08093588 @ =func_080D0704
+	ldr r1, .L08093588 @ =Joybus_HandleSerialInterrupt
 	movs r0, #7
 	bl func_080D100C
 	movs r0, #0x80
@@ -164135,7 +164135,7 @@ func_08093364: @ 0x08093364
 .L0809357C: .4byte gUnk_080F9F78
 .L08093580: .4byte 0x03FF03FF
 .L08093584: .4byte 0x00001CD4
-.L08093588: .4byte func_080D0704
+.L08093588: .4byte Joybus_HandleSerialInterrupt
 .L0809358C: .4byte vtable_unk_080E5B80
 .L08093590: .4byte 0x00000889
 .L08093594: .4byte .L08093598
