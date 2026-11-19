@@ -890,7 +890,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.0803A8A0);
 
         src/code_0803A8A4.o(.text.0803A8A4);
-        asm/code_0803A8A4.o(.text);
+        src/code_0803A8A4.o(.text.0803AB30);
         src/code_0803A8A4.o(.text.0803AC78);
         asm/code_0803A8A4.o(.text.0803ACD8);
         src/fixed_sprite_overlay_draw.o(.text.0803AE58);

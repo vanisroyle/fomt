@@ -1,6 +1,7 @@
 #include "prelude.h"
 
 #include "actor.hh"
+#include "fixed_sprite_overlay.hh"
 #include "sprite_animation.hh"
 #include "unknown_types.hh"
 
@@ -43,7 +44,6 @@ struct MapSceneAnimationSlot
     STRUCT_PAD(0x08, 0x30);
 };
 
-struct MapSceneOverlay;
 struct GameStateSpriteCache;
 struct MapTileEffectQueue;
 
@@ -85,7 +85,7 @@ struct MapScene
     STRUCT_PAD(0xD14, 0xDB0);
     MapSceneAnimationSlot animations[13];
     STRUCT_PAD(0x1020, 0x1024);
-    MapSceneOverlay * overlay;
+    FixedSpriteOverlay * overlay;
     MapTileEffectQueue * tileEffects;
     MapSceneEffectSlot effect;
 };
@@ -130,10 +130,8 @@ EC void ApplyMapRow15PatchB(G1MapState * map);
 EC void ApplyMapRow15PatchA(G1MapState * map);
 EC void StartMapTransitionDelay(u8 * self);
 EC bool IsMapTransitionIdle(u8 * self);
-EC void DestroyFixedSpriteOverlay(MapSceneOverlay *, unsigned);
 EC void DestroyMapTileEffectQueue(MapTileEffectQueue *, unsigned);
 EC void LoadMapAtLocation(G1MapState *, Location const *, void *, void *, void *);
-EC MapSceneOverlay * func_0803AB30(void *, MapScene *);
 EC MapTileEffectQueue * func_080AAFC8(void *, MapScene *, unsigned);
 EC void UpdateMapTileEffectQueue(MapTileEffectQueue &);
 
@@ -289,7 +287,7 @@ struct MapSceneContents
     MapSceneResourceSlot resources[13];
     u8 resourceFlags[2];
     MapSceneAnimationSlot animations[13];
-    MapSceneOverlay * overlay;
+    FixedSpriteOverlay * overlay;
     MapTileEffectQueue * tileEffects;
     MapSceneEffectSlot effect;
 };
@@ -457,9 +455,9 @@ EC SECTION(".text.080AC674") MapSceneContents * InitializeMapSceneContents(MapSc
     InitSpriteAnimationData(reinterpret_cast<SpriteAnimationData *>(&contents->animations[12]), gUnk_086F2FAC);
     register unsigned overlayOffset asm("r2") = offsetof(MapSceneContents, overlay);
     asm ("" : "+l" (overlayOffset));
-    register MapSceneOverlay ** overlay asm("r0") = reinterpret_cast<MapSceneOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
+    register FixedSpriteOverlay ** overlay asm("r0") = reinterpret_cast<FixedSpriteOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
     asm ("" : "+l" (overlay));
-    *overlay = reinterpret_cast<MapSceneOverlay *>(clear);
+    *overlay = reinterpret_cast<FixedSpriteOverlay *>(clear);
     animationOffset += offsetof(MapSceneContents, tileEffects) - (offsetof(MapSceneContents, animations) + 11 * sizeof(MapSceneAnimationSlot));
     asm ("" : "+l" (animationOffset));
     *reinterpret_cast<MapTileEffectQueue **>(reinterpret_cast<u8 *>(contents) + animationOffset) = reinterpret_cast<MapTileEffectQueue *>(clear);
@@ -536,9 +534,9 @@ EC SECTION(".text.080AC85C") void DestroyMapSceneContents(MapSceneContents * inp
         DestroyMapTileEffectQueue(queue, 3);
     register unsigned overlayOffset asm("r1") = offsetof(MapSceneContents, overlay);
     asm ("" : "+l" (overlayOffset));
-    register MapSceneOverlay ** overlaySlot asm("r0") = reinterpret_cast<MapSceneOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
+    register FixedSpriteOverlay ** overlaySlot asm("r0") = reinterpret_cast<FixedSpriteOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
     asm ("" : "+l" (overlaySlot));
-    MapSceneOverlay * overlay = *overlaySlot;
+    FixedSpriteOverlay * overlay = *overlaySlot;
     if (overlay)
         DestroyFixedSpriteOverlay(overlay, 3);
     register unsigned animationOffset asm("r2") = offsetof(MapSceneContents, animations) + 12 * sizeof(MapSceneAnimationSlot);
@@ -817,11 +815,12 @@ EC SECTION(".text.080AC9EC") MapScene * ConstructMapScene(void * memory, void **
     asm ("" : "+l" (map), "+l" (position));
     LoadMapAtLocation(reinterpret_cast<G1MapState *>(map), reinterpret_cast<Location const *>(position), 0, 0, reinterpret_cast<void *>(30));
 
-    register MapSceneOverlay * overlay asm("r0") = func_0803AB30(operator new(0xA0), scene);
+    register FixedSpriteOverlay * overlay asm("r0") = InitializeFixedSpriteOverlay(
+        operator new(sizeof(FixedSpriteOverlay)), reinterpret_cast<OverlaySpriteResources *>(scene));
     asm ("" : "+l" (overlay));
-    register MapSceneOverlay ** overlaySlot asm("r5") = &scene->overlay;
+    register FixedSpriteOverlay ** overlaySlot asm("r5") = &scene->overlay;
     asm ("" : "+l" (overlaySlot));
-    MapSceneOverlay * nextOverlay = overlay;
+    FixedSpriteOverlay * nextOverlay = overlay;
     asm ("" : "+l" (nextOverlay));
     if (nextOverlay != *overlaySlot && *overlaySlot)
         DestroyFixedSpriteOverlay(*overlaySlot, 3);
@@ -879,9 +878,9 @@ EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, Loca
     }
     register unsigned overlayOffset asm("r1") = offsetof(MapScene, overlay);
     asm ("" : "+l" (overlayOffset));
-    register MapSceneOverlay ** overlaySlot asm("r4") = reinterpret_cast<MapSceneOverlay **>(reinterpret_cast<u8 *>(&scene) + overlayOffset);
+    register FixedSpriteOverlay ** overlaySlot asm("r4") = reinterpret_cast<FixedSpriteOverlay **>(reinterpret_cast<u8 *>(&scene) + overlayOffset);
     asm ("" : "+l" (overlaySlot));
-    register MapSceneOverlay * emptyOverlay asm("r5") = 0;
+    register FixedSpriteOverlay * emptyOverlay asm("r5") = 0;
     asm ("" : "+l" (emptyOverlay));
     if (emptyOverlay != *overlaySlot && *overlaySlot)
         DestroyFixedSpriteOverlay(*overlaySlot, 3);
@@ -896,11 +895,12 @@ EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, Loca
         DestroyMapTileEffectQueue(*queueSlot, 3);
     *queueSlot = emptyQueue;
     LoadMapAtLocation(reinterpret_cast<G1MapState *>(scene.map), location, 0, 0, reinterpret_cast<void *>(30));
-    register MapSceneOverlay * overlay asm("r0") = func_0803AB30(operator new(0xA0), &scene);
+    register FixedSpriteOverlay * overlay asm("r0") = InitializeFixedSpriteOverlay(
+        operator new(sizeof(FixedSpriteOverlay)), reinterpret_cast<OverlaySpriteResources *>(&scene));
     asm ("" : "+l" (overlay));
-    register MapSceneOverlay ** targetOverlay asm("r5") = &scene.overlay;
+    register FixedSpriteOverlay ** targetOverlay asm("r5") = &scene.overlay;
     asm ("" : "+l" (targetOverlay));
-    MapSceneOverlay * nextOverlay = overlay;
+    FixedSpriteOverlay * nextOverlay = overlay;
     asm ("" : "+l" (nextOverlay));
     if (nextOverlay != *targetOverlay && *targetOverlay)
         DestroyFixedSpriteOverlay(*targetOverlay, 3);
@@ -1489,7 +1489,7 @@ EC SECTION(".text.080ADBB4") bool IsMapEventCalendarDate(u8 const * packedDate)
     return event != end && yearDay >= *event;
 }
 
-EC SECTION(".text.080ADA78") MapSceneOverlay * GetMapSceneOverlay(MapScene const & scene)
+EC SECTION(".text.080ADA78") FixedSpriteOverlay * GetMapSceneOverlay(MapScene const & scene)
 {
     return scene.overlay;
 }
