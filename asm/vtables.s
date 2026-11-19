@@ -73,16 +73,16 @@ vtable_unk_080E5AE0:
 vtable_unk_080E5AF0:
 	.incbin "baserom.gba", 0xE5AF0, 0x10
 
-	.global vtable_unk_080E5B00
-vtable_unk_080E5B00:
+	.global gHardwareContextVtable
+gHardwareContextVtable:
 	.incbin "baserom.gba", 0xE5B00, 0xC
 
-	.global vtable_unk_080E5B0C
-vtable_unk_080E5B0C:
+	.global gVBlankIrqSubscriptionVtable
+gVBlankIrqSubscriptionVtable:
 	.incbin "baserom.gba", 0xE5B0C, 0xC
 
-	.global vtable_unk_080E5B18
-vtable_unk_080E5B18:
+	.global gVBlankRootTaskListVtable
+gVBlankRootTaskListVtable:
 	.incbin "baserom.gba", 0xE5B18, 0x24
 
 	.global vtable_unk_080E5B3C
@@ -105,8 +105,8 @@ vtable_unk_080E5B60:
 vtable_unk_080E5B70:
 	.incbin "baserom.gba", 0xE5B70, 0x10
 
-	.global vtable_unk_080E5B80
-vtable_unk_080E5B80:
+	.global gDisplayFadeTaskVtable
+gDisplayFadeTaskVtable:
 	.incbin "baserom.gba", 0xE5B80, 0x10
 
 	.global gIrqTaskListVtable

@@ -78,7 +78,7 @@ struct GameStateMapOverlay
 };
 
 EC void func_08007C28(OverlayTileAllocation *, u32);
-EC void func_080079E8(OverlayTileAllocation *, unsigned);
+EC void TileHeapOwner_Destroy(OverlayTileAllocation *, unsigned);
 EC void __builtin_delete(void *);
 
 ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOverlay, unsigned inputFlags)
@@ -107,7 +107,7 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
                 --frame;
                 OverlayTileAllocation * tiles = &frame->tiles;
                 func_08007C28(tiles, tiles->handle);
-                func_080079E8(tiles, 2);
+                TileHeapOwner_Destroy(tiles, 2);
             }
             while (first != frame);
         }
@@ -133,7 +133,7 @@ ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay
     {
         OverlayTileAllocation * tiles = &frame->tiles;
         func_08007C28(tiles, tiles->handle);
-        func_080079E8(tiles, 2);
+        TileHeapOwner_Destroy(tiles, 2);
     }
     if (destructorFlags & 1)
         __builtin_delete(overlay);

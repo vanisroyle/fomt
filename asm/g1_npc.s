@@ -6600,7 +6600,7 @@ func_080A220C: @ 0x080A220C
 	bl __builtin_new
 	adds r6, r0, #0
 	add r0, sp, #0xc
-	bl func_0800835C
+	bl TilePool_Initialize
 	add r4, sp, #0x10
 	adds r0, r4, #0
 	bl ResourcePool_Initialize
@@ -6617,10 +6617,10 @@ func_080A220C: @ 0x080A220C
 	str r0, [r7, #0x10]
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	add r0, sp, #0xc
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 	adds r0, r7, #0
 	adds r0, #0x14
 	movs r1, #1
@@ -7050,7 +7050,7 @@ func_080A25B0: @ 0x080A25B0
 	movs r6, #0
 	str r6, [r4]
 	str r6, [r4, #4]
-	ldr r0, .L080A2668 @ =vtable_unk_080E5B80
+	ldr r0, .L080A2668 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -7102,7 +7102,7 @@ func_080A25B0: @ 0x080A25B0
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L080A2668: .4byte vtable_unk_080E5B80
+.L080A2668: .4byte gDisplayFadeTaskVtable
 .L080A266C: .4byte 0x00000889
 .L080A2670: .4byte 0x00000216
 .L080A2674: .4byte .L080A2678
@@ -11244,7 +11244,7 @@ func_080A47B4: @ 0x080A47B4
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #1
 	ands r0, r7
 	cmp r0, #0

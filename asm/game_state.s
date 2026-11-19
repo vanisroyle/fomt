@@ -113,7 +113,7 @@ func_08010358: @ 0x08010358
     movs r1, #0xe5
     lsls r1, r1, #5
     adds r0, r7, r1
-    bl func_0800FF8C
+    bl ItemCollection_Initialize
     ldr r2, .L0801060C @ =0x00001CCC
     adds r1, r7, r2
     movs r4, #0x8d
@@ -2174,7 +2174,7 @@ func_08011650: @ 0x08011650
     movs r2, #0xe5
     lsls r2, r2, #5
     adds r0, r7, r2
-    bl func_0800FF8C
+    bl ItemCollection_Initialize
     ldr r3, .L08011884 @ =0x00001CCC
     adds r1, r7, r3
     movs r4, #0x8d
@@ -3413,7 +3413,7 @@ func_080124D0: @ 0x080124D0
     bl __builtin_new
     adds r4, r0, #0
     add r0, sp, #0xc
-    bl func_0800835C
+    bl TilePool_Initialize
     add r0, sp, #0x10
     bl ResourcePool_Initialize
     add r1, sp, #0x10
@@ -3440,17 +3440,17 @@ func_080124D0: @ 0x080124D0
     str r4, [r5]
     add r0, sp, #0x10
     movs r1, #2
-    bl func_08007714
+    bl ResourcePool_Destroy
     add r0, sp, #0xc
     movs r1, #2
-    bl func_08008364
+    bl TilePool_Destroy
     b .L080125CA
 .L0801257A:
     movs r0, #4
     bl __builtin_new
     adds r4, r0, #0
     add r0, sp, #0xc
-    bl func_0800835C
+    bl TilePool_Initialize
     add r0, sp, #0x10
     bl ResourcePool_Initialize
     add r0, sp, #0x10
@@ -3476,10 +3476,10 @@ func_080124D0: @ 0x080124D0
     str r4, [r5]
     add r0, sp, #0x10
     movs r1, #2
-    bl func_08007714
+    bl ResourcePool_Destroy
     add r0, sp, #0xc
     movs r1, #2
-    bl func_08008364
+    bl TilePool_Destroy
 .L080125CA:
     ldr r0, [r6]
     bl GetMessageWindowPhase
