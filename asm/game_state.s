@@ -6998,8 +6998,8 @@ func_080146FC: @ 0x080146FC
 .L08014AF0: .4byte 0x00003E41
 .L08014AF4: .4byte 0x00001010
 
-    thumb_func_start func_08014AF8
-func_08014AF8: @ 0x08014AF8
+    thumb_func_start GameScript_RebuildMapScene
+GameScript_RebuildMapScene: @ 0x08014AF8
     push {r4, r5, r6, lr}
     sub sp, #0xc
     ldr r5, [r0, #4]

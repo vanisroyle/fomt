@@ -8626,7 +8626,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044048
 	bl .L08045572
 .L08044048:
-	bl func_08014AF8
+	bl GameScript_RebuildMapScene
 	bl .L08045572
 .L08044050:
 	adds r6, r5, #0
