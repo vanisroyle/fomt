@@ -51,5 +51,6 @@ EC void BindSpriteAnimator(SpriteAnimator * self, SpriteAnimationSource const * 
 EC void SetSpriteAnimatorClip(SpriteAnimator * self, u32 clip_id);
 EC bool WillSpriteAnimationLoop(SpriteAnimator const * self);
 EC u32 AdvanceSpriteAnimator(SpriteAnimator * self);
+EC u32 SumSpriteAnimationFrameDelays(SpriteAnimationSource const * source, u32 animation);
 
 #endif // SPRITE_ANIMATION_HH

@@ -2,8 +2,6 @@
 
 #include <stdlib.h>
 
-struct ActorSpriteAnimations;
-extern "C" u32 SumSpriteAnimationFrameDelays(ActorSpriteAnimations * sprite, u32 animation);
 extern "C" bool func_080AC070(UnkMap & unk, Box const & box);
 
 AActorEntity::AActorEntity(GameObject * game_object, ActorLocation const & location, u32 arg_2, u32 anim_id)
@@ -53,7 +51,7 @@ void AActorEntity::RefreshSprite(u32 sprite_anim)
         ptr->unk_47 = 1;
     }
 
-    unk_24 = SumSpriteAnimationFrameDelays(static_cast<ActorSpriteAnimations *>(game_object->vfunc_68()), sprite_anim);
+    unk_24 = SumSpriteAnimationFrameDelays(static_cast<SpriteAnimationSource *>(game_object->vfunc_68()), sprite_anim);
     unk_26 = unk_24;
 }
 
