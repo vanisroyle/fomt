@@ -6402,112 +6402,7 @@ func_0802D59C: @ 0x0802D59C
     bx r0
     .align 2, 0
 
-    .section .text.entities_part2.0802D8E8,"ax",%progbits
-
-    thumb_func_start func_0802D8E8
-func_0802D8E8: @ 0x0802D8E8
-    push {r4, r5, lr}
-    sub sp, #0xc
-    adds r5, r0, #0
-    movs r3, #0
-    str r3, [sp, #8]
-    movs r4, #0
-    cmp r1, #0
-    beq .L0802D900
-    ldrh r3, [r1]
-    ldrh r0, [r1, #4]
-    str r0, [sp, #8]
-    ldrh r4, [r1, #8]
-.L0802D900:
-    adds r0, r5, #0
-    adds r0, #0xc3
-    ldrb r0, [r0]
-    cmp r0, #0
-    beq .L0802D914
-    adds r1, r5, #0
-    adds r1, #0x3c
-    movs r0, #0
-    strb r0, [r1]
-    b .L0802D9A4
-.L0802D914:
-    lsls r0, r3, #0x1e
-    lsrs r2, r0, #0x1f
-    lsls r0, r3, #0x16
-    lsrs r0, r0, #0x1f
-    orrs r2, r0
-    cmp r2, #0
-    beq .L0802D99E
-    lsls r1, r4, #0x19
-    lsrs r1, r1, #0x1f
-    lsls r0, r4, #0x1a
-    lsrs r0, r0, #0x1f
-    orrs r1, r0
-    cmp r1, #0
-    beq .L0802D93A
-    adds r0, r5, #0
-    movs r1, #1
-    bl FarmerEntity_CycleTool
-    b .L0802D9A4
-.L0802D93A:
-    lsls r2, r4, #0x18
-    lsrs r2, r2, #0x1f
-    lsls r0, r4, #0x1b
-    lsrs r0, r0, #0x1f
-    orrs r2, r0
-    ldr r1, [sp, #8]
-    lsls r0, r1, #0x1e
-    lsrs r0, r0, #0x1f
-    orrs r0, r2
-    lsls r1, r1, #0x16
-    lsrs r4, r1, #0x1f
-    orrs r4, r0
-    cmp r4, #0
-    beq .L0802D960
-    adds r0, r5, #0
-    movs r1, #0
-    bl FarmerEntity_CycleTool
-    b .L0802D9A4
-.L0802D960:
-    add r1, sp, #8
-    ldrb r0, [r1]
-    movs r3, #1
-    adds r2, r3, #0
-    ands r2, r0
-    cmp r2, #0
-    beq .L0802D994
-    ldr r0, [r5]
-    ldr r2, [r0]
-    movs r1, #0xa0
-    lsls r1, r1, #1
-    adds r2, r2, r1
-    ldr r1, .L0802D990 @ =0x000003CE
-    str r1, [sp]
-    str r4, [sp, #4]
-    ldr r3, [r2]
-    mov r1, sp
-    movs r2, #0
-    bl _call_via_r3
-    adds r0, r5, #0
-    adds r0, #0x3c
-    strb r4, [r0]
-    b .L0802D9A4
-    .align 2, 0
-.L0802D990: .4byte 0x000003CE
-.L0802D994:
-    ldrb r1, [r1, #1]
-    adds r0, r3, #0
-    ands r0, r1
-    cmp r0, #0
-    beq .L0802D9A4
-.L0802D99E:
-    adds r0, r5, #0
-    adds r0, #0x3c
-    strb r2, [r0]
-.L0802D9A4:
-    add sp, #0xc
-    pop {r4, r5}
-    pop {r0}
-    bx r0
+    .section .text.entities_part2.0802D9AC,"ax",%progbits
 
     thumb_func_start func_0802D9AC
 func_0802D9AC: @ 0x0802D9AC
@@ -9621,7 +9516,7 @@ func_0802F0EC: @ 0x0802F0EC
 .L0802F270:
     mov r0, sl
     adds r1, r4, #0
-    bl func_0802D8E8
+    bl HandleFarmerToolCycleInput
     bl .L08031F0E
 .L0802F27C:
     mov r0, sl

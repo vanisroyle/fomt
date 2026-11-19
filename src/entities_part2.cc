@@ -473,31 +473,31 @@ enum
     FACING_RIGHT = 3,
 };
 
-struct FarmerPedometerEvent
+struct FarmerEventRequest
 {
     u32 id;
     u32 argument;
 };
 
-typedef void (*FarmerPedometerEventDispatch)(GameObject *, FarmerPedometerEvent const *, u32);
+typedef void (*FarmerEventDispatch)(GameObject *, FarmerEventRequest const *, u32);
 
-struct FarmerPedometerGameVTable
+struct FarmerEventGameVTable
 {
     STRUCT_PAD(0, 0x140);
-    FarmerPedometerEventDispatch dispatch_event;
+    FarmerEventDispatch dispatch_event;
 };
 
 #define SEND_PEDOMETER_MILESTONE(id_value) \
     { \
         GameObject * game = farmer->game_object; \
-        FarmerPedometerEventDispatch const * method = &(*reinterpret_cast<FarmerPedometerGameVTable const **>(game))->dispatch_event; \
-        FarmerPedometerEvent event; \
-        FarmerPedometerEvent * args = &event; \
+        FarmerEventDispatch const * method = &(*reinterpret_cast<FarmerEventGameVTable const **>(game))->dispatch_event; \
+        FarmerEventRequest event; \
+        FarmerEventRequest * args = &event; \
         u32 event_id = id_value; \
         u32 argument = 0; \
         args->id = event_id; \
         args->argument = argument; \
-        FarmerPedometerEventDispatch dispatch = *method; \
+        FarmerEventDispatch dispatch = *method; \
         dispatch(game, args, 1); \
         return; \
     }
@@ -765,8 +765,11 @@ EC void TickFarmerToolCharge(FarmerEntity * farmer)
 
 struct FarmerInputState
 {
-    STRUCT_PAD(0x00, 0x04);
-    u16 direction_keys;
+    u16 held;
+    STRUCT_PAD(0x02, 0x04);
+    u16 pressed;
+    STRUCT_PAD(0x06, 0x08);
+    u16 repeated;
 };
 
 enum
@@ -788,7 +791,7 @@ EC void func_080323C8(AEntity * farmer);
 EC void UpdateFarmerTurnInput(FarmerEntity * farmer, FarmerInputState const * input) ENTITY_CODE(0802D844);
 EC void UpdateFarmerTurnInput(FarmerEntity * farmer, FarmerInputState const * input)
 {
-    u32 keys = input != nullptr ? input->direction_keys : 0;
+    u32 keys = input != nullptr ? input->pressed : 0;
     if (farmer->exhaustion_state != 0 || (keys & TURN_INPUT_MASK))
     {
         func_080323C8(farmer);
@@ -814,6 +817,77 @@ EC void UpdateFarmerTurnInput(FarmerEntity * farmer, FarmerInputState const * in
                 farmer->SetAnimFacing(FACING_DOWN);
         }
     }
+}
+
+union FarmerToolCyclePressedKeys
+{
+    u32 word;
+    u8 bytes[4];
+};
+
+EC void FarmerEntity_CycleTool(FarmerEntity * farmer, bool next);
+
+EC void HandleFarmerToolCycleInput(FarmerEntity * farmer, FarmerInputState const * input) ENTITY_CODE(0802D8E8);
+EC void HandleFarmerToolCycleInput(FarmerEntity * farmer, FarmerInputState const * input)
+{
+    u32 held = 0;
+    struct
+    {
+        FarmerEventRequest event;
+        volatile FarmerToolCyclePressedKeys pressed;
+    } locals;
+    locals.pressed.word = 0;
+    u32 repeated = 0;
+    if (input)
+    {
+        held = input->held;
+        locals.pressed.word = input->pressed;
+        repeated = input->repeated;
+    }
+    if (farmer->exhaustion_state)
+    {
+        farmer->state = 0;
+        return;
+    }
+    u32 cycling = ((held << 30) >> 31) | ((held << 22) >> 31);
+    if (!cycling)
+        goto cancel_cycle;
+    if (((repeated << 25) >> 31) | ((repeated << 26) >> 31))
+    {
+        FarmerEntity_CycleTool(farmer, true);
+        return;
+    }
+    {
+        u32 previous_direction = ((repeated << 24) >> 31) | ((repeated << 27) >> 31);
+        u32 pressed = locals.pressed.word;
+        u32 previous_or_b = ((pressed << 30) >> 31) | previous_direction;
+        asm volatile("" : : "r"(previous_or_b));
+        u32 previous = previous_or_b | ((pressed << 22) >> 31);
+        if (previous)
+        {
+            FarmerEntity_CycleTool(farmer, false);
+            return;
+        }
+        volatile u8 * pressed_bytes = locals.pressed.bytes;
+        u32 low_byte = pressed_bytes[0];
+        u32 button_bit = 1;
+        cycling = button_bit & low_byte;
+        if (cycling)
+        {
+            GameObject * game = farmer->game_object;
+            FarmerEventDispatch const * method = &(*reinterpret_cast<FarmerEventGameVTable const **>(game))->dispatch_event;
+            u32 event_id = 0x3CE;
+            locals.event.id = event_id;
+            locals.event.argument = previous;
+            (*method)(game, &locals.event, 0);
+            farmer->state = previous;
+            return;
+        }
+        if (!(pressed_bytes[1] & button_bit))
+            return;
+    }
+cancel_cycle:
+    farmer->state = cycling;
 }
 
 struct FarmerGraphicsRefresh : FarmerIconGraphics
