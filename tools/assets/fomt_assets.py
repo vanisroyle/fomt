@@ -106,7 +106,7 @@ def fail(path, line, message):
 
 def charmap(path):
     mapping = {}
-    for line, text in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+    for line, text in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
         text = text.split("#", 1)[0].strip()
         if not text:
             continue
@@ -165,7 +165,7 @@ def read_text(path, mapping):
     entries = []
     current = None
     # split on LF only: do not treat Unicode separators as game newlines.
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     lines = text.split("\n")
     if lines[-1] == "":
         lines.pop()
@@ -188,11 +188,11 @@ def read_text(path, mapping):
 
 def write_missing(path, data, force=False):
     path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        with path.open("wb" if force else "xb") as stream:
-            stream.write(data)
-    except FileExistsError:
-        pass
+    if path.exists() and not force:
+        return
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_bytes(data)
+    temporary.replace(path)
 
 
 def write_changed(path, data):

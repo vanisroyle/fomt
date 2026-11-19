@@ -157,7 +157,7 @@ clean:
 
 .PHONY: clean
 
-ifeq (,$(filter clean extract assets-test,$(MAKECMDGOALS)))
+ifeq (,$(and $(MAKECMDGOALS),$(if $(filter-out clean extract assets-test,$(MAKECMDGOALS)),,1)))
 -include $(ALL_DEPS)
 .PRECIOUS: $(BUILD_DIR)/%.d
 endif
