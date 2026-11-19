@@ -70,6 +70,8 @@ struct MapData
     /* +24 */ bool is_interior;
 };
 
+EC u32 GetMapGraphicsVariantId(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
+
 // TODO: rename
 // TODO: move elsewhere
 struct UnkMapBox : public Box

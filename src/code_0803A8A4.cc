@@ -15,6 +15,132 @@
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
 
+ROM_TEXT(0803A8A4) u32 GetMapGraphicsVariantId(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel)
+{
+    enum
+    {
+        FARM_MAP = 2,
+        COOP_MAP = 17,
+        FARMHOUSE_MAP = 29,
+        BARN_MAP = 37,
+        SPRING_MINE_FIRST_MAP = 52,
+        MAPS_PER_MINE = 256,
+        LAKE_MINE_FIRST_MAP = SPRING_MINE_FIRST_MAP + MAPS_PER_MINE,
+    };
+    enum Mine { SPRING_MINE, LAKE_MINE };
+    enum
+    {
+        MINE_FLOOR_ZERO_GRAPHICS = 56,
+        MINE_MULTIPLE_OF_FIVE_GRAPHICS = 57,
+        MINE_MULTIPLE_OF_THREE_GRAPHICS = 58,
+        MINE_DEFAULT_GRAPHICS = 59,
+        LAKE_MINE_FLOOR_NINE_GRAPHICS = 61,
+    };
+
+    u32 mineMapOffset = mapId - SPRING_MINE_FIRST_MAP;
+    if (mineMapOffset < 2 * MAPS_PER_MINE)
+    {
+        unsigned floor;
+        Mine mine;
+        if (static_cast<i32>(mapId) >= LAKE_MINE_FIRST_MAP)
+        {
+            floor = mapId - LAKE_MINE_FIRST_MAP;
+            mine = LAKE_MINE;
+        }
+        else
+        {
+            floor = mineMapOffset;
+            mine = SPRING_MINE;
+        }
+        if (floor == 0)
+            return MINE_FLOOR_ZERO_GRAPHICS;
+        if (floor == 9 && mine == LAKE_MINE)
+            return LAKE_MINE_FLOOR_NINE_GRAPHICS;
+        if (floor % 5 == 0)
+            return MINE_MULTIPLE_OF_FIVE_GRAPHICS;
+        if (floor % 3 == 0)
+            return MINE_MULTIPLE_OF_THREE_GRAPHICS;
+        return MINE_DEFAULT_GRAPHICS;
+    }
+
+    // Keep the original case order for the Thumb jump table. Return values index MapData.
+    switch (mapId)
+    {
+    case FARM_MAP: return season == SEASON_WINTER ? 1 : 0;
+    case 6: return season != SEASON_WINTER ? 2 : 3;
+    case 5: return season != SEASON_WINTER ? 4 : 5;
+    case 7: return season != SEASON_WINTER ? 6 : 7;
+    case 1: return season != SEASON_WINTER ? 8 : 9;
+    case 3: return season != SEASON_WINTER ? 12 : 13;
+    case 4: return season != SEASON_WINTER ? 10 : 11;
+    case 0: return season != SEASON_WINTER ? 14 : 15;
+    case 8: return season != SEASON_WINTER ? 16 : 17;
+    case COOP_MAP:
+        switch (coopLevel)
+        {
+        case 0: return 36;
+        case 1: return 37;
+        }
+        break;
+    case BARN_MAP:
+        switch (barnLevel)
+        {
+        case 0: return 38;
+        case 1: return 39;
+        }
+        break;
+    case FARMHOUSE_MAP:
+        switch (houseLevel)
+        {
+        case 0: return 41;
+        case 1: return 42;
+        case 2: return 43;
+        }
+        break;
+    case 31: return 18;
+    case 32: return 19;
+    case 33: return 20;
+    case 34: return 21;
+    case 21: return 22;
+    case 22: return 23;
+    case 23: return 24;
+    case 15: return 25;
+    case 16: return 26;
+    case 36: return 27;
+    case 13: return 28;
+    case 19: return 29;
+    case 20: return 30;
+    case 12: return 31;
+    case 24: return 32;
+    case 25: return 33;
+    case 26: return 34;
+    case 27: return 35;
+    case 9: return 40;
+    case 10: return 44;
+    case 11: return 45;
+    case 41: return 46;
+    case 42: return 47;
+    case 38: return 48;
+    case 40: return 49;
+    case 30: return 50;
+    case 14: return 51;
+    case 28: return 52;
+    case 18: return 53;
+    case 35: return 54;
+    case 39: return 55;
+    case 43: return 60;
+    case 48: return 62;
+    case 49: return 63;
+    case 50: return 64;
+    case 51: return 65;
+    case 44:
+    case 45:
+    case 46: return 16;
+    case 47: return 17;
+    }
+    return 0;
+}
+
 struct MapOverlayScene;
 
 struct MapOverlaySceneVtable
