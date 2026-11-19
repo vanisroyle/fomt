@@ -100,6 +100,17 @@ struct GameStateMapInteraction : GameStateMapInteractionBase
     bool restart;
 };
 
+struct GameStateFieldObject
+{
+    u8 unused;
+    u8 kind : 2;
+    u8 action : 2;
+    u16 reserved;
+    u16 tile_x;
+    u16 tile_y;
+    GameStateMapInteraction * interaction;
+};
+
 struct GameStateFarmPlot
 {
     GameStateFarmPlot() : plot(nullptr), tile_x(0), tile_y(0), plot_x(0), plot_y(0) {}
@@ -214,7 +225,8 @@ struct GameStateMapOwner
     SmartPtr<GameStateMapInteraction> seasonal_scenery;
     SmartPtr<GameStateMapInteraction> alternate_seasonal_scenery;
     GameStateMapOverlay * map_overlay;
-    STRUCT_PAD(0x1080, 0x10C8);
+    GameStateFieldObject field_objects[4];
+    STRUCT_PAD(0x10B0, 0x10C8);
     bool day_update_requested;
     bool skip_day_update_events;
 };
@@ -374,6 +386,59 @@ static inline FieldPlot * GetFieldNeighbor(GameStateFarmField & field, int x, in
 {
     bool in_bounds = x >= 0 && y >= 0 && x < Farm::FIELD_WIDTH && y < Farm::FIELD_HEIGHT;
     return in_bounds ? &field.PlotAt(x, y) : nullptr;
+}
+
+EC void GameScript_PlaySound(GameStateScript & script, i32 mode, u32 song_id);
+
+static inline u32 TryHitFieldObject(GameStateMapOwner & game, int tile_x, int tile_y)
+{
+    for (u32 i = 0; i < 4; ++i)
+    {
+        GameStateFieldObject & object = game.field_objects[i];
+        u32 kind = object.kind;
+        if (kind == 1 && tile_x == object.tile_x && tile_y == object.tile_y)
+        {
+            u32 inactive_action = 2;
+            if (object.action != inactive_action)
+            {
+                GameScript_PlaySound(*game.script, 0, 0xC0);
+                object.action = inactive_action;
+                GameStateMapInteraction * interaction = object.interaction;
+                func_0805E860(interaction->animator, 0x873);
+                interaction->playing = kind;
+                interaction->ended = false;
+                interaction->restart = kind;
+                func_0800EEF8(game.map_data->farmer);
+            }
+            return true;
+        }
+    }
+    register u32 missed asm("r0") = 0;
+    asm("" : "=l"(missed) : "0"(missed));
+    return missed;
+}
+
+EC SECTION(".text.game_state_c2.0801C6EC") u32 GameStateHitFieldPlot(GameStateMapOwner & game, int x, int y, int strength)
+{
+    u32 hit = 0;
+    if (game.vtable->get_map_id(game) == 2)
+    {
+        int tile_x = x * 2 + 34;
+        int tile_y = y * 2 + 22;
+        if (!TryHitFieldObject(game, tile_x, tile_y))
+        {
+            FieldPlot & plot = game.map_data->farm.field.PlotAt(x, y);
+            hit = plot.method_0800A238(strength);
+            GameStateMapView * view = game.map_view;
+            GameStateFarmField & field = game.map_data->farm.field;
+            FieldPlot & current = field.PlotAt(x, y);
+            FieldPlot * south = GetFieldNeighbor(field, x, y + 1);
+            FieldPlot * north = GetFieldNeighbor(field, x, y - 1);
+            Unk_Something const * adjacent = current.method_0800AF5C(south, north);
+            func_080AA6D0(*view, tile_x, tile_y, plot, adjacent);
+        }
+    }
+    return hit;
 }
 
 EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameStateMapOwner & game, int x, int y, int strength)
