@@ -2185,15 +2185,9 @@ UpdateDialogWindowLayers: @ 0x0803BAAC
 	.byte 0xC1, 0x61, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x58, 0x77, 0x0E, 0x08, 0xFF, 0x03, 0x00, 0x00
 	.byte 0x1F, 0x80, 0xFF, 0xFF, 0xFF, 0x7F, 0xF8, 0xFF
 
-	.section .text.0803BFF0, "ax", %progbits
-	.align 2, 0
-.L0803BFF0:
-	.byte 0x30, 0xB5, 0x83, 0xB0, 0x06, 0x9C, 0x07, 0x9D, 0x00, 0x94, 0x01, 0x95, 0x00, 0x24, 0x02, 0x94
-	.byte 0x00, 0xF0, 0x12, 0xF8, 0x03, 0xB0, 0x30, 0xBC, 0x02, 0xBC, 0x08, 0x47
-
 	.section .text.0803C028, "ax", %progbits
-	thumb_func_start func_0803C028
-func_0803C028: @ 0x0803C028
+	thumb_func_start UpdatePauseMenuWindow
+UpdatePauseMenuWindow: @ 0x0803C028
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -2270,7 +2264,7 @@ func_0803C028: @ 0x0803C028
 	movs r1, #0xcb
 	bl AudioPlayer_StartSong
 .L0803C0B2:
-	ldr r0, .L0803C0C4 @ =gUnk_080F1A34
+	ldr r0, .L0803C0C4 @ =gPauseMenuTabLabels
 	ldrb r1, [r7, #0xc]
 	lsls r1, r1, #2
 	adds r1, r1, r0
@@ -2280,7 +2274,7 @@ func_0803C028: @ 0x0803C028
 	strb r0, [r7, #0xe]
 	b .L0803C0DC
 	.align 2, 0
-.L0803C0C4: .4byte gUnk_080F1A34
+.L0803C0C4: .4byte gPauseMenuTabLabels
 .L0803C0C8:
 	movs r0, #1
 	ands r3, r0
@@ -2333,7 +2327,7 @@ func_0803C028: @ 0x0803C028
 	ldr r2, [r0, #0x10]
 	adds r0, r3, #0
 	bl _call_via_r2
-	ldr r1, .L0803C4D4 @ =gUnk_080F1A34
+	ldr r1, .L0803C4D4 @ =gPauseMenuTabLabels
 	ldrb r0, [r7, #0xc]
 	lsls r0, r0, #2
 	adds r0, r0, r1
@@ -2795,7 +2789,7 @@ func_0803C028: @ 0x0803C028
 	b .L0803C4F8
 	.align 2, 0
 .L0803C4D0: .4byte 0x05000200
-.L0803C4D4: .4byte gUnk_080F1A34
+.L0803C4D4: .4byte gPauseMenuTabLabels
 .L0803C4D8: .4byte 0x06010000
 .L0803C4DC: .4byte 0x000001FF
 .L0803C4E0: .4byte 0xFE00FFFF
