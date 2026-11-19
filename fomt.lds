@@ -125,7 +125,8 @@ SECTIONS
         src/new_game.o(.text.func_08006334);
         asm/new_game.o(.text.after_08006334);
         src/new_game.o(.text.func_08006858);
-        asm/new_game.o(.text.after_08006858);
+        src/new_game.o(.text.func_080068CC);
+        asm/new_game.o(.text.after_080068CC);
         src/new_game.o(.text.func_08006C28);
         asm/new_game.o(.text.after_08006C28);
         src/new_game.o(.text.func_08006C60);

@@ -35,6 +35,37 @@ extern char gNameEntrySceneConfirmationPrompt[] __asm__("gUnk_080E8C2C");
 extern char gNameEntrySceneConfirmationYes[] __asm__("gUnk_080E8C44");
 extern char gNameEntrySceneConfirmationNo[] __asm__("gUnk_080E8C48");
 
+EC void NameEntryScene_UpdateCursor(NameEntrySceneTask * self) SECTION(".text.func_080068CC");
+EC void NameEntryScene_UpdateCursor(NameEntrySceneTask * self)
+{
+    self->caretAttributes.x = 0x90 + self->charIndex * 8;
+    self->caretAttributes.y = 8;
+    if (self->cursorRow <= 5)
+    {
+        self->cursorAttributes.x = self->cursorColumn * 16;
+        self->cursorAttributes.y = self->cursorRow * 16 + 32;
+        self->cursorAttributes.size = 0;
+        self->cursorAttributes.shape = 2;
+    }
+    else
+    {
+        // Five logical columns share each wide action-button cursor.
+        u8 group = 0;
+        u8 column = self->cursorColumn;
+        while (column > 4)
+        {
+            column -= 5;
+            ++group;
+        }
+        self->cursorAttributes.x = group * 80 + 24;
+        self->cursorAttributes.y = 136;
+        self->cursorAttributes.size = 2;
+        self->cursorAttributes.shape = 1;
+    }
+}
+
+EC void func_080068CC(NameEntrySceneTask * self) ALIAS(NameEntryScene_UpdateCursor);
+
 EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source) SECTION(".text.func_08003E88");
 EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source)
 {

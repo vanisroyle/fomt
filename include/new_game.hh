@@ -44,6 +44,16 @@ struct NewGameSceneTaskOwner
     NewGameRenderTask * task;
 };
 
+struct NameEntrySceneSpriteAttributes
+{
+    u16 y : 8;
+    u16 displayFlags : 6;
+    u16 shape : 2;
+    u16 x : 9;
+    u16 matrix : 5;
+    u16 size : 2;
+};
+
 struct NameEntrySceneTask
 {
     STRUCT_PAD(0x0000, 0x45F0);
@@ -55,12 +65,20 @@ struct NameEntrySceneTask
     i8 cursorColumn;
     i8 cursorRow;
     STRUCT_PAD(0x4606, 0x4608);
-    u32 cursorPositionAndShape;
+    union
+    {
+        u32 cursorPositionAndShape;
+        NameEntrySceneSpriteAttributes cursorAttributes;
+    };
     u16 cursorTileAndPalette;
     STRUCT_PAD(0x460E, 0x4610);
     u8 charIndex;
     STRUCT_PAD(0x4611, 0x4614);
-    u32 caretPositionAndShape;
+    union
+    {
+        u32 caretPositionAndShape;
+        NameEntrySceneSpriteAttributes caretAttributes;
+    };
     u16 caretTileAndPalette;
     STRUCT_PAD(0x461A, 0x461C);
     // Twelve single-byte slots; underscores mark unused positions.
@@ -161,6 +179,7 @@ EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self);
 EC void NewGameChoiceDialog_Update(NewGameChoiceDialogTask * self);
 EC void NewGameMenu_UpdateDescription(NewGameMenuTask * self);
 EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self);
+EC void NameEntryScene_UpdateCursor(NameEntrySceneTask * self);
 EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite);
 EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source);
 EC void NewGameMenu_UpdateMessage(char * self);
