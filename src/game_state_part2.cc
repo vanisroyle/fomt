@@ -883,6 +883,60 @@ EC SECTION(".text.game_state_c2.0801FC48") GameStatePackedSpriteArchive const * 
     return &game.sprite_archives[3];
 }
 
+struct GameStateSavedMapView : GameStateMapView
+{
+    STRUCT_PAD(0x94, 0xBC);
+};
+
+struct GameStateMapObject
+{
+    virtual ~GameStateMapObject();
+};
+
+struct GameStateMapHandle
+{
+    struct Transfer
+    {
+        Transfer(GameStateMapObject ** source, GameStateMapObject * pointer)
+            : source(source), pointer(pointer) {}
+
+        GameStateMapObject * Release() const
+        {
+            GameStateMapObject * owned = pointer;
+            *source = nullptr;
+            return owned;
+        }
+
+        GameStateMapObject ** source;
+        GameStateMapObject * pointer;
+    };
+
+    explicit GameStateMapHandle(GameStateMapObject * pointer) : pointer(pointer) {}
+    GameStateMapHandle(Transfer const & transfer) : pointer(transfer.Release()) {}
+    ~GameStateMapHandle() { delete pointer; }
+
+    Transfer Move() { return Transfer(&pointer, pointer); }
+
+private:
+    GameStateMapObject * pointer;
+};
+
+inline void * operator new(size_t, GameStateMapHandle * storage) { return storage; }
+
+EC GameStateSavedMapView * func_080A6474(GameStateSavedMapView * view, GameStateMapData & state);
+EC GameStateMapObject * func_080175B4(GameStateMapObject * map, GameStateMapData & state, GameStateScript * script,
+    GameStateSavedMapView * & view, bool restore_events);
+
+EC SECTION(".text.game_state_c2.0801FB7C") GameStateMapHandle * GameStateCreateMapObject(
+    GameStateMapHandle * result, GameStateMapData & state, GameStateScript * script, bool restore_events)
+{
+    GameStateSavedMapView * view = func_080A6474(
+        static_cast<GameStateSavedMapView *>(::operator new(sizeof(GameStateSavedMapView))), state);
+    GameStateMapHandle map(func_080175B4(
+        static_cast<GameStateMapObject *>(::operator new(sizeof(GameStateMapOwner))), state, script, view, restore_events));
+    return new (result) GameStateMapHandle(map.Move());
+}
+
 EC SECTION(".text.game_state_c2.0801FC54") GameStatePackedSpriteArchive const * GameStateGetSpriteArchive2(GameStateMapOwner const & game)
 {
     return &game.sprite_archives[2];
