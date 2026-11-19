@@ -1,5 +1,6 @@
 #include "prelude.h"
 
+#include "bachelorette.hh"
 #include "npc.hh"
 #include "schedule_info.hh"
 
@@ -254,7 +255,15 @@ ROM_TEXT(0803C518) void func_0803C544(Unk_0803BF78 & self)
 
 struct Unk_0803D404Data
 {
-    STRUCT_PAD(0x000, 0x2F1);
+    STRUCT_PAD(0x000, 0x248);
+    u8 tens[0x20];
+    u8 ones[0x20];
+    STRUCT_PAD(0x288, 0x2B0);
+    u8 tilesDirty;
+    STRUCT_PAD(0x2B1, 0x2CC);
+    u8 unk_2CC;
+    STRUCT_PAD(0x2CD, 0x2F0);
+    u8 unk_2F0;
     u8 unk_2F1;
     u16 unk_2F2;
     STRUCT_PAD(0x2F4, 0x334);
@@ -266,7 +275,41 @@ struct Unk_0803D404
     Unk_0803D404Data * inner;
 };
 
-ROM_TEXT(0803D404) void func_0803D404(Unk_0803D404 & self, int arg)
+EC u8 const gUnk_0875A440[][0x20];
+
+ROM_TEXT(0803D340) void func_0803D340(Unk_0803D404 & self, unsigned number)
+{
+    Unk_0803D404Data & inner = *self.inner;
+    unsigned tens = number / 10;
+    unsigned ones = number % 10;
+    u8 const * tensTile = gUnk_0875A440[tens];
+    memcpy(inner.tens, tensTile, sizeof(inner.tens));
+    inner.tilesDirty = 1;
+    u8 const * onesTile = gUnk_0875A440[ones];
+    memcpy(inner.ones, onesTile, sizeof(inner.ones));
+    inner.tilesDirty = 1;
+}
+
+ROM_TEXT(0803D340) void func_0803D3A0(Unk_0803D404 & self, unsigned selection)
+{
+    Unk_0803D404Data & inner = *self.inner;
+    unsigned current = inner.unk_2CC;
+    switch (selection)
+    {
+        case 0: current = 0; break;
+        case 1: current = 1; break;
+        case 2: current = 2; break;
+        case 3: current = 3; break;
+        case 4: current = 4; break;
+    }
+    if (current != inner.unk_2CC)
+    {
+        inner.unk_2CC = current;
+        inner.unk_2F0 = 1;
+    }
+}
+
+ROM_TEXT(0803D340) void func_0803D404(Unk_0803D404 & self, int arg)
 {
     Unk_0803D404Data * inner = self.inner;
     if (!inner->unk_2F1 || arg != inner->unk_2F2)
@@ -277,7 +320,7 @@ ROM_TEXT(0803D404) void func_0803D404(Unk_0803D404 & self, int arg)
     }
 }
 
-ROM_TEXT(0803D404) void func_0803D440(Unk_0803D404 & self)
+ROM_TEXT(0803D340) void func_0803D440(Unk_0803D404 & self)
 {
     Unk_0803D404Data & inner = *self.inner;
     if (inner.unk_2F1)
@@ -440,7 +483,18 @@ struct ScriptEventContext
     SavedCalendarDate calendar;
     STRUCT_PAD(0x0013, 0x1CD4);
     u8 unk_1CD4[4];
-    STRUCT_PAD(0x1CD8, 0x21CA);
+    STRUCT_PAD(0x1CD8, 0x1DAC);
+    u32 unk_1DAC[2];
+    STRUCT_PAD(0x1DB4, 0x1E28);
+    Bachelorette npc_1E28;
+    STRUCT_PAD(0x1E40, 0x2186);
+    u8 : 5;
+    u8 unk_2186_5 : 2;
+    u8 : 1;
+    u8 : 3;
+    u8 unk_2187_3 : 2;
+    u8 : 3;
+    STRUCT_PAD(0x2188, 0x21CA);
     u8 eventFlags;
 };
 
@@ -504,7 +558,37 @@ ROM_TEXT(0803E1FC) unsigned func_0803E1FC(ScriptEventContext const & self)
     return 1;
 }
 
-ROM_TEXT(0803EA98) unsigned func_0803EA98(ScriptEventContext const & self)
+ROM_TEXT(0803E40C) unsigned func_0803E40C(ScriptEventContext const & self)
+{
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned weekday = date.weekday;
+    switch (self.unk_2187_3)
+    {
+    case 2:
+        if (weekday == 0)
+            return 1;
+        break;
+    }
+    return 0;
+}
+
+ROM_TEXT(0803EA5C) unsigned func_0803EA5C(ScriptEventContext const & self)
+{
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned weekday = date.weekday;
+    switch (self.unk_2186_5)
+    {
+    case 2:
+        if (weekday == 3)
+            return 1;
+        break;
+    }
+    return 0;
+}
+
+ROM_TEXT(0803EA5C) unsigned func_0803EA98(ScriptEventContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 5)) < 0)
         return 0;
@@ -515,7 +599,7 @@ ROM_TEXT(0803EA98) unsigned func_0803EA98(ScriptEventContext const & self)
     return 1;
 }
 
-ROM_TEXT(0803EA98) unsigned func_0803EADC(ScriptEventContext const & self)
+ROM_TEXT(0803EA5C) unsigned func_0803EADC(ScriptEventContext const & self)
 {
     if (self.eventFlags & 0x7C)
         return 0;
@@ -531,6 +615,92 @@ ROM_TEXT(0803EA98) unsigned func_0803EADC(ScriptEventContext const & self)
     if (weekday == 1 || weekday == 3 || self.unk_08 != 0)
         return 1;
     return 2;
+}
+
+ROM_TEXT(0803EA5C) unsigned func_0803EB40(ScriptEventContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 3)) >= 0)
+    {
+        CalendarDate date;
+        func_0803D52C(date, self.calendar);
+        unsigned season = date.season;
+        unsigned day = date.day;
+        unsigned weekday = date.weekday;
+        if (season == 1)
+        {
+            if (func_0803D644(1, day))
+                return 4;
+            if (weekday == 0)
+            {
+                if (self.unk_08 == 0)
+                    return 2;
+                return 3;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+ROM_TEXT(0803EA5C) unsigned func_0803EB9C(ScriptEventContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 4)) < 0)
+        return 0;
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    unsigned events = self.npc_1E28.GetRivalEventCount();
+    if (events > 4)
+    {
+        if (func_0803D644(season, day))
+            return 9;
+        if (weekday == 4)
+        {
+            if (self.unk_08 == 0)
+                return 6;
+            return 7;
+        }
+        return 5;
+    }
+    if (func_0803D644(season, day))
+        return 8;
+    if (events != 0)
+    {
+        if (weekday == 1)
+            return 3;
+        if (weekday == 4)
+            return 4;
+        return 2;
+    }
+    return 1;
+}
+
+EC unsigned func_0809ECD8(void const *);
+EC bool func_0809ECE0(void const *);
+
+ROM_TEXT(0803EA5C) unsigned func_0803EC44(ScriptEventContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 4)) < 0)
+        return 0;
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (func_0803D644(season, day))
+        return 4;
+    void const * npc = self.unk_1DAC;
+    if (func_0809ECD8(npc) != 0 && !func_0809ECE0(npc))
+        return 5;
+    if (weekday == 4)
+    {
+        if (self.unk_08 == 0)
+            return 2;
+        return 3;
+    }
+    return 1;
 }
 
 ROM_TEXT(0803EE50) unsigned func_0803EE50(ScriptEventContext const & self)
@@ -553,6 +723,7 @@ ROM_TEXT(0803EE50) unsigned func_0803EE50(ScriptEventContext const & self)
 
 EC Unk_0803BF78 & func_0803C028(Unk_0803BF78 &, void *, int, int, int, int, int);
 EC void func_080E0C38(void *, int);
+EC void func_080E0D70(void *, int);
 EC char const vtable_unk_080E77A4[];
 EC char const vtable_unk_080E77E0[];
 
@@ -609,4 +780,14 @@ ROM_TEXT(0803C518) void func_0803C588(Unk_0803C54C & self, int flags)
     self.vtable = vtable_unk_080E77E0;
     func_0803C7A0(self.menu, 2);
     func_0803BE50(self, flags);
+}
+
+ROM_TEXT(0803C7A0) void func_0803C7A0(Unk_0803C7A0 & self, int flags)
+{
+    void * inner = self.inner;
+    if (inner != 0)
+        func_080E0D70(inner, 3);
+    flags &= 1;
+    if (flags != 0)
+        ::operator delete(&self);
 }

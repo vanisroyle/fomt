@@ -2,6 +2,8 @@
 
 #include "actor.hh"
 
+#include <string.h>
+
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
 
 enum ActorAction
@@ -243,6 +245,8 @@ struct Unk_0809C5EC
     u16 selected;
 };
 
+EC u16 * func_080E3E28(u16 *, u16 *, u16 const &);
+
 ROM_TEXT(0809C5B4) void func_0809C5EC(Unk_0809C5EC & self)
 {
     self.count = 0;
@@ -253,17 +257,37 @@ ROM_TEXT(0809C5B4) bool func_0809C5F4(Unk_0809C5EC const & self)
     return self.count != 0;
 }
 
-ROM_TEXT(0809C694) bool func_0809C694(Unk_0809C5EC const & self, u16 value)
+ROM_TEXT(0809C644) void func_0809C644(Unk_0809C5EC & self, u16 value)
+{
+    u16 * begin = self.values;
+    unsigned offset = offsetof(Unk_0809C5EC, values) + self.count * sizeof(value);
+    u16 * end = reinterpret_cast<u16 *>(reinterpret_cast<uintptr_t>(&self) + offset);
+    u16 * found = func_080E3E28(begin, end, value);
+    if (found != end && self.count)
+    {
+        u16 * last = self.values + self.count;
+        u16 * next = found + 1;
+        if (next != last)
+        {
+            // Keep both comparisons to match the inlined copy.
+            if (last != next)
+                memmove(found, next, reinterpret_cast<char *>(last) - reinterpret_cast<char *>(next));
+        }
+        --self.count;
+    }
+}
+
+ROM_TEXT(0809C644) bool func_0809C694(Unk_0809C5EC const & self, u16 value)
 {
     return self.selected == value;
 }
 
-ROM_TEXT(0809C694) void func_0809C6AC(Unk_0809C5EC & self, u16 value)
+ROM_TEXT(0809C644) void func_0809C6AC(Unk_0809C5EC & self, u16 value)
 {
     self.selected = value;
 }
 
-ROM_TEXT(0809C694) void func_0809C6B0(Unk_0809C5EC & self)
+ROM_TEXT(0809C644) void func_0809C6B0(Unk_0809C5EC & self)
 {
     self.selected = 0xFFFF;
 }
@@ -372,6 +396,50 @@ struct Unk_0809D8A0
     u32 unk_625_4 : 1;
 };
 
+ROM_TEXT(0809D470) unsigned func_0809D470(Unk_0809D8A0 const &, unsigned value)
+{
+    switch (value)
+    {
+    case 20:
+        return 12;
+    case 30:
+        return 14;
+    case 40:
+        return 16;
+    case 60:
+    case 102:
+    case 123:
+    case 152:
+    case 155:
+    case 171:
+    case 190:
+    case 202:
+    case 222:
+        return 18;
+    case 255:
+        return 20;
+    }
+
+    unsigned result = value;
+    if (result <= 10)
+        goto done;
+    result = 11;
+    if (value <= 19)
+        goto done;
+    result = 13;
+    if (value <= 29)
+        goto done;
+    result = 15;
+    if (value <= 39)
+        goto done;
+    result = 19;
+    if (value > 230)
+        goto done;
+    result = 17;
+done:
+    return result;
+}
+
 ROM_TEXT(0809D7D8) unsigned func_0809D7D8(Unk_0809D8A0 const &, unsigned value)
 {
     switch (value)
@@ -436,6 +504,28 @@ ROM_TEXT(0809D7D8) unsigned func_0809D8D4(Unk_0809D8A0 const & self, unsigned in
 }
 
 EC int func_0809DA00(Unk_0809D8A0 &, unsigned, void *);
+
+ROM_TEXT(0809D9B4) int func_0809D9B4(Unk_0809D8A0 & self, unsigned index, unsigned row, void * context)
+{
+    int result = 0;
+    unsigned offset = index * sizeof(Unk_0809D8A0::Entry);
+    offset += row * sizeof(self.entries[0]);
+    char * base = reinterpret_cast<char *>(&self) + offset;
+    u8 firstByte = static_cast<u8>(base[offsetof(Unk_0809D8A0, entries)]);
+    unsigned kind = (static_cast<u32>(firstByte) << 28) >> 28;
+    switch (kind)
+    {
+    case 4:
+    {
+        Unk_0809D8A0::Entry & entry = *reinterpret_cast<Unk_0809D8A0::Entry *>(base + offsetof(Unk_0809D8A0, entries));
+        result = func_0809DA00(self, entry.unk_04, context);
+        entry.unk_00 = 0;
+        entry.unk_04 = 0;
+        break;
+    }
+    }
+    return result;
+}
 
 ROM_TEXT(0809E174) bool func_0809E174(Unk_0809D8A0 const & self)
 {

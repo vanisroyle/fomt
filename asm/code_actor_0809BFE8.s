@@ -158,49 +158,6 @@ func_0809C600: @ 0x0809C600
     pop {r0}
     bx r0
 
-    thumb_func_start func_0809C644
-func_0809C644: @ 0x0809C644
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r5, r0, #0
-    mov r0, sp
-    strh r1, [r0]
-    adds r0, r5, #4
-    ldr r4, [r5]
-    lsls r4, r4, #1
-    adds r4, #4
-    adds r4, r5, r4
-    adds r1, r4, #0
-    mov r2, sp
-    bl func_080E3E28
-    adds r3, r0, #0
-    cmp r3, r4
-    beq .L0809C68A
-    ldr r0, [r5]
-    cmp r0, #0
-    beq .L0809C68A
-    lsls r0, r0, #1
-    adds r0, #4
-    adds r0, r5, r0
-    adds r1, r3, #2
-    cmp r1, r0
-    beq .L0809C684
-    cmp r0, r1
-    beq .L0809C684
-    subs r2, r0, r1
-    adds r0, r3, #0
-    bl memmove
-.L0809C684:
-    ldr r0, [r5]
-    subs r0, #1
-    str r0, [r5]
-.L0809C68A:
-    add sp, #4
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
 	.section .text.0809C6BC, "ax", %progbits
     thumb_func_start func_0809C6BC
 func_0809C6BC: @ 0x0809C6BC
@@ -1850,93 +1807,7 @@ func_0809D418: @ 0x0809D418
     pop {r1}
     bx r1
 
-    thumb_func_start func_0809D470
-func_0809D470: @ 0x0809D470
-    push {lr}
-    cmp r1, #0x98
-    beq .L0809D4D2
-    cmp r1, #0x98
-    bhi .L0809D4A0
-    cmp r1, #0x28
-    beq .L0809D4CE
-    cmp r1, #0x28
-    bhi .L0809D48C
-    cmp r1, #0x14
-    beq .L0809D4C6
-    cmp r1, #0x1e
-    beq .L0809D4CA
-    b .L0809D4DA
-.L0809D48C:
-    cmp r1, #0x66
-    beq .L0809D4D2
-    cmp r1, #0x66
-    bhi .L0809D49A
-    cmp r1, #0x3c
-    beq .L0809D4D2
-    b .L0809D4DA
-.L0809D49A:
-    cmp r1, #0x7b
-    beq .L0809D4D2
-    b .L0809D4DA
-.L0809D4A0:
-    cmp r1, #0xbe
-    beq .L0809D4D2
-    cmp r1, #0xbe
-    bhi .L0809D4B2
-    cmp r1, #0x9b
-    beq .L0809D4D2
-    cmp r1, #0xab
-    beq .L0809D4D2
-    b .L0809D4DA
-.L0809D4B2:
-    cmp r1, #0xde
-    beq .L0809D4D2
-    cmp r1, #0xde
-    bhi .L0809D4C0
-    cmp r1, #0xca
-    beq .L0809D4D2
-    b .L0809D4DA
-.L0809D4C0:
-    cmp r1, #0xff
-    beq .L0809D4D6
-    b .L0809D4DA
-.L0809D4C6:
-    movs r0, #0xc
-    b .L0809D4FA
-.L0809D4CA:
-    movs r0, #0xe
-    b .L0809D4FA
-.L0809D4CE:
-    movs r0, #0x10
-    b .L0809D4FA
-.L0809D4D2:
-    movs r0, #0x12
-    b .L0809D4FA
-.L0809D4D6:
-    movs r0, #0x14
-    b .L0809D4FA
-.L0809D4DA:
-    adds r0, r1, #0
-    cmp r0, #0xa
-    bls .L0809D4FA
-    movs r0, #0xb
-    cmp r1, #0x13
-    bls .L0809D4FA
-    movs r0, #0xd
-    cmp r1, #0x1d
-    bls .L0809D4FA
-    movs r0, #0xf
-    cmp r1, #0x27
-    bls .L0809D4FA
-    movs r0, #0x13
-    cmp r1, #0xe6
-    bhi .L0809D4FA
-    movs r0, #0x11
-.L0809D4FA:
-    pop {r1}
-    bx r1
-    .align 2, 0
-
+	.section .text.0809D500, "ax", %progbits
     thumb_func_start func_0809D500
 func_0809D500: @ 0x0809D500
     push {r4, r5, r6, r7, lr}
@@ -2428,46 +2299,7 @@ func_0809D8E8: @ 0x0809D8E8
     pop {r1}
     bx r1
 
-    thumb_func_start func_0809D9B4
-func_0809D9B4: @ 0x0809D9B4
-    push {r4, r5, r6, lr}
-    adds r5, r0, #0
-    movs r6, #0
-    lsls r1, r1, #1
-    lsls r0, r2, #3
-    subs r0, r0, r2
-    lsls r0, r0, #3
-    adds r1, r1, r0
-    adds r4, r5, r1
-    ldrb r0, [r4, #4]
-    lsls r0, r0, #0x1c
-    lsrs r0, r0, #0x1c
-    cmp r0, #4
-    bne .L0809D9F2
-    ldrh r1, [r4, #4]
-    lsls r1, r1, #0x16
-    lsrs r1, r1, #0x1a
-    adds r0, r5, #0
-    adds r2, r3, #0
-    bl func_0809DA00
-    adds r6, r0, #0
-    ldrb r1, [r4, #4]
-    movs r0, #0x10
-    rsbs r0, r0, #0
-    ands r0, r1
-    strb r0, [r4, #4]
-    ldrh r1, [r4, #4]
-    ldr r0, .L0809D9FC @ =0xFFFFFC0F
-    ands r0, r1
-    strh r0, [r4, #4]
-.L0809D9F2:
-    adds r0, r6, #0
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0809D9FC: .4byte 0xFFFFFC0F
-
+	.section .text.0809DA00, "ax", %progbits
     thumb_func_start func_0809DA00
 func_0809DA00: @ 0x0809DA00
     push {r4, r5, r6, r7, lr}
