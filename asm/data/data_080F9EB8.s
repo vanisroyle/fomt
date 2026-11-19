@@ -258,8 +258,8 @@ gUnk_080FAEC4:
 gUnk_080FAFC8:
 	.incbin "baserom.gba", 0xFAFC8, 0x38
 
-	.global gUnk_080FB000
-gUnk_080FB000:
+	.global gMedalExchangePrizes
+gMedalExchangePrizes:
 	.incbin "baserom.gba", 0xFB000, 0xF0
 
 	.global gUnk_080FB0F0

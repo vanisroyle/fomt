@@ -34,7 +34,7 @@ struct FestivalResultsController
 EC u8 vtable_unk_080E7934[];
 EC FestivalResultsScreen * InitializeFestivalResultsScreen(void *, void *);
 EC void RunFestivalResultsScreen(FestivalScene **, FestivalResultsScreen *);
-EC void func_080007EC(void *, u32);
+EC void Scene_DestroyBase(void *, u32);
 
 EC SECTION(".text.festival_results.0805218C") FestivalResultsController * InitializeFestivalResultsController(FestivalResultsController * controller, FestivalScene ** continuation, void * game) // 0x0805218C
 {
@@ -55,7 +55,7 @@ EC SECTION(".text.festival_results.080521BC") void DestroyFestivalResultsControl
     FestivalResultsScreen * screen = controller->screen;
     if (screen != nullptr)
         screen->vtable->destroy(screen, 3);
-    func_080007EC(controller, flags);
+    Scene_DestroyBase(controller, flags);
 }
 
 EC SECTION(".text.festival_results.080521FC") FestivalScene ** RunFestivalResultsController(FestivalScene ** result, FestivalResultsController * controller) // 0x080521FC

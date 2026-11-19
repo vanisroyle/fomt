@@ -9,35 +9,35 @@ AgbMain: @ 0x0800018C
     ldr r2, .L0800022C @ =0x00004014
     adds r0, r2, #0
     strh r0, [r1]
-    bl func_080004C4
+    bl Irq_Initialize
     ldr r1, .L08000230 @ =func_03000490
     movs r0, #0xd
-    bl func_080D100C
+    bl Irq_SetHandler
     movs r0, #0x80
     lsls r0, r0, #6
-    bl func_0800050C
+    bl Irq_AcknowledgeAndEnable
     add r4, sp, #0xc
     adds r0, r4, #0
-    bl func_08000640
+    bl SramProxy_Initialize
     adds r0, r4, #0
-    bl func_080002E0
+    bl SaveHeader_IsValid
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080001C6
     adds r0, r4, #0
-    bl func_08000358
+    bl SaveHeader_Initialize
 .L080001C6:
     ldr r1, .L08000234 @ =func_08000240
     movs r0, #0xc
-    bl func_080D100C
+    bl Irq_SetHandler
     ldr r1, .L08000238 @ =0x04000132
     ldr r2, .L0800023C @ =0x0000C00F
     adds r0, r2, #0
     strh r0, [r1]
     movs r0, #0x80
     lsls r0, r0, #5
-    bl func_0800050C
-    bl func_08008AFC
+    bl Irq_AcknowledgeAndEnable
+    bl Audio_Initialize
     mov r0, sp
     bl func_08008980
     movs r0, #8
@@ -79,7 +79,7 @@ AgbMain: @ 0x0800018C
 func_08000240: @ 0x08000240
     push {r4, lr}
     ldr r0, .L080002C8 @ =0x0000FFFF
-    bl func_08000528
+    bl Irq_Disable
     movs r1, #0x80
     lsls r1, r1, #0x13
     movs r0, #0x80

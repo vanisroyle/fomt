@@ -104,18 +104,18 @@ EC void DrawMessageChoiceText(MessageWindowState *, const u8 &, const char *, co
 EC u32 GetMessageChoicePosition(u32, u32);
 EC void func_0805E850(void *, void *, u32);
 EC void func_080073E0(void *, u32);
-EC void func_08007184(void *, u32);
+EC void ResourceHandles_Destroy(void *, u32);
 EC void func_080ADC84(void *, u32);
 EC void func_08007C28(void *, u32);
 EC void func_080079E8(void *, u32);
-EC void func_080098AC(void *, u32);
+EC void TaskNode_Destroy(void *, u32);
 EC void func_080E105C(void *, u32);
-EC void func_080098DC(void *, u32);
+EC void TaskList_Destroy(void *, u32);
 EC u8 vtable_unk_080E5A28[];
 EC u8 vtable_unk_080E7868[], vtable_unk_080E7858[], vtable_unk_080E7848[], vtable_unk_080E7838[];
 EC MessageWindowState * InitializeMessageWindowState(MessageWindowState *, u32, u32, u32, u32, void *, void *);
 EC void ClearMessageTextCursor(MessageTextCursor *);
-EC void func_08009940(void *, void *);
+EC void TaskList_Append(void *, void *);
 EC void func_080ADD5C(void *, const char *, const void *);
 EC void func_080ADD74(void *, u16);
 EC u32 func_080ADD20();
@@ -259,8 +259,8 @@ EC SECTION(".text.message_window.0805039C") void BeginMessageWindowOpening(Messa
         u32 style = window->style;
         void * commands = (u8 *) window + 0x20;
         if (style != 1)
-            func_08009940(commands, (u8 *) window + 0x130);
-        func_08009940(commands, (u8 *) window + 0x148);
+            TaskList_Append(commands, (u8 *) window + 0x130);
+        TaskList_Append(commands, (u8 *) window + 0x148);
         window->animationFrame = 0;
     }
     if (window->phase < 0) return;
@@ -411,32 +411,32 @@ EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(Messa
 {
     register void * resource asm("r4") = (u8 *) window + 0x548;
     func_080073E0(resource, *((u32 *) resource + 1));
-    func_08007184(resource, 2);
+    ResourceHandles_Destroy(resource, 2);
     *(void **) ((u8 *) window + 0x504) = vtable_unk_080E5A28;
     resource = (u8 *) window + 0x1e8;
     func_080073E0(resource, *((u32 *) resource + 1));
-    func_08007184(resource, 2);
+    ResourceHandles_Destroy(resource, 2);
     func_080ADC84((u8 *) window + 0x1e4, 2);
     resource = (u8 *) window + 0x1d4;
     func_08007C28(resource, *((u32 *) resource + 1));
     func_080079E8(resource, 2);
     *(void **) ((u8 *) window + 0x190) = vtable_unk_080E5A28;
     *(void **) ((u8 *) window + 0x160) = vtable_unk_080E5A28;
-    func_080098AC((u8 *) window + 0x148, 2);
-    func_080098AC((u8 *) window + 0x130, 2);
-    func_080098AC((u8 *) window + 0x120, 2);
+    TaskNode_Destroy((u8 *) window + 0x148, 2);
+    TaskNode_Destroy((u8 *) window + 0x130, 2);
+    TaskNode_Destroy((u8 *) window + 0x120, 2);
     func_080E105C(&window->textCursor, 2);
-    func_080098AC((u8 *) window + 0xc0, 2);
+    TaskNode_Destroy((u8 *) window + 0xc0, 2);
     u8 * end = (u8 *) window + 0x3c;
     end += *(u32 *) end * 16 + 4;
     for (u8 * transfer = (u8 *) window + 0x40; transfer != end; transfer += 16) {}
-    func_080098DC((u8 *) window + 0x20, 2);
+    TaskList_Destroy((u8 *) window + 0x20, 2);
     resource = (u8 *) window + 0x18;
     func_08007C28(resource, *((u32 *) resource + 1));
     func_080079E8(resource, 2);
     resource = (u8 *) window + 0x10;
     func_080073E0(resource, *((u32 *) resource + 1));
-    func_08007184(resource, 2);
+    ResourceHandles_Destroy(resource, 2);
     if (flags & 1) operator delete(window);
 }
 
@@ -524,25 +524,25 @@ EC SECTION(".text.message_rendering.0804EA58") MessageTilemapRectCommand * Initi
 EC SECTION(".text.message_rendering.0804EA80") void DestroyMessageTilemapRectCommand(MessageTilemapRectCommand * command, u32 flags) // 0x0804EA80
 {
     command->vtable = vtable_unk_080E7868;
-    func_080098AC(command, flags);
+    TaskNode_Destroy(command, flags);
 }
 
 EC SECTION(".text.message_rendering.0804EDA0") void DestroyLargeMessageNumberCommand(MessageNumberCommand * command, u32 flags) // 0x0804EDA0
 {
     command->vtable = vtable_unk_080E7858;
-    func_080098AC(command, flags);
+    TaskNode_Destroy(command, flags);
 }
 
 EC SECTION(".text.message_rendering.0804EE1C") void DestroyTallMessageNumberCommand(MessageNumberCommand * command, u32 flags) // 0x0804EE1C
 {
     command->vtable = vtable_unk_080E7848;
-    func_080098AC(command, flags);
+    TaskNode_Destroy(command, flags);
 }
 
 EC SECTION(".text.message_rendering.0804EE88") void DestroySmallMessageNumberCommand(MessageNumberCommand * command, u32 flags) // 0x0804EE88
 {
     command->vtable = vtable_unk_080E7838;
-    func_080098AC(command, flags);
+    TaskNode_Destroy(command, flags);
 }
 
 EC SECTION(".text.message_rendering.0804ED28") void DrawLargeMessageNumber(u32 value, u16 * tilemap, u32 firstTileArg, u32 paletteArg, u32 stride) // 0x0804ED28
