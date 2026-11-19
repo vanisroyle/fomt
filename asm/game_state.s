@@ -3829,8 +3829,8 @@ func_08012B24: @ 0x08012B24
 
     .section .text.game_state_08012BBC, "ax", %progbits
 
-    thumb_func_start func_08012BBC
-func_08012BBC: @ 0x08012BBC
+    thumb_func_start GameScript_QueueCondition0A
+GameScript_QueueCondition0A: @ 0x08012BBC
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]

@@ -4742,7 +4742,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042004
 	bl .L0804168A
 .L08042004:
-	bl func_08012BBC
+	bl GameScript_QueueCondition0A
 	bl .L0804168A
 .L0804200C:
 	movs r4, #0xda
