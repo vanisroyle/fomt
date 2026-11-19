@@ -952,3 +952,32 @@ EC SECTION(".text.message_window.08050E98") u32 ClearMessageWindowButtonMask(Mes
     state->inputFlags.buttons = previous & ~mask;
     return previous;
 }
+
+inline void ClearMessageGlyphTile(MessageGlyphTile * tile)
+{
+    void * buffer = tile->tileBuffer;
+    FillMessageTiles(MessageTileSize(4, 2), (u8 *) buffer + 4, 0);
+    tile->dirty = tile->allocation[1] != 0;
+}
+
+inline void ClearMessageGlyphRow(MessageGlyphTile * tiles)
+{
+    for (i32 column = 0; column <= 6; ++column)
+        ClearMessageGlyphTile(tiles + column);
+}
+
+EC SECTION(".text.message_rendering.0804F060") void AdvanceMessageTextLine(MessageTextCursor * cursor)
+{
+    if (cursor->row <= 1)
+    {
+        ++cursor->row;
+        return;
+    }
+    ++cursor->firstRow;
+    if (cursor->firstRow > 2) cursor->firstRow = 0;
+    i32 physicalRow = cursor->firstRow + 2;
+    if (physicalRow > 2) physicalRow = cursor->firstRow - 1;
+    ClearMessageGlyphRow(*((MessageGlyphTile **) ((u8 *) cursor + physicalRow * 4) + 2));
+    cursor->needsClear = 1;
+    cursor->changed = 1;
+}
