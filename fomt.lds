@@ -1245,6 +1245,7 @@ SECTIONS
         src/chicken_feeding.o(.text.080B0970);
         src/chicken_feeding.o(.text.080B09B0);
         asm/code_809E804.o(.text.080B0AA0);
+        src/chicken_feeding.o(.text.080B1B40);
         src/chicken_feeding.o(.text.080B1D34);
         asm/code_809E804.o(.text.080B1D94);
         src/chicken_feeding.o(.text.080B34DC);
