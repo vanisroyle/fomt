@@ -1183,6 +1183,137 @@ struct FarmerStepCoordinateQ16
     i16 pixel;
 };
 
+struct FarmerStepSprite
+{
+    STRUCT_PAD(0x00, 0x24);
+    void const * vtable;
+};
+
+struct FarmerStepSpriteAnimatorStorage
+{
+    u32 words[sizeof(SpriteAnimator) / sizeof(u32)];
+};
+
+struct FarmerStepSpriteSlot
+{
+    u8 active;
+    STRUCT_PAD(0x01, 0x04);
+    FarmerStepSprite sprite;
+    FarmerStepSpriteAnimatorStorage animator;
+    FarmerIconState icon_state;
+    FarmerStepPosition position;
+};
+
+struct FarmerEffectSlots
+{
+    u32 count;
+    FarmerStepSpriteSlot slots[6];
+};
+
+struct FarmerEffectGraphicsInit : FarmerIconGraphics
+{
+    FarmerEffectSlots effects;
+    u8 next_step_effect;
+    bool refresh_icon;
+};
+
+struct FarmerStepSpriteCallFrame
+{
+    u32 priority;
+    u32 layer;
+    bool mirrored;
+    STRUCT_PAD(0x09, 0x14);
+    FarmerStepSpriteSlot slot;
+};
+
+EC char const gUnk_080F1218[];
+EC char const vtable_unk_080E6708[];
+EC char const vtable_unk_080E681C[];
+EC void CopyFarmerStepSprite(FarmerStepSprite *, FarmerStepSprite const *) asm("func_080DC840");
+EC void DestroyFarmerStepSprite(FarmerStepSprite *, u32) asm("func_080A47B4");
+EC void InitFarmerStepSpriteWithStackArgs(FarmerStepSprite *, void *, u32, GameObject *) asm("func_080A4A00");
+
+EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * farmer) ENTITY_CODE(0802B260);
+EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * farmer)
+{
+    GameObject * sprite_game[2];
+    FarmerStepSpriteSlot * copied_effect;
+    void * sprite_bank[2];
+    FarmerEffectSlots * effects;
+    FarmerStepSpriteSlot * destination;
+    FarmerStepSpriteSlot effect;
+    u32 effect_index;
+    FarmerStepSprite * effect_sprite;
+    FarmerStepPosition * position;
+    register FarmerStepSpriteCallFrame * call_frame asm("sp");
+    bool * mirrored_argument;
+
+    InitializePrioritizedSideActorSprite(graphics, farmer, 6, gUnk_080F1218, 3, 1, 0, 1, true);
+    reinterpret_cast<void const **>(graphics)[1] = vtable_unk_080E6708;
+    sprite_game[0] = farmer->game_object;
+    sprite_bank[1] = (*reinterpret_cast<FarmerIconGameVTable const **>(sprite_game[0]))->get_item_sprites(sprite_game[0]);
+    sprite_game[0] = farmer->game_object;
+    func_080A4A00(reinterpret_cast<u8 *>(graphics) + 0x8C, sprite_bank[1], 0, sprite_game[0], 2, 1, false);
+    register FarmerEffectSlots * effect_slots asm("r1") = &graphics->effects;
+    effect_slots->count = 0;
+    graphics->refresh_icon = false;
+    effect_index = 0;
+    mirrored_argument = &call_frame->mirrored;
+    effect_sprite = &effect.sprite;
+    position = &effect.position;
+    register FarmerStepSpriteSlot * template_effect asm("sl") = &effect;
+    register u32 inactive asm("r7") = 0;
+    asm volatile("" : : "r"(template_effect), "r"(inactive) : "r6");
+    effects = effect_slots;
+    do
+    {
+        u32 count;
+        sprite_game[0] = farmer->game_object;
+        sprite_bank[0] = (*reinterpret_cast<FarmerIconGameVTable const **>(sprite_game[0]))->get_actor_sprites(sprite_game[0]);
+        sprite_bank[1] = sprite_bank[0];
+        sprite_game[0] = farmer->game_object;
+        sprite_game[1] = sprite_game[0];
+        register FarmerStepSpriteSlot * current_effect asm("r4") = template_effect;
+        current_effect->active = 0;
+
+        // The stack arguments are shared with the icon initialization above.
+        call_frame->priority = 0;
+        call_frame->layer = 18;
+        *mirrored_argument = false;
+        register FarmerStepSpriteCallFrame * effect_frame asm("sp");
+        asm volatile("" : "=r"(effect_frame) : "0"(call_frame));
+        InitFarmerStepSpriteWithStackArgs(&effect_frame->slot.sprite, sprite_bank[1], 0, sprite_game[1]);
+
+        position->y = (position->x = 0);
+        count = effects->count;
+        if (count < 6)
+        {
+            FarmerStepSpriteSlot * slot = &effects->slots[count];
+            destination = slot;
+            copied_effect = destination;
+            if (copied_effect)
+            {
+                FarmerStepSprite * sprite;
+                destination->active = current_effect->active;
+                sprite = &destination->sprite;
+                CopyFarmerStepSprite(sprite, &effect.sprite);
+                sprite->vtable = vtable_unk_080E681C;
+                destination->animator = effect.animator;
+                destination->icon_state.enabled = effect.icon_state.enabled;
+                copied_effect->icon_state.reserved = effect.icon_state.reserved;
+                copied_effect->icon_state.frame_state = effect.icon_state.frame_state;
+                destination->icon_state.restart = effect.icon_state.restart;
+                destination->position = effect.position;
+            }
+            ++effects->count;
+        }
+        DestroyFarmerStepSprite(effect_sprite, 2);
+        ++effect_index;
+    } while (effect_index < 6);
+    graphics->next_step_effect = 0;
+    return graphics;
+}
+
 EC void SpawnFarmerStepEffect(FarmerEffectGraphics * graphics) ENTITY_CODE(0802B46C);
 EC void SpawnFarmerStepEffect(FarmerEffectGraphics * graphics)
 {

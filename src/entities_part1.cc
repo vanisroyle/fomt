@@ -144,7 +144,8 @@ EC void ItemCollection_SetExtraItems(void * self, Location const & location);
 EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 state);
 EC void __builtin_delete(void * ptr);
 EC void * __builtin_new(size_t size);
-EC UnknownEntityThing * func_0802B260(void * memory, FarmerEntity * self);
+struct FarmerEffectGraphicsInit;
+EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * self);
 struct ScriptEventSelection;
 EC bool IsSelectedScriptEvent(ScriptEventSelection const & events, u16 eventId);
 EC u32 func_08022320(u32 growth_stage);
@@ -690,7 +691,7 @@ EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self)
             priority = 1;
     }
     self->unk_21 = priority;
-    return func_0802B260(__builtin_new(0x284), self);
+    return InitFarmerEffectGraphics(static_cast<FarmerEffectGraphicsInit *>(__builtin_new(0x284)), self);
 }
 
 // 0x080233B4
