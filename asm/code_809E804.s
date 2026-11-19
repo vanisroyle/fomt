@@ -7666,7 +7666,7 @@ func_080A25B0: @ 0x080A25B0
 	movs r6, #0
 	str r6, [r4]
 	str r6, [r4, #4]
-	ldr r0, .L080A2668 @ =vtable_unk_080E5B80
+	ldr r0, .L080A2668 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -7718,7 +7718,7 @@ func_080A25B0: @ 0x080A25B0
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L080A2668: .4byte vtable_unk_080E5B80
+.L080A2668: .4byte gDisplayFadeTaskVtable
 .L080A266C: .4byte 0x00000889
 .L080A2670: .4byte 0x00000216
 .L080A2674: .4byte .L080A2678
@@ -31546,7 +31546,7 @@ func_080ADF6C: @ 0x080ADF6C
 	adds r1, r0, #0
 	str r4, [r5]
 	str r4, [r5, #4]
-	ldr r0, .L080AE374 @ =vtable_unk_080E5B80
+	ldr r0, .L080AE374 @ =gDisplayFadeTaskVtable
 	str r0, [r5, #8]
 	adds r0, r5, #0
 	adds r0, #0xc
@@ -31920,7 +31920,7 @@ func_080ADF6C: @ 0x080ADF6C
 .L080AE368: .4byte gUnk_0872BE64
 .L080AE36C: .4byte 0x00000434
 .L080AE370: .4byte gUnk_0873D6D8
-.L080AE374: .4byte vtable_unk_080E5B80
+.L080AE374: .4byte gDisplayFadeTaskVtable
 .L080AE378: .4byte 0x0000043C
 .L080AE37C: .4byte 0x000007CC
 .L080AE380: .4byte 0x000007D4
@@ -43602,7 +43602,7 @@ func_080B3CC8: @ 0x080B3CC8
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L080B413C @ =vtable_unk_080E5B80
+	ldr r0, .L080B413C @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -43845,7 +43845,7 @@ func_080B3CC8: @ 0x080B3CC8
 .L080B4130: .4byte gUnk_08729460
 .L080B4134: .4byte gUnk_087409E4
 .L080B4138: .4byte 0x0000079C
-.L080B413C: .4byte vtable_unk_080E5B80
+.L080B413C: .4byte gDisplayFadeTaskVtable
 .L080B4140: .4byte 0x000007A4
 .L080B4144: .4byte 0x000007AC
 .L080B4148: .4byte 0x000007B4
@@ -61540,7 +61540,7 @@ func_080BC938: @ 0x080BC938
 	adds r1, r0, #0
 	str r4, [r5]
 	str r4, [r5, #4]
-	ldr r0, .L080BCCAC @ =vtable_unk_080E5B80
+	ldr r0, .L080BCCAC @ =gDisplayFadeTaskVtable
 	str r0, [r5, #8]
 	adds r0, r5, #0
 	adds r0, #0xc
@@ -61819,7 +61819,7 @@ func_080BC938: @ 0x080BC938
 .L080BCCA0: .4byte gUnk_0872BE64
 .L080BCCA4: .4byte 0x00000434
 .L080BCCA8: .4byte gUnk_0873D6D8
-.L080BCCAC: .4byte vtable_unk_080E5B80
+.L080BCCAC: .4byte gDisplayFadeTaskVtable
 .L080BCCB0: .4byte 0x0000043C
 .L080BCCB4: .4byte 0x0000057C
 .L080BCCB8: .4byte 0x00000584
@@ -70327,7 +70327,7 @@ func_080C0DCC: @ 0x080C0DCC
 	adds r1, r0, #0
 	str r4, [r5]
 	str r4, [r5, #4]
-	ldr r0, .L080C11FC @ =vtable_unk_080E5B80
+	ldr r0, .L080C11FC @ =gDisplayFadeTaskVtable
 	str r0, [r5, #8]
 	adds r0, r5, #0
 	adds r0, #0xc
@@ -70701,7 +70701,7 @@ func_080C0DCC: @ 0x080C0DCC
 .L080C11F0: .4byte gUnk_0872BE64
 .L080C11F4: .4byte 0x0000053C
 .L080C11F8: .4byte gUnk_0873D6D8
-.L080C11FC: .4byte vtable_unk_080E5B80
+.L080C11FC: .4byte gDisplayFadeTaskVtable
 .L080C1200: .4byte 0x00000544
 .L080C1204: .4byte 0x0000061C
 .L080C1208: .4byte 0x00000808

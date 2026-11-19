@@ -62,7 +62,7 @@ AgbMain: @ 0x0800018C
 .L08000216:
     mov r0, sp
     movs r1, #2
-    bl func_08008A68
+    bl VBlankDispatcher_Destroy
     add sp, #0x1c
     pop {r4}
     pop {r0}

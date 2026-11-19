@@ -112,6 +112,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008364);
         src/hardware.o(.text.TilePool_Acquire);
         asm/hardware.o(.text.after_080083D0);
+        src/hardware.o(.text.HardwareContext_Destroy);
+        asm/hardware.o(.text.after_080086BC);
         src/hardware.o(.text.HardwareContext_UpdateKeys);
         asm/hardware.o(.text.after_080088B8);
         src/hardware.o(.text.HardwareContext_GetHeldKeys);
@@ -132,6 +134,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008940);
         src/hardware.o(.text.HardwareContext_GetVBlankTasks);
         asm/hardware.o(.text.after_0800894C);
+        src/hardware.o(.text.VBlankDispatcher_Destroy);
+        asm/hardware.o(.text.after_08008A68);
         src/hardware.o(.text.VBlankDispatcher_GetTasks);
         asm/hardware.o(.text.after_08008AE0);
         src/hardware.o(.text.VBlankDispatcher_Wait);
@@ -142,6 +146,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008B0C);
         src/hardware.o(.text.Audio_Update);
         asm/hardware.o(.text.after_08008B18);
+        src/hardware.o(.text.Audio_GetPlayerByIndex);
+        asm/hardware.o(.text.after_08008B24);
         src/hardware.o(.text.AudioPlayer_Initialize);
         asm/hardware.o(.text.after_08008B54);
         src/hardware.o(.text.AudioPlayer_StartSong);
@@ -190,6 +196,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008F0C);
         src/hardware.o(.text.DmaCommand_InitializeFill);
         asm/hardware.o(.text.after_08008F60);
+        src/hardware.o(.text.DmaCommand_ExecuteCpuRange);
+        asm/hardware.o(.text.after_08009094);
         src/hardware.o(.text.Keys_ReadHardware);
         asm/hardware.o(.text.after_0800912C);
         src/hardware.o(.text.Keys_InitializeFromHardware);
@@ -230,6 +238,8 @@ SECTIONS
         asm/hardware.o(.text.after_080094A4);
         src/hardware.o(.text.DisplayFadeTask_Update);
         asm/hardware.o(.text.after_080094AC);
+        src/hardware.o(.text.DisplayFadeTask_Destroy);
+        asm/hardware.o(.text.after_080094B8);
         src/hardware.o(.text.IrqTaskList_Clear);
         asm/hardware.o(.text.after_0800956C);
         src/hardware.o(.text.IrqTaskList_Destroy);

@@ -213,7 +213,7 @@ func_080C8360: @ 0x080C8360
 .L080C8528:
 	adds r0, r5, #0
 	mov r1, sb
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3, r4}
 	mov r8, r3
 	mov sb, r4

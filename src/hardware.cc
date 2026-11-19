@@ -457,6 +457,7 @@ struct HardwareContextState
 struct HardwareContext
 {
     HardwareContextState * state;
+    void const * vtable;
 };
 
 EC u32 KeyRepeat_Poll(void *);
@@ -564,6 +565,17 @@ struct AudioPlayer
 };
 
 EC MusicPlayer * Audio_GetPlayerByIndex(u32 index);
+
+extern u8 const _M4aNumMusicPlayers[];
+
+// 0x08008B24
+EC SECTION(".text.Audio_GetPlayerByIndex") MusicPlayer * Audio_GetPlayerByIndex(u32 index)
+{
+    u16 player_count = u32(_M4aNumMusicPlayers);
+    if (index >= player_count)
+        index %= player_count;
+    return gMusicPlayerTable[index].music_player;
+}
 
 // 0x08008B54
 EC SECTION(".text.AudioPlayer_Initialize") AudioPlayer * AudioPlayer_Initialize(AudioPlayer * self, u8 index)
@@ -1299,6 +1311,152 @@ EC void SECTION(".text.TaskList_SwapHeads") TaskList_SwapHeads(TaskList * self, 
 }
 
 EC void ResourceHandles_Destroy(ResourceHandleOwner * self, u32 destructor_flags) ALIAS(_._19ResourceHandleOwner);
+
+struct DmaTransferQueue
+{
+    DmaCommand * Begin() const { return begin; }
+    DmaCommand * End() const { return end; }
+    DmaCommand * begin;
+    DmaCommand * end;
+    u32 allocation_state;
+    DmaCommand * capacity_end;
+};
+
+struct VBlankIrqSubscription
+{
+    u8 storage[0x14];
+    void const * vtable;
+};
+
+struct VBlankRootTaskList
+{
+    TaskList tasks;
+    VBlankIrqSubscription irq_subscription;
+};
+
+struct VBlankRuntime
+{
+    TaskNode audio_update;
+    TaskList pending_tasks;
+    TaskNode audio_vblank;
+    VBlankRootTaskList root;
+    bool restore_audio_dma;
+};
+
+struct VBlankDispatcher
+{
+    VBlankRuntime * state;
+};
+
+struct HardwareRuntime
+{
+    KeyRepeatState keys;
+    DmaTransferQueue dma_queue;
+    DisplayRegisterBuffer display;
+    OamBuffer oam;
+    VBlankDispatcher vblank;
+    TaskList frame_tasks;
+};
+
+extern void const * gHardwareContextVtable[]; // 0x080E5B00
+extern void const * gVBlankIrqSubscriptionVtable[]; // 0x080E5B0C
+extern TaskVtable gVBlankRootTaskListVtable; // 0x080E5B18
+extern TaskVtable gDisplayFadeTaskVtable; // 0x080E5B80
+EC void func_080D7944(VBlankIrqSubscription *, u32);
+
+// 0x08008A68
+EC void SECTION(".text.VBlankDispatcher_Destroy") VBlankDispatcher_Destroy(VBlankDispatcher * self, u32 destructor_flags)
+{
+    VBlankRuntime * state = self->state;
+    if (state != nullptr)
+    {
+        if (state->restore_audio_dma)
+            Audio_DisableVBlankDma();
+        VBlankRootTaskList * root = &state->root;
+        root->irq_subscription.vtable = gVBlankIrqSubscriptionVtable;
+        root->tasks.node.vtable = &gVBlankRootTaskListVtable;
+        func_080D7944(&root->irq_subscription, 0);
+        IrqTaskList_Destroy(&root->tasks, 2);
+        TaskNode_Destroy(&state->audio_vblank, 2);
+        IrqTaskList_Destroy(&state->pending_tasks, 2);
+        TaskNode_Destroy(&state->audio_update, 2);
+        delete state;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+// 0x080086BC
+EC void SECTION(".text.HardwareContext_Destroy") HardwareContext_Destroy(HardwareContext * self, u32 destructor_flags)
+{
+    self->vtable = gHardwareContextVtable;
+    if (self->state != nullptr)
+    {
+        HardwareRuntime * state = reinterpret_cast<HardwareRuntime *>(self->state);
+        TaskList_Destroy(&state->frame_tasks, 2);
+        VBlankDispatcher_Destroy(&state->vblank, 2);
+        DmaTransferQueue * queue = &state->dma_queue;
+        DmaCommand * end = queue->End();
+        DmaCommand * command = queue->Begin();
+        while (command != end)
+            ++command;
+        if (queue->Begin() != nullptr)
+            free(queue->Begin());
+        delete state;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+struct DisplayFadeTask
+{
+    TaskNode node;
+    DisplayFade fade;
+};
+
+// 0x080094B8
+EC void SECTION(".text.DisplayFadeTask_Destroy") DisplayFadeTask_Destroy(DisplayFadeTask * self, u32 destructor_flags)
+{
+    self->node.vtable = &gDisplayFadeTaskVtable;
+    DisplayFade_Destroy(&self->fade, 2);
+    TaskNode_Destroy(&self->node, destructor_flags);
+}
+
+// 0x08009094
+EC void SECTION(".text.DmaCommand_ExecuteCpuRange") DmaCommand_ExecuteCpuRange(DmaCommand const * begin, DmaCommand const * end)
+{
+    DmaCommand const * limit = end;
+    for (DmaCommand const * command = begin; command != limit; ++command)
+    {
+        u8 const * source = reinterpret_cast<u8 const *>(command->source_or_fill_value);
+        u32 fill_value;
+        if (command->is_fill == 1)
+        {
+            fill_value = u32(source);
+            source = reinterpret_cast<u8 const *>(&fill_value);
+        }
+        u32 control = command->control_flags;
+        u8 * destination = static_cast<u8 *>(command->destination);
+        if (control & 0x04000000)
+        {
+            u32 count = control & 0xFFFF;
+            u32 tail = count & 7;
+            count -= tail;
+            if (count != 0 || tail == 0)
+            {
+                CpuFastSet(source, destination, control - tail);
+                u32 byte_count = count * 4;
+                destination += byte_count;
+                if (!(control & 0x01000000))
+                    source += byte_count;
+            }
+            if (tail != 0)
+                CpuSet(source, destination, control - count);
+        }
+        else
+            CpuSet(source, destination, control);
+    }
+}
 
 // 0x080071BC
 EC void ResourceHandles_ReserveRange(ResourceHandleOwner * self, unsigned int first_index, unsigned int entry_count)

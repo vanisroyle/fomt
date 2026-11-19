@@ -33665,7 +33665,7 @@ func_08051504: @ 0x08051504
 	movs r5, #0
 	str r5, [r4]
 	str r5, [r4, #4]
-	ldr r0, .L080515A0 @ =vtable_unk_080E5B80
+	ldr r0, .L080515A0 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -33708,7 +33708,7 @@ func_08051504: @ 0x08051504
 	beq .L080515B6
 	b .L0805169A
 	.align 2, 0
-.L080515A0: .4byte vtable_unk_080E5B80
+.L080515A0: .4byte gDisplayFadeTaskVtable
 .L080515A4: .4byte 0x00000889
 .L080515A8: .4byte 0x000008BC
 .L080515AC:
@@ -36131,7 +36131,7 @@ func_08052984: @ 0x08052984
 	ldr r2, [sp, #0x30]
 	str r2, [r4]
 	str r2, [r4, #4]
-	ldr r0, .L08052A70 @ =vtable_unk_080E5B80
+	ldr r0, .L08052A70 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -36203,7 +36203,7 @@ sub_08052A1E: @ 0x08052A1E
 	bl func_080558C4
 	bl .L080535E0
 	.align 2, 0
-.L08052A70: .4byte vtable_unk_080E5B80
+.L08052A70: .4byte gDisplayFadeTaskVtable
 .L08052A74: .4byte 0x0000228A
 .L08052A78: .4byte 0x0000033B
 .L08052A7C: .4byte 0x00002328
@@ -47949,7 +47949,7 @@ func_080588AC: @ 0x080588AC
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L08058994 @ =vtable_unk_080E5B80
+	ldr r0, .L08058994 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -48033,7 +48033,7 @@ func_080588AC: @ 0x080588AC
 	strh r0, [r1]
 	b .L080589EE
 	.align 2, 0
-.L08058994: .4byte vtable_unk_080E5B80
+.L08058994: .4byte gDisplayFadeTaskVtable
 .L08058998: .4byte 0x00002C2A
 .L0805899C: .4byte 0x0000144C
 .L080589A0: .4byte 0x00002C28
@@ -56878,7 +56878,7 @@ func_0805D170: @ 0x0805D170
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0805D278 @ =vtable_unk_080E5B80
+	ldr r0, .L0805D278 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -56977,7 +56977,7 @@ func_0805D170: @ 0x0805D170
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0805D278: .4byte vtable_unk_080E5B80
+.L0805D278: .4byte gDisplayFadeTaskVtable
 .L0805D27C: .4byte 0x00000AE9
 .L0805D280: .4byte 0x00002C4A
 .L0805D284: .4byte 0x00000AE1
@@ -60500,7 +60500,7 @@ func_0805EE44: @ 0x0805EE44
 	ldr r2, [sp, #0x38]
 	str r2, [r4]
 	str r2, [r4, #4]
-	ldr r0, .L0805EF00 @ =vtable_unk_080E5B80
+	ldr r0, .L0805EF00 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -60555,7 +60555,7 @@ func_0805EE44: @ 0x0805EE44
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0805EF00: .4byte vtable_unk_080E5B80
+.L0805EF00: .4byte gDisplayFadeTaskVtable
 .L0805EF04: .4byte 0x00000889
 .L0805EF08: .4byte 0x00006422
 .L0805EF0C: .4byte .L0805EF10
@@ -88759,7 +88759,7 @@ func_0806A1F4: @ 0x0806A1F4
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0806C514 @ =vtable_unk_080E5B80
+	ldr r0, .L0806C514 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -88840,7 +88840,7 @@ sub_0806C492: @ 0x0806C492
 	str r1, [r6]
 	b .L0806C562
 	.align 2, 0
-.L0806C514: .4byte vtable_unk_080E5B80
+.L0806C514: .4byte gDisplayFadeTaskVtable
 .L0806C518: .4byte 0x00000889
 .L0806C51C: .4byte 0x00004170
 .L0806C520:
@@ -91724,7 +91724,7 @@ func_0806DB38: @ 0x0806DB38
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0806DBE4 @ =vtable_unk_080E5B80
+	ldr r0, .L0806DBE4 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -91774,7 +91774,7 @@ func_0806DB38: @ 0x0806DB38
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0806DBE4: .4byte vtable_unk_080E5B80
+.L0806DBE4: .4byte gDisplayFadeTaskVtable
 .L0806DBE8: .4byte 0x00000889
 .L0806DBEC: .4byte 0x0000044C
 .L0806DBF0: .4byte .L0806DBF4
@@ -93630,7 +93630,7 @@ func_0806EA78: @ 0x0806EA78
 	movs r0, #0
 	str r0, [sp, #4]
 	str r0, [r4, #4]
-	ldr r0, .L0806EAC4 @ =vtable_unk_080E5B80
+	ldr r0, .L0806EAC4 @ =gDisplayFadeTaskVtable
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
 	bl DisplayFade_Initialize
@@ -93647,7 +93647,7 @@ func_0806EA78: @ 0x0806EA78
 	bl _call_via_r2
 	b .L0806EAD8
 	.align 2, 0
-.L0806EAC4: .4byte vtable_unk_080E5B80
+.L0806EAC4: .4byte gDisplayFadeTaskVtable
 .L0806EAC8: .4byte 0x00000889
 .L0806EACC:
 	adds r0, r5, #0
@@ -93662,7 +93662,7 @@ func_0806EA78: @ 0x0806EA78
 	blt .L0806EACC
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080094B8
+	bl DisplayFadeTask_Destroy
 	add sp, #0x14
 	pop {r4, r5}
 	pop {r0}
@@ -93687,7 +93687,7 @@ func_0806EAF4: @ 0x0806EAF4
 	movs r0, #0
 	str r0, [sp, #4]
 	str r0, [r4, #4]
-	ldr r0, .L0806EB40 @ =vtable_unk_080E5B80
+	ldr r0, .L0806EB40 @ =gDisplayFadeTaskVtable
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
 	bl DisplayFade_Initialize
@@ -93704,7 +93704,7 @@ func_0806EAF4: @ 0x0806EAF4
 	bl _call_via_r2
 	b .L0806EB54
 	.align 2, 0
-.L0806EB40: .4byte vtable_unk_080E5B80
+.L0806EB40: .4byte gDisplayFadeTaskVtable
 .L0806EB44: .4byte 0x00000889
 .L0806EB48:
 	adds r0, r5, #0
@@ -93719,7 +93719,7 @@ func_0806EAF4: @ 0x0806EAF4
 	blt .L0806EB48
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080094B8
+	bl DisplayFadeTask_Destroy
 	add sp, #0x14
 	pop {r4, r5}
 	pop {r0}
@@ -110081,7 +110081,7 @@ func_080769A0: @ 0x080769A0
 	movs r0, #0
 	str r0, [sp, #4]
 	str r0, [r4, #4]
-	ldr r0, .L08076A60 @ =vtable_unk_080E5B80
+	ldr r0, .L08076A60 @ =gDisplayFadeTaskVtable
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
 	bl DisplayFade_Initialize
@@ -110145,7 +110145,7 @@ func_080769A0: @ 0x080769A0
 	bl _call_via_r2
 	b .L08076A9C
 	.align 2, 0
-.L08076A60: .4byte vtable_unk_080E5B80
+.L08076A60: .4byte gDisplayFadeTaskVtable
 .L08076A64: .4byte 0x00000889
 .L08076A68:
 	movs r1, #0x8e
@@ -110270,7 +110270,7 @@ func_080769A0: @ 0x080769A0
 .L08076B4E:
 	mov r0, sb
 	movs r1, #2
-	bl func_080094B8
+	bl DisplayFadeTask_Destroy
 	add sp, #0x18
 	pop {r3, r4}
 	mov r8, r3
@@ -111531,7 +111531,7 @@ func_08077490: @ 0x08077490
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0807753C @ =vtable_unk_080E5B80
+	ldr r0, .L0807753C @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -111581,7 +111581,7 @@ func_08077490: @ 0x08077490
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0807753C: .4byte vtable_unk_080E5B80
+.L0807753C: .4byte gDisplayFadeTaskVtable
 .L08077540: .4byte 0x00000889
 .L08077544: .4byte 0x0000072A
 .L08077548: .4byte .L0807754C
@@ -112491,7 +112491,7 @@ func_08077CE0: @ 0x08077CE0
 	movs r0, #0
 	str r0, [sp, #4]
 	str r0, [r4, #4]
-	ldr r0, .L08077D2C @ =vtable_unk_080E5B80
+	ldr r0, .L08077D2C @ =gDisplayFadeTaskVtable
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
 	bl DisplayFade_Initialize
@@ -112508,7 +112508,7 @@ func_08077CE0: @ 0x08077CE0
 	bl _call_via_r2
 	b .L08077D40
 	.align 2, 0
-.L08077D2C: .4byte vtable_unk_080E5B80
+.L08077D2C: .4byte gDisplayFadeTaskVtable
 .L08077D30: .4byte 0x00000889
 .L08077D34:
 	adds r0, r5, #0
@@ -112523,7 +112523,7 @@ func_08077CE0: @ 0x08077CE0
 	blt .L08077D34
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080094B8
+	bl DisplayFadeTask_Destroy
 	add sp, #0x14
 	pop {r4, r5}
 	pop {r0}
@@ -112548,7 +112548,7 @@ func_08077D5C: @ 0x08077D5C
 	movs r0, #0
 	str r0, [sp, #4]
 	str r0, [r4, #4]
-	ldr r0, .L08077DA8 @ =vtable_unk_080E5B80
+	ldr r0, .L08077DA8 @ =gDisplayFadeTaskVtable
 	str r0, [sp, #0xc]
 	add r0, sp, #0x10
 	bl DisplayFade_Initialize
@@ -112565,7 +112565,7 @@ func_08077D5C: @ 0x08077D5C
 	bl _call_via_r2
 	b .L08077DBC
 	.align 2, 0
-.L08077DA8: .4byte vtable_unk_080E5B80
+.L08077DA8: .4byte gDisplayFadeTaskVtable
 .L08077DAC: .4byte 0x00000889
 .L08077DB0:
 	adds r0, r5, #0
@@ -112580,7 +112580,7 @@ func_08077D5C: @ 0x08077D5C
 	blt .L08077DB0
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080094B8
+	bl DisplayFadeTask_Destroy
 	add sp, #0x14
 	pop {r4, r5}
 	pop {r0}
@@ -114648,7 +114648,7 @@ func_080790E4: @ 0x080790E4
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L080791C0 @ =vtable_unk_080E5B80
+	ldr r0, .L080791C0 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -114721,7 +114721,7 @@ func_080790E4: @ 0x080790E4
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L080791C0: .4byte vtable_unk_080E5B80
+.L080791C0: .4byte gDisplayFadeTaskVtable
 .L080791C4: .4byte 0x00000A58
 .L080791C8: .4byte 0x00000856
 .L080791CC: .4byte 0x00000842
@@ -120699,7 +120699,7 @@ func_0807BEC8: @ 0x0807BEC8
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0807C1CC @ =vtable_unk_080E5B80
+	ldr r0, .L0807C1CC @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -120746,7 +120746,7 @@ sub_0807C194: @ 0x0807C194
 	rsbs r0, r0, #0
 	bl .L0807D05E
 	.align 2, 0
-.L0807C1CC: .4byte vtable_unk_080E5B80
+.L0807C1CC: .4byte gDisplayFadeTaskVtable
 .L0807C1D0: .4byte 0x00000889
 .L0807C1D4:
 	ldr r1, .L0807C1EC @ =0x000006A4
@@ -123177,7 +123177,7 @@ func_0807D218: @ 0x0807D218
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0807D724 @ =vtable_unk_080E5B80
+	ldr r0, .L0807D724 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -123234,7 +123234,7 @@ func_0807D218: @ 0x0807D218
 	.align 2, 0
 .L0807D71C: .4byte gUnk_086678A0
 .L0807D720: .4byte gUnk_080FDDD8
-.L0807D724: .4byte vtable_unk_080E5B80
+.L0807D724: .4byte gDisplayFadeTaskVtable
 .L0807D728: .4byte 0x00000889
 .L0807D72C: .4byte .L0807D730
 .L0807D730: @ jump table
@@ -124235,7 +124235,7 @@ func_0807DE3C: @ 0x0807DE3C
 	adds r1, r0, #0
 	str r5, [r4]
 	str r5, [r4, #4]
-	ldr r0, .L0807E1FC @ =vtable_unk_080E5B80
+	ldr r0, .L0807E1FC @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -124509,7 +124509,7 @@ func_0807DE3C: @ 0x0807DE3C
 .L0807E1F0: .4byte gUnk_086678A0
 .L0807E1F4: .4byte 0x000006A4
 .L0807E1F8: .4byte gUnk_080FDFA4
-.L0807E1FC: .4byte vtable_unk_080E5B80
+.L0807E1FC: .4byte gDisplayFadeTaskVtable
 .L0807E200: .4byte 0x00000889
 .L0807E204: .4byte 0x00001C38
 .L0807E208: .4byte 0x00001C2C
@@ -125201,7 +125201,7 @@ func_0807E558: @ 0x0807E558
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0807E848 @ =vtable_unk_080E5B80
+	ldr r0, .L0807E848 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -125258,7 +125258,7 @@ func_0807E558: @ 0x0807E558
 	.align 2, 0
 .L0807E840: .4byte gUnk_086678A0
 .L0807E844: .4byte gUnk_080FE050
-.L0807E848: .4byte vtable_unk_080E5B80
+.L0807E848: .4byte gDisplayFadeTaskVtable
 .L0807E84C: .4byte 0x00000889
 .L0807E850: .4byte .L0807E854
 .L0807E854: @ jump table
@@ -126533,7 +126533,7 @@ func_0807EF90: @ 0x0807EF90
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0807F30C @ =vtable_unk_080E5B80
+	ldr r0, .L0807F30C @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -126593,7 +126593,7 @@ func_0807EF90: @ 0x0807EF90
 	beq .L0807F32A
 	b .L0807F54E
 	.align 2, 0
-.L0807F30C: .4byte vtable_unk_080E5B80
+.L0807F30C: .4byte gDisplayFadeTaskVtable
 .L0807F310: .4byte 0x00000889
 .L0807F314: .4byte 0x000006AC
 .L0807F318: .4byte 0x000006A4
@@ -127659,7 +127659,7 @@ func_0807F8C8: @ 0x0807F8C8
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0807FC0C @ =vtable_unk_080E5B80
+	ldr r0, .L0807FC0C @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -127715,7 +127715,7 @@ func_0807F8C8: @ 0x0807F8C8
 .L0807FC00: .4byte 0x00001C2C
 .L0807FC04: .4byte 0x00001C38
 .L0807FC08: .4byte 0x000021C7
-.L0807FC0C: .4byte vtable_unk_080E5B80
+.L0807FC0C: .4byte gDisplayFadeTaskVtable
 .L0807FC10: .4byte 0x00000889
 .L0807FC14: .4byte .L0807FC18
 .L0807FC18: @ jump table
@@ -129084,7 +129084,7 @@ func_08080540: @ 0x08080540
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L080807D4 @ =vtable_unk_080E5B80
+	ldr r0, .L080807D4 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -129140,7 +129140,7 @@ func_08080540: @ 0x08080540
 	.align 2, 0
 .L080807CC: .4byte gUnk_086678A0
 .L080807D0: .4byte gUnk_080FE740
-.L080807D4: .4byte vtable_unk_080E5B80
+.L080807D4: .4byte gDisplayFadeTaskVtable
 .L080807D8: .4byte 0x00000889
 .L080807DC: .4byte 0x000006A4
 .L080807E0: .4byte .L080807E4
@@ -130458,7 +130458,7 @@ func_0808114C: @ 0x0808114C
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L080812FC @ =vtable_unk_080E5B80
+	ldr r0, .L080812FC @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -130510,7 +130510,7 @@ func_0808114C: @ 0x0808114C
 	mov pc, r0
 	.align 2, 0
 .L080812F8: .4byte 0x00001FE4
-.L080812FC: .4byte vtable_unk_080E5B80
+.L080812FC: .4byte gDisplayFadeTaskVtable
 .L08081300: .4byte 0x00000889
 .L08081304: .4byte 0x000006A4
 .L08081308: .4byte .L0808130C
@@ -131874,7 +131874,7 @@ func_08081BBC: @ 0x08081BBC
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L08081EB4 @ =vtable_unk_080E5B80
+	ldr r0, .L08081EB4 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -131936,7 +131936,7 @@ func_08081BBC: @ 0x08081BBC
 	beq .L08081ED2
 	b .L080820E2
 	.align 2, 0
-.L08081EB4: .4byte vtable_unk_080E5B80
+.L08081EB4: .4byte gDisplayFadeTaskVtable
 .L08081EB8: .4byte 0x00000889
 .L08081EBC: .4byte 0x000006AC
 .L08081EC0: .4byte 0x000006A4
@@ -134027,7 +134027,7 @@ func_08082CEC: @ 0x08082CEC
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L08082F84 @ =vtable_unk_080E5B80
+	ldr r0, .L08082F84 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -134074,7 +134074,7 @@ sub_08082F50: @ 0x08082F50
 	movs r0, #0
 	bl .L08083A6E
 	.align 2, 0
-.L08082F84: .4byte vtable_unk_080E5B80
+.L08082F84: .4byte gDisplayFadeTaskVtable
 .L08082F88: .4byte 0x00000889
 .L08082F8C:
 	ldr r1, .L08082FA4 @ =0x000006A4
@@ -136446,7 +136446,7 @@ func_08084228: @ 0x08084228
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L080844D8 @ =vtable_unk_080E5B80
+	ldr r0, .L080844D8 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -136508,7 +136508,7 @@ func_08084228: @ 0x08084228
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L080844D8: .4byte vtable_unk_080E5B80
+.L080844D8: .4byte gDisplayFadeTaskVtable
 .L080844DC: .4byte 0x00000889
 .L080844E0: .4byte 0x000003E7
 .L080844E4: .4byte 0x000061F0
@@ -140897,7 +140897,7 @@ func_08086A08: @ 0x08086A08
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L08086E34 @ =vtable_unk_080E5B80
+	ldr r0, .L08086E34 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -140945,7 +140945,7 @@ sub_08086DFA: @ 0x08086DFA
 	bl .L08088156
 	.align 2, 0
 .L08086E30: .4byte 0x00004354
-.L08086E34: .4byte vtable_unk_080E5B80
+.L08086E34: .4byte gDisplayFadeTaskVtable
 .L08086E38: .4byte 0x00000889
 .L08086E3C:
 	ldr r1, .L08086E54 @ =0x000006A4
@@ -147631,7 +147631,7 @@ func_0808A55C: @ 0x0808A55C
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0808A7D4 @ =vtable_unk_080E5B80
+	ldr r0, .L0808A7D4 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -147686,7 +147686,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808A7C8: .4byte gUnk_0810008C
 .L0808A7CC: .4byte gUnk_08100094
 .L0808A7D0: .4byte vtable_unk_080E5A28
-.L0808A7D4: .4byte vtable_unk_080E5B80
+.L0808A7D4: .4byte gDisplayFadeTaskVtable
 .L0808A7D8: .4byte 0x00000889
 .L0808A7DC: .4byte .L0808A7E0
 .L0808A7E0: @ jump table
@@ -150797,7 +150797,7 @@ func_0808C0BC: @ 0x0808C0BC
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0808C2FC @ =vtable_unk_080E5B80
+	ldr r0, .L0808C2FC @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -150855,7 +150855,7 @@ func_0808C0BC: @ 0x0808C0BC
 .L0808C2F0: .4byte gUnk_081000B4
 .L0808C2F4: .4byte gUnk_081000BC
 .L0808C2F8: .4byte vtable_unk_080E5A28
-.L0808C2FC: .4byte vtable_unk_080E5B80
+.L0808C2FC: .4byte gDisplayFadeTaskVtable
 .L0808C300: .4byte 0x00000889
 .L0808C304:
 	cmp r0, #2
@@ -155216,7 +155216,7 @@ func_0808E6FC: @ 0x0808E6FC
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0808E974 @ =vtable_unk_080E5B80
+	ldr r0, .L0808E974 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -155271,7 +155271,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808E968: .4byte gUnk_08100128
 .L0808E96C: .4byte gUnk_08100130
 .L0808E970: .4byte vtable_unk_080E5A28
-.L0808E974: .4byte vtable_unk_080E5B80
+.L0808E974: .4byte gDisplayFadeTaskVtable
 .L0808E978: .4byte 0x00000889
 .L0808E97C: .4byte .L0808E980
 .L0808E980: @ jump table
@@ -159126,7 +159126,7 @@ func_08090960: @ 0x08090960
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L08090BD4 @ =vtable_unk_080E5B80
+	ldr r0, .L08090BD4 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -159181,7 +159181,7 @@ func_08090960: @ 0x08090960
 .L08090BC8: .4byte gUnk_08100148
 .L08090BCC: .4byte gUnk_08100150
 .L08090BD0: .4byte vtable_unk_080E5A28
-.L08090BD4: .4byte vtable_unk_080E5B80
+.L08090BD4: .4byte gDisplayFadeTaskVtable
 .L08090BD8: .4byte 0x00000889
 .L08090BDC:
 	adds r0, r7, #0
@@ -160567,7 +160567,7 @@ func_0809152C: @ 0x0809152C
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L080917F0 @ =vtable_unk_080E5B80
+	ldr r0, .L080917F0 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -160642,7 +160642,7 @@ func_0809152C: @ 0x0809152C
 .L080917E4: .4byte gUnk_0810016C
 .L080917E8: .4byte gUnk_08100174
 .L080917EC: .4byte vtable_unk_080E5A28
-.L080917F0: .4byte vtable_unk_080E5B80
+.L080917F0: .4byte gDisplayFadeTaskVtable
 .L080917F4: .4byte 0x00000889
 .L080917F8: .4byte vtable_unk_080E5E14
 .L080917FC:
@@ -163388,7 +163388,7 @@ func_08092D64: @ 0x08092D64
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L08092FAC @ =vtable_unk_080E5B80
+	ldr r0, .L08092FAC @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -163449,7 +163449,7 @@ func_08092D64: @ 0x08092D64
 .L08092FA0: .4byte gUnk_08100450
 .L08092FA4: .4byte gUnk_08100458
 .L08092FA8: .4byte vtable_unk_080E5A28
-.L08092FAC: .4byte vtable_unk_080E5B80
+.L08092FAC: .4byte gDisplayFadeTaskVtable
 .L08092FB0: .4byte 0x00000889
 .L08092FB4:
 	cmp r0, #2
@@ -163896,7 +163896,7 @@ func_08093308: @ 0x08093308
 	bl func_08094268
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -164031,7 +164031,7 @@ func_08093364: @ 0x08093364
 	mov r2, sb
 	str r2, [r4]
 	str r2, [r4, #4]
-	ldr r0, .L0809358C @ =vtable_unk_080E5B80
+	ldr r0, .L0809358C @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -164136,7 +164136,7 @@ func_08093364: @ 0x08093364
 .L08093580: .4byte 0x03FF03FF
 .L08093584: .4byte 0x00001CD4
 .L08093588: .4byte func_080D0704
-.L0809358C: .4byte vtable_unk_080E5B80
+.L0809358C: .4byte gDisplayFadeTaskVtable
 .L08093590: .4byte 0x00000889
 .L08093594: .4byte .L08093598
 .L08093598: @ jump table
@@ -167437,7 +167437,7 @@ func_080951B4: @ 0x080951B4
 	mov r3, sb
 	str r3, [r4]
 	str r3, [r4, #4]
-	ldr r0, .L0809527C @ =vtable_unk_080E5B80
+	ldr r0, .L0809527C @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -167475,7 +167475,7 @@ func_080951B4: @ 0x080951B4
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0809527C: .4byte vtable_unk_080E5B80
+.L0809527C: .4byte gDisplayFadeTaskVtable
 .L08095280: .4byte 0x00000889
 .L08095284: .4byte .L08095288
 .L08095288: @ jump table
@@ -168344,7 +168344,7 @@ func_080958C0: @ 0x080958C0
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L080959B0 @ =vtable_unk_080E5B80
+	ldr r0, .L080959B0 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -168386,7 +168386,7 @@ func_080958C0: @ 0x080958C0
 	.align 2, 0
 .L080959A8: .4byte 0x00002BB0
 .L080959AC: .4byte 0x00002BAF
-.L080959B0: .4byte vtable_unk_080E5B80
+.L080959B0: .4byte gDisplayFadeTaskVtable
 .L080959B4: .4byte 0x00000889
 .L080959B8: .4byte 0x000033D2
 .L080959BC: .4byte .L080959C0
@@ -168912,7 +168912,7 @@ func_08095D80: @ 0x08095D80
 	ldr r0, [sp, #8]
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L08095E64 @ =vtable_unk_080E5B80
+	ldr r0, .L08095E64 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -168962,7 +168962,7 @@ func_08095D80: @ 0x08095D80
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L08095E64: .4byte vtable_unk_080E5B80
+.L08095E64: .4byte gDisplayFadeTaskVtable
 .L08095E68: .4byte 0x00000889
 .L08095E6C: .4byte 0x00000362
 .L08095E70: .4byte .L08095E74
@@ -169593,7 +169593,7 @@ func_080962F0: @ 0x080962F0
 	ldr r0, [sp, #0xa8]
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L0809640C @ =vtable_unk_080E5B80
+	ldr r0, .L0809640C @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0xc
@@ -169654,7 +169654,7 @@ func_080962F0: @ 0x080962F0
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0809640C: .4byte vtable_unk_080E5B80
+.L0809640C: .4byte gDisplayFadeTaskVtable
 .L08096410: .4byte 0x00002B90
 .L08096414: .4byte 0x00000362
 .L08096418: .4byte 0x00000889
@@ -171542,7 +171542,7 @@ func_080972AC: @ 0x080972AC
 	mov r2, r8
 	str r2, [r4]
 	str r2, [r4, #4]
-	ldr r0, .L0809736C @ =vtable_unk_080E5B80
+	ldr r0, .L0809736C @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -171582,7 +171582,7 @@ func_080972AC: @ 0x080972AC
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0809736C: .4byte vtable_unk_080E5B80
+.L0809736C: .4byte gDisplayFadeTaskVtable
 .L08097370: .4byte 0x00000889
 .L08097374: .4byte 0x000033D2
 .L08097378: .4byte .L0809737C
@@ -172597,7 +172597,7 @@ func_08097AE4: @ 0x08097AE4
 	movs r0, #0
 	str r0, [r4]
 	str r0, [r4, #4]
-	ldr r0, .L08097BAC @ =vtable_unk_080E5B80
+	ldr r0, .L08097BAC @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r5, r4, #0
 	adds r5, #0xc
@@ -172634,7 +172634,7 @@ func_08097AE4: @ 0x08097AE4
 	beq .L08097BC2
 	b .L08097CAA
 	.align 2, 0
-.L08097BAC: .4byte vtable_unk_080E5B80
+.L08097BAC: .4byte gDisplayFadeTaskVtable
 .L08097BB0: .4byte 0x00000889
 .L08097BB4: .4byte 0x000033D2
 .L08097BB8:

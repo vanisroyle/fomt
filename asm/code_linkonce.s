@@ -308,7 +308,7 @@ func_080D3C78: @ 0x080D3C78
 	str r1, [r0]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -582,7 +582,7 @@ func_080D406C: @ 0x080D406C
 .L080D40B8:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -7920,9 +7920,9 @@ func_080D79CC: @ 0x080D79CC
 	adds r5, r1, #0
 	adds r4, r0, #0
 	subs r4, #0x1c
-	ldr r1, .L080D79F0 @ =vtable_unk_080E5B0C
+	ldr r1, .L080D79F0 @ =gVBlankIrqSubscriptionVtable
 	str r1, [r4, #0x30]
-	ldr r1, .L080D79F4 @ =vtable_unk_080E5B18
+	ldr r1, .L080D79F4 @ =gVBlankRootTaskListVtable
 	str r1, [r4, #8]
 	movs r1, #0
 	bl func_080D7944
@@ -7933,8 +7933,8 @@ func_080D79CC: @ 0x080D79CC
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D79F0: .4byte vtable_unk_080E5B0C
-.L080D79F4: .4byte vtable_unk_080E5B18
+.L080D79F0: .4byte gVBlankIrqSubscriptionVtable
+.L080D79F4: .4byte gVBlankRootTaskListVtable
 .L080D79F8:
 	.byte 0x70, 0xB5, 0x46, 0x46, 0x40, 0xB4, 0x81, 0xB0
 	.byte 0x06, 0x1C, 0x88, 0x46, 0x6D, 0x46, 0x01, 0x24, 0x01, 0x20, 0x28, 0xF7, 0x8D, 0xFD, 0x04, 0x40
@@ -7976,9 +7976,9 @@ func_080D7AD4: @ 0x080D7AD4
 	push {r4, r5, lr}
 	adds r4, r0, #0
 	adds r5, r1, #0
-	ldr r0, .L080D7AFC @ =vtable_unk_080E5B0C
+	ldr r0, .L080D7AFC @ =gVBlankIrqSubscriptionVtable
 	str r0, [r4, #0x30]
-	ldr r0, .L080D7B00 @ =vtable_unk_080E5B18
+	ldr r0, .L080D7B00 @ =gVBlankRootTaskListVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
 	adds r0, #0x1c
@@ -7991,8 +7991,8 @@ func_080D7AD4: @ 0x080D7AD4
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L080D7AFC: .4byte vtable_unk_080E5B0C
-.L080D7B00: .4byte vtable_unk_080E5B18
+.L080D7AFC: .4byte gVBlankIrqSubscriptionVtable
+.L080D7B00: .4byte gVBlankRootTaskListVtable
 
 	thumb_func_start func_080D7B04
 func_080D7B04: @ 0x080D7B04
@@ -14333,7 +14333,7 @@ func_080DB0EC: @ 0x080DB0EC
 	adds r0, r4, #0
 	adds r0, #0x68
 	movs r1, #2
-	bl func_08008A68
+	bl VBlankDispatcher_Destroy
 	ldr r1, [r4, #4]
 	ldr r0, [r4]
 	cmp r0, r1
@@ -25212,7 +25212,7 @@ func_080E0908: @ 0x080E0908
 	bl _._13AScriptEngine
 	adds r0, r4, #4
 	movs r1, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	adds r0, r4, #0
 	adds r1, r5, #0
 	bl Scene_DestroyBase
@@ -25926,7 +25926,7 @@ func_080E0F48: @ 0x080E0F48
 	lsls r1, r1, #4
 	adds r1, r4, r1
 	adds r0, r4, #0
-	bl func_08009094
+	bl DmaCommand_ExecuteCpuRange
 	ldr r0, [r5]
 	lsls r0, r0, #4
 	adds r0, #4
@@ -26217,7 +26217,7 @@ func_080E1148: @ 0x080E1148
 	str r0, [r5, #0x10]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -26558,7 +26558,7 @@ func_080E11EC: @ 0x080E11EC
 .L080E1474:
 	adds r0, r6, #0
 	mov r1, sl
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3, r4, r5}
 	mov r8, r3
 	mov sb, r4
@@ -26977,7 +26977,7 @@ func_080E15C0: @ 0x080E15C0
 .L080E180A:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3}
 	mov r8, r3
 	pop {r4, r5, r6, r7}
@@ -27129,7 +27129,7 @@ func_080E18A4: @ 0x080E18A4
 .L080E1948:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -27235,7 +27235,7 @@ func_080E19F8: @ 0x080E19F8
 .L080E1A12:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -27778,7 +27778,7 @@ func_080E1DD4: @ 0x080E1DD4
 .L080E1E12:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -27948,7 +27948,7 @@ func_080E1E28: @ 0x080E1E28
 .L080E1F6C:
 	adds r0, r5, #0
 	mov r1, sb
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3, r4}
 	mov r8, r3
 	mov sb, r4
@@ -28010,7 +28010,7 @@ func_080E1FAC: @ 0x080E1FAC
 .L080E2008:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -28075,7 +28075,7 @@ func_080E2018: @ 0x080E2018
 .L080E2082:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -28199,7 +28199,7 @@ func_080E211C: @ 0x080E211C
 .L080E215A:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -30876,7 +30876,7 @@ func_080E3504: @ 0x080E3504
 	str r0, [r6, #0x10]
 	adds r0, r6, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -31926,7 +31926,7 @@ func_080E3C3C: @ 0x080E3C3C
 	str r4, [r5, #0x10]
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -32454,7 +32454,7 @@ func_080E40A0: @ 0x080E40A0
 .L080E4178:
 	adds r0, r5, #0
 	adds r1, r6, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6}
 	pop {r0}
 	bx r0
@@ -33327,7 +33327,7 @@ func_080E4564: @ 0x080E4564
 .L080E480A:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -33919,7 +33919,7 @@ func_080E4940: @ 0x080E4940
 .L080E4D36:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -34124,7 +34124,7 @@ func_080E4D50: @ 0x080E4D50
 .L080E4EF2:
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -34499,7 +34499,7 @@ func_080E4FF0: @ 0x080E4FF0
 .L080E5240:
 	adds r0, r5, #0
 	adds r1, r7, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
@@ -35452,7 +35452,7 @@ func_080E596C: @ 0x080E596C
 	str r0, [r4, #0x10]
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r4, r5}
 	pop {r0}
 	bx r0
