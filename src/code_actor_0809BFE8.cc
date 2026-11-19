@@ -569,6 +569,56 @@ struct MineFloor
     u8 unk_627;
 };
 
+ROM_TEXT(0809CE8C) MineFloor & InitializeMineFloor(MineFloor & floor)
+{
+    MineFloor * const mine = &floor;
+    mine->kind = 0;
+    u8 * kappaFlags = &mine->kappaJewelFlags;
+
+    // Goddess jewels 1–3 share the previous byte; preserve bits 6–7 here.
+    // Keep the individual masks to reproduce the original register allocation.
+    int clearGoddessJewel4 = ~(1 << 0);
+    int clearGoddessJewel5 = ~(1 << 1);
+    int clearGoddessJewel6 = ~(1 << 2);
+    register int clearGoddessJewel7 asm("r5") = ~(1 << 3);
+    register int clearGoddessJewel8 asm("r6") = ~(1 << 4);
+    register int clearGoddessJewel9 asm("r8") = ~(1 << 5);
+    asm("" : "+r"(clearGoddessJewel7), "+r"(clearGoddessJewel8), "+r"(clearGoddessJewel9));
+    register unsigned noKappaFlags asm("r1") = 0;
+    *kappaFlags = noKappaFlags;
+    u8 * sharedFlags = &mine->sharedJewelFlags;
+    register unsigned noSharedFlags asm("r1") = 0;
+    *sharedFlags = noSharedFlags;
+    u8 * const goddessFlags = &mine->goddessJewelFlags;
+    *goddessFlags = clearGoddessJewel4 & *goddessFlags & clearGoddessJewel5 & clearGoddessJewel6
+        & clearGoddessJewel7 & clearGoddessJewel8 & clearGoddessJewel9;
+
+    unsigned row = 0;
+    do
+    {
+        unsigned column = 0;
+        // Keep the original shift and subtraction for a 56-byte row.
+        register unsigned rowOffset asm("r1") = row << 3;
+        unsigned nextRow = row + 1;
+        rowOffset -= row;
+        rowOffset <<= 3;
+        register MineFloor::Tile * tiles asm("r0") = mine->tiles[0];
+        volatile MineFloor::Tile * tile = reinterpret_cast<volatile MineFloor::Tile *>(rowOffset + reinterpret_cast<uintptr_t>(tiles));
+        do
+        {
+            tile->state = 0;
+            tile->rockOutcome = MINE_OUTCOME_NONE;
+            tile->digOutcome = MINE_OUTCOME_NONE;
+            ++tile;
+            ++column;
+        }
+        while (column < ARRAY_COUNT(mine->tiles[0]));
+        row = nextRow;
+    }
+    while (row < ARRAY_COUNT(mine->tiles));
+    return *mine;
+}
+
 ROM_TEXT(0809D418) unsigned GetSpringMineDigWeightRow(MineFloor const &, unsigned floor)
 {
     unsigned row = 0;

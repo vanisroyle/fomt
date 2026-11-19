@@ -303,7 +303,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #1
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020670:
     cmp r7, #0
     beq .L08020694
@@ -320,7 +320,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020694:
     adds r0, r6, #0
     bl DogEntity_GetAnimationState
@@ -379,7 +379,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #1
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020714:
     cmp r7, #0
     beq .L08020738
@@ -396,7 +396,7 @@ func_080204CC: @ 0x080204CC
     add r0, sp, #0x14
     adds r1, r4, #0
     movs r2, #0
-    bl func_080ABA90
+    bl ConstrainEntityMovementAgainstRectangle
 .L08020738:
     ldr r7, [sp, #0xf8]
     ldrb r0, [r7]
@@ -1682,9 +1682,9 @@ func_080204CC: @ 0x080204CC
 
 
 
-    .section .text.entities_part1.080212C0.tail, "ax", %progbits
-.L080213A4:
-    .byte 0x40, 0x30, 0x00, 0x78, 0x01, 0x21, 0x48, 0x40, 0x70, 0x47, 0x00, 0x00
+    .section .text.entities_part1.080213B0.tail, "ax", %progbits
+    .align 2
+.L080213B0:
     .byte 0x10, 0xB5, 0x81, 0xB0, 0x04, 0x1C, 0x40, 0x30, 0x00, 0x78, 0x00, 0x28, 0x35, 0xD1, 0x60, 0x6B
     .byte 0x00, 0x6A, 0x05, 0x28, 0x02, 0xD1, 0x20, 0x1C, 0xFF, 0xF7, 0x7A, 0xFF, 0x78, 0x20, 0x8A, 0xF0
     .byte 0xDB, 0xF9, 0xF0, 0x30, 0x00, 0x04, 0x00, 0x0C, 0x16, 0x4A, 0x00, 0x99, 0x11, 0x40, 0x01, 0x43
@@ -1696,12 +1696,6 @@ func_080204CC: @ 0x080204CC
     .byte 0x00, 0x47, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x80, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF
     .byte 0xFF, 0xFF, 0xFF, 0x00
 
-
-    .section .text.entities_part1.0802151C.tail, "ax", %progbits
-.L080215FC:
-    .byte 0x10, 0xB5, 0x0A, 0x23
-    .byte 0xCA, 0x5E, 0x0E, 0x24, 0x0B, 0x5F, 0xD1, 0x1F, 0x01, 0x80, 0x19, 0x1F, 0x41, 0x80, 0x07, 0x32
-    .byte 0x82, 0x80, 0x05, 0x33, 0xC3, 0x80, 0x10, 0xBC, 0x04, 0xBC, 0x10, 0x47
 
     .section .text.entities_part1.08021620.tail, "ax", %progbits
 .L08021634:
@@ -2325,318 +2319,18 @@ func_080204CC: @ 0x080204CC
     .byte 0x8F, 0xF9, 0x20, 0x1C, 0x84, 0x30, 0x01, 0x21, 0x01, 0x70, 0x02, 0x30, 0x06, 0x70, 0x01, 0x30
     .byte 0x01, 0x70, 0x22, 0x1C, 0x8A, 0x32, 0x02, 0x23, 0x11, 0x78, 0x04, 0x20, 0x40, 0x42, 0x08, 0x40
     .byte 0x18, 0x43, 0x10, 0x70, 0x40, 0x46, 0x04, 0xB0, 0x08, 0xBC, 0x98, 0x46, 0x70, 0xBC, 0x02, 0xBC
-    .byte 0x08, 0x47, 0x00, 0x00, 0xCB, 0x1F, 0x03, 0x80, 0x13, 0x1F, 0x43, 0x80, 0x07, 0x31, 0x81, 0x80
-    .byte 0x05, 0x32, 0xC2, 0x80, 0x70, 0x47, 0x00, 0x00, 0xCB, 0x1F, 0x03, 0x80, 0x13, 0x1F, 0x43, 0x80
-    .byte 0x07, 0x31, 0x81, 0x80, 0x05, 0x32, 0xC2, 0x80, 0x70, 0x47, 0x00, 0x00, 0x00, 0xB5, 0x02, 0x1C
+    .byte 0x08, 0x47, 0x00, 0x00
+
+    .section .text.entities_part1.0802459C.tail, "ax", %progbits
+    .align 2
+.L0802459C:
+    .byte 0x00, 0xB5, 0x02, 0x1C
     .byte 0x11, 0x1C, 0x30, 0x31, 0x00, 0x20, 0x08, 0x70, 0x90, 0x8C, 0x00, 0x28, 0x01, 0xD0, 0x01, 0x38
     .byte 0x00, 0xE0, 0xD0, 0x8C, 0x90, 0x84, 0x12, 0x69, 0x00, 0x2A, 0x04, 0xD0, 0x50, 0x68, 0xC1, 0x68
-    .byte 0x10, 0x1C, 0xAF, 0xF0, 0xA5, 0xF9, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0xCB, 0x1F, 0x03, 0x80
-    .byte 0x13, 0x1C, 0x09, 0x3B, 0x43, 0x80, 0x07, 0x31, 0x81, 0x80, 0x05, 0x32, 0xC2, 0x80, 0x70, 0x47
+    .byte 0x10, 0x1C, 0xAF, 0xF0, 0xA5, 0xF9, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
 
 
 
-    .section .text.entities_part1.08024724, "ax", %progbits
-    thumb_func_start Map_FindCollisionEscapeOffset
-Map_FindCollisionEscapeOffset: @ 0x08024724
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x5c
-    adds r7, r0, #0
-    str r1, [sp, #0x40]
-    adds r6, r2, #0
-    adds r0, r1, #0
-    adds r1, r6, #0
-    bl func_080AC070
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-    cmp r0, #0
-    bne .L08024748
-    b .L0802495C
-.L08024748:
-    movs r0, #6
-    ldrsh r4, [r6, r0]
-    subs r0, r4, #1
-    movs r1, #7
-    ands r0, r1
-    mvns r0, r0
-    mov sb, r0
-    mov r3, sb
-    str r3, [sp, #0x44]
-    ldrh r2, [r6, #2]
-    adds r0, r1, #0
-    ands r0, r2
-    movs r2, #8
-    subs r0, r2, r0
-    str r0, [sp, #0x4c]
-    str r0, [sp, #0x48]
-    movs r0, #4
-    ldrsh r5, [r6, r0]
-    subs r0, r5, #1
-    ands r0, r1
-    mvns r0, r0
-    mov r8, r0
-    mov r3, r8
-    str r3, [sp, #0x50]
-    ldrh r0, [r6]
-    ands r1, r0
-    subs r2, r2, r1
-    mov sl, r2
-    mov r0, sl
-    str r0, [sp, #0x54]
-    movs r1, #0
-    ldrsh r3, [r6, r1]
-    movs r0, #2
-    ldrsh r1, [r6, r0]
-    mov r2, sp
-    mov r0, sp
-    strh r3, [r0]
-    add r1, sb
-    strh r1, [r2, #2]
-    strh r5, [r2, #4]
-    add r4, sb
-    strh r4, [r2, #6]
-    ldr r0, [sp, #0x40]
-    mov r1, sp
-    bl func_080AC070
-    movs r1, #1
-    eors r0, r1
-    lsls r0, r0, #0x18
-    lsrs r5, r0, #0x18
-    cmp r5, #0
-    beq .L080247BA
-    movs r0, #0
-    strh r0, [r7]
-    mov r3, sb
-    strh r3, [r7, #2]
-    b .L08024960
-.L080247BA:
-    movs r0, #0
-    ldrsh r3, [r6, r0]
-    movs r1, #2
-    ldrsh r0, [r6, r1]
-    movs r1, #4
-    ldrsh r4, [r6, r1]
-    movs r1, #6
-    ldrsh r2, [r6, r1]
-    add r1, sp, #8
-    strh r3, [r1]
-    ldr r3, [sp, #0x4c]
-    adds r0, r3, r0
-    strh r0, [r1, #2]
-    strh r4, [r1, #4]
-    adds r2, r3, r2
-    strh r2, [r1, #6]
-    ldr r0, [sp, #0x40]
-    bl func_080AC070
-    movs r1, #1
-    eors r0, r1
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-    str r0, [sp, #0x58]
-    cmp r0, #0
-    beq .L080247F8
-    strh r5, [r7]
-    add r3, sp, #0x4c
-    ldrh r3, [r3]
-    strh r3, [r7, #2]
-    b .L08024960
-.L080247F8:
-    movs r5, #0
-    ldrsh r0, [r6, r5]
-    movs r1, #2
-    ldrsh r3, [r6, r1]
-    movs r5, #4
-    ldrsh r2, [r6, r5]
-    movs r1, #6
-    ldrsh r4, [r6, r1]
-    add r1, sp, #0x10
-    add r0, r8
-    strh r0, [r1]
-    strh r3, [r1, #2]
-    add r2, r8
-    strh r2, [r1, #4]
-    strh r4, [r1, #6]
-    ldr r0, [sp, #0x40]
-    bl func_080AC070
-    movs r3, #1
-    eors r0, r3
-    lsls r0, r0, #0x18
-    lsrs r5, r0, #0x18
-    cmp r5, #0
-    beq .L08024832
-    mov r5, r8
-    strh r5, [r7]
-    add r0, sp, #0x58
-    ldrh r0, [r0]
-    b .L0802495E
-.L08024832:
-    movs r1, #0
-    ldrsh r0, [r6, r1]
-    movs r1, #2
-    ldrsh r3, [r6, r1]
-    movs r1, #4
-    ldrsh r2, [r6, r1]
-    movs r1, #6
-    ldrsh r4, [r6, r1]
-    add r1, sp, #0x18
-    add r0, sl
-    strh r0, [r1]
-    strh r3, [r1, #2]
-    add r2, sl
-    strh r2, [r1, #4]
-    strh r4, [r1, #6]
-    ldr r0, [sp, #0x40]
-    bl func_080AC070
-    movs r3, #1
-    eors r0, r3
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08024868
-    mov r0, sl
-    strh r0, [r7]
-    strh r5, [r7, #2]
-    b .L08024960
-.L08024868:
-    movs r1, #0
-    ldrsh r0, [r6, r1]
-    movs r3, #2
-    ldrsh r2, [r6, r3]
-    movs r5, #4
-    ldrsh r3, [r6, r5]
-    movs r1, #6
-    ldrsh r4, [r6, r1]
-    add r1, sp, #0x20
-    add r0, r8
-    strh r0, [r1]
-    add r2, sb
-    strh r2, [r1, #2]
-    add r3, r8
-    strh r3, [r1, #4]
-    add r4, sb
-    strh r4, [r1, #6]
-    ldr r0, [sp, #0x40]
-    bl func_080AC070
-    movs r3, #1
-    eors r0, r3
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080248A2
-    mov r5, r8
-    strh r5, [r7]
-    mov r0, sb
-    b .L0802495E
-.L080248A2:
-    movs r1, #0
-    ldrsh r0, [r6, r1]
-    movs r3, #2
-    ldrsh r2, [r6, r3]
-    movs r5, #4
-    ldrsh r3, [r6, r5]
-    movs r1, #6
-    ldrsh r4, [r6, r1]
-    add r1, sp, #0x28
-    add r0, sl
-    strh r0, [r1]
-    ldr r5, [sp, #0x44]
-    adds r2, r5, r2
-    strh r2, [r1, #2]
-    add r3, sl
-    strh r3, [r1, #4]
-    adds r4, r5, r4
-    strh r4, [r1, #6]
-    ldr r0, [sp, #0x40]
-    bl func_080AC070
-    movs r1, #1
-    eors r0, r1
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080248DE
-    mov r3, sl
-    strh r3, [r7]
-    strh r5, [r7, #2]
-    b .L08024960
-.L080248DE:
-    movs r1, #0
-    ldrsh r0, [r6, r1]
-    movs r3, #2
-    ldrsh r2, [r6, r3]
-    movs r5, #4
-    ldrsh r3, [r6, r5]
-    movs r1, #6
-    ldrsh r4, [r6, r1]
-    add r1, sp, #0x30
-    ldr r5, [sp, #0x50]
-    adds r0, r5, r0
-    strh r0, [r1]
-    ldr r0, [sp, #0x4c]
-    adds r2, r0, r2
-    strh r2, [r1, #2]
-    adds r3, r5, r3
-    strh r3, [r1, #4]
-    adds r4, r0, r4
-    strh r4, [r1, #6]
-    ldr r0, [sp, #0x40]
-    bl func_080AC070
-    movs r1, #1
-    eors r0, r1
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802491A
-    strh r5, [r7]
-    add r5, sp, #0x4c
-    b .L08024956
-.L0802491A:
-    movs r1, #0
-    ldrsh r0, [r6, r1]
-    movs r3, #2
-    ldrsh r2, [r6, r3]
-    movs r5, #4
-    ldrsh r3, [r6, r5]
-    movs r1, #6
-    ldrsh r4, [r6, r1]
-    add r1, sp, #0x38
-    ldr r5, [sp, #0x54]
-    adds r0, r5, r0
-    strh r0, [r1]
-    ldr r0, [sp, #0x48]
-    adds r2, r0, r2
-    strh r2, [r1, #2]
-    adds r3, r5, r3
-    strh r3, [r1, #4]
-    adds r4, r0, r4
-    strh r4, [r1, #6]
-    ldr r0, [sp, #0x40]
-    bl func_080AC070
-    movs r1, #1
-    eors r0, r1
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802495C
-    strh r5, [r7]
-    add r5, sp, #0x48
-.L08024956:
-    ldrh r5, [r5]
-    strh r5, [r7, #2]
-    b .L08024960
-.L0802495C:
-    strh r0, [r7]
-.L0802495E:
-    strh r0, [r7, #2]
-.L08024960:
-    adds r0, r7, #0
-    add sp, #0x5c
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
 
 
 
@@ -3356,7 +3050,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r2, r2, r5
     strh r2, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3394,7 +3088,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     strh r2, [r1, #4]
     strh r5, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3435,7 +3129,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     mov r0, ip
     strh r0, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -3480,7 +3174,7 @@ FarmerEntity_MoveWithSliding: @ 0x0802536C
     adds r0, r0, r5
     strh r0, [r1, #6]
     mov r0, sl
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
