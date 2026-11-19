@@ -9590,7 +9590,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9633,7 +9633,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9669,7 +9669,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9721,7 +9721,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [sp, #4]
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9760,7 +9760,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -9803,7 +9803,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -10380,7 +10380,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r4, .L080D91F0 @ =0x00000544
 	add r4, sp
 	ldr r3, [r4]
-	bl func_0803C00C
+	bl UpdatePauseMenuWindowWithAudio
 	b .L080D93E8
 	.align 2, 0
 .L080D91EC: .4byte 0x0000056C
@@ -11617,7 +11617,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -11699,7 +11699,7 @@ sub_080D8178: @ 0x080D8178
 	str r1, [sp, #4]
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803BF78
+	bl InitializePauseMenuWindow
 	mov r4, sl
 	adds r4, #0xb8
 	adds r5, r0, #0
@@ -11746,7 +11746,7 @@ sub_080D8178: @ 0x080D8178
 	add r5, sp
 	str r3, [r5]
 	ldr r0, [r4]
-	bl func_0803C540
+	bl GetPauseMenuSelection
 	cmp r0, #6
 	bls .L080D9D7E
 	b .L080DA0E4
@@ -12170,7 +12170,7 @@ sub_080D8178: @ 0x080D8178
 	bl .L080DAAE6
 .L080DA0F4:
 	ldr r0, [r7]
-	bl func_0803C544
+	bl DisablePauseMenuSelection
 	ldr r1, .L080DA114 @ =0x0000055C
 	add r1, sp
 	ldr r1, [r1]

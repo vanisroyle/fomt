@@ -819,9 +819,18 @@ vtable_unk_080E7768:
 vtable_unk_080E7778:
 	.incbin "baserom.gba", 0xE7778, 0x2C
 
-	.global vtable_unk_080E77A4
-vtable_unk_080E77A4:
-	.incbin "baserom.gba", 0xE77A4, 0x2C
+	.global gPauseMenuWindowVtable
+gPauseMenuWindowVtable:
+	.4byte 0, 0
+	.4byte DestroyPauseMenuWindow
+	.4byte OpenPauseMenuWindow
+	.4byte OpenPauseMenuWindowImmediately
+	.4byte func_0803BED4
+	.4byte func_0803BEE0
+	.4byte func_0803BEEC
+	.4byte func_0803BEF4
+	.4byte func_0803BEFC
+	.4byte func_0803BF08
 
 	.global vtable_unk_080E77D0
 vtable_unk_080E77D0:

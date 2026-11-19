@@ -451,37 +451,39 @@ ROM_TEXT(0803BD60) void func_0803BF08(DialogWindow & self, int x, int y)
     func_0803BDEC(*self.inner, x, y);
 }
 
-struct Unk_0803BF78 : DialogWindow
+struct PauseMenuGraphics;
+
+struct PauseMenuWindow : DialogWindow
 {
-    void * unk_08;
-    u8 unk_0C;
-    u8 unk_0D;
-    u8 unk_0E;
-    u8 unk_0F;
+    PauseMenuGraphics * graphics;
+    u8 selectedTab;
+    bool needsInitialRefresh;
+    u8 cursorBlinkFrames;
+    bool selectionEnabled;
 };
 
-ROM_TEXT(0803C518) void func_0803C518(Unk_0803BF78 & self)
+ROM_TEXT(0803C518) void OpenPauseMenuWindow(PauseMenuWindow & self)
 {
     func_0803BEBC(self);
-    self.unk_0D = 1;
-    self.unk_0F = 1;
+    self.needsInitialRefresh = true;
+    self.selectionEnabled = true;
 }
 
-ROM_TEXT(0803C518) void func_0803C52C(Unk_0803BF78 & self)
+ROM_TEXT(0803C518) void OpenPauseMenuWindowImmediately(PauseMenuWindow & self)
 {
     func_0803BEC8(self);
-    self.unk_0D = 1;
-    self.unk_0F = 1;
+    self.needsInitialRefresh = true;
+    self.selectionEnabled = true;
 }
 
-ROM_TEXT(0803C518) u8 func_0803C540(Unk_0803BF78 const & self)
+ROM_TEXT(0803C518) u8 GetPauseMenuSelection(PauseMenuWindow const & self)
 {
-    return self.unk_0C;
+    return self.selectedTab;
 }
 
-ROM_TEXT(0803C518) void func_0803C544(Unk_0803BF78 & self)
+ROM_TEXT(0803C518) void DisablePauseMenuSelection(PauseMenuWindow & self)
 {
-    self.unk_0F = 0;
+    self.selectionEnabled = false;
 }
 
 struct ClockDisplayData
@@ -1567,11 +1569,15 @@ ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const 
     return 1;
 }
 
-EC Unk_0803BF78 & func_0803C028(Unk_0803BF78 &, void *, int, int, int, int, int);
+struct ControllerInput;
+struct AudioPlayer;
+
+EC int UpdatePauseMenuWindow(PauseMenuWindow &, ControllerInput const &, OamBuffer *,
+    BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *, AudioPlayer *);
 EC void func_0803BE50(DialogWindow &, int);
-EC void func_080E0C38(void *, int);
+EC void func_080E0C38(PauseMenuGraphics *, int);
 EC void func_080E0D70(void *, int);
-EC char const vtable_unk_080E77A4[];
+EC char const gPauseMenuWindowVtable[];
 EC char const vtable_unk_080E77E0[];
 
 struct Unk_0803C7A0
@@ -1612,31 +1618,40 @@ ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBu
 
 EC DialogWindow & func_0803BDFC(DialogWindow &, int, int, int, int, int, int, int, int);
 
-EC void * func_080E0A94(void *);
+EC PauseMenuGraphics * func_080E0A94(void *);
 
-ROM_TEXT(0803BF78) Unk_0803BF78 & func_0803BF78(Unk_0803BF78 & self, int arg1, int arg2, int arg3, int arg4, int arg5)
+ROM_TEXT(0803BF78) PauseMenuWindow & InitializePauseMenuWindow(PauseMenuWindow & self, int background,
+    int screenBlock, int paletteBank, int layerMode, int selectedTab)
 {
-    func_0803BDFC(self, 0, 136, 240, 24, arg1, arg2, arg3, arg4);
-    self.vtable = vtable_unk_080E77A4;
-    self.unk_08 = func_080E0A94(::operator new(0x41C));
-    self.unk_0C = arg5;
-    self.unk_0D = 0;
-    self.unk_0E = 1;
-    self.unk_0F = 1;
+    func_0803BDFC(self, 0, 136, 240, 24, background, screenBlock, paletteBank, layerMode);
+    self.vtable = gPauseMenuWindowVtable;
+    self.graphics = func_080E0A94(::operator new(0x41C));
+    self.selectedTab = selectedTab;
+    self.needsInitialRefresh = false;
+    self.cursorBlinkFrames = 1;
+    self.selectionEnabled = true;
     return self;
 }
 
-ROM_TEXT(0803BF78) void func_0803BFC8(Unk_0803BF78 & self, int flags)
+ROM_TEXT(0803BF78) void DestroyPauseMenuWindow(PauseMenuWindow & self, int flags)
 {
-    self.vtable = vtable_unk_080E77A4;
-    if (self.unk_08)
-        func_080E0C38(self.unk_08, 3);
+    self.vtable = gPauseMenuWindowVtable;
+    if (self.graphics)
+        func_080E0C38(self.graphics, 3);
     func_0803BE50(self, flags);
 }
 
-ROM_TEXT(0803C00C) Unk_0803BF78 & func_0803C00C(Unk_0803BF78 & self, void * arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
+ROM_TEXT(0803BFF0) int UpdatePauseMenuWindowWithoutAudio(PauseMenuWindow & self, ControllerInput const & input,
+    OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * renderer, TileTransferQueue * transfers)
 {
-    return func_0803C028(self, arg1, arg2, arg3, arg4, arg5, arg6);
+    return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, nullptr);
+}
+
+ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, ControllerInput const & input,
+    OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * renderer, TileTransferQueue * transfers,
+    AudioPlayer * audio)
+{
+    return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, audio);
 }
 
 ROM_TEXT(0803C518) DialogChoiceWindow & func_0803C54C(DialogChoiceWindow & self, int arg1, int arg2, int arg3, int arg4)
