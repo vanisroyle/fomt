@@ -5452,7 +5452,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080425DA
 	bl .L0804168A
 .L080425DA:
-	bl GameScript_QueueCondition2E
+	bl GameScript_QueueSceneVariant2E
 	bl .L0804168A
 .L080425E2:
 	movs r6, #0xda
@@ -5475,7 +5475,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08042608
 	bl .L0804168A
 .L08042608:
-	bl GameScript_QueueCondition2F
+	bl GameScript_QueueSceneVariant2F
 	bl .L0804168A
 .L08042610:
 	adds r6, r5, #0

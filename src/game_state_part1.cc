@@ -359,6 +359,56 @@ struct GameStateDialogueOwner
     void * inner;
 };
 
+typedef AUnk_0800080C GameStateSceneFactory;
+
+struct GameScriptSceneSpec
+{
+    GameScriptSceneSpec() {}
+    GameScriptSceneSpec(GameScriptSceneSpec const & other) { *this = other; }
+
+    u32 variant;
+    u32 firstArgument;
+    u32 secondArgument;
+};
+
+struct GameStateSceneFactoryOwner
+{
+    GameStateSceneFactory * Move()
+    {
+        GameStateSceneFactory * result = factory;
+        factory = nullptr;
+        return result;
+    }
+
+    explicit GameStateSceneFactoryOwner(GameStateSceneFactory * factory) : factory(factory) {}
+    GameStateSceneFactoryOwner(GameStateSceneFactoryOwner & other) : factory(other.Move()) {}
+    ~GameStateSceneFactoryOwner() { delete factory; }
+
+    GameStateSceneFactory * factory;
+};
+
+extern u8 const vtable_unk_080E5E74[];
+extern u8 const vtable_unk_080E5D74[];
+
+struct GameScriptSceneFactory
+{
+    GameScriptSceneFactory(u8 * saveData, GameScriptSceneSpec spec)
+        : vtable(vtable_unk_080E5E74), saveData(saveData), spec(spec) {}
+
+    void const * vtable;
+    u8 * saveData;
+    GameScriptSceneSpec spec;
+};
+
+struct GameStateNestedSceneFactory
+{
+    GameStateNestedSceneFactory(GameStateSceneFactoryOwner factory)
+        : vtable(vtable_unk_080E5D74), factory(factory.Move()) {}
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+};
+
 struct GameStateRuntime
 {
     STRUCT_PAD(0x00, 0x10);
@@ -367,7 +417,8 @@ struct GameStateRuntime
     u8 * saveData;
     STRUCT_PAD(0x90, 0x9C);
     u32 pendingCommand;
-    STRUCT_PAD(0xA0, 0xA8);
+    STRUCT_PAD(0xA0, 0xA4);
+    SmartPtr<GameStateSceneFactory> pendingSceneFactory;
     GameStateObject * scene;
     GameStateDialogueOwner dialogue;
     void * textVariables;
@@ -382,6 +433,7 @@ struct GameStateRuntime
     virtual ~GameStateRuntime();
 
     void * GetTextVariables() const { return textVariables; }
+    u8 * GetSaveData() const { return saveData; }
 };
 
 struct GameStateScript
@@ -389,6 +441,37 @@ struct GameStateScript
     u32 vtable;
     GameStateRuntime * runtime;
 };
+
+// 0x08013E6C
+EC void SECTION(".text.game_state_08013E6C") GameScript_QueueSceneVariant2E(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x2E;
+    GameStateSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateNestedSceneFactory(factory));
+    runtime.pendingCommand = 0x18;
+}
+
+struct GameStateSceneContainerFactory
+{
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    void * argument;
+};
+
+EC GameStateSceneContainerFactory & func_0803B6FC(GameStateSceneContainerFactory & self, GameStateSceneFactoryOwner factory, void * argument);
+
+// 0x08013EF8
+EC void SECTION(".text.game_state_08013EF8") GameScript_QueueSceneVariant2F(GameStateScript & script, void * argument)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x2F;
+    GameStateSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(&func_0803B6FC(*new GameStateSceneContainerFactory, factory, argument));
+    runtime.pendingCommand = 0x18;
+}
 
 // 0x080125EC
 EC void SECTION(".text.game_state_080125EC") GameScript_CloseDialoguePanels(GameStateScript & script)
@@ -534,6 +617,23 @@ EC void AudioPlayer_FadeOut(void * self, u32 speed);
 EC Bachelorette const * func_080A0878(void * data, u32 characterId);
 EC void SetMessageWindowIndicator(void * dialogue, u32 level);
 EC void ConfigureMessageWindowChoices(void * dialogue, char const * first, char const * second, char const * third, char const * fourth, char const * fifth, char const * sixth, void const * substitutions);
+EC void ConfigureMessageWindowPromptChoices(void * dialogue, char const * prompt, char const * first, char const * second, char const * third, char const * fourth, void const * substitutions);
+
+// 0x08012860
+EC void SECTION(".text.game_state_08012860") GameScript_StartPromptChoices(GameStateScript & script, char const * prompt, char const * first, char const * second, char const * third, char const * fourth)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    if (runtime.dialogue.Get() != nullptr && first != nullptr && second != nullptr)
+    {
+        if (third == nullptr)
+            ConfigureMessageWindowPromptChoices(runtime.dialogue.Get(), prompt, first, second, nullptr, nullptr, runtime.GetTextVariables());
+        else if (fourth == nullptr)
+            ConfigureMessageWindowPromptChoices(runtime.dialogue.Get(), prompt, first, second, third, nullptr, runtime.GetTextVariables());
+        else
+            ConfigureMessageWindowPromptChoices(runtime.dialogue.Get(), prompt, first, second, third, fourth, runtime.GetTextVariables());
+        runtime.pendingCommand = 0x14;
+    }
+}
 
 // 0x080128D0
 EC void SECTION(".text.game_state_080128D0") GameScript_StartChoices(GameStateScript & script, char const * first, char const * second, char const * third, char const * fourth, char const * fifth, char const * sixth)
