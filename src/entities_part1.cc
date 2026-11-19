@@ -420,6 +420,51 @@ inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+// 0x08025248
+EC u32 FarmerEntity_FindVerticalClearStep(FarmerEntity const * self, void * map, Box const * box, i32 delta, u32 limit) ENTITY_CODE(08025248);
+EC u32 FarmerEntity_FindVerticalClearStep(FarmerEntity const * self, void * map, Box const * box, i32 delta, u32 limit)
+{
+    u32 const max_steps = limit;
+    Box shifted = *box;
+    u32 step = 1;
+    if (step <= max_steps)
+    {
+        do
+        {
+            i16 * top = &shifted.y1;
+            i16 * bottom = &shifted.y2;
+            *top += delta;
+            *bottom += delta;
+            if (!func_080AC070(map, &shifted))
+                break;
+            ++step;
+        } while (step <= max_steps);
+    }
+    return step;
+}
+
+// 0x080251FC
+EC u32 FarmerEntity_FindHorizontalClearStep(FarmerEntity const * self, void * map, Box const * box, i32 delta, u32 limit) ENTITY_CODE(080251FC);
+EC u32 FarmerEntity_FindHorizontalClearStep(FarmerEntity const * self, void * map, Box const * box, i32 delta, u32 limit)
+{
+    u32 const max_steps = limit;
+    Box shifted = *box;
+    u32 step = 1;
+    if (step <= max_steps)
+    {
+        do
+        {
+            i16 * left = &shifted.x1;
+            i16 * right = &shifted.x2;
+            *left += delta;
+            *right += delta;
+            if (!func_080AC070(map, &shifted))
+                break;
+            ++step;
+        } while (step <= max_steps);
+    }
+    return step;
+}
 
 // 0x080222A8
 EC UnknownEntityThing * ChickenEntitySprite_Init(UnknownEntityThing * self, AActorEntity * entity, u32 growth_stage) ENTITY_CODE(080222A8);

@@ -1,89 +1,5 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
-    .section .text.entities_part1.08025248, "ax", %progbits
-    thumb_func_start func_08025248
-func_08025248: @ 0x08025248
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    mov r8, r1
-    adds r6, r3, #0
-    ldr r7, [sp, #0x20]
-    ldr r0, [r2]
-    ldr r1, [r2, #4]
-    str r0, [sp]
-    str r1, [sp, #4]
-    movs r5, #1
-    cmp r5, r7
-    bhi .L08025286
-    mov r4, sp
-.L08025266:
-    ldrh r0, [r4, #2]
-    adds r0, r0, r6
-    strh r0, [r4, #2]
-    ldrh r0, [r4, #6]
-    adds r0, r0, r6
-    strh r0, [r4, #6]
-    mov r0, r8
-    mov r1, sp
-    bl func_080AC070
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08025286
-    adds r5, #1
-    cmp r5, r7
-    bls .L08025266
-.L08025286:
-    adds r0, r5, #0
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .section .text.entities_part1.080251FC, "ax", %progbits
-    thumb_func_start func_080251FC
-func_080251FC: @ 0x080251FC
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    mov r8, r1
-    adds r6, r3, #0
-    ldr r7, [sp, #0x20]
-    ldr r0, [r2]
-    ldr r1, [r2, #4]
-    str r0, [sp]
-    str r1, [sp, #4]
-    movs r5, #1
-    cmp r5, r7
-    bhi .L0802523A
-    mov r4, sp
-.L0802521A:
-    ldrh r0, [r4]
-    adds r0, r0, r6
-    strh r0, [r4]
-    ldrh r0, [r4, #4]
-    adds r0, r0, r6
-    strh r0, [r4, #4]
-    mov r0, r8
-    mov r1, sp
-    bl func_080AC070
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0802523A
-    adds r5, #1
-    cmp r5, r7
-    bls .L0802521A
-.L0802523A:
-    adds r0, r5, #0
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
 
 
 
@@ -4121,7 +4037,7 @@ func_0802536C: @ 0x0802536C
     mov r0, sb
     mov r1, sl
     adds r2, r4, #0
-    bl func_08025248
+    bl FarmerEntity_FindVerticalClearStep
     str r0, [sp, #0x48]
     cmp r0, #8
     bhi .L08025616
@@ -4159,7 +4075,7 @@ func_0802536C: @ 0x0802536C
     mov r0, sb
     mov r1, sl
     adds r2, r4, #0
-    bl func_080251FC
+    bl FarmerEntity_FindHorizontalClearStep
     str r0, [sp, #0x48]
     cmp r0, #8
     bhi .L080255BA
@@ -4196,7 +4112,7 @@ func_0802536C: @ 0x0802536C
     mov r1, sl
     add r2, sp, #0x20
     movs r3, #1
-    bl func_080251FC
+    bl FarmerEntity_FindHorizontalClearStep
     str r0, [sp, #0x48]
     cmp r0, #8
     bhi .L08025664
@@ -4243,7 +4159,7 @@ func_0802536C: @ 0x0802536C
     mov r1, sl
     add r2, sp, #0x20
     movs r3, #1
-    bl func_08025248
+    bl FarmerEntity_FindVerticalClearStep
     str r0, [sp, #0x48]
     cmp r0, #8
     bhi .L08025664
