@@ -40,35 +40,7 @@ func_0800FF8C: @ 0x0800FF8C
     .align 2, 0
 .L0800FFCC: .4byte 0xFFFFFC00
 
-    thumb_func_start func_0800FFD0
-func_0800FFD0: @ 0x0800FFD0
-    ldr r0, [r0]
-    bx lr
-
-    thumb_func_start func_0800FFD4
-func_0800FFD4: @ 0x0800FFD4
-    adds r0, #4
-    bx lr
-
-    thumb_func_start func_0800FFD8
-func_0800FFD8: @ 0x0800FFD8
-    ldr r1, [r0]
-    adds r1, #4
-    adds r0, r0, r1
-    bx lr
-
-    thumb_func_start func_0800FFE0
-func_0800FFE0: @ 0x0800FFE0
-    push {r4, lr}
-    adds r4, r0, #0
-    adds r1, #0x24
-    movs r2, #6
-    bl memcpy
-    adds r0, r4, #0
-    pop {r4}
-    pop {r1}
-    bx r1
-
+    .section .text.push, "ax"
     thumb_func_start func_0800FFF4
 func_0800FFF4: @ 0x0800FFF4
     push {lr}
@@ -90,16 +62,7 @@ func_0800FFF4: @ 0x0800FFF4
     bx r0
     .align 2, 0
 
-    thumb_func_start func_08010014
-func_08010014: @ 0x08010014
-    push {lr}
-    adds r0, #0x24
-    movs r2, #6
-    bl memcpy
-    pop {r0}
-    bx r0
-    .align 2, 0
-
+    .section .text.clear, "ax"
     thumb_func_start func_08010024
 func_08010024: @ 0x08010024
     push {r4, r5, lr}
