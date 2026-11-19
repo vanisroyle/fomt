@@ -1121,6 +1121,170 @@ cancel_cycle:
     farmer->state = cycling;
 }
 
+union FarmerHeldItemKeyWord
+{
+    u32 word;
+    u16 halfwords[2];
+    u8 bytes[4];
+};
+
+EC bool func_0800F388(HeldItem const *);
+EC void FarmerEntity_CycleHeldItem(FarmerEntity *, bool);
+EC void FarmerEntity_CycleHeldItemWithFeedback(FarmerEntity *, bool);
+
+EC void CopyHeldFood(Food *, HeldItem const *) asm("func_0800F20C");
+
+EC u32 HeldFoodIsDrink(Food const *) asm("IsDrink__C4Food");
+
+EC void HandleFarmerHeldItemInput(FarmerEntity * farmer, FarmerInputState const * input) ENTITY_CODE(0802D9AC);
+EC void HandleFarmerHeldItemInput(FarmerEntity * farmer, FarmerInputState const * input)
+{
+    struct
+    {
+        u32 food_storage;
+        FarmerEventRequest combined_event;
+        FarmerEventRequest single_event;
+        FarmerHeldItemKeyWord held;
+        FarmerHeldItemKeyWord pressed;
+    } locals;
+    register u32 clear asm("r2") = 0;
+    asm volatile("" : "+r"(clear));
+    locals.held.word = clear;
+    locals.pressed.word = clear;
+    u32 repeated = 0;
+    if (input)
+    {
+        locals.held.word = input->held;
+        locals.pressed.word = input->pressed;
+        repeated = input->repeated;
+    }
+    asm volatile("" : : "m"(locals.held), "m"(locals.pressed));
+    if (farmer->exhaustion_state)
+    {
+        farmer->state = clear;
+        return;
+    }
+    u32 held = locals.held.word;
+    u32 cycling = ((held << 31) >> 31) | ((held << 22) >> 31);
+    if (!cycling)
+        goto cancel_cycle;
+    if (((repeated << 25) >> 31) | ((repeated << 26) >> 31))
+    {
+        if (!func_0800F190(&farmer->farmer->unk_54))
+            FarmerEntity_CycleHeldItem(farmer, true);
+        else
+            FarmerEntity_CycleHeldItemWithFeedback(farmer, true);
+        return;
+    }
+    {
+        u32 previous_direction = ((repeated << 24) >> 31) | ((repeated << 27) >> 31);
+        u32 pressed = locals.pressed.word;
+        u32 previous_or_a = ((pressed << 31) >> 31) | previous_direction;
+        asm volatile("" : : "r"(previous_or_a));
+        u32 previous = ((pressed << 22) >> 31) | previous_or_a;
+        if (previous)
+        {
+            if (!func_0800F190(&farmer->farmer->unk_54))
+                FarmerEntity_CycleHeldItem(farmer, false);
+            else
+                FarmerEntity_CycleHeldItemWithFeedback(farmer, false);
+            return;
+        }
+
+        volatile u8 * pressed_bytes = locals.pressed.bytes;
+        register u32 pressed_low asm("r1") = pressed_bytes[0];
+        asm volatile("" : "+r"(pressed_low));
+        register u32 button_b asm("r5") = 2;
+        asm volatile("" : "+r"(button_b));
+        register u32 use_mask asm("r0") = button_b & pressed_low;
+        asm volatile("" : "+r"(use_mask));
+        u32 upper = use_mask << 24;
+        register u8 use asm("r3") = static_cast<u32>(upper) >> 24;
+        if (!use)
+            goto no_use;
+        {
+            volatile FarmerHeldItemKeyWord * held_bits = &locals.held;
+            u32 held_half = held_bits->halfwords[0];
+            u32 both = 0x201;
+            register GameObject * game asm("r0");
+            register FarmerEventDispatch const * dispatch asm("r3");
+            FarmerEventRequest * event;
+            register FarmerEventGameVTable const * methods asm("r3");
+            if ((both & held_half) == both)
+            {
+                game = farmer->game_object;
+                asm volatile("" : "+r"(game));
+                methods = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+                dispatch = &methods->dispatch_event;
+                event = &locals.combined_event;
+                register u32 event_id asm("r2") = 0x3CE;
+                event->id = event_id;
+                goto dispatch_event;
+            }
+            if (held_bits->bytes[0] & 1)
+            {
+                game = farmer->game_object;
+                asm volatile("" : "+r"(game));
+                methods = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+                dispatch = &methods->dispatch_event;
+                event = &locals.single_event;
+                {
+                    register u32 event_id asm("r2") = 0x3CE;
+                    event->id = event_id;
+                }
+dispatch_event:
+                event->argument = previous;
+                (*dispatch)(game, event, 0);
+                farmer->state = previous;
+                return;
+            }
+            register u32 held_high asm("r1") = held_bits->bytes[1];
+            asm volatile("" : "+r"(held_high));
+            register u32 held_button asm("r0") = button_b & held_high;
+            if (held_button)
+            {
+                if (func_0800F190(&farmer->farmer->unk_54))
+                    goto cycle_tool;
+                if (!func_0800F388(&farmer->farmer->unk_54) &&
+                    func_0800F204(&farmer->farmer->unk_54) == HeldItem::KIND_FOOD)
+                {
+                    Food * food = reinterpret_cast<Food *>(&locals.food_storage);
+                    CopyHeldFood(food, &farmer->farmer->unk_54);
+                    FarmerActionVTable const * actions = reinterpret_cast<FarmerActionVTable const **>(farmer)[5];
+                    i32 stamina = food->GetStaminaGain();
+                    i32 fatigue = food->GetFatigueGain();
+                    actions->change_stamina_and_fatigue(farmer, stamina, fatigue);
+                    if (!HeldFoodIsDrink(food))
+                    {
+                        farmer->state = 0xF;
+                        AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 0x65);
+                    }
+                    else
+                    {
+                        farmer->state = 0x10;
+                        AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 0x66);
+                    }
+                    CancelFarmerItemDisplay(farmer);
+                    func_0800F390(&farmer->farmer->unk_54);
+                    return;
+                }
+                farmer->state = 0;
+                return;
+cycle_tool:
+                FarmerEntity_CycleTool(farmer, false);
+                return;
+            }
+        }
+        return;
+no_use:
+        if (pressed_bytes[1] & 1)
+            farmer->state = use;
+    }
+    return;
+cancel_cycle:
+    farmer->state = cycling;
+}
+
 struct FarmerGraphicsRefresh : FarmerIconGraphics
 {
     STRUCT_PAD(0xCC, 0x281);
