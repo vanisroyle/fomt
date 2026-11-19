@@ -12071,7 +12071,7 @@ func_080175B4: @ 0x080175B4
     str r3, [r2]
     str r1, [sp, #4]
     add r1, sp, #4
-    bl func_080AC674
+    bl InitializeMapSceneContents
     ldr r0, .L0801783C @ =0x00001038
     adds r0, r0, r7
     mov r8, r0
