@@ -540,6 +540,196 @@ EC Box GetFarmerInteractionBox(FarmerEntity const * farmer, i32 facing)
     }
 }
 
+struct FarmerInteractionGameVTable
+{
+    STRUCT_PAD(0x00, 0x40);
+    AEntity * (*get_entity)(GameObject * game, u32 slot);
+};
+
+struct FarmerTargetBounds
+{
+    i16 x1, y1, x2, y2;
+};
+struct FarmerTargetSearchFrame
+{
+    FarmerTargetBounds interaction_box;
+    FarmerTargetBounds bounds;
+    FarmerTargetBounds actor_bounds;
+    GameObject * game;
+    u32 map;
+    i32 x, y;
+    u32 best_slot;
+    i32 best_distance;
+    u32 current_slot;
+    u8 accepted;
+};
+EC void ReadFarmerInteractionBox(FarmerTargetBounds *, FarmerEntity const *, i32) asm("GetFarmerInteractionBox");
+struct FarmerTargetActorVTable
+{
+    STRUCT_PAD(0x00, 0x0C);
+    void (*get_bounds)(FarmerTargetBounds *, AEntity const *);
+};
+
+EC void SelectFarmerInteractionTarget(FarmerEntity * farmer, u32 predicate_info, u32 predicate_data) ENTITY_CODE(0802AC2C);
+EC void SelectFarmerInteractionTarget(FarmerEntity * farmer, u32 predicate_info, u32 predicate_data)
+{
+    FarmerTargetSearchFrame frame;
+    register FarmerEntity * input_farmer asm("r0") = farmer;
+    register FarmerEntity * self asm("sb") = input_farmer;
+    register u32 predicate_method asm("r6") = predicate_data;
+    register u32 predicate asm("r5") = predicate_info;
+    asm volatile("" : "+r"(predicate_method), "+r"(predicate));
+    register GameObject * init_game asm("r0") = input_farmer->game_object;
+    frame.game = init_game;
+    register FarmerEntity const * map_source asm("r1") = self;
+    register u32 map asm("r1") = map_source->location_map;
+    frame.map = map;
+    register FarmerEntity const * x_source asm("r2") = self;
+    register u32 reserved_r0 asm("r0");
+    register u32 reserved_r1 asm("r1");
+    asm volatile("" : "=r"(reserved_r0), "=r"(reserved_r1));
+    register i32 x asm("r2") = static_cast<i16>(x_source->x_q16 >> 16);
+    asm volatile("" : : "r"(x), "r"(reserved_r0), "r"(reserved_r1));
+    frame.x = x;
+    register FarmerEntity const * y_source asm("r0") = self;
+    register i32 y asm("r0") = static_cast<i16>(y_source->y_q16 >> 16);
+    frame.y = y;
+    register FarmerEntity const * face_source asm("r0") = self;
+    register u32 facing asm("r2") = face_source->facing;
+    ReadFarmerInteractionBox(&frame.interaction_box, self, facing);
+    frame.bounds = frame.interaction_box;
+    register FarmerTargetBounds const * bounds_low asm("r2") = &frame.bounds;
+    register FarmerTargetBounds const * bounds_ptr asm("r8") = bounds_low;
+    register u32 no_target asm("r3") = 100;
+    frame.best_slot = no_target;
+    register i32 zero asm("r0") = 0;
+    frame.best_distance = zero;
+    register u32 slot_init asm("r1") = 43;
+    asm volatile("" : : "r"(slot_init));
+    register u32 slot asm("sl") = slot_init;
+    FarmerTargetBounds * actor_bounds = &frame.actor_bounds;
+    do
+    {
+    scan_slot:
+        register u32 current_slot asm("r2") = slot;
+        asm volatile("" : : "r"(current_slot));
+        frame.current_slot = current_slot;
+        register GameObject * scene asm("r3") = frame.game;
+        register FarmerInteractionGameVTable const * table asm("r0") = *reinterpret_cast<FarmerInteractionGameVTable const **>(scene);
+        register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = table->get_entity;
+        AEntity * target = get_entity(scene, slot);
+        register u32 invalid asm("r0") = 0;
+        register FarmerTargetSearchFrame * stack0 asm("sp");
+        asm volatile("" : "=r"(stack0));
+        register u8 * invalid_dest asm("r1") = &stack0->accepted;
+        *invalid_dest = invalid;
+        if (target != nullptr)
+        {
+            register u32 target_map asm("r0") = target->location_map;
+            register u32 stored_map asm("r2") = frame.map;
+            if (target_map == stored_map)
+            {
+                register FarmerTargetActorVTable const * actor asm("r1") = reinterpret_cast<FarmerTargetActorVTable const **>(target)[5];
+                register FarmerTargetBounds * out asm("r0") = actor_bounds;
+                register void (*bounds)(FarmerTargetBounds *, AEntity const *) asm("r2") = actor->get_bounds;
+                bounds(out, target);
+                register FarmerTargetBounds const * overlap_box asm("r3") = bounds_ptr;
+                register i32 left1 asm("r2") = overlap_box->x1;
+                register i32 right2 asm("r0") = actor_bounds->x2;
+                register i32 overlap asm("r2") = left1 - right2;
+                register i32 left2 asm("r0") = actor_bounds->x1;
+                register FarmerTargetBounds const * other_box asm("r1") = bounds_ptr;
+                register i32 right1 asm("r1") = other_box->x2;
+                register i32 horizontal asm("r0") = left2 - right1;
+                overlap &= horizontal;
+                other_box = bounds_ptr;
+                register i32 top1 asm("r0") = other_box->y1;
+                register i32 bottom2 asm("r1") = actor_bounds->y2;
+                register i32 vertical1 asm("r0") = top1 - bottom2;
+                overlap &= vertical1;
+                register i32 top2 asm("r0") = actor_bounds->y1;
+                overlap_box = bounds_ptr;
+                register i32 bottom1 asm("r3") = overlap_box->y2;
+                register i32 vertical2 asm("r0") = top2 - bottom1;
+                overlap &= vertical2;
+                if (overlap >= 0)
+                    goto target_checked;
+                {
+                    i32 virtual_slot = static_cast<i32>(predicate) >> 16;
+                    if (virtual_slot != 0)
+                    {
+                        typedef bool (*Method)(void *);
+                        Method method;
+                        if (virtual_slot > 0)
+                        {
+                            Method const * methods = *reinterpret_cast<Method const **>(reinterpret_cast<u8 *>(target) + static_cast<i16>(predicate_method));
+                            method = methods[virtual_slot - 1];
+                        }
+                        else
+                            method = reinterpret_cast<Method>(predicate_method);
+                        if (!method(reinterpret_cast<u8 *>(target) + static_cast<i16>(predicate)))
+                            goto target_checked;
+                    }
+                }
+                {
+                    register u32 accepted asm("r2") = 1;
+                    register FarmerTargetSearchFrame * stack1 asm("sp") = &frame;
+                    asm volatile("" : : "r"(stack1));
+                    register u8 * valid_dest asm("r3") = &stack1->accepted;
+                    *valid_dest = accepted;
+                }
+            }
+        }
+    target_checked:
+        register FarmerTargetSearchFrame * stack2 asm("sp") = &frame;
+        asm volatile("" : : "r"(stack2));
+        register u8 * valid_source asm("r0") = &stack2->accepted;
+        if (*valid_source)
+        {
+            register i32 target_x asm("r1") = static_cast<i16>(target->x_q16 >> 16);
+            register i32 from_x asm("r3") = frame.x;
+            register i32 dx asm("r1") = target_x - from_x;
+            register i32 target_y asm("r0") = static_cast<i16>(target->y_q16 >> 16);
+            asm volatile("" : : "r"(target_y), "r"(from_x));
+            register i32 from_y asm("r3") = frame.y;
+            register i32 dy asm("r0") = target_y - from_y;
+            register i32 dx_squared asm("r2") = dx * dx;
+            asm volatile("" : "+r"(dx_squared));
+            register i32 x_squared asm("r1") = dx_squared;
+            register i32 dy_squared asm("r3") = dy * dy;
+            register i32 y_squared asm("r0") = dy_squared;
+            asm volatile("" : : "r"(y_squared));
+            register i32 distance asm("r0") = x_squared + y_squared;
+            register i32 store_distance asm("r1") = distance;
+            register u32 best_slot asm("r2") = frame.best_slot;
+            if (best_slot != 100)
+            {
+                register i32 best_distance asm("r3") = frame.best_distance;
+                if (best_distance <= distance)
+                    goto next_target;
+            }
+            {
+                register u32 new_slot asm("r0") = frame.current_slot;
+                frame.best_slot = new_slot;
+                frame.best_distance = store_distance;
+            }
+        }
+    next_target:
+        register u32 increment asm("r1") = 1;
+        asm volatile("" : : "r"(increment));
+        slot += increment;
+        register u32 next asm("r2") = slot;
+        asm volatile("" : : "r"(next), "r"(slot));
+        if (next <= 69) goto scan_slot;
+    } while (false);
+    register u8 * target_slot asm("r0") = &self->interaction_target_slot;
+    register FarmerTargetSearchFrame * final_frame asm("sp") = &frame;
+    asm volatile("" : : "r"(final_frame));
+    register u8 const * best_slot asm("r3") = reinterpret_cast<u8 const *>(&final_frame->best_slot);
+    register u32 selected_slot asm("r3") = *best_slot;
+    *target_slot = selected_slot;
+}
+
 EC FarmerEntity * FarmerEntity_Init(FarmerEntity * farmer, GameObject * game, void * state);
 EC FarmerEntity * NewFarmerMapEntity(GameObject * game, void * state) ENTITY_CODE(0802B8EC);
 EC FarmerEntity * NewFarmerMapEntity(GameObject * game, void * state)
@@ -2488,12 +2678,6 @@ EC void SetFarmerItemEffectIcon(FarmerIconGraphics * graphics, u32 animation)
     func_0805E850(&graphics->icon_animator, sprites, animation);
     SetItemDisplayGraphicsIconFlags<false>(&graphics->icon_state, animation);
 }
-
-struct FarmerInteractionGameVTable
-{
-    STRUCT_PAD(0x00, 0x40);
-    AEntity * (*get_entity)(GameObject * game, u32 slot);
-};
 
 inline bool IsFarmerTargetSlot(u32 slot)
 {
