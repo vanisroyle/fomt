@@ -885,7 +885,7 @@ func_08003F9C: @ 0x08003F9C
     adds r4, #0x90
     adds r0, r4, #0
     mov r1, r8
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     str r0, [sp, #4]
     movs r0, #3
     mov sb, r0
@@ -1008,7 +1008,7 @@ func_080040A0: @ 0x080040A0
     adds r4, #0x90
     adds r0, r4, #0
     mov r1, r8
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     mov sl, r0
     movs r0, #0
     str r0, [sp, #8]
@@ -1355,7 +1355,7 @@ func_080041DC: @ 0x080041DC
     bge .L08004426
     mov r0, sb
     adds r1, r4, #0
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     mov r8, r0
     movs r0, #0
     str r0, [sp, #0x3c]

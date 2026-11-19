@@ -65,6 +65,8 @@ SECTIONS
         asm/main.o(.text.after_08000240);
         src/sram_header.o(.text);
         asm/sram_proxy_1.o(.text);
+        src/sram_proxy.o(.text.SaveSlot_GetSramOffset);
+        asm/sram_proxy_1.o(.text.after_080003DC);
         src/sram_header.o(.text.flags);
         asm/sram_proxy_1.o(.text.tail);
         src/sram_selection.o(.text);
