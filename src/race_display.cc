@@ -1,4 +1,6 @@
-#include "prelude.h"
+#include "pet.hh"
+
+#include <stdlib.h>
 
 struct RaceGlyph
 {
@@ -10,28 +12,114 @@ struct RaceGlyph
 
 struct RaceEntrant
 {
-    STRUCT_PAD(0, 0x28);
+    int base_speed;
+    int sprint_speed;
+    int acceleration;
+    int deceleration;
+    int speed;
+    int distance_left;
+    i16 phase_timer;
+    i16 stamina;
+    u8 stamina_timer;
+    u8 pace_rating;
+    u8 sprint_rating;
+    u8 finish_rank;
+    u16 sprint_profile;
+    u16 sprint_phase;
+    u8 sprint_chances[4];
     i16 odds;
     i16 medals_wagered;
 };
 
-struct RaceDisplay
+struct HorseRaceState
 {
     STRUCT_PAD(0, 0x738);
     RaceGlyph glyphs[148];
     i16 glyph_count;
     STRUCT_PAD(0xBDA, 0x13FE);
     i16 selected_racer;
-    STRUCT_PAD(0x1400, 0x1414);
+    STRUCT_PAD(0x1400, 0x140E);
+    u8 player_is_racing;
+    STRUCT_PAD(0x140F, 0x1414);
     int entry_funds;
     int medal_balance;
     i16 race_index;
     i16 medal_payout;
-    STRUCT_PAD(0x1420, 0x142C);
+    STRUCT_PAD(0x1420, 0x1424);
+    i16 scene_phase;
+    STRUCT_PAD(0x1426, 0x142C);
     RaceEntrant racers[4];
+    Pet const * player_horse;
 };
 
-EC SECTION(".text.f3.0805A6E4") void AppendRaceDisplayGlyph(RaceDisplay * self, int x, int y,
+EC u8 const gHorseRaceSprintChances[][4] asm("gUnk_080FA99E");
+
+enum { PLAYER_RACER_SLOT = 2 };
+
+template <typename T>
+static inline T & PlayerEntrantField(HorseRaceState * self, size_t field_offset)
+{
+    return *reinterpret_cast<T *>(reinterpret_cast<u8 *>(self) +
+        offsetof(HorseRaceState, racers) + PLAYER_RACER_SLOT * sizeof(RaceEntrant) + field_offset);
+}
+
+EC SECTION(".text.f3.0805C80C") void InitHorseRaceEntrants(HorseRaceState * self)
+{
+    RaceEntrant * racer = self->racers;
+    if (self->player_is_racing == 1)
+    {
+        PlayerEntrantField<u16>(self, offsetof(RaceEntrant, sprint_profile)) = 128;
+        u32 adequacy = self->player_horse->GetAdequacy();
+        u8 & pace_rating = PlayerEntrantField<u8>(self, offsetof(RaceEntrant, pace_rating));
+        pace_rating = adequacy;
+        u32 affection = self->player_horse->GetAffection();
+        PlayerEntrantField<u8>(self, offsetof(RaceEntrant, sprint_rating)) = affection;
+        int untrained = 250 - pace_rating;
+        int odds = untrained * untrained / 1000;
+        int random_bonus = rand() & 3;
+        ++random_bonus;
+        odds += random_bonus;
+        PlayerEntrantField<i16>(self, offsetof(RaceEntrant, odds)) = odds;
+    }
+
+    for (int slot = 0; slot < 4; ++slot, ++racer)
+    {
+        int speed = (racer->pace_rating * 3145 + (88 << 16)) / 60;
+        racer->base_speed = speed;
+        racer->sprint_speed = (racer->sprint_rating * 3145 + (12 << 16)) / 60 + speed;
+        racer->acceleration = (racer->sprint_speed - speed) / 60;
+        racer->deceleration = 0;
+        racer->phase_timer = 12;
+        racer->stamina = 255;
+        racer->stamina_timer = 0;
+        racer->speed = speed;
+        racer->distance_left = 1720 << 16;
+        racer->finish_rank = 255;
+        racer->sprint_phase = 0;
+        racer->medals_wagered = 0;
+
+        if (self->scene_phase != 0)
+            continue;
+        if (self->player_is_racing == 1 && slot == PLAYER_RACER_SLOT)
+        {
+            iptr first = reinterpret_cast<iptr>(racer->sprint_chances);
+            u8 zero = 0;
+            iptr chance = reinterpret_cast<iptr>(&racer->sprint_chances[3]);
+            do
+            {
+                *reinterpret_cast<u8 *>(chance) = zero;
+                --chance;
+            } while (chance >= first);
+        }
+        else
+        {
+            for (int j = 0; j < 4; ++j)
+                racer->sprint_chances[j] = gHorseRaceSprintChances[racer->sprint_profile][j];
+        }
+    }
+}
+
+EC SECTION(".text.f3.0805A6E4") void AppendRaceDisplayGlyph(HorseRaceState * self, int x, int y,
     int tile, int oam_priority)
 {
     self->glyphs[self->glyph_count].x = x;
@@ -41,7 +129,7 @@ EC SECTION(".text.f3.0805A6E4") void AppendRaceDisplayGlyph(RaceDisplay * self, 
     ++self->glyph_count;
 }
 
-EC SECTION(".text.f3.0805A63C") void AppendRaceDisplayNumber(RaceDisplay * self, int x, int y,
+EC SECTION(".text.f3.0805A63C") void AppendRaceDisplayNumber(HorseRaceState * self, int x, int y,
     int oam_priority, int number, int width, int suffix)
 {
     int place = width;
@@ -79,7 +167,7 @@ EC SECTION(".text.f3.0805A63C") void AppendRaceDisplayNumber(RaceDisplay * self,
         AppendRaceDisplayGlyph(self, x, y, suffix, oam_priority);
 }
 
-EC SECTION(".text.f3.0805A4DC") void UpdateRaceDisplayGlyphs(RaceDisplay * self, u32 display_bets)
+EC SECTION(".text.f3.0805A4DC") void UpdateRaceDisplayGlyphs(HorseRaceState * self, u32 display_bets)
 {
     self->glyph_count = 0;
     if (!display_bets)

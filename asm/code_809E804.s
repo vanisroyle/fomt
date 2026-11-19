@@ -316,7 +316,7 @@ func_080A6660: @ 0x080A6660
 .L080A6964:
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6976
@@ -332,7 +332,7 @@ func_080A6660: @ 0x080A6660
 .L080A6988:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08010E58
+	bl SaveProgress_GetFlagC
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A699A
@@ -604,7 +604,7 @@ func_080A6660: @ 0x080A6660
 .L080A6BD4:
 	mov r2, sb
 	ldr r0, [r2]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6BE6
@@ -617,7 +617,7 @@ func_080A6660: @ 0x080A6660
 .L080A6BF0:
 	mov r3, sb
 	ldr r0, [r3]
-	bl func_08010E50
+	bl SaveProgress_GetFlagB
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080A6C02
@@ -1632,7 +1632,7 @@ func_080A6660: @ 0x080A6660
 .L080A7428:
 	mov r3, sb
 	ldr r0, [r3]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080A746E
@@ -1652,7 +1652,7 @@ func_080A6660: @ 0x080A6660
 	bl ApplyMapPatch
 	mov r1, sb
 	ldr r0, [r1]
-	bl func_08010E48
+	bl SaveProgress_GetFlagA
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080A746E
@@ -12295,7 +12295,7 @@ func_080AC85C: @ 0x080AC85C
 	cmp r0, #0
 	beq .L080AC8B8
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AC8B8:
 	movs r2, #0xff
 	lsls r2, r2, #4
@@ -12514,7 +12514,7 @@ func_080AC9EC: @ 0x080AC9EC
 	cmp r0, #0
 	beq .L080ACA6A
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080ACA6A:
 	str r4, [r5]
 	ldr r0, .L080ACAEC @ =0x00001028
@@ -13730,7 +13730,7 @@ func_080AD3B0: @ 0x080AD3B0
 	cmp r0, #0
 	beq .L080AD3F2
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AD3F2:
 	str r5, [r4]
 	ldr r0, .L080AD498 @ =0x00001028
@@ -13765,7 +13765,7 @@ func_080AD3B0: @ 0x080AD3B0
 	cmp r0, #0
 	beq .L080AD43E
 	movs r1, #3
-	bl func_0803AC78
+	bl DestroyFixedSpriteOverlay
 .L080AD43E:
 	str r4, [r5]
 	movs r0, #4
@@ -13939,7 +13939,7 @@ func_080AD49C: @ 0x080AD49C
 	ands r4, r1
 	strh r4, [r2, #4]
 	adds r1, r7, #0
-	bl func_08037CC4
+	bl InitializeReactionEntity
 .L080AD5A8:
 	adds r5, r0, #0
 .L080AD5AA:
