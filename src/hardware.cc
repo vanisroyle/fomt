@@ -2,6 +2,7 @@
 #include "m4a.h"
 #include "gbasvc.h"
 #include "unknown_inlines.hh"
+#include <stdlib.h>
 
 union ResourceHandleEntry
 {
@@ -156,7 +157,7 @@ EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner 
 }
 
 // 0x08007510
-EC u16 SECTION(".text.handle_count") ResourceHandle_GetRefCount(ResourceHandleOwner * self, u32 handle)
+EC u32 SECTION(".text.handle_count") ResourceHandle_GetRefCount(ResourceHandleOwner * self, u32 handle)
 {
     ResourceHandleRegistry * registry = gResourceHandleRegistry;
     if (handle != 0)
@@ -172,15 +173,90 @@ EC u16 SECTION(".text.handle_count") ResourceHandle_GetRefCount(ResourceHandleOw
     return 0;
 }
 
+struct ResourceHandleValue
+{
+    ResourceHandleOwner owner;
+    u32 handle;
+};
+
+struct ResourcePoolStorage
+{
+    ResourceHandleValue * begin;
+    ResourceHandleValue * end;
+    ResourceHandleValue * allocated_begin;
+    ResourceHandleValue * capacity_end;
+    ResourceHandleValue * cursor;
+};
+
 struct ResourcePool
 {
-    void * storage;
+    ResourcePoolStorage * storage;
 };
 
 // 0x0800770C
 EC SECTION(".text.ResourcePool_Initialize") ResourcePool * ResourcePool_Initialize(ResourcePool * self)
 {
     self->storage = nullptr;
+    return self;
+}
+
+EC void func_080073E0(ResourceHandleOwner *, u32);
+EC u32 func_0800736C(ResourceHandleOwner *);
+EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
+
+// 0x08007714
+EC void SECTION(".text.ResourcePool_Destroy") ResourcePool_Destroy(ResourcePool * self, u32 destructor_flags)
+{
+    if (self->storage != nullptr)
+    {
+        ResourcePoolStorage * storage = self->storage;
+        ResourceHandleValue * end = storage->end;
+        for (ResourceHandleValue * value = storage->begin; value != end; ++value)
+        {
+            func_080073E0(&value->owner, value->handle);
+            ResourceHandles_Destroy(&value->owner, 2);
+        }
+        if (storage->begin != nullptr)
+            free(storage->begin);
+        delete storage;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+// 0x08007770
+EC SECTION(".text.ResourcePool_Acquire") ResourceHandleValue * ResourcePool_Acquire(ResourceHandleValue * self, ResourcePool const * pool)
+{
+    if (pool->storage != nullptr)
+    {
+        ResourcePoolStorage * storage = pool->storage;
+        ResourceHandleValue * end = storage->end;
+        ResourceHandleValue * next = storage->cursor;
+        if (next != end)
+        {
+            ResourceHandleValue * start = next;
+            do
+            {
+                ResourceHandleValue * candidate = next;
+                if (++next == end)
+                    next = storage->begin;
+                if (ResourceHandle_GetRefCount(&candidate->owner, candidate->handle) == 1)
+                {
+                    storage->cursor = next;
+                    next = candidate;
+                    break;
+                }
+            }
+            while (next != start);
+        }
+        ResourceHandles_Initialize(&self->owner);
+        self->handle = ResourceHandle_Retain(&self->owner, next->handle);
+    }
+    else
+    {
+        ResourceHandles_Initialize(&self->owner);
+        self->handle = func_0800736C(&self->owner);
+    }
     return self;
 }
 
@@ -232,6 +308,135 @@ EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(Alloc
     AllocationTreeBranch_MarkEmpty(&self->children[0]);
     self->full = 0;
     self->empty = 1;
+}
+
+struct TileHeapOwner {};
+
+struct TileHeapState
+{
+    u32 allocated_mask[8];
+    u8 entry_pool[0x804];
+    AllocationTree tree;
+    u16 allocated_count;
+    u16 next_generation;
+    u32 owner_count;
+    u16 reserved_start;
+    u16 reserved_count;
+};
+
+extern TileHeapState * gTileHeapState; // 0x03000408
+
+// 0x080079E8
+EC void SECTION(".text.TileHeapOwner_Destroy") TileHeapOwner_Destroy(TileHeapOwner * self, u32 destructor_flags)
+{
+    TileHeapState * heap = gTileHeapState;
+    if (--heap->owner_count == 0)
+    {
+        if (heap != nullptr)
+            delete heap;
+        gTileHeapState = nullptr;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+struct TileHandleValue
+{
+    TileHeapOwner owner;
+    u32 handle;
+};
+
+struct TilePoolBucket
+{
+    TileHandleValue * begin;
+    TileHandleValue * end;
+    TileHandleValue * allocated_begin;
+    TileHandleValue * capacity_end;
+    TileHandleValue * cursor;
+};
+
+struct TilePoolStorage
+{
+    TilePoolBucket buckets[8];
+};
+
+struct TilePool
+{
+    TilePoolStorage * storage;
+};
+
+// 0x0800835C
+EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self)
+{
+    self->storage = nullptr;
+}
+
+EC TileHeapOwner * func_08007874(TileHeapOwner *);
+EC void func_08007C28(TileHeapOwner *, u32);
+EC u32 func_08007E24(TileHeapOwner *, u32);
+EC u32 func_08007CD8(TileHeapOwner *, u32);
+EC u32 func_08007B54(TileHeapOwner *, u32);
+
+// 0x08008364
+EC void SECTION(".text.TilePool_Destroy") TilePool_Destroy(TilePool * self, u32 destructor_flags)
+{
+    if (self->storage != nullptr)
+    {
+        TilePoolStorage * storage = self->storage;
+        TilePoolBucket * bucket = storage->buckets + 8;
+        while (storage->buckets != bucket)
+        {
+            --bucket;
+            TileHandleValue * end = bucket->end;
+            for (TileHandleValue * value = bucket->begin; value != end; ++value)
+            {
+                func_08007C28(&value->owner, value->handle);
+                TileHeapOwner_Destroy(&value->owner, 2);
+            }
+            if (bucket->begin != nullptr)
+                free(bucket->begin);
+        }
+        delete storage;
+    }
+    if (destructor_flags & 1)
+        delete self;
+}
+
+// 0x080083D0
+EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHandleValue * self, TilePool const * pool, u32 order)
+{
+    TilePoolStorage * storage = pool->storage;
+    if (storage != nullptr)
+    {
+        TilePoolBucket * bucket = reinterpret_cast<TilePoolBucket *>(order * sizeof(TilePoolBucket) + u32(storage));
+        TileHandleValue * end = bucket->end;
+        TileHandleValue * next = bucket->cursor;
+        if (next != end)
+        {
+            TileHandleValue * start = next;
+            do
+            {
+                TileHandleValue * candidate = next;
+                if (++next == end)
+                    next = bucket->begin;
+                if (func_08007E24(&candidate->owner, candidate->handle) == 1)
+                {
+                    bucket->cursor = next;
+                    next = candidate;
+                    break;
+                }
+            }
+            while (next != start);
+        }
+        func_08007874(&self->owner);
+        self->handle = func_08007CD8(&self->owner, next->handle);
+    }
+    else
+    {
+        func_08007874(&self->owner);
+        self->handle = func_08007B54(&self->owner, order);
+    }
+    return self;
 }
 
 struct HardwareContextState
@@ -1093,7 +1298,7 @@ EC void SECTION(".text.TaskList_SwapHeads") TaskList_SwapHeads(TaskList * self, 
     *other_last = end;
 }
 
-EC void ResourceHandles_Destroy(ResourceHandleOwner * self) ALIAS(_._19ResourceHandleOwner);
+EC void ResourceHandles_Destroy(ResourceHandleOwner * self, u32 destructor_flags) ALIAS(_._19ResourceHandleOwner);
 
 // 0x080071BC
 EC void ResourceHandles_ReserveRange(ResourceHandleOwner * self, unsigned int first_index, unsigned int entry_count)

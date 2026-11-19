@@ -7,7 +7,7 @@ EC void func_080E586C(CommandList *);
 EC void func_080073E0(void *, u32);
 EC void ResourceHandles_Destroy(void *, u32);
 EC void func_08007C28(void *, u32);
-EC void func_080079E8(void *, u32);
+EC void TileHeapOwner_Destroy(void *, u32);
 EC u8 vtable_unk_080E85CC[];
 EC u8 vtable_unk_080E5A28[];
 
@@ -82,10 +82,10 @@ EC SECTION(".text.g5_080CE3DC") void DestroyPagedPanelDrawCommands(u8 * self, u3
     ResourceHandles_Destroy(palette, 2);
     u32 * tiles = (u32 *) (self + 0xc);
     func_08007C28(tiles, tiles[1]);
-    func_080079E8(tiles, 2);
+    TileHeapOwner_Destroy(tiles, 2);
     tiles = (u32 *) (self + 4);
     func_08007C28(tiles, tiles[1]);
-    func_080079E8(tiles, 2);
+    TileHeapOwner_Destroy(tiles, 2);
     if (flags & 1)
         operator delete(self);
 }

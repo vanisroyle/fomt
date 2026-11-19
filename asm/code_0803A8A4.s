@@ -538,7 +538,7 @@ func_0803AC78: @ 0x0803AC78
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	cmp r7, r5
 	bne .L0803ACA4
 .L0803ACBE:
@@ -923,7 +923,7 @@ func_0803AEA0: @ 0x0803AEA0
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r3, [sp, #0x64]
 	adds r3, #1
 	str r3, [sp, #0x64]
@@ -1120,7 +1120,7 @@ func_0803B0A8: @ 0x0803B0A8
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	adds r5, #0x28
 	cmp r5, r6
 	bne .L0803B0F4

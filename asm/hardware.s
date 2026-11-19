@@ -211,113 +211,8 @@ func_080074C0: @ 0x080074C0
     .byte 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
 
     .section .text.after_0800770C, "ax"
-    thumb_func_start func_08007714
-func_08007714: @ 0x08007714
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r7, r0, #0
-    mov r8, r1
-    ldr r0, [r7]
-    cmp r0, #0
-    beq .L08007754
-    adds r6, r0, #0
-    ldr r5, [r6, #4]
-    ldr r4, [r6]
-    cmp r4, r5
-    beq .L08007744
-.L0800772E:
-    ldr r1, [r4, #4]
-    adds r0, r4, #0
-    bl func_080073E0
-    adds r0, r4, #0
-    movs r1, #2
-    bl ResourceHandles_Destroy
-    adds r4, #8
-    cmp r4, r5
-    bne .L0800772E
-.L08007744:
-    ldr r0, [r6]
-    cmp r0, #0
-    beq .L0800774E
-    bl free
-.L0800774E:
-    adds r0, r6, #0
-    bl __builtin_delete
-.L08007754:
-    movs r0, #1
-    mov r1, r8
-    ands r0, r1
-    cmp r0, #0
-    beq .L08007764
-    adds r0, r7, #0
-    bl __builtin_delete
-.L08007764:
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08007770
-func_08007770: @ 0x08007770
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    adds r7, r0, #0
-    ldr r1, [r1]
-    cmp r1, #0
-    beq .L080077BE
-    adds r6, r1, #0
-    ldr r0, [r6, #4]
-    mov r8, r0
-    ldr r4, [r6, #0x10]
-    cmp r4, r8
-    beq .L080077A8
-    mov sb, r4
-.L0800778E:
-    adds r5, r4, #0
-    adds r4, #8
-    cmp r4, r8
-    bne .L08007798
-    ldr r4, [r6]
-.L08007798:
-    ldr r1, [r5, #4]
-    adds r0, r5, #0
-    bl ResourceHandle_GetRefCount
-    cmp r0, #1
-    beq .L080077B8
-    cmp r4, sb
-    bne .L0800778E
-.L080077A8:
-    adds r0, r7, #0
-    bl ResourceHandles_Initialize
-    ldr r1, [r4, #4]
-    adds r0, r7, #0
-    bl ResourceHandle_Retain
-    b .L080077CA
-.L080077B8:
-    str r4, [r6, #0x10]
-    adds r4, r5, #0
-    b .L080077A8
-.L080077BE:
-    adds r0, r7, #0
-    bl ResourceHandles_Initialize
-    adds r0, r7, #0
-    bl func_0800736C
-.L080077CA:
-    str r0, [r7, #4]
-    adds r0, r7, #0
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
+    .section .text.after_08007714, "ax"
+    .section .text.after_08007770, "ax"
     thumb_func_start func_080077DC
 func_080077DC: @ 0x080077DC
     push {r4, r5, lr}
@@ -390,7 +285,7 @@ func_08007874: @ 0x08007874
     push {r5, r6, r7}
     sub sp, #0x30
     str r0, [sp, #8]
-    ldr r0, .L080079B4 @ =gUnk_03000408
+    ldr r0, .L080079B4 @ =gTileHeapState
     ldr r4, [r0]
     cmp r4, #0
     beq .L0800788C
@@ -531,10 +426,10 @@ func_08007874: @ 0x08007874
     ldr r0, [sp, #0xc]
     bl AllocationTree_MarkEmpty
     mov r2, r8
-    ldr r0, .L080079B4 @ =gUnk_03000408
+    ldr r0, .L080079B4 @ =gTileHeapState
     str r2, [r0]
 .L08007992:
-    ldr r0, .L080079B4 @ =gUnk_03000408
+    ldr r0, .L080079B4 @ =gTileHeapState
     ldr r1, [r0]
     ldr r2, .L080079C4 @ =0x00000924
     adds r1, r1, r2
@@ -551,7 +446,7 @@ func_08007874: @ 0x08007874
     pop {r1}
     bx r1
     .align 2, 0
-.L080079B4: .4byte gUnk_03000408
+.L080079B4: .4byte gTileHeapState
 .L080079B8: .4byte 0x0000092C
 .L080079BC: .4byte 0x00000824
 .L080079C0: .4byte 0x00000828
@@ -562,41 +457,7 @@ func_08007874: @ 0x08007874
     .byte 0x03, 0x49, 0x0A, 0x68, 0x03, 0x49, 0x52, 0x18, 0x11, 0x68, 0x01, 0x31, 0x11, 0x60, 0x70, 0x47
     .byte 0x08, 0x04, 0x00, 0x03, 0x24, 0x09, 0x00, 0x00
 
-    thumb_func_start func_080079E8
-func_080079E8: @ 0x080079E8
-    push {r4, r5, r6, r7, lr}
-    adds r7, r0, #0
-    adds r5, r1, #0
-    ldr r6, .L08007A20 @ =gUnk_03000408
-    ldr r2, [r6]
-    ldr r0, .L08007A24 @ =0x00000924
-    adds r1, r2, r0
-    ldr r0, [r1]
-    subs r4, r0, #1
-    str r4, [r1]
-    cmp r4, #0
-    bne .L08007A0C
-    cmp r2, #0
-    beq .L08007A0A
-    adds r0, r2, #0
-    bl __builtin_delete
-.L08007A0A:
-    str r4, [r6]
-.L08007A0C:
-    movs r0, #1
-    ands r0, r5
-    cmp r0, #0
-    beq .L08007A1A
-    adds r0, r7, #0
-    bl __builtin_delete
-.L08007A1A:
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08007A20: .4byte gUnk_03000408
-.L08007A24: .4byte 0x00000924
-
+    .section .text.after_080079E8, "ax"
     thumb_func_start func_08007A28
 func_08007A28: @ 0x08007A28
     push {r4, r5, r6, r7, lr}
@@ -607,7 +468,7 @@ func_08007A28: @ 0x08007A28
     sub sp, #0x18
     str r1, [sp]
     str r2, [sp, #4]
-    ldr r0, .L08007B44 @ =gUnk_03000408
+    ldr r0, .L08007B44 @ =gTileHeapState
     ldr r5, [r0]
     ldr r0, .L08007B48 @ =0x0000092A
     adds r4, r5, r0
@@ -745,7 +606,7 @@ func_08007A28: @ 0x08007A28
     pop {r0}
     bx r0
     .align 2, 0
-.L08007B44: .4byte gUnk_03000408
+.L08007B44: .4byte gTileHeapState
 .L08007B48: .4byte 0x0000092A
 .L08007B4C: .4byte 0x00000824
 .L08007B50: .4byte 0x00000928
@@ -754,7 +615,7 @@ func_08007A28: @ 0x08007A28
 func_08007B54: @ 0x08007B54
     push {r4, r5, r6, r7, lr}
     adds r7, r1, #0
-    ldr r0, .L08007BFC @ =gUnk_03000408
+    ldr r0, .L08007BFC @ =gTileHeapState
     ldr r4, [r0]
     ldr r0, .L08007C00 @ =0x00000824
     adds r6, r4, r0
@@ -839,7 +700,7 @@ func_08007B54: @ 0x08007B54
     orrs r1, r0
     b .L08007C1E
     .align 2, 0
-.L08007BFC: .4byte gUnk_03000408
+.L08007BFC: .4byte gTileHeapState
 .L08007C00: .4byte 0x00000824
 .L08007C04: .4byte 0x000003FF
 .L08007C08: .4byte 0xFFFFFC00
@@ -863,7 +724,7 @@ func_08007C28: @ 0x08007C28
     push {r4, r5, r6, r7, lr}
     sub sp, #4
     adds r3, r1, #0
-    ldr r0, .L08007CD0 @ =gUnk_03000408
+    ldr r0, .L08007CD0 @ =gTileHeapState
     ldr r6, [r0]
     cmp r3, #0
     beq .L08007CC8
@@ -948,7 +809,7 @@ func_08007C28: @ 0x08007C28
     pop {r0}
     bx r0
     .align 2, 0
-.L08007CD0: .4byte gUnk_03000408
+.L08007CD0: .4byte gTileHeapState
 .L08007CD4: .4byte 0x00000824
 
     thumb_func_start func_08007CD8
@@ -956,7 +817,7 @@ func_08007CD8: @ 0x08007CD8
     push {r4, r5, lr}
     sub sp, #4
     adds r4, r1, #0
-    ldr r0, .L08007D3C @ =gUnk_03000408
+    ldr r0, .L08007D3C @ =gTileHeapState
     ldr r5, [r0]
     cmp r4, #0
     beq .L08007D42
@@ -1005,7 +866,7 @@ func_08007CD8: @ 0x08007CD8
     adds r0, r4, #0
     b .L08007D44
     .align 2, 0
-.L08007D3C: .4byte gUnk_03000408
+.L08007D3C: .4byte gTileHeapState
 .L08007D40:
     strh r2, [r1, #2]
 .L08007D42:
@@ -1021,7 +882,7 @@ func_08007D4C: @ 0x08007D4C
     push {r4, r5, lr}
     sub sp, #4
     adds r4, r1, #0
-    ldr r0, .L08007DA8 @ =gUnk_03000408
+    ldr r0, .L08007DA8 @ =gTileHeapState
     ldr r5, [r0]
     cmp r4, #0
     beq .L08007DAC
@@ -1066,7 +927,7 @@ func_08007D4C: @ 0x08007D4C
     lsrs r0, r0, #0x16
     b .L08007DB0
     .align 2, 0
-.L08007DA8: .4byte gUnk_03000408
+.L08007DA8: .4byte gTileHeapState
 .L08007DAC:
     movs r0, #1
     rsbs r0, r0, #0
@@ -1081,7 +942,7 @@ func_08007DB8: @ 0x08007DB8
     push {r4, r5, lr}
     sub sp, #4
     adds r4, r1, #0
-    ldr r0, .L08007E14 @ =gUnk_03000408
+    ldr r0, .L08007E14 @ =gTileHeapState
     ldr r5, [r0]
     cmp r4, #0
     beq .L08007E18
@@ -1126,7 +987,7 @@ func_08007DB8: @ 0x08007DB8
     lsrs r0, r0, #0x1c
     b .L08007E1A
     .align 2, 0
-.L08007E14: .4byte gUnk_03000408
+.L08007E14: .4byte gTileHeapState
 .L08007E18:
     movs r0, #0xb
 .L08007E1A:
@@ -1141,7 +1002,7 @@ func_08007E24: @ 0x08007E24
     push {r4, r5, lr}
     sub sp, #4
     adds r4, r1, #0
-    ldr r0, .L08007E7C @ =gUnk_03000408
+    ldr r0, .L08007E7C @ =gTileHeapState
     ldr r5, [r0]
     cmp r4, #0
     beq .L08007E80
@@ -1184,7 +1045,7 @@ func_08007E24: @ 0x08007E24
     ldrh r0, [r1, #2]
     b .L08007E82
     .align 2, 0
-.L08007E7C: .4byte gUnk_03000408
+.L08007E7C: .4byte gTileHeapState
 .L08007E80:
     movs r0, #0
 .L08007E82:
@@ -1520,133 +1381,9 @@ func_080080A0: @ 0x080080A0
     .byte 0x00, 0xD8, 0x41, 0xE7, 0x07, 0x99, 0x05, 0x9A, 0x11, 0x60, 0x10, 0x1C, 0x0C, 0xB0, 0x38, 0xBC
     .byte 0x98, 0x46, 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47
 
-    thumb_func_start func_0800835C
-func_0800835C: @ 0x0800835C
-    movs r1, #0
-    str r1, [r0]
-    bx lr
-    .align 2, 0
-
-    thumb_func_start func_08008364
-func_08008364: @ 0x08008364
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    mov r8, r0
-    mov sb, r1
-    ldr r0, [r0]
-    cmp r0, #0
-    beq .L080083B2
-    adds r7, r0, #0
-    adds r5, r7, #0
-    adds r5, #0xa0
-.L0800837C:
-    cmp r7, r5
-    beq .L080083AC
-    subs r5, #0x14
-    ldr r6, [r5, #4]
-    ldr r4, [r5]
-    cmp r4, r6
-    beq .L080083A0
-.L0800838A:
-    ldr r1, [r4, #4]
-    adds r0, r4, #0
-    bl func_08007C28
-    adds r0, r4, #0
-    movs r1, #2
-    bl func_080079E8
-    adds r4, #8
-    cmp r4, r6
-    bne .L0800838A
-.L080083A0:
-    ldr r0, [r5]
-    cmp r0, #0
-    beq .L0800837C
-    bl free
-    b .L0800837C
-.L080083AC:
-    adds r0, r7, #0
-    bl __builtin_delete
-.L080083B2:
-    movs r0, #1
-    mov r1, sb
-    ands r0, r1
-    cmp r0, #0
-    beq .L080083C2
-    mov r0, r8
-    bl __builtin_delete
-.L080083C2:
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_080083D0
-func_080083D0: @ 0x080083D0
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    adds r7, r0, #0
-    adds r4, r2, #0
-    ldr r1, [r1]
-    cmp r1, #0
-    beq .L08008426
-    lsls r0, r4, #2
-    adds r0, r0, r4
-    lsls r0, r0, #2
-    adds r6, r0, r1
-    ldr r0, [r6, #4]
-    mov r8, r0
-    ldr r4, [r6, #0x10]
-    cmp r4, r8
-    beq .L08008410
-    mov sb, r4
-.L080083F6:
-    adds r5, r4, #0
-    adds r4, #8
-    cmp r4, r8
-    bne .L08008400
-    ldr r4, [r6]
-.L08008400:
-    ldr r1, [r5, #4]
-    adds r0, r5, #0
-    bl func_08007E24
-    cmp r0, #1
-    beq .L08008420
-    cmp r4, sb
-    bne .L080083F6
-.L08008410:
-    adds r0, r7, #0
-    bl func_08007874
-    ldr r1, [r4, #4]
-    adds r0, r7, #0
-    bl func_08007CD8
-    b .L08008434
-.L08008420:
-    str r4, [r6, #0x10]
-    adds r4, r5, #0
-    b .L08008410
-.L08008426:
-    adds r0, r7, #0
-    bl func_08007874
-    adds r0, r7, #0
-    adds r1, r4, #0
-    bl func_08007B54
-.L08008434:
-    str r0, [r7, #4]
-    adds r0, r7, #0
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-
+    .section .text.after_0800835C, "ax"
+    .section .text.after_08008364, "ax"
+    .section .text.after_080083D0, "ax"
     thumb_func_start func_08008444
 func_08008444: @ 0x08008444
     push {r4, r5, r6, lr}

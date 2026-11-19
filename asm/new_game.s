@@ -1301,7 +1301,7 @@ func_080041DC: @ 0x080041DC
     str r5, [r1]
     str r0, [r7, #0xc]
     add r0, sp, #0xc
-    bl func_0800835C
+    bl TilePool_Initialize
     add r4, sp, #0x10
     adds r0, r4, #0
     bl ResourcePool_Initialize
@@ -1317,10 +1317,10 @@ func_080041DC: @ 0x080041DC
     bl func_08050CC0
     adds r0, r4, #0
     movs r1, #2
-    bl func_08007714
+    bl ResourcePool_Destroy
     add r0, sp, #0xc
     movs r1, #2
-    bl func_08008364
+    bl TilePool_Destroy
     adds r0, r7, #0
     adds r0, #0x14
     movs r1, #1
@@ -2914,7 +2914,7 @@ func_08004EFC: @ 0x08004EFC
     bl __builtin_new
     adds r4, r0, #0
     add r0, sp, #0xc
-    bl func_0800835C
+    bl TilePool_Initialize
     adds r0, r5, #0
     bl ResourcePool_Initialize
     movs r0, #0
@@ -2932,10 +2932,10 @@ func_08004EFC: @ 0x08004EFC
     str r0, [r1]
     adds r0, r5, #0
     movs r1, #2
-    bl func_08007714
+    bl ResourcePool_Destroy
     add r0, sp, #0xc
     movs r1, #2
-    bl func_08008364
+    bl TilePool_Destroy
     ldr r0, .L080050B0 @ =0x00001A30
     adds r4, r7, r0
     movs r0, #0xc8
@@ -4314,7 +4314,7 @@ func_08005A58: @ 0x08005A58
     bl __builtin_new
     adds r4, r0, #0
     add r0, sp, #0xc
-    bl func_0800835C
+    bl TilePool_Initialize
     adds r0, r6, #0
     bl ResourcePool_Initialize
     movs r0, #0
@@ -4332,10 +4332,10 @@ func_08005A58: @ 0x08005A58
     str r0, [r1]
     adds r0, r6, #0
     movs r1, #2
-    bl func_08007714
+    bl ResourcePool_Destroy
     add r0, sp, #0xc
     movs r1, #2
-    bl func_08008364
+    bl TilePool_Destroy
     ldr r6, .L08005B2C @ =0x000045FC
     adds r0, r5, r6
     mov r1, r8
@@ -4561,7 +4561,7 @@ func_08005B68: @ 0x08005B68
     bl func_08007C28
     mov r0, sp
     movs r1, #2
-    bl func_080079E8
+    bl TileHeapOwner_Destroy
     adds r0, r7, #0
     add sp, #0x28
     pop {r3}
