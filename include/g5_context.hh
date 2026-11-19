@@ -12,5 +12,6 @@ struct G5InventoryPanelVTable
 // The menu starts with a hardware context. Its message handle is at +0x80,
 // followed by cached phase/result words; child panels are at +0x78/+0x7c.
 EC void InventoryMenu_UpdateMessageWindow(u8 * menu); // 0x080CD8A0
+EC void G5Display_SetVCountCompare(void * context, u16 scanline); // 0x080CAC54
 
 #endif
