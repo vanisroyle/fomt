@@ -9218,7 +9218,7 @@ func_0802E0FC: @ 0x0802E0FC
     bne .L0802E602
     adds r0, r5, #0
     adds r1, r4, #0
-    bl func_08037EB4
+    bl SetNpcReaction
     movs r0, #0xe
     ldr r3, [sp, #0x7c]
     strb r0, [r3]
@@ -9422,7 +9422,7 @@ func_0802E0FC: @ 0x0802E0FC
     ldr r2, [r1, #0x40]
     movs r1, #0x4b
     bl _call_via_r2
-    bl func_08038108
+    bl IsSideSpriteLaunched
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0802E7BA
@@ -9882,7 +9882,7 @@ func_0802E0FC: @ 0x0802E0FC
 .L0802EAD0:
     ldr r2, [sp, #0x78]
     ldrb r1, [r2]
-    bl func_080380EC
+    bl LaunchSideSprite
     ldr r0, [r7]
     ldr r1, [r0]
     movs r3, #0xa6

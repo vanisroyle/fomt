@@ -153,7 +153,7 @@ inline CarryableActorEntity * GetCarryableEntityById(GameObject * game, u32 id)
 
 EC char const vtable_unk_080E6428[];
 EC char const vtable_unk_080E64C8[];
-EC void func_08038374(CarryableActorEntity * self, i32 x, i32 y, u32 anim, u32 facing);
+EC void StartLaunchedSpriteMovement(CarryableActorEntity * self, i32 x, i32 y, u32 anim, u32 facing);
 EC void DogEntity_ResetBehavior(DogEntity * self, u32 time);
 EC Article func_0800F258(HeldItem const * self);
 EC u32 ChickenEntity_GetStateSpeed(AEntity * self, u32 value);
@@ -209,7 +209,7 @@ struct FarmerGameStateView
     STRUCT_PAD(0x14, 0x54);
     ShippingBin shipping_bin;
 };
-EC void func_080384FC(CarryableActorEntity * self);
+EC void StopLaunchedSpriteMovement(CarryableActorEntity * self);
 EC FarmerEntity * InitFarmerMapActor(FarmerEntity * self, GameObject * game, void * state);
 EC void FarmerEntityInitNoOp(FarmerEntity * self);
 EC char const vtable_unk_080E6658[];
@@ -734,7 +734,7 @@ EC void DogEntity_PlaceCarriedTarget(DogEntity * self)
             if (!func_080AC070(const_cast<UnkMap *>(&map), &box))
                 break;
         }
-        func_080384FC(target);
+        StopLaunchedSpriteMovement(target);
     }
 }
 
@@ -772,7 +772,7 @@ EC DogEntity * DogEntity_Init(DogEntity * self, GameObject * game, Dog * dog, vo
         if (target != nullptr)
         {
             if (target->location_map == self->location_map)
-                func_08038374(target, self->x_q16, self->y_q16, self->anim_id, self->facing);
+                StartLaunchedSpriteMovement(target, self->x_q16, self->y_q16, self->anim_id, self->facing);
             else
                 DogEntity_ResetBehavior(self, 0);
         }
