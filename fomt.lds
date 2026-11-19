@@ -918,7 +918,7 @@ SECTIONS
         asm/code_0803A8A4.o(.text.0803DCB4);
         src/code_0803A8A4.o(.text.0803DDE8);
         src/code_0803A8A4.o(.text.0803DECC);
-        asm/code_0803A8A4.o(.text.0803DFE8);
+        src/code_0803A8A4.o(.text.0803DFE8);
         src/code_0803A8A4.o(.text.0803E1A4);
         asm/code_0803A8A4.o(.text.0803E264);
         src/code_0803A8A4.o(.text.0803E40C);
