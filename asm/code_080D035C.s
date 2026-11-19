@@ -85,33 +85,6 @@ func_080D0558: @ 0x080D0558
 
 .section .text.g5_after_transfer, "ax"
 
-	thumb_func_start func_080D0644
-func_080D0644: @ 0x080D0644
-	push {r4, lr}
-	ldr r4, .L080D0674 @ =gJoybusState
-	ldr r2, [r4]
-	adds r2, #0x28
-	strb r0, [r2]
-	ldr r2, [r4]
-	lsrs r3, r0, #8
-	adds r2, #0x29
-	strb r3, [r2]
-	ldr r2, [r4]
-	lsrs r3, r0, #0x10
-	adds r2, #0x2a
-	strb r3, [r2]
-	ldr r2, [r4]
-	lsrs r0, r0, #0x18
-	adds r2, #0x2b
-	strb r0, [r2]
-	ldr r0, [r4]
-	str r1, [r0, #0x30]
-	bl func_080D05DC
-	pop {r4}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080D0674: .4byte gJoybusState
 
 .section .text.g5_06DC, "ax"
 .L080D06DC:

@@ -9641,82 +9641,8 @@ func_080CD14C: @ 0x080CD14C
 
 .section .text.g5_080CD578, "ax"
 
-	thumb_func_start func_080CD578
-func_080CD578: @ 0x080CD578
-	push {r4, r5, r6, r7, lr}
-	sub sp, #0x14
-	adds r7, r0, #0
-	adds r4, r1, #0
-	bl func_08008444
-	ldr r0, .L080CD618 @ =vtable_unk_080E85A0
-	str r0, [r7, #4]
-	str r4, [r7, #8]
-	adds r0, r7, #0
-	adds r0, #0xc
-	movs r1, #1
-	bl AudioPlayer_Initialize
-	adds r6, r7, #0
-	adds r6, #0x10
-	ldr r1, .L080CD61C @ =gUnk_08754C0C
-	adds r0, r6, #0
-	bl func_0805E6CC
-	adds r0, r7, #0
-	adds r0, #0x40
-	movs r5, #0
-	movs r4, #0
-	strh r4, [r0]
-	strh r4, [r0, #2]
-	adds r0, #4
-	adds r1, r6, #0
-	movs r2, #0
-	movs r3, #0x80
-	lsls r3, r3, #1
-	bl func_0805E824
-	adds r0, r7, #0
-	adds r0, #0x58
-	strh r4, [r0]
-	strh r4, [r0, #2]
-	strh r4, [r0, #4]
-	strh r4, [r0, #6]
-	strh r4, [r0, #8]
-	str r4, [r0, #0xc]
-	strb r5, [r0, #0x10]
-	strb r5, [r0, #0x11]
-	str r4, [r0, #0x14]
-	strb r5, [r0, #0x18]
-	adds r0, #0x1c
-	strb r5, [r0]
-	str r4, [r7, #0x78]
-	str r4, [r7, #0x7c]
-	add r0, sp, #0xc
-	bl TilePool_Initialize
-	add r5, sp, #0x10
-	adds r0, r5, #0
-	bl ResourcePool_Initialize
-	adds r0, r7, #0
-	adds r0, #0x80
-	str r4, [sp]
-	add r1, sp, #0xc
-	str r1, [sp, #4]
-	str r5, [sp, #8]
-	movs r1, #0
-	movs r2, #0x1d
-	movs r3, #0
-	bl CreateMessageWindow
-	adds r0, r5, #0
-	movs r1, #2
-	bl ResourcePool_Destroy
-	add r0, sp, #0xc
-	movs r1, #2
-	bl TilePool_Destroy
-	adds r0, r7, #0
-	add sp, #0x14
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080CD618: .4byte vtable_unk_080E85A0
-.L080CD61C: .4byte gUnk_08754C0C
+
+.section .text.g5_after_080CD578, "ax"
 
 	thumb_func_start func_080CD620
 func_080CD620: @ 0x080CD620
@@ -10034,76 +9960,6 @@ func_080CD620: @ 0x080CD620
 .section .text.g5_after_080CD950, "ax"
 
 
-	thumb_func_start func_080CD9B0
-func_080CD9B0: @ 0x080CD9B0
-	push {r4, r5, r6, r7, lr}
-	adds r7, r0, #0
-	str r1, [r7]
-	str r2, [r7, #4]
-	str r2, [r7, #8]
-	adds r4, r7, #0
-	adds r4, #0x14
-	adds r0, r4, #0
-	bl func_08007874
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_08007B54
-	str r0, [r4, #4]
-	adds r4, #8
-	adds r0, r4, #0
-	bl ResourceHandles_Initialize
-	adds r0, r4, #0
-	bl func_0800736C
-	str r0, [r4, #4]
-	adds r6, r7, #0
-	adds r6, #0x24
-	ldr r1, .L080CDA40 @ =gUnk_08728208
-	adds r0, r6, #0
-	bl func_0805E6CC
-	adds r0, r7, #0
-	adds r0, #0x54
-	movs r5, #0
-	movs r4, #0
-	strh r4, [r0]
-	strh r4, [r0, #2]
-	adds r0, #4
-	adds r1, r6, #0
-	movs r2, #0
-	movs r3, #0x80
-	lsls r3, r3, #1
-	bl func_0805E824
-	adds r0, r7, #0
-	adds r0, #0x6c
-	strh r4, [r0]
-	strh r4, [r0, #2]
-	strh r4, [r0, #4]
-	strh r4, [r0, #6]
-	strh r4, [r0, #8]
-	str r4, [r0, #0xc]
-	strb r5, [r0, #0x10]
-	strb r5, [r0, #0x11]
-	str r4, [r0, #0x14]
-	strb r5, [r0, #0x18]
-	adds r0, #0x1c
-	strb r5, [r0]
-	ldr r1, [r7]
-	ldr r0, [r1, #0x78]
-	movs r2, #0xa6
-	lsls r2, r2, #2
-	adds r0, r0, r2
-	ldr r0, [r0]
-	str r0, [r7, #0xc]
-	ldr r0, [r1, #0x7c]
-	adds r0, r0, r2
-	ldr r0, [r0]
-	adds r0, #9
-	str r0, [r7, #0x10]
-	adds r0, r7, #0
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080CDA40: .4byte gUnk_08728208
 
 .section .text.g5_after_080CDA44, "ax"
 
@@ -11797,67 +11653,6 @@ func_080CE790: @ 0x080CE790
 
 .section .text.g5_after_080CEB80, "ax"
 
-	thumb_func_start func_080CEC00
-func_080CEC00: @ 0x080CEC00
-	push {r4, r5, r6, r7, lr}
-	adds r7, r0, #0
-	adds r4, r7, #0
-	stm r4!, {r1}
-	ldr r1, .L080CEC80 @ =gUnk_08754C0C
-	adds r0, r4, #0
-	bl func_0805E6CC
-	movs r6, #0
-	movs r5, #0
-	strh r5, [r7, #0x34]
-	strh r5, [r7, #0x36]
-	adds r0, r7, #0
-	adds r0, #0x38
-	adds r1, r4, #0
-	movs r2, #1
-	movs r3, #0x80
-	lsls r3, r3, #1
-	bl func_0805E824
-	adds r0, r7, #0
-	adds r0, #0x4c
-	strh r5, [r0]
-	strh r5, [r0, #2]
-	strh r5, [r0, #4]
-	strh r5, [r0, #6]
-	strh r5, [r0, #8]
-	str r5, [r0, #0xc]
-	strb r6, [r0, #0x10]
-	strb r6, [r0, #0x11]
-	str r5, [r0, #0x14]
-	strb r6, [r0, #0x18]
-	adds r0, #0x1c
-	strb r6, [r0]
-	adds r4, r7, #0
-	adds r4, #0x6c
-	adds r0, r4, #0
-	bl func_08007874
-	adds r0, r4, #0
-	movs r1, #4
-	bl func_08007B54
-	str r0, [r4, #4]
-	adds r4, #8
-	adds r0, r4, #0
-	bl ResourceHandles_Initialize
-	adds r0, r4, #0
-	bl func_0800736C
-	str r0, [r4, #4]
-	movs r0, #0x12
-	str r0, [r7, #0x7c]
-	adds r0, r7, #0
-	adds r0, #0x80
-	str r5, [r0]
-	adds r0, #4
-	strb r6, [r0]
-	adds r0, r7, #0
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080CEC80: .4byte gUnk_08754C0C
 
 .section .text.g5_after_080CECD0, "ax"
 
