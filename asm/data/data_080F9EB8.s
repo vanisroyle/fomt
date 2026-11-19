@@ -3530,4 +3530,5 @@ gUnk_08139CFC:
 
 	.global gUnk_08139D30
 gUnk_08139D30:
-	.incbin "baserom.gba", 0x139D30, 0xE84
+	.incbin "baserom.gba", 0x139D30, 0x30
+	.include "build/assets/audio-voices.s"
