@@ -52,7 +52,11 @@ struct GameStateMapTerrain
 
 struct GameStateMapData
 {
-    STRUCT_PAD(0x0, 0x10);
+    STRUCT_PAD(0x0, 0x3);
+    u8 : 7;
+    u8 map_12_scenery_variant : 1;
+    u8 map_27_scenery_variant : 1;
+    STRUCT_PAD(0x5, 0x10);
     u8 clock[4];
     Farm farm;
     u8 reserved[0x1BD8 - 0x14 - sizeof(Farm)];
@@ -141,7 +145,8 @@ struct GameStateEntitySlotVtable
     AEntity const * (*get_const_entity)(GameStateMapOwner const & game, u32 slot);
     STRUCT_PAD(0x48, 0x5C);
     GameStatePackedSpriteArchive const * (*get_interaction_archive)(GameStateMapOwner const & game);
-    STRUCT_PAD(0x60, 0x140);
+    GameStatePackedSpriteArchive const * (*get_scenery_archive)(GameStateMapOwner const & game);
+    STRUCT_PAD(0x64, 0x140);
     void (*queue_event)(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue);
     STRUCT_PAD(0x144, 0x148);
     u32 (*get_music_track)(GameStateMapOwner const & game);
@@ -190,7 +195,9 @@ struct GameStateMapOwner
     TerrainInfo const * farm_terrain;
     GameStateScript * script;
     SmartPtr<GameStateMapInteraction> interaction;
-    STRUCT_PAD(0x105C, 0x107C);
+    SmartPtr<GameStateMapInteraction> scenery;
+    bool scenery_active;
+    STRUCT_PAD(0x1061, 0x107C);
     GameStateMapOverlay * map_overlay;
     STRUCT_PAD(0x1080, 0x10C8);
     bool day_update_requested;
@@ -496,6 +503,41 @@ EC SECTION(".text.game_state_c2.0801DCD4") void GameStateSettleShippingBin(GameS
     void (* const * queue_event)(GameStateMapOwner &, GameStateScriptEvent const &, u32) = &game.vtable->queue_event;
     GameStateScriptEvent event(0x3DB, proceeds);
     (*queue_event)(game, event, 1);
+}
+
+EC SECTION(".text.game_state_c2.0801F14C") void GameStateRefreshMapScenery(GameStateMapOwner & game)
+{
+    game.scenery_active = false;
+    game.scenery = nullptr;
+
+    u32 variant;
+    switch (game.vtable->get_map_id(game))
+    {
+        case 0x1D:
+        {
+            GameStateMapData * & state = game.map_data;
+            if (state->farm.farm_house.GetUpgradeLevel() != 2)
+                return;
+            variant = state->farm.farm_house.IsFireplaceLighted() != false;
+            break;
+        }
+        case 0x12:
+            variant = game.map_data->map_12_scenery_variant;
+            break;
+        case 0x27:
+            variant = game.map_data->map_27_scenery_variant;
+            break;
+        case 0x0A:
+        case 0x1B:
+            variant = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER;
+            break;
+        default:
+            return;
+    }
+
+    GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
+    GameStatePackedSpriteArchive const * archive = game.vtable->get_scenery_archive(game);
+    game.scenery = func_080A4A00(storage, archive, variant, game, 2, 0x1B, false);
 }
 
 EC SECTION(".text.game_state_c2.0801F5F0") void GameStateSetVaseArticle(GameStateMapOwner & game, u32 article_id)
