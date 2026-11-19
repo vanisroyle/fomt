@@ -1,5 +1,6 @@
 #include "prelude.h"
 #include "g5_graphics.hh"
+#include "g5_inventory.hh"
 
 EC void Dma3_Fill(u32, void *, u32);
 EC void DrawTallMessageNumber(void *, void *, u32, u32, u32);
@@ -72,6 +73,12 @@ EC SECTION(".text.g5_080CEB80") u32 NextInventoryPage(u8 * self) // 0x080CEB80
     u32 * page = (u32 *) (self + 0xbc);
     QueuePagedPanelNumberDraw(self, *page + 1, (void *) 0x0600f0f6, 0x20, 0, 0x20);
     return *page;
+}
+
+EC SECTION(".text.g5_080CEB5C") void InventoryMenu_SetPage(u8 * panel, u32 page) // 0x080CEB5C
+{
+    *(u32 *) (panel + 0xbc) = page;
+    QueuePagedPanelNumberDraw(panel, page + 1, (void *) 0x0600f0f6, 0x20, 0, 0x20);
 }
 
 EC SECTION(".text.g5_080CEB80") u32 PreviousInventoryPage(u8 * self) // 0x080CEBC0
