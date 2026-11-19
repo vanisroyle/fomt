@@ -66,7 +66,14 @@ SECTIONS
         src/sram_header.o(.text.flags);
         asm/sram_proxy_1.o(.text.tail);
         src/sram_selection.o(.text);
+        src/interrupt.o(.text);
+        asm/interrupt.o(.text.enable);
+        src/interrupt.o(.text.ack);
+        asm/interrupt.o(.text.disable);
+        src/interrupt.o(.text.set);
         asm/interrupt.o(.text);
+        src/interrupt.o(.text.wait);
+        asm/interrupt.o(.text.tail);
         src/new.o(.text);
         src/pure_virtual.o(.text);
         src/sram_proxy.o(.text);
