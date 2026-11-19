@@ -675,7 +675,7 @@ func_08003C80: @ 0x08003C80
     add r2, sp
     ldr r1, [r2]
     movs r2, #0
-    bl func_0804E7A0
+    bl FillMessageTiles
     movs r7, #0
     movs r3, #0xc
     mov sl, r3
@@ -706,7 +706,7 @@ func_08003C80: @ 0x08003C80
     adds r1, r6, #0
     movs r2, #0x10
     adds r3, r5, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     ldr r1, [r4, #4]
     ldr r0, .L08003DD8 @ =0x00002D10
     add r0, sp
@@ -722,7 +722,7 @@ func_08003C80: @ 0x08003C80
     adds r1, r6, #0
     movs r2, #0x80
     adds r3, r5, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     ldr r1, [r4, #8]
     ldr r0, .L08003DE0 @ =0x00002D14
     add r0, sp
@@ -738,7 +738,7 @@ func_08003C80: @ 0x08003C80
     adds r1, r6, #0
     movs r2, #0xc0
     adds r3, r5, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     movs r0, #0xc
     add sb, r0
     adds r7, #1
@@ -1314,7 +1314,7 @@ func_080041DC: @ 0x080041DC
     movs r1, #0
     movs r2, #0x1f
     movs r3, #0xf
-    bl func_08050CC0
+    bl CreateMessageWindow
     adds r0, r4, #0
     movs r1, #2
     bl func_08007714
@@ -1768,7 +1768,7 @@ func_08004570: @ 0x08004570
     adds r4, #0x10
     adds r0, r4, #0
     movs r1, #0x2c
-    bl func_08050E98
+    bl ClearMessageWindowButtonMask
     adds r0, r4, #0
     bl FinishOpeningMessageWindow
     adds r0, r6, #0
@@ -2926,7 +2926,7 @@ func_08004EFC: @ 0x08004EFC
     movs r1, #0
     movs r2, #0x1c
     movs r3, #4
-    bl func_08050CC0
+    bl CreateMessageWindow
     ldr r2, .L080050AC @ =0x00001A2C
     adds r1, r7, r2
     str r0, [r1]
@@ -3390,7 +3390,7 @@ func_08005278: @ 0x08005278
     ldr r0, [sp, #0x20]
     adds r1, r4, #0
     movs r2, #0
-    bl func_0804E7A0
+    bl FillMessageTiles
     movs r2, #0xc1
     lsls r2, r2, #2
     adds r4, r4, r2
@@ -3425,7 +3425,7 @@ func_08005278: @ 0x08005278
     ldr r0, [sp, #0x24]
     adds r1, r4, #0
     movs r2, #0
-    bl func_0804E7A0
+    bl FillMessageTiles
     movs r1, #0xe1
     lsls r1, r1, #2
     adds r4, r4, r1
@@ -3455,7 +3455,7 @@ func_08005278: @ 0x08005278
     adds r1, r4, #0
     movs r2, #0
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     movs r0, #0xc1
     lsls r0, r0, #2
     adds r4, r4, r0
@@ -3476,7 +3476,7 @@ func_08005278: @ 0x08005278
     adds r1, r7, #0
     movs r2, #0
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     ldr r1, .L080054BC @ =gUnk_080E8968
     add r0, sp, #0x30
     strh r4, [r0]
@@ -3487,7 +3487,7 @@ func_08005278: @ 0x08005278
     ldr r1, [sp, #0x54]
     movs r2, #0
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     ldr r1, .L080054C0 @ =gUnk_080E8978
     add r0, sp, #0x34
     strh r4, [r0]
@@ -3498,7 +3498,7 @@ func_08005278: @ 0x08005278
     ldr r1, [sp, #0x58]
     movs r2, #0
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     ldr r1, .L080054C4 @ =gUnk_080E8988
     add r0, sp, #0x38
     strh r4, [r0]
@@ -3509,7 +3509,7 @@ func_08005278: @ 0x08005278
     ldr r1, [sp, #0x6c]
     movs r2, #0
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     movs r3, #0
     mov r8, r3
     ldr r4, [sp, #0x5c]
@@ -4326,7 +4326,7 @@ func_08005A58: @ 0x08005A58
     movs r1, #0
     movs r2, #0xf
     movs r3, #4
-    bl func_08050CC0
+    bl CreateMessageWindow
     ldr r4, .L08005B28 @ =0x000045F8
     adds r1, r5, r4
     str r0, [r1]
@@ -4774,7 +4774,7 @@ func_08005CDC: @ 0x08005CDC
     ldr r0, [sp, #0x20]
     adds r1, r7, #0
     movs r2, #0
-    bl func_0804E7A0
+    bl FillMessageTiles
     ldr r1, .L08005F18 @ =gUnk_080E8BF4
     add r0, sp, #0x24
     strh r4, [r0]
@@ -4785,7 +4785,7 @@ func_08005CDC: @ 0x08005CDC
     adds r1, r7, #0
     movs r2, #0x58
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     mov r0, sl
     bl func_08008910
     movs r3, #0xf0
@@ -4972,7 +4972,7 @@ func_08005CDC: @ 0x08005CDC
     ldr r4, [sp, #0x40]
     adds r1, r4, #0
     movs r2, #0
-    bl func_0804E7A0
+    bl FillMessageTiles
     ldr r0, .L08006078 @ =0x000045FC
     add r0, sl
     ldr r1, [r0]
@@ -4986,7 +4986,7 @@ func_08005CDC: @ 0x08005CDC
     adds r1, r4, #0
     movs r2, #0
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
 .L08006032:
     mov r0, sl
     bl func_08008910
@@ -5438,7 +5438,7 @@ func_0800637C: @ 0x0800637C
     adds r1, r4, #0
     movs r2, #0x90
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     adds r0, r5, #0
     bl func_08008910
     adds r6, r0, #0
@@ -5642,7 +5642,7 @@ func_080064E8: @ 0x080064E8
     ldr r0, [sp, #0x14]
     adds r1, #0xc
     movs r2, #0
-    bl func_0804E7A0
+    bl FillMessageTiles
     movs r0, #0x8c
     lsls r0, r0, #7
     add r0, sl
@@ -5667,7 +5667,7 @@ func_080064E8: @ 0x080064E8
     str r2, [sp]
     movs r2, #0
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     mov r0, sl
     bl func_08008910
     add r4, sl
@@ -5845,7 +5845,7 @@ func_080064E8: @ 0x080064E8
     ldr r0, [sp, #0x24]
     ldr r1, [sp, #0x50]
     movs r2, #0
-    bl func_0804E7A0
+    bl FillMessageTiles
     movs r0, #0x8c
     lsls r0, r0, #7
     add r0, sl
@@ -5881,7 +5881,7 @@ func_080064E8: @ 0x080064E8
     ldr r1, [sp, #0x50]
     movs r2, #0x18
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
     b .L0800672A
     .align 2, 0
 .L08006710: .4byte gUnk_080E8C14
@@ -5895,7 +5895,7 @@ func_080064E8: @ 0x080064E8
     ldr r1, [sp, #0x50]
     movs r2, #0x18
     movs r3, #0
-    bl func_0804E8F0
+    bl DrawMessageTileString
 .L0800672A:
     mov r0, sl
     bl func_08008910

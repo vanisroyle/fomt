@@ -2,10 +2,10 @@
 #include "g5_graphics.hh"
 
 EC void func_08008EB8(u32, void *, u32);
-EC void func_0804EDB4(void *, void *, u32, u32, u32);
+EC void DrawTallMessageNumber(void *, void *, u32, u32, u32);
 EC void func_080CD578(void *);
 EC void func_080CD620(void *);
-EC void func_08050E98(void *, u32);
+EC void ClearMessageWindowButtonMask(void *, u32);
 EC void func_080CDDD4(void *);
 EC void func_080CECE8(void *);
 EC void func_080CE790(void *);
@@ -29,7 +29,7 @@ EC SECTION(".text.g5_080C8550") void func_080C8550(void ** self)
 {
     func_08008EB8(0x03ff03ff, (void *) 0x0600ff8a, 0x28);
     func_08008EB8(0x03ff03ff, (void *) 0x0600ffca, 0x28);
-    func_0804EDB4(*(void **) ((u8 *) self[2] + 0x1aa8), (void *) 0x0600ffb2, 0xa0, 0, 0x20);
+    DrawTallMessageNumber(*(void **) ((u8 *) self[2] + 0x1aa8), (void *) 0x0600ffb2, 0xa0, 0, 0x20);
 }
 
 EC SECTION(".text.g5_080CE19C") void * func_080CE19C(u8 * self)
@@ -46,10 +46,10 @@ EC SECTION(".text.g5_080CE294") void func_080CE294(u8 * self)
 {
     func_080CD620(self);
     void * buttons = self + 0x80;
-    func_08050E98(buttons, 1);
-    func_08050E98(buttons, 2);
-    func_08050E98(buttons, 4);
-    func_08050E98(buttons, 8);
+    ClearMessageWindowButtonMask(buttons, 1);
+    ClearMessageWindowButtonMask(buttons, 2);
+    ClearMessageWindowButtonMask(buttons, 4);
+    ClearMessageWindowButtonMask(buttons, 8);
 }
 
 EC SECTION(".text.g5_080CE294") void func_080CE2C4(void ** self)

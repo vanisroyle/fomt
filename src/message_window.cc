@@ -1,6 +1,7 @@
 #include "prelude.h"
 #include <new>
 #include <string.h>
+#include "gbasvc.h"
 
 struct PACKED MessageWindowFlags
 {
@@ -9,11 +10,19 @@ struct PACKED MessageWindowFlags
     u8 unused : 6;
 };
 
+struct PACKED MessageWindowInputFlags
+{
+    u32 buttons : 6;
+    u32 unused : 2;
+};
+
 struct MessageTileSize
 {
     u16 width, height;
     MessageTileSize(u16 w, u16 h) : width(w), height(h) {}
 };
+
+EC void FillMessageTiles(MessageTileSize, void *, u32);
 
 struct MessageGlyphTile
 {
@@ -35,6 +44,27 @@ struct MessageTextCursor
     u8 needsClear;
     u8 changed;
     u8 printedNonSpace;
+};
+
+struct MessageNumberCommand
+{
+    u32 links[2];
+    void * vtable;
+    u32 value;
+    u16 * tilemap;
+    u16 firstTile;
+    u16 palette;
+    u32 stride;
+};
+
+struct MessageTilemapRectCommand
+{
+    u32 links[2];
+    void * vtable;
+    u16 * tilemap;
+    u16 palette;
+    u16 firstTile;
+    u32 width, height, stride;
 };
 
 // The public dialogue handle owns a separately allocated text-window state.
@@ -59,12 +89,17 @@ struct MessageWindowState
     u8 unknown_1f1[3];
     struct { u32 fontPalette; u8 pixels[0x100]; } speakerNameTiles[3];
     u8 indicatorVisible;
+    u8 unknown_501[0x550 - 0x501];
+    MessageWindowInputFlags inputFlags;
 };
 struct MessageWindow { MessageWindowState * state; };
+struct MessageTextAdvanceGate;
 
 EC void __builtin_delete(void *);
-EC void func_0804E7A0(MessageTileSize, void *, u32);
-EC void func_0804E8F0(MessageTileSize, void *, u32, u32, const char *);
+EC void FillMessageTiles(MessageTileSize, void *, u32);
+EC u32 func_0804E4AC(MessageTileSize, void *, u32, u32, u32);
+EC u32 func_0804E5AC(MessageTileSize, void *, u32, u32, u32, u32, u32);
+EC void DrawMessageTileString(MessageTileSize, void *, u32, u32, const char *);
 EC void DrawMessageChoiceText(MessageWindowState *, const u8 &, const char *, const void *);
 EC u32 GetMessageChoicePosition(u32, u32);
 EC void func_0805E850(void *, void *, u32);
@@ -77,7 +112,9 @@ EC void func_080098AC(void *, u32);
 EC void func_080E105C(void *, u32);
 EC void func_080098DC(void *, u32);
 EC u8 vtable_unk_080E5A28[];
-EC void func_0804F0E0(void *);
+EC u8 vtable_unk_080E7868[], vtable_unk_080E7858[], vtable_unk_080E7848[], vtable_unk_080E7838[];
+EC MessageWindowState * InitializeMessageWindowState(MessageWindowState *, u32, u32, u32, u32, void *, void *);
+EC void ClearMessageTextCursor(MessageTextCursor *);
 EC void func_08009940(void *, void *);
 EC void func_080ADD5C(void *, const char *, const void *);
 EC void func_080ADD74(void *, u16);
@@ -218,7 +255,7 @@ EC SECTION(".text.message_window.0805039C") void BeginMessageWindowOpening(Messa
 {
     if (window->phase == 0)
     {
-        func_0804F0E0((u8 *) window + 0xd0);
+    ClearMessageTextCursor(&window->textCursor);
         u32 style = window->style;
         void * commands = (u8 *) window + 0x20;
         if (style != 1)
@@ -257,7 +294,7 @@ EC SECTION(".text.message_window.08050424") void SetMessageWindowStateText(Messa
         if (window->phase <= 2)
             CompleteMessageWindowOpening(window);
         else if (window->phase <= 6)
-            func_0804F0E0((u8 *) window + 0xd0);
+            ClearMessageTextCursor(&window->textCursor);
     }
     void * parser = (u8 *) window + 0xec;
     func_080ADD5C(parser, text, substitutions);
@@ -314,7 +351,7 @@ EC SECTION(".text.message_window.08050478") void SetMessageWindowStateChoices(Me
     if (window->phase >= 0)
     {
         if (window->phase <= 2) CompleteMessageWindowOpening(window);
-        else if (window->phase <= 6) func_0804F0E0(&window->textCursor);
+        else if (window->phase <= 6) ClearMessageTextCursor(&window->textCursor);
     }
     u32 layout = 4;
     u32 lineWidth = 12;
@@ -401,4 +438,215 @@ EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(Messa
     func_080073E0(resource, *((u32 *) resource + 1));
     func_08007184(resource, 2);
     if (flags & 1) operator delete(window);
+}
+
+EC SECTION(".text.message_rendering.0804E7A0") void FillMessageTiles(MessageTileSize size, void * pixels, u32 color) // 0x0804E7A0
+{
+    color &= 15;
+    color |= color << 4;
+    color |= color << 8;
+    color |= color << 16;
+    u32 width = size.width;
+    u32 bytes = size.height * 32;
+    bytes *= width;
+    u32 fill = color;
+    CpuFastSet(&fill, pixels, ((bytes >> 2) & 0x1fffff) | 0x1000000);
+}
+
+EC SECTION(".text.message_rendering.0804E8F0") void DrawMessageTileString(MessageTileSize size, void * pixels, u32 x, u32 y, const char * text) // 0x0804E8F0
+{
+    u32 lineWidth = size.width * 8;
+    u32 code = 0;
+    u32 byte = *(const u8 *) text;
+    while (byte != 0 && x < lineWidth)
+    {
+        code |= byte;
+        switch (func_0804E4AC(size, pixels, x, y, code))
+        {
+        case 1: code = 0; x += 8; break;
+        case 2: code = 0; x += 16; break;
+        case 0: break;
+        default: return;
+        }
+        text++;
+        byte = *(const u8 *) text;
+        code <<= 8;
+    }
+}
+
+EC SECTION(".text.message_rendering.0804E958") void DrawMessageTileStringWithColors(MessageTileSize size, void * pixels, u32 x, u32 y, const char * text, u32 foreground, u32 background) // 0x0804E958
+{
+    u32 lineWidth = size.width * 8;
+    u32 code = 0;
+    u32 byte = *(const u8 *) text;
+    while (byte != 0 && x < lineWidth)
+    {
+        code |= byte;
+        switch (func_0804E5AC(size, pixels, x, y, code, foreground, background))
+        {
+        case 1: code = 0; x += 8; break;
+        case 2: code = 0; x += 16; break;
+        case 0: break;
+        default: return;
+        }
+        text++;
+        byte = *(const u8 *) text;
+        code <<= 8;
+    }
+}
+
+EC SECTION(".text.message_rendering.0804E9F4") void FillMessageTilemapRect(u16 * tilemap, u16 firstTile, u32 width, u32 height, u16 palette, u32 stride) // 0x0804E9F4
+{
+    u16 * row = tilemap;
+    for (u32 y = 0; y < height; y++)
+    {
+        for (u32 x = 0; x < width; x++)
+            *tilemap++ = firstTile++ | (palette << 12);
+        row += stride;
+        tilemap = row;
+    }
+}
+
+EC SECTION(".text.message_rendering.0804EA58") MessageTilemapRectCommand * InitializeMessageTilemapRectCommand(MessageTilemapRectCommand * command, u16 * tilemap, u16 firstTile, u32 width, u32 height, u16 palette, u32 stride) // 0x0804EA58
+{
+    command->links[0] = 0;
+    command->links[1] = 0;
+    command->vtable = vtable_unk_080E7868;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->width = width;
+    command->height = height;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804EA80") void DestroyMessageTilemapRectCommand(MessageTilemapRectCommand * command, u32 flags) // 0x0804EA80
+{
+    command->vtable = vtable_unk_080E7868;
+    func_080098AC(command, flags);
+}
+
+EC SECTION(".text.message_rendering.0804EDA0") void DestroyLargeMessageNumberCommand(MessageNumberCommand * command, u32 flags) // 0x0804EDA0
+{
+    command->vtable = vtable_unk_080E7858;
+    func_080098AC(command, flags);
+}
+
+EC SECTION(".text.message_rendering.0804EE1C") void DestroyTallMessageNumberCommand(MessageNumberCommand * command, u32 flags) // 0x0804EE1C
+{
+    command->vtable = vtable_unk_080E7848;
+    func_080098AC(command, flags);
+}
+
+EC SECTION(".text.message_rendering.0804EE88") void DestroySmallMessageNumberCommand(MessageNumberCommand * command, u32 flags) // 0x0804EE88
+{
+    command->vtable = vtable_unk_080E7838;
+    func_080098AC(command, flags);
+}
+
+EC SECTION(".text.message_rendering.0804ED28") void DrawLargeMessageNumber(u32 value, u16 * tilemap, u32 firstTileArg, u32 paletteArg, u32 stride) // 0x0804ED28
+{
+    u16 firstTile = firstTileArg;
+    u16 palette = paletteArg;
+    u16 * destination = tilemap;
+    u32 paletteBits = palette << 12;
+    do
+    {
+        u32 quotient = value / 10;
+        u32 tile = firstTile + (value - quotient * 10) * 4;
+        destination[0] = (tile + 1) | paletteBits;
+        destination[-1] = paletteBits | tile;
+        destination[stride] = (tile + 3) | paletteBits;
+        destination[stride - 1] = (tile + 2) | paletteBits;
+        value = quotient;
+        destination -= 2;
+    } while (value != 0);
+}
+
+EC SECTION(".text.message_rendering.0804EDB4") void DrawTallMessageNumber(u32 value, u16 * tilemap, u32 firstTileArg, u32 paletteArg, u32 stride) // 0x0804EDB4
+{
+    u16 firstTile = firstTileArg;
+    u16 palette = paletteArg;
+    u16 * destination = tilemap;
+    u32 paletteBits = palette << 12;
+    do
+    {
+        u32 quotient = value / 10;
+        u32 tile = firstTile + (value - quotient * 10) * 2;
+        destination[0] = paletteBits | tile;
+        destination[stride] = (tile + 1) | paletteBits;
+        value = quotient;
+        destination -= 1;
+    } while (value != 0);
+}
+
+EC SECTION(".text.message_rendering.0804EE30") void DrawSmallMessageNumber(u32 value, u16 * tilemap, u32 firstTileArg, u32 paletteArg, u32 stride) // 0x0804EE30
+{
+    u16 firstTile = firstTileArg;
+    u16 palette = paletteArg;
+    u16 * destination = tilemap;
+    u32 paletteBits = palette << 12;
+    do
+    {
+        u32 quotient = value / 10;
+        u32 tile = firstTile + (value - quotient * 10) * 1;
+        destination[0] = paletteBits | tile;
+        value = quotient;
+        destination -= 1;
+    } while (value != 0);
+}
+
+EC SECTION(".text.message_rendering.0804EE64") MessageNumberCommand * InitializeSmallMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride) // 0x0804EE64
+{
+    command->links[0] = 0;
+    command->links[1] = 0;
+    command->vtable = vtable_unk_080E7838;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804EE9C") u32 RunSmallMessageNumberCommand(MessageNumberCommand * command) // 0x0804EE9C
+{
+    DrawSmallMessageNumber(command->value, command->tilemap, command->firstTile, command->palette, command->stride);
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804EEBC") u32 RunTallMessageNumberCommand(MessageNumberCommand * command) // 0x0804EEBC
+{
+    DrawTallMessageNumber(command->value, command->tilemap, command->firstTile, command->palette, command->stride);
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804EEDC") u32 RunLargeMessageNumberCommand(MessageNumberCommand * command) // 0x0804EEDC
+{
+    DrawLargeMessageNumber(command->value, command->tilemap, command->firstTile, command->palette, command->stride);
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804EEFC") u32 RunMessageTilemapRectCommand(MessageTilemapRectCommand * command) // 0x0804EEFC
+{
+    FillMessageTilemapRect(command->tilemap, command->firstTile, command->width, command->height, command->palette, command->stride);
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804F15C") u8 IsMessageTextCursorCleared(MessageTextCursor * cursor) // 0x0804F15C
+{
+    return cursor->needsClear;
+}
+
+EC SECTION(".text.message_rendering.0804F174") bool AllowMessageTextAdvance(MessageTextAdvanceGate * gate) // 0x0804F174
+{
+    return true;
+}
+
+EC SECTION(".text.message_window.08050CC0") MessageWindow * CreateMessageWindow(MessageWindow * window, u32 background, u32 tiles, u32 palette, u32 style, void * graphics, void * font) // 0x08050CC0
+{
+    MessageWindowState * state = (MessageWindowState *) operator new(0x554);
+    window->state = InitializeMessageWindowState(state, background, tiles, palette, style, graphics, font);
+    return window;
 }
