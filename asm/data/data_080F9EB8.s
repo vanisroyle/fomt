@@ -238,9 +238,10 @@ gUnk_080FADDC:
 gUnk_080FAE00:
 	.incbin "baserom.gba", 0xFAE00, 0x6A
 
-	.global gUnk_080FAE6A
-gUnk_080FAE6A:
-	.incbin "baserom.gba", 0xFAE6A, 0x32
+	.global gHorseRaceBettingGlyphCodes
+gHorseRaceBettingGlyphCodes:
+	.2byte '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', 'x', 'G'
+	.2byte 'Y', 'o', 'u', 'r', ' ', 'm', 'e', 'd', 'a', 'l', 's', 0
 
 	.global gUnk_080FAE9C
 gUnk_080FAE9C:
