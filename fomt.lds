@@ -134,6 +134,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
         asm/code_080C8360.o(.text.g5_CADB4);
+        src/g5_commands.o(.text.g5_080CAE60);
+        asm/code_080C8360.o(.text.g5_after_080CAE60);
         src/g5_helpers.o(.text.g5_080CB2E8);
         asm/code_080C8360.o(.text.g5_080CB304);
         src/g5_drawing.o(.text.g5_080CB948);
@@ -155,6 +157,8 @@ SECTIONS
         src/g5_helpers.o(.text.g5_080CE1C4);
         src/g5_panels.o(.text.g5_080CE294);
         asm/code_080C8360.o(.text.g5_after_080CE294);
+        src/g5_commands.o(.text.g5_080CE480);
+        asm/code_080C8360.o(.text.g5_after_080CE480);
         src/g5_panels.o(.text.g5_080CEB80);
         asm/code_080C8360.o(.text.g5_after_080CEB80);
         src/g5_objects.o(.text.g5_080CEC84);
