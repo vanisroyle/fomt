@@ -1599,6 +1599,8 @@ SECTIONS
     .rom_tail : ALIGN(4)
     {
         LONG(0);
+        *(.audio_overflow);
+        . = ALIGN(4);
         *(.script_overflow);
         . = ALIGN(4);
         *(.vietnamese_font);
