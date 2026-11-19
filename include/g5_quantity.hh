@@ -34,5 +34,6 @@ struct QuantitySelector
 };
 
 EC void InventoryMenu_ClearQuantitySelector(QuantitySelector * selector); // 0x080CAAF4
+EC void InventoryMenu_OpenQuantitySelector(QuantitySelector * selector, u32 unit_price, u32 limit, u32 column); // 0x080CA8B4
 
 #endif
