@@ -5,8 +5,8 @@ EC void DrawTallMessageNumber(u32, void *, u32, u32, u32);
 EC void func_08075BC8(void *, int, int);
 EC void FillMessageTilemapRect(void *, u32, u32, u32, u32, u32);
 EC void DrawSmallMessageNumber(u32, void *, u32, u32, u32);
-EC int func_080088D4(void *);
-EC void func_08008B6C(void *, u32);
+EC int HardwareContext_GetRepeatedKeys(void *);
+EC void AudioPlayer_StartSong(void *, u32);
 
 static inline u16 * GetQuantityRow(QuantitySelector * selector, u32 row_offset)
 {

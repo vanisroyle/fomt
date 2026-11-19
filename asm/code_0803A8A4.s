@@ -875,7 +875,7 @@ func_0803AEA0: @ 0x0803AEA0
 	bl func_08007C28
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	ldr r3, [sp, #0x64]
 	adds r3, #1
 	str r3, [sp, #0x64]
@@ -2185,15 +2185,9 @@ UpdateDialogWindowLayers: @ 0x0803BAAC
 	.byte 0xC1, 0x61, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x58, 0x77, 0x0E, 0x08, 0xFF, 0x03, 0x00, 0x00
 	.byte 0x1F, 0x80, 0xFF, 0xFF, 0xFF, 0x7F, 0xF8, 0xFF
 
-	.section .text.0803BFF0, "ax", %progbits
-	.align 2, 0
-.L0803BFF0:
-	.byte 0x30, 0xB5, 0x83, 0xB0, 0x06, 0x9C, 0x07, 0x9D, 0x00, 0x94, 0x01, 0x95, 0x00, 0x24, 0x02, 0x94
-	.byte 0x00, 0xF0, 0x12, 0xF8, 0x03, 0xB0, 0x30, 0xBC, 0x02, 0xBC, 0x08, 0x47
-
 	.section .text.0803C028, "ax", %progbits
-	thumb_func_start func_0803C028
-func_0803C028: @ 0x0803C028
+	thumb_func_start UpdatePauseMenuWindow
+UpdatePauseMenuWindow: @ 0x0803C028
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -2270,7 +2264,7 @@ func_0803C028: @ 0x0803C028
 	movs r1, #0xcb
 	bl AudioPlayer_StartSong
 .L0803C0B2:
-	ldr r0, .L0803C0C4 @ =gUnk_080F1A34
+	ldr r0, .L0803C0C4 @ =gPauseMenuTabLabels
 	ldrb r1, [r7, #0xc]
 	lsls r1, r1, #2
 	adds r1, r1, r0
@@ -2280,7 +2274,7 @@ func_0803C028: @ 0x0803C028
 	strb r0, [r7, #0xe]
 	b .L0803C0DC
 	.align 2, 0
-.L0803C0C4: .4byte gUnk_080F1A34
+.L0803C0C4: .4byte gPauseMenuTabLabels
 .L0803C0C8:
 	movs r0, #1
 	ands r3, r0
@@ -2333,7 +2327,7 @@ func_0803C028: @ 0x0803C028
 	ldr r2, [r0, #0x10]
 	adds r0, r3, #0
 	bl _call_via_r2
-	ldr r1, .L0803C4D4 @ =gUnk_080F1A34
+	ldr r1, .L0803C4D4 @ =gPauseMenuTabLabels
 	ldrb r0, [r7, #0xc]
 	lsls r0, r0, #2
 	adds r0, r0, r1
@@ -2795,7 +2789,7 @@ func_0803C028: @ 0x0803C028
 	b .L0803C4F8
 	.align 2, 0
 .L0803C4D0: .4byte 0x05000200
-.L0803C4D4: .4byte gUnk_080F1A34
+.L0803C4D4: .4byte gPauseMenuTabLabels
 .L0803C4D8: .4byte 0x06010000
 .L0803C4DC: .4byte 0x000001FF
 .L0803C4E0: .4byte 0xFE00FFFF
@@ -4496,7 +4490,7 @@ func_0803DA7C: @ 0x0803DA7C
 	mov sb, r4
 	ldr r1, .L0803DACC @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r4, r0, #0
 	cmp r4, #3
 	bne .L0803DB6A
@@ -4643,7 +4637,7 @@ func_0803DA7C: @ 0x0803DA7C
 	ldr r1, .L0803DBF8 @ =0x00001CD4
 	adds r0, r5, r1
 	movs r1, #3
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803DC04
 	mov r1, r8
@@ -4903,7 +4897,7 @@ func_0803DFE8: @ 0x0803DFE8
 	ldr r1, .L0803E040 @ =0x00001CD4
 	adds r4, r5, r1
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r6, r0, #0
 	cmp r6, #0x13
 	bne .L0803E0EA
@@ -5037,7 +5031,7 @@ func_0803DFE8: @ 0x0803DFE8
 .L0803E11A:
 	adds r0, r4, #0
 	movs r1, #0x13
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	mov r1, r8
 	cmp r1, #3
 	bne .L0803E158
@@ -5138,7 +5132,7 @@ func_0803E264: @ 0x0803E264
 	ldrb r6, [r4, #2]
 	ldr r1, .L0803E2B4 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r4, r0, #0
 	mov r0, r8
 	cmp r0, #2
@@ -5273,7 +5267,7 @@ func_0803E264: @ 0x0803E264
 	ldr r1, .L0803E3D4 @ =0x00001CD4
 	adds r0, r5, r1
 	movs r1, #0x19
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	mov r1, r8
 	cmp r1, #3
 	bne .L0803E3E0
@@ -5365,7 +5359,7 @@ func_0803E4A0: @ 0x0803E4A0
 	ldr r0, .L0803E4F0 @ =0x00001CD4
 	adds r4, r5, r0
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	mov r8, r0
 	cmp r0, #0xc
 	bne .L0803E56E
@@ -5477,7 +5471,7 @@ func_0803E4A0: @ 0x0803E4A0
 .L0803E5A8:
 	adds r0, r4, #0
 	movs r1, #0xc
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803E5E8
 	cmp r6, #0xe
@@ -5568,7 +5562,7 @@ func_0803E780: @ 0x0803E780
 	ldr r0, .L0803E7D0 @ =0x00001CD4
 	adds r4, r5, r0
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	mov r8, r0
 	cmp r0, #0x15
 	bne .L0803E84E
@@ -5674,7 +5668,7 @@ func_0803E780: @ 0x0803E780
 .L0803E87E:
 	adds r0, r4, #0
 	movs r1, #0x15
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803E8BC
 	cmp r6, #0xe

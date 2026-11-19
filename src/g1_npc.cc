@@ -1,4 +1,4 @@
-#include "g1_npc.hh"
+#include "g1_roster.hh"
 #include "unknown_types.hh"
 #include <string.h>
 #include <stdlib.h>
@@ -8,8 +8,6 @@ EC void Unpack(void const *, void *);
 EC u32 GetMapAvailabilityBitIndex(void *, u32, u32);
 EC void func_080A5760(void *);
 EC void DayUpdate__3NpcUi(void *, u32);
-
-EC void * func_080A0490(void *);
 
 EC SECTION(".text.g1_0809EACC") char * GetNamedNpcName(u8 * self) // 0x0809EACC
 {
@@ -79,9 +77,9 @@ EC SECTION(".text.g1_080A03A4") void SetRosterSelection(G1RosterFlags * self, u3
     self->selection = selection;
 }
 
-EC SECTION(".text.g1_080A0504") bool HasRosterEntry(void * self) // 0x080A0504
+EC SECTION(".text.g1_080A0504") bool HasRosterEntry(G1NpcRoster const * self) // 0x080A0504
 {
-    return func_080A0490(self) != nullptr;
+    return GetRosterMarriageCandidate(self) != 0;
 }
 
 EC SECTION(".text.g1_080A0A04") u8 * GetActiveScheduleNpc(u8 * self) // 0x080A0A04

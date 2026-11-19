@@ -74,7 +74,7 @@ func_080C8360: @ 0x080C8360
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	cmp r6, r4
 	bne .L080C83E4
 .L080C83FA:
@@ -95,7 +95,7 @@ func_080C8360: @ 0x080C8360
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xe3
 	lsls r2, r2, #2
 	adds r4, r5, r2
@@ -104,7 +104,7 @@ func_080C8360: @ 0x080C8360
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xe1
 	lsls r0, r0, #2
 	adds r4, r5, r0
@@ -122,7 +122,7 @@ func_080C8360: @ 0x080C8360
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xdd
 	lsls r2, r2, #2
 	adds r4, r5, r2
@@ -131,7 +131,7 @@ func_080C8360: @ 0x080C8360
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r0, #0xdb
 	lsls r0, r0, #2
 	adds r4, r5, r0
@@ -149,7 +149,7 @@ func_080C8360: @ 0x080C8360
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r2, #0xd7
 	lsls r2, r2, #2
 	adds r4, r5, r2
@@ -167,7 +167,7 @@ func_080C8360: @ 0x080C8360
 	bl func_08007C28
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_080079E8
+	bl TileHeapOwner_Destroy
 	movs r1, #0xd2
 	lsls r1, r1, #2
 	adds r0, r5, r1
@@ -213,7 +213,7 @@ func_080C8360: @ 0x080C8360
 .L080C8528:
 	adds r0, r5, #0
 	mov r1, sb
-	bl func_080086BC
+	bl HardwareContext_Destroy
 	pop {r3, r4}
 	mov r8, r3
 	mov sb, r4
@@ -320,7 +320,7 @@ func_080C85A0: @ 0x080C85A0
 	movs r1, #0
 	movs r2, #0
 	movs r3, #0x1e
-	bl func_08051320
+	bl DrawMessageFrame
 	ldr r0, .L080C87D0 @ =gUnk_080F9F78
 	ldr r0, [r0]
 	movs r1, #0xa0
@@ -9696,7 +9696,7 @@ func_080CD578: @ 0x080CD578
 	str r4, [r7, #0x78]
 	str r4, [r7, #0x7c]
 	add r0, sp, #0xc
-	bl func_0800835C
+	bl TilePool_Initialize
 	add r5, sp, #0x10
 	adds r0, r5, #0
 	bl ResourcePool_Initialize
@@ -9712,10 +9712,10 @@ func_080CD578: @ 0x080CD578
 	bl CreateMessageWindow
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_08007714
+	bl ResourcePool_Destroy
 	add r0, sp, #0xc
 	movs r1, #2
-	bl func_08008364
+	bl TilePool_Destroy
 	adds r0, r7, #0
 	add sp, #0x14
 	pop {r4, r5, r6, r7}
@@ -12550,15 +12550,15 @@ func_080CF05C: @ 0x080CF05C
 	adds r0, r5, #0
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r1, sp, #8
 	adds r0, r6, #0
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	add r1, sp, #0x10
 	adds r0, r4, #0
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CF2A0 @ =gUnk_081179AC
 	mov r8, r0
 	adds r0, r7, #0
@@ -12798,7 +12798,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E958
 	mov r1, sp
 	movs r2, #0xa
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CF33C @ =gUnk_081179E0
 	mov r8, r0
 	adds r0, r7, #0
@@ -13098,7 +13098,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E94C
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	adds r0, r7, #0
 	bl strlen
 	adds r6, r7, r0
@@ -13161,7 +13161,7 @@ func_080CF05C: @ 0x080CF05C
 	bl func_0800E94C
 	mov r1, sp
 	movs r2, #3
-	bl func_0804EC84
+	bl FormatMessageInteger
 	adds r0, r4, #0
 	bl GetDesc__C4Tool
 	mov r8, r0
@@ -13593,7 +13593,7 @@ func_080CF67C: @ 0x080CF67C
 	bl ItemCollection_GetByteCount
 	add r1, sp, #4
 	movs r2, #0
-	bl func_0804EC84
+	bl FormatMessageInteger
 	ldr r0, .L080CFA2C @ =gUnk_08117A5C
 	mov r8, r0
 	adds r0, r6, #0

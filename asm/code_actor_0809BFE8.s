@@ -1201,14 +1201,14 @@ func_0809CF34: @ 0x0809CF34
     mov r1, r8
     mov r2, sl
     mov r3, sp
-    bl func_0809D168
+    bl GenerateSpringMineOutcomes
     b .L0809D12E
 .L0809D122:
     adds r0, r6, #0
     mov r1, r8
     mov r2, sl
     mov r3, sp
-    bl func_0809D500
+    bl GenerateLakeMineOutcomes
 .L0809D12E:
     mov r0, r8
     cmp r0, #0
@@ -1241,8 +1241,8 @@ func_0809CF34: @ 0x0809CF34
     pop {r1}
     bx r1
 
-    thumb_func_start func_0809D168
-func_0809D168: @ 0x0809D168
+    thumb_func_start GenerateSpringMineOutcomes
+GenerateSpringMineOutcomes: @ 0x0809D168
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -1260,7 +1260,7 @@ func_0809D168: @ 0x0809D168
     str r0, [sp, #0x10]
     mov r0, sl
     ldr r1, [sp]
-    bl GetOutcomeChanceRow
+    bl GetSpringMineDigWeightRow
     str r0, [sp, #0x14]
     bl rand
     asrs r0, r0, #4
@@ -1314,7 +1314,7 @@ func_0809D168: @ 0x0809D168
     movs r3, #0
     ldr r4, [sp, #0x14]
     lsls r6, r4, #2
-    ldr r4, .L0809D268 @ =gUnk_08103F98
+    ldr r4, .L0809D268 @ =gSpringMineDigOutcomeWeights
 .L0809D202:
     ldr r1, [sp, #0x14]
     adds r0, r6, r1
@@ -1325,7 +1325,7 @@ func_0809D168: @ 0x0809D168
     beq .L0809D2CA
     cmp r2, r0
     bge .L0809D2C4
-    ldr r1, .L0809D26C @ =gUnk_08103F84
+    ldr r1, .L0809D26C @ =gSpringMineDigOutcomeIds
     lsls r0, r3, #2
     adds r0, r0, r1
     ldr r3, [r0]
@@ -1368,8 +1368,8 @@ func_0809D168: @ 0x0809D168
     adds r1, #2
     b .L0809D272
     .align 2, 0
-.L0809D268: .4byte gUnk_08103F98
-.L0809D26C: .4byte gUnk_08103F84
+.L0809D268: .4byte gSpringMineDigOutcomeWeights
+.L0809D26C: .4byte gSpringMineDigOutcomeIds
 .L0809D270:
     adds r2, #1
 .L0809D272:
@@ -1436,7 +1436,7 @@ func_0809D168: @ 0x0809D168
 .L0809D2DA:
     mov r0, sl
     ldr r1, [sp]
-    bl func_0809D470
+    bl GetSpringMineRockWeightRow
     str r0, [sp, #0x14]
     ldr r1, [sp, #4]
     cmp r1, #0
@@ -1488,7 +1488,7 @@ func_0809D168: @ 0x0809D168
     lsls r3, r3, #3
     adds r3, r4, r3
     add r3, sl
-    ldr r1, .L0809D368 @ =gUnk_08103FE4
+    ldr r1, .L0809D368 @ =gSpringMineRockOutcomeIds
     mov r2, ip
     lsls r0, r2, #2
     adds r0, r0, r1
@@ -1504,7 +1504,7 @@ func_0809D168: @ 0x0809D168
     strh r0, [r3, #4]
     b .L0809D3E6
     .align 2, 0
-.L0809D368: .4byte gUnk_08103FE4
+.L0809D368: .4byte gSpringMineRockOutcomeIds
 .L0809D36C: .4byte 0xFFFFFC0F
 .L0809D370:
     adds r2, #1
@@ -1547,7 +1547,7 @@ func_0809D168: @ 0x0809D168
     mov ip, r0
     ldr r1, [sp, #0x14]
     lsls r6, r1, #2
-    ldr r1, .L0809D414 @ =gUnk_0810400C
+    ldr r1, .L0809D414 @ =gSpringMineRockOutcomeWeights
     ldr r3, [sp, #0x14]
     adds r0, r6, r3
     lsls r0, r0, #1
@@ -1594,11 +1594,11 @@ func_0809D168: @ 0x0809D168
     pop {r0}
     bx r0
     .align 2, 0
-.L0809D414: .4byte gUnk_0810400C
+.L0809D414: .4byte gSpringMineRockOutcomeWeights
 
 	.section .text.0809D500, "ax", %progbits
-    thumb_func_start func_0809D500
-func_0809D500: @ 0x0809D500
+    thumb_func_start GenerateLakeMineOutcomes
+GenerateLakeMineOutcomes: @ 0x0809D500
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -1616,7 +1616,7 @@ func_0809D500: @ 0x0809D500
     str r0, [sp, #0x10]
     mov r0, sl
     ldr r1, [sp]
-    bl GetAlternateMineFloorChanceRow
+    bl GetLakeMineDigWeightRow
     str r0, [sp, #0x14]
     bl rand
     asrs r0, r0, #4
@@ -1669,7 +1669,7 @@ func_0809D500: @ 0x0809D500
     movs r3, #0
     ldr r1, [sp, #0x14]
     lsls r0, r1, #2
-    ldr r1, .L0809D5F8 @ =gUnk_08103B38
+    ldr r1, .L0809D5F8 @ =gLakeMineDigOutcomeWeights
     ldr r4, [sp, #0x14]
     adds r0, r0, r4
     lsls r0, r0, #1
@@ -1680,7 +1680,7 @@ func_0809D500: @ 0x0809D500
     beq .L0809D658
     cmp r2, r0
     bge .L0809D652
-    ldr r1, .L0809D5FC @ =gUnk_08103B10
+    ldr r1, .L0809D5FC @ =gLakeMineDigOutcomeIds
     lsls r0, r3, #2
     adds r0, r0, r1
     ldr r3, [r0]
@@ -1720,8 +1720,8 @@ func_0809D500: @ 0x0809D500
     adds r1, r7, #2
     b .L0809D602
     .align 2, 0
-.L0809D5F8: .4byte gUnk_08103B38
-.L0809D5FC: .4byte gUnk_08103B10
+.L0809D5F8: .4byte gLakeMineDigOutcomeWeights
+.L0809D5FC: .4byte gLakeMineDigOutcomeIds
 .L0809D600:
     adds r2, #1
 .L0809D602:
@@ -1788,7 +1788,7 @@ func_0809D500: @ 0x0809D500
 .L0809D66A:
     mov r0, sl
     ldr r1, [sp]
-    bl func_0809D7D8
+    bl GetLakeMineRockWeightRow
     str r0, [sp, #0x14]
     ldr r4, [sp, #4]
     cmp r4, #0
@@ -1840,7 +1840,7 @@ func_0809D500: @ 0x0809D500
     lsls r3, r3, #3
     adds r3, r4, r3
     add r3, sl
-    ldr r1, .L0809D6F8 @ =gUnk_08103C3C
+    ldr r1, .L0809D6F8 @ =gLakeMineRockOutcomeIds
     lsls r0, r7, #2
     adds r0, r0, r1
     ldr r2, [r0]
@@ -1855,7 +1855,7 @@ func_0809D500: @ 0x0809D500
     strh r0, [r3, #4]
     b .L0809D76E
     .align 2, 0
-.L0809D6F8: .4byte gUnk_08103C3C
+.L0809D6F8: .4byte gLakeMineRockOutcomeIds
 .L0809D6FC: .4byte 0xFFFFFC0F
 .L0809D700:
     adds r2, #1
@@ -1895,7 +1895,7 @@ func_0809D500: @ 0x0809D500
     movs r0, #0xff
     ands r2, r0
     movs r7, #0
-    ldr r1, .L0809D798 @ =gUnk_08103C74
+    ldr r1, .L0809D798 @ =gLakeMineRockOutcomeWeights
     ldr r3, [sp, #0x14]
     lsls r0, r3, #3
     subs r0, r0, r3
@@ -1940,7 +1940,7 @@ func_0809D500: @ 0x0809D500
     pop {r0}
     bx r0
     .align 2, 0
-.L0809D798: .4byte gUnk_08103C74
+.L0809D798: .4byte gLakeMineRockOutcomeWeights
 
 	.section .text.0809DA00, "ax", %progbits
     thumb_func_start ResolveMineOutcome
@@ -2603,16 +2603,6 @@ ResolveMineOutcome: @ 0x0809DA00
     bx r1
     .align 2, 0
 
-
-	.section .text.0809E118, "ax", %progbits
-.L0809E118:
-    .byte 0xF0, 0xB5, 0x81, 0xB0, 0x05, 0x1C, 0x0F, 0x1C
-    .byte 0x00, 0x26, 0x1E, 0xE0, 0x00, 0x24, 0x73, 0x1C, 0x13, 0xE0, 0x62, 0x00, 0xF0, 0x00, 0x80, 0x1B
-    .byte 0xC0, 0x00, 0x12, 0x18, 0xAA, 0x18, 0x90, 0x88, 0x80, 0x05, 0x80, 0x0E, 0x38, 0x18, 0x01, 0x78
-    .byte 0x01, 0x31, 0x01, 0x70, 0x51, 0x79, 0x89, 0x08, 0x79, 0x18, 0x08, 0x78, 0x01, 0x30, 0x08, 0x70
-    .byte 0x01, 0x34, 0x28, 0x1C, 0x00, 0x93, 0xFF, 0xF7, 0xA5, 0xFB, 0x00, 0x9B, 0x84, 0x42, 0xE4, 0xD3
-    .byte 0x1E, 0x1C, 0x28, 0x1C, 0xFF, 0xF7, 0xA8, 0xFB, 0x86, 0x42, 0xDB, 0xD3, 0x01, 0xB0, 0xF0, 0xBC
-    .byte 0x01, 0xBC, 0x00, 0x47
 
 	.section .text.0809E1B4, "ax", %progbits
 	.align 2, 0

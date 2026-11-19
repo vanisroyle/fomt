@@ -510,7 +510,7 @@ EC void ClearSideEntityEffectSprite(void * self);
 EC void BeginSideEntityTransition(void * self);
 EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
-EC void func_0804EC84(i32 value, char * text, u32 digits);
+EC void FormatMessageInteger(i32 value, char * text, u32 digits);
 EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
 EC void func_08032384(AActorEntity & self, u32 value, bool enabled);
 EC u32 func_08033B24(AActorEntity & self);
@@ -531,7 +531,7 @@ EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 EC void AudioPlayer_FadeOut(void * self, u32 speed);
 
-EC Bachelorette const * func_080A0878(void * data, u32 characterId);
+EC Bachelorette const * GetRosterBacheloretteByIdConst(void * data, u32 characterId);
 EC void SetMessageWindowIndicator(void * dialogue, u32 level);
 EC void ConfigureMessageWindowChoices(void * dialogue, char const * first, char const * second, char const * third, char const * fourth, char const * fifth, char const * sixth, void const * substitutions);
 
@@ -622,7 +622,7 @@ EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveIndicator
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0) && characterId != 0x1F)
     {
-        Bachelorette const * character = func_080A0878(runtime.saveData + 0x1CD4, characterId);
+        Bachelorette const * character = GetRosterBacheloretteByIdConst(runtime.saveData + 0x1CD4, characterId);
         if (character != nullptr)
         {
             u32 love = character->GetLove();
@@ -1245,7 +1245,7 @@ EC void SECTION(".text.game_state_08012AA4") GameScript_SetIntegerTextVariable(G
 {
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
-    func_0804EC84(value, formattedNumber, 0);
+    FormatMessageInteger(value, formattedNumber, 0);
     func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
 }
 
@@ -1254,7 +1254,7 @@ EC void SECTION(".text.game_state_08012ADC") GameScript_SetPaddedIntegerTextVari
 {
     GameStateRuntime & runtime = *script.runtime;
     char formattedNumber[50];
-    func_0804EC84(value, formattedNumber, minimumDigits);
+    FormatMessageInteger(value, formattedNumber, minimumDigits);
     func_0803B6B8(runtime.textVariables, variableIndex, formattedNumber);
 }
 
