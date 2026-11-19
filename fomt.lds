@@ -1464,14 +1464,17 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CCD48);
         src/g5_drawing.o(.text.g5_080CD4D4);
         src/g5_helpers.o(.text.g5_080CD534);
-        asm/code_080C8360.o(.text.g5_080CD578);
+        src/g5_initialization.o(.text.g5_080CD578);
+        asm/code_080C8360.o(.text.g5_after_080CD578);
         src/g5_context.o(.text.g5_080CD8A0);
         src/g5_navigation.o(.text.g5_080CD938);
         src/g5_objects.o(.text.g5_080CD950);
         src/g5_helpers.o(.text.g5_080CD994);
+        src/g5_initialization.o(.text.g5_080CD9B0);
         asm/code_080C8360.o(.text.g5_after_080CD950);
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
+        src/g5_navigation.o(.text.g5_080CDD7C);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);
         src/g5_positions.o(.text.g5_080CE120);
@@ -1489,6 +1492,7 @@ SECTIONS
         src/g5_panels.o(.text.g5_080CEB5C);
         src/g5_panels.o(.text.g5_080CEB80);
         asm/code_080C8360.o(.text.g5_after_080CEB80);
+        src/g5_initialization.o(.text.g5_080CEC00);
         src/g5_objects.o(.text.g5_080CEC84);
         src/g5_panels.o(.text.g5_080CECD0);
         asm/code_080C8360.o(.text.g5_after_080CECD0);
@@ -1497,6 +1501,8 @@ SECTIONS
         src/g5_item_text.o(.text.g5_080CFA38);
         src/g5_panels.o(.text.g5_080CFB28);
         asm/code_080C8360.o(.text.g5_after_080CFB28);
+        src/g5_map_graphics.o(.text.g5_080CFB5C);
+        asm/code_080C8360.o(.text.g5_after_080CFB5C);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
         src/g5_runtime.o(.text.g5_080D035C);
@@ -1504,6 +1510,7 @@ SECTIONS
         asm/code_080D035C.o(.text.g5_0490);
         src/g5_runtime.o(.text.g5_transfer);
         asm/code_080D035C.o(.text.g5_after_transfer);
+        src/g5_runtime.o(.text.g5_080D0644);
         src/g5_runtime.o(.text.g5_queries);
         asm/code_080D035C.o(.text.g5_06DC);
         src/g5_runtime.o(.text.g5_080D0704);
@@ -1514,6 +1521,7 @@ SECTIONS
         src/g5_records.o(.text.g5_080D0C78);
         src/g5_encoding.o(.text.g5_080D0CD4);
         asm/code_080D0C68.o(.text.g5_after_080D0CD4);
+        src/g5_irq.o(.text.g5_080D100C);
         asm/code_080D102C.o(.text);
 
         src/m4a_1.o(.text);

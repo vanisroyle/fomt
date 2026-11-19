@@ -211,7 +211,7 @@ func_080D0D28: @ 0x080D0D28
 Dma_ExecuteTransfer: @ 0x080D0EBC
 	stm r3!, {r0, r1, r2}
 	bx lr
-    
+
     .global func_080D0EC0
 func_080D0EC0:
 	push {lr}
@@ -419,25 +419,3 @@ sub_080D0FDC: @ 0x080D0FDC
 	pop {r4}
 	bx lr
 	.align 2, 0
-
-	thumb_func_start Irq_SetHandler
-Irq_SetHandler: @ 0x080D100C
-	ldr r2, .L080D1018 @ =gUnk_03000450
-	lsls r0, r0, #2
-	adds r2, r2, r0
-	ldr r0, [r2]
-	str r1, [r2]
-	bx lr
-	.align 2, 0
-.L080D1018: .4byte gUnk_03000450
-
-	thumb_func_start Irq_SetDispatchFlags
-Irq_SetDispatchFlags: @ 0x080D101C
-	ldr r2, .L080D1028 @ =gUnk_03000430
-	lsls r0, r0, #1
-	adds r2, r2, r0
-	ldrh r0, [r2]
-	strh r1, [r2]
-	bx lr
-	.align 2, 0
-.L080D1028: .4byte gUnk_03000430

@@ -2,10 +2,10 @@
 #include "g5_graphics.hh"
 #include "g5_inventory.hh"
 #include "g5_context.hh"
+#include "g5_initialization.hh"
 
 EC void Dma3_Fill(u32, void *, u32);
 EC void DrawTallMessageNumber(void *, void *, u32, u32, u32);
-EC void func_080CD578(void *);
 EC void func_080CD620(void *);
 EC void ClearMessageWindowButtonMask(void *, u32);
 EC void func_080CDDD4(void *);
@@ -33,9 +33,9 @@ EC SECTION(".text.g5_080C8550") void func_080C8550(void ** self)
     DrawTallMessageNumber(*(void **) ((u8 *) self[2] + 0x1aa8), (void *) 0x0600ffb2, 0xa0, 0, 0x20);
 }
 
-EC SECTION(".text.g5_080CE19C") void * func_080CE19C(u8 * self)
+EC SECTION(".text.g5_080CE19C") void * func_080CE19C(u8 * self, void * owner)
 {
-    func_080CD578(self);
+    InventoryMenu_InitializeContext(self, owner);
     *(void **) (self + 4) = vtable_unk_080E85DC;
     *(u32 *) (self + 0x8c) = 0;
     *(u32 *) (self + 0x90) = 0;
