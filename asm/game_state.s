@@ -3496,7 +3496,7 @@ func_080124D0: @ 0x080124D0
     movs r1, #0
     movs r2, #0x1f
     movs r3, #0
-    bl func_08050CC0
+    bl CreateMessageWindow
     adds r5, r6, #0
     adds r4, r0, #0
     ldr r0, [r6]
@@ -3532,7 +3532,7 @@ func_080124D0: @ 0x080124D0
     movs r1, #0
     movs r2, #0x1f
     movs r3, #0
-    bl func_08050CC0
+    bl CreateMessageWindow
     adds r5, r6, #0
     adds r4, r0, #0
     ldr r0, [r6]
