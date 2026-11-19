@@ -896,7 +896,7 @@ SECTIONS
         src/map_scene.o(.text.080ADA54);
         src/map_scene.o(.text.080ADA60);
         src/map_scene.o(.text.080ADA6C);
-        asm/code_809E804.o(.text.080ADA78);
+        src/map_scene.o(.text.080ADA78);
         src/map_scene.o(.text.080ADA84);
         src/map_scene.o(.text.080ADAA8);
         asm/code_809E804.o(.text.080ADACC);
@@ -908,10 +908,17 @@ SECTIONS
         src/map_scene.o(.text.080ADB9C);
         src/map_scene.o(.text.080ADBA8);
         asm/code_809E804.o(.text.080ADBB4);
+        src/message_window.o(.text.080ADC84);
+        asm/code_809E804.o(.text.080ADCA4);
+        src/message_window.o(.text.080ADD20);
         src/message_script.o(.text.080ADD44);
         src/message_script.o(.text.080ADD5C);
         src/message_script.o(.text.080ADD74);
         asm/code_809E804.o(.text.080ADD78);
+        src/chicken_feeding.o(.text.080AE4D8);
+        asm/code_809E804.o(.text.080AE4E4);
+        src/chicken_feeding.o(.text.080AE6C0);
+        asm/code_809E804.o(.text.080AE6CC);
         asm/code_080C8360.o(.text);
         src/g5_panels.o(.text.g5_080C8550);
         asm/code_080C8360.o(.text.g5_after_080C8550);

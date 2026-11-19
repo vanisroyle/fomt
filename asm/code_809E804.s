@@ -14422,9 +14422,6 @@ func_080AD8C4: @ 0x080AD8C4
 	.align 2, 0
 .L080AD934: .4byte 0x00001028
 
-	.section .text.080ADA78, "ax", %progbits
-	.byte 0x01, 0x49, 0x40, 0x18, 0x00, 0x68, 0x70, 0x47
-	.byte 0x24, 0x10, 0x00, 0x00
 
 	.section .text.080ADACC, "ax", %progbits
 	thumb_func_start func_080ADACC
@@ -14556,23 +14553,7 @@ func_080ADC00: @ 0x080ADC00
 	.byte 0x0E, 0xB0, 0x08, 0xBC, 0x98, 0x46, 0x70, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x84, 0xD9, 0x52, 0x08
 	.byte 0x28, 0x5A, 0x0E, 0x08
 
-	thumb_func_start func_080ADC84
-func_080ADC84: @ 0x080ADC84
-	push {r4, r5, lr}
-	adds r5, r0, #0
-	adds r4, r1, #0
-	ldr r0, [r5]
-	bl __builtin_delete
-	movs r0, #1
-	ands r0, r4
-	cmp r0, #0
-	beq .L080ADC9E
-	adds r0, r5, #0
-	bl __builtin_delete
-.L080ADC9E:
-	pop {r4, r5}
-	pop {r0}
-	bx r0
+	.section .text.080ADCA4, "ax", %progbits
 
 	thumb_func_start func_080ADCA4
 func_080ADCA4: @ 0x080ADCA4
@@ -14636,23 +14617,6 @@ func_080ADD08: @ 0x080ADD08
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_080ADD20
-func_080ADD20: @ 0x080ADD20
-	push {lr}
-	sub sp, #0x30
-	ldr r1, .L080ADD3C @ =gUnk_0852D984
-	mov r0, sp
-	bl func_0805E6CC
-	mov r0, sp
-	ldrh r0, [r0, #0x20]
-	ldr r1, .L080ADD40 @ =vtable_unk_080E5A28
-	str r1, [sp]
-	add sp, #0x30
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080ADD3C: .4byte gUnk_0852D984
-.L080ADD40: .4byte vtable_unk_080E5A28
 
 	.section .text.080ADD78, "ax", %progbits
 	thumb_func_start func_080ADD78
@@ -15544,14 +15508,7 @@ func_080ADF6C: @ 0x080ADF6C
 .L080AE4D0: .4byte vtable_unk_080E5B60
 .L080AE4D4: .4byte 0x00000888
 
-	thumb_func_start func_080AE4D8
-func_080AE4D8: @ 0x080AE4D8
-	ldr r1, .L080AE4E0 @ =0x0000092C
-	adds r0, r0, r1
-	ldrb r0, [r0]
-	bx lr
-	.align 2, 0
-.L080AE4E0: .4byte 0x0000092C
+	.section .text.080AE4E4, "ax", %progbits
 
 	thumb_func_start func_080AE4E4
 func_080AE4E4: @ 0x080AE4E4
@@ -15564,7 +15521,7 @@ func_080AE4E4: @ 0x080AE4E4
 	str r0, [sp, #0x1c]
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_080AE6C0
+	bl BlankChickenFeedingDisplay
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r1, sp, #0xc
@@ -15767,13 +15724,7 @@ func_080AE4E4: @ 0x080AE4E4
 .L080AE6B8: .4byte 0x0000043C
 .L080AE6BC: .4byte 0x00000889
 
-	thumb_func_start func_080AE6C0
-func_080AE6C0: @ 0x080AE6C0
-	push {lr}
-	bl func_08008724
-	pop {r0}
-	bx r0
-	.align 2, 0
+	.section .text.080AE6CC, "ax", %progbits
 
 	thumb_func_start func_080AE6CC
 func_080AE6CC: @ 0x080AE6CC
@@ -26781,7 +26732,7 @@ func_080B3C3C: @ 0x080B3C3C
 func_080B3C78: @ 0x080B3C78
 	push {lr}
 	ldr r0, [r0, #4]
-	bl func_080AE4D8
+	bl GetChickenFeedingResult
 	pop {r1}
 	bx r1
 

@@ -26,6 +26,8 @@ struct MapSceneAnimationSlot
     STRUCT_PAD(0x08, 0x30);
 };
 
+struct MapSceneOverlay;
+
 struct MapScene
 {
     STRUCT_PAD(0x00, 0x04);
@@ -33,6 +35,8 @@ struct MapScene
     MapSceneEntity * entities[100];
     STRUCT_PAD(0x198, 0xDB0);
     MapSceneAnimationSlot animations[13];
+    STRUCT_PAD(0x1020, 0x1024);
+    MapSceneOverlay * overlay;
 };
 
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
@@ -51,6 +55,11 @@ EC void func_080A6194(MapUpdateState & map);
 EC void func_080A6138(MapUpdateState & map);
 EC void StartMapTransitionDelay(u8 * self);
 EC bool IsMapTransitionIdle(u8 * self);
+
+EC SECTION(".text.080ADA78") MapSceneOverlay * GetMapSceneOverlay(MapScene const & scene)
+{
+    return scene.overlay;
+}
 EC void func_080A59BC(MapUpdateState & map, int x, int y, u32 pixelsPerStep);
 EC void func_080A5960(MapUpdateState & map, int x, int y);
 

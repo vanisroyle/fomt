@@ -30180,7 +30180,7 @@ DestroyMessageWindowState: @ 0x0804F69C
 	lsls r1, r1, #1
 	adds r0, r6, r1
 	movs r1, #2
-	bl func_080ADC84
+	bl DestroyMessagePortraitClips
 	movs r0, #0xea
 	lsls r0, r0, #1
 	adds r4, r6, r0
@@ -32625,7 +32625,7 @@ SetMessageWindowStatePortrait: @ 0x08050AD8
 	adds r5, r1, #0
 	cmp r5, #0
 	blo .L08050AEA
-	bl func_080ADD20
+	bl GetMessagePortraitCount
 	cmp r5, r0
 	blo .L08050AF2
 .L08050AEA:

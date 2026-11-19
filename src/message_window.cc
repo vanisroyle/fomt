@@ -35,7 +35,28 @@ EC void TaskList_Append(void *, void *);
 struct MessageScript;
 EC void StartMessageScript(MessageScript &, const char *, const void *);
 EC void SetMessageScriptRate(MessageScript &, u16);
-EC u32 func_080ADD20();
+struct MessagePortraitResources
+{
+    u32 const * volatile vtable;
+    STRUCT_PAD(0x04, 0x20);
+    u16 clipCount;
+    STRUCT_PAD(0x22, 0x30);
+};
+
+struct MessagePortraitClip
+{
+    void const * keyframes;
+    u16 length;
+};
+
+struct MessagePortraitClips
+{
+    MessagePortraitClip * entries;
+};
+
+EC void func_0805E6CC(MessagePortraitResources *, void const *);
+EC u8 const gUnk_0852D984[];
+EC u32 const vtable_unk_080E5A28[];
 EC void func_080ADCA4(void *, u32);
 EC void func_0805E860(void *, u32);
 EC const u8 gUnk_080F9F3C[];
@@ -55,6 +76,21 @@ EC void SetMessageWindowStatePortrait(MessageWindowState *, u32);
 EC void SetMessageWindowStateSpeakerName(MessageWindowState *, const char *);
 EC void SetMessageWindowStateIndicator(MessageWindowState *, u32);
 
+EC SECTION(".text.080ADC84") void DestroyMessagePortraitClips(MessagePortraitClips * clips, unsigned flags)
+{
+    __builtin_delete(clips->entries);
+    if (flags & 1)
+        __builtin_delete(clips);
+}
+
+EC SECTION(".text.080ADD20") u32 GetMessagePortraitCount()
+{
+    MessagePortraitResources resources;
+    func_0805E6CC(&resources, gUnk_0852D984);
+    u32 count = resources.clipCount;
+    resources.vtable = vtable_unk_080E5A28;
+    return count;
+}
 
 EC SECTION(".text.message_window.08050D34") i32 GetMessageWindowPhase(MessageWindow * handle)
 {
