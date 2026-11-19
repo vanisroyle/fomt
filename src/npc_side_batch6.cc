@@ -227,9 +227,9 @@ EC SideActorSprite * InitializeSideActorSpriteLayers(SideActorSprite * self, AAc
 EC void InitializeEntityBase(AEntity * self, GameObject * game, Location const & location) asm("__7AEntityP10GameObjectRC8Location");
 EC bool DogEntity_IsCarryingTarget(AActorEntity * self);
 EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x, i32 y, u32 animation, u32 facing);
-EC void func_080A4A00(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, bool flags);
+EC void InitializeAnimatedMapSpriteSinglePalette(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, bool flags);
 EC void InitializeMapSpriteSinglePalette(void * renderer, GameObject * game, u32 layer, u32 palette);
-EC void func_080A49A0(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, u32 priority, bool flags);
+EC void InitializeAnimatedMapSpriteResource(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, u32 priority, bool flags);
 EC void DestroyMapSpriteResource(void * self, u32 flags);
 EC void func_0809C0C8(ActivityNpcRecord * self, NpcPauseState const & state);
 EC void func_0809C068(ActivityNpcRecord * self, u32 activity);
@@ -404,7 +404,7 @@ EC LaunchedSpriteRenderer * InitializeLaunchedSpriteRenderer(LaunchedSpriteRende
     GameObject * game = actor->game_object;
     void * renderer = self->renderer;
     u32 animation = actor->animation;
-    func_080A4A00(renderer, bank, animation, game, 2, 7, false);
+    InitializeAnimatedMapSpriteSinglePalette(renderer, bank, animation, game, 2, 7, false);
     return self;
 }
 
@@ -458,14 +458,14 @@ EC SideActorSprite * InitializeSideActorSpriteLayers(SideActorSprite * self, AAc
         u32 animation = actor->anim_id + actor->facing;
         GameObject * game = actor->game_object;
         void * renderer = self->renderer;
-        func_080A4A00(renderer, bank, animation, game, layer, palette, hidden);
+        InitializeAnimatedMapSpriteSinglePalette(renderer, bank, animation, game, layer, palette, hidden);
     }
     {
         SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
         SideSpriteBank * bank = services->vtable->get_overlay_bank(services);
         GameObject * game = actor->game_object;
         void * renderer = self->overlay_renderer;
-        func_080A4A00(renderer, bank, 0, game, 2, 14, false);
+        InitializeAnimatedMapSpriteSinglePalette(renderer, bank, 0, game, 2, 14, false);
     }
     self->overlay_offset = overlay_offset;
     self->overlay_padding = 0;
@@ -486,14 +486,14 @@ EC SideActorSprite * InitializePrioritizedSideActorSprite(SideActorSprite * self
         u32 animation = actor->anim_id + actor->facing;
         GameObject * game = actor->game_object;
         void * renderer = self->renderer;
-        func_080A49A0(renderer, bank, animation, game, layer, palette, priority, hidden);
+        InitializeAnimatedMapSpriteResource(renderer, bank, animation, game, layer, palette, priority, hidden);
     }
     {
         SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
         SideSpriteBank * bank = services->vtable->get_overlay_bank(services);
         GameObject * game = actor->game_object;
         void * renderer = self->overlay_renderer;
-        func_080A4A00(renderer, bank, 0, game, 2, 14, false);
+        InitializeAnimatedMapSpriteSinglePalette(renderer, bank, 0, game, 2, 14, false);
     }
     self->overlay_offset = overlay_offset;
     self->overlay_padding = 0;
@@ -545,7 +545,7 @@ EC ActivityRenderSprite * InitializeActivityRenderSprite(ActivityRenderSprite * 
     self->animation = animation;
     SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(game);
     SideSpriteBank * bank = services->vtable->get_actor_bank(services);
-    func_080A4A00(self->renderer, bank, animation, game, 3, 27, false);
+    InitializeAnimatedMapSpriteSinglePalette(self->renderer, bank, animation, game, 3, 27, false);
     ActivitySpriteOverlay * overlay = variant == 1 ? new ActivitySpriteOverlay(game) : nullptr;
     self->overlay = overlay;
     return self;

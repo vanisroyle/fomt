@@ -55,5 +55,7 @@ EC void DisableJoybusSerialInterrupt(); // 0x080D0AE0
 
 EC void Joybus_HandleSerialInterrupt(); // 0x080D0704
 EC void Joybus_UpdateTransfers(); // 0x080D035C
+EC void Joybus_QueueWordExchange(u32 send_word, u32 require_handshake); // 0x080D0644
+EC void Joybus_QueueExchangeCommands(); // 0x080D05DC
 
 #endif

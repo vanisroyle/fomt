@@ -4138,7 +4138,7 @@ func_08034A14: @ 0x08034A14
     str r4, [sp, #4]
     add r4, sp, #8
     strb r6, [r4]
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     mov r0, r8
     adds r0, #0xd0
     strh r6, [r0]

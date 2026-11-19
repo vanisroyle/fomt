@@ -52,7 +52,6 @@ struct MapUpdateState
 EC u32 func_0800E324(Unk_0800E324 const & calendar);
 EC MapPatch & GetMapPatch(MapPatch & result, u32 const & flags, unsigned index, bool isWinter);
 EC void ApplyMapPatch(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, u32 y);
-EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapPatchTiles const gUnk_08106DAC;
 EC u32 const gUnk_08107438[6];
 EC bool HasRosterEntry(void * self);
@@ -181,7 +180,7 @@ struct SavedMapPatchRecord
 };
 
 EC u32 GetMapStateBit(u8 *, u32, u32);
-EC void func_080A1CBC(SavedMapPatchRecord &, u8 *, unsigned);
+EC void GetMapForageObstacle(SavedMapPatchRecord &, u8 *, unsigned);
 EC void func_080AA9C8(MapUpdateState &, SavedMapPatchRecord const &);
 EC u8 const gUnk_08107450[][2];
 
@@ -260,7 +259,7 @@ EC SECTION(".text.080AACB8") void RefreshMapTileCacheForState(MapUpdateState & s
     {
         if (static_cast<u8>(GetMapStateBit(patches, index, season)))
         {
-            func_080A1CBC(patch, patches, index);
+            GetMapForageObstacle(patch, patches, index);
             func_080AA9C8(*map, patch);
         }
         ++index;
@@ -269,7 +268,7 @@ EC SECTION(".text.080AACB8") void RefreshMapTileCacheForState(MapUpdateState & s
     {
         if (static_cast<u8>(GetMapStateBit(patches, index, season)))
         {
-            func_080A1CBC(patch, patches, index);
+            GetMapForageObstacle(patch, patches, index);
             func_080AA9C8(*map, patch);
         }
     }
@@ -293,5 +292,5 @@ EC SECTION(".text.080AAF3C") u32 SelectMapGraphicsId(MapUpdateState const & map)
     u32 houseLevel = map.save->house.GetUpgradeLevel();
     u32 coopLevel = map.save->coop.GetUpgradeLevel();
     u32 barnLevel = map.save->barn.GetUpgradeLevel();
-    return func_0803A8A4(map.mapId, season, houseLevel, coopLevel, barnLevel);
+    return GetMapGraphicsVariantId(map.mapId, season, houseLevel, coopLevel, barnLevel);
 }

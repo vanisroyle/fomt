@@ -11649,7 +11649,7 @@ func_080174C8: @ 0x080174C8
     ldrb r4, [r0]
     mov r0, sp
     adds r1, r6, #0
-    bl func_080A1CBC
+    bl GetMapForageObstacle
     mov r5, sp
     movs r2, #0
     cmp r4, #0
@@ -12494,7 +12494,7 @@ func_080179CC: @ 0x080179CC
 .L08017BB6:
     adds r0, r7, #0
     movs r1, #2
-    bl func_080AC85C
+    bl DestroyMapSceneContents
     ldr r0, .L08017BFC @ =vtable_unk_080E61A0
     str r0, [r6]
     movs r0, #1
@@ -12666,7 +12666,7 @@ func_08017C30: @ 0x08017C30
     adds r1, r6, #0
     ldr r2, .L08017D98 @ =0x000001A9
     mov r3, r8
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     adds r4, r0, #0
     ldr r1, [r5]
     cmp r4, r1
@@ -13055,7 +13055,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r0]
     cmp r0, #0
     beq .L08018072
-    bl func_0803B2A8
+    bl UpdateGameStateMapOverlay
 .L08018072:
     ldr r0, .L080180B0 @ =0x00001028
     add r0, r8
@@ -18564,7 +18564,7 @@ func_0801D104: @ 0x0801D104
     lsrs r1, r1, #0x16
     adds r0, r6, #0
     mov r3, r8
-    bl func_080A1D20
+    bl FindMapForageLocation
     adds r4, r0, #0
     movs r0, #1
     rsbs r0, r0, #0
@@ -18573,7 +18573,7 @@ func_0801D104: @ 0x0801D104
     add r0, sp, #0xc
     adds r1, r6, #0
     adds r2, r4, #0
-    bl func_080A1CBC
+    bl GetMapForageObstacle
     add r6, sp, #0xc
     ldr r1, [r7]
     adds r0, r1, #0
@@ -18796,7 +18796,7 @@ func_0801D6AC: @ 0x0801D6AC
     adds r0, r6, #0
     adds r2, r4, #0
     mov r3, sb
-    bl func_080A1D20
+    bl FindMapForageLocation
     mov r8, r0
     add r0, sp, #4
     bl __12RucksackItem
@@ -18831,7 +18831,7 @@ func_0801D6AC: @ 0x0801D6AC
     adds r0, r4, #0
     adds r1, r6, #0
     mov r2, r8
-    bl func_080A1CBC
+    bl GetMapForageObstacle
     ldr r1, [r7, #4]
     movs r2, #8
     ldrsh r0, [r4, r2]
@@ -20517,7 +20517,7 @@ func_0801EE00: @ 0x0801EE00
     adds r1, r6, #0
     adds r2, r7, #0
     mov r3, sl
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     adds r5, r0, #0
     ldr r1, [r4]
     cmp r5, r1
@@ -20551,7 +20551,7 @@ func_0801EE00: @ 0x0801EE00
     adds r1, r6, #0
     ldr r2, .L0801F148 @ =0x000001A9
     mov r3, sl
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     adds r5, r0, #0
     ldr r1, [r4]
     cmp r5, r1
