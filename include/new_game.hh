@@ -46,7 +46,11 @@ struct NewGameScene
 
 struct NewGameNameState
 {
-    STRUCT_PAD(0x0000, 0x4600);
+    STRUCT_PAD(0x0000, 0x45F0);
+    u32 unk_45F0;
+    u32 unk_45F4;
+    void * resource;
+    u32 unk_45FC;
     u32 page;
     i8 column;
     i8 row;

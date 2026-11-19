@@ -31,6 +31,66 @@ EC void func_08050E30(void * self, char const * a, char const * b, char const * 
 extern char gUnk_080E8998[];
 extern char gUnk_080E89A4[];
 extern char gUnk_080E89A8[];
+extern char gUnk_080E8C2C[];
+extern char gUnk_080E8C44[];
+extern char gUnk_080E8C48[];
+
+EC void func_08006ED8(NewGameNameState * self) SECTION(".text.func_08006ED8");
+EC void func_08006ED8(NewGameNameState * self)
+{
+    if (self->unk_463C == 0)
+        return;
+    int previous = func_08050D34(self->resource);
+    void * resource = self->resource;
+    void * a = func_080088DC(self);
+    void * b = func_08008920(self);
+    void * c = func_08008918(self);
+    void * d = func_08008940(self);
+    void * e = func_0800894C(self);
+    void * f = &self->unk_45F0;
+    switch (func_08050D3C(resource, a, b, c, d, e, f))
+    {
+    case 0:
+        if (self->unk_4638 != 0)
+        {
+            self->unk_463C = 0;
+            self->unk_4638 = 0;
+        }
+        if (self->unk_4639 != 0)
+        {
+            self->unk_4639 = 0;
+            self->unk_4636 = 1;
+            strcpy(self->name, self->trimmed_name);
+        }
+        func_08050D5C(self->resource);
+        break;
+    case 1: break;
+    case 2: break;
+    case 3:
+        switch (previous)
+        {
+        case 4: case 5: break;
+        default:
+            func_08050D74(self->resource);
+            break;
+        case 1:
+            if (self->unk_463C == 1)
+                func_08050E30(self->resource, gUnk_080E8C2C, gUnk_080E8C44, gUnk_080E8C48, 0, 0, 0);
+            break;
+        case 6:
+            switch (func_08050DF0(self->resource))
+            {
+            case 1: self->unk_4639 = 1; break;
+            case 2: self->unk_4638 = 1; break;
+            }
+            break;
+        }
+        break;
+    case 4: break;
+    case 5: break;
+    case 6: break;
+    }
+}
 
 EC void func_08005800(NewGameChoiceState * self) SECTION(".text.func_08005800");
 EC void func_08005800(NewGameChoiceState * self)

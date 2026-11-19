@@ -112,6 +112,8 @@ SECTIONS
         asm/new_game.o(.text.after_08006C28);
         src/new_game.o(.text.func_08006C60);
         asm/new_game.o(.text.after_08006C60);
+        src/new_game.o(.text.func_08006ED8);
+        asm/new_game.o(.text.after_08006ED8);
         src/new_game.o(.text.func_08007078);
         asm/new_game.o(.text.after_08007078);
         src/new_game.o(.text.func_080070A4);
