@@ -12494,7 +12494,7 @@ func_080179CC: @ 0x080179CC
 .L08017BB6:
     adds r0, r7, #0
     movs r1, #2
-    bl func_080AC85C
+    bl DestroyMapSceneContents
     ldr r0, .L08017BFC @ =vtable_unk_080E61A0
     str r0, [r6]
     movs r0, #1
