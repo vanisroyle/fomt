@@ -61,6 +61,8 @@ SECTIONS
     {
         src/crt0.o(.rom_header);
         asm/main.o(.text);
+        src/hardware.o(.text.Boot_SoftResetFromKeys);
+        asm/main.o(.text.after_08000240);
         src/sram_header.o(.text);
         asm/sram_proxy_1.o(.text);
         src/sram_header.o(.text.flags);
@@ -194,12 +196,16 @@ SECTIONS
         asm/hardware.o(.text.after_08008DB8);
         src/hardware.o(.text.Audio_StopAllPlayers);
         asm/hardware.o(.text.after_08008DE8);
+        src/hardware.o(.text.Dma3_Copy);
+        asm/hardware.o(.text.after_08008E64);
         src/hardware.o(.text.Dma3_Fill);
         asm/hardware.o(.text.after_08008EB8);
         src/hardware.o(.text.DmaCommand_InitializeCopy);
         asm/hardware.o(.text.after_08008F0C);
         src/hardware.o(.text.DmaCommand_InitializeFill);
         asm/hardware.o(.text.after_08008F60);
+        src/hardware.o(.text.DmaCommand_ExecuteRange);
+        asm/hardware.o(.text.after_08008FE4);
         src/hardware.o(.text.DmaCommand_ExecuteCpuRange);
         asm/hardware.o(.text.after_08009094);
         src/hardware.o(.text.Keys_ReadHardware);

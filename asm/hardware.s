@@ -1956,53 +1956,7 @@ func_08008980: @ 0x08008980
     .byte 0x02, 0x0C, 0x80, 0x20, 0x00, 0x06, 0x02, 0x43, 0x00, 0xE0, 0x00, 0x22, 0x10, 0x1C, 0x02, 0xBC
     .byte 0x08, 0x47, 0x00, 0x00
 
-    thumb_func_start Dma3_Copy
-Dma3_Copy: @ 0x08008E64
-    push {r4, lr}
-    cmp r0, #0
-    beq .L08008EAC
-    cmp r1, #0
-    beq .L08008EAC
-    adds r4, r0, #0
-    cmp r2, #0
-    beq .L08008EA2
-    adds r3, r4, #0
-    orrs r3, r1
-    orrs r3, r2
-    movs r0, #1
-    ands r0, r3
-    cmp r0, #0
-    bne .L08008EA2
-    movs r0, #3
-    ands r3, r0
-    cmp r3, #0
-    bne .L08008E96
-    lsls r0, r2, #0xe
-    lsrs r2, r0, #0x10
-    movs r0, #0x84
-    lsls r0, r0, #0x18
-    orrs r2, r0
-    b .L08008EA4
-.L08008E96:
-    lsls r0, r2, #0xf
-    lsrs r2, r0, #0x10
-    movs r0, #0x80
-    lsls r0, r0, #0x18
-    orrs r2, r0
-    b .L08008EA4
-.L08008EA2:
-    movs r2, #0
-.L08008EA4:
-    ldr r3, .L08008EB4 @ =0x040000D4
-    adds r0, r4, #0
-    bl Dma_ExecuteTransfer
-.L08008EAC:
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08008EB4: .4byte 0x040000D4
-
+    .section .text.after_08008E64, "ax"
     .section .text.after_08008EB8, "ax"
     .section .text.after_08008F0C, "ax"
     .section .text.after_08008F60, "ax"
@@ -2012,38 +1966,7 @@ Dma3_Copy: @ 0x08008E64
     .byte 0x20, 0x1C, 0xC7, 0xF0, 0x73, 0xFF, 0x01, 0xB0, 0x10, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
     .byte 0xD4, 0x00, 0x00, 0x04
 
-    thumb_func_start DmaCommand_ExecuteRange
-DmaCommand_ExecuteRange: @ 0x08008FE4
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r5, r1, #0
-    ldr r6, .L08009018 @ =0x040000D4
-    adds r4, r0, #0
-    cmp r4, r5
-    beq .L08009010
-.L08008FF2:
-    ldr r3, [r4, #4]
-    ldr r0, [r4]
-    cmp r0, #1
-    bne .L08008FFE
-    str r3, [sp]
-    mov r3, sp
-.L08008FFE:
-    ldr r1, [r4, #8]
-    ldr r2, [r4, #0xc]
-    adds r0, r3, #0
-    adds r3, r6, #0
-    bl Dma_ExecuteTransfer
-    adds r4, #0x10
-    cmp r4, r5
-    bne .L08008FF2
-.L08009010:
-    add sp, #4
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08009018: .4byte 0x040000D4
+    .section .text.after_08008FE4, "ax"
 .L0800901C:
     .byte 0xF0, 0xB5, 0x82, 0xB0
     .byte 0x01, 0x1C, 0x4C, 0x68, 0x08, 0x68, 0x01, 0x28, 0x01, 0xD1, 0x00, 0x94, 0x6C, 0x46, 0xCE, 0x68

@@ -727,6 +727,17 @@ inline u32 Dma_BuildCopyControl(u32 source, u32 destination, u32 byte_count)
 
 EC void Dma_ExecuteTransfer(void const *, void *, u32, void volatile *);
 
+// 0x08008E64
+EC void SECTION(".text.Dma3_Copy") Dma3_Copy(void const * source, void * destination, u32 byte_count)
+{
+    if (source != nullptr && destination != nullptr)
+    {
+        void const * transfer_source = source;
+        u32 control = Dma_BuildCopyControl(u32(transfer_source), u32(destination), byte_count);
+        Dma_ExecuteTransfer(transfer_source, destination, control, reinterpret_cast<void volatile *>(0x040000D4));
+    }
+}
+
 // 0x08008EB8
 EC void SECTION(".text.Dma3_Fill") Dma3_Fill(u32 fill_value, void * destination, u32 byte_count)
 {
@@ -745,6 +756,24 @@ struct DmaCommand
     void * destination;
     u32 control_flags;
 };
+
+// 0x08008FE4
+EC void SECTION(".text.DmaCommand_ExecuteRange") DmaCommand_ExecuteRange(DmaCommand const * begin, DmaCommand const * end)
+{
+    DmaCommand const * limit = end;
+    void volatile * channel = reinterpret_cast<void volatile *>(0x040000D4);
+    for (DmaCommand const * command = begin; command != limit; ++command)
+    {
+        void const * source = reinterpret_cast<void const *>(command->source_or_fill_value);
+        u32 fill_value;
+        if (command->is_fill == 1)
+        {
+            fill_value = u32(source);
+            source = &fill_value;
+        }
+        Dma_ExecuteTransfer(source, command->destination, command->control_flags, channel);
+    }
+}
 
 // 0x08008F0C
 EC SECTION(".text.DmaCommand_InitializeCopy") DmaCommand * DmaCommand_InitializeCopy(
@@ -1311,6 +1340,37 @@ EC void SECTION(".text.TaskList_SwapHeads") TaskList_SwapHeads(TaskList * self, 
 }
 
 EC void ResourceHandles_Destroy(ResourceHandleOwner * self, u32 destructor_flags) ALIAS(_._19ResourceHandleOwner);
+
+struct BootDmaChannel
+{
+    u32 source;
+    u32 destination;
+    u16 count;
+    u16 volatile control;
+};
+
+inline void Boot_StopDmaChannel(BootDmaChannel * channel)
+{
+    u16 volatile * registers = reinterpret_cast<u16 volatile *>(channel);
+    registers[5] = registers[5] & 0xC5FF;
+    registers[5] = registers[5] & 0x7FFF;
+    (void)registers[5];
+}
+
+// 0x08000240
+EC void SECTION(".text.Boot_SoftResetFromKeys") Boot_SoftResetFromKeys()
+{
+    Irq_Disable(0xFFFF);
+    *reinterpret_cast<u16 volatile *>(0x04000000) = 0x80;
+    *reinterpret_cast<u8 volatile *>(0x04000084) = 0;
+    while ((0xF & ~*reinterpret_cast<u16 volatile *>(0x04000130)) != 0) {}
+    Boot_StopDmaChannel(reinterpret_cast<BootDmaChannel *>(0x040000B0));
+    Boot_StopDmaChannel(reinterpret_cast<BootDmaChannel *>(0x040000BC));
+    Boot_StopDmaChannel(reinterpret_cast<BootDmaChannel *>(0x040000C8));
+    Boot_StopDmaChannel(reinterpret_cast<BootDmaChannel *>(0x040000D4));
+    SoftReset(0xFF);
+    for (;;) {}
+}
 
 struct DmaTransferQueue
 {
