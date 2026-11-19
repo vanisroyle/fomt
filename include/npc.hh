@@ -36,10 +36,10 @@ struct Npc
     /* +09 */ bool gifted_today : 1;
     /* +0A */ bool met : 1;
     /* +0A */ u32 : 0;
-    /* +0C */ u32 unk_0C_0 : 5;
-    /* +0C */ u32 unk_0C_5 : 5;
-    /* +0D */ u32 unk_0D_2 : 5;
-    /* +0D */ u32 unk_0D_7 : 10;
+    /* +0C */ u32 schedule_index : 5;
+    /* +0C */ u32 schedule_path_index : 5;
+    /* +0D */ u32 path_point_index : 5;
+    /* +0D */ u32 path_point_elapsed_ticks : 10;
     /* +10 */ u16 unk_10;
     /* +12 */ u16 anim_id;
 };

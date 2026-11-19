@@ -227,7 +227,7 @@ func_08032690: @ 0x08032690
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L080327BC
 .L080327A2:
     adds r4, r5, #0
@@ -239,7 +239,7 @@ func_08032690: @ 0x08032690
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L080327BC:
@@ -344,7 +344,7 @@ func_08032690: @ 0x08032690
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0803289E
 .L08032884:
     adds r4, r5, #0
@@ -356,7 +356,7 @@ func_08032690: @ 0x08032690
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0803289E:
@@ -3870,7 +3870,7 @@ func_08034A14: @ 0x08034A14
     str r4, [sp, #4]
     add r4, sp, #8
     strb r6, [r4]
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     mov r0, r8
     adds r0, #0xd0
     strh r6, [r0]
@@ -3999,7 +3999,7 @@ DrawSpriteWorkerEffectLayer: @ 0x08034AE8
     adds	r1, #16
     adds	r0, r6, #0
     movs	r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08034BE6
 .L08034BCC:
     adds	r4, r6, #0
@@ -4011,7 +4011,7 @@ DrawSpriteWorkerEffectLayer: @ 0x08034AE8
     adds	r1, #16
     adds	r0, r6, #0
     movs	r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs	r0, #1
     strb	r0, [r4, #0]
 .L08034BE6:

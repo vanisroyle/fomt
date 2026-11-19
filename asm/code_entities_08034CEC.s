@@ -1885,7 +1885,7 @@ func_08037D74: @ 0x08037D74
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L08037E0C:
@@ -1981,7 +1981,7 @@ func_08037F7C: @ 0x08037F7C
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L0803801C:
@@ -2547,7 +2547,7 @@ func_080385B0: @ 0x080385B0
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0803870A
 .L080386F0:
     adds r4, r6, #0
@@ -2559,7 +2559,7 @@ func_080385B0: @ 0x080385B0
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0803870A:
@@ -2630,7 +2630,7 @@ func_08038820: @ 0x08038820
     adds r1, r4, #0
     movs r2, #6
     movs r3, #0x1b
-    bl func_080A4740
+    bl InitializeMapSpriteSinglePalette
     ldr r0, .L080388A0 @ =vtable_unk_080E602C
     str r0, [r6, #0x24]
     movs r1, #0x28
@@ -2704,7 +2704,7 @@ func_08038820: @ 0x08038820
 .L080388FC:
     adds r0, r4, #0
     movs r1, #2
-    bl func_080A47B4
+    bl DestroyMapSpriteResource
     adds r4, #0x50
     cmp r4, r5
     bne .L080388FC
@@ -3027,7 +3027,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08038B7E
 .L08038B68:
     ldrb r0, [r5, #2]
@@ -3037,7 +3037,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r5, #2]
 .L08038B7E:
@@ -3130,7 +3130,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L08038C30:
@@ -3205,7 +3205,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r5, #0
     movs r2, #0
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L08038CC8:
@@ -3317,7 +3317,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L08038DC2
 .L08038DA8:
     adds r4, r6, #0
@@ -3329,7 +3329,7 @@ func_08038A70: @ 0x08038A70
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L08038DC2:
@@ -3432,7 +3432,7 @@ func_08038EE0: @ 0x08038EE0
     movs r2, #1
 .L08038F6A:
     adds r3, r6, #0
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     ldr r0, [r5]
     cmp r0, #4
     bhi .L08038FCC
@@ -3482,7 +3482,7 @@ func_08038EE0: @ 0x08038EE0
 .L08038FCC:
     add r0, sp, #0xc
     movs r1, #2
-    bl func_080A47B4
+    bl DestroyMapSpriteResource
     b .L08039064
     .align 2, 0
 .L08038FD8: .4byte vtable_unk_080E681C
@@ -3502,7 +3502,7 @@ func_08038EE0: @ 0x08038EE0
     add r0, sp, #0xc
     movs r2, #0
     adds r3, r6, #0
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     ldr r0, [r5]
     cmp r0, #4
     bhi .L0803905C
@@ -3552,7 +3552,7 @@ func_08038EE0: @ 0x08038EE0
 .L0803905C:
     add r0, sp, #0xc
     movs r1, #2
-    bl func_080A47B4
+    bl DestroyMapSpriteResource
 .L08039064:
     movs r1, #0xa2
     lsls r1, r1, #1
@@ -5086,7 +5086,7 @@ func_08039F90: @ 0x08039F90
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     b .L0803A0A4
 .L0803A08A:
     adds r4, r6, #0
@@ -5098,7 +5098,7 @@ func_08039F90: @ 0x08039F90
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #1
     strb r0, [r4]
 .L0803A0A4:
@@ -5170,7 +5170,7 @@ func_08039F90: @ 0x08039F90
     adds r1, #0x10
     adds r0, r6, #0
     movs r2, #1
-    bl func_080A4944
+    bl LoadMapSpriteResourcePalettes
     movs r0, #0
     strb r0, [r4]
 .L0803A134:

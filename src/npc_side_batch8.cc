@@ -201,7 +201,7 @@ EC u32 GetNamedNpcAgeDays(u8 * npc);
 EC bool IsFamilyScheduleAwayFromHome(void const * world, GameTime const & time);
 EC bool CanAdvanceScheduledNpcPath(AActorEntity * self);
 EC void func_08032384(AActorEntity * self, u32 state, u32 argument);
-EC ScheduleInfo const gUnk_080F29C0;
+EC ScheduleInfo const gChildScheduleInfo;
 EC ScheduleEntry const * func_080D7ECC(ScheduleEntry const *, ScheduleEntry const *, i32 const *, u32, u32);
 EC void ReadSpriteWorkerTaskLocation(SpriteWorkerLocationStorage *, AEntity const *) asm("GetLocation__C7AEntity");
 EC void FindSpriteWorkerTask(SpriteWorkerTaskStorage *, void *, GameObject *, SpriteWorkerLocationStorage const *, HarvestSprite::Task, SpriteWorkTarget *) asm("func_080330F4");
@@ -388,7 +388,7 @@ EC bool TryAssignSpriteWorkerTask(SpriteWorkerEntity * self)
 EC bool IsFamilyScheduleAwayFromHome(void const * world, GameTime const & time) NPC_SIDE_CODE(08034C64);
 EC bool IsFamilyScheduleAwayFromHome(void const * world, GameTime const & time)
 {
-    Schedule const * schedule = gUnk_080F29C0.schedules[gUnk_080F29C0.select_schedule(world)];
+    Schedule const * schedule = gChildScheduleInfo.schedules[gChildScheduleInfo.select_schedule(world)];
     if (schedule != nullptr)
     {
         i32 hour = u32(time.clock_hour) - 6;

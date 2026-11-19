@@ -227,23 +227,23 @@ EC SideActorSprite * InitializeSideActorSpriteLayers(SideActorSprite * self, AAc
 EC void InitializeEntityBase(AEntity * self, GameObject * game, Location const & location) asm("__7AEntityP10GameObjectRC8Location");
 EC bool DogEntity_IsCarryingTarget(AActorEntity * self);
 EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x, i32 y, u32 animation, u32 facing);
-EC void func_080A4A00(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, bool flags);
-EC void func_080A4740(void * renderer, GameObject * game, u32 layer, u32 palette);
-EC void func_080A49A0(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, u32 priority, bool flags);
-EC void func_080A47B4(void * self, u32 flags);
+EC void InitializeAnimatedMapSpriteSinglePalette(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, bool flags);
+EC void InitializeMapSpriteSinglePalette(void * renderer, GameObject * game, u32 layer, u32 palette);
+EC void InitializeAnimatedMapSpriteResource(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, u32 priority, bool flags);
+EC void DestroyMapSpriteResource(void * self, u32 flags);
 EC void func_0809C0C8(ActivityNpcRecord * self, NpcPauseState const & state);
 EC void func_0809C068(ActivityNpcRecord * self, u32 activity);
 EC void func_08032384(AActorEntity * self, u32 activity, u32 flags);
 EC void AEntity_PlayAnimationSound(AEntity * self, u32 sound);
 EC u32 RollEntityMovementRandom(u32 limit);
 
-inline SideTransitionSprite::~SideTransitionSprite() { func_080A47B4(this, 2); }
+inline SideTransitionSprite::~SideTransitionSprite() { DestroyMapSpriteResource(this, 2); }
 
 inline ActivitySpriteOverlay::ActivitySpriteOverlay(GameObject * game)
 {
     SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(game);
     SideSpriteBank * bank = services->vtable->get_actor_bank(services);
-    func_080A4740(this, game, 2, 15);
+    InitializeMapSpriteSinglePalette(this, game, 2, 15);
     reinterpret_cast<void const **>(this)[9] = vtable_unk_080E602C;
     new (&frame) SideSpriteFrame(bank->GetFrame(bank->GetClip(2330).keyframes[0].frame));
     refresh_frame = 1;
@@ -253,7 +253,7 @@ inline SideTransitionSprite::SideTransitionSprite(GameObject * game)
 {
     SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(game);
     SideSpriteBank * bank = services->vtable->get_transition_bank(services);
-    func_080A4740(this, game, 6, 27);
+    InitializeMapSpriteSinglePalette(this, game, 6, 27);
     reinterpret_cast<void const **>(this)[9] = vtable_unk_080E602C;
     new (&frame) SideSpriteFrame(bank->GetFrame(bank->GetClip(0).keyframes[0].frame));
     refresh_frame = 1;
@@ -404,7 +404,7 @@ EC LaunchedSpriteRenderer * InitializeLaunchedSpriteRenderer(LaunchedSpriteRende
     GameObject * game = actor->game_object;
     void * renderer = self->renderer;
     u32 animation = actor->animation;
-    func_080A4A00(renderer, bank, animation, game, 2, 7, false);
+    InitializeAnimatedMapSpriteSinglePalette(renderer, bank, animation, game, 2, 7, false);
     return self;
 }
 
@@ -417,7 +417,7 @@ EC ReactionSpriteRenderer * InitializeReactionSpriteRenderer(ReactionSpriteRende
     SideSpriteBank * bank = services->vtable->get_bank(services);
     GameObject * game = actor->game_object;
     void * renderer = self->renderer;
-    func_080A4740(renderer, game, 2, 10);
+    InitializeMapSpriteSinglePalette(renderer, game, 2, 10);
     reinterpret_cast<void const **>(renderer)[9] = vtable_unk_080E602C;
     new (&self->frame) SideSpriteFrame(bank->GetFrame(bank->GetClip(125).keyframes[0].frame));
     self->refresh_frame = 1;
@@ -433,7 +433,7 @@ EC ReactionSpriteRenderer * InitializeTimedReactionSpriteRenderer(ReactionSprite
     SideSpriteBank * bank = services->vtable->get_bank(services);
     GameObject * game = actor->game_object;
     void * renderer = self->renderer;
-    func_080A4740(renderer, game, 2, 8);
+    InitializeMapSpriteSinglePalette(renderer, game, 2, 8);
     reinterpret_cast<void const **>(renderer)[9] = vtable_unk_080E602C;
     new (&self->frame) SideSpriteFrame(bank->GetFrame(bank->GetClip(53).keyframes[0].frame));
     self->refresh_frame = 1;
@@ -458,14 +458,14 @@ EC SideActorSprite * InitializeSideActorSpriteLayers(SideActorSprite * self, AAc
         u32 animation = actor->anim_id + actor->facing;
         GameObject * game = actor->game_object;
         void * renderer = self->renderer;
-        func_080A4A00(renderer, bank, animation, game, layer, palette, hidden);
+        InitializeAnimatedMapSpriteSinglePalette(renderer, bank, animation, game, layer, palette, hidden);
     }
     {
         SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
         SideSpriteBank * bank = services->vtable->get_overlay_bank(services);
         GameObject * game = actor->game_object;
         void * renderer = self->overlay_renderer;
-        func_080A4A00(renderer, bank, 0, game, 2, 14, false);
+        InitializeAnimatedMapSpriteSinglePalette(renderer, bank, 0, game, 2, 14, false);
     }
     self->overlay_offset = overlay_offset;
     self->overlay_padding = 0;
@@ -486,14 +486,14 @@ EC SideActorSprite * InitializePrioritizedSideActorSprite(SideActorSprite * self
         u32 animation = actor->anim_id + actor->facing;
         GameObject * game = actor->game_object;
         void * renderer = self->renderer;
-        func_080A49A0(renderer, bank, animation, game, layer, palette, priority, hidden);
+        InitializeAnimatedMapSpriteResource(renderer, bank, animation, game, layer, palette, priority, hidden);
     }
     {
         SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
         SideSpriteBank * bank = services->vtable->get_overlay_bank(services);
         GameObject * game = actor->game_object;
         void * renderer = self->overlay_renderer;
-        func_080A4A00(renderer, bank, 0, game, 2, 14, false);
+        InitializeAnimatedMapSpriteSinglePalette(renderer, bank, 0, game, 2, 14, false);
     }
     self->overlay_offset = overlay_offset;
     self->overlay_padding = 0;
@@ -545,7 +545,7 @@ EC ActivityRenderSprite * InitializeActivityRenderSprite(ActivityRenderSprite * 
     self->animation = animation;
     SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(game);
     SideSpriteBank * bank = services->vtable->get_actor_bank(services);
-    func_080A4A00(self->renderer, bank, animation, game, 3, 27, false);
+    InitializeAnimatedMapSpriteSinglePalette(self->renderer, bank, animation, game, 3, 27, false);
     ActivitySpriteOverlay * overlay = variant == 1 ? new ActivitySpriteOverlay(game) : nullptr;
     self->overlay = overlay;
     return self;

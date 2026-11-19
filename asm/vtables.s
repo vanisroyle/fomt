@@ -320,7 +320,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateGetMapWidthPixels
 	.word GameStateGetMapHeightPixels
 	.word GameStateGetMapTerrain @ 34
-	.word func_0801A8E0
+	.word GameStateRespawnActor
 	.word GameStateRemoveEntitySlot
 	.word GameStateGetEntitySlot
 	.word GameStateGetConstEntitySlot
@@ -354,7 +354,7 @@ vtable_unk_080E5EC4: @ game object
 	.word func_08019BEC
 	.word GameStateRefreshMapDaylight
 	.word func_0801EAA0
-	.word func_0801C29C
+	.word GameStateHoeFarmPlot
 	.word 0x0801CA1D
 	.word 0x0801C49D
 	.word 0x0801CAD9
@@ -1345,6 +1345,8 @@ vtable_unk_080E850C:
 	.incbin "baserom.gba", 0xE850C, 0x10
 
 	.global vtable_unk_080E851C
+	.global __vt_20ChickenFestivalScene
+__vt_20ChickenFestivalScene:
 vtable_unk_080E851C:
 	.incbin "baserom.gba", 0xE851C, 0xC
 
@@ -1353,6 +1355,8 @@ vtable_unk_080E8528:
 	.incbin "baserom.gba", 0xE8528, 0x10
 
 	.global vtable_unk_080E8538
+	.global __vt_21SpriteHarvestingScene
+__vt_21SpriteHarvestingScene:
 vtable_unk_080E8538:
 	.incbin "baserom.gba", 0xE8538, 0xC
 
