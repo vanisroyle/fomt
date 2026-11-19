@@ -1241,33 +1241,7 @@ func_08036430: @ 0x08036430
 
     .section .text.npc_extra.08036590, "ax", %progbits
 
-    thumb_func_start func_08036590
-func_08036590: @ 0x08036590
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L080365BC @ =gUnk_080F5D94
-    str r0, [sp]
-    ldr r0, .L080365C0 @ =0x00000884
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    ldr r0, .L080365C4 @ =0x000003FA
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L080365C8 @ =vtable_unk_080E6C98
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L080365BC: .4byte gUnk_080F5D94
-.L080365C0: .4byte 0x00000884
-.L080365C4: .4byte 0x000003FA
-.L080365C8: .4byte vtable_unk_080E6C98
+    .section .text.npc_extra.080365CC, "ax", %progbits
 
     thumb_func_start func_080365CC
 func_080365CC: @ 0x080365CC
@@ -1352,63 +1326,7 @@ func_080365CC: @ 0x080365CC
 
     .section .text.npc_extra.080366CC, "ax", %progbits
 
-    thumb_func_start func_080366CC
-func_080366CC: @ 0x080366CC
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L080366F8 @ =gUnk_080F6DE8
-    str r0, [sp]
-    ldr r0, .L080366FC @ =0x000008EC
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    movs r0, #0x80
-    lsls r0, r0, #3
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036700 @ =vtable_unk_080E6C58
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L080366F8: .4byte gUnk_080F6DE8
-.L080366FC: .4byte 0x000008EC
-.L08036700: .4byte vtable_unk_080E6C58
-
     .section .text.npc_extra.08036730, "ax", %progbits
-
-    thumb_func_start func_08036730
-func_08036730: @ 0x08036730
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L0803675C @ =gUnk_080F2AF8
-    str r0, [sp]
-    ldr r0, .L08036760 @ =0x0000027B
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    movs r0, #0xf9
-    lsls r0, r0, #2
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036764 @ =vtable_unk_080E6C18
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0803675C: .4byte gUnk_080F2AF8
-.L08036760: .4byte 0x0000027B
-.L08036764: .4byte vtable_unk_080E6C18
 
     .section .text.npc_extra.08036768, "ax", %progbits
 
@@ -1448,93 +1366,11 @@ func_08036768: @ 0x08036768
 
     .section .text.npc_extra.080367F8, "ax", %progbits
 
-    thumb_func_start func_080367F8
-func_080367F8: @ 0x080367F8
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L08036824 @ =gUnk_080F42F0
-    str r0, [sp]
-    ldr r0, .L08036828 @ =0x000007B2
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    ldr r0, .L0803682C @ =0x000003F2
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036830 @ =vtable_unk_080E6BD8
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036824: .4byte gUnk_080F42F0
-.L08036828: .4byte 0x000007B2
-.L0803682C: .4byte 0x000003F2
-.L08036830: .4byte vtable_unk_080E6BD8
-
     .section .text.npc_extra.08036860, "ax", %progbits
-
-    thumb_func_start func_08036860
-func_08036860: @ 0x08036860
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L0803688C @ =gUnk_080F4974
-    str r0, [sp]
-    ldr r0, .L08036890 @ =0x000007F2
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    movs r0, #0xfd
-    lsls r0, r0, #2
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036894 @ =vtable_unk_080E6B98
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0803688C: .4byte gUnk_080F4974
-.L08036890: .4byte 0x000007F2
-.L08036894: .4byte vtable_unk_080E6B98
 
     .section .text.npc_extra.080368C4, "ax", %progbits
 
-    thumb_func_start func_080368C4
-func_080368C4: @ 0x080368C4
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L080368F0 @ =gUnk_080F43DC
-    str r0, [sp]
-    ldr r0, .L080368F4 @ =0x000007BE
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    ldr r0, .L080368F8 @ =0x000003F3
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L080368FC @ =vtable_unk_080E6B58
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L080368F0: .4byte gUnk_080F43DC
-.L080368F4: .4byte 0x000007BE
-.L080368F8: .4byte 0x000003F3
-.L080368FC: .4byte vtable_unk_080E6B58
+    .section .text.npc_extra.08036900, "ax", %progbits
 
     thumb_func_start func_08036900
 func_08036900: @ 0x08036900
@@ -1626,92 +1462,9 @@ func_08036900: @ 0x08036900
 
     .section .text.npc_extra.08036A10, "ax", %progbits
 
-    thumb_func_start func_08036A10
-func_08036A10: @ 0x08036A10
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L08036A3C @ =gUnk_080F6FF8
-    str r0, [sp]
-    ldr r0, .L08036A40 @ =0x00000902
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    ldr r0, .L08036A44 @ =0x00000401
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036A48 @ =vtable_unk_080E6B18
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036A3C: .4byte gUnk_080F6FF8
-.L08036A40: .4byte 0x00000902
-.L08036A44: .4byte 0x00000401
-.L08036A48: .4byte vtable_unk_080E6B18
-
     .section .text.npc_extra.08036A78, "ax", %progbits
 
-    thumb_func_start func_08036A78
-func_08036A78: @ 0x08036A78
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L08036AA4 @ =gCarpenterScheduleInfo
-    str r0, [sp]
-    ldr r0, .L08036AA8 @ =0x000009D3
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    ldr r0, .L08036AAC @ =0x00000404
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036AB0 @ =vtable_unk_080E6AD8
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036AA4: .4byte gCarpenterScheduleInfo
-.L08036AA8: .4byte 0x000009D3
-.L08036AAC: .4byte 0x00000404
-.L08036AB0: .4byte vtable_unk_080E6AD8
-
     .section .text.npc_extra.08036B4C, "ax", %progbits
-
-    thumb_func_start func_08036B4C
-func_08036B4C: @ 0x08036B4C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L08036B78 @ =gUnk_080F2DC0
-    str r0, [sp]
-    movs r0, #0xc6
-    lsls r0, r0, #2
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    adds r0, #0xc9
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036B7C @ =vtable_unk_080E6A98
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036B78: .4byte gUnk_080F2DC0
-.L08036B7C: .4byte vtable_unk_080E6A98
 
     .section .text.npc_extra.08036BB0, "ax", %progbits
 
@@ -1798,34 +1551,6 @@ func_08036BF8: @ 0x08036BF8
     .align 2, 0
 
 
-
-    thumb_func_start func_08036C48
-func_08036C48: @ 0x08036C48
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    ldr r0, .L08036C74 @ =gUnk_080F597C
-    str r0, [sp]
-    ldr r0, .L08036C78 @ =0x00000857
-    str r0, [sp, #4]
-    adds r0, #4
-    str r0, [sp, #8]
-    movs r0, #0xfe
-    lsls r0, r0, #2
-    str r0, [sp, #0xc]
-    adds r0, r4, #0
-    bl __10ANpcEntityP10GameObjectP3NpcUiPCvUiUiUi
-    ldr r0, .L08036C7C @ =vtable_unk_080E6A58
-    str r0, [r4, #0x14]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08036C74: .4byte gUnk_080F597C
-.L08036C78: .4byte 0x00000857
-.L08036C7C: .4byte vtable_unk_080E6A58
 
     .section .text.npc_extra.08036CAC, "ax", %progbits
 
