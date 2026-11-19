@@ -1192,6 +1192,7 @@ SECTIONS
         src/map_updates.o(.text.080AA8DC);
         src/map_updates.o(.text.080AA8F0);
         asm/code_809E804.o(.text.080AA9C8);
+        src/map_updates.o(.text.080AACB8);
         src/map_updates.o(.text.080AAE14);
         asm/code_809E804.o(.text.080AAE44);
         src/map_updates.o(.text.080AAF10);
@@ -1217,6 +1218,14 @@ SECTIONS
         asm/code_809E804.o(.text.080ABC40);
         src/entity_movement.o(.text.080AC070);
         asm/code_809E804.o(.text.080AC124);
+        src/map_scene.o(.text.080AC9EC);
+        src/map_scene.o(.text.080ACAF0);
+        asm/code_809E804.o(.text.080ACC10);
+        src/map_scene.o(.text.080AD3B0);
+        asm/code_809E804.o(.text.080AD49C);
+        src/map_scene.o(.text.080AD69C);
+        src/map_scene.o(.text.080AD724);
+        asm/code_809E804.o(.text.080AD774);
         src/map_scene.o(.text.080AD8C4);
         src/map_scene.o(.text.080AD938);
         src/map_scene.o(.text.080AD944);
@@ -1281,6 +1290,7 @@ SECTIONS
         src/chicken_feeding.o(.text.080B0970);
         src/chicken_feeding.o(.text.080B09B0);
         asm/code_809E804.o(.text.080B0AA0);
+        src/chicken_feeding.o(.text.080B1B40);
         src/chicken_feeding.o(.text.080B1D34);
         asm/code_809E804.o(.text.080B1D94);
         src/chicken_feeding.o(.text.080B34DC);

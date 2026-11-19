@@ -1,5 +1,9 @@
 #include "prelude.h"
 
+#include <string.h>
+
+struct MessageWindow;
+
 struct ChickenFeedingResource
 {
     u32 metadata;
@@ -14,13 +18,16 @@ struct ChickenFeedingActor
 
 struct ChickenFeedingScene
 {
-    STRUCT_PAD(0, 0x500);
+    STRUCT_PAD(0, 0x418);
+    MessageWindow * message;
+    STRUCT_PAD(0x41C, 0x500);
     ChickenFeedingActor * feedingSprite;
     STRUCT_PAD(0x504, 0x618);
     ChickenFeedingActor * chickens[5];
     STRUCT_PAD(0x62C, 0x6F4);
     ChickenFeedingActor * troughs[5];
-    STRUCT_PAD(0x708, 0x814);
+    STRUCT_PAD(0x708, 0x810);
+    u32 messageAudio;
     u32 effectsTrack;
     STRUCT_PAD(0x818, 0x838);
     u32 phase;
@@ -58,6 +65,21 @@ EC void * HardwareContext_GetDisplayRegisters(ChickenFeedingScene *);
 EC void AudioPlayer_StartSong(void *, u32);
 EC void func_080AF814(ChickenFeedingScene &);
 EC void func_080087C8(ChickenFeedingScene &);
+EC void FormatMessageInteger(i32, char *, u32);
+EC void ClearMessageWindowPortrait(MessageWindow *);
+EC i32 GetMessageWindowPhase(MessageWindow *);
+EC void OpenMessageWindow(MessageWindow *);
+EC void CloseMessageWindow(MessageWindow *);
+EC void SetMessageWindowText(MessageWindow *, const char *);
+EC u8 DisableMessageWindowInstantText(MessageWindow *);
+EC u8 EnableMessageWindowInstantText(MessageWindow *);
+EC u32 UpdateMessageWindow(MessageWindow *, void *, void *, void *, void *, void *, void *);
+EC void * HardwareContext_GetState(ChickenFeedingScene *);
+EC void * HardwareContext_GetOamBuffer(ChickenFeedingScene *);
+EC void * HardwareContext_GetFrameTasks(ChickenFeedingScene *);
+EC void * HardwareContext_GetVBlankTasks(ChickenFeedingScene *);
+EC void HardwareContext_UpdateKeys(ChickenFeedingScene *);
+EC char const gUnk_0810782C[], gUnk_08107834[], gUnk_08107844[];
 
 struct ChickenFeedingDisplayRegisters
 {
@@ -359,6 +381,190 @@ EC SECTION(".text.080B3518") void HandleChickenFeedingInput(ChickenFeedingScene 
         scene.spriteY += 2;
     if (pressed & 8)
         ToggleFeedingPause(&scene);
+}
+
+EC SECTION(".text.080B1B40") void RunChickenFeedingTargetMessage(ChickenFeedingScene & scene)
+{
+    struct TargetMessage
+    {
+        char number[4];
+        char prefix[8];
+        char leadingText[16];
+        char trailingText[12];
+        char text[36];
+        u16 control;
+        u32 needsOpening;
+        int visibleFrames;
+    } message;
+
+    FormatMessageInteger(scene.targetFeedings, message.number, 0);
+    register char * copyTo asm("r0") = message.prefix;
+    asm ("" : "+l" (copyTo));
+    register char const * prefix asm("r4") = gUnk_0810782C;
+    asm ("" : "+l" (prefix));
+    memcpy(copyTo, prefix, 6);
+    copyTo = message.leadingText;
+    asm ("" : "+l" (copyTo));
+    register char const * leadingText asm("r6") = gUnk_08107834;
+    asm ("" : "+l" (leadingText));
+    memcpy(copyTo, leadingText, 14);
+    copyTo = message.trailingText;
+    asm ("" : "+l" (copyTo));
+    register char const * trailingData asm("r2") = gUnk_08107844;
+    asm ("" : "+l" (trailingData));
+    register char const * trailingText asm("r8") = trailingData;
+    asm ("" : "+h" (trailingText));
+    memcpy(copyTo, trailingText, 10);
+    char * text = message.text;
+    register u32 prefixStart asm("r1") = *reinterpret_cast<u32 const *>(prefix);
+    asm ("" : "+l" (prefixStart));
+    *reinterpret_cast<volatile u32 *>(message.text) = prefixStart;
+    register unsigned prefixEnd asm("r0") = *reinterpret_cast<u16 const *>(prefix + sizeof(prefixStart));
+    asm ("" : "+l" (prefixEnd));
+    reinterpret_cast<volatile u16 *>(text)[2] = prefixEnd;
+    *reinterpret_cast<volatile u32 *>(message.text) = prefixStart;
+    reinterpret_cast<volatile u16 *>(text)[2] = prefixEnd;
+    strcat(text, leadingText);
+    strcat(text, message.number);
+    strcat(text, trailingText);
+
+    register unsigned needsOpening asm("r3") = 1;
+    asm ("" : "+l" (needsOpening));
+    message.needsOpening = needsOpening;
+    message.visibleFrames = 0;
+    register ChickenFeedingDisplayRegisters * display asm("r0") =
+        static_cast<ChickenFeedingDisplayRegisters *>(HardwareContext_GetDisplayRegisters(&scene));
+    asm ("" : "+l" (display));
+    register u16 * temporary asm("r2") = &message.control;
+    asm ("" : "+l" (temporary));
+    register u32 setting asm("r3") = 0x1740;
+    asm ("" : "+l" (setting));
+    register u32 bits asm("r1") = setting;
+    asm ("" : "+l" (bits));
+    *temporary = bits;
+    display->displayControl = bits;
+
+    register unsigned initialWindowOffset asm("r0") = offsetof(ChickenFeedingScene, message) / 8;
+    asm ("" : "+l" (initialWindowOffset));
+    register MessageWindow ** initialWindow asm("r4") =
+        reinterpret_cast<MessageWindow **>(reinterpret_cast<u8 *>(&scene) + initialWindowOffset * 8);
+    asm ("" : "+l" (initialWindow));
+    ClearMessageWindowPortrait(*initialWindow);
+    register MessageWindow * loadedWindow asm("r4") = *initialWindow;
+    asm ("" : "+l" (loadedWindow));
+    register MessageWindow * window asm("sl") = loadedWindow;
+    asm ("" : "+h" (window));
+    register void * state asm("sb") = HardwareContext_GetState(&scene);
+    asm ("" : "+h" (state));
+    register void * oam asm("r8") = HardwareContext_GetOamBuffer(&scene);
+    asm ("" : "+h" (oam));
+    register void * registers asm("r6") = HardwareContext_GetDisplayRegisters(&scene);
+    asm ("" : "+l" (registers));
+    register void * frameTasks asm("r4") = HardwareContext_GetFrameTasks(&scene);
+    asm ("" : "+l" (frameTasks));
+    register void * vblankTasks asm("r0") = HardwareContext_GetVBlankTasks(&scene);
+    asm ("" : "+l" (vblankTasks));
+    register unsigned audioOffset asm("r2") = offsetof(ChickenFeedingScene, messageAudio);
+    asm ("" : "+l" (audioOffset));
+    register void * messageAudio asm("r1") = reinterpret_cast<u8 *>(&scene) + audioOffset;
+    asm ("" : "+l" (messageAudio));
+    UpdateMessageWindow(window, state, oam, registers, frameTasks, vblankTasks, messageAudio);
+
+    goto render;
+update:
+    {
+        func_080087C8(scene);
+        HardwareContext_UpdateKeys(&scene);
+        register unsigned currentWindowOffset asm("r0") = offsetof(ChickenFeedingScene, message) / 8;
+        asm ("" : "+l" (currentWindowOffset));
+        register MessageWindow ** currentWindow asm("r4") =
+            reinterpret_cast<MessageWindow **>(reinterpret_cast<u8 *>(&scene) + currentWindowOffset * 8);
+        asm ("" : "+l" (currentWindow));
+        register i32 previousPhase asm("sl") = GetMessageWindowPhase(*currentWindow);
+        asm ("" : "+h" (previousPhase));
+        loadedWindow = *currentWindow;
+        asm ("" : "+l" (loadedWindow));
+        register MessageWindow * frameWindow asm("sb") = loadedWindow;
+        asm ("" : "+h" (frameWindow));
+        register void * frameState asm("r8") = HardwareContext_GetState(&scene);
+        asm ("" : "+h" (frameState));
+        register void * frameOam asm("r6") = HardwareContext_GetOamBuffer(&scene);
+        asm ("" : "+l" (frameOam));
+        register void * frameRegisters asm("r5") = HardwareContext_GetDisplayRegisters(&scene);
+        asm ("" : "+l" (frameRegisters));
+        frameTasks = HardwareContext_GetFrameTasks(&scene);
+        asm ("" : "+l" (frameTasks));
+        vblankTasks = HardwareContext_GetVBlankTasks(&scene);
+        asm ("" : "+l" (vblankTasks));
+        audioOffset = offsetof(ChickenFeedingScene, messageAudio);
+        asm ("" : "+l" (audioOffset));
+        messageAudio = reinterpret_cast<u8 *>(&scene) + audioOffset;
+        asm ("" : "+l" (messageAudio));
+        switch (UpdateMessageWindow(frameWindow, frameState, frameOam, frameRegisters, frameTasks, vblankTasks, messageAudio))
+        {
+        case 0:
+            needsOpening = message.needsOpening;
+            asm ("" : "+l" (needsOpening));
+            if (!needsOpening)
+                scene.phase = 2;
+            else
+            {
+                register unsigned windowOffset asm("r1") = offsetof(ChickenFeedingScene, message) / 8;
+                asm ("" : "+l" (windowOffset));
+                windowOffset *= 8;
+                asm ("" : "+l" (windowOffset));
+                register MessageWindow ** dialog asm("r0") =
+                    reinterpret_cast<MessageWindow **>(reinterpret_cast<u8 *>(&scene) + windowOffset);
+                asm ("" : "+l" (dialog));
+                OpenMessageWindow(*dialog);
+            }
+            break;
+        case 3:
+            register i32 oldPhase asm("r2");
+            oldPhase = previousPhase;
+            asm ("" : "+l" (oldPhase));
+            if (oldPhase == 1)
+            {
+                register unsigned windowOffset asm("r3") = offsetof(ChickenFeedingScene, message) / 8;
+                asm ("" : "+l" (windowOffset));
+                register MessageWindow ** dialog asm("r4") =
+                    reinterpret_cast<MessageWindow **>(reinterpret_cast<u8 *>(&scene) + windowOffset * 8);
+                asm ("" : "+l" (dialog));
+                SetMessageWindowText(*dialog, message.text);
+                DisableMessageWindowInstantText(*dialog);
+                message.needsOpening = 0;
+            }
+            // fall through
+        case 1:
+        case 2:
+        case 4:
+        case 5:
+        case 6:
+            register int visibleFrames asm("r1");
+            visibleFrames = message.visibleFrames + 1;
+            asm ("" : "+l" (visibleFrames));
+            message.visibleFrames = visibleFrames;
+            if (visibleFrames > 120)
+            {
+                register unsigned windowOffset asm("r2") = offsetof(ChickenFeedingScene, message) / 8;
+                asm ("" : "+l" (windowOffset));
+                register MessageWindow ** dialog asm("r4") =
+                    reinterpret_cast<MessageWindow **>(reinterpret_cast<u8 *>(&scene) + windowOffset * 8);
+                asm ("" : "+l" (dialog));
+                EnableMessageWindowInstantText(*dialog);
+                CloseMessageWindow(*dialog);
+            }
+            break;
+        }
+    }
+render:
+    func_080AF814(scene);
+    register unsigned phaseOffset asm("r3") = offsetof(ChickenFeedingScene, phase);
+    asm ("" : "+l" (phaseOffset));
+    register u32 * phase asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(&scene) + phaseOffset);
+    asm ("" : "+l" (phase));
+    if (*phase == 1)
+        goto update;
 }
 
 EC SECTION(".text.080B1D34") void RunChickenFeedingTransition(ChickenFeedingScene & scene)
