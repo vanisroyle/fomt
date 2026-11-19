@@ -141,15 +141,16 @@ EC void func_080A607C(GameStateMapView & view, u32 index);
 EC void ApplyMapIndexedFixturePatch(GameStateMapView & view, u32 index);
 EC void StartMapTransitionDelay(GameStateMapView & view);
 EC void ApplyMapBuildingDoorPatch(GameStateMapView & view, u32 alternate);
-EC void func_080AA89C(GameStateMapView & view);
-EC void func_080AA8BC(GameStateMapView & view);
-EC void func_080AA8DC(GameStateMapView & view);
+struct MapUpdateState;
+EC void ClearSupermarketRucksackDisplay(MapUpdateState & map);
+EC void ClearSupermarketBlueFeatherDisplay(MapUpdateState & map);
+EC void RequestMap29Refresh(MapUpdateState & map);
 EC bool IsMapTransitionIdle(GameStateMapView & view);
 EC void func_080A59BC(GameStateMapView & view, i32 x, i32 y, u32 speed);
 EC void func_080A5960(GameStateMapView & view, i32 x, i32 y);
 EC void SetAlternateMapPatch(u32 & flags, u32 index);
 EC void ClearAlternateMapPatch(u32 & flags, u32 index);
-EC void func_080AA850(GameStateMapView & view, u32 index);
+EC void ApplySavedMapTilePatch(MapUpdateState & map, u32 index);
 EC MapData const * GetMapData(u32 map_variant);
 EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 barn_level);
 EC u32 func_0800E324(Unk_0800E324 const & clock);
@@ -357,13 +358,13 @@ EC SECTION(".text.game_state_c2.0801DD78") void GameStateStartMapViewTimer(GameS
 EC SECTION(".text.game_state_c2.0801DDCC") void GameStateSetMapTileVariant(GameStateMapOwner & game, u32 index)
 {
     SetAlternateMapPatch(game.map_data->tile_variant_flags, index);
-    func_080AA850(*game.map_view, index);
+    ApplySavedMapTilePatch(reinterpret_cast<MapUpdateState &>(*game.map_view), index);
 }
 
 EC SECTION(".text.game_state_c2.0801DDF8") void GameStateClearMapTileVariant(GameStateMapOwner & game, u32 index)
 {
     ClearAlternateMapPatch(game.map_data->tile_variant_flags, index);
-    func_080AA850(*game.map_view, index);
+    ApplySavedMapTilePatch(reinterpret_cast<MapUpdateState &>(*game.map_view), index);
 }
 
 EC SECTION(".text.game_state_c2.0801DE24") void GameStateApplyMapTilePatchWithAlternateRow(GameStateMapOwner & game, u32 alternate)
@@ -373,17 +374,17 @@ EC SECTION(".text.game_state_c2.0801DE24") void GameStateApplyMapTilePatchWithAl
 
 EC SECTION(".text.game_state_c2.0801DE30") void GameStateApplyMapTilePatchAtRow20(GameStateMapOwner & game)
 {
-    func_080AA89C(*game.map_view);
+    ClearSupermarketRucksackDisplay(reinterpret_cast<MapUpdateState &>(*game.map_view));
 }
 
 EC SECTION(".text.game_state_c2.0801DE3C") void GameStateApplyMapTilePatchAtRow23(GameStateMapOwner & game)
 {
-    func_080AA8BC(*game.map_view);
+    ClearSupermarketBlueFeatherDisplay(reinterpret_cast<MapUpdateState &>(*game.map_view));
 }
 
 EC SECTION(".text.game_state_c2.0801DE48") void GameStateQueueMapEvent1D(GameStateMapOwner & game)
 {
-    func_080AA8DC(*game.map_view);
+    RequestMap29Refresh(reinterpret_cast<MapUpdateState &>(*game.map_view));
 }
 
 EC SECTION(".text.game_state_c2.0801FD3C") bool GameStateIsCameraIdle(GameStateMapOwner & game)

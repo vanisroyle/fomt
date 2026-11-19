@@ -84,7 +84,7 @@ EC UnknownEntityThing * CreateScheduledNpcSprite09(AActorEntity * self)
     return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 4, 27, 1, 2, 0, false);
 }
 
-struct NpcMovementChoice
+struct WanderChoice
 {
     u8 weight;
     u8 minimum_seconds;
@@ -92,31 +92,31 @@ struct NpcMovementChoice
     u8 padding;
 };
 
-EC NpcMovementChoice const gUnk_080F1638[];
-EC u32 func_080AB82C(NpcMovementChoice const * choices, u32 count);
-EC u32 func_080AB788(u32 limit);
-EC u32 func_080AB7A4(u32 excluded);
+EC WanderChoice const gUnk_080F1638[];
+EC u32 ChooseWeightedEntityMovement(WanderChoice const * choices, u32 count);
+EC u32 RollEntityMovementRandom(u32 limit);
+EC int RotateEntityMovementFacing(int facing, int turn);
 EC u32 GetNpcVariantFourSpeed(AActorEntity * self, u32 movement);
 EC u32 GetNpcVariantFourAnimation(AActorEntity * self, u32 movement);
 
 EC u32 ChooseNpcVariantFourMovement(AActorEntity * self) NPC_EXTRA_CODE(08037958);
 EC u32 ChooseNpcVariantFourMovement(AActorEntity * self)
 {
-    NpcMovementChoice const * choices = gUnk_080F1638;
-    NpcMovementChoice const * choice;
+    WanderChoice const * choices = gUnk_080F1638;
+    WanderChoice const * choice;
     u32 movement;
     {
-        u32 selected = func_080AB82C(choices, 3);
+        u32 selected = ChooseWeightedEntityMovement(choices, 3);
         choice = choices + selected;
         movement = selected;
     }
     u32 duration = 60;
-    u32 random_duration = func_080AB788(choice->random_seconds * duration);
+    u32 random_duration = RollEntityMovementRandom(choice->random_seconds * duration);
     duration = choice->minimum_seconds * duration + random_duration;
-    u32 facing = func_080AB788(4);
+    u32 facing = RollEntityMovementRandom(4);
     if (facing != 0 && facing != 3)
     {
-        facing = func_080AB7A4(self->facing);
+        facing = RotateEntityMovementFacing(self->facing, facing);
         if (self->facing != facing)
             self->SetAnimFacing(facing);
     }
