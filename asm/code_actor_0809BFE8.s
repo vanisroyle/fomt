@@ -1,97 +1,6 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
 
-	.section .text.0809C510, "ax", %progbits
-	.align 2, 0
-
-    thumb_func_start func_0809C510
-func_0809C510: @ 0x0809C510
-    push {r4, r5, r6, lr}
-    adds r5, r0, #0
-    adds r4, r2, #0
-    lsls r3, r3, #0x18
-    lsrs r3, r3, #0x18
-    adds r6, r3, #0
-    movs r0, #0
-    cmp r4, #0xd
-    bhi .L0809C534
-    movs r0, #0x1f
-    ands r0, r4
-    movs r2, #1
-    lsls r2, r0
-    ldr r1, [r1]
-    ands r1, r2
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-.L0809C534:
-    cmp r0, #0
-    beq .L0809C574
-    cmp r4, #0xd
-    bne .L0809C554
-    cmp r3, #0
-    beq .L0809C554
-    ldr r0, .L0809C54C @ =gUnk_081036D4
-    adds r0, #0x9c
-    ldrb r1, [r0, #8]
-    ldrb r2, [r0, #9]
-    ldr r0, .L0809C550 @ =gUnk_081070AC
-    b .L0809C5A0
-    .align 2, 0
-.L0809C54C: .4byte gUnk_081036D4
-.L0809C550: .4byte gUnk_081070AC
-.L0809C554:
-    ldr r2, .L0809C570 @ =gUnk_081036D4
-    lsls r0, r4, #1
-    adds r0, r0, r4
-    lsls r0, r0, #2
-    adds r1, r2, #4
-    adds r1, r0, r1
-    adds r0, r0, r2
-    ldrb r2, [r0, #8]
-    ldrb r3, [r0, #9]
-    ldr r0, [r1]
-    str r0, [r5]
-    str r2, [r5, #4]
-    str r3, [r5, #8]
-    b .L0809C5A6
-    .align 2, 0
-.L0809C570: .4byte gUnk_081036D4
-.L0809C574:
-    cmp r4, #0xd
-    bne .L0809C590
-    cmp r6, #0
-    beq .L0809C590
-    ldr r0, .L0809C588 @ =gUnk_081036D4
-    adds r0, #0x9c
-    ldrb r1, [r0, #8]
-    ldrb r2, [r0, #9]
-    ldr r0, .L0809C58C @ =gUnk_08107094
-    b .L0809C5A0
-    .align 2, 0
-.L0809C588: .4byte gUnk_081036D4
-.L0809C58C: .4byte gUnk_08107094
-.L0809C590:
-    ldr r1, .L0809C5B0 @ =gUnk_081036D4
-    lsls r0, r4, #1
-    adds r0, r0, r4
-    lsls r0, r0, #2
-    adds r0, r0, r1
-    ldrb r1, [r0, #8]
-    ldrb r2, [r0, #9]
-    ldr r0, [r0]
-.L0809C5A0:
-    str r0, [r5]
-    str r1, [r5, #4]
-    str r2, [r5, #8]
-.L0809C5A6:
-    adds r0, r5, #0
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0809C5B0: .4byte gUnk_081036D4
-
 	.section .text.0809C6BC, "ax", %progbits
     thumb_func_start func_0809C6BC
 func_0809C6BC: @ 0x0809C6BC
@@ -1707,7 +1616,7 @@ func_0809D500: @ 0x0809D500
     str r0, [sp, #0x10]
     mov r0, sl
     ldr r1, [sp]
-    bl func_0809D79C
+    bl GetAlternateMineFloorChanceRow
     str r0, [sp, #0x14]
     bl rand
     asrs r0, r0, #4
@@ -2032,41 +1941,6 @@ func_0809D500: @ 0x0809D500
     bx r0
     .align 2, 0
 .L0809D798: .4byte gUnk_08103C74
-
-    thumb_func_start func_0809D79C
-func_0809D79C: @ 0x0809D79C
-    push {lr}
-    adds r0, r1, #0
-    cmp r0, #9
-    bls .L0809D7D2
-    movs r0, #0x19
-    cmp r1, #0xff
-    beq .L0809D7D2
-    movs r0, #0x18
-    cmp r1, #0x4f
-    bhi .L0809D7D2
-    movs r0, #0xa
-    movs r2, #0x13
-    cmp r1, #0x13
-    blo .L0809D7D2
-    cmp r1, #0x13
-    bne .L0809D7C0
-    movs r0, #0xb
-    b .L0809D7D2
-.L0809D7C0:
-    adds r0, #2
-    adds r2, #0xa
-    cmp r2, #0x4f
-    bhi .L0809D7D2
-    cmp r1, r2
-    blo .L0809D7D2
-    cmp r1, r2
-    bne .L0809D7C0
-    adds r0, #1
-.L0809D7D2:
-    pop {r1}
-    bx r1
-    .align 2, 0
 
 	.section .text.0809D8E8, "ax", %progbits
     thumb_func_start func_0809D8E8

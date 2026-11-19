@@ -249,27 +249,121 @@ ROM_TEXT(0809C0A0) void ResetMapPatchVariants(u32 & flags)
     flags = 0;
 }
 
-ROM_TEXT(0809C4EC) bool IsDefaultMapPatch(u32 const & flags, unsigned index)
+enum
+{
+    LAST_PATCH_WITH_ALTERNATE = 13,
+    WINTER_VARIANT_PATCH_INDEX = 13,
+};
+
+static inline unsigned HasAlternateMapPatch(u32 const & flags, unsigned index)
 {
     unsigned hasAlternatePatch = 0;
-    if (index <= 13)
+    if (index <= LAST_PATCH_WITH_ALTERNATE)
     {
         unsigned bit = flags & (1u << (index & 31));
         hasAlternatePatch = ((-bit) | bit) >> 31;
     }
+    return hasAlternatePatch;
+}
+
+ROM_TEXT(0809C4EC) bool IsDefaultMapPatch(u32 const & flags, unsigned index)
+{
+    unsigned hasAlternatePatch = HasAlternateMapPatch(flags, index);
     // Preserve the original nonzero test and one-bit inversion.
     return (hasAlternatePatch | 1) ^ hasAlternatePatch;
 }
 
+struct MapPatchTiles;
+
+struct MapPatchVariant
+{
+    MapPatchTiles const * defaultTiles;
+    MapPatchTiles const * alternateTiles;
+    u8 tileX;
+    u8 tileY;
+};
+
+struct MapPatch
+{
+    MapPatchTiles const * tiles;
+    unsigned tileX;
+    unsigned tileY;
+};
+
+EC MapPatchVariant const gMapPatchVariants[];
+EC MapPatchTiles const gWinterAlternatePatchTiles;
+EC MapPatchTiles const gWinterDefaultPatchTiles;
+
+static inline MapPatchVariant const & GetMapPatchVariant(unsigned index)
+{
+    uintptr_t tableBase = reinterpret_cast<uintptr_t>(gMapPatchVariants);
+    unsigned offset = index * sizeof(MapPatchVariant);
+    return *reinterpret_cast<MapPatchVariant const *>(tableBase + offset);
+}
+
+ROM_TEXT(0809C510) MapPatch & GetMapPatch(MapPatch & result, u32 const & flags, unsigned index, bool isWinter)
+{
+    MapPatchTiles const * tiles;
+    // Keep the original load order at the shared result assignment.
+    unsigned tileX;
+    register unsigned tileY asm("r2");
+    if (HasAlternateMapPatch(flags, index))
+    {
+        if (index == WINTER_VARIANT_PATCH_INDEX && isWinter)
+        {
+            MapPatchVariant const & variant = GetMapPatchVariant(index);
+            tileX = variant.tileX;
+            tileY = variant.tileY;
+            tiles = &gWinterAlternatePatchTiles;
+            goto assign;
+        }
+        // agbcp must form the alternate pointer and coordinate addresses separately.
+        uintptr_t tableBase = reinterpret_cast<uintptr_t>(gMapPatchVariants);
+        unsigned offset = index * sizeof(MapPatchVariant);
+        register uintptr_t alternateBase asm("r1") = tableBase + offsetof(MapPatchVariant, alternateTiles);
+        MapPatchTiles const * const * alternate =
+            reinterpret_cast<MapPatchTiles const * const *>(offset + alternateBase);
+        MapPatchVariant const * variant =
+            reinterpret_cast<MapPatchVariant const *>(offset + tableBase);
+        unsigned alternateX = variant->tileX;
+        unsigned alternateY = variant->tileY;
+        result.tiles = *alternate;
+        result.tileX = alternateX;
+        result.tileY = alternateY;
+    }
+    else
+    {
+        if (index == WINTER_VARIANT_PATCH_INDEX && isWinter)
+        {
+            MapPatchVariant const & variant = GetMapPatchVariant(index);
+            tileX = variant.tileX;
+            tileY = variant.tileY;
+            tiles = &gWinterDefaultPatchTiles;
+            goto assign;
+        }
+        {
+            MapPatchVariant const & variant = GetMapPatchVariant(index);
+            tileX = variant.tileX;
+            tileY = variant.tileY;
+            tiles = variant.defaultTiles;
+        }
+    assign:
+        result.tiles = tiles;
+        result.tileX = tileX;
+        result.tileY = tileY;
+    }
+    return result;
+}
+
 ROM_TEXT(0809C5B4) void SetAlternateMapPatch(u32 & flags, unsigned index)
 {
-    if (index <= 13)
+    if (index <= LAST_PATCH_WITH_ALTERNATE)
         flags |= 1u << (index & 31);
 }
 
 ROM_TEXT(0809C5B4) void ClearAlternateMapPatch(u32 & flags, unsigned index)
 {
-    if (index <= 13)
+    if (index <= LAST_PATCH_WITH_ALTERNATE)
         flags &= ~(1u << (index & 31));
 }
 
@@ -526,6 +620,44 @@ ROM_TEXT(0809D418) unsigned func_0809D470(Unk_0809D8A0 const &, unsigned value)
     result = 17;
 done:
     return result;
+}
+
+ROM_TEXT(0809D79C) unsigned GetAlternateMineFloorChanceRow(Unk_0809D8A0 const &, unsigned floor)
+{
+    unsigned row = floor;
+    unsigned lastFloorInGroup;
+    // Keep the floor input and the result in separate registers.
+    asm("" : "+r"(row) : "r"(floor));
+    if (row <= 9)
+        goto done;
+    row = 25;
+    asm("" : "+r"(row) : "r"(floor));
+    if (floor == 255)
+        goto done;
+    row = 24;
+    asm("" : "+r"(row) : "r"(floor));
+    if (floor > 79)
+        goto done;
+    row = 10;
+    lastFloorInGroup = 19;
+    if (floor < lastFloorInGroup)
+        goto done;
+    if (floor == lastFloorInGroup)
+    {
+        row = 11;
+        goto done;
+    }
+    do
+    {
+        row += 2;
+        lastFloorInGroup += 10;
+        if (lastFloorInGroup > 79 || floor < lastFloorInGroup)
+            goto done;
+    }
+    while (floor != lastFloorInGroup);
+    ++row;
+done:
+    return row;
 }
 
 ROM_TEXT(0809D7D8) unsigned func_0809D7D8(Unk_0809D8A0 const &, unsigned value)

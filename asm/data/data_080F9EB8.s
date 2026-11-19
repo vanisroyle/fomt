@@ -2098,8 +2098,8 @@ gUnk_081036A0:
 gCursedToolProgressThresholds:
 	.incbin "baserom.gba", 0x1036C0, 0x14
 
-	.global gUnk_081036D4
-gUnk_081036D4:
+	.global gMapPatchVariants
+gMapPatchVariants:
 	.incbin "baserom.gba", 0x1036D4, 0x344
 
 	.global gFishingCatchNames
@@ -2554,12 +2554,12 @@ gUnk_08106DF4:
 gUnk_08106E0C:
 	.incbin "baserom.gba", 0x106E0C, 0x288
 
-	.global gUnk_08107094
-gUnk_08107094:
+	.global gWinterDefaultPatchTiles
+gWinterDefaultPatchTiles:
 	.incbin "baserom.gba", 0x107094, 0x18
 
-	.global gUnk_081070AC
-gUnk_081070AC:
+	.global gWinterAlternatePatchTiles
+gWinterAlternatePatchTiles:
 	.incbin "baserom.gba", 0x1070AC, 0x18
 
 	.global gUnk_081070C4

@@ -24245,7 +24245,7 @@ func_080AA850: @ 0x080AA850
 .L080AA872:
 	mov r0, sp
 	adds r2, r6, #0
-	bl func_0809C510
+	bl GetMapPatch
 	ldr r1, [sp]
 	ldr r2, [sp, #4]
 	ldr r3, [sp, #8]
