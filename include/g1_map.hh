@@ -3,6 +3,14 @@
 
 #include "unknown_types.hh"
 
+struct G1MapState;
+
+struct G1MapVTable
+{
+    void (*reserved[9])();
+    void (*reload_palette)(G1MapState *, int, u32);
+};
+
 struct G1MapState
 {
     u32 type;
@@ -15,6 +23,8 @@ struct G1MapState
     u8 palettes_dirty;
     u8 unk_2B;
     TerrainInfo * terrain;
+    u8 unk_30[0x60];
+    G1MapVTable const * vtable;
 };
 
 struct G1MapPatch

@@ -76,7 +76,7 @@ func_0801004C: @ 0x0801004C
 .L080100DE:
     mov r0, sp
     movs r1, #2
-    bl func_08008A68
+    bl VBlankDispatcher_Destroy
     adds r0, r7, #0
     add sp, #0x1c
     pop {r4, r5, r6, r7}

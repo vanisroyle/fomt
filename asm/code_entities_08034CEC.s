@@ -971,7 +971,7 @@ func_08035C04: @ 0x08035C04
     ldr r1, .L08035C50 @ =0x00001CD4
     adds r6, r5, r1
     adds r0, r6, #0
-    bl func_080A0490
+    bl GetRosterMarriageCandidate
     cmp r0, #3
     bne .L08035C94
     ldrh r0, [r4, #4]
@@ -1072,7 +1072,7 @@ func_08036084: @ 0x08036084
     ldr r1, .L080360D0 @ =0x00001CD4
     adds r6, r5, r1
     adds r0, r6, #0
-    bl func_080A0490
+    bl GetRosterMarriageCandidate
     cmp r0, #0xc
     bne .L08036114
     ldrh r0, [r4, #4]
@@ -1169,7 +1169,7 @@ func_08036430: @ 0x08036430
     ldr r1, .L0803647C @ =0x00001CD4
     adds r6, r5, r1
     adds r0, r6, #0
-    bl func_080A0490
+    bl GetRosterMarriageCandidate
     cmp r0, #0x13
     bne .L080364C0
     ldrh r0, [r4, #4]
@@ -1256,7 +1256,7 @@ func_080365CC: @ 0x080365CC
     ldr r1, .L08036618 @ =0x00001CD4
     adds r6, r5, r1
     adds r0, r6, #0
-    bl func_080A0490
+    bl GetRosterMarriageCandidate
     cmp r0, #0x15
     bne .L0803665C
     ldrh r0, [r4, #4]
@@ -1385,7 +1385,7 @@ func_08036900: @ 0x08036900
     ldr r1, .L08036958 @ =0x00001CD4
     adds r6, r5, r1
     adds r0, r6, #0
-    bl func_080A0490
+    bl GetRosterMarriageCandidate
     cmp r0, #0x19
     bne .L080369A0
     ldrh r0, [r4, #4]
@@ -2249,7 +2249,7 @@ func_08037568: @ 0x08037568
     lsls r1, r1, #0x1e
     lsrs r1, r1, #0x1e
     mov r0, sp
-    bl func_080A17A0
+    bl GetNpcScheduleMap7Arrival
     adds r0, r4, #0
     mov r1, sp
     bl SetLocation__12AActorEntityRC13ActorLocation
@@ -2419,7 +2419,7 @@ func_08037714: @ 0x08037714
     lsls r1, r1, #0x1e
     lsrs r1, r1, #0x1e
     mov r0, sp
-    bl func_080A1890
+    bl GetNpcScheduleMap7Departure
     adds r0, r4, #0
     mov r1, sp
     bl SetLocation__12AActorEntityRC13ActorLocation
