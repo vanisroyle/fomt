@@ -29508,7 +29508,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	movs r0, #0xf2
 	lsls r0, r0, #1
 	add r0, r8
-	bl func_080ADC00
+	bl CreateMessagePortraitClips
 	movs r0, #0xf4
 	lsls r0, r0, #1
 	add r0, r8
