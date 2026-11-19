@@ -221,7 +221,7 @@ EC u8 * GetActiveRosterNpc(u8 * roster);
 EC u32 GetNamedNpcAgeDays(u8 * npc);
 EC bool HasNamedNpcFlag(G1NamedNpcState * npc);
 EC bool IsNpcAtNorthernExit(AEntity * self);
-EC void func_08036E70(ArrivalReactionNpc * self);
+EC void RefreshArrivalReactionAnimations(ArrivalReactionNpc * self);
 EC void func_08034EB4(AActorEntity * self, u32 reason);
 EC SideActorSprite * InitializeSideActorSpriteLayers(SideActorSprite * self, AActorEntity * actor, u32 layer, u32 palette, u32 overlay_offset, u32 overlay_flags, u32 overlay_visible, bool hidden);
 EC void InitializeEntityBase(AEntity * self, GameObject * game, Location const & location) asm("__7AEntityP10GameObjectRC8Location");
@@ -310,7 +310,7 @@ EC UnknownEntityThing * CreateArrivalReactionSprite(ArrivalReactionNpc * self)
     u8 * npc = GetActiveRosterNpc(self->world->roster);
     if (npc != nullptr)
     {
-        func_08036E70(self);
+        RefreshArrivalReactionAnimations(self);
         u32 palette = HasNamedNpcFlag(reinterpret_cast<G1NamedNpcState *>(npc)) ? 4 : 1;
         struct Storage { u8 bytes[0x8C]; };
         return reinterpret_cast<UnknownEntityThing *>(InitializeSideActorSpriteLayers(reinterpret_cast<SideActorSprite *>(new Storage), self, 4, 27, 0, palette, 0, false));
