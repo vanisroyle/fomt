@@ -1,7 +1,9 @@
 #include "prelude.h"
 
 #include "actor.hh"
+#include "item.hh"
 
+#include <new>
 #include <string.h>
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
@@ -93,18 +95,18 @@ ROM_TEXT(0809C0A0) void func_0809C0D4(Unk_Actor_0809BFE8 & self)
     self.unk_08_0 = 100;
 }
 
-struct ActivityFlags
+struct CursedToolProgress
 {
     u8 active[6];
     u8 completed[6];
     u8 elapsed[6];
 };
 
-ROM_TEXT(0809C0A0) ActivityFlags & func_0809C144(ActivityFlags & self)
+ROM_TEXT(0809C0A0) CursedToolProgress & InitCursedToolProgress(CursedToolProgress & self)
 {
     unsigned i = 0;
     u8 zero = 0;
-    for (ActivityFlags * entry = &self; i < ARRAY_COUNT(self.active); ++i)
+    for (CursedToolProgress * entry = &self; i < ARRAY_COUNT(self.active); ++i)
     {
         entry->active[i] = zero;
         entry->elapsed[i] = zero;
@@ -113,27 +115,48 @@ ROM_TEXT(0809C0A0) ActivityFlags & func_0809C144(ActivityFlags & self)
     return self;
 }
 
-ROM_TEXT(0809C22C) unsigned func_0809C22C(ActivityFlags const &, unsigned id)
+ROM_TEXT(0809C0A0) bool IsCursedToolForProgress(CursedToolProgress const &, Tool const & tool)
+{
+    switch (tool.GetId())
+    {
+    case TOOL_CURSED_SICKLE:
+    case TOOL_CURSED_HOE:
+    case TOOL_CURSED_AXE:
+    case TOOL_CURSED_HAMMER:
+    case TOOL_CURSED_WATERING_CAN:
+    case TOOL_CURSED_FISHING_ROD:
+        return true;
+    default:
+        return false;
+    }
+}
+
+ROM_TEXT(0809C0A0) unsigned GetCursedToolSlot(CursedToolProgress const &, unsigned toolId)
 {
     unsigned index = 1;
-    switch (id)
+    switch (toolId)
     {
-    case 5: index = 0; break;
-    case 13: index = 1; break;
-    case 21: index = 2; break;
-    case 29: index = 3; break;
-    case 37: index = 4; break;
-    case 45: index = 5; break;
+    case TOOL_CURSED_SICKLE: index = 0; break;
+    case TOOL_CURSED_HOE: index = 1; break;
+    case TOOL_CURSED_AXE: index = 2; break;
+    case TOOL_CURSED_HAMMER: index = 3; break;
+    case TOOL_CURSED_WATERING_CAN: index = 4; break;
+    case TOOL_CURSED_FISHING_ROD: index = 5; break;
     }
     return index;
 }
 
-ROM_TEXT(0809C22C) u8 func_0809C304(ActivityFlags const & self, unsigned id)
+ROM_TEXT(0809C0A0) u8 GetCursedToolActive(CursedToolProgress const & self, unsigned toolId)
 {
-    return self.active[func_0809C22C(self, id)];
+    return self.active[GetCursedToolSlot(self, toolId)];
 }
 
-static inline bool HasActivity(ActivityFlags const & self, unsigned index)
+ROM_TEXT(0809C0A0) u8 GetCursedToolCompleted(CursedToolProgress const & self, unsigned toolId)
+{
+    return self.completed[GetCursedToolSlot(self, toolId)];
+}
+
+static inline bool HasStartedCursedToolProgress(CursedToolProgress const & self, unsigned index)
 {
     int completed = -self.completed[index];
     int active = -self.active[index];
@@ -141,21 +164,22 @@ static inline bool HasActivity(ActivityFlags const & self, unsigned index)
     return active < 0;
 }
 
-ROM_TEXT(0809C32C) bool func_0809C32C(ActivityFlags const & self)
+ROM_TEXT(0809C0A0) bool HaveAllCursedToolsStarted(CursedToolProgress const & self)
 {
-    return HasActivity(self, 1) && HasActivity(self, 0) && HasActivity(self, 2)
-        && HasActivity(self, 3) && HasActivity(self, 4) && HasActivity(self, 5);
+    return HasStartedCursedToolProgress(self, 1) && HasStartedCursedToolProgress(self, 0)
+        && HasStartedCursedToolProgress(self, 2) && HasStartedCursedToolProgress(self, 3)
+        && HasStartedCursedToolProgress(self, 4) && HasStartedCursedToolProgress(self, 5);
 }
 
-ROM_TEXT(0809C32C) bool func_0809C38C(ActivityFlags const & self)
+ROM_TEXT(0809C0A0) bool HaveAllCursedToolsCompleted(CursedToolProgress const & self)
 {
     return self.completed[1] && self.completed[0] && self.completed[2] && self.completed[3]
         && self.completed[4] && self.completed[5];
 }
 
-ROM_TEXT(0809C32C) void func_0809C3BC(ActivityFlags & self, unsigned id)
+ROM_TEXT(0809C0A0) void StartCursedToolProgress(CursedToolProgress & self, unsigned toolId)
 {
-    unsigned index = func_0809C22C(self, id);
+    unsigned index = GetCursedToolSlot(self, toolId);
     if (self.active[index] == 0)
     {
         self.active[index] = 1;
@@ -163,14 +187,14 @@ ROM_TEXT(0809C32C) void func_0809C3BC(ActivityFlags & self, unsigned id)
     }
 }
 
-EC u8 const gUnk_081036C0[];
+EC u8 const gCursedToolProgressThresholds[6];
 
-ROM_TEXT(0809C32C) bool func_0809C3E0(ActivityFlags & self, unsigned index)
+ROM_TEXT(0809C0A0) bool AdvanceCursedToolProgress(CursedToolProgress & self, unsigned index)
 {
     bool completed = false;
     if (self.active[index])
     {
-        if (self.elapsed[index] < gUnk_081036C0[index])
+        if (self.elapsed[index] < gCursedToolProgressThresholds[index])
             ++self.elapsed[index];
         else
         {
@@ -182,90 +206,121 @@ ROM_TEXT(0809C32C) bool func_0809C3E0(ActivityFlags & self, unsigned index)
     return completed;
 }
 
-ROM_TEXT(0809C32C) void func_0809C420(ActivityFlags & self, unsigned index)
+ROM_TEXT(0809C0A0) void ResetSickleOrHammerProgress(CursedToolProgress & self, unsigned index)
 {
     if (self.active[index] && (index == 0 || index == 3))
         self.elapsed[index] = 0;
 }
 
-ROM_TEXT(0809C32C) bool func_0809C444(ActivityFlags & self, unsigned id)
+ROM_TEXT(0809C0A0) bool AdvanceCursedSickleOrHammerProgress(CursedToolProgress & self, unsigned toolId)
 {
     bool completed = false;
-    unsigned index = func_0809C22C(self, id);
+    unsigned index = GetCursedToolSlot(self, toolId);
     if (self.active[index] && (index == 0 || index == 3))
-        completed = func_0809C3E0(self, index);
+        completed = AdvanceCursedToolProgress(self, index);
     return completed;
 }
 
-ROM_TEXT(0809C32C) bool func_0809C474(ActivityFlags & self, unsigned id)
+ROM_TEXT(0809C0A0) bool UpdateCursedToolProgressForScript(CursedToolProgress & self, unsigned toolId)
 {
-    unsigned index = func_0809C22C(self, id);
+    unsigned index = GetCursedToolSlot(self, toolId);
     bool completed = false;
     if (self.active[index])
     {
         if (index == 1 || index == 4)
-            completed = func_0809C3E0(self, index);
+            completed = AdvanceCursedToolProgress(self, index);
         if (index == 0 || index == 3)
-            func_0809C420(self, index);
+            ResetSickleOrHammerProgress(self, index);
     }
     return completed;
 }
 
-ROM_TEXT(0809C32C) bool func_0809C4B4(ActivityFlags & self, unsigned id)
+ROM_TEXT(0809C0A0) bool AdvanceCursedAxeOrRodProgress(CursedToolProgress & self, unsigned toolId)
 {
-    unsigned index = func_0809C22C(self, id);
+    unsigned index = GetCursedToolSlot(self, toolId);
     bool completed = false;
     if (self.active[index] && (index == 5 || index == 2))
-        completed = func_0809C3E0(self, index);
+        completed = AdvanceCursedToolProgress(self, index);
     return completed;
 }
 
-ROM_TEXT(0809C32C) void func_0809C4E4(u32 & flags)
+ROM_TEXT(0809C0A0) void ResetMapPatchVariants(u32 & flags)
 {
     flags = 0;
 }
 
-ROM_TEXT(0809C5B4) void func_0809C5B4(u32 & flags, unsigned index)
+ROM_TEXT(0809C4EC) bool IsDefaultMapPatch(u32 const & flags, unsigned index)
+{
+    unsigned hasAlternatePatch = 0;
+    if (index <= 13)
+    {
+        unsigned bit = flags & (1u << (index & 31));
+        hasAlternatePatch = ((-bit) | bit) >> 31;
+    }
+    // Preserve the original nonzero test and one-bit inversion.
+    return (hasAlternatePatch | 1) ^ hasAlternatePatch;
+}
+
+ROM_TEXT(0809C5B4) void SetAlternateMapPatch(u32 & flags, unsigned index)
 {
     if (index <= 13)
         flags |= 1u << (index & 31);
 }
 
-ROM_TEXT(0809C5B4) void func_0809C5D0(u32 & flags, unsigned index)
+ROM_TEXT(0809C5B4) void ClearAlternateMapPatch(u32 & flags, unsigned index)
 {
     if (index <= 13)
         flags &= ~(1u << (index & 31));
 }
 
-struct Unk_0809C5EC
+struct ScriptEventSelection
 {
-    u32 count;
-    u16 values[3];
+    u32 pendingCount;
+    u16 pendingIds[3];
     STRUCT_PAD(0x0A, 0x0C);
-    u16 selected;
+    u16 selectedId;
 };
 
+EC u16 * func_080E3DB4(u16 *, u16 *, u16 const &);
 EC u16 * func_080E3E28(u16 *, u16 *, u16 const &);
 
-ROM_TEXT(0809C5B4) void func_0809C5EC(Unk_0809C5EC & self)
+ROM_TEXT(0809C5B4) void ClearPendingScriptEvents(ScriptEventSelection & self)
 {
-    self.count = 0;
+    self.pendingCount = 0;
 }
 
-ROM_TEXT(0809C5B4) bool func_0809C5F4(Unk_0809C5EC const & self)
+ROM_TEXT(0809C5B4) bool HasPendingScriptEvents(ScriptEventSelection const & self)
 {
-    return self.count != 0;
+    return self.pendingCount != 0;
 }
 
-ROM_TEXT(0809C644) void func_0809C644(Unk_0809C5EC & self, u16 value)
+ROM_TEXT(0809C5B4) void AddPendingScriptEvent(ScriptEventSelection & self, u16 eventId)
 {
-    u16 * begin = self.values;
-    unsigned offset = offsetof(Unk_0809C5EC, values) + self.count * sizeof(value);
-    u16 * end = reinterpret_cast<u16 *>(reinterpret_cast<uintptr_t>(&self) + offset);
-    u16 * found = func_080E3E28(begin, end, value);
-    if (found != end && self.count)
+    u16 * begin = self.pendingIds;
+    unsigned endOffset = offsetof(ScriptEventSelection, pendingIds) + self.pendingCount * sizeof(eventId);
+    u16 * end = reinterpret_cast<u16 *>(reinterpret_cast<uintptr_t>(&self) + endOffset);
+    if (func_080E3DB4(begin, end, eventId) == end)
     {
-        u16 * last = self.values + self.count;
+        u16 const & sourceId = eventId;
+        unsigned pendingCount = self.pendingCount;
+        if (pendingCount < ARRAY_COUNT(self.pendingIds))
+        {
+            unsigned offset = offsetof(ScriptEventSelection, pendingIds) + pendingCount * sizeof(eventId);
+            new (reinterpret_cast<char *>(&self) + offset) u16(sourceId);
+            ++self.pendingCount;
+        }
+    }
+}
+
+ROM_TEXT(0809C5B4) void RemovePendingScriptEvent(ScriptEventSelection & self, u16 eventId)
+{
+    u16 * begin = self.pendingIds;
+    unsigned offset = offsetof(ScriptEventSelection, pendingIds) + self.pendingCount * sizeof(eventId);
+    u16 * end = reinterpret_cast<u16 *>(reinterpret_cast<uintptr_t>(&self) + offset);
+    u16 * found = func_080E3E28(begin, end, eventId);
+    if (found != end && self.pendingCount)
+    {
+        u16 * last = self.pendingIds + self.pendingCount;
         u16 * next = found + 1;
         if (next != last)
         {
@@ -273,94 +328,96 @@ ROM_TEXT(0809C644) void func_0809C644(Unk_0809C5EC & self, u16 value)
             if (last != next)
                 memmove(found, next, reinterpret_cast<char *>(last) - reinterpret_cast<char *>(next));
         }
-        --self.count;
+        --self.pendingCount;
     }
 }
 
-ROM_TEXT(0809C644) bool func_0809C694(Unk_0809C5EC const & self, u16 value)
+ROM_TEXT(0809C5B4) bool IsSelectedScriptEvent(ScriptEventSelection const & self, u16 eventId)
 {
-    return self.selected == value;
+    return self.selectedId == eventId;
 }
 
-ROM_TEXT(0809C644) void func_0809C6AC(Unk_0809C5EC & self, u16 value)
+ROM_TEXT(0809C5B4) void SelectScriptEvent(ScriptEventSelection & self, u16 eventId)
 {
-    self.selected = value;
+    self.selectedId = eventId;
 }
 
-ROM_TEXT(0809C644) void func_0809C6B0(Unk_0809C5EC & self)
+ROM_TEXT(0809C5B4) void DeselectScriptEvent(ScriptEventSelection & self)
 {
-    self.selected = 0xFFFF;
+    self.selectedId = 0xFFFF;
 }
 
-struct Record
+enum { FIRST_FISH_CATCH_ID = 8, MAX_CATCH_COUNT = 1000000000 };
+
+struct FishingRecord
 {
-    u32 count;
-    u32 best;
+    u32 catchCount;
+    u32 longestLength;
 };
 
-struct RecordBook
+struct FishingRecords
 {
-    Record records[59];
+    FishingRecord records[59];
 };
 
-ROM_TEXT(0809CD78) RecordBook & func_0809CD78(RecordBook & self)
+ROM_TEXT(0809CD78) FishingRecords & ResetFishingRecords(FishingRecords & self)
 {
-    Record * record = self.records;
+    FishingRecord * record = self.records;
     for (int remaining = ARRAY_COUNT(self.records) - 1; remaining != -1; ++record, --remaining)
     {
-        record->count = 0;
-        record->best = 0;
+        record->catchCount = 0;
+        record->longestLength = 0;
     }
     return self;
 }
 
-ROM_TEXT(0809CD78) bool func_0809CD98(RecordBook & self, unsigned index, u32 value)
+ROM_TEXT(0809CD78) bool RecordFishingCatch(FishingRecords & self, unsigned catchId, u32 length)
 {
     bool improved = false;
-    if (self.records[index].count < 1000000000)
-        ++self.records[index].count;
-    if (value > self.records[index].best)
+    if (self.records[catchId].catchCount < MAX_CATCH_COUNT)
+        ++self.records[catchId].catchCount;
+    if (length > self.records[catchId].longestLength)
     {
-        self.records[index].best = value;
+        self.records[catchId].longestLength = length;
         improved = true;
     }
     return improved;
 }
 
-ROM_TEXT(0809CD78) bool func_0809CDCC(RecordBook const & self)
+ROM_TEXT(0809CD78) bool HasCaughtEveryFish(FishingRecords const & self)
 {
     bool allRecorded = true;
-    for (unsigned i = 8; i < ARRAY_COUNT(self.records); ++i)
-        if (self.records[i].count == 0)
+    for (unsigned i = FIRST_FISH_CATCH_ID; i < ARRAY_COUNT(self.records); ++i)
+        if (self.records[i].catchCount == 0)
             allRecorded = false;
     return allRecorded;
 }
 
-ROM_TEXT(0809CD78) u32 func_0809CDEC(RecordBook const & self)
+ROM_TEXT(0809CD78) u32 GetTotalFishCaught(FishingRecords const & self)
 {
     u32 total = 0;
-    for (unsigned i = 8; i < ARRAY_COUNT(self.records); ++i)
+    for (unsigned i = FIRST_FISH_CATCH_ID; i < ARRAY_COUNT(self.records); ++i)
     {
-        total += self.records[i].count;
-        if (total >= 1000000000)
-            total = 1000000000;
+        total += self.records[i].catchCount;
+        if (total >= MAX_CATCH_COUNT)
+            total = MAX_CATCH_COUNT;
     }
     return total;
 }
 
-ROM_TEXT(0809CD78) u32 func_0809CE1C(RecordBook const & self, unsigned index)
+ROM_TEXT(0809CD78) u32 GetFishingCatchCount(FishingRecords const & self, unsigned catchId)
 {
-    return self.records[index].count;
+    return self.records[catchId].catchCount;
 }
 
-ROM_TEXT(0809CD78) u32 func_0809CE24(RecordBook const & self, unsigned index)
+ROM_TEXT(0809CD78) u32 GetLongestFishLength(FishingRecords const & self, unsigned catchId)
 {
-    return self.records[index].best;
+    return self.records[catchId].longestLength;
 }
 
-ROM_TEXT(0809CD78) unsigned func_0809CE30(RecordBook const &, unsigned index)
+ROM_TEXT(0809CD78) unsigned GetKingFishIconId(FishingRecords const &, unsigned catchId)
 {
-    switch (index)
+    switch (catchId)
     {
     default:
     case 53: return 252;
@@ -372,11 +429,11 @@ ROM_TEXT(0809CD78) unsigned func_0809CE30(RecordBook const &, unsigned index)
     }
 }
 
-EC u32 const gUnk_08103A18[];
+EC char const * const gFishingCatchNames[];
 
-ROM_TEXT(0809CD78) u32 func_0809CE7C(RecordBook const &, unsigned index)
+ROM_TEXT(0809CD78) char const * GetFishingCatchName(FishingRecords const &, unsigned catchId)
 {
-    return gUnk_08103A18[index];
+    return gFishingCatchNames[catchId];
 }
 
 struct Unk_0809D8A0
@@ -396,7 +453,38 @@ struct Unk_0809D8A0
     u32 unk_625_4 : 1;
 };
 
-ROM_TEXT(0809D470) unsigned func_0809D470(Unk_0809D8A0 const &, unsigned value)
+ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(Unk_0809D8A0 const &, unsigned value)
+{
+    unsigned row = 0;
+    if (value == 0)
+        goto done;
+    if (value <= 9)
+        return 1;
+    if (value <= 99)
+    {
+        row = 2;
+        for (unsigned bound = 20; bound <= 99 && value >= bound; bound += 20)
+            ++row;
+        return row;
+    }
+    if (value == 100)
+        return 7;
+    if (value <= 249)
+    {
+        row = 8;
+        for (unsigned bound = 130; bound <= 249 && value >= bound; bound += 30)
+            ++row;
+        return row;
+    }
+    row = 14;
+    if (value > 254)
+        goto done;
+    row = 13;
+done:
+    return row;
+}
+
+ROM_TEXT(0809D418) unsigned func_0809D470(Unk_0809D8A0 const &, unsigned value)
 {
     switch (value)
     {

@@ -15,19 +15,19 @@ EC NewGameState * func_08005A58(void * self, void * param, u32 value);
 EC void func_080007EC(void * self, int flags);
 EC NewGameState * func_080041DC(void * self, void * param, void * owner);
 EC NewGameState * func_08004EFC(void * self, void * a, void * b, u32 c, u32 d);
-EC void func_08050D0C(void * self, int flags);
+EC void DestroyMessageWindow(void * self, int flags);
 EC void func_080086BC(void * self, int flags);
 EC void * func_080088DC(void * self);
 EC void * func_08008920(void * self);
 EC void * func_08008918(void * self);
 EC void * func_08008940(void * self);
 EC void * func_0800894C(void * self);
-EC unsigned int func_08050D3C(void * self, void * a, void * b, void * c, void * d, void * e, void * f);
-EC int func_08050D34(void * self);
-EC void func_08050D5C(void * self);
-EC void func_08050D74(void * self);
-EC unsigned int func_08050DF0(void * self);
-EC void func_08050E30(void * self, char const * a, char const * b, char const * c, u32 d, u32 e, u32 f);
+EC unsigned int UpdateMessageWindow(void * self, void * a, void * b, void * c, void * d, void * e, void * f);
+EC int GetMessageWindowPhase(void * self);
+EC void OpenMessageWindow(void * self);
+EC void CloseMessageWindow(void * self);
+EC unsigned int GetMessageWindowSelection(void * self);
+EC void ConfigureMessageWindowPromptChoices(void * self, char const * a, char const * b, char const * c, u32 d, u32 e, u32 f);
 extern char gUnk_080E8998[];
 extern char gUnk_080E89A4[];
 extern char gUnk_080E89A8[];
@@ -40,7 +40,7 @@ EC void func_08006ED8(NewGameNameState * self)
 {
     if (self->unk_463C == 0)
         return;
-    int previous = func_08050D34(self->resource);
+    int previous = GetMessageWindowPhase(self->resource);
     void * resource = self->resource;
     void * a = func_080088DC(self);
     void * b = func_08008920(self);
@@ -48,7 +48,7 @@ EC void func_08006ED8(NewGameNameState * self)
     void * d = func_08008940(self);
     void * e = func_0800894C(self);
     void * f = &self->unk_45F0;
-    switch (func_08050D3C(resource, a, b, c, d, e, f))
+    switch (UpdateMessageWindow(resource, a, b, c, d, e, f))
     {
     case 0:
         if (self->unk_4638 != 0)
@@ -62,7 +62,7 @@ EC void func_08006ED8(NewGameNameState * self)
             self->unk_4636 = 1;
             strcpy(self->name, self->trimmed_name);
         }
-        func_08050D5C(self->resource);
+        OpenMessageWindow(self->resource);
         break;
     case 1: break;
     case 2: break;
@@ -71,14 +71,14 @@ EC void func_08006ED8(NewGameNameState * self)
         {
         case 4: case 5: break;
         default:
-            func_08050D74(self->resource);
+            CloseMessageWindow(self->resource);
             break;
         case 1:
             if (self->unk_463C == 1)
-                func_08050E30(self->resource, gUnk_080E8C2C, gUnk_080E8C44, gUnk_080E8C48, 0, 0, 0);
+                ConfigureMessageWindowPromptChoices(self->resource, gUnk_080E8C2C, gUnk_080E8C44, gUnk_080E8C48, 0, 0, 0);
             break;
         case 6:
-            switch (func_08050DF0(self->resource))
+            switch (GetMessageWindowSelection(self->resource))
             {
             case 1: self->unk_4639 = 1; break;
             case 2: self->unk_4638 = 1; break;
@@ -95,7 +95,7 @@ EC void func_08006ED8(NewGameNameState * self)
 EC void func_08005800(NewGameChoiceState * self) SECTION(".text.func_08005800");
 EC void func_08005800(NewGameChoiceState * self)
 {
-    int previous = func_08050D34(self->resource);
+    int previous = GetMessageWindowPhase(self->resource);
     void * resource = self->resource;
     void * a = func_080088DC(self);
     void * b = func_08008920(self);
@@ -103,12 +103,12 @@ EC void func_08005800(NewGameChoiceState * self)
     void * d = func_08008940(self);
     void * e = func_0800894C(self);
     void * f = &self->unk_1A30;
-    switch (func_08050D3C(resource, a, b, c, d, e, f))
+    switch (UpdateMessageWindow(resource, a, b, c, d, e, f))
     {
     case 0:
         if (self->unk_1A75 != 0)
             self->unk_1A74 = 1;
-        func_08050D5C(self->resource);
+        OpenMessageWindow(self->resource);
         break;
     case 1: break;
     case 2: break;
@@ -117,13 +117,13 @@ EC void func_08005800(NewGameChoiceState * self)
         {
         case 4: case 5: break;
         default:
-            func_08050D74(self->resource);
+            CloseMessageWindow(self->resource);
             break;
         case 1:
-            func_08050E30(self->resource, gUnk_080E8998, gUnk_080E89A4, gUnk_080E89A8, 0, 0, 0);
+            ConfigureMessageWindowPromptChoices(self->resource, gUnk_080E8998, gUnk_080E89A4, gUnk_080E89A8, 0, 0, 0);
             break;
         case 6:
-            switch (func_08050DF0(self->resource))
+            switch (GetMessageWindowSelection(self->resource))
             {
             case 0: break;
             case 1:
@@ -147,7 +147,7 @@ EC void func_08005800(NewGameChoiceState * self)
     case 6: break;
     }
 }
-EC void func_08050DC8(void * self, char const * text, int a, int b);
+EC void SetMessageWindowTextOptions(void * self, char const * text, int a, int b);
 
 extern char gUnk_080E8770[];
 extern char gUnk_080E877C[];
@@ -175,7 +175,7 @@ EC void func_08003EEC(NewGameMenuState * self)
     case 4: text = gUnk_080E8828; break;
     case 5: text = gUnk_080E8878; break;
     }
-    func_08050DC8(reinterpret_cast<char *>(self) + 0x10, text != nullptr ? text : gUnk_080E86C0, 0, 0);
+    SetMessageWindowTextOptions(reinterpret_cast<char *>(self) + 0x10, text != nullptr ? text : gUnk_080E86C0, 0, 0);
 }
 
 EC void func_08006858(NewGameNameState * self) SECTION(".text.func_08006858");
@@ -216,7 +216,7 @@ EC void func_08003C28(char * self)
     void * e = func_0800894C(self);
     void * first = self + 0x10;
     void * last = self + 0x14;
-    func_08050D3C(first, a, b, c, d, e, last);
+    UpdateMessageWindow(first, a, b, c, d, e, last);
 }
 
 EC NewGameScene * func_08004B58(NewGameScene * self) SECTION(".text.func_08004B58");
@@ -245,7 +245,7 @@ EC void func_080050C8(NewGameChoiceLifetime * self, int flags)
 {
     self->vtable = vtable_unk_080E5A98;
     if (self->resource != nullptr)
-        func_08050D0C(self->resource, 3);
+        DestroyMessageWindow(self->resource, 3);
     func_080086BC(self, flags);
 }
 
@@ -262,7 +262,7 @@ EC void func_08005B38(NewGameNameLifetime * self, int flags)
 {
     self->vtable = vtable_unk_080E5AB4;
     if (self->resource != nullptr)
-        func_08050D0C(self->resource, 3);
+        DestroyMessageWindow(self->resource, 3);
     func_080086BC(self, flags);
 }
 
