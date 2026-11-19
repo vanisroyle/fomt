@@ -61,7 +61,11 @@ SECTIONS
     {
         src/crt0.o(.rom_header);
         asm/main.o(.text);
+        src/sram_header.o(.text);
         asm/sram_proxy_1.o(.text);
+        src/sram_header.o(.text.flags);
+        asm/sram_proxy_1.o(.text.tail);
+        src/sram_selection.o(.text);
         asm/interrupt.o(.text);
         src/new.o(.text);
         src/pure_virtual.o(.text);
