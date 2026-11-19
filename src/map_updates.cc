@@ -51,7 +51,7 @@ struct MapUpdateState
 
 EC u32 func_0800E324(Unk_0800E324 const & calendar);
 EC MapPatch & GetMapPatch(MapPatch & result, u32 const & flags, unsigned index, bool isWinter);
-EC void func_080A5BD8(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, u32 y);
+EC void ApplyMapPatch(MapUpdateState & map, MapPatchTiles const * tiles, u32 x, u32 y);
 EC u32 func_0803A8A4(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 EC MapPatchTiles const gUnk_08106DAC;
 EC u32 const gUnk_08107438[6];
@@ -66,19 +66,19 @@ EC SECTION(".text.080AA850") void ApplySavedMapTilePatch(MapUpdateState & map, u
     u32 season = func_0800E324(map.save->GetCalendar());
     MapPatch patch;
     GetMapPatch(patch, map.save->tilePatchFlags, patchId, season == SEASON_WINTER);
-    func_080A5BD8(map, patch.tiles, patch.tileX, patch.tileY);
+    ApplyMapPatch(map, patch.tiles, patch.tileX, patch.tileY);
     map.tilesDirty = true;
 }
 
 EC SECTION(".text.080AA89C") void ClearSupermarketRucksackDisplay(MapUpdateState & map)
 {
-    func_080A5BD8(map, &gUnk_08106DAC, 33, 20);
+    ApplyMapPatch(map, &gUnk_08106DAC, 33, 20);
     map.tilesDirty = true;
 }
 
 EC SECTION(".text.080AA8BC") void ClearSupermarketBlueFeatherDisplay(MapUpdateState & map)
 {
-    func_080A5BD8(map, &gUnk_08106DAC, 33, 23);
+    ApplyMapPatch(map, &gUnk_08106DAC, 33, 23);
     map.tilesDirty = true;
 }
 
