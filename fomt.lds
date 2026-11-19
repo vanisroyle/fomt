@@ -70,6 +70,18 @@ SECTIONS
         asm/scene.o(.text);
         asm/intro_scene.o(.text);
         asm/new_game.o(.text);
+        src/new_game.o(.text.func_08005254);
+        asm/new_game.o(.text.after_08005254);
+        src/new_game.o(.text.func_08005260);
+        asm/new_game.o(.text.after_08005260);
+        src/new_game.o(.text.func_08005A3C);
+        asm/new_game.o(.text.after_08005A3C);
+        src/new_game.o(.text.func_08006334);
+        asm/new_game.o(.text.after_08006334);
+        src/new_game.o(.text.func_08006C28);
+        asm/new_game.o(.text.after_08006C28);
+        src/new_game.o(.text.func_08007110);
+        asm/new_game.o(.text.after_08007110);
         src/hardware.o(.text);
         asm/hardware.o(.text);
         src/farm.o(.text);

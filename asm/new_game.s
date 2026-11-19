@@ -3275,28 +3275,8 @@ func_080050F8: @ 0x080050F8
     bx r1
     .align 2, 0
 
-    thumb_func_start func_08005254
-func_08005254: @ 0x08005254
-    push {lr}
-    bl func_08008724
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08005260
-func_08005260: @ 0x08005260
-    ldr r2, .L08005270 @ =0x00001A75
-    adds r1, r0, r2
-    movs r2, #0
-    strb r2, [r1]
-    ldr r1, .L08005274 @ =0x00001A74
-    adds r0, r0, r1
-    strb r2, [r0]
-    bx lr
-    .align 2, 0
-.L08005270: .4byte 0x00001A75
-.L08005274: .4byte 0x00001A74
-
+    .section .text.after_08005254,"ax",%progbits
+    .section .text.after_08005260,"ax",%progbits
     thumb_func_start func_08005278
 func_08005278: @ 0x08005278
     push {r4, r5, r6, r7, lr}
@@ -4269,15 +4249,7 @@ func_08005A00: @ 0x08005A00
     bx r1
     .align 2, 0
 
-    thumb_func_start func_08005A3C
-func_08005A3C: @ 0x08005A3C
-    ldr r0, [r0, #4]
-    ldr r1, .L08005A48 @ =0x00001A76
-    adds r0, r0, r1
-    ldrb r0, [r0]
-    bx lr
-    .align 2, 0
-.L08005A48: .4byte 0x00001A76
+    .section .text.after_08005A3C,"ax",%progbits
 .L08005A4C:
     .byte 0x01, 0x49, 0x40, 0x18
     .byte 0x00, 0x78, 0x70, 0x47, 0x76, 0x1A, 0x00, 0x00
@@ -5360,42 +5332,7 @@ func_080061A0: @ 0x080061A0
 .L0800632C: .4byte 0xFFFFFE00
 .L08006330: .4byte 0x0000460A
 
-    thumb_func_start func_08006334
-func_08006334: @ 0x08006334
-    ldr r2, .L08006370 @ =0x00004639
-    adds r1, r0, r2
-    movs r2, #0
-    strb r2, [r1]
-    ldr r3, .L08006374 @ =0x00004638
-    adds r1, r0, r3
-    strb r2, [r1]
-    subs r3, #2
-    adds r1, r0, r3
-    strb r2, [r1]
-    adds r3, #1
-    adds r1, r0, r3
-    strb r2, [r1]
-    subs r3, #0x32
-    adds r1, r0, r3
-    strb r2, [r1]
-    subs r3, #1
-    adds r1, r0, r3
-    strb r2, [r1]
-    subs r3, #4
-    adds r1, r0, r3
-    str r2, [r1]
-    adds r3, #0x10
-    adds r1, r0, r3
-    strb r2, [r1]
-    ldr r1, .L08006378 @ =0x0000463C
-    adds r0, r0, r1
-    str r2, [r0]
-    bx lr
-    .align 2, 0
-.L08006370: .4byte 0x00004639
-.L08006374: .4byte 0x00004638
-.L08006378: .4byte 0x0000463C
-
+    .section .text.after_08006334,"ax",%progbits
     thumb_func_start func_0800637C
 func_0800637C: @ 0x0800637C
     push {r4, r5, r6, r7, lr}
@@ -6539,38 +6476,7 @@ func_08006B90: @ 0x08006B90
 .L08006C20: .4byte 0x00004604
 .L08006C24: .4byte 0x00004605
 
-    thumb_func_start func_08006C28
-func_08006C28: @ 0x08006C28
-    push {r4, lr}
-    adds r4, r0, #0
-    lsls r1, r1, #0x18
-    lsrs r1, r1, #0x18
-    cmp r1, #0xa
-    bhi .L08006C4A
-    ldr r0, .L08006C58 @ =0x0000461C
-    adds r3, r4, r0
-.L08006C38:
-    adds r2, r3, r1
-    adds r1, #1
-    adds r0, r3, r1
-    ldrb r0, [r0]
-    strb r0, [r2]
-    lsls r1, r1, #0x18
-    lsrs r1, r1, #0x18
-    cmp r1, #0xa
-    bls .L08006C38
-.L08006C4A:
-    ldr r0, .L08006C5C @ =0x00004627
-    adds r1, r4, r0
-    movs r0, #0x5f
-    strb r0, [r1]
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08006C58: .4byte 0x0000461C
-.L08006C5C: .4byte 0x00004627
-
+    .section .text.after_08006C28,"ax",%progbits
     thumb_func_start func_08006C60
 func_08006C60: @ 0x08006C60
     push {r4, r5, r6, r7, lr}
@@ -7168,14 +7074,7 @@ func_080070D4: @ 0x080070D4
     bx r1
     .align 2, 0
 
-    thumb_func_start func_08007110
-func_08007110: @ 0x08007110
-    ldr r0, [r0, #4]
-    ldr r1, .L08007118 @ =0x0000461C
-    adds r0, r0, r1
-    bx lr
-    .align 2, 0
-.L08007118: .4byte 0x0000461C
+    .section .text.after_08007110,"ax",%progbits
 .L0800711C:
     .byte 0x01, 0x49, 0x40, 0x18
     .byte 0x70, 0x47, 0x00, 0x00, 0x1C, 0x46, 0x00, 0x00
