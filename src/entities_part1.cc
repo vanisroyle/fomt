@@ -348,6 +348,15 @@ EC MapCollisionEscapeOffset Map_FindCollisionEscapeOffset(void * map, Box const 
     return MapCollisionEscapeOffset();
 }
 
+// 0x080215FC
+EC Box DogEntity_GetCollisionBox(DogEntity const * self) ENTITY_CODE(080215FC);
+EC Box DogEntity_GetCollisionBox(DogEntity const * self)
+{
+    i32 const x = self->x_q16 >> 16;
+    i32 const y = self->y_q16 >> 16;
+    return Box(x, y, 14, 9);
+}
+
 struct ChickenEntityUpdateContext
 {
     u32 unk_00;
