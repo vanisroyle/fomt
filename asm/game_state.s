@@ -3203,91 +3203,6 @@ GameScript_RunRuntime: @ 0x08012028
 
     .section .text.game_state_080122E0, "ax", %progbits
 
-    thumb_func_start func_080122E0
-func_080122E0: @ 0x080122E0
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #8
-    ldr r0, [r0, #4]
-    mov sl, r0
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r4, [r0]
-    mov ip, r4
-    movs r5, #0xb4
-    add ip, r5
-    mov r8, sp
-    ldr r7, .L08012384 @ =0x000003FF
-    ands r1, r7
-    mov r4, r8
-    ldrh r5, [r4]
-    ldr r6, .L08012388 @ =0xFFFFFC00
-    adds r4, r6, #0
-    ands r4, r5
-    orrs r4, r1
-    mov r5, r8
-    strh r4, [r5]
-    lsls r2, r2, #0x10
-    lsrs r4, r2, #0x10
-    movs r7, #0x3f
-    ands r4, r7
-    lsls r4, r4, #2
-    ldrb r1, [r5, #1]
-    mov sb, r1
-    movs r5, #3
-    adds r1, r5, #0
-    mov r7, sb
-    ands r1, r7
-    orrs r1, r4
-    mov r4, r8
-    strb r1, [r4, #1]
-    lsrs r2, r2, #0x16
-    ldr r7, .L08012384 @ =0x000003FF
-    ands r2, r7
-    ldrh r4, [r4, #2]
-    adds r1, r6, #0
-    ands r1, r4
-    orrs r1, r2
-    mov r2, r8
-    strh r1, [r2, #2]
-    lsls r3, r3, #0x10
-    lsrs r1, r3, #0x10
-    movs r4, #0x3f
-    ands r1, r4
-    lsls r1, r1, #2
-    ldrb r2, [r2, #3]
-    ands r5, r2
-    orrs r5, r1
-    mov r7, r8
-    strb r5, [r7, #3]
-    lsrs r3, r3, #0x16
-    ldr r1, .L08012384 @ =0x000003FF
-    ands r3, r1
-    ldrh r1, [r7, #4]
-    ands r6, r1
-    orrs r6, r3
-    strh r6, [r7, #4]
-    mov r2, ip
-    ldr r3, [r2]
-    mov r1, sp
-    movs r2, #1
-    bl _call_via_r3
-    mov r0, sl
-    bl func_080D7F08
-    add sp, #8
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012384: .4byte 0x000003FF
-.L08012388: .4byte 0xFFFFFC00
 
     .section .text.game_state_080123A4, "ax", %progbits
 
@@ -3516,67 +3431,6 @@ func_080124D0: @ 0x080124D0
     .section .text.game_state_08012860, "ax", %progbits
 
 
-    thumb_func_start GameScript_StartPromptChoices
-GameScript_StartPromptChoices: @ 0x08012860
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0xc
-    adds r6, r1, #0
-    adds r5, r3, #0
-    ldr r3, [sp, #0x20]
-    ldr r7, [sp, #0x24]
-    ldr r4, [r0, #4]
-    adds r0, r4, #0
-    adds r0, #0xac
-    ldr r1, [r0]
-    cmp r1, #0
-    beq .L080128C8
-    cmp r2, #0
-    beq .L080128C8
-    cmp r5, #0
-    beq .L080128C8
-    cmp r3, #0
-    bne .L0801288E
-    adds r0, #4
-    ldr r0, [r0]
-    str r3, [sp]
-    str r3, [sp, #4]
-    b .L0801289C
-.L0801288E:
-    cmp r7, #0
-    bne .L080128AA
-    adds r0, r4, #0
-    adds r0, #0xb0
-    ldr r0, [r0]
-    str r3, [sp]
-    str r7, [sp, #4]
-.L0801289C:
-    str r0, [sp, #8]
-    adds r0, r1, #0
-    adds r1, r6, #0
-    adds r3, r5, #0
-    bl ConfigureMessageWindowPromptChoices
-    b .L080128C0
-.L080128AA:
-    adds r0, r4, #0
-    adds r0, #0xb0
-    ldr r0, [r0]
-    str r3, [sp]
-    str r7, [sp, #4]
-    str r0, [sp, #8]
-    adds r0, r1, #0
-    adds r1, r6, #0
-    adds r3, r5, #0
-    bl ConfigureMessageWindowPromptChoices
-.L080128C0:
-    adds r1, r4, #0
-    adds r1, #0x9c
-    movs r0, #0x14
-    str r0, [r1]
-.L080128C8:
-    add sp, #0xc
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
     .section .text.game_state_080128D0, "ax", %progbits
     .section .text.game_state_0801297C, "ax", %progbits
 
@@ -3829,8 +3683,8 @@ func_08012B24: @ 0x08012B24
 
     .section .text.game_state_08012BBC, "ax", %progbits
 
-    thumb_func_start GameScript_QueueCondition0A
-GameScript_QueueCondition0A: @ 0x08012BBC
+    thumb_func_start GameScript_QueueSceneVariant0A
+GameScript_QueueSceneVariant0A: @ 0x08012BBC
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -3903,8 +3757,8 @@ GameScript_QueueCondition0A: @ 0x08012BBC
 .L08012C48: .4byte vtable_unk_080E5E74
 .L08012C4C: .4byte vtable_unk_080E5E34
 
-    thumb_func_start func_08012C50
-func_08012C50: @ 0x08012C50
+    thumb_func_start GameScript_QueueSceneVariant0B
+GameScript_QueueSceneVariant0B: @ 0x08012C50
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -3984,8 +3838,8 @@ func_08012C50: @ 0x08012C50
 .L08012CEC: .4byte vtable_unk_080E5E74
 .L08012CF0: .4byte vtable_unk_080E5E24
 
-    thumb_func_start func_08012CF4
-func_08012CF4: @ 0x08012CF4
+    thumb_func_start GameScript_QueueSceneVariant0C
+GameScript_QueueSceneVariant0C: @ 0x08012CF4
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4058,8 +3912,8 @@ func_08012CF4: @ 0x08012CF4
 .L08012D80: .4byte vtable_unk_080E5E74
 .L08012D84: .4byte vtable_unk_080E5DE4
 
-    thumb_func_start func_08012D88
-func_08012D88: @ 0x08012D88
+    thumb_func_start GameScript_QueueSceneVariant0D
+GameScript_QueueSceneVariant0D: @ 0x08012D88
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4132,8 +3986,8 @@ func_08012D88: @ 0x08012D88
 .L08012E14: .4byte vtable_unk_080E5E74
 .L08012E18: .4byte vtable_unk_080E5DF4
 
-    thumb_func_start func_08012E1C
-func_08012E1C: @ 0x08012E1C
+    thumb_func_start GameScript_QueueSceneVariant0E
+GameScript_QueueSceneVariant0E: @ 0x08012E1C
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4213,8 +4067,8 @@ func_08012E1C: @ 0x08012E1C
 .L08012EB8: .4byte vtable_unk_080E5E74
 .L08012EBC: .4byte vtable_unk_080E5E14
 
-    thumb_func_start func_08012EC0
-func_08012EC0: @ 0x08012EC0
+    thumb_func_start GameScript_QueueSceneVariant0F
+GameScript_QueueSceneVariant0F: @ 0x08012EC0
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4287,8 +4141,8 @@ func_08012EC0: @ 0x08012EC0
 .L08012F4C: .4byte vtable_unk_080E5E74
 .L08012F50: .4byte vtable_unk_080E5E04
 
-    thumb_func_start func_08012F54
-func_08012F54: @ 0x08012F54
+    thumb_func_start GameScript_QueueSceneVariant10
+GameScript_QueueSceneVariant10: @ 0x08012F54
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4361,8 +4215,8 @@ func_08012F54: @ 0x08012F54
 .L08012FE0: .4byte vtable_unk_080E5E74
 .L08012FE4: .4byte vtable_unk_080E5DD4
 
-    thumb_func_start func_08012FE8
-func_08012FE8: @ 0x08012FE8
+    thumb_func_start GameScript_QueueSceneVariant11
+GameScript_QueueSceneVariant11: @ 0x08012FE8
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4436,8 +4290,8 @@ func_08012FE8: @ 0x08012FE8
 .L08013078: .4byte vtable_unk_080E5E74
 .L0801307C: .4byte vtable_unk_080E5D94
 
-    thumb_func_start func_08013080
-func_08013080: @ 0x08013080
+    thumb_func_start GameScript_QueueSceneVariant12
+GameScript_QueueSceneVariant12: @ 0x08013080
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4510,8 +4364,8 @@ func_08013080: @ 0x08013080
 .L0801310C: .4byte vtable_unk_080E5E74
 .L08013110: .4byte vtable_unk_080E5DB4
 
-    thumb_func_start func_08013114
-func_08013114: @ 0x08013114
+    thumb_func_start GameScript_QueueSceneVariant13
+GameScript_QueueSceneVariant13: @ 0x08013114
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4584,8 +4438,8 @@ func_08013114: @ 0x08013114
 .L080131A0: .4byte vtable_unk_080E5E74
 .L080131A4: .4byte vtable_unk_080E5DC4
 
-    thumb_func_start func_080131A8
-func_080131A8: @ 0x080131A8
+    thumb_func_start GameScript_QueueSceneVariant14
+GameScript_QueueSceneVariant14: @ 0x080131A8
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4658,8 +4512,8 @@ func_080131A8: @ 0x080131A8
 .L08013234: .4byte vtable_unk_080E5E74
 .L08013238: .4byte vtable_unk_080E5DA4
 
-    thumb_func_start func_0801323C
-func_0801323C: @ 0x0801323C
+    thumb_func_start GameScript_QueueSceneVariant16
+GameScript_QueueSceneVariant16: @ 0x0801323C
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4732,8 +4586,8 @@ func_0801323C: @ 0x0801323C
 .L080132C8: .4byte vtable_unk_080E5E74
 .L080132CC: .4byte vtable_unk_080E5D64
 
-    thumb_func_start func_080132D0
-func_080132D0: @ 0x080132D0
+    thumb_func_start GameScript_QueueSceneVariant17
+GameScript_QueueSceneVariant17: @ 0x080132D0
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4806,8 +4660,8 @@ func_080132D0: @ 0x080132D0
 .L0801335C: .4byte vtable_unk_080E5E74
 .L08013360: .4byte vtable_unk_080E5D84
 
-    thumb_func_start func_08013364
-func_08013364: @ 0x08013364
+    thumb_func_start GameScript_QueueSceneVariant18
+GameScript_QueueSceneVariant18: @ 0x08013364
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -4887,8 +4741,8 @@ func_08013364: @ 0x08013364
 .L08013400: .4byte vtable_unk_080E5E74
 .L08013404: .4byte vtable_unk_080E5D54
 
-    thumb_func_start func_08013408
-func_08013408: @ 0x08013408
+    thumb_func_start GameScript_QueueSceneVariant18Preset1000
+GameScript_QueueSceneVariant18Preset1000: @ 0x08013408
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -4965,8 +4819,8 @@ func_08013408: @ 0x08013408
 .L0801349C: .4byte vtable_unk_080E5E74
 .L080134A0: .4byte vtable_unk_080E5D54
 
-    thumb_func_start func_080134A4
-func_080134A4: @ 0x080134A4
+    thumb_func_start GameScript_QueueSceneVariant18Preset1001
+GameScript_QueueSceneVariant18Preset1001: @ 0x080134A4
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5043,8 +4897,8 @@ func_080134A4: @ 0x080134A4
 .L0801353C: .4byte 0x00001001
 .L08013540: .4byte vtable_unk_080E5D54
 
-    thumb_func_start func_08013544
-func_08013544: @ 0x08013544
+    thumb_func_start GameScript_QueueSceneVariant19
+GameScript_QueueSceneVariant19: @ 0x08013544
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5117,8 +4971,8 @@ func_08013544: @ 0x08013544
 .L080135D0: .4byte vtable_unk_080E5E74
 .L080135D4: .4byte vtable_unk_080E5CB4
 
-    thumb_func_start func_080135D8
-func_080135D8: @ 0x080135D8
+    thumb_func_start GameScript_QueueSceneVariant1A
+GameScript_QueueSceneVariant1A: @ 0x080135D8
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5191,8 +5045,8 @@ func_080135D8: @ 0x080135D8
 .L08013664: .4byte vtable_unk_080E5E74
 .L08013668: .4byte vtable_unk_080E5CE4
 
-    thumb_func_start func_0801366C
-func_0801366C: @ 0x0801366C
+    thumb_func_start GameScript_QueueSceneVariant1B
+GameScript_QueueSceneVariant1B: @ 0x0801366C
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5265,8 +5119,8 @@ func_0801366C: @ 0x0801366C
 .L080136F8: .4byte vtable_unk_080E5E74
 .L080136FC: .4byte vtable_unk_080E5CC4
 
-    thumb_func_start func_08013700
-func_08013700: @ 0x08013700
+    thumb_func_start GameScript_QueueSceneVariant1C
+GameScript_QueueSceneVariant1C: @ 0x08013700
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5339,8 +5193,8 @@ func_08013700: @ 0x08013700
 .L0801378C: .4byte vtable_unk_080E5E74
 .L08013790: .4byte vtable_unk_080E5CD4
 
-    thumb_func_start func_08013794
-func_08013794: @ 0x08013794
+    thumb_func_start GameScript_QueueSceneVariant1D
+GameScript_QueueSceneVariant1D: @ 0x08013794
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5413,8 +5267,8 @@ func_08013794: @ 0x08013794
 .L08013820: .4byte vtable_unk_080E5E74
 .L08013824: .4byte vtable_unk_080E5E54
 
-    thumb_func_start func_08013828
-func_08013828: @ 0x08013828
+    thumb_func_start GameScript_QueueSceneVariant1E
+GameScript_QueueSceneVariant1E: @ 0x08013828
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5488,8 +5342,8 @@ func_08013828: @ 0x08013828
 .L080138B8: .4byte vtable_unk_080E5E74
 .L080138BC: .4byte vtable_unk_080E5D44
 
-    thumb_func_start func_080138C0
-func_080138C0: @ 0x080138C0
+    thumb_func_start GameScript_QueueSceneVariant1F
+GameScript_QueueSceneVariant1F: @ 0x080138C0
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5565,8 +5419,8 @@ func_080138C0: @ 0x080138C0
 .L08013954: .4byte vtable_unk_080E5E74
 .L08013958: .4byte vtable_unk_080E5D44
 
-    thumb_func_start func_0801395C
-func_0801395C: @ 0x0801395C
+    thumb_func_start GameScript_QueueSceneVariant20
+GameScript_QueueSceneVariant20: @ 0x0801395C
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5639,8 +5493,8 @@ func_0801395C: @ 0x0801395C
 .L080139E8: .4byte vtable_unk_080E5E74
 .L080139EC: .4byte vtable_unk_080E5C34
 
-    thumb_func_start func_080139F0
-func_080139F0: @ 0x080139F0
+    thumb_func_start GameScript_QueueSceneVariant21
+GameScript_QueueSceneVariant21: @ 0x080139F0
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -5720,8 +5574,8 @@ func_080139F0: @ 0x080139F0
 .L08013A8C: .4byte vtable_unk_080E5E74
 .L08013A90: .4byte vtable_unk_080E5C94
 
-    thumb_func_start func_08013A94
-func_08013A94: @ 0x08013A94
+    thumb_func_start GameScript_QueueSceneVariant22
+GameScript_QueueSceneVariant22: @ 0x08013A94
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -5801,8 +5655,8 @@ func_08013A94: @ 0x08013A94
 .L08013B30: .4byte vtable_unk_080E5E74
 .L08013B34: .4byte vtable_unk_080E5C84
 
-    thumb_func_start func_08013B38
-func_08013B38: @ 0x08013B38
+    thumb_func_start GameScript_QueueSceneVariant23
+GameScript_QueueSceneVariant23: @ 0x08013B38
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -5882,8 +5736,8 @@ func_08013B38: @ 0x08013B38
 .L08013BD4: .4byte vtable_unk_080E5E74
 .L08013BD8: .4byte vtable_unk_080E5C74
 
-    thumb_func_start func_08013BDC
-func_08013BDC: @ 0x08013BDC
+    thumb_func_start GameScript_QueueSceneVariant29
+GameScript_QueueSceneVariant29: @ 0x08013BDC
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -5956,8 +5810,8 @@ func_08013BDC: @ 0x08013BDC
 .L08013C68: .4byte vtable_unk_080E5E74
 .L08013C6C: .4byte vtable_unk_080E5C44
 
-    thumb_func_start func_08013C70
-func_08013C70: @ 0x08013C70
+    thumb_func_start GameScript_QueueSceneVariant2B
+GameScript_QueueSceneVariant2B: @ 0x08013C70
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -6125,8 +5979,8 @@ func_08013D04: @ 0x08013D04
 .L08013DC0: .4byte 0xFFFFFC00
 .L08013DC4: .4byte vtable_unk_080E5C24
 
-    thumb_func_start func_08013DC8
-func_08013DC8: @ 0x08013DC8
+    thumb_func_start GameScript_QueueSceneVariant2D
+GameScript_QueueSceneVariant2D: @ 0x08013DC8
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -6206,152 +6060,12 @@ func_08013DC8: @ 0x08013DC8
 .L08013E64: .4byte vtable_unk_080E5E74
 .L08013E68: .4byte vtable_unk_080E5C54
 
-    thumb_func_start GameScript_QueueCondition2E
-GameScript_QueueCondition2E: @ 0x08013E6C
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x2e
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r1, r6, #0
-    adds r1, #0x8c
-    ldr r3, [r1]
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r4, r5, r7}
-    stm r2!, {r4, r5, r7}
-    ldr r1, .L08013EF0 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    str r3, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r5}
-    stm r2!, {r3, r4, r5}
-    str r0, [sp, #0xc]
-    movs r0, #8
-    bl __builtin_new
-    ldr r3, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    ldr r1, .L08013EF4 @ =vtable_unk_080E5D74
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r3, [r0, #4]
-    adds r5, r6, #0
-    adds r5, #0xa4
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013ECC
-    cmp r1, #0
-    beq .L08013ECC
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013ECC:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013EE8
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013EE8:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013EF0: .4byte vtable_unk_080E5E74
-.L08013EF4: .4byte vtable_unk_080E5D74
     .section .text.game_state_08013EF8, "ax", %progbits
 
-    thumb_func_start GameScript_QueueCondition2F
-GameScript_QueueCondition2F: @ 0x08013EF8
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    mov r8, r1
-    ldr r6, [r0, #4]
-    movs r0, #0x2f
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r1, r6, #0
-    adds r1, #0x8c
-    ldr r3, [r1]
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r4, r5, r7}
-    stm r2!, {r4, r5, r7}
-    ldr r1, .L08013F84 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    str r3, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r5}
-    stm r2!, {r3, r4, r5}
-    movs r1, #0
-    str r1, [sp, #0xc]
-    str r0, [sp, #0x10]
-    movs r0, #0xc
-    bl __builtin_new
-    add r1, sp, #0x10
-    mov r2, r8
-    bl func_0803B6FC
-    adds r5, r6, #0
-    adds r5, #0xa4
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013F5C
-    cmp r1, #0
-    beq .L08013F5C
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013F5C:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013F78
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013F78:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013F84: .4byte vtable_unk_080E5E74
     .section .text.game_state_08013F88, "ax", %progbits
 
-    thumb_func_start func_08013F88
-func_08013F88: @ 0x08013F88
+    thumb_func_start GameScript_QueueSceneVariant2C
+GameScript_QueueSceneVariant2C: @ 0x08013F88
     push {r4, r5, r6, r7, lr}
     mov r7, sb
     mov r6, r8
@@ -6511,8 +6225,8 @@ GameScript_UpdateTextPanel: @ 0x08014318
     pop {r0}
     bx r0
     .section .text.game_state_0801437C, "ax", %progbits
-    thumb_func_start func_0801437C
-func_0801437C: @ 0x0801437C
+    thumb_func_start GameScript_QueueSceneVariant24
+GameScript_QueueSceneVariant24: @ 0x0801437C
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -6585,8 +6299,8 @@ func_0801437C: @ 0x0801437C
 .L08014408: .4byte vtable_unk_080E5E74
 .L0801440C: .4byte vtable_unk_080E5CA4
 
-    thumb_func_start func_08014410
-func_08014410: @ 0x08014410
+    thumb_func_start GameScript_QueueSceneVariant25
+GameScript_QueueSceneVariant25: @ 0x08014410
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -6670,8 +6384,8 @@ func_08014410: @ 0x08014410
 .L080144B4: .4byte vtable_unk_080E5E74
 .L080144B8: .4byte vtable_unk_080E5D34
 
-    thumb_func_start func_080144BC
-func_080144BC: @ 0x080144BC
+    thumb_func_start GameScript_QueueSceneVariant26
+GameScript_QueueSceneVariant26: @ 0x080144BC
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -6744,8 +6458,8 @@ func_080144BC: @ 0x080144BC
 .L08014548: .4byte vtable_unk_080E5E74
 .L0801454C: .4byte vtable_unk_080E5D24
 
-    thumb_func_start func_08014550
-func_08014550: @ 0x08014550
+    thumb_func_start GameScript_QueueSceneVariant27
+GameScript_QueueSceneVariant27: @ 0x08014550
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -6828,8 +6542,8 @@ func_08014550: @ 0x08014550
 .L080145F0: .4byte vtable_unk_080E5E74
 .L080145F4: .4byte vtable_unk_080E5D14
 
-    thumb_func_start func_080145F8
-func_080145F8: @ 0x080145F8
+    thumb_func_start GameScript_QueueSceneVariant28
+GameScript_QueueSceneVariant28: @ 0x080145F8
     push {r4, r5, r6, r7, lr}
     sub sp, #0x1c
     ldr r6, [r0, #4]
@@ -8241,8 +7955,8 @@ func_08014D9C: @ 0x08014D9C
 .L08015208: .4byte 0x00000383
 .L0801520C: .4byte gUnk_080F0658
 
-    thumb_func_start func_08015210
-func_08015210: @ 0x08015210
+    thumb_func_start GameScript_RemoveLivestockInState2
+GameScript_RemoveLivestockInState2: @ 0x08015210
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -11241,8 +10955,8 @@ func_080168D4: @ 0x080168D4
 
     .section .text.game_state_08016DB0, "ax", %progbits
 
-    thumb_func_start func_08016DB0
-func_08016DB0: @ 0x08016DB0
+    thumb_func_start GameScript_StartRandomRecipeFoodAction
+GameScript_StartRandomRecipeFoodAction: @ 0x08016DB0
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -13348,7 +13062,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r0]
     cmp r0, #0
     beq .L08018080
-    bl func_080AB380
+    bl UpdateMapTileEffectQueue
 .L08018080:
     movs r6, #0
     ldr r5, .L080180B4 @ =0x0000106C
@@ -20098,7 +19812,7 @@ func_0801E67C: @ 0x0801E67C
     bl _call_via_r2
     mov r0, sp
     adds r1, r4, #0
-    bl func_080AC070
+    bl DoesEntityCollisionRectangleHitSolidTile
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0801E7DE

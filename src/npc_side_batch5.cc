@@ -43,7 +43,7 @@ struct ActivityAnimationNpc : AActorEntity
 
 EC UnknownEntityThing * InitializeSideActorSpriteLayers(UnknownEntityThing * self, AActorEntity * actor, u32 layer, u32 animation, u32 priority, u32 palette, u32 flags, bool visible);
 EC void func_08034F00(AActorEntity * self, i32 reason);
-EC void func_08036E70(AActorEntity * self);
+EC void RefreshArrivalReactionAnimations(AActorEntity * self);
 EC void ClearSpriteWorkPause(SpriteWorkerEntity * self);
 EC u16 const gUnk_080F14B8[];
 
@@ -59,7 +59,7 @@ EC void RefreshArrivalReactionNpc(AActorEntity * self, i32 reason)
 {
     func_08034F00(self, reason);
     if (reason > 1)
-        func_08036E70(self);
+        RefreshArrivalReactionAnimations(self);
 }
 
 EC void * GetArrivalReactionNpcRecord(ActivityAnimationNpc * self) NPC_EXTRA_CODE(08037004);
