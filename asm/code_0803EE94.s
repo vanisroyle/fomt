@@ -56699,7 +56699,7 @@ func_0805D170: @ 0x0805D170
 	adds r2, #4
 	adds r1, r6, r2
 	strh r0, [r1]
-	ldr r2, .L0805D43C @ =gUnk_080FB000
+	ldr r2, .L0805D43C @ =gMedalExchangePrizes
 	movs r4, #0
 	ldrsh r3, [r1, r4]
 	lsls r0, r3, #2
@@ -56726,7 +56726,7 @@ func_0805D170: @ 0x0805D170
 	.align 2, 0
 .L0805D434: .4byte 0x00000ADC
 .L0805D438: .4byte 0x00000AD4
-.L0805D43C: .4byte gUnk_080FB000
+.L0805D43C: .4byte gMedalExchangePrizes
 .L0805D440: .4byte 0x00000ADA
 .L0805D444:
 	ldr r3, .L0805D450 @ =0x00000ADA
@@ -56971,7 +56971,7 @@ func_0805D170: @ 0x0805D170
 	movs r2, #0xad
 	lsls r2, r2, #4
 	adds r3, r6, r2
-	ldr r2, .L0805D684 @ =gUnk_080FB000
+	ldr r2, .L0805D684 @ =gMedalExchangePrizes
 	ldr r4, .L0805D67C @ =0x00000AD8
 	adds r0, r6, r4
 	movs r4, #0
@@ -57010,7 +57010,7 @@ func_0805D170: @ 0x0805D170
 .L0805D678: .4byte gUnk_080FB0F0
 .L0805D67C: .4byte 0x00000AD8
 .L0805D680: .4byte 0x00001C2C
-.L0805D684: .4byte gUnk_080FB000
+.L0805D684: .4byte gMedalExchangePrizes
 .L0805D688: .4byte 0x00002C48
 .L0805D68C: .4byte 0x0001FFFF
 .L0805D690: .4byte 0xFFF80003
@@ -57801,7 +57801,7 @@ func_0805DC24: @ 0x0805DC24
 	lsls r1, r0, #2
 	adds r1, r1, r0
 	lsls r1, r1, #2
-	ldr r0, .L0805DE1C @ =gUnk_080FB000
+	ldr r0, .L0805DE1C @ =gMedalExchangePrizes
 	adds r1, r1, r0
 	add r0, sp, #0x3d4
 	mov r2, sl
@@ -57897,7 +57897,7 @@ func_0805DC24: @ 0x0805DC24
 .L0805DE10: .4byte 0x05000200
 .L0805DE14: .4byte 0x06010000
 .L0805DE18: .4byte 0x06002800
-.L0805DE1C: .4byte gUnk_080FB000
+.L0805DE1C: .4byte gMedalExchangePrizes
 .L0805DE20: .4byte 0x0600F000
 
 	.section .text.f3.0805DFC4, "ax", %progbits
