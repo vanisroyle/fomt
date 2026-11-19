@@ -3883,7 +3883,7 @@ func_08005B68: @ 0x08005B68
     str r5, [sp, #4]
     mov r0, sp
     movs r1, #0
-    bl func_08007C28
+    bl TileHandle_Release
     mov r0, sp
     movs r1, #3
     bl func_08007B54
@@ -4016,7 +4016,7 @@ func_08005B68: @ 0x08005B68
     bl DisplayFadeTask_Destroy
     ldr r1, [sp, #4]
     mov r0, sp
-    bl func_08007C28
+    bl TileHandle_Release
     mov r0, sp
     movs r1, #2
     bl TileHeapOwner_Destroy

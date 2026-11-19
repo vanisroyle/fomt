@@ -482,7 +482,7 @@ func_0803AB30: @ 0x0803AB30
 	adds r4, #0x24
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -872,7 +872,7 @@ func_0803AEA0: @ 0x0803AEA0
 .L0803AF82:
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r5, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy

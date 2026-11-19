@@ -122,7 +122,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -138,7 +138,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -155,7 +155,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -163,7 +163,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -179,7 +179,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -187,7 +187,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -195,7 +195,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -211,7 +211,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -227,7 +227,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -235,7 +235,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -251,7 +251,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -267,7 +267,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -284,7 +284,7 @@ func_080D3C78: @ 0x080D3C78
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -561,7 +561,7 @@ func_080D406C: @ 0x080D406C
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -7685,7 +7685,7 @@ func_080D772C: @ 0x080D772C
 .L080D77A6:
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25466,7 +25466,7 @@ func_080E0A94: @ 0x080E0A94
 	adds r4, r4, r0
 	ldr r1, [r5]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -25524,7 +25524,7 @@ func_080E0A94: @ 0x080E0A94
 	bl TaskNode_Destroy
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r5, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25610,7 +25610,7 @@ func_080E0C38: @ 0x080E0C38
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25634,7 +25634,7 @@ func_080E0C38: @ 0x080E0C38
 	bl TaskNode_Destroy
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25651,7 +25651,7 @@ func_080E0C38: @ 0x080E0C38
 	bl TaskNode_Destroy
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25723,7 +25723,7 @@ func_080E0D70: @ 0x080E0D70
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25737,7 +25737,7 @@ func_080E0D70: @ 0x080E0D70
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25765,7 +25765,7 @@ func_080E0D70: @ 0x080E0D70
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25779,7 +25779,7 @@ func_080E0D70: @ 0x080E0D70
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -25793,7 +25793,7 @@ func_080E0D70: @ 0x080E0D70
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26103,7 +26103,7 @@ func_080E105C: @ 0x080E105C
 	adds r4, r5, #4
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26209,7 +26209,7 @@ func_080E1148: @ 0x080E1148
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26311,7 +26311,7 @@ func_080E11EC: @ 0x080E11EC
 .L080E1232:
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r5, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26345,7 +26345,7 @@ func_080E11EC: @ 0x080E11EC
 	bl ResourceHandles_Destroy
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r5, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26369,7 +26369,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26387,7 +26387,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26405,7 +26405,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26414,7 +26414,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26432,7 +26432,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26450,7 +26450,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26468,7 +26468,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26486,7 +26486,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26504,7 +26504,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26522,7 +26522,7 @@ func_080E11EC: @ 0x080E11EC
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26764,7 +26764,7 @@ func_080E15C0: @ 0x080E15C0
 .L080E1612:
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r5, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26779,7 +26779,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26797,7 +26797,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26815,7 +26815,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26824,7 +26824,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26851,7 +26851,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26869,7 +26869,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26887,7 +26887,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26905,7 +26905,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26923,7 +26923,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -26941,7 +26941,7 @@ func_080E15C0: @ 0x080E15C0
 	adds r4, r7, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -27078,7 +27078,7 @@ func_080E18A4: @ 0x080E18A4
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -27096,7 +27096,7 @@ func_080E18A4: @ 0x080E18A4
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -27114,7 +27114,7 @@ func_080E18A4: @ 0x080E18A4
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -27834,7 +27834,7 @@ func_080E1E28: @ 0x080E1E28
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -27853,7 +27853,7 @@ func_080E1E28: @ 0x080E1E28
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -27869,7 +27869,7 @@ func_080E1E28: @ 0x080E1E28
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -27984,7 +27984,7 @@ func_080E1FAC: @ 0x080E1FAC
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -27998,7 +27998,7 @@ func_080E1FAC: @ 0x080E1FAC
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -30810,7 +30810,7 @@ func_080E3504: @ 0x080E3504
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -30837,7 +30837,7 @@ func_080E3504: @ 0x080E3504
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -31799,7 +31799,7 @@ func_080E3C3C: @ 0x080E3C3C
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -31817,7 +31817,7 @@ func_080E3C3C: @ 0x080E3C3C
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -31826,7 +31826,7 @@ func_080E3C3C: @ 0x080E3C3C
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -31844,7 +31844,7 @@ func_080E3C3C: @ 0x080E3C3C
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -31862,7 +31862,7 @@ func_080E3C3C: @ 0x080E3C3C
 	adds r4, r5, r2
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -31880,7 +31880,7 @@ func_080E3C3C: @ 0x080E3C3C
 	adds r4, r5, r1
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -32382,7 +32382,7 @@ func_080E40A0: @ 0x080E40A0
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -32400,7 +32400,7 @@ func_080E40A0: @ 0x080E40A0
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -32436,7 +32436,7 @@ func_080E40A0: @ 0x080E40A0
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -32881,7 +32881,7 @@ func_080E4438: @ 0x080E4438
 	beq .L080E449A
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	ldr r1, [r5, #4]
 	adds r0, r4, #0
 	bl func_08007CD8
@@ -33360,76 +33360,76 @@ func_080E4860: @ 0x080E4860
 	adds r4, #0x50
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r6, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -34152,62 +34152,62 @@ func_080E4F34: @ 0x080E4F34
 	adds r4, #0x40
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r6, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -34591,83 +34591,83 @@ func_080E5324: @ 0x080E5324
 	adds r4, #0x58
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r6, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -35363,7 +35363,7 @@ func_080E5898: @ 0x080E5898
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -35384,7 +35384,7 @@ func_080E5898: @ 0x080E5898
 	adds r4, r5, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy

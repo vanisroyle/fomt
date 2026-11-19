@@ -395,10 +395,41 @@ EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(Alloc
 
 struct TileHeapOwner {};
 
+union TileHeapEntry
+{
+    TileHeapEntry * next_free;
+    struct
+    {
+        u16 tile_index : 10;
+        u16 order : 4;
+        u16 reserved : 2;
+        u16 ref_count;
+        u16 generation;
+        u16 alignment_padding;
+    } params;
+};
+
+struct TileHeapEntryPool
+{
+    TileHeapEntry & GetEntry(u32 index) { return entries[index]; }
+    void FreeEntry(TileHeapEntry * entry) { entry->next_free = free_head; free_head = entry; }
+    TileHeapEntry * free_head;
+    TileHeapEntry entries[256];
+};
+
 struct TileHeapState
 {
+    bool IsAllocated(u32 index) const
+    {
+        return index < 256 && (allocated_mask[index / 32] & (1u << (index % 32))) != 0;
+    }
+    void ClearAllocated(u32 index)
+    {
+        if (index < 256)
+            allocated_mask[index / 32] &= ~(1u << (index % 32));
+    }
     u32 allocated_mask[8];
-    u8 entry_pool[0x804];
+    TileHeapEntryPool entry_pool;
     AllocationTree tree;
     u16 allocated_count;
     u16 next_generation;
@@ -408,6 +439,60 @@ struct TileHeapState
 };
 
 extern TileHeapState * gTileHeapState; // 0x03000408
+
+union TileHandle
+{
+    u32 value;
+    u8 bytes[4];
+    struct
+    {
+        u32 index : 8;
+        u32 generation : 16;
+    } fields;
+    TileHandle(u32 value) : value(value) {}
+    u32 Index() const { return bytes[0]; }
+};
+
+inline bool TileHeapEntry_Matches(TileHeapEntry const & entry, u32 handle)
+{
+    return u16(handle >> 8) == entry.params.generation;
+}
+
+EC void func_080080A0(AllocationTree *, u32, u32);
+
+// 0x08007C28
+EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * self, u32 handle)
+{
+    int no_references;
+    TileHeapState * heap = gTileHeapState;
+    TileHeapState * allocation_heap;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        allocation_heap = heap;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            no_references = 0;
+            if (generation_matches)
+            {
+                u16 ref_count = --entry->params.ref_count;
+                if (ref_count == no_references)
+                {
+                    func_080080A0(&heap->tree, entry->params.tile_index, entry->params.order);
+                    entry->params.generation = ref_count;
+                    heap->entry_pool.FreeEntry(entry);
+                    heap->ClearAllocated(entry_index);
+                    --allocation_heap->allocated_count;
+                }
+            }
+        }
+    }
+}
 
 // 0x080079E8
 EC void SECTION(".text.TileHeapOwner_Destroy") TileHeapOwner_Destroy(TileHeapOwner * self, u32 destructor_flags)
@@ -455,7 +540,7 @@ EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self
 }
 
 EC TileHeapOwner * func_08007874(TileHeapOwner *);
-EC void func_08007C28(TileHeapOwner *, u32);
+EC void TileHandle_Release(TileHeapOwner *, u32);
 EC u32 func_08007E24(TileHeapOwner *, u32);
 EC u32 func_08007CD8(TileHeapOwner *, u32);
 EC u32 func_08007B54(TileHeapOwner *, u32);
@@ -473,7 +558,7 @@ EC void SECTION(".text.TilePool_Destroy") TilePool_Destroy(TilePool * self, u32 
             TileHandleValue * end = bucket->end;
             for (TileHandleValue * value = bucket->begin; value != end; ++value)
             {
-                func_08007C28(&value->owner, value->handle);
+                TileHandle_Release(&value->owner, value->handle);
                 TileHeapOwner_Destroy(&value->owner, 2);
             }
             if (bucket->begin != nullptr)

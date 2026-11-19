@@ -35,13 +35,13 @@ struct ChickenFeedingScene
 };
 
 EC void func_08008724(ChickenFeedingScene & scene);
-EC void func_08007C28(ChickenFeedingResource & resource, u32 handle);
+EC void TileHandle_Release(ChickenFeedingResource & resource, u32 handle);
 EC u32 func_08007B54(ChickenFeedingResource & resource, int capacity);
 EC u8 const gUnk_0810787C[5];
 
 static inline void ResetFeedingResource(ChickenFeedingResource & resource, int capacity)
 {
-    func_08007C28(resource, resource.handle);
+    TileHandle_Release(resource, resource.handle);
     resource.handle = func_08007B54(resource, capacity);
 }
 

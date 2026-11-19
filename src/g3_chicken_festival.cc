@@ -568,12 +568,12 @@ struct SpriteHarvestingResources
     SpriteHarvestingResource groups[9];
 };
 
-EC void func_08007C28(SpriteHarvestingResource *, void *);
+EC void TileHandle_Release(SpriteHarvestingResource *, void *);
 EC void * func_08007B54(SpriteHarvestingResource *, u32);
 
 static inline void ResizeHarvestingResource(SpriteHarvestingResource & resource, u32 count)
 {
-    func_08007C28(&resource, resource.allocation);
+    TileHandle_Release(&resource, resource.allocation);
     resource.allocation = func_08007B54(&resource, count);
 }
 

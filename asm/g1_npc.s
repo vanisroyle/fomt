@@ -11241,7 +11241,7 @@ func_080A47B4: @ 0x080A47B4
 	adds r4, r5, #4
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy

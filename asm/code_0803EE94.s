@@ -29280,7 +29280,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	adds r4, r5, #4
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -29314,7 +29314,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	beq .L0804F448
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	ldr r1, [sp, #4]
 	adds r0, r4, #0
 	bl func_08007CD8
@@ -29322,7 +29322,7 @@ InitializeMessageWindowState: @ 0x0804F288
 .L0804F448:
 	ldr r1, [sp, #4]
 	mov r0, sp
-	bl func_08007C28
+	bl TileHandle_Release
 	mov r0, sp
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -80712,7 +80712,7 @@ func_08069F14: @ 0x08069F14
 	adds r4, r4, r0
 	ldr r1, [r6]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -104234,7 +104234,7 @@ func_080756D0: @ 0x080756D0
 	ldr r0, [sp]
 	ldr r1, [r0, #0x14]
 	adds r0, r5, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	ldr r0, [sp]
 	bl func_080E2B28
 	str r0, [sp]
@@ -104493,7 +104493,7 @@ func_080757E8: @ 0x080757E8
 	ldr r0, [sp]
 	ldr r1, [r0, #0x14]
 	mov r0, sb
-	bl func_08007C28
+	bl TileHandle_Release
 	mov r0, sb
 	adds r1, r6, #0
 	bl func_08007B54
@@ -144067,7 +144067,7 @@ func_0808A55C: @ 0x0808A55C
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -144102,7 +144102,7 @@ func_0808A55C: @ 0x0808A55C
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -147235,7 +147235,7 @@ func_0808C0BC: @ 0x0808C0BC
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -147268,7 +147268,7 @@ func_0808C0BC: @ 0x0808C0BC
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -151652,7 +151652,7 @@ func_0808E6FC: @ 0x0808E6FC
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -151687,7 +151687,7 @@ func_0808E6FC: @ 0x0808E6FC
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -155562,7 +155562,7 @@ func_08090960: @ 0x08090960
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -155597,7 +155597,7 @@ func_08090960: @ 0x08090960
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -156155,7 +156155,7 @@ func_08090F58: @ 0x08090F58
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -156969,7 +156969,7 @@ func_0809152C: @ 0x0809152C
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -157002,7 +157002,7 @@ func_0809152C: @ 0x0809152C
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -157038,7 +157038,7 @@ func_0809152C: @ 0x0809152C
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -159826,7 +159826,7 @@ func_08092D64: @ 0x08092D64
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
@@ -159859,7 +159859,7 @@ func_08092D64: @ 0x08092D64
 	subs r4, #8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl TileHeapOwner_Destroy
