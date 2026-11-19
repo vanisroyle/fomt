@@ -1422,7 +1422,7 @@ func_080041DC: @ 0x080041DC
     rsbs r6, r6, #0
 .L08004316:
     adds r0, r4, #0
-    bl func_080114F8
+    bl SaveProgress_ResetPrimaryFlags
     adds r4, #4
     subs r5, #1
     cmp r5, r6

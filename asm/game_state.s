@@ -145,7 +145,7 @@ func_08010358: @ 0x08010358
     ldr r1, .L08010618 @ =0x0000214C
     adds r0, r7, r1
     bl func_0809C6BC
-    bl func_08010348
+    bl Random_NonZero
     ldr r3, .L0801061C @ =0x000021CC
     adds r2, r7, r3
     str r0, [r2]
@@ -202,7 +202,7 @@ func_08010358: @ 0x08010358
     ldr r1, [sp, #0x48]
     ldr r2, .L0801062C @ =0x00002210
     adds r0, r1, r2
-    bl func_080114F8
+    bl SaveProgress_ResetPrimaryFlags
     ldr r3, [sp, #0x48]
     ldr r1, .L08010630 @ =0x00002214
     adds r0, r3, r1
@@ -248,7 +248,7 @@ func_08010358: @ 0x08010358
     ldr r2, [sp, #0x48]
     ldr r3, .L08010640 @ =0x00002C74
     adds r0, r2, r3
-    bl func_08011510
+    bl Selection_Reset
     ldr r6, [sp, #0x48]
     movs r1, #0xb2
     lsls r1, r1, #6
@@ -1739,7 +1739,7 @@ func_08010F54: @ 0x08010F54
     bl DayUpdate__3Dog
     ldr r1, .L08011210 @ =0x00002C74
     adds r0, r6, r1
-    bl func_08011568
+    bl Selection_TickDelay
     ldr r0, .L08011214 @ =0x00001CD4
     adds r4, r6, r0
     ldr r1, .L08011218 @ =0x0000214C
@@ -1827,7 +1827,7 @@ func_08010F54: @ 0x08010F54
     b .L08011318
 .L08011294:
     adds r0, r6, #0
-    bl func_08010F30
+    bl SaveProgress_SetFlagB
     b .L08011318
 .L0801129C:
     movs r1, #0xfa
@@ -2111,7 +2111,7 @@ func_080115B0: @ 0x080115B0
     add r4, r8
     adds r0, r7, #0
     adds r1, r6, #0
-    bl func_08011588
+    bl SaveData_SumBytes
     str r0, [sp, #4]
     add r2, sp, #4
     adds r0, r5, #0
@@ -2291,7 +2291,7 @@ func_08011650: @ 0x08011650
     bgt .L08011772
     ldr r1, .L080118A4 @ =0x00002210
     adds r0, r7, r1
-    bl func_080114F8
+    bl SaveProgress_ResetPrimaryFlags
     ldr r2, .L080118A8 @ =0x00002214
     adds r0, r7, r2
     bl func_0809A8AC
@@ -2336,7 +2336,7 @@ func_08011650: @ 0x08011650
     bne .L080117CC
     ldr r3, .L080118B8 @ =0x00002C74
     adds r0, r7, r3
-    bl func_08011510
+    bl Selection_Reset
     movs r1, #0xb2
     lsls r1, r1, #6
     adds r0, r7, r1
@@ -2451,7 +2451,7 @@ func_08011650: @ 0x08011650
 .L08011900:
     adds r0, r7, #0
     adds r1, r4, #0
-    bl func_08011588
+    bl SaveData_SumBytes
     ldr r1, [sp, #0x10]
     cmp r0, r1
     beq .L0801191E
@@ -12739,7 +12739,7 @@ func_080175B4: @ 0x080175B4
     ldr r3, .L08017850 @ =0x00001054
     adds r0, r7, r3
     ldr r0, [r0]
-    bl func_080167CC
+    bl GameScript_IsMusicActive
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0801777E
@@ -13740,7 +13740,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r0]
     movs r1, #0
     movs r2, #0x9e
-    bl func_08012464
+    bl GameScript_PlaySound
     mov r0, r8
     bl func_0801DB58
     b .L08017FFE
@@ -14118,7 +14118,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, .L080182C0 @ =0x00001054
     add r0, r8
     ldr r0, [r0]
-    bl func_080167CC
+    bl GameScript_IsMusicActive
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080182A2
@@ -17631,7 +17631,7 @@ func_08019BEC: @ 0x08019BEC
     ldr r3, .L08019F34 @ =0x00001054
     adds r0, r7, r3
     ldr r0, [r0]
-    bl func_080167CC
+    bl GameScript_IsMusicActive
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L08019EEC
@@ -19854,7 +19854,7 @@ func_0801C6EC: @ 0x0801C6EC
     ldr r0, [r0]
     movs r1, #0
     movs r2, #0xc0
-    bl func_08012464
+    bl GameScript_PlaySound
     ldrb r1, [r5]
     movs r2, #0xd
     rsbs r2, r2, #0
@@ -21088,7 +21088,7 @@ func_0801DB44: @ 0x0801DB44
     ldr r1, .L0801DB54 @ =0x00001054
     adds r0, r0, r1
     ldr r0, [r0]
-    bl func_0801468C
+    bl GameScript_GetSoundPlayers
     pop {r1}
     bx r1
     .align 2, 0
@@ -22658,7 +22658,7 @@ func_0801EAA0: @ 0x0801EAA0
     ldr r5, .L0801EDF4 @ =0x00001054
     adds r0, r7, r5
     ldr r0, [r0]
-    bl func_080167CC
+    bl GameScript_IsMusicActive
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0801EDD8
@@ -22813,7 +22813,7 @@ func_0801EE00: @ 0x0801EE00
     ldr r0, .L0801EEFC @ =0x00001038
     add r0, sl
     ldr r0, [r0]
-    bl func_08011458
+    bl SaveProgress_SetFlagE
     b .L0801EFA8
     .align 2, 0
 .L0801EEFC: .4byte 0x00001038
