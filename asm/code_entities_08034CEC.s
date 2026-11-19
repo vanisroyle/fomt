@@ -3825,7 +3825,7 @@ func_08038EE0: @ 0x08038EE0
     movs r2, #1
 .L08038F6A:
     adds r3, r6, #0
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     ldr r0, [r5]
     cmp r0, #4
     bhi .L08038FCC
@@ -3895,7 +3895,7 @@ func_08038EE0: @ 0x08038EE0
     add r0, sp, #0xc
     movs r2, #0
     adds r3, r6, #0
-    bl func_080A4A00
+    bl InitializeAnimatedMapSpriteSinglePalette
     ldr r0, [r5]
     cmp r0, #4
     bhi .L0803905C
