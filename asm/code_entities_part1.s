@@ -3431,7 +3431,7 @@ func_08024CD0: @ 0x08024CD0
     adds r0, r4, #0
     ldr r3, [r1, #0x34]
     mov r1, r8
-    @ 08024EFE bl [func_0801A054]
+    @ 08024EFE bl [GameStateGetMapTerrain]
     bl _call_via_r3
     mov ip, r4
     movs r6, #0
