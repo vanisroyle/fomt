@@ -10080,7 +10080,7 @@ func_0802E0FC: @ 0x0802E0FC
 .L0802EAD0:
     ldr r2, [sp, #0x78]
     ldrb r1, [r2]
-    bl func_080380EC
+    bl LaunchSideSprite
     ldr r0, [r7]
     ldr r1, [r0]
     movs r3, #0xa6

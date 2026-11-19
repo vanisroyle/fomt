@@ -380,10 +380,10 @@ EC void func_080323C8(AActorEntity & self);
 EC void func_08032308(AActorEntity & self, u32 target, i32 speed);
 EC void func_0803233C(AActorEntity & self, u32 target, i32 speed);
 EC void func_080323E0(AActorEntity & self, u32 value);
-EC void func_080387B8(void * self);
-EC void func_080387EC(void * self);
-EC void func_080387C8(void * self);
-EC void func_080387FC(void * self);
+EC void CreateSideEntityEffectSprite(void * self);
+EC void ClearSideEntityEffectSprite(void * self);
+EC void BeginSideEntityTransition(void * self);
+EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
 EC void func_0804EC84(i32 value, char * text, u32 digits);
 EC void func_08050DC8(void * self, u32 value, u32 flags, void * text);
@@ -610,12 +610,12 @@ EC void SECTION(".text.game_state_08016C10") func_08016C10(GameStateScript & sel
 
 EC void SECTION(".text.game_state_08016C2C") func_08016C2C(GameStateScript & self)
 {
-    func_080387B8(self.runtime->object->vfunc_40(0x5D));
+    CreateSideEntityEffectSprite(self.runtime->object->vfunc_40(0x5D));
 }
 
 EC void SECTION(".text.game_state_08016C6C") func_08016C6C(GameStateScript & self)
 {
-    func_080387EC(self.runtime->object->vfunc_40(0x5D));
+    ClearSideEntityEffectSprite(self.runtime->object->vfunc_40(0x5D));
 }
 
 EC void SECTION(".text.game_state_08016EF0") func_08016EF0(GameStateScript & self, u32 value)
@@ -681,14 +681,14 @@ EC void SECTION(".text.game_state_08016E7C") func_08016E7C(GameStateScript & sel
 EC void SECTION(".text.game_state_08016C48") func_08016C48(GameStateScript & self)
 {
     GameStateRuntime & runtime = *self.runtime;
-    func_080387C8(runtime.object->vfunc_40(0x5D));
+    BeginSideEntityTransition(runtime.object->vfunc_40(0x5D));
     runtime.command = 0x1C;
 }
 
 EC void SECTION(".text.game_state_08016C88") func_08016C88(GameStateScript & self)
 {
     GameStateRuntime & runtime = *self.runtime;
-    func_080387FC(runtime.object->vfunc_40(0x5D));
+    CreateSideEntityParticleSprites(runtime.object->vfunc_40(0x5D));
     runtime.command = 0x1B;
 }
 

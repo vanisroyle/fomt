@@ -13424,7 +13424,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r2, [r1, #0x40]
 	movs r1, #0x5d
 	bl _call_via_r2
-	bl func_080387D8
+	bl IsSideEntityTransitionComplete
 .L080DAAB2:
 	lsls r0, r0, #0x18
 	cmp r0, #0
@@ -19715,7 +19715,7 @@ func_080DDC78: @ 0x080DDC78
 	movs r5, #0xff
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A320
+	bl GetSideEntitySine
 	adds r4, r0, #0
 	lsls r4, r4, #0x10
 	asrs r4, r4, #0x10
@@ -19726,7 +19726,7 @@ func_080DDC78: @ 0x080DDC78
 	lsls r1, r1, #1
 	ands r1, r5
 	adds r0, r6, #0
-	bl func_0803A334
+	bl GetSideEntityCosine
 	lsls r0, r0, #0x10
 	adds r1, r6, #0
 	adds r1, #0x66

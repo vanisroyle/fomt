@@ -213,3 +213,98 @@ EC u32 GetNpcVariantFiveAnimation(AEntity * self, u32 state)
 {
     return gUnk_080F16AE[state];
 }
+
+struct TransitionSideSprite
+{
+    STRUCT_PAD(0x00, 0x4C);
+    i32 transition_q16;
+    u8 transitioning;
+};
+
+struct SideEntityEffects
+{
+    STRUCT_PAD(0x00, 0x0C);
+    TransitionSideSprite * transition_sprite;
+};
+
+EC i16 const gUnk_080F16D2[];
+EC void func_08038DF0(SideEntityEffects * self);
+EC void func_08038EB8(SideEntityEffects * self);
+EC void func_08038EE0(SideEntityEffects * self);
+
+EC void LaunchSideSprite(LaunchedSideSprite * self, u8 variant) NPC_EXTRA_CODE(080380EC);
+EC void LaunchSideSprite(LaunchedSideSprite * self, u8 variant)
+{
+    self->variant = variant;
+    self->height_q16 = 0x150000;
+    self->rise_speed = 0x30000;
+    self->launched = 1;
+}
+
+EC i32 GetSideEntitySine(AEntity * self, u32 phase) NPC_EXTRA_CODE(0803A320);
+EC i32 GetSideEntitySine(AEntity * self, u32 phase)
+{
+    return gUnk_080F16D2[i16(phase)];
+}
+
+EC i32 GetSideEntityCosine(AEntity * self, u32 phase) NPC_EXTRA_CODE(0803A334);
+EC i32 GetSideEntityCosine(AEntity * self, u32 phase)
+{
+    return gUnk_080F16D2[(i16(phase) + 64) & 255];
+}
+
+EC void BeginSideSpriteTransition(SideEntityEffects * self) NPC_EXTRA_CODE(08038E90);
+EC void BeginSideSpriteTransition(SideEntityEffects * self)
+{
+    self->transition_sprite->transition_q16 = 0x1200000;
+    self->transition_sprite->transitioning = 1;
+}
+
+EC u32 IsSideSpriteTransitionComplete(SideEntityEffects * self) NPC_EXTRA_CODE(08038EA0);
+EC u32 IsSideSpriteTransitionComplete(SideEntityEffects * self)
+{
+    TransitionSideSprite * sprite = self->transition_sprite;
+    bool complete = false;
+    if (sprite->transitioning == 0)
+        complete = true;
+    return complete;
+}
+
+EC void CreateSideEntityEffectSprite(AEntity * self) NPC_EXTRA_CODE(080387B8);
+EC void CreateSideEntityEffectSprite(AEntity * self)
+{
+    if (self->unk_10.Get() != nullptr)
+        func_08038DF0(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+}
+
+EC void BeginSideEntityTransition(AEntity * self) NPC_EXTRA_CODE(080387C8);
+EC void BeginSideEntityTransition(AEntity * self)
+{
+    if (self->unk_10.Get() != nullptr)
+        BeginSideSpriteTransition(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+}
+
+EC u32 IsSideEntityTransitionComplete(AEntity * self) NPC_EXTRA_CODE(080387D8);
+EC u32 IsSideEntityTransitionComplete(AEntity * self)
+{
+    u32 complete;
+    if (self->unk_10.Get() == nullptr)
+        complete = true;
+    else
+        complete = IsSideSpriteTransitionComplete(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+    return complete;
+}
+
+EC void ClearSideEntityEffectSprite(AEntity * self) NPC_EXTRA_CODE(080387EC);
+EC void ClearSideEntityEffectSprite(AEntity * self)
+{
+    if (self->unk_10.Get() != nullptr)
+        func_08038EB8(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+}
+
+EC void CreateSideEntityParticleSprites(AEntity * self) NPC_EXTRA_CODE(080387FC);
+EC void CreateSideEntityParticleSprites(AEntity * self)
+{
+    if (self->unk_10.Get() != nullptr)
+        func_08038EE0(reinterpret_cast<SideEntityEffects *>(self->unk_10.Get()));
+}
