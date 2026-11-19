@@ -1,5 +1,7 @@
 #include "prelude.h"
 
+#include <new>
+
 #include "entity.hh"
 #include "farm.hh"
 #include "farmer.hh"
@@ -1108,6 +1110,94 @@ EC SECTION(".text.game_state_c2.0801C198") bool GameStateFindMinePlot(
     }
 done:
     return found;
+}
+
+struct GameStateLooseItemRect
+{
+    i16 left, top, right, bottom;
+};
+
+struct GameStateLooseItemTile
+{
+    i16 x, y;
+};
+
+struct GameStateLooseItemInfo
+{
+    u32 kind, map;
+    i16 x, y;
+    u32 variant;
+};
+
+struct GameStateLooseItemStore
+{
+    RucksackItem PickUp(u32, GameStateLooseItemRect const &, u32) asm("func_080A1B38");
+};
+
+EC int FindLooseItem(GameStateLooseItemStore const &, u32, GameStateLooseItemRect const &, u32)
+    asm("FindMapForageLocation");
+EC void ReadLooseItemInfo(GameStateLooseItemInfo &, GameStateLooseItemStore const &, int)
+    asm("GetMapForageObstacle");
+EC void RefreshLooseItemTile(GameStateMapView &, u32, GameStateLooseItemTile const &, u32, u32)
+    asm("func_080A5F78");
+
+EC SECTION(".text.game_state_c2.0801D6AC") RucksackItem GameStateCollectLooseItem(
+    GameStateMapOwner & game, Location const & location)
+{
+    GameStateMapData * state = game.map_data;
+    GameStateLooseItemStore & items = *reinterpret_cast<GameStateLooseItemStore *>(reinterpret_cast<u8 *>(state) + 0x34C8);
+    register u32 season asm("r9") = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+    GameStateLooseItemRect bounds;
+
+    u8 const * bytes = reinterpret_cast<u8 const *>(&location);
+    u16 const * words = reinterpret_cast<u16 const *>(&location);
+    register u32 low_x asm("r0") = bytes[1] >> 2;
+    asm("" : "=l"(low_x) : "0"(low_x));
+    register u32 high_x asm("r1") = words[1];
+    asm("" : "=l"(high_x) : "0"(high_x), "l"(low_x));
+    register u32 mask asm("r3") = 0x3FF;
+    asm("" : "=l"(mask) : "0"(mask), "l"(high_x));
+    high_x = mask & high_x;
+    asm("" : "=l"(high_x) : "0"(high_x), "l"(mask));
+    register int x asm("r1") = static_cast<i16>((high_x << 6) | low_x);
+    register u32 low_y asm("r2") = bytes[3] >> 2;
+    register u32 high_y asm("r0") = words[2];
+    asm("" : "=l"(high_y) : "0"(high_y), "l"(low_y));
+    high_y = mask & high_y;
+    asm("" : "=l"(high_y) : "0"(high_y), "l"(mask));
+    register int y asm("r0") = static_cast<i16>((high_y << 6) | low_y);
+    register GameStateLooseItemRect * rect asm("r4") = &bounds;
+    asm("" : "=l"(rect) : "0"(rect), "l"(x), "l"(y));
+    rect->left = x;
+    rect->top = y;
+    rect->right = x + 1;
+    rect->bottom = y + 1;
+
+    u8 item_storage[sizeof(RucksackItem)] ALIGN(4);
+    register int index asm("r8") = FindLooseItem(items, location.GetMap(), *rect, season);
+    new (item_storage) RucksackItem;
+    if (index != -1)
+    {
+        RucksackItem & item = *reinterpret_cast<RucksackItem *>(item_storage);
+        item = items.PickUp(location.GetMap(), *rect, season);
+        GameStateLooseItemInfo record;
+        if (!item.IsEmpty() && location.GetMap() == game.map_view->id)
+        {
+            GameStateLooseItemTile redraw_origin;
+            ReadLooseItemInfo(record, items, index);
+            register GameStateMapView * view = game.map_view;
+            register int pixel_x asm("r0") = record.x;
+            asm("" : "=l"(pixel_x) : "0"(pixel_x));
+            register int tile_x asm("r3") = pixel_x / 8;
+            register int tile_y asm("r0") = record.y / 8;
+            asm("" : : "l"(tile_x), "l"(tile_y));
+            register GameStateLooseItemTile * tile = &redraw_origin;
+            tile->x = tile_x;
+            tile->y = tile_y;
+            RefreshLooseItemTile(*view, 1, *tile, 2, 2);
+        }
+    }
+    return *reinterpret_cast<RucksackItem const *>(item_storage);
 }
 
 EC SECTION(".text.game_state_c2.0801D88C") GameStatePlotPlacement GameStateCheckFarmPlotPlacement(
