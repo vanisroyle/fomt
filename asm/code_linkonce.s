@@ -9858,7 +9858,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -11242,7 +11242,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r4, sl
 	adds r4, #0xac
 	adds r5, r0, #0
@@ -15081,7 +15081,7 @@ func_080DB8FC: @ 0x080DB8FC
 	bl __builtin_new
 	add r1, sp, #4
 	ldr r2, [r4, #8]
-	bl func_0805218C
+	bl InitializeFestivalResultsController
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #8]
@@ -20765,7 +20765,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -20801,7 +20801,7 @@ func_080DE298: @ 0x080DE298
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r0, [r6]
@@ -32102,28 +32102,28 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3EAC:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
 	adds r4, #8
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32144,7 +32144,7 @@ func_080E3E9C: @ 0x080E3E9C
 	bne .L080E3F38
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32152,7 +32152,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F16:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L080E3F34
@@ -32160,7 +32160,7 @@ func_080E3E9C: @ 0x080E3E9C
 .L080E3F26:
 	adds r0, r4, #0
 	adds r1, r6, #0
-	bl func_0809E8E4
+	bl NpcEventSlotsEqual
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080E3F38
