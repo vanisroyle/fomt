@@ -354,7 +354,7 @@ vtable_unk_080E5EC4: @ game object
 	.word func_08019BEC
 	.word GameStateRefreshMapDaylight
 	.word func_0801EAA0
-	.word func_0801C29C
+	.word GameStateHoeFarmPlot
 	.word 0x0801CA1D
 	.word 0x0801C49D
 	.word 0x0801CAD9

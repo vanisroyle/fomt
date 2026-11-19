@@ -715,7 +715,7 @@ struct ItemDisplayGraphics : FarmerIconGraphics
 
 EC void InitializePrioritizedSideActorSprite(UnknownEntityThing * graphics, AEntity * entity, u32 sprite_mode, void const * config,
     u32 priority, u32 layer, u32 x, u32 y, bool enabled);
-EC void func_080A4A00(void * sprite, void * sprites, u32 animation, GameObject * game,
+EC void InitializeAnimatedMapSpriteSinglePalette(void * sprite, void * sprites, u32 animation, GameObject * game,
     u32 priority, u32 layer, bool mirrored);
 EC char const gUnk_080F1224[];
 EC char const vtable_unk_080E6644[];
@@ -729,7 +729,7 @@ EC ItemDisplayGraphics * InitItemDisplayGraphics(ItemDisplayGraphics * graphics,
     FarmerIconGameVTable const * table = *reinterpret_cast<FarmerIconGameVTable const **>(game);
     void * sprites = table->get_item_sprites(game);
     GameObject * sprite_game = display->game_object;
-    func_080A4A00(reinterpret_cast<u8 *>(graphics) + 0x8C, sprites, 0, sprite_game, 2, 1, false);
+    InitializeAnimatedMapSpriteSinglePalette(reinterpret_cast<u8 *>(graphics) + 0x8C, sprites, 0, sprite_game, 2, 1, false);
     graphics->icon = 0xFFFF;
     return graphics;
 }
@@ -1230,8 +1230,8 @@ EC char const gUnk_080F1218[];
 EC char const vtable_unk_080E6708[];
 EC char const vtable_unk_080E681C[];
 EC void CopyFarmerStepSprite(FarmerStepSprite *, FarmerStepSprite const *) asm("func_080DC840");
-EC void DestroyFarmerStepSprite(FarmerStepSprite *, u32) asm("func_080A47B4");
-EC void InitFarmerStepSpriteWithStackArgs(FarmerStepSprite *, void *, u32, GameObject *) asm("func_080A4A00");
+EC void DestroyFarmerStepSprite(FarmerStepSprite *, u32) asm("DestroyMapSpriteResource");
+EC void InitFarmerStepSpriteWithStackArgs(FarmerStepSprite *, void *, u32, GameObject *) asm("InitializeAnimatedMapSpriteSinglePalette");
 
 EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * farmer) ENTITY_CODE(0802B260);
 EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * farmer)
@@ -1253,7 +1253,7 @@ EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * grap
     sprite_game[0] = farmer->game_object;
     sprite_bank[1] = (*reinterpret_cast<FarmerIconGameVTable const **>(sprite_game[0]))->get_item_sprites(sprite_game[0]);
     sprite_game[0] = farmer->game_object;
-    func_080A4A00(reinterpret_cast<u8 *>(graphics) + 0x8C, sprite_bank[1], 0, sprite_game[0], 2, 1, false);
+    InitializeAnimatedMapSpriteSinglePalette(reinterpret_cast<u8 *>(graphics) + 0x8C, sprite_bank[1], 0, sprite_game[0], 2, 1, false);
     register FarmerEffectSlots * effect_slots asm("r1") = &graphics->effects;
     effect_slots->count = 0;
     graphics->refresh_icon = false;

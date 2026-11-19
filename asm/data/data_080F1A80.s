@@ -6,17 +6,301 @@
 
 	.incbin "baserom.gba", 0xF1FB4, 12 @ bad_alloc
 
-	.global gUnk_080F1FC0
-gUnk_080F1FC0:
-	.incbin "baserom.gba", 0xF1FC0, 0x84C
+	.global gPopuriScheduleInfo
+gPopuriScheduleInfo:
+	.4byte SelectPopuriSchedule
+	.4byte 24, .LPopuriSchedules
+.LPopuriSchedules: @ In PopuriSchedule order.
+	.4byte 0
+	.4byte .LPopuriClearWeatherSchedule
+	.4byte .LPopuriOtherWeatherSchedule
+	.4byte .LPopuriSundayClearSchedule
+	.4byte .LPopuriSundayOtherWeatherSchedule
+	.4byte .LPopuriSummerSundayClearSchedule
+	.4byte .LPopuriMarriedActiveNpcSchedule
+	.4byte .LPopuriMarriedActiveNpcVariantSchedule
+	.4byte .LPopuriMarriedActiveNpcVariantSundaySchedule
+	.4byte .LPopuriMarriedSchedule
+	.4byte .LPopuriMarriedVariantSchedule
+	.4byte .LPopuriMarriedVariantSundaySchedule
+	.4byte .LPopuriMarriedActiveNpcFestivalOrStormSchedule
+	.4byte .LPopuriMarriedActiveNpcVariantFestivalOrStormSchedule
+	.4byte .LPopuriMarriedFestivalOrStormSchedule
+	.4byte .LPopuriMarriedVariantFestivalOrStormSchedule
+	.4byte .LPopuriFestivalSchedule
+	.4byte .LPopuriAutumn30Schedule
+	.4byte .LPopuriWinter14Schedule
+	.4byte .LPopuriAfterRivalEventsSummerFestivalSchedule
+	.4byte .LPopuriAfterRivalEventsSummerClearSchedule
+	.4byte .LPopuriAfterRivalEventsSummerOtherWeatherSchedule
+	.4byte .LPopuriMarriedAutumn13Schedule
+	.4byte .LPopuriMarriedEventOverrideSchedule
+
+.LPopuriClearWeatherSchedule:
+	.2byte 8, 0
+	.4byte .LPopuriClearWeatherEntries
+.LPopuriOtherWeatherSchedule:
+	.2byte 2, 0
+	.4byte .LPopuriOtherWeatherEntries
+.LPopuriSundayClearSchedule:
+	.2byte 11, 0
+	.4byte .LPopuriSundayClearEntries
+.LPopuriSundayOtherWeatherSchedule:
+	.2byte 8, 0
+	.4byte .LPopuriSundayOtherWeatherEntries
+.LPopuriSummerSundayClearSchedule:
+	.2byte 8, 0
+	.4byte .LPopuriSummerSundayClearEntries
+.LPopuriMarriedActiveNpcSchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedActiveNpcEntries
+.LPopuriMarriedActiveNpcVariantSchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedActiveNpcVariantEntries
+.LPopuriMarriedActiveNpcVariantSundaySchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedActiveNpcVariantSundayEntries
+.LPopuriMarriedSchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedEntries
+.LPopuriMarriedVariantSchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedVariantEntries
+.LPopuriMarriedVariantSundaySchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedVariantSundayEntries
+.LPopuriMarriedActiveNpcFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedActiveNpcFestivalOrStormEntries
+.LPopuriMarriedActiveNpcVariantFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedActiveNpcVariantFestivalOrStormEntries
+.LPopuriMarriedFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedFestivalOrStormEntries
+.LPopuriMarriedVariantFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LPopuriMarriedVariantFestivalOrStormEntries
+.LPopuriFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LPopuriFestivalEntries
+.LPopuriAutumn30Schedule:
+	.2byte 5, 0
+	.4byte .LPopuriAutumn30Entries
+.LPopuriWinter14Schedule:
+	.2byte 4, 0
+	.4byte .LPopuriWinter14Entries
+.LPopuriAfterRivalEventsSummerFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LPopuriAfterRivalEventsSummerFestivalEntries
+.LPopuriAfterRivalEventsSummerClearSchedule:
+	.2byte 8, 0
+	.4byte .LPopuriAfterRivalEventsSummerClearEntries
+.LPopuriAfterRivalEventsSummerOtherWeatherSchedule:
+	.2byte 2, 0
+	.4byte .LPopuriAfterRivalEventsSummerOtherWeatherEntries
+.LPopuriMarriedAutumn13Schedule:
+	.2byte 3, 0
+	.4byte .LPopuriMarriedAutumn13Entries
+.LPopuriMarriedEventOverrideSchedule:
+	.2byte 1, 0
+	.4byte .LPopuriMarriedEventOverrideEntries
+
+	@ Time is minutes since 06:00; route indices refer to the original path records.
+	.macro popuri_schedule_entry time, path
+	.2byte \time, 0
+	.4byte .LPopuriPaths + (\path * 12)
+	.endm
+
+.LPopuriClearWeatherEntries:
+	popuri_schedule_entry 0, 0
+	popuri_schedule_entry 60, 1
+	popuri_schedule_entry 98, 2
+	popuri_schedule_entry 113, 3
+	popuri_schedule_entry 240, 4
+	popuri_schedule_entry 256, 5
+	popuri_schedule_entry 293, 0
+	popuri_schedule_entry 780, 6
+.LPopuriOtherWeatherEntries:
+	popuri_schedule_entry 0, 0
+	popuri_schedule_entry 780, 6
+.LPopuriSundayClearEntries:
+	popuri_schedule_entry 0, 0
+	popuri_schedule_entry 180, 7
+	popuri_schedule_entry 227, 8
+	popuri_schedule_entry 251, 9
+	popuri_schedule_entry 421, 10
+	popuri_schedule_entry 446, 11
+	popuri_schedule_entry 462, 12
+	popuri_schedule_entry 600, 13
+	popuri_schedule_entry 608, 14
+	popuri_schedule_entry 655, 0
+	popuri_schedule_entry 780, 6
+.LPopuriSundayOtherWeatherEntries:
+	popuri_schedule_entry 0, 0
+	popuri_schedule_entry 180, 7
+	popuri_schedule_entry 227, 8
+	popuri_schedule_entry 251, 9
+	popuri_schedule_entry 600, 10
+	popuri_schedule_entry 625, 14
+	popuri_schedule_entry 672, 0
+	popuri_schedule_entry 780, 6
+.LPopuriSummerSundayClearEntries:
+	popuri_schedule_entry 0, 0
+	popuri_schedule_entry 420, 7
+	popuri_schedule_entry 467, 15
+	popuri_schedule_entry 486, 16
+	popuri_schedule_entry 600, 17
+	popuri_schedule_entry 620, 14
+	popuri_schedule_entry 667, 0
+	popuri_schedule_entry 780, 6
+.LPopuriMarriedActiveNpcEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedActiveNpcVariantEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 180, 0
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedActiveNpcVariantSundayEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedVariantEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 180, 0
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedVariantSundayEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedActiveNpcFestivalOrStormEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedActiveNpcVariantFestivalOrStormEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedFestivalOrStormEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriMarriedVariantFestivalOrStormEntries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 18
+	popuri_schedule_entry 840, 20
+.LPopuriFestivalEntries:
+	popuri_schedule_entry 0, 0
+.LPopuriAutumn30Entries:
+	popuri_schedule_entry 0, 0
+	popuri_schedule_entry 240, 23
+	popuri_schedule_entry 250, 21
+	popuri_schedule_entry 300, 22
+	popuri_schedule_entry 310, 0
+.LPopuriWinter14Entries:
+	popuri_schedule_entry 0, 23
+	popuri_schedule_entry 10, 21
+	popuri_schedule_entry 60, 22
+	popuri_schedule_entry 70, 0
+.LPopuriAfterRivalEventsSummerFestivalEntries:
+	popuri_schedule_entry 0, 0
+.LPopuriAfterRivalEventsSummerClearEntries:
+	popuri_schedule_entry 0, 0
+	popuri_schedule_entry 120, 7
+	popuri_schedule_entry 167, 15
+	popuri_schedule_entry 186, 16
+	popuri_schedule_entry 240, 17
+	popuri_schedule_entry 260, 14
+	popuri_schedule_entry 307, 0
+	popuri_schedule_entry 780, 6
+.LPopuriAfterRivalEventsSummerOtherWeatherEntries:
+	popuri_schedule_entry 0, 0
+	popuri_schedule_entry 780, 6
+.LPopuriMarriedAutumn13Entries:
+	popuri_schedule_entry 0, 18
+	popuri_schedule_entry 300, 19
+	popuri_schedule_entry 720, 24
+.LPopuriMarriedEventOverrideEntries:
+	popuri_schedule_entry 0, 20
+
+.LPopuriPaths:
+	.incbin "baserom.gba", 0xF2414, 0x3F8
 
 	.global gUnk_080F280C
 gUnk_080F280C:
 	.incbin "baserom.gba", 0xF280C, 0x1B4
 
-	.global gUnk_080F29C0
-gUnk_080F29C0:
-	.incbin "baserom.gba", 0xF29C0, 0x138
+	.global gChildScheduleInfo
+gChildScheduleInfo:
+	.4byte SelectChildSchedule
+	.4byte 6, .LChildSchedules
+.LChildSchedules: @ In ChildSchedule order.
+	.4byte 0
+	.4byte .LChildRegularSchedule
+	.4byte .LChildLateMorningSchedule
+	.4byte .LChildHomeAllDaySchedule
+	.4byte .LChildWalkingAgeSchedule
+	.4byte .LChildAutumn13Schedule
+
+.LChildRegularSchedule:
+	.2byte 4, 0
+	.4byte .LChildRegularEntries
+.LChildLateMorningSchedule:
+	.2byte 4, 0
+	.4byte .LChildLateMorningEntries
+.LChildHomeAllDaySchedule:
+	.2byte 1, 0
+	.4byte .LChildHomeAllDayEntries
+.LChildWalkingAgeSchedule:
+	.2byte 3, 0
+	.4byte .LChildWalkingAgeEntries
+.LChildAutumn13Schedule:
+	.2byte 2, 0
+	.4byte .LChildAutumn13Entries
+
+	@ Time is minutes since 06:00; route indices refer to the original path records.
+	.macro child_schedule_entry time, path
+	.2byte \time, 0
+	.4byte .LChildPaths + (\path * 12)
+	.endm
+
+.LChildRegularEntries:
+	child_schedule_entry 0, 0
+	child_schedule_entry 180, 1
+	child_schedule_entry 720, 0
+	child_schedule_entry 840, 1
+.LChildLateMorningEntries:
+	child_schedule_entry 0, 0
+	child_schedule_entry 300, 1
+	child_schedule_entry 720, 0
+	child_schedule_entry 840, 1
+.LChildHomeAllDayEntries:
+	child_schedule_entry 0, 1
+.LChildWalkingAgeEntries:
+	child_schedule_entry 0, 2
+	child_schedule_entry 300, 3
+	child_schedule_entry 720, 1
+.LChildAutumn13Entries:
+	child_schedule_entry 0, 0
+	child_schedule_entry 180, 1
+
+.LChildPaths:
+	.incbin "baserom.gba", 0xF2A7C, 0x7C
 
 	.global gCliffScheduleInfo
 gCliffScheduleInfo:
@@ -377,9 +661,196 @@ gUnk_080F3FD8:
 gUnk_080F42F0:
 	.incbin "baserom.gba", 0xF42F0, 0xEC
 
-	.global gUnk_080F43DC
-gUnk_080F43DC:
-	.incbin "baserom.gba", 0xF43DC, 0x598
+	.global gAnnScheduleInfo
+gAnnScheduleInfo:
+	.4byte SelectAnnSchedule
+	.4byte 19, .LAnnSchedules
+.LAnnSchedules: @ In AnnSchedule order.
+	.4byte 0
+	.4byte .LAnnClearSchedule
+	.4byte .LAnnOtherWeatherSchedule
+	.4byte .LAnnAfterRivalEventsClearSchedule
+	.4byte .LAnnAfterRivalEventsOtherWeatherSchedule
+	.4byte .LAnnAutumn5Schedule
+	.4byte .LAnnFestivalSchedule
+	.4byte .LAnnWinter14Schedule
+	.4byte .LAnnMarriedActiveNpcSchedule
+	.4byte .LAnnMarriedActiveNpcVariantSchedule
+	.4byte .LAnnMarriedSchedule
+	.4byte .LAnnMarriedVariantSchedule
+	.4byte .LAnnMarriedActiveNpcFestivalOrStormSchedule
+	.4byte .LAnnMarriedActiveNpcVariantFestivalOrStormSchedule
+	.4byte .LAnnMarriedFestivalOrStormSchedule
+	.4byte .LAnnMarriedVariantFestivalOrStormSchedule
+	.4byte .LAnnMarriedAutumn9Schedule
+	.4byte .LAnnMarriedAutumn13Schedule
+	.4byte .LAnnMarriedEventOverrideSchedule
+
+.LAnnClearSchedule:
+	.2byte 11, 0
+	.4byte .LAnnClearEntries
+.LAnnOtherWeatherSchedule:
+	.2byte 6, 0
+	.4byte .LAnnOtherWeatherEntries
+.LAnnAfterRivalEventsClearSchedule:
+	.2byte 11, 0
+	.4byte .LAnnAfterRivalEventsClearEntries
+.LAnnAfterRivalEventsOtherWeatherSchedule:
+	.2byte 6, 0
+	.4byte .LAnnAfterRivalEventsOtherWeatherEntries
+.LAnnAutumn5Schedule:
+	.2byte 3, 0
+	.4byte .LAnnAutumn5Entries
+.LAnnFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LAnnFestivalEntries
+.LAnnWinter14Schedule:
+	.2byte 5, 0
+	.4byte .LAnnWinter14Entries
+.LAnnMarriedActiveNpcSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedActiveNpcEntries
+.LAnnMarriedActiveNpcVariantSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedActiveNpcVariantEntries
+.LAnnMarriedSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedEntries
+.LAnnMarriedVariantSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedVariantEntries
+.LAnnMarriedActiveNpcFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedActiveNpcFestivalOrStormEntries
+.LAnnMarriedActiveNpcVariantFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedActiveNpcVariantFestivalOrStormEntries
+.LAnnMarriedFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedFestivalOrStormEntries
+.LAnnMarriedVariantFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedVariantFestivalOrStormEntries
+.LAnnMarriedAutumn9Schedule:
+	.2byte 4, 0
+	.4byte .LAnnMarriedAutumn9Entries
+.LAnnMarriedAutumn13Schedule:
+	.2byte 3, 0
+	.4byte .LAnnMarriedAutumn13Entries
+.LAnnMarriedEventOverrideSchedule:
+	.2byte 1, 0
+	.4byte .LAnnMarriedEventOverrideEntries
+
+	@ Time is minutes since 06:00; route indices refer to the original path records.
+	.macro ann_schedule_entry time, path
+	.2byte \time, 0
+	.4byte .LAnnPaths + (\path * 12)
+	.endm
+
+.LAnnClearEntries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 60, 3
+	ann_schedule_entry 95, 4
+	ann_schedule_entry 107, 5
+	ann_schedule_entry 240, 6
+	ann_schedule_entry 253, 7
+	ann_schedule_entry 287, 2
+	ann_schedule_entry 420, 0
+	ann_schedule_entry 600, 2
+	ann_schedule_entry 780, 0
+	ann_schedule_entry 960, 1
+.LAnnOtherWeatherEntries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 240, 2
+	ann_schedule_entry 420, 0
+	ann_schedule_entry 600, 2
+	ann_schedule_entry 780, 0
+	ann_schedule_entry 960, 1
+.LAnnAfterRivalEventsClearEntries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 60, 3
+	ann_schedule_entry 95, 4
+	ann_schedule_entry 107, 5
+	ann_schedule_entry 240, 6
+	ann_schedule_entry 253, 7
+	ann_schedule_entry 287, 2
+	ann_schedule_entry 420, 0
+	ann_schedule_entry 600, 2
+	ann_schedule_entry 780, 0
+	ann_schedule_entry 960, 1
+.LAnnAfterRivalEventsOtherWeatherEntries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 240, 2
+	ann_schedule_entry 420, 0
+	ann_schedule_entry 600, 2
+	ann_schedule_entry 780, 0
+	ann_schedule_entry 960, 1
+.LAnnAutumn5Entries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 240, 0
+	ann_schedule_entry 660, 1
+.LAnnFestivalEntries:
+	ann_schedule_entry 0, 1
+.LAnnWinter14Entries:
+	ann_schedule_entry 0, 1
+	ann_schedule_entry 120, 8
+	ann_schedule_entry 130, 9
+	ann_schedule_entry 180, 13
+	ann_schedule_entry 190, 1
+.LAnnMarriedActiveNpcEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedActiveNpcVariantEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 180, 0
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedVariantEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 180, 0
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedActiveNpcFestivalOrStormEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedActiveNpcVariantFestivalOrStormEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedFestivalOrStormEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedVariantFestivalOrStormEntries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedAutumn9Entries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 240, 14
+	ann_schedule_entry 720, 12
+	ann_schedule_entry 840, 11
+.LAnnMarriedAutumn13Entries:
+	ann_schedule_entry 0, 12
+	ann_schedule_entry 300, 10
+	ann_schedule_entry 720, 14
+.LAnnMarriedEventOverrideEntries:
+	ann_schedule_entry 0, 11
+
+.LAnnPaths:
+	.incbin "baserom.gba", 0xF475C, 0x218
 
 	.global gUnk_080F4974
 gUnk_080F4974:
@@ -389,9 +860,203 @@ gUnk_080F4974:
 gUnk_080F49C0:
 	.incbin "baserom.gba", 0xF49C0, 0x3B4
 
-	.global gUnk_080F4D74
-gUnk_080F4D74:
-	.incbin "baserom.gba", 0xF4D74, 0x7CC
+	.global gMaryScheduleInfo
+gMaryScheduleInfo:
+	.4byte SelectMarySchedule
+	.4byte 19, .LMarySchedules
+.LMarySchedules: @ In MarySchedule order.
+	.4byte 0
+	.4byte .LMaryRegularSchedule
+	.4byte .LMaryMondayClearSchedule
+	.4byte .LMaryMondayOtherWeatherSchedule
+	.4byte .LMaryAfterRivalEventsSchedule
+	.4byte .LMaryAfterRivalEventsThursdayClearSchedule
+	.4byte .LMaryAfterRivalEventsThursdayOtherWeatherSchedule
+	.4byte .LMaryWinter14Schedule
+	.4byte .LMaryFestivalSchedule
+	.4byte .LMaryAfterRivalEventsFestivalSchedule
+	.4byte .LMaryMarriedActiveNpcSchedule
+	.4byte .LMaryMarriedActiveNpcMondaySchedule
+	.4byte .LMaryMarriedSchedule
+	.4byte .LMaryMarriedMondaySchedule
+	.4byte .LMaryMarriedActiveNpcFestivalOrStormSchedule
+	.4byte .LMaryMarriedFestivalOrStormSchedule
+	.4byte .LMaryMarriedAutumn9Schedule
+	.4byte .LMaryMarriedAutumn13Schedule
+	.4byte .LMaryMarriedEventOverrideSchedule
+
+.LMaryRegularSchedule:
+	.2byte 7, 0
+	.4byte .LMaryRegularEntries
+.LMaryMondayClearSchedule:
+	.2byte 12, 0
+	.4byte .LMaryMondayClearEntries
+.LMaryMondayOtherWeatherSchedule:
+	.2byte 7, 0
+	.4byte .LMaryMondayOtherWeatherEntries
+.LMaryAfterRivalEventsSchedule:
+	.2byte 7, 0
+	.4byte .LMaryAfterRivalEventsEntries
+.LMaryAfterRivalEventsThursdayClearSchedule:
+	.2byte 9, 0
+	.4byte .LMaryAfterRivalEventsThursdayClearEntries
+.LMaryAfterRivalEventsThursdayOtherWeatherSchedule:
+	.2byte 9, 0
+	.4byte .LMaryAfterRivalEventsThursdayOtherWeatherEntries
+.LMaryWinter14Schedule:
+	.2byte 5, 0
+	.4byte .LMaryWinter14Entries
+.LMaryFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LMaryFestivalEntries
+.LMaryAfterRivalEventsFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LMaryAfterRivalEventsFestivalEntries
+.LMaryMarriedActiveNpcSchedule:
+	.2byte 4, 0
+	.4byte .LMaryMarriedActiveNpcEntries
+.LMaryMarriedActiveNpcMondaySchedule:
+	.2byte 4, 0
+	.4byte .LMaryMarriedActiveNpcMondayEntries
+.LMaryMarriedSchedule:
+	.2byte 4, 0
+	.4byte .LMaryMarriedEntries
+.LMaryMarriedMondaySchedule:
+	.2byte 4, 0
+	.4byte .LMaryMarriedMondayEntries
+.LMaryMarriedActiveNpcFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LMaryMarriedActiveNpcFestivalOrStormEntries
+.LMaryMarriedFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LMaryMarriedFestivalOrStormEntries
+.LMaryMarriedAutumn9Schedule:
+	.2byte 4, 0
+	.4byte .LMaryMarriedAutumn9Entries
+.LMaryMarriedAutumn13Schedule:
+	.2byte 3, 0
+	.4byte .LMaryMarriedAutumn13Entries
+.LMaryMarriedEventOverrideSchedule:
+	.2byte 1, 0
+	.4byte .LMaryMarriedEventOverrideEntries
+
+	@ Time is minutes since 06:00; route indices refer to the original path records.
+	.macro mary_schedule_entry time, path
+	.2byte \time, 0
+	.4byte .LMaryPaths + (\path * 12)
+	.endm
+
+.LMaryRegularEntries:
+	mary_schedule_entry 0, 0
+	mary_schedule_entry 60, 1
+	mary_schedule_entry 240, 2
+	mary_schedule_entry 247, 3
+	mary_schedule_entry 720, 4
+	mary_schedule_entry 727, 1
+	mary_schedule_entry 960, 0
+.LMaryMondayClearEntries:
+	mary_schedule_entry 0, 0
+	mary_schedule_entry 63, 5
+	mary_schedule_entry 90, 6
+	mary_schedule_entry 148, 7
+	mary_schedule_entry 240, 8
+	mary_schedule_entry 298, 9
+	mary_schedule_entry 324, 1
+	mary_schedule_entry 420, 10
+	mary_schedule_entry 444, 11
+	mary_schedule_entry 603, 12
+	mary_schedule_entry 627, 1
+	mary_schedule_entry 960, 0
+.LMaryMondayOtherWeatherEntries:
+	mary_schedule_entry 0, 0
+	mary_schedule_entry 60, 1
+	mary_schedule_entry 420, 10
+	mary_schedule_entry 444, 11
+	mary_schedule_entry 603, 12
+	mary_schedule_entry 627, 1
+	mary_schedule_entry 960, 0
+.LMaryAfterRivalEventsEntries:
+	mary_schedule_entry 0, 0
+	mary_schedule_entry 60, 1
+	mary_schedule_entry 240, 2
+	mary_schedule_entry 247, 3
+	mary_schedule_entry 720, 4
+	mary_schedule_entry 727, 1
+	mary_schedule_entry 960, 0
+.LMaryAfterRivalEventsThursdayClearEntries:
+	mary_schedule_entry 0, 0
+	mary_schedule_entry 60, 1
+	mary_schedule_entry 426, 5
+	mary_schedule_entry 453, 23
+	mary_schedule_entry 462, 24
+	mary_schedule_entry 600, 25
+	mary_schedule_entry 610, 9
+	mary_schedule_entry 636, 1
+	mary_schedule_entry 960, 0
+.LMaryAfterRivalEventsThursdayOtherWeatherEntries:
+	mary_schedule_entry 0, 0
+	mary_schedule_entry 60, 1
+	mary_schedule_entry 420, 5
+	mary_schedule_entry 447, 19
+	mary_schedule_entry 463, 20
+	mary_schedule_entry 600, 21
+	mary_schedule_entry 616, 9
+	mary_schedule_entry 642, 1
+	mary_schedule_entry 960, 0
+.LMaryWinter14Entries:
+	mary_schedule_entry 0, 1
+	mary_schedule_entry 480, 16
+	mary_schedule_entry 490, 17
+	mary_schedule_entry 540, 18
+	mary_schedule_entry 550, 1
+.LMaryFestivalEntries:
+	mary_schedule_entry 0, 1
+.LMaryAfterRivalEventsFestivalEntries:
+	mary_schedule_entry 0, 1
+.LMaryMarriedActiveNpcEntries:
+	mary_schedule_entry 0, 15
+	mary_schedule_entry 180, 3
+	mary_schedule_entry 720, 15
+	mary_schedule_entry 840, 14
+.LMaryMarriedActiveNpcMondayEntries:
+	mary_schedule_entry 0, 15
+	mary_schedule_entry 300, 13
+	mary_schedule_entry 720, 15
+	mary_schedule_entry 840, 14
+.LMaryMarriedEntries:
+	mary_schedule_entry 0, 15
+	mary_schedule_entry 180, 3
+	mary_schedule_entry 720, 15
+	mary_schedule_entry 840, 14
+.LMaryMarriedMondayEntries:
+	mary_schedule_entry 0, 15
+	mary_schedule_entry 300, 13
+	mary_schedule_entry 720, 15
+	mary_schedule_entry 840, 14
+.LMaryMarriedActiveNpcFestivalOrStormEntries:
+	mary_schedule_entry 0, 15
+	mary_schedule_entry 300, 13
+	mary_schedule_entry 720, 15
+	mary_schedule_entry 840, 14
+.LMaryMarriedFestivalOrStormEntries:
+	mary_schedule_entry 0, 15
+	mary_schedule_entry 300, 13
+	mary_schedule_entry 720, 15
+	mary_schedule_entry 840, 14
+.LMaryMarriedAutumn9Entries:
+	mary_schedule_entry 0, 15
+	mary_schedule_entry 240, 22
+	mary_schedule_entry 720, 15
+	mary_schedule_entry 840, 14
+.LMaryMarriedAutumn13Entries:
+	mary_schedule_entry 0, 15
+	mary_schedule_entry 300, 13
+	mary_schedule_entry 720, 22
+.LMaryMarriedEventOverrideEntries:
+	mary_schedule_entry 0, 14
+
+.LMaryPaths:
+	.incbin "baserom.gba", 0xF512C, 0x414
 
 	.global gUnk_080F5540
 gUnk_080F5540:
@@ -405,9 +1070,166 @@ gUnk_080F597C:
 gUnk_080F59CC:
 	.incbin "baserom.gba", 0xF59CC, 0x3C8
 
-	.global gUnk_080F5D94
-gUnk_080F5D94:
-	.incbin "baserom.gba", 0xF5D94, 0x468
+	.global gElliScheduleInfo
+gElliScheduleInfo:
+	.4byte SelectElliSchedule
+	.4byte 17, .LElliSchedules
+.LElliSchedules: @ In ElliSchedule order.
+	.4byte 0
+	.4byte .LElliRegularSchedule
+	.4byte .LElliWednesdaySchedule
+	.4byte .LElliAfterRivalEventsSchedule
+	.4byte .LElliAfterRivalEventsWednesdaySchedule
+	.4byte .LElliFestivalSchedule
+	.4byte .LElliWinter14Schedule
+	.4byte .LElliAfterRivalEventsFestivalSchedule
+	.4byte .LElliMarriedActiveNpcSchedule
+	.4byte .LElliMarriedActiveNpcWednesdaySchedule
+	.4byte .LElliMarriedSchedule
+	.4byte .LElliMarriedWednesdaySchedule
+	.4byte .LElliMarriedActiveNpcFestivalOrStormSchedule
+	.4byte .LElliMarriedFestivalOrStormSchedule
+	.4byte .LElliMarriedAutumn9Schedule
+	.4byte .LElliMarriedAutumn13Schedule
+	.4byte .LElliMarriedEventOverrideSchedule
+
+.LElliRegularSchedule:
+	.2byte 3, 0
+	.4byte .LElliRegularEntries
+.LElliWednesdaySchedule:
+	.2byte 9, 0
+	.4byte .LElliWednesdayEntries
+.LElliAfterRivalEventsSchedule:
+	.2byte 3, 0
+	.4byte .LElliAfterRivalEventsEntries
+.LElliAfterRivalEventsWednesdaySchedule:
+	.2byte 9, 0
+	.4byte .LElliAfterRivalEventsWednesdayEntries
+.LElliFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LElliFestivalEntries
+.LElliWinter14Schedule:
+	.2byte 5, 0
+	.4byte .LElliWinter14Entries
+.LElliAfterRivalEventsFestivalSchedule:
+	.2byte 1, 0
+	.4byte .LElliAfterRivalEventsFestivalEntries
+.LElliMarriedActiveNpcSchedule:
+	.2byte 4, 0
+	.4byte .LElliMarriedActiveNpcEntries
+.LElliMarriedActiveNpcWednesdaySchedule:
+	.2byte 4, 0
+	.4byte .LElliMarriedActiveNpcWednesdayEntries
+.LElliMarriedSchedule:
+	.2byte 4, 0
+	.4byte .LElliMarriedEntries
+.LElliMarriedWednesdaySchedule:
+	.2byte 4, 0
+	.4byte .LElliMarriedWednesdayEntries
+.LElliMarriedActiveNpcFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LElliMarriedActiveNpcFestivalOrStormEntries
+.LElliMarriedFestivalOrStormSchedule:
+	.2byte 4, 0
+	.4byte .LElliMarriedFestivalOrStormEntries
+.LElliMarriedAutumn9Schedule:
+	.2byte 4, 0
+	.4byte .LElliMarriedAutumn9Entries
+.LElliMarriedAutumn13Schedule:
+	.2byte 3, 0
+	.4byte .LElliMarriedAutumn13Entries
+.LElliMarriedEventOverrideSchedule:
+	.2byte 1, 0
+	.4byte .LElliMarriedEventOverrideEntries
+
+	@ Time is minutes since 06:00; route indices refer to the original path records.
+	.macro elli_schedule_entry time, path
+	.2byte \time, 0
+	.4byte .LElliPaths + (\path * 12)
+	.endm
+
+.LElliRegularEntries:
+	elli_schedule_entry 0, 0
+	elli_schedule_entry 180, 1
+	elli_schedule_entry 780, 0
+.LElliWednesdayEntries:
+	elli_schedule_entry 0, 0
+	elli_schedule_entry 180, 2
+	elli_schedule_entry 202, 3
+	elli_schedule_entry 420, 4
+	elli_schedule_entry 436, 5
+	elli_schedule_entry 600, 6
+	elli_schedule_entry 616, 3
+	elli_schedule_entry 780, 7
+	elli_schedule_entry 802, 0
+.LElliAfterRivalEventsEntries:
+	elli_schedule_entry 0, 0
+	elli_schedule_entry 180, 1
+	elli_schedule_entry 780, 0
+.LElliAfterRivalEventsWednesdayEntries:
+	elli_schedule_entry 0, 0
+	elli_schedule_entry 180, 2
+	elli_schedule_entry 202, 3
+	elli_schedule_entry 420, 4
+	elli_schedule_entry 436, 5
+	elli_schedule_entry 600, 6
+	elli_schedule_entry 616, 3
+	elli_schedule_entry 780, 7
+	elli_schedule_entry 802, 0
+.LElliFestivalEntries:
+	elli_schedule_entry 0, 0
+.LElliWinter14Entries:
+	elli_schedule_entry 0, 1
+	elli_schedule_entry 240, 8
+	elli_schedule_entry 250, 9
+	elli_schedule_entry 300, 13
+	elli_schedule_entry 310, 1
+.LElliAfterRivalEventsFestivalEntries:
+	elli_schedule_entry 0, 0
+.LElliMarriedActiveNpcEntries:
+	elli_schedule_entry 0, 12
+	elli_schedule_entry 180, 1
+	elli_schedule_entry 720, 12
+	elli_schedule_entry 840, 11
+.LElliMarriedActiveNpcWednesdayEntries:
+	elli_schedule_entry 0, 12
+	elli_schedule_entry 300, 10
+	elli_schedule_entry 720, 12
+	elli_schedule_entry 840, 11
+.LElliMarriedEntries:
+	elli_schedule_entry 0, 12
+	elli_schedule_entry 180, 1
+	elli_schedule_entry 720, 12
+	elli_schedule_entry 840, 11
+.LElliMarriedWednesdayEntries:
+	elli_schedule_entry 0, 12
+	elli_schedule_entry 300, 10
+	elli_schedule_entry 720, 12
+	elli_schedule_entry 840, 11
+.LElliMarriedActiveNpcFestivalOrStormEntries:
+	elli_schedule_entry 0, 12
+	elli_schedule_entry 300, 10
+	elli_schedule_entry 720, 12
+	elli_schedule_entry 840, 11
+.LElliMarriedFestivalOrStormEntries:
+	elli_schedule_entry 0, 12
+	elli_schedule_entry 300, 10
+	elli_schedule_entry 720, 12
+	elli_schedule_entry 840, 11
+.LElliMarriedAutumn9Entries:
+	elli_schedule_entry 0, 12
+	elli_schedule_entry 240, 14
+	elli_schedule_entry 720, 12
+	elli_schedule_entry 840, 11
+.LElliMarriedAutumn13Entries:
+	elli_schedule_entry 0, 12
+	elli_schedule_entry 300, 10
+	elli_schedule_entry 720, 14
+.LElliMarriedEventOverrideEntries:
+	elli_schedule_entry 0, 11
+
+.LElliPaths:
+	.incbin "baserom.gba", 0xF605C, 0x1A0
 
 	.global gUnk_080F61FC
 gUnk_080F61FC:
