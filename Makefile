@@ -96,6 +96,10 @@ $(BUILD_DIR)/assets/scripts.s: FORCE
 
 $(BUILD_DIR)/asm/data/data_080F1A80.o $(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/scripts.s
 
+ifneq (,$(and $(filter extract,$(MAKECMDGOALS)),$(filter-out extract,$(MAKECMDGOALS))))
+$(error run `make extract` on its own, then build in a separate make invocation)
+endif
+
 extract:
 	@$(PYTHON) tools/assets/fomt_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
 
