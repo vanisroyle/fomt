@@ -1361,28 +1361,7 @@ func_08035FE0: @ 0x08035FE0
 .L08036014: .4byte 0x000003F7
 .L08036018: .4byte vtable_unk_080E6F18
 
-    thumb_func_start func_0803601C
-func_0803601C: @ 0x0803601C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036048, "ax", %progbits
 
     thumb_func_start func_08036048
 func_08036048: @ 0x08036048
@@ -1523,28 +1502,7 @@ func_08036184: @ 0x08036184
 .L080361B8: .4byte 0x000003F9
 .L080361BC: .4byte vtable_unk_080E6E98
 
-    thumb_func_start func_080361C0
-func_080361C0: @ 0x080361C0
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.080361EC, "ax", %progbits
 
     thumb_func_start func_080361EC
 func_080361EC: @ 0x080361EC
@@ -1574,30 +1532,7 @@ func_080361EC: @ 0x080361EC
 .L08036220: .4byte 0x000003FF
 .L08036224: .4byte vtable_unk_080E6E58
 
-    thumb_func_start func_08036228
-func_08036228: @ 0x08036228
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #2
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_extra.08036258, "ax", %progbits
 
     thumb_func_start func_08036258
 func_08036258: @ 0x08036258
@@ -1626,30 +1561,7 @@ func_08036258: @ 0x08036258
 .L08036288: .4byte 0x000003EE
 .L0803628C: .4byte vtable_unk_080E6E18
 
-    thumb_func_start func_08036290
-func_08036290: @ 0x08036290
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #2
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_extra.080362C0, "ax", %progbits
 
     thumb_func_start func_080362C0
 func_080362C0: @ 0x080362C0
@@ -1679,28 +1591,7 @@ func_080362C0: @ 0x080362C0
 .L080362F4: .4byte 0x000003FB
 .L080362F8: .4byte vtable_unk_080E6DD8
 
-    thumb_func_start func_080362FC
-func_080362FC: @ 0x080362FC
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    str r1, [sp, #4]
-    movs r2, #0
-    str r2, [sp, #8]
-    add r1, sp, #0xc
-    strb r2, [r1]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036328, "ax", %progbits
 
     thumb_func_start func_08036328
 func_08036328: @ 0x08036328
@@ -1730,28 +1621,7 @@ func_08036328: @ 0x08036328
 .L0803635C: .4byte 0x000003EF
 .L08036360: .4byte vtable_unk_080E6D98
 
-    thumb_func_start func_08036364
-func_08036364: @ 0x08036364
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036390, "ax", %progbits
 
     thumb_func_start func_08036390
 func_08036390: @ 0x08036390
@@ -1781,28 +1651,7 @@ func_08036390: @ 0x08036390
 .L080363C4: .4byte 0x000003F1
 .L080363C8: .4byte vtable_unk_080E6D58
 
-    thumb_func_start func_080363CC
-func_080363CC: @ 0x080363CC
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #4
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.080363F8, "ax", %progbits
 
     thumb_func_start func_080363F8
 func_080363F8: @ 0x080363F8
@@ -4077,94 +3926,9 @@ func_0803788C: @ 0x0803788C
     pop {r1}
     bx r1
 
-    thumb_func_start func_080378B8
-func_080378B8: @ 0x080378B8
-    push {r4, lr}
-    sub sp, #8
-    adds r4, r0, #0
-    mov r0, sp
-    bl func_080A198C
-    adds r0, r4, #0
-    mov r1, sp
-    bl SetLocation__12AActorEntityRC13ActorLocation
-    adds r0, r4, #0
-    movs r1, #0
-    bl GetNpcVariantThreeAnimation
-    adds r1, r0, #0
-    ldrh r0, [r4, #0x22]
-    cmp r0, r1
-    beq .L080378E2
-    adds r0, r4, #0
-    bl SetAnim__12AActorEntityUi
-.L080378E2:
-    add sp, #8
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
     .section .text.npc_extra.08037958, "ax", %progbits
 
-    thumb_func_start func_08037958
-func_08037958: @ 0x08037958
-    push {r4, r5, r6, r7, lr}
-    adds r6, r0, #0
-    ldr r5, .L080379D4 @ =gUnk_080F1638
-    adds r0, r5, #0
-    movs r1, #3
-    bl func_080AB82C
-    lsls r4, r0, #2
-    adds r4, r4, r5
-    adds r7, r0, #0
-    movs r5, #0x3c
-    ldrb r0, [r4, #2]
-    muls r0, r5, r0
-    bl func_080AB788
-    ldrb r1, [r4, #1]
-    muls r1, r5, r1
-    adds r5, r1, r0
-    movs r0, #4
-    bl func_080AB788
-    adds r1, r0, #0
-    cmp r1, #0
-    beq .L080379A4
-    cmp r1, #3
-    beq .L080379A4
-    adds r4, r6, #0
-    adds r4, #0x20
-    ldrb r0, [r4]
-    bl func_080AB7A4
-    adds r1, r0, #0
-    ldrb r0, [r4]
-    cmp r0, r1
-    beq .L080379A4
-    adds r0, r6, #0
-    bl SetAnimFacing__12AActorEntityUi
-.L080379A4:
-    adds r0, r6, #0
-    adds r1, r7, #0
-    bl GetNpcVariantFourSpeed
-    adds r1, r0, #0
-    adds r0, r6, #0
-    bl SetMovingNpcFacingVelocity
-    adds r0, r6, #0
-    adds r1, r7, #0
-    bl GetNpcVariantFourAnimation
-    adds r1, r0, #0
-    ldrh r0, [r6, #0x22]
-    cmp r0, r1
-    beq .L080379CA
-    adds r0, r6, #0
-    bl SetAnim__12AActorEntityUi
-.L080379CA:
-    adds r0, r5, #0
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L080379D4: .4byte gUnk_080F1638
-
-
+    .section .text.npc_extra.080379D8, "ax", %progbits
 
     thumb_func_start func_080379D8
 func_080379D8: @ 0x080379D8
@@ -4188,32 +3952,6 @@ func_080379D8: @ 0x080379D8
     pop {r4}
     pop {r1}
     bx r1
-
-    thumb_func_start func_08037A04
-func_08037A04: @ 0x08037A04
-    push {r4, lr}
-    sub sp, #8
-    adds r4, r0, #0
-    mov r0, sp
-    bl func_080A19EC
-    adds r0, r4, #0
-    mov r1, sp
-    bl SetLocation__12AActorEntityRC13ActorLocation
-    adds r0, r4, #0
-    movs r1, #0
-    bl GetNpcVariantFourAnimation
-    adds r1, r0, #0
-    ldrh r0, [r4, #0x22]
-    cmp r0, r1
-    beq .L08037A2E
-    adds r0, r4, #0
-    bl SetAnim__12AActorEntityUi
-.L08037A2E:
-    add sp, #8
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
 
     .section .text.npc_extra.08037A5C, "ax", %progbits
 
