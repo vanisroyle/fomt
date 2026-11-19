@@ -3,7 +3,9 @@
 #include "bachelorette.hh"
 #include "npc.hh"
 #include "schedule_info.hh"
+#include "unknown_types.hh"
 
+#include <algorithm>
 #include <stdlib.h>
 #include <string.h>
 
@@ -255,7 +257,12 @@ ROM_TEXT(0803C518) void func_0803C544(Unk_0803BF78 & self)
 
 struct ClockDisplayData
 {
-    STRUCT_PAD(0x000, 0x228);
+    STRUCT_PAD(0x000, 0x084);
+    u8 seasonFirstTiles[0x20];
+    u8 seasonSecondTiles[0x20];
+    STRUCT_PAD(0x0C4, 0x18C);
+    u8 dateTilesDirty;
+    STRUCT_PAD(0x18D, 0x228);
     u8 colonTiles[0x20];
     u8 minuteTensTiles[0x20];
     u8 minuteOnesTiles[0x20];
@@ -277,6 +284,27 @@ struct ClockDisplay
 };
 
 EC u8 const gClockFont[][0x20];
+
+ROM_TEXT(0803D080) void SetClockSeasonTiles(ClockDisplay & self, int season)
+{
+    ClockDisplayData & inner = *self.inner;
+    u32 tiles[2];
+    switch (season)
+    {
+    case SEASON_SPRING:
+    default: tiles[0] = 11; tiles[1] = 12; break;
+    case SEASON_SUMMER: tiles[0] = 13; tiles[1] = 14; break;
+    case SEASON_AUTUMN: tiles[0] = 15; tiles[1] = 16; break;
+    case SEASON_WINTER: tiles[0] = 17; tiles[1] = 18; break;
+    }
+    memcpy(inner.seasonFirstTiles,
+           reinterpret_cast<u8 const *>(reinterpret_cast<uintptr_t>(gClockFont) + tiles[0] * sizeof(inner.seasonFirstTiles)),
+           sizeof(inner.seasonFirstTiles));
+    inner.dateTilesDirty = 1;
+    u8 const * secondTile = reinterpret_cast<u8 const *>(reinterpret_cast<uintptr_t>(gClockFont) + tiles[1] * sizeof(inner.seasonSecondTiles));
+    memcpy(inner.seasonSecondTiles, secondTile, sizeof(inner.seasonSecondTiles));
+    inner.dateTilesDirty = 1;
+}
 
 ROM_TEXT(0803D2E8) void SetClockColonVisible(ClockDisplay & self, bool visible)
 {
@@ -485,7 +513,9 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
 
 struct PACKED SavedCalendarDate
 {
-    u8 data[3];
+    u8 yearInCycle : 3;
+    u8 yearCycle : 5;
+    u8 packedDateAndTime[2];
 };
 
 struct CalendarDate
@@ -516,7 +546,8 @@ struct NpcScheduleContext
     Bachelorette npc_1E28;
     STRUCT_PAD(0x1E40, 0x215A);
     u8 unk_215A;
-    STRUCT_PAD(0x215B, 0x2178);
+    STRUCT_PAD(0x215B, 0x2174);
+    u32 unk_2174;
     union
     {
         u32 unk_2178;
@@ -710,7 +741,22 @@ ROM_TEXT(0803E620) unsigned SelectNpcSchedule_080F5540(NpcScheduleContext const 
     return 2;
 }
 
-ROM_TEXT(0803E6EC) unsigned SelectNpcSchedule_080F59CC(NpcScheduleContext const & self)
+ROM_TEXT(0803E620) unsigned SelectNpcSchedule_080F597C(NpcScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    u8 season = date.season;
+    u8 day = date.day;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 2;
+    unsigned maxYear = 200;
+    unsigned calendarYear = self.calendar.yearCycle * 7 + self.calendar.yearInCycle;
+    if (std::min(maxYear, calendarYear) <= 1 && season == 0 && day <= 2)
+        return 0;
+    return 1;
+}
+
+ROM_TEXT(0803E620) unsigned SelectNpcSchedule_080F59CC(NpcScheduleContext const & self)
 {
     CalendarDate date;
     DecodeNpcScheduleDate(date, self.calendar);
@@ -769,7 +815,54 @@ active:
     return 2;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6B10(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6370(NpcScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    u32 weekday = date.weekday;
+    u32 weekdayForRegularSchedule = weekday;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 5;
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 6)) < 0)
+        return 0;
+    if ((self.unk_2174 & 0x61000) == 0x41000)
+    {
+        if (weekday == 6)
+            return 4;
+        return 3;
+    }
+    if (weekdayForRegularSchedule == 6)
+        return 2;
+    return 1;
+}
+
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F66C4(NpcScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    u8 weekday = date.weekday;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 5;
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 6)) < 0)
+        return 0;
+    if (self.weather == 0)
+    {
+        if (weekday == 6)
+        {
+            if ((self.unk_2174 & 0x61000) == 0x41000)
+                return 4;
+            return 3;
+        }
+        return 1;
+    }
+    return 2;
+}
+
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6B10(NpcScheduleContext const & self)
 {
     CalendarDate date;
     DecodeNpcScheduleDate(date, self.calendar);
@@ -784,7 +877,7 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6B10(NpcScheduleContext const 
     return 0;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6B4C(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6B4C(NpcScheduleContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 5)) < 0)
         return 0;
@@ -795,7 +888,7 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6B4C(NpcScheduleContext const 
     return 1;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6DE8(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6DE8(NpcScheduleContext const & self)
 {
     if (self.eventFlags & 0x7C)
         return 0;
@@ -813,7 +906,7 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6DE8(NpcScheduleContext const 
     return 2;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6FF8(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F6FF8(NpcScheduleContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 3)) >= 0)
     {
@@ -838,7 +931,7 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F6FF8(NpcScheduleContext const 
     return 0;
 }
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 4)) < 0)
         return 0;
@@ -876,7 +969,7 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const 
 EC unsigned func_0809ECD8(void const *);
 EC bool func_0809ECE0(void const *);
 
-ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const & self)
+ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 4)) < 0)
         return 0;
@@ -899,7 +992,39 @@ ROM_TEXT(0803EA5C) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const 
     return 1;
 }
 
-ROM_TEXT(0803EE50) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const & self)
+ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F81BC(NpcScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.calendar);
+    unsigned season = date.season;
+    u8 day = date.day;
+    unsigned weekday = date.weekday;
+    u8 festival = IsNpcScheduleFestivalDay(season, day);
+    if (festival != 0)
+        return 5;
+    if (season == 2 && day == 30)
+    {
+        switch ((static_cast<u32>(self.unk_21A2) << 26) >> 30)
+        {
+        case 2: goto regularDay;
+        }
+        return 6;
+    }
+regularDay:
+    if (static_cast<i32>(static_cast<u32>(self.unk_215A) << (31 - 3)) < 0)
+        return 0;
+    if (self.weather == 0)
+    {
+        if (weekday == 1)
+            return 1;
+        if (weekday == 3)
+            return 2;
+        return 3;
+    }
+    return 4;
+}
+
+ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const & self)
 {
     CalendarDate date;
     DecodeNpcScheduleDate(date, self.calendar);
