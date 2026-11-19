@@ -2,6 +2,7 @@
 
 #include "entity.hh"
 #include "farm.hh"
+#include "farmer.hh"
 
 struct GameStateAudioList;
 struct GameStateMapEffect;
@@ -15,12 +16,22 @@ struct GameStateCameraCoordinate
     i16 pixel;
 };
 
+struct GameStateMapView;
+
+struct GameStateMapDisplayVtable
+{
+    STRUCT_PAD(0x0, 0x14);
+    void (*apply_daylight)(GameStateMapView & view, u32 band, int amount, int remaining);
+};
+
 struct GameStateMapView
 {
     u32 id;
     u32 map;
     GameStateCameraCoordinate camera_x;
     GameStateCameraCoordinate camera_y;
+    STRUCT_PAD(0x10, 0x90);
+    GameStateMapDisplayVtable const * display_vtable;
 };
 
 struct GameStateMapData
@@ -28,7 +39,9 @@ struct GameStateMapData
     STRUCT_PAD(0x0, 0x10);
     u8 clock[4];
     Farm farm;
-    u8 reserved[0x34C4 - 0x14 - sizeof(Farm)];
+    u8 reserved[0x1BD8 - 0x14 - sizeof(Farm)];
+    Farmer farmer;
+    u8 reserved_after_farmer[0x34C4 - 0x1BD8 - sizeof(Farmer)];
     bool player_only_when_disabled;
     STRUCT_PAD(0x34C5, 0x34D8);
     u32 tile_variant_flags;
@@ -80,15 +93,38 @@ struct GameStateScriptEvent
     u32 argument;
 };
 
+struct GameStateClock
+{
+    u32 : 16;
+    u32 hour : 5;
+    u32 minute : 6;
+};
+
+struct GameStateMusicParams
+{
+    GameStateMusicParams() : tempo(256), volume(256), pitch(0), pan(0), modulation(0), lfo_speed(0) {}
+
+    u16 tempo;
+    u16 volume;
+    i16 pitch;
+    i8 pan;
+    u8 modulation;
+    u8 lfo_speed;
+};
+
 struct GameStateEntitySlotVtable
 {
-    STRUCT_PAD(0x0, 0x40);
+    STRUCT_PAD(0x0, 0x14);
+    u32 (*get_map_id)(GameStateMapOwner const & game);
+    STRUCT_PAD(0x18, 0x40);
     AEntity * (*get_entity)(GameStateMapOwner & game, u32 slot);
     AEntity const * (*get_const_entity)(GameStateMapOwner const & game, u32 slot);
     STRUCT_PAD(0x48, 0x5C);
     GameStatePackedSpriteArchive const * (*get_interaction_archive)(GameStateMapOwner const & game);
     STRUCT_PAD(0x60, 0x140);
     void (*queue_event)(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue);
+    STRUCT_PAD(0x144, 0x148);
+    u32 (*get_music_track)(GameStateMapOwner const & game);
 };
 
 struct GameStateSpriteCacheEntry
@@ -125,7 +161,12 @@ struct GameStateMapOwner
     STRUCT_PAD(0x1028, 0x1038);
     GameStateMapData * map_data;
     bool entities_enabled;
-    STRUCT_PAD(0x103D, 0x1054);
+    STRUCT_PAD(0x103D, 0x1040);
+    GameStateClock const * clock;
+    STRUCT_PAD(0x1044, 0x1048);
+    u32 daylight_band;
+    u8 daylight_amount;
+    STRUCT_PAD(0x104D, 0x1054);
     GameStateScript * script;
     SmartPtr<GameStateMapInteraction> interaction;
     STRUCT_PAD(0x105C, 0x107C);
@@ -168,11 +209,22 @@ EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & eve
 EC void func_0801F3E4(GameStateMapOwner & game);
 EC bool func_0801140C(GameStateMapData & state);
 EC bool func_0801C0F8(GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result);
-EC void func_0801DB58(GameStateMapOwner & game);
+EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
+EC void func_080123CC(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
+EC void func_080AA6D0(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * adjacent);
 EC void func_0805E860(SpriteAnimator & animator, u32 animation);
 EC GameStateMapInteraction * func_080A4A00(GameStateMapInteraction * interaction,
     GameStatePackedSpriteArchive const * archive, u32 animation, GameStateMapOwner & game,
     u32 layer, u32 kind, bool start);
+
+EC SECTION(".text.game_state_c2.08019B90") void GameStateRefreshMapDaylight(GameStateMapOwner & game)
+{
+    GameStateMapView & view = *game.map_view;
+    void (* const * apply_daylight)(GameStateMapView &, u32, int, int) = &view.display_vtable->apply_daylight;
+    (*apply_daylight)(view, game.daylight_band, game.daylight_amount, 30 - game.daylight_amount);
+    if (!GetMapData(game.map_view->map)->is_interior)
+        func_0801A13C(game, game.clock->hour, game.clock->minute, true);
+}
 
 EC SECTION(".text.game_state_c2.08019F38") bool GameStateIsWinterOrSpecialOutdoorTile(GameStateMapOwner const & game, Location const & location)
 {
@@ -225,6 +277,32 @@ EC SECTION(".text.game_state_c2.0801C0E0") void GameStateRequestDayUpdate(GameSt
 
 EC SECTION(".text.game_state_c2.0801C3DC") void GameStateNoOpMapAction(GameStateMapOwner &)
 {
+}
+
+typedef Field<Farm::FIELD_WIDTH, Farm::FIELD_HEIGHT> GameStateFarmField;
+
+static inline FieldPlot * GetFieldNeighbor(GameStateFarmField & field, int x, int y)
+{
+    bool in_bounds = x >= 0 && y >= 0 && x < Farm::FIELD_WIDTH && y < Farm::FIELD_HEIGHT;
+    return in_bounds ? &field.PlotAt(x, y) : nullptr;
+}
+
+EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameStateMapOwner & game, int x, int y, int strength)
+{
+    GameStateMapData * & state = game.map_data;
+    FieldPlot & plot = state->farm.field.PlotAt(x, y);
+    u32 result = plot.method_0800A33C(strength);
+    if (game.vtable->get_map_id(game) == 2)
+    {
+        GameStateMapView * view = game.map_view;
+        GameStateFarmField & field = state->farm.field;
+        FieldPlot & current = field.PlotAt(x, y);
+        FieldPlot * south = GetFieldNeighbor(field, x, y + 1);
+        FieldPlot * north = GetFieldNeighbor(field, x, y - 1);
+        Unk_Something const * adjacent = current.method_0800AF5C(south, north);
+        func_080AA6D0(*view, x * 2 + 34, y * 2 + 22, plot, adjacent);
+    }
+    return result;
 }
 
 EC SECTION(".text.game_state_c2.0801D88C") GameStatePlotPlacement GameStateCheckFarmPlotPlacement(
@@ -286,6 +364,37 @@ EC SECTION(".text.game_state_c2.0801D9A8") void GameStateQueueScriptEvent(GameSt
 EC SECTION(".text.game_state_c2.0801DB44") GameStateAudioList * GameStateGetAudioList(GameStateMapOwner & game)
 {
     return reinterpret_cast<GameStateAudioList *>(func_0801468C(*game.script));
+}
+
+EC SECTION(".text.game_state_c2.0801DB58") void GameStateRefreshMapMusic(GameStateMapOwner & game)
+{
+    GameStateMusicParams params;
+    int map = game.vtable->get_map_id(game);
+    u32 mine_floor = map - 0x34;
+    if (mine_floor <= 511 || map == 0x2B)
+    {
+        if (map == 0x2B)
+            goto special_floor;
+        else if (map > 0x133)
+            map -= 0x134;
+        else
+            map = mine_floor;
+        goto adjust_pitch;
+    special_floor:
+        map = 9;
+    adjust_pitch:
+        i32 pitch = params.pitch;
+        params.pitch = pitch + ((-2560 - pitch) * (map + 1)) / 256;
+    }
+    int fatigue = func_0800E4FC(game.map_data->farmer);
+    if (fatigue > 79)
+    {
+        params.modulation = fatigue - 79;
+        params.lfo_speed = 3;
+    }
+    GameStateScript * script = game.script;
+    u32 track = game.vtable->get_music_track(game);
+    func_080123CC(*script, 1, track, params);
 }
 
 EC SECTION(".text.game_state_c2.0801DCA8") void GameStateClearMapInteraction(GameStateMapOwner & game)
@@ -388,7 +497,7 @@ EC SECTION(".text.game_state_c2.0801DD84") int GameStateRemoveRecordPlayerAlbum(
     RecordPlayer * record_player = game.map_data->farm.farm_house.GetRecordPlayer();
     func_080A6300(*game.map_view);
     ArticleStack previous_album = record_player->RemoveAlbum();
-    func_0801DB58(game);
+    GameStateRefreshMapMusic(game);
     return previous_album.GetArticle().GetId();
 }
 
@@ -429,7 +538,7 @@ EC SECTION(".text.game_state_c2.0801DE54") int GameStateSetRecordPlayerAlbum(Gam
     RecordPlayer * record_player = game.map_data->farm.farm_house.GetRecordPlayer();
     func_080A635C(*game.map_view);
     ArticleStack previous_album = record_player->SetAlbum(Article(album_id));
-    func_0801DB58(game);
+    GameStateRefreshMapMusic(game);
     return previous_album.GetArticle().GetId();
 }
 

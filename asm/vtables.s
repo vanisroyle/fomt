@@ -352,7 +352,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateApplyMapTilePatchWithAlternateRow
 	.word func_08017C00
 	.word func_08019BEC
-	.word func_08019B90
+	.word GameStateRefreshMapDaylight
 	.word func_0801EAA0
 	.word func_0801C29C
 	.word 0x0801CA1D
