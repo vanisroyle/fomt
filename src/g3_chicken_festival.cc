@@ -793,3 +793,455 @@ EC SECTION(".text.g3_080B92B4") void TryFestivalRivalCheer(FestivalCheerAI * sta
         }
     }
 }
+
+struct FestivalCheerResolution
+{
+    u8 unknown_000[0x6c];
+    FestivalChicken chickens[2];
+    u8 unknown_0EC[0x830];
+    void * reactions[2];
+    u8 unknown_924[0x238];
+    u8 windupFrames;
+    u8 radius;
+    u8 unknown_B5E[0x14];
+    u16 halfAngle;
+};
+
+EC SECTION(".text.g3_080B94A8") void UpdateFestivalCheerWindup(FestivalCheerResolution * state, u8 chicken, u8 rival)
+{
+    ++state->chickens[chicken].actionFrames;
+    ++state->chickens[chicken].unknown_1D;
+    if (state->chickens[chicken].unknown_1D < state->windupFrames)
+    {
+        if (state->chickens[rival].action == 5)
+        {
+            if (IsFestivalRivalInCheerCone(state, state->chickens[rival].x, state->chickens[rival].y,
+                    state->chickens[rival].facing, state->chickens[chicken].x, state->chickens[chicken].y,
+                    state->radius, state->halfAngle))
+            {
+                if (IsFestivalRivalInCheerCone(state, state->chickens[chicken].x, state->chickens[chicken].y,
+                        state->chickens[chicken].facing, state->chickens[rival].x, state->chickens[rival].y,
+                        state->radius, state->halfAngle))
+                {
+                    state->chickens[chicken].animationDirty = 0;
+                    state->chickens[chicken].unknown_2E = 1;
+                    state->chickens[rival].animationDirty = 0;
+                    state->chickens[rival].unknown_2E = 1;
+                    state->chickens[rival].canCheer = 0;
+                    state->chickens[chicken].unknown_24[0] = 0;
+                    state->chickens[rival].unknown_24[0] = 0;
+                    ResolveFestivalCheerClash((FestivalCheerContest *) state);
+                    return;
+                }
+            }
+        }
+    }
+    else
+    {
+        if (IsFestivalRivalInCheerCone(state, state->chickens[chicken].x, state->chickens[chicken].y,
+                state->chickens[chicken].facing, state->chickens[rival].x, state->chickens[rival].y,
+                state->radius, state->halfAngle))
+        {
+            SetFestivalCheerReactions((ChickenFestivalCombat *) state, chicken);
+            func_0805E860(*(void **) ((u8 *) state + rival * 4 + 0x91c), 2);
+            state->chickens[rival].unknown_31[14] = 1;
+            state->chickens[chicken].movementBias = 1;
+            state->chickens[chicken].animationDirty = 0;
+            state->chickens[chicken].unknown_2E = 1;
+            state->chickens[rival].animationDirty = 0;
+            state->chickens[rival].unknown_2E = 1;
+            state->chickens[rival].canCheer = 0;
+            state->chickens[rival].unknown_24[0] = 0;
+            return;
+        }
+    }
+    if (state->chickens[chicken].unknown_1D > 1)
+        state->chickens[chicken].unknown_1D = 0;
+    if (state->chickens[chicken].actionFrames > 59)
+    {
+        state->chickens[chicken].actionFrames = 0;
+        ResetFestivalCheerReaction((u8 *) state, chicken);
+        state->chickens[chicken].movementBias = 0;
+        state->chickens[chicken].animationDirty = 0;
+        state->chickens[chicken].unknown_2E = 1;
+        func_08008B6C((u8 *) state + 0x710, 0xb5);
+    }
+}
+
+struct FestivalReactionSettings
+{
+    u8 unknown_000[0x6c];
+    FestivalChicken chickens[2];
+    u8 unknown_0EC[0xa6d];
+    u8 cheerCooldown;
+    u8 unknown_B5A[4];
+    u8 defaultSpeed;
+    u8 unknown_B5F;
+    u16 reactionSpeeds[5];
+    u8 unknown_B6A[0xa];
+    u8 reactionDurations[4];
+};
+
+static inline void FinishFestivalChickenReaction(FestivalReactionSettings * state, u8 chicken)
+{
+    state->chickens[chicken].unknown_24[0] = 0;
+    state->chickens[chicken].reaction = 0;
+    state->chickens[chicken].canCheer = 1;
+    state->chickens[chicken].unknown_2E = 0;
+    state->chickens[chicken].speed = state->defaultSpeed;
+    state->chickens[chicken].unknown_24[1] = state->cheerCooldown + 1;
+}
+
+EC SECTION(".text.g3_080B9844") void UpdateFestivalCheerReaction(FestivalReactionSettings * state, u8 chicken)
+{
+    u8 rival = chicken + 1;
+    if (rival > 1)
+        rival = 0;
+    if ((u8) (state->chickens[chicken].actionFrames - 1) <= 58
+        && state->chickens[chicken].action == 5)
+    {
+        if (++state->chickens[chicken].actionFrames > 59)
+        {
+            state->chickens[chicken].actionFrames = 0;
+            func_08008B6C((u8 *) state + 0x710, 0xb5);
+        }
+        return;
+    }
+    switch (state->chickens[chicken].reaction)
+    {
+    case 0:
+        state->chickens[chicken].canCheer = 1;
+        state->chickens[chicken].unknown_2E = 0;
+        break;
+    case 1:
+        if (state->chickens[chicken].unknown_24[0] < state->reactionDurations[1])
+        {
+            state->chickens[chicken].speed = state->reactionSpeeds[0];
+            state->chickens[chicken].action = 1;
+        }
+        else
+            FinishFestivalChickenReaction(state, chicken);
+        break;
+    case 2:
+        if (state->chickens[chicken].unknown_24[0] < state->reactionDurations[0] - 60)
+        {
+            state->chickens[chicken].speed = state->reactionSpeeds[1];
+            state->chickens[chicken].action = 1;
+        }
+        else
+            FinishFestivalChickenReaction(state, chicken);
+        break;
+    case 3:
+        if (state->chickens[chicken].unknown_24[0] <= 59)
+        {
+            state->chickens[chicken].action = 5;
+            state->chickens[chicken].actionFrames = 1;
+            state->chickens[chicken].unknown_24[0] = 60;
+        }
+        else if (state->chickens[chicken].unknown_24[0] < state->reactionDurations[2])
+        {
+            state->chickens[chicken].speed = state->reactionSpeeds[2];
+            state->chickens[chicken].action = 1;
+        }
+        else
+            FinishFestivalChickenReaction(state, chicken);
+        break;
+    case 4:
+        if (state->chickens[chicken].unknown_24[0] <= 59)
+        {
+            if (state->chickens[chicken].unknown_24[0] == 0)
+            {
+                if (state->chickens[chicken].action <= 1)
+                    state->chickens[chicken].speed = state->reactionSpeeds[3];
+                if (state->chickens[chicken].action == 2 || state->chickens[chicken].action == 4)
+                    state->chickens[chicken].speed = state->reactionSpeeds[2];
+            }
+            state->chickens[chicken].action = 3;
+        }
+        else if (state->chickens[chicken].unknown_24[0] < state->reactionDurations[0])
+        {
+            if (state->chickens[chicken].unknown_24[0] == 60)
+                state->chickens[chicken].facing = state->chickens[rival].facing;
+            state->chickens[chicken].action = 1;
+        }
+        else
+        {
+            state->chickens[chicken].unknown_31[14] = 0;
+            FinishFestivalChickenReaction(state, chicken);
+        }
+        break;
+    case 5:
+        if (state->chickens[chicken].unknown_24[0] <= 29)
+            state->chickens[chicken].action = 3;
+        else if (state->chickens[chicken].unknown_24[0] < state->reactionDurations[3] - 60)
+        {
+            if (state->chickens[chicken].unknown_24[0] == 30)
+                state->chickens[chicken].facing = state->chickens[rival].facing;
+            state->chickens[chicken].speed = state->reactionSpeeds[4];
+            state->chickens[chicken].action = 1;
+        }
+        else
+        {
+            state->chickens[chicken].unknown_31[14] = 0;
+            FinishFestivalChickenReaction(state, chicken);
+        }
+        break;
+    }
+    ++state->chickens[chicken].unknown_24[0];
+}
+
+
+struct FestivalCheerDemonstration
+{
+    u8 unknown_000[0x6c];
+    FestivalChicken chickens[2];
+    u8 unknown_0EC[0x62c];
+    void * message;
+    u8 unknown_71C[0x200];
+    void * reactions[2];
+    u8 unknown_924[0x217];
+    u8 frames;
+    u8 step;
+    u8 unknown_B3D[3];
+    u32 playerAnimation;
+    u32 rivalAnimation;
+    u8 unknown_B48[0x1c];
+    u16 reactionSpeed;
+};
+
+EC void func_08008B88(void *, u32);
+EC void func_08050DE4(void *);
+
+EC SECTION(".text.g3_080B5318") void UpdateFestivalCheerDemonstration(FestivalCheerDemonstration * state)
+{
+    if (state->step > 6)
+        return;
+    switch (state->step)
+    {
+    case 1:
+        state->playerAnimation = 0;
+        state->rivalAnimation = 1;
+        break;
+    case 2:
+        state->chickens[0].action = 0;
+        state->chickens[0].facing = 2;
+        state->frames = 0;
+        state->chickens[0].actionFrames = 0;
+        state->playerAnimation = 1;
+        state->rivalAnimation = 1;
+        func_08008B88((u8 *) state + 0x70c, 0xcc);
+        break;
+    case 3:
+        if (state->frames == 1)
+        {
+            func_08008B6C((u8 *) state + 0x70c, 0xa6);
+            func_0805E860(state->reactions[1], 2);
+            state->chickens[1].unknown_31[14] = 1;
+        }
+        if (state->frames <= 59)
+        {
+            state->playerAnimation = 2;
+            ++state->chickens[0].actionFrames;
+            state->chickens[0].action = 5;
+            state->chickens[1].action = 3;
+        }
+        else if (state->frames <= 179)
+        {
+            state->playerAnimation = 1;
+            state->chickens[0].action = 1;
+            state->chickens[1].action = 1;
+            state->chickens[1].speed = state->reactionSpeed;
+            state->chickens[1].facing = 2;
+        }
+        else
+        {
+            state->chickens[1].unknown_31[14] = 0;
+            state->chickens[0].action = 0;
+            state->chickens[1].action = 0;
+            state->frames = 180;
+        }
+        break;
+    case 4:
+        func_08008B88((u8 *) state + 0x70c, 0xcc);
+        state->frames = 0;
+        state->chickens[0].actionFrames = 0;
+        state->chickens[1].action = 2;
+        state->chickens[1].facing = 1;
+        state->chickens[0].facing = 3;
+        state->chickens[0].ringDistance = EvaluateChickenArenaPosition(state,
+            state->chickens[0].x, state->chickens[0].y);
+        if (state->chickens[0].ringDistance > 0)
+            state->chickens[0].action = 1;
+        else if (state->chickens[0].ringDistance == 0)
+        {
+            state->chickens[0].action = 0;
+            func_08050DE4(state->message);
+        }
+        break;
+    case 5:
+        state->chickens[1].action = 2;
+        state->chickens[1].facing = 1;
+        if (state->frames == 1)
+            func_08008B6C((u8 *) state + 0x70c, 0xa6);
+        if (state->frames <= 59)
+        {
+            state->playerAnimation = 2;
+            ++state->chickens[0].actionFrames;
+            state->chickens[0].action = 5;
+        }
+        else if (state->frames <= 179)
+        {
+            state->chickens[0].action = 1;
+            state->playerAnimation = 1;
+        }
+        else
+            state->frames = 180;
+        if (state->chickens[0].ringDistance >= 0)
+        {
+            state->chickens[0].ringDistance = EvaluateChickenArenaPosition(state,
+                state->chickens[0].x, state->chickens[0].y);
+            if (state->chickens[0].ringDistance < 0)
+            {
+                func_08050DE4(state->message);
+                state->frames = 180;
+                state->chickens[0].action = 0;
+                if ((state->chickens[0].y >> 11) <= 9)
+                    state->chickens[0].unknown_27[2] = 2;
+                state->chickens[0].y += 0x300;
+            }
+        }
+        break;
+    case 6:
+        state->chickens[0].actionFrames = 0;
+        state->frames = 0;
+        state->chickens[0].unknown_27[2] = 1;
+        for (u32 i = 0; i < 2; ++i)
+        {
+            state->chickens[i].action = 2;
+            state->chickens[i].x = 0x7800;
+            state->chickens[i].y = (i * 24 + 58) << 8;
+        }
+        state->chickens[0].facing = 2;
+        state->chickens[1].facing = 0;
+        state->playerAnimation = 0;
+        break;
+    }
+    ++state->frames;
+}
+
+struct FestivalInstructionFlow
+{
+    u8 unknown_000[0x6c];
+    FestivalChicken chickens[2];
+    u8 unknown_0EC[0x61c];
+    u8 dialogueState[0x10];
+    void * message;
+    u8 unknown_71C[0x3f8];
+    i32 phase;
+    i32 round;
+    u8 unknown_B1C[0x17];
+    u8 waitingForChoice;
+    u8 demonstrationComplete;
+    u8 unknown_B35[6];
+    u8 frames;
+    u8 step;
+    u8 unknown_B3D[0x13];
+    u32 showPrompt;
+};
+
+EC i32 func_08050D34(void *);
+EC void func_08050D5C(void *);
+EC void func_08050D74(void *);
+EC void func_08050DD8(void *);
+EC i32 func_08050DF0(void *);
+EC void func_08050E30(void *, char const *, char const *, char const *, u32, u32, u32);
+EC char gUnk_08107B00[], gUnk_08107B14[], gUnk_08107B1C[];
+EC char gUnk_08107A68[], gUnk_08107A80[], gUnk_08107A9C[], gUnk_08107AB4[];
+
+EC SECTION(".text.g3_080BA2C4") i32 RunFestivalInstructionDialogue(FestivalInstructionFlow * state, i32 timer)
+{
+    i32 mode = func_08050D34(state->message);
+    void * window = state->message;
+    void * input = func_080088DC(state);
+    void * sprites = func_08008920(state);
+    void * registers = func_08008918(state);
+    void * graphics = func_08008940(state);
+    void * palettes = func_0800894C(state);
+    void * dialogueState = state->dialogueState;
+    switch (func_08050D3C(window, input, sprites, registers, graphics, palettes, dialogueState))
+    {
+    case 0:
+        if (state->demonstrationComplete)
+            state->phase = 2;
+        else if (state->step != 3 || state->frames > 179)
+            func_08050D5C(state->message);
+        break;
+    case 3:
+        switch (mode)
+        {
+        default:
+            func_08050D74(state->message);
+            break;
+        case 1:
+            if (state->step == 4 && state->chickens[0].ringDistance > 0)
+                func_08050DD8(state->message);
+            if (state->step == 5 && state->chickens[0].ringDistance == 0)
+                func_08050DD8(state->message);
+            ShowFestivalInstructionPage((u8 *) state, state->step);
+            break;
+        case 4:
+        case 5:
+            if (++state->step == 6)
+                func_08050E30(state->message, gUnk_08107B00, gUnk_08107B14, gUnk_08107B1C, 0, 0, 0);
+            break;
+        case 6:
+            switch (func_08050DF0(state->message))
+            {
+            case 1:
+                switch (state->round)
+                {
+                case 0: func_08050D8C(state->message, gUnk_08107A68); break;
+                case 1: func_08050D8C(state->message, gUnk_08107A80); break;
+                case 2: func_08050D8C(state->message, gUnk_08107A9C); break;
+                }
+                func_08050DD8(state->message);
+                timer = 0;
+                break;
+            case 2:
+                state->step = 1;
+                state->waitingForChoice = 1;
+                break;
+            }
+            break;
+        }
+    case 1:
+    case 2:
+    case 4:
+    case 5:
+    case 6:
+        if (timer <= 119)
+            ++timer;
+        if (timer == 120)
+        {
+            state->showPrompt = 1;
+            timer = 122;
+            func_08050DE4(state->message);
+            func_08050D8C(state->message, gUnk_08107AB4);
+            func_08050DD8(state->message);
+        }
+        if ((u32) (timer - 122) <= 89)
+            ++timer;
+        if (timer == 212)
+        {
+            state->showPrompt = 0;
+            timer = 121;
+            func_08050DE4(state->message);
+            func_08050D74(state->message);
+            state->waitingForChoice = 0;
+            state->demonstrationComplete = 1;
+        }
+        break;
+    }
+    UpdateFestivalCheerDemonstration((FestivalCheerDemonstration *) state);
+    return timer;
+}

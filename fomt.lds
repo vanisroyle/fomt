@@ -407,6 +407,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B45E4);
         src/g3_chicken_festival.o(.text.g3_080B45F0);
         asm/code_809E804.o(.text.g3_after_080B45F0);
+        src/g3_chicken_festival.o(.text.g3_080B5318);
+        asm/code_809E804.o(.text.g3_after_080B5318);
         src/g3_chicken_festival.o(.text.g3_080B757C);
         asm/code_809E804.o(.text.g3_after_080B757C);
         src/g3_chicken_festival.o(.text.g3_080B8DAC);
@@ -417,6 +419,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B9428);
         src/g3_chicken_festival.o(.text.g3_080B9464);
         asm/code_809E804.o(.text.g3_after_080B9464);
+        src/g3_chicken_festival.o(.text.g3_080B94A8);
+        asm/code_809E804.o(.text.g3_after_080B94A8);
         src/g3_chicken_festival.o(.text.g3_080B96AC);
         asm/code_809E804.o(.text.g3_after_080B96AC);
         src/g3_chicken_festival.o(.text.g3_080B9734);
@@ -425,6 +429,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B97FC);
         src/g3_chicken_festival.o(.text.g3_080B9828);
         asm/code_809E804.o(.text.g3_after_080B9828);
+        src/g3_chicken_festival.o(.text.g3_080B9844);
+        asm/code_809E804.o(.text.g3_after_080B9844);
         src/g3_chicken_festival.o(.text.g3_080B9AC0);
         asm/code_809E804.o(.text.g3_after_080B9AC0);
         src/g3_chicken_festival.o(.text.g3_080B9F0C);
@@ -445,6 +451,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080BA200);
         src/g3_chicken_festival.o(.text.g3_080BA284);
         asm/code_809E804.o(.text.g3_after_080BA284);
+        src/g3_chicken_festival.o(.text.g3_080BA2C4);
+        asm/code_809E804.o(.text.g3_after_080BA2C4);
         src/g3_chicken_festival.o(.text.g3_080BA574);
         asm/code_809E804.o(.text.g3_after_080BA574);
         src/g3_chicken_festival.o(.text.g3_080BA6B8);
