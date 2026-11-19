@@ -11175,7 +11175,7 @@ func_08015E30: @ 0x08015E30
     ldr r0, [r4]
     ldr r4, .L08016668 @ =0x00002E58
     adds r0, r0, r4
-    bl func_0809D8A0
+    bl GetMineFloorKind
     cmp r0, #4
     bhi .L08016740
     lsls r0, r0, #2
@@ -19628,7 +19628,7 @@ func_0801C198: @ 0x0801C198
 .L0801C1F4:
     asrs r4, r0, #3
     adds r0, r6, #0
-    bl func_0809D8A0
+    bl GetMineFloorKind
     cmp r0, #4
     bhi .L0801C240
     lsls r0, r0, #2
@@ -19667,13 +19667,13 @@ func_0801C198: @ 0x0801C198
     blo .L0801C28C
     adds r0, r6, #0
     str r3, [sp]
-    bl func_0809D8A4
+    bl GetMineFloorWidth
     lsls r0, r0, #1
     add r0, r8
     cmp r0, r5
     bls .L0801C28C
     adds r0, r6, #0
-    bl func_0809D8B8
+    bl GetMineFloorHeight
     lsls r0, r0, #1
     ldr r3, [sp]
     adds r0, r3, r0

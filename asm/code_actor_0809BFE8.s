@@ -1115,7 +1115,7 @@ func_0809CF34: @ 0x0809CF34
     bl rand
     adds r4, r0, #0
     adds r0, r6, #0
-    bl func_0809D8A4
+    bl GetMineFloorWidth
     adds r1, r0, #0
     asrs r4, r4, #8
     subs r1, #2
@@ -1127,7 +1127,7 @@ func_0809CF34: @ 0x0809CF34
     bl rand
     adds r4, r0, #0
     adds r0, r6, #0
-    bl func_0809D8B8
+    bl GetMineFloorHeight
     adds r1, r0, #0
     asrs r4, r4, #8
     subs r1, #2
@@ -1253,10 +1253,10 @@ func_0809D168: @ 0x0809D168
     str r1, [sp]
     str r2, [sp, #4]
     str r3, [sp, #8]
-    bl func_0809D8A4
+    bl GetMineFloorWidth
     str r0, [sp, #0xc]
     mov r0, sl
-    bl func_0809D8B8
+    bl GetMineFloorHeight
     str r0, [sp, #0x10]
     mov r0, sl
     ldr r1, [sp]
@@ -1609,10 +1609,10 @@ func_0809D500: @ 0x0809D500
     str r1, [sp]
     str r2, [sp, #4]
     str r3, [sp, #8]
-    bl func_0809D8A4
+    bl GetMineFloorWidth
     str r0, [sp, #0xc]
     mov r0, sl
-    bl func_0809D8B8
+    bl GetMineFloorHeight
     str r0, [sp, #0x10]
     mov r0, sl
     ldr r1, [sp]
@@ -1942,120 +1942,9 @@ func_0809D500: @ 0x0809D500
     .align 2, 0
 .L0809D798: .4byte gUnk_08103C74
 
-	.section .text.0809D8E8, "ax", %progbits
-    thumb_func_start func_0809D8E8
-func_0809D8E8: @ 0x0809D8E8
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #8
-    adds r6, r0, #0
-    mov sl, r2
-    adds r2, r3, #0
-    movs r0, #0
-    str r0, [sp]
-    lsls r7, r1, #1
-    mov r1, sl
-    lsls r3, r1, #3
-    subs r0, r3, r1
-    lsls r0, r0, #3
-    adds r0, r7, r0
-    adds r4, r6, r0
-    ldrb r0, [r4, #4]
-    lsls r0, r0, #0x1c
-    cmp r0, #0
-    bne .L0809D9A2
-    ldrb r1, [r4, #5]
-    lsrs r1, r1, #2
-    adds r0, r6, #0
-    str r3, [sp, #4]
-    bl func_0809DA00
-    str r0, [sp]
-    ldr r3, [sp, #4]
-    cmp r0, #1
-    bne .L0809D97C
-    ldrb r0, [r4, #4]
-    movs r1, #0x10
-    rsbs r1, r1, #0
-    ands r1, r0
-    movs r0, #2
-    orrs r1, r0
-    strb r1, [r4, #4]
-    movs r2, #0
-    str r2, [sp]
-    movs r5, #0
-    mov sb, r7
-    mov r8, r3
-    b .L0809D970
-.L0809D942:
-    movs r4, #0
-    adds r7, r5, #1
-    b .L0809D964
-.L0809D948:
-    lsls r0, r4, #1
-    lsls r1, r5, #3
-    subs r1, r1, r5
-    lsls r1, r1, #3
-    adds r0, r0, r1
-    adds r2, r6, r0
-    ldrb r1, [r2, #5]
-    lsrs r0, r1, #2
-    cmp r0, #1
-    bne .L0809D962
-    movs r0, #3
-    ands r0, r1
-    strb r0, [r2, #5]
-.L0809D962:
-    adds r4, #1
-.L0809D964:
-    adds r0, r6, #0
-    bl func_0809D8A4
-    cmp r4, r0
-    blt .L0809D948
-    adds r5, r7, #0
-.L0809D970:
-    adds r0, r6, #0
-    bl func_0809D8B8
-    cmp r5, r0
-    blt .L0809D942
-    b .L0809D98E
-.L0809D97C:
-    ldrb r0, [r4, #4]
-    movs r1, #0x10
-    rsbs r1, r1, #0
-    ands r1, r0
-    movs r0, #1
-    orrs r1, r0
-    strb r1, [r4, #4]
-    mov sb, r7
-    mov r8, r3
-.L0809D98E:
-    mov r1, r8
-    mov r2, sl
-    subs r0, r1, r2
-    lsls r0, r0, #3
-    add r0, sb
-    adds r0, r6, r0
-    ldrb r2, [r0, #5]
-    movs r1, #3
-    ands r1, r2
-    strb r1, [r0, #5]
-.L0809D9A2:
-    ldr r0, [sp]
-    add sp, #8
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-
 	.section .text.0809DA00, "ax", %progbits
-    thumb_func_start func_0809DA00
-func_0809DA00: @ 0x0809DA00
+    thumb_func_start ResolveMineOutcome
+ResolveMineOutcome: @ 0x0809DA00
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -2929,65 +2818,7 @@ func_0809E02C: @ 0x0809E02C
 .L0809E0A4: .4byte 0x00000624
 .L0809E0A8: .4byte 0x00000625
 
-    thumb_func_start func_0809E0AC
-func_0809E0AC: @ 0x0809E0AC
-    push {lr}
-    lsls r3, r2, #3
-    subs r3, r3, r2
-    lsls r3, r3, #3
-    adds r3, #4
-    adds r0, r0, r3
-    lsls r1, r1, #1
-    adds r0, r0, r1
-    ldrh r0, [r0]
-    lsls r0, r0, #0x1c
-    lsrs r0, r0, #0x1c
-    cmp r0, #4
-    bhi .L0809E110
-    lsls r0, r0, #2
-    ldr r1, .L0809E0D0 @ =.L0809E0D4
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0809E0D0: .4byte .L0809E0D4
-.L0809E0D4: @ jump table
-    .4byte .L0809E0E8 @ case 0
-    .4byte .L0809E0F0 @ case 1
-    .4byte .L0809E0F8 @ case 2
-    .4byte .L0809E100 @ case 3
-    .4byte .L0809E108 @ case 4
-.L0809E0E8:
-    ldr r0, .L0809E0EC @ =gUnk_086DC3C4
-    b .L0809E112
-    .align 2, 0
-.L0809E0EC: .4byte gUnk_086DC3C4
-.L0809E0F0:
-    ldr r0, .L0809E0F4 @ =gUnk_086DC3D0
-    b .L0809E112
-    .align 2, 0
-.L0809E0F4: .4byte gUnk_086DC3D0
-.L0809E0F8:
-    ldr r0, .L0809E0FC @ =gUnk_086DC3DC
-    b .L0809E112
-    .align 2, 0
-.L0809E0FC: .4byte gUnk_086DC3DC
-.L0809E100:
-    ldr r0, .L0809E104 @ =gUnk_086DC3E8
-    b .L0809E112
-    .align 2, 0
-.L0809E104: .4byte gUnk_086DC3E8
-.L0809E108:
-    ldr r0, .L0809E10C @ =gUnk_086DC3F4
-    b .L0809E112
-    .align 2, 0
-.L0809E10C: .4byte gUnk_086DC3F4
-.L0809E110:
-    movs r0, #0
-.L0809E112:
-    pop {r1}
-    bx r1
-    .align 2, 0
+	.section .text.0809E118, "ax", %progbits
 .L0809E118:
     .byte 0xF0, 0xB5, 0x81, 0xB0, 0x05, 0x1C, 0x0F, 0x1C
     .byte 0x00, 0x26, 0x1E, 0xE0, 0x00, 0x24, 0x73, 0x1C, 0x13, 0xE0, 0x62, 0x00, 0xF0, 0x00, 0x80, 0x1B

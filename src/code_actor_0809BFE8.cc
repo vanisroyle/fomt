@@ -530,16 +530,31 @@ ROM_TEXT(0809CD78) char const * GetFishingCatchName(FishingRecords const &, unsi
     return gFishingCatchNames[catchId];
 }
 
-struct Unk_0809D8A0
+enum MineTileState
+{
+    MINE_TILE_SOIL,
+    MINE_TILE_DUG_SOIL,
+    MINE_TILE_STAIRS_DOWN,
+    MINE_TILE_STAIRS_UP,
+    MINE_TILE_ROCK,
+};
+
+enum MineOutcome
+{
+    MINE_OUTCOME_NONE,
+    MINE_OUTCOME_STAIRS,
+};
+
+struct MineFloor
 {
     u32 kind;
-    struct PACKED ALIGN(2) Entry
+    struct PACKED ALIGN(2) Tile
     {
-        u16 unk_00 : 4;
-        u16 unk_04 : 6;
-        u16 unk_0A : 6;
+        u16 state : 4;
+        u16 rockOutcome : 6;
+        u16 digOutcome : 6;
     };
-    Entry entries[28][28];
+    Tile tiles[28][28];
     u32 unk_624_0 : 1;
     u32 : 9;
     u32 unk_625_2 : 1;
@@ -547,7 +562,7 @@ struct Unk_0809D8A0
     u32 unk_625_4 : 1;
 };
 
-ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(Unk_0809D8A0 const &, unsigned value)
+ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(MineFloor const &, unsigned value)
 {
     unsigned row = 0;
     if (value == 0)
@@ -578,7 +593,7 @@ done:
     return row;
 }
 
-ROM_TEXT(0809D418) unsigned func_0809D470(Unk_0809D8A0 const &, unsigned value)
+ROM_TEXT(0809D418) unsigned func_0809D470(MineFloor const &, unsigned value)
 {
     switch (value)
     {
@@ -622,7 +637,7 @@ done:
     return result;
 }
 
-ROM_TEXT(0809D79C) unsigned GetAlternateMineFloorChanceRow(Unk_0809D8A0 const &, unsigned floor)
+ROM_TEXT(0809D79C) unsigned GetAlternateMineFloorChanceRow(MineFloor const &, unsigned floor)
 {
     unsigned row = floor;
     unsigned lastFloorInGroup;
@@ -660,7 +675,7 @@ done:
     return row;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D7D8(Unk_0809D8A0 const &, unsigned value)
+ROM_TEXT(0809D7D8) unsigned func_0809D7D8(MineFloor const &, unsigned value)
 {
     switch (value)
     {
@@ -695,12 +710,12 @@ ROM_TEXT(0809D7D8) unsigned func_0809D7D8(Unk_0809D8A0 const &, unsigned value)
     return value % 10 + 32;
 }
 
-ROM_TEXT(0809D7D8) u32 func_0809D8A0(Unk_0809D8A0 const & self)
+ROM_TEXT(0809D7D8) u32 GetMineFloorKind(MineFloor const & self)
 {
     return self.kind;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D8A4(Unk_0809D8A0 const & self)
+ROM_TEXT(0809D7D8) int GetMineFloorWidth(MineFloor const & self)
 {
     unsigned count = 13;
     if (self.kind == 1)
@@ -708,7 +723,7 @@ ROM_TEXT(0809D7D8) unsigned func_0809D8A4(Unk_0809D8A0 const & self)
     return count;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D8B8(Unk_0809D8A0 const & self)
+ROM_TEXT(0809D7D8) int GetMineFloorHeight(MineFloor const & self)
 {
     unsigned count = 6;
     if (self.kind == 1)
@@ -718,51 +733,101 @@ ROM_TEXT(0809D7D8) unsigned func_0809D8B8(Unk_0809D8A0 const & self)
     return count;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D8D4(Unk_0809D8A0 const & self, unsigned index, unsigned row)
+ROM_TEXT(0809D7D8) unsigned GetMineTileState(MineFloor const & self, unsigned x, unsigned y)
 {
-    return self.entries[row][index].unk_00;
+    return self.tiles[y][x].state;
 }
 
-EC int func_0809DA00(Unk_0809D8A0 &, unsigned, void *);
+struct MineRewardContext;
+EC int ResolveMineOutcome(MineFloor &, unsigned, MineRewardContext *);
 
-ROM_TEXT(0809D9B4) int func_0809D9B4(Unk_0809D8A0 & self, unsigned index, unsigned row, void * context)
+ROM_TEXT(0809D8E8) int DigMineTile(MineFloor & mine, int x, int y, MineRewardContext * context)
 {
-    int result = 0;
-    unsigned offset = index * sizeof(Unk_0809D8A0::Entry);
-    offset += row * sizeof(self.entries[0]);
-    char * base = reinterpret_cast<char *>(&self) + offset;
-    u8 firstByte = static_cast<u8>(base[offsetof(Unk_0809D8A0, entries)]);
-    unsigned kind = (static_cast<u32>(firstByte) << 28) >> 28;
-    switch (kind)
+    int result = MINE_OUTCOME_NONE;
+    if (mine.tiles[y][x].state == MINE_TILE_SOIL)
     {
-    case 4:
+        result = ResolveMineOutcome(mine, mine.tiles[y][x].digOutcome, context);
+        if (result == MINE_OUTCOME_STAIRS)
+        {
+            mine.tiles[y][x].state = MINE_TILE_STAIRS_DOWN;
+            result = MINE_OUTCOME_NONE;
+            for (int row = 0; row < GetMineFloorHeight(mine); ++row)
+            {
+                for (int column = 0; column < GetMineFloorWidth(mine); ++column)
+                {
+                    if (mine.tiles[row][column].digOutcome == MINE_OUTCOME_STAIRS)
+                        mine.tiles[row][column].digOutcome = MINE_OUTCOME_NONE;
+                }
+            }
+        }
+        else
+        {
+            mine.tiles[y][x].state = MINE_TILE_DUG_SOIL;
+        }
+        mine.tiles[y][x].digOutcome = MINE_OUTCOME_NONE;
+    }
+    return result;
+}
+
+ROM_TEXT(0809D9B4) int BreakMineRock(MineFloor & mine, unsigned x, unsigned y, MineRewardContext * context)
+{
+    int result = MINE_OUTCOME_NONE;
+    unsigned offset = x * sizeof(MineFloor::Tile);
+    offset += y * sizeof(mine.tiles[0]);
+    char * base = reinterpret_cast<char *>(&mine) + offset;
+    u8 firstByte = static_cast<u8>(base[offsetof(MineFloor, tiles)]);
+    unsigned state = (static_cast<u32>(firstByte) << 28) >> 28;
+    switch (state)
     {
-        Unk_0809D8A0::Entry & entry = *reinterpret_cast<Unk_0809D8A0::Entry *>(base + offsetof(Unk_0809D8A0, entries));
-        result = func_0809DA00(self, entry.unk_04, context);
-        entry.unk_00 = 0;
-        entry.unk_04 = 0;
+    case MINE_TILE_ROCK:
+    {
+        MineFloor::Tile & tile = *reinterpret_cast<MineFloor::Tile *>(base + offsetof(MineFloor, tiles));
+        result = ResolveMineOutcome(mine, tile.rockOutcome, context);
+        tile.state = MINE_TILE_SOIL;
+        tile.rockOutcome = MINE_OUTCOME_NONE;
         break;
     }
     }
     return result;
 }
 
-ROM_TEXT(0809E174) bool func_0809E174(Unk_0809D8A0 const & self)
+struct MineTileGraphics;
+EC MineTileGraphics const gMineSoilTiles;
+EC MineTileGraphics const gMineDugSoilTiles;
+EC MineTileGraphics const gMineDownStairsTiles;
+EC MineTileGraphics const gMineUpStairsTiles;
+EC MineTileGraphics const gMineRockTiles;
+
+ROM_TEXT(0809E0AC) MineTileGraphics const * GetMineTileGraphics(MineFloor const & mine, unsigned x, unsigned y)
+{
+    MineFloor::Tile const & tile = mine.tiles[y][x];
+    switch (tile.state)
+    {
+        case MINE_TILE_SOIL: return &gMineSoilTiles;
+        case MINE_TILE_DUG_SOIL: return &gMineDugSoilTiles;
+        case MINE_TILE_STAIRS_DOWN: return &gMineDownStairsTiles;
+        case MINE_TILE_STAIRS_UP: return &gMineUpStairsTiles;
+        case MINE_TILE_ROCK: return &gMineRockTiles;
+        default: return 0;
+    }
+}
+
+ROM_TEXT(0809E174) bool func_0809E174(MineFloor const & self)
 {
     return self.unk_624_0;
 }
 
-ROM_TEXT(0809E174) bool func_0809E184(Unk_0809D8A0 const & self)
+ROM_TEXT(0809E174) bool func_0809E184(MineFloor const & self)
 {
     return self.unk_625_2;
 }
 
-ROM_TEXT(0809E174) bool func_0809E194(Unk_0809D8A0 const & self)
+ROM_TEXT(0809E174) bool func_0809E194(MineFloor const & self)
 {
     return self.unk_625_3;
 }
 
-ROM_TEXT(0809E174) bool func_0809E1A4(Unk_0809D8A0 const & self)
+ROM_TEXT(0809E174) bool func_0809E1A4(MineFloor const & self)
 {
     return self.unk_625_4;
 }
