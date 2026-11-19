@@ -1353,6 +1353,8 @@ vtable_unk_080E8528:
 	.incbin "baserom.gba", 0xE8528, 0x10
 
 	.global vtable_unk_080E8538
+	.global __vt_21SpriteHarvestingScene
+__vt_21SpriteHarvestingScene:
 vtable_unk_080E8538:
 	.incbin "baserom.gba", 0xE8538, 0xC
 
