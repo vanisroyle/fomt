@@ -337,21 +337,21 @@ struct GameStateTextPanel
     virtual ~GameStateTextPanel();
 };
 
-EC void func_08050D0C(void * dialogue, u32 mode);
+EC void DestroyMessageWindow(void * dialogue, u32 mode);
 
 struct GameStateDialogueOwner
 {
     ~GameStateDialogueOwner()
     {
         if (inner != nullptr)
-            func_08050D0C(inner, 3);
+            DestroyMessageWindow(inner, 3);
     }
 
     void operator=(void * dialogue)
     {
         if (dialogue != inner)
             if (inner != nullptr)
-                func_08050D0C(inner, 3);
+                DestroyMessageWindow(inner, 3);
         inner = dialogue;
     }
 
@@ -496,9 +496,9 @@ EC void func_08008DE8();
 EC void func_08008BE0(void * self);
 EC u32 func_08008CD0(void * self);
 EC void func_0803B6B8(void * self, u32 index, char const * text);
-EC void func_08050E74(void * self);
-EC void func_08050E5C(void * self);
-EC void func_08050E8C(void * self);
+EC void ClearMessageWindowSpeakerName(void * self);
+EC void ClearMessageWindowPortrait(void * self);
+EC void ClearMessageWindowIndicator(void * self);
 EC void func_080323C8(AActorEntity & self);
 EC void func_08032308(AActorEntity & self, u32 target, i32 speed);
 EC void func_0803233C(AActorEntity & self, u32 target, i32 speed);
@@ -509,15 +509,15 @@ EC void func_080387C8(void * self);
 EC void func_080387FC(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
 EC void func_0804EC84(i32 value, char * text, u32 digits);
-EC void func_08050DC8(void * self, u32 value, u32 flags, void * text);
+EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
 EC void func_08032384(AActorEntity & self, u32 value, bool enabled);
 EC u32 func_08033B24(AActorEntity & self);
-EC void func_08050D74(void * self);
+EC void CloseMessageWindow(void * self);
 EC void func_080D7F88(GameStateRuntime & self);
 EC void func_080D7F74(GameStateRuntime & self);
 EC void func_080D7F60(GameStateRuntime & self);
-EC void func_08050E68(void * self, u32 value);
-EC void func_08050E50(void * self, u32 value);
+EC void SetMessageWindowSpeakerName(void * self, const char * name);
+EC void SetMessageWindowPortrait(void * self, u32 value);
 EC u32 func_0809FE3C(void * self, u32 value);
 EC void func_08033B84(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
@@ -530,7 +530,7 @@ EC void func_08008BB0(void * self, u16 amount);
 EC void func_08008BF8(void * self, u32 speed);
 
 EC Bachelorette const * func_080A0878(void * data, u32 characterId);
-EC void func_08050E80(void * dialogue, u32 level);
+EC void SetMessageWindowIndicator(void * dialogue, u32 level);
 
 
 // 0x08016834
@@ -582,7 +582,7 @@ EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveLevel(Gam
                 level = 1;
             else
                 level = 0;
-            func_08050E80(runtime.dialogue.Get(), level);
+            SetMessageWindowIndicator(runtime.dialogue.Get(), level);
         }
     }
 }
@@ -724,7 +724,7 @@ EC void SECTION(".text.game_state_0801274C") GameScript_ResetDialogueValue(GameS
 {
     void * actor = script.runtime->dialogue.Get();
     if (actor != nullptr)
-        func_08050E74(actor);
+        ClearMessageWindowSpeakerName(actor);
 }
 
 // 0x0801278C
@@ -732,7 +732,7 @@ EC void SECTION(".text.game_state_0801278C") GameScript_ResetAlternateDialogueVa
 {
     void * actor = script.runtime->dialogue.Get();
     if (actor != nullptr)
-        func_08050E5C(actor);
+        ClearMessageWindowPortrait(actor);
 }
 
 // 0x0801284C
@@ -740,7 +740,7 @@ EC void SECTION(".text.game_state_0801284C") GameScript_InvokeDialogueAction(Gam
 {
     void * actor = script.runtime->dialogue.Get();
     if (actor != nullptr)
-        func_08050E8C(actor);
+        ClearMessageWindowIndicator(actor);
 }
 
 // 0x08012ACC
@@ -1236,7 +1236,7 @@ EC void SECTION(".text.game_state_080126BC") GameScript_StartDialogueWithDefault
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr)
     {
-        func_08050DC8(runtime.dialogue.Get(), messageId, 0x40, runtime.textVariables);
+        SetMessageWindowTextOptions(runtime.dialogue.Get(), (char const *) messageId, 0x40, runtime.textVariables);
         runtime.pendingCommand = 0x11;
     }
 }
@@ -1304,7 +1304,7 @@ EC void SECTION(".text.game_state_08012658") GameScript_ResetDialogue(GameStateS
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr)
     {
-        func_08050D74(runtime.dialogue.Get());
+        CloseMessageWindow(runtime.dialogue.Get());
         func_080D7F88(runtime);
         func_080D7F74(runtime);
         func_080D7F60(runtime);
@@ -1318,7 +1318,7 @@ EC void SECTION(".text.game_state_0801268C") GameScript_StartDialogue(GameStateS
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr)
     {
-        func_08050DC8(runtime.dialogue.Get(), messageId, (u16) flags, runtime.textVariables);
+        SetMessageWindowTextOptions(runtime.dialogue.Get(), (char const *) messageId, (u16) flags, runtime.textVariables);
         runtime.pendingCommand = 0x10;
     }
 }
@@ -1421,7 +1421,7 @@ EC void SECTION(".text.game_state_08012720") GameScript_SetDialogueValue(GameSta
 {
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
-        func_08050E68(runtime.dialogue.Get(), value);
+        SetMessageWindowSpeakerName(runtime.dialogue.Get(), (char const *) value);
 }
 
 // 0x08012760
@@ -1429,7 +1429,7 @@ EC void SECTION(".text.game_state_08012760") GameScript_SetAlternateDialogueValu
 {
     GameStateRuntime & runtime = *script.runtime;
     if (runtime.dialogue.Get() != nullptr && (i32(u32(runtime.saveData[0x2210]) << 29) < 0))
-        func_08050E50(runtime.dialogue.Get(), value);
+        SetMessageWindowPortrait(runtime.dialogue.Get(), value);
 }
 
 // 0x080126E4
@@ -1438,7 +1438,7 @@ EC void SECTION(".text.game_state_080126E4") GameScript_SetMappedDialogueValue(G
     GameStateRuntime & runtime = *script.runtime;
     void * actor = runtime.dialogue.Get();
     if (actor != nullptr && (i32(u32(runtime.saveData[0x2210]) << 28) < 0))
-        func_08050E68(actor, func_0809FE3C(runtime.saveData + 0x1CD4, value));
+        SetMessageWindowSpeakerName(actor, (char const *) func_0809FE3C(runtime.saveData + 0x1CD4, value));
 }
 
 // 0x0801223C

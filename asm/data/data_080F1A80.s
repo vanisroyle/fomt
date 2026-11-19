@@ -118,8 +118,8 @@ gUnk_080F7294:
 gUnk_080F77FC:
 	.incbin "baserom.gba", 0xF77FC, 0x344
 
-	.global gUnk_080F7B40
-gUnk_080F7B40:
+	.global gCarpenterScheduleInfo
+gCarpenterScheduleInfo:
 	.incbin "baserom.gba", 0xF7B40, 0x67C
 
 	.global gUnk_080F81BC

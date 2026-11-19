@@ -253,7 +253,7 @@ func_08010358: @ 0x08010358
     movs r1, #0xb2
     lsls r1, r1, #6
     adds r0, r6, r1
-    bl func_0809CD78
+    bl ResetFishingRecords
     ldr r2, .L08010644 @ =0x00002E58
     adds r0, r6, r2
     bl func_0809CE8C
@@ -292,7 +292,7 @@ func_08010358: @ 0x08010358
     ldr r2, [sp, #0x48]
     ldr r3, .L08010658 @ =0x000034D8
     adds r0, r2, r3
-    bl func_0809C4E4
+    bl ResetMapPatchVariants
     ldr r6, [sp, #0x48]
     ldr r1, .L0801065C @ =0x000034DC
     adds r0, r6, r1
@@ -1756,14 +1756,14 @@ func_08010F54: @ 0x08010F54
     ldr r1, .L0801121C @ =0x00001F64
     adds r4, r6, r1
     adds r0, r4, #0
-    bl func_0809EB70
+    bl IsConstructionComplete
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080111EA
     b .L08011328
 .L080111EA:
     adds r0, r4, #0
-    bl func_0809EB68
+    bl GetConstructionJob
     cmp r0, #0xd
     bls .L080111F6
     b .L08011318
@@ -2305,7 +2305,7 @@ func_08011650: @ 0x08011650
     movs r1, #0xb2
     lsls r1, r1, #6
     adds r0, r7, r1
-    bl func_0809CD78
+    bl ResetFishingRecords
     ldr r2, .L080118BC @ =0x00002E58
     adds r0, r7, r2
     bl func_0809CE8C
@@ -2334,7 +2334,7 @@ func_08011650: @ 0x08011650
     bl func_080A1A48
     ldr r2, .L080118C8 @ =0x000034D8
     adds r0, r7, r2
-    bl func_0809C4E4
+    bl ResetMapPatchVariants
     ldr r3, .L080118CC @ =0x000034DC
     adds r0, r7, r3
     bl func_0809BFE8
@@ -3435,7 +3435,7 @@ func_080124D0: @ 0x080124D0
     cmp r0, #0
     beq .L08012566
     movs r1, #3
-    bl func_08050D0C
+    bl DestroyMessageWindow
 .L08012566:
     str r4, [r5]
     add r0, sp, #0x10
@@ -3471,7 +3471,7 @@ func_080124D0: @ 0x080124D0
     cmp r0, #0
     beq .L080125B8
     movs r1, #3
-    bl func_08050D0C
+    bl DestroyMessageWindow
 .L080125B8:
     str r4, [r5]
     add r0, sp, #0x10
@@ -3482,11 +3482,11 @@ func_080124D0: @ 0x080124D0
     bl func_08008364
 .L080125CA:
     ldr r0, [r6]
-    bl func_08050D34
+    bl GetMessageWindowPhase
     cmp r0, #3
     beq .L080125E2
     ldr r0, [r6]
-    bl func_08050D5C
+    bl OpenMessageWindow
     adds r1, r7, #0
     adds r1, #0x9c
     movs r0, #0xe
@@ -3554,7 +3554,7 @@ GameScript_StartDialogueWithOptions: @ 0x08012860
     adds r0, r1, #0
     adds r1, r6, #0
     adds r3, r5, #0
-    bl func_08050E30
+    bl ConfigureMessageWindowPromptChoices
     b .L080128C0
 .L080128AA:
     adds r0, r4, #0
@@ -3566,7 +3566,7 @@ GameScript_StartDialogueWithOptions: @ 0x08012860
     adds r0, r1, #0
     adds r1, r6, #0
     adds r3, r5, #0
-    bl func_08050E30
+    bl ConfigureMessageWindowPromptChoices
 .L080128C0:
     adds r1, r4, #0
     adds r1, #0x9c
@@ -3608,7 +3608,7 @@ func_080128D0: @ 0x080128D0
     adds r1, r5, #0
     adds r2, r6, #0
     movs r3, #0
-    bl func_08050E0C
+    bl ConfigureMessageWindowChoices
     b .L0801296C
 .L0801290E:
     cmp r1, #0
@@ -3646,7 +3646,7 @@ func_080128D0: @ 0x080128D0
     adds r0, r2, #0
     adds r1, r5, #0
     adds r2, r6, #0
-    bl func_08050E0C
+    bl ConfigureMessageWindowChoices
     b .L0801296C
 .L08012952:
     adds r0, r4, #0
@@ -3660,7 +3660,7 @@ func_080128D0: @ 0x080128D0
     adds r0, r2, #0
     adds r1, r5, #0
     adds r2, r6, #0
-    bl func_08050E0C
+    bl ConfigureMessageWindowChoices
 .L0801296C:
     adds r1, r4, #0
     adds r1, #0x9c
@@ -8312,7 +8312,7 @@ func_08014D9C: @ 0x08014D9C
     adds r1, r4, #0
     movs r2, #0x80
     lsls r2, r2, #1
-    bl func_08050DC8
+    bl SetMessageWindowTextOptions
     mov r1, sl
     adds r1, #0x9c
     movs r0, #0x10
@@ -8978,7 +8978,7 @@ func_0801531C: @ 0x0801531C
     adds r1, r4, #0
     movs r2, #0x80
     lsls r2, r2, #1
-    bl func_08050DC8
+    bl SetMessageWindowTextOptions
     mov r1, sl
     adds r1, #0x9c
     movs r0, #0x10
@@ -12435,7 +12435,7 @@ func_080175B4: @ 0x080175B4
     ldr r0, [r0]
     ldr r2, .L08017874 @ =0x0000214C
     adds r0, r0, r2
-    bl func_0809C5F4
+    bl HasPendingScriptEvents
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08017778
@@ -13803,7 +13803,7 @@ func_08017C30: @ 0x08017C30
     ldr r0, [r4]
     ldr r3, .L080182C4 @ =0x0000214C
     adds r0, r0, r3
-    bl func_0809C5F4
+    bl HasPendingScriptEvents
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L080182A2
@@ -17302,7 +17302,7 @@ func_08019BEC: @ 0x08019BEC
     ldr r0, [r0]
     ldr r2, .L08019F30 @ =0x0000214C
     adds r0, r0, r2
-    bl func_0809C5F4
+    bl HasPendingScriptEvents
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08019EE6
@@ -21052,7 +21052,7 @@ func_0801DDCC: @ 0x0801DDCC
     ldr r1, .L0801DDF4 @ =0x000034D8
     adds r0, r0, r1
     adds r1, r5, #0
-    bl func_0809C5B4
+    bl SetAlternateMapPatch
     ldr r0, [r4, #4]
     adds r1, r5, #0
     bl func_080AA850
@@ -21074,7 +21074,7 @@ func_0801DDF8: @ 0x0801DDF8
     ldr r1, .L0801DE20 @ =0x000034D8
     adds r0, r0, r1
     adds r1, r5, #0
-    bl func_0809C5D0
+    bl ClearAlternateMapPatch
     ldr r0, [r4, #4]
     adds r1, r5, #0
     bl func_080AA850
@@ -22345,7 +22345,7 @@ func_0801EAA0: @ 0x0801EAA0
     ldr r0, [r0]
     ldr r3, .L0801EDFC @ =0x0000214C
     adds r0, r0, r3
-    bl func_0809C5F4
+    bl HasPendingScriptEvents
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0801EDD8
