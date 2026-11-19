@@ -328,7 +328,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateClearSpriteCacheEntry
 	.word GameStateGetCachedSpriteSlot
 	.word 0x0801B9E9
-	.word 0x0801FD31
+	.word GameStateGetMapEffect
 	.word GameStateGetSpriteArchive2
 	.word GameStateGetSpriteArchive3
 	.word GameStateGetSpriteArchive1
@@ -367,7 +367,7 @@ vtable_unk_080E5EC4: @ game object
 	.word 0x0801D88D
 	.word 0x0801CBB1
 	.word 0x0801CFB9
-	.word 0x0801C3DD
+	.word GameStateNoOpMapAction
 	.word 0x0801C3E1
 	.word GameStateApplyMapTilePatchAtRow20
 	.word GameStateApplyMapTilePatchAtRow23
@@ -377,7 +377,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateClearMapTileVariant
 	.word func_0801DCD4
 	.word func_0801DC24
-	.word func_0801DCA8
+	.word GameStateClearMapInteraction
 	.word GameStateIsWinterOrSpecialOutdoorTile
 	.word func_0801D8CC
 	.word func_0801D948
@@ -385,13 +385,13 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateLookupConstEntitySlot
 	.word 0x0801B499
 	.word 0x0801E085
-	.word 0x0801C0E1
-	.word func_0801D9A8
-	.word 0x0801FCA5
+	.word GameStateRequestDayUpdate
+	.word GameStateQueueScriptEvent
+	.word GameStateGetPlayerData
 	.word 0x0801D9BD
-	.word func_0801DB44
+	.word GameStateGetAudioList
 	.word 0x0801F519
-	.word func_0801F5F0
+	.word GameStateSetVaseArticle
 	.word func_0801EE00
 	.word func_0801F924
 	.word 0x0801C551

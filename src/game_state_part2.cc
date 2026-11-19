@@ -1,10 +1,12 @@
 #include "prelude.h"
 
-#include "barn.hh"
-#include "coop.hh"
 #include "entity.hh"
-#include "farm_house.hh"
+#include "farm.hh"
 
+struct GameStateAudioList;
+struct GameStateMapEffect;
+struct GameStatePlayerData;
+struct GameStateScript;
 struct Unk_0800E324;
 
 struct GameStateCameraCoordinate
@@ -25,16 +27,31 @@ struct GameStateMapData
 {
     STRUCT_PAD(0x0, 0x10);
     u8 clock[4];
-    STRUCT_PAD(0x14, 0x1F4);
-    FarmHouse farm_house;
-    Coop coop;
-    Barn barn;
-    u8 reserved[0x34D8 - 0x5F0 - sizeof(Barn)];
+    Farm farm;
+    u8 reserved[0x34D8 - 0x14 - sizeof(Farm)];
     u32 tile_variant_flags;
 };
 
 struct GameStateMapOwner;
 struct GameStateMapOverlay;
+
+struct GameStateMapInteraction
+{
+    struct Vtable
+    {
+        STRUCT_PAD(0x0, 0x8);
+        void (*destroy)(GameStateMapInteraction * interaction, u32 flags);
+    };
+
+    STRUCT_PAD(0x0, 0x24);
+    Vtable const * vtable;
+};
+
+struct GameStateScriptEvent
+{
+    u32 id;
+    u32 argument;
+};
 
 struct GameStateEntitySlotVtable
 {
@@ -73,10 +90,17 @@ struct GameStateMapOwner
     STRUCT_PAD(0x198, 0x19C);
     GameStateSpriteCache sprite_cache;
     GameStatePackedSpriteArchive sprite_archives[13];
-    STRUCT_PAD(0x1024, 0x1038);
+    GameStateMapEffect * map_effect;
+    STRUCT_PAD(0x1028, 0x1038);
     GameStateMapData * map_data;
-    STRUCT_PAD(0x103C, 0x107C);
+    STRUCT_PAD(0x103C, 0x1054);
+    GameStateScript * script;
+    GameStateMapInteraction * interaction;
+    STRUCT_PAD(0x105C, 0x107C);
     GameStateMapOverlay * map_overlay;
+    STRUCT_PAD(0x1080, 0x10C8);
+    bool day_update_requested;
+    bool skip_day_update_events;
 };
 
 EC void func_0803B0A8(GameStateMapOverlay * overlay, u32 destructor_flags);
@@ -105,6 +129,9 @@ EC MapData const * GetMapData(u32 map_variant);
 EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 barn_level);
 EC u32 func_0800E324(Unk_0800E324 const & clock);
 EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
+EC u8 * func_0801468C(GameStateScript & script);
+EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
+EC void func_0801F3E4(GameStateMapOwner & game);
 
 EC SECTION(".text.game_state_c2.08019F38") bool GameStateIsWinterOrSpecialOutdoorTile(GameStateMapOwner const & game, Location const & location)
 {
@@ -122,9 +149,9 @@ EC SECTION(".text.game_state_c2.08019F7C") u32 GameStateGetMapWidthPixels(GameSt
 {
     GameStateMapData * const & state = game.map_data;
     u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
-    u32 house_level = state->farm_house.GetUpgradeLevel();
-    u32 coop_level = state->coop.GetUpgradeLevel();
-    u32 barn_level = state->barn.GetUpgradeLevel();
+    u32 house_level = state->farm.farm_house.GetUpgradeLevel();
+    u32 coop_level = state->farm.coop.GetUpgradeLevel();
+    u32 barn_level = state->farm.barn.GetUpgradeLevel();
     return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->width * 8;
 }
 
@@ -132,10 +159,66 @@ EC SECTION(".text.game_state_c2.08019FE8") u32 GameStateGetMapHeightPixels(GameS
 {
     GameStateMapData * const & state = game.map_data;
     u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
-    u32 house_level = state->farm_house.GetUpgradeLevel();
-    u32 coop_level = state->coop.GetUpgradeLevel();
-    u32 barn_level = state->barn.GetUpgradeLevel();
+    u32 house_level = state->farm.farm_house.GetUpgradeLevel();
+    u32 coop_level = state->farm.coop.GetUpgradeLevel();
+    u32 barn_level = state->farm.barn.GetUpgradeLevel();
     return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->height * 8;
+}
+
+EC SECTION(".text.game_state_c2.0801A8C0") u32 GameStateGetTimeOfDayBand(GameStateMapOwner const &, u32 hour)
+{
+    if (hour < 6)
+        return 3;
+    if (hour < 12)
+        return 0;
+    if (hour > 17)
+        return 2;
+    return 1;
+}
+
+EC SECTION(".text.game_state_c2.0801C0E0") void GameStateRequestDayUpdate(GameStateMapOwner & game, bool skip_events)
+{
+    game.day_update_requested = true;
+    game.skip_day_update_events = skip_events;
+}
+
+EC SECTION(".text.game_state_c2.0801C3DC") void GameStateNoOpMapAction(GameStateMapOwner &)
+{
+}
+
+EC SECTION(".text.game_state_c2.0801D9A8") void GameStateQueueScriptEvent(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue)
+{
+    func_08012B24(*game.script, event, queue);
+}
+
+EC SECTION(".text.game_state_c2.0801DB44") GameStateAudioList * GameStateGetAudioList(GameStateMapOwner & game)
+{
+    return reinterpret_cast<GameStateAudioList *>(func_0801468C(*game.script));
+}
+
+EC SECTION(".text.game_state_c2.0801DCA8") void GameStateClearMapInteraction(GameStateMapOwner & game)
+{
+    GameStateMapInteraction * & interaction = game.interaction;
+    GameStateMapInteraction * replacement = nullptr;
+    if (replacement != interaction && interaction != nullptr)
+        interaction->vtable->destroy(interaction, 3);
+    interaction = replacement;
+}
+
+EC SECTION(".text.game_state_c2.0801F5F0") void GameStateSetVaseArticle(GameStateMapOwner & game, u32 article_id)
+{
+    game.map_data->farm.farm_house.SetVaseArticleId(article_id);
+    func_0801F3E4(game);
+}
+
+EC SECTION(".text.game_state_c2.0801FCA4") GameStatePlayerData const * GameStateGetPlayerData(GameStateMapOwner const & game)
+{
+    return reinterpret_cast<GameStatePlayerData const *>(reinterpret_cast<u8 const *>(game.map_data) + 8);
+}
+
+EC SECTION(".text.game_state_c2.0801FD30") GameStateMapEffect * GameStateGetMapEffect(GameStateMapOwner & game)
+{
+    return game.map_effect;
 }
 
 EC SECTION(".text.game_state_c2.0801DD18") void GameStateApplyRow15TilePatchVariant1(GameStateMapOwner & game)
