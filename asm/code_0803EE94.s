@@ -1072,7 +1072,7 @@ func_0803F8DC: @ 0x0803F8DC
 	ldr r0, [r0]
 	cmp r0, #0
 	beq .L08040394
-	bl func_080122E0
+	bl GameScript_WarpToLocation
 .L08040394:
 	movs r6, #0xd4
 	lsls r6, r6, #2
@@ -8511,7 +8511,7 @@ func_0803F8DC: @ 0x0803F8DC
 	movs r1, #0x1d
 	adds r2, r4, #0
 	movs r3, #0x70
-	bl func_080122E0
+	bl GameScript_WarpToLocation
 	ldr r0, [r6]
 	movs r1, #2
 	str r1, [sp]

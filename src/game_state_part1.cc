@@ -264,19 +264,19 @@ struct GameStateObject
     virtual void vfunc_78();
     virtual void vfunc_7C();
     virtual void vfunc_80();
-    virtual void vfunc_84();
-    virtual void vfunc_88();
-    virtual void vfunc_8C();
-    virtual void vfunc_90();
-    virtual void vfunc_94();
-    virtual void vfunc_98();
-    virtual void vfunc_9C(u32 value);
-    virtual void vfunc_A0(u32 value);
-    virtual u32 vfunc_A4();
-    virtual u32 vfunc_A8(u32 value);
+    virtual void ApplyRow15TilePatchVariant1();
+    virtual void ApplyRow15TilePatchVariant2();
+    virtual void ApplyRow3TilePatchVariant1();
+    virtual void ApplyRow3TilePatchVariant2();
+    virtual void ApplyRow2TilePatchVariant1();
+    virtual void ApplyRow2TilePatchVariant2();
+    virtual void ApplyMapTilePatchAtIndex(u32 index);
+    virtual void ApplyMapTilePatchInColumn(u32 index);
+    virtual i32 RemoveRecordPlayerAlbum();
+    virtual i32 SetRecordPlayerAlbum(u32 albumId);
     virtual void vfunc_AC(u32 index);
     virtual void vfunc_B0();
-    virtual void vfunc_B4();
+    virtual void WarpToLocation(Location const & location, bool preserveEventMusic);
     virtual void vfunc_B8();
     virtual void vfunc_BC();
     virtual void vfunc_C0();
@@ -294,15 +294,15 @@ struct GameStateObject
     virtual void vfunc_F0();
     virtual void vfunc_F4();
     virtual void vfunc_F8();
-    virtual void vfunc_FC();
-    virtual void vfunc_100();
-    virtual void vfunc_104();
+    virtual void ApplyMapTilePatchAtRow20();
+    virtual void ApplyMapTilePatchAtRow23();
+    virtual void QueueMapEvent1D();
     virtual void vfunc_108();
-    virtual void vfunc_10C(u32 value);
-    virtual void vfunc_110(u32 value);
+    virtual void SetMapTileVariant(u32 index);
+    virtual void ClearMapTileVariant(u32 index);
     virtual void vfunc_114();
-    virtual void vfunc_118(u32 value);
-    virtual void vfunc_11C();
+    virtual void StartMapInteraction(u32 animation);
+    virtual void ClearMapInteraction();
     virtual void vfunc_120();
     virtual void vfunc_124();
     virtual void vfunc_128();
@@ -593,6 +593,7 @@ EC void ClearSideEntityEffectSprite(void * self);
 EC void BeginSideEntityTransition(void * self);
 EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
+EC void func_080D7F08(GameStateRuntime & self);
 EC void func_0804EC84(i32 value, char * text, u32 digits);
 EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
 EC void func_08032384(AActorEntity & self, u32 value, bool enabled);
@@ -613,6 +614,14 @@ EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 EC void AudioPlayer_FadeOut(void * self, u32 speed);
+
+// 0x080122E0
+EC void SECTION(".text.game_state_080122E0") GameScript_WarpToLocation(GameStateScript & script, u32 mapId, i32 x, i32 y)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.scene->WarpToLocation(Location(mapId, x, y), true);
+    func_080D7F08(runtime);
+}
 
 EC Bachelorette const * GetRosterBacheloretteByIdConst(void * data, u32 characterId);
 EC void SetMessageWindowIndicator(void * dialogue, u32 level);
@@ -951,49 +960,49 @@ EC void SECTION(".text.game_state_08016D80") GameScript_ClearReturnLocation()
 // 0x08014034
 EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow15TilePatchVariant1(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_84();
+    script.runtime->scene->ApplyRow15TilePatchVariant1();
 }
 
 // 0x0801404C
 EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow15TilePatchVariant2(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_88();
+    script.runtime->scene->ApplyRow15TilePatchVariant2();
 }
 
 // 0x08014064
 EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow3TilePatchVariant1(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_8C();
+    script.runtime->scene->ApplyRow3TilePatchVariant1();
 }
 
 // 0x0801407C
 EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow3TilePatchVariant2(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_90();
+    script.runtime->scene->ApplyRow3TilePatchVariant2();
 }
 
 // 0x08014094
 EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow2TilePatchVariant1(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_94();
+    script.runtime->scene->ApplyRow2TilePatchVariant1();
 }
 
 // 0x080140AC
 EC void SECTION(".text.game_state_08014034") GameScript_ApplyRow2TilePatchVariant2(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_98();
+    script.runtime->scene->ApplyRow2TilePatchVariant2();
 }
 
 // 0x080140C4
-EC void SECTION(".text.game_state_08014034") GameScript_ApplyMapTilePatchAtIndex(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyMapTilePatchAtIndex(GameStateScript & script, u32 index)
 {
-    script.runtime->scene->vfunc_9C(value);
+    script.runtime->scene->ApplyMapTilePatchAtIndex(index);
 }
 
 // 0x080140DC
-EC void SECTION(".text.game_state_08014034") GameScript_ApplyMapTilePatchInColumn(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08014034") GameScript_ApplyMapTilePatchInColumn(GameStateScript & script, u32 index)
 {
-    script.runtime->scene->vfunc_A0(value);
+    script.runtime->scene->ApplyMapTilePatchInColumn(index);
 }
 
 // 0x080140F4
@@ -1003,33 +1012,33 @@ EC void SECTION(".text.game_state_08014034") GameScript_InvokeSceneAction80(Game
 }
 
 // 0x08014234
-EC u32 SECTION(".text.game_state_08014234") GameScript_RemoveRecordPlayerAlbum(GameStateScript & script)
+EC i32 SECTION(".text.game_state_08014234") GameScript_RemoveRecordPlayerAlbum(GameStateScript & script)
 {
-    return script.runtime->scene->vfunc_A4();
+    return script.runtime->scene->RemoveRecordPlayerAlbum();
 }
 
 // 0x0801424C
-EC u32 SECTION(".text.game_state_08014234") GameScript_SetRecordPlayerAlbum(GameStateScript & script, u32 value)
+EC i32 SECTION(".text.game_state_08014234") GameScript_SetRecordPlayerAlbum(GameStateScript & script, u32 albumId)
 {
-    return script.runtime->scene->vfunc_A8(value);
+    return script.runtime->scene->SetRecordPlayerAlbum(albumId);
 }
 
 // 0x080142B8
-EC void SECTION(".text.game_state_080142B8") GameScript_StartMapInteraction(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_080142B8") GameScript_StartMapInteraction(GameStateScript & script, u32 animation)
 {
-    script.runtime->scene->vfunc_118(value);
+    script.runtime->scene->StartMapInteraction(animation);
 }
 
 // 0x08016BDC
 EC void SECTION(".text.game_state_08016BDC") GameScript_ApplyMapTilePatchAtRow20(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_FC();
+    script.runtime->scene->ApplyMapTilePatchAtRow20();
 }
 
 // 0x08016BF4
 EC void SECTION(".text.game_state_08016BDC") GameScript_ApplyMapTilePatchAtRow23(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_100();
+    script.runtime->scene->ApplyMapTilePatchAtRow23();
 }
 
 // 0x080114F8
@@ -1073,7 +1082,7 @@ EC void SECTION(".text.game_state_080122A0") GameScript_StopActorMovement(GameSt
 // 0x080142D4
 EC void SECTION(".text.game_state_080142D4") GameScript_ClearMapInteraction(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_11C();
+    script.runtime->scene->ClearMapInteraction();
 }
 
 // 0x08014694
@@ -1089,21 +1098,21 @@ EC void SECTION(".text.game_state_080146B0") GameScript_InvokeSceneAction154(Gam
 }
 
 // 0x08016BA4
-EC void SECTION(".text.game_state_08016BA4") GameScript_SetMapTileVariant(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08016BA4") GameScript_SetMapTileVariant(GameStateScript & script, u32 index)
 {
-    script.runtime->scene->vfunc_10C(value);
+    script.runtime->scene->SetMapTileVariant(index);
 }
 
 // 0x08016BC0
-EC void SECTION(".text.game_state_08016BC0") GameScript_ClearMapTileVariant(GameStateScript & script, u32 value)
+EC void SECTION(".text.game_state_08016BC0") GameScript_ClearMapTileVariant(GameStateScript & script, u32 index)
 {
-    script.runtime->scene->vfunc_110(value);
+    script.runtime->scene->ClearMapTileVariant(index);
 }
 
 // 0x08016C10
 EC void SECTION(".text.game_state_08016C10") GameScript_QueueMapEvent1D(GameStateScript & script)
 {
-    script.runtime->scene->vfunc_104();
+    script.runtime->scene->QueueMapEvent1D();
 }
 
 // 0x08016C2C
