@@ -3673,7 +3673,7 @@ func_08024CD0: @ 0x08024CD0
     ldr r3, [r2]
     mov r0, r8
     movs r2, #0
-    @ 08024E8E bl [func_0801D9A8]
+    @ 08024E8E bl [GameStateQueueScriptEvent]
     bl _call_via_r3
     b .L08024F68
 .L08024E94:
