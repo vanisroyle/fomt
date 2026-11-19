@@ -55,3 +55,20 @@ EC SECTION(".text.g5_080CCD48") void ClearRightInventorySlotCount(u8 * self, u32
     DrawingPosition position = base;
     QueuePanelTileDraw(self, GetTilemapAddress(position, (u16 *) 0x0600f080), 0x54, 2, 1, 0, 0x20);
 }
+
+EC SECTION(".text.g5_080CC0B4") void InventoryMenu_ClearLeftSpecialSlotCount(u8 * panel) // 0x080CC0B4
+{
+    ClearUiEntry((UiEntry *) (panel + 0x280));
+    DrawingPosition position = gInventorySpecialSlotCountPosition;
+    QueuePanelTileDraw(panel, GetTilemapAddress(position, (u16 *) 0x0600f000), 0x54, 2, 2, 0, 0x20);
+    QueuePanelTileDraw(panel, GetTilemapAddress(position, (u16 *) 0x0600f080), 0x54, 2, 1, 0, 0x20);
+}
+
+EC SECTION(".text.g5_080CD4D4") void InventoryMenu_ClearRightSpecialSlotCount(u8 * panel) // 0x080CD4D4
+{
+    ClearUiEntry((UiEntry *) (panel + 0x280));
+    DrawingPosition base = gInventorySpecialSlotCountPosition;
+    base.x += 15;
+    DrawingPosition position = base;
+    QueuePanelTileDraw(panel, GetTilemapAddress(position, (u16 *) 0x0600f080), 0x54, 2, 1, 0, 0x20);
+}
