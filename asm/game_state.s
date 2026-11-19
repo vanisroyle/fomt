@@ -12312,7 +12312,7 @@ func_080179CC: @ 0x080179CC
     ldr r1, .L08017A6C @ =0x0000214C
     adds r2, r2, r1
     adds r1, r7, #0
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
     b .L08017A86
     .align 2, 0
 .L08017A50: .4byte vtable_unk_080E5EC4
@@ -12610,7 +12610,7 @@ func_08017C30: @ 0x08017C30
     ldr r1, .L08017D8C @ =0x0000214C
     adds r2, r2, r1
     adds r1, r6, #0
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
     ldrb r0, [r6, #1]
     lsrs r0, r0, #2
     ldrh r2, [r6, #2]
@@ -18657,7 +18657,7 @@ func_0801D104: @ 0x0801D104
     str r4, [sp]
     adds r0, r5, #0
     movs r1, #1
-    bl func_080A5F78
+    bl ClearMapTileRectangle
 .L0801D224:
     movs r0, #1
     b .L0801D22A
@@ -18855,7 +18855,7 @@ func_0801D6AC: @ 0x0801D6AC
     adds r0, r1, #0
     movs r1, #1
     movs r3, #2
-    bl func_080A5F78
+    bl ClearMapTileRectangle
 .L0801D78C:
     ldr r0, [sp, #4]
     mov r1, sl
@@ -20401,7 +20401,7 @@ func_0801EE00: @ 0x0801EE00
     ldr r4, .L0801F014 @ =0x0000214C
     adds r2, r2, r4
     mov r1, sb
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
 .L0801EFE0:
     adds r0, r7, #0
     bl IsWrapped__C12RucksackItem

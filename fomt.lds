@@ -1113,6 +1113,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A1478);
         src/g1_npc.o(.text.g1_080A1480);
         asm/g1_npc.o(.text.g1_after_080A1480);
+        src/g1_roster_penalty.o(.text.g1_080A1484);
+        asm/g1_npc.o(.text.g1_after_b11_080A1484);
         src/g1_roster.o(.text.g1_080A17A0);
         asm/g1_npc.o(.text.g1_after_b3_080A17A0);
         src/g1_roster.o(.text.g1_080A1890);
@@ -1186,12 +1188,16 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A5A9C);
         src/g1_map_reload.o(.text.g1_080A5BD8);
         asm/g1_npc.o(.text.g1_after_b3_080A5BD8);
+        src/g1_map_reload.o(.text.g1_080A5CC0);
+        asm/g1_npc.o(.text.g1_after_b11_080A5CC0);
         src/g1_map_reload.o(.text.g1_080A5D14);
         asm/g1_npc.o(.text.g1_after_b3_080A5D14);
         src/g1_map_reload.o(.text.g1_080A5DB8);
         asm/g1_npc.o(.text.g1_after_b3_080A5DB8);
         src/g1_npc.o(.text.g1_080A5EA0);
         asm/g1_npc.o(.text.g1_after_080A5EA0);
+        src/g1_map_tiles.o(.text.g1_080A5F78);
+        asm/g1_npc.o(.text.g1_after_b11_080A5F78);
         src/g1_npc.o(.text.g1_080A601C);
         asm/g1_npc.o(.text.g1_after_080A601C);
         src/g1_map.o(.text.g1_080A6024);
