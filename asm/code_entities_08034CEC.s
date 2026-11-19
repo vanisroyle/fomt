@@ -5661,7 +5661,7 @@ func_08038028: @ 0x08038028
     cmp r0, r1
     bne .L08038088
     adds r0, r4, #0
-    bl func_08020460
+    bl DogEntity_IsCarryingTarget
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08038088
@@ -6001,7 +6001,7 @@ func_08038110: @ 0x08038110
     cmp r0, #0
     beq .L080382F4
     adds r1, r4, #0
-    bl func_0802151C
+    bl DogEntity_PlayIfNearby
 .L080382F4:
     add sp, #0x44
     pop {r3}
@@ -8884,7 +8884,7 @@ func_080398A4: @ 0x080398A4
     bl func_08039D5C
     adds r1, r0, #0
     adds r0, r6, #0
-    bl func_08020080
+    bl AActorEntity_SetFacingSpeed
     adds r0, r6, #0
     adds r1, r4, #0
     bl func_08039D4C
@@ -9290,7 +9290,7 @@ func_08039A60: @ 0x08039A60
     bl func_08039D5C
     adds r1, r0, #0
     adds r0, r7, #0
-    bl func_08020080
+    bl AActorEntity_SetFacingSpeed
 .L08039CB8:
     ldr r0, [r7, #0x4c]
     cmp r4, r0
@@ -9328,7 +9328,7 @@ func_08039A60: @ 0x08039A60
 .L08039CFE:
     adds r0, r7, #0
     adds r1, r4, #0
-    bl func_08020170
+    bl AActorEntity_ApplyBoundedMovement
 .L08039D06:
     adds r1, r7, #0
     adds r1, #0x30

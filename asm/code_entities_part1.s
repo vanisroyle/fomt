@@ -193,7 +193,7 @@ func_080200C4: @ 0x080200C4
     cmp r0, #0
     bne .L08020126
     adds r0, r4, #0
-    bl func_08020060
+    bl AEntity_IsOnCurrentMap
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08020126
@@ -497,13 +497,13 @@ func_080204CC: @ 0x080204CC
     bl func_080ABA90
 .L08020694:
     adds r0, r6, #0
-    bl func_08021264
+    bl DogEntity_GetAnimationState
     adds r1, r0, #0
     adds r4, r6, #0
     adds r4, #0x20
     ldrb r2, [r4]
     adds r0, r6, #0
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     mov r2, sl
     ldr r0, [r2, #0x20]
     cmp r0, #5
@@ -731,7 +731,7 @@ func_080204CC: @ 0x080204CC
     ldrb r2, [r4]
     adds r0, r6, #0
     movs r1, #0xc
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     mov r5, sl
     ldr r0, [r5, #0x20]
     cmp r0, #5
@@ -871,7 +871,7 @@ func_080204CC: @ 0x080204CC
     cmp r0, #0
     bne .L08020A48
     adds r0, r6, #0
-    bl func_08020130
+    bl AEntity_IsAnimationFinished
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L08020A48
@@ -966,7 +966,7 @@ func_080204CC: @ 0x080204CC
     adds r0, r6, #0
     adds r1, r7, #0
     adds r2, r5, #0
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
 .L08020A48:
     mov r3, sb
     strh r4, [r3]
@@ -1068,7 +1068,7 @@ func_080204CC: @ 0x080204CC
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     movs r0, #0x1e
     bl func_080AB788
     adds r2, r0, #1
@@ -1173,7 +1173,7 @@ func_080204CC: @ 0x080204CC
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     movs r0, #0x1e
     bl func_080AB788
     adds r4, r0, #1
@@ -1308,7 +1308,7 @@ func_080204CC: @ 0x080204CC
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     movs r0, #0x1e
     bl func_080AB788
     adds r4, r0, #1
@@ -1402,13 +1402,13 @@ func_080204CC: @ 0x080204CC
     ldr r0, [r6, #0x34]
     bl method_0809BB8C__3DogPC18UnkBarnAnimal2C_x2
     adds r0, r6, #0
-    bl func_08021264
+    bl DogEntity_GetAnimationState
     adds r1, r0, #0
     adds r4, r6, #0
     adds r4, #0x20
     ldrb r2, [r4]
     adds r0, r6, #0
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     ldr r1, [r6, #8]
     ldr r2, [r6, #0xc]
     ldrh r3, [r6, #0x22]
@@ -1546,7 +1546,7 @@ func_080204CC: @ 0x080204CC
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     ldrh r1, [r6, #0x22]
     ldrb r2, [r4]
     ldr r0, [sp, #0xe8]
@@ -1578,7 +1578,7 @@ func_080204CC: @ 0x080204CC
     bl func_080200C4
 .L08020EEA:
     adds r0, r6, #0
-    bl func_080212C0
+    bl DogEntity_PlaceCarriedTarget
     ldr r2, .L08020F04 @ =0xFFFF0000
     add r1, sp, #0xcc
     ldr r0, [r1]
@@ -1697,13 +1697,13 @@ func_080204CC: @ 0x080204CC
     bl method_0809BB48__3DogPC15UnkBarnAnimal2C
 .L08020FD6:
     adds r0, r6, #0
-    bl func_08021264
+    bl DogEntity_GetAnimationState
     adds r1, r0, #0
     adds r0, r6, #0
     adds r0, #0x20
     ldrb r2, [r0]
     adds r0, r6, #0
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     b .L080210A0
     .align 2, 0
 .L08020FEC: .4byte 0xFFFF0000
@@ -1749,7 +1749,7 @@ func_080204CC: @ 0x080204CC
     adds r2, r0, #0
     adds r0, r6, #0
     movs r1, #2
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     movs r0, #0x1e
     bl func_080AB788
     adds r4, r0, #1
@@ -1766,7 +1766,7 @@ func_080204CC: @ 0x080204CC
     ldrb r2, [r0]
     adds r0, r6, #0
     movs r1, #0xb
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
     movs r0, #1
     mov r1, sb
     strb r0, [r1, #2]
@@ -1787,13 +1787,13 @@ func_080204CC: @ 0x080204CC
     mov r0, sl
     bl method_0809BB48__3DogPC15UnkBarnAnimal2C
     adds r0, r6, #0
-    bl func_08021264
+    bl DogEntity_GetAnimationState
     adds r1, r0, #0
     adds r0, r6, #0
     adds r0, #0x20
     ldrb r2, [r0]
     adds r0, r6, #0
-    bl func_080211E4
+    bl DogEntity_SetAnimationState
 .L080210A0:
     ldr r0, [r6, #0x18]
     cmp r0, #0
@@ -1822,7 +1822,7 @@ func_080204CC: @ 0x080204CC
     movs r1, #0
 .L080210D0:
     adds r0, r6, #0
-    bl func_08020170
+    bl AActorEntity_ApplyBoundedMovement
 .L080210D6:
     mov r1, sl
     ldr r0, [r1, #0x20]
@@ -2553,7 +2553,7 @@ func_080224E4: @ 0x080224E4
     b .L080227AA
 .L08022706:
     mov r0, sb
-    bl func_08020130
+    bl AEntity_IsAnimationFinished
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L080227AA
@@ -2624,7 +2624,7 @@ func_080224E4: @ 0x080224E4
     mov r0, sb
     adds r1, r6, #0
     adds r2, r5, #0
-    bl func_080228B4
+    bl ChickenEntity_SetAnimationState
     mov r3, sl
     strb r6, [r3, #2]
 .L080227AA:
@@ -2709,7 +2709,7 @@ func_080224E4: @ 0x080224E4
     adds r2, r0, #0
     mov r0, sb
     adds r1, r7, #0
-    bl func_080228B4
+    bl ChickenEntity_SetAnimationState
     movs r0, #0x1e
     bl func_080AB788
     adds r4, r0, #1
@@ -2740,17 +2740,17 @@ func_080224E4: @ 0x080224E4
     adds r0, r7, #0
     bl method_0809BD20__7ChickenPC15UnkBarnAnimal2C
     mov r0, sb
-    bl func_08022950
+    bl ChickenEntity_GetAnimationState
     adds r1, r0, #0
     mov r0, sb
     adds r0, #0x20
     ldrb r2, [r0]
     mov r0, sb
-    bl func_080228B4
+    bl ChickenEntity_SetAnimationState
 .L08022894:
     mov r0, sb
     add r1, sp, #0x14
-    bl func_08020170
+    bl AActorEntity_ApplyBoundedMovement
     add sp, #0x74
     pop {r3, r4, r5}
     mov r8, r3
@@ -3612,7 +3612,7 @@ func_08024CD0: @ 0x08024CD0
     add r0, sp, #0x20
     ldr r2, [r1, #0xc]
     adds r1, r5, #0
-    @ 08024D48 bl [func_08024BFC]
+    @ 08024D48 bl [FarmerEntity_GetCollisionBox]
     bl _call_via_r2
     ldr r0, [sp, #0x20]
     ldr r1, [sp, #0x24]
@@ -8824,7 +8824,7 @@ func_08027BFC: @ 0x08027BFC
     b .L0802862E
 .L0802816C:
     adds r0, r6, #0
-    bl func_080262C4
+    bl FarmerEntity_GetHeldProduct
     mov r4, sp
     adds r4, #7
     strb r0, [r4]
@@ -10730,7 +10730,7 @@ func_080290D4: @ 0x080290D4
     adds r0, r6, #0
     adds r1, r7, #0
     adds r2, r5, #0
-    bl func_08026150
+    bl FarmerEntity_LiftRucksackItem
     movs r5, #0xc9
     lsls r5, r5, #1
     adds r1, r6, #0
