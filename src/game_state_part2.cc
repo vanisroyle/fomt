@@ -1710,7 +1710,7 @@ EC int FindLooseItem(GameStateLooseItemStore const &, u32, GameStateLooseItemRec
 EC void ReadLooseItemInfo(GameStateLooseItemInfo &, GameStateLooseItemStore const &, int)
     asm("GetMapForageObstacle");
 EC void RefreshLooseItemTile(GameStateMapView &, u32, GameStateLooseItemTile const &, u32, u32)
-    asm("func_080A5F78");
+    asm("ClearMapTileRectangle");
 
 struct GameStateLooseItemInteraction
 {
