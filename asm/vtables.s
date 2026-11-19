@@ -912,9 +912,11 @@ vtable_unk_080E7970:
 vtable_unk_080E797C:
 	.incbin "baserom.gba", 0xE797C, 0x10
 
-	.global vtable_unk_080E798C
-vtable_unk_080E798C:
-	.incbin "baserom.gba", 0xE798C, 0x10
+	.global gHorseRaceSceneVTable
+gHorseRaceSceneVTable:
+	.4byte 0, 0
+	.4byte DestroyHorseRaceScene
+	.4byte RunHorseRaceScene
 
 	.global vtable_unk_080E799C
 vtable_unk_080E799C:

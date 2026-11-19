@@ -4323,254 +4323,6 @@ func_0803CD4C: @ 0x0803CD4C
 	bx r0
 	.align 2, 0
 
-	.section .text.0803D0F0, "ax", %progbits
-	thumb_func_start func_0803D0F0
-func_0803D0F0: @ 0x0803D0F0
-	push {r4, r5, r6, r7, lr}
-	sub sp, #0x20
-	adds r4, r1, #0
-	adds r6, r2, #0
-	ldr r7, [r0]
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __udivsi3
-	adds r5, r0, #0
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __umodsi3
-	adds r4, r0, #0
-	cmp r5, #0
-	ble .L0803D130
-	lsls r1, r5, #5
-	ldr r0, .L0803D12C @ =gClockFont
-	adds r1, r1, r0
-	adds r0, r7, #0
-	adds r0, #0xc4
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #0xc6
-	lsls r0, r0, #1
-	adds r1, r7, r0
-	b .L0803D14C
-	.align 2, 0
-.L0803D12C: .4byte gClockFont
-.L0803D130:
-	mov r0, sp
-	movs r1, #0
-	movs r2, #0x20
-	bl memset
-	adds r0, r7, #0
-	adds r0, #0xc4
-	mov r1, sp
-	movs r2, #0x20
-	bl memcpy
-	movs r2, #0xc6
-	lsls r2, r2, #1
-	adds r1, r7, r2
-.L0803D14C:
-	movs r0, #1
-	strb r0, [r1]
-	lsls r1, r4, #5
-	ldr r0, .L0803D178 @ =gClockFont
-	adds r1, r1, r0
-	adds r0, r7, #0
-	adds r0, #0xe4
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #0xc6
-	lsls r0, r0, #1
-	adds r1, r7, r0
-	movs r0, #1
-	strb r0, [r1]
-	cmp r6, #6
-	bhi .L0803D19C
-	lsls r0, r6, #2
-	ldr r1, .L0803D17C @ =.L0803D180
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0803D178: .4byte gClockFont
-.L0803D17C: .4byte .L0803D180
-.L0803D180: @ jump table
-	.4byte .L0803D19C @ case 0
-	.4byte .L0803D1A8 @ case 1
-	.4byte .L0803D1B4 @ case 2
-	.4byte .L0803D1C0 @ case 3
-	.4byte .L0803D1CC @ case 4
-	.4byte .L0803D1D8 @ case 5
-	.4byte .L0803D1E4 @ case 6
-.L0803D19C:
-	movs r0, #0x60
-	str r0, [sp]
-	movs r0, #0x61
-	str r0, [sp, #4]
-	movs r0, #0x62
-	b .L0803D1EE
-.L0803D1A8:
-	movs r0, #0x63
-	str r0, [sp]
-	movs r0, #0x64
-	str r0, [sp, #4]
-	movs r0, #0x65
-	b .L0803D1EE
-.L0803D1B4:
-	movs r0, #0x66
-	str r0, [sp]
-	movs r0, #0x67
-	str r0, [sp, #4]
-	movs r0, #0x68
-	b .L0803D1EE
-.L0803D1C0:
-	movs r0, #0x69
-	str r0, [sp]
-	movs r0, #0x6a
-	str r0, [sp, #4]
-	movs r0, #0x6b
-	b .L0803D1EE
-.L0803D1CC:
-	movs r0, #0x6c
-	str r0, [sp]
-	movs r0, #0x6d
-	str r0, [sp, #4]
-	movs r0, #0x6e
-	b .L0803D1EE
-.L0803D1D8:
-	movs r0, #0x6f
-	str r0, [sp]
-	movs r0, #0x70
-	str r0, [sp, #4]
-	movs r0, #0x71
-	b .L0803D1EE
-.L0803D1E4:
-	movs r0, #0x72
-	str r0, [sp]
-	movs r0, #0x73
-	str r0, [sp, #4]
-	movs r0, #0x74
-.L0803D1EE:
-	str r0, [sp, #8]
-	movs r1, #0xd4
-	lsls r1, r1, #1
-	adds r0, r7, r1
-	ldr r1, [sp]
-	lsls r1, r1, #5
-	ldr r5, .L0803D23C @ =gClockFont
-	adds r1, r1, r5
-	movs r2, #0x20
-	bl memcpy
-	movs r2, #0xac
-	lsls r2, r2, #2
-	adds r6, r7, r2
-	movs r4, #1
-	strb r4, [r6]
-	ldr r1, [sp, #4]
-	lsls r1, r1, #5
-	adds r1, r1, r5
-	subs r2, #0xe8
-	adds r0, r7, r2
-	movs r2, #0x20
-	bl memcpy
-	strb r4, [r6]
-	ldr r1, [sp, #8]
-	lsls r1, r1, #5
-	adds r1, r1, r5
-	movs r2, #0xf4
-	lsls r2, r2, #1
-	adds r0, r7, r2
-	movs r2, #0x20
-	bl memcpy
-	strb r4, [r6]
-	add sp, #0x20
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0803D23C: .4byte gClockFont
-
-	thumb_func_start func_0803D240
-func_0803D240: @ 0x0803D240
-	push {r4, r5, r6, r7, lr}
-	sub sp, #0x20
-	adds r5, r1, #0
-	ldr r6, [r0]
-	movs r1, #0x1e
-	cmp r5, #0xb
-	bhi .L0803D250
-	movs r1, #0x1c
-.L0803D250:
-	lsls r1, r1, #5
-	ldr r0, .L0803D2A4 @ =gClockFont
-	adds r1, r1, r0
-	movs r2, #0x82
-	lsls r2, r2, #1
-	adds r0, r6, r2
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #0xc6
-	lsls r0, r0, #1
-	adds r1, r6, r0
-	movs r0, #1
-	strb r0, [r1]
-	movs r4, #0xc
-	adds r7, r1, #0
-	cmp r5, #0xc
-	beq .L0803D27C
-	adds r4, r5, #0
-	cmp r4, #0xb
-	bls .L0803D27C
-	subs r4, #0xc
-.L0803D27C:
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __udivsi3
-	adds r5, r0, #0
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __umodsi3
-	adds r4, r0, #0
-	cmp r5, #0
-	ble .L0803D2A8
-	lsls r1, r5, #5
-	ldr r0, .L0803D2A4 @ =gClockFont
-	adds r1, r1, r0
-	movs r2, #0xa2
-	lsls r2, r2, #1
-	adds r0, r6, r2
-	b .L0803D2BA
-	.align 2, 0
-.L0803D2A4: .4byte gClockFont
-.L0803D2A8:
-	mov r0, sp
-	movs r1, #0
-	movs r2, #0x20
-	bl memset
-	movs r1, #0xa2
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	mov r1, sp
-.L0803D2BA:
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #1
-	strb r0, [r7]
-	lsls r1, r4, #5
-	ldr r0, .L0803D2E4 @ =gClockFont
-	adds r1, r1, r0
-	movs r2, #0xb2
-	lsls r2, r2, #1
-	adds r0, r6, r2
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #1
-	strb r0, [r7]
-	add sp, #0x20
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0803D2E4: .4byte gClockFont
-
 	.section .text.0803D464, "ax", %progbits
 	.align 2, 0
 .L0803D464:
@@ -4968,7 +4720,7 @@ func_0803DA7C: @ 0x0803DA7C
 	ldrb r6, [r0]
 	ldr r1, .L0803DB24 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5379,7 +5131,7 @@ func_0803DFE8: @ 0x0803DFE8
 	ldrb r6, [r0]
 	ldr r1, .L0803E0A0 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -5631,7 +5383,7 @@ func_0803E264: @ 0x0803E264
 	ldrb r4, [r0]
 	ldr r1, .L0803E334 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r7, r1, #0x1f
@@ -5837,7 +5589,7 @@ func_0803E4A0: @ 0x0803E4A0
 .L0803E514:
 	ldr r1, .L0803E548 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f
@@ -6040,7 +5792,7 @@ func_0803E780: @ 0x0803E780
 .L0803E7F4:
 	ldr r1, .L0803E828 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0384
+	bl GetActiveRosterNpc
 	rsbs r1, r0, #0
 	orrs r1, r0
 	lsrs r4, r1, #0x1f

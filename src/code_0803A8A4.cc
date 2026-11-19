@@ -299,9 +299,19 @@ struct ClockDisplayData
     STRUCT_PAD(0x000, 0x084);
     u8 seasonFirstTiles[0x20];
     u8 seasonSecondTiles[0x20];
-    STRUCT_PAD(0x0C4, 0x18C);
+    u8 dayTensTiles[0x20];
+    u8 dayOnesTiles[0x20];
+    u8 meridiemTiles[0x20];
+    STRUCT_PAD(0x124, 0x144);
+    u8 hourTensTiles[0x20];
+    u8 hourOnesTiles[0x20];
+    STRUCT_PAD(0x184, 0x18C);
     u8 dateTilesDirty;
-    STRUCT_PAD(0x18D, 0x228);
+    STRUCT_PAD(0x18D, 0x1A8);
+    u8 weekdayFirstTiles[0x20];
+    u8 weekdaySecondTiles[0x20];
+    u8 weekdayThirdTiles[0x20];
+    STRUCT_PAD(0x208, 0x228);
     u8 colonTiles[0x20];
     u8 minuteTensTiles[0x20];
     u8 minuteOnesTiles[0x20];
@@ -343,6 +353,121 @@ ROM_TEXT(0803D080) void SetClockSeasonTiles(ClockDisplay & self, Season season)
     u8 const * secondTile = gClockFont[seasonTileIds[1]];
     memcpy(inner.seasonSecondTiles, secondTile, sizeof(inner.seasonSecondTiles));
     inner.dateTilesDirty = 1;
+}
+
+ROM_TEXT(0803D0F0) void SetClockDayAndWeekdayTiles(ClockDisplay & self, unsigned day, unsigned weekday)
+{
+    ClockDisplayData & inner = *self.inner;
+    int tens = day / 10;
+    unsigned ones = day % 10;
+    u32 weekdayTileIds[8]; // Also used as the blank tens tile when the day is one digit.
+    u8 * dateDirty;
+    if (tens > 0)
+    {
+        u8 const * tile = gClockFont[tens];
+        memcpy(inner.dayTensTiles, tile, sizeof(inner.dayTensTiles));
+        dateDirty = &inner.dateTilesDirty;
+    }
+    else
+    {
+        memset(weekdayTileIds, 0, sizeof(weekdayTileIds));
+        u8 * blankDest = inner.dayTensTiles;
+        asm("" : "+r"(blankDest));
+        memcpy(blankDest, weekdayTileIds, sizeof(inner.dayTensTiles));
+        register unsigned dirtyOffset asm("r2") = offsetof(ClockDisplayData, dateTilesDirty);
+        asm("" : "+r"(dirtyOffset));
+        dateDirty = reinterpret_cast<u8 *>(&inner) + dirtyOffset;
+    }
+    *dateDirty = 1;
+    u8 const * tile = gClockFont[ones];
+    memcpy(inner.dayOnesTiles, tile, sizeof(inner.dayOnesTiles));
+    inner.dateTilesDirty = 1;
+    switch (weekday)
+    {
+    case 0:
+    default: weekdayTileIds[0] = 0x60; weekdayTileIds[1] = 0x61; weekdayTileIds[2] = 0x62; break;
+    case 1: weekdayTileIds[0] = 0x63; weekdayTileIds[1] = 0x64; weekdayTileIds[2] = 0x65; break;
+    case 2: weekdayTileIds[0] = 0x66; weekdayTileIds[1] = 0x67; weekdayTileIds[2] = 0x68; break;
+    case 3: weekdayTileIds[0] = 0x69; weekdayTileIds[1] = 0x6A; weekdayTileIds[2] = 0x6B; break;
+    case 4: weekdayTileIds[0] = 0x6C; weekdayTileIds[1] = 0x6D; weekdayTileIds[2] = 0x6E; break;
+    case 5: weekdayTileIds[0] = 0x6F; weekdayTileIds[1] = 0x70; weekdayTileIds[2] = 0x71; break;
+    case 6: weekdayTileIds[0] = 0x72; weekdayTileIds[1] = 0x73; weekdayTileIds[2] = 0x74; break;
+    }
+    // Preserve the original tile copy order and register allocation.
+    u8 * firstDest = inner.weekdayFirstTiles;
+    register unsigned firstTileOffset asm("r1") = weekdayTileIds[0] * sizeof(inner.weekdayFirstTiles);
+    asm("" : "+r"(firstTileOffset) : "r"(firstDest));
+    u8 const * font = &gClockFont[0][0];
+    memcpy(firstDest, reinterpret_cast<u8 const *>(firstTileOffset + reinterpret_cast<uintptr_t>(font)), sizeof(inner.weekdayFirstTiles));
+    unsigned refreshOffset = offsetof(ClockDisplayData, tilesDirty);
+    asm("" : "+r"(refreshOffset));
+    u8 * dirty = reinterpret_cast<u8 *>(&inner) + refreshOffset;
+    *dirty = 1;
+    unsigned secondTileOffset = weekdayTileIds[1] * sizeof(inner.weekdaySecondTiles);
+    register u8 const * secondTile asm("r1") = reinterpret_cast<u8 const *>(secondTileOffset + reinterpret_cast<uintptr_t>(font));
+    asm("" : "+r"(secondTile));
+    register unsigned secondDestOffset asm("r2") = refreshOffset
+        - (offsetof(ClockDisplayData, tilesDirty) - offsetof(ClockDisplayData, weekdaySecondTiles));
+    memcpy(reinterpret_cast<u8 *>(&inner) + secondDestOffset, secondTile, sizeof(inner.weekdaySecondTiles));
+    *dirty = 1;
+    unsigned thirdTileOffset = weekdayTileIds[2] * sizeof(inner.weekdayThirdTiles);
+    register u8 const * thirdTile asm("r1") = reinterpret_cast<u8 const *>(thirdTileOffset + reinterpret_cast<uintptr_t>(font));
+    register unsigned thirdDestOffset asm("r2") = offsetof(ClockDisplayData, weekdayThirdTiles);
+    asm("" : "+r"(thirdDestOffset) : "r"(thirdTile));
+    memcpy(reinterpret_cast<u8 *>(&inner) + thirdDestOffset, thirdTile, sizeof(inner.weekdayThirdTiles));
+    *dirty = 1;
+}
+
+ROM_TEXT(0803D240) void SetClockHourTiles(ClockDisplay & self, unsigned hour)
+{
+    ClockDisplayData & inner = *self.inner;
+    const unsigned pmTileId = 30;
+    const unsigned amTileId = 28;
+    unsigned meridiemTileId = pmTileId;
+    if (hour <= 11)
+        meridiemTileId = amTileId;
+    u8 const * meridiemTile = gClockFont[meridiemTileId];
+    memcpy(inner.meridiemTiles, meridiemTile, sizeof(inner.meridiemTiles));
+    u8 * dirty = &inner.dateTilesDirty;
+    *dirty = 1;
+    // The clock keeps 12 at noon and subtracts 12 in the afternoon.
+    register unsigned displayedHour asm("r4") = 12;
+    u8 * dirtyForDigits = dirty;
+    if (hour != 12)
+    {
+        displayedHour = hour;
+        if (displayedHour > 11)
+            displayedHour -= 12;
+    }
+    int tens = displayedHour / 10;
+    displayedHour %= 10;
+    u8 blank[0x20];
+    u8 const * tensTile;
+    u8 * tensDest;
+    if (tens > 0)
+    {
+        tensTile = gClockFont[tens];
+        tensDest = inner.hourTensTiles;
+    }
+    else
+    {
+        memset(blank, 0, sizeof(blank));
+        tensDest = inner.hourTensTiles;
+        tensTile = blank;
+    }
+    memcpy(tensDest, tensTile, sizeof(inner.hourTensTiles));
+    {
+        register u8 dirtyValue asm("r0") = 1;
+        asm("" : "+r"(dirtyValue));
+        *dirtyForDigits = dirtyValue;
+    }
+    u8 const * onesTile = gClockFont[displayedHour];
+    memcpy(inner.hourOnesTiles, onesTile, sizeof(inner.hourOnesTiles));
+    {
+        register u8 dirtyValue asm("r0") = 1;
+        asm("" : "+r"(dirtyValue));
+        *dirtyForDigits = dirtyValue;
+    }
 }
 
 ROM_TEXT(0803D2E8) void SetClockColonVisible(ClockDisplay & self, bool visible)
@@ -509,7 +634,7 @@ EC ScheduleInfo const gUnk_080F597C;
 EC ScheduleInfo const gUnk_080F6B10;
 EC ScheduleInfo const gUnk_080F4974;
 EC ScheduleInfo const gUnk_080F29C0;
-EC Npc * func_080A0A04(NpcScheduleRoster &);
+EC Npc * GetActiveScheduleNpc(NpcScheduleRoster &);
 EC void ResetNpcDailySchedule(Npc &, ScheduleInfo const &, void const *);
 
 ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void const * context)
@@ -546,7 +671,7 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_310, gUnk_080F6B10, context);
     ResetNpcDailySchedule(self.npc_328, gUnk_080F4974, context);
 
-    if (Npc * npc = func_080A0A04(self))
+    if (Npc * npc = GetActiveScheduleNpc(self))
         ResetNpcDailySchedule(*npc, gUnk_080F29C0, context);
 }
 
@@ -1033,8 +1158,8 @@ ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F7294(NpcScheduleContext const 
     return 1;
 }
 
-EC unsigned func_0809ECD8(void const *);
-EC bool func_0809ECE0(void const *);
+EC unsigned GetNpcMilestoneEventId(void const *);
+EC bool IsNpcMilestoneEventReady(void const *);
 
 ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const & self)
 {
@@ -1048,7 +1173,7 @@ ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const 
     if (IsNpcScheduleFestivalDay(season, day))
         return 4;
     void const * npc = self.unk_1DAC;
-    if (func_0809ECD8(npc) != 0 && !func_0809ECE0(npc))
+    if (GetNpcMilestoneEventId(npc) != 0 && !IsNpcMilestoneEventReady(npc))
         return 5;
     if (weekday == SCHEDULE_THURSDAY)
     {
