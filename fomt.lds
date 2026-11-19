@@ -302,6 +302,8 @@ SECTIONS
         asm/hardware.o(.text.after_080094AC);
         src/hardware.o(.text.DisplayFadeTask_Destroy);
         asm/hardware.o(.text.after_080094B8);
+        src/hardware.o(.text.DisplayFadeTask_SetSpeed);
+        asm/hardware.o(.text.after_08009508);
         src/hardware.o(.text.IrqTaskList_Clear);
         asm/hardware.o(.text.after_0800956C);
         src/hardware.o(.text.IrqTaskList_Destroy);

@@ -1474,6 +1474,12 @@ struct DisplayFadeTask
     DisplayFade fade;
 };
 
+// 0x08009508
+EC i16 SECTION(".text.DisplayFadeTask_SetSpeed") DisplayFadeTask_SetSpeed(DisplayFadeTask * self, i16 step)
+{
+    return DisplayFade_SetSpeed(&self->fade, step);
+}
+
 // 0x080094B8
 EC void SECTION(".text.DisplayFadeTask_Destroy") DisplayFadeTask_Destroy(DisplayFadeTask * self, u32 destructor_flags)
 {
