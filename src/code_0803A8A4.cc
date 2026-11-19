@@ -475,6 +475,12 @@ struct CalendarDate
     u8 weekday;
 };
 
+struct PACKED EventScheduleFlags
+{
+    u32 : 19;
+    u32 unk_217A_3 : 2;
+};
+
 struct ScriptEventContext
 {
     STRUCT_PAD(0x0000, 0x0008);
@@ -487,14 +493,24 @@ struct ScriptEventContext
     u32 unk_1DAC[2];
     STRUCT_PAD(0x1DB4, 0x1E28);
     Bachelorette npc_1E28;
-    STRUCT_PAD(0x1E40, 0x2186);
+    STRUCT_PAD(0x1E40, 0x215A);
+    u8 unk_215A;
+    STRUCT_PAD(0x215B, 0x2178);
+    union
+    {
+        u32 unk_2178;
+        EventScheduleFlags scheduleFlags;
+    };
+    STRUCT_PAD(0x217C, 0x2186);
     u8 : 5;
     u8 unk_2186_5 : 2;
     u8 : 1;
     u8 : 3;
     u8 unk_2187_3 : 2;
     u8 : 3;
-    STRUCT_PAD(0x2188, 0x21CA);
+    STRUCT_PAD(0x2188, 0x21A2);
+    u8 unk_21A2;
+    STRUCT_PAD(0x21A3, 0x21CA);
     u8 eventFlags;
 };
 
@@ -531,7 +547,27 @@ ROM_TEXT(0803DECC) unsigned func_0803DECC(ScriptEventContext const & self)
     return 1;
 }
 
-ROM_TEXT(0803DF50) unsigned func_0803DF50(ScriptEventContext const & self)
+ROM_TEXT(0803DECC) unsigned func_0803DEF8(ScriptEventContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 5)) < 0)
+        return 0;
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (func_0803D644(season, day))
+        return 4;
+    if (weekday == 3)
+    {
+        if (self.unk_08 == 0)
+            return 2;
+        return 3;
+    }
+    return 1;
+}
+
+ROM_TEXT(0803DECC) unsigned func_0803DF50(ScriptEventContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 5)) < 0)
         return 0;
@@ -542,7 +578,45 @@ ROM_TEXT(0803DF50) unsigned func_0803DF50(ScriptEventContext const & self)
     return 1;
 }
 
-ROM_TEXT(0803E1FC) unsigned func_0803E1FC(ScriptEventContext const & self)
+ROM_TEXT(0803DECC) unsigned func_0803DF94(ScriptEventContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 2)) < 0)
+        return 0;
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (func_0803D644(season, day))
+        return 4;
+    if (weekday == 2)
+        return 2;
+    if (weekday == 0)
+        return 3;
+    return 1;
+}
+
+ROM_TEXT(0803E1A4) unsigned func_0803E1A4(ScriptEventContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 2)) < 0)
+        return 0;
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (func_0803D644(season, day))
+        return 4;
+    if (self.unk_08 == 0)
+    {
+        if (weekday == 2)
+            return 3;
+        return 1;
+    }
+    return 2;
+}
+
+ROM_TEXT(0803E1A4) unsigned func_0803E1FC(ScriptEventContext const & self)
 {
     if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 6)) < 0)
         return 0;
@@ -571,6 +645,107 @@ ROM_TEXT(0803E40C) unsigned func_0803E40C(ScriptEventContext const & self)
         break;
     }
     return 0;
+}
+
+ROM_TEXT(0803E40C) unsigned func_0803E448(ScriptEventContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 4)) < 0)
+        return 0;
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (func_0803D644(season, day))
+        return 4;
+    if (weekday == 1)
+    {
+        if (self.unk_08 == 0)
+            return 2;
+        return 3;
+    }
+    return 1;
+}
+
+ROM_TEXT(0803E620) unsigned func_0803E620(ScriptEventContext const & self)
+{
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 4)) < 0)
+        return 0;
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (func_0803D644(season, day))
+        return 5;
+    if (weekday == 1)
+    {
+        if (self.unk_08 == 0)
+            return 3;
+        return 4;
+    }
+    if (self.unk_08 == 0)
+        return 1;
+    return 2;
+}
+
+ROM_TEXT(0803E6EC) unsigned func_0803E6EC(ScriptEventContext const & self)
+{
+    CalendarDate date;
+    func_0803D52C(date, self.calendar);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    unsigned weekday = date.weekday;
+    if (season == 3 && day == 2 && (self.unk_2178 & 0x43000) == 0x2000)
+    {
+        switch (self.scheduleFlags.unk_217A_3)
+        {
+        default: return 7;
+        case 2: break;
+        }
+        return 0;
+    }
+    if (func_0803D644(season, day))
+        return 6;
+    if (weekday == 6)
+    {
+        if (self.unk_08 == 0)
+            return 2;
+        return 3;
+    }
+    if (weekday == 0)
+    {
+        if (self.unk_08 == 0)
+            return 4;
+        return 5;
+    }
+    return 1;
+}
+
+ROM_TEXT(0803E8E8) unsigned func_0803E8E8(ScriptEventContext const & self)
+{
+    unsigned weekday;
+    if (static_cast<i32>(static_cast<u32>(self.eventFlags) << (31 - 5)) >= 0)
+    {
+        CalendarDate date;
+        func_0803D52C(date, self.calendar);
+        unsigned season = date.season;
+        unsigned day = date.day;
+        weekday = date.weekday;
+        if (season == 2 && day == 30 && (self.unk_21A2 >> 6) != 2)
+            return 5;
+        if (func_0803D644(season, day))
+            return 4;
+        if (static_cast<i32>(static_cast<u32>(self.unk_215A) << (31 - 3)) >= 0)
+            goto active;
+    }
+    return 0;
+active:
+    if (weekday == 1 || weekday == 3)
+        return 3;
+    if (self.unk_08 == 0)
+        return 1;
+    return 2;
 }
 
 ROM_TEXT(0803EA5C) unsigned func_0803EA5C(ScriptEventContext const & self)
@@ -722,6 +897,7 @@ ROM_TEXT(0803EE50) unsigned func_0803EE50(ScriptEventContext const & self)
 }
 
 EC Unk_0803BF78 & func_0803C028(Unk_0803BF78 &, void *, int, int, int, int, int);
+EC void func_0803BE50(Unk_0803BDFC &, int);
 EC void func_080E0C38(void *, int);
 EC void func_080E0D70(void *, int);
 EC char const vtable_unk_080E77A4[];
@@ -739,6 +915,8 @@ struct Unk_0803C54C : Unk_0803BDFC
 {
     Unk_0803C7A0 menu;
 };
+
+EC Unk_0803BDFC & func_0803BDFC(Unk_0803BDFC &, int, int, int, int, int, int, int, int);
 
 EC void * func_080E0A94(void *);
 
