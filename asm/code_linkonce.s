@@ -11406,7 +11406,7 @@ sub_080D8178: @ 0x080D8178
 	bl __builtin_new
 	adds r1, r5, #0
 	movs r2, #0
-	bl func_0803B6FC
+	bl InitializeScriptSceneFactory
 	b .L080D9BC6
 	.align 2, 0
 .L080D9A9C: .4byte 0x0000055C
@@ -11466,7 +11466,7 @@ sub_080D8178: @ 0x080D8178
 	bl __builtin_new
 	adds r1, r5, #0
 	movs r2, #1
-	bl func_0803B6FC
+	bl InitializeScriptSceneFactory
 	movs r6, #0xac
 	lsls r6, r6, #3
 	add r6, sp
@@ -24474,7 +24474,7 @@ func_080E0094: @ 0x080E0094
 	str r0, [r5, #0xc]
 .L080E03AE:
 	ldr r2, .L080E0534 @ =gUnk_080F89D4
-	ldr r1, .L080E0538 @ =gUnk_080F19AE
+	ldr r1, .L080E0538 @ =gScriptSceneScriptIds
 	movs r3, #0xd8
 	lsls r3, r3, #2
 	adds r0, r7, r3
@@ -24656,7 +24656,7 @@ func_080E0094: @ 0x080E0094
 	mov pc, r0
 	.align 2, 0
 .L080E0534: .4byte gUnk_080F89D4
-.L080E0538: .4byte gUnk_080F19AE
+.L080E0538: .4byte gScriptSceneScriptIds
 .L080E053C: .4byte 0x00000889
 .L080E0540: .4byte 0xFFFFFF00
 .L080E0544: .4byte .L080E0548
@@ -26657,7 +26657,7 @@ func_080E14B8: @ 0x080E14B8
 	movs r0, #0xd
 	adds r5, r1, #0
 	muls r5, r0, r5
-	ldr r0, .L080E1574 @ =gUnk_080FA796
+	ldr r0, .L080E1574 @ =gHorseRaceOpponentNames
 	adds r5, r5, r0
 	adds r0, r5, #0
 	bl strlen
@@ -26680,7 +26680,7 @@ func_080E14B8: @ 0x080E14B8
 	bl strcpy
 	b .L080E15B6
 	.align 2, 0
-.L080E1574: .4byte gUnk_080FA796
+.L080E1574: .4byte gHorseRaceOpponentNames
 .L080E1578:
 	add r1, sp, #8
 	movs r0, #0

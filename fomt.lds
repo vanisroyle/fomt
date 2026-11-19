@@ -898,7 +898,8 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803B454);
         src/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);
-        asm/code_0803A8A4.o(.text.0803B718);
+        src/script_scene.o(.text.0803B6FC);
+        src/script_scene.o(.text.0803B718);
         src/code_0803A8A4.o(.text.0803B840);
         asm/code_0803A8A4.o(.text.0803B8CC);
         src/code_0803A8A4.o(.text.0803BCF8);
@@ -985,7 +986,7 @@ SECTIONS
         src/bachelorette.o(.text);
         src/harvest_sprite.o(.text);
 
-        asm/g1_npc.o(.text.g1_start);
+        src/g1_sprite_location.o(.text.g1_0809E804);
         src/g1_events.o(.text.g1_0809E8E4);
         asm/g1_npc.o(.text.g1_after_b2_0809E8E4);
         src/g1_schedule_extra.o(.text.g1_0809E968);
@@ -1138,6 +1139,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1EF4);
         src/g1_map_counts.o(.text.g1_080A1FC4);
         asm/g1_npc.o(.text.g1_after_b4_080A1FC4);
+        src/g1_calendar_numbers.o(.text.g1_080A3588);
+        asm/g1_npc.o(.text.g1_after_b9_080A3588);
         src/g1_scene_wrapper.o(.text.g1_080A3744);
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
@@ -1223,7 +1226,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A6640);
         asm/code_809E804.o(.text);
         src/g1_map_buffers.o(.text.080AA540);
-        asm/code_809E804.o(.text.080AA6D0);
+        src/game_state_part2.o(.text.080AA6D0);
         src/map_updates.o(.text.080AA850);
         src/map_updates.o(.text.080AA89C);
         src/map_updates.o(.text.080AA8BC);
@@ -1232,7 +1235,7 @@ SECTIONS
         asm/code_809E804.o(.text.080AA9C8);
         src/map_updates.o(.text.080AACB8);
         src/map_updates.o(.text.080AAE14);
-        asm/code_809E804.o(.text.080AAE44);
+        src/map_updates.o(.text.080AAE44);
         src/map_updates.o(.text.080AAF10);
         src/map_updates.o(.text.080AAF1C);
         src/map_updates.o(.text.080AAF28);
@@ -1258,6 +1261,7 @@ SECTIONS
         asm/code_809E804.o(.text.080ABC40);
         src/entity_movement.o(.text.080AC070);
         asm/code_809E804.o(.text.080AC124);
+        src/entity_movement.o(.text.080AC5D0);
         src/map_scene.o(.text.080AC674);
         src/map_scene.o(.text.080AC85C);
         src/game_state_part2.o(.text.080AC96C);

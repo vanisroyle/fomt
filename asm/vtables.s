@@ -805,9 +805,11 @@ vtable_unk_080E7728:
 vtable_unk_080E7738:
 	.incbin "baserom.gba", 0xE7738, 0x10
 
-	.global vtable_unk_080E7748
-vtable_unk_080E7748:
-	.incbin "baserom.gba", 0xE7748, 0x10
+	.global gScriptSceneFactoryVTable
+gScriptSceneFactoryVTable:
+	.4byte 0, 0
+	.4byte func_080E09BC
+	.4byte CreateScriptScene
 
 	.global gDialogWindowTilemapTaskVtable
 gDialogWindowTilemapTaskVtable:

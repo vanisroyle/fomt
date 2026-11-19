@@ -1,24 +1,11 @@
 #include "sprite_animation.hh"
+#include "sprite_rendering.hh"
 #include "utility/vec2.hh"
 
 struct MedalExchangeGameState
 {
     STRUCT_PAD(0, 0x2C48);
     u32 medal_save_word;
-};
-
-struct SpriteFrameDrawOptions
-{
-    i16 offset_x;
-    i16 offset_y;
-    u16 palette_base;
-    u16 tile_base;
-    u16 priority;
-    u32 object_mode;
-    u8 flip;
-    u8 affine_index;
-    u32 affine_mode;
-    u8 mosaic;
 };
 
 struct MedalPrize

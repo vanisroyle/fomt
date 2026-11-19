@@ -18508,7 +18508,7 @@ func_0801DEB4: @ 0x0801DEB4
     ldr r1, [sp, #0xc]
     mov r2, sb
     adds r3, r6, #0
-    bl func_080AA6D0
+    bl ApplyFieldPlotToMap
 .L0801E05C:
     movs r6, #2
     add sb, r6
@@ -19373,7 +19373,7 @@ func_0801EE00: @ 0x0801EE00
     lsls r2, r2, #0x10
     asrs r2, r2, #0x10
     add r0, sp, #0xc
-    bl func_080AC5D0
+    bl AreEntityFootTilesMarked
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18

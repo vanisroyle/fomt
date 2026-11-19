@@ -717,7 +717,7 @@ func_080A6660: @ 0x080A6660
 	ldr r2, [sp, #0x20]
 	adds r2, #0x16
 	adds r3, r5, #0
-	bl func_080AA6D0
+	bl ApplyFieldPlotToMap
 	movs r0, #2
 	add sl, r0
 	adds r4, #1
@@ -900,7 +900,7 @@ func_080A6660: @ 0x080A6660
 	ldr r2, [sp, #0x28]
 	adds r2, #0x16
 	adds r3, r5, #0
-	bl func_080AA6D0
+	bl ApplyFieldPlotToMap
 	movs r0, #2
 	add sl, r0
 	adds r4, #1
@@ -8071,193 +8071,6 @@ func_080AA270: @ 0x080AA270
 
 	.section .text.080AA6D0, "ax", %progbits
 
-	thumb_func_start func_080AA6D0
-func_080AA6D0: @ 0x080AA6D0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0xc
-	adds r7, r0, #0
-	str r1, [sp]
-	adds r6, r2, #0
-	str r3, [sp, #4]
-	ldr r0, [r7, #4]
-	bl GetMapData
-	ldrh r0, [r0, #0x20]
-	mov sl, r0
-	ldr r0, [sp, #4]
-	bl method_0800AF20__C9FieldPlot
-	adds r5, r0, #0
-	cmp r5, #0
-	beq .L080AA732
-	mov r0, sl
-	muls r0, r6, r0
-	ldr r1, [r7, #0x10]
-	lsls r0, r0, #1
-	ldr r2, [sp]
-	lsls r4, r2, #1
-	adds r1, r4, r1
-	adds r0, r0, r1
-	adds r1, r5, #0
-	movs r2, #4
-	bl memcpy
-	adds r0, r6, #1
-	mov r1, sl
-	muls r1, r0, r1
-	adds r0, r1, #0
-	ldr r1, [r7, #0x10]
-	lsls r0, r0, #1
-	adds r4, r4, r1
-	adds r0, r0, r4
-	adds r1, r5, #4
-	movs r2, #4
-	bl memcpy
-	adds r1, r7, #0
-	adds r1, #0x29
-	movs r0, #1
-	strb r0, [r1]
-.L080AA732:
-	mov r5, sl
-	muls r5, r6, r5
-	adds r2, r6, #1
-	str r2, [sp, #8]
-	ldr r0, [sp, #0x2c]
-	cmp r0, #0
-	beq .L080AA78E
-	subs r0, r6, #1
-	mov r1, sl
-	muls r1, r0, r1
-	adds r0, r1, #0
-	ldr r1, [r7, #0x18]
-	lsls r0, r0, #1
-	ldr r2, [sp]
-	lsls r4, r2, #1
-	adds r1, r4, r1
-	adds r0, r0, r1
-	ldr r1, [sp, #0x2c]
-	movs r2, #4
-	bl memcpy
-	ldr r1, [r7, #0x14]
-	lsls r0, r5, #1
-	adds r1, r4, r1
-	adds r0, r0, r1
-	ldr r1, [sp, #0x2c]
-	adds r1, #4
-	movs r2, #4
-	bl memcpy
-	ldr r1, [sp, #8]
-	mov r0, sl
-	muls r0, r1, r0
-	ldr r1, [r7, #0x14]
-	lsls r0, r0, #1
-	adds r4, r4, r1
-	adds r0, r0, r4
-	ldr r1, [sp, #0x2c]
-	adds r1, #8
-	movs r2, #4
-	bl memcpy
-	adds r1, r7, #0
-	adds r1, #0x29
-	movs r0, #1
-	strb r0, [r1]
-.L080AA78E:
-	ldr r0, [sp, #4]
-	bl method_0800A07C__C9FieldPlot
-	ldr r2, [sp]
-	adds r2, r2, r5
-	mov r8, r2
-	ldr r2, [r7, #0x2c]
-	mov r1, r8
-	lsls r1, r1, #2
-	mov r8, r1
-	adds r1, r1, r2
-	mov sb, r1
-	ldr r1, [sp, #8]
-	mov r4, sl
-	muls r4, r1, r4
-	ldr r1, [sp]
-	adds r4, r1, r4
-	lsls r4, r4, #2
-	adds r2, r4, r2
-	movs r6, #1
-	adds r5, r6, #0
-	ands r5, r0
-	ldrb r3, [r2, #4]
-	movs r1, #2
-	rsbs r1, r1, #0
-	adds r0, r1, #0
-	ands r0, r3
-	orrs r0, r5
-	strb r0, [r2, #4]
-	ldrb r3, [r2]
-	adds r0, r1, #0
-	ands r0, r3
-	orrs r0, r5
-	strb r0, [r2]
-	mov r0, sb
-	ldrb r2, [r0, #4]
-	adds r0, r1, #0
-	ands r0, r2
-	orrs r0, r5
-	mov r2, sb
-	strb r0, [r2, #4]
-	ldrb r0, [r2]
-	ands r1, r0
-	orrs r1, r5
-	strb r1, [r2]
-	ldr r0, [sp, #4]
-	bl method_0800A0A4__C9FieldPlot
-	ldr r1, [r7, #0x2c]
-	add r8, r1
-	movs r2, #4
-	add r2, r8
-	mov sb, r2
-	adds r4, r4, r1
-	adds r3, r4, #4
-	lsls r5, r0, #1
-	ldrh r2, [r3, #2]
-	adds r1, r6, #0
-	ands r1, r2
-	orrs r1, r5
-	strh r1, [r3, #2]
-	ldr r1, .L080AA84C @ =0x00007FFF
-	adds r5, r1, #0
-	ands r0, r5
-	lsls r3, r0, #1
-	ldrh r2, [r4, #2]
-	adds r1, r6, #0
-	ands r1, r2
-	orrs r1, r3
-	strh r1, [r4, #2]
-	ands r0, r5
-	lsls r3, r0, #1
-	mov r1, sb
-	ldrh r2, [r1, #2]
-	adds r1, r6, #0
-	ands r1, r2
-	orrs r1, r3
-	mov r2, sb
-	strh r1, [r2, #2]
-	ands r0, r5
-	lsls r0, r0, #1
-	mov r2, r8
-	ldrh r1, [r2, #2]
-	ands r6, r1
-	orrs r6, r0
-	strh r6, [r2, #2]
-	add sp, #0xc
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080AA84C: .4byte 0x00007FFF
-
 	.section .text.080AA9C8, "ax", %progbits
 	thumb_func_start func_080AA9C8
 func_080AA9C8: @ 0x080AA9C8
@@ -8328,7 +8141,7 @@ func_080AA9C8: @ 0x080AA9C8
 	adds r1, r6, #0
 	adds r1, #0x9c
 	add r0, sp, #4
-	bl func_080AAE44
+	bl GetOrAllocateMapTileCacheEntry
 	ldr r0, [sp, #4]
 	str r0, [sp]
 	b .L080AAB7C
@@ -8643,123 +8456,6 @@ func_080AA9C8: @ 0x080AA9C8
 	pop {r0}
 	bx r0
 	.align 2, 0
-
-	.section .text.080AAE44, "ax", %progbits
-	thumb_func_start func_080AAE44
-func_080AAE44: @ 0x080AAE44
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0x28
-	adds r7, r0, #0
-	adds r5, r1, #0
-	str r2, [sp, #0x20]
-	adds r0, r2, #0
-	cmp r0, #0xd
-	bne .L080AAE68
-	ldr r0, .L080AAE64 @ =0x000003E6
-	movs r1, #0xb
-	strh r0, [r7]
-	strb r1, [r7, #2]
-	b .L080AAF00
-	.align 2, 0
-.L080AAE64: .4byte 0x000003E6
-.L080AAE68:
-	mov r8, sp
-	adds r1, r5, #0
-	adds r1, #8
-	add r2, sp, #0x20
-	mov ip, r2
-	ldr r4, [r1, #4]
-	ldr r2, [r4, #4]
-	mov sb, r1
-	cmp r2, #0
-	beq .L080AAE98
-	adds r6, r0, #0
-.L080AAE7E:
-	movs r3, #0
-	ldr r0, [r2, #0x10]
-	cmp r0, r6
-	bge .L080AAE88
-	movs r3, #1
-.L080AAE88:
-	cmp r3, #0
-	bne .L080AAE92
-	adds r4, r2, #0
-	ldr r2, [r4, #8]
-	b .L080AAE94
-.L080AAE92:
-	ldr r2, [r2, #0xc]
-.L080AAE94:
-	cmp r2, #0
-	bne .L080AAE7E
-.L080AAE98:
-	ldr r3, [r1, #4]
-	cmp r4, r3
-	beq .L080AAEB0
-	movs r2, #0
-	mov r0, ip
-	ldr r1, [r0]
-	ldr r0, [r4, #0x10]
-	cmp r1, r0
-	bge .L080AAEAC
-	movs r2, #1
-.L080AAEAC:
-	cmp r2, #0
-	beq .L080AAEB2
-.L080AAEB0:
-	adds r4, r3, #0
-.L080AAEB2:
-	mov r2, r8
-	str r4, [r2]
-	mov r0, sb
-	ldr r1, [r0, #4]
-	str r1, [sp, #4]
-	movs r2, #0
-	ldr r0, [sp]
-	cmp r0, r1
-	bne .L080AAEC6
-	movs r2, #1
-.L080AAEC6:
-	cmp r2, #0
-	beq .L080AAEFA
-	add r0, sp, #8
-	add r3, sp, #0x24
-	ldr r1, [r5]
-	ldr r2, [r5, #4]
-	strh r1, [r3]
-	strb r2, [r3, #2]
-	ldr r2, [sp, #0x20]
-	str r2, [sp, #0x18]
-	ldr r1, [sp, #0x24]
-	str r1, [sp, #0x1c]
-	str r2, [sp, #0x10]
-	str r1, [sp, #0x14]
-	mov r1, sb
-	add r2, sp, #0x10
-	bl func_080E4304
-	ldr r0, [sp, #8]
-	str r0, [sp]
-	ldr r0, [r5]
-	adds r0, #4
-	str r0, [r5]
-	ldr r0, [r5, #4]
-	adds r0, #1
-	str r0, [r5, #4]
-.L080AAEFA:
-	ldr r0, [sp]
-	ldr r0, [r0, #0x14]
-	str r0, [r7]
-.L080AAF00:
-	adds r0, r7, #0
-	add sp, #0x28
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
 
 	.section .text.080AAF9C, "ax", %progbits
 .L080AAF9C:
@@ -10785,100 +10481,6 @@ func_080AC388: @ 0x080AC388
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_080AC5D0
-func_080AC5D0: @ 0x080AC5D0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	adds r4, r0, #0
-	adds r0, r2, #0
-	subs r0, #8
-	asrs r3, r0, #3
-	subs r0, r1, #6
-	asrs r0, r0, #3
-	mov sl, r0
-	adds r2, #3
-	asrs r2, r2, #3
-	mov r8, r2
-	adds r1, #5
-	asrs r7, r1, #3
-	cmp r3, r8
-	bgt .L080AC618
-	cmp sl, r7
-	bgt .L080AC618
-	ldrh r0, [r4, #8]
-	mov sb, r0
-	cmp r3, #0
-	blt .L080AC618
-	mov r1, sl
-	cmp r1, #0
-	blt .L080AC618
-	ldrh r0, [r4, #0xa]
-	cmp r8, r0
-	bhs .L080AC618
-	cmp r7, sb
-	bhs .L080AC618
-	ldr r6, [r4]
-	cmp r6, #0
-	bne .L080AC61C
-.L080AC618:
-	movs r0, #0
-	b .L080AC666
-.L080AC61C:
-	ldr r4, [r4, #4]
-	mov ip, r4
-	adds r5, r3, #0
-	cmp r5, r8
-	bgt .L080AC664
-	mov r4, sb
-	muls r4, r5, r4
-.L080AC62A:
-	mov r3, sl
-	cmp r3, r7
-	bgt .L080AC65C
-	adds r0, r3, r4
-	lsls r2, r0, #2
-	mov r1, ip
-	adds r0, r4, r1
-	adds r1, r3, r0
-.L080AC63A:
-	mov r0, ip
-	cmp r0, #0
-	beq .L080AC648
-	ldrb r0, [r1]
-	lsls r0, r0, #2
-	adds r0, r6, r0
-	b .L080AC64A
-.L080AC648:
-	adds r0, r6, r2
-.L080AC64A:
-	ldr r0, [r0]
-	lsls r0, r0, #0x1e
-	cmp r0, #0
-	bge .L080AC618
-	adds r2, #4
-	adds r1, #1
-	adds r3, #1
-	cmp r3, r7
-	ble .L080AC63A
-.L080AC65C:
-	add r4, sb
-	adds r5, #1
-	cmp r5, r8
-	ble .L080AC62A
-.L080AC664:
-	movs r0, #1
-.L080AC666:
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-
 	.section .text.080ACC10, "ax", %progbits
 	thumb_func_start func_080ACC10
 func_080ACC10: @ 0x080ACC10
@@ -11886,7 +11488,7 @@ func_080AD77C: @ 0x080AD77C
 	lsls r2, r2, #0x10
 	asrs r2, r2, #0x10
 	add r0, sp, #0xc
-	bl func_080AC5D0
+	bl AreEntityFootTilesMarked
 	movs r1, #1
 	eors r0, r1
 	lsls r0, r0, #0x18
