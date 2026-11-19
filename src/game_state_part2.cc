@@ -64,7 +64,9 @@ struct GameStateMapData
     u8 : 7;
     u8 map_12_scenery_variant : 1;
     u8 map_27_scenery_variant : 1;
-    STRUCT_PAD(0x5, 0x10);
+    STRUCT_PAD(0x5, 0x8);
+    u32 farm_layout;
+    STRUCT_PAD(0xC, 0x10);
     GameStateMapCalendar clock;
     Farm farm;
     u8 reserved[0x1BD8 - 0x14 - sizeof(Farm)];
@@ -497,6 +499,58 @@ EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
     }
 done:
     return found;
+}
+
+static inline FieldPlot * GetHoeFieldPlot(FieldPlot * field, int x, int row)
+{
+    register int index asm("r0") = x + row * Farm::FIELD_WIDTH;
+    asm("" : "=l"(index) : "0"(index));
+    return field + index;
+}
+
+EC SECTION(".text.game_state_c2.0801C29C") u32 GameStateHoeFarmPlot(GameStateMapOwner & game, Location const & location)
+{
+    u32 result = 0;
+    GameStateFarmPlot plot;
+    if (GameStateFindFarmPlot(game, location, plot))
+    {
+        FieldPlot * farm_plot = plot.plot;
+        bool default_layout = game.map_data->farm_layout == 0;
+        result = farm_plot->method_0800A190(default_layout);
+        if (game.vtable->get_map_id(game) == ((u32(*reinterpret_cast<u16 const *>(&location) << 22)) >> 22))
+        {
+            GameStateMapView * view = game.map_view;
+            register GameStateFarmPlot * coords = &plot;
+            register GameStateFarmPlot * row_coords = coords;
+            FieldPlot * field = game.map_data->farm.field.plots;
+            register int x asm("r3") = coords->plot_x;
+            register int y asm("r2") = row_coords->plot_y;
+            asm("" : : "l"(x), "l"(y));
+            FieldPlot * current = GetHoeFieldPlot(field, x, y);
+            int south_y = y + 1;
+            bool south_valid = x >= 0 && south_y >= 0 && x < Farm::FIELD_WIDTH && south_y < Farm::FIELD_HEIGHT;
+            FieldPlot * south = south_valid ? GetHoeFieldPlot(field, x, south_y) : nullptr;
+            int north_y = y - 1;
+            bool north_valid = x >= 0 && north_y >= 0 && x < Farm::FIELD_WIDTH && north_y < Farm::FIELD_HEIGHT;
+            FieldPlot * north = north_valid ? GetHoeFieldPlot(field, x, north_y) : nullptr;
+            Unk_Something const * adjacent = current->method_0800AF5C(south, north);
+            func_080AA6D0(*view, plot.tile_x, plot.tile_y, *plot.plot, adjacent);
+        }
+        if (result == 3)
+        {
+            for (u32 i = 0; i < 4; ++i)
+            {
+                if (game.field_objects[i].kind == 0)
+                {
+                    game.field_objects[i].kind = 2;
+                    game.field_objects[i].tile_x = plot.tile_x;
+                    game.field_objects[i].tile_y = plot.tile_y;
+                    break;
+                }
+            }
+        }
+    }
+    return result;
 }
 
 EC SECTION(".text.game_state_c2.0801C198") bool GameStateFindMinePlot(
