@@ -119,6 +119,100 @@ EC void SECTION(".text.game_state_08012218") func_08012218()
 {
 }
 
+struct AEntity;
+
+struct GameStateObject
+{
+    virtual ~GameStateObject();
+    virtual void vfunc_C();
+    virtual void vfunc_10();
+    virtual void vfunc_14();
+    virtual void vfunc_18();
+    virtual void vfunc_1C();
+    virtual void vfunc_20();
+    virtual void vfunc_24();
+    virtual void vfunc_28();
+    virtual void vfunc_2C();
+    virtual void vfunc_30();
+    virtual void vfunc_34();
+    virtual void vfunc_38();
+    virtual void vfunc_3C();
+    virtual AEntity * vfunc_40(u32 id);
+    virtual void vfunc_44();
+    virtual void vfunc_48();
+    virtual void vfunc_4C();
+    virtual void vfunc_50();
+    virtual void vfunc_54();
+    virtual void vfunc_58();
+    virtual void vfunc_5C();
+    virtual void vfunc_60();
+    virtual void vfunc_64();
+    virtual void vfunc_68();
+    virtual void vfunc_6C();
+    virtual void vfunc_70();
+    virtual void vfunc_74();
+    virtual void vfunc_78();
+    virtual void vfunc_7C();
+    virtual void vfunc_80();
+    virtual void vfunc_84();
+    virtual void vfunc_88();
+    virtual void vfunc_8C();
+    virtual void vfunc_90();
+    virtual void vfunc_94();
+    virtual void vfunc_98();
+    virtual void vfunc_9C(u32 value);
+    virtual void vfunc_A0(u32 value);
+    virtual u32 vfunc_A4();
+    virtual u32 vfunc_A8(u32 value);
+    virtual void vfunc_AC();
+    virtual void vfunc_B0();
+    virtual void vfunc_B4();
+    virtual void vfunc_B8();
+    virtual void vfunc_BC();
+    virtual void vfunc_C0();
+    virtual void vfunc_C4();
+    virtual void vfunc_C8();
+    virtual void vfunc_CC();
+    virtual void vfunc_D0();
+    virtual void vfunc_D4();
+    virtual void vfunc_D8();
+    virtual void vfunc_DC();
+    virtual void vfunc_E0();
+    virtual void vfunc_E4();
+    virtual void vfunc_E8();
+    virtual void vfunc_EC();
+    virtual void vfunc_F0();
+    virtual void vfunc_F4();
+    virtual void vfunc_F8();
+    virtual void vfunc_FC();
+    virtual void vfunc_100();
+    virtual void vfunc_104();
+    virtual void vfunc_108();
+    virtual void vfunc_10C(u32 value);
+    virtual void vfunc_110(u32 value);
+    virtual void vfunc_114();
+    virtual void vfunc_118(u32 value);
+    virtual void vfunc_11C();
+    virtual void vfunc_120();
+    virtual void vfunc_124();
+    virtual void vfunc_128();
+    virtual void vfunc_12C();
+    virtual void vfunc_130();
+    virtual void vfunc_134();
+    virtual void vfunc_138();
+    virtual void vfunc_13C();
+    virtual void vfunc_140();
+    virtual void vfunc_144();
+    virtual void vfunc_148();
+    virtual void vfunc_14C();
+    virtual void vfunc_150(u32 value);
+    virtual void vfunc_154(u32 value);
+    virtual void vfunc_158();
+    virtual void vfunc_15C();
+    virtual void vfunc_160();
+    virtual void vfunc_164(u32 value);
+};
+
 struct GameStateRuntime
 {
     STRUCT_PAD(0x00, 0x8C);
@@ -126,7 +220,7 @@ struct GameStateRuntime
     STRUCT_PAD(0x90, 0x9C);
     u32 command;
     STRUCT_PAD(0xA0, 0xA8);
-    void * object;
+    GameStateObject * object;
     void * actor;
     void * text;
     STRUCT_PAD(0xB4, 0xBC);
@@ -231,4 +325,74 @@ EC void SECTION(".text.game_state_08016D80") func_08016D80()
     GameStateGlobalStatus & status = gUnk_0300040C->status;
     status.unk_00 = 0;
     status.unk_04 = 0x234;
+}
+
+EC void SECTION(".text.game_state_08014034") func_08014034(GameStateScript & self)
+{
+    self.runtime->object->vfunc_84();
+}
+
+EC void SECTION(".text.game_state_08014034") func_0801404C(GameStateScript & self)
+{
+    self.runtime->object->vfunc_88();
+}
+
+EC void SECTION(".text.game_state_08014034") func_08014064(GameStateScript & self)
+{
+    self.runtime->object->vfunc_8C();
+}
+
+EC void SECTION(".text.game_state_08014034") func_0801407C(GameStateScript & self)
+{
+    self.runtime->object->vfunc_90();
+}
+
+EC void SECTION(".text.game_state_08014034") func_08014094(GameStateScript & self)
+{
+    self.runtime->object->vfunc_94();
+}
+
+EC void SECTION(".text.game_state_08014034") func_080140AC(GameStateScript & self)
+{
+    self.runtime->object->vfunc_98();
+}
+
+EC void SECTION(".text.game_state_08014034") func_080140C4(GameStateScript & self, u32 value)
+{
+    self.runtime->object->vfunc_9C(value);
+}
+
+EC void SECTION(".text.game_state_08014034") func_080140DC(GameStateScript & self, u32 value)
+{
+    self.runtime->object->vfunc_A0(value);
+}
+
+EC void SECTION(".text.game_state_08014034") func_080140F4(GameStateScript & self)
+{
+    self.runtime->object->vfunc_80();
+}
+
+EC u32 SECTION(".text.game_state_08014234") func_08014234(GameStateScript & self)
+{
+    return self.runtime->object->vfunc_A4();
+}
+
+EC u32 SECTION(".text.game_state_08014234") func_0801424C(GameStateScript & self, u32 value)
+{
+    return self.runtime->object->vfunc_A8(value);
+}
+
+EC void SECTION(".text.game_state_080142B8") func_080142B8(GameStateScript & self, u32 value)
+{
+    self.runtime->object->vfunc_118(value);
+}
+
+EC void SECTION(".text.game_state_08016BDC") func_08016BDC(GameStateScript & self)
+{
+    self.runtime->object->vfunc_FC();
+}
+
+EC void SECTION(".text.game_state_08016BDC") func_08016BF4(GameStateScript & self)
+{
+    self.runtime->object->vfunc_100();
 }

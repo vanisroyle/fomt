@@ -121,6 +121,12 @@ SECTIONS
         asm/game_state.o(.text.game_state_08012ADC);
         src/game_state_part1.o(.text.game_state_08012BAC);
         asm/game_state.o(.text.game_state_08012BBC);
+        src/game_state_part1.o(.text.game_state_08014034);
+        asm/game_state.o(.text.game_state_0801410C);
+        src/game_state_part1.o(.text.game_state_08014234);
+        asm/game_state.o(.text.game_state_08014264);
+        src/game_state_part1.o(.text.game_state_080142B8);
+        asm/game_state.o(.text.game_state_080142D4);
         src/game_state_part1.o(.text.game_state_080142F0);
         asm/game_state.o(.text.game_state_08014304);
         src/game_state_part1.o(.text.game_state_08014304);
@@ -129,6 +135,8 @@ SECTIONS
         asm/game_state.o(.text.game_state_08014694);
         src/game_state_part1.o(.text.game_state_080167CC);
         asm/game_state.o(.text.game_state_080167DC);
+        src/game_state_part1.o(.text.game_state_08016BDC);
+        asm/game_state.o(.text.game_state_08016C10);
         src/game_state_part1.o(.text.game_state_08016D80);
         asm/game_state.o(.text.game_state_08016D9C);
         asm/game_state.o(.text);
