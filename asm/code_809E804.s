@@ -8141,7 +8141,7 @@ func_080AA9C8: @ 0x080AA9C8
 	adds r1, r6, #0
 	adds r1, #0x9c
 	add r0, sp, #4
-	bl func_080AAE44
+	bl GetOrAllocateMapTileCacheEntry
 	ldr r0, [sp, #4]
 	str r0, [sp]
 	b .L080AAB7C
@@ -8456,123 +8456,6 @@ func_080AA9C8: @ 0x080AA9C8
 	pop {r0}
 	bx r0
 	.align 2, 0
-
-	.section .text.080AAE44, "ax", %progbits
-	thumb_func_start func_080AAE44
-func_080AAE44: @ 0x080AAE44
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0x28
-	adds r7, r0, #0
-	adds r5, r1, #0
-	str r2, [sp, #0x20]
-	adds r0, r2, #0
-	cmp r0, #0xd
-	bne .L080AAE68
-	ldr r0, .L080AAE64 @ =0x000003E6
-	movs r1, #0xb
-	strh r0, [r7]
-	strb r1, [r7, #2]
-	b .L080AAF00
-	.align 2, 0
-.L080AAE64: .4byte 0x000003E6
-.L080AAE68:
-	mov r8, sp
-	adds r1, r5, #0
-	adds r1, #8
-	add r2, sp, #0x20
-	mov ip, r2
-	ldr r4, [r1, #4]
-	ldr r2, [r4, #4]
-	mov sb, r1
-	cmp r2, #0
-	beq .L080AAE98
-	adds r6, r0, #0
-.L080AAE7E:
-	movs r3, #0
-	ldr r0, [r2, #0x10]
-	cmp r0, r6
-	bge .L080AAE88
-	movs r3, #1
-.L080AAE88:
-	cmp r3, #0
-	bne .L080AAE92
-	adds r4, r2, #0
-	ldr r2, [r4, #8]
-	b .L080AAE94
-.L080AAE92:
-	ldr r2, [r2, #0xc]
-.L080AAE94:
-	cmp r2, #0
-	bne .L080AAE7E
-.L080AAE98:
-	ldr r3, [r1, #4]
-	cmp r4, r3
-	beq .L080AAEB0
-	movs r2, #0
-	mov r0, ip
-	ldr r1, [r0]
-	ldr r0, [r4, #0x10]
-	cmp r1, r0
-	bge .L080AAEAC
-	movs r2, #1
-.L080AAEAC:
-	cmp r2, #0
-	beq .L080AAEB2
-.L080AAEB0:
-	adds r4, r3, #0
-.L080AAEB2:
-	mov r2, r8
-	str r4, [r2]
-	mov r0, sb
-	ldr r1, [r0, #4]
-	str r1, [sp, #4]
-	movs r2, #0
-	ldr r0, [sp]
-	cmp r0, r1
-	bne .L080AAEC6
-	movs r2, #1
-.L080AAEC6:
-	cmp r2, #0
-	beq .L080AAEFA
-	add r0, sp, #8
-	add r3, sp, #0x24
-	ldr r1, [r5]
-	ldr r2, [r5, #4]
-	strh r1, [r3]
-	strb r2, [r3, #2]
-	ldr r2, [sp, #0x20]
-	str r2, [sp, #0x18]
-	ldr r1, [sp, #0x24]
-	str r1, [sp, #0x1c]
-	str r2, [sp, #0x10]
-	str r1, [sp, #0x14]
-	mov r1, sb
-	add r2, sp, #0x10
-	bl func_080E4304
-	ldr r0, [sp, #8]
-	str r0, [sp]
-	ldr r0, [r5]
-	adds r0, #4
-	str r0, [r5]
-	ldr r0, [r5, #4]
-	adds r0, #1
-	str r0, [r5, #4]
-.L080AAEFA:
-	ldr r0, [sp]
-	ldr r0, [r0, #0x14]
-	str r0, [r7]
-.L080AAF00:
-	adds r0, r7, #0
-	add sp, #0x28
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
 
 	.section .text.080AAF9C, "ax", %progbits
 .L080AAF9C:
