@@ -29001,7 +29001,7 @@ func_080B7648: @ 0x080B7648
 	adds r0, r5, #0
 	adds r0, #0x6c
 	adds r0, r7, r0
-	bl func_080BA0C4
+	bl ChooseFestivalMovementDecision
 	movs r0, #0
 	strb r0, [r4]
 .L080B7FE8:
@@ -31761,135 +31761,7 @@ func_080B9E1C: @ 0x080B9E1C
 
 	.section .text.g3_after_080B9F64, "ax", %progbits
 
-	thumb_func_start func_080BA0C4
-func_080BA0C4: @ 0x080BA0C4
-	push {r4, r5, lr}
-	adds r5, r0, #0
-	movs r4, #0x64
-	bl rand
-	ldr r1, .L080BA0F8 @ =0x0000FFFF
-	ands r1, r0
-	adds r0, r1, #0
-	muls r0, r4, r0
-	lsrs r1, r0, #0x10
-	adds r0, r5, #0
-	adds r0, #0x22
-	ldrb r0, [r0]
-	adds r2, r0, #0
-	cmp r2, #0x50
-	bhi .L080BA120
-	adds r0, r5, #0
-	adds r0, #0x2f
-	ldrb r0, [r0]
-	cmp r0, #0
-	beq .L080BA10C
-	cmp r1, #0x1d
-	bhi .L080BA0FC
-	movs r0, #0
-	b .L080BA19C
-	.align 2, 0
-.L080BA0F8: .4byte 0x0000FFFF
-.L080BA0FC:
-	cmp r1, #0x2c
-	bhi .L080BA104
-	movs r0, #1
-	b .L080BA19C
-.L080BA104:
-	cmp r1, #0x3b
-	bhi .L080BA19A
-	movs r0, #2
-	b .L080BA19C
-.L080BA10C:
-	cmp r1, #0x22
-	bls .L080BA19C
-	cmp r1, #0x36
-	bhi .L080BA118
-	movs r0, #1
-	b .L080BA19C
-.L080BA118:
-	cmp r1, #0x4a
-	bhi .L080BA19A
-	movs r0, #2
-	b .L080BA19C
-.L080BA120:
-	subs r0, #0x51
-	lsls r0, r0, #0x18
-	lsrs r0, r0, #0x18
-	cmp r0, #0x9f
-	bhi .L080BA160
-	adds r0, r5, #0
-	adds r0, #0x2f
-	ldrb r0, [r0]
-	cmp r0, #0
-	beq .L080BA14C
-	cmp r1, #0x22
-	bhi .L080BA13C
-	movs r0, #0
-	b .L080BA19C
-.L080BA13C:
-	cmp r1, #0x2c
-	bhi .L080BA144
-	movs r0, #1
-	b .L080BA19C
-.L080BA144:
-	cmp r1, #0x36
-	bhi .L080BA19A
-	movs r0, #2
-	b .L080BA19C
-.L080BA14C:
-	cmp r1, #0x27
-	bls .L080BA19C
-	cmp r1, #0x36
-	bhi .L080BA158
-	movs r0, #1
-	b .L080BA19C
-.L080BA158:
-	cmp r1, #0x45
-	bhi .L080BA19A
-	movs r0, #2
-	b .L080BA19C
-.L080BA160:
-	cmp r2, #0xf0
-	bls .L080BA19E
-	adds r0, r5, #0
-	adds r0, #0x2f
-	ldrb r0, [r0]
-	cmp r0, #0
-	beq .L080BA186
-	cmp r1, #0x27
-	bhi .L080BA176
-	movs r0, #0
-	b .L080BA19C
-.L080BA176:
-	cmp r1, #0x2c
-	bhi .L080BA17E
-	movs r0, #1
-	b .L080BA19C
-.L080BA17E:
-	cmp r1, #0x31
-	bhi .L080BA19A
-	movs r0, #2
-	b .L080BA19C
-.L080BA186:
-	cmp r1, #0x2c
-	bls .L080BA19C
-	cmp r1, #0x36
-	bhi .L080BA192
-	movs r0, #1
-	b .L080BA19C
-.L080BA192:
-	cmp r1, #0x40
-	bhi .L080BA19A
-	movs r0, #2
-	b .L080BA19C
-.L080BA19A:
-	movs r0, #3
-.L080BA19C:
-	str r0, [r5, #0x10]
-.L080BA19E:
-	pop {r4, r5}
-	pop {r0}
-	bx r0
+	.section .text.g3_after_080BA0C4, "ax", %progbits
 
 	.section .text.g3_after_080BA1A4, "ax", %progbits
 
@@ -31901,76 +31773,7 @@ func_080BA0C4: @ 0x080BA0C4
 
 	.section .text.g3_after_080BA200, "ax", %progbits
 
-	thumb_func_start func_080BA204
-func_080BA204: @ 0x080BA204
-	push {lr}
-	adds r1, r0, #0
-	ldrb r0, [r1, #0x1c]
-	cmp r0, #1
-	bls .L080BA27C
-	cmp r0, #2
-	beq .L080BA27C
-	cmp r0, #9
-	bne .L080BA224
-	ldr r2, .L080BA220 @ =0xFFFFFCB0
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA220: .4byte 0xFFFFFCB0
-.L080BA224:
-	cmp r0, #0x13
-	bne .L080BA238
-	ldr r2, .L080BA234 @ =0xFFFFFA00
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA234: .4byte 0xFFFFFA00
-.L080BA238:
-	cmp r0, #0x1d
-	bne .L080BA24C
-	ldr r2, .L080BA248 @ =0xFFFFF800
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA248: .4byte 0xFFFFF800
-.L080BA24C:
-	cmp r0, #0x27
-	bne .L080BA260
-	ldr r2, .L080BA25C @ =0xFFFFFA00
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA25C: .4byte 0xFFFFFA00
-.L080BA260:
-	cmp r0, #0x31
-	bne .L080BA274
-	ldr r2, .L080BA270 @ =0xFFFFFCB0
-	adds r0, r2, #0
-	ldrh r2, [r1, #0x20]
-	adds r0, r0, r2
-	b .L080BA27E
-	.align 2, 0
-.L080BA270: .4byte 0xFFFFFCB0
-.L080BA274:
-	cmp r0, #0x39
-	beq .L080BA27C
-	cmp r0, #0x39
-	bls .L080BA280
-.L080BA27C:
-	ldrh r0, [r1, #0x20]
-.L080BA27E:
-	strh r0, [r1, #0x2a]
-.L080BA280:
-	pop {r0}
-	bx r0
+	.section .text.g3_after_080BA204, "ax", %progbits
 
 	.section .text.g3_after_080BA284, "ax", %progbits
 
