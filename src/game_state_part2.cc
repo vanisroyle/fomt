@@ -859,7 +859,7 @@ struct GameStateVaseScratch
 };
 
 EC void InitGameStateVaseAnimator(GameStateVaseAnimator *, GameStatePackedSpriteArchive const *, u32, int) asm("InitSpriteAnimator");
-EC void InitGameStateVaseDisplay(GameStateVaseDisplay *, GameStateMapOwner &, u32, u32) asm("func_080A4740");
+EC void InitGameStateVaseDisplay(GameStateVaseDisplay *, GameStateMapOwner &, u32, u32) asm("InitializeMapSpriteSinglePalette");
 EC GameStateVaseDisplayVtable const vtable_unk_080E602C;
 EC void * CopyGameStateVaseFrame(void *, void const *, size_t) asm("memcpy");
 
