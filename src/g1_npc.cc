@@ -45,7 +45,7 @@ EC SECTION(".text.g1_0809EB20") void SetNamedNpcName(u8 * self, char const * nam
     destination[length] = 0;
 }
 
-EC SECTION(".text.g1_0809EB68") u32 GetNpcTimedEventId(G1NpcEventState * self) // 0x0809EB68
+EC SECTION(".text.g1_0809EB68") u32 GetConstructionJob(G1NpcEventState * self) // 0x0809EB68
 {
     return self->event_id;
 }

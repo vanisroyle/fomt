@@ -1,6 +1,7 @@
 #include "prelude.h"
 
 #include "bachelorette.hh"
+#include "farm_house.hh"
 #include "npc.hh"
 #include "schedule_info.hh"
 #include "unknown_types.hh"
@@ -464,7 +465,7 @@ EC ScheduleInfo const gUnk_080F2AF8;
 EC ScheduleInfo const gUnk_080F42F0;
 EC ScheduleInfo const gUnk_080F43DC;
 EC ScheduleInfo const gUnk_080F6FF8;
-EC ScheduleInfo const gUnk_080F7B40;
+EC ScheduleInfo const gCarpenterScheduleInfo;
 EC ScheduleInfo const gUnk_080F2DC0;
 EC ScheduleInfo const gUnk_080F597C;
 EC ScheduleInfo const gUnk_080F6B10;
@@ -501,7 +502,7 @@ ROM_TEXT(0803D7E4) void ResetAllNpcDailySchedules(NpcScheduleRoster & self, void
     ResetNpcDailySchedule(self.npc_250, gUnk_080F42F0, context);
     ResetNpcDailySchedule(self.npc_264, gUnk_080F43DC, context);
     ResetNpcDailySchedule(self.npc_27C, gUnk_080F6FF8, context);
-    ResetNpcDailySchedule(self.npc_290, gUnk_080F7B40, context);
+    ResetNpcDailySchedule(self.npc_290, gCarpenterScheduleInfo, context);
     ResetNpcDailySchedule(self.npc_2A8, gUnk_080F2DC0, context);
     ResetNpcDailySchedule(self.npc_2BC, gUnk_080F597C, context);
     ResetNpcDailySchedule(self.npc_310, gUnk_080F6B10, context);
@@ -1002,6 +1003,95 @@ ROM_TEXT(0803E8E8) unsigned SelectNpcSchedule_080F77FC(NpcScheduleContext const 
         return 3;
     }
     return 1;
+}
+
+struct CarpenterConstructionState
+{
+    STRUCT_PAD(0, 0x14);
+    u8 jobAndProgress;
+    u8 dailyFlags;
+};
+
+enum ConstructionJob
+{
+    CONSTRUCTION_NONE = 0,
+    CONSTRUCTION_HOUSE_UPGRADE = 1,
+    CONSTRUCTION_COOP_UPGRADE = 2,
+    CONSTRUCTION_BARN_UPGRADE = 3,
+    CONSTRUCTION_WINDOW_FIRST = 5,
+    CONSTRUCTION_WINDOW_SECOND,
+    CONSTRUCTION_WINDOW_THIRD,
+    CONSTRUCTION_MAILBOX_FIRST,
+    CONSTRUCTION_MAILBOX_SECOND,
+    CONSTRUCTION_MAILBOX_THIRD,
+    CONSTRUCTION_DOGHOUSE_FIRST,
+    CONSTRUCTION_DOGHOUSE_SECOND,
+    CONSTRUCTION_DOGHOUSE_THIRD,
+};
+
+struct CarpenterScheduleContext
+{
+    STRUCT_PAD(0, 8);
+    unsigned weather;
+    STRUCT_PAD(0xC, 0x10);
+    SavedCalendarDate date;
+    STRUCT_PAD(0x13, 0x1F4);
+    FarmHouse farmHouse;
+    u8 padAfterFarmHouse[0x1F64 - 0x1F4 - sizeof(FarmHouse)];
+    CarpenterConstructionState construction;
+};
+
+EC unsigned GetConstructionJob(CarpenterConstructionState const &);
+EC bool IsConstructionComplete(CarpenterConstructionState const &);
+EC bool IsFirstConstructionDay(CarpenterConstructionState const &);
+
+ROM_TEXT(0803ECC0) unsigned SelectCarpenterSchedule(CarpenterScheduleContext const & self)
+{
+    CalendarDate date;
+    DecodeNpcScheduleDate(date, self.date);
+    unsigned season = date.season;
+    unsigned day = date.day;
+    int weekday = date.weekday;
+    if (IsNpcScheduleFestivalDay(season, day))
+        return 5;
+    unsigned weather = self.weather;
+    if (GetConstructionJob(self.construction) != CONSTRUCTION_NONE && !IsConstructionComplete(self.construction) &&
+        !IsFirstConstructionDay(self.construction) && weather - 3 > 1)
+    {
+        switch (GetConstructionJob(self.construction))
+        {
+        case CONSTRUCTION_NONE: goto regular;
+        case CONSTRUCTION_HOUSE_UPGRADE:
+            switch (self.farmHouse.GetUpgradeLevel())
+            {
+            case 0: return 6;
+            case 1: return 7;
+            case 2: return 13;
+            }
+            break;
+        case CONSTRUCTION_COOP_UPGRADE: return 8;
+        case CONSTRUCTION_BARN_UPGRADE: return 9;
+        case 4: return 14;
+        case CONSTRUCTION_WINDOW_FIRST:
+        case CONSTRUCTION_WINDOW_SECOND:
+        case CONSTRUCTION_WINDOW_THIRD: return 10;
+        case CONSTRUCTION_MAILBOX_FIRST:
+        case CONSTRUCTION_MAILBOX_SECOND:
+        case CONSTRUCTION_MAILBOX_THIRD: return 11;
+        case CONSTRUCTION_DOGHOUSE_FIRST:
+        case CONSTRUCTION_DOGHOUSE_SECOND:
+        case CONSTRUCTION_DOGHOUSE_THIRD: return 12;
+        }
+    }
+regular:
+    switch (weekday)
+    {
+    default: return 1;
+    case SCHEDULE_THURSDAY:
+    case SCHEDULE_FRIDAY: return 2;
+    case SCHEDULE_SATURDAY: return 3;
+    case SCHEDULE_SUNDAY: return 4;
+    }
 }
 
 ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F81BC(NpcScheduleContext const & self)

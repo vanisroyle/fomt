@@ -2961,7 +2961,7 @@ func_08036A78: @ 0x08036A78
     push {r4, lr}
     sub sp, #0x10
     adds r4, r0, #0
-    ldr r0, .L08036AA4 @ =gUnk_080F7B40
+    ldr r0, .L08036AA4 @ =gCarpenterScheduleInfo
     str r0, [sp]
     ldr r0, .L08036AA8 @ =0x000009D3
     str r0, [sp, #4]
@@ -2979,7 +2979,7 @@ func_08036A78: @ 0x08036A78
     pop {r1}
     bx r1
     .align 2, 0
-.L08036AA4: .4byte gUnk_080F7B40
+.L08036AA4: .4byte gCarpenterScheduleInfo
 .L08036AA8: .4byte 0x000009D3
 .L08036AAC: .4byte 0x00000404
 .L08036AB0: .4byte vtable_unk_080E6AD8
