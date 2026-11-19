@@ -15186,7 +15186,7 @@ func_080ADF6C: @ 0x080ADF6C
 	movs r1, #0
 	movs r2, #0x18
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	movs r2, #0x83
 	lsls r2, r2, #3
 	adds r1, r6, r2
@@ -16278,7 +16278,7 @@ func_080AE894: @ 0x080AE894
 	adds r4, #0xc
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	movs r2, #1
 	mov sl, r2
 	add r0, sp, #0x70
@@ -16293,7 +16293,7 @@ func_080AE894: @ 0x080AE894
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	mov r0, sb
 	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
@@ -20251,7 +20251,7 @@ func_080B0708: @ 0x080B0708
 	adds r4, #0xc
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldrb r0, [r5]
 	mov r8, r4
 	cmp r0, #9
@@ -20269,7 +20269,7 @@ func_080B0708: @ 0x080B0708
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080B07CE
 	.align 2, 0
 .L080B07A4: .4byte 0x0000090B
@@ -20289,7 +20289,7 @@ func_080B0708: @ 0x080B0708
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080B07CE:
 	mov r0, sb
 	bl HardwareContext_GetDmaQueue
@@ -23612,7 +23612,7 @@ func_080B2114: @ 0x080B2114
 	movs r1, #0
 	movs r2, #0x18
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	movs r5, #0x83
 	lsls r5, r5, #3
 	add r5, sl
@@ -23692,7 +23692,7 @@ func_080B2114: @ 0x080B2114
 	lsls r2, r2, #1
 	adds r1, r1, r2
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r3, sb
 	cmp r3, #1
 	beq .L080B2354
@@ -23719,7 +23719,7 @@ func_080B2114: @ 0x080B2114
 	str r5, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080B2384
 	.align 2, 0
 .L080B2338: .4byte 0x00000844
@@ -23751,7 +23751,7 @@ func_080B2114: @ 0x080B2114
 	lsls r1, r1, #2
 	add r1, sl
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080B2384:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -25435,7 +25435,7 @@ func_080B2114: @ 0x080B2114
 	lsls r3, r3, #1
 	adds r1, r1, r3
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0xf8]
 	cmp r0, #1
 	beq .L080B309C
@@ -25460,7 +25460,7 @@ func_080B2114: @ 0x080B2114
 	str r7, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080B30C8
 	.align 2, 0
 .L080B3094: .4byte 0x0000092A
@@ -25485,7 +25485,7 @@ func_080B2114: @ 0x080B2114
 	str r6, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080B30C8:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -25710,7 +25710,7 @@ func_080B2114: @ 0x080B2114
 	lsls r6, r6, #1
 	adds r1, r1, r6
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r7, sb
 	cmp r7, #1
 	beq .L080B32AA
@@ -25737,7 +25737,7 @@ func_080B2114: @ 0x080B2114
 	str r7, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080B32DA
 .L080B32AA:
 	ldr r0, [sp, #0x110]
@@ -25761,7 +25761,7 @@ func_080B2114: @ 0x080B2114
 	lsls r1, r1, #2
 	add r1, sl
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080B32DA:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -26897,7 +26897,7 @@ func_080B3CC8: @ 0x080B3CC8
 	movs r1, #0
 	movs r2, #0xf
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	movs r3, #0xe3
 	lsls r3, r3, #3
 	adds r1, r6, r3
@@ -28008,7 +28008,7 @@ func_080B469C: @ 0x080B469C
 	movs r1, #0
 	movs r2, #0xf
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	movs r2, #0xe3
 	lsls r2, r2, #3
 	adds r6, r7, r2
@@ -33536,7 +33536,7 @@ func_080B7164: @ 0x080B7164
 	ldr r0, [sp, #0x20]
 	adds r1, #0xf0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r7, sl
 	lsls r6, r7, #1
 	mov r0, sb
@@ -33562,7 +33562,7 @@ func_080B7164: @ 0x080B7164
 	movs r3, #1
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	mov r0, sb
 	bl HardwareContext_GetDmaQueue
 	add r4, sb
@@ -33757,7 +33757,7 @@ func_080B7164: @ 0x080B7164
 	ldr r0, [sp, #0x30]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r0, sb
 	movs r1, #2
 	ldr r2, [sp, #0x58]
@@ -33783,7 +33783,7 @@ func_080B7164: @ 0x080B7164
 	str r2, [sp, #4]
 	str r5, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	mov r0, sb
 	bl HardwareContext_GetDmaQueue
 	add r4, sb
@@ -36437,7 +36437,7 @@ func_080B888C: @ 0x080B888C
 	movs r1, #0
 	movs r2, #0xf
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	movs r2, #0xe3
 	lsls r2, r2, #3
 	adds r6, r7, r2
@@ -44330,7 +44330,7 @@ func_080BC938: @ 0x080BC938
 	movs r1, #0
 	movs r2, #0x18
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	movs r2, #0x83
 	lsls r2, r2, #3
 	adds r1, r6, r2
@@ -45171,7 +45171,7 @@ func_080BD064: @ 0x080BD064
 	adds r4, #0xc
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	movs r2, #1
 	mov sl, r2
 	add r0, sp, #0x48
@@ -45186,7 +45186,7 @@ func_080BD064: @ 0x080BD064
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	mov r0, sb
 	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
@@ -48160,7 +48160,7 @@ func_080BE728: @ 0x080BE728
 	adds r4, #0xc
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldrb r0, [r5]
 	mov r8, r4
 	cmp r0, #9
@@ -48178,7 +48178,7 @@ func_080BE728: @ 0x080BE728
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080BE7EE
 	.align 2, 0
 .L080BE7C8: .4byte 0x000005FD
@@ -48197,7 +48197,7 @@ func_080BE728: @ 0x080BE728
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080BE7EE:
 	mov r0, sb
 	bl HardwareContext_GetDmaQueue
@@ -50225,7 +50225,7 @@ func_080BF764: @ 0x080BF764
 	movs r1, #0
 	movs r2, #0x18
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	movs r6, #0x83
 	lsls r6, r6, #3
 	add r6, sl
@@ -50933,7 +50933,7 @@ func_080BF764: @ 0x080BF764
 	lsls r2, r2, #1
 	adds r1, r1, r2
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	str r5, [sp, #0xf4]
 	ldr r3, [sp, #0xc8]
 	cmp r3, #1
@@ -50960,7 +50960,7 @@ func_080BF764: @ 0x080BF764
 	str r7, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080BFDEE
 .L080BFDBE:
 	add r0, sp, #0x28
@@ -50984,7 +50984,7 @@ func_080BF764: @ 0x080BF764
 	lsls r1, r1, #2
 	add r1, sl
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080BFDEE:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -51852,7 +51852,7 @@ func_080BF764: @ 0x080BF764
 	lsls r3, r3, #1
 	adds r1, r1, r3
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0xdc]
 	cmp r0, #1
 	beq .L080C04D8
@@ -51877,7 +51877,7 @@ func_080BF764: @ 0x080BF764
 	str r7, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080C0504
 	.align 2, 0
 .L080C04D4: .4byte 0x0000060B
@@ -51901,7 +51901,7 @@ func_080BF764: @ 0x080BF764
 	str r6, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080C0504:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -52126,7 +52126,7 @@ func_080BF764: @ 0x080BF764
 	lsls r6, r6, #1
 	adds r1, r1, r6
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r7, [sp, #0xc8]
 	cmp r7, #1
 	beq .L080C06E6
@@ -52153,7 +52153,7 @@ func_080BF764: @ 0x080BF764
 	str r7, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080C0716
 .L080C06E6:
 	add r0, sp, #0x28
@@ -52177,7 +52177,7 @@ func_080BF764: @ 0x080BF764
 	lsls r1, r1, #2
 	add r1, sl
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080C0716:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -53097,7 +53097,7 @@ func_080C0DCC: @ 0x080C0DCC
 	movs r1, #0
 	movs r2, #0x18
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	ldr r2, .L080C11C4 @ =0x0000051C
 	adds r1, r6, r2
 	str r0, [r1]
@@ -54160,7 +54160,7 @@ func_080C16D4: @ 0x080C16D4
 	adds r4, #0xc
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	movs r2, #1
 	mov sl, r2
 	add r0, sp, #0x48
@@ -54175,7 +54175,7 @@ func_080C16D4: @ 0x080C16D4
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	mov r0, sb
 	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
@@ -58623,7 +58623,7 @@ func_080C38E4: @ 0x080C38E4
 	adds r4, #0xc
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldrb r0, [r5]
 	mov r8, r4
 	cmp r0, #9
@@ -58641,7 +58641,7 @@ func_080C38E4: @ 0x080C38E4
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080C39AA
 	.align 2, 0
 .L080C3984: .4byte 0x0000097B
@@ -58660,7 +58660,7 @@ func_080C38E4: @ 0x080C38E4
 	mov r1, r8
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080C39AA:
 	mov r0, sb
 	bl HardwareContext_GetDmaQueue
@@ -63257,7 +63257,7 @@ func_080C5A6C: @ 0x080C5A6C
 	ldr r0, [sp, #0x40]
 	mov r1, sb
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	movs r1, #1
 	mov sl, r1
 	add r0, sp, #0x44
@@ -63273,7 +63273,7 @@ func_080C5A6C: @ 0x080C5A6C
 	mov r1, sb
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	adds r4, r0, #0
@@ -63534,7 +63534,7 @@ func_080C608C: @ 0x080C608C
 	movs r1, #0
 	movs r2, #0x18
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	ldr r6, .L080C61E8 @ =0x0000051C
 	add r6, sl
 	adds r5, r0, #0
@@ -64057,7 +64057,7 @@ func_080C608C: @ 0x080C608C
 	lsls r2, r2, #1
 	adds r1, r1, r2
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	str r5, [sp, #0x124]
 	ldr r3, [sp, #0xf4]
 	cmp r3, #2
@@ -64084,7 +64084,7 @@ func_080C608C: @ 0x080C608C
 	str r7, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080C65DA
 	.align 2, 0
 .L080C65A4: .4byte 0x0000088C
@@ -64111,7 +64111,7 @@ func_080C608C: @ 0x080C608C
 	lsls r1, r1, #2
 	add r1, sl
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080C65DA:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -65748,7 +65748,7 @@ func_080C608C: @ 0x080C608C
 	movs r3, #0x88
 	lsls r3, r3, #1
 	adds r1, r1, r3
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0x104]
 	cmp r0, #2
 	beq .L080C727E
@@ -65773,7 +65773,7 @@ func_080C608C: @ 0x080C608C
 	str r7, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080C72AE
 .L080C727E:
 	add r0, sp, #0x30
@@ -65797,7 +65797,7 @@ func_080C608C: @ 0x080C608C
 	str r6, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080C72AE:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -66022,7 +66022,7 @@ func_080C608C: @ 0x080C608C
 	lsls r6, r6, #1
 	adds r1, r1, r6
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r7, [sp, #0xf4]
 	cmp r7, #2
 	beq .L080C7492
@@ -66049,7 +66049,7 @@ func_080C608C: @ 0x080C608C
 	str r7, [sp, #4]
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L080C74C4
 .L080C7492:
 	add r0, sp, #0x30
@@ -66074,7 +66074,7 @@ func_080C608C: @ 0x080C608C
 	lsls r1, r1, #2
 	add r1, sl
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080C74C4:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -67497,7 +67497,7 @@ func_080C7F58: @ 0x080C7F58
 	movs r1, #0
 	movs r2, #0x1c
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r0, r5, #0
 	movs r1, #2
 	bl func_08007714

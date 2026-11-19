@@ -8646,7 +8646,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L0804406C:
 	adds r0, r5, #0
-	bl func_0804E0F8
+	bl CanReceiveStoredTool
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	bl .L08045166
@@ -8667,7 +8667,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L08044096:
 	adds r0, r5, #0
-	bl func_0804E17C
+	bl CanReceiveStoredFood
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	bl .L08045166
@@ -8688,7 +8688,7 @@ func_0803F8DC: @ 0x0803F8DC
 	str r0, [r4]
 .L080440C0:
 	adds r0, r5, #0
-	bl func_0804E1D4
+	bl CanReceiveStoredArticle
 	lsls r0, r0, #0x18
 	lsrs r2, r0, #0x18
 	bl .L08045166
@@ -27458,8 +27458,9 @@ func_08048FFC: @ 0x08048FFC
 	.align 2, 0
 .L0804E0F4: .4byte 0x0000214C
 
-	thumb_func_start func_0804E0F8
-func_0804E0F8: @ 0x0804E0F8
+	.section .text.item_storage_ui.0804E0F8
+	thumb_func_start CanReceiveStoredTool
+CanReceiveStoredTool: @ 0x0804E0F8
 	push {r4, r5, r6, r7, lr}
 	sub sp, #4
 	adds r6, r1, #0
@@ -27522,94 +27523,7 @@ func_0804E0F8: @ 0x0804E0F8
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_0804E17C
-func_0804E17C: @ 0x0804E17C
-	push {r4, r5, lr}
-	adds r5, r1, #0
-	movs r1, #0xd4
-	lsls r1, r1, #2
-	adds r4, r0, r1
-	ldr r0, [r4]
-	ldr r1, .L0804E1C4 @ =0x00001C2C
-	adds r0, r0, r1
-	bl func_0800F190
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	bne .L0804E1BE
-	ldr r0, [r4]
-	ldr r1, .L0804E1C8 @ =0x00001C38
-	adds r0, r0, r1
-	bl GetEmptyItemSlotCount__C8Rucksack
-	cmp r0, #0
-	bne .L0804E1BE
-	ldr r0, [r4]
-	movs r1, #0xfa
-	lsls r1, r1, #1
-	adds r0, r0, r1
-	bl GetFridge__9FarmHouse
-	cmp r0, #0
-	beq .L0804E1CC
-	adds r1, r5, #0
-	bl GetAvailableSpaceFor__C6FridgeUi
-	cmp r0, #0
-	beq .L0804E1CC
-.L0804E1BE:
-	movs r0, #1
-	b .L0804E1CE
-	.align 2, 0
-.L0804E1C4: .4byte 0x00001C2C
-.L0804E1C8: .4byte 0x00001C38
-.L0804E1CC:
-	movs r0, #0
-.L0804E1CE:
-	pop {r4, r5}
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_0804E1D4
-func_0804E1D4: @ 0x0804E1D4
-	push {r4, r5, lr}
-	adds r5, r1, #0
-	movs r1, #0xd4
-	lsls r1, r1, #2
-	adds r4, r0, r1
-	ldr r0, [r4]
-	ldr r1, .L0804E21C @ =0x00001C2C
-	adds r0, r0, r1
-	bl func_0800F190
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	bne .L0804E216
-	ldr r0, [r4]
-	ldr r1, .L0804E220 @ =0x00001C38
-	adds r0, r0, r1
-	bl GetEmptyItemSlotCount__C8Rucksack
-	cmp r0, #0
-	bne .L0804E216
-	ldr r0, [r4]
-	movs r1, #0xfa
-	lsls r1, r1, #1
-	adds r0, r0, r1
-	bl GetShelf__9FarmHouse
-	cmp r0, #0
-	beq .L0804E224
-	adds r1, r5, #0
-	bl GetAvailableSpaceFor__C5ShelfUi
-	cmp r0, #0
-	beq .L0804E224
-.L0804E216:
-	movs r0, #1
-	b .L0804E226
-	.align 2, 0
-.L0804E21C: .4byte 0x00001C2C
-.L0804E220: .4byte 0x00001C38
-.L0804E224:
-	movs r0, #0
-.L0804E226:
-	pop {r4, r5}
-	pop {r1}
-	bx r1
-
+	.section .text.item_storage_ui.0804E22C
 	thumb_func_start func_0804E22C
 func_0804E22C: @ 0x0804E22C
 	push {r4, r5, r6, lr}
@@ -27684,6 +27598,7 @@ func_0804E22C: @ 0x0804E22C
 	bx r1
 	.align 2, 0
 
+	.section .text.item_storage_ui.0804E2C0
 	thumb_func_start func_0804E2C0
 func_0804E2C0: @ 0x0804E2C0
 	push {r4, r5, r6, lr}
@@ -27757,6 +27672,7 @@ func_0804E2C0: @ 0x0804E2C0
 	bx r1
 	.align 2, 0
 
+	.section .text.item_storage_ui.0804E354
 	thumb_func_start func_0804E354
 func_0804E354: @ 0x0804E354
 	push {r4, r5, r6, lr}
@@ -27823,6 +27739,7 @@ func_0804E354: @ 0x0804E354
 	bx r1
 	.align 2, 0
 
+	.section .text.message_rendering.0804E3D8
 	thumb_func_start func_0804E3D8
 func_0804E3D8: @ 0x0804E3D8
 	push {r4, r5, r6, lr}
@@ -27925,6 +27842,7 @@ func_0804E3D8: @ 0x0804E3D8
 	.align 2, 0
 .L0804E4A8: .4byte 0x00001C70
 
+	.section .text.message_rendering.0804E4AC
 	thumb_func_start func_0804E4AC
 func_0804E4AC: @ 0x0804E4AC
 	push {r4, r5, r6, r7, lr}
@@ -28059,6 +27977,7 @@ func_0804E4AC: @ 0x0804E4AC
 	bx r1
 	.align 2, 0
 
+	.section .text.message_rendering.0804E5AC
 	thumb_func_start func_0804E5AC
 func_0804E5AC: @ 0x0804E5AC
 	push {r4, r5, r6, r7, lr}
@@ -28329,38 +28248,7 @@ func_0804E5AC: @ 0x0804E5AC
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_0804E7A0
-func_0804E7A0: @ 0x0804E7A0
-	push {lr}
-	sub sp, #4
-	movs r3, #0xf
-	ands r3, r2
-	lsls r2, r3, #4
-	orrs r3, r2
-	lsls r2, r3, #8
-	orrs r3, r2
-	lsls r2, r3, #0x10
-	orrs r3, r2
-	lsls r2, r0, #0x10
-	lsrs r2, r2, #0x10
-	lsrs r0, r0, #0x10
-	lsls r0, r0, #5
-	muls r2, r0, r2
-	str r3, [sp]
-	lsrs r2, r2, #2
-	ldr r0, .L0804E7D8 @ =0x001FFFFF
-	ands r2, r0
-	movs r0, #0x80
-	lsls r0, r0, #0x11
-	orrs r2, r0
-	mov r0, sp
-	bl CpuFastSet
-	add sp, #4
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0804E7D8: .4byte 0x001FFFFF
-
+	.section .text.message_rendering.0804E7DC
 	thumb_func_start func_0804E7DC
 func_0804E7DC: @ 0x0804E7DC
 	push {r4, r5, r6, r7, lr}
@@ -28507,135 +28395,13 @@ func_0804E7DC: @ 0x0804E7DC
 .L0804E8E8: .4byte 0x3FFFFFF8
 .L0804E8EC: .4byte 0x001FFFFF
 
-	thumb_func_start func_0804E8F0
-func_0804E8F0: @ 0x0804E8F0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #4
-	mov r8, r0
-	mov sl, r1
-	adds r4, r2, #0
-	mov sb, r3
-	ldr r6, [sp, #0x24]
-	lsls r0, r0, #0x10
-	lsrs r7, r0, #0xd
-	movs r5, #0
-	ldrb r0, [r6]
-	b .L0804E93E
-.L0804E910:
-	orrs r5, r0
-	str r5, [sp]
-	mov r0, r8
-	mov r1, sl
-	adds r2, r4, #0
-	mov r3, sb
-	bl func_0804E4AC
-	cmp r0, #1
-	beq .L0804E92E
-	cmp r0, #1
-	blo .L0804E938
-	cmp r0, #2
-	beq .L0804E934
-	b .L0804E946
-.L0804E92E:
-	movs r5, #0
-	adds r4, #8
-	b .L0804E938
-.L0804E934:
-	movs r5, #0
-	adds r4, #0x10
-.L0804E938:
-	adds r6, #1
-	ldrb r0, [r6]
-	lsls r5, r5, #8
-.L0804E93E:
-	cmp r0, #0
-	beq .L0804E946
-	cmp r4, r7
-	blo .L0804E910
-.L0804E946:
-	add sp, #4
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_0804E958
-func_0804E958: @ 0x0804E958
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0xc
-	mov r8, r0
-	mov sl, r1
-	adds r4, r2, #0
-	mov sb, r3
-	ldr r6, [sp, #0x2c]
-	lsls r0, r0, #0x10
-	lsrs r7, r0, #0xd
-	movs r5, #0
-	ldrb r0, [r6]
-	b .L0804E9AE
-.L0804E978:
-	orrs r5, r0
-	str r5, [sp]
-	ldr r0, [sp, #0x30]
-	str r0, [sp, #4]
-	ldr r1, [sp, #0x34]
-	str r1, [sp, #8]
-	mov r0, r8
-	mov r1, sl
-	adds r2, r4, #0
-	mov r3, sb
-	bl func_0804E5AC
-	cmp r0, #1
-	beq .L0804E99E
-	cmp r0, #1
-	blo .L0804E9A8
-	cmp r0, #2
-	beq .L0804E9A4
-	b .L0804E9B6
-.L0804E99E:
-	movs r5, #0
-	adds r4, #8
-	b .L0804E9A8
-.L0804E9A4:
-	movs r5, #0
-	adds r4, #0x10
-.L0804E9A8:
-	adds r6, #1
-	ldrb r0, [r6]
-	lsls r5, r5, #8
-.L0804E9AE:
-	cmp r0, #0
-	beq .L0804E9B6
-	cmp r4, r7
-	blo .L0804E978
-.L0804E9B6:
-	add sp, #0xc
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
+	.section .text.message_rendering.0804E9C8
 	thumb_func_start func_0804E9C8
 func_0804E9C8: @ 0x0804E9C8
 	movs r0, #0
 	bx lr
 
+	.section .text.message_rendering.0804E9CC
 	thumb_func_start func_0804E9CC
 func_0804E9CC: @ 0x0804E9CC
 	movs r0, #0
@@ -28645,97 +28411,7 @@ func_0804E9CC: @ 0x0804E9CC
 	.byte 0x03, 0x48, 0x02, 0x40, 0x18, 0x1C, 0x84, 0xF0, 0xB1, 0xFE, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
 	.byte 0xFF, 0xFF, 0x1F, 0x00
 
-	thumb_func_start func_0804E9F4
-func_0804E9F4: @ 0x0804E9F4
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	adds r4, r0, #0
-	mov ip, r2
-	mov r8, r3
-	ldr r0, [sp, #0x20]
-	lsls r1, r1, #0x10
-	lsrs r5, r1, #0x10
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x10
-	mov sl, r0
-	adds r6, r4, #0
-	movs r1, #0
-	cmp r1, r8
-	bhs .L0804EA48
-	ldr r0, [sp, #0x24]
-	lsls r0, r0, #1
-	mov sb, r0
-.L0804EA1E:
-	movs r2, #0
-	adds r7, r1, #1
-	cmp r2, ip
-	bhs .L0804EA3E
-	mov r0, sl
-	lsls r3, r0, #0xc
-.L0804EA2A:
-	adds r1, r5, #0
-	adds r0, r1, #1
-	lsls r0, r0, #0x10
-	lsrs r5, r0, #0x10
-	orrs r1, r3
-	strh r1, [r4]
-	adds r4, #2
-	adds r2, #1
-	cmp r2, ip
-	blo .L0804EA2A
-.L0804EA3E:
-	add r6, sb
-	adds r4, r6, #0
-	adds r1, r7, #0
-	cmp r1, r8
-	blo .L0804EA1E
-.L0804EA48:
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_0804EA58
-func_0804EA58: @ 0x0804EA58
-	push {r4, r5, r6, r7, lr}
-	ldr r5, [sp, #0x14]
-	ldr r6, [sp, #0x18]
-	ldr r7, [sp, #0x1c]
-	movs r4, #0
-	str r4, [r0]
-	str r4, [r0, #4]
-	ldr r4, .L0804EA7C @ =vtable_unk_080E7868
-	str r4, [r0, #8]
-	str r1, [r0, #0xc]
-	strh r2, [r0, #0x12]
-	str r3, [r0, #0x14]
-	str r5, [r0, #0x18]
-	strh r6, [r0, #0x10]
-	str r7, [r0, #0x1c]
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0804EA7C: .4byte vtable_unk_080E7868
-
-	thumb_func_start func_0804EA80
-func_0804EA80: @ 0x0804EA80
-	push {lr}
-	ldr r2, .L0804EA90 @ =vtable_unk_080E7868
-	str r2, [r0, #8]
-	bl TaskNode_Destroy
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0804EA90: .4byte vtable_unk_080E7868
-
+	.section .text.message_rendering.0804EA94
 	thumb_func_start func_0804EA94
 func_0804EA94: @ 0x0804EA94
 	push {r4, r5, r6, r7, lr}
@@ -28855,6 +28531,7 @@ func_0804EA94: @ 0x0804EA94
 	.byte 0x49, 0x46, 0x08, 0x70, 0x07, 0xB0, 0x38, 0xBC, 0x98, 0x46, 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC
 	.byte 0x01, 0xBC, 0x00, 0x47
 
+	.section .text.message_rendering.0804EC84
 	thumb_func_start func_0804EC84
 func_0804EC84: @ 0x0804EC84
 	push {r4, r5, r6, r7, lr}
@@ -28947,253 +28624,19 @@ func_0804EC84: @ 0x0804EC84
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_0804ED28
-func_0804ED28: @ 0x0804ED28
-	push {r4, r5, r6, r7, lr}
-	adds r4, r0, #0
-	lsls r2, r2, #0x10
-	lsrs r7, r2, #0x10
-	lsls r3, r3, #0x10
-	adds r5, r1, #0
-	lsrs r6, r3, #4
-.L0804ED36:
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __udivsi3
-	lsls r2, r0, #2
-	adds r2, r2, r0
-	lsls r2, r2, #1
-	subs r2, r4, r2
-	lsls r2, r2, #2
-	adds r2, r7, r2
-	adds r1, r2, #1
-	orrs r1, r6
-	strh r1, [r5]
-	subs r3, r5, #2
-	adds r1, r6, #0
-	orrs r1, r2
-	strh r1, [r3]
-	ldr r1, [sp, #0x14]
-	lsls r3, r1, #1
-	adds r3, r3, r5
-	adds r1, r2, #3
-	orrs r1, r6
-	strh r1, [r3]
-	subs r3, #2
-	adds r2, #2
-	orrs r2, r6
-	strh r2, [r3]
-	adds r4, r0, #0
-	subs r5, #4
-	cmp r4, #0
-	bne .L0804ED36
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
+	.section .text.message_rendering.0804ED7C
 .L0804ED7C:
 	.byte 0x70, 0xB5, 0x04, 0x9D
 	.byte 0x05, 0x9E, 0x00, 0x24, 0x04, 0x60, 0x44, 0x60, 0x04, 0x4C, 0x84, 0x60, 0xC1, 0x60, 0x02, 0x61
 	.byte 0x83, 0x82, 0xC5, 0x82, 0x86, 0x61, 0x70, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x58, 0x78, 0x0E, 0x08
 
-	thumb_func_start func_0804EDA0
-func_0804EDA0: @ 0x0804EDA0
-	push {lr}
-	ldr r2, .L0804EDB0 @ =vtable_unk_080E7858
-	str r2, [r0, #8]
-	bl TaskNode_Destroy
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0804EDB0: .4byte vtable_unk_080E7858
-
-	thumb_func_start func_0804EDB4
-func_0804EDB4: @ 0x0804EDB4
-	push {r4, r5, r6, r7, lr}
-	adds r4, r0, #0
-	lsls r2, r2, #0x10
-	lsrs r7, r2, #0x10
-	lsls r3, r3, #0x10
-	adds r5, r1, #0
-	lsrs r6, r3, #4
-.L0804EDC2:
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __udivsi3
-	lsls r1, r0, #2
-	adds r1, r1, r0
-	lsls r1, r1, #1
-	subs r1, r4, r1
-	lsls r1, r1, #1
-	adds r1, r7, r1
-	adds r2, r6, #0
-	orrs r2, r1
-	strh r2, [r5]
-	ldr r3, [sp, #0x14]
-	lsls r2, r3, #1
-	adds r2, r2, r5
-	adds r1, #1
-	orrs r1, r6
-	strh r1, [r2]
-	adds r4, r0, #0
-	subs r5, #2
-	cmp r4, #0
-	bne .L0804EDC2
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
+	.section .text.message_rendering.0804EDF8
 .L0804EDF8:
 	.byte 0x70, 0xB5, 0x04, 0x9D, 0x05, 0x9E, 0x00, 0x24
 	.byte 0x04, 0x60, 0x44, 0x60, 0x04, 0x4C, 0x84, 0x60, 0xC1, 0x60, 0x02, 0x61, 0x83, 0x82, 0xC5, 0x82
 	.byte 0x86, 0x61, 0x70, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x48, 0x78, 0x0E, 0x08
 
-	thumb_func_start func_0804EE1C
-func_0804EE1C: @ 0x0804EE1C
-	push {lr}
-	ldr r2, .L0804EE2C @ =vtable_unk_080E7848
-	str r2, [r0, #8]
-	bl TaskNode_Destroy
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0804EE2C: .4byte vtable_unk_080E7848
-
-	thumb_func_start func_0804EE30
-func_0804EE30: @ 0x0804EE30
-	push {r4, r5, r6, r7, lr}
-	adds r4, r0, #0
-	lsls r2, r2, #0x10
-	lsrs r7, r2, #0x10
-	lsls r3, r3, #0x10
-	adds r5, r1, #0
-	lsrs r6, r3, #4
-.L0804EE3E:
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __udivsi3
-	lsls r1, r0, #2
-	adds r1, r1, r0
-	lsls r1, r1, #1
-	subs r1, r4, r1
-	adds r1, r7, r1
-	orrs r1, r6
-	strh r1, [r5]
-	adds r4, r0, #0
-	subs r5, #2
-	cmp r4, #0
-	bne .L0804EE3E
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_0804EE64
-func_0804EE64: @ 0x0804EE64
-	push {r4, r5, r6, lr}
-	ldr r5, [sp, #0x10]
-	ldr r6, [sp, #0x14]
-	movs r4, #0
-	str r4, [r0]
-	str r4, [r0, #4]
-	ldr r4, .L0804EE84 @ =vtable_unk_080E7838
-	str r4, [r0, #8]
-	str r1, [r0, #0xc]
-	str r2, [r0, #0x10]
-	strh r3, [r0, #0x14]
-	strh r5, [r0, #0x16]
-	str r6, [r0, #0x18]
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0804EE84: .4byte vtable_unk_080E7838
-
-	thumb_func_start func_0804EE88
-func_0804EE88: @ 0x0804EE88
-	push {lr}
-	ldr r2, .L0804EE98 @ =vtable_unk_080E7838
-	str r2, [r0, #8]
-	bl TaskNode_Destroy
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0804EE98: .4byte vtable_unk_080E7838
-
-	thumb_func_start func_0804EE9C
-func_0804EE9C: @ 0x0804EE9C
-	push {r4, lr}
-	sub sp, #4
-	ldr r4, [r0, #0xc]
-	ldr r1, [r0, #0x10]
-	ldrh r2, [r0, #0x14]
-	ldrh r3, [r0, #0x16]
-	ldr r0, [r0, #0x18]
-	str r0, [sp]
-	adds r0, r4, #0
-	bl func_0804EE30
-	movs r0, #0
-	add sp, #4
-	pop {r4}
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_0804EEBC
-func_0804EEBC: @ 0x0804EEBC
-	push {r4, lr}
-	sub sp, #4
-	ldr r4, [r0, #0xc]
-	ldr r1, [r0, #0x10]
-	ldrh r2, [r0, #0x14]
-	ldrh r3, [r0, #0x16]
-	ldr r0, [r0, #0x18]
-	str r0, [sp]
-	adds r0, r4, #0
-	bl func_0804EDB4
-	movs r0, #0
-	add sp, #4
-	pop {r4}
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_0804EEDC
-func_0804EEDC: @ 0x0804EEDC
-	push {r4, lr}
-	sub sp, #4
-	ldr r4, [r0, #0xc]
-	ldr r1, [r0, #0x10]
-	ldrh r2, [r0, #0x14]
-	ldrh r3, [r0, #0x16]
-	ldr r0, [r0, #0x18]
-	str r0, [sp]
-	adds r0, r4, #0
-	bl func_0804ED28
-	movs r0, #0
-	add sp, #4
-	pop {r4}
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_0804EEFC
-func_0804EEFC: @ 0x0804EEFC
-	push {r4, r5, lr}
-	sub sp, #8
-	ldr r5, [r0, #0xc]
-	ldrh r1, [r0, #0x12]
-	ldr r2, [r0, #0x14]
-	ldr r3, [r0, #0x18]
-	ldrh r4, [r0, #0x10]
-	str r4, [sp]
-	ldr r0, [r0, #0x1c]
-	str r0, [sp, #4]
-	adds r0, r5, #0
-	bl func_0804E9F4
-	movs r0, #0
-	add sp, #8
-	pop {r4, r5}
-	pop {r1}
-	bx r1
-
+	.section .text.message_rendering.0804EF20
 	thumb_func_start func_0804EF20
 func_0804EF20: @ 0x0804EF20
 	push {r4, r5, r6, r7, lr}
@@ -29268,6 +28711,7 @@ func_0804EF20: @ 0x0804EF20
 	bx r1
 	.align 2, 0
 
+	.section .text.message_rendering.0804EFAC
 	thumb_func_start func_0804EFAC
 func_0804EFAC: @ 0x0804EFAC
 	push {r4, r5, r6, r7, lr}
@@ -29366,8 +28810,9 @@ func_0804EFAC: @ 0x0804EFAC
 .L0804F058:
 	.byte 0x00, 0x21, 0x81, 0x82, 0x70, 0x47, 0x00, 0x00
 
-	thumb_func_start func_0804F060
-func_0804F060: @ 0x0804F060
+	.section .text.message_rendering.0804F060
+	thumb_func_start AdvanceMessageTextLine
+AdvanceMessageTextLine: @ 0x0804F060
 	push {r4, r5, r6, r7, lr}
 	mov r7, sb
 	mov r6, r8
@@ -29415,7 +28860,7 @@ func_0804F060: @ 0x0804F060
 	ldr r0, [sp]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, [r4, #8]
 	rsbs r0, r1, #0
 	orrs r0, r1
@@ -29437,8 +28882,9 @@ func_0804F060: @ 0x0804F060
 	pop {r0}
 	bx r0
 
-	thumb_func_start func_0804F0E0
-func_0804F0E0: @ 0x0804F0E0
+	.section .text.message_rendering.0804F0E0
+	thumb_func_start ClearMessageTextCursor
+ClearMessageTextCursor: @ 0x0804F0E0
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -29472,7 +28918,7 @@ func_0804F0E0: @ 0x0804F0E0
 	adds r1, #4
 	movs r2, #0
 	str r3, [sp, #4]
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, [r4, #4]
 	rsbs r0, r1, #0
 	orrs r0, r1
@@ -29503,13 +28949,9 @@ func_0804F0E0: @ 0x0804F0E0
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_0804F15C
-func_0804F15C: @ 0x0804F15C
-	ldrb r0, [r0, #0x19]
-	bx lr
-
-	thumb_func_start func_0804F160
-func_0804F160: @ 0x0804F160
+	.section .text.message_rendering.0804F160
+	thumb_func_start IsMessageTextAdvanceEnabled
+IsMessageTextAdvanceEnabled: @ 0x0804F160
 	push {lr}
 	ldrb r0, [r0, #4]
 	adds r1, r0, #0
@@ -29522,13 +28964,9 @@ func_0804F160: @ 0x0804F160
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_0804F174
-func_0804F174: @ 0x0804F174
-	movs r0, #1
-	bx lr
-
-	thumb_func_start func_0804F178
-func_0804F178: @ 0x0804F178
+	.section .text.message_rendering.0804F178
+	thumb_func_start ShouldMessageTextAdvance
+ShouldMessageTextAdvance: @ 0x0804F178
 	push {lr}
 	adds r1, r0, #0
 	movs r2, #0
@@ -29550,6 +28988,7 @@ func_0804F178: @ 0x0804F178
 	bx r1
 	.align 2, 0
 
+	.section .text.message_rendering.0804F19C
 	thumb_func_start func_0804F19C
 func_0804F19C: @ 0x0804F19C
 	push {r4, r5, lr}
@@ -29658,8 +29097,9 @@ func_0804F19C: @ 0x0804F19C
 .L0804F280: .4byte 0x05000200
 .L0804F284: .4byte vtable_unk_080E5A28
 
-	thumb_func_start func_0804F288
-func_0804F288: @ 0x0804F288
+	.section .text.message_window.0804F288
+	thumb_func_start InitializeMessageWindowState
+InitializeMessageWindowState: @ 0x0804F288
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -29900,7 +29340,7 @@ func_0804F288: @ 0x0804F288
 	ldr r0, [sp, #8]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	movs r0, #1
 .L0804F47A:
 	strb r0, [r5, #0xc]
@@ -30148,124 +29588,6 @@ func_0804F288: @ 0x0804F288
 .L0804F694: .4byte gUnk_08728320
 .L0804F698: .4byte 0x00000534
 
-	.section .text.message_window.0804F69C
-	thumb_func_start DestroyMessageWindowState
-DestroyMessageWindowState: @ 0x0804F69C
-	push {r4, r5, r6, r7, lr}
-	adds r6, r0, #0
-	adds r7, r1, #0
-	movs r0, #0xa9
-	lsls r0, r0, #3
-	adds r4, r6, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080073E0
-	adds r0, r4, #0
-	movs r1, #2
-	bl ResourceHandles_Destroy
-	ldr r1, .L0804F79C @ =0x00000504
-	adds r0, r6, r1
-	ldr r5, .L0804F7A0 @ =vtable_unk_080E5A28
-	str r5, [r0]
-	movs r0, #0xf4
-	lsls r0, r0, #1
-	adds r4, r6, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080073E0
-	adds r0, r4, #0
-	movs r1, #2
-	bl ResourceHandles_Destroy
-	movs r1, #0xf2
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	movs r1, #2
-	bl func_080ADC84
-	movs r0, #0xea
-	lsls r0, r0, #1
-	adds r4, r6, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	movs r1, #0xc8
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	str r5, [r0]
-	subs r1, #0x30
-	adds r0, r6, r1
-	str r5, [r0]
-	subs r1, #0x18
-	adds r0, r6, r1
-	movs r1, #2
-	bl TaskNode_Destroy
-	movs r1, #0x98
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	movs r1, #2
-	bl TaskNode_Destroy
-	movs r1, #0x90
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	movs r1, #2
-	bl TaskNode_Destroy
-	adds r0, r6, #0
-	adds r0, #0xd0
-	movs r1, #2
-	bl func_080E105C
-	adds r0, r6, #0
-	adds r0, #0xc0
-	movs r1, #2
-	bl TaskNode_Destroy
-	adds r1, r6, #0
-	adds r1, #0x3c
-	ldr r0, [r6, #0x3c]
-	lsls r0, r0, #4
-	adds r0, #4
-	adds r1, r1, r0
-	adds r0, r6, #0
-	adds r0, #0x40
-	cmp r0, r1
-	beq .L0804F756
-.L0804F750:
-	adds r0, #0x10
-	cmp r0, r1
-	bne .L0804F750
-.L0804F756:
-	adds r0, r6, #0
-	adds r0, #0x20
-	movs r1, #2
-	bl TaskList_Destroy
-	adds r4, r6, #0
-	adds r4, #0x18
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007C28
-	adds r0, r4, #0
-	movs r1, #2
-	bl func_080079E8
-	subs r4, #8
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_080073E0
-	adds r0, r4, #0
-	movs r1, #2
-	bl ResourceHandles_Destroy
-	movs r0, #1
-	ands r0, r7
-	cmp r0, #0
-	beq .L0804F794
-	adds r0, r6, #0
-	bl __builtin_delete
-.L0804F794:
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0804F79C: .4byte 0x00000504
-.L0804F7A0: .4byte vtable_unk_080E5A28
 
 	.section .text.message_window.0804F7A4
 	thumb_func_start UpdateMessageWindowState
@@ -31803,249 +31125,6 @@ sub_08050342: @ 0x08050342
 	.align 2, 0
 .L08050398: .4byte vtable_unk_080E78F0
 
-	.section .text.message_window.08050478
-	thumb_func_start SetMessageWindowStateChoices
-SetMessageWindowStateChoices: @ 0x08050478
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x10
-	adds r4, r0, #0
-	str r1, [sp, #8]
-	str r2, [sp, #0xc]
-	mov sb, r3
-	ldr r0, [sp, #0x30]
-	mov sl, r0
-	ldr r1, [sp, #0x34]
-	mov r8, r1
-	ldr r7, [sp, #0x38]
-	ldr r0, [r4, #8]
-	cmp r0, #0
-	blt .L080504B4
-	cmp r0, #2
-	bgt .L080504A8
-	adds r0, r4, #0
-	bl CompleteMessageWindowOpening
-	b .L080504B4
-.L080504A8:
-	cmp r0, #6
-	bgt .L080504B4
-	adds r0, r4, #0
-	adds r0, #0xd0
-	bl func_0804F0E0
-.L080504B4:
-	movs r5, #4
-	movs r6, #0xc
-	cmp r7, #0
-	bne .L080504D6
-	movs r5, #3
-	mov r2, r8
-	cmp r2, #0
-	bne .L080504D6
-	movs r5, #2
-	mov r0, sl
-	cmp r0, #0
-	bne .L080504D6
-	movs r6, #0x1a
-	mov r1, sb
-	rsbs r0, r1, #0
-	orrs r0, r1
-	lsrs r5, r0, #0x1f
-.L080504D6:
-	cmp r5, #4
-	bhi .L080504FC
-	lsls r0, r5, #2
-	ldr r1, .L080504E4 @ =.L080504E8
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L080504E4: .4byte .L080504E8
-.L080504E8: @ jump table
-	.4byte .L08050548 @ case 0
-	.4byte .L08050536 @ case 1
-	.4byte .L08050522 @ case 2
-	.4byte .L0805050E @ case 3
-	.4byte .L080504FE @ case 4
-.L080504FC:
-	movs r5, #0
-.L080504FE:
-	cmp r7, #0
-	beq .L0805050C
-	adds r0, r7, #0
-	bl strlen
-	cmp r0, r6
-	bls .L0805050E
-.L0805050C:
-	ldr r7, .L08050580 @ =gUnk_080F9F3C
-.L0805050E:
-	mov r2, r8
-	cmp r2, #0
-	beq .L0805051E
-	mov r0, r8
-	bl strlen
-	cmp r0, r6
-	bls .L08050522
-.L0805051E:
-	ldr r0, .L08050580 @ =gUnk_080F9F3C
-	mov r8, r0
-.L08050522:
-	mov r1, sl
-	cmp r1, #0
-	beq .L08050532
-	mov r0, sl
-	bl strlen
-	cmp r0, r6
-	bls .L08050536
-.L08050532:
-	ldr r2, .L08050580 @ =gUnk_080F9F3C
-	mov sl, r2
-.L08050536:
-	mov r0, sb
-	cmp r0, #0
-	beq .L08050544
-	bl strlen
-	cmp r0, r6
-	bls .L08050548
-.L08050544:
-	ldr r1, .L08050580 @ =gUnk_080F9F3C
-	mov sb, r1
-.L08050548:
-	ldr r2, [sp, #0xc]
-	cmp r2, #0
-	beq .L08050558
-	adds r0, r2, #0
-	bl strlen
-	cmp r0, r6
-	bls .L0805055C
-.L08050558:
-	ldr r0, .L08050580 @ =gUnk_080F9F3C
-	str r0, [sp, #0xc]
-.L0805055C:
-	ldr r1, [sp, #8]
-	cmp r1, #0
-	beq .L0805056C
-	adds r0, r1, #0
-	bl strlen
-	cmp r0, r6
-	bls .L08050570
-.L0805056C:
-	ldr r2, .L08050580 @ =gUnk_080F9F3C
-	str r2, [sp, #8]
-.L08050570:
-	cmp r5, #4
-	bhi .L0805062A
-	lsls r0, r5, #2
-	ldr r1, .L08050584 @ =.L08050588
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L08050580: .4byte gUnk_080F9F3C
-.L08050584: .4byte .L08050588
-.L08050588: @ jump table
-	.4byte .L080505FA @ case 0
-	.4byte .L080505E2 @ case 1
-	.4byte .L080505CA @ case 2
-	.4byte .L080505B2 @ case 3
-	.4byte .L0805059C @ case 4
-.L0805059C:
-	adds r0, r5, #0
-	movs r1, #6
-	bl GetMessageChoicePosition
-	mov r1, sp
-	strb r0, [r1]
-	adds r0, r4, #0
-	adds r2, r7, #0
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-.L080505B2:
-	adds r0, r5, #0
-	movs r1, #5
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #1
-	strb r0, [r1]
-	adds r0, r4, #0
-	mov r2, r8
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-.L080505CA:
-	adds r0, r5, #0
-	movs r1, #4
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #2
-	strb r0, [r1]
-	adds r0, r4, #0
-	mov r2, sl
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-.L080505E2:
-	adds r0, r5, #0
-	movs r1, #3
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #3
-	strb r0, [r1]
-	adds r0, r4, #0
-	mov r2, sb
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-.L080505FA:
-	adds r0, r5, #0
-	movs r1, #2
-	bl GetMessageChoicePosition
-	add r1, sp, #4
-	strb r0, [r1]
-	adds r0, r4, #0
-	ldr r2, [sp, #0xc]
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-	adds r0, r5, #0
-	movs r1, #1
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #5
-	strb r0, [r1]
-	adds r0, r4, #0
-	ldr r2, [sp, #8]
-	ldr r3, [sp, #0x3c]
-	bl func_080507F8
-	b .L0805062C
-.L0805062A:
-	movs r5, #0
-.L0805062C:
-	movs r1, #0xae
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	str r5, [r0]
-	movs r2, #0xac
-	lsls r2, r2, #1
-	adds r1, r4, r2
-	movs r0, #1
-	str r0, [r1]
-	movs r0, #6
-	str r0, [r4, #8]
-	movs r1, #0xe0
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	adds r2, #8
-	adds r1, r4, r2
-	movs r2, #0
-	bl func_0805E850
-	add sp, #0x10
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
 	.section .text.message_window.08050664
 	thumb_func_start SetMessageWindowStatePromptChoices
 SetMessageWindowStatePromptChoices: @ 0x08050664
@@ -32142,7 +31221,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 .L08050708:
 	adds r0, r5, #0
 	adds r0, #0xd0
-	bl func_0804F0E0
+	bl ClearMessageTextCursor
 	movs r1, #0
 	mov r0, sp
 	strb r1, [r0]
@@ -32150,7 +31229,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	mov r1, sp
 	adds r2, r7, #0
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 	cmp r4, #6
 	beq .L08050750
 	cmp r4, #6
@@ -32172,7 +31251,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	adds r0, r5, #0
 	adds r2, r6, #0
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 .L08050750:
 	adds r0, r4, #0
 	movs r1, #3
@@ -32183,7 +31262,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	adds r0, r5, #0
 	mov r2, sb
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 .L08050768:
 	adds r0, r4, #0
 	movs r1, #2
@@ -32194,7 +31273,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	adds r0, r5, #0
 	mov r2, sl
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 	adds r0, r4, #0
 	movs r1, #1
 	bl GetMessageChoicePosition
@@ -32203,7 +31282,7 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	adds r0, r5, #0
 	ldr r2, [sp, #8]
 	ldr r3, [sp, #0x34]
-	bl func_080507F8
+	bl DrawMessageChoiceText
 	b .L0805079A
 .L08050798:
 	movs r4, #5
@@ -32236,8 +31315,8 @@ SetMessageWindowStatePromptChoices: @ 0x08050664
 	bx r0
 
 	.section .text.message_window.080507F8
-	thumb_func_start func_080507F8
-func_080507F8: @ 0x080507F8
+	thumb_func_start DrawMessageChoiceText
+DrawMessageChoiceText: @ 0x080507F8
 	push {r4, r5, r6, r7, lr}
 	mov r7, r8
 	push {r7}
@@ -32726,7 +31805,7 @@ SetMessageWindowStateSpeakerName: @ 0x08050B50
 	adds r4, r1, r2
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	adds r5, #1
 	cmp r6, #0
 	beq .L08050BF0
@@ -32757,7 +31836,7 @@ SetMessageWindowStateSpeakerName: @ 0x08050B50
 	str r2, [sp]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 .L08050BF0:
 	cmp r5, #2
 	bls .L08050B90
@@ -32789,48 +31868,9 @@ SetMessageWindowStateSpeakerName: @ 0x08050B50
 	.byte 0x0C, 0xC8, 0x0C, 0xC1, 0x20, 0x1C, 0x03, 0xB0, 0x10, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
 	.byte 0x03, 0x21, 0x02, 0x48, 0x02, 0x40, 0x0A, 0x43, 0x10, 0x1C, 0x70, 0x47, 0x00, 0xFF, 0xFF, 0xFF
 
-	.section .text.message_window.08050CC0
-	thumb_func_start func_08050CC0
-func_08050CC0: @ 0x08050CC0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0xc
-	mov r8, r0
-	mov sb, r1
-	mov sl, r2
-	adds r7, r3, #0
-	ldr r4, [sp, #0x2c]
-	ldr r5, [sp, #0x30]
-	ldr r6, [sp, #0x34]
-	ldr r0, .L08050D08 @ =0x00000554
-	bl __builtin_new
-	str r4, [sp]
-	str r5, [sp, #4]
-	str r6, [sp, #8]
-	mov r1, sb
-	mov r2, sl
-	adds r3, r7, #0
-	bl func_0804F288
-	mov r1, r8
-	str r0, [r1]
-	mov r0, r8
-	add sp, #0xc
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L08050D08: .4byte 0x00000554
-
 	.section .text.message_window.08050E98
-	thumb_func_start func_08050E98
-func_08050E98: @ 0x08050E98
+	thumb_func_start ClearMessageWindowButtonMask
+ClearMessageWindowButtonMask: @ 0x08050E98
 	push {r4, lr}
 	ldr r3, [r0]
 	movs r0, #0xaa
@@ -32850,8 +31890,8 @@ func_08050E98: @ 0x08050E98
 	pop {r1}
 	bx r1
 
-	thumb_func_start func_08050EBC
-func_08050EBC: @ 0x08050EBC
+	thumb_func_start SetMessageWindowButtonMask
+SetMessageWindowButtonMask: @ 0x08050EBC
 	push {r4, lr}
 	ldr r3, [r0]
 	movs r0, #0xaa
@@ -32872,6 +31912,7 @@ func_08050EBC: @ 0x08050EBC
 	pop {r1}
 	bx r1
 	.align 2, 0
+	.section .text.message_window.08050EE4
 .L08050EE4:
 	.byte 0x70, 0xB5, 0x04, 0x9E, 0x00, 0x24, 0x04, 0x60, 0x44, 0x60, 0x13, 0x4C
 	.byte 0x84, 0x60, 0x1F, 0x24, 0x21, 0x40, 0x05, 0x7B, 0x20, 0x24, 0x64, 0x42, 0x2C, 0x40, 0x0C, 0x43
@@ -32942,6 +31983,7 @@ func_08050EBC: @ 0x08050EBC
 	.byte 0x49, 0x42, 0x11, 0x40, 0xED, 0x01, 0x7F, 0x22, 0x11, 0x40, 0x29, 0x43, 0x41, 0x75, 0x30, 0xBC
 	.byte 0x02, 0xBC, 0x08, 0x47, 0xE0, 0x78, 0x0E, 0x08, 0xFF, 0x3F, 0x00, 0x00, 0x00, 0xC0, 0xFF, 0xFF
 
+	.section .text.festival_results.08051320
 	thumb_func_start func_08051320
 func_08051320: @ 0x08051320
 	push {r4, r5, r6, r7, lr}
@@ -33093,8 +32135,8 @@ func_08051320: @ 0x08051320
 	.align 2, 0
 .L08051438: .4byte 0x000003FF
 
-	thumb_func_start func_0805143C
-func_0805143C: @ 0x0805143C
+	thumb_func_start InitializeFestivalResultsScreen
+InitializeFestivalResultsScreen: @ 0x0805143C
 	push {r4, r5, r6, r7, lr}
 	sub sp, #4
 	adds r7, r0, #0
@@ -33185,8 +32227,8 @@ func_0805143C: @ 0x0805143C
 .L080514FC: .4byte gUnk_08527094
 .L08051500: .4byte 0x000008B8
 
-	thumb_func_start func_08051504
-func_08051504: @ 0x08051504
+	thumb_func_start RunFestivalResultsScreen
+RunFestivalResultsScreen: @ 0x08051504
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -33712,7 +32754,7 @@ func_080516F0: @ 0x080516F0
 	add r3, sp
 	ldr r1, [r3]
 	mov r2, r8
-	bl func_080522D8
+	bl GetAnimalFestivalScore
 	ldr r0, .L08051A04 @ =0x00000A24
 	add r0, sp
 	movs r4, #0xc
@@ -33725,7 +32767,7 @@ func_080516F0: @ 0x080516F0
 	ldr r0, [r0]
 	add r1, sp, #0x58
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	movs r0, #0xa2
 	lsls r0, r0, #4
 	add r0, sp
@@ -33751,7 +32793,7 @@ func_080516F0: @ 0x080516F0
 	add r1, sp, #0x58
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L08051A72
 	.align 2, 0
 .L080519B8: .4byte 0xFFFFF58C
@@ -33811,7 +32853,7 @@ func_080516F0: @ 0x080516F0
 	add r1, sp, #0x58
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L08051A72:
 	mov r2, r8
 	lsls r5, r2, #1
@@ -33894,7 +32936,7 @@ func_080516F0: @ 0x080516F0
 	mov r0, sl
 	movs r1, #2
 	movs r3, #1
-	bl func_08051D30
+	bl DrawFestivalResultsDigit
 .L08051B14:
 	adds r6, r5, #4
 	ldr r2, .L08051D00 @ =0x00000A38
@@ -33907,12 +32949,12 @@ func_080516F0: @ 0x080516F0
 	mov r0, sl
 	movs r1, #4
 	adds r2, r6, #0
-	bl func_08051D30
+	bl DrawFestivalResultsDigit
 	mov r0, sl
 	movs r1, #1
 	adds r2, r6, #0
 	movs r3, #0xc
-	bl func_08051D30
+	bl DrawFestivalResultsDigit
 	ldr r3, .L08051CF8 @ =0x00000A64
 	add r3, sp
 	ldr r3, [r3]
@@ -33930,7 +32972,7 @@ func_080516F0: @ 0x080516F0
 	mov r0, sl
 	movs r1, #0x14
 	adds r2, r6, #0
-	bl func_08051D30
+	bl DrawFestivalResultsDigit
 .L08051B64:
 	asrs r0, r4, #0x10
 	muls r5, r0, r5
@@ -33946,12 +32988,12 @@ func_080516F0: @ 0x080516F0
 	mov r0, sl
 	movs r1, #0x16
 	adds r2, r6, #0
-	bl func_08051D30
+	bl DrawFestivalResultsDigit
 	mov r0, sl
 	movs r1, #0x18
 	adds r2, r6, #0
 	movs r3, #0xa
-	bl func_08051D30
+	bl DrawFestivalResultsDigit
 	asrs r4, r4, #0x10
 	lsls r0, r4, #2
 	adds r0, r0, r4
@@ -33963,12 +33005,12 @@ func_080516F0: @ 0x080516F0
 	movs r1, #0x19
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08051D30
+	bl DrawFestivalResultsDigit
 	mov r0, sl
 	movs r1, #0x1b
 	adds r2, r6, #0
 	movs r3, #0xb
-	bl func_08051D30
+	bl DrawFestivalResultsDigit
 	ldr r4, .L08051CF0 @ =0x00000A58
 	add r4, sp
 	ldr r4, [r4]
@@ -34005,7 +33047,7 @@ func_080516F0: @ 0x080516F0
 	ldr r0, [r0]
 	add r1, sp, #0x35c
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L08051D10 @ =gUnk_080FA158
 	movs r2, #1
 	ldr r0, .L08051D14 @ =0x00000A34
@@ -34023,7 +33065,7 @@ func_080516F0: @ 0x080516F0
 	add r1, sp, #0x35c
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	ldr r1, .L08051D18 @ =0x06002000
 	movs r2, #0xd8
 	lsls r2, r2, #3
@@ -34132,8 +33174,9 @@ func_080516F0: @ 0x080516F0
 .L08051D28: .4byte 0x05000200
 .L08051D2C: .4byte 0x00000A74
 
-	thumb_func_start func_08051D30
-func_08051D30: @ 0x08051D30
+	.section .text.festival_results.08051D30
+	thumb_func_start DrawFestivalResultsDigit
+DrawFestivalResultsDigit: @ 0x08051D30
 	push {r4, r5, r6, r7, lr}
 	lsls r3, r3, #1
 	movs r4, #0x83
@@ -34166,6 +33209,8 @@ func_08051D30: @ 0x08051D30
 	bx r0
 	.align 2, 0
 .L08051D6C: .4byte 0x000020C1
+
+	.section .text.festival_results.08051D70
 
 	thumb_func_start func_08051D70
 func_08051D70: @ 0x08051D70
@@ -34711,92 +33756,7 @@ func_08051D70: @ 0x08051D70
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_0805218C
-func_0805218C: @ 0x0805218C
-	push {r4, r5, r6, lr}
-	adds r4, r0, #0
-	adds r6, r1, #0
-	adds r5, r2, #0
-	ldr r0, .L080521B8 @ =vtable_unk_080E7934
-	str r0, [r4]
-	movs r0, #0x8c
-	lsls r0, r0, #4
-	bl __builtin_new
-	adds r1, r5, #0
-	bl func_0805143C
-	str r0, [r4, #4]
-	ldr r1, [r6]
-	movs r0, #0
-	str r0, [r6]
-	str r1, [r4, #8]
-	adds r0, r4, #0
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080521B8: .4byte vtable_unk_080E7934
-
-	thumb_func_start func_080521BC
-func_080521BC: @ 0x080521BC
-	push {r4, r5, lr}
-	adds r4, r0, #0
-	adds r5, r1, #0
-	ldr r0, .L080521F8 @ =vtable_unk_080E7934
-	str r0, [r4]
-	ldr r1, [r4, #8]
-	cmp r1, #0
-	beq .L080521D8
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L080521D8:
-	ldr r1, [r4, #4]
-	cmp r1, #0
-	beq .L080521EA
-	ldr r0, [r1, #4]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L080521EA:
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl Scene_DestroyBase
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080521F8: .4byte vtable_unk_080E7934
-
-	thumb_func_start func_080521FC
-func_080521FC: @ 0x080521FC
-	push {r4, r5, lr}
-	sub sp, #4
-	adds r5, r0, #0
-	adds r4, r1, #0
-	ldr r1, [r4, #4]
-	mov r0, sp
-	bl func_08051504
-	ldr r1, [sp]
-	cmp r1, #0
-	beq .L0805221E
-	ldr r0, [r1]
-	ldr r2, [r0, #8]
-	adds r0, r1, #0
-	movs r1, #3
-	bl _call_via_r2
-.L0805221E:
-	ldr r1, [r4, #8]
-	movs r0, #0
-	str r0, [r4, #8]
-	str r1, [r5]
-	adds r0, r5, #0
-	add sp, #4
-	pop {r4, r5}
-	pop {r1}
-	bx r1
+	.section .text.festival_results.08052230
 
 	thumb_func_start func_08052230
 func_08052230: @ 0x08052230
@@ -34885,28 +33845,7 @@ func_08052230: @ 0x08052230
 	.align 2, 0
 .L080522D4: .4byte gUnk_080FA174
 
-	thumb_func_start func_080522D8
-func_080522D8: @ 0x080522D8
-	lsls r2, r2, #2
-	adds r0, r0, r2
-	ldrb r2, [r0]
-	strb r2, [r1]
-	ldrh r0, [r0, #2]
-	strh r0, [r1, #2]
-	bx lr
-	.align 2, 0
-
-	thumb_func_start func_080522E8
-func_080522E8: @ 0x080522E8
-	lsls r2, r2, #2
-	adds r0, r0, r2
-	ldrb r2, [r1]
-	strb r2, [r0]
-	ldrh r1, [r1, #2]
-	strh r1, [r0, #2]
-	bx lr
-	.align 2, 0
-
+	.section .text.after_festival_scores
 	thumb_func_start func_080522F8
 func_080522F8: @ 0x080522F8
 	push {r4, r5, r6, r7, lr}
@@ -34950,7 +33889,7 @@ func_080522F8: @ 0x080522F8
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	str r0, [r7, #0x10]
 	adds r0, r6, #0
 	movs r1, #2
@@ -36871,7 +35810,7 @@ sub_08052A1E: @ 0x08052A1E
 	adds r0, r0, r1
 	adds r1, r6, #0
 	adds r2, r4, #0
-	bl func_080522D8
+	bl GetAnimalFestivalScore
 	ldrh r0, [r6, #2]
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
@@ -36898,12 +35837,12 @@ sub_08052A1E: @ 0x08052A1E
 	subs r4, r6, #1
 	adds r1, r7, #0
 	adds r2, r4, #0
-	bl func_080522D8
+	bl GetAnimalFestivalScore
 	ldr r0, [r5, #8]
 	add r0, r8
 	adds r1, r7, #0
 	adds r2, r6, #0
-	bl func_080522E8
+	bl SetAnimalFestivalScore
 	adds r6, r4, #0
 	cmp r6, sb
 	bgt .L08053412
@@ -36920,7 +35859,7 @@ sub_08052A1E: @ 0x08052A1E
 	ldr r2, .L08053490 @ =0x00002C4C
 	adds r0, r0, r2
 	mov r2, sb
-	bl func_080522E8
+	bl SetAnimalFestivalScore
 	mov r3, sb
 	cmp r3, #0
 	bne .L0805345E
@@ -46576,7 +45515,7 @@ func_0805806C: @ 0x0805806C
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	mov r1, sl
 	str r0, [r1, #0x10]
 	adds r0, r6, #0
@@ -50362,7 +49301,7 @@ func_08059FE0: @ 0x08059FE0
 	ldr r0, [r0]
 	add r1, sp, #0x30
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldrh r0, [r4, #0x20]
 	cmp r0, #0x27
 	bhi .L0805A1D0
@@ -50384,7 +49323,7 @@ func_08059FE0: @ 0x08059FE0
 	add r1, sp, #0x30
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L0805A1F8
 	.align 2, 0
 .L0805A18C: .4byte gUnk_0875196C
@@ -50422,7 +49361,7 @@ func_08059FE0: @ 0x08059FE0
 	adds r0, r1, #0
 	add r1, sp, #0x30
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L0805A1F8:
 	ldr r1, .L0805A2BC @ =0x00000B68
 	add r1, sp
@@ -50452,7 +49391,7 @@ func_08059FE0: @ 0x08059FE0
 	ldr r0, [r0]
 	add r1, sp, #0x334
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L0805A2C4 @ =gUnk_080FAE9C
 	movs r6, #1
 	ldr r0, .L0805A2C8 @ =0x00000B44
@@ -50470,7 +49409,7 @@ func_08059FE0: @ 0x08059FE0
 	add r1, sp, #0x334
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	ldr r1, .L0805A2CC @ =0x06004000
 	movs r2, #0x80
 	lsls r2, r2, #4
@@ -50490,7 +49429,7 @@ func_08059FE0: @ 0x08059FE0
 	add r2, sp
 	ldr r1, [r2]
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r3, .L0805A2DC @ =0x00000B54
 	add r3, sp
 	ldr r3, [r3]
@@ -50512,7 +49451,7 @@ func_08059FE0: @ 0x08059FE0
 	ldr r1, [r7]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L0805A310
 	.align 2, 0
 .L0805A2B8: .4byte 0x000014DC
@@ -50546,7 +49485,7 @@ func_08059FE0: @ 0x08059FE0
 	ldr r1, [r2]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L0805A310:
 	ldr r1, .L0805A3E0 @ =0x06004800
 	movs r4, #0x80
@@ -50721,7 +49660,7 @@ func_0805A3F0: @ 0x0805A3F0
 	ldr r0, [r6]
 	adds r1, r5, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r0, r8
 	adds r0, #4
 	mov r8, r0
@@ -50740,7 +49679,7 @@ func_0805A3F0: @ 0x0805A3F0
 	adds r1, r5, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r5, #0
 	adds r1, r7, #0
 	movs r2, #0x80
@@ -55810,7 +54749,7 @@ InitMedalExchangeScreen: @ 0x0805CF70
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	str r0, [r7, #0x10]
 	adds r0, r4, #0
 	movs r1, #2
@@ -57390,7 +56329,7 @@ func_0805DC24: @ 0x0805DC24
 	ldr r0, [r7]
 	add r1, sp, #0x50
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	movs r0, #0xae
 	lsls r0, r0, #4
 	add r0, r8
@@ -57415,7 +56354,7 @@ func_0805DC24: @ 0x0805DC24
 	str r1, [sp, #8]
 	add r1, sp, #0x50
 	movs r2, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	ldr r0, [sp, #0x3dc]
 	adds r1, r5, #0
 	movs r2, #0xe0
@@ -58914,7 +57853,7 @@ InitChildhoodMemoryScreen: @ 0x0805ED4C
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0xf
-	bl func_08050CC0
+	bl CreateMessageWindow
 	str r0, [r4, #0x10]
 	adds r0, r5, #0
 	movs r1, #2
@@ -58942,7 +57881,7 @@ InitChildhoodMemoryScreen: @ 0x0805ED4C
 	str r3, [r1, #4]
 	ldr r0, [r4, #0x10]
 	movs r1, #0xb
-	bl func_08050E98
+	bl ClearMessageWindowButtonMask
 	ldr r1, .L0805EE2C @ =0x00006420
 	adds r0, r4, r1
 	mov r2, r8
@@ -60965,7 +59904,7 @@ func_0805FF14: @ 0x0805FF14
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -61280,7 +60219,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r1, [sp, #0x1f4]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -61443,7 +60382,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r1, [sp, #0x1f8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -61598,7 +60537,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r1, [sp, #0x1fc]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0x1c4]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -61761,7 +60700,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r1, [sp, #0x200]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r4, [sp, #0x1c4]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -61924,7 +60863,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r1, [sp, #0x204]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r4, [sp, #0x1c4]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -62087,7 +61026,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r1, [sp, #0x208]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r4, [sp, #0x1c4]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -63573,7 +62512,7 @@ func_0805FF14: @ 0x0805FF14
 	movs r5, #0x20
 	str r5, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x1cc]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r4
@@ -63585,7 +62524,7 @@ func_0805FF14: @ 0x0805FF14
 	str r5, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x210]
 	str r3, [sp, #0x1d0]
 	lsls r0, r3, #3
@@ -63763,7 +62702,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r0, [r0]
 	ldr r1, [sp, #0x20c]
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r3, [sp, #0x1c4]
 	ldr r7, .L080614A0 @ =0x0000058C
 	adds r0, r3, r7
@@ -63781,7 +62720,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r1, [sp, #0x20c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r3, [sp, #0x1c4]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
@@ -63944,7 +62883,7 @@ func_0805FF14: @ 0x0805FF14
 	str r6, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x1c4]
 	ldr r7, .L08061658 @ =0x0000058C
 	adds r4, r5, r7
@@ -63968,7 +62907,7 @@ func_0805FF14: @ 0x0805FF14
 	str r6, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L080615CA:
 	ldr r0, [r4]
 	adds r0, r0, r5
@@ -63996,7 +62935,7 @@ func_0805FF14: @ 0x0805FF14
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r4, #1
 	cmp r4, r6
@@ -64353,7 +63292,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r0, [r0]
 	mov r1, sb
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r2, [sp, #0x1c4]
 	ldr r3, .L08061954 @ =0x0000058C
 	adds r0, r2, r3
@@ -64372,7 +63311,7 @@ func_0805FF14: @ 0x0805FF14
 	mov r1, sb
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r3, [sp, #0x1c4]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
@@ -64536,7 +63475,7 @@ func_0805FF14: @ 0x0805FF14
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0xa
 	add r4, sp, #0x124
 	str r0, [r4]
@@ -64575,7 +63514,7 @@ func_0805FF14: @ 0x0805FF14
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r4, #1
 	cmp r4, r6
@@ -64808,7 +63747,7 @@ func_0805FF14: @ 0x0805FF14
 	ldr r0, [r0]
 	mov r1, sb
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0x1dc]
 	bl GetNamedNpcName
 	adds r1, r0, #0
@@ -64821,7 +63760,7 @@ func_0805FF14: @ 0x0805FF14
 	mov r1, sb
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r3, [sp, #0x1c4]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
@@ -64983,7 +63922,7 @@ func_0805FF14: @ 0x0805FF14
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0xa
 	add r4, sp, #0x144
 	str r0, [r4]
@@ -65022,7 +63961,7 @@ func_0805FF14: @ 0x0805FF14
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r4, #1
 	cmp r4, r6
@@ -65222,7 +64161,7 @@ sub_08061E00: @ 0x08061E00
 	str r2, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L08061F64:
 	movs r4, #0xc
 	movs r5, #2
@@ -65233,7 +64172,7 @@ sub_08061E00: @ 0x08061E00
 	ldr r0, [r0]
 	ldr r1, [sp, #0x224]
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [r6]
 	adds r0, r0, r7
 	bl GetName__C6Animal
@@ -65247,7 +64186,7 @@ sub_08061E00: @ 0x08061E00
 	ldr r1, [sp, #0x224]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r3, [sp, #0x1c4]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
@@ -65411,7 +64350,7 @@ sub_08061E00: @ 0x08061E00
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0xa
 	add r4, sp, #0x164
 	str r0, [r4]
@@ -65455,7 +64394,7 @@ sub_08061E00: @ 0x08061E00
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r4, #1
 	cmp r4, r6
@@ -65690,7 +64629,7 @@ sub_08061E00: @ 0x08061E00
 	str r2, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L080622EC:
 	movs r4, #0xc
 	movs r5, #2
@@ -65701,7 +64640,7 @@ sub_08061E00: @ 0x08061E00
 	ldr r0, [r0]
 	mov r1, sb
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0x1e0]
 	bl GetName__C6Animal
 	adds r1, r0, #0
@@ -65714,7 +64653,7 @@ sub_08061E00: @ 0x08061E00
 	mov r1, sb
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r5, [sp, #0x1c4]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -65876,7 +64815,7 @@ sub_08061E00: @ 0x08061E00
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0xa
 	add r4, sp, #0x184
 	str r0, [r4]
@@ -65915,7 +64854,7 @@ sub_08061E00: @ 0x08061E00
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r4, #1
 	cmp r4, r6
@@ -66099,7 +65038,7 @@ sub_08061E00: @ 0x08061E00
 	movs r4, #0x20
 	str r4, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r7, [sp, #0x1cc]
 	ldr r0, [r7, #0x18]
 	adds r0, r0, r5
@@ -66111,7 +65050,7 @@ sub_08061E00: @ 0x08061E00
 	str r4, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0x94
 	mov r3, sl
 	str r0, [r3, #4]
@@ -66282,7 +65221,7 @@ sub_08061E00: @ 0x08061E00
 	movs r4, #0x20
 	str r4, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x1cc]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r5
@@ -66294,7 +65233,7 @@ sub_08061E00: @ 0x08061E00
 	str r4, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r3, r7, #0
 	adds r3, #3
 	str r3, [sp, #0x1d0]
@@ -66474,7 +65413,7 @@ sub_08061E00: @ 0x08061E00
 	movs r4, #0x20
 	str r4, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r7, [sp, #0x1cc]
 	ldr r0, [r7, #0x18]
 	adds r0, r0, r5
@@ -66486,7 +65425,7 @@ sub_08061E00: @ 0x08061E00
 	str r4, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0x94
 	mov r3, sl
 	str r0, [r3, #4]
@@ -66657,7 +65596,7 @@ sub_08061E00: @ 0x08061E00
 	movs r4, #0x20
 	str r4, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x1cc]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r5
@@ -66669,7 +65608,7 @@ sub_08061E00: @ 0x08061E00
 	str r4, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r3, r7, #0
 	adds r3, #3
 	str r3, [sp, #0x1d0]
@@ -66844,7 +65783,7 @@ sub_08061E00: @ 0x08061E00
 	movs r4, #0x20
 	str r4, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x1cc]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r5
@@ -66856,7 +65795,7 @@ sub_08061E00: @ 0x08061E00
 	str r4, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r3, r7, #0
 	adds r3, #3
 	str r3, [sp, #0x1d0]
@@ -67045,7 +65984,7 @@ sub_08061E00: @ 0x08061E00
 	movs r4, #0x20
 	str r4, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r7, [sp, #0x1cc]
 	ldr r0, [r7, #0x18]
 	adds r0, r0, r5
@@ -67057,7 +65996,7 @@ sub_08061E00: @ 0x08061E00
 	str r4, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	add r3, sp, #0x21c
 	ldrh r4, [r3]
 	mov r3, sl
@@ -67229,7 +66168,7 @@ sub_08061E00: @ 0x08061E00
 	movs r4, #0x20
 	str r4, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r7, [sp, #0x1cc]
 	ldr r0, [r7, #0x18]
 	adds r0, r0, r5
@@ -67241,7 +66180,7 @@ sub_08061E00: @ 0x08061E00
 	str r4, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x210]
 	lsls r1, r3, #0x13
 	asrs r1, r1, #0x10
@@ -67327,7 +66266,7 @@ InitLivestockReport: @ 0x08062E9C
 	adds r4, r1, r2
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L08062FB0 @ =gUnk_080FB838
 	add r0, sp, #0x18
 	strh r5, [r0]
@@ -67338,7 +66277,7 @@ InitLivestockReport: @ 0x08062E9C
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	movs r3, #0x80
 	lsls r3, r3, #2
 	add r0, sp, #4
@@ -67567,7 +66506,7 @@ InitLivestockReport: @ 0x08062E9C
 	mov r1, sl
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	movs r3, #0x80
 	lsls r3, r3, #2
 	add r0, sp, #4
@@ -67719,7 +66658,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [sp, #0x30]
 	ldr r1, [sp, #0xc8]
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L0806326C @ =gUnk_080FB850
 	add r0, sp, #0x34
 	strh r4, [r0]
@@ -67730,7 +66669,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r1, [sp, #0xc8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	movs r3, #0x80
 	lsls r3, r3, #2
 	add r0, sp, #4
@@ -67885,7 +66824,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r1, [sp, #0xc4]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	add r0, sp, #4
@@ -68040,7 +66979,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r1, [sp, #0xd0]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	add r0, sp, #4
@@ -68195,7 +67134,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r1, [sp, #0xbc]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	add r0, sp, #4
@@ -68350,7 +67289,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r1, [sp, #0xcc]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	movs r3, #0xc0
 	lsls r3, r3, #1
 	add r0, sp, #4
@@ -68504,7 +67443,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r1, [sp, #0xb8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	add r0, sp, #4
 	ldr r1, [sp, #0xb8]
 	ldr r2, .L080637F8 @ =0x06001300
@@ -68657,7 +67596,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r1, [sp, #0xc0]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	add r0, sp, #4
 	ldr r1, [sp, #0xc0]
 	ldr r2, .L08063910 @ =0x06001380
@@ -69593,7 +68532,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	movs r1, #0xa0
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L08064044:
 	ldr r0, [sp, #0x44]
 	bl GetLivestockReportHeartCount
@@ -69616,7 +68555,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	movs r1, #0xa4
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r4, #1
 	cmp r4, r6
@@ -69655,7 +68594,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	adds r1, r4, #0
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #5
 	movs r0, #0xc0
 	lsls r0, r0, #0x13
@@ -69818,7 +68757,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	adds r0, r4, #0
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0x44]
 	bl GetAge__C6Animal
 	movs r1, #0x78
@@ -69832,7 +68771,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	lsls r2, r2, #1
 	str r5, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r4, #0x18]
 	adds r0, r0, r7
 	adds r0, #0x36
@@ -69841,7 +68780,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	movs r1, #0x98
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r5, #0
 	ldr r0, [sp, #0x3c]
 	ldr r1, .L08064258 @ =0x0000058C
@@ -69932,7 +68871,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	str r5, [sp, #4]
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #0x19
 	lsrs r4, r4, #0x1b
 	adds r4, #1
@@ -69945,7 +68884,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	str r5, [sp]
 	adds r0, r4, #0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r4, [sp, #0x4c]
 	ldr r0, [r4, #0x18]
 	adds r0, r0, r6
@@ -69956,7 +68895,7 @@ AddLivestockReportRow: @ 0x08063EB8
 	movs r1, #0x9c
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	add sp, #0x6c
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -70025,7 +68964,7 @@ func_080645F0: @ 0x080645F0
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -70218,7 +69157,7 @@ func_080645F0: @ 0x080645F0
 	mov r1, sl
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r5, [sp, #0xf0]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -70376,7 +69315,7 @@ func_080645F0: @ 0x080645F0
 	ldr r1, [sp, #0x10c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r5, [sp, #0xf0]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -70534,7 +69473,7 @@ func_080645F0: @ 0x080645F0
 	ldr r1, [sp, #0x130]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r5, [sp, #0xf0]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -73289,7 +72228,7 @@ sub_08065B14: @ 0x08065B14
 	ldr r2, .L08065EBC @ =0x00000C4C
 	adds r1, r1, r2
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r3, [sp, #0xf0]
 	ldr r7, .L08065EC0 @ =0x0000058C
 	adds r0, r3, r7
@@ -73311,7 +72250,7 @@ sub_08065B14: @ 0x08065B14
 	str r2, [sp]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r0, [sp, #0xf0]
 	adds r4, r4, r0
 	adds r1, r7, #0
@@ -73339,7 +72278,7 @@ sub_08065B14: @ 0x08065B14
 	adds r1, r4, #0
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #5
 	movs r0, #0xc0
 	lsls r0, r0, #0x13
@@ -73532,7 +72471,7 @@ sub_08065B14: @ 0x08065B14
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r4, #1
 	cmp r4, r6
@@ -73559,7 +72498,7 @@ sub_08065B14: @ 0x08065B14
 	str r2, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xfc]
 	movs r1, #1
 	bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
@@ -73592,7 +72531,7 @@ sub_08065B14: @ 0x08065B14
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #2
 	adds r5, #1
 .L08066072:
@@ -73626,7 +72565,7 @@ sub_08065B14: @ 0x08065B14
 	adds r0, r3, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #1
 	cmp r5, #9
 	bgt .L080660E6
@@ -73649,7 +72588,7 @@ sub_08065B14: @ 0x08065B14
 	lsrs r1, r6, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, #2
 	adds r5, #1
 	cmp r5, #9
@@ -73695,7 +72634,7 @@ sub_08065B14: @ 0x08065B14
 	str r2, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xfc]
 	movs r1, #0
 	bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
@@ -73727,7 +72666,7 @@ sub_08065B14: @ 0x08065B14
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #2
 	adds r5, #1
 .L0806617E:
@@ -73761,7 +72700,7 @@ sub_08065B14: @ 0x08065B14
 	adds r0, r3, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #1
 	cmp r5, #9
 	bgt .L080661F2
@@ -73784,7 +72723,7 @@ sub_08065B14: @ 0x08065B14
 	lsrs r1, r6, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, #2
 	adds r5, #1
 	cmp r5, #9
@@ -73830,7 +72769,7 @@ sub_08065B14: @ 0x08065B14
 	str r2, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xfc]
 	movs r1, #2
 	bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
@@ -73862,7 +72801,7 @@ sub_08065B14: @ 0x08065B14
 	lsrs r1, r7, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #2
 	adds r5, #1
 .L0806628A:
@@ -73896,7 +72835,7 @@ sub_08065B14: @ 0x08065B14
 	adds r0, r3, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #1
 	cmp r5, #9
 	bgt .L080662FE
@@ -73919,7 +72858,7 @@ sub_08065B14: @ 0x08065B14
 	lsrs r1, r6, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, #2
 	adds r5, #1
 	cmp r5, #9
@@ -73964,7 +72903,7 @@ sub_08065B14: @ 0x08065B14
 	str r5, [sp, #4]
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xfc]
 	bl GetCurrentTask__C13HarvestSprite
 	adds r2, r0, #0
@@ -74020,7 +72959,7 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #2
 .L080663B2:
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r1, [sp, #0xf4]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r4
@@ -74030,7 +72969,7 @@ sub_08065B14: @ 0x08065B14
 	str r5, [sp, #4]
 	movs r2, #4
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xfc]
 	bl GetWorkDaysLeft__C13HarvestSprite
 	ldr r2, [sp, #0xf4]
@@ -74041,7 +72980,7 @@ sub_08065B14: @ 0x08065B14
 	lsls r2, r2, #1
 	str r5, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0xf4]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r4
@@ -74051,7 +72990,7 @@ sub_08065B14: @ 0x08065B14
 	str r5, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	b .L0806641A
 .L08066400:
 	ldr r4, [sp, #0xf4]
@@ -74065,7 +73004,7 @@ sub_08065B14: @ 0x08065B14
 	str r5, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L0806641A:
 	ldr r0, [sp, #0x148]
 	mov r8, r0
@@ -74137,7 +73076,7 @@ func_0806644C: @ 0x0806644C
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -74455,7 +73394,7 @@ func_0806644C: @ 0x0806644C
 	mov r1, sl
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -74619,7 +73558,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x120]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r4, [sp, #0xe8]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -74786,7 +73725,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x128]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r4, [sp, #0xe8]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -74952,7 +73891,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x170]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -75110,7 +74049,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x180]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0xe8]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -75265,7 +74204,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x10c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r5, [sp, #0xe8]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -75420,7 +74359,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x11c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r5, [sp, #0xe8]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -75577,7 +74516,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x15c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r5, [sp, #0xe8]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -75746,7 +74685,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x14c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r2, [sp, #0xe8]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -75914,7 +74853,7 @@ func_0806644C: @ 0x0806644C
 	ldr r1, [sp, #0x178]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r2, [sp, #0xe8]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -77334,7 +76273,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0xec]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r4
@@ -77346,7 +76285,7 @@ func_0806644C: @ 0x0806644C
 	str r6, [sp, #4]
 	movs r2, #4
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r1, [sp, #0xec]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r4
@@ -77363,7 +76302,7 @@ func_0806644C: @ 0x0806644C
 	str r6, [sp, #4]
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r4, [sp, #0xf0]
 	adds r4, #3
 	ldr r5, [sp, #0xec]
@@ -77378,7 +76317,7 @@ func_0806644C: @ 0x0806644C
 	str r6, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0xf0]
 	adds r3, #5
 	ldr r0, [r5, #0x18]
@@ -77392,7 +76331,7 @@ func_0806644C: @ 0x0806644C
 	str r6, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xe8]
 	ldr r1, .L08067D80 @ =0x0000058C
 	adds r5, r0, r1
@@ -77417,7 +76356,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0xec]
 	ldr r1, [r3, #0x18]
 	add r1, r8
@@ -77427,7 +76366,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r4, [sp, #0xec]
 	ldr r0, [r4, #0x18]
 	add r0, sb
@@ -77439,7 +76378,7 @@ func_0806644C: @ 0x0806644C
 	adds r1, r4, #0
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r1, [sp, #0xec]
 	ldr r0, [r1, #0x18]
 	add r0, r8
@@ -77449,7 +76388,7 @@ func_0806644C: @ 0x0806644C
 	adds r1, r4, #0
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r2, [sp, #0xf0]
 	adds r2, #8
 	str r2, [sp, #0xf0]
@@ -77492,7 +76431,7 @@ func_0806644C: @ 0x0806644C
 	str r5, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0xe8]
 	ldr r6, .L08067D80 @ =0x0000058C
 	adds r0, r3, r6
@@ -77512,7 +76451,7 @@ func_0806644C: @ 0x0806644C
 	lsls r2, r2, #1
 	str r5, [sp]
 	movs r3, #0
-	bl func_0804EE30
+	bl DrawSmallMessageNumber
 	b .L08067DAA
 	.align 2, 0
 .L08067D80: .4byte 0x0000058C
@@ -77530,7 +76469,7 @@ func_0806644C: @ 0x0806644C
 	lsls r2, r2, #1
 	str r5, [sp]
 	movs r3, #0
-	bl func_0804EE30
+	bl DrawSmallMessageNumber
 .L08067DAA:
 	ldr r3, [sp, #0xec]
 	ldr r0, [r3, #0x18]
@@ -77546,7 +76485,7 @@ func_0806644C: @ 0x0806644C
 	str r4, [sp, #4]
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r7, [sp, #0xec]
 	ldr r0, [r7, #0x18]
 	adds r0, r0, r6
@@ -77557,7 +76496,7 @@ func_0806644C: @ 0x0806644C
 	str r4, [sp, #4]
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0xf0]
 	adds r3, #2
 	str r3, [sp, #0xf0]
@@ -77621,7 +76560,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0xec]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r4
@@ -77633,7 +76572,7 @@ func_0806644C: @ 0x0806644C
 	lsrs r1, r1, #0x10
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0x40
 	str r0, [sp, #0xc]
 	add r0, sp, #8
@@ -77768,7 +76707,7 @@ func_0806644C: @ 0x0806644C
 	lsls r1, r1, #1
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	cmp r5, #0x64
 	ble .L08067FA4
 	ldr r0, [sp, #0xec]
@@ -77797,7 +76736,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0xa8
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EE30
+	bl DrawSmallMessageNumber
 	b .L08067FD6
 .L08067FC0:
 	ldr r3, [sp, #0xec]
@@ -77809,7 +76748,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0xa8
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EE30
+	bl DrawSmallMessageNumber
 .L08067FD6:
 	adds r0, r7, #0
 	ldr r1, [sp, #0xf8]
@@ -77846,7 +76785,7 @@ func_0806644C: @ 0x0806644C
 	movs r1, #0xa4
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #1
 .L08068024:
 	adds r1, r4, #0
@@ -77897,7 +76836,7 @@ func_0806644C: @ 0x0806644C
 .L0806807A:
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #1
 	cmp r6, #9
 	ble .L0806805E
@@ -77931,7 +76870,7 @@ func_0806644C: @ 0x0806644C
 	lsls r1, r1, #1
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xec]
 	ldr r1, [r0, #0x18]
 	adds r1, r1, r4
@@ -77942,7 +76881,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0xa8
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EE30
+	bl DrawSmallMessageNumber
 .L080680E2:
 	adds r0, r7, #0
 	ldr r1, [sp, #0xf8]
@@ -77973,7 +76912,7 @@ func_0806644C: @ 0x0806644C
 	movs r1, #0xad
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r6, #1
 .L0806812A:
@@ -78008,7 +76947,7 @@ func_0806644C: @ 0x0806644C
 	adds r0, r3, #0
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #1
 	cmp r6, #9
 	bgt .L0806819C
@@ -78029,7 +76968,7 @@ func_0806644C: @ 0x0806644C
 	movs r1, #0xa5
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, #2
 	adds r6, #1
 	cmp r6, #9
@@ -78119,7 +77058,7 @@ func_0806644C: @ 0x0806644C
 	str r5, [sp, #4]
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r1, [sp, #0xec]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r6
@@ -78130,7 +77069,7 @@ func_0806644C: @ 0x0806644C
 	lsrs r1, r2, #0x10
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0xec]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r7
@@ -78141,7 +77080,7 @@ func_0806644C: @ 0x0806644C
 	lsrs r1, r4, #0x10
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x108]
 	ldr r0, [r5]
 	ldr r1, .L08068340 @ =0x00001AA8
@@ -78165,7 +77104,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r2, [sp, #0xec]
 	ldr r1, [r2, #0x18]
 	adds r1, r1, r7
@@ -78176,7 +77115,7 @@ func_0806644C: @ 0x0806644C
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r4, [sp, #0xec]
 	ldr r0, [r4, #0x18]
 	adds r0, r0, r6
@@ -78190,7 +77129,7 @@ func_0806644C: @ 0x0806644C
 	adds r1, r4, #0
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r2, [sp, #0xec]
 	ldr r0, [r2, #0x18]
 	adds r0, r0, r7
@@ -78201,7 +77140,7 @@ func_0806644C: @ 0x0806644C
 	adds r1, r4, #0
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r4, #0xa0
 	lsls r4, r4, #1
 	adds r7, r7, r4
@@ -78281,7 +77220,7 @@ func_08068344: @ 0x08068344
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r0, [r7]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -78479,7 +77418,7 @@ func_08068344: @ 0x08068344
 	mov r1, sl
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -78636,7 +77575,7 @@ func_08068344: @ 0x08068344
 	ldr r1, [sp, #0xdc]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r1, [sp, #0xbc]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -80800,7 +79739,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r3, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #2
 	adds r7, #1
 	cmp r7, #0xe
@@ -80887,7 +79826,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r2, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r7, #1
 	cmp r7, r6
@@ -80913,7 +79852,7 @@ func_08068344: @ 0x08068344
 	str r2, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r7, #1
 	cmp r7, #0xe
 	bhi .L0806970E
@@ -80936,7 +79875,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r2, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #2
 	adds r7, #1
 	cmp r7, #0xe
@@ -81019,7 +79958,7 @@ func_08068344: @ 0x08068344
 	str r5, [sp]
 	adds r1, r4, #0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r4, [sp, #0xc0]
 	ldr r0, [r4, #0x18]
 	b .L08069A52
@@ -81062,7 +80001,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r3, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r7, #1
 	lsrs r0, r4, #3
@@ -81089,7 +80028,7 @@ func_08068344: @ 0x08068344
 	str r2, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r7, #1
 	cmp r7, #0xe
 	bhi .L08069874
@@ -81112,7 +80051,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r2, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #2
 	adds r7, #1
 	cmp r7, #0xe
@@ -81224,7 +80163,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r3, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r7, #1
 	lsrs r0, r4, #3
@@ -81251,7 +80190,7 @@ func_08068344: @ 0x08068344
 	str r2, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r7, #1
 	cmp r7, #0xe
 	bhi .L080699B4
@@ -81274,7 +80213,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r2, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #2
 	adds r7, #1
 	cmp r7, #0xe
@@ -81355,7 +80294,7 @@ func_08068344: @ 0x08068344
 	str r5, [sp]
 	adds r1, r4, #0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0xc0]
 	ldr r0, [r3, #0x18]
 .L08069A52:
@@ -81367,7 +80306,7 @@ func_08068344: @ 0x08068344
 	movs r2, #2
 .L08069A5E:
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	b .L08069B62
 	.align 2, 0
 .L08069A68: .4byte 0xFFFFE890
@@ -81400,7 +80339,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r3, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	adds r7, #1
 	lsrs r0, r4, #3
@@ -81427,7 +80366,7 @@ func_08068344: @ 0x08068344
 	str r2, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r7, #1
 	cmp r7, #0xe
 	bhi .L08069B14
@@ -81450,7 +80389,7 @@ func_08068344: @ 0x08068344
 	lsrs r1, r2, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r6, #2
 	adds r7, #1
 	cmp r7, #0xe
@@ -81480,7 +80419,7 @@ func_08068344: @ 0x08068344
 	str r5, [sp]
 	adds r1, r4, #0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0xc0]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r6
@@ -81490,7 +80429,7 @@ func_08068344: @ 0x08068344
 	str r5, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L08069B62:
 	ldr r0, .L08069BF0 @ =0x0000176F
 	ldr r2, [sp, #0xd4]
@@ -81510,7 +80449,7 @@ func_08068344: @ 0x08068344
 	str r6, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, .L08069BF4 @ =0x0000464F
 	ldr r7, [sp, #0xd4]
 	cmp r7, r0
@@ -81524,7 +80463,7 @@ func_08068344: @ 0x08068344
 	str r6, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, .L08069BF8 @ =0x00008C9F
 	cmp r7, r0
 	bls .L08069BE0
@@ -81537,7 +80476,7 @@ func_08068344: @ 0x08068344
 	str r6, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, .L08069BFC @ =0x0000FFFF
 	cmp r7, r0
 	bne .L08069BE0
@@ -81550,7 +80489,7 @@ func_08068344: @ 0x08068344
 	str r6, [sp, #4]
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L08069BE0:
 	ldr r4, [sp, #0xe8]
 	ldr r5, [sp, #0xc8]
@@ -82047,7 +80986,7 @@ func_08069F14: @ 0x08069F14
 	movs r1, #0
 	movs r2, #0x1d
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r0, r5, #0
 	movs r1, #2
 	bl func_08007714
@@ -82440,7 +81379,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r4, r7, r1
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L0806A488 @ =gUnk_080FB97C
 	movs r2, #1
 	mov sb, r2
@@ -82456,7 +81395,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	ldr r6, [sp, #0x2b8]
@@ -82761,7 +81700,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r1, [sp, #0x368]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	ldr r1, [sp, #0x2b8]
@@ -82936,7 +81875,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r0, [r0]
 	ldr r1, [sp, #0x36c]
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L0806A7CC @ =gUnk_080FB994
 	movs r3, #1
 	mov sb, r3
@@ -82951,7 +81890,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r1, [sp, #0x36c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	ldr r5, [sp, #0x2b8]
@@ -83138,7 +82077,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r1, [sp, #0x288]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -83319,7 +82258,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r1, [sp, #0x29c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -83500,7 +82439,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r1, [sp, #0x2a0]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -83681,7 +82620,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r1, [sp, #0x2cc]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -83865,7 +82804,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r4, [sp, #8]
 	ldr r1, [sp, #0x378]
 	movs r2, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x380]
@@ -84041,7 +82980,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r4, [sp, #8]
 	ldr r1, [sp, #0x37c]
 	movs r2, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	str r0, [sp, #0x380]
@@ -85029,7 +83968,7 @@ func_0806A1F4: @ 0x0806A1F4
 	lsrs r1, r1, #0x10
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L0806B6C2:
 	movs r4, #0
 	ldr r0, [sp, #0x228]
@@ -85086,7 +84025,7 @@ func_0806A1F4: @ 0x0806A1F4
 	lsrs r1, r1, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, #1
 .L0806B738:
 	mov r0, sb
@@ -85116,7 +84055,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r0, [r0]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r0, sb
 	bl GetName__C6Animal
 	adds r2, r0, #0
@@ -85138,7 +84077,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r2, [sp, #8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r4, r4, r7
 	movs r3, #0xe6
 	lsls r3, r3, #4
@@ -85165,7 +84104,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r1, r4, #0
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #5
 	movs r3, #0xc0
 	lsls r3, r3, #0x13
@@ -85225,7 +84164,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, r5, #0
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, sb
 	bl GetAge__C6Animal
 	movs r1, #0x78
@@ -85237,7 +84176,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	add r0, sl
@@ -85248,7 +84187,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, sb
 	bl GetAge__C6Animal
 	adds r4, r0, #0
@@ -85340,7 +84279,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #0x19
 	lsrs r4, r4, #0x1b
 	adds r4, #1
@@ -85352,7 +84291,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, r4, #0
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r5
@@ -85364,7 +84303,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r4, [sp, #0x290]
 	str r4, [sp, #0x22c]
 .L0806B97A:
@@ -85519,7 +84458,7 @@ func_0806A1F4: @ 0x0806A1F4
 	lsrs r1, r1, #0x10
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L0806BAAA:
 	movs r5, #0
 	ldr r6, [sp, #0x228]
@@ -85576,7 +84515,7 @@ func_0806A1F4: @ 0x0806A1F4
 	lsrs r1, r1, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #1
 .L0806BB20:
 	mov r0, sb
@@ -85605,7 +84544,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r0, [r0]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r0, sb
 	bl GetName__C6Animal
 	adds r2, r0, #0
@@ -85627,7 +84566,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r2, [sp, #8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r4, r4, r7
 	movs r3, #0xe6
 	lsls r3, r3, #4
@@ -85654,7 +84593,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r1, r4, #0
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #5
 	movs r3, #0xc0
 	lsls r3, r3, #0x13
@@ -85714,7 +84653,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, r5, #0
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, sb
 	bl GetAge__C6Animal
 	movs r1, #0x78
@@ -85726,7 +84665,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	add r0, sl
@@ -85737,7 +84676,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, sb
 	bl GetAge__C6Animal
 	adds r4, r0, #0
@@ -85829,7 +84768,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #0x19
 	lsrs r4, r4, #0x1b
 	adds r4, #1
@@ -85841,7 +84780,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, r4, #0
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r5
@@ -85853,7 +84792,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r4, [sp, #0x294]
 	str r4, [sp, #0x230]
 .L0806BD62:
@@ -86009,7 +84948,7 @@ func_0806A1F4: @ 0x0806A1F4
 	lsrs r1, r1, #0x10
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L0806BE9A:
 	movs r5, #0
 	ldr r6, [sp, #0x228]
@@ -86066,7 +85005,7 @@ func_0806A1F4: @ 0x0806A1F4
 	lsrs r1, r1, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #1
 .L0806BF10:
 	mov r0, sb
@@ -86095,7 +85034,7 @@ func_0806A1F4: @ 0x0806A1F4
 	ldr r0, [r0]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r0, sb
 	bl GetName__C6Animal
 	adds r2, r0, #0
@@ -86117,7 +85056,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r2, [sp, #8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r4, r4, r7
 	movs r3, #0xe6
 	lsls r3, r3, #4
@@ -86144,7 +85083,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r1, r4, #0
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #5
 	movs r3, #0xc0
 	lsls r3, r3, #0x13
@@ -86204,7 +85143,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, r5, #0
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, sb
 	bl GetAge__C6Animal
 	movs r1, #0x78
@@ -86216,7 +85155,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	add r0, sl
@@ -86227,7 +85166,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, sb
 	bl GetAge__C6Animal
 	adds r4, r0, #0
@@ -86319,7 +85258,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #0x19
 	lsrs r4, r4, #0x1b
 	adds r4, #1
@@ -86331,7 +85270,7 @@ func_0806A1F4: @ 0x0806A1F4
 	adds r0, r4, #0
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r5
@@ -86343,7 +85282,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r6, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r4, [sp, #0x298]
 	str r4, [sp, #0x234]
 .L0806C152:
@@ -89531,7 +88470,7 @@ func_0806D990: @ 0x0806D990
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0xf
-	bl func_08050CC0
+	bl CreateMessageWindow
 	str r0, [r7, #0xc]
 	adds r0, r4, #0
 	movs r1, #2
@@ -96064,7 +95003,7 @@ func_08070CA4: @ 0x08070CA4
 	ldr r0, [sp, #4]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r3, .L08070DA0 @ =0x000005BC
 	adds r1, r5, r3
 	adds r4, r4, r6
@@ -96081,7 +95020,7 @@ func_08070CA4: @ 0x08070CA4
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	movs r0, #1
 	strb r0, [r7]
 	b .L08070DAE
@@ -96157,7 +95096,7 @@ func_08070DE4: @ 0x08070DE4
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r6, [sp, #0xd0]
 	ldr r0, [r6]
 	bl HardwareContext_GetDmaQueue
@@ -96660,7 +95599,7 @@ func_08070DE4: @ 0x08070DE4
 	adds r1, r4, #0
 	movs r2, #0x14
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #5
 	movs r7, #0xc0
 	lsls r7, r7, #0x13
@@ -96844,7 +95783,7 @@ func_08070DE4: @ 0x08070DE4
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r7, [sp, #0xd4]
 	ldr r0, [r7, #0x18]
 	adds r0, r0, r4
@@ -96855,7 +95794,7 @@ func_08070DE4: @ 0x08070DE4
 	movs r1, #0x38
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0x104]
 	str r0, [sp, #0xd8]
 	ldr r1, [sp, #0xfc]
@@ -96929,7 +95868,7 @@ func_080713B8: @ 0x080713B8
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
@@ -97183,7 +96122,7 @@ func_080713B8: @ 0x080713B8
 	mov r1, sl
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r2, [sp, #0x100]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -97344,7 +96283,7 @@ func_080713B8: @ 0x080713B8
 	ldr r1, [sp, #0x168]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r2, [sp, #0x100]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -97505,7 +96444,7 @@ func_080713B8: @ 0x080713B8
 	ldr r1, [sp, #0x160]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r2, [sp, #0x100]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -97665,7 +96604,7 @@ func_080713B8: @ 0x080713B8
 	ldr r1, [sp, #0x164]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r4, [sp, #0x100]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -97825,7 +96764,7 @@ func_080713B8: @ 0x080713B8
 	ldr r1, [sp, #0x16c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r2, [sp, #0x100]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -97985,7 +96924,7 @@ func_080713B8: @ 0x080713B8
 	ldr r1, [sp, #0x13c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	ldr r4, [sp, #0x100]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -98391,7 +97330,7 @@ func_080713B8: @ 0x080713B8
 	movs r1, #0x38
 	movs r2, #4
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r3, r8
 	lsls r3, r3, #3
 	str r3, [sp, #0x158]
@@ -98577,7 +97516,7 @@ func_080713B8: @ 0x080713B8
 	adds r1, r4, #0
 	movs r2, #0x14
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	lsls r4, r4, #5
 	movs r2, #0xc0
 	lsls r2, r2, #0x13
@@ -98746,7 +97685,7 @@ func_080713B8: @ 0x080713B8
 	movs r1, #0x40
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r4, [sp, #0x114]
 	ldr r0, [r4]
 	movs r7, #0xb2
@@ -98770,7 +97709,7 @@ func_080713B8: @ 0x080713B8
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0x10c]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -98781,7 +97720,7 @@ func_080713B8: @ 0x080713B8
 	movs r1, #0x74
 	movs r2, #4
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r7, #0x12
 .L080721DE:
 	adds r0, r4, #0
@@ -98801,7 +97740,7 @@ func_080713B8: @ 0x080713B8
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x10c]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r5
@@ -98813,7 +97752,7 @@ func_080713B8: @ 0x080713B8
 	movs r1, #0x70
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L08072220:
 	ldr r3, [sp, #0x10c]
 	ldr r0, [r3, #0x18]
@@ -98828,7 +97767,7 @@ func_080713B8: @ 0x080713B8
 	movs r1, #0x58
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r6, [sp, #0x114]
 	ldr r0, [r6]
 	movs r1, #0xb2
@@ -98844,7 +97783,7 @@ func_080713B8: @ 0x080713B8
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0x108]
 	cmp r3, #7
 	bgt .L08072280
@@ -98857,7 +97796,7 @@ func_080713B8: @ 0x080713B8
 	movs r1, #0x7c
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	b .L08072296
 .L08072280:
 	ldr r1, [sp, #0x10c]
@@ -98869,7 +97808,7 @@ func_080713B8: @ 0x080713B8
 	movs r1, #0x68
 	movs r2, #4
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L08072296:
 	ldr r2, [sp, #0x154]
 	mov r8, r2
@@ -98947,7 +97886,7 @@ func_080722DC: @ 0x080722DC
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r2, sb
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -99502,7 +98441,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2ac]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r2, sb
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -99661,7 +98600,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2c0]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r5, sb
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -99820,7 +98759,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x284]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r2, sb
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -99979,7 +98918,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x290]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r5, sb
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -100137,7 +99076,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2a0]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r4, sb
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -100294,7 +99233,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2a8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r4, sb
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -100452,7 +99391,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2b0]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r2, sb
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -100611,7 +99550,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2b4]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r5, sb
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -100780,7 +99719,7 @@ func_080722DC: @ 0x080722DC
 	str r4, [sp, #4]
 	movs r2, #0x1a
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x20c]
 	adds r5, #2
 	str r5, [sp, #0x20c]
@@ -100811,7 +99750,7 @@ func_080722DC: @ 0x080722DC
 	str r3, [sp, #4]
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r6, .L080733F4 @ =0x0000058C
 	add r6, sb
 	ldr r0, [r6]
@@ -100825,7 +99764,7 @@ func_080722DC: @ 0x080722DC
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x18]
 	adds r0, r0, r4
 	adds r0, #0x34
@@ -100836,7 +99775,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x38
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r7, [sp, #0x20c]
 	adds r7, #2
 	str r7, [sp, #0x20c]
@@ -100865,7 +99804,7 @@ func_080722DC: @ 0x080722DC
 	str r3, [sp, #4]
 	movs r2, #0x10
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [r6]
 	bl func_08010F0C
 	ldr r7, [sp, #0x208]
@@ -100877,7 +99816,7 @@ func_080722DC: @ 0x080722DC
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x18]
 	adds r0, r0, r4
 	adds r0, #0x34
@@ -100888,7 +99827,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x38
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r7, [sp, #0x20c]
 	adds r7, #2
 	str r7, [sp, #0x20c]
@@ -100917,7 +99856,7 @@ func_080722DC: @ 0x080722DC
 	str r3, [sp, #4]
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [r6]
 	bl func_08010F1C
 	ldr r5, [sp, #0x208]
@@ -100929,7 +99868,7 @@ func_080722DC: @ 0x080722DC
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r5, #0x18]
 	adds r0, r0, r4
 	adds r0, #0x34
@@ -100939,7 +99878,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x38
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r2, [sp, #0x20c]
 	adds r2, #2
 	str r2, [sp, #0x20c]
@@ -100962,7 +99901,7 @@ func_080722DC: @ 0x080722DC
 	str r7, [sp, #4]
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [r6]
 	ldr r6, .L08073400 @ =0x00001C9C
 	adds r0, r0, r6
@@ -100984,7 +99923,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x40
 	movs r2, #4
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r1, [r7, #0x18]
 	adds r1, r1, r4
 	adds r1, #0x30
@@ -100994,7 +99933,7 @@ func_080722DC: @ 0x080722DC
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	movs r7, #0x19
 	adds r0, r5, #0
 	movs r1, #0x64
@@ -101013,7 +99952,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x40
 	movs r2, #4
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r1, [r7, #0x18]
 	adds r1, r1, r4
 	adds r1, #0x30
@@ -101023,7 +99962,7 @@ func_080722DC: @ 0x080722DC
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	movs r7, #0x13
 .L0807333A:
 	adds r0, r5, #0
@@ -101044,7 +99983,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x3c
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r1, [r6, #0x18]
 	adds r1, r1, r4
 	subs r0, r7, #1
@@ -101056,7 +99995,7 @@ func_080722DC: @ 0x080722DC
 	movs r2, #0x90
 	lsls r2, r2, #1
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 .L0807337E:
 	ldr r4, [sp, #0x20c]
 	adds r4, #3
@@ -101073,7 +100012,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2c4]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r6, sb
 	ldr r0, [r6]
 	bl HardwareContext_GetDmaQueue
@@ -101254,7 +100193,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x29c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r5, sb
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -101416,7 +100355,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2b8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r2, sb
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -101578,7 +100517,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2cc]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r5, sb
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -101739,7 +100678,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x27c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r4, sb
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -101901,7 +100840,7 @@ func_080722DC: @ 0x080722DC
 	str r4, [sp, #4]
 	movs r2, #0x1a
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x2d8]
 	str r3, [sp, #0x20c]
 	ldr r5, [sp, #0x208]
@@ -101916,7 +100855,7 @@ func_080722DC: @ 0x080722DC
 	movs r0, #1
 	mov r2, r8
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x208]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r5
@@ -101926,7 +100865,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x88
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r2, [sp, #0x208]
 	ldr r0, [r2, #0x18]
 	adds r0, r0, r5
@@ -101937,7 +100876,7 @@ func_080722DC: @ 0x080722DC
 	lsls r1, r1, #2
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -101948,7 +100887,7 @@ func_080722DC: @ 0x080722DC
 	lsls r1, r1, #2
 	movs r2, #0xe
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x20c]
 	adds r5, #2
 	str r5, [sp, #0x20c]
@@ -101967,7 +100906,7 @@ func_080722DC: @ 0x080722DC
 	str r4, [sp]
 	mov r2, r8
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -101977,7 +100916,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x50
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x20c]
 	adds r5, #2
 	str r5, [sp, #0x20c]
@@ -101990,7 +100929,7 @@ func_080722DC: @ 0x080722DC
 	movs r0, #1
 	mov r2, r8
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x208]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r5
@@ -102000,7 +100939,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x88
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r2, [sp, #0x208]
 	ldr r0, [r2, #0x18]
 	adds r0, r0, r5
@@ -102011,7 +100950,7 @@ func_080722DC: @ 0x080722DC
 	lsls r1, r1, #2
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -102022,7 +100961,7 @@ func_080722DC: @ 0x080722DC
 	lsls r1, r1, #2
 	movs r2, #0xe
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x20c]
 	adds r5, #2
 	str r5, [sp, #0x20c]
@@ -102038,7 +100977,7 @@ func_080722DC: @ 0x080722DC
 	str r4, [sp]
 	mov r2, r8
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -102048,7 +100987,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x50
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x20c]
 	adds r5, #2
 	str r5, [sp, #0x20c]
@@ -102061,7 +101000,7 @@ func_080722DC: @ 0x080722DC
 	movs r0, #1
 	mov r2, r8
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x208]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r5
@@ -102071,7 +101010,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x84
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r2, [sp, #0x208]
 	ldr r0, [r2, #0x18]
 	adds r0, r0, r5
@@ -102082,7 +101021,7 @@ func_080722DC: @ 0x080722DC
 	lsls r1, r1, #2
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -102093,7 +101032,7 @@ func_080722DC: @ 0x080722DC
 	lsls r1, r1, #2
 	movs r2, #0xe
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x20c]
 	adds r5, #2
 	str r5, [sp, #0x20c]
@@ -102109,7 +101048,7 @@ func_080722DC: @ 0x080722DC
 	str r4, [sp]
 	mov r2, r8
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -102119,7 +101058,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x50
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x20c]
 	adds r5, #2
 	str r5, [sp, #0x20c]
@@ -102132,7 +101071,7 @@ func_080722DC: @ 0x080722DC
 	movs r0, #1
 	mov r2, r8
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r1, [sp, #0x208]
 	ldr r0, [r1, #0x18]
 	adds r0, r0, r5
@@ -102142,7 +101081,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x84
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r2, [sp, #0x208]
 	ldr r0, [r2, #0x18]
 	adds r0, r0, r5
@@ -102153,7 +101092,7 @@ func_080722DC: @ 0x080722DC
 	lsls r1, r1, #2
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -102164,7 +101103,7 @@ func_080722DC: @ 0x080722DC
 	lsls r1, r1, #2
 	movs r2, #0xe
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r5, [sp, #0x20c]
 	adds r5, #2
 	str r5, [sp, #0x20c]
@@ -102180,7 +101119,7 @@ func_080722DC: @ 0x080722DC
 	str r4, [sp]
 	mov r2, r8
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -102190,7 +101129,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x50
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r4, [sp, #0x20c]
 	adds r4, #3
 	str r4, [sp, #0x20c]
@@ -102206,7 +101145,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x280]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r6, sb
 	ldr r0, [r6]
 	bl HardwareContext_GetDmaQueue
@@ -102370,7 +101309,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2bc]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r2, sb
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -102532,7 +101471,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2d4]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r5, sb
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -102694,7 +101633,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x248]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r2, sb
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -102856,7 +101795,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x288]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r5, sb
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -103017,7 +101956,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x28c]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r4, sb
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -103177,7 +102116,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x294]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r4, sb
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -103364,7 +102303,7 @@ func_080722DC: @ 0x080722DC
 	str r2, [sp, #4]
 	movs r2, #0x1a
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r5, #2
 	str r5, [sp, #0x20c]
 .L080744E6:
@@ -103393,7 +102332,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x54
 	movs r2, #8
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x20c]
 	lsls r2, r3, #3
 	ldr r3, .L080745B8 @ =gUnk_0875268C
@@ -103413,7 +102352,7 @@ func_080722DC: @ 0x080722DC
 	add r4, sb
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [r7]
 	movs r7, #0x82
 	lsls r7, r7, #3
@@ -103429,7 +102368,7 @@ func_080722DC: @ 0x080722DC
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r1, sb
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -103603,7 +102542,7 @@ func_080722DC: @ 0x080722DC
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x2d8]
 	str r3, [sp, #0x20c]
 	ldr r0, .L080747AC @ =0x0000058C
@@ -103646,7 +102585,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x64
 	movs r2, #4
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x20c]
 	lsls r2, r3, #3
 	ldr r3, .L080747B0 @ =gUnk_08751B4C
@@ -103666,7 +102605,7 @@ func_080722DC: @ 0x080722DC
 	add r4, sb
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [r7]
 	movs r7, #0xbe
 	lsls r7, r7, #3
@@ -103682,7 +102621,7 @@ func_080722DC: @ 0x080722DC
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r1, sb
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -103856,7 +102795,7 @@ func_080722DC: @ 0x080722DC
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x2d8]
 	str r3, [sp, #0x20c]
 	ldr r0, .L080749A4 @ =0x0000058C
@@ -103899,7 +102838,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x6c
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x20c]
 	lsls r2, r3, #3
 	ldr r3, .L080749A8 @ =gUnk_0875320C
@@ -103919,7 +102858,7 @@ func_080722DC: @ 0x080722DC
 	add r4, sb
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [r7]
 	movs r7, #0xbe
 	lsls r7, r7, #3
@@ -103935,7 +102874,7 @@ func_080722DC: @ 0x080722DC
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r1, sb
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
@@ -104109,7 +103048,7 @@ func_080722DC: @ 0x080722DC
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r3, [sp, #0x2d8]
 	str r3, [sp, #0x20c]
 	ldr r0, .L08074B28 @ =0x0000058C
@@ -104139,7 +103078,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x298]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r7, sb
 	ldr r0, [r7]
 	bl HardwareContext_GetDmaQueue
@@ -104302,7 +103241,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x228]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r2, sb
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
@@ -104464,7 +103403,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x274]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r5, sb
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
@@ -104636,7 +103575,7 @@ func_080722DC: @ 0x080722DC
 	str r4, [sp, #4]
 	movs r2, #0x1a
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r7, [sp, #0x20c]
 	adds r7, #2
 	ldr r0, [r5]
@@ -104652,7 +103591,7 @@ func_080722DC: @ 0x080722DC
 	lsls r2, r2, #1
 	str r4, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r5
@@ -104662,7 +103601,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0x94
 	movs r2, #0x14
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, r7, #0
 	adds r4, #3
 	str r4, [sp, #0x20c]
@@ -104679,7 +103618,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x2a4]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r6, sb
 	ldr r0, [r6]
 	bl HardwareContext_GetDmaQueue
@@ -104842,7 +103781,7 @@ func_080722DC: @ 0x080722DC
 	ldr r1, [sp, #0x278]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	mov r4, sb
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
@@ -105013,7 +103952,7 @@ func_080722DC: @ 0x080722DC
 	str r5, [sp, #4]
 	movs r2, #0x18
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r4, [sp, #0x18]
 	add r0, sp, #0x200
 	ldr r3, [r4, #0xc]
@@ -105055,7 +103994,7 @@ func_080722DC: @ 0x080722DC
 	lsls r2, r2, #1
 	str r5, [sp]
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r3, [sp, #0x208]
 	ldr r0, [r3, #0x18]
 	adds r0, r0, r4
@@ -105065,7 +104004,7 @@ func_080722DC: @ 0x080722DC
 	movs r1, #0xbc
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r4, [sp, #0x20c]
 	adds r4, #3
 	str r4, [sp, #0x20c]
@@ -105130,7 +104069,7 @@ func_08075220: @ 0x08075220
 	movs r1, #0x88
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, r8
 	ldr r1, [r0, #0x18]
 	adds r1, r1, r5
@@ -105140,7 +104079,7 @@ func_08075220: @ 0x08075220
 	str r4, [sp]
 	adds r0, r7, #0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	movs r6, #0x16
 .L0807527E:
 	mov r0, sb
@@ -105166,7 +104105,7 @@ func_08075220: @ 0x08075220
 	movs r1, #0x84
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, r8
 	ldr r1, [r0, #0x18]
 	adds r1, r1, r5
@@ -105178,7 +104117,7 @@ func_08075220: @ 0x08075220
 	str r4, [sp]
 	adds r0, r7, #0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	subs r6, #6
 .L080752CE:
 	mov r0, sb
@@ -105201,7 +104140,7 @@ func_08075220: @ 0x08075220
 	movs r1, #0x78
 	movs r2, #6
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, r8
 	ldr r1, [r0, #0x18]
 	adds r1, r1, r5
@@ -105213,7 +104152,7 @@ func_08075220: @ 0x08075220
 	str r4, [sp]
 	adds r0, r7, #0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 .L08075316:
 	add sp, #8
 	pop {r3, r4, r5}
@@ -106844,7 +105783,7 @@ func_08075E7C: @ 0x08075E7C
 	movs r1, #1
 	movs r2, #0x16
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
@@ -108431,7 +107370,7 @@ func_08076BFC: @ 0x08076BFC
 	adds r4, #0xc
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0x58]
 	bl strlen
 	adds r1, r0, #0
@@ -108449,7 +107388,7 @@ func_08076BFC: @ 0x08076BFC
 	str r3, [sp]
 	adds r1, r4, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 	b .L08076CF2
 	.align 2, 0
 .L08076CB8: .4byte 0x000005B4
@@ -108472,7 +107411,7 @@ func_08076BFC: @ 0x08076BFC
 	str r5, [sp]
 	adds r1, r4, #0
 	movs r3, #0
-	bl func_0804E8F0
+	bl DrawMessageTileString
 .L08076CF2:
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
@@ -109457,7 +108396,7 @@ func_080773E8: @ 0x080773E8
 	adds r1, r4, #0
 	adds r1, #0x14
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, .L08077480 @ =0x00000714
 	adds r1, r4, r0
 	movs r0, #0x80
@@ -110123,7 +109062,7 @@ func_080779B4: @ 0x080779B4
 	ldr r0, [sp]
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	adds r0, r4, #0
 	adds r1, r7, #0
 	movs r2, #0xe0
@@ -110173,7 +109112,7 @@ func_08077A1C: @ 0x08077A1C
 	adds r1, r5, #0
 	adds r1, #0x14
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	movs r3, #0xe5
 	lsls r3, r3, #3
 	adds r2, r5, r3
@@ -110269,7 +109208,7 @@ func_08077A1C: @ 0x08077A1C
 	str r3, [sp, #4]
 	str r4, [sp, #8]
 	movs r2, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L08077B18
 	.align 2, 0
 .L08077B0C: .4byte 0x0000071C
@@ -111769,7 +110708,7 @@ func_0807865C: @ 0x0807865C
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0xf
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007714
@@ -112350,7 +111289,7 @@ func_08078E40: @ 0x08078E40
 	adds r1, r6, #0
 	adds r1, #0x14
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L08079010 @ =0x00000714
 	adds r4, r6, r1
 	ldr r1, .L08079014 @ =gUnk_08527094
@@ -113999,7 +112938,7 @@ func_08079A64: @ 0x08079A64
 	ldr r0, [sp, #0x70]
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, .L08079DA8 @ =0x0000084E
 	adds r0, r5, r1
 	movs r2, #0
@@ -114047,7 +112986,7 @@ func_08079A64: @ 0x08079A64
 	str r1, [sp, #8]
 	adds r1, r6, #0
 	movs r2, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L08079CB0:
 	movs r2, #0x84
 	lsls r2, r2, #4
@@ -114115,7 +113054,7 @@ func_08079A64: @ 0x08079A64
 	ldr r0, [sp, #0x78]
 	add r1, sp, #0x30
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r0, r8
 	strh r7, [r0]
 	mov r1, sl
@@ -114220,7 +113159,7 @@ func_08079DC0: @ 0x08079DC0
 	adds r4, #0x14
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	cmp r7, #0
 	blt .L08079E6A
 	ldr r0, .L08079EAC @ =0x00000A5C
@@ -114257,7 +113196,7 @@ func_08079DC0: @ 0x08079DC0
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L08079E6A:
 	adds r0, r6, #0
 	bl HardwareContext_GetDmaQueue
@@ -114671,7 +113610,7 @@ func_08079F8C: @ 0x08079F8C
 	ldr r0, [sp, #0x80]
 	adds r1, r7, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r1, [sp, #0x98]
 	asrs r0, r1, #0x10
 	cmp r4, r0
@@ -114700,7 +113639,7 @@ func_08079F8C: @ 0x08079F8C
 	adds r1, r7, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L0807A1B8:
 	ldr r0, [sp, #0x94]
 	mov r1, r8
@@ -114759,7 +113698,7 @@ func_08079F8C: @ 0x08079F8C
 	ldr r0, [sp, #0x88]
 	add r1, sp, #0x34
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r3, r8
 	strh r3, [r6]
 	mov r0, sl
@@ -115176,7 +114115,7 @@ func_0807A554: @ 0x0807A554
 	adds r4, #0x14
 	adds r1, r4, #0
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	cmp r6, #0
 	blt .L0807A5EE
 	ldr r3, .L0807A630 @ =0x00000A5C
@@ -115205,7 +114144,7 @@ func_0807A554: @ 0x0807A554
 	adds r1, r4, #0
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L0807A5EE:
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
@@ -116866,7 +115805,7 @@ func_0807B188: @ 0x0807B188
 	str r7, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0xa9
 	lsls r0, r0, #2
 	adds r0, r0, r6
@@ -116884,7 +115823,7 @@ func_0807B188: @ 0x0807B188
 	str r7, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r6, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -116895,7 +115834,7 @@ func_0807B188: @ 0x0807B188
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L0807B37C:
 	ldr r2, [sp, #0xd8]
 	adds r2, #2
@@ -117054,7 +115993,7 @@ func_0807B3B0: @ 0x0807B3B0
 	ldr r0, [sp, #0x2c]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0x50]
 	bl GetName__C6Animal
 	adds r2, r0, #0
@@ -117074,7 +116013,7 @@ func_0807B3B0: @ 0x0807B3B0
 	movs r3, #1
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	ldr r1, [sp, #0x54]
 	adds r1, #4
 	lsls r0, r1, #1
@@ -117274,7 +116213,7 @@ func_0807B3B0: @ 0x0807B3B0
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	mov r0, r8
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -117591,7 +116530,7 @@ func_0807B3B0: @ 0x0807B3B0
 	lsrs r1, r6, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, #2
 	adds r5, #1
 .L0807B8A0:
@@ -118472,7 +117411,7 @@ func_0807BEC8: @ 0x0807BEC8
 	ldr r0, [sp, #0x6c]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r0, sb
 	cmp r0, #1
 	bls .L0807BFD8
@@ -118491,7 +117430,7 @@ func_0807BEC8: @ 0x0807BEC8
 	movs r3, #1
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L0807BFD8:
 	lsls r4, r4, #3
 	adds r4, #0xd0
@@ -121123,7 +120062,7 @@ func_0807D218: @ 0x0807D218
 	str r3, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -121135,7 +120074,7 @@ func_0807D218: @ 0x0807D218
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #2
 	add sl, r0
 	adds r5, #4
@@ -122205,7 +121144,7 @@ func_0807DE3C: @ 0x0807DE3C
 	str r6, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -122216,7 +121155,7 @@ func_0807DE3C: @ 0x0807DE3C
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	movs r1, #0x3f
@@ -123147,7 +122086,7 @@ func_0807E558: @ 0x0807E558
 	str r3, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -123159,7 +122098,7 @@ func_0807E558: @ 0x0807E558
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #2
 	add sl, r0
 	adds r5, #4
@@ -124478,7 +123417,7 @@ func_0807EF90: @ 0x0807EF90
 	str r3, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -124490,7 +123429,7 @@ func_0807EF90: @ 0x0807EF90
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xe0]
 	adds r0, #2
 	str r0, [sp, #0xe0]
@@ -125253,7 +124192,7 @@ func_0807F6E8: @ 0x0807F6E8
 	str r2, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -125265,7 +124204,7 @@ func_0807F6E8: @ 0x0807F6E8
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r4, #2
 	add sl, r4
 	adds r6, #4
@@ -127015,7 +125954,7 @@ func_08080540: @ 0x08080540
 	str r3, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -127027,7 +125966,7 @@ func_08080540: @ 0x08080540
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #2
 	add sl, r0
 	adds r5, #4
@@ -128198,7 +127137,7 @@ func_08080E68: @ 0x08080E68
 	str r3, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -128209,7 +127148,7 @@ func_08080E68: @ 0x08080E68
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0x134]
 	adds r0, #2
 	str r0, [sp, #0x134]
@@ -129819,7 +128758,7 @@ func_08081BBC: @ 0x08081BBC
 	str r3, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -129831,7 +128770,7 @@ func_08081BBC: @ 0x08081BBC
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0xe0]
 	adds r0, #2
 	str r0, [sp, #0xe0]
@@ -130908,7 +129847,7 @@ func_0808234C: @ 0x0808234C
 	str r2, [sp, #4]
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, .L08082688 @ =vtable_unk_080E5A28
 	str r0, [sp, #8]
 	add sp, #0xe0
@@ -131003,7 +129942,7 @@ func_0808268C: @ 0x0808268C
 	str r5, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r6, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -131014,7 +129953,7 @@ func_0808268C: @ 0x0808268C
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r0, [sp, #0x44]
 	adds r0, #2
 	str r0, [sp, #0x58]
@@ -131039,7 +129978,7 @@ func_0808268C: @ 0x0808268C
 	ldr r0, [sp, #0x30]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [r4]
 	lsls r1, r0, #1
 	adds r1, r1, r0
@@ -131065,7 +130004,7 @@ func_0808268C: @ 0x0808268C
 	str r7, [sp, #8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r0, r6, #0
 	bl HardwareContext_GetDmaQueue
 	ldr r2, [r4]
@@ -131266,7 +130205,7 @@ func_0808268C: @ 0x0808268C
 	str r5, [sp, #4]
 	movs r2, #0x18
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	b .L08082946
 .L08082928:
 	ldr r0, [r6, #0x1c]
@@ -131282,7 +130221,7 @@ func_0808268C: @ 0x0808268C
 	str r4, [sp, #4]
 	movs r2, #0x18
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L08082946:
 	ldr r0, [sp, #0x18]
 	cmp r0, #1
@@ -133859,7 +132798,7 @@ func_08083C64: @ 0x08083C64
 	str r3, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r7, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r5
@@ -133871,7 +132810,7 @@ func_08083C64: @ 0x08083C64
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	ldr r6, [sp, #0xe0]
 	ldr r0, [r6]
 	cmp r0, #0
@@ -133963,7 +132902,7 @@ func_08083C64: @ 0x08083C64
 	str r4, [sp, #4]
 	movs r2, #0x12
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L0808401A:
 	adds r5, #0x80
 	movs r6, #2
@@ -134071,7 +133010,7 @@ func_08084050: @ 0x08084050
 	str r2, [sp, #4]
 	movs r2, #0x12
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r7, #2
 	adds r4, #0x24
 	subs r5, #1
@@ -134214,7 +133153,7 @@ func_08084228: @ 0x08084228
 	ldr r0, [sp, #0x44]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	adds r1, r4, r6
 	movs r0, #0xe4
 	lsls r0, r0, #3
@@ -134234,7 +133173,7 @@ func_08084228: @ 0x08084228
 	movs r3, #1
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	lsls r5, r5, #2
 	adds r5, #0xd0
 	adds r0, r6, #0
@@ -136095,7 +135034,7 @@ func_08085640: @ 0x08085640
 	str r7, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	movs r0, #0xa9
 	lsls r0, r0, #2
 	adds r0, r0, r6
@@ -136113,7 +135052,7 @@ func_08085640: @ 0x08085640
 	str r7, [sp]
 	movs r2, #0xa0
 	movs r3, #0
-	bl func_0804EDB4
+	bl DrawTallMessageNumber
 	ldr r0, [r6, #0x1c]
 	ldr r0, [r0, #0x18]
 	adds r0, r0, r4
@@ -136124,7 +135063,7 @@ func_08085640: @ 0x08085640
 	movs r1, #0x20
 	movs r2, #2
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 .L08085838:
 	ldr r2, [sp, #0xd8]
 	adds r2, #2
@@ -136338,7 +135277,7 @@ func_0808586C: @ 0x0808586C
 	ldr r3, .L08085A14 @ =0x00000774
 	adds r1, r1, r3
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0x50]
 	cmp r0, #0x1e
 	bne .L08085A18
@@ -136360,7 +135299,7 @@ func_0808586C: @ 0x0808586C
 	str r2, [sp, #8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	b .L08085A42
 	.align 2, 0
 .L08085A0C: .4byte gUnk_0875196C
@@ -136385,7 +135324,7 @@ func_0808586C: @ 0x0808586C
 	str r2, [sp, #8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L08085A42:
 	ldr r1, [sp, #0x58]
 	adds r1, #9
@@ -136591,7 +135530,7 @@ func_0808586C: @ 0x0808586C
 	str r2, [sp, #4]
 	movs r2, #0xc
 	movs r3, #2
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r0, r7, #0
 	bl HardwareContext_GetDmaQueue
 	adds r5, r0, #0
@@ -136922,7 +135861,7 @@ func_0808586C: @ 0x0808586C
 	lsrs r1, r6, #0x10
 	movs r2, #1
 	movs r3, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, #2
 	adds r5, #1
 .L08085E2A:
@@ -136956,7 +135895,7 @@ func_0808586C: @ 0x0808586C
 	str r1, [sp, #4]
 	lsrs r1, r6, #0x10
 	movs r2, #1
-	bl func_0804E9F4
+	bl FillMessageTilemapRect
 	adds r4, #2
 	adds r5, #1
 .L08085E6E:
@@ -138649,7 +137588,7 @@ func_08086A08: @ 0x08086A08
 	ldr r0, [sp, #0x7c]
 	adds r1, #4
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r0, [sp, #0x1c]
 	cmp r0, #0
 	beq .L08086C1E
@@ -138674,7 +137613,7 @@ func_08086A08: @ 0x08086A08
 	str r2, [sp, #8]
 	movs r2, #0
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L08086C1E:
 	add r4, sb
 	lsls r5, r4, #3
@@ -161826,7 +160765,7 @@ func_0809323C: @ 0x0809323C
 	movs r1, #0
 	movs r2, #0x1d
 	movs r3, #0
-	bl func_08050CC0
+	bl CreateMessageWindow
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007714
@@ -165914,7 +164853,7 @@ func_08095580: @ 0x08095580
 	lsls r2, r2, #2
 	adds r1, r1, r2
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	ldr r3, [sp, #0x58]
 	adds r2, r3, r6
 	movs r0, #0xda
@@ -165988,7 +164927,7 @@ func_08095580: @ 0x08095580
 	movs r3, #1
 	str r3, [sp, #8]
 	movs r3, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 	adds r4, r6, #1
 	str r4, [sp, #0x64]
 	b .L080956F8
@@ -166036,7 +164975,7 @@ func_08095580: @ 0x08095580
 	movs r4, #1
 	str r4, [sp, #8]
 	movs r2, #0
-	bl func_0804E958
+	bl DrawMessageTileStringWithColors
 .L080956F8:
 	ldr r1, .L08095750 @ =0x00000365
 	add r1, sl
@@ -167094,7 +166033,7 @@ func_08095D80: @ 0x08095D80
 	adds r5, #0x80
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08050E98
+	bl ClearMessageWindowButtonMask
 	adds r0, r5, #0
 	adds r1, r4, #0
 	b .L08095F9E
@@ -167108,7 +166047,7 @@ func_08095D80: @ 0x08095D80
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08050E98
+	bl ClearMessageWindowButtonMask
 	adds r0, r4, #0
 	adds r1, r5, #0
 .L08095F9E:
@@ -167392,7 +166331,7 @@ func_08095D80: @ 0x08095D80
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08050E98
+	bl ClearMessageWindowButtonMask
 	adds r0, r4, #0
 	adds r1, r5, #0
 	movs r2, #0
@@ -168114,7 +167053,7 @@ func_080962F0: @ 0x080962F0
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08050E98
+	bl ClearMessageWindowButtonMask
 	adds r0, r4, #0
 	adds r1, r5, #0
 	movs r2, #0
@@ -171027,7 +169966,7 @@ func_08097D38: @ 0x08097D38
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08050EBC
+	bl SetMessageWindowButtonMask
 	ldr r0, .L08097EF8 @ =0x000033D8
 	adds r2, r6, r0
 	b .L08097F6E
@@ -171045,7 +169984,7 @@ func_08097D38: @ 0x08097D38
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08050EBC
+	bl SetMessageWindowButtonMask
 	ldr r0, .L08097F1C @ =0x000033D8
 	adds r2, r6, r0
 	b .L08097F6E
@@ -171058,7 +169997,7 @@ func_08097D38: @ 0x08097D38
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08050EBC
+	bl SetMessageWindowButtonMask
 	ldr r1, .L08097F50 @ =0x000033D8
 	adds r2, r6, r1
 	adds r0, r4, #0
@@ -171085,7 +170024,7 @@ func_08097D38: @ 0x08097D38
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08050EBC
+	bl SetMessageWindowButtonMask
 	ldr r1, .L08097F7C @ =0x000033D8
 	adds r2, r6, r1
 .L08097F6E:
@@ -171146,7 +170085,7 @@ func_08097D38: @ 0x08097D38
 	adds r4, #0x80
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08050E98
+	bl ClearMessageWindowButtonMask
 	adds r0, r4, #0
 	adds r1, r5, #0
 	movs r2, #0
@@ -171510,7 +170449,7 @@ func_0809800C: @ 0x0809800C
 	ldr r0, [r7]
 	add r1, sp, #0x54
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r2, r8
 	strh r2, [r6]
 	mov r3, sb
@@ -173013,7 +171952,7 @@ func_08098CE8: @ 0x08098CE8
 	ldr r0, [r0]
 	add r1, sp, #0x50
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	add r0, sp, #0x9c
 	mov r1, sb
 	strh r1, [r0]
@@ -174324,7 +173263,7 @@ func_0809964C: @ 0x0809964C
 	ldr r0, [r0]
 	add r1, sp, #0x54
 	movs r2, #0
-	bl func_0804E7A0
+	bl FillMessageTiles
 	mov r3, sb
 	strh r3, [r6]
 	mov r0, sl
