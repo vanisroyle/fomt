@@ -3505,7 +3505,7 @@ func_080124D0: @ 0x080124D0
     cmp r0, #0
     beq .L08012566
     movs r1, #3
-    bl func_08050D0C
+    bl DestroyMessageWindow
 .L08012566:
     str r4, [r5]
     add r0, sp, #0x10
@@ -3541,7 +3541,7 @@ func_080124D0: @ 0x080124D0
     cmp r0, #0
     beq .L080125B8
     movs r1, #3
-    bl func_08050D0C
+    bl DestroyMessageWindow
 .L080125B8:
     str r4, [r5]
     add r0, sp, #0x10
@@ -3552,11 +3552,11 @@ func_080124D0: @ 0x080124D0
     bl func_08008364
 .L080125CA:
     ldr r0, [r6]
-    bl func_08050D34
+    bl GetMessageWindowPhase
     cmp r0, #3
     beq .L080125E2
     ldr r0, [r6]
-    bl func_08050D5C
+    bl OpenMessageWindow
     adds r1, r7, #0
     adds r1, #0x9c
     movs r0, #0xe
@@ -3611,7 +3611,7 @@ func_080125EC: @ 0x080125EC
     cmp r0, #0
     beq .L08012642
     movs r1, #3
-    bl func_08050D0C
+    bl DestroyMessageWindow
 .L08012642:
     str r6, [r5]
     ldrh r1, [r4, #0x10]
@@ -3715,7 +3715,7 @@ func_080127A0: @ 0x080127A0
     adds r0, r4, #0
     adds r0, #0xac
     ldr r0, [r0]
-    bl func_08050E80
+    bl SetMessageWindowIndicator
 .L08012840:
     pop {r4}
     pop {r0}
@@ -3763,7 +3763,7 @@ func_08012860: @ 0x08012860
     adds r0, r1, #0
     adds r1, r6, #0
     adds r3, r5, #0
-    bl func_08050E30
+    bl ConfigureMessageWindowPromptChoices
     b .L080128C0
 .L080128AA:
     adds r0, r4, #0
@@ -3775,7 +3775,7 @@ func_08012860: @ 0x08012860
     adds r0, r1, #0
     adds r1, r6, #0
     adds r3, r5, #0
-    bl func_08050E30
+    bl ConfigureMessageWindowPromptChoices
 .L080128C0:
     adds r1, r4, #0
     adds r1, #0x9c
@@ -3817,7 +3817,7 @@ func_080128D0: @ 0x080128D0
     adds r1, r5, #0
     adds r2, r6, #0
     movs r3, #0
-    bl func_08050E0C
+    bl ConfigureMessageWindowChoices
     b .L0801296C
 .L0801290E:
     cmp r1, #0
@@ -3855,7 +3855,7 @@ func_080128D0: @ 0x080128D0
     adds r0, r2, #0
     adds r1, r5, #0
     adds r2, r6, #0
-    bl func_08050E0C
+    bl ConfigureMessageWindowChoices
     b .L0801296C
 .L08012952:
     adds r0, r4, #0
@@ -3869,7 +3869,7 @@ func_080128D0: @ 0x080128D0
     adds r0, r2, #0
     adds r1, r5, #0
     adds r2, r6, #0
-    bl func_08050E0C
+    bl ConfigureMessageWindowChoices
 .L0801296C:
     adds r1, r4, #0
     adds r1, #0x9c
@@ -8576,7 +8576,7 @@ func_08014D9C: @ 0x08014D9C
     adds r1, r4, #0
     movs r2, #0x80
     lsls r2, r2, #1
-    bl func_08050DC8
+    bl SetMessageWindowTextOptions
     mov r1, sl
     adds r1, #0x9c
     movs r0, #0x10
@@ -9242,7 +9242,7 @@ func_0801531C: @ 0x0801531C
     adds r1, r4, #0
     movs r2, #0x80
     lsls r2, r2, #1
-    bl func_08050DC8
+    bl SetMessageWindowTextOptions
     mov r1, sl
     adds r1, #0x9c
     movs r0, #0x10
