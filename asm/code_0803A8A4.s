@@ -3239,7 +3239,7 @@ func_0803C5B0: @ 0x0803C5B0
 	adds r1, #0x18
 	adds r0, r7, r1
 	strb r6, [r0]
-	ldr r1, .L0803C79C @ =gUnk_0875A440
+	ldr r1, .L0803C79C @ =gClockFont
 	movs r2, #0xe8
 	lsls r2, r2, #2
 	adds r1, r1, r2
@@ -3285,7 +3285,7 @@ func_0803C5B0: @ 0x0803C5B0
 .L0803C790: .4byte gUnk_086678A0
 .L0803C794: .4byte vtable_unk_080E77D0
 .L0803C798: .4byte 0x000002F1
-.L0803C79C: .4byte gUnk_0875A440
+.L0803C79C: .4byte gClockFont
 
 	.section .text.0803C7C8, "ax", %progbits
 	thumb_func_start func_0803C7C8
@@ -4022,7 +4022,7 @@ func_0803CD4C: @ 0x0803CD4C
 	adds r0, r7, #0
 	adds r0, #0x84
 	lsls r1, r5, #5
-	ldr r2, .L0803CE30 @ =gUnk_0875A440
+	ldr r2, .L0803CE30 @ =gClockFont
 	mov sl, r2
 	add r1, sl
 	movs r2, #0x20
@@ -4095,7 +4095,7 @@ func_0803CD4C: @ 0x0803CD4C
 	strb r0, [r2]
 	b .L0803CE50
 	.align 2, 0
-.L0803CE30: .4byte gUnk_0875A440
+.L0803CE30: .4byte gClockFont
 .L0803CE34:
 	mov r0, sp
 	movs r1, #0
@@ -4111,7 +4111,7 @@ func_0803CD4C: @ 0x0803CD4C
 	strb r2, [r1]
 .L0803CE50:
 	lsls r1, r5, #5
-	ldr r0, .L0803CE74 @ =gUnk_0875A440
+	ldr r0, .L0803CE74 @ =gClockFont
 	adds r1, r1, r0
 	adds r0, r7, #0
 	adds r0, #0xe4
@@ -4128,7 +4128,7 @@ func_0803CD4C: @ 0x0803CD4C
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0803CE74: .4byte gUnk_0875A440
+.L0803CE74: .4byte gClockFont
 .L0803CE78: .4byte .L0803CE7C
 .L0803CE7C: @ jump table
 	.4byte .L0803CE98 @ case 0
@@ -4193,7 +4193,7 @@ func_0803CD4C: @ 0x0803CD4C
 	adds r0, r7, r2
 	ldr r1, [sp]
 	lsls r1, r1, #5
-	ldr r2, .L0803CF90 @ =gUnk_0875A440
+	ldr r2, .L0803CF90 @ =gClockFont
 	mov r8, r2
 	add r1, r8
 	movs r2, #0x20
@@ -4260,14 +4260,14 @@ func_0803CD4C: @ 0x0803CD4C
 	cmp r5, #0
 	ble .L0803CF94
 	lsls r1, r5, #5
-	ldr r0, .L0803CF90 @ =gUnk_0875A440
+	ldr r0, .L0803CF90 @ =gClockFont
 	adds r1, r1, r0
 	movs r2, #0xa2
 	lsls r2, r2, #1
 	adds r0, r7, r2
 	b .L0803CFA6
 	.align 2, 0
-.L0803CF90: .4byte gUnk_0875A440
+.L0803CF90: .4byte gClockFont
 .L0803CF94:
 	mov r0, sp
 	movs r1, #0
@@ -4284,7 +4284,7 @@ func_0803CD4C: @ 0x0803CD4C
 	mov r1, sb
 	strb r0, [r1]
 	lsls r1, r4, #5
-	ldr r2, .L0803D050 @ =gUnk_0875A440
+	ldr r2, .L0803D050 @ =gClockFont
 	mov sl, r2
 	add r1, sl
 	movs r2, #0xb2
@@ -4355,7 +4355,7 @@ func_0803CD4C: @ 0x0803CD4C
 	strb r0, [r2]
 	b .L0803D06E
 	.align 2, 0
-.L0803D050: .4byte gUnk_0875A440
+.L0803D050: .4byte gClockFont
 .L0803D054:
 	mov r0, sp
 	movs r1, #0
@@ -4417,7 +4417,7 @@ func_0803D080: @ 0x0803D080
 	adds r0, #0x84
 	ldr r2, [sp]
 	lsls r1, r2, #5
-	ldr r5, .L0803D0EC @ =gUnk_0875A440
+	ldr r5, .L0803D0EC @ =gClockFont
 	adds r1, r1, r5
 	movs r2, #0x20
 	bl memcpy
@@ -4439,7 +4439,7 @@ func_0803D080: @ 0x0803D080
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L0803D0EC: .4byte gUnk_0875A440
+.L0803D0EC: .4byte gClockFont
 
 	thumb_func_start func_0803D0F0
 func_0803D0F0: @ 0x0803D0F0
@@ -4459,7 +4459,7 @@ func_0803D0F0: @ 0x0803D0F0
 	cmp r5, #0
 	ble .L0803D130
 	lsls r1, r5, #5
-	ldr r0, .L0803D12C @ =gUnk_0875A440
+	ldr r0, .L0803D12C @ =gClockFont
 	adds r1, r1, r0
 	adds r0, r7, #0
 	adds r0, #0xc4
@@ -4470,7 +4470,7 @@ func_0803D0F0: @ 0x0803D0F0
 	adds r1, r7, r0
 	b .L0803D14C
 	.align 2, 0
-.L0803D12C: .4byte gUnk_0875A440
+.L0803D12C: .4byte gClockFont
 .L0803D130:
 	mov r0, sp
 	movs r1, #0
@@ -4488,7 +4488,7 @@ func_0803D0F0: @ 0x0803D0F0
 	movs r0, #1
 	strb r0, [r1]
 	lsls r1, r4, #5
-	ldr r0, .L0803D178 @ =gUnk_0875A440
+	ldr r0, .L0803D178 @ =gClockFont
 	adds r1, r1, r0
 	adds r0, r7, #0
 	adds r0, #0xe4
@@ -4507,7 +4507,7 @@ func_0803D0F0: @ 0x0803D0F0
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0803D178: .4byte gUnk_0875A440
+.L0803D178: .4byte gClockFont
 .L0803D17C: .4byte .L0803D180
 .L0803D180: @ jump table
 	.4byte .L0803D19C @ case 0
@@ -4572,7 +4572,7 @@ func_0803D0F0: @ 0x0803D0F0
 	adds r0, r7, r1
 	ldr r1, [sp]
 	lsls r1, r1, #5
-	ldr r5, .L0803D23C @ =gUnk_0875A440
+	ldr r5, .L0803D23C @ =gClockFont
 	adds r1, r1, r5
 	movs r2, #0x20
 	bl memcpy
@@ -4603,7 +4603,7 @@ func_0803D0F0: @ 0x0803D0F0
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L0803D23C: .4byte gUnk_0875A440
+.L0803D23C: .4byte gClockFont
 
 	thumb_func_start func_0803D240
 func_0803D240: @ 0x0803D240
@@ -4617,7 +4617,7 @@ func_0803D240: @ 0x0803D240
 	movs r1, #0x1c
 .L0803D250:
 	lsls r1, r1, #5
-	ldr r0, .L0803D2A4 @ =gUnk_0875A440
+	ldr r0, .L0803D2A4 @ =gClockFont
 	adds r1, r1, r0
 	movs r2, #0x82
 	lsls r2, r2, #1
@@ -4649,14 +4649,14 @@ func_0803D240: @ 0x0803D240
 	cmp r5, #0
 	ble .L0803D2A8
 	lsls r1, r5, #5
-	ldr r0, .L0803D2A4 @ =gUnk_0875A440
+	ldr r0, .L0803D2A4 @ =gClockFont
 	adds r1, r1, r0
 	movs r2, #0xa2
 	lsls r2, r2, #1
 	adds r0, r6, r2
 	b .L0803D2BA
 	.align 2, 0
-.L0803D2A4: .4byte gUnk_0875A440
+.L0803D2A4: .4byte gClockFont
 .L0803D2A8:
 	mov r0, sp
 	movs r1, #0
@@ -4672,7 +4672,7 @@ func_0803D240: @ 0x0803D240
 	movs r0, #1
 	strb r0, [r7]
 	lsls r1, r4, #5
-	ldr r0, .L0803D2E4 @ =gUnk_0875A440
+	ldr r0, .L0803D2E4 @ =gClockFont
 	adds r1, r1, r0
 	movs r2, #0xb2
 	lsls r2, r2, #1
@@ -4686,53 +4686,7 @@ func_0803D240: @ 0x0803D240
 	pop {r0}
 	bx r0
 	.align 2, 0
-.L0803D2E4: .4byte gUnk_0875A440
-
-	thumb_func_start func_0803D2E8
-func_0803D2E8: @ 0x0803D2E8
-	push {r4, lr}
-	sub sp, #0x20
-	lsls r1, r1, #0x18
-	ldr r4, [r0]
-	cmp r1, #0
-	beq .L0803D314
-	ldr r1, .L0803D310 @ =gUnk_0875A440
-	movs r0, #0xa0
-	lsls r0, r0, #1
-	adds r1, r1, r0
-	movs r2, #0x8a
-	lsls r2, r2, #2
-	adds r0, r4, r2
-	movs r2, #0x20
-	bl memcpy
-	movs r0, #0xac
-	lsls r0, r0, #2
-	adds r1, r4, r0
-	b .L0803D332
-	.align 2, 0
-.L0803D310: .4byte gUnk_0875A440
-.L0803D314:
-	mov r0, sp
-	movs r1, #0
-	movs r2, #0x20
-	bl memset
-	movs r1, #0x8a
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	mov r1, sp
-	movs r2, #0x20
-	bl memcpy
-	movs r2, #0xac
-	lsls r2, r2, #2
-	adds r1, r4, r2
-.L0803D332:
-	movs r0, #1
-	strb r0, [r1]
-	add sp, #0x20
-	pop {r4}
-	pop {r0}
-	bx r0
-	.align 2, 0
+.L0803D2E4: .4byte gClockFont
 
 	.section .text.0803D464, "ax", %progbits
 	.align 2, 0
@@ -4788,8 +4742,8 @@ func_0803D4D8: @ 0x0803D4D8
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_0803D52C
-func_0803D52C: @ 0x0803D52C
+	thumb_func_start DecodeNpcScheduleDate
+DecodeNpcScheduleDate: @ 0x0803D52C
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -4938,8 +4892,8 @@ func_0803D52C: @ 0x0803D52C
 	.align 2, 0
 
 	.section .text.0803D688, "ax", %progbits
-	thumb_func_start func_0803D688
-func_0803D688: @ 0x0803D688
+	thumb_func_start ResetNpcDailySchedule
+ResetNpcDailySchedule: @ 0x0803D688
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -5132,7 +5086,7 @@ func_0803DA7C: @ 0x0803DA7C
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r7, [r4, #1]
 	ldrb r0, [r4, #2]
 	mov r8, r0
@@ -5178,7 +5132,7 @@ func_0803DA7C: @ 0x0803DA7C
 	lsrs r4, r1, #0x1f
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L0803DB14
@@ -5249,7 +5203,7 @@ func_0803DA7C: @ 0x0803DA7C
 	bne .L0803DC22
 	movs r0, #1
 	mov r1, r8
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803DB90
@@ -5317,7 +5271,7 @@ func_0803DA7C: @ 0x0803DA7C
 .L0803DC04:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803DC16
@@ -5391,11 +5345,11 @@ func_0803DC64: @ 0x0803DC64
 	adds r1, r2, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r0, [r4, #1]
 	ldrb r1, [r4, #2]
 	ldrb r4, [r4, #3]
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803DCA0
@@ -5453,7 +5407,7 @@ func_0803DDE8: @ 0x0803DDE8
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	mov r0, sp
 	ldrb r6, [r0]
 	ldrb r7, [r4, #1]
@@ -5503,7 +5457,7 @@ func_0803DDE8: @ 0x0803DDE8
 .L0803DE68:
 	adds r0, r7, #0
 	mov r1, r8
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803DE7A
@@ -5581,7 +5535,7 @@ func_0803DFE8: @ 0x0803DFE8
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r0, [r4, #1]
 	mov r8, r0
 	ldrb r7, [r4, #2]
@@ -5632,7 +5586,7 @@ func_0803DFE8: @ 0x0803DFE8
 	lsrs r4, r1, #0x1f
 	mov r0, r8
 	adds r1, r7, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L0803E090
@@ -5704,7 +5658,7 @@ func_0803DFE8: @ 0x0803DFE8
 	bls .L0803E11A
 	mov r0, r8
 	adds r1, r7, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E10C
@@ -5753,7 +5707,7 @@ func_0803DFE8: @ 0x0803DFE8
 .L0803E158:
 	mov r0, r8
 	adds r1, r7, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E16A
@@ -5819,7 +5773,7 @@ func_0803E264: @ 0x0803E264
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r0, [r4, #1]
 	mov r8, r0
 	ldrb r6, [r4, #2]
@@ -5885,7 +5839,7 @@ func_0803E264: @ 0x0803E264
 	mov sb, r7
 	mov r0, r8
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L0803E322
@@ -5942,7 +5896,7 @@ func_0803E264: @ 0x0803E264
 	bls .L0803E390
 	mov r0, r8
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L0803E3EE
@@ -5996,7 +5950,7 @@ func_0803E264: @ 0x0803E264
 .L0803E3E0:
 	mov r0, r8
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E3F2
@@ -6044,7 +5998,7 @@ func_0803E4A0: @ 0x0803E4A0
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r7, [r4, #1]
 	ldrb r6, [r4, #2]
 	ldrb r4, [r4, #3]
@@ -6091,7 +6045,7 @@ func_0803E4A0: @ 0x0803E4A0
 	mov r8, r4
 	adds r0, r7, #0
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L0803E53C
@@ -6138,7 +6092,7 @@ func_0803E4A0: @ 0x0803E4A0
 	bls .L0803E5A8
 	adds r0, r7, #0
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E590
@@ -6193,7 +6147,7 @@ func_0803E4A0: @ 0x0803E4A0
 .L0803E5E8:
 	adds r0, r7, #0
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E5FA
@@ -6233,14 +6187,14 @@ func_0803E684: @ 0x0803E684
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r0, [r4, #1]
 	adds r6, r0, #0
 	ldrb r0, [r4, #2]
 	adds r4, r0, #0
 	adds r0, r6, #0
 	adds r1, r4, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E6B0
@@ -6305,7 +6259,7 @@ func_0803E780: @ 0x0803E780
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r7, [r4, #1]
 	ldrb r6, [r4, #2]
 	ldrb r4, [r4, #3]
@@ -6352,7 +6306,7 @@ func_0803E780: @ 0x0803E780
 	mov r8, r4
 	adds r0, r7, #0
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L0803E81C
@@ -6399,7 +6353,7 @@ func_0803E780: @ 0x0803E780
 	bls .L0803E87E
 	adds r0, r7, #0
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E870
@@ -6448,7 +6402,7 @@ func_0803E780: @ 0x0803E780
 .L0803E8BC:
 	adds r0, r7, #0
 	adds r1, r6, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E8CE
@@ -6481,12 +6435,12 @@ func_0803E970: @ 0x0803E970
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r0, [r4, #1]
 	ldrb r1, [r4, #2]
 	ldrb r4, [r4, #3]
 	adds r6, r4, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803E998
@@ -6546,12 +6500,12 @@ func_0803E9E4: @ 0x0803E9E4
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r0, [r4, #1]
 	ldrb r1, [r4, #2]
 	ldrb r2, [r4, #3]
 	adds r4, r2, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803EA0C
@@ -6613,11 +6567,11 @@ func_0803ECC0: @ 0x0803ECC0
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r0, [r4, #1]
 	ldrb r1, [r4, #2]
 	ldrb r6, [r4, #3]
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803ECE6
@@ -6747,14 +6701,14 @@ func_0803EDCC: @ 0x0803EDCC
 	adds r1, r5, #0
 	adds r1, #0x10
 	mov r0, sp
-	bl func_0803D52C
+	bl DecodeNpcScheduleDate
 	ldrb r6, [r4, #1]
 	ldrb r0, [r4, #2]
 	adds r7, r0, #0
 	ldrb r4, [r4, #3]
 	adds r0, r6, #0
 	adds r1, r7, #0
-	bl func_0803D644
+	bl IsNpcScheduleFestivalDay
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L0803EDF8
