@@ -314,9 +314,12 @@ gUnk_080F18D2:
 gUnk_080F1904:
 	.incbin "baserom.gba", 0xF1904, 0x44
 
-	.global gUnk_080F1948
-gUnk_080F1948:
-	.incbin "baserom.gba", 0xF1948, 0x58
+	.global gMapOverlayParticleMotion
+gMapOverlayParticleMotion:
+	@ Two (dx, dy) vectors per overlay kind, in signed Q16 pixels per update.
+	.4byte -0x3333, 0x10000, 0x3333, 0x10000
+	.4byte -0x3333, 0x40000, 0xCCCC, 0x40000
+	.incbin "baserom.gba", 0xF1968, 0x38
 
 	.global gUnk_080F19A0
 gUnk_080F19A0:
