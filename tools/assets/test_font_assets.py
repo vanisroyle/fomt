@@ -214,6 +214,17 @@ class FontTests(unittest.TestCase):
                 font.sample(Path("unused"), self.root, "ạầ", reclaim_large=True)
             self.assertTrue(all(p.read_bytes() == raw for p, raw in before.items()))
 
+    def test_large_assignment_preserves_multi_glyph_charmap(self):
+        self.large_fixture()
+        (self.root / "charmap.txt").write_text("U+2603 = 88 9F 88 A0\n")
+        before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+        with (patch.object(font, "original_rom", return_value=bytes(0x527094)),
+              patch.object(font, "rom_maps", return_value={"double": {0x889F: 0, 0x88A0: 1}}),
+              patch.object(font, "script_usage", return_value=(set(), 0))):
+            with self.assertRaisesRegex(ValueError, "no edits made"):
+                font.sample(Path("unused"), self.root, "ạ", placeholders=True, reclaim_large=True)
+        self.assertTrue(all(p.read_bytes() == raw for p, raw in before.items()))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -383,6 +383,8 @@ def sample(rom_path, assets, text, placeholders=False, reclaim_large=False):
                 raise ValueError(f"existing charmap assignment for {char!r} is unmapped; fix it first")
             missing.append(char)
     reserved = {int.from_bytes(raw, "big") for raw in mapping.values()}
+    for raw in mapping.values():
+        reserved.update(stream_codes(raw, single, double))
     name, kind = ("large", "double") if reclaim_large else ("small", "single")
     offset, count, width = FONTS[name]
     size = 12 * (width // 8)
