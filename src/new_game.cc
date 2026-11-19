@@ -35,6 +35,181 @@ extern char gNameEntrySceneConfirmationPrompt[] __asm__("gUnk_080E8C2C");
 extern char gNameEntrySceneConfirmationYes[] __asm__("gUnk_080E8C44");
 extern char gNameEntrySceneConfirmationNo[] __asm__("gUnk_080E8C48");
 
+struct ALIGN(4) NameEntrySceneKeySnapshot
+{
+    enum { FACE_BANK, SHOULDER_BANK };
+    enum { A_BUTTON = 1, B_BUTTON = 2, START_BUTTON = 8, L_BUTTON = 2, R_BUTTON = 1 };
+    u8 bytes[4];
+    NameEntrySceneKeySnapshot(u32 bits) { *reinterpret_cast<u32 *>(bytes) = bits; }
+    NameEntrySceneKeySnapshot(NameEntrySceneKeySnapshot const & source)
+    {
+        memcpy(bytes, source.bytes, sizeof(bytes));
+    }
+};
+
+EC u32 NameEntryScene_GetRepeatedKeyBits(void * self) __asm__("HardwareContext_GetRepeatedKeys");
+EC void AudioPlayer_StartSong(void * player, u16 song);
+EC void NameEntryScene_MoveCursor(NameEntrySceneTask * self) __asm__("func_080069F4");
+EC void NameEntryScene_InsertCharacter(NameEntrySceneTask * self) __asm__("func_08006B90");
+
+EC void NameEntryScene_HandleInput(NameEntrySceneTask * self) SECTION(".text.func_08006CDC");
+EC void NameEntryScene_HandleInput(NameEntrySceneTask * self)
+{
+    if (self->confirmationMode != 0)
+        return;
+    NameEntryScene_MoveCursor(self);
+    NameEntrySceneKeySnapshot keys(NameEntryScene_GetRepeatedKeyBits(self));
+    if ((keys.bytes[NameEntrySceneKeySnapshot::FACE_BANK] & NameEntrySceneKeySnapshot::A_BUTTON) != 0)
+    {
+        if (self->cursorRow <= 5)
+        {
+            AudioPlayer_StartSong(&self->inputSound, 0x6A);
+            NameEntryScene_InsertCharacter(self);
+        }
+        else
+        {
+            // Bottom-row groups select next page, previous page, or confirmation.
+            u8 column = self->cursorColumn;
+            if (self->cursorColumn <= 4)
+            {
+                if (self->keyboardPage == 2)
+                    self->keyboardPage = 0;
+                else
+                    ++self->keyboardPage;
+                self->keyboardDirty = 1;
+                AudioPlayer_StartSong(&self->inputSound, 0xCA);
+            }
+            else if (static_cast<u8>(column - 5) <= 4)
+            {
+                if (self->keyboardPage == 0)
+                    self->keyboardPage = 2;
+                else
+                    --self->keyboardPage;
+                self->keyboardDirty = 1;
+                AudioPlayer_StartSong(&self->inputSound, 0xCA);
+            }
+            else if (NameEntryScene_PrepareConfirmedName(self))
+            {
+                self->confirmationMode = 1;
+                AudioPlayer_StartSong(&self->inputSound, 0xC5);
+            }
+            else
+                AudioPlayer_StartSong(&self->inputSound, 0xC7);
+        }
+    }
+    else if ((keys.bytes[NameEntrySceneKeySnapshot::FACE_BANK] & NameEntrySceneKeySnapshot::B_BUTTON) != 0)
+    {
+        if (self->charIndex != 0)
+        {
+            --self->charIndex;
+            NameEntryScene_DeleteCharacter(self, self->charIndex);
+            AudioPlayer_StartSong(&self->inputSound, 0x6C);
+        }
+        else
+        {
+            u8 emptySlots = 0;
+            for (int index = 0; index <= 11; ++index)
+                if (self->enteredName[index] == '_')
+                    ++emptySlots;
+            if (emptySlots == 12)
+                AudioPlayer_StartSong(&self->inputSound, 0xC7);
+            else
+            {
+                NameEntryScene_DeleteCharacter(self, 0);
+                AudioPlayer_StartSong(&self->inputSound, 0x6C);
+            }
+        }
+    }
+    else if ((keys.bytes[NameEntrySceneKeySnapshot::FACE_BANK] & NameEntrySceneKeySnapshot::START_BUTTON) != 0)
+    {
+        if (self->cursorRow == 6 && self->cursorColumn > 9 && self->cursorColumn <= 14)
+        {
+            if (NameEntryScene_PrepareConfirmedName(self))
+                self->confirmationMode = 1;
+            AudioPlayer_StartSong(&self->inputSound, 0xC5);
+        }
+        else
+        {
+            self->cursorColumn = 12;
+            self->cursorRow = 6;
+            AudioPlayer_StartSong(&self->inputSound, 0xCB);
+        }
+    }
+    else if ((keys.bytes[NameEntrySceneKeySnapshot::SHOULDER_BANK] & NameEntrySceneKeySnapshot::L_BUTTON) != 0)
+    {
+        if (self->charIndex != 0)
+            --self->charIndex;
+        AudioPlayer_StartSong(&self->inputSound, 0xCB);
+    }
+    else if ((keys.bytes[NameEntrySceneKeySnapshot::SHOULDER_BANK] & NameEntrySceneKeySnapshot::R_BUTTON) != 0)
+    {
+        if (self->charIndex != 11)
+            ++self->charIndex;
+        AudioPlayer_StartSong(&self->inputSound, 0xCB);
+    }
+}
+
+
+EC void func_08006CDC(NameEntrySceneTask * self) ALIAS(NameEntryScene_HandleInput);
+
+EC void NameEntryScene_UpdateCursor(NameEntrySceneTask * self) SECTION(".text.func_080068CC");
+EC void NameEntryScene_UpdateCursor(NameEntrySceneTask * self)
+{
+    self->caretAttributes.x = 0x90 + self->charIndex * 8;
+    self->caretAttributes.y = 8;
+    if (self->cursorRow <= 5)
+    {
+        self->cursorAttributes.x = self->cursorColumn * 16;
+        self->cursorAttributes.y = self->cursorRow * 16 + 32;
+        self->cursorAttributes.size = 0;
+        self->cursorAttributes.shape = 2;
+    }
+    else
+    {
+        // Five logical columns share each wide action-button cursor.
+        u8 group = 0;
+        u8 column = self->cursorColumn;
+        while (column > 4)
+        {
+            column -= 5;
+            ++group;
+        }
+        self->cursorAttributes.x = group * 80 + 24;
+        self->cursorAttributes.y = 136;
+        self->cursorAttributes.size = 2;
+        self->cursorAttributes.shape = 1;
+    }
+}
+
+EC void func_080068CC(NameEntrySceneTask * self) ALIAS(NameEntryScene_UpdateCursor);
+
+EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source) SECTION(".text.func_08003E88");
+EC void NewGameMenu_PositionCursorSprite(NewGameMenuTask * self, int option, NewGameOamSprite source)
+{
+    // Options 0 and 1 share the cursor's first visual row.
+    if (option == 1)
+        option = 0;
+    NewGameOamSprite sprite = source;
+    sprite.attributes.y += 8 + (option * 2 + 1) * 8;
+    sprite.attributes.x += 16;
+    static_cast<NewGameOamSpriteBuffer *>(HardwareContext_GetOamBuffer(self))->WriteSprite(6, sprite);
+}
+
+EC void func_08003E88(NewGameMenuTask * self, int option, NewGameOamSprite source) ALIAS(NewGameMenu_PositionCursorSprite);
+
+EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite) SECTION(".text.func_08003DF0");
+EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite)
+{
+    sprite.attributes.y += 8 + (option * 2 + 1) * 8;
+    sprite.attributes.x += 128 + (self->optionValues[option] != 0 ? 64 : 0);
+    // OBJ mode 2 hides the inactive second option.
+    if (option == 1 && self->selectedItem != 1)
+        sprite.attributes.objectMode = 2;
+    static_cast<NewGameOamSpriteBuffer *>(HardwareContext_GetOamBuffer(self))->WriteSprite(option, sprite);
+}
+
+EC void func_08003DF0(NewGameMenuTask * self, int option, NewGameOamSprite sprite) ALIAS(NewGameMenu_PositionOptionSprite);
+
 EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self) SECTION(".text.func_08006ED8");
 EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self)
 {
@@ -388,6 +563,12 @@ EC char * NameEntryScene_GetName(NameEntryScene * self) SECTION(".text.func_0800
 EC char * NameEntryScene_GetName(NameEntryScene * self)
 {
     return self->task->enteredName;
+}
+
+EC char * NameEntrySceneTask_GetEnteredName(NameEntrySceneTask * self) SECTION(".text.func_0800711C");
+EC char * NameEntrySceneTask_GetEnteredName(NameEntrySceneTask * self)
+{
+    return self->enteredName;
 }
 
 EC void func_08006ED8(NameEntrySceneTask * self) ALIAS(NameEntryScene_UpdateConfirmationDialog);
