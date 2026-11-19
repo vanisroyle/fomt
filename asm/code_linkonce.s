@@ -9555,7 +9555,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	ldr r0, [r6]
 	movs r4, #0xaa
 	lsls r4, r4, #3
@@ -9564,7 +9564,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r4]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	ldr r5, .L080D8AC0 @ =0x0000055C
 	add r5, sp
 	ldr r5, [r5]
@@ -12303,7 +12303,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	mov r0, sl
 	adds r0, #0xb4
 	ldr r0, [r0]
@@ -12314,7 +12314,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r4]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r0, #0
 	b .L080DA790
 	.align 2, 0
@@ -12736,7 +12736,7 @@ sub_080D8178: @ 0x080D8178
 	adds r1, #0x10
 	adds r0, r4, #0
 	adds r0, #8
-	bl func_0803CD4C
+	bl SetClockDateAndTimeTiles
 	mov r0, sl
 	adds r0, #0xb4
 	ldr r0, [r0]
@@ -12747,7 +12747,7 @@ sub_080D8178: @ 0x080D8178
 	ldr r1, [r2]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r0, #0
 	b .L080DA804
 	.align 2, 0
@@ -13867,7 +13867,7 @@ sub_080DA76C: @ 0x080DA76C
 	ldr r1, [r2]
 	ldr r1, [r1, #8]
 	adds r0, #8
-	bl func_0803D3A0
+	bl SetClockWeatherIcon
 	movs r3, #0xaa
 	lsls r3, r3, #3
 	add r3, sp
@@ -13882,7 +13882,7 @@ sub_080DA76C: @ 0x080DA76C
 	beq .L080DAE54
 	ldr r0, [r6]
 	adds r0, #8
-	bl func_0803D440
+	bl HideClockToolIcon
 	b .L080DAE90
 	.align 2, 0
 .L080DAE3C: .4byte 0x00000544
@@ -13917,7 +13917,7 @@ sub_080DA76C: @ 0x080DA76C
 	lsrs r1, r1, #0x10
 	ldr r0, [r6]
 	adds r0, #8
-	bl func_0803D404
+	bl SetClockToolIcon
 .L080DAE90:
 	ldr r1, .L080DAFA8 @ =0x00000574
 	add r1, sp
