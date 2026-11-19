@@ -13875,7 +13875,7 @@ func_080CFC7C: @ 0x080CFC7C
 	sub sp, #0x24
 	adds r4, r0, #0
 	adds r5, r1, #0
-	bl func_080A5EA0
+	bl LoadMapBackgroundTiles
 	ldr r0, [r4, #4]
 	cmp r0, #0x3e
 	beq .L080CFC98
