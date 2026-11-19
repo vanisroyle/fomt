@@ -1,5 +1,7 @@
 #include "prelude.h"
 #include "m4a.h"
+#include "gbasvc.h"
+#include "unknown_inlines.hh"
 
 union Unk_hardware_ent_080D6D98
 {
@@ -243,7 +245,7 @@ struct HardwareDisplay
     HardwareDisplayState * state;
 };
 
-EC void func_08009268(HardwareDisplayState *);
+EC u32 func_08009268(void *);
 
 EC void SECTION(".text.func_080088B8") func_080088B8(HardwareDisplay * self)
 {
@@ -508,6 +510,11 @@ struct HardwareKeys
     u16 current;
     u16 pad;
     u16 pressed;
+    u16 pad_06;
+    u16 repeat;
+    u16 delay;
+    u16 period;
+    i16 counters[10];
 };
 
 EC u32 SECTION(".text.func_0800912C") func_0800912C()
@@ -554,6 +561,261 @@ EC u32 SECTION(".text.func_08009190") func_08009190(HardwareKeys * self)
     u32 pressed = func_08009158(self) & ~previous;
     self->pressed = pressed;
     return pressed;
+}
+
+EC SECTION(".text.func_080091A4") HardwareKeys * func_080091A4(HardwareKeys * self, u16 delay, u16 period)
+{
+    func_08009168(self);
+    self->repeat = self->pressed;
+    self->delay = delay;
+    self->period = period;
+    fill_inl(self->counters, self->counters + 10, 0);
+    return self;
+}
+
+EC SECTION(".text.func_080091E8") HardwareKeys * func_080091E8(HardwareKeys * self, u32 keys)
+{
+    func_0800917C(self, keys);
+    self->repeat = self->pressed;
+    self->delay = 30;
+    self->period = 4;
+    fill_inl(self->counters, self->counters + 10, 0);
+    return self;
+}
+
+EC u32 SECTION(".text.func_08009268") func_08009268(void * ptr)
+{
+    HardwareKeys * self = static_cast<HardwareKeys *>(ptr);
+    u32 pressed = func_08009190(self);
+    u32 current = self->current;
+    u32 period = self->period;
+    u32 delay = self->delay;
+    u32 repeat = 0;
+    u32 mask = 0x200;
+    i16 * counter = self->counters + 9;
+    do
+    {
+        if (current & mask)
+        {
+            int value;
+            if ((pressed & mask) == 0)
+            {
+                value = *counter;
+                if (value != delay)
+                    ++value;
+                else
+                {
+                    repeat |= mask;
+                    value -= period;
+                }
+            }
+            else
+            {
+                repeat |= mask;
+                value = 0;
+            }
+            *counter = value;
+        }
+        --counter;
+        mask >>= 1;
+    }
+    while (mask != 0);
+    self->repeat = repeat;
+    return repeat;
+}
+
+EC void SECTION(".text.func_080092C8") func_080092C8(HardwareKeys * self, u16 delay)
+{
+    u32 current = self->current;
+    u32 mask = 0x200;
+    i16 * counter = self->counters + 9;
+    int delta = delay - self->delay;
+    do
+    {
+        if (current & mask)
+            *counter += delta;
+        --counter;
+        mask >>= 1;
+    }
+    while (mask != 0);
+    self->delay = delay;
+}
+
+EC void SECTION(".text.func_080092FC") func_080092FC(HardwareKeys * self, u32 period)
+{
+    self->period = period;
+}
+
+struct HardwareFadeState
+{
+    HardwareFadeState(void * registers)
+        : registers(registers), speed(0), mode(0), mosaic(false), progress(0) {}
+    void * registers;
+    i16 speed;
+    u32 mode;
+    bool mosaic;
+    u16 progress;
+};
+
+struct HardwareFade
+{
+    HardwareFadeState * state;
+};
+
+EC SECTION(".text.func_08009300") HardwareFade * func_08009300(HardwareFade * self, void * registers)
+{
+    self->state = new HardwareFadeState(registers);
+    return self;
+}
+
+EC void SECTION(".text.func_08009324") func_08009324(HardwareFade * self, u32 flags)
+{
+    delete self->state;
+    if (flags & 1)
+        delete self;
+}
+
+EC SECTION(".text.func_08009344") void * func_08009344(HardwareFade * self, void * registers)
+{
+    void * previous = self->state->registers;
+    self->state->registers = registers;
+    return previous;
+}
+
+EC void SECTION(".text.func_0800934C") func_0800934C(HardwareFade * self, i16 speed, u32 mode, u32 mosaic)
+{
+    HardwareFadeState * state = self->state;
+    int value = -(speed < 0 ? -speed : speed);
+    bool mosaic_enabled = mosaic != 0;
+    state->speed = value;
+    state->mode = mode;
+    state->mosaic = mosaic_enabled;
+    state->progress = 0xFFFF;
+}
+
+EC void SECTION(".text.func_08009378") func_08009378(HardwareFade * self, i16 speed, u32 mode, u32 mosaic)
+{
+    HardwareFadeState * state = self->state;
+    int value = speed < 0 ? -speed : speed;
+    bool mosaic_enabled = mosaic != 0;
+    state->speed = value;
+    state->mode = mode;
+    state->mosaic = mosaic_enabled;
+    state->progress = 0;
+}
+
+EC i16 SECTION(".text.func_080093A0") func_080093A0(HardwareFade * self, i16 speed)
+{
+    i16 previous = self->state->speed;
+    self->state->speed = speed;
+    return previous;
+}
+
+EC i16 SECTION(".text.func_080094A4") func_080094A4(HardwareFade * self)
+{
+    return self->state->speed;
+}
+
+EC bool func_080093AC(HardwareFade *);
+
+EC bool SECTION(".text.func_080094AC") func_080094AC(u8 * self)
+{
+    return func_080093AC(reinterpret_cast<HardwareFade *>(self + 0xC));
+}
+
+struct HardwareRegisters
+{
+    union
+    {
+        u32 control;
+        u16 halfwords[0x2B];
+    };
+};
+
+EC SECTION(".text.func_080096B0") HardwareRegisters * func_080096B0(HardwareRegisters * self)
+{
+    CpuFill16(0, self, 0x56);
+    self->control = 0x80;
+    self->halfwords[0x20 / 2] = 0x100;
+    self->halfwords[0x22 / 2] = 0;
+    self->halfwords[0x24 / 2] = 0;
+    self->halfwords[0x26 / 2] = 0x100;
+    self->halfwords[0x30 / 2] = 0x100;
+    self->halfwords[0x32 / 2] = 0;
+    self->halfwords[0x34 / 2] = 0;
+    self->halfwords[0x36 / 2] = 0x100;
+    return self;
+}
+
+EC void func_08008E64(void const *, void *, u32);
+
+EC void SECTION(".text.func_080096F0") func_080096F0(HardwareRegisters * self)
+{
+    func_08008E64(self, reinterpret_cast<void *>(0x04000000), 0x54);
+    *reinterpret_cast<u16 volatile *>(0x04000054) = self->halfwords[0x54 / 2];
+}
+
+struct HardwareSprite
+{
+    u8 y;
+    u8 flags;
+    u16 x;
+    u16 tile;
+    u16 affine;
+};
+
+struct HardwareSprites
+{
+    u8 count;
+    u8 initial_count;
+    u8 affine_count;
+    u8 initial_affine_count;
+    HardwareSprite sprites[128];
+};
+
+EC SECTION(".text.func_08009744") HardwareSprites * func_08009744(HardwareSprites * self, u8 count, u8 affine_count)
+{
+    self->count = self->initial_count = count & 0x7F;
+    self->affine_count = self->initial_affine_count = affine_count & 0x1F;
+    HardwareSprite * it = self->sprites;
+    HardwareSprite * end = self->sprites + 128;
+    do
+    {
+        it->flags = 2;
+        ++it;
+    }
+    while (it != end);
+    return self;
+}
+
+EC void SECTION(".text.func_0800977C") func_0800977C(HardwareSprites * self)
+{
+    func_08008E64(self->sprites, reinterpret_cast<void *>(0x07000000), 0x400);
+}
+
+EC void SECTION(".text.func_08009834") func_08009834(HardwareSprites * self)
+{
+    u32 count = self->count;
+    u32 initial = self->initial_count;
+    if (count > initial)
+    {
+        HardwareSprite * it = self->sprites + initial;
+        HardwareSprite * end = self->sprites + count;
+        do
+        {
+            it->flags = 2;
+            ++it;
+        }
+        while (it != end);
+    }
+    self->count = initial;
+    self->affine_count = self->initial_affine_count;
+}
+
+EC void SECTION(".text.func_08009864") func_08009864(HardwareSprites * self)
+{
+    func_0800977C(self);
+    func_08009834(self);
 }
 
 EC void func_08007184(Unk_hardware_H * self) ALIAS(_._14Unk_hardware_H);
