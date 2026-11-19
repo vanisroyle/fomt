@@ -1345,6 +1345,8 @@ vtable_unk_080E850C:
 	.incbin "baserom.gba", 0xE850C, 0x10
 
 	.global vtable_unk_080E851C
+	.global __vt_20ChickenFestivalScene
+__vt_20ChickenFestivalScene:
 vtable_unk_080E851C:
 	.incbin "baserom.gba", 0xE851C, 0xC
 

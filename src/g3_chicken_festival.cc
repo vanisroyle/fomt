@@ -74,7 +74,7 @@ struct MinigameState
 EC u8 vtable_unk_080E850C[];
 EC u8 vtable_unk_080E8528[];
 EC void * func_080ADF6C(void *, void *);
-EC void * func_080B3CC8(void *, void *);
+EC void * InitializeChickenFestivalScene(void *, void *);
 EC void Scene_DestroyBase(void *, u32);
 EC void AudioPlayer_StartSong(void *, u32);
 struct ChickenFeedingScene;
@@ -291,7 +291,7 @@ EC SECTION(".text.g3_080BA574") void ShowFestivalInstructionPage(u8 * state, u32
 EC SECTION(".text.g3_080BC898") MinigameWrapper * CreateChickenFestivalWrapper(MinigameWrapper * self, void * entrant)
 {
     self->vtable = vtable_unk_080E8528;
-    self->state = func_080B3CC8(operator new(0xb78), entrant);
+    self->state = InitializeChickenFestivalScene(operator new(0xb78), entrant);
     return self;
 }
 
