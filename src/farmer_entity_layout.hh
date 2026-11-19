@@ -82,7 +82,7 @@ struct FarmerEntity : AActorEntity
     STRUCT_PAD(0x46, 0x60);
     FarmerHeldItemAnimation held_anim;
     bool unk_78;
-    bool unk_79;
+    u8 pet_interaction_flags;
     bool unk_7A;
     u8 unk_7B;
     u16 icon;
