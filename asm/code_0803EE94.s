@@ -105726,7 +105726,7 @@ func_0807865C: @ 0x0807865C
 	bl TilePool_Destroy
 	adds r0, r7, #0
 	adds r0, #0x1c
-	bl func_0803C5B0
+	bl InitializeDialogChoiceGraphics
 	adds r0, r7, #0
 	adds r0, #0x20
 	bl func_080756B0

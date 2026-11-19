@@ -1,6 +1,7 @@
 #include "prelude.h"
 
 #include "bachelorette.hh"
+#include "dialog_choice_graphics.hh"
 #include "dog.hh"
 #include "farm.hh"
 #include "farm_house.hh"
@@ -2562,21 +2563,12 @@ EC int UpdatePauseMenuWindow(PauseMenuWindow &, ControllerInput const &, OamBuff
     BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *, AudioPlayer *);
 EC void func_0803BE50(DialogWindow &, int);
 EC void func_080E0C38(PauseMenuGraphics *, int);
-EC void func_080E0D70(void *, int);
 EC char const gPauseMenuWindowVtable[];
 EC char const vtable_unk_080E77E0[];
 
-struct Unk_0803C7A0
-{
-    void * inner;
-};
-
-EC void func_0803C7A0(Unk_0803C7A0 &, int);
-EC void func_0803C5B0(Unk_0803C7A0 &);
-
 struct DialogChoiceWindow : DialogWindow
 {
-    Unk_0803C7A0 menu;
+    DialogChoiceGraphicsOwner choiceGraphics;
 };
 
 struct DialogChoiceWindowVtable
@@ -2586,7 +2578,7 @@ struct DialogChoiceWindowVtable
     int (* getY)(DialogChoiceWindow &);
 };
 
-EC void DrawDialogChoices(Unk_0803C7A0 &, int x, int y, OamBuffer *, DialogLayerRenderer *);
+EC void DrawDialogChoices(DialogChoiceGraphicsOwner &, int x, int y, OamBuffer *, DialogLayerRenderer *);
 
 ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBuffer * oam,
     BackgroundVideoState * video, DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
@@ -2597,7 +2589,7 @@ ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBu
     {
         int x = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getX(self);
         int y = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getY(self);
-        DrawDialogChoices(self.menu, x, y, oam, layerRenderer);
+        DrawDialogChoices(self.choiceGraphics, x, y, oam, layerRenderer);
     }
     return state;
 }
@@ -2644,23 +2636,13 @@ ROM_TEXT(0803C518) DialogChoiceWindow & func_0803C54C(DialogChoiceWindow & self,
 {
     func_0803BDFC(self, 128, 136, 112, 24, arg1, arg2, arg3, arg4);
     self.vtable = vtable_unk_080E77E0;
-    func_0803C5B0(self.menu);
+    InitializeDialogChoiceGraphics(self.choiceGraphics);
     return self;
 }
 
 ROM_TEXT(0803C518) void func_0803C588(DialogChoiceWindow & self, int flags)
 {
     self.vtable = vtable_unk_080E77E0;
-    func_0803C7A0(self.menu, 2);
+    DestroyDialogChoiceGraphics(self.choiceGraphics, 2);
     func_0803BE50(self, flags);
-}
-
-ROM_TEXT(0803C7A0) void func_0803C7A0(Unk_0803C7A0 & self, int flags)
-{
-    void * inner = self.inner;
-    if (inner != 0)
-        func_080E0D70(inner, 3);
-    flags &= 1;
-    if (flags != 0)
-        ::operator delete(&self);
 }

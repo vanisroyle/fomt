@@ -25708,8 +25708,8 @@ func_080E0D64: @ 0x080E0D64
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080E0D70
-func_080E0D70: @ 0x080E0D70
+	thumb_func_start DestroyDialogChoiceGraphicsStorage
+DestroyDialogChoiceGraphicsStorage: @ 0x080E0D70
 	push {r4, r5, r6, lr}
 	adds r6, r0, #0
 	adds r5, r1, #0
