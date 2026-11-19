@@ -253,6 +253,8 @@ func_08032560: @ 0x08032560
     .align 2, 0
 .L08032608: .4byte vtable_unk_080E68B4
 
+    .section .text.npc_side.0803260C, "ax", %progbits
+
     thumb_func_start func_0803260C
 func_0803260C: @ 0x0803260C
     push {r4, r5, r6, r7, lr}
@@ -327,6 +329,8 @@ func_0803260C: @ 0x0803260C
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
+
+    .section .text.npc_side.08032690, "ax", %progbits
 
     thumb_func_start func_08032690
 func_08032690: @ 0x08032690
@@ -763,32 +767,6 @@ func_08032934: @ 0x08032934
     @ 329fa:       bc04            pop     {r2}
     @ 329fc:       4710            bx      r2
     @ 329fe:       0000            movs    r0, r0
-
-    thumb_func_start func_08032A00
-func_08032A00: @ 0x08032A00
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    movs r0, #1
-    str r0, [sp]
-    movs r0, #0
-    str r0, [sp, #4]
-    str r0, [sp, #8]
-    add r2, sp, #0xc
-    strb r0, [r2]
-    adds r0, r4, #0
-    movs r2, #6
-    movs r3, #0x20
-    bl func_080324BC
-    ldr r0, .L08032A2C @ =vtable_unk_080E6864
-    str r0, [r4, #4]
-    adds r0, r4, #0
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08032A2C: .4byte vtable_unk_080E6864
 
     .section .text.npc_side.08032A58, "ax", %progbits
 
@@ -2890,16 +2868,8 @@ func_08033B24: @ 0x08033B24
 
     .section .text.npc_side.08033B84, "ax", %progbits
 
-    thumb_func_start func_08033B84
-func_08033B84: @ 0x08033B84
-    push {lr}
-    ldr r0, [r0, #0x10]
-    cmp r0, #0
-    beq .L08033B90
-    bl func_08034BFC
-.L08033B90:
-    pop {r0}
-    bx r0
+    .section .text.npc_side.08033B94, "ax", %progbits
+
 .L08033B94:
     .byte 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0xAB, 0xB0
     .byte 0x07, 0x1C, 0x0A, 0x1C, 0x78, 0x6B, 0x80, 0x46, 0x39, 0x68, 0x8A, 0x46, 0xC0, 0x69, 0x05, 0x28
@@ -3159,7 +3129,7 @@ func_08034260: @ 0x08034260
     adds r1, #0x30
     ldrb r1, [r1]
     add r2, sp, #8
-    bl func_0809E988
+    bl SetNpcEventSlot
     ldr r1, .L080342D4 @ =0xFFFF0000
     ldr r0, [sp, #0x18]
     ands r0, r1
@@ -3265,7 +3235,7 @@ func_0803436C: @ 0x0803436C
     ldm r1!, {r4, r5}
     stm r2!, {r4, r5}
     ldrb r1, [r3]
-    bl func_0809E994
+    bl ClearNpcEventSlot
     ldr r0, [sp, #0x24]
     ldr r1, [r0, #0x3c]
     mov r0, sp
@@ -3335,7 +3305,7 @@ func_0803436C: @ 0x0803436C
     movs r4, #2
     ldrsh r3, [r0, r4]
     adds r0, r5, #0
-    bl func_08034BFC
+    bl StartSpriteWorkerEffect
 .L0803441A:
     mov r0, sp
     ldrb r0, [r0]
@@ -4036,7 +4006,7 @@ func_08034940: @ 0x08034940
     adds r1, r5, #0
     adds r1, #0x30
     ldrb r1, [r1]
-    bl func_0809E994
+    bl ClearNpcEventSlot
     ldr r0, [r5, #0x34]
     add r1, sp, #8
     bl method_0809E7FC__13HarvestSprite
@@ -4164,41 +4134,8 @@ func_08034A14: @ 0x08034A14
     .byte 0xB1, 0xFE, 0x01, 0x20, 0x20, 0x70, 0x00, 0x20, 0x28, 0x70, 0x0F, 0xB0, 0x38, 0xBC, 0x98, 0x46
     .byte 0xA1, 0x46, 0xAA, 0x46, 0xF0, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
 
-    thumb_func_start func_08034BFC
-func_08034BFC: @ 0x08034BFC
-    push {r4, r5, r6, lr}
-    adds r6, r0, #0
-    adds r4, r2, #0
-    adds r5, r3, #0
-    ldr r0, .L08034C3C @ =gUnk_080F14F0
-    lsls r1, r1, #1
-    adds r1, r1, r0
-    ldrh r1, [r1]
-    adds r0, r6, #0
-    adds r0, #0xb4
-    bl func_0805E860
-    adds r0, r6, #0
-    adds r0, #0xc8
-    movs r2, #0
-    movs r1, #1
-    strb r1, [r0]
-    adds r0, #2
-    strb r2, [r0]
-    adds r0, #1
-    strb r1, [r0]
-    adds r0, #1
-    strh r4, [r0]
-    adds r0, #2
-    strh r5, [r0]
-    adds r1, r6, #0
-    adds r1, #0xd0
-    movs r0, #0x3c
-    strh r0, [r1]
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08034C3C: .4byte gUnk_080F14F0
+    .section .text.npc_side.08034C40, "ax", %progbits
+
 .L08034C40:
     .byte 0x30, 0x30, 0x00, 0x78, 0x70, 0x47, 0x00, 0x00, 0x00, 0x69, 0x70, 0x47, 0x10, 0xB5, 0x0C, 0x1C
     .byte 0x13, 0x1C, 0x01, 0x1C, 0x30, 0x31, 0x09, 0x78, 0x22, 0x1C, 0xFE, 0xF7, 0x93, 0xFF, 0x10, 0xBC
@@ -4217,7 +4154,7 @@ func_08034BFC: @ 0x08034BFC
     @ 34c54:       3130            adds    r1, #48 @ 0x30
     @ 34c56:       7809            ldrb    r1, [r1, #0]
     @ 34c58:       1c22            adds    r2, r4, #0
-    @ 34c5a:       f7fe ff93       bl      func_08033B84
+    @ 34c5a:       f7fe ff93       bl      ShowSpriteWorkerEffect
     @ 34c5e:       bc10            pop     {r4}
     @ 34c60:       bc01            pop     {r0}
     @ 34c62:       4700            bx      r0

@@ -38,8 +38,8 @@ EC void func_080A6234(MapUpdateState & map);
 EC void func_080A61F0(MapUpdateState & map);
 EC void func_080A6194(MapUpdateState & map);
 EC void func_080A6138(MapUpdateState & map);
-EC void func_080A601C(MapUpdateState & map);
-EC bool func_080A5A9C(MapUpdateState & map);
+EC void StartMapTransitionDelay(u8 * self);
+EC bool IsMapTransitionIdle(u8 * self);
 EC void func_080A59BC(MapUpdateState & map, int x, int y, u32 pixelsPerStep);
 EC void func_080A5960(MapUpdateState & map, int x, int y);
 
@@ -107,12 +107,12 @@ EC SECTION(".text.080AD9C4") void ApplyMapPatchAtY15VariantA(MapScene & scene)
 
 EC SECTION(".text.080AD9D0") void StartMapTileAnimationDelay(MapScene & scene)
 {
-    func_080A601C(*scene.map);
+    StartMapTransitionDelay(reinterpret_cast<u8 *>(scene.map));
 }
 
 EC SECTION(".text.080ADB78") bool IsMapScrollIdle(MapScene & scene)
 {
-    return func_080A5A9C(*scene.map);
+    return IsMapTransitionIdle(reinterpret_cast<u8 *>(scene.map));
 }
 
 EC SECTION(".text.080ADB9C") void ScrollMapTowardPixel(MapScene & scene, int x, int y, u32 pixelsPerStep)

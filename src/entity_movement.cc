@@ -5,7 +5,9 @@
 struct WanderChoice
 {
     u8 weight;
-    STRUCT_PAD(0x01, 0x04);
+    u8 minimum_seconds;
+    u8 random_seconds;
+    u8 padding;
 };
 
 EC SECTION(".text.080AB788") u32 RollEntityMovementRandom(u32 limit)

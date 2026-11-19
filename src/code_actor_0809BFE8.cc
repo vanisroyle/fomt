@@ -1,7 +1,9 @@
 #include "prelude.h"
 
 #include "actor.hh"
+#include "furniture.hh"
 #include "item.hh"
+#include "rucksack.hh"
 
 #include <new>
 #include <string.h>
@@ -249,27 +251,121 @@ ROM_TEXT(0809C0A0) void ResetMapPatchVariants(u32 & flags)
     flags = 0;
 }
 
-ROM_TEXT(0809C4EC) bool IsDefaultMapPatch(u32 const & flags, unsigned index)
+enum
+{
+    LAST_PATCH_WITH_ALTERNATE = 13,
+    WINTER_VARIANT_PATCH_INDEX = 13,
+};
+
+static inline unsigned HasAlternateMapPatch(u32 const & flags, unsigned index)
 {
     unsigned hasAlternatePatch = 0;
-    if (index <= 13)
+    if (index <= LAST_PATCH_WITH_ALTERNATE)
     {
         unsigned bit = flags & (1u << (index & 31));
         hasAlternatePatch = ((-bit) | bit) >> 31;
     }
+    return hasAlternatePatch;
+}
+
+ROM_TEXT(0809C4EC) bool IsDefaultMapPatch(u32 const & flags, unsigned index)
+{
+    unsigned hasAlternatePatch = HasAlternateMapPatch(flags, index);
     // Preserve the original nonzero test and one-bit inversion.
     return (hasAlternatePatch | 1) ^ hasAlternatePatch;
 }
 
+struct MapPatchTiles;
+
+struct MapPatchVariant
+{
+    MapPatchTiles const * defaultTiles;
+    MapPatchTiles const * alternateTiles;
+    u8 tileX;
+    u8 tileY;
+};
+
+struct MapPatch
+{
+    MapPatchTiles const * tiles;
+    unsigned tileX;
+    unsigned tileY;
+};
+
+EC MapPatchVariant const gMapPatchVariants[];
+EC MapPatchTiles const gWinterAlternatePatchTiles;
+EC MapPatchTiles const gWinterDefaultPatchTiles;
+
+static inline MapPatchVariant const & GetMapPatchVariant(unsigned index)
+{
+    uintptr_t tableBase = reinterpret_cast<uintptr_t>(gMapPatchVariants);
+    unsigned offset = index * sizeof(MapPatchVariant);
+    return *reinterpret_cast<MapPatchVariant const *>(tableBase + offset);
+}
+
+ROM_TEXT(0809C510) MapPatch & GetMapPatch(MapPatch & result, u32 const & flags, unsigned index, bool isWinter)
+{
+    MapPatchTiles const * tiles;
+    // Keep the original load order at the shared result assignment.
+    unsigned tileX;
+    register unsigned tileY asm("r2");
+    if (HasAlternateMapPatch(flags, index))
+    {
+        if (index == WINTER_VARIANT_PATCH_INDEX && isWinter)
+        {
+            MapPatchVariant const & variant = GetMapPatchVariant(index);
+            tileX = variant.tileX;
+            tileY = variant.tileY;
+            tiles = &gWinterAlternatePatchTiles;
+            goto assign;
+        }
+        // agbcp must form the alternate pointer and coordinate addresses separately.
+        uintptr_t tableBase = reinterpret_cast<uintptr_t>(gMapPatchVariants);
+        unsigned offset = index * sizeof(MapPatchVariant);
+        register uintptr_t alternateBase asm("r1") = tableBase + offsetof(MapPatchVariant, alternateTiles);
+        MapPatchTiles const * const * alternate =
+            reinterpret_cast<MapPatchTiles const * const *>(offset + alternateBase);
+        MapPatchVariant const * variant =
+            reinterpret_cast<MapPatchVariant const *>(offset + tableBase);
+        unsigned alternateX = variant->tileX;
+        unsigned alternateY = variant->tileY;
+        result.tiles = *alternate;
+        result.tileX = alternateX;
+        result.tileY = alternateY;
+    }
+    else
+    {
+        if (index == WINTER_VARIANT_PATCH_INDEX && isWinter)
+        {
+            MapPatchVariant const & variant = GetMapPatchVariant(index);
+            tileX = variant.tileX;
+            tileY = variant.tileY;
+            tiles = &gWinterDefaultPatchTiles;
+            goto assign;
+        }
+        {
+            MapPatchVariant const & variant = GetMapPatchVariant(index);
+            tileX = variant.tileX;
+            tileY = variant.tileY;
+            tiles = variant.defaultTiles;
+        }
+    assign:
+        result.tiles = tiles;
+        result.tileX = tileX;
+        result.tileY = tileY;
+    }
+    return result;
+}
+
 ROM_TEXT(0809C5B4) void SetAlternateMapPatch(u32 & flags, unsigned index)
 {
-    if (index <= 13)
+    if (index <= LAST_PATCH_WITH_ALTERNATE)
         flags |= 1u << (index & 31);
 }
 
 ROM_TEXT(0809C5B4) void ClearAlternateMapPatch(u32 & flags, unsigned index)
 {
-    if (index <= 13)
+    if (index <= LAST_PATCH_WITH_ALTERNATE)
         flags &= ~(1u << (index & 31));
 }
 
@@ -436,24 +532,44 @@ ROM_TEXT(0809CD78) char const * GetFishingCatchName(FishingRecords const &, unsi
     return gFishingCatchNames[catchId];
 }
 
-struct Unk_0809D8A0
+enum MineTileState
 {
-    u32 kind;
-    struct PACKED ALIGN(2) Entry
-    {
-        u16 unk_00 : 4;
-        u16 unk_04 : 6;
-        u16 unk_0A : 6;
-    };
-    Entry entries[28][28];
-    u32 unk_624_0 : 1;
-    u32 : 9;
-    u32 unk_625_2 : 1;
-    u32 unk_625_3 : 1;
-    u32 unk_625_4 : 1;
+    MINE_TILE_SOIL,
+    MINE_TILE_DUG_SOIL,
+    MINE_TILE_STAIRS_DOWN,
+    MINE_TILE_STAIRS_UP,
+    MINE_TILE_ROCK,
 };
 
-ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(Unk_0809D8A0 const &, unsigned value)
+enum MineOutcome
+{
+    MINE_OUTCOME_NONE,
+    MINE_OUTCOME_STAIRS,
+    MINE_OUTCOME_CURSED_SICKLE = 4,
+    MINE_OUTCOME_CURSED_HOE,
+    MINE_OUTCOME_CURSED_AXE,
+    MINE_OUTCOME_CURSED_HAMMER,
+    MINE_OUTCOME_CURSED_WATERING_CAN,
+    MINE_OUTCOME_CURSED_FISHING_ROD,
+};
+
+struct MineFloor
+{
+    u32 kind;
+    struct PACKED ALIGN(2) Tile
+    {
+        u16 state : 4;
+        u16 rockOutcome : 6;
+        u16 digOutcome : 6;
+    };
+    Tile tiles[28][28];
+    u8 kappaJewelFlags;
+    u8 sharedJewelFlags;
+    u8 goddessJewelFlags;
+    u8 unk_627;
+};
+
+ROM_TEXT(0809D418) unsigned GetOutcomeChanceRow(MineFloor const &, unsigned value)
 {
     unsigned row = 0;
     if (value == 0)
@@ -484,7 +600,7 @@ done:
     return row;
 }
 
-ROM_TEXT(0809D418) unsigned func_0809D470(Unk_0809D8A0 const &, unsigned value)
+ROM_TEXT(0809D418) unsigned func_0809D470(MineFloor const &, unsigned value)
 {
     switch (value)
     {
@@ -528,7 +644,45 @@ done:
     return result;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D7D8(Unk_0809D8A0 const &, unsigned value)
+ROM_TEXT(0809D79C) unsigned GetAlternateMineFloorChanceRow(MineFloor const &, unsigned floor)
+{
+    unsigned row = floor;
+    unsigned lastFloorInGroup;
+    // Keep the floor input and the result in separate registers.
+    asm("" : "+r"(row) : "r"(floor));
+    if (row <= 9)
+        goto done;
+    row = 25;
+    asm("" : "+r"(row) : "r"(floor));
+    if (floor == 255)
+        goto done;
+    row = 24;
+    asm("" : "+r"(row) : "r"(floor));
+    if (floor > 79)
+        goto done;
+    row = 10;
+    lastFloorInGroup = 19;
+    if (floor < lastFloorInGroup)
+        goto done;
+    if (floor == lastFloorInGroup)
+    {
+        row = 11;
+        goto done;
+    }
+    do
+    {
+        row += 2;
+        lastFloorInGroup += 10;
+        if (lastFloorInGroup > 79 || floor < lastFloorInGroup)
+            goto done;
+    }
+    while (floor != lastFloorInGroup);
+    ++row;
+done:
+    return row;
+}
+
+ROM_TEXT(0809D7D8) unsigned func_0809D7D8(MineFloor const &, unsigned value)
 {
     switch (value)
     {
@@ -563,12 +717,12 @@ ROM_TEXT(0809D7D8) unsigned func_0809D7D8(Unk_0809D8A0 const &, unsigned value)
     return value % 10 + 32;
 }
 
-ROM_TEXT(0809D7D8) u32 func_0809D8A0(Unk_0809D8A0 const & self)
+ROM_TEXT(0809D7D8) u32 GetMineFloorKind(MineFloor const & self)
 {
     return self.kind;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D8A4(Unk_0809D8A0 const & self)
+ROM_TEXT(0809D7D8) int GetMineFloorWidth(MineFloor const & self)
 {
     unsigned count = 13;
     if (self.kind == 1)
@@ -576,7 +730,7 @@ ROM_TEXT(0809D7D8) unsigned func_0809D8A4(Unk_0809D8A0 const & self)
     return count;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D8B8(Unk_0809D8A0 const & self)
+ROM_TEXT(0809D7D8) int GetMineFloorHeight(MineFloor const & self)
 {
     unsigned count = 6;
     if (self.kind == 1)
@@ -586,51 +740,165 @@ ROM_TEXT(0809D7D8) unsigned func_0809D8B8(Unk_0809D8A0 const & self)
     return count;
 }
 
-ROM_TEXT(0809D7D8) unsigned func_0809D8D4(Unk_0809D8A0 const & self, unsigned index, unsigned row)
+ROM_TEXT(0809D7D8) unsigned GetMineTileState(MineFloor const & self, unsigned x, unsigned y)
 {
-    return self.entries[row][index].unk_00;
+    return self.tiles[y][x].state;
 }
 
-EC int func_0809DA00(Unk_0809D8A0 &, unsigned, void *);
-
-ROM_TEXT(0809D9B4) int func_0809D9B4(Unk_0809D8A0 & self, unsigned index, unsigned row, void * context)
+struct MineRewardContext
 {
-    int result = 0;
-    unsigned offset = index * sizeof(Unk_0809D8A0::Entry);
-    offset += row * sizeof(self.entries[0]);
-    char * base = reinterpret_cast<char *>(&self) + offset;
-    u8 firstByte = static_cast<u8>(base[offsetof(Unk_0809D8A0, entries)]);
-    unsigned kind = (static_cast<u32>(firstByte) << 28) >> 28;
-    switch (kind)
+    STRUCT_PAD(0x0000, 0x0380);
+    ToolChest toolChest;
+    u8 padAfterToolChest[0x1C38 - 0x0380 - sizeof(ToolChest)];
+    Rucksack rucksack;
+};
+
+EC int ResolveMineOutcome(MineFloor &, unsigned, MineRewardContext *);
+
+ROM_TEXT(0809D8E8) int DigMineTile(MineFloor & mine, int x, int y, MineRewardContext * context)
+{
+    int result = MINE_OUTCOME_NONE;
+    if (mine.tiles[y][x].state == MINE_TILE_SOIL)
     {
-    case 4:
+        result = ResolveMineOutcome(mine, mine.tiles[y][x].digOutcome, context);
+        if (result == MINE_OUTCOME_STAIRS)
+        {
+            mine.tiles[y][x].state = MINE_TILE_STAIRS_DOWN;
+            result = MINE_OUTCOME_NONE;
+            for (int row = 0; row < GetMineFloorHeight(mine); ++row)
+            {
+                for (int column = 0; column < GetMineFloorWidth(mine); ++column)
+                {
+                    if (mine.tiles[row][column].digOutcome == MINE_OUTCOME_STAIRS)
+                        mine.tiles[row][column].digOutcome = MINE_OUTCOME_NONE;
+                }
+            }
+        }
+        else
+        {
+            mine.tiles[y][x].state = MINE_TILE_DUG_SOIL;
+        }
+        mine.tiles[y][x].digOutcome = MINE_OUTCOME_NONE;
+    }
+    return result;
+}
+
+ROM_TEXT(0809D9B4) int BreakMineRock(MineFloor & mine, unsigned x, unsigned y, MineRewardContext * context)
+{
+    int result = MINE_OUTCOME_NONE;
+    unsigned offset = x * sizeof(MineFloor::Tile);
+    offset += y * sizeof(mine.tiles[0]);
+    char * base = reinterpret_cast<char *>(&mine) + offset;
+    u8 firstByte = static_cast<u8>(base[offsetof(MineFloor, tiles)]);
+    unsigned state = (static_cast<u32>(firstByte) << 28) >> 28;
+    switch (state)
     {
-        Unk_0809D8A0::Entry & entry = *reinterpret_cast<Unk_0809D8A0::Entry *>(base + offsetof(Unk_0809D8A0, entries));
-        result = func_0809DA00(self, entry.unk_04, context);
-        entry.unk_00 = 0;
-        entry.unk_04 = 0;
+    case MINE_TILE_ROCK:
+    {
+        MineFloor::Tile & tile = *reinterpret_cast<MineFloor::Tile *>(base + offsetof(MineFloor, tiles));
+        result = ResolveMineOutcome(mine, tile.rockOutcome, context);
+        tile.state = MINE_TILE_SOIL;
+        tile.rockOutcome = MINE_OUTCOME_NONE;
         break;
     }
     }
     return result;
 }
 
-ROM_TEXT(0809E174) bool func_0809E174(Unk_0809D8A0 const & self)
+ROM_TEXT(0809DF2C) bool HasCursedMineTool(MineFloor const &, unsigned outcome, MineRewardContext const & context)
 {
-    return self.unk_624_0;
+    bool found = false;
+    int toolId = TOOL_NONE;
+    switch (outcome)
+    {
+    case MINE_OUTCOME_CURSED_SICKLE: toolId = TOOL_CURSED_SICKLE; break;
+    case MINE_OUTCOME_CURSED_HOE: toolId = TOOL_CURSED_HOE; break;
+    case MINE_OUTCOME_CURSED_AXE: toolId = TOOL_CURSED_AXE; break;
+    case MINE_OUTCOME_CURSED_HAMMER: toolId = TOOL_CURSED_HAMMER; break;
+    case MINE_OUTCOME_CURSED_WATERING_CAN: toolId = TOOL_CURSED_WATERING_CAN; break;
+    case MINE_OUTCOME_CURSED_FISHING_ROD: toolId = TOOL_CURSED_FISHING_ROD; break;
+    }
+    if (toolId < NUM_TOOLS)
+    {
+        if (context.rucksack.GetFirstSlotWithTool(toolId) != static_cast<u32>(-1))
+            found = true;
+        if (context.toolChest.GetFirstSlotWith(toolId) != static_cast<u32>(-1))
+            found = true;
+    }
+    return found;
 }
 
-ROM_TEXT(0809E174) bool func_0809E184(Unk_0809D8A0 const & self)
+ROM_TEXT(0809DFAC) u8 CountHarvestGoddessJewels(MineFloor const & mine)
 {
-    return self.unk_625_2;
+    // The first three Goddess jewel flags share a byte with other mine rewards.
+    unsigned bits = mine.sharedJewelFlags;
+    u8 count = (bits << 26) >> 31;
+    if (static_cast<i32>(bits << (31 - 6)) < 0) ++count;
+    if (bits >> 7) ++count;
+    bits = mine.goddessJewelFlags;
+    if ((bits << 31) != 0) ++count;
+    if (static_cast<i32>(bits << (31 - 1)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 2)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 3)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 4)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 5)) < 0) ++count;
+    return count;
 }
 
-ROM_TEXT(0809E174) bool func_0809E194(Unk_0809D8A0 const & self)
+ROM_TEXT(0809E02C) u8 CountKappaJewels(MineFloor const & mine)
 {
-    return self.unk_625_3;
+    // Bit 0 holds a different reward; the last two Kappa jewels use the next byte.
+    unsigned bits = mine.kappaJewelFlags;
+    u8 count = (bits << 30) >> 31;
+    if (static_cast<i32>(bits << (31 - 2)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 3)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 4)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 5)) < 0) ++count;
+    if (static_cast<i32>(bits << (31 - 6)) < 0) ++count;
+    if (bits >> 7) ++count;
+    bits = mine.sharedJewelFlags;
+    if ((bits << 31) != 0) ++count;
+    if (static_cast<i32>(bits << (31 - 1)) < 0) ++count;
+    return count;
 }
 
-ROM_TEXT(0809E174) bool func_0809E1A4(Unk_0809D8A0 const & self)
+struct MineTileGraphics;
+EC MineTileGraphics const gMineSoilTiles;
+EC MineTileGraphics const gMineDugSoilTiles;
+EC MineTileGraphics const gMineDownStairsTiles;
+EC MineTileGraphics const gMineUpStairsTiles;
+EC MineTileGraphics const gMineRockTiles;
+
+ROM_TEXT(0809E0AC) MineTileGraphics const * GetMineTileGraphics(MineFloor const & mine, unsigned x, unsigned y)
 {
-    return self.unk_625_4;
+    MineFloor::Tile const & tile = mine.tiles[y][x];
+    switch (tile.state)
+    {
+        case MINE_TILE_SOIL: return &gMineSoilTiles;
+        case MINE_TILE_DUG_SOIL: return &gMineDugSoilTiles;
+        case MINE_TILE_STAIRS_DOWN: return &gMineDownStairsTiles;
+        case MINE_TILE_STAIRS_UP: return &gMineUpStairsTiles;
+        case MINE_TILE_ROCK: return &gMineRockTiles;
+        default: return 0;
+    }
+}
+
+ROM_TEXT(0809E174) bool func_0809E174(MineFloor const & self)
+{
+    return (static_cast<u32>(self.kappaJewelFlags) << 31) >> 31;
+}
+
+ROM_TEXT(0809E174) bool func_0809E184(MineFloor const & self)
+{
+    return (static_cast<u32>(self.sharedJewelFlags) << (31 - 2)) >> 31;
+}
+
+ROM_TEXT(0809E174) bool func_0809E194(MineFloor const & self)
+{
+    return (static_cast<u32>(self.sharedJewelFlags) << (31 - 3)) >> 31;
+}
+
+ROM_TEXT(0809E174) bool func_0809E1A4(MineFloor const & self)
+{
+    return (static_cast<u32>(self.sharedJewelFlags) << (31 - 4)) >> 31;
 }
