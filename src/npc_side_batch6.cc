@@ -1,6 +1,5 @@
 #include "entity_actor.hh"
 #include "g1_npc.hh"
-#include <string.h>
 #include <stdlib.h>
 
 #define NPC_EXTRA_CODE(address) SECTION(".text.npc_extra." #address)
@@ -57,7 +56,19 @@ struct SpriteWorkerNpc : AActorEntity
     Npc * npc;
 };
 
-struct SideSpriteBank;
+struct SideSpriteFrame
+{
+    u8 bytes[0x20];
+};
+
+inline void * operator new(size_t, SideSpriteFrame * frame) { return frame; }
+
+struct SideSpriteBank
+{
+    virtual ~SideSpriteBank();
+    virtual SpriteAnimationClip GetClip(u32 animation);
+    virtual SideSpriteFrame GetFrame(u32 frame);
+};
 struct SideSpriteServices;
 struct SideSpriteServicesVTable
 {
@@ -65,6 +76,9 @@ struct SideSpriteServicesVTable
     AActorEntity * (*find_entity)(SideSpriteServices *, u32);
     STRUCT_PAD(0x44, 0x64);
     SideSpriteBank * (*get_bank)(SideSpriteServices *);
+    SideSpriteBank * (*get_actor_bank)(SideSpriteServices *);
+    SideSpriteBank * (*get_overlay_bank)(SideSpriteServices *);
+    SideSpriteBank * (*get_transition_bank)(SideSpriteServices *);
 };
 
 struct SideSpriteServices
@@ -77,6 +91,89 @@ struct LaunchedSpriteRenderer
     LaunchedSideSprite * actor;
     void const * vtable;
     u8 renderer[0x40];
+};
+
+struct ReactionSpriteRenderer
+{
+    AEntity * actor;
+    void const * vtable;
+    u8 renderer[0x28];
+    SideSpriteFrame frame;
+    u8 refresh_frame;
+    STRUCT_PAD(0x51, 0x54);
+    u8 reaction;
+};
+
+struct SideActorSprite
+{
+    AActorEntity * actor;
+    void const * vtable;
+    u8 renderer[0x40];
+    u8 overlay_renderer[0x40];
+    u8 overlay_offset;
+    u8 overlay_padding;
+    u8 overlay_flags;
+    u8 overlay_visible;
+};
+
+struct SideTransitionSprite
+{
+    SideTransitionSprite(GameObject * game);
+    u8 renderer[0x28];
+    SideSpriteFrame frame;
+    u8 refresh_frame;
+    STRUCT_PAD(0x49, 0x4C);
+    u32 progress;
+    u8 complete;
+    u8 hidden;
+    ~SideTransitionSprite();
+};
+
+struct SideTransitionEffects
+{
+    AEntity * actor;
+    STRUCT_PAD(0x04, 0x0C);
+    SmartPtr<SideTransitionSprite> sprite;
+};
+
+struct ActivityNpcRecord : Actor
+{
+    ActivityNpcRecord();
+    u32 padding;
+    u32 activity;
+};
+
+struct ActivityNpcEntity : AActorEntity
+{
+    ActivityNpcEntity();
+    STRUCT_PAD(0x30, 0x34);
+    ActivityNpcRecord * npc;
+};
+
+struct NpcPauseState
+{
+    u32 timer : 16;
+    u32 chance : 7;
+    u32 alternate : 1;
+    u32 target : 8;
+};
+
+struct ActivitySpriteOverlay
+{
+    ActivitySpriteOverlay(GameObject * game);
+    u8 renderer[0x28];
+    SideSpriteFrame frame;
+    u8 refresh_frame;
+};
+
+struct ActivityRenderSprite
+{
+    GameObject * game;
+    u16 animation;
+    STRUCT_PAD(0x06, 0x08);
+    u8 renderer[0x40];
+    ActivitySpriteOverlay * overlay;
+    void const * vtable;
 };
 
 struct NpcWorldState
@@ -112,6 +209,11 @@ EC u8 const vtable_unk_080E73FC[];
 EC u8 const vtable_unk_080E73B4[];
 EC u8 const vtable_unk_080E68C8[];
 EC u8 const vtable_unk_080E73E8[];
+EC u8 const vtable_unk_080E7478[];
+EC u8 const vtable_unk_080E7430[];
+EC u8 const vtable_unk_080E602C[];
+EC u8 const vtable_unk_080E68B4[];
+EC u8 const vtable_unk_080E76BC[];
 EC u8 const gUnk_080F14F0[];
 EC void ItemCollection_SetExtraItems(void * record, Location const & location);
 EC void SetNpcWalkingAnimation(AActorEntity * self, u32 animation);
@@ -121,11 +223,44 @@ EC bool HasNamedNpcFlag(G1NamedNpcState * npc);
 EC bool IsNpcAtNorthernExit(AEntity * self);
 EC void func_08036E70(ArrivalReactionNpc * self);
 EC void func_08034EB4(AActorEntity * self, u32 reason);
-EC UnknownEntityThing * func_080324BC(UnknownEntityThing * self, AActorEntity * actor, u32 layer, u32 animation, u32 priority, u32 palette, u32 flags, bool visible);
+EC SideActorSprite * InitializeSideActorSpriteLayers(SideActorSprite * self, AActorEntity * actor, u32 layer, u32 palette, u32 overlay_offset, u32 overlay_flags, u32 overlay_visible, bool hidden);
 EC void InitializeEntityBase(AEntity * self, GameObject * game, Location const & location) asm("__7AEntityP10GameObjectRC8Location");
 EC bool DogEntity_IsCarryingTarget(AActorEntity * self);
 EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x, i32 y, u32 animation, u32 facing);
 EC void func_080A4A00(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, bool flags);
+EC void func_080A4740(void * renderer, GameObject * game, u32 layer, u32 palette);
+EC void func_080A49A0(void * renderer, SideSpriteBank * bank, u32 animation, GameObject * game, u32 layer, u32 palette, u32 priority, bool flags);
+EC void func_080A47B4(void * self, u32 flags);
+EC void func_0809C0C8(ActivityNpcRecord * self, NpcPauseState const & state);
+EC void func_0809C068(ActivityNpcRecord * self, u32 activity);
+EC void func_08032384(AActorEntity * self, u32 activity, u32 flags);
+EC void AEntity_PlayAnimationSound(AEntity * self, u32 sound);
+EC u32 RollEntityMovementRandom(u32 limit);
+
+inline SideTransitionSprite::~SideTransitionSprite() { func_080A47B4(this, 2); }
+
+inline ActivitySpriteOverlay::ActivitySpriteOverlay(GameObject * game)
+{
+    SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(game);
+    SideSpriteBank * bank = services->vtable->get_actor_bank(services);
+    func_080A4740(this, game, 2, 15);
+    reinterpret_cast<void const **>(this)[9] = vtable_unk_080E602C;
+    new (&frame) SideSpriteFrame(bank->GetFrame(bank->GetClip(2330).keyframes[0].frame));
+    refresh_frame = 1;
+}
+
+inline SideTransitionSprite::SideTransitionSprite(GameObject * game)
+{
+    SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(game);
+    SideSpriteBank * bank = services->vtable->get_transition_bank(services);
+    func_080A4740(this, game, 6, 27);
+    reinterpret_cast<void const **>(this)[9] = vtable_unk_080E602C;
+    new (&frame) SideSpriteFrame(bank->GetFrame(bank->GetClip(0).keyframes[0].frame));
+    refresh_frame = 1;
+    progress = 0x1200000;
+    complete = 0;
+    hidden = 0;
+}
 
 EC void DestroyRecordedSideActor(RecordedSideActor * self, u32 flags) NPC_SIDE_CODE(0803295C);
 EC void DestroyRecordedSideActor(RecordedSideActor * self, u32 flags)
@@ -178,7 +313,7 @@ EC UnknownEntityThing * CreateArrivalReactionSprite(ArrivalReactionNpc * self)
         func_08036E70(self);
         u32 palette = HasNamedNpcFlag(reinterpret_cast<G1NamedNpcState *>(npc)) ? 4 : 1;
         struct Storage { u8 bytes[0x8C]; };
-        return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 4, 27, 0, palette, 0, false);
+        return reinterpret_cast<UnknownEntityThing *>(InitializeSideActorSpriteLayers(reinterpret_cast<SideActorSprite *>(new Storage), self, 4, 27, 0, palette, 0, false));
     }
     return nullptr;
 }
@@ -270,5 +405,148 @@ EC LaunchedSpriteRenderer * InitializeLaunchedSpriteRenderer(LaunchedSpriteRende
     void * renderer = self->renderer;
     u32 animation = actor->animation;
     func_080A4A00(renderer, bank, animation, game, 2, 7, false);
+    return self;
+}
+
+EC ReactionSpriteRenderer * InitializeReactionSpriteRenderer(ReactionSpriteRenderer * self, AEntity * actor) NPC_EXTRA_CODE(08037D08);
+EC ReactionSpriteRenderer * InitializeReactionSpriteRenderer(ReactionSpriteRenderer * self, AEntity * actor)
+{
+    self->actor = actor;
+    self->vtable = vtable_unk_080E7478;
+    SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
+    SideSpriteBank * bank = services->vtable->get_bank(services);
+    GameObject * game = actor->game_object;
+    void * renderer = self->renderer;
+    func_080A4740(renderer, game, 2, 10);
+    reinterpret_cast<void const **>(renderer)[9] = vtable_unk_080E602C;
+    new (&self->frame) SideSpriteFrame(bank->GetFrame(bank->GetClip(125).keyframes[0].frame));
+    self->refresh_frame = 1;
+    return self;
+}
+
+EC ReactionSpriteRenderer * InitializeTimedReactionSpriteRenderer(ReactionSpriteRenderer * self, AEntity * actor) NPC_EXTRA_CODE(08037EF0);
+EC ReactionSpriteRenderer * InitializeTimedReactionSpriteRenderer(ReactionSpriteRenderer * self, AEntity * actor)
+{
+    self->actor = actor;
+    self->vtable = vtable_unk_080E7430;
+    SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
+    SideSpriteBank * bank = services->vtable->get_bank(services);
+    GameObject * game = actor->game_object;
+    void * renderer = self->renderer;
+    func_080A4740(renderer, game, 2, 8);
+    reinterpret_cast<void const **>(renderer)[9] = vtable_unk_080E602C;
+    new (&self->frame) SideSpriteFrame(bank->GetFrame(bank->GetClip(53).keyframes[0].frame));
+    self->refresh_frame = 1;
+    self->reaction = 0;
+    return self;
+}
+
+EC void CreateSideTransitionSprite(SideTransitionEffects * self) NPC_EXTRA_CODE(08038DF0);
+EC void CreateSideTransitionSprite(SideTransitionEffects * self)
+{
+    self->sprite = new SideTransitionSprite(self->actor->game_object);
+}
+
+EC SideActorSprite * InitializeSideActorSpriteLayers(SideActorSprite * self, AActorEntity * actor, u32 layer, u32 palette, u32 overlay_offset, u32 overlay_flags, u32 overlay_visible, bool hidden) NPC_SIDE_CODE(080324BC);
+EC SideActorSprite * InitializeSideActorSpriteLayers(SideActorSprite * self, AActorEntity * actor, u32 layer, u32 palette, u32 overlay_offset, u32 overlay_flags, u32 overlay_visible, bool hidden)
+{
+    self->actor = actor;
+    self->vtable = vtable_unk_080E68B4;
+    {
+        SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
+        SideSpriteBank * bank = services->vtable->get_actor_bank(services);
+        u32 animation = actor->anim_id + actor->facing;
+        GameObject * game = actor->game_object;
+        void * renderer = self->renderer;
+        func_080A4A00(renderer, bank, animation, game, layer, palette, hidden);
+    }
+    {
+        SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
+        SideSpriteBank * bank = services->vtable->get_overlay_bank(services);
+        GameObject * game = actor->game_object;
+        void * renderer = self->overlay_renderer;
+        func_080A4A00(renderer, bank, 0, game, 2, 14, false);
+    }
+    self->overlay_offset = overlay_offset;
+    self->overlay_padding = 0;
+    u8 * flags = &self->overlay_flags;
+    *flags = overlay_flags << 2;
+    self->overlay_visible = overlay_visible;
+    return self;
+}
+
+EC SideActorSprite * InitializePrioritizedSideActorSprite(SideActorSprite * self, AActorEntity * actor, u32 layer, u32 palette, u32 priority, u32 overlay_offset, u32 overlay_flags, u32 overlay_visible, bool hidden) NPC_SIDE_CODE(08032560);
+EC SideActorSprite * InitializePrioritizedSideActorSprite(SideActorSprite * self, AActorEntity * actor, u32 layer, u32 palette, u32 priority, u32 overlay_offset, u32 overlay_flags, u32 overlay_visible, bool hidden)
+{
+    self->actor = actor;
+    self->vtable = vtable_unk_080E68B4;
+    {
+        SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
+        SideSpriteBank * bank = services->vtable->get_actor_bank(services);
+        u32 animation = actor->anim_id + actor->facing;
+        GameObject * game = actor->game_object;
+        void * renderer = self->renderer;
+        func_080A49A0(renderer, bank, animation, game, layer, palette, priority, hidden);
+    }
+    {
+        SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(actor->game_object);
+        SideSpriteBank * bank = services->vtable->get_overlay_bank(services);
+        GameObject * game = actor->game_object;
+        void * renderer = self->overlay_renderer;
+        func_080A4A00(renderer, bank, 0, game, 2, 14, false);
+    }
+    self->overlay_offset = overlay_offset;
+    self->overlay_padding = 0;
+    u8 * flags = &self->overlay_flags;
+    *flags = overlay_flags << 2;
+    self->overlay_visible = overlay_visible;
+    return self;
+}
+
+EC void StartNpcPauseActivity(ActivityNpcEntity * self) NPC_EXTRA_CODE(08039DA8);
+EC void StartNpcPauseActivity(ActivityNpcEntity * self)
+{
+    if (self->npc->activity != 1)
+    {
+        NpcPauseState state;
+        state.timer = RollEntityMovementRandom(120) + 240;
+        state.chance = 60;
+        state.alternate = 0;
+        state.target = 0;
+        func_0809C0C8(self->npc, state);
+        func_0809C068(self->npc, 15);
+        func_08032384(self, 2, 0);
+        AEntity_PlayAnimationSound(self, 170);
+    }
+}
+
+EC void StartNpcAlternatePauseActivity(ActivityNpcEntity * self) NPC_EXTRA_CODE(08039E18);
+EC void StartNpcAlternatePauseActivity(ActivityNpcEntity * self)
+{
+    if (self->npc->activity != 1)
+    {
+        NpcPauseState state;
+        state.timer = RollEntityMovementRandom(120) + 240;
+        state.chance = 60;
+        state.alternate = 1;
+        state.target = 0;
+        func_0809C0C8(self->npc, state);
+        func_0809C068(self->npc, 4);
+        func_08032384(self, 2, 0);
+        AEntity_PlayAnimationSound(self, 170);
+    }
+}
+
+EC ActivityRenderSprite * InitializeActivityRenderSprite(ActivityRenderSprite * self, GameObject * game, u32 animation, u32 variant) NPC_EXTRA_CODE(08039E98);
+EC ActivityRenderSprite * InitializeActivityRenderSprite(ActivityRenderSprite * self, GameObject * game, u32 animation, u32 variant)
+{
+    self->vtable = vtable_unk_080E76BC;
+    self->game = game;
+    self->animation = animation;
+    SideSpriteServices * services = reinterpret_cast<SideSpriteServices *>(game);
+    SideSpriteBank * bank = services->vtable->get_actor_bank(services);
+    func_080A4A00(self->renderer, bank, animation, game, 3, 27, false);
+    ActivitySpriteOverlay * overlay = variant == 1 ? new ActivitySpriteOverlay(game) : nullptr;
+    self->overlay = overlay;
     return self;
 }

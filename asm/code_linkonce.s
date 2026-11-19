@@ -17989,7 +17989,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD090 @ =vtable_unk_080E76A4
 	b .L080DD2AA
 	.align 2, 0
@@ -18004,7 +18004,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r2, #0x10
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD0B0 @ =vtable_unk_080E768C
 	b .L080DD2AA
 	.align 2, 0
@@ -18020,7 +18020,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD0D8 @ =vtable_unk_080E7674
 	b .L080DD2AA
 	.align 2, 0
@@ -18037,7 +18037,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD100 @ =vtable_unk_080E765C
 	b .L080DD2AA
 	.align 2, 0
@@ -18054,7 +18054,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD15C @ =vtable_unk_080E7644
 	str r0, [r5, #0x4c]
 	ldr r0, [r7, #4]
@@ -18098,7 +18098,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD1D0 @ =vtable_unk_080E762C
 	str r0, [r5, #0x4c]
 	ldr r0, [r7, #4]
@@ -18153,7 +18153,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD1F8 @ =vtable_unk_080E7614
 	b .L080DD2AA
 	.align 2, 0
@@ -18170,7 +18170,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD220 @ =vtable_unk_080E75FC
 	b .L080DD2AA
 	.align 2, 0
@@ -18187,7 +18187,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD248 @ =vtable_unk_080E75E4
 	b .L080DD2AA
 	.align 2, 0
@@ -18204,7 +18204,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD270 @ =vtable_unk_080E75CC
 	b .L080DD2AA
 	.align 2, 0
@@ -18218,7 +18218,7 @@ func_080DCFE0: @ 0x080DCFE0
 	mov r1, r8
 	ldr r2, .L080DD28C @ =0x000008FD
 	movs r3, #1
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD290 @ =vtable_unk_080E75B4
 	b .L080DD2AA
 	.align 2, 0
@@ -18232,7 +18232,7 @@ func_080DCFE0: @ 0x080DCFE0
 	mov r1, r8
 	movs r2, #0x15
 	movs r3, #0
-	bl func_08039E98
+	bl InitializeActivityRenderSprite
 	ldr r0, .L080DD314 @ =vtable_unk_080E759C
 .L080DD2AA:
 	str r0, [r5, #0x4c]
@@ -32943,7 +32943,7 @@ func_080E44E4: @ 0x080E44E4
 	adds r1, r4, #0
 	movs r2, #5
 	movs r3, #0x1b
-	bl func_080324BC
+	bl InitializeSideActorSpriteLayers
 	add sp, #0x10
 	pop {r4}
 	pop {r1}

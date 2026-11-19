@@ -525,7 +525,8 @@ SECTIONS
 
         asm/code_entities_080320DC.o(.text.npc_side.0803242C);
         src/npc_side_entities.o(.text.npc_side.080324B8);
-        asm/code_entities_080320DC.o(.text.npc_side.080324BC);
+        src/npc_side_batch6.o(.text.npc_side.080324BC);
+        src/npc_side_batch6.o(.text.npc_side.08032560);
         asm/code_entities_080320DC.o(.text.npc_side.0803260C);
         asm/code_entities_080320DC.o(.text.npc_side.08032690);
         src/npc_side_entities.o(.text.npc_side.08032900);
@@ -729,7 +730,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.08037CC4);
         src/npc_side_batch4.o(.text.npc_extra.08037CDC);
         src/npc_side_batch2.o(.text.npc_extra.08037CF0);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037D08);
+        src/npc_side_batch6.o(.text.npc_extra.08037D08);
         src/npc_side_batch5.o(.text.npc_extra.08037D70);
         asm/code_entities_08034CEC.o(.text.npc_extra.08037D74);
         src/npc_side_batch5.o(.text.npc_extra.08037E18);
@@ -737,7 +738,7 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.08037E9C);
         src/npc_side_batch2.o(.text.npc_extra.08037EB4);
         src/npc_side_batch2.o(.text.npc_extra.08037ED0);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037EF0);
+        src/npc_side_batch6.o(.text.npc_extra.08037EF0);
         src/npc_side_batch2.o(.text.npc_extra.08037F60);
         src/npc_side_batch2.o(.text.npc_extra.08037F74);
         asm/code_entities_08034CEC.o(.text.npc_extra.08037F7C);
@@ -767,6 +768,7 @@ SECTIONS
         asm/code_entities_08034CEC.o(.text.npc_extra.0803880C);
         src/npc_side_batch2.o(.text.npc_extra.0803880C);
         asm/code_entities_08034CEC.o(.text.npc_extra.08038820);
+        src/npc_side_batch6.o(.text.npc_extra.08038DF0);
         src/npc_side_batch2.o(.text.npc_extra.08038E90);
         src/npc_side_batch2.o(.text.npc_extra.08038EA0);
         src/npc_side_batch5.o(.text.npc_extra.08038EB8);
@@ -794,10 +796,11 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.08039D4C);
         src/npc_side_batch4.o(.text.npc_extra.08039D5C);
         src/npc_side_batch4.o(.text.npc_extra.08039D98);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039DA8);
+        src/npc_side_batch6.o(.text.npc_extra.08039DA8);
+        src/npc_side_batch6.o(.text.npc_extra.08039E18);
         src/npc_side_batch5.o(.text.npc_extra.08039E88);
         src/npc_side_batch5.o(.text.npc_extra.08039E8C);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039E98);
+        src/npc_side_batch6.o(.text.npc_extra.08039E98);
         src/npc_side_batch5.o(.text.npc_extra.08039F50);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039F90);
         asm/code_entities_08034CEC.o(.text.npc_extra.0803A144);

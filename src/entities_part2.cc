@@ -279,7 +279,7 @@ struct ItemDisplayGraphics : FarmerIconGraphics
     u16 icon;
 };
 
-EC void func_08032560(UnknownEntityThing * graphics, AEntity * entity, u32 sprite_mode, void const * config,
+EC void InitializePrioritizedSideActorSprite(UnknownEntityThing * graphics, AEntity * entity, u32 sprite_mode, void const * config,
     u32 priority, u32 layer, u32 x, u32 y, bool enabled);
 EC void func_080A4A00(void * sprite, void * sprites, u32 animation, GameObject * game,
     u32 priority, u32 layer, bool mirrored);
@@ -289,7 +289,7 @@ EC char const vtable_unk_080E6644[];
 EC ItemDisplayGraphics * InitItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayEntity * display) ENTITY_CODE(0802BF2C);
 EC ItemDisplayGraphics * InitItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayEntity * display)
 {
-    func_08032560(graphics, display, 6, gUnk_080F1224, 3, 1, 0, 0, true);
+    InitializePrioritizedSideActorSprite(graphics, display, 6, gUnk_080F1224, 3, 1, 0, 0, true);
     reinterpret_cast<void const **>(graphics)[1] = vtable_unk_080E6644;
     GameObject * game = display->game_object;
     FarmerIconGameVTable const * table = *reinterpret_cast<FarmerIconGameVTable const **>(game);

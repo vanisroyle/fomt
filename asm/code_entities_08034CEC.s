@@ -2585,55 +2585,6 @@ func_08037AD0: @ 0x08037AD0
     .section .text.npc_extra.08037CDC, "ax", %progbits
     .section .text.npc_extra.08037D08, "ax", %progbits
 
-    thumb_func_start func_08037D08
-func_08037D08: @ 0x08037D08
-    push {r4, r5, r6, r7, lr}
-    sub sp, #8
-    adds r7, r0, #0
-    adds r4, r1, #0
-    str r4, [r7]
-    ldr r0, .L08037D68 @ =vtable_unk_080E7478
-    str r0, [r7, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r5, r0, #0
-    ldr r1, [r4]
-    adds r4, r7, #0
-    adds r4, #8
-    adds r0, r4, #0
-    movs r2, #2
-    movs r3, #0xa
-    bl func_080A4740
-    ldr r0, .L08037D6C @ =vtable_unk_080E602C
-    str r0, [r4, #0x24]
-    adds r6, r7, #0
-    adds r6, #0x30
-    ldr r4, [r5]
-    mov r0, sp
-    ldr r3, [r4, #0xc]
-    adds r1, r5, #0
-    movs r2, #0x7d
-    bl _call_via_r3
-    ldr r0, [sp]
-    ldrh r2, [r0]
-    adds r0, r6, #0
-    ldr r3, [r4, #0x10]
-    adds r1, r5, #0
-    bl _call_via_r3
-    adds r1, r7, #0
-    adds r1, #0x50
-    movs r0, #1
-    strb r0, [r1]
-    adds r0, r7, #0
-    add sp, #8
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037D68: .4byte vtable_unk_080E7478
-.L08037D6C: .4byte vtable_unk_080E602C
     .section .text.npc_extra.08037D74, "ax", %progbits
 
     thumb_func_start func_08037D74
@@ -2723,60 +2674,6 @@ func_08037D74: @ 0x08037D74
     .section .text.npc_extra.08037E48, "ax", %progbits
 
     .section .text.npc_extra.08037EF0, "ax", %progbits
-
-    thumb_func_start func_08037EF0
-func_08037EF0: @ 0x08037EF0
-    push {r4, r5, r6, r7, lr}
-    sub sp, #8
-    adds r7, r0, #0
-    adds r4, r1, #0
-    str r4, [r7]
-    ldr r0, .L08037F58 @ =vtable_unk_080E7430
-    str r0, [r7, #4]
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r1, [r1, #0x64]
-    bl _call_via_r1
-    adds r5, r0, #0
-    ldr r1, [r4]
-    adds r4, r7, #0
-    adds r4, #8
-    adds r0, r4, #0
-    movs r2, #2
-    movs r3, #8
-    bl func_080A4740
-    ldr r0, .L08037F5C @ =vtable_unk_080E602C
-    str r0, [r4, #0x24]
-    adds r6, r7, #0
-    adds r6, #0x30
-    ldr r4, [r5]
-    mov r0, sp
-    ldr r3, [r4, #0xc]
-    adds r1, r5, #0
-    movs r2, #0x35
-    bl _call_via_r3
-    ldr r0, [sp]
-    ldrh r2, [r0]
-    adds r0, r6, #0
-    ldr r3, [r4, #0x10]
-    adds r1, r5, #0
-    bl _call_via_r3
-    adds r1, r7, #0
-    adds r1, #0x50
-    movs r2, #0
-    movs r0, #1
-    strb r0, [r1]
-    adds r0, r7, #0
-    adds r0, #0x54
-    strb r2, [r0]
-    adds r0, r7, #0
-    add sp, #8
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L08037F58: .4byte vtable_unk_080E7430
-.L08037F5C: .4byte vtable_unk_080E602C
 
     .section .text.npc_extra.08037F7C, "ax", %progbits
 
@@ -4236,83 +4133,6 @@ func_08038A70: @ 0x08038A70
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0
-
-    thumb_func_start func_08038DF0
-func_08038DF0: @ 0x08038DF0
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    mov r8, r0
-    movs r0, #0x54
-    bl __builtin_new
-    adds r7, r0, #0
-    mov r1, r8
-    ldr r0, [r1]
-    ldr r4, [r0]
-    ldr r0, [r4]
-    ldr r1, [r0, #0x70]
-    adds r0, r4, #0
-    bl _call_via_r1
-    adds r5, r0, #0
-    adds r0, r7, #0
-    adds r1, r4, #0
-    movs r2, #6
-    movs r3, #0x1b
-    bl func_080A4740
-    ldr r0, .L08038E8C @ =vtable_unk_080E602C
-    str r0, [r7, #0x24]
-    adds r6, r7, #0
-    adds r6, #0x28
-    ldr r4, [r5]
-    mov r0, sp
-    ldr r3, [r4, #0xc]
-    adds r1, r5, #0
-    movs r2, #0
-    bl _call_via_r3
-    ldr r0, [sp]
-    ldrh r2, [r0]
-    adds r0, r6, #0
-    ldr r3, [r4, #0x10]
-    adds r1, r5, #0
-    bl _call_via_r3
-    adds r1, r7, #0
-    adds r1, #0x48
-    movs r2, #0
-    movs r0, #1
-    strb r0, [r1]
-    movs r0, #0x90
-    lsls r0, r0, #0x11
-    str r0, [r7, #0x4c]
-    adds r0, r7, #0
-    adds r0, #0x50
-    strb r2, [r0]
-    adds r0, #1
-    strb r2, [r0]
-    mov r5, r8
-    adds r5, #0xc
-    adds r6, r7, #0
-    mov r0, r8
-    ldr r4, [r0, #0xc]
-    cmp r6, r4
-    beq .L08038E7E
-    cmp r4, #0
-    beq .L08038E7E
-    adds r0, r4, #0
-    movs r1, #2
-    bl func_080A47B4
-    adds r0, r4, #0
-    bl __builtin_delete
-.L08038E7E:
-    str r6, [r5]
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08038E8C: .4byte vtable_unk_080E602C
 
     .section .text.npc_extra.08038EB8, "ax", %progbits
 
@@ -6055,197 +5875,7 @@ func_08039A60: @ 0x08039A60
 
     .section .text.npc_extra.08039DA8, "ax", %progbits
 
-    thumb_func_start func_08039DA8
-func_08039DA8: @ 0x08039DA8
-    push {r4, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    ldr r0, [r4, #0x34]
-    ldr r0, [r0, #0xc]
-    cmp r0, #1
-    beq .L08039E00
-    movs r0, #0x78
-    bl RollEntityMovementRandom
-    adds r0, #0xf0
-    lsls r0, r0, #0x10
-    lsrs r0, r0, #0x10
-    ldr r2, .L08039E08 @ =0xFFFF0000
-    ldr r1, [sp]
-    ands r1, r2
-    orrs r1, r0
-    ldr r0, .L08039E0C @ =0xFF80FFFF
-    ands r1, r0
-    movs r0, #0xf0
-    lsls r0, r0, #0xe
-    orrs r1, r0
-    ldr r0, .L08039E10 @ =0xFF7FFFFF
-    ands r1, r0
-    ldr r0, .L08039E14 @ =0x00FFFFFF
-    ands r1, r0
-    str r1, [sp]
-    ldr r0, [r4, #0x34]
-    mov r1, sp
-    bl func_0809C0C8
-    ldr r0, [r4, #0x34]
-    movs r1, #0xf
-    bl func_0809C068
-    adds r0, r4, #0
-    movs r1, #2
-    movs r2, #0
-    bl func_08032384
-    adds r0, r4, #0
-    movs r1, #0xaa
-    bl AEntity_PlayAnimationSound
-.L08039E00:
-    add sp, #4
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08039E08: .4byte 0xFFFF0000
-.L08039E0C: .4byte 0xFF80FFFF
-.L08039E10: .4byte 0xFF7FFFFF
-.L08039E14: .4byte 0x00FFFFFF
-
-    thumb_func_start func_08039E18
-func_08039E18: @ 0x08039E18
-    push {r4, lr}
-    sub sp, #4
-    adds r4, r0, #0
-    ldr r0, [r4, #0x34]
-    ldr r0, [r0, #0xc]
-    cmp r0, #1
-    beq .L08039E72
-    movs r0, #0x78
-    bl RollEntityMovementRandom
-    adds r0, #0xf0
-    lsls r0, r0, #0x10
-    lsrs r0, r0, #0x10
-    ldr r2, .L08039E7C @ =0xFFFF0000
-    ldr r1, [sp]
-    ands r1, r2
-    orrs r1, r0
-    ldr r0, .L08039E80 @ =0xFF80FFFF
-    ands r1, r0
-    movs r0, #0xf0
-    lsls r0, r0, #0xe
-    orrs r1, r0
-    movs r0, #0x80
-    lsls r0, r0, #0x10
-    orrs r1, r0
-    ldr r0, .L08039E84 @ =0x00FFFFFF
-    ands r1, r0
-    str r1, [sp]
-    ldr r0, [r4, #0x34]
-    mov r1, sp
-    bl func_0809C0C8
-    ldr r0, [r4, #0x34]
-    movs r1, #4
-    bl func_0809C068
-    adds r0, r4, #0
-    movs r1, #2
-    movs r2, #0
-    bl func_08032384
-    adds r0, r4, #0
-    movs r1, #0xaa
-    bl AEntity_PlayAnimationSound
-.L08039E72:
-    add sp, #4
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08039E7C: .4byte 0xFFFF0000
-.L08039E80: .4byte 0xFF80FFFF
-.L08039E84: .4byte 0x00FFFFFF
     .section .text.npc_extra.08039E98, "ax", %progbits
-
-    thumb_func_start func_08039E98
-func_08039E98: @ 0x08039E98
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0x14
-    adds r7, r0, #0
-    adds r6, r1, #0
-    adds r5, r2, #0
-    mov sb, r3
-    ldr r0, .L08039F30 @ =vtable_unk_080E76BC
-    str r0, [r7, #0x4c]
-    str r6, [r7]
-    movs r4, #0
-    strh r5, [r7, #4]
-    ldr r0, [r6]
-    ldr r1, [r0, #0x68]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r0, r7, #0
-    adds r0, #8
-    movs r2, #3
-    str r2, [sp]
-    movs r2, #0x1b
-    str r2, [sp, #4]
-    add r2, sp, #8
-    strb r4, [r2]
-    adds r2, r5, #0
-    adds r3, r6, #0
-    bl func_080A4A00
-    mov r0, sb
-    cmp r0, #1
-    bne .L08039F3C
-    movs r0, #0x4c
-    bl __builtin_new
-    adds r5, r0, #0
-    ldr r0, [r6]
-    ldr r1, [r0, #0x68]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r4, r0, #0
-    adds r0, r5, #0
-    adds r1, r6, #0
-    movs r2, #2
-    movs r3, #0xf
-    bl func_080A4740
-    ldr r0, .L08039F34 @ =vtable_unk_080E602C
-    str r0, [r5, #0x24]
-    movs r1, #0x28
-    adds r1, r1, r5
-    mov r8, r1
-    ldr r6, [r4]
-    add r0, sp, #0xc
-    ldr r3, [r6, #0xc]
-    adds r1, r4, #0
-    ldr r2, .L08039F38 @ =0x0000091A
-    bl _call_via_r3
-    ldr r0, [sp, #0xc]
-    ldrh r2, [r0]
-    mov r0, r8
-    ldr r3, [r6, #0x10]
-    adds r1, r4, #0
-    bl _call_via_r3
-    adds r0, r5, #0
-    adds r0, #0x48
-    mov r1, sb
-    strb r1, [r0]
-    b .L08039F3E
-    .align 2, 0
-.L08039F30: .4byte vtable_unk_080E76BC
-.L08039F34: .4byte vtable_unk_080E602C
-.L08039F38: .4byte 0x0000091A
-.L08039F3C:
-    movs r5, #0
-.L08039F3E:
-    str r5, [r7, #0x48]
-    adds r0, r7, #0
-    add sp, #0x14
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
 
     .section .text.npc_extra.08039F90, "ax", %progbits
 
@@ -6913,7 +6543,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A554 @ =0x000009B6
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A558 @ =vtable_unk_080E76A4
 .L0803A508:
     str r0, [r4, #0x4c]
@@ -6966,7 +6596,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     movs r2, #0x10
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A574 @ =vtable_unk_080E768C
     b .L0803A508
     .align 2, 0
@@ -6978,7 +6608,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A590 @ =0x000003DB
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A594 @ =vtable_unk_080E7674
     b .L0803A508
     .align 2, 0
@@ -6991,7 +6621,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A5B0 @ =0x00000806
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A5B4 @ =vtable_unk_080E765C
     b .L0803A508
     .align 2, 0
@@ -7004,7 +6634,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A600 @ =0x00000202
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A604 @ =vtable_unk_080E7644
     str r0, [r4, #0x4c]
     movs r1, #0
@@ -7042,7 +6672,7 @@ func_0803A394: @ 0x0803A394
     movs r2, #0xa9
     lsls r2, r2, #2
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A66C @ =vtable_unk_080E762C
     str r0, [r5, #0x4c]
     movs r4, #0
@@ -7090,7 +6720,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A688 @ =0x0000087B
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A68C @ =vtable_unk_080E7614
     b .L0803A508
     .align 2, 0
@@ -7103,7 +6733,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A6A8 @ =0x0000065C
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A6AC @ =vtable_unk_080E75FC
     b .L0803A508
     .align 2, 0
@@ -7116,7 +6746,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A6C8 @ =0x000008F9
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A6CC @ =vtable_unk_080E75E4
     b .L0803A508
     .align 2, 0
@@ -7129,7 +6759,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A6E8 @ =0x000009A9
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A6EC @ =vtable_unk_080E75CC
     b .L0803A508
     .align 2, 0
@@ -7142,7 +6772,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     ldr r2, .L0803A708 @ =0x000008FD
     movs r3, #1
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A70C @ =vtable_unk_080E75B4
     b .L0803A508
     .align 2, 0
@@ -7155,7 +6785,7 @@ func_0803A394: @ 0x0803A394
     mov r1, r8
     movs r2, #0x15
     movs r3, #0
-    bl func_08039E98
+    bl InitializeActivityRenderSprite
     ldr r0, .L0803A794 @ =vtable_unk_080E759C
     str r0, [r5, #0x4c]
     movs r4, #0
