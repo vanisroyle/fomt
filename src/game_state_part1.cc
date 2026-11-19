@@ -486,17 +486,17 @@ struct GameStateGlobal
     GameStateGlobalStatus status;
 };
 
-extern GameStateGlobal * gUnk_0300040C;
+extern GameStateGlobal * gActiveGameScene;
 
 // 0x08016D9C
 EC u32 SECTION(".text.game_state_08016D9C") GameScript_GetReturnMap()
 {
-    return gUnk_0300040C->status.GetMapId();
+    return gActiveGameScene->status.GetMapId();
 }
 
-EC void func_08008DE8();
-EC void func_08008BE0(void * self);
-EC u32 func_08008CD0(void * self);
+EC void Audio_StopAllPlayers();
+EC void AudioPlayer_Stop(void * self);
+EC u32 AudioPlayer_IsPlaying(void * self);
 EC void func_0803B6B8(void * self, u32 index, char const * text);
 EC void ClearMessageWindowSpeakerName(void * self);
 EC void ClearMessageWindowPortrait(void * self);
@@ -505,10 +505,10 @@ EC void func_080323C8(AActorEntity & self);
 EC void func_08032308(AActorEntity & self, u32 target, i32 speed);
 EC void func_0803233C(AActorEntity & self, u32 target, i32 speed);
 EC void func_080323E0(AActorEntity & self, u32 value);
-EC void func_080387B8(void * self);
-EC void func_080387EC(void * self);
-EC void func_080387C8(void * self);
-EC void func_080387FC(void * self);
+EC void CreateSideEntityEffectSprite(void * self);
+EC void ClearSideEntityEffectSprite(void * self);
+EC void BeginSideEntityTransition(void * self);
+EC void CreateSideEntityParticleSprites(void * self);
 EC void func_080D7F3C(GameStateRuntime & self);
 EC void func_0804EC84(i32 value, char * text, u32 digits);
 EC void SetMessageWindowTextOptions(void * self, const char * text, u16 speed, const void * substitutions);
@@ -521,15 +521,15 @@ EC void func_080D7F60(GameStateRuntime & self);
 EC void SetMessageWindowSpeakerName(void * self, const char * name);
 EC void SetMessageWindowPortrait(void * self, u32 value);
 EC u32 func_0809FE3C(void * self, u32 value);
-EC void func_08033B84(AActorEntity & self, u32 map, i32 x, i32 y);
+EC void ShowSpriteWorkerEffect(AActorEntity & self, u32 map, i32 x, i32 y);
 extern u8 const vtable_unk_080E5E64[];
-EC void func_080007EC(GameStateScript & self, u32 flags);
+EC void Scene_DestroyBase(GameStateScript & self, u32 flags);
 EC void func_080D7F9C(GameStateRuntime & self, i32 id, u32 value_1, u32 value_2, u32 value_3, u32 value_4);
 EC void func_080A05E8(void * self, void * value);
-EC void func_08008B6C(void * self, u16 amount);
-EC void func_08008B88(void * self, u16 amount);
-EC void func_08008BB0(void * self, u16 amount);
-EC void func_08008BF8(void * self, u32 speed);
+EC void AudioPlayer_StartSong(void * self, u16 amount);
+EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
+EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
+EC void AudioPlayer_FadeOut(void * self, u32 speed);
 
 EC Bachelorette const * func_080A0878(void * data, u32 characterId);
 EC void SetMessageWindowIndicator(void * dialogue, u32 level);
@@ -750,9 +750,9 @@ EC u32 SECTION(".text.game_state_08016784") GameScript_FadeMusicIfPlaying(GameSt
 {
     u8 * music = script.runtime->musicPlayer;
     u32 started;
-    if ((u8) func_08008CD0(music))
+    if ((u8) AudioPlayer_IsPlaying(music))
     {
-        func_08008BF8(music, 5);
+        AudioPlayer_FadeOut(music, 5);
         started = 1;
     }
     else
@@ -769,13 +769,13 @@ EC void SECTION(".text.game_state_08016D34") GameScript_InvokeSceneActorAction(G
 // 0x08012454
 EC void SECTION(".text.game_state_08012454") GameScript_StopMusic(GameStateScript & script)
 {
-    func_08008BE0(script.runtime->musicPlayer);
+    AudioPlayer_Stop(script.runtime->musicPlayer);
 }
 
 // 0x080124C4
 EC void SECTION(".text.game_state_080124C4") GameScript_ResetAudio()
 {
-    func_08008DE8();
+    Audio_StopAllPlayers();
 }
 
 // 0x0801274C
@@ -837,13 +837,13 @@ EC SECTION(".text.game_state_0801468C") u8 * GameScript_GetSoundPlayers(GameStat
 // 0x080167CC
 EC u32 SECTION(".text.game_state_080167CC") GameScript_IsMusicActive(GameStateScript & script)
 {
-    return func_08008CD0(script.runtime->musicPlayer);
+    return AudioPlayer_IsPlaying(script.runtime->musicPlayer);
 }
 
 // 0x08016D80
 EC void SECTION(".text.game_state_08016D80") GameScript_ClearReturnLocation()
 {
-    GameStateGlobalStatus & status = gUnk_0300040C->status;
+    GameStateGlobalStatus & status = gActiveGameScene->status;
     status.hasReturnLocation = 0;
     status.mapId = 0x234;
 }
@@ -1009,13 +1009,13 @@ EC void SECTION(".text.game_state_08016C10") GameScript_InvokeSceneAction104(Gam
 // 0x08016C2C
 EC void SECTION(".text.game_state_08016C2C") GameScript_InvokeSpecialActorActionA(GameStateScript & script)
 {
-    func_080387B8(script.runtime->scene->GetActor(0x5D));
+    CreateSideEntityEffectSprite(script.runtime->scene->GetActor(0x5D));
 }
 
 // 0x08016C6C
 EC void SECTION(".text.game_state_08016C6C") GameScript_InvokeSpecialActorActionB(GameStateScript & script)
 {
-    func_080387EC(script.runtime->scene->GetActor(0x5D));
+    ClearSideEntityEffectSprite(script.runtime->scene->GetActor(0x5D));
 }
 
 // 0x08016EF0
@@ -1094,7 +1094,7 @@ EC void SECTION(".text.game_state_08016E7C") GameScript_InvokePlayerAction6C(Gam
 EC void SECTION(".text.game_state_08016C48") GameScript_BeginSpecialActorActionA(GameStateScript & script)
 {
     GameStateRuntime & runtime = *script.runtime;
-    func_080387C8(runtime.scene->GetActor(0x5D));
+    BeginSideEntityTransition(runtime.scene->GetActor(0x5D));
     runtime.pendingCommand = 0x1C;
 }
 
@@ -1102,7 +1102,7 @@ EC void SECTION(".text.game_state_08016C48") GameScript_BeginSpecialActorActionA
 EC void SECTION(".text.game_state_08016C88") GameScript_BeginSpecialActorActionB(GameStateScript & script)
 {
     GameStateRuntime & runtime = *script.runtime;
-    func_080387FC(runtime.scene->GetActor(0x5D));
+    CreateSideEntityParticleSprites(runtime.scene->GetActor(0x5D));
     runtime.pendingCommand = 0x1B;
 }
 
@@ -1236,7 +1236,7 @@ EC void SECTION(".text.game_state_0801238C") GameScript_InvokeSceneAction24(Game
 EC void SECTION(".text.game_state_08012B04") GameScript_LoadScript(GameStateScript & script, int scriptId, int argument)
 {
     GameStateRuntime & runtime = *script.runtime;
-    gUnk_0300040C->engine.LoadById(scriptId, argument);
+    gActiveGameScene->engine.LoadById(scriptId, argument);
     func_080D7F3C(runtime);
 }
 
@@ -1510,7 +1510,7 @@ EC void SECTION(".text.game_state_0801223C") GameScript_OffsetActorPosition(Game
         i32 currentY = reinterpret_cast<i16 const *>(&entity->y_q16)[1];
         currentX += deltaX;
         currentY += deltaY;
-        func_08033B84(*entity, reinterpret_cast<u8 *>(entity)[0x30], currentX, currentY);
+        ShowSpriteWorkerEffect(*entity, reinterpret_cast<u8 *>(entity)[0x30], currentX, currentY);
     }
 }
 
@@ -1519,7 +1519,7 @@ EC void SECTION(".text.game_state_08016D48") GameScript_SaveReturnLocation(GameS
 {
     GameStateRuntime & runtime = *script.runtime;
     AActorEntity * entity = runtime.scene->GetActor(0);
-    GameStateGlobalStatus & status = gUnk_0300040C->status;
+    GameStateGlobalStatus & status = gActiveGameScene->status;
     u16 map = entity->location_map;
     u8 * state = runtime.saveData;
     status.hasReturnLocation = 1;
@@ -1545,9 +1545,9 @@ EC void SECTION(".text.game_state_08016F60") GameScript_UpdateActiveActors(GameS
 EC SECTION(".text.game_state_08011FE8") void GameScript_Destroy(GameStateScript & script, u32 flags)
 {
     script.vtable = reinterpret_cast<u32>(vtable_unk_080E5E64);
-    gUnk_0300040C->engine.ClearUnk();
+    gActiveGameScene->engine.ClearUnk();
     delete script.runtime;
-    func_080007EC(script, flags);
+    Scene_DestroyBase(script, flags);
 }
 
 // 0x08012064
@@ -1591,7 +1591,7 @@ EC SECTION(".text.game_state_08012464") void GameScript_PlaySound(GameStateScrip
     {
         do
         {
-            if (!(u8) func_08008CD0(*cursor))
+            if (!(u8) AudioPlayer_IsPlaying(*cursor))
             {
                 player = *cursor;
                 goto play;
@@ -1605,13 +1605,13 @@ play:
     switch (mode)
     {
     case 0:
-        func_08008B6C(player, song);
+        AudioPlayer_StartSong(player, song);
         break;
     case 1:
-        func_08008B88(player, song);
+        AudioPlayer_StartSongIfStoppedOrChanged(player, song);
         break;
     case 2:
-        func_08008BB0(player, song);
+        AudioPlayer_StartOrResumeSong(player, song);
         break;
     }
 }
