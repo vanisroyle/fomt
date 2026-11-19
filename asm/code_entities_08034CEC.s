@@ -872,84 +872,6 @@ func_08035978: @ 0x08035978
     bx r1
     .align 2, 0
 
-    thumb_func_start func_08035A48
-func_08035A48: @ 0x08035A48
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r3, r1, #0
-    ldrh r1, [r4, #4]
-    ldrh r0, [r3]
-    lsls r0, r0, #0x16
-    lsrs r0, r0, #0x16
-    cmp r1, r0
-    bne .L08035AD6
-    movs r0, #0xa
-    ldrsh r2, [r4, r0]
-    ldrb r1, [r3, #1]
-    lsrs r1, r1, #2
-    ldrh r0, [r3, #2]
-    ldr r5, .L08035ADC @ =0x000003FF
-    ands r0, r5
-    lsls r0, r0, #6
-    orrs r0, r1
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x10
-    subs r0, r0, r2
-    cmp r0, #0
-    bge .L08035A78
-    rsbs r0, r0, #0
-.L08035A78:
-    cmp r0, #0x97
-    bgt .L08035AD6
-    movs r0, #0xe
-    ldrsh r2, [r4, r0]
-    ldrb r1, [r3, #3]
-    lsrs r1, r1, #2
-    ldrh r0, [r3, #4]
-    ands r0, r5
-    lsls r0, r0, #6
-    orrs r0, r1
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x10
-    subs r0, r0, r2
-    cmp r0, #0
-    bge .L08035A98
-    rsbs r0, r0, #0
-.L08035A98:
-    cmp r0, #0x6f
-    bgt .L08035AD6
-    adds r0, r4, #0
-    bl func_08035978
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08035AD6
-    ldr r0, [r4, #0x14]
-    ldr r1, [r0, #0x28]
-    adds r0, r4, #0
-    bl _call_via_r1
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08035AD6
-    adds r0, r4, #0
-    movs r1, #2
-    movs r2, #0
-    bl func_08032384
-    adds r1, r4, #0
-    adds r1, #0x3f
-    movs r0, #0x78
-    strb r0, [r1]
-    ldr r0, [r4, #0x14]
-    ldr r2, [r0, #0x3c]
-    adds r0, r4, #0
-    movs r1, #1
-    bl _call_via_r2
-.L08035AD6:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08035ADC: .4byte 0x000003FF
-
     .section .text.npc_extra.08035AFC, "ax", %progbits
 
     .section .text.npc_extra.08035B64, "ax", %progbits
@@ -1013,94 +935,6 @@ func_08035A48: @ 0x08035A48
     .section .text.npc_extra.080368C4, "ax", %progbits
 
     .section .text.npc_extra.08036900, "ax", %progbits
-
-    thumb_func_start func_08036900
-func_08036900: @ 0x08036900
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    ldr r7, .L08036950 @ =0x000007BE
-    ldr r0, .L08036954 @ =0x000007C2
-    mov r8, r0
-    ldr r5, [r4, #0x34]
-    ldr r1, .L08036958 @ =0x00001CD4
-    adds r6, r5, r1
-    adds r0, r6, #0
-    bl GetRosterMarriageCandidate
-    cmp r0, #0x19
-    bne .L080369A0
-    ldrh r0, [r4, #4]
-    cmp r0, #0x1d
-    bne .L080369A0
-    adds r0, r4, #0
-    bl IsNpcAtNorthernExit
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0803694A
-    ldr r2, .L0803695C @ =0x0000216B
-    adds r0, r5, r2
-    ldrb r2, [r0]
-    lsrs r2, r2, #7
-    ldr r1, .L08036960 @ =0x0000216C
-    adds r0, r5, r1
-    ldrb r0, [r0]
-    movs r1, #1
-    ands r0, r1
-    lsls r0, r0, #1
-    orrs r0, r2
-    cmp r0, #1
-    bne .L08036968
-.L0803694A:
-    ldr r7, .L08036964 @ =0x000007D2
-    b .L080369A0
-    .align 2, 0
-.L08036950: .4byte 0x000007BE
-.L08036954: .4byte 0x000007C2
-.L08036958: .4byte 0x00001CD4
-.L0803695C: .4byte 0x0000216B
-.L08036960: .4byte 0x0000216C
-.L08036964: .4byte 0x000007D2
-.L08036968:
-    adds r0, r6, #0
-    bl GetActiveRosterNpc
-    cmp r0, #0
-    beq .L080369A0
-    bl GetNamedNpcAgeDays
-    cmp r0, #0x3b
-    bhi .L080369A0
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    adds r1, r0, #0
-    adds r1, #0xa
-    adds r0, r5, #0
-    bl func_08034C64
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080369A0
-    ldr r7, .L080369BC @ =0x000007CA
-    ldr r0, .L080369C0 @ =0x000007CE
-    mov r8, r0
-.L080369A0:
-    adds r0, r4, #0
-    adds r1, r7, #0
-    bl SetNpcWalkingAnimation
-    adds r0, r4, #0
-    mov r1, r8
-    bl SetNpcIdleAnimation
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080369BC: .4byte 0x000007CA
-.L080369C0: .4byte 0x000007CE
 
     .section .text.npc_extra.08036A10, "ax", %progbits
 
@@ -3891,80 +3725,6 @@ func_08038EE0: @ 0x08038EE0
     .section .text.npc_extra.080390DC, "ax", %progbits
     .section .text.npc_extra.08039134, "ax", %progbits
 
-    thumb_func_start func_08039134
-func_08039134: @ 0x08039134
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #4
-    adds r6, r0, #0
-    str r1, [sp]
-    mov sl, r2
-    mov sb, r3
-    movs r7, #0x64
-    movs r0, #0
-    mov r8, r0
-    movs r5, #0x2e
-.L08039150:
-    ldr r0, [r6]
-    ldr r2, [r0, #0x40]
-    adds r0, r6, #0
-    adds r1, r5, #0
-    bl _call_via_r2
-    adds r4, r0, #0
-    cmp r4, #0
-    beq .L080391A6
-    ldrh r0, [r4, #4]
-    ldr r1, [sp]
-    cmp r0, r1
-    bne .L080391A6
-    ldr r0, [r4, #0x14]
-    ldr r1, [r0, #0x60]
-    adds r0, r4, #0
-    bl _call_via_r1
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L080391A6
-    movs r2, #0xa
-    ldrsh r1, [r4, r2]
-    mov r0, sl
-    subs r1, r1, r0
-    movs r2, #0xe
-    ldrsh r0, [r4, r2]
-    mov r2, sb
-    subs r0, r0, r2
-    adds r2, r1, #0
-    muls r2, r1, r2
-    adds r1, r2, #0
-    adds r2, r0, #0
-    muls r2, r0, r2
-    adds r0, r2, #0
-    adds r0, r1, r0
-    adds r1, r0, #0
-    cmp r7, #0x64
-    beq .L080391A2
-    cmp r8, r0
-    ble .L080391A6
-.L080391A2:
-    adds r7, r5, #0
-    mov r8, r1
-.L080391A6:
-    adds r5, #1
-    cmp r5, #0x45
-    ble .L08039150
-    adds r0, r7, #0
-    add sp, #4
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
     .section .text.npc_extra.08039204, "ax", %progbits
 
     thumb_func_start func_08039204
@@ -4315,7 +4075,7 @@ func_08039310: @ 0x08039310
     ldrsh r2, [r5, r3]
     movs r6, #0xe
     ldrsh r3, [r5, r6]
-    bl func_08039134
+    bl FindNearestSideEffectActor
     adds r6, r0, #0
     b .L080394B2
 .L080394AA:
@@ -4440,7 +4200,7 @@ func_0803955C: @ 0x0803955C
     adds r0, r4, #0
     adds r1, r7, #0
     mov r3, sl
-    bl func_08039134
+    bl FindNearestSideEffectActor
     adds r1, r0, #0
     cmp r1, #0x64
     bne .L080395AC
@@ -4504,7 +4264,7 @@ func_0803955C: @ 0x0803955C
     ldrsh r2, [r5, r3]
     movs r6, #0xe
     ldrsh r3, [r5, r6]
-    bl func_08039134
+    bl FindNearestSideEffectActor
     adds r6, r0, #0
     b .L08039634
 .L0803962C:
@@ -4717,7 +4477,7 @@ func_08039708: @ 0x08039708
     ldrsh r2, [r6, r3]
     movs r5, #0xe
     ldrsh r3, [r6, r5]
-    bl func_08039134
+    bl FindNearestSideEffectActor
     adds r5, r0, #0
     b .L080397F6
 .L080397EE:
@@ -4936,63 +4696,6 @@ func_080398A4: @ 0x080398A4
 
     .section .text.npc_extra.080399C0, "ax", %progbits
 
-    thumb_func_start func_080399C0
-func_080399C0: @ 0x080399C0
-    push {r4, r5, r6, r7, lr}
-    sub sp, #8
-    adds r5, r0, #0
-    adds r7, r1, #0
-    ldr r0, .L08039A28 @ =vtable_unk_080E74DC
-    str r0, [r5, #0x14]
-    ldr r4, [r5, #0x34]
-    mov r0, sp
-    adds r1, r5, #0
-    bl GetLocation__C12AActorEntity
-    adds r0, r4, #0
-    mov r1, sp
-    bl SetLocation__5ActorRC13ActorLocation
-    adds r0, r5, #0
-    adds r0, #0x38
-    cmp r0, #0
-    beq .L080399FC
-    adds r4, r5, #0
-    adds r4, #0x4c
-    cmp r0, r4
-    beq .L080399FC
-    adds r6, r0, #0
-.L080399F0:
-    subs r4, #4
-    ldr r0, [r4]
-    bl __builtin_delete
-    cmp r6, r4
-    bne .L080399F0
-.L080399FC:
-    ldr r0, .L08039A2C @ =__vt_7AEntity
-    str r0, [r5, #0x14]
-    ldr r1, [r5, #0x10]
-    cmp r1, #0
-    beq .L08039A12
-    ldr r0, [r1, #4]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08039A12:
-    movs r0, #1
-    ands r0, r7
-    cmp r0, #0
-    beq .L08039A20
-    adds r0, r5, #0
-    bl __builtin_delete
-.L08039A20:
-    add sp, #8
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08039A28: .4byte vtable_unk_080E74DC
-.L08039A2C: .4byte __vt_7AEntity
-
     .section .text.npc_extra.08039A5C, "ax", %progbits
 
     .section .text.npc_extra.08039A60, "ax", %progbits
@@ -5069,7 +4772,7 @@ func_08039A60: @ 0x08039A60
     ldrsh r3, [r4, r6]
     mov r0, sl
     movs r1, #2
-    bl func_08039134
+    bl FindNearestSideEffectActor
     str r0, [sp, #0x6c]
     cmp r0, #0x64
     beq .L08039BAC

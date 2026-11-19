@@ -71,7 +71,7 @@ EC u32 GetNamedNpcAgeDays(u8 * npc);
 EC bool IsNpcAtNorthernExit(AEntity * self);
 EC bool HasNamedNpcFlag(G1NamedNpcState * npc);
 EC u32 GetRosterMarriageCandidate(void const * roster);
-EC bool func_08034C64(NpcSideWorld * world, GameTime const & time);
+EC bool IsFamilyScheduleAwayFromHome(NpcSideWorld * world, GameTime const & time);
 
 EC u32 ComputeSpriteWorkSpeed(u32 task_experience) NPC_SIDE_CODE(08033914);
 EC u32 ComputeSpriteWorkSpeed(u32 task_experience)
@@ -155,7 +155,7 @@ EC void RefreshScheduledNpcOneAnimations(WorldScheduledNpc * self)
             {
                 NpcSideServices * game = reinterpret_cast<NpcSideServices *>(self->game_object);
                 NpcClock * clock = game->vtable->get_clock(game);
-                if (func_08034C64(world, clock->time))
+                if (IsFamilyScheduleAwayFromHome(world, clock->time))
                 {
                     walking_animation = 583;
                     idle_animation = 587;
@@ -185,7 +185,7 @@ EC void RefreshScheduledNpcTwoAnimations(WorldScheduledNpc * self)
             {
                 NpcSideServices * game = reinterpret_cast<NpcSideServices *>(self->game_object);
                 NpcClock * clock = game->vtable->get_clock(game);
-                if (func_08034C64(world, clock->time))
+                if (IsFamilyScheduleAwayFromHome(world, clock->time))
                 {
                     walking_animation = 2095;
                     idle_animation = 2099;
@@ -215,7 +215,7 @@ EC void RefreshScheduledNpcThreeAnimations(WorldScheduledNpc * self)
             {
                 NpcSideServices * game = reinterpret_cast<NpcSideServices *>(self->game_object);
                 NpcClock * clock = game->vtable->get_clock(game);
-                if (func_08034C64(world, clock->time))
+                if (IsFamilyScheduleAwayFromHome(world, clock->time))
                 {
                     walking_animation = 1709;
                     idle_animation = 1713;
@@ -245,7 +245,7 @@ EC void RefreshScheduledNpcFourAnimations(WorldScheduledNpc * self)
             {
                 NpcSideServices * game = reinterpret_cast<NpcSideServices *>(self->game_object);
                 NpcClock * clock = game->vtable->get_clock(game);
-                if (func_08034C64(world, clock->time))
+                if (IsFamilyScheduleAwayFromHome(world, clock->time))
                 {
                     walking_animation = 2196;
                     idle_animation = 2200;

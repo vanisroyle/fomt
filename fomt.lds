@@ -651,7 +651,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_side.08034C40);
         src/npc_side_batch4.o(.text.npc_side.08034C48);
         src/npc_side_batch4.o(.text.npc_side.08034C4C);
-        asm/code_entities_080320DC.o(.text.npc_side.08034C64);
+        src/npc_side_batch8.o(.text.npc_side.08034C64);
 
         src/npc_entity.o(.text);
 
@@ -659,6 +659,7 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.08035908);
         src/npc_side_batch2.o(.text.npc_extra.08035940);
         asm/code_entities_08034CEC.o(.text.npc_extra.08035978);
+        src/npc_side_batch8.o(.text.npc_extra.08035A48);
         src/npc_side_batch2.o(.text.npc_extra.08035AE0);
         src/npc_side_batch3.o(.text.npc_extra.08035AFC);
         src/npc_side_batch3.o(.text.npc_extra.08035B38);
@@ -721,7 +722,7 @@ SECTIONS
         src/npc_side_batch3.o(.text.npc_extra.08036860);
         src/npc_side_batch3.o(.text.npc_extra.08036898);
         src/npc_side_batch3.o(.text.npc_extra.080368C4);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08036900);
+        src/npc_side_batch8.o(.text.npc_extra.08036900);
         src/npc_side_batch2.o(.text.npc_extra.080369C4);
         src/npc_side_batch2.o(.text.npc_extra.080369E0);
         src/npc_side_batch3.o(.text.npc_extra.08036A10);
@@ -843,7 +844,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.08039100);
         src/npc_side_batch4.o(.text.npc_extra.08039108);
         src/npc_side_batch4.o(.text.npc_extra.0803911C);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039134);
+        src/npc_side_batch8.o(.text.npc_extra.08039134);
         src/npc_side_batch4.o(.text.npc_extra.080391C0);
         src/npc_side_batch4.o(.text.npc_extra.080391FC);
         src/npc_side_batch4.o(.text.npc_extra.08039200);
@@ -854,7 +855,7 @@ SECTIONS
         asm/code_entities_08034CEC.o(.text.npc_extra.08039708);
         src/npc_side_batch5.o(.text.npc_extra.080398A0);
         asm/code_entities_08034CEC.o(.text.npc_extra.080398A4);
-        asm/code_entities_08034CEC.o(.text.npc_extra.080399C0);
+        src/npc_side_batch8.o(.text.npc_extra.080399C0);
         src/npc_side_batch4.o(.text.npc_extra.08039A30);
         src/npc_side_batch4.o(.text.npc_extra.08039A5C);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039A60);
