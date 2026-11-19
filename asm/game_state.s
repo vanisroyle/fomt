@@ -11989,7 +11989,7 @@ func_080175B4: @ 0x080175B4
     movs r0, #0xa0
     bl __builtin_new
     adds r1, r7, #0
-    bl func_0803AB30
+    bl InitializeFixedSpriteOverlay
     ldr r1, .L08017878 @ =0x00001024
     adds r5, r7, r1
     adds r4, r0, #0
@@ -16664,7 +16664,7 @@ func_08019BEC: @ 0x08019BEC
     movs r0, #0xa0
     bl __builtin_new
     adds r1, r7, #0
-    bl func_0803AB30
+    bl InitializeFixedSpriteOverlay
     ldr r1, .L08019E14 @ =0x00001024
     adds r5, r7, r1
     adds r4, r0, #0
