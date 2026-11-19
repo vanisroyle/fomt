@@ -1,5 +1,8 @@
 #include "g5_link.hh"
 
+EC u32 func_080D078C(u32 * packet);
+EC u32 func_080D091C();
+
 EC SECTION(".text.g5_init") void InitializeJoybusState(JoybusState * state) // 0x080D02CC
 {
     gJoybusState = state;
@@ -25,7 +28,7 @@ EC SECTION(".text.g5_init") void StartJoybus() // 0x080D02F0
         state->unknown_00[7] = 0;
         state->unknown_00[8] = 1;
         state->status = 0;
-        state->unknown_184 = 0;
+        state->transferred_halfwords = 0;
         state->busy = 0;
         state->unknown_00[3] = 0;
         state->unknown_00[4] = 0;
@@ -76,7 +79,7 @@ EC void AdvanceJoybusCommandQueue() // 0x080D0BE0
     }
 }
 
-EC bool IsJoybusCommandQueueEmpty() // 0x080D0C10
+EC u32 IsJoybusCommandQueueEmpty() // 0x080D0C10
 {
     return gJoybusState->read_index == gJoybusState->write_index;
 }
@@ -221,4 +224,74 @@ EC SECTION(".text.g5_queries") bool func_080D06B4()
 EC SECTION(".text.g5_queries") u32 func_080D06D0()
 {
     return gJoybusState->unknown_00[6];
+}
+
+EC SECTION(".text.g5_080D0704") void Joybus_HandleSerialInterrupt() // 0x080D0704
+{
+    u32 status = 0;
+    u32 control = *(volatile u16 *) 0x04000140;
+    if (gJoybusState->busy == 0)
+    {
+        if ((control & 2) != 0)
+        {
+            u32 packet = *(volatile u32 *) 0x04000150;
+            status = func_080D078C(&packet);
+        }
+        if (status == 0 && (control & 4) != 0)
+            status = func_080D091C();
+        if ((control & 1) != 0)
+            RetryJoybusHandshake();
+    }
+    if (status != 0)
+    {
+        *(volatile u16 *) 0x04000158 = 0;
+        CompleteJoybusCommand(status);
+    }
+    *(volatile u16 *) 0x04000140 = control;
+    gJoybusState->unknown_00[3] = 0;
+    gJoybusState->unknown_00[4] = 0;
+}
+
+EC SECTION(".text.g5_080D035C") void Joybus_UpdateTransfers() // 0x080D035C
+{
+    if (((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_ENABLED] != 0)
+    {
+        ((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_TRANSFER_PROGRESS] = ((volatile JoybusState *) gJoybusState)->transferred_halfwords;
+        if (gCurrentJoybusCommand->kind == 0)
+        {
+            if (!IsJoybusCommandQueueEmpty() && ((volatile JoybusState *) gJoybusState)->status == 0)
+            {
+                AdvanceJoybusCommandQueue();
+                ((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_IDLE_TICKS] = 0;
+            }
+            else if (((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_TRANSFER_KIND] != 0)
+            {
+                ((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_TRANSFER_KIND] = 0;
+                ((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_TRANSFER_RESULT] = ((volatile JoybusState *) gJoybusState)->status;
+                ((volatile JoybusState *) gJoybusState)->status = 0;
+                CancelJoybusCommands();
+            }
+        }
+        ++((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_RETRY_TICKS];
+        if (((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_RETRY_TICKS] > 10)
+        {
+            ((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_RETRY_TICKS] = 0;
+            if (gCurrentJoybusCommand->kind != 0)
+            {
+                if (gCurrentJoybusCommand->kind == 1)
+                    ConfigureJoybus(1, 0);
+                else
+                    ConfigureJoybus(1, 1);
+            }
+        }
+        ++((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_IDLE_TICKS];
+        if (gCurrentJoybusCommand->kind > 1 && ((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_IDLE_TICKS] > 180)
+        {
+            SetJoybusStatusWhileBusy(11);
+            ((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_TRANSFER_KIND] = 0;
+            ((volatile JoybusState *) gJoybusState)->unknown_00[JOYBUS_TRANSFER_RESULT] = 10;
+            ((volatile JoybusState *) gJoybusState)->status = 0;
+            CancelJoybusCommands();
+        }
+    }
 }

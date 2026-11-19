@@ -5,6 +5,32 @@ EC void Irq_Dispatch();
 EC void Irq_SetHandler(u32 irq_index, void (*handler)());
 EC u16 Irq_SetDispatchFlags(u32 irq_index, u16 irq_mask);
 EC u16 Irq_Disable(u16 irq_mask);
+extern u8 const Irq_ApplyMaskArm[]; // 0x03000A1C
+
+inline u32 (*Irq_GetMaskRoutine())(u32)
+{
+    union
+    {
+        u32 address;
+        u32 (*routine)(u32);
+    } entry;
+    entry.address = u32(Irq_ApplyMaskArm);
+    return entry.routine;
+}
+
+// 0x080004F4
+EC u16 SECTION(".text.Irq_Enable") Irq_Enable(u16 irq_mask)
+{
+    u32 mask = u32(irq_mask) << 16;
+    return Irq_GetMaskRoutine()(mask);
+}
+
+// 0x08000528
+EC u16 SECTION(".text.Irq_Disable") Irq_Disable(u16 irq_mask)
+{
+    u32 mask = irq_mask;
+    return Irq_GetMaskRoutine()(mask);
+}
 
 // 0x080004C4
 EC void Irq_Initialize()

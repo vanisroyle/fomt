@@ -2106,37 +2106,158 @@ gMapPatchVariants:
 gFishingCatchNames:
 	.incbin "baserom.gba", 0x103A18, 0xF8
 
-	.global gUnk_08103B10
-gUnk_08103B10:
-	.incbin "baserom.gba", 0x103B10, 0x28
+	@ Each column corresponds to an outcome ID in the preceding list.
+	@ Starting with a roll from 0 to 255, select the first weight greater
+	@ than the remaining roll, subtracting each skipped weight in order.
+	@ If no weight is selected, the roll produces no outcome.
 
-	.global gUnk_08103B38
-gUnk_08103B38:
-	.incbin "baserom.gba", 0x103B38, 0x104
+	.global gLakeMineDigOutcomeIds
+gLakeMineDigOutcomeIds:
+	.4byte 1, 2, 4, 5, 6, 7, 8, 9, 11, 3
 
-	.global gUnk_08103C3C
-gUnk_08103C3C:
-	.incbin "baserom.gba", 0x103C3C, 0x38
+	.global gLakeMineDigOutcomeWeights
+gLakeMineDigOutcomeWeights:
+	.byte 25, 40,  0,  0,  0,  0,  0,  0, 25,  0 @ row 0
+	.byte 20, 40,  0,  0,  0,  0,  0,  0, 23,  0 @ row 1
+	.byte 20, 40,  0,  0,  0,  0,  0,  0, 21,  0 @ row 2
+	.byte 20, 40,  0,  0,  0,  0,  0,  0, 21,  0 @ row 3
+	.byte 20, 40,  0,  0,  0,  0,  0,  0, 19,  0 @ row 4
+	.byte 20, 40,  0,  0,  0,  0,  0,  0, 19,  0 @ row 5
+	.byte 20, 40,  0,  0,  0,  0,  0,  0, 17,  0 @ row 6
+	.byte 20, 40,  0,  0,  0,  0,  0,  0, 17,  0 @ row 7
+	.byte 20, 40,  0,  0,  0,  0,  0,  0, 15,  0 @ row 8
+	.byte 10, 40,  0,  0,  0,  0,  0,  0, 15,  0 @ row 9
+	.byte 20, 45,  0,  0,  0,  0,  0,  0, 10,  0 @ row 10
+	.byte 30, 75,  0,  0,  0,  0,  0,  0,  4, 50 @ row 11
+	.byte 20, 50,  0,  0,  0,  0,  0,  0, 20,  0 @ row 12
+	.byte 30, 50,  0,  0,  0,  0,  0,  1, 10,  0 @ row 13
+	.byte 20, 55,  0,  0,  0,  0,  0,  0, 18,  0 @ row 14
+	.byte 30, 55,  0,  1,  0,  0,  0,  0,  8,  0 @ row 15
+	.byte 20, 60,  0,  0,  0,  0,  0,  0, 16,  0 @ row 16
+	.byte 30, 60,  0,  0,  1,  0,  0,  0,  8,  0 @ row 17
+	.byte 20, 65,  0,  0,  0,  0,  0,  0, 14,  0 @ row 18
+	.byte 30, 65,  0,  0,  0,  1,  0,  0,  6,  0 @ row 19
+	.byte 20, 70,  0,  0,  0,  0,  0,  0, 12,  0 @ row 20
+	.byte 30, 70,  0,  0,  0,  0,  1,  0,  6,  0 @ row 21
+	.byte 20, 75,  0,  0,  0,  0,  0,  0, 10,  0 @ row 22
+	.byte 30, 45,  1,  0,  0,  0,  0,  0, 10,  0 @ row 23
+	.byte 15, 80,  0,  0,  0,  0,  0,  0, 10,  0 @ row 24
+	.byte  0, 80,  0,  0,  0,  0,  0,  0, 10,  0 @ row 25
 
-	.global gUnk_08103C74
-gUnk_08103C74:
-	.incbin "baserom.gba", 0x103C74, 0x310
+	.global gLakeMineRockOutcomeIds
+gLakeMineRockOutcomeIds:
+	.4byte 33, 12, 21, 22, 19, 20, 24, 25, 26, 27, 28, 29, 30, 31
 
-	.global gUnk_08103F84
-gUnk_08103F84:
-	.incbin "baserom.gba", 0x103F84, 0x14
+	.global gLakeMineRockOutcomeWeights
+gLakeMineRockOutcomeWeights:
+	.byte  1, 70,  0,  0,  0,  0,  0,  0,  1,  1,  5, 10, 20, 30 @ row 0
+	.byte  0, 70,  0,  0,  0,  0,  0,  0,  1,  1, 10, 20, 30, 50 @ row 1
+	.byte  0, 70,  0,  0,  0,  0,  0,  0,  1,  5, 20, 30, 50, 30 @ row 2
+	.byte  0, 70,  0,  0,  0,  0,  0,  0,  5, 10, 30, 50, 30, 20 @ row 3
+	.byte  0, 70,  0,  0,  0,  0,  0,  0, 10, 20, 50, 30, 20, 10 @ row 4
+	.byte  0, 70,  0,  0,  0,  0,  0,  5,  1,  1,  1,  1,  1,  1 @ row 5
+	.byte  0, 70,  0,  0,  0,  0,  0,  0, 30, 50, 20, 10,  5,  1 @ row 6
+	.byte  0, 70,  0,  0,  0,  0,  0,  0, 50, 30, 10,  5,  1,  1 @ row 7
+	.byte  0, 70,  0,  0, 25,  0,  0,  0,  1,  1,  1,  1,  1,  1 @ row 8
+	.byte  0, 70,  0,  0,  0, 25,  0,  0,  1,  1,  1,  1,  1,  1 @ row 9
+	.byte  0, 50,  0,  0,  0,  0,  5,  0,  3,  3,  3,  3,  3,  3 @ row 10
+	.byte  0, 50,  0,  0,  0,  0,  0,  0,  3,  5, 20, 30, 50, 70 @ row 11
+	.byte  0, 50,  0,  0,  0,  0,  0,  0,  5, 10, 30, 50, 70, 50 @ row 12
+	.byte  0, 50,  0,  0,  0,  0,  0,  0, 10, 20, 50, 70, 50, 30 @ row 13
+	.byte  0, 50,  0,  0,  0,  0,  0,  0, 20, 30, 70, 50, 30, 20 @ row 14
+	.byte  0, 50,  0,  0,  0,  0,  0, 10,  3,  3,  3,  3,  3,  3 @ row 15
+	.byte  0, 50,  0,  0,  0,  0,  0,  0, 50, 70, 30, 20, 10,  5 @ row 16
+	.byte  0, 50,  0,  0,  0,  0,  0,  0, 70, 50, 20, 10,  5,  3 @ row 17
+	.byte  0, 50,  0,  0, 30,  0,  0,  0,  3,  3,  3,  3,  3,  3 @ row 18
+	.byte  0, 50,  0,  0,  0, 30,  0,  0,  3,  3,  3,  3,  3,  3 @ row 19
+	.byte  0, 50,  0,  0,  0,  0, 10,  0,  3,  3,  3,  3,  3,  3 @ row 20
+	.byte  0, 20,  0,  0,  0,  0,  0,  0, 10, 10, 10, 20, 30, 90 @ row 21
+	.byte  0, 20,  0,  0,  0,  0,  0,  0, 10, 10, 20, 30, 90, 30 @ row 22
+	.byte  0, 20,  0,  0,  0,  0,  0,  0, 10, 10, 30, 90, 30, 20 @ row 23
+	.byte  0, 20,  0,  0,  0,  0,  0,  0, 10, 20, 90, 30, 20, 10 @ row 24
+	.byte  0, 20,  0,  0,  0,  0,  0, 20, 10, 10, 10, 10, 10, 10 @ row 25
+	.byte  0, 20,  0,  0,  0,  0,  0,  0, 30, 90, 20, 10, 10, 10 @ row 26
+	.byte  0, 20,  0,  0,  0,  0,  0,  0, 90, 30, 10, 10, 10, 10 @ row 27
+	.byte  0, 20,  0,  0, 30,  0,  0,  0, 10, 10, 10, 10, 10, 10 @ row 28
+	.byte  0, 20,  0,  0,  0, 30,  0,  0, 10, 10, 10, 10, 10, 10 @ row 29
+	.byte  0, 20,  1,  0,  0,  0, 20,  0, 10, 10, 10, 10, 10, 10 @ row 30
+	.byte  1, 20,  0,  0,  0,  0,  0, 30, 10, 10, 10, 10, 10, 10 @ row 31
+	.byte  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 @ row 32
+	.byte  0, 10,  0,  0,  0,  0,  0,  0, 10, 10, 20, 30, 50, 90 @ row 33
+	.byte  0, 10,  0,  0,  0,  0,  0,  0, 10, 10, 30, 50, 90, 50 @ row 34
+	.byte  0, 10,  0,  0,  0,  0,  0,  0, 10, 20, 50, 90, 50, 30 @ row 35
+	.byte  0, 10,  0,  0,  0,  0,  0,  0, 20, 30, 90, 50, 30, 20 @ row 36
+	.byte  0, 10,  0,  0,  0,  0,  0, 50, 10, 10, 10, 10, 10, 10 @ row 37
+	.byte  0, 10,  0,  0,  0,  0,  0,  0, 50, 90, 30, 20, 10, 10 @ row 38
+	.byte  0, 10,  0,  0,  0,  0,  0,  0, 90, 50, 20, 10, 10, 10 @ row 39
+	.byte  0, 10,  0,  0, 50,  0,  0,  0, 10, 10, 10, 10, 10, 10 @ row 40
+	.byte  0, 10,  0,  0,  0, 50,  0,  0, 10, 10, 10, 10, 10, 10 @ row 41
+	.byte  0, 10,  1,  0,  0,  0, 50,  0, 10, 10, 10, 10, 10, 10 @ row 42
+	.byte  2, 10,  0,  0,  0,  0,  0, 50, 10, 10, 10, 10, 10, 10 @ row 43
+	.byte  0,  0,  0,  0,  0,  0, 50, 10, 20, 20, 20, 20, 20, 20 @ row 44
+	.byte  0,  0,  0,  0,  0,  0, 30, 20, 20, 20, 20, 20, 20, 20 @ row 45
+	.byte  0,  0,  0,  0,  0,  0, 20, 30, 20, 20, 20, 20, 20, 20 @ row 46
+	.byte  0,  0,  0,  0,  0,  0, 10, 50, 20, 20, 20, 20, 20, 20 @ row 47
+	.byte  0,  0,  0,  0,  0,  0, 10, 70, 20, 20, 20, 20, 20, 20 @ row 48
+	.byte  0,  0,  0,  0,  0,  0, 10, 50, 20, 20, 20, 20, 20, 20 @ row 49
+	.byte  0,  0,  0,  0,  0,  0, 20, 30, 20, 20, 20, 20, 20, 20 @ row 50
+	.byte  0,  0,  0,  0, 50,  0, 30, 20, 20, 20, 20, 20, 20, 20 @ row 51
+	.byte  0,  0,  0,  0,  0, 50, 50, 10, 20, 20, 20, 20, 20, 20 @ row 52
+	.byte  0,  0,  1,  1,  0,  0, 70, 10, 20, 20, 20, 20, 20, 20 @ row 53
+	.byte  0,  0,  1,  1,  0,  0, 30, 30, 30, 30, 30, 30, 30, 30 @ row 54
+	.byte 50,  0,  1,  1, 10, 10, 50, 50, 10, 10, 10, 10, 10, 10 @ row 55
 
-	.global gUnk_08103F98
-gUnk_08103F98:
-	.incbin "baserom.gba", 0x103F98, 0x4C
+	.global gSpringMineDigOutcomeIds
+gSpringMineDigOutcomeIds:
+	.4byte 1, 2, 11, 3, 34
 
-	.global gUnk_08103FE4
-gUnk_08103FE4:
-	.incbin "baserom.gba", 0x103FE4, 0x28
+	.global gSpringMineDigOutcomeWeights
+gSpringMineDigOutcomeWeights:
+	.byte 50, 40,  5,  0,  0 @ row 0
+	.byte 50, 40, 10,  0,  0 @ row 1
+	.byte 25, 50, 10,  0,  0 @ row 2
+	.byte 25, 50, 15,  0,  0 @ row 3
+	.byte 25, 60, 15,  0,  0 @ row 4
+	.byte 25, 60, 20,  0,  0 @ row 5
+	.byte 25, 70, 20,  0,  0 @ row 6
+	.byte 25, 70, 25, 50,  0 @ row 7
+	.byte 25, 80,  0,  0,  0 @ row 8
+	.byte 25, 80,  0,  0,  0 @ row 9
+	.byte 25, 90,  0,  0,  0 @ row 10
+	.byte 25, 90,  0,  0,  0 @ row 11
+	.byte 25, 99,  0,  0,  0 @ row 12
+	.byte 25, 99, 10,  0,  0 @ row 13
+	.byte  0, 99, 99,  0, 50 @ row 14
+	.byte 0 @ padding
 
-	.global gUnk_0810400C
-gUnk_0810400C:
-	.incbin "baserom.gba", 0x10400C, 0xE0
+	.global gSpringMineRockOutcomeIds
+gSpringMineRockOutcomeIds:
+	.4byte 10, 32, 12, 13, 14, 15, 16, 17, 18, 23
+
+	.global gSpringMineRockOutcomeWeights
+gSpringMineRockOutcomeWeights:
+	.byte  0,  0, 50, 50, 25,  0,  0,  0,  0,  0 @ row 0
+	.byte  0,  0, 50, 50, 25,  0,  0,  0,  0,  0 @ row 1
+	.byte  0,  0, 50, 50, 25,  0,  0,  0,  0,  0 @ row 2
+	.byte  0,  0, 40, 50, 25, 25,  0,  0,  0,  0 @ row 3
+	.byte  0,  0, 40, 50, 25, 25,  0,  0,  0,  0 @ row 4
+	.byte  0,  0, 30, 50, 50, 25,  0,  0,  0,  0 @ row 5
+	.byte  0,  0, 30, 50, 50, 25, 25,  0,  0,  0 @ row 6
+	.byte  0,  0, 20, 50, 50, 25, 25,  0,  0,  0 @ row 7
+	.byte  0,  0, 20, 50, 50, 50, 25,  0,  0,  0 @ row 8
+	.byte  0,  0, 10, 50, 50, 50, 25,  0,  0,  0 @ row 9
+	.byte  0,  0, 10, 25, 25, 25, 25, 25, 25,  0 @ row 10
+	.byte  0,  0,  5, 50, 50, 50, 50, 25, 25,  0 @ row 11
+	.byte  0,  0,  5, 25, 25, 25, 25, 50, 50,  0 @ row 12
+	.byte  0,  0,  5, 25, 25, 25, 25, 25, 25,  0 @ row 13
+	.byte  0,  0,  5, 25, 25, 25, 25, 50, 50,  0 @ row 14
+	.byte  0,  0,  5, 25, 25, 25, 25, 25, 25,  0 @ row 15
+	.byte  0,  0,  5, 25, 25, 25, 25, 50, 50,  0 @ row 16
+	.byte  0,  0,  5, 25, 25, 25, 25, 25, 25,  0 @ row 17
+	.byte  0, 10,  5, 25, 25, 25, 25, 25, 25,  1 @ row 18
+	.byte  0,  0,  5, 25, 25, 25, 25, 25, 25,  1 @ row 19
+	.byte 50,  0,  5, 25, 25, 25, 25, 25, 25,  1 @ row 20
+	.incbin "baserom.gba", 0x1040DE, 0xE
 
 	.global gUnk_081040EC
 gUnk_081040EC:
@@ -2346,8 +2467,8 @@ gUnk_0810563C:
 gUnk_08105708:
 	.incbin "baserom.gba", 0x105708, 0x7D4
 
-	.global gUnk_08105EDC
-gUnk_08105EDC: @ map data?
+	.global gMapDefinitions
+gMapDefinitions: @ map data?
 	.incbin "baserom.gba", 0x105EDC, 0xA50
 
 	.global gUnk_0810692C
@@ -2406,40 +2527,40 @@ gUnk_08106A4C:
 gUnk_08106A64:
 	.incbin "baserom.gba", 0x106A64, 0x18
 
-	.global gUnk_08106A7C
-gUnk_08106A7C:
+	.global gMapPatch_08106A7C
+gMapPatch_08106A7C:
 	.incbin "baserom.gba", 0x106A7C, 0x18
 
-	.global gUnk_08106A94
-gUnk_08106A94:
+	.global gMapPatch_08106A94
+gMapPatch_08106A94:
 	.incbin "baserom.gba", 0x106A94, 0x18
 
-	.global gUnk_08106AAC
-gUnk_08106AAC:
+	.global gMapPatch_08106AAC
+gMapPatch_08106AAC:
 	.incbin "baserom.gba", 0x106AAC, 0x18
 
-	.global gUnk_08106AC4
-gUnk_08106AC4:
+	.global gMapPatch_08106AC4
+gMapPatch_08106AC4:
 	.incbin "baserom.gba", 0x106AC4, 0x18
 
-	.global gUnk_08106ADC
-gUnk_08106ADC:
+	.global gMapPatch_08106ADC
+gMapPatch_08106ADC:
 	.incbin "baserom.gba", 0x106ADC, 0x18
 
-	.global gUnk_08106AF4
-gUnk_08106AF4:
+	.global gMapPatch_08106AF4
+gMapPatch_08106AF4:
 	.incbin "baserom.gba", 0x106AF4, 0x18
 
 	.global gUnk_08106B0C
 gUnk_08106B0C:
 	.incbin "baserom.gba", 0x106B0C, 0x18
 
-	.global gUnk_08106B24
-gUnk_08106B24:
+	.global gMapPatch_08106B24
+gMapPatch_08106B24:
 	.incbin "baserom.gba", 0x106B24, 0x18
 
-	.global gUnk_08106B3C
-gUnk_08106B3C:
+	.global gMapPatch_08106B3C
+gMapPatch_08106B3C:
 	.incbin "baserom.gba", 0x106B3C, 0x18
 
 	.global gUnk_08106B54
@@ -2486,8 +2607,8 @@ gUnk_08106C5C:
 gUnk_08106C74:
 	.incbin "baserom.gba", 0x106C74, 0x18
 
-	.global gUnk_08106C8C
-gUnk_08106C8C:
+	.global gMapIndexedFixturePatch
+gMapIndexedFixturePatch:
 	.incbin "baserom.gba", 0x106C8C, 0x18
 
 	.global gUnk_08106CA4
@@ -2562,8 +2683,8 @@ gWinterDefaultPatchTiles:
 gWinterAlternatePatchTiles:
 	.incbin "baserom.gba", 0x1070AC, 0x18
 
-	.global gUnk_081070C4
-gUnk_081070C4:
+	.global gMapBuildingDoorPatch
+gMapBuildingDoorPatch:
 	.incbin "baserom.gba", 0x1070C4, 0x18
 
 	.global gUnk_081070DC
@@ -2734,12 +2855,12 @@ gUnk_081073AC:
 gUnk_081073B8:
 	.incbin "baserom.gba", 0x1073B8, 0xC
 
-	.global gUnk_081073C4
-gUnk_081073C4:
+	.global gMapFixtureColumns
+gMapFixtureColumns:
 	.incbin "baserom.gba", 0x1073C4, 0x8
 
-	.global gUnk_081073CC
-gUnk_081073CC:
+	.global gMapSmallFixtureColumns
+gMapSmallFixtureColumns:
 	.incbin "baserom.gba", 0x1073CC, 0x4
 
 	.global gUnk_081073D0

@@ -16,7 +16,7 @@ EC void Scene_DestroyBase(void * self, int destructorFlags);
 EC NewGameRenderTask * NewGameMenu_CreateTask(void * storage, void * gameData, void * transitionOwner) __asm__("func_080041DC");
 EC NewGameRenderTask * NewGameChoiceDialog_CreateTask(void * storage, void * farmerName, void * packedBirthday, u32 farmNameAddress, u32 dogNameAddress) __asm__("func_08004EFC");
 EC void DestroyMessageWindow(void * self, int destructorFlags);
-EC void NewGameScene_DestroyRenderTaskBase(void * self, int destructorFlags) __asm__("func_080086BC");
+EC void HardwareContext_Destroy(void * self, int destructorFlags);
 EC void * HardwareContext_GetState(void * self);
 EC void * HardwareContext_GetOamBuffer(void * self);
 EC void * HardwareContext_GetDisplayRegisters(void * self);
@@ -422,7 +422,7 @@ EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, 
     self->vtable = gNewGameChoiceDialogTaskVtable;
     if (self->dialog != nullptr)
         DestroyMessageWindow(self->dialog, 3);
-    NewGameScene_DestroyRenderTaskBase(self, destructorFlags);
+    HardwareContext_Destroy(self, destructorFlags);
 }
 
 EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * farmerName, void * packedBirthday, u32 farmNameAddress, u32 dogNameAddress) SECTION(".text.func_0800598C");
@@ -439,7 +439,7 @@ EC void NameEntryScene_DestroyTask(NameEntrySceneTaskLifetime * self, int destru
     self->vtable = gNameEntrySceneTaskVtable;
     if (self->dialog != nullptr)
         DestroyMessageWindow(self->dialog, 3);
-    NewGameScene_DestroyRenderTaskBase(self, destructorFlags);
+    HardwareContext_Destroy(self, destructorFlags);
 }
 
 EC bool NameEntryScene_PrepareConfirmedName(NameEntrySceneTask * self) SECTION(".text.func_08006C60");

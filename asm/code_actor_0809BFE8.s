@@ -857,95 +857,9 @@ func_0809C6BC: @ 0x0809C6BC
 .L0809CD70: .4byte 0xFFFFFE01
 .L0809CD74: .4byte 0xFFFFFC7F
 
-	.section .text.0809CE8C, "ax", %progbits
-    thumb_func_start func_0809CE8C
-func_0809CE8C: @ 0x0809CE8C
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r7, r0, #0
-    movs r0, #0
-    str r0, [r7]
-    ldr r0, .L0809CF24 @ =0x00000624
-    adds r2, r7, r0
-    movs r0, #2
-    rsbs r0, r0, #0
-    movs r3, #3
-    rsbs r3, r3, #0
-    movs r4, #5
-    rsbs r4, r4, #0
-    movs r5, #9
-    rsbs r5, r5, #0
-    movs r6, #0x11
-    rsbs r6, r6, #0
-    movs r1, #0x21
-    rsbs r1, r1, #0
-    mov r8, r1
-    movs r1, #0
-    strb r1, [r2]
-    ldr r1, .L0809CF28 @ =0x00000625
-    adds r2, r7, r1
-    movs r1, #0
-    strb r1, [r2]
-    ldr r1, .L0809CF2C @ =0x00000626
-    adds r2, r7, r1
-    ldrb r1, [r2]
-    ands r0, r1
-    ands r0, r3
-    ands r0, r4
-    ands r0, r5
-    ands r0, r6
-    mov r1, r8
-    ands r0, r1
-    strb r0, [r2]
-    movs r0, #0
-    movs r1, #0x10
-    rsbs r1, r1, #0
-    mov r8, r1
-    ldr r6, .L0809CF30 @ =0xFFFFFC0F
-    movs r5, #3
-.L0809CEE4:
-    movs r3, #0
-    lsls r1, r0, #3
-    adds r4, r0, #1
-    subs r1, r1, r0
-    lsls r1, r1, #3
-    adds r0, r7, #4
-    adds r2, r1, r0
-.L0809CEF2:
-    ldrb r1, [r2]
-    mov r0, r8
-    ands r0, r1
-    strb r0, [r2]
-    ldrh r1, [r2]
-    adds r0, r6, #0
-    ands r0, r1
-    strh r0, [r2]
-    ldrb r1, [r2, #1]
-    adds r0, r5, #0
-    ands r0, r1
-    strb r0, [r2, #1]
-    adds r2, #2
-    adds r3, #1
-    cmp r3, #0x1b
-    bls .L0809CEF2
-    adds r0, r4, #0
-    cmp r0, #0x1b
-    bls .L0809CEE4
-    adds r0, r7, #0
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0809CF24: .4byte 0x00000624
-.L0809CF28: .4byte 0x00000625
-.L0809CF2C: .4byte 0x00000626
-.L0809CF30: .4byte 0xFFFFFC0F
-
-    thumb_func_start func_0809CF34
-func_0809CF34: @ 0x0809CF34
+	.section .text.0809CF34, "ax", %progbits
+    thumb_func_start GenerateMineFloor
+GenerateMineFloor: @ 0x0809CF34
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -1201,14 +1115,14 @@ func_0809CF34: @ 0x0809CF34
     mov r1, r8
     mov r2, sl
     mov r3, sp
-    bl func_0809D168
+    bl GenerateSpringMineOutcomes
     b .L0809D12E
 .L0809D122:
     adds r0, r6, #0
     mov r1, r8
     mov r2, sl
     mov r3, sp
-    bl func_0809D500
+    bl GenerateLakeMineOutcomes
 .L0809D12E:
     mov r0, r8
     cmp r0, #0
@@ -1241,8 +1155,8 @@ func_0809CF34: @ 0x0809CF34
     pop {r1}
     bx r1
 
-    thumb_func_start func_0809D168
-func_0809D168: @ 0x0809D168
+    thumb_func_start GenerateSpringMineOutcomes
+GenerateSpringMineOutcomes: @ 0x0809D168
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -1260,7 +1174,7 @@ func_0809D168: @ 0x0809D168
     str r0, [sp, #0x10]
     mov r0, sl
     ldr r1, [sp]
-    bl GetOutcomeChanceRow
+    bl GetSpringMineDigWeightRow
     str r0, [sp, #0x14]
     bl rand
     asrs r0, r0, #4
@@ -1314,7 +1228,7 @@ func_0809D168: @ 0x0809D168
     movs r3, #0
     ldr r4, [sp, #0x14]
     lsls r6, r4, #2
-    ldr r4, .L0809D268 @ =gUnk_08103F98
+    ldr r4, .L0809D268 @ =gSpringMineDigOutcomeWeights
 .L0809D202:
     ldr r1, [sp, #0x14]
     adds r0, r6, r1
@@ -1325,7 +1239,7 @@ func_0809D168: @ 0x0809D168
     beq .L0809D2CA
     cmp r2, r0
     bge .L0809D2C4
-    ldr r1, .L0809D26C @ =gUnk_08103F84
+    ldr r1, .L0809D26C @ =gSpringMineDigOutcomeIds
     lsls r0, r3, #2
     adds r0, r0, r1
     ldr r3, [r0]
@@ -1368,8 +1282,8 @@ func_0809D168: @ 0x0809D168
     adds r1, #2
     b .L0809D272
     .align 2, 0
-.L0809D268: .4byte gUnk_08103F98
-.L0809D26C: .4byte gUnk_08103F84
+.L0809D268: .4byte gSpringMineDigOutcomeWeights
+.L0809D26C: .4byte gSpringMineDigOutcomeIds
 .L0809D270:
     adds r2, #1
 .L0809D272:
@@ -1436,7 +1350,7 @@ func_0809D168: @ 0x0809D168
 .L0809D2DA:
     mov r0, sl
     ldr r1, [sp]
-    bl func_0809D470
+    bl GetSpringMineRockWeightRow
     str r0, [sp, #0x14]
     ldr r1, [sp, #4]
     cmp r1, #0
@@ -1488,7 +1402,7 @@ func_0809D168: @ 0x0809D168
     lsls r3, r3, #3
     adds r3, r4, r3
     add r3, sl
-    ldr r1, .L0809D368 @ =gUnk_08103FE4
+    ldr r1, .L0809D368 @ =gSpringMineRockOutcomeIds
     mov r2, ip
     lsls r0, r2, #2
     adds r0, r0, r1
@@ -1504,7 +1418,7 @@ func_0809D168: @ 0x0809D168
     strh r0, [r3, #4]
     b .L0809D3E6
     .align 2, 0
-.L0809D368: .4byte gUnk_08103FE4
+.L0809D368: .4byte gSpringMineRockOutcomeIds
 .L0809D36C: .4byte 0xFFFFFC0F
 .L0809D370:
     adds r2, #1
@@ -1547,7 +1461,7 @@ func_0809D168: @ 0x0809D168
     mov ip, r0
     ldr r1, [sp, #0x14]
     lsls r6, r1, #2
-    ldr r1, .L0809D414 @ =gUnk_0810400C
+    ldr r1, .L0809D414 @ =gSpringMineRockOutcomeWeights
     ldr r3, [sp, #0x14]
     adds r0, r6, r3
     lsls r0, r0, #1
@@ -1594,11 +1508,11 @@ func_0809D168: @ 0x0809D168
     pop {r0}
     bx r0
     .align 2, 0
-.L0809D414: .4byte gUnk_0810400C
+.L0809D414: .4byte gSpringMineRockOutcomeWeights
 
 	.section .text.0809D500, "ax", %progbits
-    thumb_func_start func_0809D500
-func_0809D500: @ 0x0809D500
+    thumb_func_start GenerateLakeMineOutcomes
+GenerateLakeMineOutcomes: @ 0x0809D500
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -1616,7 +1530,7 @@ func_0809D500: @ 0x0809D500
     str r0, [sp, #0x10]
     mov r0, sl
     ldr r1, [sp]
-    bl GetAlternateMineFloorChanceRow
+    bl GetLakeMineDigWeightRow
     str r0, [sp, #0x14]
     bl rand
     asrs r0, r0, #4
@@ -1669,7 +1583,7 @@ func_0809D500: @ 0x0809D500
     movs r3, #0
     ldr r1, [sp, #0x14]
     lsls r0, r1, #2
-    ldr r1, .L0809D5F8 @ =gUnk_08103B38
+    ldr r1, .L0809D5F8 @ =gLakeMineDigOutcomeWeights
     ldr r4, [sp, #0x14]
     adds r0, r0, r4
     lsls r0, r0, #1
@@ -1680,7 +1594,7 @@ func_0809D500: @ 0x0809D500
     beq .L0809D658
     cmp r2, r0
     bge .L0809D652
-    ldr r1, .L0809D5FC @ =gUnk_08103B10
+    ldr r1, .L0809D5FC @ =gLakeMineDigOutcomeIds
     lsls r0, r3, #2
     adds r0, r0, r1
     ldr r3, [r0]
@@ -1720,8 +1634,8 @@ func_0809D500: @ 0x0809D500
     adds r1, r7, #2
     b .L0809D602
     .align 2, 0
-.L0809D5F8: .4byte gUnk_08103B38
-.L0809D5FC: .4byte gUnk_08103B10
+.L0809D5F8: .4byte gLakeMineDigOutcomeWeights
+.L0809D5FC: .4byte gLakeMineDigOutcomeIds
 .L0809D600:
     adds r2, #1
 .L0809D602:
@@ -1788,7 +1702,7 @@ func_0809D500: @ 0x0809D500
 .L0809D66A:
     mov r0, sl
     ldr r1, [sp]
-    bl func_0809D7D8
+    bl GetLakeMineRockWeightRow
     str r0, [sp, #0x14]
     ldr r4, [sp, #4]
     cmp r4, #0
@@ -1840,7 +1754,7 @@ func_0809D500: @ 0x0809D500
     lsls r3, r3, #3
     adds r3, r4, r3
     add r3, sl
-    ldr r1, .L0809D6F8 @ =gUnk_08103C3C
+    ldr r1, .L0809D6F8 @ =gLakeMineRockOutcomeIds
     lsls r0, r7, #2
     adds r0, r0, r1
     ldr r2, [r0]
@@ -1855,7 +1769,7 @@ func_0809D500: @ 0x0809D500
     strh r0, [r3, #4]
     b .L0809D76E
     .align 2, 0
-.L0809D6F8: .4byte gUnk_08103C3C
+.L0809D6F8: .4byte gLakeMineRockOutcomeIds
 .L0809D6FC: .4byte 0xFFFFFC0F
 .L0809D700:
     adds r2, #1
@@ -1895,7 +1809,7 @@ func_0809D500: @ 0x0809D500
     movs r0, #0xff
     ands r2, r0
     movs r7, #0
-    ldr r1, .L0809D798 @ =gUnk_08103C74
+    ldr r1, .L0809D798 @ =gLakeMineRockOutcomeWeights
     ldr r3, [sp, #0x14]
     lsls r0, r3, #3
     subs r0, r0, r3
@@ -1940,7 +1854,7 @@ func_0809D500: @ 0x0809D500
     pop {r0}
     bx r0
     .align 2, 0
-.L0809D798: .4byte gUnk_08103C74
+.L0809D798: .4byte gLakeMineRockOutcomeWeights
 
 	.section .text.0809DA00, "ax", %progbits
     thumb_func_start ResolveMineOutcome
@@ -2056,7 +1970,7 @@ ResolveMineOutcome: @ 0x0809DA00
 .L0809DB16:
     ldr r1, .L0809DB54 @ =0x00001DAC
     adds r0, r6, r1
-    bl func_0809ED04
+    bl HasCompletedAllNpcMilestones
     lsls r0, r0, #0x18
     cmp r0, #0
     bne .L0809DB26
@@ -2065,7 +1979,7 @@ ResolveMineOutcome: @ 0x0809DA00
     adds r0, r5, #0
     mov r1, r8
     adds r2, r6, #0
-    bl func_0809DF2C
+    bl HasCursedMineTool
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0809DB38
@@ -2188,7 +2102,7 @@ ResolveMineOutcome: @ 0x0809DA00
     adds r0, r5, #0
     adds r1, r4, #0
     adds r2, r6, #0
-    bl func_0809DF2C
+    bl HasCursedMineTool
     lsls r0, r0, #0x18
     cmp r0, #0
     beq .L0809DC24
@@ -2215,7 +2129,7 @@ ResolveMineOutcome: @ 0x0809DA00
     movs r4, #1
 .L0809DC48:
     adds r0, r5, #0
-    bl func_0809DFAC
+    bl CountHarvestGoddessJewels
     lsls r0, r0, #0x18
     lsrs r0, r0, #0x18
     cmp r0, #8
@@ -2407,7 +2321,7 @@ ResolveMineOutcome: @ 0x0809DA00
     movs r4, #1
 .L0809DDB8:
     adds r0, r5, #0
-    bl func_0809E02C
+    bl CountKappaJewels
     lsls r0, r0, #0x18
     lsrs r0, r0, #0x18
     cmp r0, #8
@@ -2603,230 +2517,6 @@ ResolveMineOutcome: @ 0x0809DA00
     bx r1
     .align 2, 0
 
-    thumb_func_start func_0809DF2C
-func_0809DF2C: @ 0x0809DF2C
-    push {r4, r5, r6, r7, lr}
-    adds r7, r2, #0
-    movs r6, #0
-    movs r4, #0x51
-    subs r0, r1, #4
-    cmp r0, #5
-    bhi .L0809DF76
-    lsls r0, r0, #2
-    ldr r1, .L0809DF44 @ =.L0809DF48
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0809DF44: .4byte .L0809DF48
-.L0809DF48: @ jump table
-    .4byte .L0809DF60 @ case 0
-    .4byte .L0809DF64 @ case 1
-    .4byte .L0809DF68 @ case 2
-    .4byte .L0809DF6C @ case 3
-    .4byte .L0809DF70 @ case 4
-    .4byte .L0809DF74 @ case 5
-.L0809DF60:
-    movs r4, #5
-    b .L0809DF76
-.L0809DF64:
-    movs r4, #0xd
-    b .L0809DF76
-.L0809DF68:
-    movs r4, #0x15
-    b .L0809DF76
-.L0809DF6C:
-    movs r4, #0x1d
-    b .L0809DF76
-.L0809DF70:
-    movs r4, #0x25
-    b .L0809DF76
-.L0809DF74:
-    movs r4, #0x2d
-.L0809DF76:
-    cmp r4, #0x50
-    bgt .L0809DFA0
-    ldr r1, .L0809DFA8 @ =0x00001C38
-    adds r0, r7, r1
-    adds r1, r4, #0
-    bl GetFirstSlotWithTool__C8RucksackUi
-    movs r5, #1
-    rsbs r5, r5, #0
-    cmp r0, r5
-    beq .L0809DF8E
-    movs r6, #1
-.L0809DF8E:
-    movs r1, #0xe0
-    lsls r1, r1, #2
-    adds r0, r7, r1
-    adds r1, r4, #0
-    bl GetFirstSlotWith__C9ToolChestUi
-    cmp r0, r5
-    beq .L0809DFA0
-    movs r6, #1
-.L0809DFA0:
-    adds r0, r6, #0
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0809DFA8: .4byte 0x00001C38
-
-    thumb_func_start func_0809DFAC
-func_0809DFAC: @ 0x0809DFAC
-    push {lr}
-    adds r3, r0, #0
-    ldr r1, .L0809E024 @ =0x00000625
-    adds r0, r3, r1
-    ldrb r2, [r0]
-    lsls r0, r2, #0x1a
-    lsrs r1, r0, #0x1f
-    lsls r0, r2, #0x19
-    cmp r0, #0
-    bge .L0809DFC2
-    adds r1, #1
-.L0809DFC2:
-    lsrs r0, r2, #7
-    cmp r0, #0
-    beq .L0809DFCE
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809DFCE:
-    ldr r2, .L0809E028 @ =0x00000626
-    adds r0, r3, r2
-    ldrb r2, [r0]
-    lsls r0, r2, #0x1f
-    cmp r0, #0
-    beq .L0809DFE0
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809DFE0:
-    lsls r0, r2, #0x1e
-    cmp r0, #0
-    bge .L0809DFEC
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809DFEC:
-    lsls r0, r2, #0x1d
-    cmp r0, #0
-    bge .L0809DFF8
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809DFF8:
-    lsls r0, r2, #0x1c
-    cmp r0, #0
-    bge .L0809E004
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E004:
-    lsls r0, r2, #0x1b
-    cmp r0, #0
-    bge .L0809E010
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E010:
-    lsls r0, r2, #0x1a
-    cmp r0, #0
-    bge .L0809E01C
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E01C:
-    adds r0, r1, #0
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0809E024: .4byte 0x00000625
-.L0809E028: .4byte 0x00000626
-
-    thumb_func_start func_0809E02C
-func_0809E02C: @ 0x0809E02C
-    push {lr}
-    adds r3, r0, #0
-    ldr r1, .L0809E0A4 @ =0x00000624
-    adds r0, r3, r1
-    ldrb r2, [r0]
-    lsls r0, r2, #0x1e
-    lsrs r1, r0, #0x1f
-    lsls r0, r2, #0x1d
-    cmp r0, #0
-    bge .L0809E042
-    adds r1, #1
-.L0809E042:
-    lsls r0, r2, #0x1c
-    cmp r0, #0
-    bge .L0809E04E
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E04E:
-    lsls r0, r2, #0x1b
-    cmp r0, #0
-    bge .L0809E05A
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E05A:
-    lsls r0, r2, #0x1a
-    cmp r0, #0
-    bge .L0809E066
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E066:
-    lsls r0, r2, #0x19
-    cmp r0, #0
-    bge .L0809E072
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E072:
-    lsrs r0, r2, #7
-    cmp r0, #0
-    beq .L0809E07E
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E07E:
-    ldr r2, .L0809E0A8 @ =0x00000625
-    adds r0, r3, r2
-    ldrb r2, [r0]
-    lsls r0, r2, #0x1f
-    cmp r0, #0
-    beq .L0809E090
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E090:
-    lsls r0, r2, #0x1e
-    cmp r0, #0
-    bge .L0809E09C
-    adds r0, r1, #1
-    lsls r0, r0, #0x18
-    lsrs r1, r0, #0x18
-.L0809E09C:
-    adds r0, r1, #0
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0809E0A4: .4byte 0x00000624
-.L0809E0A8: .4byte 0x00000625
-
-	.section .text.0809E118, "ax", %progbits
-.L0809E118:
-    .byte 0xF0, 0xB5, 0x81, 0xB0, 0x05, 0x1C, 0x0F, 0x1C
-    .byte 0x00, 0x26, 0x1E, 0xE0, 0x00, 0x24, 0x73, 0x1C, 0x13, 0xE0, 0x62, 0x00, 0xF0, 0x00, 0x80, 0x1B
-    .byte 0xC0, 0x00, 0x12, 0x18, 0xAA, 0x18, 0x90, 0x88, 0x80, 0x05, 0x80, 0x0E, 0x38, 0x18, 0x01, 0x78
-    .byte 0x01, 0x31, 0x01, 0x70, 0x51, 0x79, 0x89, 0x08, 0x79, 0x18, 0x08, 0x78, 0x01, 0x30, 0x08, 0x70
-    .byte 0x01, 0x34, 0x28, 0x1C, 0x00, 0x93, 0xFF, 0xF7, 0xA5, 0xFB, 0x00, 0x9B, 0x84, 0x42, 0xE4, 0xD3
-    .byte 0x1E, 0x1C, 0x28, 0x1C, 0xFF, 0xF7, 0xA8, 0xFB, 0x86, 0x42, 0xDB, 0xD3, 0x01, 0xB0, 0xF0, 0xBC
-    .byte 0x01, 0xBC, 0x00, 0x47
 
 	.section .text.0809E1B4, "ax", %progbits
 	.align 2, 0

@@ -4,6 +4,7 @@
 #include "utility/vec2.hh"
 
 #include <algorithm>
+#include <new>
 
 #define REPORT_CODE(addr) EC SECTION(".text.f3." #addr)
 
@@ -12,6 +13,125 @@ struct FarmReportData
     STRUCT_PAD(0x00, 0x14);
     Farm farm;
 };
+
+enum FarmReportPageId
+{
+    FARM_OVERVIEW,
+    CHICKEN_REPORT,
+    COW_REPORT,
+    SHEEP_REPORT,
+    HARVEST_SPRITE_REPORT,
+    EARNINGS_REPORT,
+    TOOL_LEVELS
+};
+
+struct FarmReportPage
+{
+    FarmReportPageId id;
+    i16 scroll_y;
+
+    FarmReportPage() : id(FARM_OVERVIEW), scroll_y(0) {}
+};
+
+struct FarmReportPageList
+{
+    enum { CAPACITY = 7 };
+
+    u32 count;
+    u32 storage[CAPACITY * sizeof(FarmReportPage) / sizeof(u32)];
+
+    FarmReportPage * FirstPage() { return reinterpret_cast<FarmReportPage *>(storage); }
+
+    FarmReportPage * Entry(u32 index)
+    {
+        size_t offset = sizeof(count) + index * sizeof(FarmReportPage);
+        return reinterpret_cast<FarmReportPage *>(reinterpret_cast<u8 *>(this) + offset);
+    }
+
+    void Append(FarmReportPage const & page)
+    {
+        if (count < CAPACITY)
+        {
+            new (Entry(count)) FarmReportPage(page);
+            ++count;
+        }
+    }
+};
+
+struct FarmReportMenu
+{
+    STRUCT_PAD(0, 4);
+    void const * vtable;
+    STRUCT_PAD(8, 0x120);
+    FarmReportData const * data;
+    FarmReportPageList pages;
+    u32 selected_page;
+};
+
+EC char const gFarmReportMenuVTable[] asm("vtable_unk_080E7A88");
+EC void InitScrollableReportMenu(FarmReportMenu * self, u32 mode) asm("func_08075E7C");
+EC void OpenFarmReportPage(FarmReportMenu * self, FarmReportPageId id) asm("func_08069C34");
+
+REPORT_CODE(0805FD78) FarmReportMenu * InitFarmReportMenu(
+    FarmReportMenu * self, FarmReportData const * data, u8 mode)
+{
+    InitScrollableReportMenu(self, mode);
+    self->vtable = gFarmReportMenuVTable;
+
+    // Preserve the original Thumb register allocation.
+    register uintptr_t data_offset asm("r1") = offsetof(FarmReportMenu, data);
+    asm ("" : "+r" (data_offset));
+    register FarmReportData const ** destination asm("r0") =
+        reinterpret_cast<FarmReportData const **>(reinterpret_cast<uintptr_t>(self) + data_offset);
+    asm ("" : "+r" (destination));
+    *destination = data;
+
+    register FarmReportPageList * initial_pages asm("r6") = &self->pages;
+    asm ("" : "+r" (initial_pages));
+    initial_pages->count = 0;
+
+    FarmReportPage page;
+    page.id = FARM_OVERVIEW;
+    new (self->pages.FirstPage()) FarmReportPage(page);
+    ++initial_pages->count;
+
+    register FarmReportData const * const * data_slot asm("r4") = &self->data;
+    asm ("" : "+r" (data_slot));
+    FarmReportData const * const & menu_data = *data_slot;
+    bool has_chickens = menu_data->farm.coop.CountChickens();
+    if (has_chickens)
+    {
+        page.id = CHICKEN_REPORT;
+        register FarmReportPageList * chicken_pages asm("r1") = initial_pages;
+        asm ("" : "+r" (chicken_pages));
+        if (chicken_pages->count < FarmReportPageList::CAPACITY)
+        {
+            new (chicken_pages->Entry(chicken_pages->count)) FarmReportPage(page);
+            ++initial_pages->count;
+        }
+    }
+    bool has_cows = menu_data->farm.barn.CountCows();
+    if (has_cows)
+    {
+        page.id = COW_REPORT;
+        self->pages.Append(page);
+    }
+    bool has_sheep = menu_data->farm.barn.CountSheeps();
+    if (has_sheep)
+    {
+        page.id = SHEEP_REPORT;
+        self->pages.Append(page);
+    }
+    page.id = HARVEST_SPRITE_REPORT;
+    self->pages.Append(page);
+    page.id = EARNINGS_REPORT;
+    self->pages.Append(page);
+    page.id = TOOL_LEVELS;
+    self->pages.Append(page);
+    self->selected_page = 0;
+    OpenFarmReportPage(self, self->pages.FirstPage()->id);
+    return self;
+}
 
 struct LivestockReport
 {
@@ -27,8 +147,8 @@ struct LivestockReport
     u8 name_bitmaps[(MAX_NAME_BITMAPS - 1) * NAME_BITMAP_STRIDE + NAME_BITMAP_BYTES];
 };
 
-EC void Fill4bppTileBitmap(Vec2 dimensions, void * tiles, u32 color) asm("func_0804E7A0");
-EC void DrawTextTo4bppTileBitmap(Vec2 dimensions, void * tiles, u32 x, u32 y, char const * text) asm("func_0804E8F0");
+EC void FillMessageTiles(Vec2 dimensions, void * tiles, u32 color);
+EC void DrawMessageTileString(Vec2 dimensions, void * tiles, u32 x, u32 y, char const * text);
 EC void DrawFarmReportPanel(LivestockReport * self) asm("func_08076EA8");
 EC void SetFarmReportScrollHeight(void * panel, i16 height) asm("func_08075E24");
 EC void InitLivestockReport(LivestockReport * self, void * menu, void * display, u32 content_height, char const * title);
@@ -53,9 +173,9 @@ REPORT_CODE(08063E04) u8 * RenderLivestockReportName(LivestockReport * self, u32
         uintptr_t address = row * LivestockReport::NAME_BITMAP_STRIDE;
         address += reinterpret_cast<uintptr_t>(self);
         u8 * bitmap;
-        Fill4bppTileBitmap(Vec2(LivestockReport::NAME_BITMAP_WIDTH, LivestockReport::NAME_BITMAP_HEIGHT),
+        FillMessageTiles(Vec2(LivestockReport::NAME_BITMAP_WIDTH, LivestockReport::NAME_BITMAP_HEIGHT),
             bitmap = reinterpret_cast<u8 *>(address + offsetof(LivestockReport, name_bitmaps)), 0);
-        DrawTextTo4bppTileBitmap(Vec2(LivestockReport::NAME_BITMAP_WIDTH, LivestockReport::NAME_BITMAP_HEIGHT),
+        DrawMessageTileString(Vec2(LivestockReport::NAME_BITMAP_WIDTH, LivestockReport::NAME_BITMAP_HEIGHT),
             bitmap, 0, 0, name);
         return bitmap;
     }
