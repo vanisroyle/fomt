@@ -364,6 +364,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080C8550);
         src/g5_encoding.o(.text.g5_080CA6F4);
         asm/code_080C8360.o(.text.g5_after_080CA6F4);
+        src/g5_quantity.o(.text.g5_080CAAF4);
         src/g5_ui.o(.text.g5_buttons);
         asm/code_080C8360.o(.text.g5_CAC3C);
         src/g5_ui.o(.text.g5_entry_init);
