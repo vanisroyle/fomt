@@ -114,7 +114,7 @@ ROM_TEXT(0809C0A0) CursedToolProgress & InitCursedToolProgress(CursedToolProgres
     return self;
 }
 
-ROM_TEXT(0809C0A0) bool IsCursedTool(CursedToolProgress const &, Tool const & tool)
+ROM_TEXT(0809C0A0) bool IsCursedToolForProgress(CursedToolProgress const &, Tool const & tool)
 {
     switch (tool.GetId())
     {
