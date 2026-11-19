@@ -1,6 +1,7 @@
 #include "prelude.h"
 
 #include "bachelorette.hh"
+#include "clock_display.hh"
 #include "dog.hh"
 #include "farm.hh"
 #include "farm_house.hh"
@@ -751,45 +752,6 @@ ROM_TEXT(0803C518) void DisablePauseMenuSelection(PauseMenuWindow & self)
     self.selectionEnabled = false;
 }
 
-struct ClockDisplayData
-{
-    STRUCT_PAD(0x000, 0x084);
-    u8 seasonFirstTiles[0x20];
-    u8 seasonSecondTiles[0x20];
-    u8 dayTensTiles[0x20];
-    u8 dayOnesTiles[0x20];
-    u8 meridiemTiles[0x20];
-    STRUCT_PAD(0x124, 0x144);
-    u8 hourTensTiles[0x20];
-    u8 hourOnesTiles[0x20];
-    STRUCT_PAD(0x184, 0x18C);
-    u8 dateTilesDirty;
-    STRUCT_PAD(0x18D, 0x1A8);
-    u8 weekdayFirstTiles[0x20];
-    u8 weekdaySecondTiles[0x20];
-    u8 weekdayThirdTiles[0x20];
-    STRUCT_PAD(0x208, 0x228);
-    u8 colonTiles[0x20];
-    u8 minuteTensTiles[0x20];
-    u8 minuteOnesTiles[0x20];
-    STRUCT_PAD(0x288, 0x2B0);
-    u8 tilesDirty;
-    STRUCT_PAD(0x2B1, 0x2CC);
-    u8 weatherIcon;
-    STRUCT_PAD(0x2CD, 0x2F0);
-    u8 weatherIconDirty;
-    u8 toolIconVisible;
-    u16 toolIconId;
-    STRUCT_PAD(0x2F4, 0x334);
-    u8 toolIconDirty;
-};
-
-struct ClockDisplay
-{
-    ClockDisplayData * inner;
-};
-
-EC u8 const gClockFont[][0x20];
 
 ROM_TEXT(0803D080) void SetClockSeasonTiles(ClockDisplay & self, Season season)
 {
@@ -1003,9 +965,8 @@ ROM_TEXT(0803D2E8) void HideClockToolIcon(ClockDisplay & self)
 struct SavedCalendarDate;
 EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, bool colonVisible);
 
-struct ClockHud
+struct ClockHud : DialogWindow
 {
-    STRUCT_PAD(0x00, 0x08);
     ClockDisplay display;
 };
 
@@ -1210,7 +1171,8 @@ struct PACKED SavedCalendarDate
 {
     u8 yearInCycle : 3;
     u8 yearCycle : 5;
-    u8 packedDateAndTime[2];
+    u8 packedDate;
+    u8 packedTime;
 };
 
 enum NpcScheduleWeekday
@@ -1299,7 +1261,166 @@ struct NpcScheduleContext
     u8 eventFlags;
 };
 
-EC CalendarDate & DecodeNpcScheduleDate(CalendarDate &, SavedCalendarDate const &);
+#define EXTRACT_CALENDAR_FIELD(output, input, offset, width) \
+    asm(".syntax unified\n\tlsls %0, %1, %2\n\tlsrs %0, %0, %3\n\t.syntax divided" \
+        : "=l"(output) : "l"(input), "I"(32 - (offset) - (width)), "I"(32 - (width)))
+
+ROM_TEXT(0803D52C) CalendarDate & DecodeNpcScheduleDate(CalendarDate & result, SavedCalendarDate const & calendar)
+{
+    enum
+    {
+        DAYS_PER_SEASON = 30,
+        DAYS_PER_YEAR = 4 * DAYS_PER_SEASON,
+        DAYS_PER_WEEK = 7,
+        YEARS_PER_CALENDAR_CYCLE = 7,
+        WEEKDAY_YEAR_OFFSET = 6,
+        MAX_YEAR = 200,
+        SCHEDULE_DAY_START_HOUR = 6,
+        SEASON_BIT = 0,
+        SEASON_WIDTH = 2,
+        SEASON_MASK = (1u << SEASON_WIDTH) - 1,
+        DAY_BIT = 2,
+        DAY_WIDTH = 5,
+        DAY_MASK = (1u << DAY_WIDTH) - 1,
+        WEEKDAY_WIDTH = 3,
+        WEEKDAY_MASK = (1u << WEEKDAY_WIDTH) - 1,
+        HOUR_BIT = 16,
+        HOUR_WIDTH = 5,
+    };
+    struct LocalDate
+    {
+        unsigned maxYear;
+        unsigned year;
+        u8 date;
+    } local;
+    // Register and stack constraints below preserve agbcc's original Thumb layout.
+    asm("" : : : "r9", "r10");
+
+    unsigned dateByte = calendar.packedDate;
+    u8 * dateBuffer = &local.date;
+    *dateBuffer = dateByte;
+
+    unsigned yearInCycle = calendar.yearInCycle;
+    unsigned season;
+    EXTRACT_CALENDAR_FIELD(season, dateByte, SEASON_BIT, SEASON_WIDTH);
+    register unsigned dayCount asm("r3");
+    EXTRACT_CALENDAR_FIELD(dayCount, dateByte, DAY_BIT, DAY_WIDTH);
+    yearInCycle += WEEKDAY_YEAR_OFFSET;
+    dayCount += season * DAYS_PER_SEASON + yearInCycle * DAYS_PER_YEAR;
+    register u8 * date asm("r8");
+    date = dateBuffer;
+    asm("" : "+r"(date));
+    if (dayCount > DAYS_PER_WEEK - 1)
+        dayCount %= DAYS_PER_WEEK;
+    // The original keeps the weekday in the low three bits of a register.
+    unsigned weekdayStorage;
+    asm("" : "=l"(weekdayStorage));
+    unsigned weekdayMask = ~unsigned(WEEKDAY_MASK);
+    asm("" : "+l"(weekdayMask));
+    unsigned weekdayLow = dayCount & WEEKDAY_MASK;
+    asm("and %0, %1" : "+l"(weekdayMask) : "l"(weekdayStorage));
+    weekdayStorage = weekdayMask | weekdayLow;
+    asm("" : "+l"(weekdayStorage) : : "memory");
+
+    unsigned maxYear = MAX_YEAR;
+    local.maxYear = maxYear;
+    unsigned actualYear = calendar.yearCycle * unsigned(YEARS_PER_CALENDAR_CYCLE)
+        + calendar.yearInCycle;
+    local.year = actualYear;
+    unsigned * actualYearAddress = &local.year;
+    register unsigned * yearAddress asm("r2") = &local.maxYear;
+    if (maxYear > actualYear)
+        yearAddress = actualYearAddress;
+    register unsigned year asm("r4") = *yearAddress;
+    unsigned packedCalendar;
+    asm("ldr %0, [%1]" : "=l"(packedCalendar) : "l"(&calendar) : "memory");
+    unsigned hour;
+    EXTRACT_CALENDAR_FIELD(hour, packedCalendar, HOUR_BIT, HOUR_WIDTH);
+    // NPC schedules still use the previous date before 6 AM.
+    if (hour < SCHEDULE_DAY_START_HOUR)
+    {
+        u8 * rolledDate;
+        asm("mov %0, %1" : "=l"(rolledDate) : "r"(date));
+        unsigned currentDateByte = *rolledDate;
+        unsigned dayShift;
+        register unsigned previousDay asm("r2");
+        asm("lsl %0, %2, %3; lsr %1, %0, %4"
+            : "=&l"(dayShift), "=l"(previousDay)
+            : "l"(currentDateByte), "I"(32 - DAY_BIT - DAY_WIDTH), "I"(32 - DAY_WIDTH));
+        if (previousDay == 0)
+        {
+            unsigned previousSeason;
+            EXTRACT_CALENDAR_FIELD(previousSeason, currentDateByte, SEASON_BIT, SEASON_WIDTH);
+            unsigned seasonMask = ~unsigned(SEASON_MASK);
+            --previousSeason;
+            unsigned seasonBits = SEASON_MASK;
+            previousSeason &= seasonBits;
+            seasonMask &= currentDateByte;
+            seasonMask |= previousSeason;
+            *rolledDate = seasonMask;
+            previousDay = DAYS_PER_SEASON - 1;
+        }
+        else
+        {
+            --previousDay;
+        }
+        register unsigned dayMask asm("r0") = DAY_MASK;
+        asm("" : "+l"(dayMask));
+        previousDay = (previousDay & dayMask) << DAY_BIT;
+        unsigned unchangedDate = *rolledDate;
+        unsigned preserveOtherDateBits = ~(unsigned(DAY_MASK) << DAY_BIT);
+        preserveOtherDateBits &= unchangedDate;
+        *rolledDate = preserveOtherDateBits | previousDay;
+
+        u8 const * normalizedDate;
+        asm("mov %0, %1" : "=l"(normalizedDate) : "r"(date));
+        unsigned normalizedDateByte = *normalizedDate;
+        unsigned normalizedSeason;
+        EXTRACT_CALENDAR_FIELD(normalizedSeason, normalizedDateByte, SEASON_BIT, SEASON_WIDTH);
+        if (normalizedSeason == SEASON_WINTER)
+        {
+            unsigned normalizedDay;
+            EXTRACT_CALENDAR_FIELD(normalizedDay, normalizedDateByte, DAY_BIT, DAY_WIDTH);
+            if (normalizedDay == DAYS_PER_SEASON - 1)
+                --year;
+        }
+
+        int weekday;
+        EXTRACT_CALENDAR_FIELD(weekday, weekdayStorage, 0, WEEKDAY_WIDTH);
+        int previousWeekday = DAYS_PER_WEEK - 1;
+        if (weekday > SCHEDULE_MONDAY)
+            previousWeekday = weekday - 1;
+        unsigned weekdayBits = WEEKDAY_MASK;
+        asm("" : "+l"(weekdayBits));
+        previousWeekday &= weekdayBits;
+        register unsigned preserveOtherWeekdayBits asm("r0") = ~unsigned(WEEKDAY_MASK);
+        preserveOtherWeekdayBits &= weekdayStorage;
+        weekdayStorage = preserveOtherWeekdayBits | previousWeekday;
+    }
+
+    result.year = year;
+    register u8 const * scheduleDate asm("r1");
+    asm("mov %0, %1" : "=l"(scheduleDate) : "r"(date));
+    unsigned scheduleSeasonByte = *scheduleDate;
+    asm("" : "+l"(scheduleSeasonByte));
+    unsigned scheduleSeason;
+    EXTRACT_CALENDAR_FIELD(scheduleSeason, scheduleSeasonByte, SEASON_BIT, SEASON_WIDTH);
+    result.season = scheduleSeason;
+    u8 const * dayAddress;
+    asm("add %0, sp, %1"
+        : "=l"(dayAddress) : "I"(offsetof(LocalDate, date)) : "memory");
+    unsigned scheduleDayByte = *dayAddress;
+    unsigned scheduleDay;
+    EXTRACT_CALENDAR_FIELD(scheduleDay, scheduleDayByte, DAY_BIT, DAY_WIDTH);
+    result.day = scheduleDay + 1;
+    unsigned scheduleWeekday;
+    EXTRACT_CALENDAR_FIELD(scheduleWeekday, weekdayStorage, 0, WEEKDAY_WIDTH);
+    result.weekday = scheduleWeekday;
+    return result;
+}
+
+#undef EXTRACT_CALENDAR_FIELD
+
 EC unsigned GetRosterMarriageCandidate(void const *);
 
 ROM_TEXT(0803D7E4) unsigned SelectNpcSchedule_080F1A80(void const * context)
@@ -2562,42 +2683,26 @@ EC int UpdatePauseMenuWindow(PauseMenuWindow &, ControllerInput const &, OamBuff
     BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *, AudioPlayer *);
 EC void func_0803BE50(DialogWindow &, int);
 EC void func_080E0C38(PauseMenuGraphics *, int);
-EC void func_080E0D70(void *, int);
 EC char const gPauseMenuWindowVtable[];
-EC char const vtable_unk_080E77E0[];
+EC char const gClockHudVTable[];
 
-struct Unk_0803C7A0
-{
-    void * inner;
-};
-
-EC void func_0803C7A0(Unk_0803C7A0 &, int);
-EC void func_0803C5B0(Unk_0803C7A0 &);
-
-struct DialogChoiceWindow : DialogWindow
-{
-    Unk_0803C7A0 menu;
-};
-
-struct DialogChoiceWindowVtable
+struct ClockHudVTable
 {
     STRUCT_PAD(0, 0x1C);
-    int (* getX)(DialogChoiceWindow &);
-    int (* getY)(DialogChoiceWindow &);
+    int (* getX)(ClockHud &);
+    int (* getY)(ClockHud &);
 };
 
-EC void DrawDialogChoices(Unk_0803C7A0 &, int x, int y, OamBuffer *, DialogLayerRenderer *);
-
-ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBuffer * oam,
+ROM_TEXT(0803D4D8) int UpdateClockHud(ClockHud & self, OamBuffer * oam,
     BackgroundVideoState * video, DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
 {
     // Preserve the original register allocation for the window state.
     register int state asm("r6") = UpdateDialogWindow(self, video, layerRenderer, tileTransfers);
     if (state == DIALOG_WINDOW_OPEN)
     {
-        int x = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getX(self);
-        int y = static_cast<DialogChoiceWindowVtable const *>(self.vtable)->getY(self);
-        DrawDialogChoices(self.menu, x, y, oam, layerRenderer);
+        int x = static_cast<ClockHudVTable const *>(self.vtable)->getX(self);
+        int y = static_cast<ClockHudVTable const *>(self.vtable)->getY(self);
+        DrawClockDisplay(self.display, x, y, oam, layerRenderer);
     }
     return state;
 }
@@ -2640,27 +2745,17 @@ ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, Co
     return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, audio);
 }
 
-ROM_TEXT(0803C518) DialogChoiceWindow & func_0803C54C(DialogChoiceWindow & self, int arg1, int arg2, int arg3, int arg4)
+ROM_TEXT(0803C518) ClockHud & InitializeClockHud(ClockHud & self, int background, int screenBlock, int paletteBank, int layerMode)
 {
-    func_0803BDFC(self, 128, 136, 112, 24, arg1, arg2, arg3, arg4);
-    self.vtable = vtable_unk_080E77E0;
-    func_0803C5B0(self.menu);
+    func_0803BDFC(self, 128, 136, 112, 24, background, screenBlock, paletteBank, layerMode);
+    self.vtable = gClockHudVTable;
+    InitializeClockDisplay(self.display);
     return self;
 }
 
-ROM_TEXT(0803C518) void func_0803C588(DialogChoiceWindow & self, int flags)
+ROM_TEXT(0803C518) void DestroyClockHud(ClockHud & self, int flags)
 {
-    self.vtable = vtable_unk_080E77E0;
-    func_0803C7A0(self.menu, 2);
+    self.vtable = gClockHudVTable;
+    DestroyClockDisplay(self.display, 2);
     func_0803BE50(self, flags);
-}
-
-ROM_TEXT(0803C7A0) void func_0803C7A0(Unk_0803C7A0 & self, int flags)
-{
-    void * inner = self.inner;
-    if (inner != 0)
-        func_080E0D70(inner, 3);
-    flags &= 1;
-    if (flags != 0)
-        ::operator delete(&self);
 }

@@ -916,8 +916,8 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803C00C);
         asm/code_0803A8A4.o(.text.0803C028);
         src/code_0803A8A4.o(.text.0803C518);
-        asm/code_0803A8A4.o(.text.0803C5B0);
-        src/code_0803A8A4.o(.text.0803C7A0);
+        src/clock_display.o(.text.0803C5B0);
+        src/clock_display.o(.text.0803C7A0);
         asm/code_0803A8A4.o(.text.0803C7C8);
         src/code_0803A8A4.o(.text.0803D080);
         src/code_0803A8A4.o(.text.0803D0F0);
@@ -925,7 +925,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803D2E8);
         src/code_0803A8A4.o(.text.0803D464);
         src/code_0803A8A4.o(.text.0803D4D8);
-        asm/code_0803A8A4.o(.text.0803D52C);
+        src/code_0803A8A4.o(.text.0803D52C);
         src/code_0803A8A4.o(.text.0803D644);
         src/code_0803A8A4.o(.text.0803D688);
         src/code_0803A8A4.o(.text.0803D7E4);
@@ -1119,6 +1119,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A1478);
         src/g1_npc.o(.text.g1_080A1480);
         asm/g1_npc.o(.text.g1_after_080A1480);
+        src/g1_roster_penalty.o(.text.g1_080A1484);
+        asm/g1_npc.o(.text.g1_after_b11_080A1484);
         src/g1_roster.o(.text.g1_080A17A0);
         asm/g1_npc.o(.text.g1_after_b3_080A17A0);
         src/g1_roster.o(.text.g1_080A1890);
@@ -1192,12 +1194,16 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A5A9C);
         src/g1_map_reload.o(.text.g1_080A5BD8);
         asm/g1_npc.o(.text.g1_after_b3_080A5BD8);
+        src/g1_map_reload.o(.text.g1_080A5CC0);
+        asm/g1_npc.o(.text.g1_after_b11_080A5CC0);
         src/g1_map_reload.o(.text.g1_080A5D14);
         asm/g1_npc.o(.text.g1_after_b3_080A5D14);
         src/g1_map_reload.o(.text.g1_080A5DB8);
         asm/g1_npc.o(.text.g1_after_b3_080A5DB8);
         src/g1_npc.o(.text.g1_080A5EA0);
         asm/g1_npc.o(.text.g1_after_080A5EA0);
+        src/g1_map_tiles.o(.text.g1_080A5F78);
+        asm/g1_npc.o(.text.g1_after_b11_080A5F78);
         src/g1_npc.o(.text.g1_080A601C);
         asm/g1_npc.o(.text.g1_after_080A601C);
         src/g1_map.o(.text.g1_080A6024);
@@ -1264,7 +1270,8 @@ SECTIONS
         src/entity_movement.o(.text.080ABBC4);
         src/entity_movement.o(.text.080ABBEC);
         src/entity_movement.o(.text.080ABC14);
-        asm/code_809E804.o(.text.080ABC40);
+        src/entity_movement.o(.text.080ABC40);
+        asm/code_809E804.o(.text.080ABE58);
         src/entity_movement.o(.text.080AC070);
         asm/code_809E804.o(.text.080AC124);
         src/entity_movement.o(.text.080AC5D0);
@@ -1350,7 +1357,7 @@ SECTIONS
         asm/code_809E804.o(.text.080B1D94);
         src/chicken_feeding.o(.text.080B34DC);
         src/chicken_feeding.o(.text.080B3518);
-        asm/code_809E804.o(.text.080B36B4);
+        src/chicken_feeding.o(.text.080B36B4);
         src/g3_chicken_festival.o(.text.g3_080B3948);
         asm/code_809E804.o(.text.g3_after_080B3948);
         src/g3_state.o(.text.g3_080B3990);
@@ -1423,6 +1430,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B9F38);
         src/g3_chicken_festival.o(.text.g3_080B9F64);
         asm/code_809E804.o(.text.g3_after_080B9F64);
+        src/g3_chicken_festival.o(.text.g3_080BA0C4);
+        asm/code_809E804.o(.text.g3_after_080BA0C4);
         src/g3_chicken_festival.o(.text.g3_080BA1A4);
         asm/code_809E804.o(.text.g3_after_080BA1A4);
         src/g3_state.o(.text.g3_080BA1F4);
@@ -1433,6 +1442,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080BA1FC);
         src/g3_state.o(.text.g3_080BA200);
         asm/code_809E804.o(.text.g3_after_080BA200);
+        src/g3_chicken_festival.o(.text.g3_080BA204);
+        asm/code_809E804.o(.text.g3_after_080BA204);
         src/g3_chicken_festival.o(.text.g3_080BA284);
         asm/code_809E804.o(.text.g3_after_080BA284);
         src/g3_chicken_festival.o(.text.g3_080BA2C4);
@@ -1621,11 +1632,15 @@ SECTIONS
     __iwram_vma_end = ADDR(.iwram) + SIZEOF(.iwram);
     __iwram_lma     = LOADADDR(.iwram);
 
-    .pad : ALIGN(4)
+    .rom_tail : ALIGN(4)
     {
         LONG(0);
-        . = 0x08800000 - 0x0875C240;
+        *(.script_overflow);
+        . = ALIGN(0x800000);
     } > ROM = 0xFF
+
+    ASSERT(ADDR(.rom_tail) == 0x0875C240, "original ROM suffix moved")
+    ASSERT(ADDR(.rom_tail) + SIZEOF(.rom_tail) <= 0x0A000000, "ROM exceeds 32 MiB")
 
     /* DWARF 2 sections */
     .debug_aranges  0 : { *(.debug_aranges) }
