@@ -3,19 +3,19 @@
 
 #include "scene.hh"
 
-struct IntroTask
+struct IntroSceneTask
 {
     u32 renderContext;
-    virtual ~IntroTask();
+    virtual ~IntroSceneTask();
 };
 
-struct IntroScene
+struct IntroSceneOwner
 {
     void * vtable;
-    IntroTask * task;
+    IntroSceneTask * task;
 };
 
-EC IntroScene * InitializeIntroScene(IntroScene * self);
-EC void DestroyIntroScene(IntroScene * self, int destructorFlags);
+EC IntroSceneOwner * IntroScene_Initialize(IntroSceneOwner * self);
+EC void IntroScene_Destroy(IntroSceneOwner * self, int destructorFlags);
 
 #endif // INTRO_SCENE_HH

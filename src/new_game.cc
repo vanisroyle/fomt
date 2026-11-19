@@ -2,51 +2,51 @@
 
 #include <string.h>
 
-extern char gDiaryMenuSceneVtable[] __asm__("vtable_unk_080E5A68");
+extern char gNewGameMenuSceneVtable[] __asm__("vtable_unk_080E5A68");
 extern char gNewGameSetupSceneVtable[] __asm__("vtable_unk_080E5A88");
-extern char gChoiceDialogSceneVtable[] __asm__("vtable_unk_080E5AA4");
+extern char gNewGameChoiceDialogSceneVtable[] __asm__("vtable_unk_080E5AA4");
 extern char gNameEntrySceneVtable[] __asm__("vtable_unk_080E5AC0");
-extern char gNewGameTransitionVtable[] __asm__("vtable_unk_080E5A3C");
-extern char gChoiceDialogTaskVtable[] __asm__("vtable_unk_080E5A98");
-extern char gNameEntryTaskVtable[] __asm__("vtable_unk_080E5AB4");
+extern char gNewGameSetupTransitionVtable[] __asm__("vtable_unk_080E5A3C");
+extern char gNewGameChoiceDialogTaskVtable[] __asm__("vtable_unk_080E5A98");
+extern char gNameEntrySceneTaskVtable[] __asm__("vtable_unk_080E5AB4");
 
 EC void * __builtin_new(size_t size);
-EC RenderTask * CreateNameEntryTask(void * storage, void * promptText, u32 initialNameAddress) __asm__("func_08005A58");
-EC void DestroySceneBase(void * self, int destructorFlags) __asm__("func_080007EC");
-EC RenderTask * CreateDiaryMenuTask(void * storage, void * gameData, void * transitionOwner) __asm__("func_080041DC");
-EC RenderTask * CreateChoiceDialogTask(void * storage, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) __asm__("func_08004EFC");
+EC NewGameRenderTask * NameEntryScene_CreateTask(void * storage, void * promptText, u32 initialNameAddress) __asm__("func_08005A58");
+EC void NewGameScene_DestroyBase(void * self, int destructorFlags) __asm__("func_080007EC");
+EC NewGameRenderTask * NewGameMenu_CreateTask(void * storage, void * gameData, void * transitionOwner) __asm__("func_080041DC");
+EC NewGameRenderTask * NewGameChoiceDialog_CreateTask(void * storage, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) __asm__("func_08004EFC");
 EC void DestroyMessageWindow(void * self, int destructorFlags);
-EC void DestroyRenderTaskBase(void * self, int destructorFlags) __asm__("func_080086BC");
-EC void * GetRenderContext(void * self) __asm__("func_080088DC");
-EC void * GetOamBuffer(void * self) __asm__("func_08008920");
-EC void * GetDisplayRegisters(void * self) __asm__("func_08008918");
-EC void * GetRenderJobQueue(void * self) __asm__("func_08008940");
-EC void * GetFrameJobQueue(void * self) __asm__("func_0800894C");
+EC void NewGameScene_DestroyRenderTaskBase(void * self, int destructorFlags) __asm__("func_080086BC");
+EC void * NewGameScene_GetRenderContext(void * self) __asm__("func_080088DC");
+EC void * NewGameScene_GetOamBuffer(void * self) __asm__("func_08008920");
+EC void * NewGameScene_GetDisplayRegisters(void * self) __asm__("func_08008918");
+EC void * NewGameScene_GetRenderJobQueue(void * self) __asm__("func_08008940");
+EC void * NewGameScene_GetFrameJobQueue(void * self) __asm__("func_0800894C");
 EC unsigned int UpdateMessageWindow(void * dialog, void * renderContext, void * oamBuffer, void * displayRegisters, void * renderJobs, void * frameJobs, void * textSound);
 EC int GetMessageWindowPhase(void * self);
 EC void OpenMessageWindow(void * self);
 EC void CloseMessageWindow(void * self);
 EC unsigned int GetMessageWindowSelection(void * self);
 EC void ConfigureMessageWindowPromptChoices(void * dialog, char const * promptText, char const * firstChoice, char const * secondChoice, u32 promptParameter, u32 firstChoiceParameter, u32 secondChoiceParameter);
-extern char gChoiceConfirmationPrompt[] __asm__("gUnk_080E8998");
-extern char gChoiceConfirmationYes[] __asm__("gUnk_080E89A4");
-extern char gChoiceConfirmationNo[] __asm__("gUnk_080E89A8");
-extern char gNameConfirmationPrompt[] __asm__("gUnk_080E8C2C");
-extern char gNameConfirmationYes[] __asm__("gUnk_080E8C44");
-extern char gNameConfirmationNo[] __asm__("gUnk_080E8C48");
+extern char gNewGameChoiceConfirmationPrompt[] __asm__("gUnk_080E8998");
+extern char gNewGameChoiceConfirmationYes[] __asm__("gUnk_080E89A4");
+extern char gNewGameChoiceConfirmationNo[] __asm__("gUnk_080E89A8");
+extern char gNameEntrySceneConfirmationPrompt[] __asm__("gUnk_080E8C2C");
+extern char gNameEntrySceneConfirmationYes[] __asm__("gUnk_080E8C44");
+extern char gNameEntrySceneConfirmationNo[] __asm__("gUnk_080E8C48");
 
-EC void NameEntry_UpdateConfirmationDialog(NameEntryTask * self) SECTION(".text.func_08006ED8");
-EC void NameEntry_UpdateConfirmationDialog(NameEntryTask * self)
+EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self) SECTION(".text.func_08006ED8");
+EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self)
 {
     if (self->confirmationMode == 0)
         return;
     int previousPhase = GetMessageWindowPhase(self->dialog);
     void * dialog = self->dialog;
-    void * renderContext = GetRenderContext(self);
-    void * oamBuffer = GetOamBuffer(self);
-    void * displayRegisters = GetDisplayRegisters(self);
-    void * renderJobs = GetRenderJobQueue(self);
-    void * frameJobs = GetFrameJobQueue(self);
+    void * renderContext = NewGameScene_GetRenderContext(self);
+    void * oamBuffer = NewGameScene_GetOamBuffer(self);
+    void * displayRegisters = NewGameScene_GetDisplayRegisters(self);
+    void * renderJobs = NewGameScene_GetRenderJobQueue(self);
+    void * frameJobs = NewGameScene_GetFrameJobQueue(self);
     void * textSound = &self->textSound;
     switch (UpdateMessageWindow(dialog, renderContext, oamBuffer, displayRegisters, renderJobs, frameJobs, textSound))
     {
@@ -76,7 +76,7 @@ EC void NameEntry_UpdateConfirmationDialog(NameEntryTask * self)
             break;
         case 1:
             if (self->confirmationMode == 1)
-                ConfigureMessageWindowPromptChoices(self->dialog, gNameConfirmationPrompt, gNameConfirmationYes, gNameConfirmationNo, 0, 0, 0);
+                ConfigureMessageWindowPromptChoices(self->dialog, gNameEntrySceneConfirmationPrompt, gNameEntrySceneConfirmationYes, gNameEntrySceneConfirmationNo, 0, 0, 0);
             break;
         case 6:
             switch (GetMessageWindowSelection(self->dialog))
@@ -93,16 +93,16 @@ EC void NameEntry_UpdateConfirmationDialog(NameEntryTask * self)
     }
 }
 
-EC void ChoiceDialog_Update(ChoiceDialogTask * self) SECTION(".text.func_08005800");
-EC void ChoiceDialog_Update(ChoiceDialogTask * self)
+EC void NewGameChoiceDialog_Update(NewGameChoiceDialogTask * self) SECTION(".text.func_08005800");
+EC void NewGameChoiceDialog_Update(NewGameChoiceDialogTask * self)
 {
     int previousPhase = GetMessageWindowPhase(self->dialog);
     void * dialog = self->dialog;
-    void * renderContext = GetRenderContext(self);
-    void * oamBuffer = GetOamBuffer(self);
-    void * displayRegisters = GetDisplayRegisters(self);
-    void * renderJobs = GetRenderJobQueue(self);
-    void * frameJobs = GetFrameJobQueue(self);
+    void * renderContext = NewGameScene_GetRenderContext(self);
+    void * oamBuffer = NewGameScene_GetOamBuffer(self);
+    void * displayRegisters = NewGameScene_GetDisplayRegisters(self);
+    void * renderJobs = NewGameScene_GetRenderJobQueue(self);
+    void * frameJobs = NewGameScene_GetFrameJobQueue(self);
     void * textSound = &self->textSound;
     switch (UpdateMessageWindow(dialog, renderContext, oamBuffer, displayRegisters, renderJobs, frameJobs, textSound))
     {
@@ -121,7 +121,7 @@ EC void ChoiceDialog_Update(ChoiceDialogTask * self)
             CloseMessageWindow(self->dialog);
             break;
         case 1:
-            ConfigureMessageWindowPromptChoices(self->dialog, gChoiceConfirmationPrompt, gChoiceConfirmationYes, gChoiceConfirmationNo, 0, 0, 0);
+            ConfigureMessageWindowPromptChoices(self->dialog, gNewGameChoiceConfirmationPrompt, gNewGameChoiceConfirmationYes, gNewGameChoiceConfirmationNo, 0, 0, 0);
             break;
         case 6:
             switch (GetMessageWindowSelection(self->dialog))
@@ -150,125 +150,125 @@ EC void ChoiceDialog_Update(ChoiceDialogTask * self)
 }
 EC void SetMessageWindowTextOptions(void * dialog, char const * text, int textParameter, int layoutParameter);
 
-extern char gDiaryReadDescription[] __asm__("gUnk_080E8770");
-extern char gDiaryWriteDescription[] __asm__("gUnk_080E877C");
-extern char gEmptySaveSlotDescription[] __asm__("gUnk_080E878C");
-extern char gControlSchemeDescription[] __asm__("gUnk_080E87A4");
-extern char gClockOptionDescription[] __asm__("gUnk_080E87FC");
-extern char gPortraitOptionDescription[] __asm__("gUnk_080E8828");
-extern char gSpeakerNameOptionDescription[] __asm__("gUnk_080E8878");
-extern char gEmptyMenuDescription[] __asm__("gUnk_080E86C0");
+extern char gNewGameMenuReadDescription[] __asm__("gUnk_080E8770");
+extern char gNewGameMenuWriteDescription[] __asm__("gUnk_080E877C");
+extern char gNewGameMenuEmptySaveSlotDescription[] __asm__("gUnk_080E878C");
+extern char gNewGameMenuControlSchemeDescription[] __asm__("gUnk_080E87A4");
+extern char gNewGameMenuClockOptionDescription[] __asm__("gUnk_080E87FC");
+extern char gNewGameMenuPortraitOptionDescription[] __asm__("gUnk_080E8828");
+extern char gNewGameMenuSpeakerNameOptionDescription[] __asm__("gUnk_080E8878");
+extern char gNewGameMenuEmptyDescription[] __asm__("gUnk_080E86C0");
 
-EC void DiaryMenu_UpdateDescription(DiaryMenuTask * self) SECTION(".text.func_08003EEC");
-EC void DiaryMenu_UpdateDescription(DiaryMenuTask * self)
+EC void NewGameMenu_UpdateDescription(NewGameMenuTask * self) SECTION(".text.func_08003EEC");
+EC void NewGameMenu_UpdateDescription(NewGameMenuTask * self)
 {
     char const * text = nullptr;
     switch (self->selectedItem)
     {
     case 0:
-        text = self->optionValues[0] != 0 ? gDiaryReadDescription : gDiaryWriteDescription;
+        text = self->optionValues[0] != 0 ? gNewGameMenuReadDescription : gNewGameMenuWriteDescription;
         break;
     case 1:
-        text = !self->saveSummaries[self->optionValues[1]].IsEmpty() ? self->saveSummaries[self->optionValues[1]].CStr() : gEmptySaveSlotDescription;
+        text = !self->saveSummaries[self->optionValues[1]].IsEmpty() ? self->saveSummaries[self->optionValues[1]].CStr() : gNewGameMenuEmptySaveSlotDescription;
         break;
-    case 2: text = gControlSchemeDescription; break;
-    case 3: text = gClockOptionDescription; break;
-    case 4: text = gPortraitOptionDescription; break;
-    case 5: text = gSpeakerNameOptionDescription; break;
+    case 2: text = gNewGameMenuControlSchemeDescription; break;
+    case 3: text = gNewGameMenuClockOptionDescription; break;
+    case 4: text = gNewGameMenuPortraitOptionDescription; break;
+    case 5: text = gNewGameMenuSpeakerNameOptionDescription; break;
     }
-    SetMessageWindowTextOptions(reinterpret_cast<char *>(self) + 0x10, text != nullptr ? text : gEmptyMenuDescription, 0, 0);
+    SetMessageWindowTextOptions(reinterpret_cast<char *>(self) + 0x10, text != nullptr ? text : gNewGameMenuEmptyDescription, 0, 0);
 }
 
-EC void NameEntry_SubmitSprites(NameEntryTask * self) SECTION(".text.func_08006858");
-EC void NameEntry_SubmitSprites(NameEntryTask * self)
+EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self) SECTION(".text.func_08006858");
+EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self)
 {
     if (self->confirmationMode == 0)
     {
-        OamSpriteBuffer * oamBuffer = static_cast<OamSpriteBuffer *>(GetOamBuffer(self));
+        NewGameOamSpriteBuffer * oamBuffer = static_cast<NewGameOamSpriteBuffer *>(NewGameScene_GetOamBuffer(self));
         u32 const & positionAndShape = self->cursorPositionAndShape;
         unsigned int spriteIndex = oamBuffer->spriteCount;
         if (spriteIndex < 128)
         {
-            OamSprite & oamEntry = oamBuffer->SpriteAt(spriteIndex);
+            NewGameOamSprite & oamEntry = oamBuffer->SpriteAt(spriteIndex);
             oamEntry.positionAndShape = positionAndShape;
             oamEntry.tileAndPalette = self->cursorTileAndPalette;
             oamBuffer->spriteCount = spriteIndex + 1;
         }
     }
-    OamSpriteBuffer * oamBuffer = static_cast<OamSpriteBuffer *>(GetOamBuffer(self));
+    NewGameOamSpriteBuffer * oamBuffer = static_cast<NewGameOamSpriteBuffer *>(NewGameScene_GetOamBuffer(self));
     u32 const & positionAndShape = self->caretPositionAndShape;
     unsigned int spriteIndex = oamBuffer->spriteCount;
     if (spriteIndex < 128)
     {
-        OamSprite & oamEntry = oamBuffer->SpriteAt(spriteIndex);
+        NewGameOamSprite & oamEntry = oamBuffer->SpriteAt(spriteIndex);
         oamEntry.positionAndShape = positionAndShape;
         oamEntry.tileAndPalette = self->caretTileAndPalette;
         oamBuffer->spriteCount = spriteIndex + 1;
     }
 }
 
-EC void DiaryMenu_UpdateMessage(char * self) SECTION(".text.func_08003C28");
-EC void DiaryMenu_UpdateMessage(char * self)
+EC void NewGameMenu_UpdateMessage(char * self) SECTION(".text.func_08003C28");
+EC void NewGameMenu_UpdateMessage(char * self)
 {
-    void * renderContext = GetRenderContext(self);
-    void * oamBuffer = GetOamBuffer(self);
-    void * displayRegisters = GetDisplayRegisters(self);
-    void * renderJobs = GetRenderJobQueue(self);
-    void * frameJobs = GetFrameJobQueue(self);
+    void * renderContext = NewGameScene_GetRenderContext(self);
+    void * oamBuffer = NewGameScene_GetOamBuffer(self);
+    void * displayRegisters = NewGameScene_GetDisplayRegisters(self);
+    void * renderJobs = NewGameScene_GetRenderJobQueue(self);
+    void * frameJobs = NewGameScene_GetFrameJobQueue(self);
     void * dialog = self + 0x10;
     void * textSound = self + 0x14;
     UpdateMessageWindow(dialog, renderContext, oamBuffer, displayRegisters, renderJobs, frameJobs, textSound);
 }
 
-EC SceneTaskOwner * InitializeDiaryMenuScene(SceneTaskOwner * self) SECTION(".text.func_08004B58");
-EC SceneTaskOwner * InitializeDiaryMenuScene(SceneTaskOwner * self)
+EC NewGameSceneTaskOwner * NewGameMenuScene_Initialize(NewGameSceneTaskOwner * self) SECTION(".text.func_08004B58");
+EC NewGameSceneTaskOwner * NewGameMenuScene_Initialize(NewGameSceneTaskOwner * self)
 {
-    self->vtable = gDiaryMenuSceneVtable;
+    self->vtable = gNewGameMenuSceneVtable;
     void ** initialTransition = static_cast<void **>(__builtin_new(4));
-    *initialTransition = gNewGameTransitionVtable;
+    *initialTransition = gNewGameSetupTransitionVtable;
     void * transitionOwner = initialTransition;
-    self->task = CreateDiaryMenuTask(__builtin_new(0x1A0), nullptr, &transitionOwner);
+    self->task = NewGameMenu_CreateTask(__builtin_new(0x1A0), nullptr, &transitionOwner);
     return self;
 }
 
-EC SceneTaskOwner * InitializeDiaryMenuSceneWithTransition(SceneTaskOwner * self, void * gameData, SceneTransitionOwner & transitionOwner) SECTION(".text.func_08004B94");
-EC SceneTaskOwner * InitializeDiaryMenuSceneWithTransition(SceneTaskOwner * self, void * gameData, SceneTransitionOwner & transitionOwner)
+EC NewGameSceneTaskOwner * NewGameMenuScene_InitializeWithTransition(NewGameSceneTaskOwner * self, void * gameData, NewGameSceneTransitionOwner & transitionOwner) SECTION(".text.func_08004B94");
+EC NewGameSceneTaskOwner * NewGameMenuScene_InitializeWithTransition(NewGameSceneTaskOwner * self, void * gameData, NewGameSceneTransitionOwner & transitionOwner)
 {
-    self->vtable = gDiaryMenuSceneVtable;
+    self->vtable = gNewGameMenuSceneVtable;
     AUnk_0800080C * releasedTransition = transitionOwner.Release();
-    self->task = CreateDiaryMenuTask(__builtin_new(0x1A0), gameData, &releasedTransition);
+    self->task = NewGameMenu_CreateTask(__builtin_new(0x1A0), gameData, &releasedTransition);
     delete transitionOwner.transition;
     return self;
 }
 
-EC void ChoiceDialog_DestroyTask(ChoiceDialogTaskLifetime * self, int destructorFlags) SECTION(".text.func_080050C8");
-EC void ChoiceDialog_DestroyTask(ChoiceDialogTaskLifetime * self, int destructorFlags)
+EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, int destructorFlags) SECTION(".text.func_080050C8");
+EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, int destructorFlags)
 {
-    self->vtable = gChoiceDialogTaskVtable;
+    self->vtable = gNewGameChoiceDialogTaskVtable;
     if (self->dialog != nullptr)
         DestroyMessageWindow(self->dialog, 3);
-    DestroyRenderTaskBase(self, destructorFlags);
+    NewGameScene_DestroyRenderTaskBase(self, destructorFlags);
 }
 
-EC SceneTaskOwner * InitializeChoiceDialogScene(SceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) SECTION(".text.func_0800598C");
-EC SceneTaskOwner * InitializeChoiceDialogScene(SceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress)
+EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) SECTION(".text.func_0800598C");
+EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress)
 {
-    self->vtable = gChoiceDialogSceneVtable;
-    self->task = CreateChoiceDialogTask(__builtin_new(0x1A78), summaryText, selectionContext, detailTextAddress, footerTextAddress);
+    self->vtable = gNewGameChoiceDialogSceneVtable;
+    self->task = NewGameChoiceDialog_CreateTask(__builtin_new(0x1A78), summaryText, selectionContext, detailTextAddress, footerTextAddress);
     return self;
 }
 
-EC void NameEntry_DestroyTask(NameEntryTaskLifetime * self, int destructorFlags) SECTION(".text.func_08005B38");
-EC void NameEntry_DestroyTask(NameEntryTaskLifetime * self, int destructorFlags)
+EC void NameEntryScene_DestroyTask(NameEntrySceneTaskLifetime * self, int destructorFlags) SECTION(".text.func_08005B38");
+EC void NameEntryScene_DestroyTask(NameEntrySceneTaskLifetime * self, int destructorFlags)
 {
-    self->vtable = gNameEntryTaskVtable;
+    self->vtable = gNameEntrySceneTaskVtable;
     if (self->dialog != nullptr)
         DestroyMessageWindow(self->dialog, 3);
-    DestroyRenderTaskBase(self, destructorFlags);
+    NewGameScene_DestroyRenderTaskBase(self, destructorFlags);
 }
 
-EC bool NameEntry_PrepareConfirmedName(NameEntryTask * self) SECTION(".text.func_08006C60");
-EC bool NameEntry_PrepareConfirmedName(NameEntryTask * self)
+EC bool NameEntryScene_PrepareConfirmedName(NameEntrySceneTask * self) SECTION(".text.func_08006C60");
+EC bool NameEntryScene_PrepareConfirmedName(NameEntrySceneTask * self)
 {
     // Keep internal gaps as spaces, but reject names made entirely of empty slots.
     int contentLength = 0;
@@ -295,75 +295,75 @@ EC bool NameEntry_PrepareConfirmedName(NameEntryTask * self)
     return contentLength != 0;
 }
 
-EC void DestroyDiaryMenuScene(SceneTaskOwner * self, int destructorFlags) SECTION(".text.func_08004BDC");
-EC void DestroyDiaryMenuScene(SceneTaskOwner * self, int destructorFlags)
+EC void NewGameMenuScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags) SECTION(".text.func_08004BDC");
+EC void NewGameMenuScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags)
 {
-    self->vtable = gDiaryMenuSceneVtable;
+    self->vtable = gNewGameMenuSceneVtable;
     delete self->task;
-    DestroySceneBase(self, destructorFlags);
+    NewGameScene_DestroyBase(self, destructorFlags);
 }
 
-EC void * InitializeNewGameSetupScene(void ** self) SECTION(".text.func_08004C48");
-EC void * InitializeNewGameSetupScene(void ** self)
+EC void * NewGameSetupScene_Initialize(void ** self) SECTION(".text.func_08004C48");
+EC void * NewGameSetupScene_Initialize(void ** self)
 {
     *self = gNewGameSetupSceneVtable;
     return self;
 }
 
-EC void DestroyNewGameSetupScene(void ** self, int destructorFlags) SECTION(".text.func_08004C54");
-EC void DestroyNewGameSetupScene(void ** self, int destructorFlags)
+EC void NewGameSetupScene_Destroy(void ** self, int destructorFlags) SECTION(".text.func_08004C54");
+EC void NewGameSetupScene_Destroy(void ** self, int destructorFlags)
 {
     *self = gNewGameSetupSceneVtable;
-    DestroySceneBase(self, destructorFlags);
+    NewGameScene_DestroyBase(self, destructorFlags);
 }
 
-EC void DestroyChoiceDialogScene(SceneTaskOwner * self, int destructorFlags) SECTION(".text.func_080059D0");
-EC void DestroyChoiceDialogScene(SceneTaskOwner * self, int destructorFlags)
+EC void NewGameChoiceDialogScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags) SECTION(".text.func_080059D0");
+EC void NewGameChoiceDialogScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags)
 {
-    self->vtable = gChoiceDialogSceneVtable;
+    self->vtable = gNewGameChoiceDialogSceneVtable;
     delete self->task;
-    DestroySceneBase(self, destructorFlags);
+    NewGameScene_DestroyBase(self, destructorFlags);
 }
 
-EC SceneTaskOwner * InitializeNameEntryScene(SceneTaskOwner * self, void * promptText, u32 initialNameAddress) SECTION(".text.func_08007078");
-EC SceneTaskOwner * InitializeNameEntryScene(SceneTaskOwner * self, void * promptText, u32 initialNameAddress)
+EC NewGameSceneTaskOwner * NameEntryScene_Initialize(NewGameSceneTaskOwner * self, void * promptText, u32 initialNameAddress) SECTION(".text.func_08007078");
+EC NewGameSceneTaskOwner * NameEntryScene_Initialize(NewGameSceneTaskOwner * self, void * promptText, u32 initialNameAddress)
 {
     self->vtable = gNameEntrySceneVtable;
-    self->task = CreateNameEntryTask(__builtin_new(0x4640), promptText, initialNameAddress);
+    self->task = NameEntryScene_CreateTask(__builtin_new(0x4640), promptText, initialNameAddress);
     return self;
 }
 
-EC void DestroyNameEntryScene(SceneTaskOwner * self, int destructorFlags) SECTION(".text.func_080070A4");
-EC void DestroyNameEntryScene(SceneTaskOwner * self, int destructorFlags)
+EC void NameEntryScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags) SECTION(".text.func_080070A4");
+EC void NameEntryScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags)
 {
     self->vtable = gNameEntrySceneVtable;
     delete self->task;
-    DestroySceneBase(self, destructorFlags);
+    NewGameScene_DestroyBase(self, destructorFlags);
 }
 
-EC void BlankSceneDisplay(void * self) __asm__("func_08008724");
+EC void NewGameScene_BlankDisplay(void * self) __asm__("func_08008724");
 
-EC void ChoiceDialog_BlankDisplay(void * self) SECTION(".text.func_08005254");
-EC void ChoiceDialog_BlankDisplay(void * self)
+EC void NewGameChoiceDialog_BlankDisplay(void * self) SECTION(".text.func_08005254");
+EC void NewGameChoiceDialog_BlankDisplay(void * self)
 {
-    BlankSceneDisplay(self);
+    NewGameScene_BlankDisplay(self);
 }
 
-EC void ChoiceDialog_Reset(ChoiceDialogTask * self) SECTION(".text.func_08005260");
-EC void ChoiceDialog_Reset(ChoiceDialogTask * self)
+EC void NewGameChoiceDialog_Reset(NewGameChoiceDialogTask * self) SECTION(".text.func_08005260");
+EC void NewGameChoiceDialog_Reset(NewGameChoiceDialogTask * self)
 {
     self->choiceMade = 0;
     self->closed = 0;
 }
 
-EC u8 ChoiceDialog_GetResult(ChoiceDialogScene * self) SECTION(".text.func_08005A3C");
-EC u8 ChoiceDialog_GetResult(ChoiceDialogScene * self)
+EC u8 NewGameChoiceDialogScene_GetResult(NewGameChoiceDialogScene * self) SECTION(".text.func_08005A3C");
+EC u8 NewGameChoiceDialogScene_GetResult(NewGameChoiceDialogScene * self)
 {
     return self->task->accepted;
 }
 
-EC void NameEntry_Reset(NameEntryTask * self) SECTION(".text.func_08006334");
-EC void NameEntry_Reset(NameEntryTask * self)
+EC void NameEntryScene_Reset(NameEntrySceneTask * self) SECTION(".text.func_08006334");
+EC void NameEntryScene_Reset(NameEntrySceneTask * self)
 {
     self->acceptPending = 0;
     self->cancelPending = 0;
@@ -376,36 +376,36 @@ EC void NameEntry_Reset(NameEntryTask * self)
     self->confirmationMode = 0;
 }
 
-EC void NameEntry_DeleteCharacter(NameEntryTask * self, u8 characterIndex) SECTION(".text.func_08006C28");
-EC void NameEntry_DeleteCharacter(NameEntryTask * self, u8 characterIndex)
+EC void NameEntryScene_DeleteCharacter(NameEntrySceneTask * self, u8 characterIndex) SECTION(".text.func_08006C28");
+EC void NameEntryScene_DeleteCharacter(NameEntrySceneTask * self, u8 characterIndex)
 {
     for (; characterIndex < 11; characterIndex++)
         self->enteredName[characterIndex] = self->enteredName[characterIndex + 1];
     self->enteredName[11] = '_';
 }
 
-EC char * NameEntry_GetName(NameEntryScene * self) SECTION(".text.func_08007110");
-EC char * NameEntry_GetName(NameEntryScene * self)
+EC char * NameEntryScene_GetName(NameEntryScene * self) SECTION(".text.func_08007110");
+EC char * NameEntryScene_GetName(NameEntryScene * self)
 {
     return self->task->enteredName;
 }
 
-EC void func_08006ED8(NameEntryTask * self) ALIAS(NameEntry_UpdateConfirmationDialog);
-EC void func_08005800(ChoiceDialogTask * self) ALIAS(ChoiceDialog_Update);
-EC void func_08003EEC(DiaryMenuTask * self) ALIAS(DiaryMenu_UpdateDescription);
-EC void func_08006858(NameEntryTask * self) ALIAS(NameEntry_SubmitSprites);
-EC void func_08003C28(char * self) ALIAS(DiaryMenu_UpdateMessage);
-EC SceneTaskOwner * func_08004B58(SceneTaskOwner * self) ALIAS(InitializeDiaryMenuScene);
-EC SceneTaskOwner * func_08004B94(SceneTaskOwner * self, void * gameData, SceneTransitionOwner & transitionOwner) ALIAS(InitializeDiaryMenuSceneWithTransition);
-EC SceneTaskOwner * func_0800598C(SceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) ALIAS(InitializeChoiceDialogScene);
-EC bool func_08006C60(NameEntryTask * self) ALIAS(NameEntry_PrepareConfirmedName);
-EC void * func_08004C48(void ** self) ALIAS(InitializeNewGameSetupScene);
-EC void func_080059D0(SceneTaskOwner * self, int destructorFlags) ALIAS(DestroyChoiceDialogScene);
-EC SceneTaskOwner * func_08007078(SceneTaskOwner * self, void * promptText, u32 initialNameAddress) ALIAS(InitializeNameEntryScene);
-EC void func_080070A4(SceneTaskOwner * self, int destructorFlags) ALIAS(DestroyNameEntryScene);
-EC void func_08005254(void * self) ALIAS(ChoiceDialog_BlankDisplay);
-EC void func_08005260(ChoiceDialogTask * self) ALIAS(ChoiceDialog_Reset);
-EC u8 func_08005A3C(ChoiceDialogScene * self) ALIAS(ChoiceDialog_GetResult);
-EC void func_08006334(NameEntryTask * self) ALIAS(NameEntry_Reset);
-EC void func_08006C28(NameEntryTask * self, u8 characterIndex) ALIAS(NameEntry_DeleteCharacter);
-EC char * func_08007110(NameEntryScene * self) ALIAS(NameEntry_GetName);
+EC void func_08006ED8(NameEntrySceneTask * self) ALIAS(NameEntryScene_UpdateConfirmationDialog);
+EC void func_08005800(NewGameChoiceDialogTask * self) ALIAS(NewGameChoiceDialog_Update);
+EC void func_08003EEC(NewGameMenuTask * self) ALIAS(NewGameMenu_UpdateDescription);
+EC void func_08006858(NameEntrySceneTask * self) ALIAS(NameEntryScene_SubmitSprites);
+EC void func_08003C28(char * self) ALIAS(NewGameMenu_UpdateMessage);
+EC NewGameSceneTaskOwner * func_08004B58(NewGameSceneTaskOwner * self) ALIAS(NewGameMenuScene_Initialize);
+EC NewGameSceneTaskOwner * func_08004B94(NewGameSceneTaskOwner * self, void * gameData, NewGameSceneTransitionOwner & transitionOwner) ALIAS(NewGameMenuScene_InitializeWithTransition);
+EC NewGameSceneTaskOwner * func_0800598C(NewGameSceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress) ALIAS(NewGameChoiceDialogScene_Initialize);
+EC bool func_08006C60(NameEntrySceneTask * self) ALIAS(NameEntryScene_PrepareConfirmedName);
+EC void * func_08004C48(void ** self) ALIAS(NewGameSetupScene_Initialize);
+EC void func_080059D0(NewGameSceneTaskOwner * self, int destructorFlags) ALIAS(NewGameChoiceDialogScene_Destroy);
+EC NewGameSceneTaskOwner * func_08007078(NewGameSceneTaskOwner * self, void * promptText, u32 initialNameAddress) ALIAS(NameEntryScene_Initialize);
+EC void func_080070A4(NewGameSceneTaskOwner * self, int destructorFlags) ALIAS(NameEntryScene_Destroy);
+EC void func_08005254(void * self) ALIAS(NewGameChoiceDialog_BlankDisplay);
+EC void func_08005260(NewGameChoiceDialogTask * self) ALIAS(NewGameChoiceDialog_Reset);
+EC u8 func_08005A3C(NewGameChoiceDialogScene * self) ALIAS(NewGameChoiceDialogScene_GetResult);
+EC void func_08006334(NameEntrySceneTask * self) ALIAS(NameEntryScene_Reset);
+EC void func_08006C28(NameEntrySceneTask * self, u8 characterIndex) ALIAS(NameEntryScene_DeleteCharacter);
+EC char * func_08007110(NameEntryScene * self) ALIAS(NameEntryScene_GetName);

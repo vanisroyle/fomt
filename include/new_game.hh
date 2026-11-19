@@ -4,10 +4,10 @@
 #include "prelude.h"
 #include "scene.hh"
 
-struct SceneTransitionOwner
+struct NewGameSceneTransitionOwner
 {
     AUnk_0800080C * transition;
-    ~SceneTransitionOwner() { delete transition; }
+    ~NewGameSceneTransitionOwner() { delete transition; }
     AUnk_0800080C * Release()
     {
         AUnk_0800080C * releasedTransition = transition;
@@ -16,7 +16,7 @@ struct SceneTransitionOwner
     }
 };
 
-struct ChoiceDialogTaskLifetime
+struct NewGameChoiceDialogTaskLifetime
 {
     u32 renderContext;
     void * vtable;
@@ -24,7 +24,7 @@ struct ChoiceDialogTaskLifetime
     void * dialog;
 };
 
-struct NameEntryTaskLifetime
+struct NameEntrySceneTaskLifetime
 {
     u32 renderContext;
     void * vtable;
@@ -32,19 +32,19 @@ struct NameEntryTaskLifetime
     void * dialog;
 };
 
-struct RenderTask
+struct NewGameRenderTask
 {
     u32 renderContext;
-    virtual ~RenderTask();
+    virtual ~NewGameRenderTask();
 };
 
-struct SceneTaskOwner
+struct NewGameSceneTaskOwner
 {
     void * vtable;
-    RenderTask * task;
+    NewGameRenderTask * task;
 };
 
-struct NameEntryTask
+struct NameEntrySceneTask
 {
     STRUCT_PAD(0x0000, 0x45F0);
     u32 textSound;
@@ -75,7 +75,7 @@ struct NameEntryTask
     u32 confirmationMode;
 };
 
-struct ChoiceDialogTask
+struct NewGameChoiceDialogTask
 {
     STRUCT_PAD(0x0000, 0x1A2C);
     void * dialog;
@@ -88,7 +88,7 @@ struct ChoiceDialogTask
     void SetAccepted(bool acceptedChoice) { accepted = acceptedChoice; }
 };
 
-struct DiaryMenuTask
+struct NewGameMenuTask
 {
     struct SaveSlotSummary
     {
@@ -105,59 +105,59 @@ struct DiaryMenuTask
     SaveSlotSummary saveSummaries[2];
 };
 
-struct OamSprite
+struct NewGameOamSprite
 {
     // OAM attr0/attr1 are copied together; attr2 selects tile, priority, and palette.
     u32 positionAndShape;
     u16 tileAndPalette;
 };
 
-struct OamSpriteBuffer
+struct NewGameOamSpriteBuffer
 {
     u8 spriteCount;
     STRUCT_PAD(0x01, 0x04);
-    OamSprite sprites[128];
+    NewGameOamSprite sprites[128];
 
-    OamSprite & SpriteAt(unsigned int index)
+    NewGameOamSprite & SpriteAt(unsigned int index)
     {
-        return *reinterpret_cast<OamSprite *>(reinterpret_cast<char *>(this) + (index * 8 + 4));
+        return *reinterpret_cast<NewGameOamSprite *>(reinterpret_cast<char *>(this) + (index * 8 + 4));
     }
 };
 
-struct ChoiceDialogScene
+struct NewGameChoiceDialogScene
 {
     void * vtable;
-    ChoiceDialogTask * task;
+    NewGameChoiceDialogTask * task;
 };
 
 struct NameEntryScene
 {
     void * vtable;
-    NameEntryTask * task;
+    NameEntrySceneTask * task;
 };
 
-EC void NameEntry_UpdateConfirmationDialog(NameEntryTask * self);
-EC void ChoiceDialog_Update(ChoiceDialogTask * self);
-EC void DiaryMenu_UpdateDescription(DiaryMenuTask * self);
-EC void NameEntry_SubmitSprites(NameEntryTask * self);
-EC void DiaryMenu_UpdateMessage(char * self);
-EC SceneTaskOwner * InitializeDiaryMenuScene(SceneTaskOwner * self);
-EC SceneTaskOwner * InitializeDiaryMenuSceneWithTransition(SceneTaskOwner * self, void * gameData, SceneTransitionOwner & transitionOwner);
-EC void ChoiceDialog_DestroyTask(ChoiceDialogTaskLifetime * self, int destructorFlags);
-EC SceneTaskOwner * InitializeChoiceDialogScene(SceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress);
-EC void NameEntry_DestroyTask(NameEntryTaskLifetime * self, int destructorFlags);
-EC bool NameEntry_PrepareConfirmedName(NameEntryTask * self);
-EC void DestroyDiaryMenuScene(SceneTaskOwner * self, int destructorFlags);
-EC void * InitializeNewGameSetupScene(void ** self);
-EC void DestroyNewGameSetupScene(void ** self, int destructorFlags);
-EC void DestroyChoiceDialogScene(SceneTaskOwner * self, int destructorFlags);
-EC SceneTaskOwner * InitializeNameEntryScene(SceneTaskOwner * self, void * promptText, u32 initialNameAddress);
-EC void DestroyNameEntryScene(SceneTaskOwner * self, int destructorFlags);
-EC void ChoiceDialog_BlankDisplay(void * self);
-EC void ChoiceDialog_Reset(ChoiceDialogTask * self);
-EC u8 ChoiceDialog_GetResult(ChoiceDialogScene * self);
-EC void NameEntry_Reset(NameEntryTask * self);
-EC void NameEntry_DeleteCharacter(NameEntryTask * self, u8 characterIndex);
-EC char * NameEntry_GetName(NameEntryScene * self);
+EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self);
+EC void NewGameChoiceDialog_Update(NewGameChoiceDialogTask * self);
+EC void NewGameMenu_UpdateDescription(NewGameMenuTask * self);
+EC void NameEntryScene_SubmitSprites(NameEntrySceneTask * self);
+EC void NewGameMenu_UpdateMessage(char * self);
+EC NewGameSceneTaskOwner * NewGameMenuScene_Initialize(NewGameSceneTaskOwner * self);
+EC NewGameSceneTaskOwner * NewGameMenuScene_InitializeWithTransition(NewGameSceneTaskOwner * self, void * gameData, NewGameSceneTransitionOwner & transitionOwner);
+EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, int destructorFlags);
+EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress);
+EC void NameEntryScene_DestroyTask(NameEntrySceneTaskLifetime * self, int destructorFlags);
+EC bool NameEntryScene_PrepareConfirmedName(NameEntrySceneTask * self);
+EC void NewGameMenuScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags);
+EC void * NewGameSetupScene_Initialize(void ** self);
+EC void NewGameSetupScene_Destroy(void ** self, int destructorFlags);
+EC void NewGameChoiceDialogScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags);
+EC NewGameSceneTaskOwner * NameEntryScene_Initialize(NewGameSceneTaskOwner * self, void * promptText, u32 initialNameAddress);
+EC void NameEntryScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags);
+EC void NewGameChoiceDialog_BlankDisplay(void * self);
+EC void NewGameChoiceDialog_Reset(NewGameChoiceDialogTask * self);
+EC u8 NewGameChoiceDialogScene_GetResult(NewGameChoiceDialogScene * self);
+EC void NameEntryScene_Reset(NameEntrySceneTask * self);
+EC void NameEntryScene_DeleteCharacter(NameEntrySceneTask * self, u8 characterIndex);
+EC char * NameEntryScene_GetName(NameEntryScene * self);
 
 #endif // NEW_GAME_HH
