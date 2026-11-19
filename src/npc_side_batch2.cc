@@ -542,3 +542,55 @@ EC UnknownEntityThing * CreateScheduledNpcVariantFourSprite(AActorEntity * self)
     struct Storage { u8 bytes[0x8C]; };
     return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
 }
+
+
+EC void func_08036768(AActorEntity * self);
+EC void RefreshScheduledNpcVariantFive(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(080367AC);
+EC void RefreshScheduledNpcVariantFive(AActorEntity * self, i32 reason)
+{
+    func_08034F00(self, reason);
+    if (reason > 1)
+        func_08036768(self);
+}
+
+EC UnknownEntityThing * CreateScheduledNpcVariantFiveSprite(AActorEntity * self) NPC_EXTRA_CODE(080367C8);
+EC UnknownEntityThing * CreateScheduledNpcVariantFiveSprite(AActorEntity * self)
+{
+    func_08036768(self);
+    struct Storage { u8 bytes[0x8C]; };
+    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
+}
+
+EC void func_08036900(AActorEntity * self);
+EC void RefreshScheduledNpcVariantSix(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(080369C4);
+EC void RefreshScheduledNpcVariantSix(AActorEntity * self, i32 reason)
+{
+    func_08034F00(self, reason);
+    if (reason > 1)
+        func_08036900(self);
+}
+
+EC UnknownEntityThing * CreateScheduledNpcVariantSixSprite(AActorEntity * self) NPC_EXTRA_CODE(080369E0);
+EC UnknownEntityThing * CreateScheduledNpcVariantSixSprite(AActorEntity * self)
+{
+    func_08036900(self);
+    struct Storage { u8 bytes[0x8C]; };
+    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
+}
+
+EC void func_08036AB4(AActorEntity * self);
+EC void RefreshScheduledNpcVariantSeven(AActorEntity * self, i32 reason) NPC_EXTRA_CODE(08036B00);
+EC void RefreshScheduledNpcVariantSeven(AActorEntity * self, i32 reason)
+{
+    func_08034F00(self, reason);
+    if (reason > 1)
+        func_08036AB4(self);
+}
+
+EC UnknownEntityThing * CreateScheduledNpcVariantSevenSprite(AActorEntity * self) NPC_EXTRA_CODE(08036B1C);
+EC UnknownEntityThing * CreateScheduledNpcVariantSevenSprite(AActorEntity * self)
+{
+    func_08036AB4(self);
+    struct Storage { u8 bytes[0x8C]; };
+    return func_080324BC(reinterpret_cast<UnknownEntityThing *>(new Storage), self, 5, 27, 1, 0, 0, false);
+}

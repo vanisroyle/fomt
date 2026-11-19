@@ -2383,45 +2383,7 @@ func_08036768: @ 0x08036768
 .L080367A4: .4byte 0x00002181
 .L080367A8: .4byte 0x0000027F
 
-    thumb_func_start func_080367AC
-func_080367AC: @ 0x080367AC
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    bl func_08034F00
-    cmp r4, #1
-    ble .L080367C0
-    adds r0, r5, #0
-    bl func_08036768
-.L080367C0:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_080367C8
-func_080367C8: @ 0x080367C8
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    bl func_08036768
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #5
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.080367F8, "ax", %progbits
 
     thumb_func_start func_080367F8
 func_080367F8: @ 0x080367F8
@@ -2641,45 +2603,7 @@ func_08036900: @ 0x08036900
 .L080369BC: .4byte 0x000007CA
 .L080369C0: .4byte 0x000007CE
 
-    thumb_func_start func_080369C4
-func_080369C4: @ 0x080369C4
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    bl func_08034F00
-    cmp r4, #1
-    ble .L080369D8
-    adds r0, r5, #0
-    bl func_08036900
-.L080369D8:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_080369E0
-func_080369E0: @ 0x080369E0
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    bl func_08036900
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #5
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036A10, "ax", %progbits
 
     thumb_func_start func_08036A10
 func_08036A10: @ 0x08036A10
@@ -2799,45 +2723,7 @@ func_08036AB4: @ 0x08036AB4
 .L08036AF8: .4byte 0x000009DF
 .L08036AFC: .4byte 0x000009E3
 
-    thumb_func_start func_08036B00
-func_08036B00: @ 0x08036B00
-    push {r4, r5, lr}
-    adds r5, r0, #0
-    adds r4, r1, #0
-    bl func_08034F00
-    cmp r4, #1
-    ble .L08036B14
-    adds r0, r5, #0
-    bl func_08036AB4
-.L08036B14:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-
-    thumb_func_start func_08036B1C
-func_08036B1C: @ 0x08036B1C
-    push {r4, lr}
-    sub sp, #0x10
-    adds r4, r0, #0
-    bl func_08036AB4
-    movs r0, #0x8c
-    bl __builtin_new
-    movs r1, #1
-    str r1, [sp]
-    movs r1, #0
-    str r1, [sp, #4]
-    str r1, [sp, #8]
-    add r2, sp, #0xc
-    strb r1, [r2]
-    adds r1, r4, #0
-    movs r2, #5
-    movs r3, #0x1b
-    bl func_080324BC
-    add sp, #0x10
-    pop {r4}
-    pop {r1}
-    bx r1
+    .section .text.npc_extra.08036B4C, "ax", %progbits
 
     thumb_func_start func_08036B4C
 func_08036B4C: @ 0x08036B4C
