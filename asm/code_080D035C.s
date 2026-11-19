@@ -196,56 +196,7 @@ func_080D0558: @ 0x080D0558
 	.align 2, 0
 .L080D05D8: .4byte gUnk_03000420
 
-	thumb_func_start func_080D05DC
-func_080D05DC: @ 0x080D05DC
-	push {r4, r5, r6, lr}
-	sub sp, #0x20
-	ldr r6, .L080D0640 @ =gUnk_03000420
-	ldr r0, [r6]
-	movs r1, #5
-	str r1, [r0, #0x14]
-	ldr r0, [r0, #0x30]
-	cmp r0, #0
-	beq .L080D05F8
-	movs r0, #1
-	str r0, [sp]
-	mov r0, sp
-	bl func_080D0BA8
-.L080D05F8:
-	movs r0, #4
-	str r0, [sp]
-	ldr r0, [r6]
-	adds r0, #0x24
-	str r0, [sp, #0x10]
-	movs r4, #2
-	str r4, [sp, #0x18]
-	mov r0, sp
-	movs r5, #0
-	strh r5, [r0, #0x1c]
-	bl func_080D0BA8
-	movs r0, #3
-	str r0, [sp]
-	ldr r0, [r6]
-	adds r0, #0x2c
-	str r0, [sp, #0x10]
-	str r4, [sp, #0x18]
-	mov r0, sp
-	strh r5, [r0, #0x1c]
-	bl func_080D0BA8
-	str r4, [sp]
-	ldr r0, [r6]
-	adds r0, #0x28
-	str r0, [sp, #0x10]
-	str r4, [sp, #0x18]
-	mov r0, sp
-	strh r5, [r0, #0x1c]
-	bl func_080D0BA8
-	add sp, #0x20
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080D0640: .4byte gUnk_03000420
+.section .text.g5_after_transfer, "ax"
 
 	thumb_func_start func_080D0644
 func_080D0644: @ 0x080D0644

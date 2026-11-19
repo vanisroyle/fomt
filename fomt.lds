@@ -158,6 +158,8 @@ SECTIONS
         asm/code_080D035C.o(.text);
         src/g5_runtime.o(.text.g5_requests);
         asm/code_080D035C.o(.text.g5_0490);
+        src/g5_runtime.o(.text.g5_transfer);
+        asm/code_080D035C.o(.text.g5_after_transfer);
         src/g5_runtime.o(.text.g5_queries);
         asm/code_080D035C.o(.text.g5_06DC);
         src/g5_runtime.o(.text.g5_commands);

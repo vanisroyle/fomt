@@ -211,6 +211,32 @@ EC SECTION(".text.g5_queries") u32 func_080D0678()
         ((u8 *) state)[0x2e] << 16 | ((u8 *) state)[0x2f] << 24;
 }
 
+EC SECTION(".text.g5_transfer") void func_080D05DC()
+{
+    RuntimeCommand command;
+    gUnk_03000420->unk_00[5] = 5;
+    if (gUnk_03000420->unk_00[12] != 0)
+    {
+        command.kind = 1;
+        func_080D0BA8(&command);
+    }
+    command.kind = 4;
+    command.args[1] = (u32) &gUnk_03000420->unk_00[9];
+    command.args[3] = 2;
+    *(u16 *) &command.args[4] = 0;
+    func_080D0BA8(&command);
+    command.kind = 3;
+    command.args[1] = (u32) &gUnk_03000420->unk_00[11];
+    command.args[3] = 2;
+    *(u16 *) &command.args[4] = 0;
+    func_080D0BA8(&command);
+    command.kind = 2;
+    command.args[1] = (u32) &gUnk_03000420->unk_00[10];
+    command.args[3] = 2;
+    *(u16 *) &command.args[4] = 0;
+    func_080D0BA8(&command);
+}
+
 EC SECTION(".text.g5_queries") void func_080D06A8()
 {
     func_080D0A94(11);
