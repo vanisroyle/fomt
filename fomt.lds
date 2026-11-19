@@ -1234,6 +1234,7 @@ SECTIONS
         src/map_updates.o(.text.080AAF28);
         src/map_updates.o(.text.080AAF3C);
         asm/code_809E804.o(.text.080AAF9C);
+        src/map_scene.o(.text.080AB2E4);
         src/map_scene.o(.text.080AB380);
         asm/code_809E804.o(.text.080AB410);
         src/entity_movement.o(.text.080AB788);
