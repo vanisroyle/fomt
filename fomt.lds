@@ -1343,7 +1343,7 @@ SECTIONS
         asm/code_809E804.o(.text.080B1D94);
         src/chicken_feeding.o(.text.080B34DC);
         src/chicken_feeding.o(.text.080B3518);
-        asm/code_809E804.o(.text.080B36B4);
+        src/chicken_feeding.o(.text.080B36B4);
         src/g3_chicken_festival.o(.text.g3_080B3948);
         asm/code_809E804.o(.text.g3_after_080B3948);
         src/g3_state.o(.text.g3_080B3990);
