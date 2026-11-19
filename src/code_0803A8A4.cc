@@ -986,7 +986,7 @@ struct NpcScheduleContext
 };
 
 EC CalendarDate & DecodeNpcScheduleDate(CalendarDate &, SavedCalendarDate const &);
-EC unsigned func_080A0490(void const *);
+EC unsigned GetRosterMarriageCandidate(void const *);
 
 ROM_TEXT(0803D7E4) unsigned SelectNpcSchedule_080F1A80(void const * context)
 {
@@ -1113,7 +1113,7 @@ ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F42F0(NpcScheduleContext const 
     unsigned day = date.day;
     if (IsNpcScheduleFestivalDay(season, day))
         return 2;
-    unsigned event = func_080A0490(self.unk_1CD4);
+    unsigned event = GetRosterMarriageCandidate(self.unk_1CD4);
     if (season == SEASON_AUTUMN && day == 5 && event != 25)
         return 3;
     return 1;

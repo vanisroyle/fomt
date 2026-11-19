@@ -4496,7 +4496,7 @@ func_0803DA7C: @ 0x0803DA7C
 	mov sb, r4
 	ldr r1, .L0803DACC @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r4, r0, #0
 	cmp r4, #3
 	bne .L0803DB6A
@@ -4643,7 +4643,7 @@ func_0803DA7C: @ 0x0803DA7C
 	ldr r1, .L0803DBF8 @ =0x00001CD4
 	adds r0, r5, r1
 	movs r1, #3
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803DC04
 	mov r1, r8
@@ -4903,7 +4903,7 @@ func_0803DFE8: @ 0x0803DFE8
 	ldr r1, .L0803E040 @ =0x00001CD4
 	adds r4, r5, r1
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r6, r0, #0
 	cmp r6, #0x13
 	bne .L0803E0EA
@@ -5037,7 +5037,7 @@ func_0803DFE8: @ 0x0803DFE8
 .L0803E11A:
 	adds r0, r4, #0
 	movs r1, #0x13
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	mov r1, r8
 	cmp r1, #3
 	bne .L0803E158
@@ -5138,7 +5138,7 @@ func_0803E264: @ 0x0803E264
 	ldrb r6, [r4, #2]
 	ldr r1, .L0803E2B4 @ =0x00001CD4
 	adds r0, r5, r1
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	adds r4, r0, #0
 	mov r0, r8
 	cmp r0, #2
@@ -5273,7 +5273,7 @@ func_0803E264: @ 0x0803E264
 	ldr r1, .L0803E3D4 @ =0x00001CD4
 	adds r0, r5, r1
 	movs r1, #0x19
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	mov r1, r8
 	cmp r1, #3
 	bne .L0803E3E0
@@ -5365,7 +5365,7 @@ func_0803E4A0: @ 0x0803E4A0
 	ldr r0, .L0803E4F0 @ =0x00001CD4
 	adds r4, r5, r0
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	mov r8, r0
 	cmp r0, #0xc
 	bne .L0803E56E
@@ -5477,7 +5477,7 @@ func_0803E4A0: @ 0x0803E4A0
 .L0803E5A8:
 	adds r0, r4, #0
 	movs r1, #0xc
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803E5E8
 	cmp r6, #0xe
@@ -5568,7 +5568,7 @@ func_0803E780: @ 0x0803E780
 	ldr r0, .L0803E7D0 @ =0x00001CD4
 	adds r4, r5, r0
 	adds r0, r4, #0
-	bl func_080A0490
+	bl GetRosterMarriageCandidate
 	mov r8, r0
 	cmp r0, #0x15
 	bne .L0803E84E
@@ -5674,7 +5674,7 @@ func_0803E780: @ 0x0803E780
 .L0803E87E:
 	adds r0, r4, #0
 	movs r1, #0x15
-	bl func_080A01F8
+	bl GetRosterBacheloretteById
 	cmp r7, #3
 	bne .L0803E8BC
 	cmp r6, #0xe

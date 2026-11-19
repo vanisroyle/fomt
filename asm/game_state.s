@@ -1508,7 +1508,7 @@ func_08010F54: @ 0x08010F54
     ldr r1, .L080110F0 @ =0x00001CD4
     adds r4, r6, r1
     adds r0, r4, #0
-    bl func_080A041C
+    bl GetRosterProposalCandidate
     cmp r0, #0
     bne .L08011056
     adds r0, r4, #0
@@ -11539,7 +11539,7 @@ func_08016FA4: @ 0x08016FA4
     ldr r0, [r0]
     ldr r4, .L08017140 @ =0x00001CD4
     adds r0, r0, r4
-    bl func_080A0A90
+    bl AdvanceNpcScheduleDailyCounter
 .L08017128:
     movs r1, #0
     mov r0, sl
@@ -12115,7 +12115,7 @@ func_080175B4: @ 0x080175B4
     ldr r3, [r0]
     adds r0, r5, #0
     adds r1, r4, #0
-    bl func_080A4650
+    bl GetMapTimePalette
     ldr r2, .L08017848 @ =0x0000104C
     adds r1, r7, r2
     strb r0, [r1]
@@ -17162,7 +17162,7 @@ func_0801A13C: @ 0x0801A13C
     str r1, [r2]
     ldr r6, [sp, #0x90]
     ldr r0, [r6, #4]
-    bl func_080A5D14
+    bl ReloadMapPalettePair
     ldr r0, [r6, #4]
     ldr r1, [r0]
     ldr r2, .L0801A19C @ =0x00001038
@@ -17991,7 +17991,7 @@ func_0801A13C: @ 0x0801A13C
     ldr r3, [r0]
     adds r0, r4, #0
     adds r1, r5, #0
-    bl func_080A4650
+    bl GetMapTimePalette
     lsls r0, r0, #0x18
     lsrs r1, r0, #0x18
     ldr r2, [sp, #0x90]
