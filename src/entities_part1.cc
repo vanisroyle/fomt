@@ -296,6 +296,58 @@ inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
 
+inline u32 Map_IsEntityCollisionBoxClear(void * map, Box const & box)
+{
+    return !DoesEntityCollisionRectangleHitSolidTile(map, &box);
+}
+
+inline u32 Map_GetEntityCollisionFlag(void * map, Box const & box)
+{
+    return DoesEntityCollisionRectangleHitSolidTile(map, &box);
+}
+
+struct MapCollisionEscapeOffset
+{
+    i16 x;
+    i16 y;
+
+    MapCollisionEscapeOffset() : x(), y() {}
+    MapCollisionEscapeOffset(i16 const & a_x, i16 const & a_y) : x(a_x), y(a_y) {}
+};
+
+// 0x08024724
+EC MapCollisionEscapeOffset Map_FindCollisionEscapeOffset(void * map, Box const & box) ENTITY_CODE(08024724);
+EC MapCollisionEscapeOffset Map_FindCollisionEscapeOffset(void * map, Box const & box)
+{
+    u32 const blocked = Map_GetEntityCollisionFlag(map, box);
+    if (blocked)
+    {
+        i32 const negative_y = ~((box.y2 - 1) & 7);
+        i32 const positive_y = 8 - (box.y1 & 7);
+        i32 const negative_x = ~((box.x2 - 1) & 7);
+        i32 const positive_x = 8 - (box.x1 & 7);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(0, negative_y)))
+            return MapCollisionEscapeOffset(0, negative_y);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(0, positive_y)))
+            return MapCollisionEscapeOffset(0, positive_y);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(negative_x, 0)))
+            return MapCollisionEscapeOffset(negative_x, 0);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(positive_x, 0)))
+            return MapCollisionEscapeOffset(positive_x, 0);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(negative_x, negative_y)))
+            return MapCollisionEscapeOffset(negative_x, negative_y);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(positive_x, negative_y)))
+            return MapCollisionEscapeOffset(positive_x, negative_y);
+        if (Map_IsEntityCollisionBoxClear(map, box.Moved(negative_x, positive_y)))
+            return MapCollisionEscapeOffset(negative_x, positive_y);
+        u32 const positive_diagonal_clear = Map_IsEntityCollisionBoxClear(map, box.Moved(positive_x, positive_y));
+        if (positive_diagonal_clear)
+            return MapCollisionEscapeOffset(positive_x, positive_y);
+        return MapCollisionEscapeOffset();
+    }
+    return MapCollisionEscapeOffset();
+}
+
 struct ChickenEntityUpdateContext
 {
     u32 unk_00;
