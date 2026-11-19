@@ -585,17 +585,7 @@ gUnk_0874E330:
 gUnk_0874E530:
 	.incbin "baserom.gba", 0x74E530, 0x118
 
-	.global gUnk_0874E648
-gUnk_0874E648:
-	.incbin "baserom.gba", 0x74E648, 0x4F8
-
-	.global gUnk_0874EB40
-gUnk_0874EB40:
-	.incbin "baserom.gba", 0x74EB40, 0x20
-
-	.global gUnk_0874EB60
-gUnk_0874EB60:
-	.incbin "baserom.gba", 0x74EB60, 0x16C
+	.include "build/assets/graphics.s"
 
 	.global gUnk_0874ECCC
 gUnk_0874ECCC:
