@@ -58391,8 +58391,10 @@ GetSpriteAnimationDataFrame: @ 0x0805E790
 	bx r1
 	.align 2, 0
 	.section .text.f3.0805E99C, "ax", %progbits
-	thumb_func_start func_0805E99C
-func_0805E99C: @ 0x0805E99C
+	thumb_func_start DrawSpriteFrameObjects
+	.global func_0805E99C
+	.thumb_set func_0805E99C, DrawSpriteFrameObjects
+DrawSpriteFrameObjects: @ 0x0805E99C
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -58561,7 +58563,7 @@ func_0805E99C: @ 0x0805E99C
 	add r1, sp, #0x10
 	adds r2, r6, #0
 	mov r3, sb
-	bl func_0805EC24
+	bl AdjustAffineSpriteOrigin
 	mov r3, r8
 	cmp r3, #3
 	bne .L0805EB04
@@ -58714,167 +58716,7 @@ func_0805E99C: @ 0x0805E99C
 .L0805EC1C: .4byte 0xFFFFFC00
 .L0805EC20: .4byte 0xFFFF0FFF
 
-	thumb_func_start func_0805EC24
-func_0805EC24: @ 0x0805EC24
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	mov sb, r0
-	mov sl, r1
-	ldr r4, [sp, #0x20]
-	lsrs r2, r2, #1
-	ldr r0, [r0]
-	adds r0, r0, r2
-	lsls r7, r0, #8
-	lsrs r3, r3, #1
-	ldr r0, [r1]
-	adds r0, r0, r3
-	lsls r0, r0, #8
-	mov r8, r0
-	movs r0, #0
-	ldrsh r1, [r4, r0]
-	lsls r0, r1, #4
-	adds r0, r0, r1
-	lsls r0, r0, #4
-	cmp r0, #0
-	bge .L0805EC56
-	adds r0, #0xff
-.L0805EC56:
-	lsls r0, r0, #8
-	lsrs r5, r0, #0x10
-	movs r2, #2
-	ldrsh r1, [r4, r2]
-	lsls r0, r1, #4
-	adds r0, r0, r1
-	lsls r0, r0, #4
-	cmp r0, #0
-	bge .L0805EC6A
-	adds r0, #0xff
-.L0805EC6A:
-	lsls r0, r0, #8
-	lsrs r2, r0, #0x10
-	movs r3, #4
-	ldrsh r1, [r4, r3]
-	lsls r0, r1, #4
-	adds r0, r0, r1
-	lsls r0, r0, #4
-	cmp r0, #0
-	bge .L0805EC7E
-	adds r0, #0xff
-.L0805EC7E:
-	lsls r0, r0, #8
-	lsrs r3, r0, #0x10
-	movs r0, #6
-	ldrsh r1, [r4, r0]
-	lsls r0, r1, #4
-	adds r0, r0, r1
-	lsls r0, r0, #4
-	cmp r0, #0
-	bge .L0805EC92
-	adds r0, #0xff
-.L0805EC92:
-	lsls r1, r0, #8
-	lsls r0, r5, #0x10
-	asrs r6, r0, #0x10
-	asrs r4, r1, #0x10
-	adds r1, r6, #0
-	muls r1, r4, r1
-	lsls r0, r2, #0x10
-	asrs r2, r0, #0x10
-	lsls r0, r3, #0x10
-	asrs r3, r0, #0x10
-	adds r0, r2, #0
-	muls r0, r3, r0
-	subs r1, r1, r0
-	cmp r1, #0
-	bge .L0805ECB2
-	adds r1, #0xff
-.L0805ECB2:
-	asrs r5, r1, #8
-	cmp r5, #0
-	beq .L0805ED3E
-	adds r1, r4, #0
-	muls r1, r7, r1
-	mov r0, r8
-	muls r0, r2, r0
-	subs r2, r1, r0
-	mov r1, r8
-	muls r1, r6, r1
-	adds r0, r3, #0
-	muls r0, r7, r0
-	subs r4, r1, r0
-	movs r0, #0x80
-	lsls r0, r0, #1
-	cmp r5, r0
-	bne .L0805ECEA
-	adds r0, r2, #0
-	cmp r2, #0
-	bge .L0805ECDC
-	adds r0, #0xff
-.L0805ECDC:
-	asrs r6, r0, #8
-	adds r0, r4, #0
-	cmp r4, #0
-	bge .L0805ECE6
-	adds r0, #0xff
-.L0805ECE6:
-	asrs r2, r0, #8
-	b .L0805ED24
-.L0805ECEA:
-	ldr r0, .L0805ED0C @ =0xFFFFFF00
-	cmp r5, r0
-	bne .L0805ED10
-	adds r0, r2, #0
-	cmp r2, #0
-	bge .L0805ECF8
-	adds r0, #0xff
-.L0805ECF8:
-	asrs r6, r0, #8
-	rsbs r6, r6, #0
-	adds r0, r4, #0
-	cmp r4, #0
-	bge .L0805ED04
-	adds r0, #0xff
-.L0805ED04:
-	asrs r2, r0, #8
-	rsbs r2, r2, #0
-	b .L0805ED24
-	.align 2, 0
-.L0805ED0C: .4byte 0xFFFFFF00
-.L0805ED10:
-	adds r0, r2, #0
-	adds r1, r5, #0
-	bl __divsi3
-	adds r6, r0, #0
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl __divsi3
-	adds r2, r0, #0
-.L0805ED24:
-	subs r1, r6, r7
-	asrs r1, r1, #8
-	mov r3, sb
-	ldr r0, [r3]
-	adds r0, r0, r1
-	str r0, [r3]
-	mov r0, r8
-	subs r1, r2, r0
-	asrs r1, r1, #8
-	mov r2, sl
-	ldr r0, [r2]
-	adds r0, r0, r1
-	str r0, [r2]
-.L0805ED3E:
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
+	.section .text.f3.0805ED4C, "ax", %progbits
 	thumb_func_start InitChildhoodMemoryScreen
 InitChildhoodMemoryScreen: @ 0x0805ED4C
 	push {r4, r5, r6, lr}
