@@ -317,8 +317,8 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateSetCameraCenter
 	.word GameStatePanCamera @ 20
 	.word GameStateIsCameraIdle
-	.word func_08019F7C
-	.word func_08019FE8
+	.word GameStateGetMapWidthPixels
+	.word GameStateGetMapHeightPixels
 	.word func_0801A054 @ 30
 	.word func_0801A8E0
 	.word GameStateRemoveEntitySlot
@@ -378,7 +378,7 @@ vtable_unk_080E5EC4: @ game object
 	.word func_0801DCD4
 	.word func_0801DC24
 	.word func_0801DCA8
-	.word func_08019F38
+	.word GameStateIsWinterOrSpecialOutdoorTile
 	.word func_0801D8CC
 	.word func_0801D948
 	.word GameStateLookupEntitySlot

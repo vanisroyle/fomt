@@ -1,6 +1,11 @@
 #include "prelude.h"
 
+#include "barn.hh"
+#include "coop.hh"
 #include "entity.hh"
+#include "farm_house.hh"
+
+struct Unk_0800E324;
 
 struct GameStateCameraCoordinate
 {
@@ -18,7 +23,13 @@ struct GameStateMapView
 
 struct GameStateMapData
 {
-    STRUCT_PAD(0x0, 0x34D8);
+    STRUCT_PAD(0x0, 0x10);
+    u8 clock[4];
+    STRUCT_PAD(0x14, 0x1F4);
+    FarmHouse farm_house;
+    Coop coop;
+    Barn barn;
+    u8 reserved[0x34D8 - 0x5F0 - sizeof(Barn)];
     u32 tile_variant_flags;
 };
 
@@ -90,6 +101,42 @@ EC void func_080A5960(GameStateMapView & view, i32 x, i32 y);
 EC void SetAlternateMapPatch(u32 & flags, u32 index);
 EC void ClearAlternateMapPatch(u32 & flags, u32 index);
 EC void func_080AA850(GameStateMapView & view, u32 index);
+EC MapData const * GetMapData(u32 map_variant);
+EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 barn_level);
+EC u32 func_0800E324(Unk_0800E324 const & clock);
+EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
+
+EC SECTION(".text.game_state_c2.08019F38") bool GameStateIsWinterOrSpecialOutdoorTile(GameStateMapOwner const & game, Location const & location)
+{
+    if (!GetMapData(game.map_view->map)->is_interior &&
+        (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER ||
+         func_080A5EB8(*game.map_view, location)))
+        goto winter_or_special;
+    return false;
+
+winter_or_special:
+    return true;
+}
+
+EC SECTION(".text.game_state_c2.08019F7C") u32 GameStateGetMapWidthPixels(GameStateMapOwner const & game, u32 map)
+{
+    GameStateMapData * const & state = game.map_data;
+    u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+    u32 house_level = state->farm_house.GetUpgradeLevel();
+    u32 coop_level = state->coop.GetUpgradeLevel();
+    u32 barn_level = state->barn.GetUpgradeLevel();
+    return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->width * 8;
+}
+
+EC SECTION(".text.game_state_c2.08019FE8") u32 GameStateGetMapHeightPixels(GameStateMapOwner const & game, u32 map)
+{
+    GameStateMapData * const & state = game.map_data;
+    u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(state->clock));
+    u32 house_level = state->farm_house.GetUpgradeLevel();
+    u32 coop_level = state->coop.GetUpgradeLevel();
+    u32 barn_level = state->barn.GetUpgradeLevel();
+    return GetMapData(func_0803A8A4(map, season, house_level, coop_level, barn_level))->height * 8;
+}
 
 EC SECTION(".text.game_state_c2.0801DD18") void GameStateApplyRow15TilePatchVariant1(GameStateMapOwner & game)
 {
