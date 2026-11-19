@@ -35,6 +35,19 @@ extern char gNameEntrySceneConfirmationPrompt[] __asm__("gUnk_080E8C2C");
 extern char gNameEntrySceneConfirmationYes[] __asm__("gUnk_080E8C44");
 extern char gNameEntrySceneConfirmationNo[] __asm__("gUnk_080E8C48");
 
+EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite) SECTION(".text.func_08003DF0");
+EC void NewGameMenu_PositionOptionSprite(NewGameMenuTask * self, int option, NewGameOamSprite sprite)
+{
+    sprite.attributes.y += 8 + (option * 2 + 1) * 8;
+    sprite.attributes.x += 128 + (self->optionValues[option] != 0 ? 64 : 0);
+    // OBJ mode 2 hides the inactive second option.
+    if (option == 1 && self->selectedItem != 1)
+        sprite.attributes.objectMode = 2;
+    static_cast<NewGameOamSpriteBuffer *>(HardwareContext_GetOamBuffer(self))->WriteSprite(option, sprite);
+}
+
+EC void func_08003DF0(NewGameMenuTask * self, int option, NewGameOamSprite sprite) ALIAS(NewGameMenu_PositionOptionSprite);
+
 EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self) SECTION(".text.func_08006ED8");
 EC void NameEntryScene_UpdateConfirmationDialog(NameEntrySceneTask * self)
 {
