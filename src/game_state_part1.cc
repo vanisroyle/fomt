@@ -453,6 +453,100 @@ EC void TaskNode_Destroy(void * node, u32 flags);
 EC void TaskList_Destroy(void * list, u32 flags);
 EC void TaskList_Append(void * list, void * node);
 
+struct GameStateMapObstacleRecord
+{
+    i32 kind;
+    u32 flags;
+    i16 x;
+    i16 y;
+    u32 state;
+};
+
+struct GameStateMapObstacleResult
+{
+    bool removed;
+    STRUCT_PAD(0x01, 0x04);
+    u32 effectId;
+    i32 x;
+    i32 y;
+    bool additionalAction;
+};
+
+EC void func_080A1CBC(GameStateMapObstacleRecord & record, u8 * mapState, u32 index);
+EC void SubtractMapAvailabilityCount(u8 * mapState, u32 index, i32 amount);
+EC u32 GetMapAvailabilityCount(u8 const * mapState, u32 index);
+EC void ClearMapAvailabilityBit(u8 * mapState, u32 index, u32 bit);
+
+// 0x080174C8
+EC bool SECTION(".text.game_state_080174C8") GameState_TryBreakMapObstacle(Farm & farm, u8 * mapState, u32 index, u32 bit, i32 power, bool stoneTool, GameStateMapObstacleResult & result)
+{
+    GameStateMapObstacleRecord record;
+    func_080A1CBC(record, mapState, index);
+    GameStateMapObstacleRecord & obstacle = record;
+    i32 requiredPower = 0;
+    if (stoneTool)
+    {
+        switch (obstacle.kind)
+        {
+        case 0x13:
+            requiredPower = 2;
+            break;
+        case 0x14:
+            requiredPower = 7;
+            break;
+        default:
+            return false;
+        }
+    }
+    else
+    {
+        switch (obstacle.kind)
+        {
+        case 0x12:
+            break;
+        case 0x15:
+            requiredPower = 1;
+            break;
+        default:
+            return false;
+        }
+    }
+
+    result.additionalAction = false;
+    i32 remainingPower = power - requiredPower;
+    if (remainingPower > 0)
+    {
+        if (obstacle.kind != 0x12)
+            SubtractMapAvailabilityCount(mapState, index, remainingPower);
+        if (obstacle.kind == 0x12 || GetMapAvailabilityCount(mapState, index) == 0)
+        {
+            ClearMapAvailabilityBit(mapState, index, bit);
+            result.removed = true;
+            result.x = obstacle.x;
+            result.y = obstacle.y;
+            switch (obstacle.kind)
+            {
+            case 0x15:
+                farm.method_08009B68(6);
+                result.effectId = 7;
+                break;
+            case 0x12:
+                farm.method_08009B68(1);
+                result.effectId = 4;
+                break;
+            case 0x13:
+                result.effectId = 6;
+                break;
+            case 0x14:
+                result.effectId = 9;
+                break;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 struct GameStateFrameTaskNode
 {
     GameStateFrameTaskNode()

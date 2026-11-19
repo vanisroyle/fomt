@@ -11455,133 +11455,7 @@ func_080171F8: @ 0x080171F8
 
 
     .section .text.game_state_080174C8, "ax", %progbits
-    thumb_func_start func_080174C8
-func_080174C8: @ 0x080174C8
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x10
-    mov sb, r0
-    adds r6, r1, #0
-    adds r7, r2, #0
-    mov sl, r3
-    add r0, sp, #0x34
-    ldr r1, [sp, #0x38]
-    mov r8, r1
-    ldrb r4, [r0]
-    mov r0, sp
-    adds r1, r6, #0
-    bl func_080A1CBC
-    mov r5, sp
-    movs r2, #0
-    cmp r4, #0
-    beq .L08017508
-    ldr r0, [sp]
-    cmp r0, #0x13
-    beq .L08017500
-    cmp r0, #0x14
-    beq .L08017504
-    b .L080175A0
-.L08017500:
-    movs r2, #2
-    b .L08017514
-.L08017504:
-    movs r2, #7
-    b .L08017514
-.L08017508:
-    ldr r0, [sp]
-    cmp r0, #0x12
-    beq .L08017514
-    cmp r0, #0x15
-    bne .L080175A0
-    movs r2, #1
-.L08017514:
-    movs r0, #0
-    mov r1, r8
-    strb r0, [r1, #0x10]
-    ldr r0, [sp, #0x30]
-    subs r2, r0, r2
-    cmp r2, #0
-    ble .L080175A0
-    ldr r0, [r5]
-    cmp r0, #0x12
-    beq .L08017542
-    adds r0, r6, #0
-    adds r1, r7, #0
-    bl SubtractMapAvailabilityCount
-    ldr r0, [r5]
-    cmp r0, #0x12
-    beq .L08017542
-    adds r0, r6, #0
-    adds r1, r7, #0
-    bl GetMapAvailabilityCount
-    cmp r0, #0
-    bne .L080175A0
-.L08017542:
-    adds r0, r6, #0
-    adds r1, r7, #0
-    mov r2, sl
-    bl ClearMapAvailabilityBit
-    movs r0, #1
-    mov r1, r8
-    strb r0, [r1]
-    movs r1, #8
-    ldrsh r0, [r5, r1]
-    mov r1, r8
-    str r0, [r1, #8]
-    movs r1, #0xa
-    ldrsh r0, [r5, r1]
-    mov r1, r8
-    str r0, [r1, #0xc]
-    ldr r0, [r5]
-    cmp r0, #0x13
-    beq .L08017592
-    cmp r0, #0x13
-    bgt .L08017572
-    cmp r0, #0x12
-    beq .L08017586
-    b .L0801759C
-.L08017572:
-    cmp r0, #0x14
-    beq .L08017596
-    cmp r0, #0x15
-    bne .L0801759C
-    mov r0, sb
-    movs r1, #6
-    bl method_08009B68__4FarmUi
-    movs r0, #7
-    b .L08017598
-.L08017586:
-    mov r0, sb
-    movs r1, #1
-    bl method_08009B68__4FarmUi
-    movs r0, #4
-    b .L08017598
-.L08017592:
-    movs r0, #6
-    b .L08017598
-.L08017596:
-    movs r0, #9
-.L08017598:
-    mov r1, r8
-    str r0, [r1, #4]
-.L0801759C:
-    movs r0, #1
-    b .L080175A2
-.L080175A0:
-    movs r0, #0
-.L080175A2:
-    add sp, #0x10
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.game_state_080175B4, "ax", %progbits
 
     thumb_func_start func_080175B4
 func_080175B4: @ 0x080175B4
@@ -18826,7 +18700,7 @@ func_0801D104: @ 0x0801D104
     str r2, [sp, #8]
     adds r2, r4, #0
     mov r3, r8
-    bl func_080174C8
+    bl GameState_TryBreakMapObstacle
     mov r3, sb
     ldrb r0, [r3]
     cmp r0, #0
