@@ -1,4 +1,5 @@
 #include "prelude.h"
+#include "item.hh"
 
 struct G5Position
 {
@@ -9,6 +10,21 @@ struct G5Position
 EC G5Position const gUnk_08117838;
 EC G5Position const gUnk_0811783C[];
 EC void func_080CAF6C(void *);
+EC SECTION(".text.g5_080CE1C4") bool func_080CE1C4(void *, Tool tool)
+{
+    switch (tool.GetId())
+    {
+    case 5:
+    case 13:
+    case 21:
+    case 29:
+    case 37:
+    case 45:
+        return true;
+    default:
+        return false;
+    }
+}
 
 EC SECTION(".text.g5_080CB2E8") void * func_080CB2E8(u8 * self, u32 index)
 {
