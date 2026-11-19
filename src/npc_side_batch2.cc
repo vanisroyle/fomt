@@ -448,11 +448,11 @@ struct ReactiveNpcEntity : AEntity
     void * reaction_state;
 };
 
-EC void func_0800FFF4(void * state, u32 reaction);
+EC void ItemCollection_Append(void * state, u32 reaction);
 EC void SetNpcReaction(ReactiveNpcEntity * self, u8 const * reaction) NPC_EXTRA_CODE(08037EB4);
 EC void SetNpcReaction(ReactiveNpcEntity * self, u8 const * reaction)
 {
-    func_0800FFF4(self->reaction_state, *reaction);
+    ItemCollection_Append(self->reaction_state, *reaction);
     if (self->unk_10.Get() != nullptr)
         StartNpcReactionTimer(reinterpret_cast<NpcReactionSprite *>(self->unk_10.Get()));
 }

@@ -2,6 +2,7 @@
 
 #include "bachelorette.hh"
 #include "farm_house.hh"
+#include "gbasvc.h"
 #include "npc.hh"
 #include "schedule_info.hh"
 #include "unknown_types.hh"
@@ -11,6 +12,132 @@
 #include <string.h>
 
 #define ROM_TEXT(addr) EC SECTION(".text." #addr)
+
+struct OverlaySpriteResources;
+
+struct OverlaySpriteResourceVtable
+{
+    STRUCT_PAD(0x00, 0x4C);
+    void (*releasePalette)(OverlaySpriteResources *, unsigned);
+};
+
+struct OverlaySpriteResources
+{
+    OverlaySpriteResourceVtable const * vtable;
+};
+
+struct OverlayTileAllocation
+{
+    STRUCT_PAD(0x00, 0x04);
+    u32 handle;
+};
+
+struct FixedSpriteOverlay
+{
+    struct Frame
+    {
+        STRUCT_PAD(0x00, 0x20);
+        OverlayTileAllocation tiles;
+        u16 baseTile;
+    };
+
+    OverlaySpriteResources * resources;
+    Frame frames[3];
+    unsigned paletteCount;
+    u8 paletteIds[16];
+    STRUCT_PAD(0x9C, 0xA0);
+};
+
+struct GameStateMapOverlay
+{
+    struct Frame
+    {
+        STRUCT_PAD(0x00, 0x20);
+        OverlayTileAllocation tiles;
+    };
+
+    struct Placement
+    {
+        STRUCT_PAD(0x00, 0x1C);
+    };
+
+    OverlaySpriteResources * resources;
+    struct FrameList
+    {
+        unsigned count;
+        Frame entries[5];
+    } frames;
+    unsigned paletteCount;
+    u8 paletteIds[16];
+    STRUCT_PAD(0xE4, 0xE8);
+    struct PlacementList
+    {
+        unsigned count;
+        Placement entries[32];
+    } placements;
+};
+
+EC void func_08007C28(OverlayTileAllocation *, u32);
+EC void TileHeapOwner_Destroy(OverlayTileAllocation *, unsigned);
+EC void __builtin_delete(void *);
+
+ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOverlay, unsigned inputFlags)
+{
+    // Match the original Thumb register allocation for the destructor.
+    register FixedSpriteOverlay * overlay asm("r6") = inputOverlay;
+    asm("" : "+r"(overlay));
+    register unsigned destructorFlags asm("r8") = inputFlags;
+    asm("" : "+r"(destructorFlags) : "r"(overlay));
+    OverlaySpriteResources * resources = overlay->resources;
+    OverlaySpriteResourceVtable const * vtable = resources->vtable;
+    register FixedSpriteOverlay::Frame * end asm("r4") = overlay->frames + 3;
+    asm("" : "+r"(end) : "r"(resources), "r"(vtable));
+    vtable->releasePalette(resources, overlay->paletteIds[0]);
+
+    register FixedSpriteOverlay::Frame * firstFrame asm("r0") = overlay->frames;
+    asm("" : "+r"(firstFrame));
+    if (firstFrame)
+    {
+        FixedSpriteOverlay::Frame * frame = end;
+        if (firstFrame != frame)
+        {
+            FixedSpriteOverlay::Frame * first = firstFrame;
+            do
+            {
+                --frame;
+                OverlayTileAllocation * tiles = &frame->tiles;
+                func_08007C28(tiles, tiles->handle);
+                TileHeapOwner_Destroy(tiles, 2);
+            }
+            while (first != frame);
+        }
+    }
+    if (destructorFlags & 1)
+        __builtin_delete(overlay);
+}
+
+ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
+{
+    overlay->resources->vtable->releasePalette(overlay->resources, overlay->paletteIds[0]);
+
+    // The original compiler emitted this traversal even though placements own no tiles.
+    GameStateMapOverlay::PlacementList & placements = overlay->placements;
+    GameStateMapOverlay::Placement * placementsEnd = placements.entries + placements.count;
+    for (GameStateMapOverlay::Placement * placement = placements.entries; placement != placementsEnd; ++placement)
+    {
+    }
+
+    GameStateMapOverlay::FrameList & frames = overlay->frames;
+    GameStateMapOverlay::Frame * framesEnd = frames.entries + frames.count;
+    for (GameStateMapOverlay::Frame * frame = frames.entries; frame != framesEnd; ++frame)
+    {
+        OverlayTileAllocation * tiles = &frame->tiles;
+        func_08007C28(tiles, tiles->handle);
+        TileHeapOwner_Destroy(tiles, 2);
+    }
+    if (destructorFlags & 1)
+        __builtin_delete(overlay);
+}
 
 struct Unk_0803B454
 {
@@ -95,6 +222,69 @@ ROM_TEXT(0803B6B8) Unk_0803B6FC & func_0803B6FC(Unk_0803B6FC & self, void *& own
     return self;
 }
 
+struct DialogWindowTilemapTask
+{
+    STRUCT_PAD(0x00, 0x0C);
+    int left;
+    int top;
+    unsigned width;
+    unsigned height;
+    unsigned screenBlock : 5;
+    unsigned firstTile : 10;
+    unsigned paletteBank : 4;
+};
+
+EC void func_08051320(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
+    unsigned firstTile, unsigned paletteBank);
+EC u16 const * const gUnk_080F9F78;
+
+ROM_TEXT(0803B840) bool RunDialogWindowTilemapTask(DialogWindowTilemapTask & task)
+{
+    enum
+    {
+        VideoRam = 0x06000000,
+        BackgroundPaletteRam = 0x05000000,
+        ScreenBlockBytes = 0x800,
+        PaletteBankBytes = 32,
+        FillWords = 32 * 10 / 2,
+        FillMode = 1 << 24,
+        TileIndexMask = 0x3FF,
+        CenterTileOffset = 3,
+    };
+
+    // Keep the original Thumb register allocation for the VRAM fill and palette copy.
+    register unsigned tile asm("r2") = task.firstTile + CenterTileOffset;
+    asm("" : "+r"(tile));
+    register unsigned mask asm("r1") = TileIndexMask;
+    asm("" : "+r"(mask) : "r"(tile));
+    register unsigned tileMask asm("r0") = mask;
+    asm("" : "+r"(tileMask));
+    tile = (tile & tileMask) | (task.paletteBank << 12);
+    register unsigned highHalf asm("r0") = tile << 16;
+    asm("" : "+r"(highHalf) : "r"(tile));
+    tile |= highHalf;
+
+    register unsigned screenOffset asm("r1") = task.screenBlock * ScreenBlockBytes;
+    asm("" : "+r"(screenOffset) : "r"(tile));
+    register u16 * screen asm("r1") = reinterpret_cast<u16 *>(VideoRam + screenOffset);
+    asm("" : "+r"(screen) : "r"(tile));
+    u32 repeatedTile = tile;
+    register u32 * source asm("r0") = &repeatedTile;
+    asm("" : "+r"(source) : "m"(repeatedTile));
+    CpuFastSet(source, screen, FillMode | FillWords);
+
+    func_08051320(reinterpret_cast<u16 *>(VideoRam + task.screenBlock * ScreenBlockBytes),
+        task.left, 0, task.width, task.height, task.firstTile, task.paletteBank);
+
+    register unsigned paletteBank asm("r1") = task.paletteBank;
+    asm("" : "+r"(paletteBank));
+    register u16 const * palette asm("r0") = gUnk_080F9F78;
+    asm("" : "+r"(palette) : "r"(paletteBank));
+    CpuFastSet(palette, reinterpret_cast<u16 *>(BackgroundPaletteRam + paletteBank * PaletteBankBytes),
+        PaletteBankBytes / sizeof(u32));
+    return false;
+}
+
 struct PACKED ALIGN(4) DialogWindowLayers
 {
     i16 x;
@@ -108,7 +298,7 @@ struct PACKED ALIGN(4) DialogWindowLayers
     STRUCT_PAD(0x0E, 0x10);
     u8 layerList[0x1C];
     u8 backgroundLayer[0x18];
-    u8 foregroundLayer[0x20];
+    DialogWindowTilemapTask tilemapTask;
 };
 
 struct DialogWindow
@@ -141,7 +331,7 @@ ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
         u32 layerMode = self.layerMode;
         if (layerMode != 1)
             TaskList_Append(self.layerList, self.backgroundLayer);
-        TaskList_Append(self.layerList, self.foregroundLayer);
+        TaskList_Append(self.layerList, &self.tilemapTask);
         self.animationFrames = state;
     }
     int nextState = self.state;
@@ -184,14 +374,14 @@ ROM_TEXT(0803BD60) void func_0803BDEC(DialogWindowLayers & self, int x, int y)
 }
 
 EC char const vtable_unk_080E7778[];
-EC DialogWindowLayers * func_0803B8CC(void *, int, int, int, int, int, int, int, int);
+EC DialogWindowLayers * InitializeDialogWindowLayers(void *, int, int, int, int, int, int, int, int);
 EC void TaskNode_Destroy(void *, int);
 EC void TaskList_Destroy(void *, int);
 
 ROM_TEXT(0803BD60) DialogWindow & func_0803BDFC(DialogWindow & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
 {
     self.vtable = vtable_unk_080E7778;
-    self.inner = func_0803B8CC(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
+    self.inner = InitializeDialogWindowLayers(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
     return self;
 }
 
@@ -261,37 +451,39 @@ ROM_TEXT(0803BD60) void func_0803BF08(DialogWindow & self, int x, int y)
     func_0803BDEC(*self.inner, x, y);
 }
 
-struct Unk_0803BF78 : DialogWindow
+struct PauseMenuGraphics;
+
+struct PauseMenuWindow : DialogWindow
 {
-    void * unk_08;
-    u8 unk_0C;
-    u8 unk_0D;
-    u8 unk_0E;
-    u8 unk_0F;
+    PauseMenuGraphics * graphics;
+    u8 selectedTab;
+    bool needsInitialRefresh;
+    u8 cursorBlinkFrames;
+    bool selectionEnabled;
 };
 
-ROM_TEXT(0803C518) void func_0803C518(Unk_0803BF78 & self)
+ROM_TEXT(0803C518) void OpenPauseMenuWindow(PauseMenuWindow & self)
 {
     func_0803BEBC(self);
-    self.unk_0D = 1;
-    self.unk_0F = 1;
+    self.needsInitialRefresh = true;
+    self.selectionEnabled = true;
 }
 
-ROM_TEXT(0803C518) void func_0803C52C(Unk_0803BF78 & self)
+ROM_TEXT(0803C518) void OpenPauseMenuWindowImmediately(PauseMenuWindow & self)
 {
     func_0803BEC8(self);
-    self.unk_0D = 1;
-    self.unk_0F = 1;
+    self.needsInitialRefresh = true;
+    self.selectionEnabled = true;
 }
 
-ROM_TEXT(0803C518) u8 func_0803C540(Unk_0803BF78 const & self)
+ROM_TEXT(0803C518) u8 GetPauseMenuSelection(PauseMenuWindow const & self)
 {
-    return self.unk_0C;
+    return self.selectedTab;
 }
 
-ROM_TEXT(0803C518) void func_0803C544(Unk_0803BF78 & self)
+ROM_TEXT(0803C518) void DisablePauseMenuSelection(PauseMenuWindow & self)
 {
-    self.unk_0F = 0;
+    self.selectionEnabled = false;
 }
 
 struct ClockDisplayData
@@ -318,13 +510,13 @@ struct ClockDisplayData
     STRUCT_PAD(0x288, 0x2B0);
     u8 tilesDirty;
     STRUCT_PAD(0x2B1, 0x2CC);
-    u8 unk_2CC;
+    u8 weatherIcon;
     STRUCT_PAD(0x2CD, 0x2F0);
-    u8 unk_2F0;
-    u8 unk_2F1;
-    u16 unk_2F2;
+    u8 weatherIconDirty;
+    u8 toolIconVisible;
+    u16 toolIconId;
     STRUCT_PAD(0x2F4, 0x334);
-    u8 unk_334;
+    u8 toolIconDirty;
 };
 
 struct ClockDisplay
@@ -503,11 +695,11 @@ ROM_TEXT(0803D2E8) void SetClockMinuteTiles(ClockDisplay & self, unsigned minute
     inner.tilesDirty = 1;
 }
 
-ROM_TEXT(0803D2E8) void func_0803D3A0(ClockDisplay & self, unsigned selection)
+ROM_TEXT(0803D2E8) void SetClockWeatherIcon(ClockDisplay & self, unsigned weather)
 {
     ClockDisplayData & inner = *self.inner;
-    unsigned current = inner.unk_2CC;
-    switch (selection)
+    unsigned current = inner.weatherIcon;
+    switch (weather)
     {
         case 0: current = 0; break;
         case 1: current = 1; break;
@@ -515,32 +707,86 @@ ROM_TEXT(0803D2E8) void func_0803D3A0(ClockDisplay & self, unsigned selection)
         case 3: current = 3; break;
         case 4: current = 4; break;
     }
-    if (current != inner.unk_2CC)
+    if (current != inner.weatherIcon)
     {
-        inner.unk_2CC = current;
-        inner.unk_2F0 = 1;
+        inner.weatherIcon = current;
+        inner.weatherIconDirty = 1;
     }
 }
 
-ROM_TEXT(0803D2E8) void func_0803D404(ClockDisplay & self, int arg)
+ROM_TEXT(0803D2E8) void SetClockToolIcon(ClockDisplay & self, int iconId)
 {
     ClockDisplayData * inner = self.inner;
-    if (!inner->unk_2F1 || arg != inner->unk_2F2)
+    if (!inner->toolIconVisible || iconId != inner->toolIconId)
     {
-        inner->unk_2F1 = 1;
-        inner->unk_2F2 = arg;
-        inner->unk_334 = 1;
+        inner->toolIconVisible = 1;
+        inner->toolIconId = iconId;
+        inner->toolIconDirty = 1;
     }
 }
 
-ROM_TEXT(0803D2E8) void func_0803D440(ClockDisplay & self)
+ROM_TEXT(0803D2E8) void HideClockToolIcon(ClockDisplay & self)
 {
     ClockDisplayData & inner = *self.inner;
-    if (inner.unk_2F1)
+    if (inner.toolIconVisible)
     {
-        inner.unk_2F1 = 0;
-        inner.unk_334 = 1;
+        inner.toolIconVisible = 0;
+        inner.toolIconDirty = 1;
     }
+}
+
+struct SavedCalendarDate;
+EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, bool colonVisible);
+
+struct ClockHud
+{
+    STRUCT_PAD(0x00, 0x08);
+    ClockDisplay display;
+};
+
+ROM_TEXT(0803D464) void ClockHud_HideToolIcon(ClockHud & hud)
+{
+    HideClockToolIcon(hud.display);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetToolIcon(ClockHud & hud, int iconId)
+{
+    SetClockToolIcon(hud.display, iconId);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetWeatherIcon(ClockHud & hud, unsigned weather)
+{
+    SetClockWeatherIcon(hud.display, weather);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetMinute(ClockHud & hud, unsigned minute)
+{
+    SetClockMinuteTiles(hud.display, minute);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetColonVisible(ClockHud & hud, bool visible)
+{
+    SetClockColonVisible(hud.display, visible);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetHour(ClockHud & hud, unsigned hour)
+{
+    SetClockHourTiles(hud.display, hour);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetDayAndWeekday(ClockHud & hud, unsigned day, unsigned weekday)
+{
+    SetClockDayAndWeekdayTiles(hud.display, day, weekday);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetSeason(ClockHud & hud, Season season)
+{
+    SetClockSeasonTiles(hud.display, season);
+}
+
+ROM_TEXT(0803D464) void ClockHud_SetDateAndTime(ClockHud & hud, SavedCalendarDate const & calendar, bool colonVisible)
+{
+    SetClockDateAndTimeTiles(hud.display, calendar, colonVisible);
 }
 
 EC u8 const gNpcScheduleFestivalDays[14];
@@ -742,7 +988,7 @@ struct NpcScheduleContext
 };
 
 EC CalendarDate & DecodeNpcScheduleDate(CalendarDate &, SavedCalendarDate const &);
-EC unsigned func_080A0490(void const *);
+EC unsigned GetRosterMarriageCandidate(void const *);
 
 ROM_TEXT(0803D7E4) unsigned SelectNpcSchedule_080F1A80(void const * context)
 {
@@ -869,7 +1115,7 @@ ROM_TEXT(0803E1A4) unsigned SelectNpcSchedule_080F42F0(NpcScheduleContext const 
     unsigned day = date.day;
     if (IsNpcScheduleFestivalDay(season, day))
         return 2;
-    unsigned event = func_080A0490(self.unk_1CD4);
+    unsigned event = GetRosterMarriageCandidate(self.unk_1CD4);
     if (season == SEASON_AUTUMN && day == 5 && event != 25)
         return 3;
     return 1;
@@ -1323,11 +1569,15 @@ ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const 
     return 1;
 }
 
-EC Unk_0803BF78 & func_0803C028(Unk_0803BF78 &, void *, int, int, int, int, int);
+struct ControllerInput;
+struct AudioPlayer;
+
+EC int UpdatePauseMenuWindow(PauseMenuWindow &, ControllerInput const &, OamBuffer *,
+    BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *, AudioPlayer *);
 EC void func_0803BE50(DialogWindow &, int);
-EC void func_080E0C38(void *, int);
+EC void func_080E0C38(PauseMenuGraphics *, int);
 EC void func_080E0D70(void *, int);
-EC char const vtable_unk_080E77A4[];
+EC char const gPauseMenuWindowVtable[];
 EC char const vtable_unk_080E77E0[];
 
 struct Unk_0803C7A0
@@ -1368,31 +1618,40 @@ ROM_TEXT(0803D4D8) int UpdateDialogChoiceWindow(DialogChoiceWindow & self, OamBu
 
 EC DialogWindow & func_0803BDFC(DialogWindow &, int, int, int, int, int, int, int, int);
 
-EC void * func_080E0A94(void *);
+EC PauseMenuGraphics * func_080E0A94(void *);
 
-ROM_TEXT(0803BF78) Unk_0803BF78 & func_0803BF78(Unk_0803BF78 & self, int arg1, int arg2, int arg3, int arg4, int arg5)
+ROM_TEXT(0803BF78) PauseMenuWindow & InitializePauseMenuWindow(PauseMenuWindow & self, int background,
+    int screenBlock, int paletteBank, int layerMode, int selectedTab)
 {
-    func_0803BDFC(self, 0, 136, 240, 24, arg1, arg2, arg3, arg4);
-    self.vtable = vtable_unk_080E77A4;
-    self.unk_08 = func_080E0A94(::operator new(0x41C));
-    self.unk_0C = arg5;
-    self.unk_0D = 0;
-    self.unk_0E = 1;
-    self.unk_0F = 1;
+    func_0803BDFC(self, 0, 136, 240, 24, background, screenBlock, paletteBank, layerMode);
+    self.vtable = gPauseMenuWindowVtable;
+    self.graphics = func_080E0A94(::operator new(0x41C));
+    self.selectedTab = selectedTab;
+    self.needsInitialRefresh = false;
+    self.cursorBlinkFrames = 1;
+    self.selectionEnabled = true;
     return self;
 }
 
-ROM_TEXT(0803BF78) void func_0803BFC8(Unk_0803BF78 & self, int flags)
+ROM_TEXT(0803BF78) void DestroyPauseMenuWindow(PauseMenuWindow & self, int flags)
 {
-    self.vtable = vtable_unk_080E77A4;
-    if (self.unk_08)
-        func_080E0C38(self.unk_08, 3);
+    self.vtable = gPauseMenuWindowVtable;
+    if (self.graphics)
+        func_080E0C38(self.graphics, 3);
     func_0803BE50(self, flags);
 }
 
-ROM_TEXT(0803C00C) Unk_0803BF78 & func_0803C00C(Unk_0803BF78 & self, void * arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
+ROM_TEXT(0803BFF0) int UpdatePauseMenuWindowWithoutAudio(PauseMenuWindow & self, ControllerInput const & input,
+    OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * renderer, TileTransferQueue * transfers)
 {
-    return func_0803C028(self, arg1, arg2, arg3, arg4, arg5, arg6);
+    return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, nullptr);
+}
+
+ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, ControllerInput const & input,
+    OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * renderer, TileTransferQueue * transfers,
+    AudioPlayer * audio)
+{
+    return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, audio);
 }
 
 ROM_TEXT(0803C518) DialogChoiceWindow & func_0803C54C(DialogChoiceWindow & self, int arg1, int arg2, int arg3, int arg4)

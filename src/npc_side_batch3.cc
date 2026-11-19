@@ -127,14 +127,14 @@ EC u32 ChooseNpcVariantFourMovement(AActorEntity * self)
     return duration;
 }
 
-EC ActorLocation func_080A198C();
-EC ActorLocation func_080A19EC();
+EC ActorLocation GetNpcScheduleLocation41();
+EC ActorLocation GetNpcScheduleLocation23();
 EC u32 GetNpcVariantThreeAnimation(AActorEntity * self, u32 movement);
 
 EC void ResetNpcVariantThreeLocation(AActorEntity * self) NPC_EXTRA_CODE(080378B8);
 EC void ResetNpcVariantThreeLocation(AActorEntity * self)
 {
-    self->SetLocation(func_080A198C());
+    self->SetLocation(GetNpcScheduleLocation41());
     u32 animation = GetNpcVariantThreeAnimation(self, 0);
     if (self->anim_id != animation)
         self->SetAnim(animation);
@@ -143,7 +143,7 @@ EC void ResetNpcVariantThreeLocation(AActorEntity * self)
 EC void ResetNpcVariantFourLocation(AActorEntity * self) NPC_EXTRA_CODE(08037A04);
 EC void ResetNpcVariantFourLocation(AActorEntity * self)
 {
-    self->SetLocation(func_080A19EC());
+    self->SetLocation(GetNpcScheduleLocation23());
     u32 animation = GetNpcVariantFourAnimation(self, 0);
     if (self->anim_id != animation)
         self->SetAnim(animation);

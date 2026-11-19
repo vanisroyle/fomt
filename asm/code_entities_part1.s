@@ -3170,7 +3170,7 @@ func_08024CD0: @ 0x08024CD0
     ldr r0, [r2, #4]
     ldr r1, [r0, #0xc]
     adds r0, r2, #0
-    @ 08024D22 bl [func_0802B3B4]
+    @ 08024D22 bl [TickFarmerEffectGraphics]
     bl _call_via_r1
 .L08024D26:
     ldr r0, [r5, #0x18]
