@@ -1,23 +1,25 @@
 #include "intro_scene.hh"
 
-extern char vtable_unk_080E5A18[];
+extern char gIntroSceneVtable[] __asm__("vtable_unk_080E5A18");
 
 EC void * __builtin_new(size_t size);
-EC IntroSceneState * func_08000914(void * self);
-EC void func_080007EC(void * self, int flags);
+EC IntroTask * CreateIntroTask(void * self) __asm__("func_08000914");
+EC void DestroySceneBase(void * self, int destructorFlags) __asm__("func_080007EC");
 
-EC IntroScene * func_080036F8(IntroScene * self) SECTION(".text.func_080036F8");
-EC IntroScene * func_080036F8(IntroScene * self)
+EC IntroScene * InitializeIntroScene(IntroScene * self) SECTION(".text.func_080036F8");
+EC IntroScene * InitializeIntroScene(IntroScene * self)
 {
-    self->vtable = vtable_unk_080E5A18;
-    self->state = func_08000914(__builtin_new(0x6D34));
+    self->vtable = gIntroSceneVtable;
+    self->task = CreateIntroTask(__builtin_new(0x6D34));
     return self;
 }
 
-EC void func_0800371C(IntroScene * self, int flags) SECTION(".text.func_0800371C");
-EC void func_0800371C(IntroScene * self, int flags)
+EC void DestroyIntroScene(IntroScene * self, int destructorFlags) SECTION(".text.func_0800371C");
+EC void DestroyIntroScene(IntroScene * self, int destructorFlags)
 {
-    self->vtable = vtable_unk_080E5A18;
-    delete self->state;
-    func_080007EC(self, flags);
+    self->vtable = gIntroSceneVtable;
+    delete self->task;
+    DestroySceneBase(self, destructorFlags);
 }
+
+EC IntroScene * func_080036F8(IntroScene * self) ALIAS(InitializeIntroScene);

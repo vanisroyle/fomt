@@ -4,133 +4,160 @@
 #include "prelude.h"
 #include "scene.hh"
 
-struct NewGameTransitionOwner
+struct SceneTransitionOwner
 {
-    AUnk_0800080C * inner;
-    ~NewGameTransitionOwner() { delete inner; }
+    AUnk_0800080C * transition;
+    ~SceneTransitionOwner() { delete transition; }
     AUnk_0800080C * Release()
     {
-        AUnk_0800080C * result = inner;
-        inner = nullptr;
-        return result;
+        AUnk_0800080C * releasedTransition = transition;
+        transition = nullptr;
+        return releasedTransition;
     }
 };
 
-struct NewGameChoiceLifetime
+struct ChoiceDialogTaskLifetime
 {
-    u32 unk_00;
+    u32 renderContext;
     void * vtable;
     STRUCT_PAD(0x0008, 0x1A2C);
-    void * resource;
+    void * dialog;
 };
 
-struct NewGameNameLifetime
+struct NameEntryTaskLifetime
 {
-    u32 unk_00;
+    u32 renderContext;
     void * vtable;
     STRUCT_PAD(0x0008, 0x45F8);
-    void * resource;
+    void * dialog;
 };
 
-struct NewGameState
+struct RenderTask
 {
-    u32 unk_00;
-    virtual ~NewGameState();
+    u32 renderContext;
+    virtual ~RenderTask();
 };
 
-struct NewGameScene
+struct SceneTaskOwner
 {
     void * vtable;
-    NewGameState * state;
+    RenderTask * task;
 };
 
-struct NewGameNameState
+struct NameEntryTask
 {
     STRUCT_PAD(0x0000, 0x45F0);
-    u32 unk_45F0;
-    u32 unk_45F4;
-    void * resource;
-    u32 unk_45FC;
-    u32 page;
-    i8 column;
-    i8 row;
+    u32 textSound;
+    u32 inputSound;
+    void * dialog;
+    u32 promptTextAddress;
+    u32 keyboardPage;
+    i8 cursorColumn;
+    i8 cursorRow;
     STRUCT_PAD(0x4606, 0x4608);
-    u32 cursor_attributes;
-    u16 cursor_attr2;
+    u32 cursorPositionAndShape;
+    u16 cursorTileAndPalette;
     STRUCT_PAD(0x460E, 0x4610);
-    u8 length;
+    u8 charIndex;
     STRUCT_PAD(0x4611, 0x4614);
-    u32 marker_attributes;
-    u16 marker_attr2;
+    u32 caretPositionAndShape;
+    u16 caretTileAndPalette;
     STRUCT_PAD(0x461A, 0x461C);
-    char name[12];
-    u8 unk_4628;
-    char trimmed_name[13];
-    u8 unk_4636;
-    u8 unk_4637;
-    u8 unk_4638;
-    u8 unk_4639;
+    // Twelve single-byte slots; underscores mark unused positions.
+    char enteredName[12];
+    u8 nameTerminator;
+    char confirmedName[13];
+    u8 finished;
+    u8 keyboardDirty;
+    u8 cancelPending;
+    u8 acceptPending;
     STRUCT_PAD(0x463A, 0x463C);
-    u32 unk_463C;
+    u32 confirmationMode;
 };
 
-struct NewGameChoiceState
+struct ChoiceDialogTask
 {
     STRUCT_PAD(0x0000, 0x1A2C);
-    void * resource;
-    u32 unk_1A30;
+    void * dialog;
+    u32 textSound;
     STRUCT_PAD(0x1A34, 0x1A74);
-    u8 unk_1A74;
-    u8 unk_1A75;
-    u8 choice;
-    void MarkReady() { unk_1A75 = 1; }
-    void Select(bool value) { choice = value; }
+    u8 closed;
+    u8 choiceMade;
+    u8 accepted;
+    void MarkChoiceMade() { choiceMade = 1; }
+    void SetAccepted(bool acceptedChoice) { accepted = acceptedChoice; }
 };
 
-struct NewGameMenuState
+struct DiaryMenuTask
 {
-    struct String
+    struct SaveSlotSummary
     {
         char text[128];
-        bool Empty() const { return text[0] == 0; }
-        char const * Get() const { return text; }
+        bool IsEmpty() const { return text[0] == 0; }
+        char const * CStr() const { return text; }
     };
 
     STRUCT_PAD(0x00, 0x80);
-    u32 selection;
-    u8 values[6];
+    u32 selectedItem;
+    // Diary mode, save slot, controls, clock, portrait, and speaker name.
+    u8 optionValues[6];
     STRUCT_PAD(0x8A, 0x98);
-    String names[2];
+    SaveSlotSummary saveSummaries[2];
 };
 
-struct NewGameSprite
+struct OamSprite
 {
-    u32 attributes;
-    u16 attr2;
+    // OAM attr0/attr1 are copied together; attr2 selects tile, priority, and palette.
+    u32 positionAndShape;
+    u16 tileAndPalette;
 };
 
-struct NewGameSpriteList
+struct OamSpriteBuffer
 {
-    u8 count;
+    u8 spriteCount;
     STRUCT_PAD(0x01, 0x04);
-    NewGameSprite entries[128];
+    OamSprite sprites[128];
 
-    NewGameSprite & At(unsigned int index)
+    OamSprite & SpriteAt(unsigned int index)
     {
-        return *reinterpret_cast<NewGameSprite *>(reinterpret_cast<char *>(this) + (index * 8 + 4));
+        return *reinterpret_cast<OamSprite *>(reinterpret_cast<char *>(this) + (index * 8 + 4));
     }
 };
 
-struct NewGameChoiceScene
+struct ChoiceDialogScene
 {
     void * vtable;
-    NewGameChoiceState * state;
+    ChoiceDialogTask * task;
 };
 
-struct NewGameNameScene
+struct NameEntryScene
 {
     void * vtable;
-    NewGameNameState * state;
+    NameEntryTask * task;
 };
+
+EC void NameEntry_UpdateConfirmationDialog(NameEntryTask * self);
+EC void ChoiceDialog_Update(ChoiceDialogTask * self);
+EC void DiaryMenu_UpdateDescription(DiaryMenuTask * self);
+EC void NameEntry_SubmitSprites(NameEntryTask * self);
+EC void DiaryMenu_UpdateMessage(char * self);
+EC SceneTaskOwner * InitializeDiaryMenuScene(SceneTaskOwner * self);
+EC SceneTaskOwner * InitializeDiaryMenuSceneWithTransition(SceneTaskOwner * self, void * gameData, SceneTransitionOwner & transitionOwner);
+EC void ChoiceDialog_DestroyTask(ChoiceDialogTaskLifetime * self, int destructorFlags);
+EC SceneTaskOwner * InitializeChoiceDialogScene(SceneTaskOwner * self, void * summaryText, void * selectionContext, u32 detailTextAddress, u32 footerTextAddress);
+EC void NameEntry_DestroyTask(NameEntryTaskLifetime * self, int destructorFlags);
+EC bool NameEntry_PrepareConfirmedName(NameEntryTask * self);
+EC void DestroyDiaryMenuScene(SceneTaskOwner * self, int destructorFlags);
+EC void * InitializeNewGameSetupScene(void ** self);
+EC void DestroyNewGameSetupScene(void ** self, int destructorFlags);
+EC void DestroyChoiceDialogScene(SceneTaskOwner * self, int destructorFlags);
+EC SceneTaskOwner * InitializeNameEntryScene(SceneTaskOwner * self, void * promptText, u32 initialNameAddress);
+EC void DestroyNameEntryScene(SceneTaskOwner * self, int destructorFlags);
+EC void ChoiceDialog_BlankDisplay(void * self);
+EC void ChoiceDialog_Reset(ChoiceDialogTask * self);
+EC u8 ChoiceDialog_GetResult(ChoiceDialogScene * self);
+EC void NameEntry_Reset(NameEntryTask * self);
+EC void NameEntry_DeleteCharacter(NameEntryTask * self, u8 characterIndex);
+EC char * NameEntry_GetName(NameEntryScene * self);
 
 #endif // NEW_GAME_HH
