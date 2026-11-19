@@ -125,6 +125,8 @@ EC void func_0800F4F0(HeldItem * self, u8 value);
 EC void func_0800F4D8(HeldItem * self);
 EC u32 func_08020018(u32 value);
 EC void AEntity_PlayAnimationSound(AActorEntity * self, u32 sound);
+EC void func_0802720C(FarmerEntity * self, Tool const & tool);
+EC void func_0802771C(FarmerEntity * self, u32 argument);
 
 struct AnimalBehaviorTimerPair
 {
@@ -317,6 +319,66 @@ inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 }
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
+
+struct FarmerActionDispatchVTable
+{
+    STRUCT_PAD(0x00, 0x5C);
+    void (*lift_item)(FarmerEntity * self, RucksackItem const & item, bool wrapped);
+    STRUCT_PAD(0x60, 0x80);
+    void (*vfunc_80)(FarmerEntity * self);
+};
+
+inline FarmerActionDispatchVTable const * GetFarmerActionDispatchVTable(FarmerEntity * self)
+{
+    return reinterpret_cast<FarmerActionDispatchVTable const **>(self)[5];
+}
+
+// 0x08025B64
+EC void FarmerEntity_PerformAction(FarmerEntity * self, u32 action) ENTITY_CODE(08025B64);
+EC void FarmerEntity_PerformAction(FarmerEntity * self, u32 action)
+{
+    switch (action)
+    {
+    default:
+    case 0: case 1: self->state = 0; break;
+    case 3: GetFarmerActionDispatchVTable(self)->vfunc_80(self); break;
+    case 4: func_0802720C(self, Tool(TOOL_CURSED_SICKLE)); break;
+    case 5: func_0802720C(self, Tool(TOOL_CURSED_HOE)); break;
+    case 6: func_0802720C(self, Tool(TOOL_CURSED_AXE)); break;
+    case 7: func_0802720C(self, Tool(TOOL_CURSED_HAMMER)); break;
+    case 8: func_0802720C(self, Tool(TOOL_CURSED_WATERING_CAN)); break;
+    case 9: func_0802720C(self, Tool(TOOL_CURSED_FISHING_ROD)); break;
+    case 10:
+        func_0802720C(self, Tool(TOOL_TELEPORT_STONE));
+        AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 182);
+        break;
+    case 2: func_0802771C(self, rand() % 16 + 5); break;
+    case 11: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Food(FOOD_BLACK_GRASS)), false); break;
+    case 12: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_JUNK_ORE)), false); break;
+    case 13: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_COPPER)), false); break;
+    case 14: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_SILVER)), false); break;
+    case 15: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_GOLD)), false); break;
+    case 16: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_MYSTRILE)), false); break;
+    case 17: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_ORICHALC)), false); break;
+    case 18: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_ADAMANTITE)), false); break;
+    case 19: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_MOON_STONE)), false); break;
+    case 20: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_SAND_ROSE)), false); break;
+    case 21: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_PINK_DIAMOND)), false); break;
+    case 22: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_ALEXANDRITE)), false); break;
+    case 23: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_MYTHIC_STONE)), false); break;
+    case 24: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_DIAMOND)), false); break;
+    case 25: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_EMERALD)), false); break;
+    case 26: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_RUBY)), false); break;
+    case 27: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_TOPAZ)), false); break;
+    case 28: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_PERIDOT)), false); break;
+    case 29: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_FLUORITE)), false); break;
+    case 30: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_AGATE)), false); break;
+    case 31: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_AMETHYST)), false); break;
+    case 32: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_HARVEST_GODDESS_JEWEL)), false); break;
+    case 33: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_KAPPA_JEWEL)), false); break;
+    case 34: GetFarmerActionDispatchVTable(self)->lift_item(self, RucksackItem(Article(ARTICLE_LITHOGRAPH)), false); break;
+    }
+}
 
 // 0x0802405C
 EC u32 SheepEntity_GetStateAnimation(BarnAnimalEntity * self, u32 state) ENTITY_CODE(0802405C);

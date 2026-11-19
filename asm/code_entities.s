@@ -12964,7 +12964,7 @@ sub_0802FBFC: @ 0x0802FBFC
 .L0803034C:
     ldr r1, [r4]
     mov r0, sl
-    bl func_08025B64
+    bl FarmerEntity_PerformAction
     bl .L08031F0E
     .align 2, 0
 .L08030358: .4byte 0x000003FF
