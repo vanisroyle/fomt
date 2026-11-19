@@ -150,13 +150,37 @@ struct RaceObjAllocation
     u32 handle;
 };
 
+struct HardwareContext;
+struct MusicPlayer;
+struct AudioPlayer
+{
+    MusicPlayer * player;
+};
+
+struct RaceCourseMarker
+{
+    i16 position;
+    STRUCT_PAD(2, 4);
+};
+
 struct HorseRaceState
 {
-    STRUCT_PAD(0, 0x170);
+    STRUCT_PAD(0, 0x1C);
+    AudioPlayer sprint_audio_player;
+    STRUCT_PAD(0x20, 0x170);
     u8 entry_animation[0x30] ALIGN(4);
-    STRUCT_PAD(0x1A0, 0x358);
+    STRUCT_PAD(0x1A0, 0x208);
+    struct RaceLaneAnimator
+    {
+        SpriteAnimator animator;
+        STRUCT_PAD(0x14, 0x38);
+    };
+    RaceLaneAnimator race_horse_animators[5];
+    STRUCT_PAD(0x320, 0x358);
     SpriteAnimator betting_graphics;
-    STRUCT_PAD(0x36C, 0x550);
+    STRUCT_PAD(0x36C, 0x390);
+    RaceLaneAnimator race_sprint_animators[4];
+    RaceLaneAnimator race_effect_animators[4];
     SpriteAnimator betting_cursor;
     SpriteFrameDrawOptions cursor_options;
     STRUCT_PAD(0x580, 0x600);
@@ -165,7 +189,8 @@ struct HorseRaceState
     RaceObjAllocation prompt_palette;
     STRUCT_PAD(0x628, 0x640);
     RaceObjAllocation betting_cursor_tiles, betting_cursor_palette;
-    STRUCT_PAD(0x650, 0x738);
+    STRUCT_PAD(0x650, 0x6B8);
+    RaceCourseMarker course_markers[4][8];
     RaceGlyph glyphs[148];
     i16 glyph_count;
     STRUCT_PAD(0xBDA, 0xBEA);
@@ -173,9 +198,9 @@ struct HorseRaceState
     u16 bg1_scroll_x, bg2_scroll_x, bg3_scroll_x;
     u16 bg1_last_tile_scroll, bg2_last_tile_scroll, bg3_last_tile_scroll;
     i16 bg1_pattern_phase, bg2_pattern_phase, bg3_pattern_phase;
-    STRUCT_PAD(0x13FC, 0x13FE);
-    i16 selected_racer;
-    STRUCT_PAD(0x1400, 0x140A);
+    i16 finish_count;
+    i16 finish_order[4];
+    STRUCT_PAD(0x1406, 0x140A);
     i16 betting_menu_selection;
     STRUCT_PAD(0x140C, 0x140E);
     u8 player_is_racing;
@@ -192,6 +217,17 @@ struct HorseRaceState
 };
 
 EC u8 const gHorseRaceSprintChances[][4] asm("gUnk_080FA99E");
+
+typedef char HorseRaceProgressOffsetsMatch[
+    offsetof(HorseRaceState, sprint_audio_player) == 0x1C &&
+    offsetof(HorseRaceState, race_horse_animators) == 0x208 &&
+    offsetof(HorseRaceState, race_sprint_animators) == 0x390 &&
+    offsetof(HorseRaceState, race_effect_animators) == 0x470 &&
+    offsetof(HorseRaceState, course_markers) == 0x6B8 &&
+    offsetof(HorseRaceState, finish_count) == 0x13FC &&
+    offsetof(HorseRaceState, finish_order) == 0x13FE &&
+    offsetof(HorseRaceState, racers) == 0x142C &&
+    sizeof(RaceEntrant) == 0x2C ? 1 : -1];
 
 enum { PLAYER_RACER_SLOT = 2 };
 
@@ -322,7 +358,7 @@ EC SECTION(".text.f3.0805A4DC") void UpdateRaceDisplayGlyphs(HorseRaceState * se
             AppendRaceDisplayGlyph(self, x, 4, i + 13, label_priority);
         AppendRaceDisplayNumber(self, 136, 4, 1, self->medal_balance, 5, 10);
         AppendRaceDisplayNumber(self, 160, 120, 2, self->medal_payout, 4, 10);
-        AppendRaceDisplayGlyph(self, 0, self->selected_racer * 16 + 48, 24, 2);
+        AppendRaceDisplayGlyph(self, 0, self->finish_order[0] * 16 + 48, 24, 2);
     }
 
     AppendRaceDisplayNumber(self, 32, 32, 2, self->race_index + 1, 1, 0);
@@ -1927,3 +1963,669 @@ EC SECTION(".text.f3.0805A744") void DrawHorseRaceBettingScreenObjects(HorseRace
 #undef RACE_BETTING_DRAW_FRAME
 #undef RACE_BETTING_LITERAL
 #undef RACE_BETTING_FIELD
+
+EC u16 HardwareContext_GetPressedKeys(HardwareContext *);
+EC void AudioPlayer_StartSong(AudioPlayer *, u16);
+
+enum RaceSprintPhase
+{
+    SPRINT_READY,
+    SPRINT_START,
+    SPRINT_ACCELERATING,
+    SPRINT_AT_SPEED,
+    SPRINT_DECELERATING,
+};
+
+EC SECTION(".text.f3.0805C96C") int UpdateHorseRaceProgress(HorseRaceState * race)
+{
+    enum
+    {
+        ENTRANT_COUNT = 4,
+        PLAYER_HORSE_ANIMATOR = 4,
+        STAMINA_REGEN_INTERVAL = 10,
+        STAMINA_REGEN = 3,
+        STAMINA_LIMIT = 255,
+        SPRINT_COST = 40,
+        SPRINT_PHASE_FRAMES = 60,
+        SPRINT_RETRY_FRAMES = 12,
+        FINISH_DISTANCE = 184 << 16,
+        RACETRACK_LENGTH = 1720 << 16,
+        SPRINT_SOUND = 0xA8,
+        BUTTON_A = 1,
+        CAMERA_LEAD = 120,
+        CAMERA_END = 48,
+        CAMERA_FAR_ORIGIN = 1536,
+        NORMAL_ANIMATION_RATE_Q8 = 256,
+        SPRINT_ANIMATION_RATE_Q8 = 384,
+        NO_FINISH_RANK = 255,
+        AI_SPRINT_MIN_GAP = 32 << 16,
+        AI_SPRINT_HOME_STRETCH = 768 << 16,
+        VICTORY_CLIP_LANE_ONE = 0x76A,
+        VICTORY_CLIP_LANE_TWO = 0x746,
+        VICTORY_CLIP_LANE_THREE = 0x752,
+        VICTORY_CLIP_LANE_FOUR = 0x75E,
+        VICTORY_CLIP_PLAYER_HORSE = 0x776,
+    };
+
+    // The original Thumb branches enter shared blocks with live values in fixed registers.
+    register HorseRaceState * self asm("r6") = race;
+    asm ("" : "+l" (self));
+    register RaceEntrant * racer asm("r5") = self->racers;
+    asm ("" : "+l" (racer));
+    int order[ENTRANT_COUNT], distances_left[ENTRANT_COUNT];
+    register int track_length asm("r1") = RACETRACK_LENGTH;
+    asm ("" : "+l" (track_length));
+    volatile int camera_distance = track_length;
+    register int first_slot asm("r2") = 0;
+    asm ("" : "+l" (first_slot));
+    register int slot asm("r8") = first_slot;
+    asm ("" : "+h" (slot));
+    register int * distance_base asm("r3") = distances_left;
+    asm ("" : "+l" (distance_base));
+    register int * distance asm("r10") = distance_base;
+    asm ("" : "+h" (distance));
+    #define PIN_ANIMATOR(result, reg, field) \
+        register uintptr_t result##_offset asm(reg) = offsetof(HorseRaceState, field); \
+        asm ("" : "+l" (result##_offset)); \
+        SpriteAnimator * result = reinterpret_cast<SpriteAnimator *>(reinterpret_cast<u8 *>(self) + result##_offset)
+    #define PIN_RACE_VALUE(reg, value) ({ \
+        register int animation_speed asm(reg) = value; \
+        asm ("" : "+l" (animation_speed)); \
+        animation_speed; \
+    })
+    #define PIN_ANIMATOR_RESULT(result, reg, out_reg, field) \
+        PIN_ANIMATOR(typed_##result, reg, field); \
+        register SpriteAnimator * result asm(out_reg) = typed_##result; \
+        asm ("" : "+l" (result))
+    #define SET_PAIR_ANIMATORS(reg, field, other_reg, other_field, speed_reg, speed) { \
+        PIN_ANIMATOR_RESULT(first, reg, "r0", field); \
+        register int rate asm(speed_reg) = (speed); \
+        asm ("" : "+l" (rate)); \
+        first->speed_q8 = rate; \
+        PIN_ANIMATOR_RESULT(second, other_reg, "r0", other_field); \
+        second->speed_q8 = rate; \
+    }
+    #define PLAYER_RACING(offset_reg) ({ \
+        register uintptr_t player_offset asm(offset_reg) = offsetof(HorseRaceState, player_is_racing); \
+        asm ("" : "+l" (player_offset)); \
+        register u8 * player_flag asm("r0") = reinterpret_cast<u8 *>(self) + player_offset; \
+        asm ("" : "+l" (player_flag)); \
+        *player_flag; \
+    })
+    #define READ_RACE_SHORT(ptr, field, reg_idx, reg_out) ({ \
+        register uintptr_t field_offset asm(reg_idx) = offsetof(__typeof__(*ptr), field); \
+        asm ("" : "+l" (field_offset)); \
+        register int field_value asm(reg_out); \
+        asm ("ldrsh %0, [%1, %2]" : "=l" (field_value) : "l" (ptr), "l" (field_offset) : "memory"); \
+        field_value; \
+    })
+    #define RACE_LOW_SLOT(reg) ({ \
+        register int current_slot asm(reg) = slot; \
+        asm ("" : "+l" (current_slot)); \
+        current_slot; \
+    })
+    // Advance every lane before computing the order used for finish and sprint decisions.
+    do
+    {
+        if (++racer->stamina_timer >= STAMINA_REGEN_INTERVAL)
+        {
+            racer->stamina_timer = 0;
+            register int stamina asm("r0");
+            asm volatile ("ldrh %0, [%1, %2]\n\tadd %0, %3\n\tstrh %0, [%1, %2]\n\t"
+                "lsl %0, %0, #16\n\tasr %0, %0, #16"
+                : "=l" (stamina) : "l" (racer), "i" (offsetof(RaceEntrant, stamina)),
+                  "i" (STAMINA_REGEN) : "cc", "memory");
+            if (stamina >= STAMINA_LIMIT)
+                racer->stamina = STAMINA_LIMIT;
+        }
+
+        switch (racer->sprint_phase)
+        {
+        case SPRINT_READY:
+            goto sprint_ready;
+        case SPRINT_START:
+        {
+            register int lower asm("r7") = slot;
+            asm ("" : "+l" (lower));
+            if (lower == 1) goto start_slot_one;
+            if (lower > 1) goto start_upper;
+            if (lower == 0) goto start_slot_zero;
+            goto start_sprint;
+start_upper:
+            {
+                register int upper asm("r0") = slot;
+                asm ("" : "+l" (upper));
+                if (upper == 2) goto start_slot_two;
+                if (upper == 3) goto start_slot_three;
+                goto start_sprint;
+            }
+start_slot_zero:
+            {
+                register int rate asm("r1") = offsetof(HorseRaceState, race_horse_animators[0]);
+                asm ("" : "+l" (rate));
+                register SpriteAnimator * first asm("r0") = reinterpret_cast<SpriteAnimator *>(
+                    reinterpret_cast<u8 *>(self) + rate);
+                asm ("" : "+l" (first) : "l" (rate));
+                asm ("sub %0, %1" : "+l" (rate) : "i" (offsetof(HorseRaceState, race_horse_animators[0]) - SPRINT_ANIMATION_RATE_Q8) : "cc");
+                first->speed_q8 = rate;
+                PIN_ANIMATOR_RESULT(second, "r2", "r0", race_sprint_animators[0]);
+                second->speed_q8 = rate;
+                PIN_ANIMATOR(effect, "r3", race_effect_animators[0]);
+                SetSpriteAnimatorClip(effect, 0);
+                goto start_sprint;
+            }
+start_slot_one:
+            {
+                SET_PAIR_ANIMATORS("r7", race_horse_animators[1], "r2", race_sprint_animators[1], "r1", SPRINT_ANIMATION_RATE_Q8);
+                PIN_ANIMATOR(effect, "r3", race_effect_animators[1]);
+                SetSpriteAnimatorClip(effect, 0);
+                goto start_sprint;
+            }
+start_slot_two:
+            {
+                SpriteAnimator * horse;
+                if (PLAYER_RACING("r7") == 0)
+                {
+                    PIN_ANIMATOR(npc_horse, "r0", race_horse_animators[2]);
+                    horse = npc_horse;
+                }
+                else
+                {
+                    PIN_ANIMATOR(player_horse, "r2", race_horse_animators[PLAYER_HORSE_ANIMATOR]);
+                    horse = player_horse;
+                }
+                horse->speed_q8 = PIN_RACE_VALUE("r0", SPRINT_ANIMATION_RATE_Q8);
+                PIN_ANIMATOR_RESULT(sprint, "r3", "r0", race_sprint_animators[2]);
+                sprint->speed_q8 = PIN_RACE_VALUE("r1", SPRINT_ANIMATION_RATE_Q8);
+                PIN_ANIMATOR(effect, "r7", race_effect_animators[2]);
+                SetSpriteAnimatorClip(effect, 0);
+                goto start_sprint;
+            }
+start_slot_three:
+            {
+                SET_PAIR_ANIMATORS("r1", race_horse_animators[3], "r2", race_sprint_animators[3], "r1", SPRINT_ANIMATION_RATE_Q8);
+                PIN_ANIMATOR(effect, "r3", race_effect_animators[3]);
+                SetSpriteAnimatorClip(effect, 0);
+            }
+start_sprint:
+            ;
+        }
+            racer->phase_timer = SPRINT_PHASE_FRAMES;
+            racer->sprint_phase = SPRINT_ACCELERATING;
+            // Fall through on the first animation frame.
+        case SPRINT_ACCELERATING:
+        {
+            register int speed asm("r1") = racer->speed;
+            register int acceleration asm("r0") = racer->acceleration;
+            asm ("add %0, %0, %1" : "+l" (speed) : "l" (acceleration) : "cc");
+            racer->speed = speed;
+            register int timer asm("r0");
+            register int zero asm("r3");
+            asm volatile ("ldrh %0, [%2, %3]\n\tsub %0, #1\n\tmov %1, #0\n\tstrh %0, [%2, %3]"
+                : "=&l" (timer), "=l" (zero) : "l" (racer), "i" (offsetof(RaceEntrant, phase_timer))
+                : "cc", "memory");
+            register int limit asm("r0") = racer->sprint_speed;
+            asm ("" : "+l" (limit));
+            register int sprint_speed asm("r2") = limit;
+            asm ("" : "+l" (sprint_speed));
+            if (speed >= sprint_speed)
+                racer->phase_timer = zero;
+            register int phase_timer asm("r0") = READ_RACE_SHORT(racer, phase_timer, "r7", "r0");
+            asm volatile ("cmp %0, #0\n\tbgt .Lrace_update_distance"
+                : : "l" (phase_timer) : "cc", "memory");
+            racer->sprint_phase = SPRINT_AT_SPEED;
+            racer->speed = sprint_speed;
+            racer->phase_timer = SPRINT_PHASE_FRAMES;
+            goto update_distance;
+        }
+        case SPRINT_AT_SPEED:
+            {
+                register int timer asm("r0");
+                asm volatile ("ldrh %0, [%1, %2]\n\tsub %0, #1\n\tstrh %0, [%1, %2]\n\t"
+                    "lsl %0, %0, #16\n\tcmp %0, #0\n\tbgt .Lrace_update_distance"
+                    : "=&l" (timer) : "l" (racer), "i" (offsetof(RaceEntrant, phase_timer))
+                    : "cc", "memory");
+            }
+            racer->sprint_phase = SPRINT_DECELERATING;
+            {
+                racer->phase_timer = SPRINT_PHASE_FRAMES /
+                    READ_RACE_SHORT(racer, stamina, "r0", "r1") + 30;
+                racer->deceleration = (racer->sprint_speed - racer->base_speed) / racer->phase_timer;
+            }
+            goto update_distance;
+        case SPRINT_DECELERATING:
+        {
+            register int speed asm("r1") = racer->speed;
+            register int deceleration asm("r0") = racer->deceleration;
+            asm ("sub %0, %0, %1" : "+l" (speed) : "l" (deceleration) : "cc");
+            racer->speed = speed;
+            register int timer asm("r0");
+            register int zero asm("r3");
+            asm volatile ("ldrh %0, [%2, %3]\n\tsub %0, #1\n\tmov %1, #0\n\tstrh %0, [%2, %3]"
+                : "=&l" (timer), "=l" (zero) : "l" (racer), "i" (offsetof(RaceEntrant, phase_timer))
+                : "cc", "memory");
+            register int limit asm("r0") = racer->base_speed;
+            asm ("" : "+l" (limit));
+            register int base_speed asm("r2") = limit;
+            asm ("" : "+l" (base_speed));
+            if (speed <= base_speed)
+                racer->phase_timer = zero;
+            if (READ_RACE_SHORT(racer, phase_timer, "r7", "r0") <= 0)
+            {
+                racer->sprint_phase = zero;
+                racer->speed = base_speed;
+                racer->phase_timer = SPRINT_RETRY_FRAMES;
+                SpriteAnimator * sprint_animator;
+                register int restored_rate asm("r1");
+                register int lower asm("r0") = slot;
+                asm ("" : "+l" (lower));
+                if (lower == 1) goto restore_slot_one;
+                if (lower > 1) goto restore_upper;
+                if (lower == 0) goto restore_slot_zero;
+                goto update_distance;
+restore_upper:
+                {
+                    register int upper asm("r1") = slot;
+                    asm ("" : "+l" (upper));
+                    if (upper == 2) goto restore_slot_two;
+                    if (upper == 3) goto restore_slot_three;
+                    goto update_distance;
+                }
+restore_slot_zero:
+                {
+                    PIN_ANIMATOR_RESULT(horse, "r2", "r0", race_horse_animators[0]);
+                    restored_rate = NORMAL_ANIMATION_RATE_Q8;
+                    asm ("" : "+l" (restored_rate));
+                    horse->speed_q8 = restored_rate;
+                    PIN_ANIMATOR_RESULT(sprint, "r3", "r0", race_sprint_animators[0]);
+                    sprint_animator = sprint;
+                    goto restore_sprint_animation;
+                }
+restore_slot_one:
+                {
+                    PIN_ANIMATOR_RESULT(horse, "r7", "r0", race_horse_animators[1]);
+                    restored_rate = NORMAL_ANIMATION_RATE_Q8;
+                    asm ("" : "+l" (restored_rate));
+                    horse->speed_q8 = restored_rate;
+                    PIN_ANIMATOR_RESULT(sprint, "r2", "r0", race_sprint_animators[1]);
+                    sprint_animator = sprint;
+                    goto restore_sprint_animation;
+                }
+restore_slot_two:
+                {
+                    SpriteAnimator * horse;
+                    if (PLAYER_RACING("r3") == 0)
+                    {
+                        PIN_ANIMATOR(npc_horse, "r7", race_horse_animators[2]);
+                        horse = npc_horse;
+                    }
+                    else
+                    {
+                        PIN_ANIMATOR(player_horse, "r0", race_horse_animators[PLAYER_HORSE_ANIMATOR]);
+                        horse = player_horse;
+                    }
+                    horse->speed_q8 = PIN_RACE_VALUE("r0", NORMAL_ANIMATION_RATE_Q8);
+                    PIN_ANIMATOR_RESULT(sprint, "r2", "r1", race_sprint_animators[2]);
+                    sprint->speed_q8 = PIN_RACE_VALUE("r0", NORMAL_ANIMATION_RATE_Q8);
+                    goto update_distance;
+                }
+restore_slot_three:
+                {
+                    PIN_ANIMATOR_RESULT(horse, "r3", "r0", race_horse_animators[3]);
+                    restored_rate = NORMAL_ANIMATION_RATE_Q8;
+                    asm ("" : "+l" (restored_rate));
+                    horse->speed_q8 = restored_rate;
+                    PIN_ANIMATOR_RESULT(sprint, "r7", "r0", race_sprint_animators[3]);
+                    sprint_animator = sprint;
+                }
+restore_sprint_animation:
+                sprint_animator->speed_q8 = restored_rate;
+            }
+            break;
+        }
+        default:
+            goto update_distance;
+        }
+sprint_ready:
+        asm volatile ("");
+update_distance:
+        asm volatile (".Lrace_update_distance:" : : : "memory");
+        int remaining = racer->distance_left -= racer->speed;
+        register int * distance_entry asm("r0");
+        register int entrant_slot asm("r2") = RACE_LOW_SLOT("r2");
+        asm ("lsl %0, %1, #2\n\tadd %0, %2" : "=&l" (distance_entry)
+            : "l" (entrant_slot), "h" (distance) : "cc");
+        *distance_entry = remaining;
+        register int previous_camera asm("r3") = camera_distance;
+        asm ("" : "+l" (previous_camera));
+        if (previous_camera > remaining)
+            camera_distance = remaining;
+
+        register u32 position_u16 asm("r7");
+        register int position_shifted asm("r0");
+        register int position asm("r4");
+        asm ("lsr %0, %3, #16\n\tlsl %1, %0, #16\n\tasr %2, %1, #16"
+            : "=l" (position_u16), "=l" (position_shifted), "=l" (position) : "l" (remaining) : "cc");
+        if (position >= 32)
+        {
+            register uintptr_t marker_offset asm("r2");
+            register u32 index asm("r1");
+            register i32 segment asm("r0") = position_shifted;
+            register u32 slots_mask asm("r2");
+            register u32 slot_index asm("r3");
+            asm ("asr %0, %0, #21\n\tmov %2, #7\n\tmov %3, %4\n\tlsl %1, %3, #3\n\t"
+                "and %0, %2\n\tadd %1, %1, %0\n\tlsl %1, %1, #2"
+                : "+l" (segment), "=&l" (index), "=&l" (slots_mask), "=l" (slot_index)
+                : "h" (slot) : "cc");
+            asm ("mov %0, %1\n\tlsl %0, %0, #3"
+                : "=l" (marker_offset) : "i" (offsetof(HorseRaceState, course_markers) >> 3) : "cc");
+            register u8 * markers asm("r0") = reinterpret_cast<u8 *>(self) + marker_offset;
+            asm ("" : "+l" (markers));
+            register RaceCourseMarker * marker asm("r3") = reinterpret_cast<RaceCourseMarker *>(markers + index);
+            asm ("" : "+l" (marker));
+            register int zero asm("r0") = 0;
+            asm ("" : "+l" (zero));
+            register int stored_position asm("r1");
+            asm ("ldrsh %0, [%1, %2]" : "=l" (stored_position) : "l" (marker), "l" (zero) : "memory");
+            register u32 tilemask asm("r2") = 0xFFE0;
+            asm ("" : "+l" (tilemask));
+            asm ("and %0, %1" : "+l" (stored_position) : "l" (tilemask) : "cc");
+            register u32 current_position asm("r0") = position;
+            asm ("and %0, %1" : "+l" (current_position) : "l" (tilemask) : "cc");
+            if (stored_position != static_cast<int>(current_position))
+                marker->position = position_u16;
+        }
+        slot += PIN_RACE_VALUE("r1", 1);
+        ++racer;
+    } while (RACE_LOW_SLOT("r2") < ENTRANT_COUNT);
+
+    // Rank by remaining distance, using the original strict comparison.
+    slot = PIN_RACE_VALUE("r3", 0);
+    register int * begin_distance = distance;
+    asm ("" : "+l" (begin_distance));
+    register int * next_distance asm("r5") = distance;
+    asm ("" : "+l" (next_distance));
+    do
+    {
+        register int rank asm("r9") = PIN_RACE_VALUE("r0", 0);
+        asm ("" : "+h" (rank));
+        register int other asm("r3") = 0;
+        asm ("" : "+l" (other));
+        register int * current asm("r4") = next_distance;
+        asm ("" : "+l" (current));
+        register int * compare asm("r2") = begin_distance;
+        asm ("" : "+l" (compare));
+        do
+        {
+            if (slot != other && *current > *compare)
+                rank += PIN_RACE_VALUE("r1", 1);
+            ++compare;
+        } while (++other < ENTRANT_COUNT);
+        register int low_rank asm("r2") = rank;
+        asm ("" : "+l" (low_rank));
+        register int * order_entry asm("r0") = &order[low_rank];
+        asm ("" : "+l" (order_entry));
+        *order_entry = RACE_LOW_SLOT("r3");
+        ++next_distance;
+        slot += PIN_RACE_VALUE("r0", 1);
+    } while (RACE_LOW_SLOT("r1") < ENTRANT_COUNT);
+
+    // Process finish crossings and new sprint requests in race order.
+    register int stop_init asm("r2") = PIN_RACE_VALUE("r2", 0);
+    register int stopped asm("r9") = stop_init;
+    slot = stop_init;
+    do
+    {
+        register int low_slot asm("r3") = RACE_LOW_SLOT("r3");
+        register int order_index asm("r1");
+        register int * order_base asm("r7");
+        asm ("lsl %0, %2, #2; mov %1, sp" : "=l" (order_index), "=l" (order_base)
+            : "l" (low_slot) : "cc");
+        register int * order_entry asm("r4") = reinterpret_cast<int *>(
+            reinterpret_cast<u8 *>(order_base) + order_index);
+        asm ("" : "+l" (order_entry));
+        register int racer_id asm("r3") = *order_entry;
+        register uintptr_t stride asm("r0") = sizeof(RaceEntrant);
+        asm ("mul %0, %1" : "+l" (stride) : "l" (racer_id) : "cc");
+        register uintptr_t racer_offset asm("r2") = offsetof(HorseRaceState, racers);
+        asm ("" : "+l" (racer_offset));
+        register uintptr_t entry_offset asm("r0") = stride + racer_offset;
+        asm ("" : "+l" (entry_offset));
+        racer = reinterpret_cast<RaceEntrant *>(reinterpret_cast<u8 *>(self) + entry_offset);
+        asm ("" : "+l" (racer));
+        if (racer->finish_rank != NO_FINISH_RANK)
+            goto finished_entrant;
+
+        {
+            register int finish_line asm("r0") = FINISH_DISTANCE;
+            asm ("" : "+l" (finish_line));
+            register int remaining asm("r7") = racer->distance_left;
+            asm ("" : "+l" (remaining));
+            if (remaining <= finish_line)
+            {
+                register uintptr_t finish_offset asm("r7") = offsetof(HorseRaceState, finish_count);
+                asm ("" : "+l" (finish_offset));
+                register i16 * finish_count asm("r2") = reinterpret_cast<i16 *>(
+                    reinterpret_cast<u8 *>(self) + finish_offset);
+                asm ("" : "+l" (finish_count));
+                register int zero asm("r0") = 0;
+                asm ("" : "+l" (zero));
+                register uintptr_t place_offset asm("r1");
+                asm ("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #1" : "=l" (place_offset)
+                    : "l" (finish_count), "l" (zero) : "cc", "memory");
+                finish_offset += sizeof(i16);
+                asm ("" : "+l" (finish_offset));
+                register i16 * finish_order asm("r0") = reinterpret_cast<i16 *>(
+                    reinterpret_cast<u8 *>(self) + finish_offset);
+                asm ("" : "+l" (finish_order));
+                *reinterpret_cast<i16 *>(reinterpret_cast<u8 *>(finish_order) + place_offset) = racer_id;
+                register int finish_rank asm("r1");
+                register int next_rank asm("r0");
+                asm volatile ("ldrh %0, [%2]\n\tadd %1, %0, #1\n\tstrh %1, [%2]\n\t"
+                    "strb %0, [%3, %4]\n\tlsl %0, %0, #24"
+                    : "=&l" (finish_rank), "=&l" (next_rank) : "l" (finish_count), "l" (racer),
+                      "i" (offsetof(RaceEntrant, finish_rank)) : "cc", "memory");
+                if (finish_rank != 0)
+                    goto next_entrant;
+                SpriteAnimator * winner;
+                u32 clip;
+                int winner_slot;
+                asm ("ldr %0, [%1]" : "=l" (winner_slot) : "l" (order_entry) : "memory");
+                switch (winner_slot)
+                {
+            case 0:
+                    winner = &self->race_horse_animators[0].animator;
+                    clip = VICTORY_CLIP_LANE_ONE;
+                    break;
+            case 1:
+                    winner = &self->race_horse_animators[1].animator;
+                    clip = VICTORY_CLIP_LANE_TWO;
+                    break;
+            case 2:
+                    if (!self->player_is_racing)
+                    {
+                        winner = ({
+                            PIN_ANIMATOR(winner_animator, "r3", race_horse_animators[2]);
+                            winner_animator;
+                        });
+                        clip = VICTORY_CLIP_LANE_THREE;
+                    }
+                    else
+                    {
+                        winner = ({
+                            PIN_ANIMATOR(winner_animator, "r7", race_horse_animators[PLAYER_HORSE_ANIMATOR]);
+                            winner_animator;
+                        });
+                        clip = VICTORY_CLIP_PLAYER_HORSE;
+                    }
+                    break;
+            case 3:
+                    winner = ({
+                            PIN_ANIMATOR(winner_animator, "r0", race_horse_animators[3]);
+                            winner_animator;
+                        });
+                    clip = VICTORY_CLIP_LANE_FOUR;
+                    break;
+            default:
+                    goto next_entrant;
+                }
+                SetSpriteAnimatorClip(winner, clip);
+                winner->speed_q8 = NORMAL_ANIMATION_RATE_Q8;
+                goto next_entrant;
+            }
+
+            if (PLAYER_RACING("r2") == 1 && racer_id == PLAYER_RACER_SLOT)
+            {
+                register u16 keys asm("r0") = HardwareContext_GetPressedKeys(reinterpret_cast<HardwareContext *>(self));
+                register u32 pressed asm("r0");
+                asm ("" : "=l" (pressed) : "l" (keys));
+                register u32 a_button asm("r1") = BUTTON_A;
+                asm ("" : "+l" (a_button));
+                if ((pressed & a_button) == 0)
+                    goto next_entrant;
+                AudioPlayer_StartSong(&self->sprint_audio_player, SPRINT_SOUND);
+                register int player_stamina asm("r0") = READ_RACE_SHORT(racer, stamina, "r3", "r0");
+                asm volatile ("cmp %0, %1\n\tble .Lrace_next_entrant" : : "l" (player_stamina),
+                    "i" (SPRINT_COST) : "cc", "memory");
+                switch (racer->sprint_phase)
+                {
+            case SPRINT_READY:
+            case SPRINT_DECELERATING:
+                    racer->sprint_phase = SPRINT_START;
+                    goto charge_stamina;
+            case SPRINT_AT_SPEED:
+                    racer->phase_timer += SPRINT_PHASE_FRAMES;
+charge_stamina:
+                    racer->stamina -= SPRINT_COST;
+                    goto next_entrant;
+            case SPRINT_START:
+            case SPRINT_ACCELERATING:
+                    goto unchanged_player_sprint;
+            default:
+                    goto next_entrant;
+                }
+            }
+            else if (racer->sprint_phase == SPRINT_READY)
+            {
+                register int saved_timer asm("r2");
+                register int phase_timer asm("r0");
+                register int timer_offset asm("r3");
+                asm ("ldrh %0, [%3, %4]; mov %2, %4; ldrsh %1, [%3, %2]"
+                    : "=l" (saved_timer), "=l" (phase_timer), "=l" (timer_offset) : "l" (racer),
+                      "i" (offsetof(RaceEntrant, phase_timer)) : "memory");
+                if (phase_timer > 0)
+                {
+                    register int decremented asm("r0");
+                    asm ("sub %0, %1, #1" : "=l" (decremented) : "l" (saved_timer) : "cc");
+                    racer->phase_timer = decremented;
+                }
+                else
+                {
+                    register int chance asm("r2") = 0;
+                    asm ("" : "+l" (chance));
+                    int rank = RACE_LOW_SLOT("r0");
+                    if (rank > 0)
+                    {
+                        register int gap asm("r1") = order_index;
+                        register int cursor asm("r0");
+                        register int * base asm("r3");
+                        asm ("mov %2, sp; add %1, %2, %0; ldr %0, [%1]; lsl %0, %0, #2; add %0, %4; "
+                            "mov %1, %3; sub %1, #1; lsl %1, %1, #2; add %1, sp; ldr %1, [%1]; "
+                            "lsl %1, %1, #2; add %1, %4; ldr %0, [%0]; ldr %1, [%1]; sub %0, %0, %1"
+                            : "+l" (gap), "=&l" (cursor), "=&l" (base)
+                            : "h" (slot), "h" (distance) : "cc", "memory");
+                        if (gap >= AI_SPRINT_MIN_GAP)
+                            chance = 1;
+                    }
+                    if (remaining < AI_SPRINT_HOME_STRETCH)
+                        chance += 2;
+                    if (racer->sprint_chances[chance] > rand() % 100)
+                    {
+                        register int saved_stamina asm("r1");
+                        register int stamina asm("r0");
+                        register int stamina_offset asm("r7");
+                        asm ("ldrh %0, [%3, %4]; mov %2, %4; ldrsh %1, [%3, %2]"
+                            : "=l" (saved_stamina), "=l" (stamina), "=l" (stamina_offset) : "l" (racer),
+                              "i" (offsetof(RaceEntrant, stamina)) : "memory");
+                        if (stamina >= SPRINT_COST)
+                        {
+                            register int new_stamina asm("r0");
+                            asm ("add %0, %1, #0; sub %0, %2" : "=l" (new_stamina)
+                                : "l" (saved_stamina), "i" (SPRINT_COST) : "cc");
+                            racer->stamina = new_stamina;
+                            racer->sprint_phase = SPRINT_START;
+                            if (!PLAYER_RACING("r1"))
+                                AudioPlayer_StartSong(&self->sprint_audio_player, SPRINT_SOUND);
+                        }
+                    }
+                    else
+                        racer->phase_timer = SPRINT_RETRY_FRAMES;
+                }
+            }
+            goto next_entrant;
+        }
+
+finished_entrant:
+        if (racer->distance_left < 0)
+        {
+            racer->speed = 0;
+            stopped += PIN_RACE_VALUE("r2", 1);
+        }
+unchanged_player_sprint:
+        asm volatile ("");
+next_entrant:
+        asm volatile (".Lrace_next_entrant:" : : : "memory");
+        slot += PIN_RACE_VALUE("r3", 1);
+    } while (RACE_LOW_SLOT("r7") < ENTRANT_COUNT);
+
+    if (PLAYER_RACING("r1") == 1)
+    {
+        register int distance_left asm("r2");
+        asm ("mov %0, %1; ldr %0, [%0, %2]" : "=l" (distance_left)
+            : "h" (distance), "i" (PLAYER_RACER_SLOT * sizeof(int)) : "memory");
+        camera_distance = distance_left;
+    }
+    register uintptr_t camera_offset asm("r3") = offsetof(HorseRaceState, bg2_scroll_x);
+    asm ("" : "+l" (camera_offset));
+    register u16 * scroll asm("r2") = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + camera_offset);
+    asm ("" : "+l" (scroll));
+    if (*scroll > CAMERA_END)
+    {
+        register int camera asm("r7") = camera_distance;
+        asm ("asr %0, %0, #16" : "+l" (camera) : : "cc");
+        camera_distance = camera;
+        if (camera < *scroll + CAMERA_LEAD)
+        {
+            register u32 new_scroll asm("r0");
+            asm ("add %0, %3, #0; sub %0, %2; strh %0, [%1]; lsl %0, %0, #16; lsr %0, %0, #16"
+                : "=&l" (new_scroll) : "l" (scroll), "i" (CAMERA_LEAD), "l" (camera) : "cc", "memory");
+            if (new_scroll < CAMERA_END)
+                *scroll = CAMERA_END;
+            register int current_scroll asm("r0") = *scroll;
+            register int far_scroll asm("r1") = CAMERA_FAR_ORIGIN;
+            asm ("sub %0, %1, %0; lsl %0, %0, #1; sub %1, %1, %0"
+                : "+l" (current_scroll), "+l" (far_scroll) : : "cc");
+            register uintptr_t far_offset asm("r3") = offsetof(HorseRaceState, bg1_scroll_x);
+            asm ("" : "+l" (far_offset));
+            register u16 * far_scroll_ptr asm("r0") = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + far_offset);
+            asm ("" : "+l" (far_scroll_ptr));
+            *far_scroll_ptr = far_scroll;
+            register int near_scroll asm("r1") = *scroll;
+            asm ("" : "+l" (near_scroll));
+            register uintptr_t near_offset asm("r7") = offsetof(HorseRaceState, bg3_scroll_x);
+            asm ("" : "+l" (near_offset));
+            register u16 * near_scroll_ptr asm("r0") = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + near_offset);
+            asm ("" : "+l" (near_scroll_ptr));
+            *near_scroll_ptr = near_scroll;
+        }
+    }
+#undef RACE_LOW_SLOT
+#undef READ_RACE_SHORT
+#undef PLAYER_RACING
+#undef SET_PAIR_ANIMATORS
+#undef PIN_ANIMATOR_RESULT
+#undef PIN_RACE_VALUE
+#undef PIN_ANIMATOR
+
+    return stopped;
+}
