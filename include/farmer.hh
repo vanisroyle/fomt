@@ -62,8 +62,8 @@ struct Farmer
 };
 
 /* Farmer methods */
-EC char const * func_0800E4E0(Farmer const & self);
-EC char const * func_0800E4E4(Farmer const & self);
+EC char const * GetFarmerName(Farmer const & self);
+EC char const * GetFarmerDialogueAlias(Farmer const & self);
 EC GameDate func_0800E4E8(Farmer const & self);
 EC unsigned int func_0800E4F0(Farmer const & self);
 EC unsigned int func_0800E4FC(Farmer const & self);
