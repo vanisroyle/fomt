@@ -125,9 +125,8 @@ EC u32 GetMessageChoicePosition(u32, u32);
 EC void func_0805E850(void *, void *, u32);
 EC void func_080073E0(void *, u32);
 EC void ResourceHandles_Destroy(void *, u32);
-EC void func_080ADC84(void *, u32);
 EC void func_08007C28(void *, u32);
-EC void func_080079E8(void *, u32);
+EC void TileHeapOwner_Destroy(void *, u32);
 EC void TaskNode_Destroy(void *, u32);
 EC void func_080E105C(void *, u32);
 EC void TaskList_Destroy(void *, u32);
@@ -136,9 +135,30 @@ EC u8 vtable_unk_080E7868[], vtable_unk_080E7858[], vtable_unk_080E7848[], vtabl
 EC MessageWindowState * InitializeMessageWindowState(MessageWindowState *, u32, u32, u32, u32, void *, void *);
 EC void ClearMessageTextCursor(MessageTextCursor *);
 EC void TaskList_Append(void *, void *);
-EC void func_080ADD5C(void *, const char *, const void *);
-EC void func_080ADD74(void *, u16);
-EC u32 func_080ADD20();
+struct MessageScript;
+EC void StartMessageScript(MessageScript &, const char *, const void *);
+EC void SetMessageScriptRate(MessageScript &, u16);
+struct MessagePortraitResources
+{
+    u32 const * volatile vtable;
+    STRUCT_PAD(0x04, 0x20);
+    u16 clipCount;
+    STRUCT_PAD(0x22, 0x30);
+};
+
+struct MessagePortraitClip
+{
+    void const * keyframes;
+    u16 length;
+};
+
+struct MessagePortraitClips
+{
+    MessagePortraitClip * entries;
+};
+
+EC void func_0805E6CC(MessagePortraitResources *, void const *);
+EC u8 const gUnk_0852D984[];
 EC void func_080ADCA4(void *, u32);
 EC void func_0805E860(void *, u32);
 EC const u8 gUnk_080F9F3C[];
@@ -158,6 +178,21 @@ EC void SetMessageWindowStatePortrait(MessageWindowState *, u32);
 EC void SetMessageWindowStateSpeakerName(MessageWindowState *, const char *);
 EC void SetMessageWindowStateIndicator(MessageWindowState *, u32);
 
+EC SECTION(".text.080ADC84") void DestroyMessagePortraitClips(MessagePortraitClips * clips, unsigned flags)
+{
+    __builtin_delete(clips->entries);
+    if (flags & 1)
+        __builtin_delete(clips);
+}
+
+EC SECTION(".text.080ADD20") u32 GetMessagePortraitCount()
+{
+    MessagePortraitResources resources;
+    func_0805E6CC(&resources, gUnk_0852D984);
+    u32 count = resources.clipCount;
+    resources.vtable = reinterpret_cast<u32 const *>(vtable_unk_080E5A28);
+    return count;
+}
 
 EC SECTION(".text.message_window.08050D34") i32 GetMessageWindowPhase(MessageWindow * handle)
 {
@@ -316,9 +351,9 @@ EC SECTION(".text.message_window.08050424") void SetMessageWindowStateText(Messa
         else if (window->phase <= 6)
             ClearMessageTextCursor(&window->textCursor);
     }
-    void * parser = (u8 *) window + 0xec;
-    func_080ADD5C(parser, text, substitutions);
-    func_080ADD74(parser, speed);
+    MessageScript * parser = (MessageScript *) ((u8 *) window + 0xec);
+    StartMessageScript(*parser, text, substitutions);
+    SetMessageScriptRate(*parser, speed);
     window->phase = 4;
 }
 
@@ -436,10 +471,10 @@ EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(Messa
     resource = (u8 *) window + 0x1e8;
     func_080073E0(resource, *((u32 *) resource + 1));
     ResourceHandles_Destroy(resource, 2);
-    func_080ADC84((u8 *) window + 0x1e4, 2);
+    DestroyMessagePortraitClips(reinterpret_cast<MessagePortraitClips *>((u8 *) window + 0x1e4), 2);
     resource = (u8 *) window + 0x1d4;
     func_08007C28(resource, *((u32 *) resource + 1));
-    func_080079E8(resource, 2);
+    TileHeapOwner_Destroy(resource, 2);
     *(void **) ((u8 *) window + 0x190) = vtable_unk_080E5A28;
     *(void **) ((u8 *) window + 0x160) = vtable_unk_080E5A28;
     TaskNode_Destroy((u8 *) window + 0x148, 2);
@@ -453,7 +488,7 @@ EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(Messa
     TaskList_Destroy((u8 *) window + 0x20, 2);
     resource = (u8 *) window + 0x18;
     func_08007C28(resource, *((u32 *) resource + 1));
-    func_080079E8(resource, 2);
+    TileHeapOwner_Destroy(resource, 2);
     resource = (u8 *) window + 0x10;
     func_080073E0(resource, *((u32 *) resource + 1));
     ResourceHandles_Destroy(resource, 2);

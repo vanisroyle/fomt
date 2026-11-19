@@ -50,14 +50,27 @@ struct GameStateMapTerrain
     u16 height;
 };
 
+struct GameStateMapCalendar
+{
+    u8 year;
+    GameDate date;
+    u8 hour : 5;
+};
+
 struct GameStateMapData
 {
-    STRUCT_PAD(0x0, 0x10);
-    u8 clock[4];
+    STRUCT_PAD(0x0, 0x3);
+    u8 : 7;
+    u8 map_12_scenery_variant : 1;
+    u8 map_27_scenery_variant : 1;
+    STRUCT_PAD(0x5, 0x10);
+    GameStateMapCalendar clock;
     Farm farm;
     u8 reserved[0x1BD8 - 0x14 - sizeof(Farm)];
     Farmer farmer;
-    u8 reserved_after_farmer[0x34C4 - 0x1BD8 - sizeof(Farmer)];
+    u8 reserved_after_farmer[0x2192 - 0x1BD8 - sizeof(Farmer)];
+    u8 shipping_collection_flags;
+    STRUCT_PAD(0x2193, 0x34C4);
     bool player_only_when_disabled;
     STRUCT_PAD(0x34C5, 0x34D8);
     u32 tile_variant_flags;
@@ -85,6 +98,17 @@ struct GameStateMapInteraction : GameStateMapInteractionBase
     bool start;
     bool ended;
     bool restart;
+};
+
+struct GameStateFieldObject
+{
+    u8 unused;
+    u8 kind : 2;
+    u8 action : 2;
+    u16 reserved;
+    u16 tile_x;
+    u16 tile_y;
+    GameStateMapInteraction * interaction;
 };
 
 struct GameStateFarmPlot
@@ -141,7 +165,8 @@ struct GameStateEntitySlotVtable
     AEntity const * (*get_const_entity)(GameStateMapOwner const & game, u32 slot);
     STRUCT_PAD(0x48, 0x5C);
     GameStatePackedSpriteArchive const * (*get_interaction_archive)(GameStateMapOwner const & game);
-    STRUCT_PAD(0x60, 0x140);
+    GameStatePackedSpriteArchive const * (*get_scenery_archive)(GameStateMapOwner const & game);
+    STRUCT_PAD(0x64, 0x140);
     void (*queue_event)(GameStateMapOwner & game, GameStateScriptEvent const & event, u32 queue);
     STRUCT_PAD(0x144, 0x148);
     u32 (*get_music_track)(GameStateMapOwner const & game);
@@ -190,14 +215,23 @@ struct GameStateMapOwner
     TerrainInfo const * farm_terrain;
     GameStateScript * script;
     SmartPtr<GameStateMapInteraction> interaction;
-    STRUCT_PAD(0x105C, 0x107C);
+    SmartPtr<GameStateMapInteraction> scenery;
+    bool scenery_active;
+    STRUCT_PAD(0x1061, 0x1064);
+    SmartPtr<GameStateMapInteraction> timed_interaction;
+    STRUCT_PAD(0x1068, 0x106C);
+    SmartPtr<GameStateMapInteraction> paired_scenery_first;
+    SmartPtr<GameStateMapInteraction> paired_scenery_second;
+    SmartPtr<GameStateMapInteraction> seasonal_scenery;
+    SmartPtr<GameStateMapInteraction> alternate_seasonal_scenery;
     GameStateMapOverlay * map_overlay;
-    STRUCT_PAD(0x1080, 0x10C8);
+    GameStateFieldObject field_objects[4];
+    STRUCT_PAD(0x10B0, 0x10C8);
     bool day_update_requested;
     bool skip_day_update_events;
 };
 
-EC void func_0803B0A8(GameStateMapOverlay * overlay, u32 destructor_flags);
+EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
 EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
     GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
 EC i32 func_080AC96C(GameStateSpriteCache & cache, u32 slot);
@@ -210,7 +244,7 @@ EC void ApplyMapRow2PatchA(GameStateMapView & view);
 EC void ApplyMapRow2PatchB(GameStateMapView & view);
 EC void ApplyMapRow17PatchA(GameStateMapView & view);
 EC void ApplyMapRow17PatchB(GameStateMapView & view);
-EC void func_080A607C(GameStateMapView & view, u32 index);
+EC void ApplyMapIndexedOverlayPatch(GameStateMapView & view, u32 index);
 EC void ApplyMapIndexedFixturePatch(GameStateMapView & view, u32 index);
 EC void StartMapTransitionDelay(GameStateMapView & view);
 EC void ApplyMapBuildingDoorPatch(GameStateMapView & view, u32 alternate);
@@ -228,13 +262,12 @@ EC MapData const * GetMapData(u32 map_variant);
 EC u32 func_0803A8A4(u32 map, u32 season, u32 house_level, u32 coop_level, u32 barn_level);
 EC u32 func_0800E324(Unk_0800E324 const & clock);
 EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
-EC u8 * func_0801468C(GameStateScript & script);
+EC u8 * GameScript_GetSoundPlayers(GameStateScript & script);
 EC void func_08012B24(GameStateScript & script, GameStateScriptEvent const & event, u32 queue);
 EC void func_0801F3E4(GameStateMapOwner & game);
-EC bool func_0801140C(GameStateMapData & state);
-EC bool func_0801C0F8(GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result);
+EC bool SaveData_CollectShippingValue(GameStateMapData & state);
 EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
-EC void func_080123CC(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
+EC void GameScript_ConfigureMusic(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
 EC void func_080AA6D0(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * adjacent);
 EC void func_0805E860(SpriteAnimator & animator, u32 animation);
 EC GameStateMapInteraction * func_080A4A00(GameStateMapInteraction * interaction,
@@ -355,6 +388,59 @@ static inline FieldPlot * GetFieldNeighbor(GameStateFarmField & field, int x, in
     return in_bounds ? &field.PlotAt(x, y) : nullptr;
 }
 
+EC void GameScript_PlaySound(GameStateScript & script, i32 mode, u32 song_id);
+
+static inline u32 TryHitFieldObject(GameStateMapOwner & game, int tile_x, int tile_y)
+{
+    for (u32 i = 0; i < 4; ++i)
+    {
+        GameStateFieldObject & object = game.field_objects[i];
+        u32 kind = object.kind;
+        if (kind == 1 && tile_x == object.tile_x && tile_y == object.tile_y)
+        {
+            u32 inactive_action = 2;
+            if (object.action != inactive_action)
+            {
+                GameScript_PlaySound(*game.script, 0, 0xC0);
+                object.action = inactive_action;
+                GameStateMapInteraction * interaction = object.interaction;
+                func_0805E860(interaction->animator, 0x873);
+                interaction->playing = kind;
+                interaction->ended = false;
+                interaction->restart = kind;
+                func_0800EEF8(game.map_data->farmer);
+            }
+            return true;
+        }
+    }
+    register u32 missed asm("r0") = 0;
+    asm("" : "=l"(missed) : "0"(missed));
+    return missed;
+}
+
+EC SECTION(".text.game_state_c2.0801C6EC") u32 GameStateHitFieldPlot(GameStateMapOwner & game, int x, int y, int strength)
+{
+    u32 hit = 0;
+    if (game.vtable->get_map_id(game) == 2)
+    {
+        int tile_x = x * 2 + 34;
+        int tile_y = y * 2 + 22;
+        if (!TryHitFieldObject(game, tile_x, tile_y))
+        {
+            FieldPlot & plot = game.map_data->farm.field.PlotAt(x, y);
+            hit = plot.method_0800A238(strength);
+            GameStateMapView * view = game.map_view;
+            GameStateFarmField & field = game.map_data->farm.field;
+            FieldPlot & current = field.PlotAt(x, y);
+            FieldPlot * south = GetFieldNeighbor(field, x, y + 1);
+            FieldPlot * north = GetFieldNeighbor(field, x, y - 1);
+            Unk_Something const * adjacent = current.method_0800AF5C(south, north);
+            func_080AA6D0(*view, tile_x, tile_y, plot, adjacent);
+        }
+    }
+    return hit;
+}
+
 EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameStateMapOwner & game, int x, int y, int strength)
 {
     GameStateMapData * & state = game.map_data;
@@ -373,11 +459,37 @@ EC SECTION(".text.game_state_c2.0801CCE4") u32 GameStateDamageFieldDebris(GameSt
     return result;
 }
 
+EC SECTION(".text.game_state_c2.0801C0F8") bool GameStateFindFarmPlot(
+    GameStateMapOwner & game, Location const & location, GameStateFarmPlot & result)
+{
+    bool found = false;
+    if (location.GetMap() == 2)
+    {
+        u32 origin_x = 34;
+        u32 origin_y = 22;
+        u32 tile_x = location.GetX() / 8;
+        u32 tile_y = location.GetY() / 8;
+        if (tile_x < origin_x || tile_y < origin_y || tile_x > 119 || tile_y > 71)
+            goto done;
+
+        u32 plot_x = (tile_x - origin_x) / 2;
+        u32 plot_y = (tile_y - origin_y) / 2;
+        result.plot = &game.map_data->farm.field.PlotAt(plot_x, plot_y);
+        result.tile_x = plot_x * 2 + origin_x;
+        result.tile_y = plot_y * 2 + origin_y;
+        result.plot_x = plot_x;
+        result.plot_y = plot_y;
+        found = true;
+    }
+done:
+    return found;
+}
+
 EC SECTION(".text.game_state_c2.0801D88C") GameStatePlotPlacement GameStateCheckFarmPlotPlacement(
     GameStateMapOwner & game, Location const & location, Article const & article)
 {
     GameStateFarmPlot result;
-    if (func_0801C0F8(game, location, result))
+    if (GameStateFindFarmPlot(game, location, result))
     {
         if (result.plot->method_0800A6C8(article))
             return GAME_STATE_PLOT_CAN_PLACE;
@@ -431,7 +543,7 @@ EC SECTION(".text.game_state_c2.0801D9A8") void GameStateQueueScriptEvent(GameSt
 
 EC SECTION(".text.game_state_c2.0801DB44") GameStateAudioList * GameStateGetAudioList(GameStateMapOwner & game)
 {
-    return reinterpret_cast<GameStateAudioList *>(func_0801468C(*game.script));
+    return reinterpret_cast<GameStateAudioList *>(GameScript_GetSoundPlayers(*game.script));
 }
 
 EC SECTION(".text.game_state_c2.0801DB58") void GameStateRefreshMapMusic(GameStateMapOwner & game)
@@ -462,7 +574,7 @@ EC SECTION(".text.game_state_c2.0801DB58") void GameStateRefreshMapMusic(GameSta
     }
     GameStateScript * script = game.script;
     u32 track = game.vtable->get_music_track(game);
-    func_080123CC(*script, 1, track, params);
+    GameScript_ConfigureMusic(*script, 1, track, params);
 }
 
 EC SECTION(".text.game_state_c2.0801DCA8") void GameStateClearMapInteraction(GameStateMapOwner & game)
@@ -493,10 +605,74 @@ EC SECTION(".text.game_state_c2.0801DCD4") void GameStateSettleShippingBin(GameS
 {
     GameStateMapData * & state = game.map_data;
     u32 proceeds = state->farm.shipping_bin.GetValueShipped();
-    func_0801140C(*state);
+    SaveData_CollectShippingValue(*state);
     void (* const * queue_event)(GameStateMapOwner &, GameStateScriptEvent const &, u32) = &game.vtable->queue_event;
     GameStateScriptEvent event(0x3DB, proceeds);
     (*queue_event)(game, event, 1);
+}
+
+EC SECTION(".text.game_state_c2.0801F14C") void GameStateRefreshMapScenery(GameStateMapOwner & game)
+{
+    game.scenery_active = false;
+    game.scenery = nullptr;
+
+    u32 variant;
+    switch (game.vtable->get_map_id(game))
+    {
+        case 0x1D:
+        {
+            GameStateMapData * & state = game.map_data;
+            if (state->farm.farm_house.GetUpgradeLevel() != 2)
+                return;
+            variant = state->farm.farm_house.IsFireplaceLighted() != false;
+            break;
+        }
+        case 0x12:
+            variant = game.map_data->map_12_scenery_variant;
+            break;
+        case 0x27:
+            variant = game.map_data->map_27_scenery_variant;
+            break;
+        case 0x0A:
+        case 0x1B:
+            variant = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER;
+            break;
+        default:
+            return;
+    }
+
+    GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
+    GameStatePackedSpriteArchive const * archive = game.vtable->get_scenery_archive(game);
+    game.scenery = func_080A4A00(storage, archive, variant, game, 2, 0x1B, false);
+}
+
+static inline GameStateMapInteraction * MakeTimedMapInteraction(GameStateMapOwner & game, u32 animation)
+{
+    GameStateMapInteraction * storage = static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
+    return func_080A4A00(storage, &game.sprite_archives[12], animation, game, 5, 0x1B, false);
+}
+
+EC SECTION(".text.game_state_c2.0801F2DC") void GameStateRefreshTimedMapInteraction(GameStateMapOwner & game)
+{
+    if (game.vtable->get_map_id(game) == 0x23)
+    {
+        u32 hour = game.map_data->clock.hour;
+        if (hour <= 3)
+            goto night;
+        if (hour <= 8)
+            game.timed_interaction = MakeTimedMapInteraction(game, 0);
+        else if (hour <= 15)
+            game.timed_interaction = MakeTimedMapInteraction(game, 1);
+        else if (hour <= 18)
+            game.timed_interaction = MakeTimedMapInteraction(game, 2);
+        else
+        {
+        night:
+            game.timed_interaction = MakeTimedMapInteraction(game, 3);
+        }
+    }
+    else
+        game.timed_interaction = nullptr;
 }
 
 EC SECTION(".text.game_state_c2.0801F5F0") void GameStateSetVaseArticle(GameStateMapOwner & game, u32 article_id)
@@ -547,7 +723,7 @@ EC SECTION(".text.game_state_c2.0801DD54") void GameStateApplyRow2TilePatchVaria
 
 EC SECTION(".text.game_state_c2.0801DD60") void GameStateApplyMapTilePatchAtIndex(GameStateMapOwner & game, u32 index)
 {
-    func_080A607C(*game.map_view, index);
+    ApplyMapIndexedOverlayPatch(*game.map_view, index);
 }
 
 EC SECTION(".text.game_state_c2.0801DD6C") void GameStateApplyMapTilePatchInColumn(GameStateMapOwner & game, u32 index)
@@ -680,10 +856,109 @@ EC SECTION(".text.game_state_c2.0801FC18") GameStatePackedSpriteArchive const * 
     return &game.sprite_archives[7];
 }
 
+template<u32 EventId>
+static inline void QueueShippingMilestone(GameStateMapOwner & game, u32 argument)
+{
+    void (* const * queue_event)(GameStateMapOwner &, GameStateScriptEvent const &, u32) = &game.vtable->queue_event;
+    GameStateScriptEvent event(EventId, argument);
+    (*queue_event)(game, event, 1);
+}
+
+EC SECTION(".text.game_state_c2.0801F924") void GameStateShipProduct(GameStateMapOwner & game, Product const & product)
+{
+    ShippingBin & bin = game.map_data->farm.shipping_bin;
+    int id = product.GetId();
+    u32 previous = bin.IsDisplayEnabled(id) ? bin.GetAmountShipped(id) : 0;
+    bin.Ship(product);
+    u32 amount = bin.GetAmountShipped(id);
+    if (previous >= amount)
+        goto collection;
+
+    switch (amount)
+    {
+        case 10000: QueueShippingMilestone<0x33C>(game, id); break;
+        case 100000: QueueShippingMilestone<0x33D>(game, id); break;
+        case 1000000: QueueShippingMilestone<0x33E>(game, id); break;
+        case 10000000: QueueShippingMilestone<0x33F>(game, id); break;
+        case 100000000: QueueShippingMilestone<0x340>(game, id); break;
+        case 1000000000: QueueShippingMilestone<0x341>(game, id); break;
+    }
+
+collection:
+    u32 status = game.map_data->shipping_collection_flags & 3;
+    if (status == 0 && bin.HasShippedOneOfEachProduct())
+        QueueShippingMilestone<0x342>(game, status);
+}
+
+static inline GameStateMapInteraction * AllocateMapInteraction()
+{
+    return static_cast<GameStateMapInteraction *>(::operator new(sizeof(GameStateMapInteraction)));
+}
+
+EC SECTION(".text.game_state_c2.0801F614") void GameStateRefreshPairedScenery(GameStateMapOwner & owner)
+{
+    register GameStateMapOwner & game asm("r6") = owner;
+    game.paired_scenery_first = nullptr;
+    game.paired_scenery_second = nullptr;
+
+    u32 map = game.vtable->get_map_id(game);
+    if (map == 0)
+    {
+        u32 season = func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock));
+        if (season != SEASON_WINTER)
+        {
+            GameStateMapInteraction * first = AllocateMapInteraction();
+            register GameStatePackedSpriteArchive const * archive asm("r5") = &game.sprite_archives[7];
+            game.paired_scenery_first = func_080A4A00(first, archive, 0, game, 3, 0x1E, map);
+            GameStateMapInteraction * second = AllocateMapInteraction();
+            game.paired_scenery_second = func_080A4A00(second, archive, 0, game, 3, 0x1E, false);
+        }
+        else
+        {
+            GameStateMapInteraction * first = AllocateMapInteraction();
+            register GameStatePackedSpriteArchive const * archive asm("r5") = &game.sprite_archives[7];
+            game.paired_scenery_first = func_080A4A00(first, archive, 1, game, season, 0x1E, map);
+            GameStateMapInteraction * second = AllocateMapInteraction();
+            game.paired_scenery_second = func_080A4A00(second, archive, 1, game, 3, 0x1E, false);
+        }
+    }
+    asm("" : : "l"(&game));
+}
+
+EC SECTION(".text.game_state_c2.0801F77C") void GameStateRefreshSeasonalScenery(GameStateMapOwner & owner)
+{
+    register GameStateMapOwner & game asm("r5") = owner;
+    game.seasonal_scenery = nullptr;
+    game.alternate_seasonal_scenery = nullptr;
+
+    int map = game.vtable->get_map_id(game);
+    switch (map)
+    {
+        case 7:
+            if ((static_cast<u32>(reinterpret_cast<u8 const *>(game.map_data)[4]) << 31) != 0)
+                game.alternate_seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+            if (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER)
+                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+            break;
+        case 3:
+            if (func_0800E324(reinterpret_cast<Unk_0800E324 const &>(game.map_data->clock)) == SEASON_WINTER)
+                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, false);
+            break;
+        case 0:
+            if (reinterpret_cast<u8 const *>(game.map_data)[3] >> 7)
+                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, 2, 0x1F, map);
+            break;
+        case 2:
+            if (game.map_data->farm.farm_house.IsFireplaceLighted())
+                game.seasonal_scenery = func_080A4A00(AllocateMapInteraction(), &game.sprite_archives[7], 2, game, map, 0x1F, false);
+            break;
+    }
+}
+
 static inline void InstallMapOverlay(GameStateMapOverlay * & overlay, GameStateMapOverlay * replacement)
 {
     if (replacement != overlay && overlay != nullptr)
-        func_0803B0A8(overlay, 3);
+        DestroyGameStateMapOverlay(overlay, 3);
     overlay = replacement;
 }
 
@@ -741,6 +1016,60 @@ EC SECTION(".text.game_state_c2.0801FC3C") GameStatePackedSpriteArchive const * 
 EC SECTION(".text.game_state_c2.0801FC48") GameStatePackedSpriteArchive const * GameStateGetSpriteArchive3(GameStateMapOwner const & game)
 {
     return &game.sprite_archives[3];
+}
+
+struct GameStateSavedMapView : GameStateMapView
+{
+    STRUCT_PAD(0x94, 0xBC);
+};
+
+struct GameStateMapObject
+{
+    virtual ~GameStateMapObject();
+};
+
+struct GameStateMapHandle
+{
+    struct Transfer
+    {
+        Transfer(GameStateMapObject ** source, GameStateMapObject * pointer)
+            : source(source), pointer(pointer) {}
+
+        GameStateMapObject * Release() const
+        {
+            GameStateMapObject * owned = pointer;
+            *source = nullptr;
+            return owned;
+        }
+
+        GameStateMapObject ** source;
+        GameStateMapObject * pointer;
+    };
+
+    explicit GameStateMapHandle(GameStateMapObject * pointer) : pointer(pointer) {}
+    GameStateMapHandle(Transfer const & transfer) : pointer(transfer.Release()) {}
+    ~GameStateMapHandle() { delete pointer; }
+
+    Transfer Move() { return Transfer(&pointer, pointer); }
+
+private:
+    GameStateMapObject * pointer;
+};
+
+inline void * operator new(size_t, GameStateMapHandle * storage) { return storage; }
+
+EC GameStateSavedMapView * func_080A6474(GameStateSavedMapView * view, GameStateMapData & state);
+EC GameStateMapObject * func_080175B4(GameStateMapObject * map, GameStateMapData & state, GameStateScript * script,
+    GameStateSavedMapView * & view, bool restore_events);
+
+EC SECTION(".text.game_state_c2.0801FB7C") GameStateMapHandle * GameStateCreateMapObject(
+    GameStateMapHandle * result, GameStateMapData & state, GameStateScript * script, bool restore_events)
+{
+    GameStateSavedMapView * view = func_080A6474(
+        static_cast<GameStateSavedMapView *>(::operator new(sizeof(GameStateSavedMapView))), state);
+    GameStateMapHandle map(func_080175B4(
+        static_cast<GameStateMapObject *>(::operator new(sizeof(GameStateMapOwner))), state, script, view, restore_events));
+    return new (result) GameStateMapHandle(map.Move());
 }
 
 EC SECTION(".text.game_state_c2.0801FC54") GameStatePackedSpriteArchive const * GameStateGetSpriteArchive2(GameStateMapOwner const & game)
