@@ -172,7 +172,7 @@ func_080C8360: @ 0x080C8360
 	lsls r1, r1, #2
 	adds r0, r5, r1
 	movs r1, #2
-	bl func_08050D0C
+	bl DestroyMessageWindow
 	ldr r0, [r5, #0x20]
 	lsls r0, r0, #4
 	adds r0, #4
@@ -404,7 +404,7 @@ func_080C85A0: @ 0x080C85A0
 	movs r1, #0xd2
 	lsls r1, r1, #2
 	adds r0, r7, r1
-	bl func_08050D5C
+	bl OpenMessageWindow
 	movs r4, #2
 	movs r6, #0
 	add r0, sp, #0xc8
@@ -2571,7 +2571,7 @@ func_080C96C4: @ 0x080C96C4
 	add r2, sl
 	mov r8, r2
 	mov r0, r8
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	movs r1, #0xd3
 	lsls r1, r1, #2
 	add r1, sl
@@ -2599,7 +2599,7 @@ func_080C96C4: @ 0x080C96C4
 	mov r1, sb
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	movs r1, #0xd4
 	lsls r1, r1, #2
 	add r1, sl
@@ -10325,7 +10325,7 @@ func_080CD620: @ 0x080CD620
 	ldr r1, .L080CD89C @ =0x05000020
 	bl func_08008E64
 	ldr r0, [sp, #0x48]
-	bl func_08050D5C
+	bl OpenMessageWindow
 	add sp, #0x58
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -10349,7 +10349,7 @@ func_080CD8A0: @ 0x080CD8A0
 	movs r0, #0x80
 	adds r0, r0, r7
 	mov r8, r0
-	bl func_08050D34
+	bl GetMessageWindowPhase
 	adds r1, r7, #0
 	adds r1, #0x84
 	str r0, [r1]
@@ -10376,7 +10376,7 @@ func_080CD8A0: @ 0x080CD8A0
 	mov r1, sb
 	adds r2, r6, #0
 	adds r3, r5, #0
-	bl func_08050D3C
+	bl UpdateMessageWindow
 	adds r1, r7, #0
 	adds r1, #0x88
 	str r0, [r1]
