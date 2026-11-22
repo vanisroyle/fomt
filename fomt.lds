@@ -901,9 +901,9 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803AC78);
         src/code_0803A8A4.o(.text.0803ACD8);
         src/fixed_sprite_overlay_draw.o(.text.0803AE58);
-        asm/code_0803A8A4.o(.text.0803AEA0);
+        src/code_0803A8A4.o(.text.0803AEA0);
         src/code_0803A8A4.o(.text.0803B0A8);
-        asm/code_0803A8A4.o(.text.0803B128);
+        src/code_0803A8A4.o(.text.0803B128);
         src/code_0803A8A4.o(.text.0803B2A8);
         src/map_overlay_draw.o(.text.0803B368);
         src/code_0803A8A4.o(.text.0803B454);
@@ -915,7 +915,7 @@ SECTIONS
         asm/code_0803A8A4.o(.text.0803B8CC);
         src/code_0803A8A4.o(.text.0803BCF8);
         src/code_0803A8A4.o(.text.0803BD60);
-        asm/code_0803A8A4.o(.text.0803BF14);
+        src/code_0803A8A4.o(.text.0803BF14);
         src/code_0803A8A4.o(.text.0803BF78);
         src/code_0803A8A4.o(.text.0803BFF0);
         src/code_0803A8A4.o(.text.0803C00C);
@@ -993,7 +993,7 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809E0AC);
         src/code_actor_0809BFE8.o(.text.0809E118);
         src/code_actor_0809BFE8.o(.text.0809E174);
-        asm/code_actor_0809BFE8.o(.text.0809E1B4);
+        src/code_actor_0809BFE8.o(.text.0809E1B4);
         src/npc.o(.text);
         src/bachelorette.o(.text);
         src/harvest_sprite.o(.text);
@@ -1647,6 +1647,8 @@ SECTIONS
     {
         LONG(0);
         *(.script_overflow);
+        . = ALIGN(4);
+        *(.vietnamese_font);
         . = ALIGN(0x800000);
     } > ROM = 0xFF
 

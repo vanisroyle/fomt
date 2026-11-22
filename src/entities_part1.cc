@@ -104,7 +104,7 @@ EC void func_0800F4F0(HeldItem * self, u8 value);
 EC void func_0800F4D8(HeldItem * self);
 EC u32 func_08020018(u32 value);
 EC void AEntity_PlayAnimationSound(AActorEntity * self, u32 sound);
-EC void func_0802720C(FarmerEntity * self, Tool const & tool);
+EC bool FarmerEntity_ReceiveTool(FarmerEntity * self, Tool const & tool);
 EC void func_0802771C(FarmerEntity * self, u32 argument);
 
 struct AnimalBehaviorTimerPair
@@ -197,7 +197,7 @@ EC FarmerEntity * InitFarmerMapActor(FarmerEntity * self, GameObject * game, voi
 EC void FarmerEntityInitNoOp(FarmerEntity * self);
 EC char const vtable_unk_080E6658[];
 EC void func_0802F0EC(FarmerEntity * self, u32 first, u32 second);
-EC u16 func_0802D158(FarmerEntity * self);
+EC u32 SelectFarmerAnimation(FarmerEntity * self);
 EC void func_0803242C(AActorEntity * self, u32 argument);
 
 inline i32 GetFarmerAnimationState(FarmerEntity const * self)
@@ -515,6 +515,119 @@ struct FarmerActionSpriteGameVTable
 EC void func_0805E850(SpriteAnimator * self, void * graphics, u32 animation);
 
 EC void func_0809ABD8(void * earnings, u32 amount);
+
+// 0x0802634C
+EC void func_0802634C(FarmerEntity * self) ENTITY_CODE(0802634C);
+EC void func_0802634C(FarmerEntity * self)
+{
+    func_0800EAF0(*self->farmer);
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->active = true;
+    motion->display_mode = 0;
+    motion->Launch(-0x80000, 0, 0x110000);
+    FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+    if (sprite != nullptr)
+    {
+        GameObject * game = sprite->entity->game_object;
+        FarmerActionSpriteGameVTable const * table = *reinterpret_cast<FarmerActionSpriteGameVTable const **>(game);
+        void * graphics = table->vfunc_64(game);
+        func_0805E850(&sprite->animator, graphics, 0x1DD);
+        sprite->unk_C8 = true;
+        sprite->unk_CA = false;
+        sprite->unk_CB = true;
+    }
+    self->state = 47;
+    self->unk_3D = 120;
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 182);
+    self->consume_animation_active = true;
+}
+
+// 0x08026830
+EC void FarmerEntity_ConsumePowerBerry(FarmerEntity * self) ENTITY_CODE(08026830);
+EC void FarmerEntity_ConsumePowerBerry(FarmerEntity * self)
+{
+    func_0800EAFC(*self->farmer);
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->active = true;
+    motion->display_mode = 0;
+    motion->Launch(-0x80000, 0, 0x110000);
+    FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+    if (sprite != nullptr)
+    {
+        GameObject * game = sprite->entity->game_object;
+        FarmerActionSpriteGameVTable const * table = *reinterpret_cast<FarmerActionSpriteGameVTable const **>(game);
+        void * graphics = table->vfunc_64(game);
+        func_0805E850(&sprite->animator, graphics, 0x15F);
+        sprite->unk_C8 = true;
+        sprite->unk_CA = false;
+        sprite->unk_CB = true;
+    }
+    self->state = 47;
+    self->unk_3D = 120;
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 182);
+    self->consume_animation_active = true;
+}
+
+struct FarmerActionItemSpriteGameVTable
+{
+    STRUCT_PAD(0x00, 0x68);
+    void * (*vfunc_68)(GameObject * game);
+};
+
+// 0x08026D14
+EC void FarmerEntity_StartHeldItemAnimation(FarmerEntity * self, u16 animation_id) ENTITY_CODE(08026D14);
+EC void FarmerEntity_StartHeldItemAnimation(FarmerEntity * self, u16 animation_id)
+{
+    self->state = 17;
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->active = true;
+    motion->display_mode = 0;
+    LaunchFarmerHeldItem(self);
+    FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+    if (sprite != nullptr)
+    {
+        GameObject * game = sprite->entity->game_object;
+        FarmerActionItemSpriteGameVTable const * table = *reinterpret_cast<FarmerActionItemSpriteGameVTable const **>(game);
+        void * graphics = table->vfunc_68(game);
+        func_0805E850(&sprite->animator, graphics, animation_id);
+        sprite->unk_C8 = true;
+        sprite->unk_CA = false;
+        sprite->unk_CB = true;
+    }
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    self->consume_animation_active = true;
+}
+
+// 0x0802720C
+EC bool FarmerEntity_ReceiveTool(FarmerEntity * self, Tool const & tool) ENTITY_CODE(0802720C);
+EC bool FarmerEntity_ReceiveTool(FarmerEntity * self, Tool const & tool)
+{
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->active = true;
+    motion->display_mode = 0;
+    motion->Launch(-0x80000, 0, 0x110000);
+    FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+    if (sprite != nullptr)
+    {
+        u16 const icon = tool.GetIconId();
+        GameObject * game = sprite->entity->game_object;
+        FarmerActionSpriteGameVTable const * table = *reinterpret_cast<FarmerActionSpriteGameVTable const **>(game);
+        void * graphics = table->vfunc_64(game);
+        func_0805E850(&sprite->animator, graphics, icon);
+        sprite->unk_C8 = true;
+        sprite->unk_CA = false;
+        sprite->unk_CB = true;
+    }
+    self->farmer->rucksack.AddAmountOfTool(tool.GetId(), 1);
+    self->state = 52;
+    self->unk_3D = 120;
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 188);
+    self->consume_animation_active = true;
+    return true;
+}
 
 // 0x0802771C
 EC void func_0802771C(FarmerEntity * self, u32 amount) ENTITY_CODE(0802771C);
@@ -879,14 +992,14 @@ EC void FarmerEntity_PerformAction(FarmerEntity * self, u32 action)
     default:
     case 0: case 1: self->state = 0; break;
     case 3: GetFarmerActionDispatchVTable(self)->vfunc_80(self); break;
-    case 4: func_0802720C(self, Tool(TOOL_CURSED_SICKLE)); break;
-    case 5: func_0802720C(self, Tool(TOOL_CURSED_HOE)); break;
-    case 6: func_0802720C(self, Tool(TOOL_CURSED_AXE)); break;
-    case 7: func_0802720C(self, Tool(TOOL_CURSED_HAMMER)); break;
-    case 8: func_0802720C(self, Tool(TOOL_CURSED_WATERING_CAN)); break;
-    case 9: func_0802720C(self, Tool(TOOL_CURSED_FISHING_ROD)); break;
+    case 4: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_SICKLE)); break;
+    case 5: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_HOE)); break;
+    case 6: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_AXE)); break;
+    case 7: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_HAMMER)); break;
+    case 8: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_WATERING_CAN)); break;
+    case 9: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_FISHING_ROD)); break;
     case 10:
-        func_0802720C(self, Tool(TOOL_TELEPORT_STONE));
+        FarmerEntity_ReceiveTool(self, Tool(TOOL_TELEPORT_STONE));
         AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 182);
         break;
     case 2: func_0802771C(self, rand() % 16 + 5); break;
@@ -1297,7 +1410,7 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->unk_C4 = false;
     self->unk_C5 = false;
     FarmerEntityInitNoOp(self);
-    u16 anim = func_0802D158(self);
+    u16 anim = SelectFarmerAnimation(self);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     return self;
@@ -1344,6 +1457,20 @@ EC void FarmerEntity_LiftRucksackItem(FarmerEntity * self, RucksackItem const * 
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
 }
 
+// 0x080290D4
+EC bool FarmerEntity_TryLiftRucksackItem(FarmerEntity * self, RucksackItem const * item, bool wrapped) ENTITY_CODE(080290D4);
+EC bool FarmerEntity_TryLiftRucksackItem(FarmerEntity * self, RucksackItem const * item, bool wrapped)
+{
+    self->item_animation_override = true;
+    HeldItem * held_item = reinterpret_cast<HeldItem *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C2C);
+    if (!func_0800F190(held_item))
+        return false;
+    self->consume_animation_active = true;
+    FarmerEntity_LiftRucksackItem(self, item, wrapped);
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    return true;
+}
+
 // 0x080262C4
 EC Product FarmerEntity_GetHeldProduct(FarmerEntity const * self) ENTITY_CODE(080262C4);
 EC Product FarmerEntity_GetHeldProduct(FarmerEntity const * self)
@@ -1384,7 +1511,7 @@ EC void func_08025018(FarmerEntity * self, u32 argument)
         if (self->consume_animation_active)
         {
             func_0802F0EC(self, 0, 0);
-            u16 anim = func_0802D158(self);
+            u16 anim = SelectFarmerAnimation(self);
             if (self->anim_id != anim)
                 self->SetAnim(anim);
         }
@@ -2334,4 +2461,73 @@ EC void AEntity_PlayAnimationSound(AActorEntity * input, u32 input_sound)
         AudioPlayer_StartSong(channel, shifted_sound >> 16);
         *completed_flag = 1;
     }
+}
+
+EC u32 ItemCollection_GetByteCount(void const * collection);
+EC u8 * ItemCollection_Begin(void * collection);
+EC u8 * ItemCollection_End(void * collection);
+EC void func_08010024(void * collection);
+
+struct FarmerShippingGameVTable
+{
+    STRUCT_PAD(0x00, 0x15C);
+    void (*ship_product)(GameObject * game, Product const & product);
+};
+
+inline void FarmerEntity_ShipProduct(FarmerEntity * self, Product const & product)
+{
+    GameObject * game = self->game_object;
+    FarmerShippingGameVTable const * table = *reinterpret_cast<FarmerShippingGameVTable const **>(game);
+    table->ship_product(game, product);
+}
+
+// 0x08027BFC
+EC bool FarmerEntity_TryShipHeldItems(FarmerEntity * self) ENTITY_CODE(08027BFC);
+EC bool FarmerEntity_TryShipHeldItems(FarmerEntity * self)
+{
+    void * channel;
+    u32 sound;
+    HeldItem * held_item = reinterpret_cast<HeldItem *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C2C);
+    if (!func_0800F190(held_item) && func_0800F204(held_item) == 4)
+    {
+        if (ItemCollection_GetByteCount(reinterpret_cast<u8 *>(self->game_state) + 0x1CA0) == 0)
+            return false;
+        u8 * it = ItemCollection_Begin(reinterpret_cast<u8 *>(self->game_state) + 0x1CA0);
+        u8 * end = ItemCollection_End(reinterpret_cast<u8 *>(self->game_state) + 0x1CA0);
+        for (; it != end; ++it)
+            FarmerEntity_ShipProduct(self, *reinterpret_cast<Product const *>(it));
+        func_08010024(reinterpret_cast<u8 *>(self->game_state) + 0x1CA0);
+        self->thrown_item.Launch(0, 0, 0);
+        FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+        if (sprite != nullptr)
+        {
+            u32 const animation = self->facing + 0x36;
+            GameObject * game = sprite->entity->game_object;
+            FarmerActionSpriteGameVTable const * table = *reinterpret_cast<FarmerActionSpriteGameVTable const **>(game);
+            void * graphics = table->vfunc_64(game);
+            func_0805E850(&sprite->animator, graphics, animation);
+            sprite->unk_C8 = true;
+            sprite->unk_CA = false;
+            sprite->unk_CB = true;
+        }
+        self->state = 46;
+        self->consume_animation_active = true;
+        self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+        channel = FindEntitySoundChannel(self->game_object);
+        sound = 110;
+    }
+    else
+    {
+        Product product = FarmerEntity_GetHeldProduct(self);
+        if (product.GetPrice() == 0)
+            return false;
+        FarmerEntity_ShipProduct(self, product);
+        self->consume_animation_active = true;
+        self->state = 14;
+        self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+        channel = FindEntitySoundChannel(self->game_object);
+        sound = 108;
+    }
+    AudioPlayer_StartSong(channel, sound);
+    return true;
 }

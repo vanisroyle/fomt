@@ -658,7 +658,294 @@ ROM_TEXT(0803ACD8) void QueueFixedSpriteOverlayGraphics(FixedSpriteOverlay & inp
     methods->setObjectPalette(resources, colors, palette, 1);
 }
 
-#undef COPY_DMA_COMMAND
+struct MapOverlayAnimationMethods
+{
+    STRUCT_PAD(0x00, 0x0C);
+    void (*getClip)(FixedOverlayClipView *, SpriteAnimationSource const *, unsigned);
+    void (*getFrame)(FixedOverlayFrameView *, SpriteAnimationSource const *, unsigned);
+};
+
+EC u32 RetainOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007CD8");
+EC MapOverlayParticle & InitMapOverlayParticle(MapOverlayParticle &, SpriteAnimator const &, int, int);
+
+ROM_TEXT(0803AEA0) GameStateMapOverlay * InitializeGameStateMapOverlay(GameStateMapOverlay * input,
+    MapOverlayScene * scene, SpriteAnimationSource const * archive, u32 kind, unsigned particleCount)
+{
+    // Keep the scratch buffers and copies in the original Thumb stack slots.
+    enum { PRIMARY_PALETTE_KIND = 16, ALTERNATE_PALETTE_KIND = 17, OVERLAY_CLIP_ID = 0 };
+    register GameStateMapOverlay * overlay asm("r6") = input;
+    asm("" : "+l"(overlay));
+    register MapOverlayScene * inputResources asm("r1") = scene;
+    asm("" : "+l"(inputResources));
+    register MapOverlayScene * resources asm("r9") = inputResources;
+    asm("" : "+h"(resources));
+    register SpriteAnimationSource const * animation asm("r10") = archive;
+    asm("" : "+h"(animation));
+    struct BuildScratch
+    {
+        u32 workspace[8];
+        OverlayTileAllocation tiles;
+        FixedOverlayFrameView frame;
+        FixedOverlayClipView clip;
+        volatile u32 kind;
+        volatile unsigned frameCount;
+        GameStateMapOverlay::FrameList * volatile frames;
+        volatile int cameraX;
+        OverlayPaletteTable * volatile palettes;
+        volatile unsigned index;
+    } scratch;
+    scratch.kind = kind;
+    overlay->scene = inputResources;
+    register unsigned zero asm("r1") = 0;
+    asm("" : "+l"(zero));
+    overlay->frames.count = zero;
+    register OverlayPaletteTable * palettes asm("r5") = &overlay->palettes;
+    asm("" : "+l"(palettes));
+    palettes->count = zero;
+    register GameStateMapOverlay * storage asm("r0") = input;
+    register u8 * overlayKind asm("r0");
+    asm(".syntax unified\n\tadds %0, %2\n\t.syntax divided"
+        : "=l"(overlayKind) : "0"(storage), "i"(offsetof(GameStateMapOverlay, kind)));
+    register volatile u32 * kindAddress asm("r2") = &scratch.kind;
+    asm("" : "+l"(kindAddress));
+    *overlayKind = *reinterpret_cast<u8 volatile *>(kindAddress);
+    register u8 * uploadPending asm("r2") = &overlay->uploadPending;
+    asm("" : "+l"(uploadPending));
+    register unsigned one asm("r0") = 1;
+    asm("" : "+l"(one));
+    *uploadPending = one;
+    register u8 * drawHalf asm("r0") = &overlay->drawHalf;
+    asm("" : "+l"(drawHalf));
+    *drawHalf = zero;
+    register unsigned * count asm("r0") = reinterpret_cast<unsigned *>(drawHalf
+        + offsetof(GameStateMapOverlay, particles) - offsetof(GameStateMapOverlay, drawHalf));
+    asm("" : "+l"(count));
+    *count = zero;
+    register SpriteAnimationSource const * methodOwner asm("r3") = animation;
+    asm("" : "+l"(methodOwner));
+    register MapOverlayAnimationMethods const * methods asm("r1") = *reinterpret_cast<MapOverlayAnimationMethods const * const *>(methodOwner);
+    asm("" : "+l"(methods));
+    register FixedOverlayClipView * clip asm("r4") = &scratch.clip;
+    asm("" : "+l"(clip));
+    register FixedOverlayClipView * clipOut asm("r0") = clip;
+    asm("" : "+l"(clipOut));
+    methods->getClip(clipOut, animation, OVERLAY_CLIP_ID);
+    register unsigned frameCount asm("r1");
+    asm(".syntax unified\n\tldr r0, [sp, %2]\n\tmovs %0, #0\n\tcmp r0, #0\n\tbeq 1f\n"
+        "\tldrh %0, [%1, %3]\n1:\n\t.syntax divided"
+        : "=&l"(frameCount)
+        : "l"(clip), "i"(offsetof(BuildScratch, clip) + offsetof(FixedOverlayClipView, keyframes)),
+          "i"(offsetof(FixedOverlayClipView, length))
+        : "r0", "cc", "memory");
+    scratch.frameCount = frameCount;
+    register unsigned firstKey asm("r4") = 0;
+    asm("" : "+l"(firstKey));
+    scratch.index = firstKey;
+    scratch.palettes = palettes;
+    if (firstKey < frameCount)
+    {
+        FixedOverlayFrameView * frameOutLow;
+        asm(".syntax unified\n\tadd %0, sp, %2\n\t.syntax divided"
+            : "=&l"(frameOutLow) : "l"(overlay), "i"(offsetof(BuildScratch, frame)) : "r0", "r1", "r2", "r3", "r4", "r5");
+        register FixedOverlayFrameView * frameOut asm("r8") = frameOutLow;
+        asm("" : "+h"(frameOut));
+        register OverlayTileAllocation * tiles asm("r5") = &scratch.tiles;
+        asm("" : "+l"(tiles));
+        scratch.frames = &overlay->frames;
+        do
+        {
+            register SpriteAnimationSource const * methodOwner asm("r1") = animation;
+            asm("" : "+l"(methodOwner));
+            register MapOverlayAnimationMethods const * methods asm("r3") = *reinterpret_cast<MapOverlayAnimationMethods const * const *>(methodOwner);
+            asm("" : "+l"(methods));
+            register unsigned key asm("r2") = scratch.index;
+            asm("" : "+l"(key));
+            register unsigned offset asm("r1") = key * sizeof(SpriteKeyframe);
+            asm("" : "+l"(offset));
+            register SpriteKeyframe const * base asm("r0") = scratch.clip.keyframes;
+            asm("" : "+l"(base));
+            unsigned frameId = reinterpret_cast<SpriteKeyframe const *>(reinterpret_cast<uintptr_t>(base) + offset)->frame;
+            register FixedOverlayFrameView * frameResult asm("r0") = frameOut;
+            asm("" : "+l"(frameResult) : "r"(frameId));
+            methods->getFrame(frameResult, animation, frameId);
+            register void * copyDest asm("r1");
+            register FixedOverlayFrameView * copySource asm("r0");
+            asm volatile(".syntax unified\n\tmov %0, sp\n\tmov %1, %2\n"
+                "\tldmia %1!, {r3, r4, r7}\n\tstmia %0!, {r3, r4, r7}\n"
+                "\tldmia %1!, {r2, r3, r4}\n\tstmia %0!, {r2, r3, r4}\n"
+                "\tldmia %1!, {r2, r7}\n\tstmia %0!, {r2, r7}\n\t.syntax divided"
+                : "=&l"(copyDest), "=&l"(copySource) : "h"(frameOut) : "r2", "r3", "r4", "r7", "memory");
+            InitOverlayTileHeap(tiles);
+            tiles->handle = AllocateOverlayTiles(tiles, 0);
+            unsigned frameIndex = overlay->frames.count;
+            if (frameIndex < ARRAY_COUNT(overlay->frames.entries))
+            {
+                register unsigned frameOffset asm("r0") = frameIndex * sizeof(GameStateMapOverlay::Frame)
+                    + offsetof(GameStateMapOverlay::FrameList, entries);
+                asm("" : "+l"(frameOffset));
+                register GameStateMapOverlay::FrameList * frameList asm("r3") = scratch.frames;
+                asm("" : "+l"(frameList));
+                register GameStateMapOverlay::Frame * frame asm("r4") =
+                    reinterpret_cast<GameStateMapOverlay::Frame *>(reinterpret_cast<uintptr_t>(frameList) + frameOffset);
+                asm("" : "+l"(frame));
+                if (frame)
+                {
+                    register void * to asm("r1") = frame;
+                    register void const * from asm("r0") = scratch.workspace;
+                    asm volatile(".syntax unified\n"
+                        "\tldmia %1!, {r2, r3, r7}\n\tstmia %0!, {r2, r3, r7}\n"
+                        "\tldmia %1!, {r2, r3, r7}\n\tstmia %0!, {r2, r3, r7}\n"
+                        "\tldmia %1!, {r2, r7}\n\tstmia %0!, {r2, r7}\n\t.syntax divided"
+                        : "+l"(to), "+l"(from) : : "r2", "r3", "r7", "memory");
+                    register OverlayTileAllocation * frameTiles asm("r4") = &frame->tiles;
+                    asm("" : "+l"(frameTiles));
+                    InitOverlayTileHeap(frameTiles);
+                    frameTiles->handle = RetainOverlayTiles(frameTiles, tiles->handle);
+                }
+                ++overlay->frames.count;
+            }
+            ReleaseOverlayTiles(tiles, tiles->handle);
+            TileHeapOwner_Destroy(tiles, 2);
+            register unsigned next asm("r3") = scratch.index + 1;
+            asm("" : "+l"(next));
+            scratch.index = next;
+            register unsigned limit asm("r4") = scratch.frameCount;
+            asm("" : "+l"(limit));
+            if (next >= limit)
+                break;
+        }
+        while (true);
+    }
+    register unsigned overlayType asm("r7") = scratch.kind;
+    asm("" : "+l"(overlayType));
+    register unsigned paletteKind asm("r1");
+    asm(".syntax unified\n\tcmp %1, #0\n\tbeq 1f\n\tcmp %1, #1\n\tbeq 2f\n"
+        "1:\n\tmovs %0, %2\n\tb 3f\n2:\n\tmovs %0, %3\n3:\n\t.syntax divided"
+        : "=l"(paletteKind) : "l"(overlayType), "i"(PRIMARY_PALETTE_KIND), "i"(ALTERNATE_PALETTE_KIND) : "cc");
+    register MapOverlayScene * paletteOwner asm("r2") = resources;
+    asm("" : "+l"(paletteOwner) : "l"(paletteKind));
+    unsigned palette = paletteOwner->vtable->reservePalette(resources, paletteKind);
+    OverlayPaletteTable * slots = scratch.palettes;
+    unsigned slotIndex = slots->count;
+    if (slotIndex < ARRAY_COUNT(slots->ids))
+    {
+        u8 * slot = &slots->ids[slotIndex];
+        if (slot)
+            *slot = palette;
+        register OverlayPaletteTable * storedSlots asm("r3") = scratch.palettes;
+        asm("" : "+l"(storedSlots));
+        ++storedSlots->count;
+    }
+    register unsigned initialDuration asm("r4") = 0;
+    asm("" : "+l"(initialDuration));
+    register unsigned totalDuration asm("r8") = initialDuration;
+    asm("" : "+h"(totalDuration));
+    register unsigned key asm("r2") = 0;
+    asm("" : "+l"(key));
+    register MapOverlayScene * cameraOwner asm("r7") = resources;
+    asm("" : "+l"(cameraOwner));
+    register MapOverlaySceneVtable const * cameraMethods asm("r3") = cameraOwner->vtable;
+    asm("" : "+l"(cameraMethods));
+    register unsigned frameLimit asm("r0") = scratch.frameCount;
+    asm("" : "+l"(frameLimit));
+    if (totalDuration < frameLimit)
+    {
+        register SpriteKeyframe const * frame asm("r1") = scratch.clip.keyframes;
+        asm("" : "+l"(frame));
+        do
+        {
+            totalDuration += frame->duration;
+            ++frame;
+            ++key;
+            register unsigned length asm("r4") = scratch.frameCount;
+            asm("" : "+l"(length) : "l"(frame), "l"(key));
+            if (key >= length)
+                break;
+        }
+        while (true);
+    }
+    scratch.cameraX = cameraMethods->getCameraX(resources);
+    cameraOwner = resources;
+    asm("" : "+l"(cameraOwner));
+    register int cameraY asm("r9") = cameraOwner->vtable->getCameraY(resources);
+    asm("" : "+h"(cameraY));
+    register unsigned firstParticle asm("r0") = 0;
+    asm("" : "+l"(firstParticle));
+    scratch.index = firstParticle;
+    register unsigned particleLimit asm("r1");
+    asm volatile("ldr %0, %1" : "=l"(particleLimit) : "m"(particleCount));
+    if (firstParticle < particleLimit)
+    {
+        register SpriteAnimator * animator asm("r5");
+        asm("mov %0, sp" : "=l"(animator) : : "memory");
+        do
+        {
+            register SpriteAnimator * animatorArg asm("r0");
+            asm("mov %0, sp" : "=l"(animatorArg) : : "memory");
+            InitSpriteAnimator(animatorArg, animation, OVERLAY_CLIP_ID, 0x100);
+            unsigned duration;
+            asm volatile("mov %0, %1" : "=l"(duration) : "h"(totalDuration) : "r0", "r1", "r3");
+            unsigned phase;
+            if (duration)
+                phase = rand() % totalDuration;
+            else
+                phase = 0;
+            asm("" : "+l"(phase));
+            if (phase)
+            {
+                register int speed asm("r4");
+                asm(".syntax unified\n\tmovs r3, %2\n\tldrsh %0, [%1, r3]\n\t.syntax divided"
+                    : "=l"(speed) : "l"(animator), "i"(offsetof(SpriteAnimator, speed_q8)) : "r3", "cc", "memory");
+                animator->speed_q8 = phase << 8;
+                asm("mov %0, sp" : "=l"(animatorArg) : : "memory");
+                AdvanceSpriteAnimator(animatorArg);
+                animator->speed_q8 = speed;
+            }
+            register MapOverlayParticle * particle asm("r4") = reinterpret_cast<MapOverlayParticle *>(scratch.workspace + 5);
+            asm("" : "+l"(particle));
+            register MapOverlayParticle * particleArg asm("r0") = particle;
+            asm("" : "+l"(particleArg));
+            register SpriteAnimator * source asm("r1");
+            asm("mov %0, sp" : "=l"(source) : : "memory");
+            InitMapOverlayParticle(*particleArg, *source, scratch.cameraX, cameraY);
+            register GameStateMapOverlay::ParticleList * particles asm("r2");
+            asm volatile(".syntax unified\n\tadds %0, %1, #0\n\tadds %0, %2\n\t.syntax divided"
+                : "=&l"(particles) : "l"(overlay), "i"(offsetof(GameStateMapOverlay, particles)) : "cc", "memory");
+            register unsigned particleIndex asm("r1") = particles->count;
+            asm("" : "+l"(particleIndex));
+            if (particleIndex < ARRAY_COUNT(particles->entries))
+            {
+                register unsigned particleOffset asm("r0") = particleIndex * sizeof(MapOverlayParticle)
+                    + offsetof(GameStateMapOverlay::ParticleList, entries);
+                asm("" : "+l"(particleOffset));
+                MapOverlayParticle * entry;
+                asm(".syntax unified\n\tadds %0, %1, %2\n\t.syntax divided"
+                    : "=l"(entry) : "l"(particles), "0"(particleOffset) : "cc");
+                if (entry)
+                {
+                    register MapOverlayParticle const * from asm("r1") = particle;
+                    asm volatile(".syntax unified\n"
+                        "\tldmia %1!, {r3, r4, r7}\n\tstmia %0!, {r3, r4, r7}\n"
+                        "\tldmia %1!, {r3, r4, r7}\n\tstmia %0!, {r3, r4, r7}\n"
+                        "\tldr %1, [sp, %2]\n\tstr %1, [%0]\n\t.syntax divided"
+                        : "+l"(entry), "+l"(from)
+                        : "i"(5 * sizeof(u32) + offsetof(MapOverlayParticle, yQ16))
+                        : "r3", "r4", "r7", "memory");
+                }
+                ++particles->count;
+            }
+            register unsigned next asm("r4") = scratch.index + 1;
+            asm("" : "+l"(next));
+            scratch.index = next;
+            register unsigned limit asm("r7");
+            asm volatile("ldr %0, %1" : "=l"(limit) : "m"(particleCount));
+            if (next >= limit)
+                break;
+        }
+        while (true);
+    }
+    return overlay;
+}
 
 ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
 {
@@ -682,6 +969,217 @@ ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay
     if (destructorFlags & 1)
         __builtin_delete(overlay);
 }
+
+typedef GameStateMapOverlay::Frame MapOverlayFrame;
+
+ROM_TEXT(0803B128) void QueueGameStateMapOverlayGraphics(GameStateMapOverlay & inputOverlay, DmaTransferQueue & outputQueue)
+{
+    enum { OBJ_VRAM_BASE = 0x06010000, OBJ_TILE_BYTES = 32 };
+    struct
+    {
+        DmaCommand command;
+        unsigned count;
+        unsigned inserted;
+        GameStateMapOverlay * volatile overlay;
+        MapOverlayFrame * volatile frameEnd;
+        MapOverlayFrame * volatile nextFrame;
+        DmaCommand * volatile insertionPoint;
+    } local;
+    local.overlay = &inputOverlay;
+    DmaTransferQueue * queue;
+    asm volatile(".syntax unified\n\tadds %0, %1, #0\n\t.syntax divided"
+        : "=l"(queue) : "l"(&outputQueue) : "cc", "memory");
+    register GameStateMapOverlay::FrameList * frames asm("r2");
+    asm(".syntax unified\n\tadds %0, %1, #0\n\tadds %0, #4\n\t.syntax divided"
+        : "=l"(frames) : "l"(&inputOverlay) : "cc");
+    register MapOverlayFrame * frame asm("r5") = frames->entries;
+    asm("" : "+l"(frame));
+    register MapOverlayFrame * endFrame asm("r2");
+    register unsigned frameCount asm("r1") = inputOverlay.frames.count;
+    asm("" : "+l"(frameCount));
+    asm(".syntax unified\n\tlsls r0, %2, #2\n\tadds r0, r0, %2\n\tlsls r0, r0, #3\n\tadds r0, #4\n\tadds %0, %1, r0\n\t.syntax divided"
+        : "=l"(endFrame) : "0"(frames), "l"(frameCount) : "r0", "cc");
+    local.frameEnd = endFrame;
+    if (frame != endFrame)
+        do
+        {
+            register FixedOverlayFrameSlice<u8> const * tileData asm("r0");
+            register u8 const * source asm("r4");
+            asm(".syntax unified\n\tadds %0, %2, #0\n\tadds %0, %3\n\tldr %1, [%2, %3]\n\t.syntax divided"
+                : "=&l"(tileData), "=l"(source)
+                : "l"(frame), "i"(offsetof(FixedOverlayFrameView, tileBytes)) : "cc", "memory");
+            register unsigned bytes asm("r6") = 0;
+            asm("" : "+l"(bytes));
+            if (source)
+                bytes = tileData->length;
+            asm("" : "+l"(bytes));
+            register MapOverlayFrame * next asm("r0") = frame + 1;
+            asm("" : "+l"(next));
+            local.nextFrame = next;
+            if (bytes)
+            {
+                register OverlayTileAllocation * allocation asm("r0") =
+                    reinterpret_cast<OverlayTileAllocation *>(reinterpret_cast<u8 *>(next) - sizeof(OverlayTileAllocation));
+                asm("" : "+l"(allocation));
+                register unsigned tile asm("r2") = GetOverlayBaseTile(allocation, allocation->handle);
+                asm("" : "+l"(tile));
+                register unsigned tileOffset asm("r2") = tile * OBJ_TILE_BYTES;
+                asm("" : "+l"(tileOffset));
+                register unsigned vramBase asm("r1") = OBJ_VRAM_BASE;
+                asm("" : "+l"(vramBase));
+                DmaCommand_InitializeCopy(&local.command, source, reinterpret_cast<void *>(tileOffset + vramBase), bytes);
+                register DmaCommand * command asm("r10");
+                asm("mov %0, sp" : "=h"(command) : : "memory");
+                register DmaCommand * position asm("r1") = queue->end;
+                asm("" : "+l"(position));
+                if (position != queue->capacity_end)
+                {
+                    if (position)
+                        COPY_DMA_COMMAND(position, &local.command, r2, r3, r4);
+                    ++queue->end;
+                }
+                else
+                {
+                    // Grow by the larger of the queue's size and the insertion count.
+                    local.insertionPoint = position;
+                    local.inserted = 1;
+                    register DmaCommand * begin asm("r1") = queue->begin;
+                    asm("" : "+l"(begin));
+                    register DmaCommand * end asm("r6") = local.insertionPoint;
+                    asm("" : "+l"(end));
+                    register intptr_t occupiedBytes asm("r0") = reinterpret_cast<intptr_t>(end) - reinterpret_cast<intptr_t>(begin);
+                    asm("" : "+l"(occupiedBytes));
+                    register unsigned count asm("r4") = occupiedBytes >> 4;
+                    asm("" : "+l"(count));
+                    local.count = count;
+                    register unsigned * insertCount asm("r2") = &local.inserted;
+                    asm("" : "+l"(insertCount));
+                    register unsigned * growthCount asm("r0") = &local.count;
+                    asm("" : "+l"(growthCount));
+                    asm(".syntax unified\n\tcmp %1, #1\n\tbhs 1f\n\tadds %0, %2, #0\n1:\n\t.syntax divided"
+                        : "+l"(growthCount) : "l"(count), "l"(insertCount) : "cc");
+                    unsigned growth = *growthCount;
+                    register unsigned newCapacity asm("r0") = count + growth;
+                    asm("" : "+l"(newCapacity));
+                    register unsigned bufferBytes asm("r9");
+                    register DmaCommand * buffer asm("r0");
+                    if (newCapacity)
+                    {
+                        register unsigned bytes asm("r4") = newCapacity * sizeof(DmaCommand);
+                        asm("" : "+l"(bytes));
+                        buffer = static_cast<DmaCommand *>(malloc(bytes));
+                        bufferBytes = bytes;
+                        asm("" : "+h"(bufferBytes) : "l"(buffer));
+                        if (!buffer)
+                            buffer = static_cast<DmaCommand *>(RetryDmaAllocation(bufferBytes));
+                        begin = queue->begin;
+                        asm("" : "+l"(begin) : "l"(buffer));
+                    }
+                    else
+                    {
+                        buffer = 0;
+                        asm("" : "+l"(buffer));
+                        bufferBytes = reinterpret_cast<unsigned>(buffer);
+                        asm("" : "+h"(bufferBytes));
+                    }
+                    register DmaCommand * allocated asm("r4") = buffer;
+                    asm("" : "+l"(allocated));
+                    register DmaCommand * newBuffer asm("r8") = allocated;
+                    asm("" : "+h"(newBuffer));
+                    register DmaCommand const * from asm("r2") = begin;
+                    asm("" : "+l"(from));
+                    register DmaCommand * to asm("r3") = newBuffer;
+                    asm("" : "+l"(to));
+                    register MapOverlayFrame * following asm("r5") = frame;
+                    asm(".syntax unified\n\tadds %0, %2\n\t.syntax divided"
+                        : "+l"(following) : "l"(to), "i"(sizeof(MapOverlayFrame)) : "cc");
+                    local.nextFrame = following;
+                    while (true)
+                    {
+                        register DmaCommand const * insertionPoint asm("r0") = local.insertionPoint;
+                        asm("" : "+l"(insertionPoint));
+                        if (from == insertionPoint)
+                            break;
+                        if (to)
+                            COPY_DMA_COMMAND(to, from, r4, r5, r6);
+                        ++from;
+                        ++to;
+                    }
+                    register DmaCommand * after asm("r4") = to;
+                    asm("" : "+l"(after));
+                    register unsigned insertedCount asm("r0") = local.inserted;
+                    asm("" : "+l"(insertedCount));
+                    if (insertedCount == 1)
+                    {
+                        if (after)
+                            COPY_DMA_COMMAND(after, command, r2, r3, r5);
+                        ++after;
+                    }
+                    else
+                    {
+                        register unsigned remaining asm("r3") = insertedCount;
+                        asm("" : "+l"(remaining));
+                        register DmaCommand * target asm("r2") = after;
+                        asm("" : "+l"(target));
+                        while (remaining)
+                        {
+                            if (target)
+                                COPY_DMA_COMMAND(target, command, r4, r5, r6);
+                            --remaining;
+                            ++target;
+                        }
+                        after = target;
+                        asm("" : "+l"(after));
+                    }
+                    register DmaCommand * limit asm("r2") = queue->end;
+                    asm("" : "+l"(limit));
+                    register DmaCommand * old asm("r1") = queue->begin;
+                    asm("" : "+l"(old));
+                    register DmaCommand * item asm("r0") = old;
+                    asm("" : "+l"(item));
+                    // The original queue walks the old commands before freeing their storage.
+                    if (old != limit)
+                        do { ++item; } while (item != limit);
+                    if (old)
+                        free(old);
+                    register uintptr_t capacityEnd asm("r0") = bufferBytes;
+                    asm("add %0, %1" : "+l"(capacityEnd) : "h"(newBuffer));
+                    register DmaCommand * replacement asm("r6") = newBuffer;
+                    asm("" : "+l"(replacement));
+                    queue->begin = replacement;
+                    queue->end = after;
+                    queue->capacity_end = reinterpret_cast<DmaCommand *>(capacityEnd);
+                }
+            }
+            frame = local.nextFrame;
+            asm("" : "+l"(frame));
+            register MapOverlayFrame * last asm("r0") = local.frameEnd;
+            asm("" : "+l"(last));
+            if (frame == last)
+                break;
+        }
+        while (true);
+    register GameStateMapOverlay * owner asm("r1") = local.overlay;
+    asm("" : "+l"(owner));
+    register GameStateMapOverlay::FrameList * frameList asm("r1");
+    register MapOverlayScene * resources asm("r0");
+    asm(".syntax unified\n\tldmia %1!, {%0}\n\t.syntax divided"
+        : "=l"(resources), "=l"(frameList) : "1"(owner) : "memory");
+    register MapOverlaySceneVtable const * methods asm("r3") = resources->vtable;
+    asm("" : "+l"(methods));
+    register u16 const * colors asm("r1") =
+        frameList->entries[0].view.paletteBytes.data;
+    asm("" : "+l"(colors));
+    register GameStateMapOverlay * paletteOwner asm("r2") = local.overlay;
+    asm("" : "+l"(paletteOwner));
+    register u8 const * ids asm("r2") = paletteOwner->palettes.ids;
+    asm("" : "+l"(ids));
+    register unsigned palette asm("r2") = *ids;
+    asm("" : "+l"(palette));
+    methods->setObjectPalette(resources, colors, palette, 1);
+}
+
+#undef COPY_DMA_COMMAND
 
 ROM_TEXT(0803B454) MapOverlayParticle & InitMapOverlayParticle(MapOverlayParticle & particle,
     SpriteAnimator const & animation, int cameraX, int cameraY)
@@ -908,16 +1406,27 @@ ROM_TEXT(0803B6B8) void SetGameScriptTextVariable(GameScriptTextVariables & self
 
 struct DialogWindowTilemapTask
 {
-    STRUCT_PAD(0x00, 0x0C);
+    void * previous;
+    void * next;
+    void const * vtable;
     int left;
     int top;
     unsigned width;
     unsigned height;
-    unsigned screenBlock : 5;
-    unsigned firstTile : 10;
-    unsigned paletteBank : 4;
+    enum
+    {
+        ScreenBlockBits = 5,
+        FirstTileBits = 10,
+        PaletteBankBits = 4,
+    };
+    unsigned screenBlock : ScreenBlockBits;
+    unsigned firstTile : FirstTileBits;
+    unsigned paletteBank : PaletteBankBits;
 };
 
+typedef char DialogWindowTilemapTaskSizeCheck[sizeof(DialogWindowTilemapTask) == 0x20 ? 1 : -1];
+
+EC char const gDialogWindowTilemapTaskVtable[];
 EC void DrawMessageFrame(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
     unsigned firstTile, unsigned paletteBank);
 EC u16 const * const gUnk_080F9F78;
@@ -967,6 +1476,85 @@ ROM_TEXT(0803B840) bool RunDialogWindowTilemapTask(DialogWindowTilemapTask & tas
     CpuFastSet(palette, reinterpret_cast<u16 *>(BackgroundPaletteRam + paletteBank * PaletteBankBytes),
         PaletteBankBytes / sizeof(u32));
     return false;
+}
+
+ROM_TEXT(0803BF14) DialogWindowTilemapTask & InitializeDialogWindowTilemapTask(DialogWindowTilemapTask & task,
+    int left, int top, unsigned width, unsigned height, unsigned screenBlock, unsigned firstTile, unsigned paletteBank)
+{
+    // Preserve the original order of the height store and stack argument loads.
+    asm volatile("ldr r4, %0\n\tstr r4, [%1, %2]"
+        : : "m"(height), "l"(&task), "i"(offsetof(DialogWindowTilemapTask, height)) : "r4", "memory");
+    // Use a register pair so agbcc saves both r6 and r7.
+    register u64 blockPalette asm("r6");
+    register unsigned tile asm("r5");
+    asm volatile("ldr %0, %2\n\tldr %1, %3\n\tldr %H0, %4"
+        : "=l"(blockPalette), "=l"(tile)
+        : "m"(screenBlock), "m"(firstTile), "m"(paletteBank));
+    register unsigned block asm("r6");
+    register unsigned palette asm("r7");
+    // The low and high words of the pair are already in these registers.
+    asm("" : "=l"(block), "=l"(palette) : "l"(blockPalette));
+    task.previous = 0;
+    task.next = 0;
+    task.vtable = gDialogWindowTilemapTaskVtable;
+    task.left = left;
+    task.top = top;
+    task.width = width;
+    // Preserve the original byte, halfword, and word writes to the packed fields.
+    enum
+    {
+        PackedFields = offsetof(DialogWindowTilemapTask, height) + sizeof(unsigned),
+        ScreenBlockMask = (1 << DialogWindowTilemapTask::ScreenBlockBits) - 1,
+        FirstTileShift = DialogWindowTilemapTask::ScreenBlockBits,
+        FirstTileMask = (1 << DialogWindowTilemapTask::FirstTileBits) - 1,
+        PaletteBankShift = FirstTileShift + DialogWindowTilemapTask::FirstTileBits,
+        PaletteBankMask = (1 << DialogWindowTilemapTask::PaletteBankBits) - 1,
+    };
+    u8 * packed = reinterpret_cast<u8 *>(&task) + PackedFields;
+    {
+        register unsigned mask asm("r1") = ScreenBlockMask;
+        asm("" : "+l"(mask));
+        block &= mask;
+        asm("" : "+l"(block));
+        register unsigned previous asm("r2") = *packed;
+        asm("" : "+l"(previous) : "l"(block));
+        mask = ~ScreenBlockMask;
+        asm("" : "+l"(mask) : "l"(previous));
+        mask &= previous;
+        mask |= block;
+        *packed = mask;
+    }
+    {
+        register unsigned maskValue asm("r2") = FirstTileMask;
+        asm("" : "+l"(maskValue));
+        register unsigned mask asm("r1") = maskValue;
+        asm("" : "+l"(mask));
+        tile = (tile & mask) << FirstTileShift;
+        asm("" : "+l"(tile));
+        register unsigned previous asm("r2") = *reinterpret_cast<u16 *>(packed);
+        asm("" : "+l"(previous) : "l"(tile));
+        mask = ~(FirstTileMask << FirstTileShift);
+        asm("" : "+l"(mask) : "l"(previous));
+        mask &= previous;
+        mask |= tile;
+        *reinterpret_cast<u16 *>(packed) = mask;
+    }
+    {
+        register unsigned mask asm("r1") = PaletteBankMask;
+        asm("" : "+l"(mask));
+        palette &= mask;
+        asm("" : "+l"(palette));
+        register unsigned paletteBits asm("r3") = palette << PaletteBankShift;
+        asm("" : "+l"(paletteBits));
+        register unsigned previous asm("r1") = *reinterpret_cast<u32 *>(packed);
+        asm("" : "+l"(previous) : "l"(paletteBits));
+        register unsigned preservedMask asm("r2") = ~(PaletteBankMask << PaletteBankShift);
+        asm("" : "+l"(preservedMask) : "l"(previous));
+        previous &= preservedMask;
+        previous |= paletteBits;
+        *reinterpret_cast<u32 *>(packed) = previous;
+    }
+    return task;
 }
 
 struct PACKED ALIGN(4) DialogWindowLayers

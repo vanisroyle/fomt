@@ -7,19 +7,19 @@
 
 	.global gUnk_084F90CC
 gUnk_084F90CC:
-	.incbin "baserom.gba", 0x4F90CC, 0x16D4
+	.incbin "build/assets/font-small.bin"
 
 	.global gUnk_084FA7A0
 gUnk_084FA7A0:
-	.incbin "baserom.gba", 0x4FA7A0, 0x200
+	.incbin "build/assets/font-single.bin"
 
 	.global gUnk_084FA9A0
 gUnk_084FA9A0:
-	.incbin "baserom.gba", 0x4FA9A0, 0x288F0
+	.incbin "build/assets/font-large.bin"
 
 	.global gUnk_08523290
 gUnk_08523290:
-	.incbin "baserom.gba", 0x523290, 0x3E04
+	.incbin "build/assets/font-double.bin"
 
 	.global gUnk_08527094
 gUnk_08527094:

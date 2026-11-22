@@ -154,9 +154,9 @@ EC void SetFarmReportScrollHeight(void * panel, i16 height) asm("func_08075E24")
 EC void InitLivestockReport(LivestockReport * self, void * menu, void * display, u32 content_height, char const * title);
 EC void AddLivestockReportRow(LivestockReport * self, u32 row, Livestock const * animal, void const * tiles, void const * palette);
 
-EC char const gUnk_080FB880[];
-EC char const gUnk_080FB894[];
-EC char const gUnk_080FB8A4[];
+EC char const gChickenReportTitle[];
+EC char const gCowReportTitle[];
+EC char const gSheepReportTitle[];
 EC char const vtable_unk_080E7A58[];
 EC char const vtable_unk_080E7A48[];
 EC char const vtable_unk_080E7A38[];
@@ -205,7 +205,7 @@ REPORT_CODE(08063E8C) u16 GetLivestockReportMoodTile(Livestock const * animal)
 
 REPORT_CODE(08064320) LivestockReport * InitChickenReport(LivestockReport * self, void * menu, void * display)
 {
-    InitLivestockReport(self, menu, display, 45, gUnk_080FB880);
+    InitLivestockReport(self, menu, display, 45, gChickenReportTitle);
     self->vtable = vtable_unk_080E7A58;
 
     u32 row = 0, slot = 0;
@@ -239,7 +239,7 @@ REPORT_CODE(08064320) LivestockReport * InitChickenReport(LivestockReport * self
 
 REPORT_CODE(080643DC) LivestockReport * InitCowReport(LivestockReport * self, void * menu, void * display)
 {
-    InitLivestockReport(self, menu, display, 85, gUnk_080FB894);
+    InitLivestockReport(self, menu, display, 85, gCowReportTitle);
     self->vtable = vtable_unk_080E7A48;
 
     u32 row = 0, slot = 0;
@@ -287,7 +287,7 @@ REPORT_CODE(080643DC) LivestockReport * InitCowReport(LivestockReport * self, vo
 
 REPORT_CODE(080644F0) LivestockReport * InitSheepReport(LivestockReport * self, void * menu, void * display)
 {
-    InitLivestockReport(self, menu, display, 85, gUnk_080FB8A4);
+    InitLivestockReport(self, menu, display, 85, gSheepReportTitle);
     self->vtable = vtable_unk_080E7A38;
 
     u32 row = 0, slot = 0;
