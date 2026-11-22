@@ -547,6 +547,51 @@ EC SECTION(".text.message_window.080507F8") void DrawMessageChoiceText(MessageWi
     FlushChoiceText(script, cursor);
 }
 
+inline void ClearMessageCursorGlyphTile(MessageGlyphTile * base, u32 column)
+{
+    MessageGlyphTile * tile = base;
+    tile += column;
+    register void * const * allocation asm("r4") = &tile->tileBuffer;
+    asm ("" : "+r" (allocation));
+    void * buffer = *allocation++;
+    register u32 columns asm("r0") = 4;
+    asm ("" : "+r" (columns));
+    FillMessageTiles(MessageTileSize(columns, 2), (u8 *) buffer + 4, 0);
+    tile->dirty = reinterpret_cast<const u32 *>(allocation)[1] != 0;
+}
+
+EC SECTION(".text.message_rendering.0804F0E0") void ClearMessageTextCursor(MessageTextCursor * cursor)
+{
+    MessageGlyphTile *** currentRow;
+    int changed;
+    i32 row;
+    MessageTextCursor * clearedCursor;
+    i32 nextRow;
+    for (row = 0; row <= 2; row = nextRow)
+    {
+        i32 column = 0;
+        register u32 offset asm("r0") = row * 4;
+        asm ("" : : "r" (offset));
+        nextRow = row + 1;
+        register MessageGlyphTile ** tiles asm("r6") =
+            (MessageGlyphTile **) (offset + (u32) cursor);
+        asm ("" : "+r" (tiles));
+        tiles += 2;
+        for (; column <= 6; ++column)
+        {
+            currentRow = &tiles;
+            ClearMessageCursorGlyphTile(*(*currentRow), column);
+        }
+    }
+    cursor->row = 0;
+    cursor->column = 0;
+    cursor->needsClear = 1;
+    changed = 1;
+    clearedCursor = cursor;
+    clearedCursor->changed = changed;
+    clearedCursor->printedNonSpace = 0;
+}
+
 EC SECTION(".text.message_window.080507D0") u32 GetMessageChoicePosition(u32 layout, u32 choice) // 0x080507D0
 {
     if (layout > 7) layout = 0;
