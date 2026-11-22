@@ -54,6 +54,11 @@ EC u8 * InventoryMenu_InitializeSlotPanel(u8 * panel, void * owner, DrawCommand 
 // two tile units per slot. The low byte of the flag enables the special slot.
 EC u8 * InventoryMenu_InitializeResourceSlotPanel(u8 * panel, void * owner, DrawCommand * draw_owner, u32 slots, char const * caption, u32 special_slot_enabled); // 0x080CC15C
 
+// Clear the left/right tilemap regions, queue slot count tiles, and upload an
+// optional eight-character caption. Right-panel count positions shift 15 tiles.
+EC void InventoryMenu_RedrawLeftSlotPanel(u8 * panel); // 0x080CB090
+EC void InventoryMenu_RedrawRightSlotPanel(u8 * panel); // 0x080CC310
+
 // Destructors also release panel resources; flags bit 0 deletes the panel.
 EC void DestroyPanelDrawCommands(u8 * panel, u32 flags); // 0x080CADF0
 EC void PruneInactivePanelDrawCommands(u8 * panel); // 0x080CAF6C
