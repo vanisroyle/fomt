@@ -2,7 +2,7 @@
 #include <string.h>
 
 EC char const vtable_unk_080E82D8[];
-EC void func_08007874(G1MapTileOwner *);
+EC void TileHeapOwner_Initialize(G1MapTileOwner *);
 EC u32 func_08007B54(G1MapTileOwner *, u32);
 EC u32 TileHandle_GetTileIndex(G1MapTileOwner *, u32);
 EC void TileHandle_Release(G1MapTileOwner *, u32);
@@ -14,7 +14,7 @@ EC SECTION(".text.g1_080A46AC") G1MapSpriteResource * InitializeMapSpriteResourc
     self->vtable = vtable_unk_080E82D8;
     self->graphics = graphics;
     G1MapTileOwner * tiles = &self->tiles;
-    func_08007874(tiles);
+    TileHeapOwner_Initialize(tiles);
     u32 handle = func_08007B54(tiles, tile_count);
     tiles->handle = handle;
     self->tile_index = TileHandle_GetTileIndex(tiles, handle);
@@ -46,7 +46,7 @@ EC SECTION(".text.g1_080A4740") G1MapSpriteResource * InitializeMapSpriteSingleP
     self->vtable = vtable_unk_080E82D8;
     self->graphics = graphics;
     G1MapTileOwner * tiles = &self->tiles;
-    func_08007874(tiles);
+    TileHeapOwner_Initialize(tiles);
     u32 handle = func_08007B54(tiles, tile_count);
     tiles->handle = handle;
     self->tile_index = TileHandle_GetTileIndex(tiles, handle);

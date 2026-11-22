@@ -375,7 +375,7 @@ EC bool func_080A5EB8(GameStateMapView const & view, Location const & location);
 EC u8 * GameScript_GetSoundPlayers(GameStateScript & script);
 EC void GameScript_QueueSceneEvent(GameStateScript & script, GameStateScriptEvent const & event, i32 queue);
 EC bool SaveData_CollectShippingValue(GameStateMapData & state);
-EC void func_0801A13C(GameStateMapOwner & game, u32 hour, u32 minute, bool force);
+EC void GameStateRefreshMapDaylightPalettes(GameStateMapOwner & game, u32 hour, u32 minute, u32 force_rebuild);
 EC void GameScript_ConfigureMusic(GameStateScript & script, u32 player, u32 track, GameStateMusicParams const & params);
 EC SECTION(".text.080AA6D0") void ApplyFieldPlotToMap(GameStateMapView & view, u32 x, u32 y, FieldPlot const & plot, Unk_Something const * volatile adjacent)
 {
@@ -638,7 +638,7 @@ EC SECTION(".text.game_state_c2.08019B90") void GameStateRefreshMapDaylight(Game
     void (* const * apply_daylight)(GameStateMapView &, u32, int, int) = &view.display_vtable->apply_daylight;
     (*apply_daylight)(view, game.daylight_band, game.daylight_amount, 30 - game.daylight_amount);
     if (!GetMapData(game.map_view->map)->is_interior)
-        func_0801A13C(game, game.clock->hour, game.clock->minute, true);
+        GameStateRefreshMapDaylightPalettes(game, game.clock->hour, game.clock->minute, true);
 }
 
 EC SECTION(".text.game_state_c2.08019F38") bool GameStateIsWinterOrSpecialOutdoorTile(GameStateMapOwner const & game, Location const & location)
@@ -726,6 +726,1422 @@ EC SECTION(".text.game_state_c2.0801A8C0") u32 GameStateGetTimeOfDayBand(GameSta
     if (hour > 17)
         return 2;
     return 1;
+}
+
+struct DaylightColors
+{
+    union { u16 colors[16]; u32 words[8]; };
+};
+
+struct DaylightPalette
+{
+    DaylightColors original;
+    DaylightColors from;
+    DaylightColors to;
+    DaylightColors current;
+    u8 reserved[2];
+    u8 dirty;
+    u8 time_tinted;
+};
+
+struct DaylightPaletteCache
+{
+    u8 reserved[32];
+    DaylightPalette entries[22];
+};
+
+struct DaylightBlend
+{
+    u32 first : 5;
+    u32 second : 5;
+    u32 : 22;
+};
+
+EC void BlendDaylightColors(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("func_03000C2C");
+struct G1MapState;
+EC void ReloadMapPalettePair(G1MapState * map, int daylight_band);
+EC u32 GetMapTimePalette(u8 hour, u8 minute, u32 season, u32 daylight_band);
+EC void SetMapBackgroundDaylight(G1MapState * map, u32 from_weight, u32 to_weight) asm("func_080A5DFC");
+
+struct DaylightTint
+{
+    DaylightBlend weight;
+    u32 rgb;
+};
+
+struct DaylightScratch
+{
+    DaylightColors wash;
+    DaylightTint tint[14];
+    GameStateMapOwner * owner;
+    DaylightPaletteCache * cache;
+    i32 band;
+    u32 weather;
+    u32 ratio;
+    u32 first;
+    u32 hour;
+    u32 minute;
+    u32 * second_tint[4];
+    u8 * dirty;
+};
+
+// The wash palette starts at the base of the inlined daylight scratch frame.
+static inline u8 * DaylightWashStack()
+{
+    register u8 * stack asm("sp");
+    asm("" : "=h"(stack));
+    return stack;
+}
+
+static inline DaylightScratch volatile & DaylightStackScratch()
+{
+    return *reinterpret_cast<DaylightScratch *>(DaylightWashStack());
+}
+
+static inline void TintClearPredawnFrom(DaylightColors & output, DaylightColors const & base, DaylightScratch &)
+{
+    register DaylightTint * params = const_cast<DaylightTint *>(&DaylightStackScratch().tint[0]);
+    register u32 weight asm("r3") = 10;
+    asm("" : "+l"(weight));
+    register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+    register u32 keep_low = ~31u;
+    *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+    register u32 shifted asm("r3") = (30 - 10) << 5;
+    asm("" : "+l"(shifted) : "m"(params->weight));
+    register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+    register u32 keep_half = ~0x3e0u;
+    *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+    register DaylightColors * out asm("r0") = &output;
+    asm("" : "+l"(out));
+    register u32 color asm("r3") = 0x2529;
+    asm("" : "+l"(color));
+    DaylightStackScratch().tint[0].rgb = color;
+    register u16 * cursor asm("r1");
+    // Start filling the wash palette at its first color.
+    asm volatile("mov %0, sp" : "=l"(cursor) : "m"(params->rgb));
+
+    register u16 * loop_end asm("r6") = reinterpret_cast<u16 *>(params);
+    register DaylightColors * saved_output asm("r7") = out;
+    asm volatile("" : "+l"(loop_end), "+l"(saved_output) : "l"(cursor));
+
+
+    register DaylightTint * params_later asm("r8");
+    register u8 * color_later asm("r10");
+    // Address the second endpoint's weights and tint color.
+    asm volatile("add r4, sp, #40\n\tmov %0, r4\n\tadd r4, sp, #44\n\tmov %1, r4"
+        : "=h"(params_later), "=h"(color_later) : : "r4", "cc");
+    register u16 * end asm("r4") = reinterpret_cast<u16 *>(params);
+    asm("" : "+l"(end) : "l"(loop_end));
+    register u16 * stack asm("sp");
+    asm("" : "=h"(stack));
+    if (stack != end)
+    {
+        register u32 fill asm("r4") = color;
+        do { *cursor++ = fill; } while (cursor != loop_end);
+    }
+    register DaylightBlend params_word = params->weight;
+
+    register DaylightColors * dest = out;
+    register DaylightColors const * wash asm("r1");
+    // Pass the filled wash palette to the blender.
+    asm("mov %0, sp" : "=l"(wash));
+    register DaylightColors const * original asm("r2") = &base;
+    register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+    asm("" : "+l"(run) : "l"(params_word), "l"(dest), "l"(wash), "l"(original));
+    run(*dest, *wash, *original, params_word);
+}
+
+
+static inline void TintClearMorningFrom(DaylightColors & output, DaylightColors const & base, DaylightScratch &)
+{
+    register DaylightTint * params asm("r2") = const_cast<DaylightTint *>(&DaylightStackScratch().tint[2]);
+    register u32 weight asm("r3") = 9;
+    asm("" : "+l"(weight) : "l"(params));
+    register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+    asm("" : "+l"(old_low));
+    register u32 keep_low = ~31u;
+    asm("" : "+l"(keep_low));
+    *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+    register u32 shifted asm("r3") = (30 - 9) << 5;
+    asm("" : "+l"(shifted));
+    register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+    asm("" : "+l"(old_half));
+    register u32 keep_half asm("r0") = ~0x3e0u;
+    asm("" : "+l"(keep_half));
+    *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+    register DaylightColors * out asm("r6") = &output;
+    asm("" : "+l"(out) : "m"(params->weight));
+    register u32 color asm("r0") = 0x1baa;
+    asm("" : "+l"(color) : "l"(out));
+    DaylightStackScratch().tint[2].rgb = color;
+    register u16 * cursor = reinterpret_cast<u16 *>(DaylightWashStack());
+
+    register u16 * end asm("r4") = reinterpret_cast<u16 *>(DaylightWashStack() + 0x20);
+    asm("" : "+l"(end));
+    register DaylightColors * previous_output asm("r7") = out;
+    asm("" : "+l"(previous_output) : "l"(out));
+    register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("ip") = BlendDaylightColors;
+    asm("" : "+h"(run));
+    register u8 * dirty_slot asm("r3") = reinterpret_cast<u8 *>(const_cast<DaylightColors *>(&base)) + offsetof(DaylightPalette, dirty);
+    DaylightStackScratch().dirty = dirty_slot;
+    register u32 index asm("r8");
+    asm("" : "=h"(index));
+    register u32 advanced asm("r3") = 1;
+    asm("" : "+l"(advanced));
+    advanced += index;
+    asm("" : "+l"(advanced));
+    register u32 after asm("r9") = advanced;
+    asm("" : "+h"(after));
+    register u16 * stack asm("sp");
+    asm("" : "=h"(stack));
+    if (stack != end)
+    {
+        do { *cursor++ = color; } while (cursor != end);
+    }
+    register DaylightBlend params_word asm("r3") = params->weight;
+    asm("" : "+l"(params_word));
+    register DaylightColors * dest asm("r0") = out;
+    asm("" : "+l"(dest));
+    register DaylightColors const * wash asm("r1") = reinterpret_cast<DaylightColors const *>(DaylightWashStack());
+    register DaylightColors const * original asm("r2") = &base;
+    asm("" : "+l"(original));
+    run(*dest, *wash, *original, params_word);
+}
+
+
+static inline void TintClearEveningFrom(DaylightColors & output, DaylightColors const & base, DaylightScratch & scratch)
+{
+    register DaylightTint * params = const_cast<DaylightTint *>(&DaylightStackScratch().tint[4]);
+    register u32 weight asm("r3") = 3;
+    asm("" : "+l"(weight) : "l"(params));
+    register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+    asm("" : "+l"(old_low));
+    register u32 keep_low asm("r0") = ~31u;
+    asm("" : "+l"(keep_low));
+    *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+    register u32 shifted asm("r3") = (30 - 3) << 5;
+    asm("" : "+l"(shifted) : "m"(params->weight));
+    register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+    asm("" : "+l"(old_half));
+    register u32 keep_half asm("r0") = ~0x3e0u;
+    asm("" : "+l"(keep_half));
+
+    *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+    register DaylightColors * out = &output;
+    asm("" : "+l"(out) : "m"(params->weight));
+    register DaylightTint * saved_params asm("r3") = params;
+    asm("" : "+l"(saved_params));
+    register u32 channels asm("r1") = 8;
+    asm("" : "+l"(channels) : "l"(out));
+    register u32 color asm("r2") = channels << 5;
+    asm("" : "+l"(color));
+    register u32 red asm("r0") = 32;
+    asm("" : "+l"(red));
+    color |= red;
+    asm("" : "+l"(color));
+    channels <<= 10;
+    asm("" : : "l"(channels));
+    color |= channels;
+    asm("" : "+l"(color));
+    DaylightStackScratch().tint[4].rgb = color;
+    register u16 * cursor = reinterpret_cast<u16 *>(DaylightWashStack());
+
+    register u16 * end asm("r0") = reinterpret_cast<u16 *>(DaylightWashStack() + 0x20);
+    asm("" : "+l"(end));
+    register DaylightColors * from asm("r7") = out;
+
+    register DaylightTint * next_slot asm("r1") = &scratch.tint[5];
+    register DaylightTint * remembered asm("r10") = next_slot;
+
+    register DaylightTint * second_weight asm("r10");
+    // Keep the second endpoint's weights across the first blend.
+    asm volatile("add r1, sp, #72\n\tmov %0, r1" : "=h"(second_weight) : : "r1");
+    register u8 * word asm("r1") = DaylightWashStack();
+    asm("" : "+l"(word));
+    word += 76;
+    DaylightStackScratch().second_tint[0] = reinterpret_cast<u32 *>(word);
+    register u8 * dirty_slot asm("r1") = reinterpret_cast<u8 *>(const_cast<DaylightColors *>(&base)) + offsetof(DaylightPalette, dirty);
+    DaylightStackScratch().dirty = dirty_slot;
+    register u32 current asm("r8");
+    asm("" : "=h"(current));
+    register u32 next_low asm("r1") = 1;
+    asm("" : "+l"(next_low));
+    next_low += current;
+    asm("" : "+l"(next_low));
+    register u32 next asm("r9") = next_low;
+    asm("" : : "h"(next));
+    register u16 * stack asm("sp");
+    asm("" : "=h"(stack));
+    if (stack != end)
+    {
+        register u32 fill asm("r1") = color;
+        asm("" : "+l"(fill));
+        do { *cursor++ = fill; } while (cursor != end);
+    }
+    register DaylightBlend params_word = saved_params->weight;
+
+    register DaylightColors * dest asm("r0") = out;
+
+    register DaylightColors const * wash asm("r1") = reinterpret_cast<DaylightColors const *>(DaylightWashStack());
+    register DaylightColors const * original asm("r2") = &base;
+    asm("" : "+l"(original));
+    register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+    asm("" : "+l"(run) : "l"(params_word), "l"(dest), "l"(wash), "l"(original));
+    run(*dest, *wash, *original, params_word);
+}
+
+
+static inline void TintOvercastPredawnFrom(DaylightColors & output, DaylightColors const & base, DaylightScratch &)
+{
+    register DaylightTint * params asm("r2");
+    // Address the packed weights for this tint.
+    asm("add %0, sp, %1" : "=l"(params) : "i"(0x50));
+    register u32 weight asm("r3") = 10;
+
+    register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+
+    register u32 keep_low = ~31u;
+    asm("" : "+l"(keep_low));
+    *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+    register u32 shifted = (30 - 10) << 5;
+    asm("" : "+l"(shifted) : "m"(params->weight));
+    register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+
+    register u32 keep_half = ~0x3e0u;
+
+    *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+    register DaylightColors * out = &output;
+    asm("" : "+l"(out) : "m"(params->weight));
+    register u32 color asm("r0") = 0x2529;
+    asm("" : "+l"(color));
+    // Save the RGB555 tint color.
+    asm volatile("str %0, [sp, %1]" : : "l"(color), "i"(0x54) : "memory");
+    register u16 * cursor;
+    // Start filling the wash palette at its first color.
+    asm("mov %0, sp" : "=l"(cursor));
+
+    register u16 * end asm("r4");
+    // Point just past the 16-color wash buffer.
+    asm("add %0, sp, #0x20" : "=l"(end));
+    asm("" : : "l"(end));
+    register DaylightColors * from asm("r7");
+    register DaylightTint * params_later asm("r8");
+    register u8 * color_later asm("r10");
+    // Keep the first endpoint and address the next endpoint's weights and tint color.
+    asm volatile("add %0, %3, #0\n\tadd r3, sp, #88\n\tmov %1, r3\n\tadd r3, sp, #92\n\tmov %2, r3"
+        : "=l"(from), "=h"(params_later), "=h"(color_later) : "l"(out), "l"(end) : "r3", "cc");
+    register u16 * stack asm("sp");
+    asm("" : "=h"(stack));
+    if (stack != end)
+    {
+        do { *cursor++ = color; } while (cursor != end);
+    }
+    register DaylightBlend params_word asm("r3") = params->weight;
+
+    register DaylightColors * dest asm("r0") = out;
+    asm("" : "+l"(dest));
+    register DaylightColors const * wash asm("r1");
+    // Pass the filled wash palette to the blender.
+    asm("mov %0, sp" : "=l"(wash));
+    register DaylightColors const * original asm("r2") = &base;
+    asm("" : "+l"(original));
+    register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+    asm("" : "+l"(run) : "l"(params_word), "l"(dest), "l"(wash), "l"(original));
+    run(*dest, *wash, *original, params_word);
+}
+
+
+static inline void TintOvercastMorningFrom(DaylightColors & output, DaylightColors const & base, DaylightScratch &)
+{
+    register DaylightTint * params asm("r2") = const_cast<DaylightTint *>(&DaylightStackScratch().tint[8]);
+    register u32 weight asm("r3") = 10;
+    asm("" : "+l"(weight) : "l"(params));
+    register u32 old_low = *reinterpret_cast<u8 *>(&params->weight);
+    asm("" : "+l"(old_low) : "l"(weight));
+    register u32 mask = 32;
+    asm("" : "+l"(mask));
+    mask = -mask;
+    asm("" : "+l"(mask));
+    mask &= old_low;
+    asm("" : "+l"(mask));
+    mask |= weight;
+    asm("" : "+l"(mask));
+    *reinterpret_cast<u8 *>(&params->weight) = mask;
+    register u32 shifted = 160;
+    asm("" : "+l"(shifted) : "m"(params->weight));
+    shifted <<= 2;
+    asm("" : "+l"(shifted));
+    register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+    asm("" : "+l"(old_half) : "l"(shifted));
+    register u32 half_mask asm("r0") = ~0x3e0u;
+    asm("" : "+l"(half_mask));
+    half_mask &= old_half;
+    asm("" : "+l"(half_mask));
+    half_mask |= shifted;
+    asm("" : "+l"(half_mask));
+    *reinterpret_cast<u16 *>(&params->weight) = half_mask;
+    register u32 offset asm("r0") = sizeof(DaylightColors);
+    asm("" : "+l"(offset) : "m"(params->weight));
+    register DaylightColors * start = reinterpret_cast<DaylightColors *>(reinterpret_cast<u8 *>(const_cast<DaylightColors *>(&base)) + offset);
+
+    register DaylightColors * out = start;
+    asm("" : "+h"(out));
+    register u32 color asm("r6") = 0x6a32;
+    asm("" : "+l"(color) : "h"(out));
+    DaylightStackScratch().tint[8].rgb = color;
+    register u16 * cursor asm("r1") = reinterpret_cast<u16 *>(DaylightWashStack());
+
+    register u16 * end asm("r4") = reinterpret_cast<u16 *>(DaylightWashStack() + 0x20);
+    asm("" : : "l"(end));
+    register DaylightColors * from asm("r7") = out;
+    asm("" : "+l"(from) : "h"(out));
+    register DaylightTint * params_later asm("r10");
+    // Keep the second endpoint's weights across the first blend.
+    asm volatile("add r3, sp, #104\n\tmov %0, r3"
+        : "=h"(params_later) : : "r3");
+    register u8 * address asm("r0") = DaylightWashStack();
+    asm("" : "+l"(address));
+    address += 108;
+    DaylightStackScratch().second_tint[1] = reinterpret_cast<u32 *>(address);
+    register u8 * dirty_slot asm("r3") = reinterpret_cast<u8 *>(const_cast<DaylightColors *>(&base)) + offsetof(DaylightPalette, dirty);
+    DaylightStackScratch().dirty = dirty_slot;
+    register u32 current asm("r8");
+    asm("" : "=h"(current));
+    register u32 next_low = 1;
+    asm("" : "+l"(next_low));
+    next_low += current;
+
+    register u32 next asm("r9");
+    // Keep the next cache index across palette blending.
+    asm volatile("mov %0, %1" : "=h"(next) : "l"(next_low));
+    register u16 * stack asm("sp");
+    asm("" : "=h"(stack));
+    if (stack != end)
+    {
+        register u32 fill asm("r0") = color;
+
+        do { *cursor++ = fill; } while (cursor != end);
+    }
+    register DaylightBlend params_word asm("r3") = params->weight;
+    asm("" : : "l"(params_word));
+    register DaylightColors * dest = out;
+    asm("" : "+l"(dest));
+    register DaylightColors const * wash asm("r1") = reinterpret_cast<DaylightColors const *>(DaylightWashStack());
+    register DaylightColors const * original asm("r2") = &base;
+    asm("" : "+l"(original));
+    register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+    asm("" : "+l"(run) : "l"(params_word), "l"(dest), "l"(wash), "l"(original));
+    run(*dest, *wash, *original, params_word);
+}
+
+
+static inline void TintOvercastDayFrom(DaylightColors & output, DaylightColors const & base, DaylightScratch &)
+{
+    register DaylightTint * params asm("r2") = const_cast<DaylightTint *>(&DaylightStackScratch().tint[10]);
+    register u32 weight asm("r3") = 10;
+    asm("" : "+l"(weight) : "l"(params));
+    register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+    asm("" : "+l"(old_low));
+    register u32 keep_low asm("r0") = ~31u;
+    asm("" : : "l"(keep_low));
+    *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+    register u32 shifted asm("r3") = (30 - 10) << 5;
+    asm("" : "+l"(shifted));
+    register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+    asm("" : : "l"(old_half));
+    register u32 keep_half asm("r0") = ~0x3e0u;
+    asm("" : "+l"(keep_half));
+    *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+    register u32 offset = sizeof(DaylightColors);
+    asm("" : "+l"(offset) : "m"(params->weight));
+    register DaylightColors * start asm("r0") = reinterpret_cast<DaylightColors *>(reinterpret_cast<u8 *>(const_cast<DaylightColors *>(&base)) + offset);
+
+    register DaylightColors * out asm("ip") = start;
+    asm("" : "+h"(out));
+    register u32 color asm("r6") = 0x6a32;
+    asm("" : "+l"(color) : "h"(out));
+    DaylightStackScratch().tint[10].rgb = color;
+    register u16 * cursor asm("r1");
+    // Start filling the wash palette at its first color.
+    asm("mov %0, sp" : "=l"(cursor));
+
+    register u16 * end asm("r4");
+    // Point just past the 16-color wash buffer.
+    asm("add %0, sp, #0x20" : "=l"(end));
+    asm("" : "+l"(end));
+    register DaylightColors * from asm("r7") = out;
+    asm("" : "+l"(from) : "h"(out));
+    register DaylightTint * next_slot asm("r3");
+    // Address the next endpoint's packed weights.
+    asm("add %0, sp, %1" : "=l"(next_slot) : "i"(120));
+    register DaylightTint * remembered asm("r10");
+    // Keep the second endpoint's tint parameters for the next blend.
+    asm volatile("mov %0, %1" : "=h"(remembered) : "l"(next_slot));
+    register u8 * word;
+    // Start from the wash buffer address to compute the saved tint color pointer.
+    asm("mov %0, sp" : "=l"(word));
+    word += 124;
+    DaylightStackScratch().second_tint[2] = reinterpret_cast<u32 *>(word);
+    register u8 * dirty_slot asm("r3") = reinterpret_cast<u8 *>(const_cast<DaylightColors *>(&base)) + offsetof(DaylightPalette, dirty);
+    DaylightStackScratch().dirty = dirty_slot;
+    register u32 current asm("r8");
+    asm("" : "=h"(current));
+    register u32 next_low asm("r0") = 1;
+    asm("" : "+l"(next_low));
+
+    next_low += current;
+    asm("" : : "l"(next_low));
+    register u32 next asm("r9");
+    // Keep the next cache index across palette blending.
+    asm volatile("mov %0, %1" : "=h"(next) : "l"(next_low));
+    register u16 * stack asm("sp");
+    asm("" : "=h"(stack));
+    if (stack != end)
+    {
+        register u32 fill asm("r0") = color;
+        asm("" : "+l"(fill));
+        do { *cursor++ = fill; } while (cursor != end);
+    }
+    register DaylightBlend params_word = params->weight;
+    asm("" : "+l"(params_word));
+    register DaylightColors * dest asm("r0") = out;
+    asm("" : "+l"(dest));
+    register DaylightColors const * wash asm("r1");
+    // Pass the filled wash palette to the blender.
+    asm("mov %0, sp" : "=l"(wash));
+    register DaylightColors const * original asm("r2") = &base;
+
+    register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+    asm("" : "+l"(run) : "l"(params_word), "l"(dest), "l"(wash), "l"(original));
+    run(*dest, *wash, *original, params_word);
+}
+
+
+static inline void TintOvercastEveningFrom(DaylightColors & output, DaylightColors const & base, DaylightScratch &)
+{
+    register DaylightTint * params = const_cast<DaylightTint *>(&DaylightStackScratch().tint[12]);
+    register u32 weight asm("r3") = 10;
+    asm("" : "+l"(weight) : "l"(params));
+    register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+    asm("" : "+l"(old_low));
+    register u32 keep_low asm("r0") = ~31u;
+    asm("" : "+l"(keep_low));
+    *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+    register u32 shifted asm("r3") = (30 - 10) << 5;
+    asm("" : "+l"(shifted) : "m"(params->weight));
+    register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+    asm("" : "+l"(old_half));
+    register u32 keep_half asm("r0") = ~0x3e0u;
+    asm("" : "+l"(keep_half));
+    *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+    register DaylightColors * out asm("r6") = &output;
+    asm("" : "+l"(out) : "m"(params->weight));
+    register u32 color asm("r4") = 0x6a32;
+    asm("" : "+l"(color) : "l"(out));
+    register u32 * rgb asm("r0");
+    // Address the RGB555 color for this tint.
+    asm("add %0, sp, #0x84" : "=l"(rgb));
+    *rgb = color;
+    asm("" : "+m"(*rgb));
+    register u16 * cursor asm("r0") = reinterpret_cast<u16 *>(DaylightWashStack());
+
+    register u16 * end asm("r1") = reinterpret_cast<u16 *>(DaylightWashStack() + 0x20);
+
+    register DaylightColors * from asm("r7") = out;
+    asm("" : "+l"(from));
+    register DaylightTint * next_slot asm("r3") = const_cast<DaylightTint *>(&DaylightStackScratch().tint[13]);
+    asm("" : "+l"(next_slot));
+    register DaylightTint * remembered asm("r10") = next_slot;
+    asm("" : : "h"(remembered));
+    register u8 * word asm("r3") = DaylightWashStack();
+    asm("" : "+l"(word));
+    word += 140;
+    DaylightStackScratch().second_tint[3] = reinterpret_cast<u32 *>(word);
+    register u8 * dirty_slot asm("r3") = reinterpret_cast<u8 *>(const_cast<DaylightColors *>(&base)) + offsetof(DaylightPalette, dirty);
+    DaylightStackScratch().dirty = dirty_slot;
+    register u32 count asm("r8");
+    asm("" : "=h"(count));
+    register u32 advance asm("r3") = 1;
+    asm("" : "+l"(advance));
+    advance += count;
+    asm("" : "+l"(advance));
+    register u32 next asm("r9") = advance;
+    asm("" : "+h"(next));
+    register u16 * stack asm("sp");
+    asm("" : "=h"(stack));
+    if (stack != end)
+    {
+        do { *cursor++ = color; } while (cursor != end);
+    }
+    register DaylightBlend params_word = params->weight;
+    asm("" : "+l"(params_word));
+    register DaylightColors * dest asm("r0") = out;
+
+    register DaylightColors const * wash asm("r1") = reinterpret_cast<DaylightColors const *>(DaylightWashStack());
+    register DaylightColors const * original asm("r2") = &base;
+    asm("" : "+l"(original));
+    register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+    asm("" : "+l"(run) : "l"(params_word), "l"(dest), "l"(wash), "l"(original));
+    run(*dest, *wash, *original, params_word);
+}
+
+static inline void TintOvercastEveningTo(DaylightColors & output, DaylightColors const & base, DaylightScratch &)
+{
+    register u32 weight asm("r3") = 10;
+    asm("" : "+l"(weight));
+    register DaylightTint * params asm("r2") = const_cast<DaylightTint *>(&DaylightStackScratch().tint[13]);
+    register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+    asm("" : "+l"(old_low));
+    register u32 keep_low = ~31u;
+
+    *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+    register u32 shifted asm("r3") = (30 - 10) << 5;
+    asm("" : "+l"(shifted) : "m"(params->weight));
+    register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+    asm("" : "+l"(old_half));
+    register u32 keep_half asm("r0") = ~0x3e0u;
+    asm("" : "+l"(keep_half));
+    *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+    register DaylightColors * remembered_output asm("r7");
+    asm("" : "=l"(remembered_output));
+    register DaylightColors * out asm("r4") = remembered_output;
+
+    ++out;
+    asm("" : "+l"(out));
+    register DaylightTint * remembered asm("r10");
+    asm("" : "=h"(remembered));
+    register DaylightTint * saved_params asm("r3") = remembered;
+    asm("" : : "l"(saved_params));
+    register u32 color = 0x2529;
+    asm("" : "+l"(color) : "l"(out));
+    register u32 * color_store asm("r6") = DaylightStackScratch().second_tint[3];
+    *color_store = color;
+    asm("" : "+m"(*color_store));
+    register u16 * cursor asm("r0") = reinterpret_cast<u16 *>(DaylightWashStack());
+
+    register u16 * end asm("r2") = reinterpret_cast<u16 *>(DaylightWashStack() + 0x20);
+    asm("" : "+l"(end));
+    register u32 * color_reload asm("r1");
+    // Address the RGB555 color for this tint.
+    asm("add %0, sp, #0x8c" : "=l"(color_reload));
+    register u16 * stack asm("sp");
+    asm("" : "=h"(stack));
+    if (stack != end)
+    {
+        register u32 fill asm("r1") = *color_reload;
+        asm("" : "+l"(fill));
+        do { *cursor++ = fill; } while (cursor != end);
+    }
+    register DaylightBlend params_word asm("r3") = saved_params->weight;
+
+    register DaylightColors * dest asm("r0") = out;
+    asm("" : "+l"(dest));
+    register DaylightColors const * wash asm("r1") = reinterpret_cast<DaylightColors const *>(DaylightWashStack());
+    register DaylightColors const * original asm("r2") = &base;
+    asm("" : "+l"(original));
+    register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+    asm("" : "+l"(run) : "l"(params_word), "l"(dest), "l"(wash), "l"(original));
+    run(*dest, *wash, *original, params_word);
+}
+
+EC void * CopyDaylightColors(void * output, void const * input, size_t size) asm("memcpy");
+
+EC SECTION(".text.game_state_c2.0801A13C") void GameStateRefreshMapDaylightPalettes(GameStateMapOwner & game, u32 hour, u32 minute, u32 force_rebuild)
+{
+    DaylightScratch storage;
+
+    register GameStateMapOwner * incoming asm("r0") = &game;
+    DaylightStackScratch().owner = incoming;
+    register u32 clock_hour asm("r4") = hour;
+    register u32 clock_minute asm("r7") = minute;
+    asm("" : "+l"(clock_hour), "+l"(clock_minute));
+    register u32 input_force = force_rebuild << 24;
+    asm("" : "+l"(input_force) : "l"(clock_hour), "l"(clock_minute));
+    register u32 force asm("r6") = input_force >> 24;
+    asm("" : "+l"(force));
+    register u32 next_band = GameStateGetTimeOfDayBand(*incoming, hour);
+    asm("" : "+l"(next_band));
+    register GameStateMapOwner * owner = DaylightStackScratch().owner;
+    register u32 band_offset = offsetof(GameStateMapOwner, daylight_band);
+
+    register u32 * band_ptr = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(owner) + band_offset);
+    asm("" : "+l"(band_ptr));
+    register u32 current_band asm("r0") = *band_ptr;
+    asm("" : "+l"(current_band));
+    if (current_band == next_band)
+    {
+        register u32 hours asm("r0") = clock_hour << 24;
+        DaylightStackScratch().hour = hours;
+        register u32 minutes asm("r3") = clock_minute << 24;
+        DaylightStackScratch().minute = minutes;
+        if (!force)
+            // Reuse the cached endpoints when the daylight band has not changed.
+            asm volatile("b PaletteBlendTail" : : "l"(force) : "memory");
+    }
+    {
+        *band_ptr = next_band;
+        register GameStateMapOwner * owner asm("r6") = DaylightStackScratch().owner;
+        ReloadMapPalettePair(reinterpret_cast<G1MapState *>(owner->map_view), next_band);
+        register GameStateMapView * view asm("r0") = owner->map_view;
+        asm("" : : "l"(view));
+        register i32 map_id = view->id;
+        asm("" : : "l"(map_id));
+        register u32 map_offset asm("r2") = offsetof(GameStateMapOwner, map_data);
+        asm("" : "+l"(map_offset) : "l"(map_id));
+        register GameStateMapData ** map asm("r0") = reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(owner) + map_offset);
+
+        asm("" : "+l"(map));
+        register u32 * saved_weather asm("r0") = &(*map)->farm_layout;
+        asm("" : "+l"(saved_weather));
+        register u32 weather;
+        if (map_id == 46)
+            goto map_46_weather;
+        if (map_id <= 46)
+            goto maybe_clear;
+        if (map_id == 47)
+            goto map_47_weather;
+        goto actual_weather;
+maybe_clear:
+        {
+
+            i32 first_default_map = 44;
+            if (map_id >= first_default_map)
+                weather = 0;
+            else
+                goto actual_weather;
+            goto initialize_cache;
+        }
+map_46_weather:
+        weather = 1;
+        goto initialize_cache;
+map_47_weather:
+        weather = 2;
+        goto initialize_cache;
+actual_weather:
+        weather = *saved_weather;
+initialize_cache:
+        asm("" : "+l"(weather));
+        register u32 cache_offset asm("r6") = offsetof(GameStateMapOwner, sprite_cache);
+
+        register GameStateMapOwner * cache_game asm("r3");
+        asm("" : : "l"(cache_offset));
+        cache_game = DaylightStackScratch().owner;
+        register DaylightPaletteCache * cache asm("r6") = reinterpret_cast<DaylightPaletteCache *>(reinterpret_cast<u8 *>(cache_game) + cache_offset);
+        DaylightStackScratch().cache = cache;
+        register u32 band_offset = offsetof(GameStateMapOwner, daylight_band);
+
+        register u32 * band_ptr asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(cache_game) + band_offset);
+        asm("" : "+l"(band_ptr));
+        register u32 band asm("r0") = *band_ptr;
+        DaylightStackScratch().band = band;
+        DaylightStackScratch().weather = weather;
+        register u32 zero asm("r3") = 0;
+        asm("" : "+l"(zero));
+        register u32 i asm("r8") = zero;
+        asm("" : : "h"(i));
+        register u32 hours = clock_hour << 24;
+        DaylightStackScratch().hour = hours;
+        register u32 minutes asm("r4") = clock_minute << 24;
+        DaylightStackScratch().minute = minutes;
+        asm volatile("PaletteCacheLoop:");
+        for (;;)
+        {
+            register DaylightPaletteCache * cache asm("r0") = DaylightStackScratch().cache;
+            register DaylightPalette * first asm("r0") = cache->entries;
+            asm("" : : "l"(first));
+            register u32 index asm("r6") = i;
+            asm("" : : "l"(index));
+            register u32 stride asm("r1") = index << 5;
+
+            stride += i;
+            asm("" : "+l"(stride));
+            stride <<= 2;
+            asm("" : "+l"(stride));
+            register DaylightPalette * entry = reinterpret_cast<DaylightPalette *>(reinterpret_cast<u8 *>(first) + stride);
+            asm("" : "+l"(entry));
+            DaylightPalette & palette = *entry;
+            register u32 next asm("r9");
+            if (!palette.time_tinted)
+            {
+                register DaylightColors * dest asm("r1") = &palette.from;
+                asm("" : : "l"(dest));
+                register DaylightColors const * source asm("r0") = &palette.original;
+                // Copy the unmodified palette into the first endpoint.
+                asm volatile(
+                    "ldmia %0!, {r2, r3, r4}\n\t"
+                    "stmia %1!, {r2, r3, r4}\n\t"
+                    "ldmia %0!, {r2, r3, r6}\n\t"
+                    "stmia %1!, {r2, r3, r6}\n\t"
+                    "ldmia %0!, {r4, r6}\n\t"
+                    "stmia %1!, {r4, r6}"
+                    : "+l"(source), "+l"(dest)
+                    : : "r2", "r3", "r4", "r6", "memory");
+                dest = &palette.to;
+                asm("" : : "l"(dest));
+                source = &palette.original;
+                // Copy the unmodified palette into the second endpoint.
+                asm volatile(
+                    "ldmia %0!, {r2, r3, r4}\n\t"
+                    "stmia %1!, {r2, r3, r4}\n\t"
+                    "ldmia %0!, {r2, r3, r6}\n\t"
+                    "stmia %1!, {r2, r3, r6}\n\t"
+                    "ldmia %0!, {r4, r6}\n\t"
+                    "stmia %1!, {r4, r6}"
+                    : "+l"(source), "+l"(dest)
+                    : : "r2", "r3", "r4", "r6", "memory");
+                register u8 * dirty_slot = &palette.dirty;
+
+                register u32 dirty asm("r0") = 1;
+                asm("" : "+l"(dirty));
+                *dirty_slot = dirty;
+                next = i + dirty;
+                asm("" : "+h"(next));
+                goto next_palette;
+            }
+
+            {
+                register u8 * dirty_ptr asm("r1") = &palette.dirty;
+                DaylightStackScratch().dirty = dirty_ptr;
+                register u32 one asm("r2") = 1;
+                asm("" : "+l"(one));
+                next = i + one;
+
+                register u32 weather = DaylightStackScratch().weather;
+                DaylightScratch & work = storage;
+                register DaylightTint * endpoint_weight;
+                register DaylightColors * endpoint_dest asm("r4");
+                register u32 choice asm("r3") = weather;
+
+                switch (choice)
+                {
+                    case 4:
+                    case 3:
+                    case 0:
+                        asm("" : : "l"(choice));
+                        {
+                            register i32 daylight asm("r4") = DaylightStackScratch().band;
+                            if (daylight == 1)
+                                goto clear_day;
+                            if (daylight <= 1)
+                            {
+                                if (static_cast<u32>(daylight) == 0)
+                                    goto clear_morning;
+                                register u8 * dirty asm("r5") = &palette.dirty;
+                                // Save the current cache entry's dirty-flag pointer.
+                                asm volatile("str %0, [sp, #0xc0]" : : "l"(dirty) : "memory");
+                                register u32 one asm("r6") = 1;
+                                asm("" : "+l"(one));
+
+                                one += i;
+                                asm("" : "+l"(one));
+                                next = one;
+
+                                goto set_dirty;
+                            }
+                            {
+                                register i32 second asm("r0") = DaylightStackScratch().band;
+                                if (second == 2)
+                                    goto clear_evening;
+                                register u8 * dirty asm("r1") = &palette.dirty;
+                                DaylightStackScratch().dirty = dirty;
+                                register u32 one asm("r2") = 1;
+                                asm("" : : "l"(one));
+                                one += i;
+                                asm("" : "+l"(one));
+                                next = one;
+                                asm("" : "+h"(next));
+                                if (second != 3)
+                                    goto set_dirty;
+                            }
+                        }
+                        TintClearPredawnFrom(palette.from, palette.original, work);
+                        {
+                            register u32 weight asm("r3") = 9;
+                            asm("" : "+l"(weight));
+                            register DaylightTint * params asm("r2") = &storage.tint[1];
+                            register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+                            asm("" : : "l"(old_low));
+                            register u32 keep_low asm("r0") = ~31u;
+                            asm("" : : "l"(keep_low));
+                            *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+                            register u32 shifted asm("r3") = (30 - 9) << 5;
+                            asm("" : "+l"(shifted) : "m"(params->weight));
+                            register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+
+                            register u32 keep_half asm("r0") = ~0x3e0u;
+                            *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+
+                            register DaylightColors * saved_output asm("r7");
+                            asm("" : "=l"(saved_output));
+                            register DaylightColors * next_output asm("r4") = saved_output;
+                            ++next_output;
+                            asm("" : "+l"(next_output));
+                            register DaylightTint * saved_slot asm("r8");
+                            asm("" : "=h"(saved_slot));
+                            register DaylightTint * saved_params asm("r3") = saved_slot;
+
+                            register u32 color asm("r0") = 0x1baa;
+
+                            // Save the RGB555 tint color.
+                            asm volatile("str %0, [sp, %1]" : : "l"(color), "i"(0x2c) : "memory");
+                            register u16 * cursor asm("r0") = storage.wash.colors;
+
+                            register u16 * end asm("r2") = storage.wash.colors + 16;
+                            register u16 * stack asm("sp");
+                            asm("" : "=h"(stack));
+                            endpoint_weight = saved_params;
+                            asm("" : : "l"(endpoint_weight));
+                            endpoint_dest = next_output;
+                            if (stack == end)
+                                goto blend_endpoint;
+
+                            {
+                                register u32 * saved_color asm("r10");
+                                asm("" : "=h"(saved_color));
+                                register u32 * color_ptr asm("r6") = saved_color;
+                                asm("" : "+l"(color_ptr));
+                                register u32 fill = *color_ptr;
+                                asm("" : "+l"(fill));
+                                do { *cursor++ = fill; } while (cursor != end);
+                            }
+                        }
+                        goto blend_endpoint;
+clear_morning:
+                        TintClearMorningFrom(palette.from, palette.original, work);
+                        {
+                            register DaylightColors * saved asm("r7");
+                            asm("" : "=l"(saved));
+                            register DaylightColors * output asm("r0") = saved;
+                            asm("" : "+l"(output));
+                            ++output;
+                            asm("" : "+l"(output));
+                            CopyDaylightColors(output, &palette.original, sizeof(DaylightColors));
+                        }
+                        goto set_dirty;
+clear_day:
+                        {
+                            register DaylightColors * from asm("r4") = &palette.from;
+                            asm("" : "+l"(from));
+                            CopyDaylightColors(from, &palette.original, sizeof(DaylightColors));
+                            {
+                                register DaylightTint * params = &storage.tint[3];
+                                register u32 weight asm("r3") = 3;
+                                asm("" : "+l"(weight) : "l"(params));
+                                register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+                                asm("" : "+l"(old_low));
+                                register u32 keep_low = ~31u;
+                                asm("" : "+l"(keep_low));
+                                *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+                                register u32 shifted = (30 - 3) << 5;
+                                asm("" : : "l"(shifted));
+                                register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+                                asm("" : : "l"(old_half));
+                                register u32 keep_half asm("r0") = ~0x3e0u;
+                                asm("" : "+l"(keep_half));
+
+                                *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+
+                                register DaylightColors * to asm("r4") = from;
+                                asm("" : : "l"(to));
+                                to += 1;
+                                asm("" : "+l"(to));
+                                register DaylightTint * saved_params asm("r3") = params;
+                                asm("" : "+l"(saved_params));
+                                register u32 channels asm("r1") = 8;
+                                asm("" : "+l"(channels));
+                                register u32 color asm("r2") = channels << 5;
+                                asm("" : "+l"(color));
+                                register u32 red asm("r0") = 32;
+                                asm("" : "+l"(red));
+                                color |= red;
+
+                                channels <<= 10;
+
+                                color |= channels;
+                                asm("" : "+l"(color));
+                                *static_cast<volatile u32 *>(&storage.tint[3].rgb) = color;
+                                register u16 * cursor asm("r0") = storage.wash.colors;
+
+                                register u16 * end = storage.wash.colors + 16;
+
+                                register u8 * dirty_addr asm("r6") = &palette.dirty;
+                                DaylightStackScratch().dirty = dirty_addr;
+                                register u32 step asm("r6") = 1;
+                                asm("" : "+l"(step));
+                                step += i;
+                                asm("" : "+l"(step));
+                                next = step;
+                                asm("" : "+h"(next));
+                                register u16 * stack asm("sp");
+                                asm("" : "=h"(stack));
+                                endpoint_weight = saved_params;
+                                asm("" : "+l"(endpoint_weight));
+                                endpoint_dest = to;
+                                if (stack == end)
+                                    goto blend_endpoint;
+
+                                {
+                                    do { *cursor++ = color; } while (cursor != end);
+                                }
+                            }
+                            goto blend_endpoint;
+                        }
+clear_evening:
+                        TintClearEveningFrom(palette.from, palette.original, work);
+                        {
+                            register u32 weight = 10;
+                            asm("" : "+l"(weight));
+                            register DaylightTint * params asm("r2") = &storage.tint[5];
+                            register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+                            asm("" : "+l"(old_low));
+                            register u32 keep_low = ~31u;
+
+                            *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+                            register u32 shifted asm("r3") = (30 - 10) << 5;
+                            asm("" : "+l"(shifted) : "m"(params->weight));
+                            register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+                            asm("" : : "l"(old_half));
+                            register u32 keep_half asm("r0") = ~0x3e0u;
+                            asm("" : : "l"(keep_half));
+                            *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+
+                            register DaylightColors * previous asm("r7");
+                            asm("" : "=l"(previous));
+                            register DaylightColors * to asm("r4") = previous;
+                            asm("" : "+l"(to));
+                            to += 1;
+                            asm("" : "+l"(to));
+                            register DaylightTint * remembered asm("r10");
+                            asm("" : "=h"(remembered));
+                            register DaylightTint * saved_params asm("r3") = remembered;
+                            asm("" : "+l"(saved_params));
+                            register u32 color asm("r0") = 0x2529;
+                            asm("" : "+l"(color));
+                            *static_cast<volatile u32 *>(&storage.tint[5].rgb) = color;
+                            register u16 * cursor asm("r0") = storage.wash.colors;
+
+                            register u16 * end asm("r2") = storage.wash.colors + 16;
+                            asm("" : "+l"(end));
+                            register u16 * stack asm("sp");
+                            asm("" : "=h"(stack));
+                            endpoint_weight = saved_params;
+                            asm("" : "+l"(endpoint_weight));
+                            endpoint_dest = to;
+                            if (stack == end)
+                                goto blend_endpoint;
+
+                            {
+                                register u32 * color_ptr asm("r6");
+                                // Reload the second endpoint's tint color pointer.
+                                asm volatile("ldr %0, [sp, %1]" : "=l"(color_ptr) : "i"(176) : "memory");
+                                register u32 fill asm("r1") = *color_ptr;
+                                asm("" : : "l"(fill));
+                                do { *cursor++ = fill; } while (cursor != end);
+                            }
+                        }
+                        goto blend_endpoint;
+                    case 2:
+                    case 1:
+                        asm("" : : "l"(choice));
+                        {
+                            register i32 daylight = DaylightStackScratch().band;
+                            if (daylight == 1)
+                                goto cloudy_day;
+                            if (daylight <= 1)
+                            {
+                                if (daylight == 0)
+                                    goto cloudy_morning;
+                                register u8 * dirty asm("r5") = &palette.dirty;
+                                // Save the current cache entry's dirty-flag pointer.
+                                asm volatile("str %0, [sp, #0xc0]" : : "l"(dirty) : "memory");
+                                register u32 low asm("r1") = 1;
+                                asm("" : "+l"(low));
+                                low += i;
+                                asm("" : "+l"(low));
+                                next = low;
+                                asm("" : "+h"(next));
+                                goto set_dirty;
+                            }
+                            {
+                                register i32 second asm("r2");
+                                // Reload the current daylight band.
+                                asm volatile("ldr %0, [sp, #0x98]" : "=l"(second) : : "memory");
+                                if (second == 2)
+                                    goto cloudy_evening;
+                                register u8 * dirty asm("r3") = &palette.dirty;
+                                // Save the current cache entry's dirty-flag pointer.
+                                asm volatile("str %0, [sp, #0xc0]" : : "l"(dirty) : "memory");
+                                register u32 one asm("r4") = 1;
+                                asm("" : "+l"(one));
+                                one += i;
+
+                                next = one;
+
+                                if (second != 3)
+                                    goto set_dirty;
+                            }
+                        }
+                        TintOvercastPredawnFrom(palette.from, palette.original, work);
+                        {
+                            register DaylightTint * params asm("r2");
+                            register u32 weight asm("r3") = 10;
+                            asm("" : "+l"(weight));
+                            params = &storage.tint[7];
+                            register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+                            asm("" : "+l"(old_low));
+                            register u32 keep_low asm("r0") = ~31u;
+                            asm("" : "+l"(keep_low));
+                            *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+                            register u32 shifted asm("r3") = (30 - 10) << 5;
+                            asm("" : "+l"(shifted) : "m"(params->weight));
+                            register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+                            asm("" : "+l"(old_half));
+                            register u32 keep_half asm("r0") = ~0x3e0u;
+                            asm("" : "+l"(keep_half));
+                            *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+
+                            register DaylightColors * previous asm("r7");
+                            asm("" : "=l"(previous));
+                            register DaylightColors * to asm("r4") = previous;
+                            asm("" : : "l"(to));
+                            to += 1;
+
+                            register DaylightTint * remembered asm("r8");
+                            asm("" : "=h"(remembered));
+                            register DaylightTint * saved_params asm("r3");
+                            // Keep the second endpoint's tint parameters for the next blend.
+                            asm volatile("mov %0, %1" : "=l"(saved_params) : "h"(remembered), "l"(to));
+
+                            register u32 color asm("r0") = 0x6a32;
+                            asm("" : : "l"(color), "l"(saved_params));
+                            *static_cast<volatile u32 *>(&storage.tint[7].rgb) = color;
+                            register u16 * cursor asm("r0") = storage.wash.colors;
+
+                            register u16 * end asm("r2") = storage.wash.colors + 16;
+                            asm("" : "+l"(end));
+                            register u16 * stack asm("sp");
+                            asm("" : "=h"(stack));
+                            endpoint_weight = saved_params;
+
+                            endpoint_dest = to;
+                            if (stack == end)
+                                goto blend_endpoint;
+
+                            {
+                                register u32 * earlier asm("r10");
+                                asm("" : "=h"(earlier));
+                                register u32 * color_ptr asm("r6") = earlier;
+                                asm("" : : "l"(color_ptr));
+                                register u32 fill asm("r1") = *color_ptr;
+
+                                do { *cursor++ = fill; } while (cursor != end);
+                            }
+                        }
+                        goto blend_endpoint;
+cloudy_morning:
+                        TintOvercastMorningFrom(palette.from, palette.original, work);
+                        {
+                            register DaylightTint * params asm("r2");
+                            register u32 weight asm("r3") = 10;
+                            asm("" : "+l"(weight));
+                            params = &storage.tint[9];
+                            register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+                            asm("" : "+l"(old_low));
+                            register u32 keep_low asm("r0") = ~31u;
+                            asm("" : : "l"(keep_low));
+                            *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+                            register u32 shifted asm("r3") = (30 - 10) << 5;
+                            asm("" : "+l"(shifted) : "m"(params->weight));
+                            register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+                            asm("" : "+l"(old_half));
+                            register u32 keep_half asm("r0") = ~0x3e0u;
+                            asm("" : "+l"(keep_half));
+                            *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+
+                            register DaylightColors * previous asm("r7");
+                            asm("" : "=l"(previous));
+                            register DaylightColors * to asm("r4") = previous;
+
+                            to += 1;
+                            asm("" : : "l"(to));
+                            register DaylightTint * remembered asm("r10");
+                            asm("" : "=h"(remembered));
+                            register DaylightTint * saved_params asm("r3") = remembered;
+                            asm("" : "+l"(saved_params));
+                            register u32 color = 0x6a32;
+
+                            // Save the RGB555 tint color.
+                            asm volatile("str %0, [sp, %1]" : : "l"(color), "i"(0x6c) : "memory");
+                            register u16 * cursor asm("r0");
+                            register u16 * end asm("r2");
+                            // Set the bounds of the 16-color wash buffer.
+                            asm volatile("mov %0, sp\n\tadd %1, sp, #0x20"
+                                : "=l"(cursor), "=l"(end) : "l"(saved_params) : "memory");
+                            register u16 * stack asm("sp");
+                            asm("" : "=h"(stack));
+                            endpoint_weight = saved_params;
+                            asm("" : "+l"(endpoint_weight));
+                            asm("" : "=l"(endpoint_dest));
+                            if (stack == end)
+                                goto blend_endpoint;
+
+                            {
+                                register u32 * color_ptr asm("r6");
+                                // Reload the second endpoint's tint color pointer.
+                                asm volatile("ldr %0, [sp, %1]" : "=l"(color_ptr) : "i"(180) : "memory");
+                                register u32 fill asm("r1") = *color_ptr;
+                                asm("" : "+l"(fill));
+                                do { *cursor++ = fill; } while (cursor != end);
+                            }
+                        }
+                        goto blend_endpoint;
+cloudy_day:
+                        TintOvercastDayFrom(palette.from, palette.original, work);
+                        {
+                            register u32 weight asm("r3") = 10;
+                            asm("" : "+l"(weight));
+                            register DaylightTint * params asm("r2") = &storage.tint[11];
+                            register u32 old_low asm("r1") = *reinterpret_cast<u8 *>(&params->weight);
+                            asm("" : : "l"(old_low));
+                            register u32 keep_low asm("r0") = ~31u;
+
+                            *reinterpret_cast<u8 *>(&params->weight) = (keep_low & old_low) | weight;
+                            register u32 shifted asm("r3") = (30 - 10) << 5;
+                            asm("" : "+l"(shifted));
+                            register u32 old_half asm("r1") = *reinterpret_cast<u16 *>(&params->weight);
+                            asm("" : : "l"(old_half));
+                            register u32 keep_half asm("r0") = ~0x3e0u;
+                            asm("" : "+l"(keep_half));
+
+                            *reinterpret_cast<u16 *>(&params->weight) = (keep_half & old_half) | shifted;
+
+                            register DaylightColors * previous asm("r7");
+                            asm("" : "=l"(previous));
+                            register DaylightColors * to asm("r4") = previous;
+                            asm("" : "+l"(to));
+                            to += 1;
+
+                            register DaylightTint * remembered asm("r10");
+                            asm("" : "=h"(remembered));
+                            register DaylightTint * saved_params asm("r3") = remembered;
+                            asm("" : : "l"(saved_params));
+                            register u32 color = 0x6a32;
+                            asm("" : "+l"(color));
+                            *static_cast<volatile u32 *>(&storage.tint[11].rgb) = color;
+                            register u16 * cursor asm("r0") = storage.wash.colors;
+
+                            register u16 * end asm("r2") = storage.wash.colors + 16;
+                            asm("" : : "l"(end));
+                            register u16 * stack asm("sp");
+                            asm("" : "=h"(stack));
+                            endpoint_weight = saved_params;
+                            asm("" : "+l"(endpoint_weight));
+                            endpoint_dest = to;
+                            if (stack == end)
+                                goto blend_endpoint;
+
+                            {
+                                register u32 * color_ptr asm("r6");
+                                // Reload the second endpoint's tint color pointer.
+                                asm volatile("ldr %0, [sp, %1]" : "=l"(color_ptr) : "i"(184) : "memory");
+                                register u32 fill asm("r1") = *color_ptr;
+
+                                do { *cursor++ = fill; } while (cursor != end);
+                            }
+                        }
+                        goto blend_endpoint;
+blend_endpoint:
+                        {
+                            register DaylightBlend params asm("r3") = endpoint_weight->weight;
+                            asm("" : "+l"(params));
+                            register DaylightColors * output asm("r0") = endpoint_dest;
+                            asm("" : "+l"(output));
+                            register DaylightColors const * wash asm("r1") = &storage.wash;
+                            register DaylightColors const * original asm("r2") = &palette.original;
+                            asm("" : "+l"(original));
+                            register void (*run)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+                            asm("" : "+l"(run) : "l"(params), "l"(output), "l"(wash), "l"(original));
+                            run(*output, *wash, *original, params);
+                        }
+                        goto set_dirty;
+cloudy_evening:
+                        TintOvercastEveningFrom(palette.from, palette.original, work);
+                        TintOvercastEveningTo(palette.to, palette.original, work);
+                        goto set_dirty;
+                }
+set_dirty:
+                register u32 dirty asm("r0") = 1;
+                asm("" : "+l"(dirty));
+                register u8 * dirty_slot asm("r1") = DaylightStackScratch().dirty;
+                *dirty_slot = dirty;
+            }
+next_palette:
+            i = next;
+            asm("" : "+h"(i));
+            u32 limit = 22;
+            if (i < limit)
+                // Continue rebuilding palettes at the next cache entry.
+                asm volatile("b PaletteCacheLoop" : : "h"(i) : "memory");
+            break;
+        }
+        // Force a blend after rebuilding the cached endpoints.
+        asm volatile("movs %0, #1" : "=l"(force) : : "cc");
+    }
+
+    asm volatile("PaletteBlendTail:");
+    asm("" : "=l"(force));
+    register u32 packed_hour asm("r3") = DaylightStackScratch().hour;
+    register u8 low_hour asm("r4") = packed_hour >> 24;
+    asm("" : : "l"(low_hour));
+    register u32 packed_minute asm("r0") = DaylightStackScratch().minute;
+    register u8 low_minute = packed_minute >> 24;
+    asm("" : "+l"(low_minute));
+    register GameStateMapOwner * blend_owner asm("r1") = DaylightStackScratch().owner;
+    {
+        register u32 map_offset asm("r2") = offsetof(GameStateMapOwner, map_data);
+        asm("" : "+l"(map_offset));
+        register GameStateMapData ** data asm("r0") = reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(blend_owner) + map_offset);
+        asm("" : "+l"(data));
+        register u32 season asm("r2") = func_0800E324(reinterpret_cast<Unk_0800E324 const &>((*data)->clock));
+        asm("" : "+l"(season));
+        register GameStateMapOwner * owner asm("r3") = DaylightStackScratch().owner;
+        register u32 band_offset asm("r1") = offsetof(GameStateMapOwner, daylight_band);
+        asm("" : "+l"(band_offset) : "l"(owner));
+        register u32 * band asm("r0") = reinterpret_cast<u32 *>(reinterpret_cast<u8 *>(owner) + band_offset);
+        asm("" : : "l"(band));
+        register u32 daylight asm("r3") = *band;
+        asm("" : : "l"(daylight));
+        register u32 raw_amount asm("r0") = GetMapTimePalette(low_hour, low_minute, season, daylight);
+        asm("" : "+l"(raw_amount));
+        register u32 amount asm("r1") = static_cast<u8>(raw_amount);
+        asm("" : "+l"(amount));
+        register GameStateMapOwner * amount_game asm("r2") = DaylightStackScratch().owner;
+        register u32 amount_offset asm("r3") = offsetof(GameStateMapOwner, daylight_amount);
+        asm("" : "+l"(amount_offset));
+        register u8 * amount_slot = reinterpret_cast<u8 *>(amount_game) + amount_offset;
+        asm("" : "+l"(amount_slot));
+        register u32 prev_amount asm("r0") = *amount_slot;
+        asm("" : : "l"(prev_amount));
+        if (prev_amount == amount && !force)
+            return;
+        *amount_slot = amount;
+        register GameStateMapOwner * set_game asm("r4") = DaylightStackScratch().owner;
+        register GameStateMapView * view = set_game->map_view;
+        asm("" : "+l"(view));
+        register u32 first = *amount_slot;
+        asm("" : : "l"(first));
+        register u32 maximum asm("r4") = 30;
+        asm("" : "+l"(maximum));
+        SetMapBackgroundDaylight(reinterpret_cast<G1MapState *>(view), first, maximum - first);
+        first = *amount_slot;
+        asm("" : "+l"(first));
+        maximum -= first;
+        asm("" : "+l"(maximum));
+        register u32 zero asm("r6") = 0;
+        asm("" : "+l"(zero));
+        register u32 i asm("r9") = zero;
+        asm("" : "+h"(i));
+        register u32 mask = 31;
+
+        first &= mask;
+        DaylightStackScratch().first = first;
+        register GameStateMapOwner * raw_cache = DaylightStackScratch().owner;
+        register u32 dirty_offset asm("r1") = 0x23e;
+        asm("" : : "l"(dirty_offset));
+        register u8 * dirty = reinterpret_cast<u8 *>(raw_cache) + dirty_offset;
+        asm("" : : "h"(dirty));
+        register GameStateMapOwner * cache asm("r2") = DaylightStackScratch().owner;
+        register u32 end_offset asm("r3") = 0x1fc;
+        asm("" : "+l"(end_offset));
+        register DaylightColors * to = reinterpret_cast<DaylightColors *>(reinterpret_cast<u8 *>(cache) + end_offset);
+        asm("" : : "l"(to));
+        register u32 begin_offset asm("r0") = 0x1dc;
+        asm("" : "+l"(begin_offset));
+        register DaylightColors * from asm("r6") = reinterpret_cast<DaylightColors *>(reinterpret_cast<u8 *>(cache) + begin_offset);
+        asm("" : "+l"(from));
+        dirty_offset -= 0x22;
+        asm("" : : "l"(dirty_offset));
+        register DaylightColors * out = reinterpret_cast<DaylightColors *>(reinterpret_cast<u8 *>(cache) + dirty_offset);
+        asm("" : "+l"(out));
+        register u32 ratio_end_mask asm("r0") = 31;
+
+        maximum &= ratio_end_mask;
+        asm("" : "+l"(maximum));
+        maximum <<= 5;
+        register u32 last_ratio asm("r10") = maximum;
+        asm("" : "+h"(last_ratio));
+        do
+        {
+            register u32 low_mask asm("r2") = ~31u;
+            asm("" : "+l"(low_mask));
+            register u32 copy asm("r1") = low_mask;
+            asm("" : "+l"(copy));
+            register u32 ratio asm("r0") = DaylightStackScratch().ratio;
+            ratio &= copy;
+            asm("" : : "l"(ratio));
+            register u32 first asm("r3") = DaylightStackScratch().first;
+            ratio |= first;
+            asm("" : "+l"(ratio));
+            ratio = static_cast<u8>(ratio);
+            asm("" : "+l"(ratio));
+            register u32 mask asm("r1") = ~0xffu;
+            asm("" : "+l"(mask) : "l"(ratio));
+            register u32 raw asm("r4") = DaylightStackScratch().ratio;
+            raw = (raw & mask) | ratio;
+            DaylightStackScratch().ratio = raw;
+            register u32 clear asm("r0") = ~0x3e0u;
+            asm("" : "+l"(clear));
+            mask = clear;
+            asm("" : "+l"(mask));
+            ratio = raw;
+
+            ratio &= mask;
+
+            mask = last_ratio;
+            asm("" : "+l"(mask));
+            ratio |= mask;
+            asm("" : "+l"(ratio));
+            ratio = static_cast<u16>(ratio);
+            asm("" : : "l"(ratio));
+            mask = ~0xffffu;
+            asm("" : "+l"(mask));
+            raw = (raw & mask) | ratio;
+            DaylightStackScratch().ratio = raw;
+            register DaylightColors * dest = out;
+            asm("" : "+l"(dest));
+            register DaylightColors * begin asm("r1") = from;
+
+            register DaylightColors * end asm("r2") = to;
+
+            register DaylightBlend packed asm("r3");
+            asm("" : "=l"(packed) : "0"(raw));
+            register void (*blend)(DaylightColors &, DaylightColors const &, DaylightColors const &, DaylightBlend) asm("r4") = BlendDaylightColors;
+            asm("" : "+l"(blend) : "l"(dest), "l"(begin), "l"(end), "l"(packed));
+            blend(*dest, *begin, *end, packed);
+            register u32 one asm("r0") = 1;
+            asm("" : "+l"(one));
+            register volatile u8 * dirty_byte asm("r2") = dirty;
+
+            *dirty_byte = one;
+            register u32 stride asm("r3") = sizeof(DaylightPalette);
+            asm("" : : "l"(stride));
+            dirty += stride;
+            asm("" : : "h"(dirty));
+            to = reinterpret_cast<DaylightColors *>(reinterpret_cast<u8 *>(to) + sizeof(DaylightPalette));
+            asm("" : "+l"(to));
+            from = reinterpret_cast<DaylightColors *>(reinterpret_cast<u8 *>(from) + sizeof(DaylightPalette));
+
+            out = reinterpret_cast<DaylightColors *>(reinterpret_cast<u8 *>(out) + sizeof(DaylightPalette));
+            asm("" : "+l"(out));
+            i += one;
+
+            register u32 check asm("r4") = i;
+            asm("" : "+l"(check));
+            u32 limit = 22;
+            if (!(check < limit))
+                break;
+        } while (true);
+    }
 }
 
 EC AEntity * InitializeScheduledNpc01(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
@@ -1806,7 +3222,7 @@ struct GameStateLooseItemInfo
 
 struct GameStateLooseItemStore
 {
-    RucksackItem PickUp(u32, GameStateLooseItemRect const &, u32) asm("func_080A1B38");
+    RucksackItem PickUp(u32, GameStateLooseItemRect const &, u32) asm("PickUpMapForageItem");
 };
 
 EC int FindLooseItem(GameStateLooseItemStore const &, u32, GameStateLooseItemRect const &, u32)
@@ -2415,7 +3831,9 @@ EC SECTION(".text.game_state_c2.0801DEB4") bool GameStateClearNearestEligibleFar
     register GameStateMapData * data asm("r0") = game.map_data;
     register u32 field_offset asm("r2") = field_offset_in_map_data;
     register GameStateFarmField * farm_field asm("r2");
-    asm("add %0, %2, %0" : "=l"(farm_field) : "0"(field_offset), "l"(data) : "cc");
+    asm("" : "+l"(field_offset) : "l"(data));
+    farm_field = reinterpret_cast<GameStateFarmField *>(reinterpret_cast<u8 *>(data) + field_offset);
+    asm("" : "+l"(farm_field));
     scratch.field = farm_field;
     register int width asm("r1");
     do
@@ -2438,6 +3856,7 @@ EC SECTION(".text.game_state_c2.0801DEB4") bool GameStateClearNearestEligibleFar
             {
                 register int coordinate_offset asm("r6") = offsetof(Vec2, x);
                 register int origin_x asm("r1");
+                // Load the signed X coordinate of the scan center.
                 asm("ldrsh %0, [%1, %2]" : "=l"(origin_x) : "l"(&point), "l"(coordinate_offset), "m"(point.x));
                 register int dx asm("r1") = center_x - origin_x;
                 register int origin_y asm("r0") = point.y;
@@ -2564,6 +3983,7 @@ EC SECTION(".text.game_state_c2.0801DEB4") bool GameStateClearNearestEligibleFar
                     else
                         north = nullptr;
                     register Unk_Something const * adjacent asm("r0") = current->method_0800AF5C(south, north);
+                    // Call the redraw routine with the neighbor data in its fifth argument slot.
                     asm volatile (
                         ".ifnc \"%1\", \"[sp]\"\n\t"
                         ".error \"Field redraw argument must be at the outgoing argument slot\"\n\t"
@@ -2876,7 +4296,8 @@ private:
 inline void * operator new(size_t, GameStateMapHandle * storage) { return storage; }
 
 EC GameStateSavedMapView * InitializeWorldMapBuffers(GameStateSavedMapView * view, GameStateMapData & state);
-EC GameStateMapObject * func_080175B4(GameStateMapObject * map, GameStateMapData & state, GameStateScript * script,
+// 0x080175B4
+EC GameStateMapObject * GameStateMapScene_Initialize(GameStateMapObject * map, GameStateMapData & state, GameStateScript * script,
     GameStateSavedMapView * & view, bool restore_events);
 
 EC SECTION(".text.game_state_c2.0801FB7C") GameStateMapHandle * GameStateCreateMapObject(
@@ -2884,7 +4305,7 @@ EC SECTION(".text.game_state_c2.0801FB7C") GameStateMapHandle * GameStateCreateM
 {
     GameStateSavedMapView * view = InitializeWorldMapBuffers(
         static_cast<GameStateSavedMapView *>(::operator new(sizeof(GameStateSavedMapView))), state);
-    GameStateMapHandle map(func_080175B4(
+    GameStateMapHandle map(GameStateMapScene_Initialize(
         static_cast<GameStateMapObject *>(::operator new(sizeof(GameStateMapOwner))), state, script, view, restore_events));
     return new (result) GameStateMapHandle(map.Move());
 }
@@ -3123,14 +4544,15 @@ EC SECTION(".text.game_state_c2.08019BEC") void GameStateTransitionMap(GameState
             methods->decode(output, archive, frame_index);
             register u8 * active asm("r0") = reinterpret_cast<u8 *>(&replacement->active);
             asm("" : "+l"(active));
-            register u8 kind asm("r2");
+            register u8 * stack asm("sp");
             asm(
                 ".ifnes \"%1\", \"[sp, #0x14]\"\n\t"
                 ".error \"Transition sprite kind must be at sp + 20\"\n\t"
-                ".endif\n\t"
-                "mov %0, sp\n\t"
-                "ldrb %0, [%0, #20]"
-                : "=l"(kind) : "m"(work.kind), "l"(active));
+                ".endif"
+                : "=h"(stack) : "m"(work.kind), "l"(active));
+            register u8 * kind_base asm("r2") = stack;
+            asm("" : "+l"(kind_base));
+            register u8 kind asm("r2") = kind_base[0x14];
             asm("" : "+l"(kind) : "l"(active));
             *active = kind;
             register GameStateVaseDisplay ** dest_slot asm("r4") = slot;
@@ -3241,7 +4663,7 @@ EC SECTION(".text.game_state_c2.08019BEC") void GameStateTransitionMap(GameState
         register GameStateClock const ** address asm("r0") = reinterpret_cast<GameStateClock const **>(reinterpret_cast<u8 *>(&game) + offset);
         asm("" : "+l"(address));
         GameStateClock const * clock = *address;
-        func_0801A13C(game, clock->hour, clock->minute, true);
+        GameStateRefreshMapDaylightPalettes(game, clock->hour, clock->minute, true);
     }
 }
 
@@ -3311,7 +4733,7 @@ static inline ClockActorMethods const & ClockMethods(AEntity * actor)
     return **reinterpret_cast<ClockActorMethods const **>(reinterpret_cast<u8 *>(actor) + 0x14);
 }
 
-static inline bool AdvanceClockFrame(ClockCounters & state, ClockAdvanceWork &, u32)
+static inline bool AdvanceClockFrame(ClockCounters & state, ClockAdvanceWork & work, u32)
 {
     register ClockCounters * counter asm("r6") = &state;
     asm("" : "+l"(counter));
@@ -3379,27 +4801,32 @@ static inline bool AdvanceClockFrame(ClockCounters & state, ClockAdvanceWork &, 
         {
             register u32 season asm("r0") = (previous_date << 30) >> 30;
             register u32 low_mask asm("r1");
+            // Recover the low-bit mask for the packed calendar byte.
             asm("mov %0, sl" : "=l"(low_mask));
             season &= low_mask;
             register u32 preserve asm("r1") = ~3u;
-            register u8 * season_ptr asm("r4");
-            asm("add %0, sp, #0x348" : "=l"(season_ptr));
+            register u8 * season_ptr asm("r4") = reinterpret_cast<u8 *>(&work.season);
             register u32 scratch asm("r4") = *season_ptr;
             preserve = (preserve & scratch) | season;
             ++season;
             register u32 low_mask_again asm("r5");
+            // Recover the low-bit mask for the packed calendar byte.
             asm("mov %0, sl" : "=l"(low_mask_again));
             season &= low_mask_again;
             register u32 clear asm("r4") = ~3u;
             preserve = (preserve & clear) | season;
             register u8 * season_out asm("r5");
+            // Address the saved season byte for rollover.
             asm volatile("add %0, sp, #0x348" : "=l"(season_out) : "l"(preserve));
+            // Store the updated season byte after applying rollover.
             asm volatile("strb %1, [%0]" : : "l"(season_out), "l"(preserve) : "memory");
             register u32 stored_season asm("r1") = (preserve << 30) >> 30;
             register u32 low_mask_final asm("r0");
+            // Recover the low-bit mask for the packed calendar byte.
             asm("mov %0, sl" : "=l"(low_mask_final));
             stored_season &= low_mask_final;
             register u32 update asm("r0");
+            // Copy the cleared bits before inserting the new season.
             asm("add %0, %1, #0" : "=l"(update) : "l"(clear), "l"(stored_season));
 
             reinterpret_cast<u8 *>(date)[1] = (update & previous_date) | stored_season;
@@ -3413,14 +4840,14 @@ static inline bool AdvanceClockFrame(ClockCounters & state, ClockAdvanceWork &, 
         reinterpret_cast<u8 *>(date)[1] = (update & raw_date) | day_bits;
     }
     {
-        register u8 * scratch asm("r3");
-        asm("add %0, sp, #0x34c" : "=l"(scratch));
+        register u8 * scratch asm("r3") = reinterpret_cast<u8 *>(&work.date);
         register u32 date asm("r0") = *scratch;
         register u32 season_clear asm("r3") = ~3u;
         date &= season_clear;
         register u32 day_clear asm("r4") = ~0x7Cu;
         register u32 masked asm("r0") = date & day_clear;
         register u8 * storage asm("r5");
+        // Address the scratch byte used for the new packed date.
         asm("add %0, sp, #0x34c" : "=l"(storage) : "l"(masked));
         *storage = masked;
     }
@@ -3452,6 +4879,7 @@ static inline bool AdvanceClockFrame(ClockCounters & state, ClockAdvanceWork &, 
         register u32 byte asm("r0") = reinterpret_cast<u8 *>(period)[0];
         register u32 preserve asm("r3") = ~7u;
         register u32 copy asm("r1");
+        // Copy the packed calendar byte before updating its fields.
         asm("add %0, %1, #0" : "=l"(copy) : "l"(preserve), "l"(byte));
         reinterpret_cast<u8 *>(period)[0] = (byte & copy) | year;
     }
@@ -3464,6 +4892,7 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
     GameStateMapOwner & game = owner;
     register u16 const * requested asm("r1") = &target;
     asm("" : "+l"(requested) : "l"(&game));
+    // Save the pointer to the requested packed clock time.
     asm volatile("str %0, [sp, #0x330]" : : "l"(requested) : "memory");
     register u32 map_data_offset asm("r1") = offsetof(GameStateMapOwner, map_data);
     asm("" : "+l"(map_data_offset));
@@ -3472,6 +4901,7 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
     asm("" : "+l"(map_data));
     register u16 const * current_time asm("r0") = reinterpret_cast<u16 const *>(reinterpret_cast<u8 *>(*map_data) + 0x12);
     asm("" : "+l"(current_time));
+    // Save the pointer to the current packed clock time.
     asm volatile("str %0, [sp, #0x334]" : : "l"(current_time) : "memory");
     register u32 enabled_offset asm("r3") = offsetof(GameStateMapOwner, entities_enabled);
     asm("" : "+l"(enabled_offset));
@@ -3479,10 +4909,12 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
     asm("" : "+l"(enabled_ptr));
     register u32 enabled asm("r0") = *enabled_ptr;
     asm("" : "+l"(enabled));
+    // Save the saved entity-enable state.
     asm volatile("str %0, [sp, #0x338]" : : "l"(enabled) : "memory");
     if (enabled)
     {
         register ClockOwnerMethods const * methods asm("r0");
+        // Load the game state's virtual method table.
         asm("ldr %0, [%1]" : "=l"(methods) : "l"(&game) : "memory");
         asm("" : "+l"(methods));
         register u32 offset asm("r4") = offsetof(ClockOwnerMethods, disable);
@@ -3495,11 +4927,13 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
 
     register AEntity ** begin asm("r5") = game.entities;
     asm("" : "+l"(begin));
+    // Save the first actor callback slot.
     asm volatile("str %0, [sp, #0x33c]" : : "l"(begin) : "memory");
     register u32 entity_end_offset asm("r0") = offsetof(GameStateMapOwner, entities) + sizeof(game.entities);
     asm("" : "+l"(entity_end_offset));
     register AEntity ** end asm("r0") = reinterpret_cast<AEntity **>(reinterpret_cast<u8 *>(&game) + entity_end_offset);
     asm("" : "+l"(end));
+    // Save the end of the actor callback slots.
     asm volatile("str %0, [sp, #0x340]" : : "l"(end) : "memory");
     register AEntity ** actor asm("r4") = begin;
     asm("" : "+l"(actor));
@@ -3508,6 +4942,7 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
     register u32 tick_offset asm("r3") = offsetof(ClockAdvanceWork, tick);
     asm("" : "+l"(tick_offset) : "l"(actors));
     register ClockTickContext * tick_ptr asm("r3");
+    // Locate this actor's clock-tick callback record in the frame.
     asm("add %0, sp" : "=l"(tick_ptr) : "0"(tick_offset));
     register ClockTickContext * tick asm("r8") = tick_ptr;
     asm("" : "+h"(tick));
@@ -3521,6 +4956,7 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
                 entity->vfunc_14();
             ++actor;
             register AEntity ** last asm("r0");
+            // Reload the end of the actor callback slots.
             asm volatile("ldr %0, [sp, #0x340]" : "=l"(last) : "l"(actor) : "memory");
             if (actor == last)
                 break;
@@ -3540,6 +4976,7 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
         register u32 slot asm("r0") = *fast_slots;
         asm("" : "+l"(slot));
         register AEntity ** actor_ptr asm("r0");
+        // Locate the selected actor's callback slot.
         asm("add %0, %1, %0" : "=l"(actor_ptr) : "l"(first_actors), "0"(slot * 4));
         register AEntity * entity asm("r1") = *actor_ptr;
         asm("" : "+l"(entity));
@@ -3552,6 +4989,7 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
                 register u32 offset asm("r0") = (size * sizeof(AEntity *)) + offsetof(ClockActorList, actors);
                 asm("" : "+l"(offset));
                 register AEntity ** dest asm("r0");
+                // Address the callback record to populate in the stack array.
                 asm("add %0, sp" : "=l"(dest) : "0"(offset));
                 asm("" : "+l"(dest));
                 if (dest)
@@ -3569,12 +5007,14 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
     register u32 fast_offset asm("r0") = size * sizeof(AEntity *) + offsetof(ClockActorList, actors);
     asm("" : "+l"(fast_offset));
     register AEntity ** fast_ptr asm("r0");
+    // Address the slot for a fast clock callback.
     asm("add %0, sp" : "=l"(fast_ptr) : "0"(fast_offset));
     register AEntity ** fast_end asm("r9") = fast_ptr;
     asm("" : "+h"(fast_end));
     register u32 slow_offset asm("r2") = offsetof(ClockAdvanceWork, slow);
     asm("" : "+l"(slow_offset));
     register u8 * stack asm("r3");
+    // Get the base of the actor callback records on the stack.
     asm("mov %0, sp" : "=l"(stack));
     register ClockActorList * slow_list asm("r1") = reinterpret_cast<ClockActorList *>(stack + slow_offset);
     asm("" : "+l"(slow_list));
@@ -3590,13 +5030,16 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
         register u32 slot asm("r0") = *slow_slots;
         asm("" : "+l"(slot));
         register AEntity ** actor_ptr asm("r0");
+        // Locate the selected actor's callback slot.
         asm("add %0, %1, %0" : "=l"(actor_ptr) : "l"(actors), "0"(slot * 4));
         register AEntity * entity asm("r3") = *actor_ptr;
         asm("" : "+l"(entity));
         if (entity)
         {
             register u8 * stack asm("r0");
-            asm("mov %0, sp" : "=l"(stack) : "l"(entity));
+            register u8 * saved_stack asm("sp");
+            asm("" : "=h"(saved_stack) : "l"(entity));
+            stack = saved_stack;
             register ClockActorList * list asm("r1") = reinterpret_cast<ClockActorList *>(stack + slow_offset);
             asm("" : "+l"(list));
             register u32 size asm("r0") = list->size;
@@ -3625,13 +5068,14 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
     asm("" : "+l"(end_offset));
     register AEntity ** slow_end asm("r1") = reinterpret_cast<AEntity **>(reinterpret_cast<u8 *>(slow) + end_offset);
     asm("" : "+l"(slow_end));
+    // Save the end of the currently populated actor callback slots.
     asm volatile("str %0, [sp, #0x344]" : : "l"(slow_end) : "memory");
     register u32 flags asm("r1") = 0;
     asm("" : "+l"(flags));
-    register ClockTickContext * context asm("r0");
-    asm("add %0, sp, #0x328" : "=l"(context) : "l"(flags));
+    register ClockTickContext * context asm("r0") = &work.tick;
     context->value = flags;
     register ClockTickContext * initial_tick asm("r3");
+    // Recover the tick context to clear its minute-changed flag.
     asm("mov %0, r8" : "=l"(initial_tick));
     initial_tick->minute_changed = flags;
     register u32 clock_offset asm("r4") = offsetof(GameStateMapOwner, clock);
@@ -3648,7 +5092,9 @@ clear_minute_change:
         register u32 state asm("r0") = 0;
         asm("" : "+l"(state));
         register ClockTickContext * context asm("r1");
-        asm("mov %0, r8" : "=l"(context) : "l"(state));
+        register ClockTickContext * saved_context asm("r8");
+        asm("" : "=h"(saved_context) : "l"(state));
+        context = saved_context;
         context->minute_changed = state;
     }
     goto advance_frame;
@@ -3672,11 +5118,14 @@ advance_frame:
         register u32 state asm("r0") = 1;
         asm("" : "+l"(state));
         register ClockTickContext * context asm("r4");
-        asm("mov %0, r8" : "=l"(context) : "l"(state));
+        register ClockTickContext * saved_context asm("r8");
+        asm("" : "=h"(saved_context) : "l"(state));
+        context = saved_context;
         context->minute_changed = state;
         register AEntity ** actor asm("r4") = work.slow.actors;
         asm("" : "+l"(actor) : "m"(context->minute_changed));
         register AEntity ** end asm("r5");
+        // Reload the end of the currently populated actor callback slots.
         asm volatile("ldr %0, [sp, #0x344]" : "=l"(end) : "l"(actor) : "memory");
         if (actor != end)
         {
@@ -3685,6 +5134,7 @@ advance_frame:
                 AEntity * next = *actor++;
                 ClockMethods(next).tick(next, *tick);
                 register AEntity ** end asm("r0");
+                // Reload the end of the currently populated actor callback slots.
                 asm volatile("ldr %0, [sp, #0x344]" : "=l"(end) : "l"(actor) : "memory");
                 if (actor == end)
                     break;
@@ -3693,12 +5143,14 @@ advance_frame:
     }
     {
         register u16 const * target asm("r1");
+        // Reload the pointer to the requested packed clock time.
         asm volatile("ldr %0, [sp, #0x330]" : "=l"(target) : : "memory");
         register u32 requested asm("r2") = *target;
         asm("" : "+l"(requested));
         register u32 mask asm("r0") = 0x7FF;
         asm("" : "+l"(mask) : "l"(requested));
         register u16 const * current asm("r4");
+        // Reload the pointer to the current packed clock time.
         asm volatile("ldr %0, [sp, #0x334]" : "=l"(current) : "l"(mask) : "memory");
         register u32 actual asm("r3") = *current;
         asm("" : "+l"(actual));
@@ -3712,8 +5164,10 @@ advance_frame:
             goto clear_minute_change;
     }
     register AEntity ** finish_actor asm("r4");
+    // Reload the first actor callback slot.
     asm volatile("ldr %0, [sp, #0x33c]" : "=l"(finish_actor) : : "memory");
     register AEntity ** last_actor asm("r5");
+    // Reload the end of the actor callback slots.
     asm volatile("ldr %0, [sp, #0x340]" : "=l"(last_actor) : : "memory");
     if (finish_actor != last_actor)
     {
@@ -3729,18 +5183,21 @@ advance_frame:
             }
             ++finish_actor;
             register AEntity ** last asm("r0");
+            // Reload the end of the actor callback slots.
             asm volatile("ldr %0, [sp, #0x340]" : "=l"(last) : "l"(finish_actor) : "memory");
             if (finish_actor == last)
                 break;
         } while (true);
     }
     register u32 enable asm("r1");
+    // Reload the saved entity-enable state.
     asm volatile("ldr %0, [sp, #0x338]" : "=l"(enable) : : "memory", "cc");
     u32 entity_state = enable;
     asm volatile("" : "+l"(entity_state));
     if (entity_state)
     {
         register ClockOwnerMethods const * methods asm("r0");
+        // Load the game state's virtual method table.
         asm("ldr %0, [%1]" : "=l"(methods) : "l"(&game) : "memory");
         register u32 offset asm("r3") = offsetof(ClockOwnerMethods, enable);
         asm("" : "+l"(offset) : "l"(methods));
@@ -3749,8 +5206,7 @@ advance_frame:
         asm("" : "+l"(entry));
         (*entry)(game);
     }
-    register GameStateMapView * map_view asm("r0");
-    asm("ldr %0, [%1, #4]" : "=l"(map_view) : "l"(&game) : "memory");
+    register GameStateMapView * map_view asm("r0") = game.map_view;
     if (!GetMapData(map_view->map)->is_interior)
     {
         register u32 offset asm("r4") = offsetof(GameStateMapOwner, clock);
@@ -3760,9 +5216,10 @@ advance_frame:
         asm("" : "+l"(time_ptr));
         register u32 time asm("r2") = *reinterpret_cast<u32 *>(*time_ptr);
         asm("" : "+l"(time));
-        func_0801A13C(game, (time << 11) >> 27, (time << 5) >> 26, false);
+        GameStateRefreshMapDaylightPalettes(game, (time << 11) >> 27, (time << 5) >> 26, false);
     }
     register AEntity * player asm("r0");
+    // Load the player for the clock-finish callback.
     asm("ldr %0, [%1, #8]" : "=l"(player) : "l"(&game) : "memory");
     ClockMethods(player).finish(player);
     register u32 script_offset asm("r5") = offsetof(GameStateMapOwner, script);
@@ -3853,6 +5310,7 @@ EC GameStateMapInteraction * InitializePreparedDropSprite(GameStateMapInteractio
 static inline void * DropTemporary(GameStateDropWork & work)
 {
     register void * frame asm("r0");
+    // Address the stack storage shared by temporary item representations.
     asm volatile("add %0, sp, #12" : "=l"(frame));
     return frame;
 }
@@ -3878,6 +5336,7 @@ EC SECTION(".text.game_state_c2.0801EE00") u32 GameStateDisplayDroppedItem(GameS
     register u32 map asm("r2") = pos->GetMap();
     asm("" : "+l"(map) : "l"(methods));
     register UnkMap * terrain asm("r0");
+    // Address the temporary terrain data for the drop location.
     asm("add %0, sp, #12" : "=l"(terrain));
     asm("" : "+l"(terrain) : "l"(map));
     methods->describe_terrain(terrain, game, map);
@@ -3893,11 +5352,13 @@ EC SECTION(".text.game_state_c2.0801EE00") u32 GameStateDisplayDroppedItem(GameS
     register u32 track asm("r6") = 1;
     asm("" : "+l"(track));
     register u8 * position_base asm("r4");
+    // Address the stack buffer used to compute the drop position.
     asm("mov %0, sp" : "=l"(position_base) : "m"(work.blocked));
     register i16 * position asm("r4") = reinterpret_cast<i16 *>(position_base + 0x28);
     asm("" : "+l"(position));
     work.position_ptr = position;
     register u8 * args_base asm("r0");
+    // Address the outgoing stack arguments for the item drop.
     asm("mov %0, sp" : "=l"(args_base) : "m"(work.position_ptr));
     register u8 * start asm("r0") = args_base + 8;
     asm("" : "+l"(start));
@@ -3930,6 +5391,7 @@ EC SECTION(".text.game_state_c2.0801EE00") u32 GameStateDisplayDroppedItem(GameS
             }
         }
         register AudioPlayer * last asm("r0");
+        // Use the last sound player if every player is busy.
         asm("sub %0, %1, #4\n\tldr %0, [%0]" : "=l"(last) : "l"(end) : "memory");
         selected = last;
     play_sound:
@@ -4124,8 +5586,8 @@ display_drop:
     asm("" : "+l"(display) : "l"(result));
     register GameStatePackedSpriteArchive const * archive asm("r6") = result;
     u32 clip = icon;
-    register u32 position_bits asm("r0");
-    asm("ldr %0, %1" : "=l"(position_bits) : "m"(*reinterpret_cast<u32 *>(work.position)), "l"(display), "l"(archive), "l"(clip));
+    register u32 position_bits asm("r0") = *reinterpret_cast<u32 *>(work.position);
+    asm("" : : "l"(position_bits), "l"(display), "l"(archive), "l"(clip));
     *reinterpret_cast<u32 *>(&display->position) = position_bits;
     register GameStateMapInteraction * empty asm("r5") = nullptr;
     asm("" : "+l"(empty) : "l"(display), "l"(clip), "l"(archive));
@@ -4133,6 +5595,7 @@ display_drop:
     asm("" : "+l"(previous));
     if (empty != previous)
     {
+        // Skip deleting the replaced sprite if its pointer is null.
         asm volatile("cmp %0, #0\n\tbeq 0f" : : "l"(previous) : "cc");
         delete previous;
         asm volatile("0:" : : : "memory");
@@ -4148,6 +5611,7 @@ display_drop:
     if (sprite_state)
     {
         register GameStateMapInteraction * sprite asm("r0") = AllocateMapInteraction();
+        // Pass the sprite layer and palette on the stack and write the start flag.
         asm volatile(
             ".ifnes \"%1\", \"[sp, #0x34]\"\n\t"
             ".error \"Drop sprite arguments must start at sp\"\n\t"
@@ -4164,15 +5628,16 @@ display_drop:
         asm("" : "+l"(owner_arg) : "l"(clip_arg), "l"(archive_arg), "l"(sprite));
         register GameStateMapInteraction * next asm("r5") = InitializePreparedDropSprite(sprite, archive_arg, clip_arg, *owner_arg);
         asm("" : "+l"(next), "+l"(display));
-        register GameStateMapInteraction * old asm("r1");
-        asm("ldr %0, [%1]" : "=l"(old) : "l"(display), "l"(next) : "memory");
+        register GameStateMapInteraction * old asm("r1") = display->sprite;
+        asm("" : : "l"(old), "l"(next));
         if (next != old)
         {
+            // Skip deleting the replaced sprite if its pointer is null.
             asm volatile("cmp %0, #0\n\tbeq 0f" : : "l"(old) : "cc");
             delete old;
             asm volatile("0:" : : : "memory");
         }
-        asm("str %1, [%0]" : : "l"(display), "l"(next) : "memory");
+        display->sprite = next;
         register u32 frame asm("r1") = 0;
         asm("" : "+l"(frame));
         register u32 height asm("r0") = 16;
@@ -4182,6 +5647,7 @@ display_drop:
         return height;
     }
     register GameStateMapInteraction * sprite asm("r0") = AllocateMapInteraction();
+    // Pass the sprite layer and palette on the stack and write the start flag.
     asm volatile(
         ".ifnes \"%1\", \"[sp, #0x34]\"\n\t"
         ".error \"Drop sprite arguments must start at sp\"\n\t"
