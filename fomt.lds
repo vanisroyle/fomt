@@ -900,9 +900,9 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803AC78);
         src/code_0803A8A4.o(.text.0803ACD8);
         src/fixed_sprite_overlay_draw.o(.text.0803AE58);
-        asm/code_0803A8A4.o(.text.0803AEA0);
+        src/code_0803A8A4.o(.text.0803AEA0);
         src/code_0803A8A4.o(.text.0803B0A8);
-        asm/code_0803A8A4.o(.text.0803B128);
+        src/code_0803A8A4.o(.text.0803B128);
         src/code_0803A8A4.o(.text.0803B2A8);
         src/map_overlay_draw.o(.text.0803B368);
         src/code_0803A8A4.o(.text.0803B454);

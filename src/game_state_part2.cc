@@ -5,6 +5,7 @@
 #include "entity.hh"
 #include "farm.hh"
 #include "farmer.hh"
+#include "map_overlay.hh"
 
 #include <string.h>
 
@@ -90,11 +91,6 @@ struct GameStateMapOwner;
 struct GameStateVaseDisplay;
 struct GameStatePackedSpriteArchive;
 struct MapTileEffectQueue;
-
-struct GameStateMapOverlay
-{
-    STRUCT_PAD(0x0, 0x46C);
-};
 
 struct GameStateMapInteractionBase
 {
@@ -269,9 +265,6 @@ struct GameStateMapOwner
     bool skip_day_update_events;
 };
 
-EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
-EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
-    GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
 EC SECTION(".text.080AC96C") i32 AssignMapSceneSpriteCacheSlot(GameStateSpriteCache & inputCache, u32 slot)
 {
     register GameStateSpriteCache * receivedCache asm("r0") = &inputCache;
@@ -2500,7 +2493,8 @@ selected:
             }
         }
         GameStateMapOverlay * storage = static_cast<GameStateMapOverlay *>(::operator new(sizeof(GameStateMapOverlay)));
-        InstallMapOverlay(game.map_overlay, func_0803AEA0(storage, game, *archive, kind, capacity));
+        InstallMapOverlay(game.map_overlay, InitializeGameStateMapOverlay(storage,
+            reinterpret_cast<MapOverlayScene *>(&game), reinterpret_cast<SpriteAnimationSource const *>(archive), kind, capacity));
     }
 }
 
