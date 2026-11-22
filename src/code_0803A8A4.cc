@@ -203,9 +203,205 @@ ROM_TEXT(0803B2A8) void UpdateGameStateMapOverlay(GameStateMapOverlay & overlay)
     } while (index < count);
 }
 
-EC void func_08007C28(OverlayTileAllocation *, u32);
 EC void TileHeapOwner_Destroy(OverlayTileAllocation *, unsigned);
 EC void __builtin_delete(void *);
+
+struct FixedOverlayClipView
+{
+    SpriteKeyframe const * keyframes;
+    u16 length;
+};
+
+struct FixedOverlayAnimationMethods
+{
+    STRUCT_PAD(0, 0xC);
+    void (*getClip)(FixedOverlayClipView *, FixedOverlayAnimation *, unsigned);
+    void (*getFrame)(FixedOverlayFrameView *, FixedOverlayAnimation *, unsigned);
+};
+
+struct FixedOverlayAnimation
+{
+    FixedOverlayAnimationMethods const * methods;
+};
+
+struct FixedOverlayBuildScratch
+{
+    FixedOverlayFrameView view;
+    u8 palette;
+    FixedOverlayClipView clip;
+};
+
+EC void InitOverlayTileHeap(OverlayTileAllocation *) asm("func_08007874");
+EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007C28");
+EC u32 AllocateOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007B54");
+EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("func_08007D4C");
+EC void * CopyOverlayFrame(void *, void const *, size_t) asm("memcpy");
+
+ROM_TEXT(0803AB30) FixedSpriteOverlay * InitializeFixedSpriteOverlay(void * storage, OverlaySpriteResources * inputResources)
+{
+    // Register and stack constraints preserve the original Thumb layout.
+    enum { FIXED_OVERLAY_PALETTE_KIND = 15, FIRST_FIXED_OVERLAY_CLIP = 0x91A, TILE_ALLOCATION_ORDER = 2 };
+    register FixedSpriteOverlay * overlay asm("r9") = static_cast<FixedSpriteOverlay *>(storage);
+    register OverlaySpriteResources * resources asm("r10");
+    register OverlaySpriteResources * resourceArgument asm("r1") = inputResources;
+    register FixedSpriteOverlay::Frame * tileFrame asm("r6");
+    asm("mov %1, %3\n\tmov %0, %2\n\tstmia %0!, {%3}"
+        : "=l"(tileFrame), "=h"(resources) : "h"(overlay), "l"(resourceArgument) : "memory");
+    int remaining = ARRAY_COUNT(overlay->frames) - 1;
+    asm("" : "+l"(remaining));
+    FixedOverlayBuildScratch local;
+    register u8 * paletteLow asm("r0");
+    register u8 * palette asm("r8");
+    asm("add %1, sp, %2\n\tmov %0, %1"
+        : "=h"(palette), "=l"(paletteLow) : "i"(offsetof(FixedOverlayBuildScratch, palette)));
+    register FixedOverlayClipView * clipPointer asm("r1");
+    asm(".syntax unified\n\tmov %0, sp\n\tadds %0, %1\n\t.syntax divided"
+        : "=l"(clipPointer) : "i"(offsetof(FixedOverlayBuildScratch, clip)));
+    FixedOverlayClipView * volatile clipView = clipPointer;
+    register unsigned zero asm("r5") = 0;
+    asm("" : "+l"(zero));
+    register FixedSpriteOverlay::Frame * frame asm("r4") = tileFrame;
+    asm("" : "+l"(frame));
+    do
+    {
+        frame->view.objects.data = reinterpret_cast<SpriteFrameObject const *>(zero);
+        asm("strh %1, [%2, %3]" : "=m"(frame->view.objects.length)
+            : "l"(zero), "l"(frame), "i"(offsetof(FixedSpriteOverlay::Frame, view.objects.length)));
+        frame->view.tileBytes.data = reinterpret_cast<u8 const *>(zero);
+        asm("strh %1, [%2, %3]" : "=m"(frame->view.tileBytes.length)
+            : "l"(zero), "l"(frame), "i"(offsetof(FixedSpriteOverlay::Frame, view.tileBytes.length)));
+        frame->view.paletteBytes.data = reinterpret_cast<u16 const *>(zero);
+        asm("strh %1, [%2, %3]" : "=m"(frame->view.paletteBytes.length)
+            : "l"(zero), "l"(frame), "i"(offsetof(FixedSpriteOverlay::Frame, view.paletteBytes.length)));
+        frame->view.extras.data = reinterpret_cast<SpriteFrameExtra const *>(zero);
+        asm("strh %1, [%2, %3]" : "=m"(frame->view.extras.length)
+            : "l"(zero), "l"(frame), "i"(offsetof(FixedSpriteOverlay::Frame, view.extras.length)));
+        InitOverlayTileHeap(&tileFrame->tiles);
+        frame->tiles.handle = zero;
+        ++frame;
+        ++tileFrame;
+        --remaining;
+        register int exhausted asm("r0");
+        asm(".syntax unified\n\tmovs %0, #1\n\trsbs %0, %0, #0\n\t.syntax divided" : "=l"(exhausted));
+        if (remaining == exhausted)
+            break;
+    }
+    while (true);
+    register OverlayPaletteTable * paletteTable asm("r6");
+    asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+        : "=l"(paletteTable) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes)));
+    paletteTable->count = 0;
+    register u8 * uploadPending asm("r0");
+    asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+        : "=l"(uploadPending) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, uploadPending)) : "memory");
+    register unsigned paletteCount asm("r4") = 1;
+    asm("" : "+l"(paletteCount));
+    *uploadPending = paletteCount;
+    register OverlaySpriteResources * paletteResources asm("r2") = resources;
+    asm("" : "+l"(paletteResources));
+    register unsigned paletteSlot asm("r0") = paletteResources->vtable->reservePalette(resources, FIXED_OVERLAY_PALETTE_KIND);
+    register u8 * paletteOut asm("r3") = palette;
+    asm("" : "+l"(paletteOut) : "l"(paletteSlot));
+    *paletteOut = paletteSlot;
+    register OverlayPaletteTable * palettes asm("r5") = paletteTable;
+    asm("" : "+l"(palettes) : "l"(paletteOut));
+    register unsigned size asm("r2") = palettes->count;
+    asm("" : "+l"(size));
+    if (paletteCount > size)
+    {
+        register u8 * begin asm("r0");
+        asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+            : "=l"(begin) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids)));
+        register u8 * end asm("r2");
+        asm(".syntax unified\n\tadds %0, %2\n\tadds %0, %1, %0\n\t.syntax divided"
+            : "=l"(end) : "l"(palettes), "i"(offsetof(OverlayPaletteTable, ids)), "0"(size));
+        register unsigned value asm("r1") = *paletteOut;
+        asm("" : "+l"(value) : "l"(end), "l"(begin));
+        memset(begin, value, end - begin);
+        size = palettes->count;
+        asm("" : "+l"(size));
+        asm(".syntax unified\n\tadds %0, %2, %3\n\tadds %0, %1, %0\n\t.syntax divided"
+            : "=l"(begin) : "l"(palettes), "l"(size), "I"(offsetof(OverlayPaletteTable, ids)));
+        register u8 * source asm("r1") = &local.palette;
+        asm("" : "+l"(source) : "l"(begin));
+        value = *source;
+        asm("" : "+l"(value));
+        memset(begin, value, paletteCount - size);
+        palettes->count = paletteCount;
+    }
+    else
+    {
+        register u8 * begin asm("r0");
+        asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+            : "=l"(begin) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids)));
+        register u8 * newEnd asm("r4");
+        asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+            : "=l"(newEnd) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids) + 1));
+        register u8 * source asm("r2") = palette;
+        asm("" : "+l"(source) : "l"(newEnd), "l"(begin));
+        register unsigned value asm("r1") = *source;
+        asm("" : "+l"(value));
+        memset(begin, value, newEnd - begin);
+        register u8 * oldEnd asm("r0") = palettes->ids + palettes->count;
+        asm("" : "+l"(oldEnd));
+        register size_t removed asm("r0") = oldEnd - newEnd;
+        asm("" : "+l"(removed));
+        paletteTable->count -= removed;
+    }
+    register OverlaySpriteResources * animationResources asm("r3") = resources;
+    asm("" : "+l"(animationResources));
+    register FixedOverlayAnimation * animation asm("r8") = animationResources->vtable->getAnimationSlot0(resources);
+    asm("" : "+r"(animation));
+    register unsigned index asm("r7") = 0;
+    asm("" : "+l"(index));
+    do
+    {
+        register unsigned stride asm("r0") = sizeof(FixedSpriteOverlay::Frame);
+        asm("" : "+l"(stride) : "l"(index));
+        register uintptr_t frameAddress asm("r6") = index * stride;
+        register FixedSpriteOverlay::Frame * start asm("r4");
+        asm(".syntax unified\n\tadd %1, %3\n\tadds %0, %1, %2\n\t.syntax divided"
+            : "=&l"(start), "+l"(frameAddress) : "I"(offsetof(FixedSpriteOverlay, frames)), "h"(overlay));
+        register unsigned firstClip asm("r0") = FIRST_FIXED_OVERLAY_CLIP;
+        asm("" : "+l"(firstClip) : "l"(start));
+        register unsigned clip asm("r2") = index + firstClip;
+        asm("" : "+l"(clip));
+        register FixedOverlayAnimation * lookup asm("r1") = animation;
+        asm("" : "+l"(lookup) : "l"(clip));
+        register FixedOverlayAnimationMethods const * methods asm("r5") = lookup->methods;
+        asm("" : "+l"(methods));
+        methods->getClip(clipView, lookup, clip);
+        register SpriteKeyframe const * keyframes asm("r0") = local.clip.keyframes;
+        asm("" : "+l"(keyframes));
+        register unsigned firstFrame asm("r2") = keyframes[0].frame;
+        asm("" : "+l"(firstFrame));
+        register FixedOverlayFrameView * frameView asm("r0") = &local.view;
+        asm("" : "+l"(frameView));
+        methods->getFrame(frameView, animation, firstFrame);
+        // Preserve the compiler's original temporary self-copy.
+        CopyOverlayFrame(&local.view, &local.view, sizeof(local.view));
+        register FixedOverlayFrameView * output asm("r4") = &start->view;
+        asm volatile(".syntax unified\n\tmov r0, sp\n"
+            "\tldmia r0!, {r1, r2, r3}\n\tstmia %0!, {r1, r2, r3}\n"
+            "\tldmia r0!, {r1, r2, r3}\n\tstmia %0!, {r1, r2, r3}\n"
+            "\tldmia r0!, {r2, r3}\n\tstmia %0!, {r2, r3}\n\t.syntax divided"
+            : "+l"(output) :
+            : "r0", "r1", "r2", "r3", "memory");
+        register OverlayTileAllocation * tiles asm("r4") =
+            reinterpret_cast<OverlayTileAllocation *>(frameAddress + offsetof(FixedSpriteOverlay, frames) + offsetof(FixedSpriteOverlay::Frame, tiles));
+        asm("" : "+l"(tiles));
+        ReleaseOverlayTiles(tiles, tiles->handle);
+        register unsigned handle asm("r1") = AllocateOverlayTiles(tiles, TILE_ALLOCATION_ORDER);
+        asm("" : "+l"(handle));
+        tiles->handle = handle;
+        reinterpret_cast<FixedSpriteOverlay::Frame *>(frameAddress + offsetof(FixedSpriteOverlay, frames))->baseTile =
+            GetOverlayBaseTile(tiles, handle);
+        ++index;
+        asm("" : "+l"(index));
+    }
+    while (index < ARRAY_COUNT(overlay->frames));
+    return overlay;
+}
 
 ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOverlay, unsigned inputFlags)
 {
@@ -232,7 +428,7 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
             {
                 --frame;
                 OverlayTileAllocation * tiles = &frame->tiles;
-                func_08007C28(tiles, tiles->handle);
+                ReleaseOverlayTiles(tiles, tiles->handle);
                 TileHeapOwner_Destroy(tiles, 2);
             }
             while (first != frame);
@@ -258,7 +454,7 @@ ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay
     for (GameStateMapOverlay::Frame * frame = frames.entries; frame != framesEnd; ++frame)
     {
         OverlayTileAllocation * tiles = &frame->tiles;
-        func_08007C28(tiles, tiles->handle);
+        ReleaseOverlayTiles(tiles, tiles->handle);
         TileHeapOwner_Destroy(tiles, 2);
     }
     if (destructorFlags & 1)

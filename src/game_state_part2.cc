@@ -2992,7 +2992,7 @@ struct GameStateTransitionWork
 EC void LoadMapAtLocation(GameStateMapView &, Location const &, u32, u32, u32);
 EC void Dma3_Copy(void const *, void *, u32);
 EC void DestroyFixedSpriteOverlay(GameStateMapEffect *, u32);
-EC GameStateMapEffect * CreateFixedSpriteOverlay(void *, GameStateMapOwner &) asm("func_0803AB30");
+EC GameStateMapEffect * CreateFixedSpriteOverlay(void *, GameStateMapOwner &) asm("InitializeFixedSpriteOverlay");
 EC void DestroyMapTileEffectQueue(MapTileEffectQueue *, u32);
 EC MapTileEffectQueue * CreateMapTileEffectQueue(void *, GameStateMapOwner &, u32) asm("func_080AAFC8");
 EC bool HasPendingScriptEvents(void const *);
