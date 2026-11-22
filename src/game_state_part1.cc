@@ -375,7 +375,7 @@ struct GameStateObject
     virtual void vfunc_13C();
     virtual void vfunc_140();
     virtual void vfunc_144();
-    virtual void vfunc_148();
+    virtual u32 GetMusicTrack() const;
     virtual void vfunc_14C();
     virtual void vfunc_150(u32 value);
     virtual void vfunc_154(u32 value);
@@ -1465,7 +1465,6 @@ EC void SECTION(".text.game_state_08012B24") GameScript_QueueSceneEvent(GameStat
         break;
     }
 }
-
 
 extern u8 const vtable_unk_080E5E64[];
 extern u8 const vtable_unk_080E5C08[];
@@ -2912,4 +2911,12 @@ play:
         AudioPlayer_StartOrResumeSong(player, song);
         break;
     }
+}
+
+// 0x08016758
+EC SECTION(".text.game_state_08016758") void GameScript_PlayCurrentSceneMusic(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u8 * player = runtime.musicPlayer;
+    AudioPlayer_StartSongIfStoppedOrChanged(player, runtime.scene->GetMusicTrack());
 }
