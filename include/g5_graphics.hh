@@ -79,4 +79,8 @@ EC void InventoryMenu_SetAnimatedSpecialSlotEntry(u8 *panel, void const *data, u
 EC void InventoryMenu_SetResourceSlotEntry(u8 * panel, u32 slot, u32 tile_data, u32 palette_data, u32 value); // 0x080CCA40
 EC void InventoryMenu_SetAnimatedResourceSpecialSlotEntry(u8 * panel, void const * data, u32 animation, u32 value); // 0x080CCE58
 
+// Left-side slots use fixed BG tiles/palettes; animated IDs use the low 16 bits.
+EC void InventoryMenu_SetSlotEntry(u8 * panel, u32 slot, u32 tile_data, u32 palette_data, u32 value); // 0x080CB63C
+EC void InventoryMenu_SetAnimatedSlotEntry(u8 * panel, u32 slot, void const * data, u32 animation, u32 value); // 0x080CB304
+
 #endif
