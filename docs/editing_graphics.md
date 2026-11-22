@@ -425,3 +425,72 @@ With `--title` it edits one 8bpp title-logo pixel inside the container, follows
 its root pointer, checks all other decoded metadata/pixels and every byte
 outside the owned slot/reference/overflow, and saves
 `build/assets/title-pixel-edit.gba` before restoration.
+
+## Remaining-graphics increment: portraits and childhood illustrations
+
+The additional editable set is **21 Unpack streams** (20 illustration maps and
+one tile sheet), bringing compressed coverage to **293/356 inventory candidates**.
+The **184 dialogue portrait frames** are also editable, but are raw animation
+data and therefore do not increase that denominator. The other 63 candidates,
+including special map definitions 11/15/62, are not made editable by this increment.
+
+`make extract` creates `assets/graphics/portraits/000.png` through `183.png`.
+These are indexed 4bpp tile sheets, named by animation **frame**, not NPC ID.
+`graphics_assets.py build --previews /home/ubuntu/screenshots` assembles their
+actual OAM layouts as `gfx_rest_portrait-NNN.png`.
+
+Runtime ownership is established by `SetMessageWindowStatePortrait` at
+`0x08050AD8`, which calls `LoadMessagePortraitAnimationFrame` at `0x080ADCA4`.
+The latter initializes the raw resource `gUnk_0852D984`, resolves a clip's first
+keyframe, and obtains its frame through `GetSpriteAnimationDataFrame`.
+The seven section layouts come from `InitSpriteAnimationData` in
+`src/sprite_animation.cc`. All 184 frames select 4bpp OAM objects and exactly
+one 16-color palette. The message-window update path at `0x0804FF12..0x0804FFDC`
+copies the selected frame's tiles to allocated OBJ VRAM and its palette to the
+allocated OBJ palette bank; `DrawSpriteFrameObjects` consumes its OAM objects.
+The resource ends at `0x58BA08`; the following 32 bytes are preserved verbatim.
+
+Frames can share tiles or palettes. Only changes relative to the original
+exports are applied, so an untouched frame does not undo another frame's edit.
+Conflicting changes to shared tile bytes or whole BGR555 colors fail rather than
+depending on file order. Shared edits affect every frame that uses those bytes;
+regenerate assembled previews to review them. Preserve PNG dimensions and zero
+padding. Animation records and tile counts remain fixed; these edits cannot
+grow or relocate the raw container.
+
+Childhood-memory sources live in `assets/graphics/rest/`:
+
+* `childhood.tiles.png`: banked 4bpp tile sheet, read-only embedded palette.
+* `childhood.palette.png`: sole owner of the 32 runtime-loaded colors.
+* `childhood-00.map.bin` through `childhood-19.map.bin`: 32x20 row-major maps.
+
+The background initializer in `src/event_scenes.cc` unpacks `gUnk_08743058`
+to VRAM and the 20 resources in `gUnk_080FB1E4` into map buffers, subsequently
+queued for BG3/BG1 DMA. Its BG controls establish 4bpp. The palette DMA copies
+only the first 64 bytes of `gUnk_08747A14`; color zero is then overwritten white.
+The tool rejects changes to that overwritten color and references to unloaded
+palette banks. The other 32 source palette bytes remain untouched and are not
+exported. Pointer-table entries and the tile/palette roots are symbolic; growth
+still requires the non-symbolic/interior-reference audit to pass.
+
+`gfx_rest_childhood-NN.png` previews show each of the 20 layers separately.
+Run `python3 tools/assets/check_rest_graphics_rom.py` after a clean comparison
+to paint one OAM-selected portrait pixel, verify exactly one changed ROM byte,
+save `/home/ubuntu/rest-graphics-edit.gba`, restore the source, and compare again.
+This does not verify gameplay in an emulator.
+
+### Additional world relocation classifications
+
+`graphics_instruction_audit.json` records 437 previously unresolved reference
+positions proved to fall wholly inside Thumb instruction regions, not literal
+pools, using the vanilla ELF's `$t`/`$d` mappings. Each minimal halfword-aligned
+region has a SHA-256 guard against the original ROM; clean builds do not depend
+on an existing ELF. A mismatch fails closed. Two raw sprite-animation resources
+at `0x52D984..0x58BA08` and `0x58BA28..0x667060` account for another 89 matches;
+their seven count-delimited sections are validated before being excluded.
+Their tables contain relative indices/OAM fields/pixels/colors, not ROM pointers.
+
+These classifications raise relocation eligibility from **193 to 216 of 264**
+world/chicken-feeding streams, leaving **48** conservatively blocked. Unknown
+literal/data references are not repointed or ignored. This is not a complete
+classification of the original 71 failures.
