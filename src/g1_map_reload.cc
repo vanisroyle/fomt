@@ -2,6 +2,7 @@
 #include <string.h>
 
 EC void Unpack(void const *, void *);
+EC void Dma3_Fill(u32, void *, u32);
 
 struct G1MapPaletteKey
 {
@@ -62,6 +63,24 @@ EC SECTION(".text.g1_080A5BD8") void ApplyMapPatch(G1MapState * self, G1MapPatch
                 *destination++ = patch->terrain[*indices++];
         }
     }
+}
+
+EC SECTION(".text.g1_080A5CC0") void ReloadMapTilemaps(G1MapState * self)
+{
+    MapData const * data = GetMapData(self->map_id);
+    u32 layer = 0;
+    u16 ** destination = self->tilemaps;
+    do
+    {
+        void const * source = data->packed_tilemaps[layer];
+        if (source != nullptr)
+            Unpack(source, *destination);
+        else
+            Dma3_Fill(0x03ff03ff, *destination, data->width * 2 * data->height);
+        destination++;
+        layer++;
+    } while (layer <= 2);
+    self->tilemaps_dirty = 1;
 }
 
 EC SECTION(".text.g1_080A5D14") void ReloadMapPalettePair(G1MapState * self, int mode)

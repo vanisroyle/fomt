@@ -20,12 +20,12 @@ Farmer::Farmer(char const * arg_1, GameDate const & arg_2)
 {
 }
 
-EC char const * func_0800E4E0(Farmer const & self)
+EC char const * GetFarmerName(Farmer const & self)
 {
     return self.unk_00;
 }
 
-EC char const * func_0800E4E4(Farmer const & self)
+EC char const * GetFarmerDialogueAlias(Farmer const & self)
 {
     return self.unk_10;
 }

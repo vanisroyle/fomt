@@ -35,7 +35,19 @@ The JSON is a generated index, not an editable pointer/layout specification.
 Deleting either file restores only that missing file; `make extract FORCE=1`
 overwrites both, along with the other extracted assets.
 
-The code-derived catalog currently contains **3,359 unique entries**:
+The code-derived catalog currently contains **3,337 unique entries**:
+
+Hand-written assembly on main owns the horse-race betting glyph array and
+three betting labels (`0xFAE6A`, `0xFAE9C`, `0xFAEB8`, `0xFAEC4`), plus
+18 farm/livestock report labels at `0xFB824..0xFB8E0`. These 22 entries are
+no longer extracted or generated: edit their named source definitions in
+`asm/data/data_080F9EB8.s` instead. Childhood-memory strings remain exported
+because main still stores them as `.incbin`; their new descriptive symbol
+names alias the generated labels.
+
+Older exports contain 3,359 entries with different numeric IDs. Back up any
+edits before re-extracting these two files; use the old/new catalog addresses,
+not numeric IDs, when transferring edits. The build rejects the old count.
 
 | Data | Ownership / renderer path |
 | --- | --- |
@@ -65,7 +77,7 @@ constructed renderer input has been identified.
   have single-byte characters separated by spaces; do not alter separators.
   The remaining twelve rows require one untagged double-byte glyph per cell.
   Tagged 8px Vietnamese assignments cannot replace a full-width grid cell.
-* Seven direct-glyph arrays are represented as UTF-8 text but rebuilt as
+* Six direct-glyph arrays are represented as UTF-8 text but rebuilt as
   **little-endian 16-bit glyph codes**, not NUL-terminated strings. Preserve
   their glyph count. Their 8px cells accept single-byte or tagged 8px glyphs,
   not ordinary 16px double-byte glyphs. Other fixed byte-indexed labels retain

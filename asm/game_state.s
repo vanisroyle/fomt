@@ -144,7 +144,7 @@ func_08010358: @ 0x08010358
     bl func_0809EEE8
     ldr r1, .L08010618 @ =0x0000214C
     adds r0, r7, r1
-    bl func_0809C6BC
+    bl InitializeSavedScriptEvents
     bl Random_NonZero
     ldr r3, .L0801061C @ =0x000021CC
     adds r2, r7, r3
@@ -1344,85 +1344,6 @@ func_08010358: @ 0x08010358
     .section .text.game_state_08010E68, "ax", %progbits
 
 
-    thumb_func_start SaveData_HaveAllAnimalsHighAffection
-SaveData_HaveAllAnimalsHighAffection: @ 0x08010E68
-    push {r4, r5, r6, r7, lr}
-    adds r6, r0, #0
-    movs r7, #1
-    ldr r1, .L08010E9C @ =0x00001C70
-    adds r0, r6, r1
-    bl GetAffection__C6Animal
-    cmp r0, #0xc7
-    bhi .L08010E7C
-    movs r7, #0
-.L08010E7C:
-    adds r0, r6, #0
-    adds r0, #0x14
-    bl GetHorse__C4Farm
-    cmp r0, #0
-    beq .L08010E92
-    bl GetAffection__C6Animal
-    cmp r0, #0xc7
-    bhi .L08010E92
-    movs r7, #0
-.L08010E92:
-    movs r4, #0
-    movs r0, #0x82
-    lsls r0, r0, #3
-    adds r5, r6, r0
-    b .L08010EB8
-    .align 2, 0
-.L08010E9C: .4byte 0x00001C70
-.L08010EA0:
-    adds r0, r5, #0
-    adds r1, r4, #0
-    bl GetChicken__C4CoopUi
-    cmp r0, #0
-    beq .L08010EB6
-    bl GetAffection__C6Animal
-    cmp r0, #0xc7
-    bhi .L08010EB6
-    movs r7, #0
-.L08010EB6:
-    adds r4, #1
-.L08010EB8:
-    adds r0, r5, #0
-    bl GetCapacity__C4Coop
-    cmp r4, r0
-    blo .L08010EA0
-    movs r4, #0
-    movs r1, #0xbe
-    lsls r1, r1, #3
-    adds r5, r6, r1
-    b .L08010EF0
-.L08010ECC:
-    adds r0, r5, #0
-    adds r1, r4, #0
-    bl GetCow__C4BarnUi
-    cmp r0, #0
-    bne .L08010EE4
-    adds r0, r5, #0
-    adds r1, r4, #0
-    bl GetSheep__C4BarnUi
-    cmp r0, #0
-    beq .L08010EEE
-.L08010EE4:
-    bl GetAffection__C6Animal
-    cmp r0, #0xc7
-    bhi .L08010EEE
-    movs r7, #0
-.L08010EEE:
-    adds r4, #1
-.L08010EF0:
-    adds r0, r5, #0
-    bl GetCapacity__C4Barn
-    cmp r4, r0
-    blo .L08010ECC
-    adds r0, r7, #0
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
     .section .text.game_state_08010F0C, "ax", %progbits
 
     .section .text.game_state_08010F14, "ax", %progbits
@@ -2025,90 +1946,10 @@ func_08010F54: @ 0x08010F54
 
     .section .text.game_state_080115B0, "ax", %progbits
 
-    thumb_func_start SaveData_WriteToStorage
-SaveData_WriteToStorage: @ 0x080115B0
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #8
-    adds r7, r0, #0
-    adds r5, r1, #0
-    adds r4, r2, #0
-    mov r8, r4
-    ldr r6, .L080115E0 @ =0x000034F4
-    str r6, [sp]
-    adds r0, r5, #0
-    adds r1, r4, #0
-    mov r2, sp
-    movs r3, #4
-    bl SramProxy_Write
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L080115E8
-    ldr r0, .L080115E4 @ =gSramErrorFlags
-    ldrh r0, [r0]
-    movs r1, #0x80
-    lsls r1, r1, #9
-    b .L0801163C
-    .align 2, 0
-.L080115E0: .4byte 0x000034F4
-.L080115E4: .4byte gSramErrorFlags
-.L080115E8:
-    adds r4, #4
-    adds r0, r5, #0
-    adds r1, r4, #0
-    adds r2, r7, #0
-    adds r3, r6, #0
-    bl SramProxy_Write
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0801160C
-    ldr r0, .L08011608 @ =gSramErrorFlags
-    ldrh r0, [r0]
-    movs r1, #0x80
-    lsls r1, r1, #0xa
-    b .L0801163C
-    .align 2, 0
-.L08011608: .4byte gSramErrorFlags
-.L0801160C:
-    ldr r4, .L08011630 @ =0x000034F8
-    add r4, r8
-    adds r0, r7, #0
-    adds r1, r6, #0
-    bl SaveData_SumBytes
-    str r0, [sp, #4]
-    add r2, sp, #4
-    adds r0, r5, #0
-    adds r1, r4, #0
-    movs r3, #4
-    bl SramProxy_Write
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08011634
-    movs r0, #0
-    b .L0801163E
-    .align 2, 0
-.L08011630: .4byte 0x000034F8
-.L08011634:
-    ldr r0, .L0801164C @ =gSramErrorFlags
-    ldrh r0, [r0]
-    movs r1, #0xc0
-    lsls r1, r1, #0xa
-.L0801163C:
-    orrs r0, r1
-.L0801163E:
-    add sp, #8
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801164C: .4byte gSramErrorFlags
     .section .text.game_state_08011650, "ax", %progbits
 
-    thumb_func_start func_08011650
-func_08011650: @ 0x08011650
+    thumb_func_start SaveData_LoadFromStorage
+SaveData_LoadFromStorage: @ 0x08011650
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -2206,7 +2047,7 @@ func_08011650: @ 0x08011650
     bl func_0809EEE8
     ldr r2, .L08011890 @ =0x0000214C
     adds r0, r7, r2
-    bl func_0809C6BC
+    bl InitializeSavedScriptEvents
     ldr r3, .L08011894 @ =0x000021CC
     adds r2, r7, r3
     movs r0, #1
@@ -2443,8 +2284,8 @@ func_08011650: @ 0x08011650
     .align 2, 0
 .L08011930: .4byte gSramErrorFlags
 
-    thumb_func_start func_08011934
-func_08011934: @ 0x08011934
+    thumb_func_start GameState_AppendLivestockStateNames
+GameState_AppendLivestockStateNames: @ 0x08011934
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -2892,110 +2733,10 @@ func_08011934: @ 0x08011934
 .L08011CD0: .4byte 0x00000383
 .L08011CD4: .4byte gUnk_080F0658
 
-    thumb_func_start func_08011CD8
-func_08011CD8: @ 0x08011CD8
-    push {r4, r5, r6, lr}
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6}
-    sub sp, #0x4c
-    adds r5, r0, #0
-    adds r3, r5, #0
-    adds r3, #0x10
-    ldr r0, .L08011DAC @ =gTaskNodeVtable
-    mov sb, r0
-    movs r2, #0
-    str r2, [sp]
-    str r2, [sp, #4]
-    ldr r0, .L08011DB0 @ =vtable_unk_080E5AF0
-    str r0, [sp, #8]
-    str r3, [sp, #0xc]
-    add r0, sp, #0x10
-    mov r8, r0
-    str r2, [sp, #0x10]
-    str r2, [r0, #4]
-    ldr r0, .L08011DB4 @ =vtable_unk_080E5AE0
-    str r0, [sp, #0x18]
-    str r1, [sp, #0x1c]
-    add r6, sp, #0x20
-    str r2, [sp, #0x20]
-    str r2, [r6, #4]
-    ldr r0, .L08011DB8 @ =vtable_unk_080E5AD0
-    str r0, [sp, #0x28]
-    str r5, [sp, #0x2c]
-    add r4, sp, #0x30
-    str r2, [sp, #0x30]
-    str r2, [r4, #4]
-    ldr r0, .L08011DBC @ =gTaskListVtable
-    str r0, [sp, #0x38]
-    add r1, sp, #0x40
-    str r1, [r4, #0xc]
-    mov r0, sb
-    str r0, [sp, #0x48]
-    str r2, [sp, #0x40]
-    str r2, [r1, #4]
-    ldr r0, .L08011DC0 @ =vtable_unk_080E5BD8
-    str r0, [r1, #8]
-    add r0, sp, #0x3c
-    str r0, [r4, #0x10]
-    str r1, [r4, #0x14]
-    adds r1, r5, #0
-    adds r1, #0x6c
-    adds r0, r4, #0
-    bl TaskList_Append
-    adds r0, r4, #0
-    mov r1, sp
-    bl TaskList_Append
-    adds r0, r4, #0
-    adds r1, r6, #0
-    bl TaskList_Append
-    adds r0, r4, #0
-    mov r1, r8
-    bl TaskList_Append
-    adds r5, #0x68
-    adds r0, r5, #0
-    bl VBlankDispatcher_GetTasks
-    ldr r1, [r0, #8]
-    ldr r2, [r1, #0x10]
-    adds r1, r4, #0
-    bl _call_via_r2
-    adds r0, r5, #0
-    bl VBlankDispatcher_Wait
-    adds r0, r5, #0
-    bl VBlankDispatcher_GetTasks
-    ldr r1, [r0, #8]
-    ldr r2, [r1, #0x14]
-    adds r1, r4, #0
-    bl _call_via_r2
-    adds r0, r4, #0
-    movs r1, #2
-    bl TaskList_Destroy
-    adds r0, r6, #0
-    movs r1, #2
-    bl TaskNode_Destroy
-    mov r0, r8
-    movs r1, #2
-    bl TaskNode_Destroy
-    mov r0, sp
-    movs r1, #2
-    bl TaskNode_Destroy
-    add sp, #0x4c
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08011DAC: .4byte gTaskNodeVtable
-.L08011DB0: .4byte vtable_unk_080E5AF0
-.L08011DB4: .4byte vtable_unk_080E5AE0
-.L08011DB8: .4byte vtable_unk_080E5AD0
-.L08011DBC: .4byte gTaskListVtable
-.L08011DC0: .4byte vtable_unk_080E5BD8
+    .section .text.game_state_08011DC4, "ax", %progbits
 
-    thumb_func_start func_08011DC4
-func_08011DC4: @ 0x08011DC4
+    thumb_func_start GameScript_InitializeWithSceneSpec
+GameScript_InitializeWithSceneSpec: @ 0x08011DC4
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -3120,7 +2861,10 @@ func_08011DC4: @ 0x08011DC4
 .L08011ECC: .4byte vtable_unk_080E5BD8
 .L08011ED0: .4byte 0x04000004
 .L08011ED4: .4byte gActiveGameScene
-.L08011ED8:
+    .section .text.game_state_08011ED8, "ax", %progbits
+
+    thumb_func_start GameScript_InitializeDefaultScene
+GameScript_InitializeDefaultScene: @ 0x08011ED8
     .byte 0xF0, 0xB5, 0x85, 0xB0, 0x05, 0x1C, 0x0E, 0x1C
     .byte 0x3B, 0x48, 0x28, 0x60, 0xF8, 0x20, 0xEE, 0xF7, 0x75, 0xFB, 0x07, 0x1C, 0x02, 0x20, 0x00, 0x90
     .byte 0x39, 0x1C, 0xF4, 0x31, 0x37, 0x48, 0x08, 0x60, 0x00, 0x24, 0x3C, 0x60, 0x7C, 0x60, 0x38, 0x1C
@@ -3139,6 +2883,7 @@ func_08011DC4: @ 0x08011DC4
     .byte 0x2D, 0xF0, 0x6E, 0xFC, 0x28, 0x1C, 0x05, 0xB0, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
     .byte 0x64, 0x5E, 0x0E, 0x08, 0x08, 0x5C, 0x0E, 0x08, 0xB4, 0x5B, 0x0E, 0x08, 0xD8, 0x5B, 0x0E, 0x08
     .byte 0x04, 0x00, 0x00, 0x04, 0x0C, 0x04, 0x00, 0x03
+
 
     .section .text.game_state_08012028, "ax", %progbits
 
@@ -3209,78 +2954,13 @@ GameScript_RunRuntime: @ 0x08012028
     .section .text.game_state_080123CC, "ax", %progbits
 
 
-    thumb_func_start GameScript_ConfigureMusic
-GameScript_ConfigureMusic: @ 0x080123CC
-    push {r4, r5, lr}
-    adds r5, r3, #0
-    ldr r4, [r0, #4]
-    lsls r2, r2, #0x10
-    lsrs r2, r2, #0x10
-    adds r0, r4, #0
-    adds r0, #0xbc
-    cmp r1, #1
-    beq .L080123F6
-    cmp r1, #1
-    bgt .L080123E8
-    cmp r1, #0
-    beq .L080123EE
-    b .L08012404
-.L080123E8:
-    cmp r1, #2
-    beq .L080123FE
-    b .L08012404
-.L080123EE:
-    adds r1, r2, #0
-    bl AudioPlayer_StartSong
-    b .L08012404
-.L080123F6:
-    adds r1, r2, #0
-    bl AudioPlayer_StartSongIfStoppedOrChanged
-    b .L08012404
-.L080123FE:
-    adds r1, r2, #0
-    bl AudioPlayer_StartOrResumeSong
-.L08012404:
-    adds r4, #0xbc
-    adds r0, r4, #0
-    bl AudioPlayer_ResetChannels
-    ldrh r1, [r5]
-    adds r0, r4, #0
-    bl AudioPlayer_SetTempo
-    ldrh r1, [r5, #2]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackVolume
-    movs r0, #4
-    ldrsh r1, [r5, r0]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackPitch
-    movs r1, #6
-    ldrsb r1, [r5, r1]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackPan
-    ldrb r1, [r5, #7]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackModDepth
-    ldrb r1, [r5, #8]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackLfoSpeed
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012450: .4byte 0x0000FFFF
     .section .text.game_state_08012464, "ax", %progbits
 
 
     .section .text.game_state_080124D0, "ax", %progbits
 
-    thumb_func_start func_080124D0
-func_080124D0: @ 0x080124D0
+    thumb_func_start GameScript_EnsureDialogueWindowOpen
+GameScript_EnsureDialogueWindowOpen: @ 0x080124D0
     push {r4, r5, r6, r7, lr}
     sub sp, #0x14
     ldr r7, [r0, #4]
@@ -3434,8 +3114,8 @@ func_080124D0: @ 0x080124D0
     .section .text.game_state_080128D0, "ax", %progbits
     .section .text.game_state_0801297C, "ax", %progbits
 
-    thumb_func_start func_0801297C
-func_0801297C: @ 0x0801297C
+    thumb_func_start GameScript_StartDisplayFade
+GameScript_StartDisplayFade: @ 0x0801297C
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -3604,1142 +3284,30 @@ func_0801297C: @ 0x0801297C
 
     .section .text.game_state_08012B24, "ax", %progbits
 
-    thumb_func_start func_08012B24
-func_08012B24: @ 0x08012B24
-    push {r4, lr}
-    ldr r0, .L08012B40 @ =gActiveGameScene
-    ldr r3, [r0]
-    movs r0, #0xde
-    lsls r0, r0, #2
-    adds r4, r3, r0
-    cmp r2, #1
-    beq .L08012B6A
-    cmp r2, #1
-    bgt .L08012B44
-    cmp r2, #0
-    beq .L08012B4A
-    b .L08012BA0
-    .align 2, 0
-.L08012B40: .4byte gActiveGameScene
-.L08012B44:
-    cmp r2, #2
-    beq .L08012B7E
-    b .L08012BA0
-.L08012B4A:
-    ldr r0, [r4]
-    cmp r0, #1
-    bhi .L08012BA0
-    lsls r0, r0, #3
-    adds r0, #4
-    adds r2, r4, r0
-    cmp r2, #0
-    beq .L08012B62
-    ldr r0, [r1]
-    ldr r1, [r1, #4]
-    str r0, [r2]
-    str r1, [r2, #4]
-.L08012B62:
-    ldr r0, [r4]
-    adds r0, #1
-    str r0, [r4]
-    b .L08012BA0
-.L08012B6A:
-    movs r0, #0xe3
-    lsls r0, r0, #2
-    adds r2, r3, r0
-    ldr r0, [r2]
-    cmp r0, #0x27
-    bhi .L08012BA0
-    lsls r0, r0, #3
-    adds r0, #4
-    adds r3, r2, r0
-    b .L08012B8E
-.L08012B7E:
-    movs r0, #0x9a
-    lsls r0, r0, #3
-    adds r2, r3, r0
-    ldr r0, [r2]
-    cmp r0, #0
-    bne .L08012BA0
-    ldr r0, .L08012BA8 @ =0x000004D4
-    adds r3, r3, r0
-.L08012B8E:
-    cmp r3, #0
-    beq .L08012B9A
-    ldr r0, [r1]
-    ldr r1, [r1, #4]
-    str r0, [r3]
-    str r1, [r3, #4]
-.L08012B9A:
-    ldr r0, [r2]
-    adds r0, #1
-    str r0, [r2]
-.L08012BA0:
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012BA8: .4byte 0x000004D4
 
     .section .text.game_state_08012BBC, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant0A
-GameScript_QueueSceneVariant0A: @ 0x08012BBC
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0xa
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08012C48 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08012C4C @ =vtable_unk_080E5E34
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08012C24
-    cmp r1, #0
-    beq .L08012C24
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012C24:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08012C40
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012C40:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012C48: .4byte vtable_unk_080E5E74
-.L08012C4C: .4byte vtable_unk_080E5E34
+    .section .text.game_state_08012C50, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant0B
-GameScript_QueueSceneVariant0B: @ 0x08012C50
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    mov r8, r1
-    ldr r7, [r0, #4]
-    movs r0, #0xb
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r7, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    ldr r1, .L08012CEC @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08012CF0 @ =vtable_unk_080E5E24
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    mov r1, r8
-    str r1, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08012CC2
-    cmp r1, #0
-    beq .L08012CC2
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012CC2:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08012CDE
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012CDE:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012CEC: .4byte vtable_unk_080E5E74
-.L08012CF0: .4byte vtable_unk_080E5E24
+    .section .text.game_state_08012D88, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant0C
-GameScript_QueueSceneVariant0C: @ 0x08012CF4
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0xc
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08012D80 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08012D84 @ =vtable_unk_080E5DE4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08012D5C
-    cmp r1, #0
-    beq .L08012D5C
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012D5C:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08012D78
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012D78:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012D80: .4byte vtable_unk_080E5E74
-.L08012D84: .4byte vtable_unk_080E5DE4
+    .section .text.game_state_08012E1C, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant0D
-GameScript_QueueSceneVariant0D: @ 0x08012D88
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0xd
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08012E14 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08012E18 @ =vtable_unk_080E5DF4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08012DF0
-    cmp r1, #0
-    beq .L08012DF0
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012DF0:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08012E0C
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012E0C:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012E14: .4byte vtable_unk_080E5E74
-.L08012E18: .4byte vtable_unk_080E5DF4
+    .section .text.game_state_08012F54, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant0E
-GameScript_QueueSceneVariant0E: @ 0x08012E1C
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0xe
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08012EB8 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0x20
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08012EBC @ =vtable_unk_080E5E14
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    movs r1, #0x51
-    str r1, [r0, #0xc]
-    movs r1, #0x5f
-    str r1, [r0, #0x10]
-    str r2, [r0, #0x14]
-    str r2, [r0, #0x18]
-    strb r2, [r0, #0x1c]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08012E92
-    cmp r1, #0
-    beq .L08012E92
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012E92:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08012EAE
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012EAE:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012EB8: .4byte vtable_unk_080E5E74
-.L08012EBC: .4byte vtable_unk_080E5E14
+    .section .text.game_state_08012FE8, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant0F
-GameScript_QueueSceneVariant0F: @ 0x08012EC0
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0xf
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08012F4C @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08012F50 @ =vtable_unk_080E5E04
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08012F28
-    cmp r1, #0
-    beq .L08012F28
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012F28:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08012F44
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012F44:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012F4C: .4byte vtable_unk_080E5E74
-.L08012F50: .4byte vtable_unk_080E5E04
+    .section .text.game_state_08013114, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant10
-GameScript_QueueSceneVariant10: @ 0x08012F54
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x10
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08012FE0 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08012FE4 @ =vtable_unk_080E5DD4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08012FBC
-    cmp r1, #0
-    beq .L08012FBC
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012FBC:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08012FD8
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012FD8:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012FE0: .4byte vtable_unk_080E5E74
-.L08012FE4: .4byte vtable_unk_080E5DD4
+    .section .text.game_state_080131A8, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant11
-GameScript_QueueSceneVariant11: @ 0x08012FE8
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x11
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08013078 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L0801307C @ =vtable_unk_080E5D94
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    str r2, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013052
-    cmp r1, #0
-    beq .L08013052
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013052:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L0801306E
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801306E:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013078: .4byte vtable_unk_080E5E74
-.L0801307C: .4byte vtable_unk_080E5D94
+    .section .text.game_state_0801323C, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant12
-GameScript_QueueSceneVariant12: @ 0x08013080
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x12
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L0801310C @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013110 @ =vtable_unk_080E5DB4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080130E8
-    cmp r1, #0
-    beq .L080130E8
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080130E8:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013104
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013104:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801310C: .4byte vtable_unk_080E5E74
-.L08013110: .4byte vtable_unk_080E5DB4
+    .section .text.game_state_080132D0, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant13
-GameScript_QueueSceneVariant13: @ 0x08013114
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x13
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L080131A0 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L080131A4 @ =vtable_unk_080E5DC4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L0801317C
-    cmp r1, #0
-    beq .L0801317C
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801317C:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013198
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013198:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080131A0: .4byte vtable_unk_080E5E74
-.L080131A4: .4byte vtable_unk_080E5DC4
+    .section .text.game_state_08013364, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant14
-GameScript_QueueSceneVariant14: @ 0x080131A8
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x14
-    str r0, [sp]
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08013234 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013238 @ =vtable_unk_080E5DA4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    str r2, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013210
-    cmp r1, #0
-    beq .L08013210
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013210:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L0801322C
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801322C:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013234: .4byte vtable_unk_080E5E74
-.L08013238: .4byte vtable_unk_080E5DA4
-
-    thumb_func_start GameScript_QueueSceneVariant16
-GameScript_QueueSceneVariant16: @ 0x0801323C
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x16
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L080132C8 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L080132CC @ =vtable_unk_080E5D64
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080132A4
-    cmp r1, #0
-    beq .L080132A4
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080132A4:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L080132C0
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080132C0:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080132C8: .4byte vtable_unk_080E5E74
-.L080132CC: .4byte vtable_unk_080E5D64
-
-    thumb_func_start GameScript_QueueSceneVariant17
-GameScript_QueueSceneVariant17: @ 0x080132D0
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x17
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L0801335C @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013360 @ =vtable_unk_080E5D84
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013338
-    cmp r1, #0
-    beq .L08013338
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013338:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013354
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013354:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801335C: .4byte vtable_unk_080E5E74
-.L08013360: .4byte vtable_unk_080E5D84
-
-    thumb_func_start GameScript_QueueSceneVariant18
-GameScript_QueueSceneVariant18: @ 0x08013364
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    mov r8, r1
-    ldr r7, [r0, #4]
-    movs r0, #0x18
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r7, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    ldr r1, .L08013400 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013404 @ =vtable_unk_080E5D54
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    mov r1, r8
-    str r1, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080133D6
-    cmp r1, #0
-    beq .L080133D6
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080133D6:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L080133F2
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080133F2:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013400: .4byte vtable_unk_080E5E74
-.L08013404: .4byte vtable_unk_080E5D54
+    .section .text.game_state_08013408, "ax", %progbits
 
     thumb_func_start GameScript_QueueSceneVariant18Preset1000
 GameScript_QueueSceneVariant18Preset1000: @ 0x08013408
@@ -4897,450 +3465,17 @@ GameScript_QueueSceneVariant18Preset1001: @ 0x080134A4
 .L0801353C: .4byte 0x00001001
 .L08013540: .4byte vtable_unk_080E5D54
 
-    thumb_func_start GameScript_QueueSceneVariant19
-GameScript_QueueSceneVariant19: @ 0x08013544
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x19
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L080135D0 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L080135D4 @ =vtable_unk_080E5CB4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080135AC
-    cmp r1, #0
-    beq .L080135AC
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080135AC:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L080135C8
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080135C8:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080135D0: .4byte vtable_unk_080E5E74
-.L080135D4: .4byte vtable_unk_080E5CB4
+    .section .text.game_state_080135D8, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant1A
-GameScript_QueueSceneVariant1A: @ 0x080135D8
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x1a
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08013664 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013668 @ =vtable_unk_080E5CE4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013640
-    cmp r1, #0
-    beq .L08013640
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013640:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L0801365C
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801365C:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013664: .4byte vtable_unk_080E5E74
-.L08013668: .4byte vtable_unk_080E5CE4
+    .section .text.game_state_0801366C, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant1B
-GameScript_QueueSceneVariant1B: @ 0x0801366C
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x1b
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L080136F8 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L080136FC @ =vtable_unk_080E5CC4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080136D4
-    cmp r1, #0
-    beq .L080136D4
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080136D4:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L080136F0
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080136F0:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080136F8: .4byte vtable_unk_080E5E74
-.L080136FC: .4byte vtable_unk_080E5CC4
+    .section .text.game_state_08013700, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant1C
-GameScript_QueueSceneVariant1C: @ 0x08013700
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x1c
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L0801378C @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013790 @ =vtable_unk_080E5CD4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013768
-    cmp r1, #0
-    beq .L08013768
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013768:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013784
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013784:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801378C: .4byte vtable_unk_080E5E74
-.L08013790: .4byte vtable_unk_080E5CD4
+    .section .text.game_state_08013794, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant1D
-GameScript_QueueSceneVariant1D: @ 0x08013794
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x1d
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08013820 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r3, #0
-    str r3, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r2, [r5]
-    ldr r1, .L08013824 @ =vtable_unk_080E5E54
-    str r1, [r0]
-    str r2, [r0, #4]
-    str r3, [sp, #0x10]
-    str r4, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080137FC
-    cmp r1, #0
-    beq .L080137FC
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080137FC:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013818
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013818:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013820: .4byte vtable_unk_080E5E74
-.L08013824: .4byte vtable_unk_080E5E54
+    .section .text.game_state_08013828, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant1E
-GameScript_QueueSceneVariant1E: @ 0x08013828
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x1e
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L080138B8 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L080138BC @ =vtable_unk_080E5D44
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    strb r2, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013892
-    cmp r1, #0
-    beq .L08013892
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013892:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L080138AE
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080138AE:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080138B8: .4byte vtable_unk_080E5E74
-.L080138BC: .4byte vtable_unk_080E5D44
+    .section .text.game_state_080138C0, "ax", %progbits
 
     thumb_func_start GameScript_QueueSceneVariant1F
 GameScript_QueueSceneVariant1F: @ 0x080138C0
@@ -5419,736 +3554,19 @@ GameScript_QueueSceneVariant1F: @ 0x080138C0
 .L08013954: .4byte vtable_unk_080E5E74
 .L08013958: .4byte vtable_unk_080E5D44
 
-    thumb_func_start GameScript_QueueSceneVariant20
-GameScript_QueueSceneVariant20: @ 0x0801395C
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x20
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L080139E8 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L080139EC @ =vtable_unk_080E5C34
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080139C4
-    cmp r1, #0
-    beq .L080139C4
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080139C4:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L080139E0
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080139E0:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080139E8: .4byte vtable_unk_080E5E74
-.L080139EC: .4byte vtable_unk_080E5C34
+    .section .text.game_state_080139F0, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant21
-GameScript_QueueSceneVariant21: @ 0x080139F0
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    mov r8, r1
-    ldr r7, [r0, #4]
-    movs r0, #0x21
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r7, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    ldr r1, .L08013A8C @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013A90 @ =vtable_unk_080E5C94
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    mov r1, r8
-    str r1, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013A62
-    cmp r1, #0
-    beq .L08013A62
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013A62:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013A7E
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013A7E:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013A8C: .4byte vtable_unk_080E5E74
-.L08013A90: .4byte vtable_unk_080E5C94
+    .section .text.game_state_08013A94, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant22
-GameScript_QueueSceneVariant22: @ 0x08013A94
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    mov r8, r1
-    ldr r7, [r0, #4]
-    movs r0, #0x22
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r7, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    ldr r1, .L08013B30 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013B34 @ =vtable_unk_080E5C84
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    mov r1, r8
-    str r1, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013B06
-    cmp r1, #0
-    beq .L08013B06
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013B06:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013B22
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013B22:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013B30: .4byte vtable_unk_080E5E74
-.L08013B34: .4byte vtable_unk_080E5C84
+    .section .text.game_state_08013B38, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant23
-GameScript_QueueSceneVariant23: @ 0x08013B38
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    mov r8, r1
-    ldr r7, [r0, #4]
-    movs r0, #0x23
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r7, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    ldr r1, .L08013BD4 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013BD8 @ =vtable_unk_080E5C74
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    mov r1, r8
-    str r1, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013BAA
-    cmp r1, #0
-    beq .L08013BAA
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013BAA:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013BC6
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013BC6:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013BD4: .4byte vtable_unk_080E5E74
-.L08013BD8: .4byte vtable_unk_080E5C74
+    .section .text.game_state_08013C70, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant29
-GameScript_QueueSceneVariant29: @ 0x08013BDC
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x29
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08013C68 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013C6C @ =vtable_unk_080E5C44
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013C44
-    cmp r1, #0
-    beq .L08013C44
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013C44:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013C60
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013C60:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013C68: .4byte vtable_unk_080E5E74
-.L08013C6C: .4byte vtable_unk_080E5C44
-
-    thumb_func_start GameScript_QueueSceneVariant2B
-GameScript_QueueSceneVariant2B: @ 0x08013C70
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x2b
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08013CFC @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013D00 @ =vtable_unk_080E5CF4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013CD8
-    cmp r1, #0
-    beq .L08013CD8
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013CD8:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013CF4
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013CF4:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013CFC: .4byte vtable_unk_080E5E74
-.L08013D00: .4byte vtable_unk_080E5CF4
-
-    thumb_func_start func_08013D04
-func_08013D04: @ 0x08013D04
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    lsls r4, r1, #0x18
-    lsrs r4, r4, #0x18
-    ldr r7, [r0, #4]
-    movs r0, #0x10
-    bl __builtin_new
-    mov r8, r0
-    rsbs r6, r4, #0
-    orrs r6, r4
-    asrs r6, r6, #0x1f
-    movs r0, #2
-    ands r6, r0
-    adds r0, r7, #0
-    adds r0, #0x8c
-    ldr r0, [r0]
-    mov sb, r0
-    ldr r0, .L08013DB8 @ =vtable_unk_080E5C14
-    mov r1, r8
-    str r0, [r1]
-    mov r0, sb
-    str r0, [r1, #4]
-    movs r0, #0x14
-    bl __builtin_new
-    ldr r1, .L08013DBC @ =vtable_unk_080E5E44
-    str r1, [r0]
-    movs r1, #0
-    strb r1, [r0, #4]
-    adds r4, r0, #6
-    movs r5, #0x8d
-    lsls r5, r5, #2
-    ldrh r2, [r0, #6]
-    ldr r3, .L08013DC0 @ =0xFFFFFC00
-    adds r1, r3, #0
-    ands r1, r2
-    orrs r1, r5
-    strh r1, [r0, #6]
-    ldrb r5, [r4, #1]
-    movs r2, #3
-    adds r1, r2, #0
-    ands r1, r5
-    strb r1, [r4, #1]
-    ldrh r5, [r4, #2]
-    adds r1, r3, #0
-    ands r1, r5
-    strh r1, [r4, #2]
-    ldrb r1, [r4, #3]
-    ands r2, r1
-    strb r2, [r4, #3]
-    ldrh r1, [r4, #4]
-    ands r3, r1
-    strh r3, [r4, #4]
-    ldr r1, .L08013DC4 @ =vtable_unk_080E5C24
-    str r1, [r0]
-    mov r1, sb
-    str r1, [r0, #0xc]
-    str r6, [r0, #0x10]
-    mov r1, r8
-    str r0, [r1, #8]
-    str r6, [r1, #0xc]
-    adds r5, r7, #0
-    adds r5, #0xa4
-    mov r4, r8
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013DA0
-    cmp r1, #0
-    beq .L08013DA0
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013DA0:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013DB8: .4byte vtable_unk_080E5C14
-.L08013DBC: .4byte vtable_unk_080E5E44
-.L08013DC0: .4byte 0xFFFFFC00
-.L08013DC4: .4byte vtable_unk_080E5C24
-
-    thumb_func_start GameScript_QueueSceneVariant2D
-GameScript_QueueSceneVariant2D: @ 0x08013DC8
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    mov r8, r1
-    ldr r7, [r0, #4]
-    movs r0, #0x2d
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r7, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    ldr r1, .L08013E64 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08013E68 @ =vtable_unk_080E5C54
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    mov r1, r8
-    str r1, [r0, #0xc]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08013E3A
-    cmp r1, #0
-    beq .L08013E3A
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013E3A:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08013E56
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08013E56:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08013E64: .4byte vtable_unk_080E5E74
-.L08013E68: .4byte vtable_unk_080E5C54
+    .section .text.game_state_08013DC8, "ax", %progbits
 
     .section .text.game_state_08013EF8, "ax", %progbits
 
     .section .text.game_state_08013F88, "ax", %progbits
-
-    thumb_func_start GameScript_QueueSceneVariant2C
-GameScript_QueueSceneVariant2C: @ 0x08013F88
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0x1c
-    mov sb, r1
-    mov r8, r2
-    ldr r7, [r0, #4]
-    movs r0, #0x2c
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r7, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    ldr r1, .L0801402C @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r6}
-    stm r2!, {r3, r4, r6}
-    str r0, [sp, #0xc]
-    movs r0, #0x14
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08014030 @ =vtable_unk_080E5C64
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    mov r1, sb
-    str r1, [r0, #0xc]
-    mov r3, r8
-    strb r3, [r0, #0x10]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08014002
-    cmp r1, #0
-    beq .L08014002
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08014002:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L0801401E
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801401E:
-    add sp, #0x1c
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801402C: .4byte vtable_unk_080E5E74
-.L08014030: .4byte vtable_unk_080E5C64
 
     .section .text.game_state_0801410C, "ax", %progbits
 
@@ -6173,8 +3591,8 @@ GameScript_QueueSceneVariant2C: @ 0x08013F88
     .section .text.game_state_08014318, "ax", %progbits
 
 
-    thumb_func_start GameScript_UpdateTextPanel
-GameScript_UpdateTextPanel: @ 0x08014318
+    thumb_func_start GameScript_SetGameTime
+GameScript_SetGameTime: @ 0x08014318
     push {r4, r5, r6, r7, lr}
     ldr r4, [r0, #4]
     adds r5, r4, #0
@@ -6225,79 +3643,7 @@ GameScript_UpdateTextPanel: @ 0x08014318
     pop {r0}
     bx r0
     .section .text.game_state_0801437C, "ax", %progbits
-    thumb_func_start GameScript_QueueSceneVariant24
-GameScript_QueueSceneVariant24: @ 0x0801437C
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x24
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08014408 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L0801440C @ =vtable_unk_080E5CA4
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080143E4
-    cmp r1, #0
-    beq .L080143E4
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080143E4:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08014400
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08014400:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08014408: .4byte vtable_unk_080E5E74
-.L0801440C: .4byte vtable_unk_080E5CA4
+    .section .text.game_state_08014410, "ax", %progbits
 
     thumb_func_start GameScript_QueueSceneVariant25
 GameScript_QueueSceneVariant25: @ 0x08014410
@@ -6384,237 +3730,9 @@ GameScript_QueueSceneVariant25: @ 0x08014410
 .L080144B4: .4byte vtable_unk_080E5E74
 .L080144B8: .4byte vtable_unk_080E5D34
 
-    thumb_func_start GameScript_QueueSceneVariant26
-GameScript_QueueSceneVariant26: @ 0x080144BC
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x26
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08014548 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L0801454C @ =vtable_unk_080E5D24
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08014524
-    cmp r1, #0
-    beq .L08014524
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08014524:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08014540
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08014540:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08014548: .4byte vtable_unk_080E5E74
-.L0801454C: .4byte vtable_unk_080E5D24
+    .section .text.game_state_08014550, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant27
-GameScript_QueueSceneVariant27: @ 0x08014550
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    lsls r5, r1, #0x18
-    lsrs r5, r5, #0x18
-    mov r8, r5
-    ldr r7, [r0, #4]
-    movs r0, #0x27
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r6, r7, #0
-    adds r6, #0x8c
-    ldr r1, [r6]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r5}
-    stm r2!, {r3, r4, r5}
-    ldr r1, .L080145F0 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r5}
-    stm r2!, {r3, r4, r5}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r6]
-    ldr r1, .L080145F4 @ =vtable_unk_080E5D14
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    mov r1, r8
-    strb r1, [r0, #0xc]
-    adds r5, r7, #0
-    adds r5, #0xa4
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L080145C8
-    cmp r1, #0
-    beq .L080145C8
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080145C8:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L080145E4
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080145E4:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080145F0: .4byte vtable_unk_080E5E74
-.L080145F4: .4byte vtable_unk_080E5D14
-
-    thumb_func_start GameScript_QueueSceneVariant28
-GameScript_QueueSceneVariant28: @ 0x080145F8
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0x28
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08014684 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08014688 @ =vtable_unk_080E5D04
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08014660
-    cmp r1, #0
-    beq .L08014660
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08014660:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L0801467C
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801467C:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08014684: .4byte vtable_unk_080E5E74
-.L08014688: .4byte vtable_unk_080E5D04
+    .section .text.game_state_080145F8, "ax", %progbits
 
     .section .text.game_state_08014694, "ax", %progbits
 
@@ -6624,8 +3742,8 @@ GameScript_QueueSceneVariant28: @ 0x080145F8
 
     .section .text.game_state_080146FC, "ax", %progbits
 
-    thumb_func_start func_080146FC
-func_080146FC: @ 0x080146FC
+    thumb_func_start GameScript_SetSolidColorBackground
+GameScript_SetSolidColorBackground: @ 0x080146FC
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -7174,8 +4292,8 @@ func_080146FC: @ 0x080146FC
 .L08014AF0: .4byte 0x00003E41
 .L08014AF4: .4byte 0x00001010
 
-    thumb_func_start func_08014AF8
-func_08014AF8: @ 0x08014AF8
+    thumb_func_start GameScript_RebuildMapScene
+GameScript_RebuildMapScene: @ 0x08014AF8
     push {r4, r5, r6, lr}
     sub sp, #0xc
     ldr r5, [r0, #4]
@@ -7291,135 +4409,14 @@ func_08014AF8: @ 0x08014AF8
 
     .section .text.game_state_08014C34, "ax", %progbits
 
-    thumb_func_start func_08014C34
-func_08014C34: @ 0x08014C34
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x44
-    adds r7, r1, #0
-    str r2, [sp, #0x3c]
-    ldr r0, [r0, #4]
-    str r0, [sp, #0x40]
-    cmp r7, #0
-    bne .L08014D18
-    adds r0, #0x8c
-    ldr r0, [r0]
-    mov sl, r0
-    movs r0, #0x14
-    add sl, r0
-    add r1, sp, #0x34
-    ldr r0, .L08014D28 @ =0x000003FF
-    mov r8, r0
-    mov r0, r8
-    ands r3, r0
-    ldrh r2, [r1]
-    ldr r5, .L08014D2C @ =0xFFFFFC00
-    adds r0, r5, #0
-    ands r0, r2
-    orrs r0, r3
-    strh r0, [r1]
-    ldr r2, [sp, #0x64]
-    lsls r2, r2, #0x10
-    lsrs r3, r2, #0x10
-    movs r0, #0x3f
-    mov sb, r0
-    ands r3, r0
-    lsls r3, r3, #2
-    ldrb r6, [r1, #1]
-    movs r4, #3
-    adds r0, r4, #0
-    ands r0, r6
-    orrs r0, r3
-    strb r0, [r1, #1]
-    lsrs r2, r2, #0x16
-    mov r3, r8
-    ands r2, r3
-    ldrh r3, [r1, #2]
-    adds r0, r5, #0
-    ands r0, r3
-    orrs r0, r2
-    strh r0, [r1, #2]
-    ldr r2, [sp, #0x68]
-    lsls r2, r2, #0x10
-    lsrs r0, r2, #0x10
-    mov r3, sb
-    ands r0, r3
-    lsls r0, r0, #2
-    ldrb r3, [r1, #3]
-    ands r4, r3
-    orrs r4, r0
-    strb r4, [r1, #3]
-    lsrs r2, r2, #0x16
-    mov r0, r8
-    ands r2, r0
-    ldrh r0, [r1, #4]
-    ands r5, r0
-    orrs r5, r2
-    strh r5, [r1, #4]
-    add r4, sp, #0x2c
-    adds r0, r4, #0
-    movs r2, #6
-    bl memcpy
-    strb r7, [r4, #6]
-    ldr r3, [sp, #0x3c]
-    lsls r2, r3, #4
-    subs r2, r2, r3
-    lsls r2, r2, #3
-    mov r0, sp
-    adds r1, r4, #0
-    bl __5HorseRC13ActorLocationUi
-    mov r0, sl
-    mov r1, sp
-    bl SetHorse__4FarmRC5Horse
-    ldr r4, [sp, #0x40]
-    adds r4, #0xa8
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x38]
-    movs r1, #0x2c
-    bl _call_via_r2
-    ldr r0, [r4]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x40]
-    movs r1, #0x2c
-    bl _call_via_r2
-    adds r4, r0, #0
-    cmp r4, #0
-    beq .L08014D18
-    ldr r0, [r4, #0x14]
-    ldr r1, [r0, #0x28]
-    adds r0, r4, #0
-    bl _call_via_r1
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08014D18
-    ldr r0, [r4, #0x14]
-    ldr r1, [r0, #0x20]
-    adds r0, r4, #0
-    bl _call_via_r1
-.L08014D18:
-    add sp, #0x44
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08014D28: .4byte 0x000003FF
-.L08014D2C: .4byte 0xFFFFFC00
 
 
     .section .text.game_state_08014D7C, "ax", %progbits
 
     .section .text.game_state_08014D9C, "ax", %progbits
 
-    thumb_func_start func_08014D9C
-func_08014D9C: @ 0x08014D9C
+    thumb_func_start GameScript_ShowLivestockLossReportState2
+GameScript_ShowLivestockLossReportState2: @ 0x08014D9C
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -7530,7 +4527,7 @@ func_08014D9C: @ 0x08014D9C
     adds r0, #0x8c
     ldr r0, [r0]
     adds r0, #0x14
-    bl method_08009AF4__C4Farm
+    bl GetName__C4Farm
     mov r8, r0
     mov r4, r8
     adds r0, r6, #0
@@ -7773,7 +4770,7 @@ func_08014D9C: @ 0x08014D9C
     mov r0, sl
     movs r1, #2
     mov r2, sp
-    bl func_08011934
+    bl GameState_AppendLivestockStateNames
     mov r8, sp
     ldr r7, .L08015118 @ =gUnk_080F065C
     mov r0, sp
@@ -8084,8 +5081,8 @@ GameScript_RemoveLivestockInState2: @ 0x08015210
     .align 2, 0
 .L08015318: .4byte 0x00001C2C
 
-    thumb_func_start func_0801531C
-func_0801531C: @ 0x0801531C
+    thumb_func_start GameScript_ShowLivestockLossReportState1
+GameScript_ShowLivestockLossReportState1: @ 0x0801531C
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -8196,7 +5193,7 @@ func_0801531C: @ 0x0801531C
     adds r0, #0x8c
     ldr r0, [r0]
     adds r0, #0x14
-    bl method_08009AF4__C4Farm
+    bl GetName__C4Farm
     mov r8, r0
     mov r4, r8
     adds r0, r6, #0
@@ -8439,7 +5436,7 @@ func_0801531C: @ 0x0801531C
     mov r0, sl
     movs r1, #1
     mov r2, sp
-    bl func_08011934
+    bl GameState_AppendLivestockStateNames
     mov r8, sp
     ldr r7, .L08015698 @ =gUnk_080F065C
     mov r0, sp
@@ -8621,8 +5618,8 @@ func_0801531C: @ 0x0801531C
 .L08015788: .4byte 0x00000383
 .L0801578C: .4byte gUnk_080F0658
 
-    thumb_func_start func_08015790
-func_08015790: @ 0x08015790
+    thumb_func_start GameScript_RemoveLivestockInState1
+GameScript_RemoveLivestockInState1: @ 0x08015790
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -10668,8 +7665,8 @@ func_08015E30: @ 0x08015E30
 
     .section .text.game_state_080168D4, "ax", %progbits
 
-    thumb_func_start func_080168D4
-func_080168D4: @ 0x080168D4
+    thumb_func_start GameScript_RelocateSelectedAnimalActor
+GameScript_RelocateSelectedAnimalActor: @ 0x080168D4
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -11064,242 +8061,11 @@ GameScript_StartRandomRecipeFoodAction: @ 0x08016DB0
 
     .section .text.game_state_08016FA4, "ax", %progbits
 
-    thumb_func_start func_08016FA4
-func_08016FA4: @ 0x08016FA4
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x18
-    str r1, [sp, #0x10]
-    adds r4, r3, #0
-    ldr r0, [r0, #4]
-    str r0, [sp, #0x14]
-    mov sl, r2
-    cmp r1, #0x49
-    bgt .L08017060
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x40]
-    ldr r1, [sp, #0x10]
-    bl _call_via_r2
-    adds r7, r0, #0
-    cmp r7, #0
-    bne .L08016FD4
-    b .L0801710E
-.L08016FD4:
-    add r1, sp, #8
-    ldr r0, .L08017058 @ =0x000003FF
-    mov r8, r0
-    mov r2, sl
-    mov r0, r8
-    ands r2, r0
-    ldrh r3, [r1]
-    ldr r5, .L0801705C @ =0xFFFFFC00
-    adds r0, r5, #0
-    ands r0, r3
-    orrs r0, r2
-    strh r0, [r1]
-    lsls r4, r4, #0x10
-    lsrs r2, r4, #0x10
-    movs r0, #0x3f
-    mov sb, r0
-    ands r2, r0
-    lsls r2, r2, #2
-    ldrb r6, [r1, #1]
-    movs r3, #3
-    adds r0, r3, #0
-    ands r0, r6
-    orrs r0, r2
-    strb r0, [r1, #1]
-    lsrs r4, r4, #0x16
-    mov r2, r8
-    ands r4, r2
-    ldrh r2, [r1, #2]
-    adds r0, r5, #0
-    ands r0, r2
-    orrs r0, r4
-    strh r0, [r1, #2]
-    ldr r4, [sp, #0x38]
-    lsls r2, r4, #0x10
-    lsrs r0, r2, #0x10
-    mov r4, sb
-    ands r0, r4
-    lsls r0, r0, #2
-    ldrb r4, [r1, #3]
-    ands r3, r4
-    orrs r3, r0
-    strb r3, [r1, #3]
-    lsrs r2, r2, #0x16
-    mov r0, r8
-    ands r2, r0
-    ldrh r0, [r1, #4]
-    ands r5, r0
-    orrs r5, r2
-    strh r5, [r1, #4]
-    mov r4, sp
-    mov r0, sp
-    movs r2, #6
-    bl memcpy
-    ldr r0, [sp, #0x3c]
-    strb r0, [r4, #6]
-    adds r0, r7, #0
-    mov r1, sp
-    bl SetLocation__12AActorEntityRC13ActorLocation
-    ldr r0, [r7, #0x14]
-    ldr r1, [r0, #0x20]
-    adds r0, r7, #0
-    bl _call_via_r1
-    b .L0801710E
-    .align 2, 0
-.L08017058: .4byte 0x000003FF
-.L0801705C: .4byte 0xFFFFFC00
-.L08017060:
-    ldr r0, [sp, #0x14]
-    adds r0, #0xa8
-    ldr r0, [r0]
-    ldr r1, [r0]
-    ldr r2, [r1, #0x40]
-    ldr r1, [sp, #0x10]
-    bl _call_via_r2
-    adds r7, r0, #0
-    cmp r7, #0
-    beq .L0801710E
-    mov r5, sp
-    ldr r1, .L08017138 @ =0x000003FF
-    mov r8, r1
-    mov r1, sl
-    mov r2, r8
-    ands r1, r2
-    ldrh r2, [r5]
-    ldr r3, .L0801713C @ =0xFFFFFC00
-    adds r0, r3, #0
-    ands r0, r2
-    orrs r0, r1
-    strh r0, [r5]
-    lsls r2, r4, #0x10
-    lsrs r0, r2, #0x10
-    movs r4, #0x3f
-    mov sb, r4
-    ands r0, r4
-    lsls r0, r0, #2
-    ldrb r1, [r5, #1]
-    movs r4, #3
-    adds r6, r4, #0
-    ands r6, r1
-    orrs r6, r0
-    strb r6, [r5, #1]
-    lsrs r2, r2, #0x16
-    mov r0, r8
-    ands r2, r0
-    ldrh r1, [r5, #2]
-    adds r0, r3, #0
-    ands r0, r1
-    orrs r0, r2
-    strh r0, [r5, #2]
-    ldr r2, [sp, #0x38]
-    lsls r1, r2, #0x10
-    lsrs r0, r1, #0x10
-    mov r2, sb
-    ands r0, r2
-    lsls r0, r0, #2
-    ldrb r2, [r5, #3]
-    ands r4, r2
-    orrs r4, r0
-    strb r4, [r5, #3]
-    lsrs r1, r1, #0x16
-    mov r0, r8
-    ands r1, r0
-    ldrh r0, [r5, #4]
-    ands r3, r0
-    orrs r3, r1
-    strh r3, [r5, #4]
-    mov r0, sp
-    ldrh r1, [r0]
-    lsls r1, r1, #0x16
-    lsrs r1, r1, #0x16
-    lsrs r6, r6, #2
-    ldrh r2, [r0, #2]
-    ldr r5, .L08017138 @ =0x000003FF
-    ands r2, r5
-    lsls r2, r2, #6
-    orrs r2, r6
-    lsls r2, r2, #0x10
-    asrs r2, r2, #0x10
-    lsrs r4, r4, #2
-    ldrh r3, [r0, #4]
-    ands r3, r5
-    lsls r3, r3, #6
-    orrs r3, r4
-    lsls r3, r3, #0x10
-    asrs r3, r3, #0x10
-    adds r0, r7, #0
-    bl SetLocation__7AEntityUiii
-    ldr r0, [r7, #0x14]
-    ldr r1, [r0, #0x20]
-    adds r0, r7, #0
-    bl _call_via_r1
-.L0801710E:
-    ldr r1, [sp, #0x10]
-    cmp r1, #0
-    bne .L08017162
-    mov r2, sl
-    cmp r2, #0x19
-    bne .L08017128
-    ldr r0, [sp, #0x14]
-    adds r0, #0x8c
-    ldr r0, [r0]
-    ldr r4, .L08017140 @ =0x00001CD4
-    adds r0, r0, r4
-    bl AdvanceNpcScheduleDailyCounter
-.L08017128:
-    movs r1, #0
-    mov r0, sl
-    subs r0, #0x35
-    cmp r0, #0xfe
-    bhi .L08017144
-    mov r1, sl
-    subs r1, #0x34
-    b .L08017150
-    .align 2, 0
-.L08017138: .4byte 0x000003FF
-.L0801713C: .4byte 0xFFFFFC00
-.L08017140: .4byte 0x00001CD4
-.L08017144:
-    ldr r0, .L08017174 @ =0xFFFFFECB
-    add r0, sl
-    cmp r0, #0xfe
-    bhi .L08017150
-    ldr r1, .L08017178 @ =0xFFFFFECC
-    add r1, sl
-.L08017150:
-    cmp r1, #0
-    ble .L08017162
-    ldr r0, [sp, #0x14]
-    adds r0, #0x8c
-    ldr r0, [r0]
-    ldr r2, .L0801717C @ =0x00001BD8
-    adds r0, r0, r2
-    bl func_0800EECC
-.L08017162:
-    add sp, #0x18
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08017174: .4byte 0xFFFFFECB
-.L08017178: .4byte 0xFFFFFECC
-.L0801717C: .4byte 0x00001BD8
+    .section .text.game_state_08017180, "ax", %progbits
 
 
-    thumb_func_start GameStateGraphics_BlitIndexedTileBlock
-GameStateGraphics_BlitIndexedTileBlock: @ 0x08017180
+    thumb_func_start GameStateMap_BlitIndexedTerrainPatch
+GameStateMap_BlitIndexedTerrainPatch: @ 0x08017180
     push {r4, r5, r6, r7, lr}
     mov r7, sb
     mov r6, r8
@@ -11365,8 +8131,8 @@ GameStateGraphics_BlitIndexedTileBlock: @ 0x08017180
     pop {r0}
     bx r0
     .section .text.game_state_080171F8, "ax", %progbits
-    thumb_func_start func_080171F8
-func_080171F8: @ 0x080171F8
+    thumb_func_start GameStateMap_BuildFarmTerrain
+GameStateMap_BuildFarmTerrain: @ 0x080171F8
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -11494,7 +8260,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0x1a
-    bl GameStateGraphics_BlitIndexedTileBlock
+    bl GameStateMap_BlitIndexedTerrainPatch
     b .L0801733A
     .align 2, 0
 .L080172F8: .4byte gUnk_0810692C
@@ -11511,7 +8277,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0x12
-    bl GameStateGraphics_BlitIndexedTileBlock
+    bl GameStateMap_BlitIndexedTerrainPatch
     b .L0801733A
     .align 2, 0
 .L0801731C: .4byte gUnk_0810695C
@@ -11527,7 +8293,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0xa
-    bl GameStateGraphics_BlitIndexedTileBlock
+    bl GameStateMap_BlitIndexedTerrainPatch
 .L0801733A:
     ldr r2, [sp, #8]
     ldr r1, .L08017358 @ =0x000005DC
@@ -11554,7 +8320,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0x3a
-    bl GameStateGraphics_BlitIndexedTileBlock
+    bl GameStateMap_BlitIndexedTerrainPatch
     b .L08017398
     .align 2, 0
 .L08017378: .4byte gUnk_081069BC
@@ -11571,7 +8337,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0x3a
-    bl GameStateGraphics_BlitIndexedTileBlock
+    bl GameStateMap_BlitIndexedTerrainPatch
 .L08017398:
     ldr r2, [sp, #8]
     movs r1, #0xff
@@ -11598,7 +8364,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0xe
-    bl GameStateGraphics_BlitIndexedTileBlock
+    bl GameStateMap_BlitIndexedTerrainPatch
     b .L080173F4
     .align 2, 0
 .L080173D4: .4byte gUnk_08106A1C
@@ -11615,7 +8381,7 @@ func_080171F8: @ 0x080171F8
     ldr r0, [sp, #4]
     mov r1, sb
     movs r3, #0xe
-    bl GameStateGraphics_BlitIndexedTileBlock
+    bl GameStateMap_BlitIndexedTerrainPatch
 .L080173F4:
     add sp, #0x18
     pop {r3, r4, r5}
@@ -11631,133 +8397,7 @@ func_080171F8: @ 0x080171F8
 
 
     .section .text.game_state_080174C8, "ax", %progbits
-    thumb_func_start func_080174C8
-func_080174C8: @ 0x080174C8
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x10
-    mov sb, r0
-    adds r6, r1, #0
-    adds r7, r2, #0
-    mov sl, r3
-    add r0, sp, #0x34
-    ldr r1, [sp, #0x38]
-    mov r8, r1
-    ldrb r4, [r0]
-    mov r0, sp
-    adds r1, r6, #0
-    bl GetMapForageObstacle
-    mov r5, sp
-    movs r2, #0
-    cmp r4, #0
-    beq .L08017508
-    ldr r0, [sp]
-    cmp r0, #0x13
-    beq .L08017500
-    cmp r0, #0x14
-    beq .L08017504
-    b .L080175A0
-.L08017500:
-    movs r2, #2
-    b .L08017514
-.L08017504:
-    movs r2, #7
-    b .L08017514
-.L08017508:
-    ldr r0, [sp]
-    cmp r0, #0x12
-    beq .L08017514
-    cmp r0, #0x15
-    bne .L080175A0
-    movs r2, #1
-.L08017514:
-    movs r0, #0
-    mov r1, r8
-    strb r0, [r1, #0x10]
-    ldr r0, [sp, #0x30]
-    subs r2, r0, r2
-    cmp r2, #0
-    ble .L080175A0
-    ldr r0, [r5]
-    cmp r0, #0x12
-    beq .L08017542
-    adds r0, r6, #0
-    adds r1, r7, #0
-    bl SubtractMapAvailabilityCount
-    ldr r0, [r5]
-    cmp r0, #0x12
-    beq .L08017542
-    adds r0, r6, #0
-    adds r1, r7, #0
-    bl GetMapAvailabilityCount
-    cmp r0, #0
-    bne .L080175A0
-.L08017542:
-    adds r0, r6, #0
-    adds r1, r7, #0
-    mov r2, sl
-    bl ClearMapAvailabilityBit
-    movs r0, #1
-    mov r1, r8
-    strb r0, [r1]
-    movs r1, #8
-    ldrsh r0, [r5, r1]
-    mov r1, r8
-    str r0, [r1, #8]
-    movs r1, #0xa
-    ldrsh r0, [r5, r1]
-    mov r1, r8
-    str r0, [r1, #0xc]
-    ldr r0, [r5]
-    cmp r0, #0x13
-    beq .L08017592
-    cmp r0, #0x13
-    bgt .L08017572
-    cmp r0, #0x12
-    beq .L08017586
-    b .L0801759C
-.L08017572:
-    cmp r0, #0x14
-    beq .L08017596
-    cmp r0, #0x15
-    bne .L0801759C
-    mov r0, sb
-    movs r1, #6
-    bl method_08009B68__4FarmUi
-    movs r0, #7
-    b .L08017598
-.L08017586:
-    mov r0, sb
-    movs r1, #1
-    bl method_08009B68__4FarmUi
-    movs r0, #4
-    b .L08017598
-.L08017592:
-    movs r0, #6
-    b .L08017598
-.L08017596:
-    movs r0, #9
-.L08017598:
-    mov r1, r8
-    str r0, [r1, #4]
-.L0801759C:
-    movs r0, #1
-    b .L080175A2
-.L080175A0:
-    movs r0, #0
-.L080175A2:
-    add sp, #0x10
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.game_state_080175B4, "ax", %progbits
 
     thumb_func_start func_080175B4
 func_080175B4: @ 0x080175B4
@@ -11961,7 +8601,7 @@ func_080175B4: @ 0x080175B4
 .L08017746:
     adds r0, r5, #0
     adds r1, r4, #0
-    bl func_080171F8
+    bl GameStateMap_BuildFarmTerrain
 .L0801774E:
     ldr r3, [sp, #0x20]
     cmp r3, #0
@@ -11989,7 +8629,7 @@ func_080175B4: @ 0x080175B4
     movs r0, #0xa0
     bl __builtin_new
     adds r1, r7, #0
-    bl func_0803AB30
+    bl InitializeFixedSpriteOverlay
     ldr r1, .L08017878 @ =0x00001024
     adds r5, r7, r1
     adds r4, r0, #0
@@ -12011,7 +8651,7 @@ func_080175B4: @ 0x080175B4
     cmp r0, #0
     beq .L080177B8
     movs r1, #3
-    bl func_080AB2E4
+    bl DestroyMapTileEffectQueue
 .L080177B8:
     str r5, [r4]
     movs r0, #4
@@ -12029,14 +8669,14 @@ func_080175B4: @ 0x080175B4
     cmp r0, #0
     beq .L080177E0
     movs r1, #3
-    bl func_080AB2E4
+    bl DestroyMapTileEffectQueue
 .L080177E0:
     str r4, [r5]
     movs r4, #0
 .L080177E4:
     adds r0, r7, #0
     adds r1, r4, #0
-    bl func_0801A8E0
+    bl GameStateRespawnActor
     adds r4, #1
     cmp r4, #0x63
     bls .L080177E4
@@ -12123,7 +8763,7 @@ func_080175B4: @ 0x080175B4
     adds r0, r7, #0
     bl GameStateRefreshMapScenery
     adds r0, r7, #0
-    bl func_0801F3E4
+    bl GameStateRefreshVase
     adds r0, r7, #0
     bl GameStateRefreshTimedMapInteraction
     adds r0, r7, #0
@@ -12250,8 +8890,8 @@ func_080175B4: @ 0x080175B4
 .L080179C4: .4byte vtable_unk_080E602C
 .L080179C8: .4byte 0x000034C4
 
-    thumb_func_start func_080179CC
-func_080179CC: @ 0x080179CC
+    thumb_func_start GameStateMapScene_Destroy
+GameStateMapScene_Destroy: @ 0x080179CC
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -12312,7 +8952,7 @@ func_080179CC: @ 0x080179CC
     ldr r1, .L08017A6C @ =0x0000214C
     adds r2, r2, r1
     adds r1, r7, #0
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
     b .L08017A86
     .align 2, 0
 .L08017A50: .4byte vtable_unk_080E5EC4
@@ -12610,7 +9250,7 @@ func_08017C30: @ 0x08017C30
     ldr r1, .L08017D8C @ =0x0000214C
     adds r2, r2, r1
     adds r1, r6, #0
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
     ldrb r0, [r6, #1]
     lsrs r0, r0, #2
     ldrh r2, [r6, #2]
@@ -13404,7 +10044,7 @@ func_080182C8: @ 0x080182C8
     cmp r0, #0
     beq .L08018320
     adds r0, r2, #0
-    bl func_0803ACD8
+    bl QueueFixedSpriteOverlayGraphics
     movs r0, #0
     strb r0, [r4]
 .L08018320:
@@ -13423,7 +10063,7 @@ func_080182C8: @ 0x080182C8
     cmp r0, #0
     beq .L08018346
     adds r0, r2, #0
-    bl func_0803B128
+    bl QueueGameStateMapOverlayGraphics
     movs r0, #0
     strb r0, [r4]
 .L08018346:
@@ -13588,7 +10228,7 @@ func_080182C8: @ 0x080182C8
     cmp r0, #0
     beq .L0801848A
     add r1, sp, #0x14
-    bl func_0803B368
+    bl DrawMapOverlayParticles
 .L0801848A:
     ldr r0, .L08018528 @ =0x00001028
     add r0, sb
@@ -16571,7 +13211,7 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019CF0
     movs r1, #3
-    bl func_080AB2E4
+    bl DestroyMapTileEffectQueue
 .L08019CF0:
     str r5, [r4]
     movs r2, #0
@@ -16664,7 +13304,7 @@ func_08019BEC: @ 0x08019BEC
     movs r0, #0xa0
     bl __builtin_new
     adds r1, r7, #0
-    bl func_0803AB30
+    bl InitializeFixedSpriteOverlay
     ldr r1, .L08019E14 @ =0x00001024
     adds r5, r7, r1
     adds r4, r0, #0
@@ -16753,13 +13393,13 @@ func_08019BEC: @ 0x08019BEC
     cmp r0, #0
     beq .L08019E78
     movs r1, #3
-    bl func_080AB2E4
+    bl DestroyMapTileEffectQueue
 .L08019E78:
     str r4, [r5]
     adds r0, r7, #0
     bl GameStateRefreshMapScenery
     adds r0, r7, #0
-    bl func_0801F3E4
+    bl GameStateRefreshVase
     adds r0, r7, #0
     bl GameStateRefreshTimedMapInteraction
     adds r0, r7, #0
@@ -17814,253 +14454,8 @@ func_0801A13C: @ 0x0801A13C
 .L0801A8B8: .4byte 0xFFFFFF00
 .L0801A8BC: .4byte 0xFFFF0000
 
-    .section .text.game_state_c2.0801A8E0, "ax", %progbits
-
-    thumb_func_start func_0801A8E0
-func_0801A8E0: @ 0x0801A8E0
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #8
-    adds r6, r0, #0
-    mov sl, r1
-    adds r0, #8
-    lsls r7, r1, #2
-    adds r4, r0, r7
-    ldr r1, [r4]
-    cmp r1, #0
-    beq .L0801A90C
-    ldr r0, [r1, #0x14]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-    movs r0, #0
-    str r0, [r4]
-.L0801A90C:
-    movs r5, #0
-    mov r0, sl
-    cmp r0, #0x5d
-    bls .L0801A918
-    bl sub_0801B464
-.L0801A918:
-    ldr r0, .L0801A920 @ =0x0801A924
-    adds r0, r7, r0
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0801A920: .4byte 0x0801A924
-.L0801A924:
-    .byte 0x9C, 0xAA, 0x01, 0x08, 0xE4, 0xAE, 0x01, 0x08, 0x04, 0xAF, 0x01, 0x08
-    .byte 0x24, 0xAF, 0x01, 0x08, 0x44, 0xAF, 0x01, 0x08, 0x64, 0xAF, 0x01, 0x08, 0x84, 0xAF, 0x01, 0x08
-    .byte 0xA4, 0xAF, 0x01, 0x08, 0xC4, 0xAF, 0x01, 0x08, 0xE4, 0xAF, 0x01, 0x08, 0x04, 0xB0, 0x01, 0x08
-    .byte 0x24, 0xB0, 0x01, 0x08, 0x44, 0xB0, 0x01, 0x08, 0x64, 0xB0, 0x01, 0x08, 0x84, 0xB0, 0x01, 0x08
-    .byte 0xA4, 0xB0, 0x01, 0x08, 0xC4, 0xB0, 0x01, 0x08, 0xE4, 0xB0, 0x01, 0x08, 0x04, 0xB1, 0x01, 0x08
-    .byte 0x24, 0xB1, 0x01, 0x08, 0x44, 0xB1, 0x01, 0x08, 0x64, 0xB1, 0x01, 0x08, 0x84, 0xB1, 0x01, 0x08
-    .byte 0xA4, 0xB1, 0x01, 0x08, 0xC4, 0xB1, 0x01, 0x08, 0xE4, 0xB1, 0x01, 0x08, 0x04, 0xB2, 0x01, 0x08
-    .byte 0x24, 0xB2, 0x01, 0x08, 0x44, 0xB2, 0x01, 0x08, 0x64, 0xB2, 0x01, 0x08, 0x84, 0xB2, 0x01, 0x08
-    .byte 0xA4, 0xB2, 0x01, 0x08, 0xC4, 0xB2, 0x01, 0x08, 0xE4, 0xB2, 0x01, 0x08, 0x04, 0xB3, 0x01, 0x08
-    .byte 0x24, 0xB3, 0x01, 0x08, 0xCC, 0xAD, 0x01, 0x08, 0xF4, 0xAD, 0x01, 0x08, 0x1C, 0xAE, 0x01, 0x08
-    .byte 0x44, 0xAE, 0x01, 0x08, 0x6C, 0xAE, 0x01, 0x08, 0x94, 0xAE, 0x01, 0x08, 0xBC, 0xAE, 0x01, 0x08
-    .byte 0xB0, 0xAA, 0x01, 0x08, 0x10, 0xAB, 0x01, 0x08, 0x70, 0xB3, 0x01, 0x08, 0x6C, 0xAB, 0x01, 0x08
-    .byte 0x6C, 0xAB, 0x01, 0x08, 0x6C, 0xAB, 0x01, 0x08, 0x6C, 0xAB, 0x01, 0x08, 0x6C, 0xAB, 0x01, 0x08
-    .byte 0x6C, 0xAB, 0x01, 0x08, 0x6C, 0xAB, 0x01, 0x08, 0x6C, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08
-    .byte 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08
-    .byte 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08
-    .byte 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08
-    .byte 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08, 0xFC, 0xAB, 0x01, 0x08, 0x90, 0xB3, 0x01, 0x08
-    .byte 0x90, 0xB3, 0x01, 0x08, 0x90, 0xB3, 0x01, 0x08, 0x90, 0xB3, 0x01, 0x08, 0x74, 0xAD, 0x01, 0x08
-    .byte 0xC8, 0xAC, 0x01, 0x08, 0x7E, 0xAC, 0x01, 0x08, 0x7E, 0xAC, 0x01, 0x08, 0x7E, 0xAC, 0x01, 0x08
-    .byte 0x7E, 0xAC, 0x01, 0x08, 0x7E, 0xAC, 0x01, 0x08, 0x7E, 0xAC, 0x01, 0x08, 0x7E, 0xAC, 0x01, 0x08
-    .byte 0x7E, 0xAC, 0x01, 0x08, 0x54, 0xB3, 0x01, 0x08, 0xBC, 0xB3, 0x01, 0x08, 0xBC, 0xB3, 0x01, 0x08
-    .byte 0xBC, 0xB3, 0x01, 0x08, 0xE4, 0xB3, 0x01, 0x08, 0xE4, 0xB3, 0x01, 0x08, 0xE4, 0xB3, 0x01, 0x08
-    .byte 0x0C, 0xB4, 0x01, 0x08, 0x2C, 0xB4, 0x01, 0x08, 0x4C, 0xB4, 0x01, 0x08, 0x03, 0x49, 0x70, 0x18
-    .byte 0x01, 0x68, 0x30, 0x1C, 0x10, 0xF0, 0x22, 0xFF, 0x00, 0xF0, 0xDB, 0xFC, 0x38, 0x10, 0x00, 0x00
-    .byte 0x13, 0x4A, 0xB7, 0x18, 0x3A, 0x68, 0x13, 0x49, 0x50, 0x18, 0x01, 0x78, 0x10, 0x20, 0x08, 0x40
-    .byte 0x00, 0x28, 0x01, 0xD0, 0x00, 0xF0, 0xCE, 0xFC, 0x0F, 0x48, 0x14, 0x18, 0x20, 0x1C, 0xF4, 0xF7
-    .byte 0x5F, 0xFB, 0x00, 0x06, 0x00, 0x28, 0x06, 0xD1, 0x20, 0x1C, 0xF4, 0xF7, 0x93, 0xFB, 0x02, 0x28
-    .byte 0x01, 0xD1, 0x00, 0xF0, 0xBF, 0xFC, 0x44, 0x20, 0xE5, 0xF7, 0x74, 0xFD, 0x3B, 0x68, 0x07, 0x49
-    .byte 0x5A, 0x18, 0x5C, 0x31, 0x5B, 0x18, 0x31, 0x1C, 0x05, 0xF0, 0x0A, 0xFC, 0x00, 0xF0, 0xB1, 0xFC
-    .byte 0x38, 0x10, 0x00, 0x00, 0x9C, 0x21, 0x00, 0x00, 0x2C, 0x1C, 0x00, 0x00, 0x70, 0x1C, 0x00, 0x00
-    .byte 0x13, 0x4A, 0xB0, 0x18, 0x02, 0x68, 0x13, 0x49, 0x50, 0x18, 0x01, 0x78, 0x02, 0x20, 0x08, 0x40
-    .byte 0x00, 0x28, 0x01, 0xD0, 0x00, 0xF0, 0x9E, 0xFC, 0x0F, 0x49, 0x50, 0x18, 0x01, 0x78, 0x04, 0x20
-    .byte 0x08, 0x40, 0x00, 0x28, 0x01, 0xD0, 0x00, 0xF0, 0x95, 0xFC, 0x10, 0x1C, 0x14, 0x30, 0xEF, 0xF7
-    .byte 0x7D, 0xF8, 0x04, 0x1C, 0x00, 0x2C, 0x01, 0xD1, 0x00, 0xF0, 0x8C, 0xFC, 0x40, 0x20, 0xE5, 0xF7
-    .byte 0x41, 0xFD, 0x31, 0x1C, 0x22, 0x1C, 0x06, 0xF0, 0xB1, 0xFD, 0x00, 0xF0, 0x82, 0xFC, 0x00, 0x00
-    .byte 0x38, 0x10, 0x00, 0x00, 0x9A, 0x21, 0x00, 0x00, 0xA1, 0x21, 0x00, 0x00, 0x57, 0x46, 0x2E, 0x3F
-    .byte 0x20, 0x4A, 0xB0, 0x18, 0x00, 0x68, 0x20, 0x49, 0x44, 0x18, 0x20, 0x1C, 0xF4, 0xF7, 0x08, 0xFB
-    .byte 0x00, 0x06, 0x00, 0x28, 0x0B, 0xD1, 0x20, 0x1C, 0xF4, 0xF7, 0x3C, 0xFB, 0x03, 0x28, 0x06, 0xD1
-    .byte 0x20, 0x1C, 0xF4, 0xF7, 0xD7, 0xFB, 0xB8, 0x42, 0x01, 0xD1, 0x00, 0xF0, 0x63, 0xFC, 0x15, 0x4A
-    .byte 0xB4, 0x18, 0x20, 0x68, 0x82, 0x21, 0xC9, 0x00, 0x88, 0x46, 0x40, 0x44, 0xF1, 0xF7, 0x94, 0xFD
-    .byte 0x87, 0x42, 0x01, 0xD1, 0x00, 0xF0, 0x56, 0xFC, 0x20, 0x68, 0x82, 0x22, 0xD2, 0x00, 0x80, 0x18
-    .byte 0xF1, 0xF7, 0xD6, 0xFC, 0x87, 0x42, 0x01, 0xD3, 0x00, 0xF0, 0x4C, 0xFC, 0x20, 0x68, 0x40, 0x44
-    .byte 0x39, 0x1C, 0xF1, 0xF7, 0x5F, 0xFE, 0x04, 0x1C, 0x00, 0x2C, 0x01, 0xD1, 0x00, 0xF0, 0x42, 0xFC
-    .byte 0x3C, 0x20, 0xE5, 0xF7, 0xF7, 0xFC, 0x31, 0x1C, 0x22, 0x1C, 0x07, 0xF0, 0xDD, 0xFB, 0x00, 0xF0
-    .byte 0x38, 0xFC, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00, 0x2C, 0x1C, 0x00, 0x00, 0x54, 0x46, 0x36, 0x3C
-    .byte 0xA1, 0x46, 0x14, 0x48, 0x37, 0x18, 0x38, 0x68, 0xBE, 0x21, 0xC9, 0x00, 0x88, 0x46, 0x40, 0x44
-    .byte 0xF2, 0xF7, 0x22, 0xFA, 0x84, 0x42, 0x01, 0xD1, 0x00, 0xF0, 0x24, 0xFC, 0x38, 0x68, 0xBE, 0x22
-    .byte 0xD2, 0x00, 0x80, 0x18, 0xF2, 0xF7, 0x26, 0xF9, 0x84, 0x42, 0x01, 0xD3, 0x00, 0xF0, 0x1A, 0xFC
-    .byte 0x38, 0x68, 0x40, 0x44, 0x21, 0x1C, 0xF2, 0xF7, 0xCB, 0xFB, 0x04, 0x1C, 0x00, 0x2C, 0x0B, 0xD0
-    .byte 0x3C, 0x20, 0xE5, 0xF7, 0xC7, 0xFC, 0x31, 0x1C, 0x22, 0x1C, 0x07, 0xF0, 0xE5, 0xFF, 0x00, 0xF0
-    .byte 0x08, 0xFC, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00, 0x38, 0x68, 0x40, 0x44, 0x49, 0x46, 0xF2, 0xF7
-    .byte 0xCB, 0xFB, 0x04, 0x1C, 0x00, 0x2C, 0x01, 0xD1, 0x00, 0xF0, 0xFC, 0xFB, 0x3C, 0x20, 0xE5, 0xF7
-    .byte 0xB1, 0xFC, 0x31, 0x1C, 0x22, 0x1C, 0x08, 0xF0, 0x17, 0xFE, 0x00, 0xF0, 0xF2, 0xFB, 0x57, 0x46
-    .byte 0x4C, 0x3F, 0x10, 0x48, 0x34, 0x18, 0x20, 0x68, 0x82, 0x21, 0xC9, 0x00, 0x40, 0x18, 0xF1, 0xF7
-    .byte 0x6F, 0xFC, 0x87, 0x42, 0x01, 0xD3, 0x00, 0xF0, 0xE5, 0xFB, 0x20, 0x68, 0x82, 0x22, 0xD2, 0x00
-    .byte 0x80, 0x18, 0x39, 0x1C, 0xF1, 0xF7, 0xFC, 0xFC, 0x04, 0x1C, 0x00, 0x2C, 0x01, 0xD1, 0x00, 0xF0
-    .byte 0xD9, 0xFB, 0x18, 0x20, 0xE5, 0xF7, 0x8E, 0xFC, 0x31, 0x1C, 0x22, 0x1C, 0x1D, 0xF0, 0x02, 0xF8
-    .byte 0x00, 0xF0, 0xCF, 0xFB, 0x38, 0x10, 0x00, 0x00, 0x25, 0x48, 0x34, 0x18, 0x20, 0x68, 0x25, 0x49
-    .byte 0x40, 0x18, 0xF3, 0xF7, 0x35, 0xFE, 0x00, 0x06, 0x00, 0x28, 0x01, 0xD1, 0x00, 0xF0, 0xC2, 0xFB
-    .byte 0x20, 0x68, 0x21, 0x4A, 0x84, 0x18, 0x20, 0x1C, 0xF4, 0xF7, 0x52, 0xFA, 0x00, 0x06, 0x00, 0x28
-    .byte 0x10, 0xD1, 0x20, 0x1C, 0xF4, 0xF7, 0x86, 0xFA, 0x01, 0x28, 0x0B, 0xD1, 0x20, 0x1C, 0xF4, 0xF7
-    .byte 0xAB, 0xFA, 0x01, 0xA9, 0x08, 0x70, 0x08, 0x1C, 0xF3, 0xF7, 0x24, 0xF9, 0x35, 0x28, 0x01, 0xD1
-    .byte 0x00, 0xF0, 0xA8, 0xFB, 0x12, 0x48, 0x34, 0x18, 0x20, 0x68, 0x14, 0x49, 0x40, 0x18, 0x35, 0x21
-    .byte 0xF4, 0xF7, 0xF8, 0xFC, 0x07, 0x1C, 0x01, 0x20, 0x40, 0x42, 0x87, 0x42, 0x00, 0xD0, 0x99, 0xE3
-    .byte 0x20, 0x68, 0xFA, 0x22, 0x52, 0x00, 0x80, 0x18, 0xF1, 0xF7, 0x92, 0xF9, 0x00, 0x28, 0x05, 0xD0
-    .byte 0x35, 0x21, 0xF0, 0xF7, 0x7F, 0xFE, 0xB8, 0x42, 0x00, 0xD0, 0x8B, 0xE3, 0x2C, 0x20, 0xE5, 0xF7
-    .byte 0x41, 0xFC, 0x22, 0x68, 0x06, 0x49, 0x52, 0x18, 0x31, 0x1C, 0x1D, 0xF0, 0x65, 0xF9, 0x80, 0xE3
-    .byte 0x38, 0x10, 0x00, 0x00, 0xD8, 0x1B, 0x00, 0x00, 0x2C, 0x1C, 0x00, 0x00, 0x38, 0x1C, 0x00, 0x00
-    .byte 0xCC, 0x1C, 0x00, 0x00, 0x12, 0x4A, 0xB7, 0x18, 0x38, 0x68, 0x12, 0x49, 0x40, 0x18, 0xF3, 0xF7
-    .byte 0xD9, 0xFD, 0x00, 0x06, 0x00, 0x28, 0x00, 0xD1, 0x6C, 0xE3, 0x38, 0x68, 0x0E, 0x4A, 0x84, 0x18
-    .byte 0x20, 0x1C, 0xF4, 0xF7, 0xFD, 0xF9, 0x00, 0x06, 0x00, 0x28, 0x05, 0xD1, 0x20, 0x1C, 0xF4, 0xF7
-    .byte 0x31, 0xFA, 0x04, 0x28, 0x00, 0xD1, 0x5D, 0xE3, 0x1C, 0x20, 0xE5, 0xF7, 0x13, 0xFC, 0x3A, 0x68
-    .byte 0xE5, 0x21, 0x49, 0x01, 0x52, 0x18, 0x31, 0x1C, 0x1D, 0xF0, 0x2E, 0xF8, 0x51, 0xE3, 0x00, 0x00
-    .byte 0x38, 0x10, 0x00, 0x00, 0xD8, 0x1B, 0x00, 0x00, 0x2C, 0x1C, 0x00, 0x00, 0x44, 0x20, 0xE5, 0xF7
-    .byte 0x01, 0xFC, 0x06, 0x4A, 0xB1, 0x18, 0x09, 0x68, 0x05, 0x4A, 0x8B, 0x18, 0x14, 0x31, 0x00, 0x91
-    .byte 0x31, 0x1C, 0x00, 0x22, 0x18, 0xF0, 0xA0, 0xFD, 0x3B, 0xE3, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD4, 0x1C, 0x00, 0x00, 0x44, 0x20, 0xE5, 0xF7, 0xED, 0xFB, 0x06, 0x4A, 0xB1, 0x18, 0x09, 0x68
-    .byte 0x05, 0x4A, 0x8B, 0x18, 0x14, 0x31, 0x00, 0x91, 0x31, 0x1C, 0x01, 0x22, 0x18, 0xF0, 0x8C, 0xFD
-    .byte 0x27, 0xE3, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00, 0xD4, 0x1C, 0x00, 0x00, 0x44, 0x20, 0xE5, 0xF7
-    .byte 0xD9, 0xFB, 0x06, 0x4A, 0xB1, 0x18, 0x09, 0x68, 0x05, 0x4A, 0x8B, 0x18, 0x14, 0x31, 0x00, 0x91
-    .byte 0x31, 0x1C, 0x02, 0x22, 0x18, 0xF0, 0x78, 0xFD, 0x13, 0xE3, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD4, 0x1C, 0x00, 0x00, 0x44, 0x20, 0xE5, 0xF7, 0xC5, 0xFB, 0x06, 0x4A, 0xB1, 0x18, 0x09, 0x68
-    .byte 0x05, 0x4A, 0x8B, 0x18, 0x14, 0x31, 0x00, 0x91, 0x31, 0x1C, 0x03, 0x22, 0x18, 0xF0, 0x64, 0xFD
-    .byte 0xFF, 0xE2, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00, 0xD4, 0x1C, 0x00, 0x00, 0x44, 0x20, 0xE5, 0xF7
-    .byte 0xB1, 0xFB, 0x06, 0x4A, 0xB1, 0x18, 0x09, 0x68, 0x05, 0x4A, 0x8B, 0x18, 0x14, 0x31, 0x00, 0x91
-    .byte 0x31, 0x1C, 0x04, 0x22, 0x18, 0xF0, 0x50, 0xFD, 0xEB, 0xE2, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD4, 0x1C, 0x00, 0x00, 0x44, 0x20, 0xE5, 0xF7, 0x9D, 0xFB, 0x06, 0x4A, 0xB1, 0x18, 0x09, 0x68
-    .byte 0x05, 0x4A, 0x8B, 0x18, 0x14, 0x31, 0x00, 0x91, 0x31, 0x1C, 0x05, 0x22, 0x18, 0xF0, 0x3C, 0xFD
-    .byte 0xD7, 0xE2, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00, 0xD4, 0x1C, 0x00, 0x00, 0x44, 0x20, 0xE5, 0xF7
-    .byte 0x89, 0xFB, 0x06, 0x4A, 0xB1, 0x18, 0x09, 0x68, 0x05, 0x4A, 0x8B, 0x18, 0x14, 0x31, 0x00, 0x91
-    .byte 0x31, 0x1C, 0x06, 0x22, 0x18, 0xF0, 0x28, 0xFD, 0xC3, 0xE2, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD4, 0x1C, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x75, 0xFB, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0x01, 0xFE, 0xB2, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0x44, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x65, 0xFB, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0x25, 0xFE, 0xA2, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0x58, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x55, 0xFB, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0x47, 0xFE, 0x92, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0x6C, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x45, 0xFB, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0xD5, 0xFE, 0x82, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0x84, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x35, 0xFB, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0xFB, 0xFE, 0x72, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0x98, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x25, 0xFB, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0x1F, 0xFF, 0x62, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0xAC, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x15, 0xFB, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0x43, 0xFF, 0x52, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0xC4, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x05, 0xFB, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0x69, 0xFF, 0x42, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD8, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xF5, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0x8B, 0xFF, 0x32, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0xEC, 0x1D, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xE5, 0xFA, 0x05, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0xF0, 0x21, 0x49, 0x01, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0xAC, 0xFF, 0x21, 0xE2, 0x00, 0x00
-    .byte 0x38, 0x10, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xD5, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0xD3, 0xFF, 0x12, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0x14, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xC5, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1A, 0xF0, 0xF7, 0xFF, 0x02, 0xE2, 0x38, 0x10, 0x00, 0x00
-    .byte 0x28, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xB5, 0xFA, 0x05, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0xF2, 0x21, 0x49, 0x01, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x84, 0xF8, 0xF1, 0xE1, 0x00, 0x00
-    .byte 0x38, 0x10, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xA5, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0xA9, 0xF8, 0xE2, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x54, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x95, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0xCF, 0xF8, 0xD2, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x68, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x85, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0xF3, 0xF8, 0xC2, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x7C, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x75, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x17, 0xF9, 0xB2, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x90, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x65, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x3B, 0xF9, 0xA2, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0xA4, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x55, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x5F, 0xF9, 0x92, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0xB8, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x45, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0xEB, 0xF9, 0x82, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD0, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x35, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x0B, 0xFA, 0x72, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0xE4, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x25, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x99, 0xFA, 0x62, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0xFC, 0x1E, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x15, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0xBB, 0xFA, 0x52, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x10, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x05, 0xFA, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x0F, 0xFB, 0x42, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x24, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xF5, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x65, 0xFB, 0x32, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x38, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xE5, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0xFB, 0xFB, 0x22, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x50, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xD5, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x1F, 0xFC, 0x12, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x64, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xC5, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x79, 0xFC, 0x02, 0xE1, 0x38, 0x10, 0x00, 0x00
-    .byte 0x7C, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xB5, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0xE7, 0xFC, 0xF2, 0xE0, 0x38, 0x10, 0x00, 0x00
-    .byte 0x90, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0xA5, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x09, 0xFD, 0xE2, 0xE0, 0x38, 0x10, 0x00, 0x00
-    .byte 0xA4, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x95, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x29, 0xFD, 0xD2, 0xE0, 0x38, 0x10, 0x00, 0x00
-    .byte 0xB8, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x85, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x47, 0xFD, 0xC2, 0xE0, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD0, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x75, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0x65, 0xFD, 0xB2, 0xE0, 0x38, 0x10, 0x00, 0x00
-    .byte 0xE4, 0x1F, 0x00, 0x00, 0x48, 0x20, 0xE5, 0xF7, 0x65, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0B, 0x68
-    .byte 0x03, 0x49, 0x5A, 0x18, 0x31, 0x1C, 0x1B, 0xF0, 0xA3, 0xFA, 0xA2, 0xE0, 0x38, 0x10, 0x00, 0x00
-    .byte 0xFC, 0x1F, 0x00, 0x00, 0x09, 0x4A, 0xB7, 0x18, 0x38, 0x68, 0x09, 0x49, 0x40, 0x18, 0x85, 0xF0
-    .byte 0x69, 0xFB, 0x04, 0x1C, 0x00, 0x2C, 0x00, 0xD1, 0x94, 0xE0, 0x4C, 0x20, 0xE5, 0xF7, 0x4A, 0xF9
-    .byte 0x3B, 0x68, 0x31, 0x1C, 0x22, 0x1C, 0x1B, 0xF0, 0x71, 0xFD, 0x8A, 0xE0, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD4, 0x1C, 0x00, 0x00, 0x04, 0x4A, 0xB0, 0x18, 0x01, 0x68, 0x04, 0x48, 0x09, 0x18, 0x30, 0x1C
-    .byte 0x1F, 0xF0, 0x1A, 0xFA, 0x7D, 0xE0, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00, 0x94, 0x34, 0x00, 0x00
-    .byte 0x54, 0x20, 0xE5, 0xF7, 0x2F, 0xF9, 0x04, 0x4A, 0xB1, 0x18, 0x0A, 0x68, 0x03, 0x49, 0x52, 0x18
-    .byte 0x31, 0x1C, 0x1E, 0xF0, 0x8F, 0xFA, 0x6C, 0xE0, 0x38, 0x10, 0x00, 0x00, 0xDC, 0x34, 0x00, 0x00
-    .byte 0x55, 0x46, 0x46, 0x3D, 0x07, 0x48, 0x04, 0x68, 0x07, 0x4A, 0xA4, 0x18, 0x34, 0x20, 0xE5, 0xF7
-    .byte 0x19, 0xF9, 0x69, 0x00, 0x49, 0x19, 0x89, 0x00, 0x64, 0x18, 0x31, 0x1C, 0x22, 0x1C, 0x17, 0xF0
-    .byte 0xC1, 0xFA, 0x56, 0xE0, 0x0C, 0x04, 0x00, 0x03, 0x24, 0x05, 0x00, 0x00, 0x54, 0x46, 0x55, 0x3C
-    .byte 0x06, 0x49, 0x70, 0x18, 0x00, 0x68, 0x06, 0x4A, 0x80, 0x18, 0x21, 0x1C, 0x85, 0xF0, 0x84, 0xFB
-    .byte 0x01, 0x1C, 0x30, 0x1C, 0x22, 0x1C, 0x1C, 0xF0, 0x41, 0xFB, 0x42, 0xE0, 0x38, 0x10, 0x00, 0x00
-    .byte 0xD4, 0x1C, 0x00, 0x00, 0x54, 0x46, 0x58, 0x3C, 0x06, 0x49, 0x70, 0x18, 0x00, 0x68, 0x06, 0x4A
-    .byte 0x80, 0x18, 0x21, 0x1C, 0x85, 0xF0, 0x7E, 0xFB, 0x01, 0x1C, 0x30, 0x1C, 0x22, 0x1C, 0x1C, 0xF0
-    .byte 0x67, 0xFB, 0x2E, 0xE0, 0x38, 0x10, 0x00, 0x00, 0xD4, 0x1C, 0x00, 0x00, 0x05, 0x49, 0x70, 0x18
-    .byte 0x00, 0x68, 0x05, 0x4A, 0x80, 0x18, 0x85, 0xF0, 0x7B, 0xFB, 0x01, 0x1C, 0x30, 0x1C, 0x1C, 0xF0
-    .byte 0x93, 0xFB, 0x1E, 0xE0, 0x38, 0x10, 0x00, 0x00, 0xD4, 0x1C, 0x00, 0x00, 0x05, 0x49, 0x70, 0x18
-    .byte 0x00, 0x68, 0x05, 0x4A, 0x80, 0x18, 0x85, 0xF0, 0x6D, 0xFB, 0x01, 0x1C, 0x30, 0x1C, 0x1C, 0xF0
-    .byte 0x9F, 0xFB, 0x0E, 0xE0, 0x38, 0x10, 0x00, 0x00, 0xD4, 0x1C, 0x00, 0x00, 0x1C, 0x20, 0xE5, 0xF7
-    .byte 0xC1, 0xF8, 0x0F, 0x4A, 0xB1, 0x18, 0x0A, 0x68, 0x0E, 0x49, 0x52, 0x18, 0x31, 0x1C, 0x1D, 0xF0
-    .byte 0x6F, 0xF9, 0x05, 0x1C
-
-    thumb_func_start sub_0801B464
-sub_0801B464: @ 0x0801B464
-    cmp r5, #0
-    beq .L0801B47E
-    adds r0, r6, #0
-    adds r0, #8
-    mov r2, sl
-    lsls r1, r2, #2
-    adds r0, r0, r1
-    str r5, [r0]
-    ldr r0, [r5, #0x14]
-    ldr r1, [r0, #0x10]
-    adds r0, r5, #0
-    bl _call_via_r1
-.L0801B47E:
-    add sp, #8
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801B490:
-    .byte 0x38, 0x10, 0x00, 0x00, 0x4C, 0x21, 0x00, 0x00, 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46
+    .section .text.game_state_c2.0801B498, "ax", %progbits
+    .byte 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46
     .byte 0xE0, 0xB4, 0x85, 0xB0, 0x0F, 0x1C, 0x91, 0x46, 0x64, 0x21, 0x02, 0x91, 0x01, 0x22, 0x03, 0x92
     .byte 0x03, 0x1C, 0x08, 0x33, 0x04, 0x93, 0xE8, 0x46, 0x0C, 0x30, 0x82, 0x46, 0x54, 0x46, 0x25, 0x68
     .byte 0x00, 0x2D, 0x6B, 0xD0, 0x38, 0x88, 0x80, 0x05, 0x80, 0x0D, 0xA9, 0x88, 0x88, 0x42, 0x65, 0xD1
@@ -18257,173 +14652,6 @@ sub_0801B464: @ 0x0801B464
     .byte 0x82, 0x31, 0x01, 0x20, 0x08, 0x70, 0x30, 0xB0, 0x38, 0xBC, 0x98, 0x46, 0xA1, 0x46, 0xAA, 0x46
     .byte 0xF0, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00, 0x1F, 0xFC, 0xFF, 0xFF, 0x32, 0x6A, 0x00, 0x00
     .byte 0x2C, 0x0C, 0x00, 0x03, 0x29, 0x25, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF
-    .section .text.game_state_c2.0801C29C, "ax", %progbits
-
-    thumb_func_start func_0801C29C
-func_0801C29C: @ 0x0801C29C
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x10
-    adds r5, r0, #0
-    adds r7, r1, #0
-    movs r6, #0
-    add r0, sp, #4
-    str r6, [sp, #4]
-    strh r6, [r0, #4]
-    strh r6, [r0, #6]
-    strh r6, [r0, #8]
-    strh r6, [r0, #0xa]
-    adds r0, r5, #0
-    add r2, sp, #4
-    bl GameStateFindFarmPlot
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0801C2C6
-    b .L0801C3C8
-.L0801C2C6:
-    ldr r2, [sp, #4]
-    movs r1, #0
-    ldr r0, .L0801C338 @ =0x00001038
-    adds r4, r5, r0
-    ldr r0, [r4]
-    ldr r0, [r0, #8]
-    cmp r0, #0
-    bne .L0801C2D8
-    movs r1, #1
-.L0801C2D8:
-    adds r0, r2, #0
-    bl method_0800A190__9FieldPlotb
-    adds r6, r0, #0
-    ldr r0, [r5]
-    ldr r1, [r0, #0x14]
-    adds r0, r5, #0
-    bl _call_via_r1
-    ldrh r1, [r7]
-    lsls r1, r1, #0x16
-    lsrs r1, r1, #0x16
-    cmp r0, r1
-    bne .L0801C3AA
-    ldr r2, [r5, #4]
-    mov r8, r2
-    add r1, sp, #4
-    adds r2, r1, #0
-    ldr r0, [r4]
-    ldr r3, .L0801C33C @ =0x000009DC
-    adds r4, r0, r3
-    ldrh r3, [r1, #8]
-    ldrh r2, [r2, #0xa]
-    movs r0, #0x2b
-    muls r0, r2, r0
-    adds r0, r3, r0
-    lsls r0, r0, #2
-    adds r7, r4, r0
-    adds r1, r2, #1
-    movs r0, #0
-    cmp r3, #0
-    blt .L0801C326
-    cmp r1, #0
-    blt .L0801C326
-    cmp r3, #0x2a
-    bgt .L0801C326
-    cmp r1, #0x18
-    bgt .L0801C326
-    movs r0, #1
-.L0801C326:
-    cmp r0, #0
-    beq .L0801C340
-    movs r0, #0x2b
-    muls r0, r1, r0
-    adds r0, r3, r0
-    lsls r0, r0, #2
-    adds r1, r4, r0
-    b .L0801C342
-    .align 2, 0
-.L0801C338: .4byte 0x00001038
-.L0801C33C: .4byte 0x000009DC
-.L0801C340:
-    movs r1, #0
-.L0801C342:
-    subs r2, #1
-    movs r0, #0
-    cmp r3, #0
-    blt .L0801C358
-    cmp r2, #0
-    blt .L0801C358
-    cmp r3, #0x2a
-    bgt .L0801C358
-    cmp r2, #0x18
-    bgt .L0801C358
-    movs r0, #1
-.L0801C358:
-    cmp r0, #0
-    beq .L0801C390
-    movs r0, #0x2b
-    muls r0, r2, r0
-    adds r0, r3, r0
-    lsls r0, r0, #2
-    adds r2, r4, r0
-    b .L0801C392
-.L0801C368:
-    movs r0, #4
-    rsbs r0, r0, #0
-    ands r0, r1
-    movs r1, #2
-    orrs r0, r1
-    strb r0, [r2]
-    add r0, sp, #4
-    ldrh r1, [r0, #4]
-    ldr r2, .L0801C38C @ =0x00001084
-    adds r0, r3, r2
-    strh r1, [r0]
-    add r0, sp, #4
-    ldrh r1, [r0, #6]
-    adds r2, #2
-    adds r0, r3, r2
-    strh r1, [r0]
-    b .L0801C3C8
-    .align 2, 0
-.L0801C38C: .4byte 0x00001084
-.L0801C390:
-    movs r2, #0
-.L0801C392:
-    adds r0, r7, #0
-    bl method_0800AF5C__C9FieldPlotPC9FieldPlotT1
-    add r1, sp, #4
-    ldrh r1, [r1, #4]
-    add r2, sp, #4
-    ldrh r2, [r2, #6]
-    ldr r3, [sp, #4]
-    str r0, [sp]
-    mov r0, r8
-    bl func_080AA6D0
-.L0801C3AA:
-    cmp r6, #3
-    bne .L0801C3C8
-    movs r4, #0
-    ldr r3, .L0801C3D8 @ =0x00001081
-    adds r2, r5, r3
-    adds r3, r5, #0
-.L0801C3B6:
-    ldrb r1, [r2]
-    lsls r0, r1, #0x1e
-    cmp r0, #0
-    beq .L0801C368
-    adds r2, #0xc
-    adds r3, #0xc
-    adds r4, #1
-    cmp r4, #3
-    bls .L0801C3B6
-.L0801C3C8:
-    adds r0, r6, #0
-    add sp, #0x10
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801C3D8: .4byte 0x00001081
     .section .text.game_state_c2.0801C3E0, "ax", %progbits
     .byte 0xF0, 0xB5, 0x4F, 0x46, 0x46, 0x46, 0xC0, 0xB4, 0x83, 0xB0, 0x07, 0x1C, 0x00, 0x22, 0x91, 0x46
     .byte 0x27, 0x48, 0xC0, 0x19, 0x80, 0x46, 0x27, 0x48, 0x3E, 0x18, 0x31, 0x78, 0x88, 0x07, 0x80, 0x0F
@@ -18477,217 +14705,19 @@ func_0801C29C: @ 0x0801C29C
     .byte 0x08, 0x1C, 0x03, 0x21, 0xB7, 0xF0, 0x1E, 0xF9, 0x25, 0x60, 0x30, 0xBC, 0x01, 0xBC, 0x00, 0x47
     .byte 0x0C, 0x04, 0x00, 0x03, 0xDC, 0x04, 0x00, 0x00, 0xB0, 0x10, 0x00, 0x00
 
-    .section .text.game_state_c2.0801C874, "ax", %progbits
-
-    thumb_func_start func_0801C874
-func_0801C874: @ 0x0801C874
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    adds r7, r0, #0
-    mov sl, r3
-    ldr r3, .L0801C8C0 @ =0x00001038
-    adds r0, r7, r3
-    ldr r3, [r0]
-    ldr r0, .L0801C8C4 @ =0x000009DC
-    adds r3, r3, r0
-    movs r0, #0x2b
-    muls r0, r2, r0
-    adds r0, r1, r0
-    lsls r0, r0, #2
-    adds r4, r3, r0
-    adds r6, r1, #0
-    mov r8, r2
-    adds r0, r4, #0
-    bl method_0800A78C__C9FieldPlot
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0801C916
-    adds r0, r4, #0
-    bl GameStateVariant_GetColumn
-    cmp r0, #1
-    beq .L0801C8C8
-    cmp r0, #1
-    ble .L0801C8DC
-    cmp r0, #2
-    beq .L0801C8CC
-    cmp r0, #3
-    beq .L0801C8D4
-    b .L0801C8DC
-    .align 2, 0
-.L0801C8C0: .4byte 0x00001038
-.L0801C8C4: .4byte 0x000009DC
-.L0801C8C8:
-    subs r6, #1
-    b .L0801C8DC
-.L0801C8CC:
-    movs r1, #1
-    rsbs r1, r1, #0
-    add r8, r1
-    b .L0801C8DC
-.L0801C8D4:
-    subs r6, #1
-    movs r2, #1
-    rsbs r2, r2, #0
-    add r8, r2
-.L0801C8DC:
-    adds r0, r7, #0
-    adds r1, r6, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    mov sb, r0
-    adds r5, r6, #1
-    adds r0, r7, #0
-    adds r1, r5, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    mov r4, r8
-    adds r4, #1
-    adds r0, r7, #0
-    adds r1, r6, #0
-    adds r2, r4, #0
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    adds r0, r7, #0
-    adds r1, r5, #0
-    adds r2, r4, #0
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    b .L0801C924
-.L0801C916:
-    adds r0, r7, #0
-    adds r1, r6, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    mov sb, r0
-.L0801C924:
-    ldr r0, [r7]
-    ldr r1, [r0, #0x14]
-    adds r0, r7, #0
-    bl _call_via_r1
-    cmp r0, #2
-    bne .L0801CA06
-    mov r3, sb
-    cmp r3, #8
-    bhi .L0801CA06
-    lsls r0, r3, #2
-    ldr r1, .L0801C944 @ =.L0801C948
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0801C944: .4byte .L0801C948
-.L0801C948: @ jump table
-    .4byte .L0801CA06 @ case 0
-    .4byte .L0801CA06 @ case 1
-    .4byte .L0801CA06 @ case 2
-    .4byte .L0801C96C @ case 3
-    .4byte .L0801C98C @ case 4
-    .4byte .L0801C9AC @ case 5
-    .4byte .L0801CA06 @ case 6
-    .4byte .L0801C9CC @ case 7
-    .4byte .L0801C9EC @ case 8
-.L0801C96C:
-    ldr r1, .L0801C988 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x8c
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xc0
-    movs r3, #3
-    bl func_080AB68C
-    b .L0801CA06
-    .align 2, 0
-.L0801C988: .4byte 0x00001028
-.L0801C98C:
-    ldr r1, .L0801C9A8 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x8c
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xc0
-    movs r3, #1
-    bl func_080AB68C
-    b .L0801CA06
-    .align 2, 0
-.L0801C9A8: .4byte 0x00001028
-.L0801C9AC:
-    ldr r1, .L0801C9C8 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x8c
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xc0
-    movs r3, #2
-    bl func_080AB68C
-    b .L0801CA06
-    .align 2, 0
-.L0801C9C8: .4byte 0x00001028
-.L0801C9CC:
-    ldr r1, .L0801C9E8 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x90
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xd0
-    movs r3, #8
-    bl func_080AB68C
-    b .L0801CA06
-    .align 2, 0
-.L0801C9E8: .4byte 0x00001028
-.L0801C9EC:
-    ldr r1, .L0801CA18 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x90
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xd0
-    movs r3, #6
-    bl func_080AB68C
-.L0801CA06:
-    movs r0, #0
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801CA18: .4byte 0x00001028
+    .section .text.game_state_c2.0801CA1C, "ax", %progbits
 .L0801CA1C:
     .byte 0xF0, 0xB5, 0x89, 0xB0
     .byte 0x05, 0x1C, 0x0E, 0x1C, 0x17, 0x1C, 0x01, 0xA9, 0x00, 0x20, 0x01, 0x90, 0x88, 0x80, 0xC8, 0x80
     .byte 0x08, 0x81, 0x48, 0x81, 0x28, 0x1C, 0x31, 0x1C, 0x01, 0xAA, 0xFF, 0xF7, 0x5D, 0xFB, 0x00, 0x06
     .byte 0x00, 0x28, 0x0D, 0xD0, 0x01, 0xA8, 0x01, 0x89, 0x42, 0x89, 0x04, 0x48, 0x38, 0x18, 0x03, 0x78
-    .byte 0x28, 0x1C, 0xFF, 0xF7, 0x0F, 0xFF, 0x00, 0x06, 0x00, 0x0E, 0x36, 0xE0, 0x00, 0x08, 0x0F, 0x08
+    .byte 0x28, 0x1C
+    bl GameStateStrikeFieldPlots
+    .byte 0x00, 0x06, 0x00, 0x0E, 0x36, 0xE0, 0x00, 0x08, 0x0F, 0x08
     .byte 0x04, 0xAC, 0x00, 0x20, 0x20, 0x70, 0x01, 0x20, 0x20, 0x74, 0x09, 0x48, 0x38, 0x18, 0x02, 0x78
-    .byte 0x00, 0x94, 0x28, 0x1C, 0x31, 0x1C, 0x01, 0x23, 0x00, 0xF0, 0x44, 0xFB, 0x20, 0x78, 0x00, 0x28
+    .byte 0x00, 0x94, 0x28, 0x1C, 0x31, 0x1C, 0x01, 0x23
+    bl GameStateBreakLooseItem
+    .byte 0x20, 0x78, 0x00, 0x28
     .byte 0x20, 0xD0, 0x60, 0x68, 0x06, 0x28, 0x05, 0xD0, 0x09, 0x28, 0x11, 0xD0, 0x00, 0x20, 0x1C, 0xE0
     .byte 0x00, 0x08, 0x0F, 0x08, 0x05, 0x49, 0x68, 0x18, 0x00, 0x68, 0xA1, 0x68, 0x10, 0x31, 0xE2, 0x68
     .byte 0x20, 0x32, 0x06, 0x23, 0x8E, 0xF0, 0xF2, 0xFD, 0x0C, 0xE0, 0x00, 0x00, 0x28, 0x10, 0x00, 0x00
@@ -18730,171 +14760,19 @@ func_0801C874: @ 0x0801C874
     .byte 0x08, 0x47, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00, 0xC8, 0x34, 0x00, 0x00, 0x00, 0x08, 0x0F, 0x08
     .byte 0xDD, 0x03, 0x00, 0x00
 
-    .section .text.game_state_c2.0801CDBC, "ax", %progbits
-
-    thumb_func_start func_0801CDBC
-func_0801CDBC: @ 0x0801CDBC
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    adds r6, r0, #0
-    mov sl, r3
-    ldr r3, .L0801CE08 @ =0x00001038
-    adds r0, r6, r3
-    ldr r3, [r0]
-    ldr r0, .L0801CE0C @ =0x000009DC
-    adds r3, r3, r0
-    movs r0, #0x2b
-    muls r0, r2, r0
-    adds r0, r1, r0
-    lsls r0, r0, #2
-    adds r4, r3, r0
-    adds r7, r1, #0
-    mov r8, r2
-    adds r0, r4, #0
-    bl method_0800A78C__C9FieldPlot
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0801CE5E
-    adds r0, r4, #0
-    bl GameStateVariant_GetColumn
-    cmp r0, #1
-    beq .L0801CE10
-    cmp r0, #1
-    ble .L0801CE24
-    cmp r0, #2
-    beq .L0801CE14
-    cmp r0, #3
-    beq .L0801CE1C
-    b .L0801CE24
-    .align 2, 0
-.L0801CE08: .4byte 0x00001038
-.L0801CE0C: .4byte 0x000009DC
-.L0801CE10:
-    subs r7, #1
-    b .L0801CE24
-.L0801CE14:
-    movs r1, #1
-    rsbs r1, r1, #0
-    add r8, r1
-    b .L0801CE24
-.L0801CE1C:
-    subs r7, #1
-    movs r2, #1
-    rsbs r2, r2, #0
-    add r8, r2
-.L0801CE24:
-    adds r0, r6, #0
-    adds r1, r7, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    mov sb, r0
-    adds r5, r7, #1
-    adds r0, r6, #0
-    adds r1, r5, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    mov r4, r8
-    adds r4, #1
-    adds r0, r6, #0
-    adds r1, r7, #0
-    adds r2, r4, #0
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    adds r0, r6, #0
-    adds r1, r5, #0
-    adds r2, r4, #0
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    b .L0801CE6C
-.L0801CE5E:
-    adds r0, r6, #0
-    adds r1, r7, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    mov sb, r0
-.L0801CE6C:
-    ldr r0, [r6]
-    ldr r1, [r0, #0x14]
-    adds r0, r6, #0
-    bl _call_via_r1
-    cmp r0, #2
-    bne .L0801CEE4
-    mov r3, sb
-    cmp r3, #1
-    beq .L0801CE8A
-    cmp r3, #1
-    ble .L0801CEE4
-    cmp r3, #2
-    beq .L0801CEBC
-    b .L0801CEE4
-.L0801CE8A:
-    ldr r1, .L0801CEB4 @ =0x00001038
-    adds r0, r6, r1
-    ldr r0, [r0]
-    adds r0, #0x14
-    movs r1, #1
-    bl method_08009B68__4FarmUi
-    ldr r2, .L0801CEB8 @ =0x00001028
-    adds r0, r6, r2
-    ldr r0, [r0]
-    lsls r1, r7, #4
-    movs r3, #0x8c
-    lsls r3, r3, #1
-    adds r1, r1, r3
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xbb
-    movs r3, #4
-    bl func_080AB68C
-    b .L0801CEE4
-    .align 2, 0
-.L0801CEB4: .4byte 0x00001038
-.L0801CEB8: .4byte 0x00001028
-.L0801CEBC:
-    ldr r1, .L0801CEF4 @ =0x00001038
-    adds r0, r6, r1
-    ldr r0, [r0]
-    adds r0, #0x14
-    movs r1, #6
-    bl method_08009B68__4FarmUi
-    ldr r2, .L0801CEF8 @ =0x00001028
-    adds r0, r6, r2
-    ldr r0, [r0]
-    lsls r1, r7, #4
-    movs r3, #0x90
-    lsls r3, r3, #1
-    adds r1, r1, r3
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xd0
-    movs r3, #7
-    bl func_080AB68C
-.L0801CEE4:
-    movs r0, #0
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801CEF4: .4byte 0x00001038
-.L0801CEF8: .4byte 0x00001028
+    .section .text.game_state_c2.0801CEFC, "ax", %progbits
 .L0801CEFC:
     .byte 0xF0, 0xB5, 0x89, 0xB0
     .byte 0x05, 0x1C, 0x0E, 0x1C, 0x17, 0x1C, 0x01, 0xA9, 0x00, 0x20, 0x01, 0x90, 0x88, 0x80, 0xC8, 0x80
     .byte 0x08, 0x81, 0x48, 0x81, 0x28, 0x1C, 0x31, 0x1C, 0x01, 0xAA, 0xFF, 0xF7, 0xED, 0xF8, 0x00, 0x06
     .byte 0x00, 0x28, 0x0D, 0xD0, 0x01, 0xA8, 0x01, 0x89, 0x42, 0x89, 0x04, 0x48, 0x38, 0x18, 0x03, 0x78
-    .byte 0x28, 0x1C, 0xFF, 0xF7, 0x43, 0xFF, 0x00, 0x06, 0x00, 0x0E, 0x36, 0xE0, 0x07, 0x08, 0x0F, 0x08
+    .byte 0x28, 0x1C
+    bl GameStateStrikeFieldDebris
+    .byte 0x00, 0x06, 0x00, 0x0E, 0x36, 0xE0, 0x07, 0x08, 0x0F, 0x08
     .byte 0x04, 0xAC, 0x00, 0x20, 0x20, 0x70, 0x01, 0x20, 0x20, 0x74, 0x09, 0x48, 0x38, 0x18, 0x02, 0x78
-    .byte 0x00, 0x94, 0x28, 0x1C, 0x31, 0x1C, 0x00, 0x23, 0x00, 0xF0, 0xD4, 0xF8, 0x20, 0x78, 0x00, 0x28
+    .byte 0x00, 0x94, 0x28, 0x1C, 0x31, 0x1C, 0x00, 0x23
+    bl GameStateBreakLooseItem
+    .byte 0x20, 0x78, 0x00, 0x28
     .byte 0x20, 0xD0, 0x60, 0x68, 0x04, 0x28, 0x13, 0xD0, 0x07, 0x28, 0x03, 0xD0, 0x00, 0x20, 0x1C, 0xE0
     .byte 0x07, 0x08, 0x0F, 0x08, 0x05, 0x49, 0x68, 0x18, 0x00, 0x68, 0xA1, 0x68, 0x10, 0x31, 0xE2, 0x68
     .byte 0x20, 0x32, 0x07, 0x23, 0x8E, 0xF0, 0x82, 0xFB, 0x0C, 0xE0, 0x00, 0x00, 0x28, 0x10, 0x00, 0x00
@@ -18923,168 +14801,7 @@ func_0801CDBC: @ 0x0801CDBC
     .byte 0x02, 0xBC, 0x08, 0x47, 0x38, 0x10, 0x00, 0x00, 0xC8, 0x34, 0x00, 0x00, 0x07, 0x08, 0x0F, 0x08
     .byte 0xCF, 0x03, 0x00, 0x00
 
-    thumb_func_start func_0801D104
-func_0801D104: @ 0x0801D104
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x30
-    mov sl, r0
-    adds r5, r1, #0
-    str r2, [sp, #0x28]
-    ldr r0, [sp, #0x50]
-    mov sb, r0
-    lsls r3, r3, #0x18
-    lsrs r3, r3, #0x18
-    str r3, [sp, #0x2c]
-    ldr r7, .L0801D1D4 @ =0x00001038
-    add r7, sl
-    ldr r0, [r7]
-    ldr r1, .L0801D1D8 @ =0x000034C8
-    adds r6, r0, r1
-    adds r0, #0x10
-    bl func_0800E324
-    mov r8, r0
-    ldrb r0, [r5, #1]
-    lsrs r0, r0, #2
-    ldrh r1, [r5, #2]
-    ldr r3, .L0801D1DC @ =0x000003FF
-    ands r1, r3
-    lsls r1, r1, #6
-    orrs r1, r0
-    lsls r1, r1, #0x10
-    asrs r1, r1, #0x10
-    ldrb r2, [r5, #3]
-    lsrs r2, r2, #2
-    ldrh r0, [r5, #4]
-    ands r0, r3
-    lsls r0, r0, #6
-    orrs r0, r2
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x10
-    add r2, sp, #0x1c
-    strh r1, [r2]
-    strh r0, [r2, #2]
-    adds r1, #1
-    strh r1, [r2, #4]
-    adds r0, #1
-    strh r0, [r2, #6]
-    ldrh r1, [r5]
-    lsls r1, r1, #0x16
-    lsrs r1, r1, #0x16
-    adds r0, r6, #0
-    mov r3, r8
-    bl FindMapForageLocation
-    adds r4, r0, #0
-    movs r0, #1
-    rsbs r0, r0, #0
-    cmp r4, r0
-    beq .L0801D228
-    add r0, sp, #0xc
-    adds r1, r6, #0
-    adds r2, r4, #0
-    bl GetMapForageObstacle
-    add r6, sp, #0xc
-    ldr r1, [r7]
-    adds r0, r1, #0
-    adds r0, #0x14
-    ldr r2, .L0801D1D8 @ =0x000034C8
-    adds r1, r1, r2
-    ldr r3, [sp, #0x28]
-    str r3, [sp]
-    add r2, sp, #4
-    add r7, sp, #0x2c
-    ldrb r7, [r7]
-    strb r7, [r2]
-    mov r2, sb
-    str r2, [sp, #8]
-    adds r2, r4, #0
-    mov r3, r8
-    bl func_080174C8
-    mov r3, sb
-    ldrb r0, [r3]
-    cmp r0, #0
-    beq .L0801D224
-    ldrh r0, [r5]
-    lsls r0, r0, #0x16
-    lsrs r0, r0, #0x16
-    mov r7, sl
-    ldr r1, [r7, #4]
-    ldr r2, [r1]
-    adds r5, r1, #0
-    cmp r0, r2
-    bne .L0801D224
-    ldr r0, [r3, #4]
-    cmp r0, #6
-    beq .L0801D1F4
-    cmp r0, #6
-    bgt .L0801D1E0
-    cmp r0, #4
-    beq .L0801D1EA
-    b .L0801D228
-    .align 2, 0
-.L0801D1D4: .4byte 0x00001038
-.L0801D1D8: .4byte 0x000034C8
-.L0801D1DC: .4byte 0x000003FF
-.L0801D1E0:
-    cmp r0, #7
-    beq .L0801D1F0
-    cmp r0, #9
-    beq .L0801D1F8
-    b .L0801D228
-.L0801D1EA:
-    movs r3, #2
-    movs r4, #2
-    b .L0801D1FC
-.L0801D1F0:
-    movs r3, #4
-    b .L0801D1FA
-.L0801D1F4:
-    movs r3, #4
-    b .L0801D1FA
-.L0801D1F8:
-    movs r3, #6
-.L0801D1FA:
-    movs r4, #4
-.L0801D1FC:
-    movs r1, #8
-    ldrsh r0, [r6, r1]
-    cmp r0, #0
-    bge .L0801D206
-    adds r0, #7
-.L0801D206:
-    asrs r1, r0, #3
-    movs r2, #0xa
-    ldrsh r0, [r6, r2]
-    cmp r0, #0
-    bge .L0801D212
-    adds r0, #7
-.L0801D212:
-    asrs r0, r0, #3
-    add r2, sp, #0x24
-    strh r1, [r2]
-    strh r0, [r2, #2]
-    str r4, [sp]
-    adds r0, r5, #0
-    movs r1, #1
-    bl func_080A5F78
-.L0801D224:
-    movs r0, #1
-    b .L0801D22A
-.L0801D228:
-    movs r0, #0
-.L0801D22A:
-    add sp, #0x30
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.game_state_c2.0801D23C, "ax", %progbits
 .L0801D23C:
     .byte 0xF0, 0xB5, 0x57, 0x46
     .byte 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0x8A, 0xB0, 0x80, 0x46, 0x0C, 0x1C, 0x01, 0xA9, 0x00, 0x20
@@ -19156,135 +14873,12 @@ func_0801D104: @ 0x0801D104
     .byte 0x02, 0xDC, 0x18, 0x2A, 0x00, 0xDC, 0x01, 0x20, 0x00, 0x28, 0x05, 0xD0, 0x2B, 0x20, 0x50, 0x43
     .byte 0x18, 0x18, 0x80, 0x00, 0x22, 0x18, 0x00, 0xE0, 0x00, 0x22, 0x28, 0x1C, 0xED, 0xF7, 0x6E, 0xFC
     .byte 0x01, 0xA9, 0x89, 0x88, 0x01, 0xAA, 0xD2, 0x88, 0x01, 0x9B, 0x00, 0x90, 0x30, 0x1C, 0x8D, 0xF0
-    .byte 0x1F, 0xF8, 0x06, 0xE0, 0x04, 0xA8, 0x21, 0x1C, 0x2A, 0x1C, 0x00, 0xF0, 0x07, 0xF8, 0x04, 0x98
+    .byte 0x1F, 0xF8, 0x06, 0xE0, 0x04, 0xA8, 0x21, 0x1C, 0x2A, 0x1C
+    bl GameStateCollectLooseItem
+    .byte 0x04, 0x98
     .byte 0x30, 0x60, 0x05, 0xB0, 0x70, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
 
-    thumb_func_start func_0801D6AC
-func_0801D6AC: @ 0x0801D6AC
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x28
-    mov sl, r0
-    adds r7, r1, #0
-    adds r5, r2, #0
-    ldr r1, .L0801D7A4 @ =0x00001038
-    adds r0, r7, r1
-    ldr r0, [r0]
-    ldr r2, .L0801D7A8 @ =0x000034C8
-    adds r6, r0, r2
-    adds r0, #0x10
-    bl func_0800E324
-    mov sb, r0
-    ldrb r0, [r5, #1]
-    lsrs r0, r0, #2
-    ldrh r1, [r5, #2]
-    ldr r3, .L0801D7AC @ =0x000003FF
-    ands r1, r3
-    lsls r1, r1, #6
-    orrs r1, r0
-    lsls r1, r1, #0x10
-    asrs r1, r1, #0x10
-    ldrb r2, [r5, #3]
-    lsrs r2, r2, #2
-    ldrh r0, [r5, #4]
-    ands r0, r3
-    lsls r0, r0, #6
-    orrs r0, r2
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x10
-    add r4, sp, #0x1c
-    strh r1, [r4]
-    strh r0, [r4, #2]
-    adds r1, #1
-    strh r1, [r4, #4]
-    adds r0, #1
-    strh r0, [r4, #6]
-    ldrh r1, [r5]
-    lsls r1, r1, #0x16
-    lsrs r1, r1, #0x16
-    adds r0, r6, #0
-    adds r2, r4, #0
-    mov r3, sb
-    bl FindMapForageLocation
-    mov r8, r0
-    add r0, sp, #4
-    bl __12RucksackItem
-    movs r0, #1
-    rsbs r0, r0, #0
-    cmp r8, r0
-    beq .L0801D78C
-    ldrh r2, [r5]
-    lsls r2, r2, #0x16
-    lsrs r2, r2, #0x16
-    mov r0, sb
-    str r0, [sp]
-    add r0, sp, #8
-    adds r1, r6, #0
-    adds r3, r4, #0
-    bl func_080A1B38
-    ldr r0, [sp, #8]
-    str r0, [sp, #4]
-    add r0, sp, #4
-    bl IsEmpty__C12RucksackItem
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0801D78C
-    ldrh r0, [r5]
-    lsls r0, r0, #0x16
-    lsrs r0, r0, #0x16
-    ldr r1, [r7, #4]
-    ldr r1, [r1]
-    cmp r0, r1
-    bne .L0801D78C
-    add r4, sp, #0xc
-    adds r0, r4, #0
-    adds r1, r6, #0
-    mov r2, r8
-    bl GetMapForageObstacle
-    ldr r1, [r7, #4]
-    movs r2, #8
-    ldrsh r0, [r4, r2]
-    cmp r0, #0
-    bge .L0801D76A
-    adds r0, #7
-.L0801D76A:
-    asrs r3, r0, #3
-    movs r2, #0xa
-    ldrsh r0, [r4, r2]
-    cmp r0, #0
-    bge .L0801D776
-    adds r0, #7
-.L0801D776:
-    asrs r0, r0, #3
-    add r2, sp, #0x24
-    strh r3, [r2]
-    strh r0, [r2, #2]
-    movs r0, #2
-    str r0, [sp]
-    adds r0, r1, #0
-    movs r1, #1
-    movs r3, #2
-    bl func_080A5F78
-.L0801D78C:
-    ldr r0, [sp, #4]
-    mov r1, sl
-    str r0, [r1]
-    mov r0, sl
-    add sp, #0x28
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801D7A4: .4byte 0x00001038
-.L0801D7A8: .4byte 0x000034C8
-.L0801D7AC: .4byte 0x000003FF
+    .section .text.game_state_c2.0801D7B0, "ax", %progbits
 .L0801D7B0:
     .byte 0x70, 0xB5, 0x84, 0xB0, 0x04, 0x1C, 0x0D, 0x1C, 0x16, 0x1C, 0x01, 0xA9, 0x00, 0x20, 0x01, 0x90
     .byte 0x88, 0x80, 0xC8, 0x80, 0x08, 0x81, 0x48, 0x81, 0x20, 0x1C, 0x29, 0x1C, 0x01, 0xAA, 0xFE, 0xF7
@@ -19554,7 +15148,7 @@ func_0801DEB4: @ 0x0801DEB4
     ldr r1, [sp, #0xc]
     mov r2, sb
     adds r3, r6, #0
-    bl func_080AA6D0
+    bl ApplyFieldPlotToMap
 .L0801E05C:
     movs r6, #2
     add sb, r6
@@ -19581,7 +15175,9 @@ func_0801DEB4: @ 0x0801DEB4
     bx r1
 .L0801E084:
     .byte 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0x93, 0xB0
-    .byte 0x10, 0x90, 0x00, 0xF0, 0x3B, 0xFC, 0x00, 0x20, 0x11, 0x90, 0x00, 0x21, 0x12, 0x91, 0x12, 0x9A
+    .byte 0x10, 0x90
+    bl GameStateClearFieldPlotsUnderActors
+    .byte 0x00, 0x20, 0x11, 0x90, 0x00, 0x21, 0x12, 0x91, 0x12, 0x9A
     .byte 0x91, 0x46, 0x10, 0x9B, 0x18, 0x68, 0x02, 0x6C, 0x18, 0x1C, 0x12, 0x99, 0xB5, 0xF0, 0x32, 0xFC
     .byte 0x07, 0x1C, 0x00, 0x2F, 0x00, 0xD1, 0xBB, 0xE2, 0x00, 0x20, 0x82, 0x46, 0x12, 0x98, 0x2B, 0x38
     .byte 0x28, 0x28, 0x00, 0xD9, 0xEA, 0xE0, 0x80, 0x00, 0x01, 0x49, 0x40, 0x18, 0x00, 0x68, 0x87, 0x46
@@ -19930,213 +15526,7 @@ func_0801E67C: @ 0x0801E67C
     .align 2, 0
 .L0801E908: .4byte 0x00001038
 
-    thumb_func_start func_0801E90C
-func_0801E90C: @ 0x0801E90C
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x40
-    mov r8, r0
-    movs r0, #0
-    str r0, [sp, #0x34]
-    movs r4, #0
-.L0801E920:
-    mov r1, r8
-    ldr r0, [r1]
-    ldr r2, [r0, #0x40]
-    mov r0, r8
-    adds r1, r4, #0
-    bl _call_via_r2
-    adds r3, r0, #0
-    adds r4, #1
-    mov sl, r4
-    cmp r3, #0
-    beq .L0801EA18
-    ldrh r0, [r3, #4]
-    cmp r0, #2
-    bne .L0801EA18
-    ldr r1, [r3, #0x14]
-    add r0, sp, #4
-    ldr r2, [r1, #0xc]
-    adds r1, r3, #0
-    bl _call_via_r2
-    ldr r0, [sp, #4]
-    ldr r1, [sp, #8]
-    str r0, [sp, #0xc]
-    str r1, [sp, #0x10]
-    add r4, sp, #0xc
-    adds r6, r4, #0
-    movs r5, #0
-    str r5, [sp, #0x14]
-    ldrh r0, [r4]
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x13
-    subs r0, #0x22
-    asrs r0, r0, #1
-    str r0, [sp, #0x18]
-    add r1, sp, #0x18
-    add r2, sp, #0x14
-    cmp r5, r0
-    bge .L0801E970
-    adds r2, r1, #0
-.L0801E970:
-    ldr r2, [r2]
-    mov sb, r2
-    movs r1, #0x2a
-    str r1, [sp, #0x1c]
-    movs r2, #4
-    ldrsh r0, [r4, r2]
-    subs r0, #1
-    asrs r0, r0, #3
-    subs r0, #0x22
-    asrs r0, r0, #1
-    str r0, [sp, #0x20]
-    add r2, sp, #0x20
-    add r3, sp, #0x1c
-    cmp r1, r0
-    ble .L0801E990
-    adds r3, r2, #0
-.L0801E990:
-    ldr r7, [r3]
-    str r5, [sp, #0x24]
-    ldrh r0, [r4, #2]
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x13
-    subs r0, #0x16
-    asrs r0, r0, #1
-    str r0, [sp, #0x28]
-    add r1, sp, #0x28
-    add r2, sp, #0x24
-    cmp r5, r0
-    bge .L0801E9AA
-    adds r2, r1, #0
-.L0801E9AA:
-    ldr r4, [r2]
-    movs r1, #0x18
-    str r1, [sp, #0x2c]
-    movs r2, #6
-    ldrsh r0, [r6, r2]
-    subs r0, #1
-    asrs r0, r0, #3
-    subs r0, #0x16
-    asrs r0, r0, #1
-    str r0, [sp, #0x30]
-    add r2, sp, #0x30
-    add r3, sp, #0x2c
-    cmp r1, r0
-    ble .L0801E9C8
-    adds r3, r2, #0
-.L0801E9C8:
-    ldr r2, [r3]
-    adds r1, r4, #0
-    cmp r1, r2
-    bgt .L0801EA18
-    mov r0, sb
-    lsls r3, r0, #2
-.L0801E9D4:
-    mov r4, sb
-    adds r6, r1, #1
-    cmp r4, r7
-    bgt .L0801EA12
-    movs r0, #0xac
-    muls r0, r1, r0
-    adds r5, r3, r0
-.L0801E9E2:
-    ldr r0, .L0801EA50 @ =0x00001038
-    add r0, r8
-    ldr r0, [r0]
-    ldr r1, .L0801EA54 @ =0x000009DC
-    adds r0, r0, r1
-    adds r1, r0, r5
-    ldr r0, [r1]
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x1a
-    cmp r0, #0x15
-    bne .L0801EA0A
-    mov r0, sp
-    str r2, [sp, #0x38]
-    str r3, [sp, #0x3c]
-    bl method_0800A4A4__9FieldPlot
-    movs r0, #1
-    str r0, [sp, #0x34]
-    ldr r3, [sp, #0x3c]
-    ldr r2, [sp, #0x38]
-.L0801EA0A:
-    adds r5, #4
-    adds r4, #1
-    cmp r4, r7
-    ble .L0801E9E2
-.L0801EA12:
-    adds r1, r6, #0
-    cmp r1, r2
-    ble .L0801E9D4
-.L0801EA18:
-    mov r4, sl
-    cmp r4, #0x63
-    bgt .L0801EA20
-    b .L0801E920
-.L0801EA20:
-    ldr r1, [sp, #0x34]
-    cmp r1, #0
-    beq .L0801EA86
-    mov r2, r8
-    ldr r5, [r2, #4]
-    ldr r0, [r5]
-    cmp r0, #2
-    bne .L0801EA60
-    adds r0, r5, #0
-    adds r0, #0x90
-    ldr r4, [r0]
-    ldr r0, .L0801EA58 @ =0x00001048
-    add r0, r8
-    ldr r1, [r0]
-    ldr r0, .L0801EA5C @ =0x0000104C
-    add r0, r8
-    ldrb r2, [r0]
-    movs r3, #0x1e
-    subs r3, r3, r2
-    ldr r4, [r4, #0x14]
-    adds r0, r5, #0
-    bl _call_via_r4
-    b .L0801EA86
-    .align 2, 0
-.L0801EA50: .4byte 0x00001038
-.L0801EA54: .4byte 0x000009DC
-.L0801EA58: .4byte 0x00001048
-.L0801EA5C: .4byte 0x0000104C
-.L0801EA60:
-    ldr r0, .L0801EA98 @ =0x00001050
-    add r0, r8
-    ldr r5, [r0]
-    ldr r0, .L0801EA9C @ =0x00001038
-    add r0, r8
-    ldr r0, [r0]
-    adds r4, r0, #0
-    adds r4, #0x14
-    adds r0, #0x10
-    bl func_0800E324
-    movs r2, #0
-    cmp r0, #3
-    bne .L0801EA7E
-    movs r2, #1
-.L0801EA7E:
-    adds r0, r5, #0
-    adds r1, r4, #0
-    bl func_080171F8
-.L0801EA86:
-    add sp, #0x40
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801EA98: .4byte 0x00001050
-.L0801EA9C: .4byte 0x00001038
+    .section .text.game_state_c2.0801EAA0, "ax", %progbits
 
     thumb_func_start func_0801EAA0
 func_0801EAA0: @ 0x0801EAA0
@@ -20623,7 +16013,7 @@ func_0801EE00: @ 0x0801EE00
     lsls r2, r2, #0x10
     asrs r2, r2, #0x10
     add r0, sp, #0xc
-    bl func_080AC5D0
+    bl AreEntityFootTilesMarked
     movs r1, #1
     eors r0, r1
     lsls r0, r0, #0x18
@@ -20813,7 +16203,7 @@ func_0801EE00: @ 0x0801EE00
     ldr r4, .L0801F014 @ =0x0000214C
     adds r2, r2, r4
     mov r1, sb
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
 .L0801EFE0:
     adds r0, r7, #0
     bl IsWrapped__C12RucksackItem
@@ -20990,153 +16380,8 @@ func_0801EE00: @ 0x0801EE00
     .align 2, 0
 .L0801F148: .4byte 0x000001A9
 
-    .section .text.game_state_c2.0801F3E4, "ax", %progbits
+    .section .text.game_state_c2.0801F518, "ax", %progbits
 
-    thumb_func_start func_0801F3E4
-func_0801F3E4: @ 0x0801F3E4
-    push {r4, r5, r6, r7, lr}
-    mov r7, sb
-    mov r6, r8
-    push {r6, r7}
-    sub sp, #0x40
-    adds r6, r0, #0
-    ldr r0, [r6]
-    ldr r1, [r0, #0x14]
-    adds r0, r6, #0
-    bl _call_via_r1
-    cmp r0, #0x1d
-    bne .L0801F4E8
-    ldr r1, .L0801F488 @ =0x00001038
-    adds r0, r6, r1
-    ldr r0, [r0]
-    movs r2, #0xfa
-    lsls r2, r2, #1
-    adds r0, r0, r2
-    bl GetVaseArticleId__C9FarmHouse
-    adds r1, r0, #0
-    cmp r1, #0x5f
-    beq .L0801F506
-    add r4, sp, #0x34
-    adds r0, r4, #0
-    bl __7ArticleUi
-    adds r0, r4, #0
-    bl GetIconId__C7Article
-    lsls r0, r0, #0x10
-    lsrs r7, r0, #0x10
-    ldr r3, .L0801F48C @ =0x00001068
-    adds r3, r3, r6
-    mov sb, r3
-    ldr r4, [r3]
-    cmp r4, #0
-    beq .L0801F490
-    ldr r0, [r6]
-    ldr r1, [r0, #0x64]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r1, r0, #0
-    add r0, sp, #0x20
-    adds r2, r7, #0
-    movs r3, #0x80
-    lsls r3, r3, #1
-    bl func_0805E824
-    add r0, sp, #0x20
-    ldr r1, [sp, #0x20]
-    ldr r3, [r1]
-    ldrh r2, [r0, #0xc]
-    lsls r2, r2, #2
-    ldr r0, [sp, #0x24]
-    adds r0, r0, r2
-    ldrh r2, [r0]
-    mov r0, sp
-    ldr r3, [r3, #0x10]
-    bl _call_via_r3
-    mov r0, sp
-    mov r1, sp
-    movs r2, #0x20
-    bl memcpy
-    adds r1, r4, #0
-    adds r1, #0x28
-    mov r0, sp
-    ldm r0!, {r2, r3, r5}
-    stm r1!, {r2, r3, r5}
-    ldm r0!, {r2, r3, r5}
-    stm r1!, {r2, r3, r5}
-    ldm r0!, {r2, r5}
-    stm r1!, {r2, r5}
-    adds r1, r4, #0
-    adds r1, #0x48
-    movs r0, #1
-    strb r0, [r1]
-    b .L0801F506
-    .align 2, 0
-.L0801F488: .4byte 0x00001038
-.L0801F48C: .4byte 0x00001068
-.L0801F490:
-    movs r0, #0x4c
-    bl __builtin_new
-    adds r5, r0, #0
-    ldr r0, [r6]
-    ldr r1, [r0, #0x64]
-    adds r0, r6, #0
-    bl _call_via_r1
-    adds r4, r0, #0
-    adds r0, r5, #0
-    adds r1, r6, #0
-    movs r2, #2
-    movs r3, #0x1b
-    bl InitializeMapSpriteSinglePalette
-    ldr r0, .L0801F4E4 @ =vtable_unk_080E602C
-    str r0, [r5, #0x24]
-    movs r3, #0x28
-    adds r3, r3, r5
-    mov r8, r3
-    ldr r6, [r4]
-    add r0, sp, #0x38
-    ldr r3, [r6, #0xc]
-    adds r1, r4, #0
-    adds r2, r7, #0
-    bl _call_via_r3
-    ldr r0, [sp, #0x38]
-    ldrh r2, [r0]
-    mov r0, r8
-    ldr r3, [r6, #0x10]
-    adds r1, r4, #0
-    bl _call_via_r3
-    adds r1, r5, #0
-    adds r1, #0x48
-    movs r0, #1
-    strb r0, [r1]
-    mov r4, sb
-    b .L0801F4EE
-    .align 2, 0
-.L0801F4E4: .4byte vtable_unk_080E602C
-.L0801F4E8:
-    ldr r5, .L0801F514 @ =0x00001068
-    adds r4, r6, r5
-    movs r5, #0
-.L0801F4EE:
-    ldr r1, [r4]
-    cmp r5, r1
-    beq .L0801F504
-    cmp r1, #0
-    beq .L0801F504
-    ldr r0, [r1, #0x24]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801F504:
-    str r5, [r4]
-.L0801F506:
-    add sp, #0x40
-    pop {r3, r4}
-    mov r8, r3
-    mov sb, r4
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801F514: .4byte 0x00001068
 .L0801F518:
     .byte 0x70, 0xB5, 0x83, 0xB0, 0x06, 0x1C, 0x0C, 0x1C
     .byte 0x1D, 0x2C, 0x07, 0xD0, 0x1D, 0x2C, 0x02, 0xDC, 0x12, 0x2C, 0x17, 0xD0, 0x58, 0xE0, 0x27, 0x2C

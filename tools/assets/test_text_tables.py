@@ -13,6 +13,21 @@ import text_tables as text
 
 
 class TextTableTests(unittest.TestCase):
+    def test_source_owned_race_and_report_labels_are_not_generated(self):
+        dropped = {0xFAE6A, 0xFAE9C, 0xFAEB8, 0xFAEC4,
+                   0xFB824, 0xFB830, 0xFB834, 0xFB838, 0xFB844, 0xFB850,
+                   0xFB85C, 0xFB864, 0xFB86C, 0xFB874, 0xFB87C, 0xFB880,
+                   0xFB894, 0xFB8A4, 0xFB8C8, 0xFB8CC, 0xFB8D4, 0xFB8E0}
+        roots = set(text.catalog.ROOTS) | {address for _, address, _ in text.catalog.GLYPHS}
+        self.assertFalse(roots & dropped)
+        source = (Path(__file__).resolve().parents[2] / "asm/data/data_080F9EB8.s").read_text()
+        for address in dropped:
+            self.assertNotIn(text.symbol(address), source)
+            self.assertNotIn(f"text-tables-{address:06X}.s", source)
+        self.assertIn(0xFB234, roots)
+        self.assertIn(".set gChildhoodMemorySpeakerMother, gNonScriptText_0FB234", source)
+        self.assertIn('.include "build/assets/text-tables-0FAEDC.s"', source)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

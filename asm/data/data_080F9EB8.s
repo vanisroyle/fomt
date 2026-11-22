@@ -142,8 +142,8 @@ gUnk_080FA71C:
 gUnk_080FA728:
 	.incbin "baserom.gba", 0xFA728, 0x6E
 
-	.global gUnk_080FA796
-gUnk_080FA796:
+	.global gHorseRaceOpponentNames
+gHorseRaceOpponentNames:
 	.incbin "baserom.gba", 0xFA796, 0x208
 
 	.global gUnk_080FA99E
@@ -238,33 +238,71 @@ gUnk_080FAD50:
 .set gUnk_080FAE00, gNonScriptText_0FAE00
 	.include "build/assets/text-tables-0FAE00.s" @ slot 0xfae00, 0x6a
 
-	.global gUnk_080FAE6A
-.set gUnk_080FAE6A, gNonScriptText_0FAE6A
-	.include "build/assets/text-tables-0FAE6A.s" @ slot 0xfae6a, 0x32
+	.global gHorseRaceBettingGlyphCodes
+gHorseRaceBettingGlyphCodes:
+	.2byte '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', 'x', 'G'
+	.2byte 'Y', 'o', 'u', 'r', ' ', 'm', 'e', 'd', 'a', 'l', 's', 0
 
-	.global gUnk_080FAE9C
-.set gUnk_080FAE9C, gNonScriptText_0FAE9C
-	.include "build/assets/text-tables-0FAE9C.s" @ slot 0xfae9c, 0x1c
+	.global gHorseRaceBettingTableHeader
+gHorseRaceBettingTableHeader:
+	.asciz "Race  Winning Ticket    "
+	.zero 3
 
-	.global gUnk_080FAEB8
-.set gUnk_080FAEB8, gNonScriptText_0FAEB8
-	.include "build/assets/text-tables-0FAEB8.s" @ slot 0xfaeb8, 0xc
+	.global gHorseRaceEnterLabel
+gHorseRaceEnterLabel:
+	.asciz "   Enter"
+	.zero 3
 
-	.global gUnk_080FAEC4
-.set gUnk_080FAEC4, gNonScriptText_0FAEC4
-	.include "build/assets/text-tables-0FAEC4.s" @ slot 0xfaec4, 0x104
+	.global gHorseRaceMedalsToWinLabel
+gHorseRaceMedalsToWinLabel:
+	.asciz "  Medals to Win     "
+	.zero 3
+	.include "build/assets/text-tables-0FAEDC.s" @ slot 0xfaedc, 0xec
 
 	.global gUnk_080FAFC8
 gUnk_080FAFC8:
 	.include "build/assets/text-tables-0FAFC8.s" @ slot 0xfafc8, 0x38
 
+	.macro medal_prize name, price
+.Lmedal_prize_name\@:
+	.asciz "\name"
+	.if (. - .Lmedal_prize_name\@) > 16
+	.error "Medal prize name exceeds its 16-byte field including the terminator"
+	.endif
+	.space 16 - (. - .Lmedal_prize_name\@)
+	.2byte \price, 0
+	.endm
+
 	.global gMedalExchangePrizes
 gMedalExchangePrizes:
-	.incbin "baserom.gba", 0xFB000, 0xF0
+	medal_prize "Jewel of Truth", 1000
+	medal_prize "Power Berry", 900
+	medal_prize "Facial Pack", 42
+	medal_prize "Skin Lotion", 35
+	medal_prize "Sunblock", 30
+	medal_prize "Necklace", 20
+	medal_prize "Broach", 18
+	medal_prize "Diamond", 14
+	medal_prize "Truffle", 10
+	medal_prize "Adamantite", 4
+	medal_prize "Dress", 250
+	medal_prize "Perfume", 150
+	.purgem medal_prize
 
-	.global gUnk_080FB0F0
-gUnk_080FB0F0:
-	.incbin "baserom.gba", 0xFB0F0, 0x18
+	.global gMedalExchangePrizeItemIds
+gMedalExchangePrizeItemIds:
+	.2byte 0x27 @ Jewel of Truth
+	.2byte 0x00 @ Power Berry
+	.2byte 0x56 @ Facial Pack
+	.2byte 0x57 @ Skin Lotion
+	.2byte 0x58 @ Sunblock
+	.2byte 0x2d @ Necklace
+	.2byte 0x2f @ Broach
+	.2byte 0x1d @ Diamond
+	.2byte 0x2e @ Truffle
+	.2byte 0x17 @ Adamantite
+	.2byte 0x55 @ Dress
+	.2byte 0x51 @ Perfume
 
 	.global gAskToExchangeMedals
 .set gAskToExchangeMedals, gNonScriptText_0FB108
@@ -306,193 +344,151 @@ gUnk_080FB0F0:
 gUnk_080FB1E4:
 	.incbin "baserom.gba", 0xFB1E4, 0x50
 
-	.global gUnk_080FB234
-.set gUnk_080FB234, gNonScriptText_0FB234
+	.global gChildhoodMemorySpeakerMother
+.set gChildhoodMemorySpeakerMother, gNonScriptText_0FB234
 	.include "build/assets/text-tables-0FB234.s" @ slot 0xfb234, 0x8
 
-	.global gUnk_080FB23C
-.set gUnk_080FB23C, gNonScriptText_0FB23C
+	.global gChildhoodMemoryTripOpening
+.set gChildhoodMemoryTripOpening, gNonScriptText_0FB23C
 	.include "build/assets/text-tables-0FB23C.s" @ slot 0xfb23c, 0x40
 
-	.global gUnk_080FB27C
-.set gUnk_080FB27C, gNonScriptText_0FB27C
+	.global gChildhoodMemorySpeakerFather
+.set gChildhoodMemorySpeakerFather, gNonScriptText_0FB27C
 	.include "build/assets/text-tables-0FB27C.s" @ slot 0xfb27c, 0x8
 
-	.global gUnk_080FB284
-.set gUnk_080FB284, gNonScriptText_0FB284
+	.global gChildhoodMemoryFishingInvite
+.set gChildhoodMemoryFishingInvite, gNonScriptText_0FB284
 	.include "build/assets/text-tables-0FB284.s" @ slot 0xfb284, 0x4c
 
-	.global gUnk_080FB2D0
-.set gUnk_080FB2D0, gNonScriptText_0FB2D0
+	.global gChildhoodMemoryLostChild
+.set gChildhoodMemoryLostChild, gNonScriptText_0FB2D0
 	.include "build/assets/text-tables-0FB2D0.s" @ slot 0xfb2d0, 0x24
 
-	.global gUnk_080FB2F4
-gUnk_080FB2F4:
+	.global gChildhoodMemoryLostChildReaction
+gChildhoodMemoryLostChildReaction:
 	.incbin "baserom.gba", 0xFB2F4, 0xC
 
-	.global gUnk_080FB300
-.set gUnk_080FB300, gNonScriptText_0FB300
+	.global gChildhoodMemorySpeakerOldMan
+.set gChildhoodMemorySpeakerOldMan, gNonScriptText_0FB300
 	.include "build/assets/text-tables-0FB300.s" @ slot 0xfb300, 0x8
 
-	.global gUnk_080FB308
-gUnk_080FB308:
+	.global gChildhoodMemoryFoundChild
+gChildhoodMemoryFoundChild:
 	.incbin "baserom.gba", 0xFB308, 0x90
 
-	.global gUnk_080FB398
-.set gUnk_080FB398, gNonScriptText_0FB398
+	.global gChildhoodMemoryThankYou
+.set gChildhoodMemoryThankYou, gNonScriptText_0FB398
 	.include "build/assets/text-tables-0FB398.s" @ slot 0xfb398, 0x34
 
-	.global gUnk_080FB3CC
-.set gUnk_080FB3CC, gNonScriptText_0FB3CC
+	.global gChildhoodMemoryCountryTrip
+.set gChildhoodMemoryCountryTrip, gNonScriptText_0FB3CC
 	.include "build/assets/text-tables-0FB3CC.s" @ slot 0xfb3cc, 0x54
 
-	.global gUnk_080FB420
-.set gUnk_080FB420, gNonScriptText_0FB420
+	.global gChildhoodMemoryFarmInvite
+.set gChildhoodMemoryFarmInvite, gNonScriptText_0FB420
 	.include "build/assets/text-tables-0FB420.s" @ slot 0xfb420, 0x4c
 
-	.global gUnk_080FB46C
-.set gUnk_080FB46C, gNonScriptText_0FB46C
+	.global gChildhoodMemoryFarmInviteReaction
+.set gChildhoodMemoryFarmInviteReaction, gNonScriptText_0FB46C
 	.include "build/assets/text-tables-0FB46C.s" @ slot 0xfb46c, 0x18
 
-	.global gUnk_080FB484
-.set gUnk_080FB484, gNonScriptText_0FB484
+	.global gChildhoodMemoryWelcomeToFarm
+.set gChildhoodMemoryWelcomeToFarm, gNonScriptText_0FB484
 	.include "build/assets/text-tables-0FB484.s" @ slot 0xfb484, 0x50
 
-	.global gUnk_080FB4D4
-gUnk_080FB4D4:
+	.global gChildhoodMemoryFarmPlay
+gChildhoodMemoryFarmPlay:
 	.incbin "baserom.gba", 0xFB4D4, 0x48
 
-	.global gUnk_080FB51C
-.set gUnk_080FB51C, gNonScriptText_0FB51C
+	.global gChildhoodMemorySpeakerUnseenGirl
+.set gChildhoodMemorySpeakerUnseenGirl, gNonScriptText_0FB51C
 	.include "build/assets/text-tables-0FB51C.s" @ slot 0xfb51c, 0x4
 
-	.global gUnk_080FB520
-.set gUnk_080FB520, gNonScriptText_0FB520
+	.global gChildhoodMemoryCallingOut
+.set gChildhoodMemoryCallingOut, gNonScriptText_0FB520
 	.include "build/assets/text-tables-0FB520.s" @ slot 0xfb520, 0x14
 
-	.global gUnk_080FB534
-gUnk_080FB534:
+	.global gChildhoodMemorySurprise
+gChildhoodMemorySurprise:
 	.incbin "baserom.gba", 0xFB534, 0x8
 
-	.global gUnk_080FB53C
-.set gUnk_080FB53C, gNonScriptText_0FB53C
+	.global gChildhoodMemorySpeakerGirl
+.set gChildhoodMemorySpeakerGirl, gNonScriptText_0FB53C
 	.include "build/assets/text-tables-0FB53C.s" @ slot 0xfb53c, 0x8
 
-	.global gUnk_080FB544
-.set gUnk_080FB544, gNonScriptText_0FB544
+	.global gChildhoodMemoryCheckingOnChild
+.set gChildhoodMemoryCheckingOnChild, gNonScriptText_0FB544
 	.include "build/assets/text-tables-0FB544.s" @ slot 0xfb544, 0x34
 
-	.global gUnk_080FB578
-.set gUnk_080FB578, gNonScriptText_0FB578
+	.global gChildhoodMemoryPlayInvite
+.set gChildhoodMemoryPlayInvite, gNonScriptText_0FB578
 	.include "build/assets/text-tables-0FB578.s" @ slot 0xfb578, 0x5c
 
-	.global gUnk_080FB5D4
-gUnk_080FB5D4:
+	.global gChildhoodMemoryTellMeAboutYourself
+gChildhoodMemoryTellMeAboutYourself:
 	.incbin "baserom.gba", 0xFB5D4, 0x60
 
-	.global gUnk_080FB634
-.set gUnk_080FB634, gNonScriptText_0FB634
+	.global gChildhoodMemoryFarmFarewell
+.set gChildhoodMemoryFarmFarewell, gNonScriptText_0FB634
 	.include "build/assets/text-tables-0FB634.s" @ slot 0xfb634, 0x8c
 
-	.global gUnk_080FB6C0
-.set gUnk_080FB6C0, gNonScriptText_0FB6C0
+	.global gChildhoodMemoryLetterRequest
+.set gChildhoodMemoryLetterRequest, gNonScriptText_0FB6C0
 	.include "build/assets/text-tables-0FB6C0.s" @ slot 0xfb6c0, 0x50
 
-	.global gUnk_080FB710
-gUnk_080FB710:
+	.global gChildhoodMemoryFarmAddress
+gChildhoodMemoryFarmAddress:
 	.incbin "baserom.gba", 0xFB710, 0x28
 
-	.global gUnk_080FB738
-.set gUnk_080FB738, gNonScriptText_0FB738
+	.global gChildhoodMemoryLeavingReaction
+.set gChildhoodMemoryLeavingReaction, gNonScriptText_0FB738
 	.include "build/assets/text-tables-0FB738.s" @ slot 0xfb738, 0x1c
 
-	.global gUnk_080FB754
-.set gUnk_080FB754, gNonScriptText_0FB754
+	.global gChildhoodMemoryPromiseToReturn
+.set gChildhoodMemoryPromiseToReturn, gNonScriptText_0FB754
 	.include "build/assets/text-tables-0FB754.s" @ slot 0xfb754, 0x4c
 
-	.global gUnk_080FB7A0
-.set gUnk_080FB7A0, gNonScriptText_0FB7A0
+	.global gChildhoodMemoryMadeAFriend
+.set gChildhoodMemoryMadeAFriend, gNonScriptText_0FB7A0
 	.include "build/assets/text-tables-0FB7A0.s" @ slot 0xfb7a0, 0x50
 
-	.global gUnk_080FB7F0
-.set gUnk_080FB7F0, gNonScriptText_0FB7F0
+	.global gChildhoodMemoryWaitingForLetter
+.set gChildhoodMemoryWaitingForLetter, gNonScriptText_0FB7F0
 	.include "build/assets/text-tables-0FB7F0.s" @ slot 0xfb7f0, 0x34
 
-	.global gUnk_080FB824
-.set gUnk_080FB824, gNonScriptText_0FB824
-	.include "build/assets/text-tables-0FB824.s" @ slot 0xFB824, 0xC
+	@ Keep the original byte slots; report tile widths are set by the callers.
+	.macro farm_report_text symbol, slot_bytes, value
+	.global \symbol
+\symbol:
+	.asciz "\value"
+	.if (. - \symbol) > \slot_bytes
+	.error "Farm report text exceeds its byte slot including the terminator"
+	.elseif (. - \symbol) < \slot_bytes
+	.space \slot_bytes - (. - \symbol)
+	.endif
+	.endm
 
-	.global gUnk_080FB830
-.set gUnk_080FB830, gNonScriptText_0FB830
-	.include "build/assets/text-tables-0FB830.s" @ slot 0xfb830, 0x4
+	farm_report_text gFarmReportPropertySuffix, 12, " Property "
+	farm_report_text gFarmReportBlankLabel, 4, "  "
+	farm_report_text gFarmReportGoldSuffix, 4, "G "
+	farm_report_text gLivestockReportHealthyLabel, 12, "Healthy "
+	farm_report_text gLivestockReportUnhappyLabel, 12, "Unhappy "
+	farm_report_text gLivestockReportSickLabel, 12, "Sick    "
+	farm_report_text gLivestockReportSpringLabel, 8, "Spring"
+	farm_report_text gLivestockReportSummerLabel, 8, "Summer"
+	farm_report_text gLivestockReportFallLabel, 8, "Fall  "
+	farm_report_text gLivestockReportWinterLabel, 8, "Winter"
+	farm_report_text gLivestockReportYearAgeSuffix, 4, "yr"
+	farm_report_text gChickenReportTitle, 20, "List of Chickens"
+	farm_report_text gCowReportTitle, 16, "List of Cattle"
+	farm_report_text gSheepReportTitle, 16, "List of Sheep "
+	farm_report_text gHarvestSpriteReportTitle, 20, "Harvest Sprites "
+	farm_report_text gFarmReportDaySuffix, 4, "D "
+	farm_report_text gHarvestSpriteReportDaysLeftLabel, 8, "left"
+	farm_report_text gHarvestSpriteReportWorkLabel, 12, "work    "
+	farm_report_text gHarvestSpriteReportNotAssignedLabel, 16, "N/A         "
 
-	.global gUnk_080FB834
-.set gUnk_080FB834, gNonScriptText_0FB834
-	.include "build/assets/text-tables-0FB834.s" @ slot 0xfb834, 0x4
-
-	.global gUnk_080FB838
-.set gUnk_080FB838, gNonScriptText_0FB838
-	.include "build/assets/text-tables-0FB838.s" @ slot 0xfb838, 0xc
-
-	.global gUnk_080FB844
-.set gUnk_080FB844, gNonScriptText_0FB844
-	.include "build/assets/text-tables-0FB844.s" @ slot 0xfb844, 0xc
-
-	.global gUnk_080FB850
-.set gUnk_080FB850, gNonScriptText_0FB850
-	.include "build/assets/text-tables-0FB850.s" @ slot 0xfb850, 0xc
-
-	.global gUnk_080FB85C
-.set gUnk_080FB85C, gNonScriptText_0FB85C
-	.include "build/assets/text-tables-0FB85C.s" @ slot 0xfb85c, 0x8
-
-	.global gUnk_080FB864
-.set gUnk_080FB864, gNonScriptText_0FB864
-	.include "build/assets/text-tables-0FB864.s" @ slot 0xfb864, 0x8
-
-	.global gUnk_080FB86C
-.set gUnk_080FB86C, gNonScriptText_0FB86C
-	.include "build/assets/text-tables-0FB86C.s" @ slot 0xfb86c, 0x8
-
-	.global gUnk_080FB874
-.set gUnk_080FB874, gNonScriptText_0FB874
-	.include "build/assets/text-tables-0FB874.s" @ slot 0xfb874, 0x8
-
-	.global gUnk_080FB87C
-.set gUnk_080FB87C, gNonScriptText_0FB87C
-	.include "build/assets/text-tables-0FB87C.s" @ slot 0xfb87c, 0x4
-
-	.global gUnk_080FB880
-.set gUnk_080FB880, gNonScriptText_0FB880
-	.include "build/assets/text-tables-0FB880.s" @ slot 0xfb880, 0x14
-
-	.global gUnk_080FB894
-.set gUnk_080FB894, gNonScriptText_0FB894
-	.include "build/assets/text-tables-0FB894.s" @ slot 0xfb894, 0x10
-
-	.global gUnk_080FB8A4
-.set gUnk_080FB8A4, gNonScriptText_0FB8A4
-	.include "build/assets/text-tables-0FB8A4.s" @ slot 0xfb8a4, 0x10
-
-	.global gUnk_080FB8B4
-gUnk_080FB8B4:
-	.incbin "baserom.gba", 0xFB8B4, 0x14
-
-	.global gUnk_080FB8C8
-.set gUnk_080FB8C8, gNonScriptText_0FB8C8
-	.include "build/assets/text-tables-0FB8C8.s" @ slot 0xfb8c8, 0x4
-
-	.global gUnk_080FB8CC
-.set gUnk_080FB8CC, gNonScriptText_0FB8CC
-	.include "build/assets/text-tables-0FB8CC.s" @ slot 0xfb8cc, 0x8
-
-	.global gUnk_080FB8D4
-.set gUnk_080FB8D4, gNonScriptText_0FB8D4
-	.include "build/assets/text-tables-0FB8D4.s" @ slot 0xfb8d4, 0xc
-
-	.global gUnk_080FB8E0
-.set gUnk_080FB8E0, gNonScriptText_0FB8E0
-	.include "build/assets/text-tables-0FB8E0.s" @ slot 0xfb8e0, 0x10
+	.purgem farm_report_text
 
 	.global gUnk_080FB8F0
 gUnk_080FB8F0:
