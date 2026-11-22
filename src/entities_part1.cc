@@ -197,7 +197,7 @@ EC FarmerEntity * InitFarmerMapActor(FarmerEntity * self, GameObject * game, voi
 EC void FarmerEntityInitNoOp(FarmerEntity * self);
 EC char const vtable_unk_080E6658[];
 EC void func_0802F0EC(FarmerEntity * self, u32 first, u32 second);
-EC u16 func_0802D158(FarmerEntity * self);
+EC u32 SelectFarmerAnimation(FarmerEntity * self);
 EC void func_0803242C(AActorEntity * self, u32 argument);
 
 inline i32 GetFarmerAnimationState(FarmerEntity const * self)
@@ -1410,7 +1410,7 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->unk_C4 = false;
     self->unk_C5 = false;
     FarmerEntityInitNoOp(self);
-    u16 anim = func_0802D158(self);
+    u16 anim = SelectFarmerAnimation(self);
     if (self->anim_id != anim)
         self->SetAnim(anim);
     return self;
@@ -1511,7 +1511,7 @@ EC void func_08025018(FarmerEntity * self, u32 argument)
         if (self->consume_animation_active)
         {
             func_0802F0EC(self, 0, 0);
-            u16 anim = func_0802D158(self);
+            u16 anim = SelectFarmerAnimation(self);
             if (self->anim_id != anim)
                 self->SetAnim(anim);
         }
