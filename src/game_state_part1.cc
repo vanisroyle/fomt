@@ -2920,3 +2920,37 @@ EC SECTION(".text.game_state_08016758") void GameScript_PlayCurrentSceneMusic(Ga
     u8 * player = runtime.musicPlayer;
     AudioPlayer_StartSongIfStoppedOrChanged(player, runtime.scene->GetMusicTrack());
 }
+
+extern u8 const vtable_unk_080E5D34[];
+
+template <u8 const * Methods>
+struct GameStateSavedSceneBooleanFactory
+{
+    GameStateSavedSceneBooleanFactory(GameStateSavedSceneFactoryOwner owner, u8 * const & saveData, u32 enabled)
+    {
+        bool state = enabled != 0;
+        asm("" : : "l"(state) : "r1");
+        u8 * data = saveData;
+        vtable = Methods;
+        factory = owner.Move();
+        this->saveData = data;
+        this->enabled = state;
+    }
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    u8 * saveData;
+    bool enabled;
+};
+
+// 0x08014410
+EC SECTION(".text.game_state_08014410") void GameScript_QueueSceneVariant25(GameStateScript & script, u32 enabled)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x25;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(
+        new GameStateSavedSceneBooleanFactory<vtable_unk_080E5D34>(factory, runtime.saveData, enabled));
+    runtime.pendingCommand = 0x18;
+}
