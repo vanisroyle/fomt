@@ -374,7 +374,7 @@ func_08007A28: @ 0x08007A28
     adds r1, r3, #0
     lsrs r2, r2, #0x1c
     ldr r0, [sp, #0xc]
-    bl func_080080A0
+    bl AllocationTree_FreeBlock
     movs r0, #0
     strh r0, [r6, #4]
     ldr r0, [r5, #0x20]
@@ -446,7 +446,7 @@ func_08007B54: @ 0x08007B54
     ldr r0, .L08007C00 @ =0x00000824
     adds r6, r4, r0
     adds r0, r6, #0
-    bl func_08008020
+    bl AllocationTree_AllocateBlock
     adds r5, r0, #0
     adds r1, r5, #0
     movs r0, #0
@@ -535,7 +535,7 @@ func_08007B54: @ 0x08007B54
 .L08007C14:
     adds r0, r6, #0
     adds r2, r7, #0
-    bl func_080080A0
+    bl AllocationTree_FreeBlock
 .L08007C1C:
     movs r1, #0
 .L08007C1E:
@@ -546,248 +546,10 @@ func_08007B54: @ 0x08007B54
     .align 2, 0
 
     .section .text.after_08007C28, "ax"
-    thumb_func_start func_08007CD8
-func_08007CD8: @ 0x08007CD8
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r4, r1, #0
-    ldr r0, .L08007D3C @ =gTileHeapState
-    ldr r5, [r0]
-    cmp r4, #0
-    beq .L08007D42
-    str r4, [sp]
-    mov r0, sp
-    ldrb r3, [r0]
-    movs r0, #0
-    cmp r3, #0xff
-    bhi .L08007D0A
-    lsrs r1, r3, #5
-    lsls r1, r1, #2
-    adds r1, r5, r1
-    movs r0, #0x1f
-    ands r0, r3
-    movs r2, #1
-    lsls r2, r0
-    ldr r1, [r1]
-    ands r1, r2
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-.L08007D0A:
-    cmp r0, #0
-    beq .L08007D42
-    adds r0, r5, #0
-    adds r0, #0x20
-    lsls r1, r3, #3
-    adds r1, #4
-    adds r1, r0, r1
-    movs r2, #0
-    lsls r0, r4, #8
-    lsrs r0, r0, #0x10
-    ldrh r3, [r1, #4]
-    cmp r0, r3
-    bne .L08007D26
-    movs r2, #1
-.L08007D26:
-    cmp r2, #0
-    beq .L08007D42
-    ldrh r2, [r1, #2]
-    adds r0, r2, #1
-    strh r0, [r1, #2]
-    lsls r0, r0, #0x10
-    cmp r0, #0
-    beq .L08007D40
-    adds r0, r4, #0
-    b .L08007D44
-    .align 2, 0
-.L08007D3C: .4byte gTileHeapState
-.L08007D40:
-    strh r2, [r1, #2]
-.L08007D42:
-    movs r0, #0
-.L08007D44:
-    add sp, #4
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-
-    thumb_func_start func_08007D4C
-func_08007D4C: @ 0x08007D4C
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r4, r1, #0
-    ldr r0, .L08007DA8 @ =gTileHeapState
-    ldr r5, [r0]
-    cmp r4, #0
-    beq .L08007DAC
-    str r4, [sp]
-    mov r0, sp
-    ldrb r3, [r0]
-    movs r0, #0
-    cmp r3, #0xff
-    bhi .L08007D7E
-    lsrs r1, r3, #5
-    lsls r1, r1, #2
-    adds r1, r5, r1
-    movs r0, #0x1f
-    ands r0, r3
-    movs r2, #1
-    lsls r2, r0
-    ldr r1, [r1]
-    ands r1, r2
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-.L08007D7E:
-    cmp r0, #0
-    beq .L08007DAC
-    adds r0, r5, #0
-    adds r0, #0x20
-    lsls r1, r3, #3
-    adds r1, #4
-    adds r1, r0, r1
-    movs r2, #0
-    lsls r0, r4, #8
-    lsrs r0, r0, #0x10
-    ldrh r3, [r1, #4]
-    cmp r0, r3
-    bne .L08007D9A
-    movs r2, #1
-.L08007D9A:
-    cmp r2, #0
-    beq .L08007DAC
-    ldrh r0, [r1]
-    lsls r0, r0, #0x16
-    lsrs r0, r0, #0x16
-    b .L08007DB0
-    .align 2, 0
-.L08007DA8: .4byte gTileHeapState
-.L08007DAC:
-    movs r0, #1
-    rsbs r0, r0, #0
-.L08007DB0:
-    add sp, #4
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-
-    thumb_func_start func_08007DB8
-func_08007DB8: @ 0x08007DB8
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r4, r1, #0
-    ldr r0, .L08007E14 @ =gTileHeapState
-    ldr r5, [r0]
-    cmp r4, #0
-    beq .L08007E18
-    str r4, [sp]
-    mov r0, sp
-    ldrb r3, [r0]
-    movs r0, #0
-    cmp r3, #0xff
-    bhi .L08007DEA
-    lsrs r1, r3, #5
-    lsls r1, r1, #2
-    adds r1, r5, r1
-    movs r0, #0x1f
-    ands r0, r3
-    movs r2, #1
-    lsls r2, r0
-    ldr r1, [r1]
-    ands r1, r2
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-.L08007DEA:
-    cmp r0, #0
-    beq .L08007E18
-    adds r0, r5, #0
-    adds r0, #0x20
-    lsls r1, r3, #3
-    adds r1, #4
-    adds r1, r0, r1
-    movs r2, #0
-    lsls r0, r4, #8
-    lsrs r0, r0, #0x10
-    ldrh r3, [r1, #4]
-    cmp r0, r3
-    bne .L08007E06
-    movs r2, #1
-.L08007E06:
-    cmp r2, #0
-    beq .L08007E18
-    ldrb r0, [r1, #1]
-    lsls r0, r0, #0x1a
-    lsrs r0, r0, #0x1c
-    b .L08007E1A
-    .align 2, 0
-.L08007E14: .4byte gTileHeapState
-.L08007E18:
-    movs r0, #0xb
-.L08007E1A:
-    add sp, #4
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
-    thumb_func_start func_08007E24
-func_08007E24: @ 0x08007E24
-    push {r4, r5, lr}
-    sub sp, #4
-    adds r4, r1, #0
-    ldr r0, .L08007E7C @ =gTileHeapState
-    ldr r5, [r0]
-    cmp r4, #0
-    beq .L08007E80
-    str r4, [sp]
-    mov r0, sp
-    ldrb r3, [r0]
-    movs r0, #0
-    cmp r3, #0xff
-    bhi .L08007E56
-    lsrs r1, r3, #5
-    lsls r1, r1, #2
-    adds r1, r5, r1
-    movs r0, #0x1f
-    ands r0, r3
-    movs r2, #1
-    lsls r2, r0
-    ldr r1, [r1]
-    ands r1, r2
-    rsbs r0, r1, #0
-    orrs r0, r1
-    lsrs r0, r0, #0x1f
-.L08007E56:
-    cmp r0, #0
-    beq .L08007E80
-    adds r0, r5, #0
-    adds r0, #0x20
-    lsls r1, r3, #3
-    adds r1, #4
-    adds r1, r0, r1
-    movs r2, #0
-    lsls r0, r4, #8
-    lsrs r0, r0, #0x10
-    ldrh r3, [r1, #4]
-    cmp r0, r3
-    bne .L08007E72
-    movs r2, #1
-.L08007E72:
-    cmp r2, #0
-    beq .L08007E80
-    ldrh r0, [r1, #2]
-    b .L08007E82
-    .align 2, 0
-.L08007E7C: .4byte gTileHeapState
-.L08007E80:
-    movs r0, #0
-.L08007E82:
-    add sp, #4
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.after_08007CD8, "ax"
+    .section .text.after_08007D4C, "ax"
+    .section .text.after_08007DB8, "ax"
+    .section .text.after_08007E24, "ax"
 .L08007E8C:
     .byte 0x03, 0x48, 0x00, 0x68
     .byte 0x92, 0x21, 0x09, 0x01, 0x40, 0x18, 0x00, 0x88, 0x70, 0x47, 0x00, 0x00, 0x08, 0x04, 0x00, 0x03
@@ -960,119 +722,8 @@ func_08007F84: @ 0x08007F84
 .L08008018: .4byte 0x000001FF
 .L0800801C: .4byte 0xFFFFFE00
 
-    thumb_func_start func_08008020
-func_08008020: @ 0x08008020
-    push {r4, r5, r6, r7, lr}
-    sub sp, #4
-    adds r6, r0, #0
-    adds r7, r1, #0
-    cmp r7, #9
-    bhi .L0800807E
-    movs r3, #0
-    adds r4, r6, #4
-.L08008030:
-    ldrb r5, [r4]
-    cmp r5, #0
-    bne .L08008074
-    adds r0, r4, #0
-    adds r1, r7, #0
-    str r3, [sp]
-    bl func_080D7568
-    adds r2, r0, #0
-    movs r1, #0
-    ldr r0, .L08008070 @ =0x000001FF
-    ldr r3, [sp]
-    cmp r2, r0
-    bhi .L0800804E
-    movs r1, #1
-.L0800804E:
-    cmp r1, #0
-    beq .L08008074
-    strb r5, [r6, #1]
-    movs r1, #0
-    ldrb r0, [r6, #4]
-    cmp r0, #0
-    beq .L08008066
-    adds r0, r6, #0
-    adds r0, #0x80
-    ldrb r0, [r0]
-    rsbs r0, r0, #0
-    lsrs r1, r0, #0x1f
-.L08008066:
-    strb r1, [r6]
-    lsls r0, r3, #9
-    orrs r0, r2
-    b .L08008096
-    .align 2, 0
-.L08008070: .4byte 0x000001FF
-.L08008074:
-    adds r4, #0x7c
-    adds r3, #1
-    cmp r3, #1
-    ble .L08008030
-    b .L08008092
-.L0800807E:
-    cmp r7, #0xa
-    bne .L08008092
-    ldrb r0, [r6, #1]
-    cmp r0, #0
-    beq .L08008092
-    adds r0, r6, #0
-    bl AllocationTree_MarkFull
-    movs r0, #0
-    b .L08008096
-.L08008092:
-    movs r0, #0x80
-    lsls r0, r0, #3
-.L08008096:
-    add sp, #4
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-
-    thumb_func_start func_080080A0
-func_080080A0: @ 0x080080A0
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    cmp r2, #9
-    bhi .L080080DA
-    movs r0, #0x80
-    lsls r0, r0, #2
-    ands r0, r1
-    adds r5, r4, #4
-    adds r3, r5, #0
-    cmp r0, #0
-    beq .L080080BA
-    adds r3, r4, #0
-    adds r3, #0x80
-.L080080BA:
-    adds r0, r3, #0
-    bl func_080D76C0
-    movs r0, #0
-    strb r0, [r4]
-    movs r1, #0
-    ldrb r0, [r5, #1]
-    cmp r0, #0
-    beq .L080080D6
-    adds r0, r4, #0
-    adds r0, #0x80
-    ldrb r0, [r0, #1]
-    rsbs r0, r0, #0
-    lsrs r1, r0, #0x1f
-.L080080D6:
-    strb r1, [r4, #1]
-    b .L080080E4
-.L080080DA:
-    cmp r2, #0xa
-    bne .L080080E4
-    adds r0, r4, #0
-    bl AllocationTree_MarkEmpty
-.L080080E4:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
+    .section .text.after_08008020, "ax"
+    .section .text.after_080080A0, "ax"
 .L080080EC:
     .byte 0x40, 0x78, 0x70, 0x47
     .byte 0x00, 0x78, 0x70, 0x47, 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0x82, 0xB0

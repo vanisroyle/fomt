@@ -47,7 +47,7 @@ struct CalendarGlyphFrameSource : SpriteAnimationSource
     virtual CalendarGlyphFrame GetFrame(u32) const;
 };
 
-EC u32 func_08007D4C(G1MapTileOwner *, u32);
+EC u32 TileHandle_GetTileIndex(G1MapTileOwner *, u32);
 EC u32 ResourceHandle_GetIndex(G1MapTileOwner *, u32);
 EC SpriteOamBuffer * HardwareContext_GetOamBuffer(G1CalendarScene *);
 
@@ -114,7 +114,7 @@ EC SECTION(".text.g1_080A3618") void DrawCalendarGlyph(G1CalendarScene * self, i
     }
     render.offset_x = x;
     render.offset_y = y;
-    render.tile_base = func_08007D4C(&self->digit_owner, CalendarResourceHandle(self->digit_owner)) + self->digit_tiles[glyph];
+    render.tile_base = TileHandle_GetTileIndex(&self->digit_owner, CalendarResourceHandle(self->digit_owner)) + self->digit_tiles[glyph];
     switch (color)
     {
         case 0:
