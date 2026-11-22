@@ -486,6 +486,67 @@ EC SECTION(".text.message_window.08050424") void SetMessageWindowStateText(Messa
     window->phase = 4;
 }
 
+struct MessageChoicePrintContext
+{
+    void * volatile vtable;
+};
+
+struct PACKED MessageChoicePosition
+{
+    u8 row : 2;
+    u8 column : 5;
+    u8 unused : 1;
+};
+
+EC u8 vtable_unk_080E78F0[];
+EC u32 UpdateMessageScript(MessageScript &, MessageTextCursor *, MessageChoicePrintContext *);
+
+inline u32 WrapChoiceCoordinate(u32 coordinate, u32 limit)
+{
+    if (coordinate > limit - 1) coordinate %= limit;
+    return coordinate;
+}
+
+inline void SetChoiceCursorPosition(MessageTextCursor * input, u32 column, u32 row)
+{
+    register MessageTextCursor * cursor asm("r5") = input;
+    cursor->row = WrapChoiceCoordinate(row, 3);
+    asm ("" : : "r" (cursor));
+    cursor->column = WrapChoiceCoordinate(column, 28);
+    cursor->needsClear = 0;
+}
+
+inline void FlushChoiceText(MessageScript & script, MessageTextCursor * cursor)
+{
+    register MessageTextCursor * activeCursor asm("r6") = cursor;
+    asm ("" : "+r" (activeCursor));
+    register MessageScript * activeScript asm("r5") = &script;
+    asm ("" : "+r" (activeScript));
+    register void * methods asm("r4") = vtable_unk_080E78F0;
+    asm ("" : "+r" (methods));
+    u32 result;
+    do
+    {
+        MessageChoicePrintContext context;
+        context.vtable = methods;
+        result = UpdateMessageScript(*activeScript, activeCursor, &context);
+        context.vtable = methods;
+    } while (result == 1);
+}
+
+EC SECTION(".text.message_window.080507F8") void DrawMessageChoiceText(MessageWindowState * window, const u8 & position, const char * text, const void * substitutions)
+{
+    asm ("" : : "r" (window));
+    const MessageChoicePosition & cell = reinterpret_cast<const MessageChoicePosition &>(position);
+    u32 column = cell.column;
+    u32 row = cell.row;
+    register MessageTextCursor * cursor asm("r5") = &window->textCursor;
+    SetChoiceCursorPosition(cursor, column, row);
+    MessageScript & script = *reinterpret_cast<MessageScript *>(window->textParser);
+    StartMessageScript(script, text, substitutions);
+    FlushChoiceText(script, cursor);
+}
+
 EC SECTION(".text.message_window.080507D0") u32 GetMessageChoicePosition(u32 layout, u32 choice) // 0x080507D0
 {
     if (layout > 7) layout = 0;
