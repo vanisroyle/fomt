@@ -570,6 +570,36 @@ EC void FarmerEntity_ConsumePowerBerry(FarmerEntity * self)
     self->consume_animation_active = true;
 }
 
+struct FarmerActionItemSpriteGameVTable
+{
+    STRUCT_PAD(0x00, 0x68);
+    void * (*vfunc_68)(GameObject * game);
+};
+
+// 0x08026D14
+EC void FarmerEntity_StartHeldItemAnimation(FarmerEntity * self, u16 animation_id) ENTITY_CODE(08026D14);
+EC void FarmerEntity_StartHeldItemAnimation(FarmerEntity * self, u16 animation_id)
+{
+    self->state = 17;
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->active = true;
+    motion->display_mode = 0;
+    LaunchFarmerHeldItem(self);
+    FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+    if (sprite != nullptr)
+    {
+        GameObject * game = sprite->entity->game_object;
+        FarmerActionItemSpriteGameVTable const * table = *reinterpret_cast<FarmerActionItemSpriteGameVTable const **>(game);
+        void * graphics = table->vfunc_68(game);
+        func_0805E850(&sprite->animator, graphics, animation_id);
+        sprite->unk_C8 = true;
+        sprite->unk_CA = false;
+        sprite->unk_CB = true;
+    }
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    self->consume_animation_active = true;
+}
+
 // 0x0802771C
 EC void func_0802771C(FarmerEntity * self, u32 amount) ENTITY_CODE(0802771C);
 EC void func_0802771C(FarmerEntity * self, u32 amount)
