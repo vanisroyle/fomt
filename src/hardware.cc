@@ -567,6 +567,27 @@ EC u32 SECTION(".text.TileHandle_GetOrder") TileHandle_GetOrder(TileHeapOwner * 
     return 11;
 }
 
+// 0x08007E24
+EC u32 SECTION(".text.TileHandle_GetRefCount") TileHandle_GetRefCount(TileHeapOwner * self, u32 handle)
+{
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            if (generation_matches)
+                return entry->params.ref_count;
+        }
+    }
+    return 0;
+}
+
 // 0x080079E8
 EC void SECTION(".text.TileHeapOwner_Destroy") TileHeapOwner_Destroy(TileHeapOwner * self, u32 destructor_flags)
 {
@@ -614,7 +635,7 @@ EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self
 
 EC TileHeapOwner * func_08007874(TileHeapOwner *);
 EC void TileHandle_Release(TileHeapOwner *, u32);
-EC u32 func_08007E24(TileHeapOwner *, u32);
+EC u32 TileHandle_GetRefCount(TileHeapOwner *, u32);
 EC u32 TileHandle_Retain(TileHeapOwner *, u32);
 EC u32 func_08007B54(TileHeapOwner *, u32);
 
@@ -660,7 +681,7 @@ EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHand
                 TileHandleValue * candidate = next;
                 if (++next == end)
                     next = bucket->begin;
-                if (func_08007E24(&candidate->owner, candidate->handle) == 1)
+                if (TileHandle_GetRefCount(&candidate->owner, candidate->handle) == 1)
                 {
                     bucket->cursor = next;
                     next = candidate;
