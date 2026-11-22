@@ -1,7 +1,6 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
 
-
 .section .text.g5_after_080C8550, "ax"
 
 	thumb_func_start func_080C85A0
@@ -582,7 +581,7 @@ func_080C85A0: @ 0x080C85A0
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r2, r0, #0
 	str r4, [sp, #0x138]
 	ldr r1, .L080C8A84 @ =gUnk_0875300C
@@ -839,7 +838,7 @@ func_080C85A0: @ 0x080C85A0
 	lsls r6, r6, #2
 	adds r0, r7, r6
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x74]
 	movs r3, #0
@@ -1026,7 +1025,7 @@ func_080C85A0: @ 0x080C85A0
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r2, r0, #0
 	ldr r0, [r6]
 	movs r3, #0
@@ -1206,7 +1205,7 @@ func_080C85A0: @ 0x080C85A0
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r2, r0, #0
 	ldr r0, [r6]
 	movs r3, #0
@@ -2315,7 +2314,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	str r0, [sp]
 	movs r0, #0
 	str r0, [sp, #4]
@@ -2840,7 +2839,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r5, r5, #2
 	adds r0, r0, r5
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	mov sb, r0
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -3001,7 +3000,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r1, r1, #2
 	adds r0, r0, r1
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	mov sb, r0
 .L080C9C08:
 	ldr r2, [sp, #0xc8]
@@ -3275,7 +3274,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #4]
 	movs r5, #0xd9
@@ -3516,7 +3515,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #4]
 	movs r5, #0xdd
@@ -3758,7 +3757,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #4]
 	movs r5, #0xdf
@@ -3991,7 +3990,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #4]
 	movs r4, #0xe5
@@ -4232,7 +4231,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #4]
 	movs r4, #0xe3
@@ -6975,7 +6974,7 @@ func_080CC15C: @ 0x080CC15C
 	adds r4, r4, r1
 	ldr r1, [r6]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -6986,7 +6985,7 @@ func_080CC15C: @ 0x080CC15C
 	adds r5, r5, r4
 	ldr r1, [r6, #0x40]
 	adds r0, r5, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r5, #0
 	bl func_0800736C
 	str r0, [r6, #0x40]
@@ -7004,7 +7003,7 @@ func_080CC15C: @ 0x080CC15C
 	adds r4, r7, r5
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007C28
+	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -7014,7 +7013,7 @@ func_080CC15C: @ 0x080CC15C
 	adds r4, r7, r6
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080073E0
+	bl ResourceHandle_Release
 	adds r0, r4, #0
 	bl func_0800736C
 	str r0, [r4, #4]
@@ -7432,7 +7431,7 @@ func_080CC58C: @ 0x080CC58C
 	mov r2, sb
 	ldr r1, [r2, #0x40]
 	adds r0, r4, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	str r0, [sp]
 	movs r0, #1
 	str r0, [sp, #4]
@@ -7508,7 +7507,7 @@ func_080CC58C: @ 0x080CC58C
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	str r0, [sp]
 	movs r0, #1
 	str r0, [sp, #4]
@@ -7596,7 +7595,7 @@ func_080CC728: @ 0x080CC728
 	adds r4, r4, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	str r0, [sp, #0x3c]
 	lsls r5, r5, #2
 	ldr r0, .L080CC7EC @ =gInventorySlotCountPositions
@@ -8008,7 +8007,7 @@ func_080CCA40: @ 0x080CCA40
 	adds r4, r4, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	str r0, [sp, #0x34]
 	lsls r5, r5, #2
 	ldr r0, .L080CCAF4 @ =gInventorySlotCountPositions
@@ -8411,7 +8410,7 @@ func_080CCE58: @ 0x080CCE58
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	str r0, [sp, #0x34]
 	ldr r1, [r5, #4]
 	movs r0, #0x9e
@@ -8811,7 +8810,7 @@ func_080CD14C: @ 0x080CD14C
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	str r0, [sp, #0x34]
 	ldr r1, [r5, #4]
 	movs r0, #0x9e
@@ -9837,7 +9836,7 @@ func_080CDDD4: @ 0x080CDDD4
 	adds r4, #0x1c
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	mov r1, sp
 	strh r0, [r1, #4]
 	adds r6, r7, #0
@@ -10036,7 +10035,7 @@ func_080CDDD4: @ 0x080CDDD4
 	ldr r7, [sp, #0x60]
 	ldr r1, [r7, #4]
 	adds r0, r7, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x2c]
 	movs r3, #0
@@ -10336,7 +10335,7 @@ func_080CE598: @ 0x080CE598
 	adds r0, r6, #0
 	adds r0, #0x14
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x1c]
 	movs r3, #0
@@ -10650,7 +10649,7 @@ func_080CE790: @ 0x080CE790
 	adds r0, r6, #0
 	adds r0, #0x14
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	mov r1, sp
 	strh r0, [r1, #4]
 	adds r5, r6, #4
@@ -10892,7 +10891,7 @@ func_080CE790: @ 0x080CE790
 	adds r0, r6, #0
 	adds r0, #0x14
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	mov r1, sp
 	strh r0, [r1, #4]
 	adds r5, r6, #0
@@ -11198,7 +11197,7 @@ func_080CECE8: @ 0x080CECE8
 	adds r4, #0x74
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	strh r0, [r6, #4]
 	mov r7, r8
 	adds r7, #0x6c
@@ -11392,7 +11391,7 @@ func_080CECE8: @ 0x080CECE8
 	ldr r2, [sp, #0x5c]
 	ldr r1, [r2, #4]
 	adds r0, r2, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x10]
 	movs r3, #0

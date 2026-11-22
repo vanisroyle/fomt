@@ -939,6 +939,882 @@ done:
     return 1;
 }
 
+EC u32 AudioPlayerIsPlayingRaw(void *) asm("AudioPlayer_IsPlaying");
+
+EC void BeginFarmerHeldItemThrow(FarmerEntity *) ENTITY_CODE(080299EC);
+EC void BeginFarmerHeldItemThrow(FarmerEntity * farmer)
+{
+    register FarmerEntity * self asm("r6") = farmer;
+    register bool * item_override asm("r1") = &self->item_animation_override;
+    asm volatile("" : : "r"(self), "r"(item_override));
+    *item_override = true;
+    RefreshFarmerHeldItemDisplay(self);
+    u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+    asm volatile("" : "+r"(empty));
+    register u8 * state asm("r8");
+    u16 * icon_field;
+    register bool * animation_active asm("sl");
+    if (!empty)
+    {
+        GameObject * game = self->game_object;
+        EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+        register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1") = table->get_channels;
+        asm volatile("" : : "r"(get_channels));
+        EntitySoundChannels const * channels = get_channels(game);
+        register void ** channel asm("r4") = channels->begin;
+        register void ** last asm("r5") = channels->end;
+        asm volatile("" : : "r"(channel), "r"(last));
+        state = &self->state;
+        asm volatile("" : "+r"(state));
+        register u8 const * facing_field asm("sb") = &self->facing;
+        asm volatile("" : "+r"(facing_field));
+        icon_field = &self->icon;
+        asm volatile("" : "+r"(icon_field));
+        {
+            register u32 offset asm("r1") = 0xC0;
+            asm volatile("" : "+r"(offset));
+            bool * active_ptr = reinterpret_cast<bool *>(offset + reinterpret_cast<u8 *>(self));
+
+            animation_active = active_ptr;
+            asm volatile("" : "+r"(animation_active));
+        }
+        register u32 zero asm("r4");
+        void * selected;
+        if (channel != last)
+        {
+            do
+            {
+                u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                asm volatile("" : "+r"(playing));
+                if (!playing)
+                    goto have_channel;
+                ++channel;
+            } while (channel != last);
+        }
+        {
+            register void ** previous asm("r0") = last - 1;
+            asm volatile("" : "+r"(previous));
+            selected = *previous;
+        }
+    start_sound:
+        AudioPlayer_StartSong(selected, 106);
+        zero = 0;
+        asm volatile("" : "+r"(zero));
+        {
+            register u32 throwing asm("r0") = 17;
+            asm volatile("" : "+r"(throwing));
+            register u8 * state_dest asm("r2") = state;
+            asm volatile("" : "+r"(state_dest));
+            *state_dest = throwing;
+        }
+        {
+            register u8 const * direction_ptr asm("r0");
+            u32 direction;
+            direction_ptr = facing_field;
+            asm volatile("" : : "r"(direction_ptr));
+            direction = *direction_ptr;
+            asm volatile("" : "+r"(direction));
+            register ThrownItemMotion * thrown asm("r0");
+            register i32 speed asm("r1");
+            register i32 rise asm("r2");
+            if (static_cast<i32>(direction) == FACING_UP)
+                goto up;
+            asm volatile("" : "+r"(direction));
+            if (static_cast<i32>(direction) > FACING_UP)
+                goto horizontal_direction;
+            asm volatile("" : "+r"(direction));
+            if (direction == FACING_DOWN)
+                goto down;
+            goto select_animation;
+        have_channel:
+            selected = *channel;
+            goto start_sound;
+        horizontal_direction:
+            if (direction == FACING_LEFT)
+                goto left;
+            if (direction == FACING_RIGHT)
+                goto right;
+            goto select_animation;
+        left:
+                thrown = &self->thrown_item;
+                speed = -10 * 65536;
+                asm volatile("" : : "r"(thrown), "r"(speed));
+                goto horizontal;
+        right:
+                thrown = &self->thrown_item;
+                speed = 10 * 65536;
+                asm volatile("" : : "r"(thrown), "r"(speed));
+            horizontal:
+                rise = 12 * 65536;
+                asm volatile("" : : "r"(rise));
+                thrown->x_speed = speed;
+                thrown->y_speed = zero;
+                thrown->z_speed = rise;
+                goto select_animation;
+        up:
+                thrown = &self->thrown_item;
+                speed = -10 * 65536;
+                rise = 12 * 65536;
+                asm volatile("" : : "r"(thrown), "r"(speed), "r"(rise));
+                thrown->x_speed = zero;
+                goto vertical;
+        down:
+                thrown = &self->thrown_item;
+                speed = 10 * 65536;
+                rise = 12 * 65536;
+                asm volatile("" : : "r"(thrown), "r"(speed), "r"(rise));
+                thrown->x_speed = direction;
+            vertical:
+                thrown->y_speed = speed;
+                thrown->z_speed = rise;
+                goto select_animation;
+        }
+        goto select_animation;
+    }
+    {
+        register u8 * state_ptr asm("r1") = &self->state;
+        asm volatile("" : : "r"(state_ptr));
+        *state_ptr = 0;
+        state = state_ptr;
+        asm volatile("" : "+r"(state));
+        icon_field = &self->icon;
+        asm volatile("" : "+r"(icon_field));
+        {
+            register u32 offset asm("r1") = 0xC0;
+            asm volatile("" : "+r"(offset));
+            bool * active_ptr = reinterpret_cast<bool *>(offset + reinterpret_cast<u8 *>(self));
+
+            animation_active = active_ptr;
+            asm volatile("" : "+r"(animation_active));
+        }
+    }
+select_animation:
+    register u32 animation asm("r5") = FARMER_IDLE_ANIMATION;
+    asm volatile("" : : "r"(animation), "r"(icon_field));
+    register u32 hidden asm("r0") = 0xFFFF;
+    asm volatile("" : : "r"(hidden));
+    *static_cast<volatile u16 *>(icon_field) = hidden;
+    register u8 const * state_address asm("r2") = state;
+    asm volatile("" : : "r"(state_address));
+    u32 state_code = *state_address;
+    register AActorEntity * horse asm("r2");
+    register u32 horse_animation asm("r1");
+    typedef u8 EncodedTool;
+    register EncodedTool * stored_tool_id asm("r0");
+    register u32 tool_id asm("r1");
+    Tool * icon_tool;
+    register u8 const * previous_tool_step asm("r2");
+    register u8 const * current_tool_step asm("r1");
+    EncodedTool tool_values[8];
+    switch (state_code)
+    {
+    case 0:
+        if (!func_0800F190(&self->farmer->unk_54))
+        {
+            i32 motion = self->motion;
+            asm volatile("" : "+r"(motion) : "r"(self));
+            switch (motion)
+            {
+            case 1: goto hold_walk;
+            case 0: goto hold_still;
+            case 2: animation = 0x14E; goto done;
+            default: goto done;
+            }
+        }
+        else
+        {
+            i32 motion = self->motion;
+            asm volatile("" : "+r"(motion) : "r"(self));
+            register u32 motion_animation asm("r1");
+            switch (motion)
+            {
+            case 0: goto standing;
+            case 1:
+                {
+                    u32 footstep = self->unk_B3;
+                    asm volatile("" : : "r"(footstep), "r"(self));
+                    motion_animation = 0x132;
+                    asm volatile("" : "+r"(motion_animation));
+                    asm volatile("" : "+r"(footstep) : "r"(motion_animation));
+                    if (!footstep)
+                        motion_animation += 0x94;
+                    goto set_motion_animation;
+                }
+            case 2:
+                {
+                    u32 footstep = self->unk_B3;
+                    asm volatile("" : : "r"(footstep), "r"(self));
+                    motion_animation = 0x132;
+                    asm volatile("" : "+r"(motion_animation));
+                    asm volatile("" : "+r"(footstep) : "r"(motion_animation));
+                    if (!footstep)
+                        motion_animation += 0x2C;
+                }
+            set_motion_animation:
+                animation = motion_animation;
+                goto done;
+            default: goto done;
+            }
+        }
+    case 2:
+        if (!func_0800F190(&self->farmer->unk_54))
+            goto hold_still;
+        {
+            register i32 tool_state asm("r3") = self->tool_state;
+            asm volatile("" : "+r"(tool_state));
+            if (tool_state > 5)
+                goto standing;
+            asm volatile("" : "+r"(tool_state));
+            if (tool_state < 0)
+                goto standing;
+            register u16 const * animations asm("r2") = &FarmerToolLevelAnimations[0][0];
+            asm volatile("" : : "r"(animations));
+            register u8 const * level_address asm("r1") = &self->tool_level;
+            asm volatile("" : : "r"(level_address));
+            register i32 row asm("r0") = tool_state * 7;
+            asm volatile("" : : "r"(row));
+            animation = animations[row + *level_address];
+        }
+        {
+            Farmer * inventory = self->farmer;
+            register u32 id asm("r0") = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            register u8 * stored_tool asm("r1") = &tool_values[0];
+            asm volatile("" : : "r"(stored_tool), "r"(id));
+            *stored_tool = id;
+            stored_tool_id = &tool_values[0];
+            goto update_tool_icon;
+        }
+    case 4:
+        animation = FARMER_IDLE_ANIMATION;
+        {
+            u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+            asm volatile("" : "+r"(empty));
+            animation = FARMER_IDLE_ANIMATION;
+            asm volatile("" : "+r"(animation));
+            asm volatile("" : "+r"(empty) : "r"(animation));
+            if (!empty)
+            { asm volatile(""); goto hold_still; }
+            goto done;
+        }
+    case 1: case 3: case 5:
+        {
+            u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+            asm volatile("" : "+r"(empty));
+            animation = FARMER_IDLE_ANIMATION;
+            asm volatile("" : "+r"(animation));
+            asm volatile("" : "+r"(empty) : "r"(animation));
+            if (!empty)
+                { animation -= 0x40; asm volatile("" : "+r"(animation)); }
+            break;
+        }
+    case 0xD: animation = 0x136; break;
+    case 0xB: case 0xC: case 0xE: animation = 0x19E; break;
+    case 0xF: animation = 0x4E; break;
+    case 0x10: animation = 0x46; break;
+    case 0x13: animation = 0x13E; break;
+    case 0x14: animation = 0x142; break;
+    case 9:
+        animation = self->unk_44;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[1];
+            goto store_tool_id;
+        }
+    case 0x1B:
+        animation = 0x1EA;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[2];
+            goto store_tool_id;
+        }
+    case 0x1C: case 0x1D:
+        {
+            previous_tool_step = reinterpret_cast<u8 const *>(self) + 0x4E;
+            asm volatile("" : "+r"(previous_tool_step));
+            current_tool_step = reinterpret_cast<u8 const *>(self) + 0x4F;
+            asm volatile("" : "+r"(current_tool_step));
+            if (*previous_tool_step == *current_tool_step)
+            {
+            standing:
+                animation = FARMER_IDLE_ANIMATION;
+                goto done;
+            }
+            {
+                register u32 new_frame asm("r0") = *current_tool_step;
+                asm volatile("" : : "r"(new_frame));
+                register u32 last_frame asm("r1") = *previous_tool_step;
+                asm volatile("" : : "r"(last_frame), "r"(new_frame));
+                register i32 delta asm("r0") = new_frame - last_frame;
+                asm volatile("" : : "r"(delta));
+                animation = 0x182;
+                asm volatile("" : "+r"(animation));
+                if (delta == 1) animation += 4;
+            }
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[3];
+            goto store_tool_id;
+        }
+    case 0x1E:
+        animation = 0x76;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[4];
+            goto store_tool_id;
+        }
+    case 0x1F:
+        animation = 0x6E;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[5];
+            goto store_tool_id;
+        }
+    case 0x20:
+        animation = 0x72;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[6];
+            goto store_tool_id;
+        }
+    store_tool_id:
+        *stored_tool_id = tool_id;
+    update_tool_icon:
+        icon_tool = reinterpret_cast<Tool *>(stored_tool_id);
+        {
+            register u32 icon_id asm("r0") = ReadFarmerToolIconRaw(icon_tool);
+            asm volatile("" : : "r"(icon_id));
+            *icon_field = icon_id;
+        }
+        goto done;
+    case 0x16: animation = 0x1FA; break;
+    case 0x17: animation = 0x196; break;
+    case 6: animation = 0x112; break;
+    case 0x18: animation = 0x116; break;
+    case 7:
+        {
+            GameObject * game = self->game_object;
+            FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            horse = static_cast<AActorEntity *>(get_entity(game, 0x2C));
+            register u8 const * motion_address asm("r0") = &self->motion;
+            asm volatile("" : : "r"(motion_address), "r"(horse));
+            i32 motion = *motion_address;
+            asm volatile("" : "+r"(motion) : "r"(horse));
+            switch (motion)
+            {
+            case 0: animation = 0xEA; horse_animation = 0x77A; asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation)); goto update_horse_animation;
+            case 1: animation = 0xEE; horse_animation = 0x77E; asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation)); goto update_horse_animation;
+            case 2: animation = 0xE6; horse_animation = 0x782; asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation)); goto update_horse_animation;
+            }
+            break;
+        }
+    case 0x22:
+        animation = 0x15A;
+        {
+            GameObject * game = self->game_object;
+            FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            horse = static_cast<AActorEntity *>(get_entity(game, 0x2C));
+            horse_animation = 0x77A;
+            asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation));
+            goto update_horse_animation;
+        }
+    case 0x23:
+        animation = 0x9A;
+        {
+            GameObject * game = self->game_object;
+            FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            horse = static_cast<AActorEntity *>(get_entity(game, 0x2C));
+            horse_animation = 0x77A;
+            asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation));
+            goto update_horse_animation;
+        }
+    case 0x24: animation = 0x106; break;
+    case 0x25: animation = 0x102; break;
+    case 0x26: animation = 0xFE; break;
+    case 0x27: animation = 0xFA; break;
+    case 0x28: animation = 0x122; break;
+    case 0x29: animation = 0x11E; break;
+    case 0x2A: case 0x2B: animation = 0x11A; break;
+    case 0x2C:
+        {
+            u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+            asm volatile("" : "+r"(empty));
+            animation = 0x14A;
+            asm volatile("" : "+r"(animation));
+            asm volatile("" : "+r"(empty) : "r"(animation));
+            if (empty)
+                { animation -= 0x40; asm volatile("" : "+r"(animation)); }
+            break;
+        }
+    case 0x2D:
+        animation = 0xE2;
+        {
+            GameObject * game = self->game_object;
+            FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            horse = static_cast<AActorEntity *>(get_entity(game, 0x2C));
+            horse_animation = 0x792;
+            asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation));
+            goto update_horse_animation;
+        }
+    update_horse_animation:
+        if (horse->anim_id != horse_animation)
+            horse->SetAnim(horse_animation);
+        goto done;
+    case 0x2E: animation = 0x3E; break;
+    case 0x11: case 0x21: case 0x31: case 0x36: case 0x37: animation = 0x146; break;
+    case 0x19: case 0x1A: goto standing;
+    case 0x30: case 0x32: case 0x38: case 0x39:
+    hold_still:
+        animation = 0x152;
+        goto done;
+    case 0x12: case 0x33: animation = 0x13A; break;
+    case 0xA: case 0x15: case 0x2F: case 0x34: animation = 0x42; break;
+    case 0x35:
+        {
+            u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+            asm volatile("" : "+r"(empty));
+            animation = 0x1C6;
+            asm volatile("" : "+r"(animation));
+            asm volatile("" : "+r"(empty) : "r"(animation));
+            if (!empty)
+                goto hold_walk;
+            goto done;
+        }
+    hold_walk:
+        animation = 0x156;
+        goto done;
+    case 8:
+        {
+            u32 variant = self->unk_3D;
+            asm volatile("" : : "r"(variant), "r"(self));
+            animation = 0xF6;
+            asm volatile("" : "+r"(animation), "+r"(variant));
+            if (variant)
+                animation = 0xF2;
+            goto done;
+        }
+    default:
+        break;
+    }
+    goto done;
+done:
+    asm volatile("" : : "r"(animation));
+    self->SetAnim(static_cast<u16>(animation));
+    register u32 active asm("r0") = 1;
+    asm volatile("" : : "r"(active));
+    register bool * active_flag asm("r1") = animation_active;
+    asm volatile("" : "+r"(active_flag));
+    *active_flag = active;
+}
+
+EC void InitFarmerToolRaw(Tool *, u32) asm("__4ToolUi");
+
+EC void BeginFarmerToolDisplayAnimation(FarmerEntity *, u32) ENTITY_CODE(08029F30);
+EC void BeginFarmerToolDisplayAnimation(FarmerEntity * farmer, u32 display_tool_id)
+{
+    register FarmerEntity * self asm("r6") = farmer;
+    register u32 tool_kind asm("r3") = display_tool_id;
+    asm volatile("" : : "r"(self), "r"(tool_kind));
+    register bool * override_animation asm("r0") = &farmer->item_animation_override;
+    register u32 zero asm("r8") = 0;
+    asm volatile("" : "+r"(zero) : "r"(override_animation));
+    typedef u8 EncodedTool;
+    u32 tool_values_storage[2];
+    register EncodedTool * tool_values asm("sp");
+    asm volatile("" : "=r"(tool_values), "+m"(tool_values_storage));
+    register u32 active asm("r7") = 1;
+    asm volatile("" : "+r"(active));
+    *reinterpret_cast<u8 *>(override_animation) = active;
+    register ThrownItemMotion * thrown asm("r0") = reinterpret_cast<ThrownItemMotion *>(reinterpret_cast<u8 *>(override_animation) - 0x1C);
+    asm volatile("" : "+r"(thrown));
+    *reinterpret_cast<u8 *>(thrown) = active;
+    register u32 display_mode asm("r1") = zero;
+    asm volatile("" : : "r"(display_mode));
+    thrown->display_mode = display_mode;
+    register i32 x_speed asm("r1") = -8 * 65536;
+    register i32 z_speed asm("r2") = 17 * 65536;
+    asm volatile("" : : "r"(x_speed), "r"(z_speed));
+    thrown->x_speed = x_speed;
+    display_mode = zero;
+    asm volatile("" : : "r"(display_mode));
+    thrown->y_speed = display_mode;
+    thrown->z_speed = z_speed;
+    register FarmerIconGraphics * graphics asm("r5") = static_cast<FarmerIconGraphics *>(self->unk_10.Get());
+    asm volatile("" : "+r"(graphics));
+    if (graphics)
+    {
+        register Tool * icon asm("r0");
+        icon = reinterpret_cast<Tool *>(tool_values);
+        InitFarmerToolRaw(icon, tool_kind);
+        icon = reinterpret_cast<Tool *>(tool_values);
+        asm volatile("" : "+r"(icon));
+        register u32 frame asm("r4") = ReadFarmerToolIconRaw(icon);
+        asm volatile("" : "+r"(frame));
+        frame = static_cast<u16>(frame);
+        asm volatile("" : : "r"(frame));
+        void * sprites = FarmerItemSprites(graphics);
+        func_0805E850(&graphics->icon_animator, sprites, frame);
+        register u8 * flags asm("r0") = reinterpret_cast<u8 *>(&graphics->icon_state);
+        asm volatile("" : "+r"(flags));
+        *flags = active;
+        flags += 2;
+        register u32 stopped asm("r3") = zero;
+        asm volatile("" : : "r"(stopped));
+        *flags = stopped;
+        flags += 1;
+        asm volatile("" : "+r"(flags));
+        *flags = active;
+    }
+    register u8 * state asm("r3") = &self->state;
+    asm volatile("" : "+r"(state));
+    register u32 displaying_tool asm("r0") = 0x34;
+    asm volatile("" : "+r"(displaying_tool));
+    *state = displaying_tool;
+    register u8 * delay asm("r2") = &self->unk_3D;
+    asm volatile("" : "+r"(delay));
+    register u32 display_delay asm("r0") = 120;
+    asm volatile("" : "+r"(display_delay));
+    *delay = display_delay;
+    register u32 animation asm("r5") = FARMER_IDLE_ANIMATION;
+    asm volatile("" : "+r"(animation));
+    register u16 * icon_address asm("r1") = &self->icon;
+    asm volatile("" : "+r"(icon_address));
+    register u32 hidden asm("r0") = 0xFFFF;
+    asm volatile("" : "+r"(hidden));
+    *icon_address = hidden;
+    register u32 state_code asm("r0") = *state;
+    asm volatile("" : "+r"(state_code));
+    u16 * icon_field = icon_address;
+    asm volatile("" : "+r"(icon_field) : "r"(state_code));
+    register AActorEntity * horse asm("r2");
+    register u32 horse_animation asm("r1");
+    register EncodedTool * stored_tool_id asm("r0");
+    register u32 tool_id asm("r1");
+    Tool * icon_tool;
+    register u8 const * previous_tool_step asm("r2");
+    register u8 const * current_tool_step asm("r1");
+
+    switch (state_code)
+    {
+    case 0:
+        if (!func_0800F190(&self->farmer->unk_54))
+        {
+            i32 motion = self->motion;
+            asm volatile("" : "+r"(motion) : "r"(self));
+            switch (motion)
+            {
+            case 1: goto hold_walk;
+            case 0: goto hold_still;
+            case 2: animation = 0x14E; goto done;
+            default: goto done;
+            }
+        }
+        else
+        {
+            i32 motion = self->motion;
+            asm volatile("" : "+r"(motion) : "r"(self));
+            register u32 motion_animation asm("r1");
+            switch (motion)
+            {
+            case 0: goto standing;
+            case 1:
+                {
+                    u32 footstep = self->unk_B3;
+                    asm volatile("" : : "r"(footstep), "r"(self));
+                    motion_animation = 0x132;
+                    asm volatile("" : "+r"(motion_animation));
+                    asm volatile("" : "+r"(footstep) : "r"(motion_animation));
+                    if (!footstep)
+                        motion_animation += 0x94;
+                    goto set_motion_animation;
+                }
+            case 2:
+                {
+                    u32 footstep = self->unk_B3;
+                    asm volatile("" : : "r"(footstep), "r"(self));
+                    motion_animation = 0x132;
+                    asm volatile("" : "+r"(motion_animation));
+                    asm volatile("" : "+r"(footstep) : "r"(motion_animation));
+                    if (!footstep)
+                        motion_animation += 0x2C;
+                }
+            set_motion_animation:
+                animation = motion_animation;
+                goto done;
+            default: goto done;
+            }
+        }
+    case 2:
+        if (!func_0800F190(&self->farmer->unk_54))
+            goto hold_still;
+        {
+            register i32 tool_state asm("r3") = self->tool_state;
+            asm volatile("" : "+r"(tool_state));
+            if (tool_state > 5)
+                goto standing;
+            asm volatile("" : "+r"(tool_state));
+            if (tool_state < 0)
+                goto standing;
+            register u16 const * animations asm("r2") = &FarmerToolLevelAnimations[0][0];
+            asm volatile("" : : "r"(animations));
+            register u8 const * level_address asm("r1") = &self->tool_level;
+            asm volatile("" : : "r"(level_address));
+            register i32 row asm("r0") = tool_state * 7;
+            asm volatile("" : : "r"(row));
+            animation = animations[row + *level_address];
+        }
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[1];
+            goto store_tool_id;
+        }
+    case 4:
+        animation = FARMER_IDLE_ANIMATION;
+        {
+            u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+            asm volatile("" : "+r"(empty));
+            animation = FARMER_IDLE_ANIMATION;
+            asm volatile("" : "+r"(animation));
+            asm volatile("" : "+r"(empty) : "r"(animation));
+            if (!empty)
+            { asm volatile(""); goto hold_still; }
+            goto done;
+        }
+    case 1: case 3: case 5:
+        {
+            u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+            asm volatile("" : "+r"(empty));
+            animation = FARMER_IDLE_ANIMATION;
+            asm volatile("" : "+r"(animation));
+            asm volatile("" : "+r"(empty) : "r"(animation));
+            if (!empty)
+                { animation -= 0x40; asm volatile("" : "+r"(animation)); }
+            break;
+        }
+    case 0xD: animation = 0x136; break;
+    case 0xB: case 0xC: case 0xE: animation = 0x19E; break;
+    case 0xF: animation = 0x4E; break;
+    case 0x10: animation = 0x46; break;
+    case 0x13: animation = 0x13E; break;
+    case 0x14: animation = 0x142; break;
+    case 9:
+        animation = self->unk_44;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[2];
+            goto store_tool_id;
+        }
+    case 0x1B:
+        animation = 0x1EA;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[3];
+            goto store_tool_id;
+        }
+    case 0x1C: case 0x1D:
+        {
+            previous_tool_step = reinterpret_cast<u8 const *>(self) + 0x4E;
+            asm volatile("" : "+r"(previous_tool_step));
+            current_tool_step = reinterpret_cast<u8 const *>(self) + 0x4F;
+            asm volatile("" : "+r"(current_tool_step));
+            if (*previous_tool_step == *current_tool_step)
+            {
+            standing:
+                animation = FARMER_IDLE_ANIMATION;
+                goto done;
+            }
+            {
+                register u32 new_frame asm("r0") = *current_tool_step;
+                asm volatile("" : : "r"(new_frame));
+                register u32 last_frame asm("r1") = *previous_tool_step;
+                asm volatile("" : : "r"(last_frame), "r"(new_frame));
+                register i32 delta asm("r0") = new_frame - last_frame;
+                asm volatile("" : : "r"(delta));
+                animation = 0x182;
+                asm volatile("" : "+r"(animation));
+                if (delta == 1) animation += 4;
+            }
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[4];
+            goto store_tool_id;
+        }
+    case 0x1E:
+        animation = 0x76;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[5];
+            goto store_tool_id;
+        }
+    case 0x1F:
+        animation = 0x6E;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[6];
+            goto store_tool_id;
+        }
+    case 0x20:
+        animation = 0x72;
+        {
+            Farmer * inventory = self->farmer;
+            tool_id = ReadResolvedToolIdRaw(*inventory, inventory->unk_5C.GetTool());
+            stored_tool_id = &tool_values[7];
+            goto store_tool_id;
+        }
+    store_tool_id:
+        *stored_tool_id = tool_id;
+    update_tool_icon:
+        icon_tool = reinterpret_cast<Tool *>(stored_tool_id);
+        {
+            register u32 icon_id asm("r0") = ReadFarmerToolIconRaw(icon_tool);
+            asm volatile("" : : "r"(icon_id));
+            *icon_field = icon_id;
+        }
+        goto done;
+    case 0x16: animation = 0x1FA; break;
+    case 0x17: animation = 0x196; break;
+    case 6: animation = 0x112; break;
+    case 0x18: animation = 0x116; break;
+    case 7:
+        {
+            GameObject * game = self->game_object;
+            FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            horse = static_cast<AActorEntity *>(get_entity(game, 0x2C));
+            register u8 const * motion_address asm("r0") = &self->motion;
+            asm volatile("" : : "r"(motion_address), "r"(horse));
+            i32 motion = *motion_address;
+            asm volatile("" : "+r"(motion) : "r"(horse));
+            switch (motion)
+            {
+            case 0: animation = 0xEA; horse_animation = 0x77A; asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation)); goto update_horse_animation;
+            case 1: animation = 0xEE; horse_animation = 0x77E; asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation)); goto update_horse_animation;
+            case 2: animation = 0xE6; horse_animation = 0x782; asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation)); goto update_horse_animation;
+            }
+            break;
+        }
+    case 0x22:
+        animation = 0x15A;
+        {
+            GameObject * game = self->game_object;
+            FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            horse = static_cast<AActorEntity *>(get_entity(game, 0x2C));
+            horse_animation = 0x77A;
+            asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation));
+            goto update_horse_animation;
+        }
+    case 0x23:
+        animation = 0x9A;
+        {
+            GameObject * game = self->game_object;
+            FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            horse = static_cast<AActorEntity *>(get_entity(game, 0x2C));
+            horse_animation = 0x77A;
+            asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation));
+            goto update_horse_animation;
+        }
+    case 0x24: animation = 0x106; break;
+    case 0x25: animation = 0x102; break;
+    case 0x26: animation = 0xFE; break;
+    case 0x27: animation = 0xFA; break;
+    case 0x28: animation = 0x122; break;
+    case 0x29: animation = 0x11E; break;
+    case 0x2A: case 0x2B: animation = 0x11A; break;
+    case 0x2C:
+        {
+            u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+            asm volatile("" : "+r"(empty));
+            animation = 0x14A;
+            asm volatile("" : "+r"(animation));
+            asm volatile("" : "+r"(empty) : "r"(animation));
+            if (empty)
+                { animation -= 0x40; asm volatile("" : "+r"(animation)); }
+            break;
+        }
+    case 0x2D:
+        animation = 0xE2;
+        {
+            GameObject * game = self->game_object;
+            FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            horse = static_cast<AActorEntity *>(get_entity(game, 0x2C));
+            horse_animation = 0x792;
+            asm volatile("" : : "r"(horse), "r"(horse_animation), "r"(animation));
+            goto update_horse_animation;
+        }
+    update_horse_animation:
+        if (horse->anim_id != horse_animation)
+            horse->SetAnim(horse_animation);
+        goto done;
+    case 0x2E: animation = 0x3E; break;
+    case 0x11: case 0x21: case 0x31: case 0x36: case 0x37: animation = 0x146; break;
+    case 0x19: case 0x1A: goto standing;
+    case 0x30: case 0x32: case 0x38: case 0x39:
+    hold_still:
+        animation = 0x152;
+        goto done;
+    case 0x12: case 0x33: animation = 0x13A; break;
+    case 0xA: case 0x15: case 0x2F: case 0x34: animation = 0x42; break;
+    case 0x35:
+        {
+            u32 empty = FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24;
+            asm volatile("" : "+r"(empty));
+            animation = 0x1C6;
+            asm volatile("" : "+r"(animation));
+            asm volatile("" : "+r"(empty) : "r"(animation));
+            if (!empty)
+                goto hold_walk;
+            goto done;
+        }
+    hold_walk:
+        animation = 0x156;
+        goto done;
+    case 8:
+        {
+            u32 variant = *delay;
+            asm volatile("" : : "r"(variant), "r"(self));
+            animation = 0xF6;
+            asm volatile("" : "+r"(animation), "+r"(variant));
+            if (variant)
+                animation = 0xF2;
+            goto done;
+        }
+    default:
+        break;
+    }
+    goto done;
+done:
+    asm volatile("" : : "r"(animation));
+    self->SetAnim(static_cast<u16>(animation));
+    register bool * active_flag asm("r1") = &self->consume_animation_active;
+    register u32 enabled asm("r0") = 1;
+    asm volatile("" : : "r"(active_flag), "r"(enabled));
+    *active_flag = enabled;
+}
+
 EC u32 SelectFarmerAnimation(FarmerEntity *) ENTITY_CODE(0802D158);
 EC u32 SelectFarmerAnimation(FarmerEntity * farmer)
 {
@@ -1917,7 +2793,7 @@ EC ItemDisplayGraphics * NewItemDisplayGraphics(ItemDisplayEntity * display)
 }
 
 EC void AdvanceItemDisplayState(ItemDisplayEntity * display) ENTITY_CODE(0802BA74);
-EC void func_0803242C(AActorEntity * display, u32 argument);
+EC void AdvanceSideEntitySlide(AActorEntity * display, u32 argument);
 EC u32 GetItemDisplayStateAnimation(ItemDisplayEntity const * display) ENTITY_CODE(0802BC48);
 
 EC void TickItemDisplayEntity(ItemDisplayEntity * display, u32 argument) ENTITY_CODE(0802BA28);
@@ -1935,7 +2811,7 @@ EC void TickItemDisplayEntity(ItemDisplayEntity * display, u32 argument)
     }
     else
         display->restart = false;
-    func_0803242C(display, argument);
+    AdvanceSideEntitySlide(display, argument);
 }
 
 EC char const vtable_unk_080E671C[];
@@ -2662,6 +3538,650 @@ EC void FarmerEntityInitNoOp(FarmerEntity * farmer)
 
 EC u32 FarmerEntity_GetToolFatiguePenalty(FarmerEntity * farmer);
 
+struct FarmerToolSwing
+{
+    u16 animation;
+    u16 song;
+    i8 stamina;
+    i8 cursed_stamina;
+    u16 reserved;
+};
+struct FarmerToolTarget
+{
+    u32 predicate;
+    u32 context;
+};
+struct FarmerToolTargetActions
+{
+    STRUCT_PAD(0, 0x88);
+    void (*apply_tool)(AEntity *, u32);
+};
+EC FarmerToolSwing const tool_swings[6][7] asm("gUnk_080F1020");
+EC FarmerToolTarget const milker_target asm("gUnk_080F1184");
+EC FarmerToolTarget const brush_target asm("gUnk_080F118C");
+EC FarmerToolTarget const clippers_target asm("gUnk_080F1194");
+EC FarmerToolTarget const medicine_target asm("gUnk_080F119C");
+EC FarmerToolTarget const cow_potion_target asm("gUnk_080F11A4");
+EC FarmerToolTarget const sheep_potion_target asm("gUnk_080F11AC");
+EC u32 IsUsingCursedToolRaw(FarmerEntity *) asm("FarmerEntity_IsUsingCursedTool");
+
+#define FIND_FARMER_TOOL_SOUND_CHANNEL(channel, selected, channel_found, owner_register, prepare_target) \
+    register FarmerEntity * owner asm(owner_register) = self; \
+    asm volatile("" : "+r"(owner)); \
+    GameObject * game = owner->game_object; \
+    EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game); \
+    register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1") = table->get_channels; \
+    asm volatile("" : : "r"(get_channels)); \
+    EntitySoundChannels const * channels = get_channels(game); \
+    channel = channels->begin; \
+    register void ** end asm("r5") = channels->end; \
+    asm volatile("" : : "r"(channel), "r"(end)); \
+    prepare_target \
+    if (channel != end) \
+    { \
+        do \
+        { \
+            u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24; \
+            asm volatile("" : "+r"(playing)); \
+            if (!playing) \
+                goto channel_found; \
+            ++channel; \
+        } while (channel != end); \
+    } \
+    { \
+        register void ** previous asm("r0") = end - 1; \
+        asm volatile("" : "+r"(previous)); \
+        selected = *previous; \
+    }
+
+#define PREPARE_FARMER_TOOL_TARGET_SLOT() \
+    target_slot_address = &self->interaction_target_slot; \
+    asm volatile("" : "+r"(target_slot_address));
+
+#define FIND_FARMER_TOOL_ANIMAL_TARGET() \
+    asm volatile("" : "+r"(target_test)); \
+    register u32 predicate asm("r1") = target_test->predicate; \
+    asm volatile("" : "+r"(predicate)); \
+    register u32 context asm("r2") = target_test->context; \
+    asm volatile("" : : "r"(context)); \
+    SelectFarmerInteractionTarget(self, predicate, context); \
+    target_slot = *target_slot_address; \
+    asm volatile("" : "+r"(target_slot)); \
+    u32 slot_valid = 0; \
+    asm volatile("" : "+r"(slot_valid)); \
+    if (static_cast<u32>(target_slot - 0x2B) <= 0x1A) \
+        slot_valid = 1; \
+    asm volatile("" : "+r"(slot_valid));
+
+EC void BeginFarmerToolSwing(FarmerEntity *) ENTITY_CODE(0802C2E0);
+EC void BeginFarmerToolSwing(FarmerEntity * farmer)
+{
+    register FarmerEntity * self asm("r8") = farmer;
+    asm volatile("" : "+r"(self));
+    register u8 * state_address asm("r1") = &self->state;
+    asm volatile("" : "+r"(state_address));
+    register u32 swing_state asm("r0") = 9;
+    asm volatile("" : : "r"(swing_state));
+    *state_address = swing_state;
+    register i32 stamina asm("r5") = 0;
+    asm volatile("" : "+r"(stamina));
+    register u32 tool_state asm("r0") = self->tool_state;
+    asm volatile("" : "+r"(tool_state));
+    register u8 const * tool_state_address asm("r4");
+    register u8 const * tool_level_address asm("r5");
+    register FarmerToolSwing const (* swings)[7] asm("r6");
+    register FarmerToolTarget const * target_test asm("r0");
+    register u8 const * target_slot_address asm("r6");
+    register u32 target_slot asm("r3");
+    AEntity * target;
+    register void ** channel_normal asm("r6");
+    register void * selected_normal asm("r2");
+    register void ** channel_other asm("r6");
+    register void * selected_other asm("r2");
+    register void ** channel_milker asm("r4");
+    register void * selected_milker asm("r0");
+    register void ** channel_brush asm("r4");
+    register void * selected_brush asm("r0");
+    register void ** channel_tool_8 asm("r4");
+    register void * selected_tool_8 asm("r0");
+    register void ** channel_clippers asm("r4");
+    register void * selected_clippers asm("r0");
+    register void ** channel_medicine asm("r4");
+    register void * selected_medicine asm("r0");
+    register void ** channel_cow_potion asm("r4");
+    register void * selected_cow_potion asm("r0");
+    register void ** channel_tool_12 asm("r4");
+    register void * selected_tool_12 asm("r0");
+    register void ** channel_sheep_potion asm("r4");
+    register void * selected_sheep_potion asm("r0");
+    switch (tool_state)
+    {
+    case 5:
+        SetFarmerThrownItemIcon(self, 0xA2, 1);
+        {
+            register ThrownItemMotion * motion asm("r2") = &self->thrown_item;
+            asm volatile("" : "+r"(motion));
+            register i32 zero asm("r4") = 0;
+            register i32 lift asm("r0") = 16 * 65536;
+            asm volatile("" : : "r"(zero), "r"(lift));
+            motion->x_speed = zero;
+            motion->y_speed = zero;
+            motion->z_speed = lift;
+            register u32 facing asm("r3") = self->facing;
+            asm volatile("" : "+r"(facing));
+            register i32 velocity asm("r0");
+            register i32 vertical_velocity asm("r1");
+            switch (static_cast<i32>(facing))
+            {
+            case FACING_LEFT:
+                velocity = -0x1B6DB;
+                vertical_velocity = 0x28000;
+                asm volatile("" : : "r"(velocity), "r"(vertical_velocity));
+                motion->x_velocity = velocity;
+                motion->y_velocity = zero;
+                asm volatile("" : : "m"(*motion));
+                goto set_vertical_velocity;
+            case FACING_RIGHT:
+                velocity = 0x1B6DB;
+                vertical_velocity = 0x28000;
+                asm volatile("" : : "r"(velocity), "r"(vertical_velocity));
+                motion->x_velocity = velocity;
+                motion->y_velocity = zero;
+                goto set_vertical_velocity;
+            case FACING_UP:
+                velocity = -0x1B6DB;
+                vertical_velocity = 0x28000;
+                asm volatile("" : : "r"(velocity), "r"(vertical_velocity));
+                motion->x_velocity = zero;
+                goto set_y_velocity;
+            have_channel_normal:
+                selected_normal = *channel_normal;
+                goto start_sound_normal;
+            case FACING_DOWN:
+                velocity = 0x1B6DB;
+                vertical_velocity = 0x28000;
+                asm volatile("" : : "r"(velocity), "r"(vertical_velocity));
+                motion->x_velocity = facing;
+            set_y_velocity:
+                motion->y_velocity = velocity;
+            set_vertical_velocity:
+                motion->z_velocity = vertical_velocity;
+                break;
+            }
+        }
+    case 0:
+    case 1:
+    case 3:
+    case 4:
+        {
+            register FarmerToolSwing const (* swing_table)[7] asm("r2") = tool_swings;
+            asm volatile("" : "+r"(swing_table));
+            tool_level_address = &self->tool_level;
+            asm volatile("" : "+r"(tool_level_address));
+            tool_state_address = &self->tool_state;
+            asm volatile("" : "+r"(tool_state_address));
+            register u32 kind_index asm("r1") = *tool_state_address;
+            asm volatile("" : "+r"(kind_index));
+            register u32 entry_index asm("r0") = kind_index * 7;
+            asm volatile("" : "+r"(entry_index));
+            register u32 level_index asm("r1") = *tool_level_address;
+            asm volatile("" : "+r"(level_index));
+            entry_index += level_index;
+            asm volatile("" : "+r"(entry_index));
+            entry_index *= sizeof(FarmerToolSwing);
+            asm volatile("" : "+r"(entry_index));
+            register FarmerToolSwing const * entry asm("r0") = reinterpret_cast<FarmerToolSwing const *>(entry_index + reinterpret_cast<u32>(swing_table));
+            asm volatile("" : "+r"(entry));
+            register u32 animation asm("r1") = entry->animation;
+            asm volatile("" : "+r"(animation));
+            register u16 * animation_address asm("r0") = &self->unk_44;
+            asm volatile("" : : "r"(animation_address));
+            *animation_address = animation;
+            register FarmerEntity * owner asm("r2") = self;
+            asm volatile("" : "+r"(owner));
+            GameObject * game = owner->game_object;
+            EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+            register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1") = table->get_channels;
+            asm volatile("" : : "r"(get_channels));
+            EntitySoundChannels const * channels = get_channels(game);
+            channel_normal = channels->begin;
+            void ** end = channels->end;
+            asm volatile("" : : "r"(channel_normal), "r"(end));
+            if (channel_normal != end)
+            {
+                do
+                {
+                    u32 playing = AudioPlayerIsPlayingRaw(*channel_normal) << 24;
+                    asm volatile("" : "+r"(playing));
+                    if (!playing)
+                        goto have_channel_normal;
+                    ++channel_normal;
+                } while (channel_normal != end);
+            }
+            {
+                register void ** previous asm("r0") = end - 1;
+                asm volatile("" : "+r"(previous));
+                selected_normal = *previous;
+            }
+        }
+    start_sound_normal:
+        {
+            asm volatile("" : : "r"(selected_normal));
+            {
+                swings = tool_swings;
+                asm volatile("" : "+r"(swings));
+                register u32 kind_index asm("r1") = *tool_state_address;
+                asm volatile("" : "+r"(kind_index));
+                register u32 entry_index asm("r0") = kind_index * 7;
+                asm volatile("" : "+r"(entry_index));
+                register u32 level_index asm("r1") = *tool_level_address;
+                asm volatile("" : "+r"(level_index));
+                entry_index += level_index;
+                asm volatile("" : "+r"(entry_index));
+                entry_index *= sizeof(FarmerToolSwing);
+                asm volatile("" : "+r"(entry_index));
+                register FarmerToolSwing const * entry asm("r0") = reinterpret_cast<FarmerToolSwing const *>(entry_index + reinterpret_cast<u32>(swings));
+                asm volatile("" : "+r"(entry));
+                register u32 song asm("r1") = entry->song;
+                asm volatile("" : : "r"(song));
+                AudioPlayer_StartSong(selected_normal, song);
+                u32 cursed = IsUsingCursedToolRaw(self) << 24;
+                asm volatile("" : "+r"(cursed));
+                if (!cursed)
+                    goto regular_stamina;
+                goto cursed_stamina;
+            }
+        }
+    have_channel_other:
+        selected_other = *channel_other;
+        goto start_sound_other;
+    case 2:
+        {
+            register FarmerToolSwing const (* swing_table)[7] asm("r2") = tool_swings;
+            asm volatile("" : "+r"(swing_table));
+            tool_level_address = &self->tool_level;
+            asm volatile("" : "+r"(tool_level_address));
+            tool_state_address = &self->tool_state;
+            asm volatile("" : "+r"(tool_state_address));
+            register u32 kind_index asm("r1") = *tool_state_address;
+            asm volatile("" : "+r"(kind_index));
+            register u32 entry_index asm("r0") = kind_index * 7;
+            asm volatile("" : "+r"(entry_index));
+            register u32 level_index asm("r1") = *tool_level_address;
+            asm volatile("" : "+r"(level_index));
+            entry_index += level_index;
+            asm volatile("" : "+r"(entry_index));
+            entry_index *= sizeof(FarmerToolSwing);
+            asm volatile("" : "+r"(entry_index));
+            register FarmerToolSwing const * entry asm("r0") = reinterpret_cast<FarmerToolSwing const *>(entry_index + reinterpret_cast<u32>(swing_table));
+            asm volatile("" : "+r"(entry));
+            register u32 animation asm("r1") = entry->animation;
+            asm volatile("" : "+r"(animation));
+            register u16 * animation_address asm("r0") = &self->unk_44;
+            asm volatile("" : : "r"(animation_address));
+            *animation_address = animation;
+            register FarmerEntity * owner asm("r2") = self;
+            asm volatile("" : "+r"(owner));
+            GameObject * game = owner->game_object;
+            EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+            register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1") = table->get_channels;
+            asm volatile("" : : "r"(get_channels));
+            EntitySoundChannels const * channels = get_channels(game);
+            channel_other = channels->begin;
+            void ** end = channels->end;
+            asm volatile("" : : "r"(channel_other), "r"(end));
+            if (channel_other != end)
+            {
+                do
+                {
+                    u32 playing = AudioPlayerIsPlayingRaw(*channel_other) << 24;
+                    asm volatile("" : "+r"(playing));
+                    if (!playing)
+                        goto have_channel_other;
+                    ++channel_other;
+                } while (channel_other != end);
+            }
+            {
+                register void ** previous asm("r0") = end - 1;
+                asm volatile("" : "+r"(previous));
+                selected_other = *previous;
+            }
+        }
+    start_sound_other:
+        {
+            asm volatile("" : : "r"(selected_other));
+            {
+                swings = tool_swings;
+                asm volatile("" : "+r"(swings));
+                register u32 kind_index asm("r1") = *tool_state_address;
+                asm volatile("" : "+r"(kind_index));
+                register u32 entry_index asm("r0") = kind_index * 7;
+                asm volatile("" : "+r"(entry_index));
+                register u32 level_index asm("r1") = *tool_level_address;
+                asm volatile("" : "+r"(level_index));
+                entry_index += level_index;
+                asm volatile("" : "+r"(entry_index));
+                entry_index *= sizeof(FarmerToolSwing);
+                asm volatile("" : "+r"(entry_index));
+                register FarmerToolSwing const * entry asm("r0") = reinterpret_cast<FarmerToolSwing const *>(entry_index + reinterpret_cast<u32>(swings));
+                asm volatile("" : "+r"(entry));
+                register u32 song asm("r1") = entry->song;
+                asm volatile("" : : "r"(song));
+                AudioPlayer_StartSong(selected_other, song);
+                u32 cursed = IsUsingCursedToolRaw(self) << 24;
+                asm volatile("" : "+r"(cursed));
+                if (cursed)
+                    goto cursed_stamina;
+                goto regular_stamina;
+            }
+        }
+    regular_stamina:
+        {
+            register u32 kind_index asm("r1") = *tool_state_address;
+            asm volatile("" : "+r"(kind_index));
+            register u32 entry_index asm("r0") = kind_index * 7;
+            asm volatile("" : "+r"(entry_index));
+            register u32 level_index asm("r5") = *tool_level_address;
+            asm volatile("" : "+r"(level_index));
+            entry_index += level_index;
+            asm volatile("" : "+r"(entry_index));
+            entry_index *= sizeof(FarmerToolSwing);
+            asm volatile("" : "+r"(entry_index));
+            register FarmerToolSwing const * entry asm("r0") = reinterpret_cast<FarmerToolSwing const *>(entry_index + reinterpret_cast<u32>(swings));
+            asm volatile("" : "+r"(entry));
+            stamina = entry->stamina;
+            break;
+        }
+    cursed_stamina:
+        {
+            register u32 kind_index asm("r1") = *tool_state_address;
+            asm volatile("" : "+r"(kind_index));
+            register u32 entry_index asm("r0") = kind_index * 7;
+            asm volatile("" : "+r"(entry_index));
+            register u32 level_index asm("r5") = *tool_level_address;
+            asm volatile("" : "+r"(level_index));
+            entry_index += level_index;
+            asm volatile("" : "+r"(entry_index));
+            entry_index *= sizeof(FarmerToolSwing);
+            asm volatile("" : "+r"(entry_index));
+            register FarmerToolSwing const * entry asm("r0") = reinterpret_cast<FarmerToolSwing const *>(entry_index + reinterpret_cast<u32>(swings));
+            asm volatile("" : "+r"(entry));
+            stamina = entry->cursed_stamina;
+            break;
+        }
+    have_channel_milker:
+        selected_milker = *channel_milker;
+        goto start_sound_milker;
+    case 6:
+        {
+            register u16 * animation_address asm("r1") = &self->unk_44;
+            asm volatile("" : "+r"(animation_address));
+            register u32 animation asm("r0") = 0x1ae;
+            asm volatile("" : : "r"(animation));
+            *animation_address = animation;
+            FIND_FARMER_TOOL_SOUND_CHANNEL(channel_milker, selected_milker, have_channel_milker, "r2",
+                PREPARE_FARMER_TOOL_TARGET_SLOT())
+        }
+    start_sound_milker:
+        {
+            asm volatile("" : : "r"(selected_milker));
+            {
+                AudioPlayer_StartSong(selected_milker, 0x9d);
+                target_test = &milker_target;
+            find_animal_target:
+                {
+                    FIND_FARMER_TOOL_ANIMAL_TARGET()
+                    if (slot_valid)
+                        goto get_target;
+                    goto no_target;
+                }
+            }
+        }
+    have_channel_brush:
+        selected_brush = *channel_brush;
+        goto start_sound_brush;
+    case 7:
+        {
+            register u16 * animation_address asm("r1") = &self->unk_44;
+            asm volatile("" : "+r"(animation_address));
+            register u32 animation asm("r0") = 0x1be;
+            asm volatile("" : : "r"(animation));
+            *animation_address = animation;
+            FIND_FARMER_TOOL_SOUND_CHANNEL(channel_brush, selected_brush, have_channel_brush, "r2",
+                PREPARE_FARMER_TOOL_TARGET_SLOT())
+        }
+    start_sound_brush:
+        {
+            asm volatile("" : : "r"(selected_brush));
+            {
+                AudioPlayer_StartSong(selected_brush, 0x9d);
+                target_test = &brush_target;
+                goto find_animal_target;
+            }
+        }
+    have_channel_tool_8:
+        selected_tool_8 = *channel_tool_8;
+        goto start_sound_tool_8;
+    case 8:
+        {
+            register u16 * animation_address asm("r1") = &self->unk_44;
+            asm volatile("" : "+r"(animation_address));
+            register u32 animation asm("r0") = 0x1ba;
+            asm volatile("" : : "r"(animation));
+            *animation_address = animation;
+            FIND_FARMER_TOOL_SOUND_CHANNEL(channel_tool_8, selected_tool_8, have_channel_tool_8, "r2",
+                )
+        }
+    start_sound_tool_8:
+        {
+            asm volatile("" : : "r"(selected_tool_8));
+            {
+                AudioPlayer_StartSong(selected_tool_8, 0x94);
+            lose_two_stamina:
+                stamina = -2;
+                break;
+            }
+        }
+    have_channel_clippers:
+        selected_clippers = *channel_clippers;
+        goto start_sound_clippers;
+    case 9:
+        {
+            register u16 * animation_address asm("r1") = &self->unk_44;
+            asm volatile("" : "+r"(animation_address));
+            register u32 animation asm("r0") = 0x1aa;
+            asm volatile("" : : "r"(animation));
+            *animation_address = animation;
+            FIND_FARMER_TOOL_SOUND_CHANNEL(channel_clippers, selected_clippers, have_channel_clippers, "r1",
+                PREPARE_FARMER_TOOL_TARGET_SLOT())
+        }
+    start_sound_clippers:
+        {
+            asm volatile("" : : "r"(selected_clippers));
+            {
+                AudioPlayer_StartSong(selected_clippers, 0x93);
+                target_test = &clippers_target;
+                FIND_FARMER_TOOL_ANIMAL_TARGET()
+                if (!slot_valid)
+                    goto no_clippers_target;
+                {
+                    register FarmerEntity * owner asm("r1") = self;
+                    asm volatile("" : "+r"(owner));
+                    GameObject * game = owner->game_object;
+                    FarmerInteractionGameVTable const * table = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+                    register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = table->get_entity;
+                    asm volatile("" : : "r"(get_entity));
+                    target = get_entity(game, target_slot);
+                }
+                goto apply_clippers;
+            no_clippers_target:
+                target = nullptr;
+            apply_clippers:
+                asm volatile("" : "+r"(target));
+                if (target)
+                {
+                    FarmerToolTargetActions const * actions = reinterpret_cast<FarmerToolTargetActions const **>(target)[5];
+                    register void (*apply_tool)(AEntity *, u32) asm("r2") = actions->apply_tool;
+                    asm volatile("" : : "r"(apply_tool));
+                    apply_tool(target, 0x3C);
+                }
+                goto lose_two_stamina;
+            }
+        }
+    have_channel_medicine:
+        selected_medicine = *channel_medicine;
+        goto start_sound_medicine;
+    case 10:
+        {
+            register u16 * animation_address asm("r1") = &self->unk_44;
+            asm volatile("" : "+r"(animation_address));
+            register u32 animation asm("r0") = 0x1b6;
+            asm volatile("" : : "r"(animation));
+            *animation_address = animation;
+            FIND_FARMER_TOOL_SOUND_CHANNEL(channel_medicine, selected_medicine, have_channel_medicine, "r2",
+                PREPARE_FARMER_TOOL_TARGET_SLOT())
+        }
+    start_sound_medicine:
+        {
+            asm volatile("" : : "r"(selected_medicine));
+            {
+                AudioPlayer_StartSong(selected_medicine, 0x9f);
+                target_test = &medicine_target;
+                goto find_animal_target;
+            }
+        }
+    have_channel_cow_potion:
+        selected_cow_potion = *channel_cow_potion;
+        goto start_sound_cow_potion;
+    case 11:
+        {
+            register u16 * animation_address asm("r1") = &self->unk_44;
+            asm volatile("" : "+r"(animation_address));
+            register u32 animation asm("r0") = 0x1b2;
+            asm volatile("" : : "r"(animation));
+            *animation_address = animation;
+            FIND_FARMER_TOOL_SOUND_CHANNEL(channel_cow_potion, selected_cow_potion, have_channel_cow_potion, "r2",
+                PREPARE_FARMER_TOOL_TARGET_SLOT())
+        }
+    start_sound_cow_potion:
+        {
+            asm volatile("" : : "r"(selected_cow_potion));
+            {
+                AudioPlayer_StartSong(selected_cow_potion, 0xa0);
+                target_test = &cow_potion_target;
+                FIND_FARMER_TOOL_ANIMAL_TARGET()
+                if (!slot_valid)
+                    goto no_cow_target;
+                {
+                    register FarmerEntity * owner asm("r1") = self;
+                    asm volatile("" : "+r"(owner));
+                    GameObject * game = owner->game_object;
+                    FarmerInteractionGameVTable const * table = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+                    register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = table->get_entity;
+                    asm volatile("" : : "r"(get_entity));
+                    target = get_entity(game, target_slot);
+                }
+                goto apply_cow_potion;
+            no_cow_target:
+                target = nullptr;
+            apply_cow_potion:
+                asm volatile("" : "+r"(target));
+                if (target)
+                {
+                    FarmerToolTargetActions const * actions = reinterpret_cast<FarmerToolTargetActions const **>(target)[5];
+                    register void (*apply_tool)(AEntity *, u32) asm("r2") = actions->apply_tool;
+                    asm volatile("" : : "r"(apply_tool));
+                    apply_tool(target, 0x3C);
+                }
+                stamina = -8;
+                break;
+            }
+        }
+    have_channel_tool_12:
+        selected_tool_12 = *channel_tool_12;
+        goto start_sound_tool_12;
+    case 12:
+        {
+            register u16 * animation_address asm("r1") = &self->unk_44;
+            asm volatile("" : "+r"(animation_address));
+            register u32 animation asm("r0") = 0x1a6;
+            asm volatile("" : : "r"(animation));
+            *animation_address = animation;
+            FIND_FARMER_TOOL_SOUND_CHANNEL(channel_tool_12, selected_tool_12, have_channel_tool_12, "r2",
+                )
+        }
+    start_sound_tool_12:
+        {
+            asm volatile("" : : "r"(selected_tool_12));
+            {
+                AudioPlayer_StartSong(selected_tool_12, 0x9e);
+                goto lose_four_stamina;
+            }
+        }
+    have_channel_sheep_potion:
+        selected_sheep_potion = *channel_sheep_potion;
+        goto start_sound_sheep_potion;
+    case 13:
+        {
+            register u16 * animation_address asm("r1") = &self->unk_44;
+            asm volatile("" : "+r"(animation_address));
+            register u32 animation asm("r0") = 0x1a2;
+            asm volatile("" : : "r"(animation));
+            *animation_address = animation;
+            FIND_FARMER_TOOL_SOUND_CHANNEL(channel_sheep_potion, selected_sheep_potion, have_channel_sheep_potion, "r1",
+                PREPARE_FARMER_TOOL_TARGET_SLOT())
+        }
+    start_sound_sheep_potion:
+        {
+            asm volatile("" : : "r"(selected_sheep_potion));
+            {
+                AudioPlayer_StartSong(selected_sheep_potion, 0x9d);
+                target_test = &sheep_potion_target;
+                FIND_FARMER_TOOL_ANIMAL_TARGET()
+                if (!slot_valid)
+                    goto no_target;
+            }
+        }
+    get_target:
+        {
+            register FarmerEntity * owner asm("r1") = self;
+            asm volatile("" : "+r"(owner));
+            GameObject * game = owner->game_object;
+            FarmerInteractionGameVTable const * table = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = table->get_entity;
+            asm volatile("" : : "r"(get_entity));
+            target = get_entity(game, target_slot);
+        }
+        goto apply_tool;
+    no_target:
+        target = nullptr;
+    apply_tool:
+        asm volatile("" : "+r"(target));
+        if (target)
+        {
+            FarmerToolTargetActions const * actions = reinterpret_cast<FarmerToolTargetActions const **>(target)[5];
+            register void (*apply_tool)(AEntity *, u32) asm("r2") = actions->apply_tool;
+            asm volatile("" : : "r"(apply_tool));
+            apply_tool(target, 0x3C);
+        }
+    lose_four_stamina:
+        stamina = -4;
+        break;
+    }
+    register FarmerEntity * owner asm("r2") = self;
+    asm volatile("" : "+r"(owner));
+    register FarmerActionVTable const * actions asm("r4") = reinterpret_cast<FarmerActionVTable const **>(owner)[5];
+    asm volatile("" : "+r"(actions));
+    register u32 fatigue asm("r2") = FarmerEntity_GetToolFatiguePenalty(self);
+    asm volatile("" : : "r"(fatigue));
+    register bool (*adjust)(FarmerEntity *, i32, i32) asm("r3") = actions->change_stamina_and_fatigue;
+    asm volatile("" : : "r"(adjust));
+    adjust(self, stamina, fatigue);
+}
+#undef FIND_FARMER_TOOL_ANIMAL_TARGET
+#undef PREPARE_FARMER_TOOL_TARGET_SLOT
+#undef FIND_FARMER_TOOL_SOUND_CHANNEL
+
 EC void BeginFarmerToolDisplay(FarmerEntity * farmer) ENTITY_CODE(0802C860);
 EC void BeginFarmerToolDisplay(FarmerEntity * farmer)
 {
@@ -2767,6 +4287,355 @@ union FarmerToolCyclePressedKeys
 
 EC void FarmerEntity_CycleTool(FarmerEntity * farmer, bool next);
 
+union FarmerHeldItemKeyWord
+{
+    u32 word;
+    u16 halfwords[2];
+    u8 bytes[4];
+};
+
+struct FarmerMovementFrame
+{
+    Location where;
+    u16 where_padding;
+    FarmerTerrainGrid terrain;
+    FarmerEventRequest request;
+    FarmerHeldItemKeyWord held;
+};
+
+struct FarmerTerrainReturnVTable
+{
+    STRUCT_PAD(0, 0x34);
+    void (*get_grid)(FarmerTerrainGrid *, GameObject *, u32);
+};
+
+EC void UpdateFarmerMovementInput(FarmerEntity *, FarmerInputState const *) ENTITY_CODE(0802D59C);
+EC void UpdateFarmerMovementInput(FarmerEntity * farmer, FarmerInputState const * input)
+{
+    register FarmerEntity * self asm("r6") = farmer;
+    asm volatile("" : : "r"(self));
+    FarmerHeldItemKeyWord held_storage;
+    register FarmerMovementFrame * stack asm("sp");
+    asm volatile("" : "=r"(stack));
+    register u32 pressed asm("r8");
+    register u32 clear asm("r2") = 0;
+    asm volatile("" : "+r"(clear));
+    stack->held.word = clear;
+    pressed = clear;
+    if (input)
+    {
+        stack->held.word = input->held;
+        pressed = input->pressed;
+    }
+    asm volatile("" : "=m"(held_storage));
+    register u8 * motion_field asm("r0") = &self->motion;
+    asm volatile("" : : "r"(motion_field));
+    *motion_field = clear;
+    register u8 * exhausted_field asm("r1") = &self->exhaustion_state;
+    register u32 exhausted_now asm("r2") = *exhausted_field;
+    asm volatile("" : : "r"(exhausted_now));
+    u8 * motion = motion_field;
+    asm volatile("" : : "r"(motion), "r"(exhausted_now));
+    asm volatile("" : : "r"(motion));
+    register u8 * exhausted asm("sl") = exhausted_field;
+    asm volatile("" : : "r"(exhausted));
+    register u8 * facing asm("sb") = &self->facing;
+    if (exhausted_now)
+        goto skip_tile;
+    {
+        register u32 key_a asm("r0") = INPUT_A;
+        register u32 pressed_now asm("r1") = pressed;
+        asm volatile("" : : "r"(key_a), "r"(pressed_now));
+        u32 pressed_a = key_a & pressed_now;
+        asm volatile("" : : "r"(pressed_a));
+        asm volatile("" : "+r"(pressed_a) : : "cc");
+        if (!pressed_a)
+            goto skip_tile;
+    }
+    {
+        Location where = self->AEntity::GetLocation();
+        register u8 const * face asm("r2") = facing;
+        asm volatile("" : : "r"(face));
+        i32 direction = *face;
+        asm volatile("" : "+r"(direction) : "r"(face));
+        register u8 * packed_y_destination asm("r3");
+        register u32 low asm("r4");
+        register u32 mask asm("r5");
+        register u32 y_shifted asm("r1");
+        switch (direction)
+        {
+        case FACING_UP:
+            {
+                packed_y_destination = reinterpret_cast<u8 *>(&where);
+                asm volatile("" : : "r"(packed_y_destination));
+                register u8 const * source asm("r0") = reinterpret_cast<u8 const *>(&where);
+                asm volatile("" : "+r"(source));
+                low = source[3];
+                register u32 y_low asm("r2") = low >> 2;
+                asm volatile("" : : "r"(y_low));
+                register u32 y_high asm("r1") = *reinterpret_cast<u16 const *>(source + 4);
+                mask = 0x3FF;
+                asm volatile("" : "+r"(mask) : "r"(y_high));
+                y_shifted = (((y_high & mask) << 6) | y_low) << 16;
+                asm volatile("" : "+r"(y_shifted));
+                register u32 decrease asm("r0") = 0xFFF00000;
+                asm volatile("" : "+r"(decrease));
+                y_shifted += decrease;
+                goto set_y;
+            }
+        case FACING_DOWN:
+            {
+                packed_y_destination = reinterpret_cast<u8 *>(&where);
+                asm volatile("" : : "r"(packed_y_destination));
+                register u8 const * source asm("r0") = reinterpret_cast<u8 const *>(&where);
+                asm volatile("" : "+r"(source));
+                low = source[3];
+                register u32 y_low asm("r2") = low >> 2;
+                asm volatile("" : : "r"(y_low));
+                register u32 y_high asm("r1") = *reinterpret_cast<u16 const *>(source + 4);
+                mask = 0x3FF;
+                asm volatile("" : "+r"(mask) : "r"(y_high));
+                y_shifted = (((y_high & mask) << 6) | y_low) << 16;
+                asm volatile("" : "+r"(y_shifted));
+                register u32 increase asm("r2") = 16 << 16;
+                asm volatile("" : "+r"(increase));
+                y_shifted += increase;
+                asm volatile("" : "+r"(y_shifted));
+            }
+        set_y:
+            {
+                register u32 low_y asm("r2") = ((y_shifted >> 16) & 0x3F) << 2;
+                asm volatile("" : "+r"(low_y));
+                register u32 low_x asm("r0") = low & 3;
+                asm volatile("" : "+r"(low_x));
+                low_x |= low_y;
+                asm volatile("" : "+r"(low_x));
+                packed_y_destination[3] = low_x;
+                register u32 high_y asm("r1") = (y_shifted >> 22) & mask;
+                asm volatile("" : "+r"(high_y));
+                register u16 * high asm("r3") = reinterpret_cast<u16 *>(packed_y_destination);
+                register u32 high_bits asm("r2") = high[2];
+                asm volatile("" : "+r"(high_bits));
+                register u32 high_mask asm("r0") = 0xFFFFFC00;
+                asm volatile("" : "+r"(high_mask));
+                high_mask = (high_bits & high_mask) | high_y;
+                asm volatile("" : "+r"(high_mask));
+                high[2] = high_mask;
+            }
+            break;
+        case FACING_LEFT:
+            where.x -= 16;
+            break;
+        case FACING_RIGHT:
+            where.x += 16;
+            break;
+        }
+        register u32 map asm("r2") = self->location_map;
+        asm volatile("" : : "r"(map));
+        register GameObject * game asm("r1") = self->game_object;
+        asm volatile("" : : "r"(game));
+        FarmerTerrainGrid terrain;
+        register FarmerTerrainGrid * grid asm("r4") = &terrain;
+        asm volatile("" : : "r"(grid), "r"(game), "r"(map));
+        register FarmerTerrainReturnVTable const * table asm("r3") = *reinterpret_cast<FarmerTerrainReturnVTable const **>(game);
+        asm volatile("" : "+r"(table));
+        register FarmerTerrainGrid * grid_argument asm("r0") = grid;
+        asm volatile("" : "+r"(grid_argument) : "r"(table));
+        register void (*reader)(FarmerTerrainGrid *, GameObject *, u32) asm("r3") = table->get_grid;
+        asm volatile("" : : "r"(reader));
+        reader(grid_argument, game, map);
+        register i32 packed_x asm("r0") = *reinterpret_cast<u32 const *>(&where) << 6;
+        asm volatile("" : "+r"(packed_x));
+        register u32 x asm("r5") = packed_x >> 19;
+        asm volatile("" : "+r"(x));
+        u32 y = where.y >> 3;
+        asm volatile("" : "+r"(y));
+        register u32 const * property asm("r2") = terrain.properties;
+        register u32 width asm("r0") = grid->width;
+        asm volatile("" : "+r"(property), "+r"(width) : "r"(y));
+        if (property && x <= width)
+        {
+            register u32 height asm("r1") = grid->height;
+            asm volatile("" : : "r"(height), "r"(y));
+            if (y <= height)
+            {
+                register u8 const * indices asm("r1") = grid->indices;
+                asm volatile("" : : "r"(indices));
+                u32 index = y * width + x;
+                if (indices)
+                {
+                    register u8 const * tile_index asm("r0") = indices + index;
+                    asm volatile("" : "+r"(tile_index));
+                    index = *tile_index;
+                }
+                register u32 const * selected asm("r0") = property + index;
+                asm volatile("" : "+r"(selected));
+                property = selected;
+                goto have_property;
+            }
+        }
+        property = nullptr;
+    have_property:
+        asm volatile("" : "+r"(property));
+        if (property && (reinterpret_cast<u16 const *>(property)[1] & 0xFFFE))
+        {
+            GameObject * current_game = self->game_object;
+            FarmerEventDispatch const * dispatch = &(*reinterpret_cast<FarmerEventGameVTable const **>(current_game))->dispatch_event;
+            register u32 event_id asm("r2") = *property >> 17;
+            FarmerEventRequest request_storage;
+            asm volatile("" : "=m"(request_storage));
+            asm volatile("" : "+r"(event_id));
+            register FarmerEventRequest * request_ptr asm("r1") = &stack->request;
+            asm volatile("" : "+r"(request_ptr) : "r"(event_id));
+            register u32 zero asm("r4") = 0;
+            asm volatile("" : : "r"(zero));
+            stack->request.id = event_id;
+            request_ptr->argument = zero;
+            FarmerEventDispatch function = *dispatch;
+            function(current_game, request_ptr, 0);
+            return;
+        }
+    }
+skip_tile:
+    register u32 speed_x asm("r3") = 0;
+    register u32 speed_y asm("r5") = 0;
+    register u8 const * facing_address asm("r2") = facing;
+    asm volatile("" : : "r"(facing_address), "r"(speed_x), "r"(speed_y));
+    register u32 new_facing asm("r4") = *facing_address;
+    register u8 const * exhaustion_address asm("r1") = exhausted;
+    asm volatile("" : : "r"(new_facing), "r"(exhaustion_address));
+    if (*exhaustion_address)
+        goto stop;
+    {
+        register u32 mask asm("r0") = INPUT_A | INPUT_B;
+        register u32 action asm("r2") = pressed;
+        asm volatile("" : : "r"(mask), "r"(action));
+        action &= mask;
+        asm volatile("" : "+r"(action));
+        if (!action)
+            goto read_direction;
+    }
+stop:
+    self->state = 0x23;
+    goto set_speed;
+read_direction:
+    {
+        register u32 keys asm("r1") = stack->held.word;
+        asm volatile("" : "+r"(keys));
+        register u32 up asm("r2") = (keys << 25) >> 31;
+        register u32 down asm("r0") = (keys << 24) >> 31;
+        asm volatile("" : "+r"(up), "+r"(down));
+        u32 move_keys = up | down | ((keys << 26) >> 31) | ((keys << 27) >> 31) | ((keys << 23) >> 31);
+        if (move_keys)
+        {
+            register volatile u8 * held_bytes asm("r1") = stack->held.bytes;
+            register u32 directions asm("r2") = held_bytes[0];
+            asm volatile("" : : "r"(directions), "r"(held_bytes));
+            if (directions & INPUT_LEFT)
+                new_facing = FACING_LEFT;
+            else if (directions & INPUT_RIGHT)
+                new_facing = FACING_RIGHT;
+            else if (directions & INPUT_UP)
+                new_facing = FACING_UP;
+            else if (directions & INPUT_DOWN)
+                new_facing = FACING_DOWN;
+            asm volatile("" : "+r"(new_facing));
+            switch (static_cast<i32>(new_facing))
+            {
+            case FACING_LEFT:
+                speed_x = 0xFE;
+                break;
+            case FACING_RIGHT:
+                speed_x = 2;
+                break;
+            case FACING_UP:
+                speed_y = 0xFE;
+                break;
+            case FACING_DOWN:
+                speed_y = 2;
+                break;
+            }
+            register u8 const * settings asm("r0") = reinterpret_cast<u8 const *>(self->game_state);
+            asm volatile("" : : "r"(settings));
+            register u32 settings_offset asm("r2") = 0x2210;
+            asm volatile("" : "+r"(settings_offset) : "r"(settings));
+            u32 default_run = *(settings + settings_offset);
+            default_run <<= 31;
+            asm volatile("" : "+r"(default_run));
+            register u32 modifier_mask asm("r2");
+            if (!default_run)
+            {
+                register u32 modifier asm("r1") = held_bytes[1];
+                modifier_mask = 1;
+                asm volatile("" : "+r"(modifier) : "r"(modifier_mask));
+                u32 shifted = modifier_mask;
+                asm volatile("" : "+r"(shifted));
+                shifted &= modifier;
+                if (!shifted)
+                    goto walk;
+                goto run;
+            }
+            {
+                register u32 modifier asm("r1") = held_bytes[1];
+                modifier_mask = 1;
+                asm volatile("" : "+r"(modifier) : "r"(modifier_mask));
+                u32 shifted = modifier_mask;
+                asm volatile("" : "+r"(shifted));
+                shifted &= modifier;
+                if (shifted)
+                    goto walk;
+            }
+        run:
+            {
+                register u32 run_motion asm("r0") = 2;
+                asm volatile("" : : "r"(run_motion));
+                *motion = run_motion;
+                register u32 shifted_x asm("r0") = speed_x << 25;
+                asm volatile("" : "+r"(shifted_x));
+                speed_x = shifted_x >> 24;
+                asm volatile("" : "+r"(speed_x));
+                register u32 shifted_y asm("r0") = speed_y << 25;
+                asm volatile("" : "+r"(shifted_y));
+                speed_y = shifted_y >> 24;
+                asm volatile("" : "+r"(speed_y));
+            }
+            goto set_speed;
+        walk:
+            register u32 walk_motion asm("r2") = modifier_mask;
+            asm volatile("" : : "r"(walk_motion));
+            *motion = walk_motion;
+        }
+    }
+set_speed:
+    {
+        register i32 shifted_x asm("r0") = static_cast<i32>(speed_x << 24);
+        asm volatile("" : "+r"(shifted_x));
+        self->x_speed_q16 = shifted_x >> 8;
+        asm volatile("" : : "m"(self->x_speed_q16));
+        register i32 shifted_y asm("r0") = static_cast<i32>(speed_y << 24);
+        asm volatile("" : "+r"(shifted_y));
+        self->y_speed_q16 = shifted_y >> 8;
+    }
+    {
+        register u8 * facing_address asm("r1") = facing;
+        asm volatile("" : : "r"(facing_address));
+        if (*facing_address != new_facing)
+            self->SetAnimFacing(new_facing);
+    }
+    GameObject * game = self->game_object;
+    FarmerInteractionGameVTable const * methods = *reinterpret_cast<FarmerInteractionGameVTable const **>(game);
+    register AEntity * (*lookup)(GameObject *, u32) asm("r2") = methods->get_entity;
+    asm volatile("" : : "r"(lookup));
+    register AActorEntity * horse asm("r1") = static_cast<AActorEntity *>(lookup(game, 0x2C));
+    asm volatile("" : : "r"(horse));
+    register u8 const * horse_facing asm("r0") = reinterpret_cast<u8 const *>(horse);
+    asm volatile("" : "=r"(horse_facing) : "r"(horse));
+    horse_facing += 0x20;
+    asm volatile("" : : "r"(horse_facing), "r"(horse));
+    if (*horse_facing != new_facing)
+        horse->SetAnimFacing(new_facing);
+}
+
 EC void HandleFarmerToolCycleInput(FarmerEntity * farmer, FarmerInputState const * input) ENTITY_CODE(0802D8E8);
 EC void HandleFarmerToolCycleInput(FarmerEntity * farmer, FarmerInputState const * input)
 {
@@ -2829,13 +4698,6 @@ EC void HandleFarmerToolCycleInput(FarmerEntity * farmer, FarmerInputState const
 cancel_cycle:
     farmer->state = cycling;
 }
-
-union FarmerHeldItemKeyWord
-{
-    u32 word;
-    u16 halfwords[2];
-    u8 bytes[4];
-};
 
 EC void FarmerEntity_CycleHeldItem(FarmerEntity *, bool);
 EC void FarmerEntity_CycleHeldItemWithFeedback(FarmerEntity *, bool);
@@ -3181,7 +5043,6 @@ holding_item:
 }
 
 EC void FarmerEntity_StoreHeldItem(FarmerEntity *);
-EC void func_0802C2E0(FarmerEntity *);
 
 
 
@@ -3341,7 +5202,7 @@ clear_state:
             BeginFarmerToolDisplay(farmer);
             return;
         }
-        func_0802C2E0(farmer);
+        BeginFarmerToolSwing(farmer);
         return;
     }
 }

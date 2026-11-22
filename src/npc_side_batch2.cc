@@ -463,14 +463,14 @@ EC void SetNpcMovementBounds(MovingNpcEntity * self, Box const * bounds)
     self->movement_bounds = *bounds;
 }
 
-EC void func_08038398(LaunchedSideSprite * self, i32 x, i32 y);
+EC void SelectLaunchedSpriteAnimation(LaunchedSideSprite * self, i32 x, i32 y);
 EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x_q16, i32 y_q16, i32 target_x, i32 target_y) NPC_EXTRA_CODE(08038374);
 EC void StartLaunchedSpriteMovement(LaunchedSideSprite * self, i32 x_q16, i32 y_q16, i32 target_x, i32 target_y)
 {
     self->moving = 1;
     self->x_q16 = x_q16;
     self->y_q16 = y_q16;
-    func_08038398(self, target_x, target_y);
+    SelectLaunchedSpriteAnimation(self, target_x, target_y);
 }
 
 EC void func_08034F00(AActorEntity * self, i32 reason);

@@ -9,6 +9,7 @@
 #include "farmer.hh"
 #include "farmer_entity_layout.hh"
 #include "entity_sound_channel.hh"
+#include "saved_script_events.hh"
 #include "shipping_bin.hh"
 #include "coop.hh"
 #include <stdlib.h>
@@ -146,8 +147,6 @@ EC void __builtin_delete(void * ptr);
 EC void * __builtin_new(size_t size);
 struct FarmerEffectGraphicsInit;
 EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * self);
-struct ScriptEventSelection;
-EC bool IsSelectedScriptEvent(ScriptEventSelection const & events, u16 eventId);
 EC u32 func_08022320(u32 growth_stage);
 EC u32 func_08022334(u32 growth_stage);
 EC void InitializeSideActorSpriteLayers(UnknownEntityThing * self, AActorEntity * entity, u32 sprite_kind, u32 palette, u32 size, u32 variant, u32 flags, bool secondary);
@@ -155,9 +154,8 @@ EC char const vtable_unk_080E64B4[];
 
 struct FarmerEventStateView
 {
-    STRUCT_PAD(0x00, 0x2171);
-    u8 unk_2171_0 : 3;
-    u8 unk_2171_3 : 2;
+    STRUCT_PAD(0x00, 0x214C);
+    SavedScriptEvents events;
 };
 
 struct EntityGameCalendar
@@ -198,7 +196,7 @@ EC void FarmerEntityInitNoOp(FarmerEntity * self);
 EC char const vtable_unk_080E6658[];
 EC void func_0802F0EC(FarmerEntity * self, u32 first, u32 second);
 EC u32 SelectFarmerAnimation(FarmerEntity * self);
-EC void func_0803242C(AActorEntity * self, u32 argument);
+EC void AdvanceSideEntitySlide(AActorEntity * self, u32 argument);
 
 inline i32 GetFarmerAnimationState(FarmerEntity const * self)
 {
@@ -1186,9 +1184,8 @@ EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self)
     if (self->location_map == 19)
     {
         FarmerEventStateView * events = reinterpret_cast<FarmerEventStateView *>(self->game_state);
-        u32 event_state = events->unk_2171_3;
-        if (event_state == 1 || IsSelectedScriptEvent(*reinterpret_cast<ScriptEventSelection const *>(
-            reinterpret_cast<u8 *>(events) + 0x214C), 74))
+        u32 event_state = events->events.packedProgress.farmerSpritePriorityStage;
+        if (event_state == 1 || IsSelectedScriptEvent(events->events, 74))
             priority = 1;
     }
     self->unk_21 = priority;
@@ -1515,7 +1512,7 @@ EC void func_08025018(FarmerEntity * self, u32 argument)
             if (self->anim_id != anim)
                 self->SetAnim(anim);
         }
-        func_0803242C(self, argument);
+        AdvanceSideEntitySlide(self, argument);
     }
 }
 

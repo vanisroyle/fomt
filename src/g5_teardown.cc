@@ -3,9 +3,9 @@
 EC u8 vtable_unk_080E8570[], vtable_unk_080E5A28[];
 EC void Irq_SetHandlerFlags(u32, u32);
 EC void func_080E5478(void *, u32);
-EC void func_080073E0(void *, u32);
+EC void ResourceHandle_Release(void *, u32);
 EC void ResourceHandles_Destroy(void *, u32);
-EC void func_08007C28(void *, u32);
+EC void TileHandle_Release(void *, u32);
 EC void TileHeapOwner_Destroy(void *, u32);
 EC void DestroyMessageWindow(void *, u32);
 EC void func_08075DEC(void *, u32);
@@ -13,12 +13,12 @@ EC void HardwareContext_Destroy(void *, u32);
 EC void __builtin_delete(void *);
 static inline void DestroyPaletteOwner(u8 * owner)
 {
-    func_080073E0(owner, *(u32 *)  (owner + 4));
+    ResourceHandle_Release(owner, *(u32 *)  (owner + 4));
     ResourceHandles_Destroy(owner, 2);
 }
 static inline void DestroyTileOwner(u8 * owner)
 {
-    func_08007C28(owner, *(u32 *)  (owner + 4));
+    TileHandle_Release(owner, *(u32 *)  (owner + 4));
     TileHeapOwner_Destroy(owner, 2);
 }
 EC SECTION(".text.g5_080C8360") void InventoryMenu_DestroyHardwareContext(u8 * context, u32 destroy_flags) // 0x080C8360
