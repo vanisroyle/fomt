@@ -1,7 +1,10 @@
 #include "scene.hh"
 
 #include "farmer.hh"
+#include "message_script.hh"
 #include "utility/vec2.hh"
+
+#include <string.h>
 
 EC void * __builtin_new(size_t size);
 EC void Scene_DestroyBase(void * self, int flags);
@@ -75,7 +78,7 @@ struct ChildhoodMemoryGameState
 struct FarmerNameSubstitution
 {
     void const * vtable;
-    char const * value;
+    char const * name;
 };
 
 enum
@@ -111,7 +114,7 @@ EC MessageWindow * CreateMessageWindow(MessageWindow *, u32, u32, u32, u32, void
 EC void ClearMessageWindowButtonMask(MessageWindow *, u32);
 EC AudioPlayer * AudioPlayer_Initialize(AudioPlayer *, u8);
 EC char const gChildhoodMemoryScreenVTable[] asm("vtable_unk_080E79DC");
-EC char const gChildhoodMemoryFarmerNameVTable[] asm("vtable_unk_080E79E8");
+EC char const gChildhoodMemoryFarmerNameVTable[];
 
 struct SceneDisplayRegisters
 {
@@ -133,7 +136,34 @@ EC void const * const gChildhoodMemoryCompressedMaps[CHILDHOOD_MAP_COUNT] asm("g
 static inline void InitFarmerNameSubstitution(FarmerNameSubstitution * substitution, char const * name)
 {
     substitution->vtable = gChildhoodMemoryFarmerNameVTable;
-    substitution->value = name;
+    substitution->name = name;
+}
+
+EC SECTION(".text.childhood_memory.080E19A4") MessageScriptReplacement * ResolveChildhoodMemoryFarmerName(
+    MessageScriptReplacement * output, FarmerNameSubstitution const * substitution, u32 placeholder)
+{
+    enum { FARMER_NAME_PLACEHOLDER = 0xFF };
+    register MessageScriptReplacement * result asm("r5") = output;
+    asm ("" : "+l" (result));
+    char text[sizeof(output->text)];
+    if (placeholder == FARMER_NAME_PLACEHOLDER)
+    {
+        char const * name = substitution->name;
+        size_t length = strlen(name);
+        if (length > sizeof(text) - 1)
+            length = sizeof(text) - 1;
+        memcpy(text, name, length);
+        text[length] = '\0';
+        result->found = true;
+        strcpy(result->text, text);
+    }
+    else
+    {
+        text[0] = '\0';
+        result->found = false;
+        strcpy(result->text, text);
+    }
+    return result;
 }
 
 EC SECTION(".text.f3.0805ED4C") ChildhoodMemoryScreen * InitChildhoodMemoryScreen(
@@ -169,7 +199,7 @@ EC SECTION(".text.f3.0805ED4C") ChildhoodMemoryScreen * InitChildhoodMemoryScree
     self->scene_phase = 0;
     self->dialogue_phase = 2;
     self->dialogue_line = 0;
-    self->farmer_name.value = GetFarmerName(self->game_state->farmer);
+    self->farmer_name.name = GetFarmerName(self->game_state->farmer);
     return static_cast<ChildhoodMemoryScreen *>(screen_storage);
 }
 

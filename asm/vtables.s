@@ -962,9 +962,11 @@ gSpriteAnimationDataVTable:
 vtable_unk_080E79DC:
 	.incbin "baserom.gba", 0xE79DC, 0xC
 
-	.global vtable_unk_080E79E8
-vtable_unk_080E79E8:
-	.incbin "baserom.gba", 0xE79E8, 0x10
+	.global gChildhoodMemoryFarmerNameVTable
+gChildhoodMemoryFarmerNameVTable:
+	.4byte 0, 0
+	.4byte func_080E1A28
+	.4byte ResolveChildhoodMemoryFarmerName
 
 	.global gChildhoodMemorySceneVTable
 gChildhoodMemorySceneVTable:
