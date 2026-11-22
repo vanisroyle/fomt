@@ -1221,6 +1221,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A1A48);
         src/g1_map_counts.o(.text.g1_080A1A4C);
         asm/g1_npc.o(.text.g1_after_b4_080A1A4C);
+        src/g1_map_forage.o(.text.g1_080A1B38);
         src/g1_map.o(.text.g1_080A1C94);
         asm/g1_npc.o(.text.g1_after_b2_080A1C94);
         src/g1_map_forage.o(.text.g1_080A1CBC);
@@ -1292,6 +1293,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b18_080A5760);
         src/g1_map_motion.o(.text.g1_080A58EC);
         asm/g1_npc.o(.text.g1_after_b4_080A58EC);
+        src/g1_map_camera.o(.text.g1_080A5960);
         src/g1_map_camera.o(.text.g1_080A59BC);
         asm/g1_npc.o(.text.g1_after_b5_080A59BC);
         src/g1_npc.o(.text.g1_080A5A9C);
@@ -1595,9 +1597,11 @@ SECTIONS
         src/g5_ui.o(.text.g5_buttons);
         src/g5_ui.o(.text.g5_080CAC3C);
         src/g5_ui.o(.text.g5_entry_init);
+        src/g5_animated_entries.o(.text.g5_080CAC7C);
         asm/code_080C8360.o(.text.g5_CAC7C);
         src/g5_ui.o(.text.g5_080CAD08);
         src/g5_ui.o(.text.g5_entry_access);
+        src/g5_animated_entries.o(.text.g5_080CAD18);
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
         src/g5_commands.o(.text.g5_080CADB4);
@@ -1632,6 +1636,7 @@ SECTIONS
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_navigation.o(.text.g5_080CDB08);
+        src/g5_left_navigation.o(.text.g5_080CDC00);
         asm/code_080C8360.o(.text.g5_after_080CDB08);
         src/g5_horizontal_navigation.o(.text.g5_080CDCD0);
         src/g5_navigation.o(.text.g5_080CDD7C);
@@ -1645,6 +1650,7 @@ SECTIONS
         src/g5_helpers.o(.text.g5_080CE1C4);
         src/g5_panels.o(.text.g5_080CE294);
         asm/code_080C8360.o(.text.g5_after_080CE294);
+        src/g5_paged_initialization.o(.text.g5_080CE2FC);
         src/g5_commands.o(.text.g5_080CE3DC);
         asm/code_080C8360.o(.text.g5_after_080CE3DC);
         src/g5_commands.o(.text.g5_080CE480);
@@ -1663,6 +1669,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CFB28);
         src/g5_map_graphics.o(.text.g5_080CFB5C);
         asm/code_080C8360.o(.text.g5_after_080CFB5C);
+        src/g5_field_tiles.o(.text.g5_080CFEA8);
+        asm/code_080C8360.o(.text.g5_after_080CFEA8);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
         src/g5_runtime.o(.text.g5_080D035C);
@@ -1688,6 +1696,8 @@ SECTIONS
         asm/code_080D0C68.o(.text.g5_after_080D0D28);
         src/g5_irq.o(.text.g5_080D100C);
         asm/code_080D102C.o(.text);
+        src/g5_random.o(.text.g5_rand);
+        asm/code_080D102C.o(.text.g5_after_rand);
 
         src/m4a_1.o(.text);
         src/m4a.o(.text);

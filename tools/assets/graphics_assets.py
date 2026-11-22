@@ -15,6 +15,9 @@ import fomt_assets as fa
 from font_assets import original_rom
 import indexed_png
 import more_graphics as more
+import portrait_assets as portraits
+import rest_graphics as rest
+import ui_graphics as ui
 import unpack_codec as codec
 import title_graphics as title
 
@@ -98,6 +101,9 @@ def preview(tiles, tilemap):
 
 
 def extract(rom, assets, force=False):
+    ui.extract(rom, assets, sys.modules[__name__], force)
+    rest.extract(rom, assets, sys.modules[__name__], force)
+    portraits.extract(rom, assets, sys.modules[__name__], force)
     title.extract(rom, assets, sys.modules[__name__], force)
     more.extract(rom, assets, sys.modules[__name__], force)
     data = logo_data(rom)
@@ -187,7 +193,10 @@ def build(rom, assets, output):
     fa.write_changed(output / "boot-logo-preview.png", indexed_png.write(preview(data["tiles"], data["map"]), palette))
     title_products = title.build(rom, assets, output, sys.modules[__name__])
     more_products = more.build(rom, assets, output, sys.modules[__name__])
-    digest = hashlib.sha256(b"".join(products.values()) + title_products + more_products).hexdigest()
+    portrait_products = portraits.build(rom, assets, output, sys.modules[__name__])
+    rest_products = rest.build(rom, assets, output, sys.modules[__name__])
+    ui_products = ui.build(rom, assets, output, sys.modules[__name__])
+    digest = hashlib.sha256(b"".join(products.values()) + title_products + more_products + portrait_products + rest_products + ui_products).hexdigest()
     fa.write_changed(output / "graphics.stamp", (digest + "\n").encode())
 
 
@@ -210,12 +219,23 @@ def inventory(rom):
 
 
 def roundtrip(rom, output, assets=Path("assets")):
+    portraits.roundtrip(rom, assets, sys.modules[__name__])
     streams = inventory(rom)
     identified = {TILES[0], TILEMAP[0], title.RESOURCE[0], title.BACKGROUND[0], *(part[0] for part in title.MAPS)}
-    identified.update(more.roundtrip(rom, assets, sys.modules[__name__]))
+    world_streams = more.roundtrip(rom, assets, sys.modules[__name__])
+    identified.update(world_streams)
+    identified.update(rest.roundtrip(rom, assets, sys.modules[__name__]))
+    ui_streams = ui.roundtrip(rom, assets, sys.modules[__name__])
+    identified.update(ui_streams)
     located = {item["offset"] for item in streams}
     if not identified <= located:
         raise ValueError("an identified graphics stream is missing from the inventory")
+    incidental = incidental_candidates(rom)
+    if any(item["references"] for item in streams if item["offset"] in incidental):
+        raise ValueError("an incidental graphics candidate acquired a root pointer")
+    for item in streams:
+        if item["offset"] in incidental:
+            item["classification"] = incidental[item["offset"]]
     exact = 0
     original_bytes = optimized_bytes = greedy_bytes = 0
     sizes = Counter()
@@ -239,7 +259,23 @@ def roundtrip(rom, output, assets=Path("assets")):
     print(f"Unpack optimized size: {optimized_bytes} bytes / {original_bytes} original ({optimized_bytes / original_bytes:.1%}); "
           f"{sizes['smaller']} smaller / {sizes['equal']} equal / {sizes['larger']} larger")
     print(f"Unpack optimized versus greedy: {optimized_bytes} / {greedy_bytes} bytes ({optimized_bytes / greedy_bytes:.1%})")
-    print(f"Identified editable Unpack streams: {len(identified)}/{len(streams)} (boot/title 8; world maps and chicken-feeding backgrounds {len(identified) - 8})")
+    print(f"Identified editable Unpack streams: {len(identified)}/{len(streams)} (boot/title 8; world/chicken-feeding {len(world_streams)}; childhood-memory 21; UI/minigames {len(ui_streams)})")
+    print(f"Unpack candidate classification: {len(identified)} editable rooted streams; {len(incidental)} incidental decodes inside other payloads; {len(located - identified - incidental.keys())} unclassified")
+
+
+def incidental_candidates(rom):
+    _, _, _, consumed = codec.decode_stream(rom[0x52AA6C:0x52D984])
+    if not 0x52AA70 <= 0x52C2D4 < 0x52AA6C + consumed:
+        raise ValueError("embedded UI candidate is outside its validated compressed owner")
+    resource = rom[0x58BA28:0x667060]
+    start, count = title.sections(resource)[3]
+    if not 0x58BA28 + start <= 0x65CCFC < 0x58BA28 + start + count * 32:
+        raise ValueError("embedded sprite candidate is outside the raw tile section")
+    if fa.word(rom, 0xA81FC) != fa.BASE + 0x698E14 or fa.word(rom, 0xCFDC8) != fa.BASE + 0x698E14:
+        raise ValueError("raw-tile DMA source roots changed")
+    return {0x52C2D4: "inside compressed UI tiles 52AA6C",
+            0x65CCFC: "inside the validated raw sprite-animation tile section",
+            0x699570: "inside raw tiles 698E14..699FF4 copied by DMA, not Unpack"}
 
 
 def main():
@@ -260,6 +296,9 @@ def main():
         elif args.command == "build":
             build(rom, args.assets, args.output)
             if args.previews:
+                ui.previews(rom, args.assets, args.previews, sys.modules[__name__])
+                portraits.previews(rom, args.assets, args.previews, sys.modules[__name__])
+                rest.previews(rom, args.assets, args.previews, sys.modules[__name__])
                 title.review_previews(args.output, args.previews)
                 more.review_previews(rom, args.assets, args.previews, sys.modules[__name__])
         else:

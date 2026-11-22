@@ -38,6 +38,8 @@ EC G5Position const gInventorySlotPositions[]; // 0x0811783C
 EC DrawingPosition const gInventorySpecialSlotCountPosition; // 0x0811785C
 EC DrawingPosition const gInventorySlotCountPositions[]; // 0x08117860
 EC void InitializeUiEntry(UiEntry * entry); // 0x080CAC70
+EC UiEntry * InitializeUiEntryFromAnimation(UiEntry * entry, void const * data, u16 animation, u32 value); // 0x080CAC7C
+EC void AssignUiEntryFromAnimation(UiEntry * entry, void const * data, u16 animation, u32 value); // 0x080CAD18
 EC void SetUiEntryValue(UiEntry * entry, u32 value); // 0x080CAD10
 EC u32 GetUiEntryValue(UiEntry * entry); // 0x080CAD14
 EC void SetUiEntry(UiEntry * entry, u32 tile_data, u32 palette_data, u32 value); // 0x080CADA0
