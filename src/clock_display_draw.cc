@@ -70,7 +70,7 @@ typedef char ClockDrawToolOffsetsCheck[
     offsetof(ClockDisplayData, toolIconId) == 0x2F2 ? 1 : -1];
 
 EC unsigned ClockPaletteIndex(ClockPaletteAllocation *, u32) asm("ResourceHandle_GetIndex");
-EC unsigned ClockBaseTile(ClockTileAllocation *, u32) asm("func_08007D4C");
+EC unsigned ClockBaseTile(ClockTileAllocation *, u32) asm("TileHandle_GetTileIndex");
 EC void ReadClockAnimationFrame(ClockFrameView *, const ClockAnimation *, unsigned) asm("GetSpriteAnimationDataFrame");
 
 enum

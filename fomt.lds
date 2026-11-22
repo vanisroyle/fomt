@@ -172,10 +172,22 @@ SECTIONS
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);
         asm/hardware.o(.text.after_08007C28);
+        src/hardware.o(.text.TileHandle_Retain);
+        asm/hardware.o(.text.after_08007CD8);
+        src/hardware.o(.text.TileHandle_GetTileIndex);
+        asm/hardware.o(.text.after_08007D4C);
+        src/hardware.o(.text.TileHandle_GetOrder);
+        asm/hardware.o(.text.after_08007DB8);
+        src/hardware.o(.text.TileHandle_GetRefCount);
+        asm/hardware.o(.text.after_08007E24);
         src/hardware.o(.text.AllocationTree_MarkFull);
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
         asm/hardware.o(.text.after_08007EC8);
+        src/hardware.o(.text.AllocationTree_AllocateBlock);
+        asm/hardware.o(.text.after_08008020);
+        src/hardware.o(.text.AllocationTree_FreeBlock);
+        asm/hardware.o(.text.after_080080A0);
         src/hardware.o(.text.TilePool_Initialize);
         asm/hardware.o(.text.after_0800835C);
         src/hardware.o(.text.TilePool_Destroy);
@@ -681,6 +693,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_side.08032BAC);
         src/npc_side_batch4.o(.text.npc_side.08032BB0);
         asm/code_entities_080320DC.o(.text.npc_side.08032BB4);
+        src/npc_side_batch13_workers.o(.text.npc_side.08033584);
         src/npc_side_batch8.o(.text.npc_side.08033784);
         src/npc_side_batch4.o(.text.npc_side.08033800);
         src/npc_side_batch4.o(.text.npc_side.08033830);
@@ -704,7 +717,7 @@ SECTIONS
         src/npc_side_batch10.o(.text.npc_side.08034940);
         src/npc_side_batch11.o(.text.npc_side.08034A14);
         src/npc_side_batch5.o(.text.npc_side.08034AA0);
-        asm/code_entities_080320DC.o(.text.npc_side.08034AE8);
+        src/npc_side_batch13_effects.o(.text.npc_side.08034AE8);
         src/npc_side_batch2.o(.text.npc_side.08034BFC);
         src/npc_side_batch4.o(.text.npc_side.08034C40);
         src/npc_side_batch4.o(.text.npc_side.08034C48);
@@ -816,7 +829,7 @@ SECTIONS
         src/npc_side_batch10.o(.text.npc_extra.08037118);
         src/npc_side_batch2.o(.text.npc_extra.08037244);
         src/npc_side_batch5.o(.text.npc_extra.08037250);
-        asm/code_entities_08034CEC.o(.text.npc_extra.0803726C);
+        src/npc_side_batch13_movement.o(.text.npc_extra.0803726C);
         src/npc_side_batch2.o(.text.npc_extra.08037430);
         asm/code_entities_08034CEC.o(.text.npc_extra.08037434);
         src/npc_side_batch2.o(.text.npc_extra.08037434);
@@ -913,7 +926,7 @@ SECTIONS
         asm/code_entities_08034CEC.o(.text.npc_extra.08039310);
         src/npc_side_batch12_states.o(.text.npc_extra.0803955C);
         src/npc_side_batch4.o(.text.npc_extra.080396F4);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039708);
+        src/npc_side_batch13_states.o(.text.npc_extra.08039708);
         src/npc_side_batch5.o(.text.npc_extra.080398A0);
         src/npc_side_batch11.o(.text.npc_extra.080398A4);
         src/npc_side_batch8.o(.text.npc_extra.080399C0);
@@ -931,7 +944,7 @@ SECTIONS
         src/npc_side_batch5.o(.text.npc_extra.08039F50);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039F90);
         src/npc_side_batch8.o(.text.npc_extra.0803A144);
-        asm/code_entities_08034CEC.o(.text.npc_extra.0803A180);
+        src/npc_side_batch13_movement.o(.text.npc_extra.0803A180);
         src/npc_side_batch2.o(.text.npc_extra.0803A320);
         src/npc_side_batch2.o(.text.npc_extra.0803A334);
         src/npc_side_batch5.o(.text.npc_extra.0803A350);
@@ -1026,7 +1039,7 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809C4EC);
         src/code_actor_0809BFE8.o(.text.0809C510);
         src/code_actor_0809BFE8.o(.text.0809C5B4);
-        asm/code_actor_0809BFE8.o(.text.0809C6BC);
+        src/code_actor_0809BFE8.o(.text.0809C6BC);
         src/code_actor_0809BFE8.o(.text.0809CD78);
         src/code_actor_0809BFE8.o(.text.0809CE8C);
         src/code_actor_0809BFE8.o(.text.0809CF34);
@@ -1204,8 +1217,12 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1EF4);
         src/g1_map_counts.o(.text.g1_080A1FC4);
         asm/g1_npc.o(.text.g1_after_b4_080A1FC4);
+        src/g1_calendar_message.o(.text.g1_080A2940);
+        asm/g1_npc.o(.text.g1_after_b18_080A2940);
         src/g1_calendar_numbers.o(.text.g1_080A3588);
         asm/g1_npc.o(.text.g1_after_b9_080A3588);
+        src/g1_calendar_numbers.o(.text.g1_080A3618);
+        asm/g1_npc.o(.text.g1_after_b17_080A3618);
         src/g1_scene_wrapper.o(.text.g1_080A3744);
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
@@ -1253,8 +1270,11 @@ SECTIONS
         src/g1_map_dma.o(.text.g1_080A5670);
         src/g1_map_location.o(.text.g1_080A56DC);
         asm/g1_npc.o(.text.g1_after_b4_080A56DC);
+        src/g1_map_terrain.o(.text.g1_080A5760);
+        asm/g1_npc.o(.text.g1_after_b18_080A5760);
         src/g1_map_motion.o(.text.g1_080A58EC);
         asm/g1_npc.o(.text.g1_after_b4_080A58EC);
+        src/g1_map_camera.o(.text.g1_080A5960);
         src/g1_map_camera.o(.text.g1_080A59BC);
         asm/g1_npc.o(.text.g1_after_b5_080A59BC);
         src/g1_npc.o(.text.g1_080A5A9C);
@@ -1301,6 +1321,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A6474);
         src/g1_map_animation.o(.text.g1_080A64B8);
         asm/g1_npc.o(.text.g1_after_b5_080A64B8);
+        src/g1_map_animation.o(.text.g1_080A6524);
+        asm/g1_npc.o(.text.g1_after_b18_080A6524);
         src/g1_npc.o(.text.g1_080A6640);
         asm/g1_npc.o(.text.g1_after_080A6640);
         asm/code_809E804.o(.text);
@@ -1567,6 +1589,7 @@ SECTIONS
         src/g5_commands.o(.text.g5_080CAE60);
         asm/code_080C8360.o(.text.g5_after_080CAE60);
         src/g5_commands.o(.text.g5_080CAF6C);
+        src/g5_slot_panel.o(.text.g5_080CAFC4);
         asm/code_080C8360.o(.text.g5_after_080CAF6C);
         src/g5_helpers.o(.text.g5_080CB2E8);
         asm/code_080C8360.o(.text.g5_080CB304);
@@ -1593,6 +1616,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_navigation.o(.text.g5_080CDB08);
         asm/code_080C8360.o(.text.g5_after_080CDB08);
+        src/g5_horizontal_navigation.o(.text.g5_080CDCD0);
         src/g5_navigation.o(.text.g5_080CDD7C);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);

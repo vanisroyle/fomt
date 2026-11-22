@@ -884,6 +884,42 @@ EC SECTION(".text.message_rendering.0804EDF8") MessageNumberCommand * Initialize
     return command;
 }
 
+inline u32 PrintMessageCursorTile(MessageGlyphTile * tile, u32 inputColumn, u32 glyph)
+{
+    register u32 column = inputColumn;
+    switch (column)
+    {
+    case 0: case 1: case 2: case 3:
+    {
+        void * buffer = tile->tileBuffer;
+        u32 x = (column & 3) * 8;
+        u32 width = DrawMessageGlyph(MessageTileSize(4, 2), (u8 *) buffer + 4, x, 0, glyph);
+        if (width - 1 <= 1) tile->dirty = tile->allocation[1] != 0;
+        return width;
+    }
+    }
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804EFAC") u32 PrintMessageCursorGlyph(MessageTextCursor * cursor, u32 glyph)
+{
+    u32 column = cursor->column;
+    i32 row = cursor->row + cursor->firstRow;
+    if (row > 2) row -= 3;
+    MessageGlyphTile * line = *((MessageGlyphTile **) ((u8 *) cursor + row * 4) + 2);
+    MessageGlyphTile * tile = line + (column >> 2);
+    register u32 tileColumn asm("r2") = column & 3;
+    u32 width = PrintMessageCursorTile(tile, tileColumn, glyph);
+    if (width == 0) return 0;
+    if (width > 2) return 0;
+    u32 nextColumn = column + width;
+    if (nextColumn > 27) nextColumn %= 28;
+    cursor->column = nextColumn;
+    if (glyph != 0x20 && glyph != 0x8140) cursor->printedNonSpace = 1;
+    cursor->changed = 1;
+    return 1;
+}
+
 EC SECTION(".text.message_rendering.0804F058") void ResetMessageTextColumn(MessageTextCursor * cursor)
 {
     cursor->column = 0;
