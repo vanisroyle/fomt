@@ -263,13 +263,46 @@ gHorseRaceMedalsToWinLabel:
 gUnk_080FAFC8:
 	.incbin "baserom.gba", 0xFAFC8, 0x38
 
+	.macro medal_prize name, price
+.Lmedal_prize_name\@:
+	.asciz "\name"
+	.if (. - .Lmedal_prize_name\@) > 16
+	.error "Medal prize name exceeds its 16-byte field including the terminator"
+	.endif
+	.space 16 - (. - .Lmedal_prize_name\@)
+	.2byte \price, 0
+	.endm
+
 	.global gMedalExchangePrizes
 gMedalExchangePrizes:
-	.incbin "baserom.gba", 0xFB000, 0xF0
+	medal_prize "Jewel of Truth", 1000
+	medal_prize "Power Berry", 900
+	medal_prize "Facial Pack", 42
+	medal_prize "Skin Lotion", 35
+	medal_prize "Sunblock", 30
+	medal_prize "Necklace", 20
+	medal_prize "Broach", 18
+	medal_prize "Diamond", 14
+	medal_prize "Truffle", 10
+	medal_prize "Adamantite", 4
+	medal_prize "Dress", 250
+	medal_prize "Perfume", 150
+	.purgem medal_prize
 
-	.global gUnk_080FB0F0
-gUnk_080FB0F0:
-	.incbin "baserom.gba", 0xFB0F0, 0x18
+	.global gMedalExchangePrizeItemIds
+gMedalExchangePrizeItemIds:
+	.2byte 0x27 @ Jewel of Truth
+	.2byte 0x00 @ Power Berry
+	.2byte 0x56 @ Facial Pack
+	.2byte 0x57 @ Skin Lotion
+	.2byte 0x58 @ Sunblock
+	.2byte 0x2d @ Necklace
+	.2byte 0x2f @ Broach
+	.2byte 0x1d @ Diamond
+	.2byte 0x2e @ Truffle
+	.2byte 0x17 @ Adamantite
+	.2byte 0x55 @ Dress
+	.2byte 0x51 @ Perfume
 
 	.global gAskToExchangeMedals
 gAskToExchangeMedals:

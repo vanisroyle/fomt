@@ -1406,16 +1406,27 @@ ROM_TEXT(0803B6B8) void SetGameScriptTextVariable(GameScriptTextVariables & self
 
 struct DialogWindowTilemapTask
 {
-    STRUCT_PAD(0x00, 0x0C);
+    void * previous;
+    void * next;
+    void const * vtable;
     int left;
     int top;
     unsigned width;
     unsigned height;
-    unsigned screenBlock : 5;
-    unsigned firstTile : 10;
-    unsigned paletteBank : 4;
+    enum
+    {
+        ScreenBlockBits = 5,
+        FirstTileBits = 10,
+        PaletteBankBits = 4,
+    };
+    unsigned screenBlock : ScreenBlockBits;
+    unsigned firstTile : FirstTileBits;
+    unsigned paletteBank : PaletteBankBits;
 };
 
+typedef char DialogWindowTilemapTaskSizeCheck[sizeof(DialogWindowTilemapTask) == 0x20 ? 1 : -1];
+
+EC char const gDialogWindowTilemapTaskVtable[];
 EC void DrawMessageFrame(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
     unsigned firstTile, unsigned paletteBank);
 EC u16 const * const gUnk_080F9F78;
@@ -1465,6 +1476,85 @@ ROM_TEXT(0803B840) bool RunDialogWindowTilemapTask(DialogWindowTilemapTask & tas
     CpuFastSet(palette, reinterpret_cast<u16 *>(BackgroundPaletteRam + paletteBank * PaletteBankBytes),
         PaletteBankBytes / sizeof(u32));
     return false;
+}
+
+ROM_TEXT(0803BF14) DialogWindowTilemapTask & InitializeDialogWindowTilemapTask(DialogWindowTilemapTask & task,
+    int left, int top, unsigned width, unsigned height, unsigned screenBlock, unsigned firstTile, unsigned paletteBank)
+{
+    // Preserve the original order of the height store and stack argument loads.
+    asm volatile("ldr r4, %0\n\tstr r4, [%1, %2]"
+        : : "m"(height), "l"(&task), "i"(offsetof(DialogWindowTilemapTask, height)) : "r4", "memory");
+    // Use a register pair so agbcc saves both r6 and r7.
+    register u64 blockPalette asm("r6");
+    register unsigned tile asm("r5");
+    asm volatile("ldr %0, %2\n\tldr %1, %3\n\tldr %H0, %4"
+        : "=l"(blockPalette), "=l"(tile)
+        : "m"(screenBlock), "m"(firstTile), "m"(paletteBank));
+    register unsigned block asm("r6");
+    register unsigned palette asm("r7");
+    // The low and high words of the pair are already in these registers.
+    asm("" : "=l"(block), "=l"(palette) : "l"(blockPalette));
+    task.previous = 0;
+    task.next = 0;
+    task.vtable = gDialogWindowTilemapTaskVtable;
+    task.left = left;
+    task.top = top;
+    task.width = width;
+    // Preserve the original byte, halfword, and word writes to the packed fields.
+    enum
+    {
+        PackedFields = offsetof(DialogWindowTilemapTask, height) + sizeof(unsigned),
+        ScreenBlockMask = (1 << DialogWindowTilemapTask::ScreenBlockBits) - 1,
+        FirstTileShift = DialogWindowTilemapTask::ScreenBlockBits,
+        FirstTileMask = (1 << DialogWindowTilemapTask::FirstTileBits) - 1,
+        PaletteBankShift = FirstTileShift + DialogWindowTilemapTask::FirstTileBits,
+        PaletteBankMask = (1 << DialogWindowTilemapTask::PaletteBankBits) - 1,
+    };
+    u8 * packed = reinterpret_cast<u8 *>(&task) + PackedFields;
+    {
+        register unsigned mask asm("r1") = ScreenBlockMask;
+        asm("" : "+l"(mask));
+        block &= mask;
+        asm("" : "+l"(block));
+        register unsigned previous asm("r2") = *packed;
+        asm("" : "+l"(previous) : "l"(block));
+        mask = ~ScreenBlockMask;
+        asm("" : "+l"(mask) : "l"(previous));
+        mask &= previous;
+        mask |= block;
+        *packed = mask;
+    }
+    {
+        register unsigned maskValue asm("r2") = FirstTileMask;
+        asm("" : "+l"(maskValue));
+        register unsigned mask asm("r1") = maskValue;
+        asm("" : "+l"(mask));
+        tile = (tile & mask) << FirstTileShift;
+        asm("" : "+l"(tile));
+        register unsigned previous asm("r2") = *reinterpret_cast<u16 *>(packed);
+        asm("" : "+l"(previous) : "l"(tile));
+        mask = ~(FirstTileMask << FirstTileShift);
+        asm("" : "+l"(mask) : "l"(previous));
+        mask &= previous;
+        mask |= tile;
+        *reinterpret_cast<u16 *>(packed) = mask;
+    }
+    {
+        register unsigned mask asm("r1") = PaletteBankMask;
+        asm("" : "+l"(mask));
+        palette &= mask;
+        asm("" : "+l"(palette));
+        register unsigned paletteBits asm("r3") = palette << PaletteBankShift;
+        asm("" : "+l"(paletteBits));
+        register unsigned previous asm("r1") = *reinterpret_cast<u32 *>(packed);
+        asm("" : "+l"(previous) : "l"(paletteBits));
+        register unsigned preservedMask asm("r2") = ~(PaletteBankMask << PaletteBankShift);
+        asm("" : "+l"(preservedMask) : "l"(previous));
+        previous &= preservedMask;
+        previous |= paletteBits;
+        *reinterpret_cast<u32 *>(packed) = previous;
+    }
+    return task;
 }
 
 struct PACKED ALIGN(4) DialogWindowLayers
