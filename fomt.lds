@@ -1646,6 +1646,8 @@ SECTIONS
     {
         LONG(0);
         *(.script_overflow);
+        . = ALIGN(4);
+        *(.vietnamese_font);
         . = ALIGN(0x800000);
     } > ROM = 0xFF
 
