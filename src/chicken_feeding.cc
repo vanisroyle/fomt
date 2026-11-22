@@ -1126,3 +1126,248 @@ EC SECTION(".text.080B36B4") void UpdateChickenFeedingChickens(ChickenFeedingSce
         }
     } while (++chickenIndex < 5);
 }
+
+struct DisplayFade;
+
+struct ChickenFeedingFadeTask
+{
+    u32 previousLinkAddress;
+    STRUCT_PAD(0x04, 0x0C);
+    u8 fade[1];
+};
+
+struct ChickenFeedingFrameTasks;
+
+struct ChickenFeedingTaskMethods
+{
+    STRUCT_PAD(0, 0x10);
+    void (* enqueue)(ChickenFeedingFrameTasks *, ChickenFeedingFadeTask *);
+};
+
+struct ChickenFeedingFrameTasks
+{
+    STRUCT_PAD(0, 8);
+    ChickenFeedingTaskMethods const * methods;
+};
+
+struct ChickenFeedingSceneResult
+{
+    void (** methods)(ChickenFeedingSceneResult *, u32);
+};
+
+struct ChickenFeedingResultTransfer
+{
+    ChickenFeedingSceneResult ** source;
+    ChickenFeedingSceneResult * value;
+};
+
+EC void DisplayFade_StartIn(DisplayFade *, i16, u32, u32);
+EC void DisplayFade_StartOut(DisplayFade *, i16, u32, u32);
+EC void func_080AE894(ChickenFeedingScene &);
+EC void func_080B0BB8(ChickenFeedingScene &);
+EC void func_080B1D94(ChickenFeedingScene &);
+EC void func_080B2114(ChickenFeedingScene &);
+
+EC SECTION(".text.080AE4E4") ChickenFeedingSceneResult ** RunChickenFeedingScene(
+    ChickenFeedingSceneResult ** result, ChickenFeedingScene & inputScene)
+{
+    enum
+    {
+        FadeTaskOffset = 0x43C,
+        FadeStep = 0x889,
+        MusicPlayerOffset = 0x80C,
+        ChickenFeedingSong = 0x22,
+        FinishedPhase = 5
+    };
+    struct Frame
+    {
+        u16 displayMask;
+        ChickenFeedingSceneResult * temporaryResult;
+        ChickenFeedingResultTransfer resultTransfer;
+        ChickenFeedingSceneResult ** result;
+        MessageWindow ** message;
+        ChickenFeedingSceneResult ** temporary;
+        ChickenFeedingResultTransfer * transfer;
+    };
+    volatile Frame frame;
+    frame.result = result;
+    register ChickenFeedingScene * scene;
+    asm ("mov %0, %1" : "=&l" (scene) : "l" (&inputScene) : "r0", "r2", "r3", "r4", "r5", "r6");
+    BlankChickenFeedingDisplay(*scene);
+    register u8 * display asm("r0") = static_cast<u8 *>(HardwareContext_GetDisplayRegisters(scene));
+    asm ("" : "+l" (display));
+    register volatile u16 * displayMask asm("r1") = &frame.displayMask;
+    asm ("" : "+l" (displayMask));
+    register unsigned visibleLayers asm("r2") = 0x3F;
+    asm ("" : "+l" (visibleLayers));
+    *displayMask = visibleLayers;
+    display += 0x50;
+    asm ("" : "+l" (display));
+    *reinterpret_cast<u16 *>(display) = visibleLayers;
+    register unsigned fadeOffset asm("r0") = FadeTaskOffset;
+    asm ("" : "+l" (fadeOffset));
+    register ChickenFeedingFadeTask ** fade asm("r4") = reinterpret_cast<ChickenFeedingFadeTask **>(
+        reinterpret_cast<u8 *>(scene) + fadeOffset);
+    asm ("" : "+l" (fade));
+    register ChickenFeedingFadeTask * fadeTask asm("r0") = *fade;
+    asm ("" : "+l" (fadeTask));
+    register u32 fadeStep asm("r1") = FadeStep;
+    asm ("" : : "l" (fadeStep));
+    DisplayFade_StartIn(reinterpret_cast<DisplayFade *>(fadeTask->fade), FadeStep, 1, 1);
+    register ChickenFeedingFrameTasks * tasks asm("r0") =
+        static_cast<ChickenFeedingFrameTasks *>(HardwareContext_GetFrameTasks(scene));
+    asm ("" : "+l" (tasks));
+    register ChickenFeedingTaskMethods const * taskMethods asm("r2") = tasks->methods;
+    asm ("" : "+l" (taskMethods));
+    register ChickenFeedingFadeTask * task asm("r1") = *fade;
+    asm ("" : "+l" (task));
+    taskMethods->enqueue(tasks, task);
+    SetChickenFeedingTargets(*scene);
+    ResetChickenFeedingRound(*scene);
+    LoadChickenFeedingBackground(*scene);
+    func_080AE894(*scene);
+    register unsigned musicOffset asm("r1") = MusicPlayerOffset;
+    asm ("" : "+l" (musicOffset));
+    AudioPlayer_StartSong(reinterpret_cast<u8 *>(scene) + musicOffset, ChickenFeedingSong);
+
+    register unsigned phaseOffset asm("r1") = offsetof(ChickenFeedingScene, phase);
+    asm ("" : "+l" (phaseOffset));
+    register unsigned phase asm("r0");
+    asm ("add %0, %1, %2\n\tldr %0, [%0]" : "=&l" (phase) : "l" (scene), "l" (phaseOffset) : "cc", "memory");
+    asm ("" : "+l" (phase));
+    register ChickenFeedingSceneResult ** temporary asm("r1");
+    asm ("mov %0, sp\n\tadd %0, #16" : "=l" (temporary) : "m" (frame.temporaryResult) : "cc");
+    frame.temporary = temporary;
+    register ChickenFeedingResultTransfer * transfer asm("r1") =
+        reinterpret_cast<ChickenFeedingResultTransfer *>(temporary + 1);
+    asm ("" : "+l" (transfer));
+    frame.transfer = transfer;
+    if (phase != FinishedPhase)
+    {
+        do
+        {
+            func_080087C8(*scene);
+            phaseOffset = offsetof(ChickenFeedingScene, phase);
+            asm ("" : "+l" (phaseOffset));
+            asm ("add %0, %1, %2\n\tldr %0, [%0]" : "=&l" (phase) : "l" (scene), "l" (phaseOffset) : "cc", "memory");
+            asm ("" : "+l" (phase));
+            switch (phase)
+            {
+            case 0:
+                func_080B0BB8(*scene);
+                break;
+            case 1:
+                RunChickenFeedingTargetMessage(*scene);
+                break;
+            case 2:
+                RunChickenFeedingTransition(*scene);
+                break;
+            case 3:
+                func_080B1D94(*scene);
+                break;
+            case 4:
+                func_080B2114(*scene);
+                break;
+            }
+            phaseOffset = offsetof(ChickenFeedingScene, phase);
+            asm ("" : "+l" (phaseOffset));
+            asm ("add %0, %1, %2\n\tldr %0, [%0]" : "=&l" (phase) : "l" (scene), "l" (phaseOffset) : "cc", "memory");
+            asm ("" : "+l" (phase));
+        } while (phase != FinishedPhase);
+    }
+
+    fadeOffset = FadeTaskOffset;
+    asm ("" : "+l" (fadeOffset));
+    fade = reinterpret_cast<ChickenFeedingFadeTask **>(reinterpret_cast<u8 *>(scene) + fadeOffset);
+    asm ("" : "+l" (fade));
+    register ChickenFeedingFadeTask * outgoingFade asm("r2") = *fade;
+    asm ("" : "+l" (outgoingFade));
+    register u32 previousLink asm("r1") = outgoingFade->previousLinkAddress;
+    asm ("" : "+l" (previousLink));
+    register i32 linkSign asm("r0") = (0u - previousLink) | previousLink;
+    asm ("" : "+l" (linkSign));
+    if (linkSign >= 0)
+    {
+        fadeStep = FadeStep;
+        asm ("" : : "l" (fadeStep));
+        register ChickenFeedingFadeTask * outgoingTask asm("r0") = outgoingFade;
+        asm ("" : "+l" (outgoingTask));
+        DisplayFade_StartOut(reinterpret_cast<DisplayFade *>(outgoingTask->fade), FadeStep, 1, 1);
+        tasks = static_cast<ChickenFeedingFrameTasks *>(HardwareContext_GetFrameTasks(scene));
+        asm ("" : "+l" (tasks));
+        taskMethods = tasks->methods;
+        asm ("" : "+l" (taskMethods));
+        task = *fade;
+        asm ("" : "+l" (task));
+        taskMethods->enqueue(tasks, task);
+    }
+
+    fadeTask = *fade;
+    asm ("" : "+l" (fadeTask));
+    register u32 currentLink asm("r0") = fadeTask->previousLinkAddress;
+    asm ("" : "+l" (currentLink));
+    register i32 currentLinkSign asm("r2") = static_cast<i32>((0u - currentLink) | currentLink);
+    asm ("" : "+l" (currentLinkSign));
+    if (currentLinkSign < 0)
+    {
+        register unsigned messageOffset asm("r1") = offsetof(ChickenFeedingScene, message) / 8;
+        asm ("" : "+l" (messageOffset));
+        frame.message = reinterpret_cast<MessageWindow **>(reinterpret_cast<u8 *>(scene) + messageOffset * 8);
+        register unsigned audioOffset asm("r0") = offsetof(ChickenFeedingScene, messageAudio) / 16;
+        asm ("" : "+l" (audioOffset));
+        register void * audio asm("sl") = reinterpret_cast<u8 *>(scene) + audioOffset * 16;
+        asm ("" : "+h" (audio));
+        do
+        {
+            func_080087C8(*scene);
+            register MessageWindow ** messageSlot asm("r1") = frame.message;
+            asm ("" : "+l" (messageSlot));
+            register MessageWindow * currentMessage asm("r1") = *messageSlot;
+            asm ("" : "+l" (currentMessage));
+            register MessageWindow * message asm("sb") = currentMessage;
+            asm ("" : "+h" (message));
+            register void * state asm("r8") = HardwareContext_GetState(scene);
+            asm ("" : "+h" (state));
+            register void * oam asm("r6") = HardwareContext_GetOamBuffer(scene);
+            asm ("" : "+l" (oam));
+            register void * registers asm("r5") = HardwareContext_GetDisplayRegisters(scene);
+            asm ("" : "+l" (registers));
+            register void * frameTasks asm("r4") = HardwareContext_GetFrameTasks(scene);
+            asm ("" : "+l" (frameTasks));
+            register void * vblankTasks asm("r0") = HardwareContext_GetVBlankTasks(scene);
+            asm ("" : "+l" (vblankTasks));
+            UpdateMessageWindow(message, state, oam, registers, frameTasks, vblankTasks, ({
+                register void * audioArgument asm("r0") = audio;
+                asm ("" : "+l" (audioArgument));
+                audioArgument;
+            }));
+            func_080AF814(*scene);
+            register unsigned currentFadeOffset asm("r1") = FadeTaskOffset;
+            asm ("" : "+l" (currentFadeOffset));
+            asm ("add %0, %1, %2\n\tldr %0, [%0]" : "=&l" (fadeTask) : "l" (scene), "l" (currentFadeOffset) : "cc", "memory");
+            asm ("" : "+l" (fadeTask));
+            currentLink = fadeTask->previousLinkAddress;
+            asm ("" : "+l" (currentLink));
+            currentLinkSign = static_cast<i32>((0u - currentLink) | currentLink);
+            asm ("" : "+l" (currentLinkSign));
+        } while (currentLinkSign < 0);
+    }
+
+    register ChickenFeedingSceneResult * empty asm("r0") = 0;
+    asm ("" : "+l" (empty));
+    frame.temporaryResult = empty;
+    frame.resultTransfer.source = frame.temporary;
+    frame.transfer->value = empty;
+    *frame.temporary = empty;
+    *frame.result = empty;
+    register ChickenFeedingSceneResult * remaining asm("r1") = frame.temporaryResult;
+    asm ("" : "+l" (remaining));
+    unsigned remainingAddress;
+    asm ("" : "=l" (remainingAddress) : "0" (remaining));
+    if (remainingAddress)
+    {
+        ChickenFeedingSceneResult * pending = reinterpret_cast<ChickenFeedingSceneResult *>(remainingAddress);
+        pending->methods[2](pending, 3);
+    }
+    return frame.result;
+}

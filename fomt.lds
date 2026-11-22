@@ -1349,7 +1349,7 @@ SECTIONS
         src/message_script.o(.text.080ADF40);
         asm/code_809E804.o(.text.080ADF6C);
         src/chicken_feeding.o(.text.080AE4D8);
-        asm/code_809E804.o(.text.080AE4E4);
+        src/chicken_feeding.o(.text.080AE4E4);
         src/chicken_feeding.o(.text.080AE6C0);
         src/chicken_feeding.o(.text.080AE6CC);
         src/chicken_feeding.o(.text.080AE7D0);
