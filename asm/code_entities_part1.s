@@ -302,7 +302,7 @@ func_080204CC: @ 0x080204CC
     ldrh r1, [r6, #0x22]
     ldrb r2, [r4]
     adds r0, r7, #0
-    bl func_08038398
+    bl SelectLaunchedSpriteAnimation
     bl .L080210A0
 .L080206EE:
     mov r2, sb
@@ -525,7 +525,7 @@ func_080204CC: @ 0x080204CC
     ldrh r1, [r6, #0x22]
     ldrb r2, [r4]
     ldr r0, [sp, #0xe8]
-    bl func_08038398
+    bl SelectLaunchedSpriteAnimation
 .L0802089A:
     mov r4, sl
     ldr r0, [r4, #0x20]
@@ -1318,7 +1318,7 @@ func_080204CC: @ 0x080204CC
     ldrh r1, [r6, #0x22]
     ldrb r2, [r4]
     ldr r0, [sp, #0xe8]
-    bl func_08038398
+    bl SelectLaunchedSpriteAnimation
     movs r0, #0x1e
     bl RollEntityMovementRandom
     adds r2, r0, #1

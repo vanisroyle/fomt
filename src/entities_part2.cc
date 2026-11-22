@@ -1917,7 +1917,7 @@ EC ItemDisplayGraphics * NewItemDisplayGraphics(ItemDisplayEntity * display)
 }
 
 EC void AdvanceItemDisplayState(ItemDisplayEntity * display) ENTITY_CODE(0802BA74);
-EC void func_0803242C(AActorEntity * display, u32 argument);
+EC void AdvanceSideEntitySlide(AActorEntity * display, u32 argument);
 EC u32 GetItemDisplayStateAnimation(ItemDisplayEntity const * display) ENTITY_CODE(0802BC48);
 
 EC void TickItemDisplayEntity(ItemDisplayEntity * display, u32 argument) ENTITY_CODE(0802BA28);
@@ -1935,7 +1935,7 @@ EC void TickItemDisplayEntity(ItemDisplayEntity * display, u32 argument)
     }
     else
         display->restart = false;
-    func_0803242C(display, argument);
+    AdvanceSideEntitySlide(display, argument);
 }
 
 EC char const vtable_unk_080E671C[];
