@@ -657,7 +657,7 @@ SECTIONS
         src/npc_side_batch6.o(.text.npc_side.080324BC);
         src/npc_side_batch6.o(.text.npc_side.08032560);
         src/npc_side_batch8.o(.text.npc_side.0803260C);
-        asm/code_entities_080320DC.o(.text.npc_side.08032690);
+        src/npc_side_batch14_draw.o(.text.npc_side.08032690);
         src/npc_side_entities.o(.text.npc_side.08032900);
         src/npc_side_batch5.o(.text.npc_side.08032934);
         src/npc_side_batch6.o(.text.npc_side.0803295C);
