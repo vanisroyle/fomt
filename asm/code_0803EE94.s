@@ -8356,7 +8356,7 @@ func_0803F8DC: @ 0x0803F8DC
 	orrs r0, r2
 	strh r0, [r1]
 	adds r0, r5, #0
-	bl GameScript_UpdateTextPanel
+	bl GameScript_SetGameTime
 	bl .L08045572
 	.align 2, 0
 .L08043E2C: .4byte 0xFFFFF81F
@@ -9705,7 +9705,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080448BC
 	bl .L08045572
 .L080448BC:
-	bl func_080168D4
+	bl GameScript_RelocateSelectedAnimalActor
 	bl .L08045572
 .L080448C4:
 	adds r6, r5, #0
@@ -18928,7 +18928,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049AA0:
 	movs r1, #4
-	bl func_080168D4
+	bl GameScript_RelocateSelectedAnimalActor
 	bl .L0804DA2E
 .L08049AAA:
 	movs r1, #0xd4
@@ -18997,7 +18997,7 @@ func_08048FFC: @ 0x08048FFC
 	bl .L0804DA2E
 .L08049B28:
 	movs r1, #0
-	bl func_080168D4
+	bl GameScript_RelocateSelectedAnimalActor
 	bl .L0804DA2E
 .L08049B32:
 	movs r1, #0xd4
