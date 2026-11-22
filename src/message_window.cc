@@ -1,5 +1,6 @@
 #include "prelude.h"
 #include <new>
+#include <stddef.h>
 #include <string.h>
 #include "gbasvc.h"
 #include "sprite_animation.hh"
@@ -528,6 +529,48 @@ EC SECTION(".text.message_window.08050AD8") void SetMessageWindowStatePortrait(M
 EC SECTION(".text.message_window.08050B3C") void ClearMessageWindowStatePortrait(MessageWindowState * window) // 0x08050B3C
 {
     window->portraitFlags.visible = 0;
+}
+
+EC SECTION(".text.message_window.08050B50") void SetMessageWindowStateSpeakerName(MessageWindowState * inputWindow, const char * inputName)
+{
+    register MessageWindowState * window = inputWindow;
+    register const char * name = inputName;
+    register u32 length asm("r6") = name ? strlen(name) : 0;
+    if (length - 1 > 11)
+    {
+        ClearMessageWindowStateSpeakerName(window);
+        return;
+    }
+    register const char * source = name;
+    register u32 tile asm("r5") = 0;
+    register u32 tileWidth = 4;
+    register u32 tileHeight = 2;
+    do
+    {
+        register u8 * tileBase asm("r1") = (u8 *) window + tile * sizeof(window->speakerNameTiles[0]);
+        MessageTileSize size(tileWidth, tileHeight);
+        asm ("" : : "r" (size));
+        register u8 * pixels asm("r4") = tileBase + offsetof(MessageWindowState, speakerNameTiles[0].pixels);
+        asm ("" : : "r" (size));
+        FillMessageTiles(size, pixels, 0);
+        ++tile;
+        if (length)
+        {
+            char chunk[5];
+            register char * destination asm("r2") = chunk;
+            register u8 * target asm("r1") = pixels;
+            asm ("" : "+r" (target), "+r" (destination));
+            do
+            {
+                *destination++ = *source++;
+                --length;
+            } while (length && destination != chunk + 4);
+            *destination = 0;
+            DrawMessageTileString(MessageTileSize(tileWidth, tileHeight), target, 0, 0, chunk);
+        }
+    } while (tile <= 2);
+    window->speakerNameFlags.visible = 1;
+    window->speakerNameFlags.dirty = 1;
 }
 
 EC SECTION(".text.message_window.08050C18") void ClearMessageWindowStateSpeakerName(MessageWindowState * window) // 0x08050C18
