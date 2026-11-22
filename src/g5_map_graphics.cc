@@ -1,8 +1,8 @@
 #include "prelude.h"
 #include "unknown_types.hh"
+#include "g5_compression.hh"
 
 EC MapData const * GetMapData(u32 map_id);
-EC void Unpack(void const * source, void * destination);
 EC void Dma3_Copy(void const * source, void * destination, u32 size);
 EC u8 const gUnk_086D6368[];
 EC u8 const gUnk_08699FF4[];
