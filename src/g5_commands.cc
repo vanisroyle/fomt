@@ -4,9 +4,9 @@
 
 EC void * func_080D3BC0(u32);
 EC void func_080E586C(CommandList *);
-EC void func_080073E0(void *, u32);
+EC void ResourceHandle_Release(void *, u32);
 EC void ResourceHandles_Destroy(void *, u32);
-EC void func_08007C28(void *, u32);
+EC void TileHandle_Release(void *, u32);
 EC void TileHeapOwner_Destroy(void *, u32);
 EC u8 vtable_unk_080E85CC[];
 EC u8 vtable_unk_080E5A28[];
@@ -41,6 +41,32 @@ static inline CommandIterator EraseCommand(CommandIterator position)
     next->previous = previous;
     free(node);
     return CommandIterator(next);
+}
+
+EC SECTION(".text.g5_080CADB4") u8 * InventoryMenu_InitializePanelBase(u8 * panel, DrawCommand * draw_owner) // 0x080CADB4
+{
+    u32 constructor_frame[2];
+    asm ("" : "=m" (constructor_frame));
+    *(void **) (panel + 0x210) = vtable_unk_080E85CC;
+    DrawCommand ** owner_slot = (DrawCommand **) panel;
+    *owner_slot++ = draw_owner;
+    CommandList * commands = (CommandList *) owner_slot;
+    commands->sentinel = nullptr;
+    CommandNode * sentinel = (CommandNode *) malloc(sizeof(CommandNode));
+    if (sentinel != nullptr)
+    {
+        sentinel->next = sentinel;
+        sentinel->previous = sentinel;
+        commands->sentinel = sentinel;
+    }
+    else
+    {
+        sentinel = (CommandNode *) func_080D3BC0(sizeof(CommandNode));
+        sentinel->next = sentinel;
+        sentinel->previous = sentinel;
+        commands->sentinel = sentinel;
+    }
+    return panel;
 }
 
 EC SECTION(".text.g5_080CADF0") void DestroyPanelDrawCommands(u8 * self, u32 flags) // 0x080CADF0
@@ -78,13 +104,13 @@ EC SECTION(".text.g5_080CE3DC") void DestroyPagedPanelDrawCommands(u8 * self, u3
         free(list->sentinel);
     *(void **) (self + 0x1c) = vtable_unk_080E5A28;
     u32 * palette = (u32 *) (self + 0x14);
-    func_080073E0(palette, palette[1]);
+    ResourceHandle_Release(palette, palette[1]);
     ResourceHandles_Destroy(palette, 2);
     u32 * tiles = (u32 *) (self + 0xc);
-    func_08007C28(tiles, tiles[1]);
+    TileHandle_Release(tiles, tiles[1]);
     TileHeapOwner_Destroy(tiles, 2);
     tiles = (u32 *) (self + 4);
-    func_08007C28(tiles, tiles[1]);
+    TileHandle_Release(tiles, tiles[1]);
     TileHeapOwner_Destroy(tiles, 2);
     if (flags & 1)
         operator delete(self);

@@ -267,8 +267,8 @@ EC SECTION(".text.080B0AA0") void ResetChickenFeedingRound(ChickenFeedingScene &
     *reinterpret_cast<u8 *>(target) = reset;
 }
 
-EC void func_08008724(ChickenFeedingScene & scene);
-EC void func_08007C28(ChickenFeedingResource & resource, u32 handle);
+EC void HardwareContext_ForceBlank(ChickenFeedingScene & scene);
+EC void TileHandle_Release(ChickenFeedingResource & resource, u32 handle);
 EC u32 func_08007B54(ChickenFeedingResource & resource, int capacity);
 EC u8 const gUnk_0810787C[5];
 EC u8 const gUnk_0872FC34[], gUnk_0872FE6C[], gUnk_0872FEF8[], gUnk_08731940[];
@@ -278,7 +278,7 @@ EC void Unpack(void const *, void *);
 EC void * HardwareContext_GetDisplayRegisters(ChickenFeedingScene *);
 EC void AudioPlayer_StartSong(void *, u32);
 EC void func_080AF814(ChickenFeedingScene &);
-EC void func_080087C8(ChickenFeedingScene &);
+EC void HardwareContext_CommitFrame(ChickenFeedingScene &);
 EC void FormatMessageInteger(i32, char *, u32);
 EC void ClearMessageWindowPortrait(MessageWindow *);
 EC i32 GetMessageWindowPhase(MessageWindow *);
@@ -367,7 +367,7 @@ EC SECTION(".text.080AE7D0") void LoadChickenFeedingBackground(ChickenFeedingSce
 
 static inline void ResetFeedingResource(ChickenFeedingResource & resource, int capacity)
 {
-    func_08007C28(resource, resource.handle);
+    TileHandle_Release(resource, resource.handle);
     resource.handle = func_08007B54(resource, capacity);
 }
 
@@ -378,7 +378,7 @@ EC SECTION(".text.080AE4D8") u32 GetChickenFeedingResult(ChickenFeedingScene con
 
 EC SECTION(".text.080AE6C0") void BlankChickenFeedingDisplay(ChickenFeedingScene & scene)
 {
-    func_08008724(scene);
+    HardwareContext_ForceBlank(scene);
 }
 
 EC SECTION(".text.080AE6CC") void ResetChickenFeedingResourceHandles(ChickenFeedingScene & scene)
@@ -687,7 +687,7 @@ EC SECTION(".text.080B1B40") void RunChickenFeedingTargetMessage(ChickenFeedingS
     goto render;
 update:
     {
-        func_080087C8(scene);
+        HardwareContext_CommitFrame(scene);
         HardwareContext_UpdateKeys(&scene);
         register unsigned currentWindowOffset asm("r0") = offsetof(ChickenFeedingScene, message) / 8;
         asm ("" : "+l" (currentWindowOffset));
@@ -814,7 +814,7 @@ EC SECTION(".text.080B1D34") void RunChickenFeedingTransition(ChickenFeedingScen
         asm ("" : "+l" (nextPhase));
         do
         {
-            func_080087C8(scene);
+            HardwareContext_CommitFrame(scene);
             func_080AF814(scene);
             if (++frames > 120)
                 *phase = nextPhase;

@@ -120,7 +120,7 @@ EC SECTION(".text.0803B368") void DrawMapOverlayParticles(GameStateMapOverlay & 
         // The tile lookup is a short call even though sprite queuing uses a long call into IWRAM.
         register OverlayTileAllocation * tileAllocation asm("r0") = &frame->tiles;
         register unsigned baseTile asm("r0");
-        asm volatile("ldr r1, [%0, %2]\n\tbl func_08007D4C" : "=l"(baseTile)
+        asm volatile("ldr r1, [%0, %2]\n\tbl TileHandle_GetTileIndex" : "=l"(baseTile)
             : "0"(tileAllocation), "i"(offsetof(OverlayTileAllocation, handle))
             : "r1", "r2", "r3", "r12", "lr", "cc", "memory");
         register GameStateMapOverlay * sceneOwner asm("r2") = overlay;

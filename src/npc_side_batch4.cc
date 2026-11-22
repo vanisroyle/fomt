@@ -175,12 +175,12 @@ EC u32 GetActiveNpcMovementSpeed(AEntity * self, u32 movement)
     }
 }
 
-EC UnknownEntityThing * func_08038820(UnknownEntityThing * self, AEntity * entity);
+EC UnknownEntityThing * InitializeNpcTransitionEffects(UnknownEntityThing * self, AEntity * entity);
 EC UnknownEntityThing * CreateSideEntityEffectController(AEntity * self) NPC_EXTRA_CODE(080387A0);
 EC UnknownEntityThing * CreateSideEntityEffectController(AEntity * self)
 {
     struct Storage { u8 bytes[0x18]; };
-    return func_08038820(reinterpret_cast<UnknownEntityThing *>(new Storage), self);
+    return InitializeNpcTransitionEffects(reinterpret_cast<UnknownEntityThing *>(new Storage), self);
 }
 
 EC void InitializeEntityBase(AEntity * self, GameObject * game, Location const & location) asm("__7AEntityP10GameObjectRC8Location");

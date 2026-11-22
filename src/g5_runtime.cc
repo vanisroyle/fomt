@@ -1,7 +1,6 @@
 #include "g5_link.hh"
 
 EC u32 func_080D078C(u32 * packet);
-EC u32 func_080D091C();
 
 EC SECTION(".text.g5_080D0644") void Joybus_QueueWordExchange(u32 send_word, u32 require_handshake) // 0x080D0644
 {
@@ -48,7 +47,7 @@ EC SECTION(".text.g5_init") void StartJoybus() // 0x080D02F0
         state->unknown_00[5] = 0;
         state->unknown_00[6] = 0;
         state->unknown_00[7] = 0;
-        state->unknown_00[8] = 1;
+        state->unknown_00[JOYBUS_TRANSFER_TOTAL] = 1;
         state->status = 0;
         state->transferred_halfwords = 0;
         state->busy = 0;
@@ -248,6 +247,19 @@ EC SECTION(".text.g5_queries") u32 func_080D06D0()
     return gJoybusState->unknown_00[6];
 }
 
+static inline u32 GetScaledJoybusProgress(JoybusState * state)
+{
+    register u32 completed asm("r1") = state->unknown_00[JOYBUS_TRANSFER_PROGRESS];
+    asm ("" : "+l" (completed));
+    return 100 * completed;
+}
+
+EC SECTION(".text.g5_080D06DC") u32 Joybus_GetTransferProgressPercent() // 0x080D06DC
+{
+    u32 total = gJoybusState->unknown_00[JOYBUS_TRANSFER_TOTAL];
+    return total != 0 ? GetScaledJoybusProgress(gJoybusState) / total : 0;
+}
+
 EC SECTION(".text.g5_080D0704") void Joybus_HandleSerialInterrupt() // 0x080D0704
 {
     u32 status = 0;
@@ -260,7 +272,7 @@ EC SECTION(".text.g5_080D0704") void Joybus_HandleSerialInterrupt() // 0x080D070
             status = func_080D078C(&packet);
         }
         if (status == 0 && (control & 4) != 0)
-            status = func_080D091C();
+            status = Joybus_HandleTransmitReady();
         if ((control & 1) != 0)
             RetryJoybusHandshake();
     }

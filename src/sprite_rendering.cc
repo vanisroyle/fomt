@@ -230,7 +230,7 @@ struct HorseRaceObjAllocation
 struct HardwareContext;
 
 EC void * HardwareContext_GetOamBuffer(HardwareContext *);
-EC u32 ResolveHorseRaceObjPalette(HorseRaceObjAllocation *, u32) asm("func_080074C0");
+EC u32 ResolveHorseRaceObjPalette(HorseRaceObjAllocation *, u32) asm("ResourceHandle_GetIndex");
 
 EC SECTION(".text.f3.0805C63C") void DrawHorseRaceEntrantObjects(
     HardwareContext * hardware, SpriteAttributes const * objects, u32 count,

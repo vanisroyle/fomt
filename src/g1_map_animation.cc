@@ -1,20 +1,31 @@
 #include "g1_map.hh"
+#include "dma_queue.hh"
+#include "farm_house.hh"
+
+struct G1MapAnimationFrames
+{
+    u16 tiles_per_frame;
+    u16 frame_count;
+};
 
 struct G1MapAnimationData
 {
     u16 tile_index;
     u16 reserved;
-    void const * frames;
+    G1MapAnimationFrames const * frames;
     u16 delay;
     u16 reserved_0A;
 };
 
 struct G1MapSaveState
 {
-    u8 reserved[0x21a0];
-    u8 event_stage : 2;
+    u8 reserved[0x1f4];
+    FarmHouse house;
+    u8 reserved_house[0x21a0 - 0x1f4 - sizeof(FarmHouse)];
+    u32 event_stage : 2;
 };
 
+EC G1MapAnimationData const gUnk_0810710C;
 EC G1MapAnimationData const gUnk_08107114;
 EC G1MapAnimationData const gUnk_08107120;
 EC G1MapAnimationData const gUnk_0810712C;
@@ -36,6 +47,8 @@ EC G1MapAnimationData const gUnk_081071F8;
 EC G1MapAnimationData const gUnk_08107338;
 EC G1MapAnimationData const gUnk_08107344;
 EC void UpdateMapAnimationTimers(G1MapState *);
+EC void func_080A4F50(G1MapState *, DmaTransferQueue *, void *, void *);
+EC void func_080A5AB0(G1MapState *, G1MapAnimationData const *, u32, DmaTransferQueue *);
 
 static inline void AdvanceMapAnimation(G1MapAnimationState * animation, G1MapAnimationData const * data)
 {
@@ -111,5 +124,53 @@ EC SECTION(".text.g1_080A64B8") void UpdateWorldMapAnimationTimers(G1WorldMapSta
             AdvanceMapAnimation(&self->extra_animations[1], &gUnk_08107344);
             break;
         }
+    }
+}
+
+static inline void QueueWorldMapAnimation(G1WorldMapState * self, G1MapAnimationState * animation,
+    G1MapAnimationData const * data, DmaTransferQueue * queue)
+{
+    if (animation->dirty)
+    {
+        animation->dirty = false;
+        func_080A5AB0(self, data, animation->frame, queue);
+        u32 length = data->frames->frame_count;
+        bool wrapped = false;
+        if (++animation->frame == length)
+            wrapped = true;
+        if (wrapped)
+            animation->frame = 0;
+    }
+}
+
+EC SECTION(".text.g1_080A6524") void QueueWorldMapAnimations(G1WorldMapState * self, DmaTransferQueue * queue,
+    void * display, void * tasks)
+{
+    func_080A4F50(self, queue, display, tasks);
+    G1MapSaveState const * save = self->save;
+    switch (self->type)
+    {
+    case 29:
+        if (self->refresh_stocking)
+        {
+            self->refresh_stocking = false;
+            if (self->save->house.HasStocking())
+            {
+                if (self->save->house.GetStockingArticleId() == 95)
+                    func_080A5AB0(self, &gUnk_0810710C, 1, queue);
+                else
+                    func_080A5AB0(self, &gUnk_0810710C, 2, queue);
+            }
+            else
+                func_080A5AB0(self, &gUnk_0810710C, 0, queue);
+        }
+        break;
+    case 6:
+        if (save->event_stage == 1)
+        {
+            QueueWorldMapAnimation(self, &self->extra_animations[0], &gUnk_08107338, queue);
+            QueueWorldMapAnimation(self, &self->extra_animations[1], &gUnk_08107344, queue);
+        }
+        break;
     }
 }
