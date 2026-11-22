@@ -3564,7 +3564,7 @@ struct ItemDisplaySprite
 };
 
 EC u32 ClassifySideEntityFarmRegion(u32, i32, i32);
-EC void DrawSideActorOverlayLayers(FarmerIconGraphics *, ItemDisplayRenderContext const *) asm("func_08032690");
+EC void DrawSideActorOverlayLayers(FarmerIconGraphics *, ItemDisplayRenderContext const *) asm("DrawSpriteWorkerLayers");
 EC void QueueItemDisplayTileUpload(G1MapSpriteResource *, DmaTransferQueue *, G1MapResourceData const *) asm("func_080A480C");
 EC void LoadMapSpriteResourcePalettes(G1MapSpriteResource *, G1MapResourceData const *, u8);
 
