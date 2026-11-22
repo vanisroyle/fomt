@@ -112166,7 +112166,7 @@ sub_0807C194: @ 0x0807C194
 	b .L0807D054
 .L0807CD44:
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0807D054
 	.align 2, 0
 .L0807CD4C: .4byte 0x00000684
@@ -113970,7 +113970,7 @@ func_0807D218: @ 0x0807D218
 	cmp r0, #0
 	beq .L0807DD08
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0807DD08
 	.align 2, 0
 .L0807DCC8: .4byte 0x00000684
@@ -114789,7 +114789,7 @@ func_0807DE3C: @ 0x0807DE3C
 	cmp r0, #0
 	beq .L0807E406
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0807E406
 	.align 2, 0
 .L0807E3CC: .4byte 0x00000684
@@ -115952,7 +115952,7 @@ func_0807E558: @ 0x0807E558
 	cmp r0, #0
 	beq .L0807EDE4
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0807EDE4
 	.align 2, 0
 .L0807ED98: .4byte 0x00000684
@@ -118720,7 +118720,7 @@ func_0807F8C8: @ 0x0807F8C8
 	cmp r0, #0
 	beq .L08080430
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L08080430
 	.align 2, 0
 .L080803E8: .4byte 0x00000684
@@ -119807,7 +119807,7 @@ func_08080540: @ 0x08080540
 	cmp r0, #0
 	beq .L08080D64
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L08080D64
 	.align 2, 0
 .L08080CF0: .4byte 0x00000684
@@ -121380,7 +121380,7 @@ func_0808114C: @ 0x0808114C
 	cmp r0, #0
 	beq .L08081A16
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L08081A16
 	.align 2, 0
 .L080819D8: .4byte 0x00000684
@@ -127288,7 +127288,7 @@ func_08084228: @ 0x08084228
 	b .L080854C8
 .L080850DC:
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L080854C8
 	.align 2, 0
 .L080850E4: .4byte 0x00000684
@@ -132521,7 +132521,7 @@ sub_08087710: @ 0x08087710
 	b .L0808814C
 .L08087AEC:
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0808814C
 	.align 2, 0
 .L08087AF4: .4byte 0x00000684

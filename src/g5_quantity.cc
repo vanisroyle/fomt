@@ -48,6 +48,67 @@ EC SECTION(".text.g5_080CA8B4") void InventoryMenu_OpenQuantitySelector(Quantity
     selector->active = 1;
 }
 
+static inline u16 GetQuantityRepeatedKeys(void * context, int mask)
+{
+    return mask & HardwareContext_GetRepeatedKeys(context);
+}
+
+static inline u16 * GetChangedQuantityTile(u16 * row, u32 column)
+{
+    asm ("" : "+l" (column));
+    return row + column;
+}
+
+EC SECTION(".text.g5_080CA98C") void InventoryMenu_UpdateQuantitySelector(QuantitySelector * selector) // 0x080CA98C
+{
+    bool changed = false;
+    u32 previous_quantity = selector->quantity;
+    if (GetQuantityRepeatedKeys(selector->context,0x40))
+    {
+        selector->quantity++;
+        if (selector->quantity > selector->limit)
+            selector->quantity = 1;
+    }
+    else if (GetQuantityRepeatedKeys(selector->context,0x80))
+    {
+        selector->quantity--;
+        if (selector->quantity == 0)
+            selector->quantity = selector->limit;
+    }
+    else if (GetQuantityRepeatedKeys(selector->context,0x10))
+    {
+        if (selector->quantity == selector->limit)
+            selector->quantity = 1;
+        else
+        {
+            selector->quantity += 10;
+            if (selector->quantity >= selector->limit)
+                selector->quantity = selector->limit;
+        }
+    }
+    else if (GetQuantityRepeatedKeys(selector->context,0x20))
+    {
+        if (selector->quantity == 1)
+            selector->quantity = selector->limit;
+        else if (selector->quantity <= 11)
+            selector->quantity = 1;
+        else
+            selector->quantity -= 10;
+    }
+    if (previous_quantity != selector->quantity)
+        changed = true;
+    if (changed)
+    {
+        Dma3_Fill(0x03ff03ff, GetChangedQuantityTile(GetQuantityRow(selector, 1), selector->column + 1), 4);
+        Dma3_Fill(0x03ff03ff, (GetQuantityRow(selector, 0) + 12), 0x1c);
+        Dma3_Fill(0x03ff03ff, (GetQuantityRow(selector, 1) + 12), 0x1c);
+        DrawSmallMessageNumber(selector->quantity, GetChangedQuantityTile(GetQuantityRow(selector, 1), selector->column + 2), 0x24, 0, 0x20);
+        DrawTallMessageNumber(selector->quantity * selector->unit_price, (GetQuantityRow(selector, 0) + 25), 0xa0, 0, 0x20);
+        RefreshQuantity(selector->context);
+        AudioPlayer_StartSong((u8 *) selector->context + 0x18, 0xcb);
+    }
+}
+
 EC SECTION(".text.g5_080CAAF4") void InventoryMenu_ClearQuantitySelector(QuantitySelector * selector) // 0x080CAAF4
 {
     Dma3_Fill(0x03ff03ff, GetQuantityRow(selector, 1) + selector->column, 0x10);
