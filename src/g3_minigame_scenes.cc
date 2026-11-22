@@ -8,7 +8,7 @@
 struct MinigameHardwareContext
 {
     void * state;
-    MinigameHardwareContext() asm("func_08008444");
+    MinigameHardwareContext() asm("HardwareContext_Initialize");
     virtual ~MinigameHardwareContext();
 };
 

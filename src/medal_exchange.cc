@@ -117,7 +117,7 @@ struct TileResources { void * handles; };
 struct ResourcePool { void * storage; };
 
 EC void * __builtin_new(size_t);
-EC void InitMedalExchangeHardware(MedalExchange *, Vec2 const *) asm("func_080084DC");
+EC void InitMedalExchangeHardware(MedalExchange *, Vec2 const *) asm("HardwareContext_InitializeWithKeyRepeat");
 EC void InitTileResources(TileResources *) asm("TilePool_Initialize");
 EC void DestroyTileResources(TileResources *, int) asm("TilePool_Destroy");
 EC ResourcePool * ResourcePool_Initialize(ResourcePool *);
@@ -1176,8 +1176,8 @@ EC MedalRunFade * DisplayFade_Initialize(MedalRunFade *, MedalExchangeDisplayReg
 // Pass the fixed fade step in the full argument register, without a redundant sign extension.
 EC void StartMedalFadeIn(MedalRunFade *, i32, u32, u32) asm("DisplayFade_StartIn");
 EC void StartMedalFadeOut(MedalRunFade *, i32, u32, u32) asm("DisplayFade_StartOut");
-EC void BlankMedalExchangeDisplay(MedalExchange *) asm("func_08008724");
-EC void RenderMedalExchangeFrame(MedalExchange *) asm("func_080087C8");
+EC void BlankMedalExchangeDisplay(MedalExchange *) asm("HardwareContext_ForceBlank");
+EC void RenderMedalExchangeFrame(MedalExchange *) asm("HardwareContext_CommitFrame");
 EC void SetMessageWindowPortrait(MessageWindow *, u32);
 EC void HardwareContext_UpdateKeys(MedalExchange *);
 EC u32 HardwareContext_GetRepeatedKeys(MedalExchange *);
