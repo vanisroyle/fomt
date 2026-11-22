@@ -273,6 +273,7 @@ struct FrisbeeDialogueState
 };
 
 EC void * HardwareContext_GetState(void *);
+EC void * HardwareContext_GetOamBuffer(void *);
 EC void * HardwareContext_GetFrameTasks(void *);
 EC void * HardwareContext_GetVBlankTasks(void *);
 EC u32 UpdateMessageWindow(void *, void *, void *, void *, void *, void *, void *);
@@ -528,7 +529,6 @@ struct ResourceHandleOwner;
 struct TileHeapOwner;
 EC u32 ResourceHandle_GetIndex(ResourceHandleOwner *, u32);
 EC u32 TileHandle_GetTileIndex(TileHeapOwner *, u32);
-EC void * HardwareContext_GetOamBuffer(void *);
 EC void func_0805E99C(void *, const void *, u32, const FrisbeeSpritePlacement *);
 EC SECTION(".text.frisbee.08057D34") void DrawFrisbeeSymbol(void * screen, i32 x, i32 y, i32 symbol)
 {
