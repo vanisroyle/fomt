@@ -47598,571 +47598,7 @@ UpdateHorseRaceDialogue: @ 0x08059878
 	.align 2, 0
 .L08059C90: .4byte gUnk_080FAE00
 
-	.equ .Lrace_bg1_scroll_x, 0x13EA
-	.equ .Lrace_bg2_scroll_x, 0x13EC
-	.equ .Lrace_bg3_scroll_x, 0x13EE
-	.equ .Lrace_bg1_last_tile_scroll, 0x13F0
-	.equ .Lrace_bg2_last_tile_scroll, 0x13F2
-	.equ .Lrace_bg3_last_tile_scroll, 0x13F4
-	.equ .Lrace_bg1_pattern_phase, 0x13F6
-	.equ .Lrace_bg2_pattern_phase, 0x13F8
-	.equ .Lrace_bg3_pattern_phase, 0x13FA
-
-	.equ .Lrace_course_bg3_pattern, 0xBEA
-	.equ .Lrace_course_bg2_pattern, 0xCEA
-	.equ .Lrace_course_bg1_pattern, 0xDEA
-	.equ .Lrace_course_bg2_alternate, 0xEEA
-	.equ .Lrace_course_bg3_tilemap, 0x0600C800
-	.equ .Lrace_course_bg2_tilemap, 0x0600D800
-	.equ .Lrace_course_bg1_tilemap, 0x0600E800
-	.equ .Lrace_course_scroll_mask, 0xFFF0
-
-	@ Expand the DMA queue to size + max(size, 1) when a tile copy fills it.
-	@ r5 = queue, r1 = old end, r7 = tile row. Scratch registers vary by loop.
-	.macro GrowRaceCourseDmaQueue old_size, command_ptr, tail_reg, next_row_reg, end_reg
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #(\old_size + 4)]
-	ldr r0, [r5]
-	adds \tail_reg, r1, #0
-	subs r0, \tail_reg, r0
-	asrs r4, r0, #4
-	str r4, [sp, #\old_size]
-	add r1, sp, #(\old_size + 4)
-	add r0, sp, #\old_size
-	cmp r4, #1
-	bhs .Lrace_dma_use_growth\@
-	adds r0, r1, #0
-.Lrace_dma_use_growth\@:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .Lrace_dma_empty_capacity\@
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .Lrace_dma_have_storage\@
-	mov r0, sb
-	bl func_080D3BC0
-	b .Lrace_dma_have_storage\@
-.Lrace_dma_empty_capacity\@:
-	movs r0, #0
-	mov sb, r0
-	@ Copy the queued commands into the resized buffer.
-.Lrace_dma_have_storage\@:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds \next_row_reg, r7, #1
-	str \next_row_reg, [sp, #0x64]
-	ldr \end_reg, [sp, #0x60]
-	cmp r2, \end_reg
-	beq .Lrace_dma_append_new_commands\@
-.Lrace_dma_copy_old_commands\@:
-	cmp r3, #0
-	beq .Lrace_dma_next_old_command\@
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lrace_dma_next_old_command\@:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .Lrace_dma_copy_old_commands\@
-	@ Append the new command with the original fill-insert branches.
-.Lrace_dma_append_new_commands\@:
-	adds r4, r3, #0
-	ldr r0, [sp, #(\old_size + 4)]
-	cmp r0, #1
-	bne .Lrace_dma_append_multiple_commands\@
-	cmp r4, #0
-	beq .Lrace_dma_advance_single_command\@
-	adds r0, r4, #0
-	ldr r1, [sp, #\command_ptr]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lrace_dma_advance_single_command\@:
-	adds r4, #0x10
-	b .Lrace_dma_release_old_storage\@
-.Lrace_dma_append_multiple_commands\@:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .Lrace_dma_finish_append\@
-.Lrace_dma_append_next_command\@:
-	cmp r2, #0
-	beq .Lrace_dma_advance_appended_command\@
-	adds r0, r2, #0
-	ldr r1, [sp, #\command_ptr]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lrace_dma_advance_appended_command\@:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .Lrace_dma_append_next_command\@
-.Lrace_dma_finish_append\@:
-	adds r4, r2, #0
-	@ Discard the old buffer and publish the new queue.
-.Lrace_dma_release_old_storage\@:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .Lrace_dma_free_old_storage\@
-.Lrace_dma_destroy_old_commands\@:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .Lrace_dma_destroy_old_commands\@
-.Lrace_dma_free_old_storage\@:
-	cmp r0, #0
-	beq .Lrace_dma_write_queue\@
-	bl free
-.Lrace_dma_write_queue\@:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-	.endm
-
-	.section .text.f3.0805AD14, "ax", %progbits
-	thumb_func_start UpdateHorseRaceCourseScroll
-UpdateHorseRaceCourseScroll: @ 0x0805AD14
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x68
-	mov sl, r0
-	@ Apply horizontal positions to the display shadow for all three layers.
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r1, .L0805ADF8 @ =0x000013EA
-	add r1, sl
-	ldrh r1, [r1]
-	strh r1, [r2]
-	strh r1, [r0, #0x14]
-	mov r0, sl
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r1, .L0805ADFC @ =0x000013EC
-	add r1, sl
-	ldrh r1, [r1]
-	strh r1, [r2]
-	strh r1, [r0, #0x18]
-	mov r0, sl
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L0805AE00 @ =0x000013EE
-	add r3, sl
-	ldrh r1, [r3]
-	strh r1, [r2]
-	strh r1, [r0, #0x1c]
-	ldr r2, .L0805AE04 @ =0x000013F4
-	add r2, sl
-	ldrh r0, [r3]
-	ldr r1, .L0805AE08 @ =0x0000FFF0
-	ands r1, r0
-	ldrh r0, [r2]
-	cmp r0, r1
-	bne .Lrace_scroll_update_near_pattern
-	b .Lrace_scroll_check_middle_scroll
-.Lrace_scroll_update_near_pattern:
-	@ When the scroll moves by 16 pixels, stream a two-tile strip into the wrapping map.
-	strh r1, [r2]
-	ldr r1, .L0805AE0C @ =0x000013FA
-	add r1, sl
-	ldrh r0, [r1]
-	subs r0, #1
-	strh r0, [r1]
-	lsls r0, r0, #0x10
-	cmp r0, #0
-	bge .Lrace_scroll_near_pattern_wrapped
-	movs r0, #2
-	strh r0, [r1]
-.Lrace_scroll_near_pattern_wrapped:
-	ldrh r0, [r2]
-	subs r0, #0x10
-	movs r1, #0xf8
-	lsls r1, r1, #1
-	ands r0, r1
-	asrs r2, r0, #3
-	movs r7, #0
-	asrs r0, r0, #8
-	lsls r0, r0, #0xb
-	str r0, [sp, #0x38]
-	mov r0, sp
-	adds r0, #4
-	str r0, [sp, #0x3c]
-	movs r0, #0x1f
-	ands r2, r0
-	lsls r2, r2, #1
-	str r2, [sp, #0x34]
-.Lrace_scroll_queue_near_row:
-	mov r0, sl
-	bl HardwareContext_GetDmaQueue
-	ldr r1, .L0805AE0C @ =0x000013FA
-	add r1, sl
-	movs r3, #0
-	ldrsh r2, [r1, r3]
-	lsls r1, r7, #1
-	adds r1, r1, r7
-	adds r1, r1, r2
-	adds r5, r0, #0
-	lsls r1, r1, #2
-	add r1, sl
-	ldr r4, .L0805AE10 @ =0x00000BEA
-	adds r1, r1, r4
-	lsls r2, r7, #6
-	ldr r6, [sp, #0x38]
-	adds r2, r6, r2
-	ldr r0, [sp, #0x34]
-	adds r2, r0, r2
-	ldr r3, .L0805AE14 @ =0x0600C800
-	adds r2, r2, r3
-	add r0, sp, #4
-	movs r3, #4
-	bl DmaCommand_InitializeCopy
-	ldr r1, [r5, #4]
-	ldr r0, [r5, #0xc]
-	cmp r1, r0
-	beq .Lrace_scroll_grow_near_dma_queue
-	cmp r1, #0
-	beq .Lrace_scroll_advance_near_dma_end
-	adds r0, r1, #0
-	ldr r1, [sp, #0x3c]
-	ldm r1!, {r2, r4, r6}
-	stm r0!, {r2, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lrace_scroll_advance_near_dma_end:
-	ldr r0, [r5, #4]
-	adds r0, #0x10
-	str r0, [r5, #4]
-	adds r3, r7, #1
-	str r3, [sp, #0x64]
-	b .Lrace_scroll_next_near_row
-	.align 2, 0
-.L0805ADF8: .4byte .Lrace_bg1_scroll_x
-.L0805ADFC: .4byte .Lrace_bg2_scroll_x
-.L0805AE00: .4byte .Lrace_bg3_scroll_x
-.L0805AE04: .4byte .Lrace_bg3_last_tile_scroll
-.L0805AE08: .4byte .Lrace_course_scroll_mask
-.L0805AE0C: .4byte .Lrace_bg3_pattern_phase
-.L0805AE10: .4byte .Lrace_course_bg3_pattern
-.L0805AE14: .4byte .Lrace_course_bg3_tilemap
-.Lrace_scroll_grow_near_dma_queue:
-	GrowRaceCourseDmaQueue 0x14, 0x3c, r4, r6, r7
-.Lrace_scroll_next_near_row:
-	ldr r7, [sp, #0x64]
-	cmp r7, #0x13
-	bgt .Lrace_scroll_check_middle_scroll
-	b .Lrace_scroll_queue_near_row
-.Lrace_scroll_check_middle_scroll:
-	@ BG2 streams track tiles for rows 3-17; a short section uses the alternate pattern.
-	ldr r2, .L0805AFA4 @ =0x000013F2
-	add r2, sl
-	ldr r0, .L0805AFA8 @ =0x000013EC
-	add r0, sl
-	ldrh r0, [r0]
-	ldr r1, .L0805AFAC @ =0x0000FFF0
-	ands r1, r0
-	ldrh r0, [r2]
-	cmp r0, r1
-	bne .Lrace_scroll_update_middle_pattern
-	b .Lrace_scroll_check_far_scroll
-.Lrace_scroll_update_middle_pattern:
-	strh r1, [r2]
-	ldr r1, .L0805AFB0 @ =0x000013F8
-	add r1, sl
-	ldrh r0, [r1]
-	subs r0, #1
-	strh r0, [r1]
-	lsls r0, r0, #0x10
-	cmp r0, #0
-	bge .Lrace_scroll_middle_pattern_wrapped
-	movs r0, #2
-	strh r0, [r1]
-.Lrace_scroll_middle_pattern_wrapped:
-	ldrh r0, [r2]
-	adds r3, r0, #0
-	subs r3, #0x10
-	movs r1, #0xf8
-	lsls r1, r1, #1
-	ands r3, r1
-	asrs r2, r3, #3
-	subs r0, #0x90
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x10
-	cmp r0, #0x2f
-	bls .Lrace_scroll_use_alternate_middle_pattern
-	b .Lrace_scroll_use_default_middle_pattern
-.Lrace_scroll_use_alternate_middle_pattern:
-	movs r7, #3
-	asrs r3, r3, #8
-	str r3, [sp, #0x5c]
-	movs r0, #0x1f
-	ands r2, r0
-	lsls r2, r2, #1
-	str r2, [sp, #0x40]
-	mov r2, sp
-	str r2, [sp, #0x44]
-.Lrace_scroll_queue_alternate_middle_row:
-	mov r0, sl
-	bl HardwareContext_GetDmaQueue
-	ldr r1, .L0805AFB0 @ =0x000013F8
-	add r1, sl
-	movs r3, #0
-	ldrsh r2, [r1, r3]
-	lsls r1, r7, #1
-	adds r1, r1, r7
-	adds r1, r1, r2
-	adds r5, r0, #0
-	lsls r1, r1, #2
-	add r1, sl
-	ldr r4, .L0805AFB4 @ =0x00000EEA
-	adds r1, r1, r4
-	ldr r6, [sp, #0x5c]
-	lsls r2, r6, #0xb
-	lsls r0, r7, #6
-	adds r2, r2, r0
-	ldr r0, [sp, #0x40]
-	adds r2, r0, r2
-	ldr r3, .L0805AFB8 @ =0x0600D800
-	adds r2, r2, r3
-	mov r0, sp
-	movs r3, #4
-	bl DmaCommand_InitializeCopy
-	ldr r1, [r5, #4]
-	ldr r0, [r5, #0xc]
-	cmp r1, r0
-	beq .Lrace_scroll_grow_alternate_middle_dma_queue
-	cmp r1, #0
-	beq .Lrace_scroll_advance_alternate_middle_dma_end
-	adds r0, r1, #0
-	mov r1, sp
-	ldm r1!, {r2, r4, r6}
-	stm r0!, {r2, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lrace_scroll_advance_alternate_middle_dma_end:
-	ldr r0, [r5, #4]
-	adds r0, #0x10
-	str r0, [r5, #4]
-	adds r3, r7, #1
-	str r3, [sp, #0x64]
-	b .Lrace_scroll_next_alternate_middle_row
-	.align 2, 0
-.L0805AFA4: .4byte .Lrace_bg2_last_tile_scroll
-.L0805AFA8: .4byte .Lrace_bg2_scroll_x
-.L0805AFAC: .4byte .Lrace_course_scroll_mask
-.L0805AFB0: .4byte .Lrace_bg2_pattern_phase
-.L0805AFB4: .4byte .Lrace_course_bg2_alternate
-.L0805AFB8: .4byte .Lrace_course_bg2_tilemap
-.Lrace_scroll_grow_alternate_middle_dma_queue:
-	GrowRaceCourseDmaQueue 0x1c, 0x44, r4, r6, r7
-.Lrace_scroll_next_alternate_middle_row:
-	ldr r7, [sp, #0x64]
-	cmp r7, #0x11
-	bgt .Lrace_scroll_skip_default_middle_pattern
-	b .Lrace_scroll_queue_alternate_middle_row
-.Lrace_scroll_skip_default_middle_pattern:
-	b .Lrace_scroll_check_far_scroll
-.Lrace_scroll_use_default_middle_pattern:
-	movs r7, #3
-	asrs r3, r3, #8
-	str r3, [sp, #0x5c]
-	movs r0, #0x1f
-	ands r2, r0
-	lsls r2, r2, #1
-	str r2, [sp, #0x48]
-	mov r2, sp
-	str r2, [sp, #0x4c]
-.Lrace_scroll_queue_default_middle_row:
-	mov r0, sl
-	bl HardwareContext_GetDmaQueue
-	ldr r1, .L0805B104 @ =0x000013F8
-	add r1, sl
-	movs r3, #0
-	ldrsh r2, [r1, r3]
-	lsls r1, r7, #1
-	adds r1, r1, r7
-	adds r1, r1, r2
-	adds r5, r0, #0
-	lsls r1, r1, #2
-	add r1, sl
-	ldr r4, .L0805B108 @ =0x00000CEA
-	adds r1, r1, r4
-	ldr r6, [sp, #0x5c]
-	lsls r2, r6, #0xb
-	lsls r0, r7, #6
-	adds r2, r2, r0
-	ldr r0, [sp, #0x48]
-	adds r2, r0, r2
-	ldr r3, .L0805B10C @ =0x0600D800
-	adds r2, r2, r3
-	mov r0, sp
-	movs r3, #4
-	bl DmaCommand_InitializeCopy
-	ldr r1, [r5, #4]
-	ldr r0, [r5, #0xc]
-	cmp r1, r0
-	beq .Lrace_scroll_grow_default_middle_dma_queue
-	cmp r1, #0
-	beq .Lrace_scroll_advance_default_middle_dma_end
-	adds r0, r1, #0
-	mov r1, sp
-	ldm r1!, {r2, r4, r6}
-	stm r0!, {r2, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lrace_scroll_advance_default_middle_dma_end:
-	ldr r0, [r5, #4]
-	adds r0, #0x10
-	str r0, [r5, #4]
-	adds r3, r7, #1
-	str r3, [sp, #0x64]
-	b .Lrace_scroll_next_default_middle_row
-	.align 2, 0
-.L0805B104: .4byte .Lrace_bg2_pattern_phase
-.L0805B108: .4byte .Lrace_course_bg2_pattern
-.L0805B10C: .4byte .Lrace_course_bg2_tilemap
-.Lrace_scroll_grow_default_middle_dma_queue:
-	GrowRaceCourseDmaQueue 0x24, 0x4c, r4, r6, r7
-.Lrace_scroll_next_default_middle_row:
-	ldr r7, [sp, #0x64]
-	cmp r7, #0x11
-	bgt .Lrace_scroll_check_far_scroll
-	b .Lrace_scroll_queue_default_middle_row
-.Lrace_scroll_check_far_scroll:
-	@ BG1 only streams the three rows occupied by the distant scenery.
-	ldr r2, .L0805B28C @ =0x000013F0
-	add r2, sl
-	ldr r0, .L0805B290 @ =0x000013EA
-	add r0, sl
-	ldrh r0, [r0]
-	ldr r1, .L0805B294 @ =0x0000FFF0
-	ands r1, r0
-	ldrh r0, [r2]
-	cmp r0, r1
-	bne .Lrace_scroll_update_far_pattern
-	b .Lrace_scroll_done
-.Lrace_scroll_update_far_pattern:
-	strh r1, [r2]
-	ldr r1, .L0805B298 @ =0x000013F6
-	add r1, sl
-	ldrh r0, [r1]
-	subs r0, #1
-	strh r0, [r1]
-	lsls r0, r0, #0x10
-	cmp r0, #0
-	bge .Lrace_scroll_far_pattern_wrapped
-	movs r0, #2
-	strh r0, [r1]
-.Lrace_scroll_far_pattern_wrapped:
-	ldrh r0, [r2]
-	subs r0, #0x10
-	movs r1, #0xf8
-	lsls r1, r1, #1
-	ands r0, r1
-	asrs r2, r0, #3
-	movs r7, #0x11
-	asrs r0, r0, #8
-	lsls r0, r0, #0xb
-	str r0, [sp, #0x54]
-	mov r3, sp
-	str r3, [sp, #0x58]
-	movs r0, #0x1f
-	ands r2, r0
-	lsls r2, r2, #1
-	str r2, [sp, #0x50]
-.Lrace_scroll_queue_far_row:
-	mov r0, sl
-	bl HardwareContext_GetDmaQueue
-	ldr r1, .L0805B298 @ =0x000013F6
-	add r1, sl
-	movs r4, #0
-	ldrsh r2, [r1, r4]
-	lsls r1, r7, #1
-	adds r1, r1, r7
-	adds r1, r1, r2
-	adds r5, r0, #0
-	lsls r1, r1, #2
-	add r1, sl
-	ldr r6, .L0805B29C @ =0x00000DEA
-	adds r1, r1, r6
-	lsls r2, r7, #6
-	ldr r0, [sp, #0x54]
-	adds r2, r0, r2
-	ldr r3, [sp, #0x50]
-	adds r2, r3, r2
-	ldr r4, .L0805B2A0 @ =0x0600E800
-	adds r2, r2, r4
-	mov r0, sp
-	movs r3, #4
-	bl DmaCommand_InitializeCopy
-	ldr r1, [r5, #4]
-	ldr r0, [r5, #0xc]
-	cmp r1, r0
-	beq .Lrace_scroll_grow_far_dma_queue
-	cmp r1, #0
-	beq .Lrace_scroll_advance_far_dma_end
-	adds r0, r1, #0
-	mov r1, sp
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lrace_scroll_advance_far_dma_end:
-	ldr r0, [r5, #4]
-	adds r0, #0x10
-	str r0, [r5, #4]
-	adds r4, r7, #1
-	str r4, [sp, #0x64]
-	b .Lrace_scroll_next_far_row
-	.align 2, 0
-.L0805B28C: .4byte .Lrace_bg1_last_tile_scroll
-.L0805B290: .4byte .Lrace_bg1_scroll_x
-.L0805B294: .4byte .Lrace_course_scroll_mask
-.L0805B298: .4byte .Lrace_bg1_pattern_phase
-.L0805B29C: .4byte .Lrace_course_bg1_pattern
-.L0805B2A0: .4byte .Lrace_course_bg1_tilemap
-.Lrace_scroll_grow_far_dma_queue:
-	GrowRaceCourseDmaQueue 0x2c, 0x58, r6, r0, r1
-.Lrace_scroll_next_far_row:
-	ldr r7, [sp, #0x64]
-	cmp r7, #0x13
-	bgt .Lrace_scroll_done
-	b .Lrace_scroll_queue_far_row
-.Lrace_scroll_done:
-	add sp, #0x68
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
-	.purgem GrowRaceCourseDmaQueue
-
+	.section .text.f3.0805B38C, "ax", %progbits
 	.equ .Lrace_obj_lane_count, 0x4
 	.equ .Lrace_obj_state_bg2_scroll_x, 0x13ec
 	.equ .Lrace_obj_state_player_is_racing, 0x140e
@@ -50536,6 +49972,227 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	bl DrawSpriteFrameObjects
 	.endm
 
+	.equ .Lmedal_obj_sp_upper_arrow_queue_size, 0x5c
+	.equ .Lmedal_obj_sp_lower_arrow_queue_size, 0x64
+
+	@ r6 = MedalExchange. Load the arrow frame and enqueue its OBJ tiles.
+	.macro PrepareMedalScrollArrow animator, options, arrow_y, tile_offset, tile_destination, grow_queue
+	ReadMedalExchangeObjectFrame \animator, r7
+	add r1, sp, #.Lmedal_obj_sp_frame_objects
+	adds r0, r7, #0
+	ldm r0!, {r2, r3, r4}
+	stm r1!, {r2, r3, r4}
+	ldm r0!, {r2, r3, r5}
+	stm r1!, {r2, r3, r5}
+	ldm r0!, {r4, r5}
+	stm r1!, {r4, r5}
+	mov r1, sp
+	adds r0, r6, #0
+	adds r0, #\options
+	ldm r0!, {r2, r3, r4}
+	stm r1!, {r2, r3, r4}
+	ldm r0!, {r2, r3, r5}
+	stm r1!, {r2, r3, r5}
+	ldr r0, [r0]
+	str r0, [r1]
+	mov r1, sp
+	movs r0, #.Lmedal_obj_arrow_x
+	strh r0, [r1]
+	movs r0, #\arrow_y
+	strh r0, [r1, #2]
+	movs r5, #(.Lmedal_obj_cursor_tiles >> 1)
+	lsls r5, r5, #1
+	adds r4, r6, r5
+	ldr r1, [r4, #4]
+	adds r0, r4, #0
+	bl func_08007D4C
+	mov r1, sp
+	adds r0, #\tile_offset
+	strh r0, [r1, #6]
+	movs r1, #(.Lmedal_obj_cursor_palette >> 1)
+	lsls r1, r1, #1
+	adds r0, r6, r1
+	ldr r1, [r0, #4]
+	bl ResourceHandle_GetIndex
+	mov r1, sp
+	strh r0, [r1, #4]
+	movs r0, #2
+	strh r0, [r1, #8]
+	mov r0, sp
+	movs r2, #1
+	mov sb, r2
+	mov r3, sb
+	strb r3, [r0, #0x18]
+	adds r0, r6, #0
+	bl HardwareContext_GetDmaQueue
+	adds r5, r0, #0
+	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
+	mov r8, r0
+	ldr r1, [r4, #4]
+	adds r0, r4, #0
+	bl func_08007D4C
+	adds r2, r0, #0
+	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
+	movs r3, #0
+	cmp r0, #0
+	beq .Lmedal_arrow_have_tile_bytes\@
+	mov r1, sp
+	ldrh r3, [r1, #.Lmedal_obj_sp_frame_tile_bytes]
+.Lmedal_arrow_have_tile_bytes\@:
+	str r5, [sp, #.Lmedal_obj_sp_dma_queue]
+	lsls r2, r2, #5
+	ldr r4, \tile_destination
+	adds r2, r2, r4
+	adds r0, r7, #0
+	mov r1, r8
+	bl DmaCommand_InitializeCopy
+	mov sl, r7
+	ldr r1, [r5, #4]
+	ldr r0, [r5, #0xc]
+	cmp r1, r0
+	beq \grow_queue
+	cmp r1, #0
+	beq .Lmedal_arrow_commit_tail\@
+	adds r0, r1, #0
+	mov r1, sl
+	ldm r1!, {r2, r5, r7}
+	stm r0!, {r2, r5, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmedal_arrow_commit_tail\@:
+	ldr r3, [sp, #.Lmedal_obj_sp_dma_queue]
+	ldr r0, [r3, #4]
+	adds r0, #0x10
+	str r0, [r3, #4]
+	.endm
+
+	@ r1 = old tail, sl = command to append. Grow by max(size, append count).
+	.macro GrowMedalScrollArrowDmaQueue arrow, occupied, old_end_first, old_end_loop, single_copy_temp, multi_copy_regs, decrement, remaining, old_queue, new_begin, new_queue
+	str r1, [sp, #.Lmedal_obj_sp_dma_old_end]
+	mov r4, sb
+	str r4, [sp, #(\occupied + 4)]
+	ldr r5, [sp, #.Lmedal_obj_sp_dma_queue]
+	ldr r0, [r5]
+	adds r7, r1, #0
+	subs r0, r7, r0
+	asrs r4, r0, #4
+	str r4, [sp, #\occupied]
+	add r1, sp, #(\occupied + 4)
+	add r0, sp, #\occupied
+	cmp r4, #1
+	bhs .Lmedal_arrow_have_growth\@
+	adds r0, r1, #0
+.Lmedal_arrow_have_growth\@:
+	ldr r0, [r0]
+	adds r0, r4, r0
+	cmp r0, #0
+	beq .Lmedal_arrow_zero_capacity\@
+	lsls r4, r0, #4
+	adds r0, r4, #0
+	bl malloc
+	mov sb, r4
+	cmp r0, #0
+	bne .Lmedal_arrow_copy_existing\@
+	mov r0, sb
+	bl func_080D3BC0
+	b .Lmedal_arrow_copy_existing\@
+.Lmedal_arrow_zero_capacity\@:
+	movs r0, #0
+	mov sb, r0
+.Lmedal_arrow_copy_existing\@:
+	adds r4, r0, #0
+	mov r8, r4
+	ldr r0, [sp, #.Lmedal_obj_sp_dma_queue]
+	ldr r2, [r0]
+	mov r3, r8
+	.ifc \arrow,upper
+	mov r1, sp
+	adds r1, #.Lmedal_obj_sp_object_attributes
+	str r1, [sp, #.Lmedal_obj_sp_object_attributes_ptr]
+	.endif
+	ldr \old_end_first, [sp, #.Lmedal_obj_sp_dma_old_end]
+	cmp r2, \old_end_first
+	beq .Lmedal_arrow_append\@
+.Lmedal_arrow_copy_next\@:
+	cmp r3, #0
+	beq .Lmedal_arrow_advance_copy\@
+	adds r0, r3, #0
+	adds r1, r2, #0
+	ldm r1!, {r4, r5, r7}
+	stm r0!, {r4, r5, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmedal_arrow_advance_copy\@:
+	adds r2, #0x10
+	adds r3, #0x10
+	ldr \old_end_loop, [sp, #.Lmedal_obj_sp_dma_old_end]
+	cmp r2, \old_end_loop
+	bne .Lmedal_arrow_copy_next\@
+.Lmedal_arrow_append\@:
+	adds r4, r3, #0
+	ldr r0, [sp, #(\occupied + 4)]
+	cmp r0, #1
+	bne .Lmedal_arrow_append_many\@
+	cmp r4, #0
+	beq .Lmedal_arrow_advance_single\@
+	adds r0, r4, #0
+	mov r1, sl
+	ldm r1!, {r2, r3, \single_copy_temp}
+	stm r0!, {r2, r3, \single_copy_temp}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmedal_arrow_advance_single\@:
+	adds r4, #0x10
+	b .Lmedal_arrow_discard_old\@
+.Lmedal_arrow_append_many\@:
+	mov ip, r0
+	adds r2, r4, #0
+	cmp r0, #0
+	beq .Lmedal_arrow_finish_append_many\@
+.Lmedal_arrow_append_next\@:
+	cmp r2, #0
+	beq .Lmedal_arrow_advance_append\@
+	adds r0, r2, #0
+	mov r1, sl
+	ldm r1!, {\multi_copy_regs}
+	stm r0!, {\multi_copy_regs}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmedal_arrow_advance_append\@:
+	movs \decrement, #1
+	rsbs \decrement, \decrement, #0
+	add ip, \decrement
+	adds r2, #0x10
+	mov \remaining, ip
+	cmp \remaining, #0
+	bne .Lmedal_arrow_append_next\@
+.Lmedal_arrow_finish_append_many\@:
+	adds r4, r2, #0
+.Lmedal_arrow_discard_old\@:
+	ldr \old_queue, [sp, #.Lmedal_obj_sp_dma_queue]
+	ldr r2, [\old_queue, #4]
+	ldr r0, [\old_queue]
+	adds r1, r0, #0
+	cmp r0, r2
+	beq .Lmedal_arrow_free_old\@
+.Lmedal_arrow_walk_old\@:
+	adds r1, #0x10
+	cmp r1, r2
+	bne .Lmedal_arrow_walk_old\@
+.Lmedal_arrow_free_old\@:
+	cmp r0, #0
+	beq .Lmedal_arrow_publish\@
+	bl free
+.Lmedal_arrow_publish\@:
+	mov r0, sb
+	add r0, r8
+	mov \new_begin, r8
+	ldr \new_queue, [sp, #.Lmedal_obj_sp_dma_queue]
+	str \new_begin, [\new_queue]
+	str r4, [\new_queue, #4]
+	str r0, [\new_queue, #0xc]
+	.endm
+
 	.section .text.f3.0805DFC4, "ax", %progbits
 	thumb_func_start DrawMedalExchangeObjects
 DrawMedalExchangeObjects: @ 0x0805DFC4
@@ -50636,227 +50293,21 @@ DrawMedalExchangeObjects: @ 0x0805DFC4
 	adds r0, r6, r5
 	ldrh r0, [r0]
 	mov r7, sp
-	adds r7, #0x6c
+	adds r7, #.Lmedal_obj_sp_object_attributes
 	str r7, [sp, #.Lmedal_obj_sp_object_attributes_ptr]
 	cmp r0, #0
 	bne .Lmedal_obj_draw_upper_scroll_arrow
 	b .Lmedal_obj_check_lower_scroll_arrow
 .Lmedal_obj_draw_upper_scroll_arrow:
-	ReadMedalExchangeObjectFrame .Lmedal_obj_cursor_animator, r7
-	add r1, sp, #.Lmedal_obj_sp_frame_objects
-	adds r0, r7, #0
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r5}
-	stm r1!, {r2, r3, r5}
-	ldm r0!, {r4, r5}
-	stm r1!, {r4, r5}
-	mov r1, sp
-	adds r0, r6, #0
-	adds r0, #.Lmedal_obj_cursor_options
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r5}
-	stm r1!, {r2, r3, r5}
-	ldr r0, [r0]
-	str r0, [r1]
-	mov r1, sp
-	movs r0, #.Lmedal_obj_arrow_x
-	strh r0, [r1]
-	movs r0, #.Lmedal_obj_upper_arrow_y
-	strh r0, [r1, #2]
-	movs r5, #(.Lmedal_obj_cursor_tiles >> 1)
-	lsls r5, r5, #1
-	adds r4, r6, r5
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	mov r1, sp
-	adds r0, #.Lmedal_obj_arrow_tile_top
-	strh r0, [r1, #6]
-	movs r1, #(.Lmedal_obj_cursor_palette >> 1)
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	mov r1, sp
-	strh r0, [r1, #4]
-	movs r0, #2
-	strh r0, [r1, #8]
-	mov r0, sp
-	movs r2, #1
-	mov sb, r2
-	mov r3, sb
-	strb r3, [r0, #0x18]
-	adds r0, r6, #0
-	bl HardwareContext_GetDmaQueue
-	adds r5, r0, #0
-	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
-	mov r8, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	adds r2, r0, #0
-	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
-	movs r3, #0
-	cmp r0, #0
-	beq .L0805E18C
-	mov r1, sp
-	ldrh r3, [r1, #0x28]
-.L0805E18C:
-	str r5, [sp, #.Lmedal_obj_sp_dma_queue]
-	lsls r2, r2, #5
-	ldr r4, .L0805E1CC
-	adds r2, r2, r4
-	adds r0, r7, #0
-	mov r1, r8
-	bl DmaCommand_InitializeCopy
-	mov sl, r7
-	ldr r1, [r5, #4]
-	ldr r0, [r5, #0xc]
-	cmp r1, r0
-	beq .Lmedal_obj_grow_upper_arrow_dma_queue
-	cmp r1, #0
-	beq .L0805E1B6
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E1B6:
-	ldr r3, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r0, [r3, #4]
-	adds r0, #0x10
-	str r0, [r3, #4]
+	PrepareMedalScrollArrow .Lmedal_obj_cursor_animator, .Lmedal_obj_cursor_options, .Lmedal_obj_upper_arrow_y, .Lmedal_obj_arrow_tile_top, .Lmedal_obj_upper_arrow_tile_destination, .Lmedal_obj_grow_upper_arrow_dma_queue
 	b .Lmedal_obj_submit_upper_arrow_frame
 	.align 2, 0
 .L0805E1C0: .4byte .Lmedal_obj_exchange_phase
 .L0805E1C4: .4byte .Lmedal_obj_selected_prize_row
 .L0805E1C8: .4byte .Lmedal_obj_first_visible_prize_row
-.L0805E1CC: .4byte (.Lmedal_obj_tile_vram + .Lmedal_obj_arrow_tile_top * .Lmedal_obj_tile_bytes)
+.Lmedal_obj_upper_arrow_tile_destination: .4byte (.Lmedal_obj_tile_vram + .Lmedal_obj_arrow_tile_top * .Lmedal_obj_tile_bytes)
 .Lmedal_obj_grow_upper_arrow_dma_queue:
-	str r1, [sp, #.Lmedal_obj_sp_dma_old_end]
-	mov r4, sb
-	str r4, [sp, #0x60]
-	ldr r5, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r0, [r5]
-	adds r7, r1, #0
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x5c]
-	add r1, sp, #0x60
-	add r0, sp, #0x5c
-	cmp r4, #1
-	bhs .L0805E1EC
-	adds r0, r1, #0
-.L0805E1EC:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805E20A
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805E20E
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805E20E
-.L0805E20A:
-	movs r0, #0
-	mov sb, r0
-.L0805E20E:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r0, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r2, [r0]
-	mov r3, r8
-	mov r1, sp
-	adds r1, #0x6c
-	str r1, [sp, #.Lmedal_obj_sp_object_attributes_ptr]
-	ldr r4, [sp, #.Lmedal_obj_sp_dma_old_end]
-	cmp r2, r4
-	beq .L0805E23E
-.L0805E224:
-	cmp r3, #0
-	beq .L0805E234
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E234:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lmedal_obj_sp_dma_old_end]
-	cmp r2, r5
-	bne .L0805E224
-.L0805E23E:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x60]
-	cmp r0, #1
-	bne .L0805E25A
-	cmp r4, #0
-	beq .L0805E256
-	adds r0, r4, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E256:
-	adds r4, #0x10
-	b .L0805E282
-.L0805E25A:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805E280
-.L0805E262:
-	cmp r2, #0
-	beq .L0805E272
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E272:
-	movs r0, #1
-	rsbs r0, r0, #0
-	add ip, r0
-	adds r2, #0x10
-	mov r1, ip
-	cmp r1, #0
-	bne .L0805E262
-.L0805E280:
-	adds r4, r2, #0
-.L0805E282:
-	ldr r3, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r2, [r3, #4]
-	ldr r0, [r3]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805E294
-.L0805E28E:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805E28E
-.L0805E294:
-	cmp r0, #0
-	beq .L0805E29C
-	bl free
-.L0805E29C:
-	mov r0, sb
-	add r0, r8
-	mov r5, r8
-	ldr r7, [sp, #.Lmedal_obj_sp_dma_queue]
-	str r5, [r7]
-	str r4, [r7, #4]
-	str r0, [r7, #0xc]
+	GrowMedalScrollArrowDmaQueue upper, .Lmedal_obj_sp_upper_arrow_queue_size, r4, r5, r7, "r4,r5,r7", r0, r1, r3, r5, r7
 .Lmedal_obj_submit_upper_arrow_frame:
 	DrawMedalExchangeObjectFrame r0
 .Lmedal_obj_check_lower_scroll_arrow:
@@ -50868,215 +50319,12 @@ DrawMedalExchangeObjects: @ 0x0805DFC4
 	bls .Lmedal_obj_draw_lower_scroll_arrow
 	b .Lmedal_obj_draw_glyphs
 .Lmedal_obj_draw_lower_scroll_arrow:
-	ReadMedalExchangeObjectFrame .Lmedal_obj_menu_icon_animator, r7
-	add r1, sp, #.Lmedal_obj_sp_frame_objects
-	adds r0, r7, #0
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r5}
-	stm r1!, {r2, r3, r5}
-	ldm r0!, {r4, r5}
-	stm r1!, {r4, r5}
-	mov r1, sp
-	adds r0, r6, #0
-	adds r0, #.Lmedal_obj_menu_icon_options
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r5}
-	stm r1!, {r2, r3, r5}
-	ldr r0, [r0]
-	str r0, [r1]
-	mov r1, sp
-	movs r0, #.Lmedal_obj_arrow_x
-	strh r0, [r1]
-	movs r0, #.Lmedal_obj_lower_arrow_y
-	strh r0, [r1, #2]
-	movs r5, #(.Lmedal_obj_cursor_tiles >> 1)
-	lsls r5, r5, #1
-	adds r4, r6, r5
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	mov r1, sp
-	adds r0, #.Lmedal_obj_arrow_tile_bottom
-	strh r0, [r1, #6]
-	movs r1, #(.Lmedal_obj_cursor_palette >> 1)
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	mov r1, sp
-	strh r0, [r1, #4]
-	movs r0, #2
-	strh r0, [r1, #8]
-	mov r0, sp
-	movs r2, #1
-	mov sb, r2
-	mov r3, sb
-	strb r3, [r0, #0x18]
-	adds r0, r6, #0
-	bl HardwareContext_GetDmaQueue
-	adds r5, r0, #0
-	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
-	mov r8, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	adds r2, r0, #0
-	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
-	movs r3, #0
-	cmp r0, #0
-	beq .L0805E386
-	mov r1, sp
-	ldrh r3, [r1, #0x28]
-.L0805E386:
-	str r5, [sp, #.Lmedal_obj_sp_dma_queue]
-	lsls r2, r2, #5
-	ldr r4, .L0805E3BC
-	adds r2, r2, r4
-	adds r0, r7, #0
-	mov r1, r8
-	bl DmaCommand_InitializeCopy
-	mov sl, r7
-	ldr r1, [r5, #4]
-	ldr r0, [r5, #0xc]
-	cmp r1, r0
-	beq .Lmedal_obj_grow_lower_arrow_dma_queue
-	cmp r1, #0
-	beq .L0805E3B0
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E3B0:
-	ldr r3, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r0, [r3, #4]
-	adds r0, #0x10
-	str r0, [r3, #4]
+	PrepareMedalScrollArrow .Lmedal_obj_menu_icon_animator, .Lmedal_obj_menu_icon_options, .Lmedal_obj_lower_arrow_y, .Lmedal_obj_arrow_tile_bottom, .Lmedal_obj_lower_arrow_tile_destination, .Lmedal_obj_grow_lower_arrow_dma_queue
 	b .Lmedal_obj_submit_lower_arrow_frame
 	.align 2, 0
-.L0805E3BC: .4byte (.Lmedal_obj_tile_vram + .Lmedal_obj_arrow_tile_bottom * .Lmedal_obj_tile_bytes)
+.Lmedal_obj_lower_arrow_tile_destination: .4byte (.Lmedal_obj_tile_vram + .Lmedal_obj_arrow_tile_bottom * .Lmedal_obj_tile_bytes)
 .Lmedal_obj_grow_lower_arrow_dma_queue:
-	str r1, [sp, #.Lmedal_obj_sp_dma_old_end]
-	mov r4, sb
-	str r4, [sp, #0x68]
-	ldr r5, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r0, [r5]
-	adds r7, r1, #0
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x64]
-	add r1, sp, #0x68
-	add r0, sp, #0x64
-	cmp r4, #1
-	bhs .L0805E3DC
-	adds r0, r1, #0
-.L0805E3DC:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805E3FA
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805E3FE
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805E3FE
-.L0805E3FA:
-	movs r0, #0
-	mov sb, r0
-.L0805E3FE:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r0, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r2, [r0]
-	mov r3, r8
-	ldr r1, [sp, #.Lmedal_obj_sp_dma_old_end]
-	cmp r2, r1
-	beq .L0805E428
-.L0805E40E:
-	cmp r3, #0
-	beq .L0805E41E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E41E:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #.Lmedal_obj_sp_dma_old_end]
-	cmp r2, r0
-	bne .L0805E40E
-.L0805E428:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x68]
-	cmp r0, #1
-	bne .L0805E444
-	cmp r4, #0
-	beq .L0805E440
-	adds r0, r4, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r5}
-	stm r0!, {r2, r3, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E440:
-	adds r4, #0x10
-	b .L0805E46C
-.L0805E444:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805E46A
-.L0805E44C:
-	cmp r2, #0
-	beq .L0805E45C
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E45C:
-	movs r5, #1
-	rsbs r5, r5, #0
-	add ip, r5
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805E44C
-.L0805E46A:
-	adds r4, r2, #0
-.L0805E46C:
-	ldr r0, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r2, [r0, #4]
-	ldr r0, [r0]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805E47E
-.L0805E478:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805E478
-.L0805E47E:
-	cmp r0, #0
-	beq .L0805E486
-	bl free
-.L0805E486:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	ldr r2, [sp, #.Lmedal_obj_sp_dma_queue]
-	str r1, [r2]
-	str r4, [r2, #4]
-	str r0, [r2, #0xc]
+	GrowMedalScrollArrowDmaQueue lower, .Lmedal_obj_sp_lower_arrow_queue_size, r1, r0, r5, "r3,r4,r7", r5, r7, r0, r1, r2
 .Lmedal_obj_submit_lower_arrow_frame:
 	DrawMedalExchangeObjectFrame r4
 .Lmedal_obj_draw_glyphs:
@@ -51253,6 +50501,8 @@ DrawMedalExchangeObjects: @ 0x0805DFC4
 .L0805E620: .4byte 0xFFFFFC00
 	.purgem ReadMedalExchangeObjectFrame
 	.purgem DrawMedalExchangeObjectFrame
+	.purgem PrepareMedalScrollArrow
+	.purgem GrowMedalScrollArrowDmaQueue
 
 	.equ .Lmemory_scene_cue, 0x6420
 	.equ .Lmemory_scene_phase, 0x6422
