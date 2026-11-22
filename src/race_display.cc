@@ -606,7 +606,7 @@ struct RaceFrameSource
     RaceFrameSourceVTable const * vtable;
 };
 
-EC u32 ResolveRaceObjPalette(RaceObjAllocation *, u32) asm("func_080074C0");
+EC u32 ResolveRaceObjPalette(RaceObjAllocation *, u32) asm("ResourceHandle_GetIndex");
 EC u32 ResolveRaceObjTile(RaceObjAllocation *, u32) asm("func_08007D4C");
 EC void * CopyRaceFrame(void *, void const *, u32) asm("memcpy");
 EC void DrawMessageFrame(u16 *, u32, u32, u32, u32, u32, u32);

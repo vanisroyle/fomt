@@ -233,7 +233,7 @@ struct FixedOverlayBuildScratch
 };
 
 EC void InitOverlayTileHeap(OverlayTileAllocation *) asm("func_08007874");
-EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007C28");
+EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("TileHandle_Release");
 EC u32 AllocateOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007B54");
 EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("func_08007D4C");
 EC void * CopyOverlayFrame(void *, void const *, size_t) asm("memcpy");

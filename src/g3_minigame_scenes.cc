@@ -182,7 +182,7 @@ SpriteHarvestingScene::SpriteHarvestingScene(HarvestingSettings const & settings
 
 struct FestivalPaletteResource;
 EC void ResourceHandles_Initialize(FestivalPaletteResource *);
-EC void func_080073E0(FestivalPaletteResource *, u32);
+EC void ResourceHandle_Release(FestivalPaletteResource *, u32);
 EC u32 func_0800736C(FestivalPaletteResource *);
 EC void SetMessageWindowPortrait(MinigameMessageWindow *, u32);
 
@@ -197,7 +197,7 @@ struct FestivalPaletteResource
     }
     void Allocate()
     {
-        func_080073E0(this, handle);
+        ResourceHandle_Release(this, handle);
         handle = func_0800736C(this);
     }
 };
