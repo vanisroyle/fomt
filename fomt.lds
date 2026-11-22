@@ -95,7 +95,7 @@ SECTIONS
         asm/intro_scene.o(.text);
         src/intro_scene.o(.text.func_080036F8);
         asm/intro_scene.o(.text.after_080036F8);
-        src/intro_scene.o(.text.IntroScene_Destroy);
+        src/intro_scene.o(.text.func_0800371C);
         asm/intro_scene.o(.text.after_0800371C);
         asm/new_game.o(.text);
         src/new_game.o(.text.func_08003C28);
@@ -108,13 +108,13 @@ SECTIONS
         asm/new_game.o(.text.after_08004B58);
         src/new_game.o(.text.func_08004B94);
         asm/new_game.o(.text.after_08004B94);
-        src/new_game.o(.text.NewGameMenuScene_Destroy);
+        src/new_game.o(.text.func_08004BDC);
         asm/new_game.o(.text.after_08004BDC);
         src/new_game.o(.text.func_08004C48);
         asm/new_game.o(.text.after_08004C48);
-        src/new_game.o(.text.NewGameSetupScene_Destroy);
+        src/new_game.o(.text.func_08004C54);
         asm/new_game.o(.text.after_08004C54);
-        src/new_game.o(.text.NewGameChoiceDialog_DestroyTask);
+        src/new_game.o(.text.func_080050C8);
         asm/new_game.o(.text.after_080050C8);
         src/new_game.o(.text.func_08005254);
         asm/new_game.o(.text.after_08005254);
@@ -128,7 +128,7 @@ SECTIONS
         asm/new_game.o(.text.after_080059D0);
         src/new_game.o(.text.func_08005A3C);
         asm/new_game.o(.text.after_08005A3C);
-        src/new_game.o(.text.NameEntryScene_DestroyTask);
+        src/new_game.o(.text.func_08005B38);
         asm/new_game.o(.text.after_08005B38);
         src/new_game.o(.text.func_08006334);
         asm/new_game.o(.text.after_08006334);
@@ -147,7 +147,7 @@ SECTIONS
         src/new_game.o(.text.func_080070A4);
         asm/new_game.o(.text.after_080070A4);
         src/new_game.o(.text.func_08007110);
-        src/new_game.o(.text.NameEntrySceneTask_GetEnteredName);
+        src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
         asm/hardware.o(.text.handle_alloc);
         src/hardware.o(.text.ResourceHandle_Release);

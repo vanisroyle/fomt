@@ -416,7 +416,7 @@ EC NewGameSceneTaskOwner * NewGameMenuScene_InitializeWithTransition(NewGameScen
     return self;
 }
 
-EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, int destructorFlags) SECTION(".text.NewGameChoiceDialog_DestroyTask");
+EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, int destructorFlags) SECTION(".text.func_080050C8");
 EC void NewGameChoiceDialog_DestroyTask(NewGameChoiceDialogTaskLifetime * self, int destructorFlags)
 {
     self->vtable = gNewGameChoiceDialogTaskVtable;
@@ -433,7 +433,7 @@ EC NewGameSceneTaskOwner * NewGameChoiceDialogScene_Initialize(NewGameSceneTaskO
     return self;
 }
 
-EC void NameEntryScene_DestroyTask(NameEntrySceneTaskLifetime * self, int destructorFlags) SECTION(".text.NameEntryScene_DestroyTask");
+EC void NameEntryScene_DestroyTask(NameEntrySceneTaskLifetime * self, int destructorFlags) SECTION(".text.func_08005B38");
 EC void NameEntryScene_DestroyTask(NameEntrySceneTaskLifetime * self, int destructorFlags)
 {
     self->vtable = gNameEntrySceneTaskVtable;
@@ -470,7 +470,7 @@ EC bool NameEntryScene_PrepareConfirmedName(NameEntrySceneTask * self)
     return contentLength != 0;
 }
 
-EC void NewGameMenuScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags) SECTION(".text.NewGameMenuScene_Destroy");
+EC void NewGameMenuScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags) SECTION(".text.func_08004BDC");
 EC void NewGameMenuScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags)
 {
     self->vtable = gNewGameMenuSceneVtable;
@@ -485,7 +485,7 @@ EC void * NewGameSetupScene_Initialize(void ** self)
     return self;
 }
 
-EC void NewGameSetupScene_Destroy(void ** self, int destructorFlags) SECTION(".text.NewGameSetupScene_Destroy");
+EC void NewGameSetupScene_Destroy(void ** self, int destructorFlags) SECTION(".text.func_08004C54");
 EC void NewGameSetupScene_Destroy(void ** self, int destructorFlags)
 {
     *self = gNewGameSetupSceneVtable;
@@ -565,7 +565,7 @@ EC char * NameEntryScene_GetName(NameEntryScene * self)
     return self->task->enteredName;
 }
 
-EC char * NameEntrySceneTask_GetEnteredName(NameEntrySceneTask * self) SECTION(".text.NameEntrySceneTask_GetEnteredName");
+EC char * NameEntrySceneTask_GetEnteredName(NameEntrySceneTask * self) SECTION(".text.func_0800711C");
 EC char * NameEntrySceneTask_GetEnteredName(NameEntrySceneTask * self)
 {
     return self->enteredName;

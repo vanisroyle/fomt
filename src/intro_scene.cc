@@ -14,7 +14,7 @@ EC IntroSceneOwner * IntroScene_Initialize(IntroSceneOwner * self)
     return self;
 }
 
-EC void IntroScene_Destroy(IntroSceneOwner * self, int destructorFlags) SECTION(".text.IntroScene_Destroy");
+EC void IntroScene_Destroy(IntroSceneOwner * self, int destructorFlags) SECTION(".text.func_0800371C");
 EC void IntroScene_Destroy(IntroSceneOwner * self, int destructorFlags)
 {
     self->vtable = gIntroSceneVtable;
