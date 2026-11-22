@@ -899,7 +899,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803A8A4);
         src/code_0803A8A4.o(.text.0803AB30);
         src/code_0803A8A4.o(.text.0803AC78);
-        asm/code_0803A8A4.o(.text.0803ACD8);
+        src/code_0803A8A4.o(.text.0803ACD8);
         src/fixed_sprite_overlay_draw.o(.text.0803AE58);
         asm/code_0803A8A4.o(.text.0803AEA0);
         src/code_0803A8A4.o(.text.0803B0A8);
