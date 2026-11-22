@@ -9,8 +9,9 @@
 
 .section .text.g5_after_080D0CD4, "ax"
 
-	thumb_func_start func_080D0D28
-func_080D0D28: @ 0x080D0D28
+	.if VIETNAMESE_FONT
+	thumb_func_start Font_DecodeGlyph
+Font_DecodeGlyph: @ 0x080D0D28
 	push {r4, r5, r6, lr}
 	adds r4, r0, #0
 	adds r2, r1, #0
@@ -215,6 +216,9 @@ func_080D0D28: @ 0x080D0D28
 	pop {r1}
 	bx r1
 
+	.endif
+
+.section .text.g5_after_080D0D28, "ax"
 	thumb_func_start Dma_ExecuteTransfer
 Dma_ExecuteTransfer: @ 0x080D0EBC
 	stm r3!, {r0, r1, r2}

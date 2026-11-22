@@ -1581,6 +1581,8 @@ SECTIONS
         src/g5_records.o(.text.g5_080D0C78);
         src/g5_encoding.o(.text.g5_080D0CD4);
         asm/code_080D0C68.o(.text.g5_after_080D0CD4);
+        src/g5_font.o(.text.g5_080D0D28);
+        asm/code_080D0C68.o(.text.g5_after_080D0D28);
         src/g5_irq.o(.text.g5_080D100C);
         asm/code_080D102C.o(.text);
 
