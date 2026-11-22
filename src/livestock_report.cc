@@ -68,7 +68,7 @@ struct FarmReportMenu
     u32 selected_page;
 };
 
-EC char const gFarmReportMenuVTable[] asm("vtable_unk_080E7A88");
+EC char const gFarmReportMenuVTable[];
 EC void InitScrollableReportMenu(FarmReportMenu * self, u32 mode) asm("func_08075E7C");
 EC void OpenFarmReportPage(FarmReportMenu * self, FarmReportPageId id) asm("func_08069C34");
 
@@ -149,7 +149,8 @@ struct LivestockReport
 
 EC void FillMessageTiles(Vec2 dimensions, void * tiles, u32 color);
 EC void DrawMessageTileString(Vec2 dimensions, void * tiles, u32 x, u32 y, char const * text);
-EC void DrawFarmReportPanel(LivestockReport * self) asm("func_08076EA8");
+EC void DrawFarmReportPanel(void * self) asm("func_08076EA8");
+EC void DestroyFarmReportPanel(void * self, u32 flags) asm("func_08076E0C");
 EC void SetFarmReportScrollHeight(void * panel, i16 height) asm("func_08075E24");
 EC void InitLivestockReport(LivestockReport * self, void * menu, void * display, u32 content_height, char const * title);
 EC void AddLivestockReportRow(LivestockReport * self, u32 row, Livestock const * animal, void const * tiles, void const * palette);
@@ -157,9 +158,9 @@ EC void AddLivestockReportRow(LivestockReport * self, u32 row, Livestock const *
 EC char const gChickenReportTitle[];
 EC char const gCowReportTitle[];
 EC char const gSheepReportTitle[];
-EC char const vtable_unk_080E7A58[];
-EC char const vtable_unk_080E7A48[];
-EC char const vtable_unk_080E7A38[];
+EC char const gChickenReportVTable[];
+EC char const gCowReportVTable[];
+EC char const gSheepReportVTable[];
 EC u8 const gUnk_0875268C[], gUnk_0875270C[], gUnk_0875272C[], gUnk_087527AC[];
 EC u8 const gUnk_08751B4C[], gUnk_08751BCC[], gUnk_08751C8C[], gUnk_08751D0C[];
 EC u8 const gUnk_08751DCC[], gUnk_08751E4C[], gUnk_08751BEC[], gUnk_08751C6C[], gUnk_08751D2C[], gUnk_08751DAC[];
@@ -206,7 +207,7 @@ REPORT_CODE(08063E8C) u16 GetLivestockReportMoodTile(Livestock const * animal)
 REPORT_CODE(08064320) LivestockReport * InitChickenReport(LivestockReport * self, void * menu, void * display)
 {
     InitLivestockReport(self, menu, display, 45, gChickenReportTitle);
-    self->vtable = vtable_unk_080E7A58;
+    self->vtable = gChickenReportVTable;
 
     u32 row = 0, slot = 0;
     u32 capacity = self->data->farm.coop.GetCapacity();
@@ -240,7 +241,7 @@ REPORT_CODE(08064320) LivestockReport * InitChickenReport(LivestockReport * self
 REPORT_CODE(080643DC) LivestockReport * InitCowReport(LivestockReport * self, void * menu, void * display)
 {
     InitLivestockReport(self, menu, display, 85, gCowReportTitle);
-    self->vtable = vtable_unk_080E7A48;
+    self->vtable = gCowReportVTable;
 
     u32 row = 0, slot = 0;
     u32 capacity = self->data->farm.barn.GetCapacity();
@@ -288,7 +289,7 @@ REPORT_CODE(080643DC) LivestockReport * InitCowReport(LivestockReport * self, vo
 REPORT_CODE(080644F0) LivestockReport * InitSheepReport(LivestockReport * self, void * menu, void * display)
 {
     InitLivestockReport(self, menu, display, 85, gSheepReportTitle);
-    self->vtable = vtable_unk_080E7A38;
+    self->vtable = gSheepReportVTable;
 
     u32 row = 0, slot = 0;
     u32 capacity = self->data->farm.barn.GetCapacity();
@@ -327,4 +328,37 @@ REPORT_CODE(080644F0) LivestockReport * InitSheepReport(LivestockReport * self, 
     }
     SetFarmReportScrollHeight(self->scroll_panel, (row * 5 + 5) * 8);
     return self;
+}
+
+struct FarmOverviewReport;
+
+EC SECTION(".text.farm_report_callbacks.080E1D8C") void DestroySheepReport(LivestockReport * self, u32 flags)
+{
+    DestroyFarmReportPanel(self, flags);
+}
+
+EC SECTION(".text.farm_report_callbacks.080E1D98") void DestroyCowReport(LivestockReport * self, u32 flags)
+{
+    DestroyFarmReportPanel(self, flags);
+}
+
+EC SECTION(".text.farm_report_callbacks.080E1DA4") void DestroyChickenReport(LivestockReport * self, u32 flags)
+{
+    DestroyFarmReportPanel(self, flags);
+}
+
+EC SECTION(".text.farm_report_callbacks.080E1DB0") void DestroyLivestockReport(LivestockReport * self, u32 flags)
+{
+    DestroyFarmReportPanel(self, flags);
+}
+
+EC SECTION(".text.farm_report_callbacks.080E1DBC") bool DrawFarmOverviewReport(FarmOverviewReport * self)
+{
+    DrawFarmReportPanel(self);
+    return true;
+}
+
+EC SECTION(".text.farm_report_callbacks.080E1DC8") void DestroyFarmOverviewReport(FarmOverviewReport * self, u32 flags)
+{
+    DestroyFarmReportPanel(self, flags);
 }
