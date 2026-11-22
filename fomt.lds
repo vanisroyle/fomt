@@ -1627,6 +1627,7 @@ SECTIONS
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_navigation.o(.text.g5_080CDB08);
+        src/g5_left_navigation.o(.text.g5_080CDC00);
         asm/code_080C8360.o(.text.g5_after_080CDB08);
         src/g5_horizontal_navigation.o(.text.g5_080CDCD0);
         src/g5_navigation.o(.text.g5_080CDD7C);

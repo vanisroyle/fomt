@@ -120364,7 +120364,7 @@ func_0808A55C: @ 0x0808A55C
 	cmp r0, #0
 	beq .L0808A86C
 	ldr r0, [r6]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L0808A89A
 .L0808A86C:
 	movs r4, #0
@@ -123516,7 +123516,7 @@ func_0808C0BC: @ 0x0808C0BC
 	cmp r0, #0
 	beq .L0808C364
 	ldr r0, [r4]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L0808C394
 .L0808C364:
 	movs r4, #0
@@ -127949,7 +127949,7 @@ func_0808E6FC: @ 0x0808E6FC
 	cmp r0, #0
 	beq .L0808EA0C
 	ldr r0, [r6]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L0808EA3A
 .L0808EA0C:
 	movs r4, #0
@@ -131852,7 +131852,7 @@ func_08090960: @ 0x08090960
 	cmp r0, #0
 	beq .L08090C54
 	ldr r0, [r6]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L08090C82
 .L08090C54:
 	movs r4, #0
@@ -133339,7 +133339,7 @@ func_0809152C: @ 0x0809152C
 	beq .L080918B4
 	ldr r1, [sp, #0x60]
 	ldr r0, [r1]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L080918E4
 .L080918B4:
 	movs r4, #0
@@ -136110,7 +136110,7 @@ func_08092D64: @ 0x08092D64
 	cmp r0, #0
 	beq .L08093014
 	ldr r0, [r6]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L08093044
 .L08093014:
 	movs r4, #0
