@@ -451,7 +451,8 @@ vtable_unk_080E65F4:
 
 	.global vtable_unk_080E6644
 vtable_unk_080E6644:
-	.incbin "baserom.gba", 0xE6644, 0x14
+	.incbin "baserom.gba", 0xE6644, 0x10
+	.4byte DrawItemDisplayGraphics
 
 	.global vtable_unk_080E6658
 vtable_unk_080E6658:

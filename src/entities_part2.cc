@@ -1,8 +1,11 @@
 #include "coop.hh"
+#include "dma_queue.hh"
 #include "dog.hh"
 #include "farmer_entity_layout.hh"
 #include "entity_sound_channel.hh"
 #include "farm_house.hh"
+#include "fixed_sprite_overlay.hh"
+#include "g1_map_resources.hh"
 #include "shipping_bin.hh"
 #include "sprite_animation.hh"
 
@@ -3494,6 +3497,296 @@ EC void TickItemDisplayIcon(FarmerIconGraphics * graphics)
             graphics->icon_state.restart = 0;
     }
 }
+
+struct OamBuffer;
+
+struct ItemDisplayRenderContext
+{
+    DmaTransferQueue * tile_uploads;
+    STRUCT_PAD(4, 8);
+    OamBuffer * sprite_queue;
+    i16 scroll_x;
+    i16 scroll_y;
+};
+typedef FixedOverlayFrameView ItemDisplayFrame;
+struct ItemDisplayResources
+{
+    DmaTransferQueue * tile_uploads;
+    OamBuffer * sprite_queue;
+};
+struct ItemDisplayFrameData
+{
+    u32 stack_arguments[5];
+    ItemDisplayFrame frame;
+    ItemDisplayResources resources;
+    u32 clip[2];
+    i32 map;
+    u32 base_sprite_visible;
+    i32 y_q16;
+    u32 region;
+    i32 screen_x, sort_y, screen_y;
+    ItemDisplayResources const * saved_resources;
+    u8 * frame_upload_pending;
+    i32 x_q16;
+};
+struct ItemDisplaySpriteSource;
+struct ItemDisplaySpriteVTable
+{
+    STRUCT_PAD(0, 0xC);
+    void (*get_clip)(u32 *, ItemDisplaySpriteSource const *, u32);
+    void (*get_frame)(ItemDisplayFrame *, ItemDisplaySpriteSource const *, u32);
+};
+struct ItemDisplaySpriteSource
+{
+    ItemDisplaySpriteVTable const * table;
+};
+struct ItemDisplayRenderVTable
+{
+    STRUCT_PAD(0, 0x48);
+    void * (*get_icon_target)(GameObject *, u32);
+    STRUCT_PAD(0x4C, 0x54);
+    void (*upload_icon_palette)(GameObject *, void const *, void *, u32);
+    FixedSpriteOverlay const * (*get_shadow)(GameObject *);
+    STRUCT_PAD(0x5C, 0x64);
+    ItemDisplaySpriteSource const * (*get_sprites)(GameObject *);
+};
+struct ItemDisplaySprite
+{
+    void * sprite_resources;
+    STRUCT_PAD(4, 8);
+    i32 tile_handle;
+    u16 base_tile;
+    STRUCT_PAD(0xE, 0x3C);
+    u8 frame_upload_pending;
+    u8 force_palette_upload;
+    u8 palette_uploaded;
+};
+
+EC u32 ClassifySideEntityFarmRegion(u32, i32, i32);
+EC void DrawSideActorOverlayLayers(FarmerIconGraphics *, ItemDisplayRenderContext const *) asm("func_08032690");
+EC void QueueItemDisplayTileUpload(G1MapSpriteResource *, DmaTransferQueue *, G1MapResourceData const *) asm("func_080A480C");
+EC void LoadMapSpriteResourcePalettes(G1MapSpriteResource *, G1MapResourceData const *, u8);
+
+typedef u32 (*ItemDisplayQueueCall)(OamBuffer *, i32, i32, u32);
+EC u32 QueueItemDisplayFrame(OamBuffer *, i32, i32, u32) asm("func_030004DC");
+EC void DrawItemDisplayShadow(FixedSpriteOverlay const *, OamBuffer *, i32, i32) asm("DrawFixedSpriteOverlay");
+
+#define ITEM_DISPLAY_GAME(game) (*reinterpret_cast<ItemDisplayRenderVTable const **>(game))
+
+EC void DrawItemDisplayGraphics(ItemDisplayGraphics *, ItemDisplayRenderContext const *) ENTITY_CODE(0802BFE4);
+EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRenderContext const * render)
+{
+    register ItemDisplayGraphics * self asm("r6") = graphics;
+    register ItemDisplayRenderContext const * context asm("r8") = render;
+    ItemDisplayFrameData local;
+    register ItemDisplayEntity * display asm("r4") = *reinterpret_cast<ItemDisplayEntity **>(self);
+    local.map = display->location_map;
+    asm volatile("" : "+m"(local.map));
+    register GameObject * game_arg asm("r1") = display->game_object;
+    asm volatile("" : "+r"(game_arg));
+    register GameObject * game asm("sb") = game_arg;
+    local.base_sprite_visible = self->unk_44;
+    register i32 x_q16 asm("r2") = display->x_q16;
+    local.x_q16 = x_q16;
+    register i32 x asm("r1") = x_q16 >> 16;
+    register i32 y_q16 asm("r0") = display->y_q16;
+    local.y_q16 = y_q16;
+    register i32 y asm("r2") = y_q16 >> 16;
+    register ItemDisplayResources * resources asm("r5") = &local.resources;
+    register ItemDisplayRenderContext const * resource_context asm("r3") = context;
+    register DmaTransferQueue * tile_uploads asm("r0") = resource_context->tile_uploads;
+    register OamBuffer * sprite_queue asm("r3") = resource_context->sprite_queue;
+    asm volatile("" : "+r"(sprite_queue));
+    local.resources.tile_uploads = tile_uploads;
+    resources->sprite_queue = sprite_queue;
+    local.region = ClassifySideEntityFarmRegion(local.map, x, y);
+    register u8 * region_dest asm("r0") = reinterpret_cast<u8 *>(self) + 0x8B;
+    register u8 * region_address asm("r7") = reinterpret_cast<u8 *>(&local.region);
+    asm volatile("ldrb %0, [%0]" : "+l"(region_address));
+    register u32 farm_region asm("r7") = reinterpret_cast<u32>(region_address);
+    *region_dest = farm_region;
+    register ThrownItemMotion * display_motion asm("r4") = &display->thrown_item;
+    register ThrownItemMotion * motion asm("sl") = display_motion;
+    register u32 displaying_throw asm("r1") = 0;
+    if (display_motion->active == 1)
+        displaying_throw = 1;
+    if (displaying_throw)
+    {
+        register ThrownItemMotion * motion_position asm("r1") = motion;
+        register i32 item_x_q16 asm("r0") = motion_position->x_speed;
+        register i32 world_x asm("r2") = local.x_q16;
+        item_x_q16 = world_x + item_x_q16;
+        item_x_q16 >>= 16;
+        register ItemDisplayRenderContext const * scroll asm("r3") = context;
+        register u32 x_field asm("r7") = 0xC;
+        register i32 camera_x asm("r1");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_x) : "l"(scroll), "l"(x_field) : "memory");
+        local.screen_x = item_x_q16 - camera_x;
+        motion_position = motion;
+        register i32 y_offset_q16 asm("r0") = motion_position->y_speed;
+        register i32 entity_y_q16 asm("r2") = local.y_q16;
+        register i32 world_y asm("r4") = entity_y_q16 + y_offset_q16;
+        register i32 ground_y asm("r1") = world_y >> 16;
+        register u32 y_field asm("r7") = 0xE;
+        register i32 camera_y asm("r0");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_y) : "l"(scroll), "l"(y_field) : "memory");
+        register i32 shadow_y asm("r7") = ground_y - camera_y;
+        local.sort_y = 0x8000 - ground_y;
+        register u32 show_shadow asm("r1") = 0;
+        register ThrownItemMotion * display_mode asm("r2") = motion;
+        if (display_mode->display_mode == 1)
+            show_shadow = 1;
+        if (show_shadow)
+        {
+            register GameObject * shadow_game asm("r3") = game;
+            register FixedSpriteOverlay const * (*get_shadow)(GameObject *) asm("r1") = ITEM_DISPLAY_GAME(shadow_game)->get_shadow;
+            FixedSpriteOverlay const * geometry = get_shadow(game);
+            register ItemDisplayRenderContext const * queue_context asm("r2") = context;
+            register OamBuffer * sprite_queue asm("r1") = queue_context->sprite_queue;
+            register u32 shadow_frame asm("r2") = 0;
+            asm volatile("str %0, [sp]" : : "l"(shadow_frame), "m"(local.stack_arguments[0]) : "memory");
+            register i32 shadow_x asm("r2") = local.screen_x;
+            DrawItemDisplayShadow(geometry, sprite_queue, shadow_x, shadow_y);
+        }
+        register ThrownItemMotion * motion_for_height asm("r3") = motion;
+        register i32 elevation asm("r0") = motion_for_height->z_speed;
+        elevation = world_y - elevation;
+        elevation >>= 16;
+        register ItemDisplayRenderContext const * scroll_again asm("r7") = context;
+        register u32 scroll_y_field asm("r2") = 0xE;
+        register i32 camera_y_again asm("r1");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_y_again) : "l"(scroll_again), "l"(scroll_y_field) : "memory");
+        local.screen_y = elevation - camera_y_again;
+        register u32 priority asm("r0");
+        register i32 map asm("r3") = local.map;
+        if (map <= 8)
+        {
+            priority = 1;
+            register u32 region asm("r7") = local.region;
+            if (region != 1)
+                priority = 2;
+        }
+        else
+            priority = 1;
+        register ItemDisplaySprite * sprite asm("r5") = reinterpret_cast<ItemDisplaySprite *>(reinterpret_cast<u8 *>(self) + 0x8C);
+        register u8 * stack_base asm("r1");
+        asm volatile("mov %0, sp" : "=l"(stack_base));
+        stack_base += 0x34;
+        local.saved_resources = reinterpret_cast<ItemDisplayResources const *>(stack_base);
+        register u32 priorities asm("r4") = (priority << 2) | priority;
+        priorities |= priority << 4;
+        priorities |= priority << 6;
+        register SpriteAnimator * animator asm("r0") = &self->icon_animator;
+        register ItemDisplaySpriteSource const * source asm("r1") = reinterpret_cast<ItemDisplaySpriteSource const *>(animator->source);
+        ItemDisplaySpriteVTable const * table = source->table;
+        register u32 frame_index asm("r2") = animator->keyframe;
+        register SpriteKeyframe const ** keys_slot asm("r0") = &animator->clip.keyframes;
+        frame_index <<= 2;
+        asm volatile("" : "+r"(frame_index));
+        register u8 const * keys asm("r0") = reinterpret_cast<u8 const *>(*keys_slot);
+        keys += frame_index;
+        register u32 frame_id asm("r2") = *reinterpret_cast<u16 const *>(keys);
+        register ItemDisplayFrame * frame_dest asm("r0") = &local.frame;
+        register void (*get_frame)(ItemDisplayFrame *, ItemDisplaySpriteSource const *, u32) asm("r3") = table->get_frame;
+        get_frame(frame_dest, source, frame_id);
+        ItemDisplayFrame * frame;
+        asm volatile("add %0, sp, #20" : "=l"(frame));
+        register ItemDisplayResources const * saved_resources asm("r2") = local.saved_resources;
+        register OamBuffer * queue_arg asm("r2") = saved_resources->sprite_queue;
+        register OamBuffer * queue asm("ip") = queue_arg;
+        register void * sprite_resources asm("r2") = sprite->sprite_resources;
+        register G1MapTileOwner const * tiles asm("r0") = &reinterpret_cast<G1MapSpriteResource *>(reinterpret_cast<u8 *>(self) + 0x8C)->tiles;
+        register i32 handle asm("r1") = tiles->handle;
+        register i32 handle_check asm("r0") = -handle | handle;
+        u32 queued;
+        if (handle_check >= 0)
+            goto no_sprite;
+        {
+            register u32 tile asm("r0") = sprite->base_tile;
+            register OverlayPaletteTable const * palettes asm("r1") = reinterpret_cast<OverlayPaletteTable *>(reinterpret_cast<u8 *>(self) + 0x9C);
+            register u32 sort_y asm("r3") = local.sort_y;
+            asm volatile("str %0, [sp]" : : "l"(sort_y), "m"(local.stack_arguments[0]) : "memory");
+            register ItemDisplayFrame const * frame_arg asm("r3");
+            asm volatile("add %0, %1, #0" : "=l"(frame_arg) : "l"(frame));
+            asm volatile(
+                "str %0, [sp, #4]\n\t"
+                "str %1, [sp, #8]\n\t"
+                "str %2, [sp, #12]\n\t"
+                "str %3, [sp, #16]"
+                : : "l"(frame_arg), "l"(sprite_resources), "l"(tile), "l"(palettes) : "memory");
+            register OamBuffer * queue_arg asm("r0") = queue;
+            register i32 screen_x asm("r1") = local.screen_x;
+            register i32 screen_y asm("r2") = local.screen_y;
+            register u32 layer asm("r3") = priorities;
+            register ItemDisplayQueueCall enqueue asm("r4") = QueueItemDisplayFrame;
+            queued = enqueue(queue_arg, screen_x, screen_y, layer);
+            goto check_enqueued;
+        }
+    no_sprite:
+        queued = 0;
+    check_enqueued:
+        if (queued)
+        {
+            register u8 * pending asm("r0") = &sprite->frame_upload_pending;
+            register u32 upload_pending asm("r1") = *pending;
+            local.frame_upload_pending = pending;
+            if (upload_pending)
+            {
+                QueueItemDisplayTileUpload(reinterpret_cast<G1MapSpriteResource *>(sprite), local.saved_resources->tile_uploads,
+                    reinterpret_cast<G1MapResourceData const *>(&frame->tileBytes));
+                if (sprite->force_palette_upload)
+                    LoadMapSpriteResourcePalettes(reinterpret_cast<G1MapSpriteResource *>(sprite),
+                        reinterpret_cast<G1MapResourceData const *>(&frame->paletteBytes), 1);
+                else
+                {
+                    register u8 * loaded asm("r4") = &sprite->palette_uploaded;
+                    if (!*loaded)
+                    {
+                        LoadMapSpriteResourcePalettes(reinterpret_cast<G1MapSpriteResource *>(sprite),
+                            reinterpret_cast<G1MapResourceData const *>(&frame->paletteBytes), 1);
+                        *loaded = 1;
+                    }
+                }
+                register u32 zero asm("r0") = 0;
+                *local.frame_upload_pending = zero;
+            }
+        }
+    }
+    DrawSideActorOverlayLayers(self, context);
+    register u32 base_sprite_visible asm("r2") = local.base_sprite_visible;
+    if (!base_sprite_visible)
+        return;
+    register u32 thrown asm("r1") = 0;
+    register ThrownItemMotion * thrown_item asm("r3") = motion;
+    register u32 is_active asm("r0") = thrown_item->active;
+    if (is_active == 1)
+        thrown = 1;
+    if (thrown)
+        return;
+    register u16 * icon asm("r5") = &self->icon;
+    if (*icon == 0xFFFF)
+        return;
+    register GameObject * icon_game asm("r7") = game;
+    register ItemDisplaySpriteSource const * (*get_sprites)(GameObject *) asm("r1") = ITEM_DISPLAY_GAME(icon_game)->get_sprites;
+    register ItemDisplaySpriteSource const * sprites asm("r4") = get_sprites(game);
+    register u32 clip asm("r2") = *icon;
+    register ItemDisplaySpriteVTable const * table asm("r5") = sprites->table;
+    register u32 * clip_destination asm("r0") = local.clip;
+    register void (*get_clip)(u32 *, ItemDisplaySpriteSource const *, u32) asm("r3") = table->get_clip;
+    get_clip(clip_destination, sprites, clip);
+    register u32 frame_id asm("r2") = *reinterpret_cast<u16 *>(local.clip[0]);
+    register ItemDisplayFrame * frame_destination asm("r0") = &local.frame;
+    register void (*get_frame)(ItemDisplayFrame *, ItemDisplaySpriteSource const *, u32) asm("r3") = table->get_frame;
+    get_frame(frame_destination, sprites, frame_id);
+    register void * (*get_target)(GameObject *, u32) asm("r2") = ITEM_DISPLAY_GAME(icon_game)->get_icon_target;
+    register void * target asm("r2") = get_target(game, 2);
+    register ItemDisplayRenderVTable const * icon_table asm("r0") = ITEM_DISPLAY_GAME(icon_game);
+    register void const * palette asm("r1") = local.frame.paletteBytes.data;
+    register void (*upload_icon_palette)(GameObject *, void const *, void *, u32) asm("r4") = icon_table->upload_icon_palette;
+    upload_icon_palette(game, palette, target, 1);
+}
+
+#undef ITEM_DISPLAY_GAME
 
 EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game) ENTITY_CODE(0802C210);
 EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game)
