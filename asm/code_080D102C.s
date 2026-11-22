@@ -248,21 +248,7 @@ sub_080D11B8: @ 0x080D11B8
 	.byte 0x06, 0x49, 0x08, 0x60
 	.byte 0x70, 0x47, 0x00, 0x00
 
-	thumb_func_start rand
-rand: @ 0x080D11E4
-	add r0, pc, #0x10
-	ldm r0!, {r1, r2, r3}
-	ldr r0, [r1]
-	muls r0, r2, r0
-	adds r0, r0, r3
-	str r0, [r1]
-	lsls r0, r0, #1
-	lsrs r0, r0, #1
-	bx lr
-	.align 2, 0
-.L080D11F8:
-	.byte 0x50, 0x0A, 0x00, 0x03, 0x6D, 0x4E, 0xC6, 0x41
-	.byte 0x39, 0x30, 0x00, 0x00
+.section .text.g5_after_rand, "ax"
 
 	thumb_func_start sub_080D1204
 sub_080D1204: @ 0x080D1204

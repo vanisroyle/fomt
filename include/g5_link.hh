@@ -56,6 +56,9 @@ EC void DisableJoybusSerialInterrupt(); // 0x080D0AE0
 
 EC void Joybus_HandleSerialInterrupt(); // 0x080D0704
 EC u32 Joybus_HandleTransmitReady(); // 0x080D091C
+// Parses one word-aligned receive packet, validates transfer length/sequence
+// and checksum, and emits protocol replies. Returns zero or a link error code.
+EC u32 Joybus_HandleReceivePacket(u32 const * packet); // 0x080D078C
 // Reports completed halfwords as a percentage; zero total returns zero.
 EC u32 Joybus_GetTransferProgressPercent(); // 0x080D06DC
 EC void Joybus_UpdateTransfers(); // 0x080D035C

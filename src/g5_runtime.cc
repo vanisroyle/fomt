@@ -1,7 +1,5 @@
 #include "g5_link.hh"
 
-EC u32 func_080D078C(u32 * packet);
-
 EC SECTION(".text.g5_080D0644") void Joybus_QueueWordExchange(u32 send_word, u32 require_handshake) // 0x080D0644
 {
     register JoybusState ** state_slot asm("r4") = &gJoybusState;
@@ -269,7 +267,7 @@ EC SECTION(".text.g5_080D0704") void Joybus_HandleSerialInterrupt() // 0x080D070
         if ((control & 2) != 0)
         {
             u32 packet = *(volatile u32 *) 0x04000150;
-            status = func_080D078C(&packet);
+            status = Joybus_HandleReceivePacket(&packet);
         }
         if (status == 0 && (control & 4) != 0)
             status = Joybus_HandleTransmitReady();

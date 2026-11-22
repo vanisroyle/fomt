@@ -118,6 +118,7 @@ $(BUILD_DIR)/assets/graphics.stamp: FORCE
 	@$(PYTHON) tools/assets/graphics_assets.py build
 
 GRAPHICS_PRODUCTS := $(BUILD_DIR)/assets/graphics.s $(foreach part,tiles palette map,$(BUILD_DIR)/assets/graphics-$(part)-slot.bin $(BUILD_DIR)/assets/graphics-$(part)-overflow.bin)
+GRAPHICS_PRODUCTS += $(BUILD_DIR)/assets/graphics-portraits.bin
 GRAPHICS_PRODUCTS += $(foreach part,title-resource title-background title-palette title-map-0 title-map-1 title-map-2 title-map-3,$(BUILD_DIR)/assets/graphics-$(part).s $(BUILD_DIR)/assets/graphics-$(part)-slot.bin $(BUILD_DIR)/assets/graphics-$(part)-overflow.bin)
 
 $(GRAPHICS_PRODUCTS): $(BUILD_DIR)/assets/graphics.stamp
@@ -213,6 +214,7 @@ $(BUILD_DIR)/src/fixed_sprite_overlay_draw.o: CXXFLAGS += -mlong-calls
 $(BUILD_DIR)/src/map_overlay_draw.o: CXXFLAGS += -mlong-calls
 $(BUILD_DIR)/src/npc_side_batch12.o: CXXFLAGS += -mlong-calls
 $(BUILD_DIR)/src/npc_side_batch13_effects.o: CXXFLAGS += -mlong-calls
+$(BUILD_DIR)/src/npc_side_batch14_draw.o: CXXFLAGS += -mlong-calls
 
 clean:
 	@echo "RM $(ROM) $(ELF) $(MAP) $(BUILD_DIR)"

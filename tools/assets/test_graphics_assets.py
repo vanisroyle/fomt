@@ -25,9 +25,10 @@ class GraphicsTests(unittest.TestCase):
         self.addCleanup(extract.stop)
         self.addCleanup(build.stop)
         for name, value in (("extract", None), ("build", b"")):
-            mocked = patch.object(graphics.more, name, return_value=value)
-            mocked.start()
-            self.addCleanup(mocked.stop)
+            for module in (graphics.more, graphics.portraits, graphics.rest, graphics.ui):
+                mocked = patch.object(module, name, return_value=value)
+                mocked.start()
+                self.addCleanup(mocked.stop)
 
     def test_encoder_empty_literals_runs_and_overlapping_matches(self):
         rng = random.Random(29)
