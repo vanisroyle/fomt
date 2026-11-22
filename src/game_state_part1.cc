@@ -532,6 +532,7 @@ struct GameStateSavedSceneFactoryOwner
 };
 
 extern u8 const vtable_unk_080E5E34[];
+extern u8 const vtable_unk_080E5E14[];
 extern u8 const vtable_unk_080E5D04[];
 extern u8 const vtable_unk_080E5D14[];
 extern u8 const vtable_unk_080E5C54[];
@@ -594,6 +595,26 @@ struct GameStateSavedSceneFactory<vtable_unk_080E5E54>
     void const * vtable;
     u8 * saveData;
     GameStateSceneFactory * factory;
+};
+
+template <>
+struct GameStateSavedSceneFactory<vtable_unk_080E5E14>
+{
+    GameStateSavedSceneFactory(GameStateSavedSceneFactoryOwner factory, u8 * saveData)
+        : vtable(vtable_unk_080E5E14), factory(factory.Move()), saveData(saveData)
+    {
+        sceneParameters[0] = 0x51;
+        sceneParameters[1] = 0x5F;
+        sceneParameters[2] = 0;
+        sceneParameters[3] = 0;
+        stateFlag = false;
+    }
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    u8 * saveData;
+    u32 sceneParameters[4];
+    bool stateFlag;
 };
 
 struct GameStateScript;
@@ -1186,6 +1207,17 @@ EC void SECTION(".text.game_state_080145F8") GameScript_QueueSceneVariant28(Game
     spec.variant = 0x28;
     GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
     runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5D04>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08012E1C
+EC void SECTION(".text.game_state_08012E1C") GameScript_QueueSceneVariant0E(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x0E;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5E14>(factory, runtime.GetSaveData()));
     runtime.pendingCommand = 0x18;
 }
 
