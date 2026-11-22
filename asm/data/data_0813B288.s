@@ -2,7 +2,7 @@
 
     .LDATA_BEG = 0x13B288
 
-	.incbin "baserom.gba", (.LDATA_BEG), (0x2AC0B0 - .LDATA_BEG)
+	.include "build/assets/audio-bank.s"
 	.include "build/assets/scripts.s"
 
 	.global gUnk_084F90CC
