@@ -26,24 +26,24 @@ gUnk_08527094:
 	.incbin "baserom.gba", 0x527094, 0x1A4
 
 	.global gUnk_08527238
-gUnk_08527238:
-	.incbin "baserom.gba", 0x527238, 0x110
+.set gUnk_08527238, gUiGraphics_527238
+	.include "build/assets/graphics-ui-527238.s"
 
 	.global gUnk_08527348
-gUnk_08527348:
-	.incbin "baserom.gba", 0x527348, 0x1D8
+.set gUnk_08527348, gUiGraphics_527348
+	.include "build/assets/graphics-ui-527348.s"
 
 	.global gUnk_08527520
-gUnk_08527520:
-	.incbin "baserom.gba", 0x527520, 0xB0
+.set gUnk_08527520, gUiGraphics_527520
+	.include "build/assets/graphics-ui-527520.s"
 
 	.global gUnk_085275D0
-gUnk_085275D0:
-	.incbin "baserom.gba", 0x5275D0, 0x21C4
+.set gUnk_085275D0, gUiGraphics_5275D0
+	.include "build/assets/graphics-ui-5275D0.s"
 
 	.global gUnk_08529794
-gUnk_08529794:
-	.incbin "baserom.gba", 0x529794, 0x200
+.set gUnk_08529794, gUiGraphics_529794
+	.include "build/assets/graphics-ui-529794.s"
 
 	.global gUnk_08529994
 gUnk_08529994:
@@ -58,24 +58,24 @@ gUnk_08529DA4:
 	.incbin "baserom.gba", 0x529DA4, 0x934
 
 	.global gUnk_0852A6D8
-gUnk_0852A6D8:
-	.incbin "baserom.gba", 0x52A6D8, 0x114
+.set gUnk_0852A6D8, gUiGraphics_52A6D8
+	.include "build/assets/graphics-ui-52A6D8.s"
 
 	.global gUnk_0852A7EC
-gUnk_0852A7EC:
-	.incbin "baserom.gba", 0x52A7EC, 0x1D0
+.set gUnk_0852A7EC, gUiGraphics_52A7EC
+	.include "build/assets/graphics-ui-52A7EC.s"
 
 	.global gUnk_0852A9BC
-gUnk_0852A9BC:
-	.incbin "baserom.gba", 0x52A9BC, 0xB0
+.set gUnk_0852A9BC, gUiGraphics_52A9BC
+	.include "build/assets/graphics-ui-52A9BC.s"
 
 	.global gUnk_0852AA6C
-gUnk_0852AA6C:
-	.incbin "baserom.gba", 0x52AA6C, 0x1FD4
+.set gUnk_0852AA6C, gUiGraphics_52AA6C
+	.include "build/assets/graphics-ui-52AA6C.s"
 
 	.global gUnk_0852CA40
-gUnk_0852CA40:
-	.incbin "baserom.gba", 0x52CA40, 0x200
+.set gUnk_0852CA40, gUiGraphics_52CA40
+	.include "build/assets/graphics-ui-52CA40.s"
 
 	.global gUnk_0852CC40
 gUnk_0852CC40:
@@ -251,7 +251,7 @@ gUnk_086EAD84:
 
 	.global gUnk_086EAD8C
 gUnk_086EAD8C:
-	.incbin "baserom.gba", 0x6EAD8C, 0x8220
+	.include "build/assets/graphics-ui-block-6EAD8C.s"
 
 	.global gUnk_086F2FAC
 gUnk_086F2FAC:
@@ -274,23 +274,23 @@ gUnk_086FAA80:
 	.include "build/assets/graphics-more-6FD240.s"
 
 	.global gUnk_08714A30
-gUnk_08714A30:
+.set gUnk_08714A30, gMoreGraphics_714A30
 	.include "build/assets/graphics-more-714A30.s"
 
 	.global gUnk_08714B60
-gUnk_08714B60:
-	.incbin "baserom.gba", 0x714B60, 0x8C
+.set gUnk_08714B60, gMoreGraphics_714B60
+	.include "build/assets/graphics-more-714B60.s"
 
 	.global gUnk_08714BEC
-gUnk_08714BEC:
+.set gUnk_08714BEC, gMoreGraphics_714BEC
 	.include "build/assets/graphics-more-714BEC.s"
 
 	.global gUnk_08716F84
-gUnk_08716F84:
+.set gUnk_08716F84, gMoreGraphics_716F84
 	.include "build/assets/graphics-more-716F84.s"
 
 	.global gUnk_087170B8
-gUnk_087170B8:
+.set gUnk_087170B8, gMoreGraphics_7170B8
 	.include "build/assets/graphics-more-7170B8.s"
 
 	.global gUnk_0871D51C
@@ -350,36 +350,36 @@ gUnk_0872BE64:
 	.incbin "baserom.gba", 0x72BE64, 0x76C
 
 	.global gUnk_0872C5D0
-gUnk_0872C5D0:
-	.incbin "baserom.gba", 0x72C5D0, 0x16C
+.set gUnk_0872C5D0, gUiGraphics_72C5D0
+	.include "build/assets/graphics-ui-72C5D0.s"
 
 	.global gUnk_0872C73C
-gUnk_0872C73C:
-	.incbin "baserom.gba", 0x72C73C, 0x110
+.set gUnk_0872C73C, gUiGraphics_72C73C
+	.include "build/assets/graphics-ui-72C73C.s"
 
 	.global gUnk_0872C84C
-gUnk_0872C84C:
-	.incbin "baserom.gba", 0x72C84C, 0xD60
+.set gUnk_0872C84C, gUiGraphics_72C84C
+	.include "build/assets/graphics-ui-72C84C.s"
 
 	.global gUnk_0872D5AC
-gUnk_0872D5AC:
-	.incbin "baserom.gba", 0x72D5AC, 0x20
+.set gUnk_0872D5AC, gUiGraphics_72D5AC
+	.include "build/assets/graphics-ui-72D5AC.s"
 
 	.global gUnk_0872D5CC
-gUnk_0872D5CC:
-	.incbin "baserom.gba", 0x72D5CC, 0x64
+.set gUnk_0872D5CC, gUiGraphics_72D5CC
+	.include "build/assets/graphics-ui-72D5CC.s"
 
 	.global gUnk_0872D630
-gUnk_0872D630:
-	.incbin "baserom.gba", 0x72D630, 0xA8
+.set gUnk_0872D630, gUiGraphics_72D630
+	.include "build/assets/graphics-ui-72D630.s"
 
 	.global gUnk_0872D6D8
-gUnk_0872D6D8:
-	.incbin "baserom.gba", 0x72D6D8, 0x70C
+.set gUnk_0872D6D8, gUiGraphics_72D6D8
+	.include "build/assets/graphics-ui-72D6D8.s"
 
 	.global gUnk_0872DDE4
-gUnk_0872DDE4:
-	.incbin "baserom.gba", 0x72DDE4, 0x60
+.set gUnk_0872DDE4, gUiGraphics_72DDE4
+	.include "build/assets/graphics-ui-72DDE4.s"
 
 	.global gUnk_0872DE44
 gUnk_0872DE44:
@@ -390,28 +390,28 @@ gUnk_0872EE78:
 	.incbin "baserom.gba", 0x72EE78, 0x2A4
 
 	.global gUnk_0872F11C
-gUnk_0872F11C:
-	.incbin "baserom.gba", 0x72F11C, 0xA0
+.set gUnk_0872F11C, gUiGraphics_72F11C
+	.include "build/assets/graphics-ui-72F11C.s"
 
 	.global gUnk_0872F1BC
-gUnk_0872F1BC:
-	.incbin "baserom.gba", 0x72F1BC, 0x30
+.set gUnk_0872F1BC, gUiGraphics_72F1BC
+	.include "build/assets/graphics-ui-72F1BC.s"
 
 	.global gUnk_0872F1EC
-gUnk_0872F1EC:
-	.incbin "baserom.gba", 0x72F1EC, 0x30
+.set gUnk_0872F1EC, gUiGraphics_72F1EC
+	.include "build/assets/graphics-ui-72F1EC.s"
 
 	.global gUnk_0872F21C
-gUnk_0872F21C:
-	.incbin "baserom.gba", 0x72F21C, 0x880
+.set gUnk_0872F21C, gUiGraphics_72F21C
+	.include "build/assets/graphics-ui-72F21C.s"
 
 	.global gUnk_0872FA9C
-gUnk_0872FA9C:
-	.incbin "baserom.gba", 0x72FA9C, 0x160
+.set gUnk_0872FA9C, gUiGraphics_72FA9C
+	.include "build/assets/graphics-ui-72FA9C.s"
 
 	.global gUnk_0872FBFC
-gUnk_0872FBFC:
-	.incbin "baserom.gba", 0x72FBFC, 0x38
+.set gUnk_0872FBFC, gUiGraphics_72FBFC
+	.include "build/assets/graphics-ui-72FBFC.s"
 
 	.global gUnk_0872FC34
 .set gUnk_0872FC34, gMoreGraphics_72FC34
@@ -438,28 +438,28 @@ gUnk_08738144:
 	.incbin "baserom.gba", 0x738144, 0x994
 
 	.global gUnk_08738AD8
-gUnk_08738AD8:
-	.incbin "baserom.gba", 0x738AD8, 0x1F0
+.set gUnk_08738AD8, gUiGraphics_738AD8
+	.include "build/assets/graphics-ui-738AD8.s"
 
 	.global gUnk_08738CC8
-gUnk_08738CC8:
-	.incbin "baserom.gba", 0x738CC8, 0x28
+.set gUnk_08738CC8, gUiGraphics_738CC8
+	.include "build/assets/graphics-ui-738CC8.s"
 
 	.global gUnk_08738CF0
-gUnk_08738CF0:
-	.incbin "baserom.gba", 0x738CF0, 0x2C
+.set gUnk_08738CF0, gUiGraphics_738CF0
+	.include "build/assets/graphics-ui-738CF0.s"
 
 	.global gUnk_08738D1C
-gUnk_08738D1C:
-	.incbin "baserom.gba", 0x738D1C, 0xCA8
+.set gUnk_08738D1C, gUiGraphics_738D1C
+	.include "build/assets/graphics-ui-738D1C.s"
 
 	.global gUnk_087399C4
-gUnk_087399C4:
-	.incbin "baserom.gba", 0x7399C4, 0xA0
+.set gUnk_087399C4, gUiGraphics_7399C4
+	.include "build/assets/graphics-ui-7399C4.s"
 
 	.global gUnk_08739A64
-gUnk_08739A64:
-	.incbin "baserom.gba", 0x739A64, 0xC84
+.set gUnk_08739A64, gUiGraphics_739A64
+	.include "build/assets/graphics-ui-739A64.s"
 
 	.global gUnk_0873A6E8
 gUnk_0873A6E8:
@@ -474,20 +474,20 @@ gUnk_0873AFC8:
 	.incbin "baserom.gba", 0x73AFC8, 0xE5C
 
 	.global gUnk_0873BE24
-gUnk_0873BE24:
-	.incbin "baserom.gba", 0x73BE24, 0x124
+.set gUnk_0873BE24, gUiGraphics_73BE24
+	.include "build/assets/graphics-ui-73BE24.s"
 
 	.global gUnk_0873BF48
-gUnk_0873BF48:
-	.incbin "baserom.gba", 0x73BF48, 0xA8
+.set gUnk_0873BF48, gUiGraphics_73BF48
+	.include "build/assets/graphics-ui-73BF48.s"
 
 	.global gUnk_0873BFF0
-gUnk_0873BFF0:
-	.incbin "baserom.gba", 0x73BFF0, 0xC04
+.set gUnk_0873BFF0, gUiGraphics_73BFF0
+	.include "build/assets/graphics-ui-73BFF0.s"
 
 	.global gUnk_0873CBF4
-gUnk_0873CBF4:
-	.incbin "baserom.gba", 0x73CBF4, 0xC0
+.set gUnk_0873CBF4, gUiGraphics_73CBF4
+	.include "build/assets/graphics-ui-73CBF4.s"
 
 	.global gUnk_0873CCB4
 gUnk_0873CCB4:
@@ -526,20 +526,20 @@ gUnk_0873ED1C:
 	.incbin "baserom.gba", 0x73ED1C, 0x6AC
 
 	.global gUnk_0873F3C8
-gUnk_0873F3C8:
-	.incbin "baserom.gba", 0x73F3C8, 0x20C
+.set gUnk_0873F3C8, gUiGraphics_73F3C8
+	.include "build/assets/graphics-ui-73F3C8.s"
 
 	.global gUnk_0873F5D4
-gUnk_0873F5D4:
-	.incbin "baserom.gba", 0x73F5D4, 0xD8
+.set gUnk_0873F5D4, gUiGraphics_73F5D4
+	.include "build/assets/graphics-ui-73F5D4.s"
 
 	.global gUnk_0873F6AC
-gUnk_0873F6AC:
-	.incbin "baserom.gba", 0x73F6AC, 0xA38
+.set gUnk_0873F6AC, gUiGraphics_73F6AC
+	.include "build/assets/graphics-ui-73F6AC.s"
 
 	.global gUnk_087400E4
-gUnk_087400E4:
-	.incbin "baserom.gba", 0x7400E4, 0xC0
+.set gUnk_087400E4, gUiGraphics_7400E4
+	.include "build/assets/graphics-ui-7400E4.s"
 
 	.global gUnk_087401A4
 gUnk_087401A4:
@@ -588,32 +588,32 @@ gUnk_0874E530:
 	.include "build/assets/graphics.s"
 
 	.global gUnk_0874ECCC
-gUnk_0874ECCC:
-	.incbin "baserom.gba", 0x74ECCC, 0x16C
+.set gUnk_0874ECCC, gUiGraphics_74ECCC
+	.include "build/assets/graphics-ui-74ECCC.s"
 
 	.global gUnk_0874EE38
 gUnk_0874EE38:
 	.incbin "baserom.gba", 0x74EE38, 0xDC
 
 	.global gUnk_0874EF14
-gUnk_0874EF14:
-	.incbin "baserom.gba", 0x74EF14, 0x28
+.set gUnk_0874EF14, gUiGraphics_74EF14
+	.include "build/assets/graphics-ui-74EF14.s"
 
 	.global gUnk_0874EF3C
-gUnk_0874EF3C:
-	.incbin "baserom.gba", 0x74EF3C, 0xB0
+.set gUnk_0874EF3C, gUiGraphics_74EF3C
+	.include "build/assets/graphics-ui-74EF3C.s"
 
 	.global gUnk_0874EFEC
-gUnk_0874EFEC:
-	.incbin "baserom.gba", 0x74EFEC, 0x64
+.set gUnk_0874EFEC, gUiGraphics_74EFEC
+	.include "build/assets/graphics-ui-74EFEC.s"
 
 	.global gUnk_0874F050
-gUnk_0874F050:
-	.incbin "baserom.gba", 0x74F050, 0x29C
+.set gUnk_0874F050, gUiGraphics_74F050
+	.include "build/assets/graphics-ui-74F050.s"
 
 	.global gUnk_0874F2EC
-gUnk_0874F2EC:
-	.incbin "baserom.gba", 0x74F2EC, 0x60
+.set gUnk_0874F2EC, gUiGraphics_74F2EC
+	.include "build/assets/graphics-ui-74F2EC.s"
 
 	.global gUnk_0874F34C
 gUnk_0874F34C:
@@ -1056,20 +1056,20 @@ gUnk_08755154:
 	.incbin "baserom.gba", 0x755154, 0xDC
 
 	.global gUnk_08755230
-gUnk_08755230:
-	.incbin "baserom.gba", 0x755230, 0x30C
+.set gUnk_08755230, gUiGraphics_755230
+	.include "build/assets/graphics-ui-755230.s"
 
 	.global gUnk_0875553C
-gUnk_0875553C:
-	.incbin "baserom.gba", 0x75553C, 0x30C
+.set gUnk_0875553C, gUiGraphics_75553C
+	.include "build/assets/graphics-ui-75553C.s"
 
 	.global gUnk_08755848
-gUnk_08755848:
-	.incbin "baserom.gba", 0x755848, 0x2298
+.set gUnk_08755848, gUiGraphics_755848
+	.include "build/assets/graphics-ui-755848.s"
 
 	.global gUnk_08757AE0
-gUnk_08757AE0:
-	.incbin "baserom.gba", 0x757AE0, 0xC0
+.set gUnk_08757AE0, gUiGraphics_757AE0
+	.include "build/assets/graphics-ui-757AE0.s"
 
 	.global gUnk_08757BA0
 gUnk_08757BA0:
@@ -1096,20 +1096,20 @@ gUnk_08757C0C:
 	.incbin "baserom.gba", 0x757C0C, 0x8
 
 	.global gUnk_08757C14
-gUnk_08757C14:
-	.incbin "baserom.gba", 0x757C14, 0x30C
+.set gUnk_08757C14, gUiGraphics_757C14
+	.include "build/assets/graphics-ui-757C14.s"
 
 	.global gUnk_08757F20
-gUnk_08757F20:
-	.incbin "baserom.gba", 0x757F20, 0x30C
+.set gUnk_08757F20, gUiGraphics_757F20
+	.include "build/assets/graphics-ui-757F20.s"
 
 	.global gUnk_0875822C
-gUnk_0875822C:
-	.incbin "baserom.gba", 0x75822C, 0x212C
+.set gUnk_0875822C, gUiGraphics_75822C
+	.include "build/assets/graphics-ui-75822C.s"
 
 	.global gUnk_0875A358
-gUnk_0875A358:
-	.incbin "baserom.gba", 0x75A358, 0xC0
+.set gUnk_0875A358, gUiGraphics_75A358
+	.include "build/assets/graphics-ui-75A358.s"
 
 	.global gUnk_0875A418
 gUnk_0875A418:
