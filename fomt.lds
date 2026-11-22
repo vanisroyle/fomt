@@ -376,7 +376,7 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08010348);
         asm/game_state.o(.text.game_state_08010358);
         src/game_state_part1.o(.text.game_state_08010E48);
-        asm/game_state.o(.text.game_state_08010E68);
+        src/game_state_part1.o(.text.game_state_08010E68);
         src/game_state_part1.o(.text.game_state_08010F04);
         asm/game_state.o(.text.game_state_08010F0C);
         src/game_state_part1.o(.text.game_state_08010F0C);
@@ -404,8 +404,10 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08011588);
         asm/game_state.o(.text.game_state_080115A8);
         src/game_state_part1.o(.text.game_state_080115A8);
-        asm/game_state.o(.text.game_state_080115B0);
+        src/game_state_part1.o(.text.game_state_080115B0);
         asm/game_state.o(.text.game_state_08011650);
+        src/game_state_part1.o(.text.game_state_08011CD8);
+        asm/game_state.o(.text.game_state_08011DC4);
         src/game_state_part1.o(.text.game_state_08011FE8);
         asm/game_state.o(.text.game_state_08012028);
         src/game_state_part1.o(.text.game_state_08012064);
@@ -472,9 +474,11 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08012ADC);
         src/game_state_part1.o(.text.game_state_08012B04);
         asm/game_state.o(.text.game_state_08012B04);
-        asm/game_state.o(.text.game_state_08012B24);
+        src/game_state_part1.o(.text.game_state_08012B24);
         src/game_state_part1.o(.text.game_state_08012BAC);
         asm/game_state.o(.text.game_state_08012BBC);
+        src/game_state_part1.o(.text.game_state_08013D04);
+        asm/game_state.o(.text.game_state_08013DC8);
         src/game_state_part1.o(.text.game_state_08013E6C);
         src/game_state_part1.o(.text.game_state_08013EF8);
         asm/game_state.o(.text.game_state_08013F88);
@@ -511,7 +515,7 @@ SECTIONS
         asm/game_state.o(.text.game_state_080146FC);
         src/game_state_part1.o(.text.game_state_08014BD8);
         src/game_state_part1.o(.text.game_state_08014C0C);
-        asm/game_state.o(.text.game_state_08014C34);
+        src/game_state_part1.o(.text.game_state_08014C34);
         src/game_state_part1.o(.text.game_state_08014D30);
         src/game_state_part1.o(.text.game_state_08014D5C);
         asm/game_state.o(.text.game_state_08014D7C);
@@ -575,11 +579,13 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08016F34);
         asm/game_state.o(.text.game_state_08016F60);
         src/game_state_part1.o(.text.game_state_08016F60);
-        asm/game_state.o(.text.game_state_08016FA4);
+        src/game_state_part1.o(.text.game_state_08016FA4);
+        asm/game_state.o(.text.game_state_08017180);
         asm/game_state.o(.text.game_state_080171F8);
         src/game_state_part1.o(.text.game_state_0801740C);
         src/game_state_part1.o(.text.game_state_0801746C);
-        asm/game_state.o(.text.game_state_080174C8);
+        src/game_state_part1.o(.text.game_state_080174C8);
+        asm/game_state.o(.text.game_state_080175B4);
         src/game_state_part1.o(.text.game_state_08017C00);
         asm/game_state.o(.text.game_state_08017C30);
         *(SORT_BY_NAME(.text.game_state_c2.*));
@@ -892,7 +898,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803A8A4);
         src/code_0803A8A4.o(.text.0803AB30);
         src/code_0803A8A4.o(.text.0803AC78);
-        asm/code_0803A8A4.o(.text.0803ACD8);
+        src/code_0803A8A4.o(.text.0803ACD8);
         src/fixed_sprite_overlay_draw.o(.text.0803AE58);
         asm/code_0803A8A4.o(.text.0803AEA0);
         src/code_0803A8A4.o(.text.0803B0A8);
