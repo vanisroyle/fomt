@@ -1,6 +1,7 @@
 #include "prelude.h"
 
 #include "actor.hh"
+#include "farmer.hh"
 #include "furniture.hh"
 #include "item.hh"
 #include "rucksack.hh"
@@ -992,3 +993,85 @@ ROM_TEXT(0809E174) bool func_0809E1A4(MineFloor const & self)
 {
     return (static_cast<u32>(self.sharedJewelFlags) << (31 - 4)) >> 31;
 }
+
+struct MineWeightContext
+{
+    STRUCT_PAD(0, 0x1BD8);
+    Farmer farmer;
+};
+
+EC u32 const gLakeMineDigOutcomeIds[];
+EC u8 const gLakeMineDigOutcomeWeights[][10];
+EC u32 const gLakeMineRockOutcomeIds[];
+EC u8 const gLakeMineRockOutcomeWeights[][14];
+EC u32 const gSpringMineDigOutcomeIds[];
+EC u8 const gSpringMineDigOutcomeWeights[][5];
+EC u32 const gSpringMineRockOutcomeIds[];
+EC u8 const gSpringMineRockOutcomeWeights[][10];
+
+static inline void CopyMineOutcomeWeights(u8 * weightsByOutcome, u32 const * outcomes, u8 const * weights, int count)
+{
+    uintptr_t outcomeAddress = reinterpret_cast<uintptr_t>(outcomes);
+    uintptr_t weightAddress = reinterpret_cast<uintptr_t>(weights);
+    int remaining = count - 1;
+    do
+    {
+        unsigned outcome = *reinterpret_cast<u32 const *>(outcomeAddress);
+        outcomeAddress += sizeof(u32);
+        *reinterpret_cast<u8 *>(reinterpret_cast<uintptr_t>(weightsByOutcome) + outcome) =
+            *reinterpret_cast<u8 const *>(weightAddress++);
+        --remaining;
+    }
+    while (remaining >= 0);
+}
+
+// Preserve the register order for the original row lookup and copy loops.
+#define COPY_MINE_WEIGHTS(rowIndex, weightTable, outcomeIds, count, idReg) \
+{ \
+    register unsigned row asm("r2") = (rowIndex); \
+    asm("" : "+l"(row)); \
+    register uintptr_t table asm("r1") = reinterpret_cast<uintptr_t>(weightTable); \
+    asm("" : "+l"(table)); \
+    register unsigned offset asm("r0") = row * sizeof(weightTable[0]); \
+    asm("" : "+l"(offset) : "l"(table)); \
+    register u8 const * rowWeights asm("r2"); \
+    asm(".syntax unified\n\tadds %0, %1, %2\n\t.syntax divided" \
+        : "=l"(rowWeights) : "l"(offset), "l"(table) : "cc"); \
+    register u32 const * outcomes asm(idReg) = (outcomeIds); \
+    asm("" : "+l"(outcomes) : "l"(rowWeights)); \
+    CopyMineOutcomeWeights(weightsByOutcome, outcomes, rowWeights, count); \
+}
+
+// No known callers. The original Spring Mine loops read past each row and ID table.
+ROM_TEXT(0809E1B4) void ExportLegacyMineOutcomeWeights(MineFloor const & mine, u8 * weightsByOutcome,
+    MineWeightContext const & context)
+{
+    enum { FIRST_SPRING_MINE_MAP = 52, FIRST_LAKE_MINE_MAP = 308 };
+    Farmer const & farmer = context.farmer;
+    ActorLocation location = func_0800E924(farmer);
+    i32 packedMap = static_cast<i32>(location.GetMap() << 22);
+    if (packedMap > ((FIRST_LAKE_MINE_MAP - 1) << 22))
+    {
+        register unsigned map asm("r0") = func_0800E924(farmer).GetMap();
+        asm("" : "+l"(map));
+        register unsigned floor asm("r4") = map - FIRST_LAKE_MINE_MAP;
+        asm("" : "+l"(floor));
+        COPY_MINE_WEIGHTS(GetLakeMineDigWeightRow(mine, floor),
+            gLakeMineDigOutcomeWeights, gLakeMineDigOutcomeIds, 5, "r5");
+        COPY_MINE_WEIGHTS(GetLakeMineRockWeightRow(mine, floor),
+            gLakeMineRockOutcomeWeights, gLakeMineRockOutcomeIds, 10, "r4");
+    }
+    else
+    {
+        register unsigned map asm("r0") = func_0800E924(farmer).GetMap();
+        asm("" : "+l"(map));
+        register unsigned floor asm("r4") = map - FIRST_SPRING_MINE_MAP;
+        asm("" : "+l"(floor));
+        COPY_MINE_WEIGHTS(GetSpringMineDigWeightRow(mine, floor),
+            gSpringMineDigOutcomeWeights, gSpringMineDigOutcomeIds, 10, "r5");
+        COPY_MINE_WEIGHTS(GetSpringMineRockWeightRow(mine, floor),
+            gSpringMineRockOutcomeWeights, gSpringMineRockOutcomeIds, 14, "r4");
+    }
+}
+
+#undef COPY_MINE_WEIGHTS
