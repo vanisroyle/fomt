@@ -6,7 +6,8 @@
 EC MapData * GetMapData(u32);
 EC void Unpack(void const *, void *);
 EC u32 GetMapAvailabilityBitIndex(void *, u32, u32);
-EC void func_080A5760(void *);
+struct G1MapState;
+EC void InitializeMapTerrain(G1MapState *, u32, u32, u32);
 EC void DayUpdate__3NpcUi(void *, u32);
 
 EC SECTION(".text.g1_0809EACC") char * GetNamedNpcName(u8 * self) // 0x0809EACC
@@ -143,9 +144,9 @@ EC SECTION(".text.g1_080A1ED4") u32 GetMapStateBit(u8 * self, u32 index, u32 cat
     return (self[bit >> 3] >> (bit & 7)) & 1;
 }
 
-EC SECTION(".text.g1_080A6640") void ResetMapTransitionState(u8 * self) // 0x080A6640
+EC SECTION(".text.g1_080A6640") void ResetMapTransitionState(u8 * self, u32 time, u32 color, u32 blend) // 0x080A6640
 {
-    func_080A5760(self);
+    InitializeMapTerrain(reinterpret_cast<G1MapState *>(self), time, color, blend);
     u8 * first = self + 0xb4;
     first[0] = 0;
     first[1] = 0;
