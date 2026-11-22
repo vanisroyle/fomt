@@ -1,6 +1,7 @@
 #include "prelude.h"
 #include <new>
 #include <stdlib.h>
+#include "sprite_rendering.hh"
 
 struct AnimalFestivalScore
 {
@@ -386,6 +387,219 @@ EC SECTION(".text.frisbee.08057D34") void DrawFrisbeeSymbol(void * screen, i32 x
     asm ("" : "+r" (objects));
     u32 count = objects != nullptr ? frame.count : 0;
     func_0805E99C(oam, objects, count, &placement);
+}
+
+struct FrisbeePaletteAllocation
+{
+    u32 allocatorContext;
+    u32 handle;
+};
+
+EC SECTION(".text.frisbee.080579B4") void DrawFrisbeeSpriteList(
+    void * hardware, SpriteAttributes const * objects, u32 count,
+    SpriteFrameDrawOptions const * options, FrisbeePaletteAllocation * sprite_allocations)
+{
+    // Preserve the original register allocation and OAM bit packing.
+    struct
+    {
+        SpriteAttributes object;
+        void * hardware_context;
+        SpriteAttributes const * end;
+    } work;
+    enum { SHAPE_SQUARE = 0, SHAPE_WIDE = 1, SCREEN_WIDTH = 240, SCREEN_HEIGHT = 160 };
+    work.hardware_context = hardware;
+    register SpriteFrameDrawOptions const * config asm("r8") = options;
+    SpriteAttributes const * cursor = objects;
+    SpriteAttributes const * limit = cursor + count;
+    work.end = limit;
+    if (cursor == limit)
+        return;
+    do
+    {
+        SpriteAttributes const * object = cursor;
+        work.object = *object;
+        u32 position_bits = work.object.words[0];
+        register u32 x_shifted asm("r0") = position_bits << 7;
+        asm ("" : "+r" (x_shifted));
+        register int x asm("r3") = static_cast<i32>(x_shifted) >> 23;
+        asm ("" : "+r" (x));
+        SpriteAttributes * sprite_address = &work.object;
+        int y = sprite_address->bits.y;
+        register u32 shape_bits asm("r0") = (position_bits << 16) >> 30;
+        asm ("" : "+r" (shape_bits));
+        u32 shape = shape_bits;
+        u32 size = position_bits >> 30;
+        int width;
+        int height;
+        if (shape == SHAPE_SQUARE)
+        {
+            height = 8 << size;
+            width = height;
+        }
+        else
+        {
+            u32 long_side = 8 << (((size + 1) >> 1) + 1);
+            u32 short_side = 8;
+            if (size != 1)
+                short_side = long_side >> 1;
+            if (shape != SHAPE_WIDE)
+            {
+                height = long_side;
+                width = short_side;
+            }
+            else
+            {
+                height = short_side;
+                width = long_side;
+            }
+        }
+
+        u32 flip = config->flip;
+        register u32 one_low asm("r1") = 1;
+        asm ("" : "+r" (one_low));
+        register u32 flip_bit asm("r10") = one_low;
+        register u32 horizontal asm("r0") = flip_bit;
+        asm ("" : "+r" (horizontal));
+        horizontal &= flip;
+        if (horizontal)
+        {
+            register int right asm("r0") = x + width;
+            asm ("" : "+r" (right));
+            x = -right;
+            u32 packed_flip = work.object.words[0];
+            u32 toggled = (packed_flip << 3) >> 31;
+            u32 one = flip_bit;
+            toggled ^= one;
+            asm ("" : "+r" (toggled));
+            toggled &= one;
+            toggled <<= 28;
+            u32 preserved = ~(1u << 28);
+            preserved &= packed_flip;
+            preserved |= toggled;
+            work.object.words[0] = preserved;
+        }
+        u32 vertical = 2;
+        vertical &= flip;
+        if (vertical)
+        {
+            int bottom = y + height;
+            y = -bottom;
+            u32 packed_flip = work.object.words[0];
+            u32 toggled = (packed_flip << 2) >> 31;
+            u32 one = flip_bit;
+            toggled ^= one;
+            asm ("" : "+r" (toggled));
+            toggled &= one;
+            toggled <<= 29;
+            u32 preserved = ~(1u << 29);
+            preserved &= packed_flip;
+            preserved |= toggled;
+            work.object.words[0] = preserved;
+        }
+
+        SpriteFrameDrawOptions const * position = config;
+        register int offset_x asm("r0");
+        offset_x = position->offset_x;
+        x += offset_x;
+        register int offset_y asm("r0");
+        offset_y = position->offset_y;
+        y += offset_y;
+        int right_edge = x + width;
+        if (right_edge > 0 && x < SCREEN_WIDTH)
+        {
+            int bottom_edge = y + height;
+            if (bottom_edge <= 0 || y >= SCREEN_HEIGHT)
+                goto next_object;
+            register u32 coordinate_mask asm("r0") = 0x1ff;
+            x &= coordinate_mask;
+            register u32 shifted_x asm("r2") = static_cast<u32>(x) << 16;
+            asm ("" : "+r" (shifted_x));
+            u32 x_mask = ~(0x1ffu << 16);
+            register u32 x_preserve asm("r1") = x_mask;
+            register u32 packed asm("r0") = work.object.words[0];
+            packed = (packed & x_preserve) | shifted_x;
+            u32 y_field = static_cast<u8>(y);
+            register u32 y_mask asm("r1") = ~0xffu;
+            packed = (packed & y_mask) | y_field;
+            work.object.words[0] = packed;
+
+            SpriteAttributes * source = &work.object;
+            u32 tile_attrs = work.object.words[1];
+            u32 palette_offset = ((tile_attrs << 16) >> 28) * sizeof(*sprite_allocations);
+            register FrisbeePaletteAllocation * base asm("r3");
+            base = sprite_allocations;
+            asm ("" : "+r" (base));
+            palette_offset += reinterpret_cast<uintptr_t>(base);
+            // The first allocation belongs to the tiles; frame palette indices start after it.
+            const unsigned first_palette_allocation = 1;
+            FrisbeePaletteAllocation * allocation =
+                reinterpret_cast<FrisbeePaletteAllocation *>(palette_offset) + first_palette_allocation;
+            u32 palette = static_cast<u16>(ResourceHandle_GetIndex((ResourceHandleOwner *) allocation, allocation->handle));
+            register u32 palette_bits asm("r1") = 15;
+            palette &= palette_bits;
+            palette <<= 12;
+            register u32 palette_mask asm("r1") = ~(15u << 12);
+            u32 final_tile_attrs = work.object.words[1];
+            final_tile_attrs = (final_tile_attrs & palette_mask) | palette;
+            register u32 tile asm("r0") = (final_tile_attrs << 22) >> 22;
+            register SpriteFrameDrawOptions const * tile_config asm("r1") = config;
+            register u32 tile_base asm("r1") = tile_config->tile_base;
+            tile = ((tile + tile_base) << 22) >> 22;
+            u32 tiles_and_priority = ~0x3ffu;
+            tiles_and_priority &= final_tile_attrs;
+            tiles_and_priority |= tile;
+            register SpriteFrameDrawOptions const * priority_config asm("r2") = config;
+            register u32 priority asm("r0") = priority_config->priority;
+            register u32 priority_bits asm("r3") = 3;
+            asm ("" : "+r" (priority_bits));
+            priority &= priority_bits;
+            priority <<= 10;
+            u32 priority_mask = ~(3u << 10);
+            tiles_and_priority = (tiles_and_priority & priority_mask) | priority;
+            work.object.words[1] = tiles_and_priority;
+
+            register SpriteFrameDrawOptions const * mode_config asm("r1") = config;
+            u32 object_mode = mode_config->object_mode;
+            object_mode &= priority_bits;
+            object_mode <<= 10;
+            u32 position_and_flags = work.object.words[0];
+            position_and_flags &= priority_mask;
+            position_and_flags |= object_mode;
+            SpriteFrameDrawOptions const * flags_config = config;
+            register u32 affine_mode asm("r2") = flags_config->affine_mode;
+            register u32 affine_bits asm("r0") = 3;
+            affine_mode &= affine_bits;
+            affine_mode <<= 8;
+            register u32 affine_mode_mask asm("r0") = ~(3u << 8);
+            position_and_flags = (position_and_flags & affine_mode_mask) | affine_mode;
+            register u32 mosaic asm("r2") = flags_config->mosaic;
+            register u32 mosaic_bit asm("r3") = flip_bit;
+            asm ("" : "+r" (mosaic_bit) : "r" (mosaic));
+            mosaic &= mosaic_bit;
+            mosaic <<= 12;
+            register u32 mosaic_mask asm("r0") = ~(1u << 12);
+            position_and_flags = (position_and_flags & mosaic_mask) | mosaic;
+            work.object.words[0] = position_and_flags;
+
+            SpriteOamBuffer * oam = static_cast<SpriteOamBuffer *>(HardwareContext_GetOamBuffer(work.hardware_context));
+            u32 index = oam->sprite_count;
+            if (index < 128)
+            {
+                SpriteAttributes * dest = oam->sprites + index;
+                dest->words[0] = work.object.words[0];
+                // The fourth halfword belongs to the affine matrix.
+                reinterpret_cast<u16 *>(dest)[2] = reinterpret_cast<u16 const *>(source)[2];
+                oam->sprite_count = index + 1;
+            }
+        }
+    next_object:
+        register u32 step asm("r0") = sizeof(*cursor);
+        asm ("" : "+r" (step));
+        cursor = reinterpret_cast<SpriteAttributes const *>(reinterpret_cast<u8 const *>(cursor) + step);
+        register SpriteAttributes const * end asm("r1") = work.end;
+        if (cursor == end)
+            break;
+    } while (true);
 }
 
 EC SECTION(".text.frisbee.08057DD8") FestivalResultsController * InitializeFrisbeeController(FestivalResultsController * controller, FestivalScene ** continuation, void * game, u8 kind)
