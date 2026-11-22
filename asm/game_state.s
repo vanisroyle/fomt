@@ -9577,7 +9577,7 @@ func_08017C30: @ 0x08017C30
     ldrsh r1, [r2, r3]
     movs r3, #0xe
     ldrsh r2, [r2, r3]
-    bl func_080A5960
+    bl SetMapCameraPosition
 .L08018268:
     ldr r4, .L080182B8 @ =0x00001038
     add r4, r8
