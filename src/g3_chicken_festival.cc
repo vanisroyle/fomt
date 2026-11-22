@@ -2,6 +2,7 @@
 #include "prelude.h"
 #include "scene.hh"
 #include "utility/fixed_str.hh"
+#include "chicken_festival.hh"
 #include <new>
 #include <stdlib.h>
 
@@ -36,14 +37,6 @@ struct ChickenFestivalCombat
 {
     u8 unknown_000[0x6c];
     FestivalChicken chickens[2];
-};
-
-struct ChickenFestivalEntrant
-{
-    FixedStr<12> name;
-    u8 unknown_10;
-    u8 affection;
-    SECTION(".text.g3_080B3C90") ChickenFestivalEntrant();
 };
 
 EC char gUnk_081078BC[];

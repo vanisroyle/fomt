@@ -38,6 +38,11 @@ private:
     }
 
 public:
+    G1SceneOwner Move()
+    {
+        return Transfer(this, value);
+    }
+
     static G1SceneOwner Adopt(AUnk_0800080C * next)
     {
         G1SceneOwner slot;
@@ -59,5 +64,19 @@ struct G1SpriteFeedingSceneWrapper
 };
 
 EC G1SceneOwner RunSpriteFeedingMinigameScene(G1SpriteMinigameScene * self);
+EC G1SceneOwner RunSpriteHarvestMinigameScene(G1SpriteMinigameScene * self);
+EC G1SceneOwner RunSpriteWateringMinigameScene(G1SpriteMinigameScene * self);
+EC G1SceneOwner RunChickenFestivalScene(G1SpriteMinigameScene * self);
+
+struct G1AnimalNamingScene
+{
+    void const * vtable;
+    AUnk_0800080C * next_scene;
+    void * game_state;
+    u32 target_kind;
+    u8 animal_index;
+};
+
+EC G1SceneOwner RunAnimalNamingScene(G1AnimalNamingScene * self);
 
 #endif
