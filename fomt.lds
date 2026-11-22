@@ -649,6 +649,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_side.08032BAC);
         src/npc_side_batch4.o(.text.npc_side.08032BB0);
         asm/code_entities_080320DC.o(.text.npc_side.08032BB4);
+        src/npc_side_batch13_workers.o(.text.npc_side.08033584);
         src/npc_side_batch8.o(.text.npc_side.08033784);
         src/npc_side_batch4.o(.text.npc_side.08033800);
         src/npc_side_batch4.o(.text.npc_side.08033830);
@@ -672,7 +673,7 @@ SECTIONS
         src/npc_side_batch10.o(.text.npc_side.08034940);
         src/npc_side_batch11.o(.text.npc_side.08034A14);
         src/npc_side_batch5.o(.text.npc_side.08034AA0);
-        asm/code_entities_080320DC.o(.text.npc_side.08034AE8);
+        src/npc_side_batch13_effects.o(.text.npc_side.08034AE8);
         src/npc_side_batch2.o(.text.npc_side.08034BFC);
         src/npc_side_batch4.o(.text.npc_side.08034C40);
         src/npc_side_batch4.o(.text.npc_side.08034C48);
