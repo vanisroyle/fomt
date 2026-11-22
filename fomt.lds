@@ -1565,13 +1565,14 @@ SECTIONS
         src/g5_runtime.o(.text.g5_init);
         src/g5_runtime.o(.text.g5_080D035C);
         src/g5_runtime.o(.text.g5_requests);
-        asm/code_080D035C.o(.text.g5_0490);
+        src/g5_buffer_exchange.o(.text.g5_080D0490);
+        src/g5_buffer_exchange.o(.text.g5_080D04F4);
         src/g5_buffer_exchange.o(.text.g5_080D0558);
         src/g5_runtime.o(.text.g5_transfer);
         asm/code_080D035C.o(.text.g5_after_transfer);
         src/g5_runtime.o(.text.g5_080D0644);
         src/g5_runtime.o(.text.g5_queries);
-        asm/code_080D035C.o(.text.g5_06DC);
+        src/g5_runtime.o(.text.g5_080D06DC);
         src/g5_runtime.o(.text.g5_080D0704);
         asm/code_080D035C.o(.text.g5_after_080D0704);
         src/g5_transmit.o(.text.g5_080D091C);
