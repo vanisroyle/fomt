@@ -2240,7 +2240,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     b .L08033DF4
 .L08033CA4:
     adds	r0, r7, #0
-    bl func_08034940
+    bl TryReturnSpriteWorkerHome
     lsls	r0, r0, #24
     cmp	r0, #0
     beq .L08033CB2
@@ -2514,7 +2514,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     cmp	r0, #7
     bgt .L08033F8E
     adds	r0, r7, #0
-    bl func_08034940
+    bl TryReturnSpriteWorkerHome
     lsls	r0, r0, #24
     lsrs	r1, r0, #24
     cmp	r1, #0
@@ -2619,7 +2619,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     cmp	r0, #0
     bne .L0803404C
     adds	r0, r7, #0
-    bl func_08034940
+    bl TryReturnSpriteWorkerHome
     lsls	r0, r0, #24
     cmp	r0, #0
     beq .L08033FA4
@@ -2714,7 +2714,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     cmp	r0, #0
     bne .L08034070
     adds	r0, r7, #0
-    bl func_08034940
+    bl TryReturnSpriteWorkerHome
     lsls	r0, r0, #24
     cmp	r0, #0
     bne .L08034110
@@ -3596,111 +3596,7 @@ func_0803436C: @ 0x0803436C
     .align 2, 0
 .L0803493C: .4byte gUnk_080F1496
 
-    thumb_func_start func_08034940
-func_08034940: @ 0x08034940
-    push {r4, r5, lr}
-    sub sp, #0xc
-    adds r5, r0, #0
-    ldr r0, [r5]
-    ldr r1, [r0]
-    movs r2, #0xa2
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldrh r2, [r0, #0xa]
-    lsls r0, r2, #0x1b
-    lsrs r0, r0, #0x1b
-    cmp r0, #5
-    bls .L0803497C
-    subs r0, #6
-    lsls r1, r0, #4
-    subs r1, r1, r0
-    lsls r1, r1, #2
-    lsls r0, r2, #0x15
-    lsrs r0, r0, #0x1a
-    adds r1, r1, r0
-    adds r0, r5, #0
-    adds r0, #0x30
-    ldrb r0, [r0]
-    ldr r2, .L080349A8 @ =0x00000385
-    adds r0, r0, r2
-    cmp r1, r0
-    blo .L08034A08
-.L0803497C:
-    ldrh r0, [r5, #4]
-    cmp r0, #0x11
-    beq .L080349AC
-    cmp r0, #0x11
-    ble .L080349C4
-    cmp r0, #0x25
-    bne .L080349C4
-    mov r4, sp
-    mov r0, sp
-    bl smethod_08009ADC__4Farm
-    mov r0, sp
-    movs r1, #0
-    ldrsh r2, [r0, r1]
-    movs r0, #2
-    ldrsh r3, [r4, r0]
-    adds r0, r5, #0
-    movs r1, #2
-    bl SetLocation__7AEntityUiii
-    b .L080349C4
-    .align 2, 0
-.L080349A8: .4byte 0x00000385
-.L080349AC:
-    add r4, sp, #4
-    adds r0, r4, #0
-    bl smethod_08009AE8__4Farm
-    movs r1, #0
-    ldrsh r2, [r4, r1]
-    movs r0, #2
-    ldrsh r3, [r4, r0]
-    adds r0, r5, #0
-    movs r1, #2
-    bl SetLocation__7AEntityUiii
-.L080349C4:
-    ldr r0, [r5, #0x38]
-    adds r1, r5, #0
-    adds r1, #0x30
-    ldrb r1, [r1]
-    bl ClearNpcEventSlot
-    ldr r0, [r5, #0x34]
-    add r1, sp, #8
-    bl method_0809E7FC__13HarvestSprite
-    movs r2, #0xa
-    ldrsh r1, [r5, r2]
-    movs r0, #0xb4
-    lsls r0, r0, #1
-    cmp r1, r0
-    bne .L080349E8
-    movs r2, #1
-    b .L080349F2
-.L080349E8:
-    ldr r0, .L08034A04 @ =0x00000167
-    movs r2, #2
-    cmp r1, r0
-    bgt .L080349F2
-    movs r2, #3
-.L080349F2:
-    movs r3, #0x80
-    lsls r3, r3, #8
-    adds r0, r5, #0
-    movs r1, #1
-    bl SetSpriteWorkerMovementState
-    movs r0, #1
-    b .L08034A0A
-    .align 2, 0
-.L08034A04: .4byte 0x00000167
-.L08034A08:
-    movs r0, #0
-.L08034A0A:
-    add sp, #0xc
-    pop {r4, r5}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.npc_side.08034A14, "ax", %progbits
 
     thumb_func_start func_08034A14
 func_08034A14: @ 0x08034A14
