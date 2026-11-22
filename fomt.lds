@@ -1213,12 +1213,16 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b13_080A3900);
         src/g1_minigame_run.o(.text.g1_080A39FC);
         asm/g1_npc.o(.text.g1_after_b14_080A39FC);
+        src/g1_minigame_run.o(.text.g1_080A3AF8);
+        asm/g1_npc.o(.text.g1_after_b15_080A3AF8);
         src/g1_minigame.o(.text.g1_080A3BF4);
         asm/g1_npc.o(.text.g1_after_b3_080A3BF4);
         src/g1_minigame.o(.text.g1_080A3C40);
         asm/g1_npc.o(.text.g1_after_b3_080A3C40);
         src/g1_minigame.o(.text.g1_080A3C8C);
         asm/g1_npc.o(.text.g1_after_b3_080A3C8C);
+        src/g1_animal_naming.o(.text.g1_080A3CF4);
+        asm/g1_npc.o(.text.g1_after_b15_080A3CF4);
         src/g1_map_region.o(.text.g1_080A3E90);
         asm/g1_npc.o(.text.g1_after_b5_080A3E90);
         src/g1_map_reload.o(.text.g1_080A4650);
