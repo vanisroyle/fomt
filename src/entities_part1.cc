@@ -104,7 +104,7 @@ EC void func_0800F4F0(HeldItem * self, u8 value);
 EC void func_0800F4D8(HeldItem * self);
 EC u32 func_08020018(u32 value);
 EC void AEntity_PlayAnimationSound(AActorEntity * self, u32 sound);
-EC void func_0802720C(FarmerEntity * self, Tool const & tool);
+EC bool FarmerEntity_ReceiveTool(FarmerEntity * self, Tool const & tool);
 EC void func_0802771C(FarmerEntity * self, u32 argument);
 
 struct AnimalBehaviorTimerPair
@@ -600,6 +600,35 @@ EC void FarmerEntity_StartHeldItemAnimation(FarmerEntity * self, u16 animation_i
     self->consume_animation_active = true;
 }
 
+// 0x0802720C
+EC bool FarmerEntity_ReceiveTool(FarmerEntity * self, Tool const & tool) ENTITY_CODE(0802720C);
+EC bool FarmerEntity_ReceiveTool(FarmerEntity * self, Tool const & tool)
+{
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->active = true;
+    motion->display_mode = 0;
+    motion->Launch(-0x80000, 0, 0x110000);
+    FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+    if (sprite != nullptr)
+    {
+        u16 const icon = tool.GetIconId();
+        GameObject * game = sprite->entity->game_object;
+        FarmerActionSpriteGameVTable const * table = *reinterpret_cast<FarmerActionSpriteGameVTable const **>(game);
+        void * graphics = table->vfunc_64(game);
+        func_0805E850(&sprite->animator, graphics, icon);
+        sprite->unk_C8 = true;
+        sprite->unk_CA = false;
+        sprite->unk_CB = true;
+    }
+    self->farmer->rucksack.AddAmountOfTool(tool.GetId(), 1);
+    self->state = 52;
+    self->unk_3D = 120;
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 188);
+    self->consume_animation_active = true;
+    return true;
+}
+
 // 0x0802771C
 EC void func_0802771C(FarmerEntity * self, u32 amount) ENTITY_CODE(0802771C);
 EC void func_0802771C(FarmerEntity * self, u32 amount)
@@ -963,14 +992,14 @@ EC void FarmerEntity_PerformAction(FarmerEntity * self, u32 action)
     default:
     case 0: case 1: self->state = 0; break;
     case 3: GetFarmerActionDispatchVTable(self)->vfunc_80(self); break;
-    case 4: func_0802720C(self, Tool(TOOL_CURSED_SICKLE)); break;
-    case 5: func_0802720C(self, Tool(TOOL_CURSED_HOE)); break;
-    case 6: func_0802720C(self, Tool(TOOL_CURSED_AXE)); break;
-    case 7: func_0802720C(self, Tool(TOOL_CURSED_HAMMER)); break;
-    case 8: func_0802720C(self, Tool(TOOL_CURSED_WATERING_CAN)); break;
-    case 9: func_0802720C(self, Tool(TOOL_CURSED_FISHING_ROD)); break;
+    case 4: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_SICKLE)); break;
+    case 5: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_HOE)); break;
+    case 6: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_AXE)); break;
+    case 7: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_HAMMER)); break;
+    case 8: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_WATERING_CAN)); break;
+    case 9: FarmerEntity_ReceiveTool(self, Tool(TOOL_CURSED_FISHING_ROD)); break;
     case 10:
-        func_0802720C(self, Tool(TOOL_TELEPORT_STONE));
+        FarmerEntity_ReceiveTool(self, Tool(TOOL_TELEPORT_STONE));
         AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 182);
         break;
     case 2: func_0802771C(self, rand() % 16 + 5); break;
