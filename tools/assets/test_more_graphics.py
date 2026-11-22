@@ -3,6 +3,7 @@
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
 import struct
+import random
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -25,6 +26,7 @@ def fixture():
                      0, 0, 2 | 1 << 16, 1)
     with ExitStack() as stack, tempfile.TemporaryDirectory() as directory:
         for name, value in (("TABLE", 0), ("COUNT", 1), ("EXCLUDED", ()), ("FEEDING", ()),
+                            ("INSTRUCTION_BYTES", ()), ("NON_POINTER_STREAMS", ()),
                             ("BLOCKS", ((128, len(rom) - 128),))):
             stack.enter_context(patch.object(m, name, value))
         assets, output = Path(directory) / "assets", Path(directory) / "custom output"
@@ -139,7 +141,7 @@ class MoreGraphicsTests(unittest.TestCase):
         with fixture() as (rom, addresses, assets, output):
             _, streams = m.catalogue(rom)
             address = addresses[0]
-            raw = bytes(range(64))
+            raw = random.Random(7).randbytes(64)
             lines, layout = m.emit_part(rom, address, streams[address], raw, output, g)
             self.assertTrue(layout["overflow"])
             self.assertIn(".pushsection", "\n".join(lines))

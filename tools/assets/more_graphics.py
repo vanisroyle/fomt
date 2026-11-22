@@ -18,6 +18,10 @@ BLOCKS = ((0x6678A0, 0x30080), (0x69B284, 0x3A284), (0x6D74F8, 0x4ECC),
           (0x72FC34, 0x238), (0x72FE6C, 0x8C), (0x72FEF8, 0x1A48), (0x731940, 0x200))
 FEEDING = ((0x72FEF8, "tiles", (0xAE884,)), (0x731940, "palette", (0xAE888,)),
            (0x72FC34, "map", (0xAE87C,)), (0x72FE6C, "map", (0xAE880,)))
+EXTRA_ROOTS = {0x6FD240: (0xB573C,), 0x6FB004: (0xB574C,), 0x6FD19C: (0xB5750,)}
+NON_POINTER_STREAMS = ((0x681F2C, 0x5000), (0x72C84C, 0xD60))
+INSTRUCTION_BYTES = ((0x1846E, bytes.fromhex("4869c269081c")),
+                     (0xACD98, bytes.fromhex("4869c269081c")))
 
 
 def symbol(address):
@@ -57,6 +61,9 @@ def catalogue(rom):
                 streams[value - fa.BASE]["references"].append(TABLE + i * STRIDE + field * 4)
     for address, kind, refs in FEEDING:
         add(address, kind, refs, kind != "palette")
+    for address, refs in EXTRA_ROOTS.items():
+        if address in streams:
+            streams[address]["references"].extend(refs)
     if FEEDING:
         scenes.append({"name": "chicken-feeding", "tiles": FEEDING[0][0],
                        "palettes": [FEEDING[1][0]], "maps": [FEEDING[2][0], FEEDING[3][0]],
@@ -150,7 +157,7 @@ def extract(rom, assets, g, force=False):
     root = assets / "graphics/more"
     manifest = {"scenes": scenes, "streams": {f"{a:06X}": {k: v for k, v in s.items() if k != "raw"}
                                                for a, s in sorted(streams.items())}}
-    fa.write_missing(root / "catalog.json", (json.dumps(manifest, indent=2) + "\n").encode(), force)
+    fa.write_changed(root / "catalog.json", (json.dumps(manifest, indent=2) + "\n").encode())
     tile_owners = owners(scenes)
     for address, stream in sorted(streams.items()):
         kind, raw = stream["kind"], stream["raw"]
@@ -196,9 +203,14 @@ def edited(rom, assets, g):
     return scenes, streams, raw
 
 
-def emit_part(rom, address, stream, value, output, g):
+def relocation_audit(streams):
+    compressed = tuple((address, stream["size"]) for address, stream in sorted(streams.items()) if stream["compressed"])
+    return compressed + NON_POINTER_STREAMS, INSTRUCTION_BYTES
+
+
+def emit_part(rom, address, stream, value, output, g, audit=((), ())):
     part = (address, stream["size"], tuple(sorted(set(stream["references"]))))
-    slot, overflow = g.pack_part(rom, part, value, stream["raw"], stream["compressed"])
+    slot, overflow = g.pack_part(rom, part, value, stream["raw"], stream["compressed"], *audit)
     prefix = f"graphics-more-{address:06X}"
     fa.write_changed(output / f"{prefix}-slot.bin", slot)
     fa.write_changed(output / f"{prefix}-overflow.bin", overflow or b"")
@@ -219,8 +231,9 @@ def emit_part(rom, address, stream, value, output, g):
 def build(rom, assets, output, g):
     scenes, streams, raw = edited(rom, assets, g)
     fragments, layout, products = {}, {}, []
+    audit = relocation_audit(streams)
     for address, stream in sorted(streams.items()):
-        fragments[address], layout[f"{address:06X}"] = emit_part(rom, address, stream, raw[address], output, g)
+        fragments[address], layout[f"{address:06X}"] = emit_part(rom, address, stream, raw[address], output, g, audit)
     covered = set()
     for start, size in BLOCKS:
         lines, cursor = [], start
@@ -295,4 +308,8 @@ def roundtrip(rom, assets, g):
             raise ValueError(f"more graphics {address:#x} is edited; roundtrip requires unmodified assets")
     compressed = sum(stream["compressed"] for stream in streams.values())
     print(f"More graphics source roundtrip: {len(streams)}/{len(streams)} payloads byte-identical; {compressed} Unpack streams; {len(scenes)} background definitions")
+    audit = relocation_audit(streams)
+    movable = sum(g.growth_safe(rom, (address, stream["size"], tuple(sorted(set(stream["references"])))), *audit)
+                  for address, stream in streams.items() if stream["compressed"])
+    print(f"More graphics relocation audit: {movable}/{compressed} compressed streams can relocate through audited symbolic roots")
     return {a for a, stream in streams.items() if stream["compressed"]}

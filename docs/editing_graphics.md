@@ -287,6 +287,59 @@ still fail conservatively, even though their map-table roots are symbolic.
 `check_more_graphics_rom.py` demonstrates a safe one-pixel relocation and
 checks all 265 payloads, every audited pointer, and unrelated original bytes.
 
+### Farm edits and relocation audit
+
+The farm tile stream `0x69B730` already has three symbolic map-table roots:
+`0x105EDC`, `0x10688C`, and `0x1068B4`. The earlier growth rejection was not
+caused by a remaining raw map-table field. Six **non-pointer** byte sequences
+looked like pointers into its packed slot:
+
+* `0x1846F` and `0xACD99` cross the Thumb instruction sequence
+  `ldr r0,[r1,#20]; ldr r2,[r0,#28]; adds r0,r1,#0`. Original-ELF disassembly
+  establishes that these are instructions, not address literals. Their exact
+  six instruction bytes are checked before excluding either range.
+* `0x68665B`, `0x6A1202`, `0x71D159`, and `0x72D374` are encoded bits inside
+  Unpack streams at `0x681F2C`, `0x6A018C`, `0x71B474`, and `0x72C84C`.
+  The first three are code-owned map streams (including the tile data for
+  excluded definition 15, whose palette ownership is unresolved). The last
+  has a direct Unpack call in `asm/code_809E804.s` through literal `0xB5764`
+  to `0x06004000`.
+
+The relocation audit now excludes only decoded-and-validated **encoded
+payloads** of this family, excluded definition 15's tile stream and that
+additional loader-owned stream, plus the two exact instruction ranges.
+Headers and trailing bytes stay audited. Both
+root-shaped and interior-shaped words are treated consistently; an unknown
+actual pointer still rejects growth. The original ROM pointer index and
+validated exclusions are cached, not rescanned/redecoded per stream.
+
+Three additional genuine references were found at `0xB573C`, `0xB574C`, and
+`0xB5750`, to streams `0x6FD240`, `0x6FB004`, and `0x6FD19C` respectively.
+These loads are already symbolic in `asm/code_809E804.s`; the corresponding
+data labels now alias the relocating `gMoreGraphics_` symbols instead of
+remaining fixed at their original slots. They are included in the root audit.
+
+On the original US ROM, **193/264** exported compressed streams pass the
+**complete** root and interior audit and can relocate, including the farm.
+The other 71 remain conservatively fixed because their other pointer-shaped
+words have not been classified. Run `roundtrip` to reproduce the count. This
+is not a blanket waiver of interior references.
+
+The four-solid-tile integration sample is reproducible with:
+
+```sh
+python3 tools/assets/check_more_graphics_rom.py --farm-block --output /home/ubuntu/farm-block-edit.gba
+```
+
+It paints a 2x2 source-sheet block of farm tiles, rebuilds normally, follows
+all three farm roots, checks the complete decoded result and all 264 other
+payloads, and restores the source and vanilla ROM. Its layer preview is
+`/home/ubuntu/screenshots/gfx_more_farm-block-edit-layer-0.png`.
+The sample paints tiles **0, 1, 32, 33**; its optimized stream is **17,672
+bytes** versus **18,100 greedy** and the **15,280-byte** original slot. It
+therefore exercises real overflow relocation to `0x75C244`, not just an
+in-place build benefiting from better compression.
+
 No additional independent English menu/name-entry/shop/calendar/diary bitmap
 or compressed portrait family was verified in this pass. Font-rendered labels
 belong to the existing non-script text/font tools (see `editing_text.md`), not
@@ -298,8 +351,16 @@ and many shared backgrounds without inventing palette ownership.
 `tools/assets/unpack_codec.py` writes the game's custom `0x70` Unpack format:
 little-endian 32-bit words carrying MSB-first bits, raw atoms, LZSS method 0,
 two distance classes (8/12 bits), literal groups, repeated-byte runs and
-overlapping back-references. Matching is deterministic and greedy with a
-4352-byte window. Output is padded to whole words. The bounded decoder reuses
+overlapping back-references. Matching searches the complete 4352-byte window.
+Dynamic programming minimizes the **bit cost** of literals (all lengths
+1..64), runs (2..65), and both lookup classes (3..66), rather than committing
+to the longest local match. For each distance class, its longest match covers
+all shorter choices at the same token cost. All five inverse difference
+filters are tried (word/interleaved only for even-sized input). The smallest
+word-padded candidate wins; the old deterministic greedy stream is retained
+as a fallback, so optimized output is never larger than it. Huffman encoding
+and other LZSS grammars are not implemented by this encoder, so the original
+compressor can still produce smaller results. The bounded decoder reuses
 the existing format implementation from `tools/scripts/decompress.py`, including
 Huffman atom coding, the other LZSS methods and difference filters.
 
@@ -333,8 +394,9 @@ python3 tools/assets/check_graphics_rom.py --title
 
 `roundtrip` scans word-aligned headers in `0x527094..0x75B9F8`, validates complete
 streams (max 256KiB output/source window), recompresses each valid candidate and
-checks decoded equality. It reports how often greedy output is byte-identical
-and writes `build/assets/graphics-inventory.json`, including formats, sizes and
+checks decoded equality. It reports optimized/original/greedy byte totals and
+smaller/equal/larger counts, and writes per-stream optimized and greedy sizes
+to `build/assets/graphics-inventory.json`, including formats, sizes and
 aligned ROM pointers. **A valid stream is a candidate, not proof of a separately
 owned graphics asset.** Embedded/overlapping candidates and non-graphics data
 are not promoted to editable assets automatically. No BIOS-LZ77 inventory is
@@ -343,6 +405,12 @@ claimed by this custom-format scan.
 The original US ROM yields **356** valid aligned candidates in **21** format
 combinations; **353** have aligned ROM pointers. All 356 round-trip through the
 greedy encoder, but **0/356** reproduce the original packed bytes.
+The optimized encoder round-trips **356/356** and writes **818,632 bytes**
+versus **721,840 original** (113.4%) and **871,164 greedy** (94.0%). Against
+the originals, **17 are smaller, 4 equal-sized, 335 larger**; 21 fit their
+original slots, versus 6 with greedy. This improves recompression, not full
+parity with the original Huffman/LZSS compressor. Per-stream sizes are in the
+inventory JSON; unchanged builds still keep the original packed bytes.
 **272/356 streams** are now identified and editable: the original eight
 Natsume/title streams, 261 world-map streams, and three chicken-feeding
 background streams. Raw palettes and the four exported title OBJ images do

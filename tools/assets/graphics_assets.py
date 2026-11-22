@@ -8,6 +8,8 @@ import math
 from pathlib import Path
 import struct
 import sys
+from bisect import bisect_left, bisect_right
+from functools import lru_cache
 
 import fomt_assets as fa
 from font_assets import original_rom
@@ -104,33 +106,44 @@ def extract(rom, assets, force=False):
     fa.write_missing(root / "boot-logo.map.bin", data["map"], force)
 
 
-def growth_safe(rom, part, non_pointer_streams=()):
-    offset, size, known = part
-    address = struct.pack("<I", 0x08000000 + offset)
-    found, pos = [], 0
-    while True:
-        pos = rom.find(address, pos)
-        if pos < 0:
-            break
-        found.append(pos)
-        pos += 1
-    if tuple(found) != known:
-        return False
+@lru_cache(maxsize=2)
+def pointer_words(rom):
+    return sorted((struct.unpack_from("<I", rom, end - 3)[0], end - 3)
+                  for end in range(3, len(rom)) if rom[end] == 8)
+
+
+@lru_cache(maxsize=2)
+def audited_ranges(rom, non_pointer_streams, non_pointer_bytes):
     encoded_ranges = []
     for start, span in non_pointer_streams:
         _, _, _, consumed = codec.decode_stream(rom[start:start + span])
         encoded_ranges.append((start + 4, start + consumed))
-    for end in range(3, len(rom)):
-        if rom[end] == 8:
-            value = struct.unpack_from("<I", rom, end - 3)[0]
-            if 0x08000000 + offset < value < 0x08000000 + offset + size:
-                if any(start <= end - 3 and end < stop for start, stop in encoded_ranges):
-                    continue
-                return False
-    return True
+    for start, expected in non_pointer_bytes:
+        if rom[start:start + len(expected)] != expected:
+            raise ValueError(f"audited instruction bytes changed at {start:#x}")
+        encoded_ranges.append((start, start + len(expected)))
+    return tuple(sorted(encoded_ranges))
 
 
-def pack_part(rom, part, raw, original, compressed=True, non_pointer_streams=()):
+def growth_safe(rom, part, non_pointer_streams=(), non_pointer_bytes=()):
+    offset, size, known = part
+    rom = bytes(rom)
+    words = pointer_words(rom)
+    ranges = audited_ranges(rom, tuple(non_pointer_streams), tuple(non_pointer_bytes))
+    first = bisect_left(words, (0x08000000 + offset, -1))
+    last = bisect_left(words, (0x08000000 + offset + size, -1))
+    roots = []
+    for value, pos in words[first:last]:
+        index = bisect_right(ranges, (pos, len(rom))) - 1
+        if index >= 0 and ranges[index][0] <= pos and pos + 4 <= ranges[index][1]:
+            continue
+        if value != 0x08000000 + offset:
+            return False
+        roots.append(pos)
+    return tuple(sorted(roots)) == known
+
+
+def pack_part(rom, part, raw, original, compressed=True, non_pointer_streams=(), non_pointer_bytes=()):
     offset, size, _ = part
     slot = rom[offset:offset + size]
     if raw == original:
@@ -138,7 +151,7 @@ def pack_part(rom, part, raw, original, compressed=True, non_pointer_streams=())
     packed = codec.encode(raw) if compressed else raw
     if len(packed) <= size:
         return packed + slot[len(packed):], None
-    if not growth_safe(rom, part, non_pointer_streams):
+    if not growth_safe(rom, part, non_pointer_streams, non_pointer_bytes):
         raise ValueError(f"graphics at 0x{offset:X} grew beyond {size} bytes; non-symbolic/interior references prevent safe relocation")
     return slot, packed
 
@@ -204,17 +217,28 @@ def roundtrip(rom, output, assets=Path("assets")):
     if not identified <= located:
         raise ValueError("an identified graphics stream is missing from the inventory")
     exact = 0
+    original_bytes = optimized_bytes = greedy_bytes = 0
+    sizes = Counter()
     for item in streams:
         offset, size = item["offset"], item["packed_bytes"]
         raw = codec.decode(rom[offset:offset + size])[0]
         packed = codec.encode(raw)
         if codec.decode(packed)[0] != raw:
             raise ValueError(f"encoder roundtrip failed at 0x{offset:X}")
-        exact += packed == rom[offset:offset + size]
+        greedy = codec.encode_greedy(raw)
+        exact += greedy == rom[offset:offset + size]
+        original_bytes += size
+        optimized_bytes += len(packed)
+        greedy_bytes += len(greedy)
+        sizes["smaller" if len(packed) < size else "equal" if len(packed) == size else "larger"] += 1
+        item["optimized_bytes"], item["greedy_bytes"] = len(packed), len(greedy)
     fa.write_changed(output / "graphics-inventory.json", (json.dumps(streams, indent=2) + "\n").encode())
     print(f"Unpack inventory: {len(streams)} valid aligned candidates; {sum(bool(s['references']) for s in streams)} have aligned ROM pointers")
     print(f"Unpack formats (atom/LZSS/diff): {dict(sorted(Counter(s['format'] for s in streams).items()))}")
     print(f"Unpack encoder roundtrip: {len(streams)}/{len(streams)} streams; greedy byte-identical: {exact}/{len(streams)}")
+    print(f"Unpack optimized size: {optimized_bytes} bytes / {original_bytes} original ({optimized_bytes / original_bytes:.1%}); "
+          f"{sizes['smaller']} smaller / {sizes['equal']} equal / {sizes['larger']} larger")
+    print(f"Unpack optimized versus greedy: {optimized_bytes} / {greedy_bytes} bytes ({optimized_bytes / greedy_bytes:.1%})")
     print(f"Identified editable Unpack streams: {len(identified)}/{len(streams)} (boot/title 8; world maps and chicken-feeding backgrounds {len(identified) - 8})")
 
 

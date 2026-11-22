@@ -262,15 +262,15 @@ gUnk_086FAA80:
 	.incbin "baserom.gba", 0x6FAA80, 0x584
 
 	.global gUnk_086FB004
-gUnk_086FB004:
+.set gUnk_086FB004, gMoreGraphics_6FB004
 	.include "build/assets/graphics-more-6FB004.s"
 
 	.global gUnk_086FD19C
-gUnk_086FD19C:
+.set gUnk_086FD19C, gMoreGraphics_6FD19C
 	.include "build/assets/graphics-more-6FD19C.s"
 
 	.global gUnk_086FD240
-gUnk_086FD240:
+.set gUnk_086FD240, gMoreGraphics_6FD240
 	.include "build/assets/graphics-more-6FD240.s"
 
 	.global gUnk_08714A30
