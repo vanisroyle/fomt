@@ -157,6 +157,96 @@ EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(
     }
 }
 
+struct FrisbeeDisplayRegisters
+{
+    u16 control;
+    u8 padding02[6];
+    u16 backgroundControl[4];
+    u16 scroll[4][2];
+};
+
+EC FrisbeeDisplayRegisters * HardwareContext_GetDisplayRegisters(void *);
+EC void Dma3_Fill(u32, void *, u32);
+EC void Dma3_Copy(const void *, void *, u32);
+EC void Unpack(const void *, void *);
+EC const u8 gUnk_08738AD8[];
+EC const u8 gUnk_08738CC8[];
+EC const u8 gUnk_08738CF0[];
+EC const u8 gUnk_08738D1C[];
+EC const u8 gUnk_087399C4[];
+EC const u8 gUnk_08739A64[];
+
+#define WRITE_FRISBEE_REGISTER(field, value, reg) { \
+    FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen); \
+    volatile u16 * scratch = &settingScratch; \
+    register u32 setting asm("r3") = value; \
+    asm ("" : : "r" (setting)); \
+    register u32 output asm(reg) = setting; \
+    *scratch = output; \
+    display->field = output; \
+}
+#define CLEAR_FRISBEE_SCROLL(index) { \
+    FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen); \
+    volatile u16 * scratch = &settingScratch; \
+    *scratch = zero; \
+    display->scroll[index][0] = zero; \
+}
+
+EC SECTION(".text.frisbee.08054F40") void LoadFrisbeeBackground(void * screen)
+{
+    volatile u16 settingScratch;
+    Dma3_Fill(0, (void *) 0x06007fe0, 32);
+    Dma3_Fill(~0u, (void *) 0x0600e000, 0x800);
+    register void * mapInput asm("r1") = (void *) 0x0600e800;
+    asm ("" : "+r" (mapInput));
+    void * secondMap = mapInput;
+    Dma3_Fill(~0u, secondMap, 0x800);
+    Dma3_Fill(~0u, (void *) 0x0600f000, 0x800);
+    register const u8 * pattern asm("r0") = gUnk_08738AD8;
+    asm ("" : : "r" (pattern));
+    register u32 tilemapOffset asm("r2") = 0x1d5a;
+    asm ("" : : "r" (pattern), "r" (tilemapOffset));
+    u8 * tilemap = (u8 *) screen + tilemapOffset;
+    Unpack(pattern, tilemap);
+    Dma3_Copy(tilemap, (void *) 0x0600e000, 0x500);
+    Dma3_Copy(tilemap, secondMap, 0xc0);
+    Unpack(gUnk_08738CC8, tilemap);
+    Unpack(gUnk_08738CF0, tilemap);
+    Unpack(gUnk_08738D1C, (void *) 0x06000000);
+    Dma3_Copy(gUnk_087399C4, (void *) 0x05000000, 0x200);
+    register const u8 * animationPattern asm("r0") = gUnk_08739A64;
+    asm ("" : : "r" (animationPattern));
+    register u32 patternOffset asm("r3") = 0x558;
+    asm ("" : : "r" (animationPattern), "r" (patternOffset));
+    Unpack(animationPattern, (u8 *) screen + patternOffset);
+    WRITE_FRISBEE_REGISTER(control, 0x1e40, "r2");
+    u32 zero = 0;
+    WRITE_FRISBEE_REGISTER(backgroundControl[3], 0x1c43, "r1");
+    WRITE_FRISBEE_REGISTER(backgroundControl[2], 0x1d42, "r1");
+    WRITE_FRISBEE_REGISTER(backgroundControl[1], 0x1e41, "r1");
+    CLEAR_FRISBEE_SCROLL(1);
+    {
+        FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen);
+        settingScratch = zero;
+        display->scroll[1][1] = zero;
+    }
+    CLEAR_FRISBEE_SCROLL(2);
+    {
+        FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen);
+        settingScratch = zero;
+        display->scroll[2][1] = zero;
+    }
+    CLEAR_FRISBEE_SCROLL(3);
+    {
+        FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen);
+        settingScratch = zero;
+        display->scroll[3][1] = zero;
+    }
+}
+
+#undef WRITE_FRISBEE_REGISTER
+#undef CLEAR_FRISBEE_SCROLL
+
 EC void DrawFrisbeeSymbol(void *, i32, i32, i32);
 
 struct FrisbeeScoreboardState
