@@ -941,9 +941,11 @@ gHorseRaceSceneVTable:
 vtable_unk_080E799C:
 	.incbin "baserom.gba", 0xE799C, 0xC
 
-	.global vtable_unk_080E79A8
-vtable_unk_080E79A8:
-	.incbin "baserom.gba", 0xE79A8, 0x10
+	.global gMedalExchangeTextSubstitutionsVTable
+gMedalExchangeTextSubstitutionsVTable:
+	.4byte 0, 0
+	.4byte func_080E1964
+	.4byte ResolveMedalExchangePrizeName
 
 	.global gMedalExchangeSceneVTable
 gMedalExchangeSceneVTable:
