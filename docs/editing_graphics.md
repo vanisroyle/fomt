@@ -624,3 +624,36 @@ changed ROM byte belongs to that tile stream or its roots, writes
 Preview: `/home/ubuntu/screenshots/gfx_rest_ui-panel-visible-edit.png`.
 Unmodified family previews use `gfx_rest_*.png`. These are asset-layout previews,
 not emulator verification of runtime scene transitions or dynamic overlays.
+
+### Town-map and farm-overview overflow
+
+Both normal-season tile sheets can relocate through their existing symbolic
+loader roots: town map `755848` via `77F38`, farm overview `5275D0` via `6ED6C`.
+No additional loader roots were found. The previously blocking words are data,
+not interior references:
+
+- `6718DC -> 757A99`: raw OBJ tiles in the seven-section `6678A0..67A0E8`
+  animation resource, initialized by `InitSpriteAnimationData` in the map scene.
+- `1A5C6D -> 527C7A`: signed PCM inside DirectSound sample `19B6B0`.
+- `9B524 -> 527FC2`: Thumb `ldrb`/`lsrs`, not a literal pool.
+- `5B57C/5B60E/5B6AE/5B75C/5B7BC -> 528A9A` and
+  `5B548/5B5DA/5B67A/5B728/5B7F0 -> 528ABA`: Thumb `ldrh`/`lsrs`
+  in `LoadHorseRaceObjectGraphics`, verified against ELF `$t` mappings.
+- `6EAC18 -> 528286`: raw 4bpp window-style tiles. Record `107104` points
+  to `6EA5B8`; its header specifies 19 tiles per frame and three frames.
+  `func_080A5AB0` selects a frame and DMA-copies 32-byte tiles.
+- `750633 -> 52944A`: palette colors in the seven-section `74F34C..7506E0`
+  animation resource passed to `func_0805E6CC` in `func_080A220C`.
+
+Only raw tile/palette sections of the two additional animation resources are
+excluded, never their metadata. PCM, window tiles and instructions are guarded
+by SHA-256; changed guarded bytes fail closed. Unknown words elsewhere still
+block relocation. No compressed-payload exclusions were needed for these two
+screens.
+
+Reproduce two solid-tile edits (each restores its source PNG and compares):
+
+```sh
+python3 tools/assets/check_ui_graphics_rom.py --scene town-map --solid-tiles 0 1 --output /home/ubuntu/townmap-edit.gba
+python3 tools/assets/check_ui_graphics_rom.py --scene farm-overview --solid-tiles 0 1 --output /home/ubuntu/farmoverview-edit.gba
+```
