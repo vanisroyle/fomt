@@ -91,7 +91,7 @@ SECTIONS
         asm/sram_proxy_2.o(.text.tail);
         src/sram_error.o(.text);
         src/scene.o(.text);
-        asm/scene.o(.text);
+        src/scene.o(.text.SceneMain);
         asm/intro_scene.o(.text);
         src/intro_scene.o(.text.func_080036F8);
         asm/intro_scene.o(.text.after_080036F8);

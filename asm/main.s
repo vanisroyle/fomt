@@ -50,7 +50,7 @@ AgbMain: @ 0x0800018C
     str r1, [sp, #8]
     str r0, [sp, #4]
     add r0, sp, #4
-    bl func_0800082C
+    bl SceneMain
     ldr r1, [sp, #8]
     cmp r1, #0
     beq .L08000216
