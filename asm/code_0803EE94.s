@@ -113553,7 +113553,7 @@ func_08088318: @ 0x08088318
 	ldr r2, .L080884D8 @ =0x00000734
 .L080884CA:
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	b .L080884E8
 	.align 2, 0
 .L080884D4: .4byte gUnk_0858BA28
@@ -113563,7 +113563,7 @@ func_08088318: @ 0x08088318
 	ldr r1, .L080884F0 @ =gUnk_086678A0
 	movs r2, #0x35
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 .L080884E8:
 	add sp, #0x10
 	pop {r4, r5, r6, r7}
@@ -113827,7 +113827,7 @@ func_08088688: @ 0x08088688
 	ldr r1, [sp, #8]
 	ldr r2, [sp, #0xc]
 	movs r3, #1
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, r8
@@ -113910,7 +113910,7 @@ func_08088688: @ 0x08088688
 	ldr r1, [sp, #8]
 	ldr r2, [sp, #0xc]
 	movs r3, #1
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, r8
@@ -114060,7 +114060,7 @@ func_08088688: @ 0x08088688
 	adds r0, r5, #0
 	adds r1, r6, #0
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -114204,7 +114204,7 @@ func_08088688: @ 0x08088688
 	adds r0, r4, #0
 	adds r1, r6, #0
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -116237,7 +116237,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r4, #0
 	adds r1, r6, #0
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x20]
@@ -116681,7 +116681,7 @@ func_08089AD8: @ 0x08089AD8
 	adds r0, r4, #0
 	adds r1, r6, #0
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -117369,7 +117369,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808A5D4:
 	str r5, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_08088318
@@ -117411,7 +117411,7 @@ func_0808A55C: @ 0x0808A55C
 .L0808A634:
 	str r4, [r5]
 	ldr r0, [r7, #0x7c]
-	bl func_080CC310
+	bl InventoryMenu_RedrawRightSlotPanel
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
@@ -118193,7 +118193,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
@@ -118418,7 +118418,7 @@ func_0808AC28: @ 0x0808AC28
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r3, [r7, #0x78]
 	mov r8, r3
 	adds r0, r7, #0
@@ -118802,7 +118802,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
@@ -119028,7 +119028,7 @@ func_0808B16C: @ 0x0808B16C
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r1, [r7, #0x78]
 	mov r8, r1
 	adds r0, r7, #0
@@ -120116,7 +120116,7 @@ func_0808BCD0: @ 0x0808BCD0
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 .L0808BD8A:
 	add sp, #0xc
 	pop {r3}
@@ -120561,7 +120561,7 @@ func_0808C0BC: @ 0x0808C0BC
 .L0808C134:
 	str r5, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_0808BCD0
@@ -120603,7 +120603,7 @@ func_0808C0BC: @ 0x0808C0BC
 .L0808C194:
 	str r4, [r5]
 	ldr r0, [r7, #0x7c]
-	bl func_080CC310
+	bl InventoryMenu_RedrawRightSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_0808BDA0
@@ -121387,7 +121387,7 @@ func_0808C664: @ 0x0808C664
 	ldr r2, .L0808C824 @ =0x00000734
 .L0808C816:
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	b .L0808C834
 	.align 2, 0
 .L0808C820: .4byte gUnk_0858BA28
@@ -121397,7 +121397,7 @@ func_0808C664: @ 0x0808C664
 	ldr r1, .L0808C83C @ =gUnk_086678A0
 	movs r2, #0x35
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 .L0808C834:
 	add sp, #0x10
 	pop {r4, r5, r6, r7}
@@ -121658,7 +121658,7 @@ func_0808C9D0: @ 0x0808C9D0
 	ldr r1, [sp, #8]
 	ldr r2, [sp, #0xc]
 	movs r3, #1
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
@@ -121741,7 +121741,7 @@ func_0808C9D0: @ 0x0808C9D0
 	ldr r1, [sp, #8]
 	ldr r2, [sp, #0xc]
 	movs r3, #1
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
@@ -121881,7 +121881,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r4, #0
 	adds r1, r5, #0
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -122016,7 +122016,7 @@ func_0808C9D0: @ 0x0808C9D0
 	adds r0, r4, #0
 	adds r1, r6, #0
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -123915,7 +123915,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r4, #0
 	adds r1, r6, #0
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	ldr r5, [r7, #0x7c]
 	adds r0, r7, #0
 	ldr r1, [sp, #0x1c]
@@ -124289,7 +124289,7 @@ func_0808DD54: @ 0x0808DD54
 	adds r0, r4, #0
 	mov r1, r8
 	movs r3, #1
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -124954,7 +124954,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808E774:
 	str r5, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_0808C664
@@ -124996,7 +124996,7 @@ func_0808E6FC: @ 0x0808E6FC
 .L0808E7D4:
 	str r4, [r5]
 	ldr r0, [r7, #0x7c]
-	bl func_080CC310
+	bl InventoryMenu_RedrawRightSlotPanel
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
@@ -125796,7 +125796,7 @@ func_0808EDCC: @ 0x0808EDCC
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 .L0808EE86:
 	add sp, #0xc
 	pop {r3}
@@ -126105,7 +126105,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r4, [r7, #0x78]
 	adds r0, r7, #0
 	mov r1, sb
@@ -126330,7 +126330,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r3, [r7, #0x78]
 	mov r8, r3
 	adds r0, r7, #0
@@ -126491,7 +126491,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r5, #0
 	adds r1, r6, #0
 	adds r2, r4, #0
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -126695,7 +126695,7 @@ func_0808F080: @ 0x0808F080
 	adds r0, r5, #0
 	ldr r1, .L0808F6D0 @ =gUnk_086678A0
 	adds r2, r4, #0
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 	adds r0, r7, #0
 	adds r0, #0x94
 	ldr r0, [r0]
@@ -127096,7 +127096,7 @@ func_0808F784: @ 0x0808F784
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBDD4
+	bl InventoryMenu_SetSpecialSlotEntry
 	ldr r0, [r7, #0x7c]
 	mov r8, r0
 	adds r0, r7, #0
@@ -128864,7 +128864,7 @@ func_08090960: @ 0x08090960
 .L080909D8:
 	str r5, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_0808EDCC
@@ -128906,7 +128906,7 @@ func_08090960: @ 0x08090960
 .L08090A38:
 	str r4, [r5]
 	ldr r0, [r7, #0x7c]
-	bl func_080CC310
+	bl InventoryMenu_RedrawRightSlotPanel
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
@@ -129654,7 +129654,7 @@ func_08090FCC: @ 0x08090FCC
 	adds r0, r4, #0
 	adds r1, r5, #0
 	adds r2, r6, #0
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 .L08091082:
 	add sp, #0xc
 	pop {r4, r5, r6, r7}
@@ -130295,7 +130295,7 @@ func_0809152C: @ 0x0809152C
 .L080915A8:
 	str r5, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_08090FCC
@@ -130337,7 +130337,7 @@ func_0809152C: @ 0x0809152C
 .L08091608:
 	str r4, [r5]
 	ldr r0, [r7, #0x7c]
-	bl func_080CC310
+	bl InventoryMenu_RedrawRightSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_08091094
@@ -132357,7 +132357,7 @@ func_080926A4: @ 0x080926A4
 	adds r0, r5, #0
 	adds r1, r6, #0
 	adds r2, r4, #0
-	bl func_080CBAF0
+	bl InventoryMenu_SetAnimatedSpecialSlotEntry
 .L08092746:
 	add sp, #0xc
 	pop {r4, r5, r6, r7}
@@ -133152,7 +133152,7 @@ func_08092D64: @ 0x08092D64
 .L08092DDC:
 	str r5, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_080926A4
@@ -133194,7 +133194,7 @@ func_08092D64: @ 0x08092D64
 .L08092E3C:
 	str r4, [r5]
 	ldr r0, [r7, #0x7c]
-	bl func_080CC310
+	bl InventoryMenu_RedrawRightSlotPanel
 	adds r0, r7, #0
 	mov r1, r8
 	bl func_08092754
@@ -144339,7 +144339,7 @@ func_080989DC: @ 0x080989DC
 .L08098A66:
 	str r5, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	movs r4, #0
 	movs r0, #0x7c
 	adds r0, r0, r7
@@ -144444,7 +144444,7 @@ func_080989DC: @ 0x080989DC
 .L08098B40:
 	str r4, [r5]
 	ldr r0, [r7, #0x7c]
-	bl func_080CC310
+	bl InventoryMenu_RedrawRightSlotPanel
 	add r0, sp, #8
 	bl __12RucksackItem
 	ldr r3, .L08098BC0 @ =0x0000035D
@@ -144706,7 +144706,7 @@ func_08098CE8: @ 0x08098CE8
 	str r4, [r5]
 	mov r3, r8
 	ldr r0, [r3, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	movs r4, #0
 	movs r0, #0x7c
 	add r0, r8
@@ -145899,7 +145899,7 @@ func_0809964C: @ 0x0809964C
 .L080996D4:
 	str r5, [r6]
 	ldr r0, [r7, #0x78]
-	bl func_080CB090
+	bl InventoryMenu_RedrawLeftSlotPanel
 	movs r5, #0
 	adds r6, r7, #0
 	adds r6, #0x7c
@@ -146024,7 +146024,7 @@ func_0809964C: @ 0x0809964C
 .L080997E2:
 	str r4, [r5]
 	ldr r0, [r7, #0x7c]
-	bl func_080CC310
+	bl InventoryMenu_RedrawRightSlotPanel
 	ldr r4, .L08099A9C @ =gUnk_08750C8C
 	movs r3, #0xc4
 	lsls r3, r3, #2

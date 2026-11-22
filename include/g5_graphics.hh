@@ -54,6 +54,11 @@ EC u8 * InventoryMenu_InitializeSlotPanel(u8 * panel, void * owner, DrawCommand 
 // two tile units per slot. The low byte of the flag enables the special slot.
 EC u8 * InventoryMenu_InitializeResourceSlotPanel(u8 * panel, void * owner, DrawCommand * draw_owner, u32 slots, char const * caption, u32 special_slot_enabled); // 0x080CC15C
 
+// Clear the left/right tilemap regions, queue slot count tiles, and upload an
+// optional eight-character caption. Right-panel count positions shift 15 tiles.
+EC void InventoryMenu_RedrawLeftSlotPanel(u8 * panel); // 0x080CB090
+EC void InventoryMenu_RedrawRightSlotPanel(u8 * panel); // 0x080CC310
+
 // Destructors also release panel resources; flags bit 0 deletes the panel.
 EC void DestroyPanelDrawCommands(u8 * panel, u32 flags); // 0x080CADF0
 EC void PruneInactivePanelDrawCommands(u8 * panel); // 0x080CAF6C
@@ -65,5 +70,9 @@ EC void QueuePagedPanelTileDraw(u8 * panel, void * destination, u16 tile, u32 wi
 EC void QueuePagedPanelNumberDraw(u8 * panel, u32 value, void * destination, u16 style, u16 palette, u32 stride); // 0x080CE510
 EC void MapGraphics_LoadPaletteBuffer(u8 * renderer, u32 unused, u32 buffer_index); // 0x080CFB5C
 EC void MapGraphics_DrawFieldPlot(u8 * renderer, int x, int y, FieldPlot * plot, Unk_Something const * variant); // 0x080CFEA8
+
+// Set the special-slot graphics and queue its tilemap and optional quantity draw.
+EC void InventoryMenu_SetSpecialSlotEntry(u8 *panel, u32 tile_data, u32 palette_data, u32 value); // 0x080CBDD4
+EC void InventoryMenu_SetAnimatedSpecialSlotEntry(u8 *panel, void const *data, u32 animation, u32 value); // 0x080CBAF0
 
 #endif
