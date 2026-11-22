@@ -1630,6 +1630,8 @@ SECTIONS
         asm/code_linkonce.o(.text.code_080E0EF0);
         *(.text.medal_exchange.080E1844);
         asm/code_linkonce.o(.text.code_080E18A4);
+        *(.text.childhood_memory.080E19A4);
+        asm/code_linkonce.o(.text.code_080E19F8);
 
         *(.gnu.linkonce.d.__vt_6AScene);
         *(.gnu.linkonce.d.__vt_13AUnk_0800080C);

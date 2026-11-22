@@ -27125,50 +27125,7 @@ func_080E1984: @ 0x080E1984
 	.align 2, 0
 .L080E19A0: .4byte vtable_unk_080E5A28
 
-	thumb_func_start func_080E19A4
-func_080E19A4: @ 0x080E19A4
-	push {r4, r5, r6, lr}
-	sub sp, #0x20
-	adds r5, r0, #0
-	cmp r2, #0xff
-	bne .L080E19DE
-	ldr r6, [r1, #4]
-	adds r0, r6, #0
-	bl strlen
-	adds r4, r0, #0
-	cmp r4, #0x1f
-	bls .L080E19BE
-	movs r4, #0x1f
-.L080E19BE:
-	mov r0, sp
-	adds r1, r6, #0
-	adds r2, r4, #0
-	bl memcpy
-	mov r0, sp
-	adds r1, r0, r4
-	movs r0, #0
-	strb r0, [r1]
-	movs r0, #1
-	strb r0, [r5]
-	adds r0, r5, #4
-	mov r1, sp
-	bl strcpy
-	b .L080E19EC
-.L080E19DE:
-	mov r1, sp
-	movs r0, #0
-	strb r0, [r1]
-	strb r0, [r5]
-	adds r0, r5, #4
-	bl strcpy
-.L080E19EC:
-	adds r0, r5, #0
-	add sp, #0x20
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-
+	.section .text.code_080E19F8, "ax", %progbits
 	thumb_func_start func_080E19F8
 func_080E19F8: @ 0x080E19F8
 	push {r4, r5, lr}
