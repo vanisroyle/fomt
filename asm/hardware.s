@@ -769,73 +769,7 @@ func_08007F84: @ 0x08007F84
     .section .text.after_0800835C, "ax"
     .section .text.after_08008364, "ax"
     .section .text.after_080083D0, "ax"
-    thumb_func_start func_08008444
-func_08008444: @ 0x08008444
-    push {r4, r5, r6, lr}
-    sub sp, #4
-    adds r6, r0, #0
-    ldr r0, .L080084C4 @ =gHardwareContextVtable
-    str r0, [r6, #4]
-    movs r0, #0x96
-    lsls r0, r0, #3
-    bl __builtin_new
-    adds r4, r0, #0
-    movs r1, #0x1e
-    movs r2, #4
-    bl KeyRepeat_Initialize
-    movs r5, #0
-    str r5, [r4, #0x24]
-    str r5, [r4, #0x28]
-    adds r0, r4, #0
-    adds r0, #0x2c
-    str r5, [r0, #4]
-    adds r0, #8
-    bl DisplayRegisters_Initialize
-    adds r0, r4, #0
-    adds r0, #0x8c
-    movs r1, #0
-    movs r2, #0x20
-    bl OamBuffer_Initialize
-    movs r1, #0x92
-    lsls r1, r1, #3
-    adds r0, r4, r1
-    bl func_08008980
-    ldr r3, .L080084C8 @ =0x00000494
-    adds r2, r4, r3
-    str r5, [r2]
-    str r5, [r2, #4]
-    ldr r0, .L080084CC @ =gTaskListVtable
-    str r0, [r2, #8]
-    ldr r0, .L080084D0 @ =0x000004A4
-    adds r1, r4, r0
-    str r1, [r2, #0xc]
-    str r5, [r1]
-    str r5, [r1, #4]
-    ldr r0, .L080084D4 @ =vtable_unk_080E5BD8
-    str r0, [r1, #8]
-    adds r3, #0xc
-    adds r0, r4, r3
-    str r0, [r2, #0x10]
-    str r1, [r2, #0x14]
-    ldrh r0, [r4, #0x38]
-    movs r1, #8
-    orrs r0, r1
-    strh r0, [r4, #0x38]
-    ldr r1, .L080084D8 @ =0x04000004
-    strh r0, [r1]
-    str r4, [r6]
-    adds r0, r6, #0
-    add sp, #4
-    pop {r4, r5, r6}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L080084C4: .4byte gHardwareContextVtable
-.L080084C8: .4byte 0x00000494
-.L080084CC: .4byte gTaskListVtable
-.L080084D0: .4byte 0x000004A4
-.L080084D4: .4byte vtable_unk_080E5BD8
-.L080084D8: .4byte 0x04000004
+    .section .text.after_08008444, "ax"
 
     thumb_func_start func_080084DC
 func_080084DC: @ 0x080084DC

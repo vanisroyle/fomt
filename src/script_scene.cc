@@ -18,7 +18,7 @@ struct HardwareContext
     void const * vtable;
 };
 
-EC void InitializeHardwareContext(HardwareContext *) asm("func_08008444");
+EC void InitializeHardwareContext(HardwareContext *) asm("HardwareContext_Initialize");
 EC void InitializeScriptEngine(AScriptEngine *) asm("__13AScriptEngine");
 
 struct MusicPlayer;

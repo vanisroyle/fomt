@@ -69002,7 +69002,7 @@ func_08069F14: @ 0x08069F14
 	mov sb, r1
 	adds r5, r2, #0
 	mov sl, r3
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L0806A120 @ =vtable_unk_080E7AA8
 	str r0, [r7, #4]
 	mov r1, sb
@@ -81730,7 +81730,7 @@ func_080701BC: @ 0x080701BC
 	str r5, [r2]
 	str r1, [sp, #4]
 	adds r7, r0, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080704F0 @ =vtable_unk_080E7AE0
 	str r0, [r7, #4]
 	str r4, [r7, #8]
@@ -93705,7 +93705,7 @@ func_08075E7C: @ 0x08075E7C
 	lsrs r0, r0, #0x18
 	mov sl, r0
 	adds r0, r7, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L0807615C @ =vtable_unk_080E7B78
 	str r0, [r7, #4]
 	movs r4, #0
@@ -98824,7 +98824,7 @@ func_0807865C: @ 0x0807865C
 	add r5, sp, #0x10
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080789FC @ =vtable_unk_080E7BB4
 	str r0, [r7, #4]
 	str r4, [r7, #8]
@@ -148855,7 +148855,7 @@ func_0809323C: @ 0x0809323C
 	sub sp, #0x14
 	adds r7, r0, #0
 	adds r5, r1, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	adds r4, r7, #0
 	adds r4, #8
 	adds r0, r4, #0

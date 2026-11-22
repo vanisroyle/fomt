@@ -9,7 +9,7 @@ func_08000914: @ 0x08000914
     mov r4, r8
     push {r4, r5, r6}
     adds r5, r0, #0
-    bl func_08008444
+    bl HardwareContext_Initialize
     ldr r0, .L08000CB0 @ =vtable_unk_080E5A0C
     str r0, [r5, #4]
     adds r0, r5, #0

@@ -194,6 +194,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008364);
         src/hardware.o(.text.TilePool_Acquire);
         asm/hardware.o(.text.after_080083D0);
+        src/hardware.o(.text.HardwareContext_Initialize);
+        asm/hardware.o(.text.after_08008444);
         src/hardware.o(.text.HardwareContext_Destroy);
         asm/hardware.o(.text.after_080086BC);
         src/hardware.o(.text.HardwareContext_UpdateKeys);

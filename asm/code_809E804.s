@@ -10214,7 +10214,7 @@ func_080ADF6C: @ 0x080ADF6C
 	sub sp, #0x40
 	adds r6, r0, #0
 	str r1, [sp, #0x14]
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080AE340 @ =vtable_unk_080E8500
 	str r0, [r6, #4]
 	movs r0, #2
@@ -42580,7 +42580,7 @@ func_080C0DCC: @ 0x080C0DCC
 	sub sp, #0x50
 	adds r6, r0, #0
 	str r1, [sp, #0x14]
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080C11C0 @ =vtable_unk_080E8554
 	str r0, [r6, #4]
 	movs r0, #3
@@ -56972,7 +56972,7 @@ func_080C7F58: @ 0x080C7F58
 	sub sp, #0x58
 	adds r7, r0, #0
 	adds r4, r1, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080C8310 @ =vtable_unk_080E8570
 	str r0, [r7, #4]
 	str r4, [r7, #8]

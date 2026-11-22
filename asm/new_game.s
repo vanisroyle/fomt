@@ -2524,7 +2524,7 @@ func_08004EFC: @ 0x08004EFC
     adds r6, r1, #0
     mov r8, r2
     str r3, [sp, #0x24]
-    bl func_08008444
+    bl HardwareContext_Initialize
     ldr r0, .L080050A4 @ =vtable_unk_080E5A98
     str r0, [r7, #4]
     movs r0, #3
@@ -3646,7 +3646,7 @@ func_08005A58: @ 0x08005A58
     adds r5, r0, #0
     mov r8, r1
     adds r7, r2, #0
-    bl func_08008444
+    bl HardwareContext_Initialize
     ldr r0, .L08005B1C @ =vtable_unk_080E5AB4
     str r0, [r5, #4]
     movs r0, #7
