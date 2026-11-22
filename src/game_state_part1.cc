@@ -247,7 +247,7 @@ struct GameStateActorEntity : public AActorEntity
     virtual void vfunc_58();
     virtual void vfunc_5C(u32 value, u32 enabled);
     virtual void vfunc_60();
-    virtual void vfunc_64(u32 value_1, u32 value_2);
+    virtual bool ChangeStaminaAndFatigue(i32 staminaDelta, i32 fatigueDelta);
     virtual void vfunc_68(u32 value);
     virtual void vfunc_6C();
     virtual void vfunc_70();
@@ -292,12 +292,15 @@ struct GameStateActiveEntity : public AActorEntity
 };
 
 
+struct GameStateMapUpdateEvent;
+struct GameStateAudioList;
+
 struct GameStateObject
 {
     virtual ~GameStateObject();
     virtual void vfunc_C();
     virtual void vfunc_10();
-    virtual u32 vfunc_14();
+    virtual u32 GetMapId() const;
     virtual void vfunc_18();
     virtual void vfunc_1C();
     virtual void vfunc_20();
@@ -318,7 +321,7 @@ struct GameStateObject
     virtual void vfunc_58();
     virtual void vfunc_5C();
     virtual void vfunc_60();
-    virtual void vfunc_64();
+    virtual void const * GetVaseSpriteArchive() const;
     virtual void vfunc_68();
     virtual void vfunc_6C();
     virtual void vfunc_70();
@@ -373,10 +376,10 @@ struct GameStateObject
     virtual void vfunc_134();
     virtual void vfunc_138();
     virtual void vfunc_13C();
-    virtual void vfunc_140();
+    virtual void QueueMapScriptEvent(GameStateMapUpdateEvent const & event, u32 queue);
     virtual void vfunc_144();
-    virtual void vfunc_148();
-    virtual void vfunc_14C();
+    virtual u32 GetMusicTrack() const;
+    virtual GameStateAudioList * GetAudioPlayers();
     virtual void vfunc_150(u32 value);
     virtual void vfunc_154(u32 value);
     virtual void vfunc_158();
@@ -1392,7 +1395,7 @@ struct GameStateGlobalStatus
 
     u8 hasReturnLocation;
     u32 mapId;
-    u16 mapFlags;
+    u16 savedTime;
 };
 
 struct GameStateScriptEngine : public ScriptEngine
@@ -1864,8 +1867,13 @@ struct GameStateMapCleanupOwners
 
 struct GameStateMapCleanupSlot
 {
-    u32 metadata[2];
-    SmartPtr<GameStateMapCleanupResource> resource;
+    u8 reserved;
+    u8 kind : 2;
+    u8 action : 2;
+    u16 reserved2;
+    u16 tileX;
+    u16 tileY;
+    SmartPtr<GameStateMapCleanupResource> interaction;
 };
 
 struct GameStateMapCleanupSlots
@@ -1884,25 +1892,27 @@ struct GameStateMapSceneCleanupView
     STRUCT_PAD(0x103C, 0x1050);
     u8 * tileWorkBuffer;
     STRUCT_PAD(0x1054, 0x1058);
-    SmartPtr<GameStateMapCleanupResource> resource1058;
-    SmartPtr<GameStateMapCleanupResource> resource105C;
+    SmartPtr<GameStateMapCleanupResource> interaction;
+    SmartPtr<GameStateMapCleanupResource> scenery;
     STRUCT_PAD(0x1060, 0x1064);
-    SmartPtr<GameStateMapCleanupResource> resource1064;
-    SmartPtr<GameStateMapCleanupResource> resource1068;
-    GameStateMapResourcePair resourcePair106C;
-    GameStateMapResourcePair resourcePair1074;
+    SmartPtr<GameStateMapCleanupResource> timedInteraction;
+    SmartPtr<GameStateMapCleanupResource> vaseDisplay;
+    GameStateMapResourcePair pairedScenery;
+    GameStateMapResourcePair seasonalScenery;
     GameStateMapOverlay * overlay;
-    GameStateMapCleanupSlots resourceSlots;
-    GameStateMapSpecialResources specialResources;
-    bool applyExitPenalty;
-    bool skipExitPenaltyEvent;
+    GameStateMapCleanupSlots fieldObjects;
+    GameStateMapSpecialResources transitionIcons;
+    bool dayUpdateRequested;
+    bool skipDayUpdateEvents;
 };
 
 typedef char GameStateMapSceneCleanupLayout[
     sizeof(GameStateMapCleanupResource) == 0x28 &&
+    sizeof(GameStateMapCleanupSlot) == 12 &&
+    offsetof(GameStateMapCleanupSlot, interaction) == 8 &&
     offsetof(GameStateMapSceneCleanupView, saveData) == 0x1038 &&
-    offsetof(GameStateMapSceneCleanupView, specialResources) == 0x10B0 &&
-    offsetof(GameStateMapSceneCleanupView, skipExitPenaltyEvent) == 0x10C9 ? 1 : -1];
+    offsetof(GameStateMapSceneCleanupView, transitionIcons) == 0x10B0 &&
+    offsetof(GameStateMapSceneCleanupView, skipDayUpdateEvents) == 0x10C9 ? 1 : -1];
 
 // 0x080179CC
 EC void GameStateMapScene_Destroy(GameStateMapSceneCleanupView * scene, u32 flags);
@@ -2496,9 +2506,9 @@ EC void SECTION(".text.game_state_080141EC") GameScript_BeginPlayerAction50(Game
 }
 
 // 0x08014C0C
-EC void SECTION(".text.game_state_08014C0C") GameScript_InvokePlayerAction64(GameStateScript & script, u32 value_1, u32 value_2)
+EC void SECTION(".text.game_state_08014C0C") GameScript_ChangePlayerStaminaAndFatigue(GameStateScript & script, i32 staminaDelta, i32 fatigueDelta)
 {
-    script.runtime->scene->GetActor(0)->vfunc_64(value_1, value_2);
+    script.runtime->scene->GetActor(0)->ChangeStaminaAndFatigue(staminaDelta, fatigueDelta);
 }
 
 // 0x080158F8
@@ -2815,7 +2825,7 @@ EC void SECTION(".text.game_state_08016D48") GameScript_SaveReturnLocation(GameS
     u8 * state = runtime.saveData;
     status.hasReturnLocation = 1;
     status.mapId = map;
-    status.mapFlags = *reinterpret_cast<u16 *>(state + 0x12);
+    status.savedTime = *reinterpret_cast<u16 *>(state + 0x12);
 }
 
 // 0x08016F60
@@ -2845,8 +2855,8 @@ EC SECTION(".text.game_state_08011FE8") void GameScript_Destroy(GameStateScript 
 EC SECTION(".text.game_state_08012064") void GameScript_StartRuntimeOperation(GameStateScript & script, i32 id, u32 value_2, u32 value_3, u32 value_4)
 {
     GameStateRuntime & runtime = *script.runtime;
-    u32 value_1 = runtime.scene->vfunc_14();
-    func_080D7F9C(runtime, id, value_1, value_2, value_3, value_4);
+    u32 mapId = runtime.scene->GetMapId();
+    func_080D7F9C(runtime, id, mapId, value_2, value_3, value_4);
 }
 
 // 0x08016CEC
@@ -2905,4 +2915,46 @@ play:
         AudioPlayer_StartOrResumeSong(player, song);
         break;
     }
+}
+
+// 0x08016758
+EC SECTION(".text.game_state_08016758") void GameScript_PlayCurrentSceneMusic(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u8 * player = runtime.musicPlayer;
+    AudioPlayer_StartSongIfStoppedOrChanged(player, runtime.scene->GetMusicTrack());
+}
+
+extern u8 const vtable_unk_080E5D34[];
+
+template <u8 const * Methods>
+struct GameStateSavedSceneBooleanFactory
+{
+    GameStateSavedSceneBooleanFactory(GameStateSavedSceneFactoryOwner owner, u8 * const & saveData, u32 enabled)
+    {
+        bool state = enabled != 0;
+        asm("" : : "l"(state) : "r1");
+        u8 * data = saveData;
+        vtable = Methods;
+        factory = owner.Move();
+        this->saveData = data;
+        this->enabled = state;
+    }
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    u8 * saveData;
+    bool enabled;
+};
+
+// 0x08014410
+EC SECTION(".text.game_state_08014410") void GameScript_QueueSceneVariant25(GameStateScript & script, u32 enabled)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x25;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(
+        new GameStateSavedSceneBooleanFactory<vtable_unk_080E5D34>(factory, runtime.saveData, enabled));
+    runtime.pendingCommand = 0x18;
 }

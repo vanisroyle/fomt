@@ -3,7 +3,7 @@
 #include <string.h>
 
 EC u8 vtable_unk_080E85AC[];
-EC void func_08007874(void *);
+EC void TileHeapOwner_Initialize(void *);
 EC void ResourceHandles_Initialize(void *);
 EC void TileHandle_Release(void *, u32);
 EC u32 func_08007B54(void *, u32);
@@ -112,7 +112,7 @@ EC SECTION(".text.g5_080CC15C") u8 * InventoryMenu_InitializeResourceSlotPanel(u
         asm ("" : "+l" (offset));
         register u32 * handle asm("r4") = (u32 *)(panel + offset);
         asm ("" : "+l" (handle));
-        func_08007874(handle);
+        TileHeapOwner_Initialize(handle);
         register u32 tile_zero asm("r0") = zero;
         asm ("" : "+l" (tile_zero));
         handle[1] = tile_zero;
@@ -140,7 +140,7 @@ EC SECTION(".text.g5_080CC15C") u8 * InventoryMenu_InitializeResourceSlotPanel(u
         asm ("" : "+l" (final));
         do
         {
-            func_08007874(handle);
+            TileHeapOwner_Initialize(handle);
             register u32 handle_zero asm("r1") = array_zero;
             asm ("" : "+l" (handle_zero));
             handle[1] = handle_zero;

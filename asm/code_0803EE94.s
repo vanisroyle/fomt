@@ -8615,7 +8615,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044030
 	bl .L08045572
 .L08044030:
-	bl func_080159B0
+	bl GameScript_GenerateMineFloor
 	bl .L08045572
 .L08044038:
 	movs r4, #0xd5
@@ -8937,7 +8937,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080442CA
 	bl .L08045572
 .L080442CA:
-	bl GameScript_InvokePlayerAction64
+	bl GameScript_ChangePlayerStaminaAndFatigue
 	bl .L08045572
 .L080442D2:
 	movs r4, #0xd5
@@ -10287,7 +10287,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044D50
 	bl .L08045572
 .L08044D50:
-	bl func_08015E30
+	bl GameScript_DescendMineFloor
 	bl .L08045572
 .L08044D58:
 	movs r0, #0xda
@@ -28173,7 +28173,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	adds r4, r5, #0
 	stm r4!, {r0}
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	movs r1, #0
 	str r1, [r4, #4]
 	strb r1, [r5, #0xc]
@@ -30749,7 +30749,7 @@ InitializeFestivalResultsScreen: @ 0x0805143C
 	strb r6, [r0, #0x18]
 	adds r4, #0x98
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
 	bl func_08007B54
@@ -32686,7 +32686,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r2, #0x24
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
 	bl func_08007B54
@@ -32703,7 +32703,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #7
 	bl func_08007B54
@@ -32720,7 +32720,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -32737,7 +32737,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #6
 	bl func_08007B54
@@ -32754,7 +32754,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -32771,7 +32771,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -32809,7 +32809,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -32818,7 +32818,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -32835,7 +32835,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -32850,7 +32850,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -32867,7 +32867,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	movs r6, #3
 .L080527FE:
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -32888,7 +32888,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r1, r1, r7
 	mov r8, r1
 	mov r0, r8
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r0, r8
 	movs r1, #4
 	bl func_08007B54
@@ -37561,156 +37561,6 @@ ChooseFrisbeeDogAction: @ 0x08054D34
 	pop {r1}
 	bx r1
 	.align 2, 0
-
-	.section .text.frisbee.08054F40
-	thumb_func_start LoadFrisbeeBackground
-LoadFrisbeeBackground: @ 0x08054F40
-	push {r4, r5, r6, lr}
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6}
-	sub sp, #4
-	adds r6, r0, #0
-	ldr r1, .L08055074 @ =0x06007FE0
-	movs r0, #0
-	movs r2, #0x20
-	bl Dma3_Fill
-	movs r4, #1
-	rsbs r4, r4, #0
-	ldr r0, .L08055078 @ =0x0600E000
-	mov sb, r0
-	movs r5, #0x80
-	lsls r5, r5, #4
-	adds r0, r4, #0
-	mov r1, sb
-	adds r2, r5, #0
-	bl Dma3_Fill
-	ldr r1, .L0805507C @ =0x0600E800
-	mov r8, r1
-	adds r0, r4, #0
-	adds r2, r5, #0
-	bl Dma3_Fill
-	ldr r1, .L08055080 @ =0x0600F000
-	adds r0, r4, #0
-	adds r2, r5, #0
-	bl Dma3_Fill
-	ldr r0, .L08055084 @ =gUnk_08738AD8
-	ldr r2, .L08055088 @ =0x00001D5A
-	adds r4, r6, r2
-	adds r1, r4, #0
-	bl Unpack
-	movs r2, #0xa0
-	lsls r2, r2, #3
-	adds r0, r4, #0
-	mov r1, sb
-	bl Dma3_Copy
-	adds r0, r4, #0
-	mov r1, r8
-	movs r2, #0xc0
-	bl Dma3_Copy
-	ldr r0, .L0805508C @ =gUnk_08738CC8
-	adds r1, r4, #0
-	bl Unpack
-	ldr r0, .L08055090 @ =gUnk_08738CF0
-	adds r1, r4, #0
-	bl Unpack
-	ldr r0, .L08055094 @ =gUnk_08738D1C
-	movs r1, #0xc0
-	lsls r1, r1, #0x13
-	bl Unpack
-	ldr r0, .L08055098 @ =gUnk_087399C4
-	movs r1, #0xa0
-	lsls r1, r1, #0x13
-	movs r2, #0x80
-	lsls r2, r2, #2
-	bl Dma3_Copy
-	ldr r0, .L0805509C @ =gUnk_08739A64
-	movs r3, #0xab
-	lsls r3, r3, #3
-	adds r1, r6, r3
-	bl Unpack
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	movs r3, #0xf2
-	lsls r3, r3, #5
-	adds r2, r3, #0
-	strh r2, [r1]
-	movs r4, #0
-	strh r2, [r0]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080550A0 @ =0x00001C43
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xe]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080550A4 @ =0x00001D42
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xc]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080550A8 @ =0x00001E41
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xa]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x14]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x16]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x18]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x1a]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x1c]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x1e]
-	add sp, #4
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08055074: .4byte 0x06007FE0
-.L08055078: .4byte 0x0600E000
-.L0805507C: .4byte 0x0600E800
-.L08055080: .4byte 0x0600F000
-.L08055084: .4byte gUnk_08738AD8
-.L08055088: .4byte 0x00001D5A
-.L0805508C: .4byte gUnk_08738CC8
-.L08055090: .4byte gUnk_08738CF0
-.L08055094: .4byte gUnk_08738D1C
-.L08055098: .4byte gUnk_087399C4
-.L0805509C: .4byte gUnk_08739A64
-.L080550A0: .4byte 0x00001C43
-.L080550A4: .4byte 0x00001D42
-.L080550A8: .4byte 0x00001E41
 
 	.section .text.frisbee.080550AC
 	thumb_func_start UploadFrisbeeBackground
@@ -43065,240 +42915,6 @@ sub_08056442: @ 0x08056442
 .L080579AC: .4byte 0x00002268
 .L080579B0: .4byte 0x00002294
 
-	.section .text.frisbee.080579B4
-	thumb_func_start DrawFrisbeeSpriteList
-DrawFrisbeeSpriteList: @ 0x080579B4
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x10
-	str r0, [sp, #8]
-	mov r8, r3
-	mov sb, r1
-	lsls r2, r2, #3
-	add r2, sb
-	str r2, [sp, #0xc]
-	cmp sb, r2
-	bne .L080579D2
-	b .L08057B4C
-.L080579D2:
-	mov r2, sb
-	ldr r0, [r2]
-	ldr r1, [r2, #4]
-	str r0, [sp]
-	str r1, [sp, #4]
-	ldr r1, [sp]
-	lsls r0, r1, #7
-	asrs r3, r0, #0x17
-	mov r0, sp
-	movs r5, #0
-	ldrsb r5, [r0, r5]
-	lsls r0, r1, #0x10
-	lsrs r0, r0, #0x1e
-	adds r4, r0, #0
-	lsrs r1, r1, #0x1e
-	cmp r4, #0
-	bne .L080579FC
-	movs r6, #8
-	lsls r6, r1
-	adds r4, r6, #0
-	b .L08057A1C
-.L080579FC:
-	adds r0, r1, #1
-	lsrs r0, r0, #1
-	adds r0, #1
-	movs r2, #8
-	lsls r2, r0
-	movs r0, #8
-	cmp r1, #1
-	beq .L08057A0E
-	lsrs r0, r2, #1
-.L08057A0E:
-	cmp r4, #1
-	beq .L08057A18
-	adds r6, r2, #0
-	adds r4, r0, #0
-	b .L08057A1C
-.L08057A18:
-	adds r6, r0, #0
-	adds r4, r2, #0
-.L08057A1C:
-	mov r0, r8
-	ldrb r7, [r0, #0x10]
-	movs r1, #1
-	mov sl, r1
-	mov r0, sl
-	ands r0, r7
-	cmp r0, #0
-	beq .L08057A46
-	adds r0, r3, r4
-	rsbs r3, r0, #0
-	ldr r2, [sp]
-	lsls r1, r2, #3
-	lsrs r1, r1, #0x1f
-	mov r0, sl
-	eors r1, r0
-	ands r1, r0
-	lsls r1, r1, #0x1c
-	ldr r0, .L08057B5C @ =0xEFFFFFFF
-	ands r0, r2
-	orrs r0, r1
-	str r0, [sp]
-.L08057A46:
-	movs r0, #2
-	ands r0, r7
-	cmp r0, #0
-	beq .L08057A68
-	adds r0, r5, r6
-	rsbs r5, r0, #0
-	ldr r2, [sp]
-	lsls r1, r2, #2
-	lsrs r1, r1, #0x1f
-	mov r0, sl
-	eors r1, r0
-	ands r1, r0
-	lsls r1, r1, #0x1d
-	ldr r0, .L08057B60 @ =0xDFFFFFFF
-	ands r0, r2
-	orrs r0, r1
-	str r0, [sp]
-.L08057A68:
-	mov r1, r8
-	movs r2, #0
-	ldrsh r0, [r1, r2]
-	adds r3, r3, r0
-	movs r2, #2
-	ldrsh r0, [r1, r2]
-	adds r5, r5, r0
-	adds r0, r3, r4
-	cmp r0, #0
-	ble .L08057B40
-	cmp r3, #0xef
-	bgt .L08057B40
-	adds r0, r5, r6
-	cmp r0, #0
-	ble .L08057B40
-	cmp r5, #0x9f
-	bgt .L08057B40
-	ldr r0, .L08057B64 @ =0x000001FF
-	ands r3, r0
-	lsls r2, r3, #0x10
-	ldr r1, .L08057B68 @ =0xFE00FFFF
-	ldr r0, [sp]
-	ands r0, r1
-	orrs r0, r2
-	lsls r2, r5, #0x18
-	lsrs r2, r2, #0x18
-	ldr r1, .L08057B6C @ =0xFFFFFF00
-	ands r0, r1
-	orrs r0, r2
-	str r0, [sp]
-	mov r4, sp
-	ldr r0, [sp, #4]
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x1c
-	lsls r0, r0, #3
-	ldr r3, [sp, #0x30]
-	adds r0, r0, r3
-	adds r0, #8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x10
-	movs r1, #0xf
-	ands r0, r1
-	lsls r0, r0, #0xc
-	ldr r1, .L08057B70 @ =0xFFFF0FFF
-	ldr r2, [sp, #4]
-	ands r2, r1
-	orrs r2, r0
-	lsls r0, r2, #0x16
-	lsrs r0, r0, #0x16
-	mov r1, r8
-	ldrh r1, [r1, #6]
-	adds r0, r0, r1
-	lsls r0, r0, #0x16
-	lsrs r0, r0, #0x16
-	ldr r1, .L08057B74 @ =0xFFFFFC00
-	ands r1, r2
-	orrs r1, r0
-	mov r2, r8
-	ldrh r0, [r2, #8]
-	movs r3, #3
-	ands r0, r3
-	lsls r0, r0, #0xa
-	ldr r2, .L08057B78 @ =0xFFFFF3FF
-	ands r1, r2
-	orrs r1, r0
-	str r1, [sp, #4]
-	mov r1, r8
-	ldr r0, [r1, #0xc]
-	ands r0, r3
-	lsls r0, r0, #0xa
-	ldr r1, [sp]
-	ands r1, r2
-	orrs r1, r0
-	mov r3, r8
-	ldr r2, [r3, #0x14]
-	movs r0, #3
-	ands r2, r0
-	lsls r2, r2, #8
-	ldr r0, .L08057B7C @ =0xFFFFFCFF
-	ands r1, r0
-	orrs r1, r2
-	ldrb r2, [r3, #0x18]
-	mov r3, sl
-	ands r2, r3
-	lsls r2, r2, #0xc
-	ldr r0, .L08057B80 @ =0xFFFFEFFF
-	ands r1, r0
-	orrs r1, r2
-	str r1, [sp]
-	ldr r0, [sp, #8]
-	bl HardwareContext_GetOamBuffer
-	adds r3, r0, #0
-	ldrb r2, [r3]
-	cmp r2, #0x7f
-	bhi .L08057B40
-	lsls r1, r2, #3
-	adds r1, #4
-	adds r1, r3, r1
-	ldr r0, [sp]
-	str r0, [r1]
-	ldrh r0, [r4, #4]
-	strh r0, [r1, #4]
-	adds r0, r2, #1
-	strb r0, [r3]
-.L08057B40:
-	movs r0, #8
-	add sb, r0
-	ldr r1, [sp, #0xc]
-	cmp sb, r1
-	beq .L08057B4C
-	b .L080579D2
-.L08057B4C:
-	add sp, #0x10
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08057B5C: .4byte 0xEFFFFFFF
-.L08057B60: .4byte 0xDFFFFFFF
-.L08057B64: .4byte 0x000001FF
-.L08057B68: .4byte 0xFE00FFFF
-.L08057B6C: .4byte 0xFFFFFF00
-.L08057B70: .4byte 0xFFFF0FFF
-.L08057B74: .4byte 0xFFFFFC00
-.L08057B78: .4byte 0xFFFFF3FF
-.L08057B7C: .4byte 0xFFFFFCFF
-.L08057B80: .4byte 0xFFFFEFFF
-
 	.section .text.horse_race.08057F64
 
 	thumb_func_start PrepareHorseRaceHeat
@@ -44022,7 +43638,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -44037,7 +43653,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -44052,7 +43668,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #5
 	bl func_08007B54
@@ -44067,7 +43683,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #6
 	bl func_08007B54
@@ -44082,7 +43698,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -44099,7 +43715,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #7
 	bl func_08007B54
@@ -44124,7 +43740,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -44133,7 +43749,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -44148,7 +43764,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r4, r4, #3
 	add r4, sl
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -44165,7 +43781,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r4, r4, #3
 	add r4, sl
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -44176,7 +43792,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	movs r7, #3
 .L080586E0:
 	adds r6, r0, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r6, #0
 	movs r1, #5
 	bl func_08007B54
@@ -55918,7 +55534,7 @@ func_08069F14: @ 0x08069F14
 	ldr r0, .L0806A134 @ =0x000040B0
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #1
 	bl func_08007B54
@@ -55933,7 +55549,7 @@ func_08069F14: @ 0x08069F14
 	ldr r2, .L0806A13C @ =0x000040C0
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -55954,7 +55570,7 @@ func_08069F14: @ 0x08069F14
 	rsbs r6, r6, #0
 .L0806A0CC:
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r0, r8
 	str r0, [r4, #4]
 	adds r4, #8
@@ -63387,7 +63003,7 @@ func_0806D990: @ 0x0806D990
 	adds r4, r7, #0
 	adds r4, #0x18
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #7
 	bl func_08007B54
@@ -63400,7 +63016,7 @@ func_0806D990: @ 0x0806D990
 	str r0, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -86274,7 +85890,7 @@ func_08078E40: @ 0x08078E40
 	lsls r0, r0, #4
 	adds r4, r6, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
 	bl func_08007B54
@@ -86290,7 +85906,7 @@ func_08078E40: @ 0x08078E40
 	lsls r3, r3, #4
 	adds r4, r6, r3
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #6
 	bl func_08007B54
@@ -86306,7 +85922,7 @@ func_08078E40: @ 0x08078E40
 	lsls r1, r1, #4
 	adds r4, r6, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -138588,7 +138204,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r3, r3, #2
 	adds r5, r7, r3
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #2
 	bl func_08007B54
@@ -138603,7 +138219,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r1, r1, #2
 	adds r5, r7, r1
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #2
 	bl func_08007B54
@@ -138620,7 +138236,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r3, r3, #2
 	adds r5, r7, r3
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #6
 	bl func_08007B54
@@ -138635,7 +138251,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r1, r1, #2
 	adds r5, r7, r1
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -138644,7 +138260,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r2, r2, #2
 	adds r5, r7, r2
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -138659,7 +138275,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #7
 	bl func_08007B54

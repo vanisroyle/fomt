@@ -234,7 +234,7 @@ struct FixedOverlayBuildScratch
     FixedOverlayClipView clip;
 };
 
-EC void InitOverlayTileHeap(OverlayTileAllocation *) asm("func_08007874");
+EC void InitOverlayTileHeap(OverlayTileAllocation *) asm("TileHeapOwner_Initialize");
 EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("TileHandle_Release");
 EC u32 AllocateOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007B54");
 EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("TileHandle_GetTileIndex");

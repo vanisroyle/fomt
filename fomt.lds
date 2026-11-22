@@ -168,6 +168,8 @@ SECTIONS
         asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
+        src/hardware.o(.text.TileHeapOwner_Initialize);
+        asm/hardware.o(.text.after_08007874);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);
@@ -184,6 +186,10 @@ SECTIONS
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
         asm/hardware.o(.text.after_08007EC8);
+        src/hardware.o(.text.AllocationTree_MarkRangeFull);
+        asm/hardware.o(.text.after_08007EE8);
+        src/hardware.o(.text.AllocationTree_MarkRangeEmpty);
+        asm/hardware.o(.text.after_08007F84);
         src/hardware.o(.text.AllocationTree_AllocateBlock);
         asm/hardware.o(.text.after_08008020);
         src/hardware.o(.text.AllocationTree_FreeBlock);
@@ -570,7 +576,7 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08014304);
         asm/game_state.o(.text.game_state_08014318);
         src/game_state_part1.o(.text.game_state_0801437C);
-        asm/game_state.o(.text.game_state_08014410);
+        src/game_state_part1.o(.text.game_state_08014410);
         src/game_state_part1.o(.text.game_state_080144BC);
         src/game_state_part1.o(.text.game_state_08014550);
         src/game_state_part1.o(.text.game_state_080145F8);
@@ -601,6 +607,7 @@ SECTIONS
         asm/game_state.o(.text.game_state_08015990);
         src/game_state_part1.o(.text.game_state_08015990);
         asm/game_state.o(.text.game_state_080159B0);
+        src/game_state_part1.o(.text.game_state_08016758);
         src/game_state_part1.o(.text.game_state_08016784);
         src/game_state_part1.o(.text.game_state_080167AC);
         src/game_state_part1.o(.text.game_state_080167CC);
@@ -669,7 +676,7 @@ SECTIONS
         src/npc_side_batch6.o(.text.npc_side.080324BC);
         src/npc_side_batch6.o(.text.npc_side.08032560);
         src/npc_side_batch8.o(.text.npc_side.0803260C);
-        asm/code_entities_080320DC.o(.text.npc_side.08032690);
+        src/npc_side_batch14_draw.o(.text.npc_side.08032690);
         src/npc_side_entities.o(.text.npc_side.08032900);
         src/npc_side_batch5.o(.text.npc_side.08032934);
         src/npc_side_batch6.o(.text.npc_side.0803295C);
@@ -935,7 +942,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.08039200);
         src/npc_side_batch11.o(.text.npc_extra.08039204);
         src/npc_side_batch4.o(.text.npc_extra.0803930C);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039310);
+        src/npc_side_batch14_states.o(.text.npc_extra.08039310);
         src/npc_side_batch12_states.o(.text.npc_extra.0803955C);
         src/npc_side_batch4.o(.text.npc_extra.080396F4);
         src/npc_side_batch13_states.o(.text.npc_extra.08039708);
