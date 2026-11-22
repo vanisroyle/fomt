@@ -50494,6 +50494,42 @@ func_0805BC34: @ 0x0805BC34
 .L0805C638: .4byte 0x000006BA
 
 	.section .text.f3.0805D170, "ax", %progbits
+	.equ .Lmedal_screen_selected_row, 0xad4
+	.equ .Lmedal_screen_first_visible_row, 0xad6
+	.equ .Lmedal_screen_selected_prize_id, 0xad8
+	.equ .Lmedal_screen_exchange_phase, 0xada
+	.equ .Lmedal_screen_dialogue_phase, 0xadc
+	.equ .Lmedal_screen_declined_choice, 0xade
+	.equ .Lmedal_screen_prize_ids, 0xae0
+	.equ .Lmedal_screen_second_row_prize_id, 0xae1
+	.equ .Lmedal_screen_last_row_prize_id, 0xae9
+	.equ .Lmedal_screen_medal_balance, 0xad0
+	.equ .Lmedal_screen_scroll_y, 0x14c
+	.equ .Lmedal_screen_save_medal_and_prize_flags_byte, 0x2c4a
+	.equ .Lmedal_screen_save_medal_word, 0x2c48
+	.equ .Lmedal_screen_save_farmer, 0x1bd8
+	.equ .Lmedal_screen_save_held_item, 0x1c2c
+	.equ .Lmedal_screen_sp_fade_task, 0x4
+	.equ .Lmedal_screen_prize_price, 0x10
+	.equ .Lmedal_screen_prize_id_jewel_of_truth, 0x0
+	.equ .Lmedal_screen_prize_id_power_berry, 0x1
+	.equ .Lmedal_screen_prize_id_truffle, 0x8
+	.equ .Lmedal_screen_prize_id_dress, 0xa
+	.equ .Lmedal_screen_prize_id_perfume, 0xb
+	.equ .Lmedal_screen_last_default_prize_row, 0x9
+	.equ .Lmedal_screen_last_visible_prize_row, 0x7
+	.equ .Lmedal_screen_scroll_pixels_per_frame, 0x4
+	.equ .Lmedal_screen_prize_row_pixel_mask, 0xf
+	.equ .Lmedal_screen_dialogue_idle, 0x2
+	.equ .Lmedal_screen_browsing, 0x1
+	.equ .Lmedal_screen_exit_prompt, 0x2
+	.equ .Lmedal_screen_scroll_up, 0x5
+	.equ .Lmedal_screen_scroll_down, 0x6
+	.equ .Lmedal_screen_insufficient_medals, 0x7
+	.equ .Lmedal_screen_prize_prompt, 0x8
+	.equ .Lmedal_screen_start_fade_out, 0xb
+	.equ .Lmedal_screen_fade_out, 0xc
+
 	thumb_func_start RunMedalExchangeScreen
 RunMedalExchangeScreen: @ 0x0805D170
 	push {r4, r5, r6, r7, lr}
@@ -50527,68 +50563,68 @@ RunMedalExchangeScreen: @ 0x0805D170
 	adds r0, r4, #0
 	adds r0, #0xc
 	bl DisplayFade_Initialize
-	str r4, [sp, #4]
+	str r4, [sp, #.Lmedal_screen_sp_fade_task]
 	ldr r0, [r6, #0x10]
 	movs r1, #0x75
 	bl SetMessageWindowPortrait
 	add r7, sp, #8
 	add r0, sp, #0x14
 	mov sl, r0
-	movs r1, #9
-	ldr r2, .L0805D27C @ =0x00000AE9
+	movs r1, #.Lmedal_screen_last_default_prize_row
+	ldr r2, .L0805D27C
 	adds r0, r6, r2
-.L0805D1CE:
+.Lmedal_screen_populate_default_prizes:
 	strb r1, [r0]
 	subs r0, #1
 	subs r1, #1
 	cmp r1, #0
-	bge .L0805D1CE
+	bge .Lmedal_screen_populate_default_prizes
 	ldr r0, [r6, #8]
-	ldr r2, .L0805D280 @ =0x00002C4A
+	ldr r2, .L0805D280
 	adds r0, r0, r2
 	ldrb r0, [r0]
 	lsls r0, r0, #0x1b
 	cmp r0, #0
-	bge .L0805D1F0
-	movs r3, #0xae
+	bge .Lmedal_screen_check_power_berry_redeemed
+	movs r3, #(.Lmedal_screen_prize_ids >> 4)
 	lsls r3, r3, #4
 	adds r1, r6, r3
-	movs r0, #0xa
+	movs r0, #.Lmedal_screen_prize_id_dress
 	strb r0, [r1]
-.L0805D1F0:
+.Lmedal_screen_check_power_berry_redeemed:
 	ldr r0, [r6, #8]
 	adds r0, r0, r2
 	ldrb r0, [r0]
 	lsls r0, r0, #0x1c
 	cmp r0, #0
-	bge .L0805D204
-	ldr r4, .L0805D284 @ =0x00000AE1
+	bge .Lmedal_screen_load_prize_list
+	ldr r4, .L0805D284
 	adds r1, r6, r4
-	movs r0, #0xb
+	movs r0, #.Lmedal_screen_prize_id_perfume
 	strb r0, [r1]
-.L0805D204:
+.Lmedal_screen_load_prize_list:
 	adds r0, r6, #0
 	bl LoadMedalExchangeScreenGraphics
 	adds r0, r6, #0
 	bl LoadMedalExchangePrizeGraphics
-	ldr r1, .L0805D288 @ =0x00000AD4
+	ldr r1, .L0805D288
 	adds r0, r6, r1
 	movs r1, #0
 	strh r1, [r0]
-	ldr r2, .L0805D28C @ =0x00000AD6
+	ldr r2, .L0805D28C
 	adds r0, r6, r2
 	strh r1, [r0]
-	ldr r3, .L0805D290 @ =0x00000AD8
+	ldr r3, .L0805D290
 	adds r0, r6, r3
 	strh r1, [r0]
-	ldr r4, .L0805D294 @ =0x00000ADC
+	ldr r4, .L0805D294
 	adds r2, r6, r4
-	movs r0, #2
+	movs r0, #.Lmedal_screen_dialogue_idle
 	strh r0, [r2]
-	ldr r2, .L0805D298 @ =0x00000ADA
+	ldr r2, .L0805D298
 	adds r0, r6, r2
 	strh r1, [r0]
-	ldr r0, [sp, #4]
+	ldr r0, [sp, #.Lmedal_screen_sp_fade_task]
 	ldr r1, .L0805D29C @ =0x00000889
 	adds r0, #0xc
 	movs r2, #1
@@ -50597,100 +50633,100 @@ RunMedalExchangeScreen: @ 0x0805D170
 	adds r0, r6, #0
 	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
-	ldr r1, [sp, #4]
+	ldr r1, [sp, #.Lmedal_screen_sp_fade_task]
 	ldr r2, [r2, #0x10]
 	bl _call_via_r2
 	movs r3, #0
 	mov r8, r3
-.L0805D254:
+.Lmedal_screen_run_frame:
 	adds r0, r6, #0
 	bl func_080087C8
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
-	ldr r4, .L0805D298 @ =0x00000ADA
+	ldr r4, .L0805D298
 	adds r0, r6, r4
 	movs r1, #0
 	ldrsh r0, [r0, r1]
-	cmp r0, #0xc
-	bls .L0805D26E
-	b .L0805D6EC
-.L0805D26E:
+	cmp r0, #.Lmedal_screen_fade_out
+	bls .Lmedal_screen_dispatch_phase
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_dispatch_phase:
 	lsls r0, r0, #2
-	ldr r1, .L0805D2A0 @ =.L0805D2A4
+	ldr r1, .L0805D2A0 @ =.Lmedal_screen_phase_table
 	adds r0, r0, r1
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
 .L0805D278: .4byte gDisplayFadeTaskVtable
-.L0805D27C: .4byte 0x00000AE9
-.L0805D280: .4byte 0x00002C4A
-.L0805D284: .4byte 0x00000AE1
-.L0805D288: .4byte 0x00000AD4
-.L0805D28C: .4byte 0x00000AD6
-.L0805D290: .4byte 0x00000AD8
-.L0805D294: .4byte 0x00000ADC
-.L0805D298: .4byte 0x00000ADA
+.L0805D27C: .4byte .Lmedal_screen_last_row_prize_id
+.L0805D280: .4byte .Lmedal_screen_save_medal_and_prize_flags_byte
+.L0805D284: .4byte .Lmedal_screen_second_row_prize_id
+.L0805D288: .4byte .Lmedal_screen_selected_row
+.L0805D28C: .4byte .Lmedal_screen_first_visible_row
+.L0805D290: .4byte .Lmedal_screen_selected_prize_id
+.L0805D294: .4byte .Lmedal_screen_dialogue_phase
+.L0805D298: .4byte .Lmedal_screen_exchange_phase
 .L0805D29C: .4byte 0x00000889
-.L0805D2A0: .4byte .L0805D2A4
-.L0805D2A4: @ jump table
-	.4byte .L0805D2D8 @ case 0
-	.4byte .L0805D2F0 @ case 1
-	.4byte .L0805D488 @ case 2
-	.4byte .L0805D488 @ case 3
-	.4byte .L0805D488 @ case 4
-	.4byte .L0805D4BC @ case 5
-	.4byte .L0805D4D4 @ case 6
-	.4byte .L0805D4F4 @ case 7
-	.4byte .L0805D510 @ case 8
-	.4byte .L0805D510 @ case 9
-	.4byte .L0805D510 @ case 10
-	.4byte .L0805D6A8 @ case 11
-	.4byte .L0805D6DC @ case 12
-.L0805D2D8:
-	ldr r0, [sp, #4]
+.L0805D2A0: .4byte .Lmedal_screen_phase_table
+.Lmedal_screen_phase_table: @ jump table
+	.4byte .Lmedal_screen_wait_for_fade_in @ fade_in
+	.4byte .Lmedal_screen_browse_prizes @ browsing
+	.4byte .Lmedal_screen_wait_for_exit_dialogue @ exit_prompt
+	.4byte .Lmedal_screen_wait_for_exit_dialogue @ exit_accepted
+	.4byte .Lmedal_screen_wait_for_exit_dialogue @ exit_declined
+	.4byte .Lmedal_screen_animate_scroll_up @ scroll_up
+	.4byte .Lmedal_screen_animate_scroll_down @ scroll_down
+	.4byte .Lmedal_screen_wait_for_insufficient_medals_prompt @ insufficient_medals
+	.4byte .Lmedal_screen_wait_for_prize_dialogue @ prize_prompt
+	.4byte .Lmedal_screen_wait_for_prize_dialogue @ prize_accepted
+	.4byte .Lmedal_screen_wait_for_prize_dialogue @ prize_declined
+	.4byte .Lmedal_screen_begin_fade_out @ start_fade_out
+	.4byte .Lmedal_screen_wait_for_fade_out @ fade_out
+.Lmedal_screen_wait_for_fade_in:
+	ldr r0, [sp, #.Lmedal_screen_sp_fade_task]
 	ldr r1, [r0]
 	rsbs r0, r1, #0
 	orrs r0, r1
 	cmp r0, #0
-	bge .L0805D2E6
-	b .L0805D6EC
-.L0805D2E6:
-	ldr r2, .L0805D2EC @ =0x00000ADA
+	bge .Lmedal_screen_finish_fade_in
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_finish_fade_in:
+	ldr r2, .L0805D2EC
 	adds r1, r6, r2
-	b .L0805D6CA
+	b .Lmedal_screen_advance_phase
 	.align 2, 0
-.L0805D2EC: .4byte 0x00000ADA
-.L0805D2F0:
+.L0805D2EC: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_browse_prizes:
 	adds r0, r6, #0
 	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x40
 	ands r0, r1
 	cmp r0, #0
-	beq .L0805D35C
+	beq .Lmedal_screen_check_down_key
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xcb
 	bl AudioPlayer_StartSong
-	ldr r3, .L0805D320 @ =0x00000AD4
+	ldr r3, .L0805D320
 	adds r1, r6, r3
 	ldrh r2, [r1]
 	movs r4, #0
 	ldrsh r0, [r1, r4]
 	cmp r0, #0
-	ble .L0805D324
+	ble .Lmedal_screen_clamp_first_row
 	subs r0, r2, #1
 	strh r0, [r1]
 	adds r1, r0, #0
-	b .L0805D326
+	b .Lmedal_screen_select_up_row
 	.align 2, 0
-.L0805D320: .4byte 0x00000AD4
-.L0805D324:
+.L0805D320: .4byte .Lmedal_screen_selected_row
+.Lmedal_screen_clamp_first_row:
 	movs r1, #0
-.L0805D326:
-	ldr r2, .L0805D350 @ =0x00000AD4
+.Lmedal_screen_select_up_row:
+	ldr r2, .L0805D350
 	adds r0, r6, r2
 	strh r1, [r0]
-	ldr r3, .L0805D354 @ =0x00000AD6
+	ldr r3, .L0805D354
 	adds r2, r6, r3
 	lsls r1, r1, #0x10
 	asrs r1, r1, #0x10
@@ -50698,21 +50734,21 @@ RunMedalExchangeScreen: @ 0x0805D170
 	movs r4, #0
 	ldrsh r0, [r2, r4]
 	cmp r1, r0
-	blt .L0805D340
-	b .L0805D6EC
-.L0805D340:
+	blt .Lmedal_screen_start_scroll_up
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_start_scroll_up:
 	subs r0, r3, #1
 	strh r0, [r2]
-	ldr r0, .L0805D358 @ =0x00000ADA
+	ldr r0, .L0805D358
 	adds r1, r6, r0
-	movs r0, #5
+	movs r0, #.Lmedal_screen_scroll_up
 	strh r0, [r1]
-	b .L0805D6EC
+	b .Lmedal_screen_update_dialogue_and_display
 	.align 2, 0
-.L0805D350: .4byte 0x00000AD4
-.L0805D354: .4byte 0x00000AD6
-.L0805D358: .4byte 0x00000ADA
-.L0805D35C:
+.L0805D350: .4byte .Lmedal_screen_selected_row
+.L0805D354: .4byte .Lmedal_screen_first_visible_row
+.L0805D358: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_check_down_key:
 	adds r0, r6, #0
 	bl HardwareContext_GetRepeatedKeys
 	movs r1, #0x80
@@ -50720,73 +50756,73 @@ RunMedalExchangeScreen: @ 0x0805D170
 	lsls r0, r0, #0x18
 	lsrs r5, r0, #0x18
 	cmp r5, #0
-	beq .L0805D3CC
+	beq .Lmedal_screen_check_select_key
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xcb
 	bl AudioPlayer_StartSong
-	ldr r2, .L0805D390 @ =0x00000AD4
+	ldr r2, .L0805D390
 	adds r1, r6, r2
 	ldrh r2, [r1]
 	movs r3, #0
 	ldrsh r0, [r1, r3]
 	cmp r0, #8
-	bgt .L0805D394
+	bgt .Lmedal_screen_clamp_last_row
 	adds r0, r2, #1
 	strh r0, [r1]
 	adds r1, r0, #0
-	b .L0805D396
+	b .Lmedal_screen_select_down_row
 	.align 2, 0
-.L0805D390: .4byte 0x00000AD4
-.L0805D394:
-	movs r1, #9
-.L0805D396:
-	ldr r4, .L0805D3C0 @ =0x00000AD4
+.L0805D390: .4byte .Lmedal_screen_selected_row
+.Lmedal_screen_clamp_last_row:
+	movs r1, #.Lmedal_screen_last_default_prize_row
+.Lmedal_screen_select_down_row:
+	ldr r4, .L0805D3C0
 	adds r0, r6, r4
 	strh r1, [r0]
 	movs r2, #0
 	ldrsh r1, [r0, r2]
-	ldr r3, .L0805D3C4 @ =0x00000AD6
+	ldr r3, .L0805D3C4
 	adds r2, r6, r3
 	movs r4, #0
 	ldrsh r0, [r2, r4]
 	subs r1, r1, r0
-	cmp r1, #7
-	bgt .L0805D3B0
-	b .L0805D6EC
-.L0805D3B0:
+	cmp r1, #.Lmedal_screen_last_visible_prize_row
+	bgt .Lmedal_screen_start_scroll_down
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_start_scroll_down:
 	ldrh r0, [r2]
 	adds r0, #1
 	strh r0, [r2]
-	ldr r0, .L0805D3C8 @ =0x00000ADA
+	ldr r0, .L0805D3C8
 	adds r1, r6, r0
-	movs r0, #6
+	movs r0, #.Lmedal_screen_scroll_down
 	strh r0, [r1]
-	b .L0805D6EC
+	b .Lmedal_screen_update_dialogue_and_display
 	.align 2, 0
-.L0805D3C0: .4byte 0x00000AD4
-.L0805D3C4: .4byte 0x00000AD6
-.L0805D3C8: .4byte 0x00000ADA
-.L0805D3CC:
+.L0805D3C0: .4byte .Lmedal_screen_selected_row
+.L0805D3C4: .4byte .Lmedal_screen_first_visible_row
+.L0805D3C8: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_check_select_key:
 	adds r0, r6, #0
 	bl HardwareContext_GetPressedKeys
 	adds r4, r0, #0
 	movs r0, #1
 	ands r4, r0
 	cmp r4, #0
-	beq .L0805D454
+	beq .Lmedal_screen_check_exit_key
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xc5
 	bl AudioPlayer_StartSong
-	ldr r1, .L0805D434 @ =0x00000ADC
+	ldr r1, .L0805D434
 	adds r0, r6, r1
 	strh r5, [r0]
-	ldr r2, .L0805D438 @ =0x00000AD4
+	ldr r2, .L0805D438
 	adds r0, r6, r2
 	movs r3, #0
 	ldrsh r1, [r0, r3]
-	movs r4, #0xae
+	movs r4, #(.Lmedal_screen_prize_ids >> 4)
 	lsls r4, r4, #4
 	adds r0, r6, r4
 	adds r0, r0, r1
@@ -50801,199 +50837,199 @@ RunMedalExchangeScreen: @ 0x0805D170
 	adds r0, r0, r3
 	lsls r0, r0, #2
 	adds r0, r0, r2
-	movs r2, #0x10
+	movs r2, #.Lmedal_screen_prize_price
 	ldrsh r1, [r0, r2]
-	movs r4, #0xad
+	movs r4, #(.Lmedal_screen_medal_balance >> 4)
 	lsls r4, r4, #4
 	adds r0, r6, r4
 	ldr r0, [r0]
 	cmp r1, r0
-	bgt .L0805D444
+	bgt .Lmedal_screen_start_insufficient_medals_prompt
 	movs r1, #0xaf
 	lsls r1, r1, #4
 	adds r0, r6, r1
 	str r3, [r0]
-	ldr r2, .L0805D440 @ =0x00000ADA
+	ldr r2, .L0805D440
 	adds r1, r6, r2
-	movs r0, #8
+	movs r0, #.Lmedal_screen_prize_prompt
 	strh r0, [r1]
-	b .L0805D6EC
+	b .Lmedal_screen_update_dialogue_and_display
 	.align 2, 0
-.L0805D434: .4byte 0x00000ADC
-.L0805D438: .4byte 0x00000AD4
+.L0805D434: .4byte .Lmedal_screen_dialogue_phase
+.L0805D438: .4byte .Lmedal_screen_selected_row
 .L0805D43C: .4byte gMedalExchangePrizes
-.L0805D440: .4byte 0x00000ADA
-.L0805D444:
-	ldr r3, .L0805D450 @ =0x00000ADA
+.L0805D440: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_start_insufficient_medals_prompt:
+	ldr r3, .L0805D450
 	adds r1, r6, r3
-	movs r0, #7
+	movs r0, #.Lmedal_screen_insufficient_medals
 	strh r0, [r1]
-	b .L0805D6EC
+	b .Lmedal_screen_update_dialogue_and_display
 	.align 2, 0
-.L0805D450: .4byte 0x00000ADA
-.L0805D454:
+.L0805D450: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_check_exit_key:
 	adds r0, r6, #0
 	bl HardwareContext_GetPressedKeys
 	movs r1, #2
 	ands r0, r1
 	cmp r0, #0
-	bne .L0805D464
-	b .L0805D6EC
-.L0805D464:
+	bne .Lmedal_screen_start_exit_prompt
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_start_exit_prompt:
 	adds r0, r6, #0
 	adds r0, #0x1c
 	movs r1, #0xc6
 	bl AudioPlayer_StartSong
-	ldr r1, .L0805D480 @ =0x00000ADC
+	ldr r1, .L0805D480
 	adds r0, r6, r1
 	strh r4, [r0]
-	ldr r2, .L0805D484 @ =0x00000ADA
+	ldr r2, .L0805D484
 	adds r1, r6, r2
-	movs r0, #2
+	movs r0, #.Lmedal_screen_exit_prompt
 	strh r0, [r1]
-	b .L0805D6EC
+	b .Lmedal_screen_update_dialogue_and_display
 	.align 2, 0
-.L0805D480: .4byte 0x00000ADC
-.L0805D484: .4byte 0x00000ADA
-.L0805D488:
-	ldr r3, .L0805D4A8 @ =0x00000ADC
+.L0805D480: .4byte .Lmedal_screen_dialogue_phase
+.L0805D484: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_wait_for_exit_dialogue:
+	ldr r3, .L0805D4A8
 	adds r0, r6, r3
 	movs r4, #0
 	ldrsh r0, [r0, r4]
-	cmp r0, #2
-	beq .L0805D496
-	b .L0805D6EC
-.L0805D496:
-	ldr r1, .L0805D4AC @ =0x00000ADE
+	cmp r0, #.Lmedal_screen_dialogue_idle
+	beq .Lmedal_screen_read_exit_choice
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_read_exit_choice:
+	ldr r1, .L0805D4AC
 	adds r0, r6, r1
 	movs r2, #0
 	ldrsh r0, [r0, r2]
 	cmp r0, #0
-	bne .L0805D4B0
+	bne .Lmedal_screen_cancel_exit
 	subs r3, #2
 	adds r1, r6, r3
-	b .L0805D660
+	b .Lmedal_screen_queue_fade_out
 	.align 2, 0
-.L0805D4A8: .4byte 0x00000ADC
-.L0805D4AC: .4byte 0x00000ADE
-.L0805D4B0:
-	ldr r4, .L0805D4B8 @ =0x00000ADA
+.L0805D4A8: .4byte .Lmedal_screen_dialogue_phase
+.L0805D4AC: .4byte .Lmedal_screen_declined_choice
+.Lmedal_screen_cancel_exit:
+	ldr r4, .L0805D4B8
 	adds r1, r6, r4
-	b .L0805D69C
+	b .Lmedal_screen_set_browsing_phase
 	.align 2, 0
-.L0805D4B8: .4byte 0x00000ADA
-.L0805D4BC:
-	movs r1, #0xa6
+.L0805D4B8: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_animate_scroll_up:
+	movs r1, #(.Lmedal_screen_scroll_y >> 1)
 	lsls r1, r1, #1
 	adds r0, r6, r1
 	ldrh r1, [r0]
-	subs r1, #4
+	subs r1, #.Lmedal_screen_scroll_pixels_per_frame
 	strh r1, [r0]
-	movs r0, #0xf
+	movs r0, #.Lmedal_screen_prize_row_pixel_mask
 	ands r1, r0
 	cmp r1, #0
-	beq .L0805D4D2
-	b .L0805D6EC
-.L0805D4D2:
-	b .L0805D698
-.L0805D4D4:
-	movs r3, #0xa6
+	beq .Lmedal_screen_finish_scroll_up
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_finish_scroll_up:
+	b .Lmedal_screen_resume_browsing
+.Lmedal_screen_animate_scroll_down:
+	movs r3, #(.Lmedal_screen_scroll_y >> 1)
 	lsls r3, r3, #1
 	adds r0, r6, r3
 	ldrh r1, [r0]
-	adds r1, #4
+	adds r1, #.Lmedal_screen_scroll_pixels_per_frame
 	strh r1, [r0]
-	movs r0, #0xf
+	movs r0, #.Lmedal_screen_prize_row_pixel_mask
 	ands r1, r0
 	cmp r1, #0
-	beq .L0805D4EA
-	b .L0805D6EC
-.L0805D4EA:
-	ldr r4, .L0805D4F0 @ =0x00000ADA
+	beq .Lmedal_screen_finish_scroll_down
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_finish_scroll_down:
+	ldr r4, .L0805D4F0
 	adds r1, r6, r4
-	b .L0805D69C
+	b .Lmedal_screen_set_browsing_phase
 	.align 2, 0
-.L0805D4F0: .4byte 0x00000ADA
-.L0805D4F4:
-	ldr r1, .L0805D508 @ =0x00000ADC
+.L0805D4F0: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_wait_for_insufficient_medals_prompt:
+	ldr r1, .L0805D508
 	adds r0, r6, r1
 	movs r2, #0
 	ldrsh r0, [r0, r2]
-	cmp r0, #2
-	beq .L0805D502
-	b .L0805D6EC
-.L0805D502:
-	ldr r3, .L0805D50C @ =0x00000ADA
+	cmp r0, #.Lmedal_screen_dialogue_idle
+	beq .Lmedal_screen_dismiss_insufficient_medals_prompt
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_dismiss_insufficient_medals_prompt:
+	ldr r3, .L0805D50C
 	adds r1, r6, r3
-	b .L0805D69C
+	b .Lmedal_screen_set_browsing_phase
 	.align 2, 0
-.L0805D508: .4byte 0x00000ADC
-.L0805D50C: .4byte 0x00000ADA
-.L0805D510:
-	ldr r4, .L0805D544 @ =0x00000ADC
+.L0805D508: .4byte .Lmedal_screen_dialogue_phase
+.L0805D50C: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_wait_for_prize_dialogue:
+	ldr r4, .L0805D544
 	adds r0, r6, r4
 	movs r1, #0
 	ldrsh r0, [r0, r1]
-	cmp r0, #2
-	beq .L0805D51E
-	b .L0805D6EC
-.L0805D51E:
-	ldr r2, .L0805D548 @ =0x00000ADE
+	cmp r0, #.Lmedal_screen_dialogue_idle
+	beq .Lmedal_screen_read_prize_choice
+	b .Lmedal_screen_update_dialogue_and_display
+.Lmedal_screen_read_prize_choice:
+	ldr r2, .L0805D548
 	adds r0, r6, r2
 	movs r3, #0
 	ldrsh r0, [r0, r3]
 	cmp r0, #0
-	beq .L0805D52C
-	b .L0805D698
-.L0805D52C:
+	beq .Lmedal_screen_award_prize
+	b .Lmedal_screen_resume_browsing
+.Lmedal_screen_award_prize:
 	subs r4, #4
 	adds r0, r6, r4
 	movs r1, #0
 	ldrsh r0, [r0, r1]
-	cmp r0, #1
-	beq .L0805D552
-	cmp r0, #1
-	bgt .L0805D54C
-	cmp r0, #0
-	beq .L0805D5C8
-	b .L0805D600
+	cmp r0, #.Lmedal_screen_prize_id_power_berry
+	beq .Lmedal_screen_award_power_berry
+	cmp r0, #.Lmedal_screen_prize_id_power_berry
+	bgt .Lmedal_screen_check_food_prize
+	cmp r0, #.Lmedal_screen_prize_id_jewel_of_truth
+	beq .Lmedal_screen_record_jewel_of_truth
+	b .Lmedal_screen_award_article
 	.align 2, 0
-.L0805D544: .4byte 0x00000ADC
-.L0805D548: .4byte 0x00000ADE
-.L0805D54C:
-	cmp r0, #8
-	beq .L0805D588
-	b .L0805D600
-.L0805D552:
+.L0805D544: .4byte .Lmedal_screen_dialogue_phase
+.L0805D548: .4byte .Lmedal_screen_declined_choice
+.Lmedal_screen_check_food_prize:
+	cmp r0, #.Lmedal_screen_prize_id_truffle
+	beq .Lmedal_screen_award_truffle
+	b .Lmedal_screen_award_article
+.Lmedal_screen_award_power_berry:
 	ldr r0, [r6, #8]
-	ldr r2, .L0805D578 @ =0x00001BD8
+	ldr r2, .L0805D578
 	adds r0, r0, r2
 	bl func_0800EAFC
 	ldr r2, [r6, #8]
-	ldr r3, .L0805D57C @ =0x00002C4A
+	ldr r3, .L0805D57C
 	adds r2, r2, r3
 	ldrb r0, [r2]
 	movs r1, #8
 	orrs r0, r1
 	strb r0, [r2]
 	ldr r0, [r6, #8]
-	ldr r4, .L0805D580 @ =0x00001C2C
+	ldr r4, .L0805D580
 	adds r0, r0, r4
 	ldr r1, .L0805D584 @ =0x0000015F
 	bl func_0800F510
-	b .L0805D624
+	b .Lmedal_screen_deduct_medals
 	.align 2, 0
-.L0805D578: .4byte 0x00001BD8
-.L0805D57C: .4byte 0x00002C4A
-.L0805D580: .4byte 0x00001C2C
+.L0805D578: .4byte .Lmedal_screen_save_farmer
+.L0805D57C: .4byte .Lmedal_screen_save_medal_and_prize_flags_byte
+.L0805D580: .4byte .Lmedal_screen_save_held_item
 .L0805D584: .4byte 0x0000015F
-.L0805D588:
-	ldr r0, .L0805D5C0 @ =gUnk_080FB0F0
-	ldrh r1, [r0, #0x10]
+.Lmedal_screen_award_truffle:
+	ldr r0, .L0805D5C0 @ =gMedalExchangePrizeItemIds
+	ldrh r1, [r0, #(.Lmedal_screen_prize_id_truffle * 2)]
 	adds r0, r7, #0
 	bl __4FoodUi
 	ldr r5, [r6, #8]
-	ldr r0, .L0805D5C4 @ =0x00001C2C
+	ldr r0, .L0805D5C4
 	adds r5, r5, r0
 	add r4, sp, #0xc
 	adds r0, r4, #0
@@ -51012,13 +51048,13 @@ RunMedalExchangeScreen: @ 0x0805D170
 	orrs r1, r2
 	adds r0, r5, #0
 	bl func_0800F3B0
-	b .L0805D624
+	b .Lmedal_screen_deduct_medals
 	.align 2, 0
-.L0805D5C0: .4byte gUnk_080FB0F0
-.L0805D5C4: .4byte 0x00001C2C
-.L0805D5C8:
+.L0805D5C0: .4byte gMedalExchangePrizeItemIds
+.L0805D5C4: .4byte .Lmedal_screen_save_held_item
+.Lmedal_screen_record_jewel_of_truth:
 	ldr r2, [r6, #8]
-	ldr r1, .L0805D668 @ =0x00002C4A
+	ldr r1, .L0805D668
 	adds r2, r2, r1
 	ldrb r0, [r2]
 	movs r1, #0x10
@@ -51045,10 +51081,10 @@ RunMedalExchangeScreen: @ 0x0805D170
 	movs r1, #4
 	orrs r0, r1
 	strb r0, [r2]
-.L0805D600:
+.Lmedal_screen_award_article:
 	add r4, sp, #0x10
-	ldr r1, .L0805D678 @ =gUnk_080FB0F0
-	ldr r2, .L0805D67C @ =0x00000AD8
+	ldr r1, .L0805D678 @ =gMedalExchangePrizeItemIds
+	ldr r2, .L0805D67C
 	adds r0, r6, r2
 	movs r3, #0
 	ldrsh r0, [r0, r3]
@@ -51058,16 +51094,16 @@ RunMedalExchangeScreen: @ 0x0805D170
 	adds r0, r4, #0
 	bl __7ArticleUi
 	ldr r0, [r6, #8]
-	ldr r1, .L0805D680 @ =0x00001C2C
+	ldr r1, .L0805D680
 	adds r0, r0, r1
 	ldrb r1, [r4]
 	bl func_0800F3E8
-.L0805D624:
-	movs r2, #0xad
+.Lmedal_screen_deduct_medals:
+	movs r2, #(.Lmedal_screen_medal_balance >> 4)
 	lsls r2, r2, #4
 	adds r3, r6, r2
 	ldr r2, .L0805D684 @ =gMedalExchangePrizes
-	ldr r4, .L0805D67C @ =0x00000AD8
+	ldr r4, .L0805D67C
 	adds r0, r6, r4
 	movs r4, #0
 	ldrsh r1, [r0, r4]
@@ -51075,13 +51111,13 @@ RunMedalExchangeScreen: @ 0x0805D170
 	adds r0, r0, r1
 	lsls r0, r0, #2
 	adds r0, r0, r2
-	movs r1, #0x10
+	movs r1, #.Lmedal_screen_prize_price
 	ldrsh r0, [r0, r1]
 	ldr r2, [r3]
 	subs r2, r2, r0
 	str r2, [r3]
 	ldr r3, [r6, #8]
-	ldr r4, .L0805D688 @ =0x00002C48
+	ldr r4, .L0805D688
 	adds r3, r3, r4
 	ldr r0, .L0805D68C @ =0x0001FFFF
 	ands r2, r0
@@ -51091,36 +51127,36 @@ RunMedalExchangeScreen: @ 0x0805D170
 	ands r0, r1
 	orrs r0, r2
 	str r0, [r3]
-	ldr r0, .L0805D694 @ =0x00000ADA
+	ldr r0, .L0805D694
 	adds r1, r6, r0
-.L0805D660:
-	movs r0, #0xb
+.Lmedal_screen_queue_fade_out:
+	movs r0, #.Lmedal_screen_start_fade_out
 	strh r0, [r1]
-	b .L0805D6EC
+	b .Lmedal_screen_update_dialogue_and_display
 	.align 2, 0
-.L0805D668: .4byte 0x00002C4A
+.L0805D668: .4byte .Lmedal_screen_save_medal_and_prize_flags_byte
 .L0805D66C: .4byte 0x0000218C
 .L0805D670: .4byte 0xFFFE1FFF
 .L0805D674: .4byte 0x000021C7
-.L0805D678: .4byte gUnk_080FB0F0
-.L0805D67C: .4byte 0x00000AD8
-.L0805D680: .4byte 0x00001C2C
+.L0805D678: .4byte gMedalExchangePrizeItemIds
+.L0805D67C: .4byte .Lmedal_screen_selected_prize_id
+.L0805D680: .4byte .Lmedal_screen_save_held_item
 .L0805D684: .4byte gMedalExchangePrizes
-.L0805D688: .4byte 0x00002C48
+.L0805D688: .4byte .Lmedal_screen_save_medal_word
 .L0805D68C: .4byte 0x0001FFFF
 .L0805D690: .4byte 0xFFF80003
-.L0805D694: .4byte 0x00000ADA
-.L0805D698:
-	ldr r2, .L0805D6A4 @ =0x00000ADA
+.L0805D694: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_resume_browsing:
+	ldr r2, .L0805D6A4
 	adds r1, r6, r2
-.L0805D69C:
-	movs r0, #1
+.Lmedal_screen_set_browsing_phase:
+	movs r0, #.Lmedal_screen_browsing
 	strh r0, [r1]
-	b .L0805D6EC
+	b .Lmedal_screen_update_dialogue_and_display
 	.align 2, 0
-.L0805D6A4: .4byte 0x00000ADA
-.L0805D6A8:
-	ldr r0, [sp, #4]
+.L0805D6A4: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_begin_fade_out:
+	ldr r0, [sp, #.Lmedal_screen_sp_fade_task]
 	ldr r1, .L0805D6D4 @ =0x00000889
 	adds r0, #0xc
 	movs r2, #1
@@ -51129,35 +51165,35 @@ RunMedalExchangeScreen: @ 0x0805D170
 	adds r0, r6, #0
 	bl HardwareContext_GetFrameTasks
 	ldr r2, [r0, #8]
-	ldr r1, [sp, #4]
+	ldr r1, [sp, #.Lmedal_screen_sp_fade_task]
 	ldr r2, [r2, #0x10]
 	bl _call_via_r2
-	ldr r3, .L0805D6D8 @ =0x00000ADA
+	ldr r3, .L0805D6D8
 	adds r1, r6, r3
-.L0805D6CA:
+.Lmedal_screen_advance_phase:
 	ldrh r0, [r1]
 	adds r0, #1
 	strh r0, [r1]
-	b .L0805D6EC
+	b .Lmedal_screen_update_dialogue_and_display
 	.align 2, 0
 .L0805D6D4: .4byte 0x00000889
-.L0805D6D8: .4byte 0x00000ADA
-.L0805D6DC:
-	ldr r0, [sp, #4]
+.L0805D6D8: .4byte .Lmedal_screen_exchange_phase
+.Lmedal_screen_wait_for_fade_out:
+	ldr r0, [sp, #.Lmedal_screen_sp_fade_task]
 	ldr r1, [r0]
 	rsbs r0, r1, #0
 	orrs r0, r1
 	cmp r0, #0
-	blt .L0805D6EC
+	blt .Lmedal_screen_update_dialogue_and_display
 	movs r4, #1
 	mov r8, r4
-.L0805D6EC:
+.Lmedal_screen_update_dialogue_and_display:
 	adds r0, r6, #0
 	bl UpdateMedalExchangeDialogue
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
-	movs r3, #0xa6
+	movs r3, #(.Lmedal_screen_scroll_y >> 1)
 	lsls r3, r3, #1
 	adds r1, r6, r3
 	ldrh r1, [r1]
@@ -51169,9 +51205,9 @@ RunMedalExchangeScreen: @ 0x0805D170
 	bl DrawMedalExchangeObjects
 	mov r4, r8
 	cmp r4, #1
-	beq .L0805D71A
-	b .L0805D254
-.L0805D71A:
+	beq .Lmedal_screen_clear_scene_result
+	b .Lmedal_screen_run_frame
+.Lmedal_screen_clear_scene_result:
 	movs r0, #0
 	str r0, [sp, #8]
 	str r7, [sp, #0x14]
@@ -51182,22 +51218,22 @@ RunMedalExchangeScreen: @ 0x0805D170
 	str r0, [r2]
 	ldr r1, [sp, #8]
 	cmp r1, #0
-	beq .L0805D73C
+	beq .Lmedal_screen_destroy_fade_task
 	ldr r0, [r1]
 	ldr r2, [r0, #8]
 	adds r0, r1, #0
 	movs r1, #3
 	bl _call_via_r2
-.L0805D73C:
-	ldr r1, [sp, #4]
+.Lmedal_screen_destroy_fade_task:
+	ldr r1, [sp, #.Lmedal_screen_sp_fade_task]
 	cmp r1, #0
-	beq .L0805D74E
+	beq .Lmedal_screen_return_to_caller
 	ldr r0, [r1, #8]
 	ldr r2, [r0, #0xc]
 	adds r0, r1, #0
 	movs r1, #3
 	bl _call_via_r2
-.L0805D74E:
+.Lmedal_screen_return_to_caller:
 	mov r0, sb
 	add sp, #0x1c
 	pop {r3, r4, r5}
