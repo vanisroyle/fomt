@@ -546,6 +546,27 @@ EC u32 SECTION(".text.TileHandle_GetTileIndex") TileHandle_GetTileIndex(TileHeap
     return ~0u;
 }
 
+// 0x08007DB8
+EC u32 SECTION(".text.TileHandle_GetOrder") TileHandle_GetOrder(TileHeapOwner * self, u32 handle)
+{
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            if (generation_matches)
+                return entry->params.order;
+        }
+    }
+    return 11;
+}
+
 // 0x080079E8
 EC void SECTION(".text.TileHeapOwner_Destroy") TileHeapOwner_Destroy(TileHeapOwner * self, u32 destructor_flags)
 {

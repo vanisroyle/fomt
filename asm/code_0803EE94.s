@@ -98264,7 +98264,7 @@ func_080757E8: @ 0x080757E8
 	ldr r0, [sp]
 	ldr r1, [r0, #0x14]
 	mov r0, sb
-	bl func_08007DB8
+	bl TileHandle_GetOrder
 	cmp r0, r6
 	bhs .L08075956
 	ldr r0, [sp]
