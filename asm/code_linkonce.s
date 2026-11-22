@@ -14214,7 +14214,7 @@ sub_080DA76C: @ 0x080DA76C
 .L080DB0BC:
 	mov r0, sl
 	add r1, sp, #0x34
-	bl func_08011CD8
+	bl GameState_RunVBlankFrameTasks
 	bl .L080D8FE8
 	.align 2, 0
 .L080DB0C8: .4byte 0x000004D4
@@ -14476,7 +14476,7 @@ func_080DB238: @ 0x080DB238
 	bl __builtin_new
 	ldr r1, [r5, #0xc]
 	mov r2, sp
-	bl func_08011DC4
+	bl GameScript_InitializeWithSceneSpec
 	str r0, [sp, #0xc]
 	str r4, [sp, #0x18]
 	str r0, [sp, #0x1c]
@@ -16331,7 +16331,7 @@ func_080DC244: @ 0x080DC244
 	ldr r1, [r4, #4]
 	adds r4, #8
 	adds r2, r4, #0
-	bl func_08011DC4
+	bl GameScript_InitializeWithSceneSpec
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #4]
@@ -27005,56 +27005,7 @@ func_080E1824: @ 0x080E1824
 	.align 2, 0
 .L080E1840: .4byte vtable_unk_080E76F8
 
-	thumb_func_start func_080E1844
-func_080E1844: @ 0x080E1844
-	push {r4, r5, r6, lr}
-	sub sp, #0x20
-	adds r6, r0, #0
-	cmp r2, #0xff
-	bne .L080E188C
-	ldr r0, [r1, #4]
-	lsls r1, r0, #2
-	adds r1, r1, r0
-	lsls r1, r1, #2
-	ldr r0, .L080E1888 @ =gMedalExchangePrizes
-	adds r5, r1, r0
-	adds r0, r5, #0
-	bl strlen
-	adds r4, r0, #0
-	cmp r4, #0x1f
-	bls .L080E1868
-	movs r4, #0x1f
-.L080E1868:
-	mov r0, sp
-	adds r1, r5, #0
-	adds r2, r4, #0
-	bl memcpy
-	mov r0, sp
-	adds r1, r0, r4
-	movs r0, #0
-	strb r0, [r1]
-	movs r0, #1
-	strb r0, [r6]
-	adds r0, r6, #4
-	mov r1, sp
-	bl strcpy
-	b .L080E189A
-	.align 2, 0
-.L080E1888: .4byte gMedalExchangePrizes
-.L080E188C:
-	mov r1, sp
-	movs r0, #0
-	strb r0, [r1]
-	strb r0, [r6]
-	adds r0, r6, #4
-	bl strcpy
-.L080E189A:
-	adds r0, r6, #0
-	add sp, #0x20
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-
+	.section .text.code_080E18A4, "ax", %progbits
 	thumb_func_start func_080E18A4
 func_080E18A4: @ 0x080E18A4
 	push {r4, r5, r6, lr}
@@ -27174,50 +27125,7 @@ func_080E1984: @ 0x080E1984
 	.align 2, 0
 .L080E19A0: .4byte vtable_unk_080E5A28
 
-	thumb_func_start func_080E19A4
-func_080E19A4: @ 0x080E19A4
-	push {r4, r5, r6, lr}
-	sub sp, #0x20
-	adds r5, r0, #0
-	cmp r2, #0xff
-	bne .L080E19DE
-	ldr r6, [r1, #4]
-	adds r0, r6, #0
-	bl strlen
-	adds r4, r0, #0
-	cmp r4, #0x1f
-	bls .L080E19BE
-	movs r4, #0x1f
-.L080E19BE:
-	mov r0, sp
-	adds r1, r6, #0
-	adds r2, r4, #0
-	bl memcpy
-	mov r0, sp
-	adds r1, r0, r4
-	movs r0, #0
-	strb r0, [r1]
-	movs r0, #1
-	strb r0, [r5]
-	adds r0, r5, #4
-	mov r1, sp
-	bl strcpy
-	b .L080E19EC
-.L080E19DE:
-	mov r1, sp
-	movs r0, #0
-	strb r0, [r1]
-	strb r0, [r5]
-	adds r0, r5, #4
-	bl strcpy
-.L080E19EC:
-	adds r0, r5, #0
-	add sp, #0x20
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-
+	.section .text.code_080E19F8, "ax", %progbits
 	thumb_func_start func_080E19F8
 func_080E19F8: @ 0x080E19F8
 	push {r4, r5, lr}
@@ -27693,54 +27601,7 @@ func_080E1D54: @ 0x080E1D54
 .L080E1D84: .4byte 0x00002164
 .L080E1D88: .4byte 0x00002168
 
-	thumb_func_start func_080E1D8C
-func_080E1D8C: @ 0x080E1D8C
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080E1D98
-func_080E1D98: @ 0x080E1D98
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080E1DA4
-func_080E1DA4: @ 0x080E1DA4
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080E1DB0
-func_080E1DB0: @ 0x080E1DB0
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080E1DBC
-func_080E1DBC: @ 0x080E1DBC
-	push {lr}
-	bl func_08076EA8
-	movs r0, #1
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_080E1DC8
-func_080E1DC8: @ 0x080E1DC8
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
+	.section .text.code_080E1DD4, "ax", %progbits
 	thumb_func_start func_080E1DD4
 func_080E1DD4: @ 0x080E1DD4
 	push {r4, r5, lr}

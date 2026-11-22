@@ -1,4 +1,6 @@
 #include "prelude.h"
+#include "dma_queue.hh"
+#include "key_repeat.hh"
 #include "m4a.h"
 #include "gbasvc.h"
 #include "unknown_inlines.hh"
@@ -1074,14 +1076,6 @@ EC void SECTION(".text.Dma3_Fill") Dma3_Fill(u32 fill_value, void * destination,
     }
 }
 
-struct DmaCommand
-{
-    u32 is_fill;
-    u32 source_or_fill_value;
-    void * destination;
-    u32 control_flags;
-};
-
 // 0x08008FE4
 EC void SECTION(".text.DmaCommand_ExecuteRange") DmaCommand_ExecuteRange(DmaCommand const * begin, DmaCommand const * end)
 {
@@ -1123,18 +1117,6 @@ EC SECTION(".text.DmaCommand_InitializeFill") DmaCommand * DmaCommand_Initialize
     self->control_flags = control_flags;
     return self;
 }
-
-struct KeyRepeatState
-{
-    u16 held_keys;
-    u16 alignment_padding;
-    u16 pressed_keys;
-    u16 edge_padding;
-    u16 repeated_keys;
-    u16 repeat_delay;
-    u16 repeat_period;
-    i16 repeat_counters[10];
-};
 
 // 0x0800912C
 EC u32 SECTION(".text.Keys_ReadHardware") Keys_ReadHardware()
@@ -1696,16 +1678,6 @@ EC void SECTION(".text.Boot_SoftResetFromKeys") Boot_SoftResetFromKeys()
     SoftReset(0xFF);
     for (;;) {}
 }
-
-struct DmaTransferQueue
-{
-    DmaCommand * Begin() const { return begin; }
-    DmaCommand * End() const { return end; }
-    DmaCommand * begin;
-    DmaCommand * end;
-    u32 allocation_state;
-    DmaCommand * capacity_end;
-};
 
 struct VBlankIrqSubscription
 {

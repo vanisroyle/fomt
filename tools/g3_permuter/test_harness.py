@@ -18,6 +18,13 @@ class SectionSelectionTests(unittest.TestCase):
             '\t.code 16\n.section .text.g3_test\n',
         )
 
+    def test_preserves_reentered_section_alignment(self):
+        body = '.section .text.g5_test,"ax",%progbits\nfn:\n bx lr\n'
+        alignment = '\t.section ".text.g5_test"\n\t.align 2, 0\n'
+        source = body + '.section .debug_info\n.word 123\n' + alignment
+        self.assertEqual(select_section(source, '.text.g5_test'),
+                         '\t.code 16\n' + body + alignment)
+
     def test_missing_section(self):
         with self.assertRaises(ValueError):
             select_section('', '.text.g3_test')

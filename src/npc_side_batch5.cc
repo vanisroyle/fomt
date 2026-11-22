@@ -343,7 +343,7 @@ EC u8 const vtable_unk_080E6828[];
 EC u8 const vtable_unk_080E76BC[];
 EC void vfunc_14__7AEntity(AEntity * self);
 EC void SetChangedLocation__3Npc(void * record);
-EC SpriteWorkerEffect * func_08034A14(SpriteWorkerEffect * self, SpriteWorkerEntity * actor);
+EC SpriteWorkerEffect * InitializeSpriteWorkerGraphics(SpriteWorkerEffect * self, SpriteWorkerEntity * actor);
 EC void UpdateSideActorAnimationLayers(UnknownEntityThing * self);
 EC bool AudioPlayer_IsPlaying(AudioPlayer * self);
 EC void AudioPlayer_StartSong(AudioPlayer * self, u16 song);
@@ -361,7 +361,7 @@ EC SpriteWorkerEffect * CreateSpriteWorkerSprite(SpriteWorkerEntity * actor) NPC
 EC SpriteWorkerEffect * CreateSpriteWorkerSprite(SpriteWorkerEntity * actor)
 {
     struct Storage { u8 bytes[0xD4]; };
-    SpriteWorkerEffect * sprite = func_08034A14(reinterpret_cast<SpriteWorkerEffect *>(new Storage), actor);
+    SpriteWorkerEffect * sprite = InitializeSpriteWorkerGraphics(reinterpret_cast<SpriteWorkerEffect *>(new Storage), actor);
     i32 overlay = -1;
     switch (actor->work_state)
     {
