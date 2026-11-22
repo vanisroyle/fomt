@@ -157,6 +157,57 @@ EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(
     }
 }
 
+struct FrisbeeSymbolGraphics
+{
+    u8 padding[0x2334];
+    u32 tileOffsets[29];
+};
+struct FrisbeeSpritePlacement
+{
+    u16 x, y, palette, tile, priority;
+    u32 objectMode;
+    u8 flip, affineIndex;
+    u32 affineMode;
+    u8 mosaic;
+    FrisbeeSpritePlacement() : x(0), y(0), palette(0), tile(0), priority(0), objectMode(0), flip(0), affineIndex(0), affineMode(0), mosaic(0) {}
+};
+struct FrisbeeSymbolFrame
+{
+    const void * objects;
+    u16 count;
+    u16 padding;
+    u32 remaining[6];
+};
+EC void func_0805E790(FrisbeeSymbolFrame *, void *, u32);
+struct ResourceHandleOwner;
+struct TileHeapOwner;
+EC u32 ResourceHandle_GetIndex(ResourceHandleOwner *, u32);
+EC u32 TileHandle_GetTileIndex(TileHeapOwner *, u32);
+EC void * HardwareContext_GetOamBuffer(void *);
+EC void func_0805E99C(void *, const void *, u32, const FrisbeeSpritePlacement *);
+EC SECTION(".text.frisbee.08057D34") void DrawFrisbeeSymbol(void * screen, i32 x, i32 y, i32 symbol)
+{
+    FrisbeeSpritePlacement placement;
+    FrisbeeSymbolFrame frame;
+    func_0805E790(&frame, (u8 *) screen + 0x50, symbol);
+    placement.x = x;
+    placement.y = y;
+    ResourceHandleOwner * paletteOwner = (ResourceHandleOwner *) ((u8 *) screen + 0x480);
+    placement.palette = ResourceHandle_GetIndex(paletteOwner, *((u32 *) paletteOwner + 1));
+    TileHeapOwner * tileOwner = (TileHeapOwner *) ((u8 *) screen + 0x478);
+    u32 tileBase = TileHandle_GetTileIndex(tileOwner, *((u32 *) tileOwner + 1));
+    placement.tile = ((FrisbeeSymbolGraphics *) screen)->tileOffsets[symbol] + tileBase;
+    placement.priority = 1;
+    placement.mosaic = true;
+    void * oam = HardwareContext_GetOamBuffer(screen);
+    register const void * rawObjects asm("r0") = frame.objects;
+    asm ("" : "+r" (rawObjects));
+    register const void * objects asm("r1") = rawObjects;
+    asm ("" : "+r" (objects));
+    u32 count = objects != nullptr ? frame.count : 0;
+    func_0805E99C(oam, objects, count, &placement);
+}
+
 EC SECTION(".text.frisbee.08057DD8") FestivalResultsController * InitializeFrisbeeController(FestivalResultsController * controller, FestivalScene ** continuation, void * game, u8 kind)
 {
     controller->vtable = vtable_unk_080E7960;
