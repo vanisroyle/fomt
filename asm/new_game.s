@@ -1034,7 +1034,7 @@ func_080041DC: @ 0x080041DC
     strb r0, [r1]
     strb r5, [r1, #1]
     adds r0, r7, #0
-    bl func_08008574
+    bl HardwareContext_InitializeWithOamReservation
     ldr r0, .L080043B0 @ =vtable_unk_080E5A5C
     str r0, [r7, #4]
     str r4, [r7, #8]
