@@ -2,6 +2,7 @@
 
 #include "bachelorette.hh"
 #include "clock_display.hh"
+#include "dma_queue.hh"
 #include "dog.hh"
 #include "farm.hh"
 #include "farm_house.hh"
@@ -437,6 +438,227 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
     if (destructorFlags & 1)
         __builtin_delete(overlay);
 }
+
+EC void * RetryDmaAllocation(u32) asm("func_080D3BC0");
+
+#define COPY_DMA_COMMAND(destination, source, a, b, c) \
+    do { \
+        register DmaCommand * out asm("r0") = destination; \
+        register DmaCommand const * in asm("r1") = source; \
+        asm volatile(".syntax unified\n\tldmia %1!, {" #a ", " #b ", " #c "}\n" \
+            "\tstmia %0!, {" #a ", " #b ", " #c "}\n\tldr %1, [%1]\n\tstr %1, [%0]\n\t.syntax divided" \
+            : "+l"(out), "+l"(in) : : #a, #b, #c, "memory"); \
+    } while (false)
+
+ROM_TEXT(0803ACD8) void QueueFixedSpriteOverlayGraphics(FixedSpriteOverlay & inputOverlay, DmaTransferQueue & outputQueue)
+{
+    // Keep the original Thumb register assignments around each DMA command copy.
+    enum { OBJ_VRAM_BASE = 0x06010000, OBJ_TILE_BYTES = 32 };
+    register FixedSpriteOverlay * overlay asm("r9") = &inputOverlay;
+    asm("" : "+h"(overlay));
+    register DmaTransferQueue * queue asm("r5") = &outputQueue;
+    asm("" : "+l"(queue));
+    register unsigned initialIndex asm("r0") = 0;
+    asm("" : "+l"(initialIndex));
+    register unsigned index asm("r10") = initialIndex;
+    asm("" : "+h"(index));
+    struct
+    {
+        DmaCommand command;
+        unsigned count;
+        unsigned inserted;
+        DmaCommand const * volatile commandSource;
+        u8 const * volatile paletteIds;
+        DmaCommand * volatile insertionPoint;
+        DmaCommand * volatile buffer;
+    } local;
+    do
+    {
+        register unsigned stride asm("r0") = sizeof(FixedSpriteOverlay::Frame);
+        asm("" : "+l"(stride));
+        register unsigned lowIndex asm("r1") = index;
+        asm("" : "+l"(lowIndex));
+        register uintptr_t frameOffset asm("r0");
+        asm(".syntax unified\n\tmuls %1, %0, %1\n\tadds %0, %1, #0\n\t.syntax divided"
+            : "=l"(frameOffset), "+l"(lowIndex) : "0"(stride) : "cc");
+        register FixedSpriteOverlay::Frame * frame asm("r4");
+        asm(".syntax unified\n\tadds %0, %1, %2\n\tadd %0, %3\n\t.syntax divided"
+            : "=&l"(frame) : "l"(frameOffset), "I"(offsetof(FixedSpriteOverlay, frames)), "h"(overlay));
+        register FixedOverlayFrameSlice<u8> const * tileData asm("r6") = &frame->view.tileBytes;
+        asm("" : "+l"(tileData));
+        u8 const * source = frame->view.tileBytes.data;
+        asm("" : "+l"(source));
+        register OverlayTileAllocation * allocation asm("r0");
+        asm(".syntax unified\n\tadd %0, %1\n\tadds %0, %2\n\t.syntax divided"
+            : "=l"(allocation) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, frames[0].tiles)), "0"(frameOffset));
+        register unsigned tile asm("r2") = GetOverlayBaseTile(allocation, allocation->handle);
+        asm("" : "+l"(tile));
+        unsigned bytes = frame->view.tileBytes.data ? tileData->length : 0;
+        register unsigned tileOffset asm("r2") = tile * OBJ_TILE_BYTES;
+        asm("" : "+l"(tileOffset) : "l"(bytes));
+        register unsigned vramBase asm("r4") = OBJ_VRAM_BASE;
+        asm("" : "+l"(vramBase));
+        DmaCommand_InitializeCopy(&local.command, source, reinterpret_cast<void *>(tileOffset + vramBase), bytes);
+        register DmaCommand * command asm("r6") = &local.command;
+        asm("" : "+l"(command));
+        local.commandSource = command;
+        register DmaCommand * position asm("r1") = queue->end;
+        asm("" : "+l"(position));
+        if (position != queue->capacity_end)
+        {
+            if (position)
+                COPY_DMA_COMMAND(position, &local.command, r2, r3, r7);
+            ++queue->end;
+            register unsigned step asm("r4") = 1;
+            asm("" : "+l"(step));
+            index += step;
+            register u8 const * firstPalette asm("r6");
+            asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+                : "=l"(firstPalette) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids)));
+            local.paletteIds = firstPalette;
+        }
+        else
+        {
+            // Grow by the larger of the queue's size and the insertion count.
+            local.insertionPoint = position;
+            local.inserted = 1;
+            register DmaCommand * begin asm("r1") = queue->begin;
+            asm("" : "+l"(begin));
+            register DmaCommand * end asm("r7") = local.insertionPoint;
+            asm("" : "+l"(end));
+            register intptr_t occupiedBytes asm("r0") = reinterpret_cast<intptr_t>(end) - reinterpret_cast<intptr_t>(begin);
+            asm("" : "+l"(occupiedBytes));
+            register unsigned count asm("r4") = occupiedBytes >> 4;
+            asm("" : "+l"(count));
+            local.count = count;
+            register unsigned * insertCount asm("r2") = &local.inserted;
+            asm("" : "+l"(insertCount));
+            register unsigned * growthCount asm("r0") = &local.count;
+            asm("" : "+l"(growthCount));
+            asm(".syntax unified\n\tcmp %1, #1\n\tbhs 1f\n\tadds %0, %2, #0\n1:\n\t.syntax divided"
+                : "+l"(growthCount) : "l"(count), "l"(insertCount) : "cc");
+            unsigned growth = *growthCount;
+            register unsigned newCapacity asm("r0") = count + growth;
+            asm("" : "+l"(newCapacity));
+            register unsigned bufferBytes asm("r8");
+            register DmaCommand * buffer asm("r0");
+            if (newCapacity)
+            {
+                register unsigned bytes asm("r4") = newCapacity * sizeof(DmaCommand);
+                asm("" : "+l"(bytes));
+                buffer = static_cast<DmaCommand *>(malloc(bytes));
+                bufferBytes = bytes;
+                asm("" : "+h"(bufferBytes) : "l"(buffer));
+                if (!buffer)
+                    buffer = static_cast<DmaCommand *>(RetryDmaAllocation(bufferBytes));
+                begin = queue->begin;
+                asm("" : "+l"(begin) : "l"(buffer));
+            }
+            else
+            {
+                buffer = 0;
+                asm("" : "+l"(buffer));
+                bufferBytes = reinterpret_cast<unsigned>(buffer);
+                asm("" : "+h"(bufferBytes));
+            }
+            register DmaCommand * newBuffer asm("r4") = buffer;
+            asm("" : "+l"(newBuffer));
+            local.buffer = newBuffer;
+            register DmaCommand const * from asm("r2") = begin;
+            asm("" : "+l"(from));
+            register DmaCommand * to asm("r3") = newBuffer;
+            asm("" : "+l"(to));
+            register unsigned step asm("r0") = 1;
+            asm("" : "+l"(step));
+            index += step;
+            register u8 const * firstPalette asm("r1");
+            asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+                : "=l"(firstPalette) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids)));
+            local.paletteIds = firstPalette;
+            register DmaCommand const * oldEnd asm("r4") = local.insertionPoint;
+            asm("" : "+l"(oldEnd));
+            if (from != oldEnd)
+                do
+                {
+                    if (to)
+                        COPY_DMA_COMMAND(to, from, r4, r6, r7);
+                    ++from;
+                    ++to;
+                    register DmaCommand const * positionReload asm("r6") = local.insertionPoint;
+                    asm("" : "+l"(positionReload));
+                    if (from == positionReload)
+                        break;
+                }
+                while (true);
+            register DmaCommand * after asm("r4") = to;
+            asm("" : "+l"(after));
+            register unsigned insertedCount asm("r0") = local.inserted;
+            asm("" : "+l"(insertedCount));
+            if (insertedCount == 1)
+            {
+                if (after)
+                    COPY_DMA_COMMAND(after, local.commandSource, r2, r3, r7);
+                ++after;
+            }
+            else
+            {
+                register unsigned remaining asm("r3") = insertedCount;
+                asm("" : "+l"(remaining));
+                register DmaCommand * target asm("r2") = after;
+                asm("" : "+l"(target));
+                while (remaining)
+                {
+                    if (target)
+                        COPY_DMA_COMMAND(target, local.commandSource, r4, r6, r7);
+                    --remaining;
+                    ++target;
+                }
+                after = target;
+                asm("" : "+l"(after));
+            }
+            register DmaCommand * limit asm("r2") = queue->end;
+            asm("" : "+l"(limit));
+            register DmaCommand * old asm("r1") = queue->begin;
+            asm("" : "+l"(old));
+            register DmaCommand * item asm("r0") = old;
+            asm("" : "+l"(item));
+            // The original queue walks the old commands before freeing their storage.
+            if (old != limit)
+                do { ++item; } while (item != limit);
+            if (old)
+                free(old);
+            register uintptr_t capacityEnd asm("r0") = reinterpret_cast<uintptr_t>(local.buffer);
+            asm("add %0, %1" : "+l"(capacityEnd) : "h"(bufferBytes));
+            register DmaCommand * replacement asm("r1") = local.buffer;
+            asm("" : "+l"(replacement));
+            queue->begin = replacement;
+            queue->end = after;
+            queue->capacity_end = reinterpret_cast<DmaCommand *>(capacityEnd);
+        }
+        register unsigned next asm("r2") = index;
+        asm("" : "+l"(next));
+        if (next >= ARRAY_COUNT(overlay->frames))
+            break;
+    }
+    while (true);
+    register FixedSpriteOverlay * owner asm("r3") = overlay;
+    asm("" : "+l"(owner));
+    register OverlaySpriteResources * resources asm("r0") = owner->resources;
+    asm("" : "+l"(resources));
+    register OverlaySpriteResourceVtable const * methods asm("r3") = resources->vtable;
+    asm("" : "+l"(methods));
+    register FixedSpriteOverlay * data asm("r4") = overlay;
+    asm("" : "+l"(data));
+    register u16 const * colors asm("r1") = data->frames[0].view.paletteBytes.data;
+    asm("" : "+l"(colors));
+    register u8 const * ids asm("r6") = local.paletteIds;
+    asm("" : "+l"(ids));
+    register unsigned palette asm("r2") = *ids;
+    asm("" : "+l"(palette));
+    methods->setObjectPalette(resources, colors, palette, 1);
+}
+
+#undef COPY_DMA_COMMAND
 
 ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
 {
