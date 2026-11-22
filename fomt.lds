@@ -972,7 +972,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803C518);
         src/clock_display.o(.text.0803C5B0);
         src/clock_display.o(.text.0803C7A0);
-        asm/code_0803A8A4.o(.text.0803C7C8);
+        src/clock_display_draw.o(.text.0803C7C8);
         src/code_0803A8A4.o(.text.0803CD4C);
         src/code_0803A8A4.o(.text.0803D080);
         src/code_0803A8A4.o(.text.0803D0F0);
