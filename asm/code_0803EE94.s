@@ -30426,62 +30426,6 @@ UpdateMessageChoiceSelection: @ 0x08050868
 	bx r1
 	.align 2, 0
 
-	.section .text.message_window.08050AD8
-	thumb_func_start SetMessageWindowStatePortrait
-SetMessageWindowStatePortrait: @ 0x08050AD8
-	push {r4, r5, lr}
-	adds r4, r0, #0
-	adds r5, r1, #0
-	cmp r5, #0
-	blo .L08050AEA
-	bl GetMessagePortraitCount
-	cmp r5, r0
-	blo .L08050AF2
-.L08050AEA:
-	adds r0, r4, #0
-	bl ClearMessageWindowStatePortrait
-	b .L08050B36
-.L08050AF2:
-	movs r0, #0xee
-	lsls r0, r0, #1
-	adds r2, r4, r0
-	ldrb r1, [r2]
-	lsls r0, r1, #0x1f
-	cmp r0, #0
-	beq .L08050B0E
-	movs r1, #0xf0
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	ldr r0, [r0]
-	cmp r0, r5
-	beq .L08050B36
-	b .L08050B14
-.L08050B0E:
-	movs r0, #1
-	orrs r0, r1
-	strb r0, [r2]
-.L08050B14:
-	movs r1, #0xf2
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	adds r1, r5, #0
-	bl LoadMessagePortraitAnimationFrame
-	movs r1, #0xf0
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	str r5, [r0]
-	movs r0, #0xee
-	lsls r0, r0, #1
-	adds r2, r4, r0
-	ldrb r0, [r2]
-	movs r1, #2
-	orrs r0, r1
-	strb r0, [r2]
-.L08050B36:
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-
 	.section .text.message_window.08050B50
 	thumb_func_start SetMessageWindowStateSpeakerName
 SetMessageWindowStateSpeakerName: @ 0x08050B50

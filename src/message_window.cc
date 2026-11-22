@@ -492,6 +492,39 @@ EC SECTION(".text.message_window.080507D0") u32 GetMessageChoicePosition(u32 lay
     return *(const u8 *) (layout * 6 + choice + (u32) gUnk_080F9F3C);
 }
 
+inline u32 GetMessagePortraitMinimum()
+{
+    union
+    {
+        u32 value;
+        u16 halves[2];
+    } bound;
+    // Preserve the original unsigned lower-bound check.
+    bound.halves[0] = 0;
+    bound.halves[1] = 0;
+    return bound.value;
+}
+
+EC SECTION(".text.message_window.08050AD8") void SetMessageWindowStatePortrait(MessageWindowState * window, u32 portrait)
+{
+    if (portrait < GetMessagePortraitMinimum() || portrait >= GetMessagePortraitCount())
+    {
+        ClearMessageWindowStatePortrait(window);
+        return;
+    }
+    switch (window->portraitFlags.visible)
+    {
+    case 1:
+        if (window->portraitId == portrait) return;
+        break;
+    default:
+        window->portraitFlags.visible = 1;
+    }
+    LoadMessagePortraitAnimationFrame(*(MessagePortraitClips *) window->portraitResource, portrait);
+    window->portraitId = portrait;
+    window->portraitFlags.dirty = 1;
+}
+
 EC SECTION(".text.message_window.08050B3C") void ClearMessageWindowStatePortrait(MessageWindowState * window) // 0x08050B3C
 {
     window->portraitFlags.visible = 0;
