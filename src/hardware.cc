@@ -393,6 +393,48 @@ EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(Alloc
     self->empty = 1;
 }
 
+EC u32 func_080D7568(AllocationTreeBranch *, u32);
+
+inline bool AllocationTreeBranchIndex_IsValid(u32 index) { return index <= 511; }
+
+// 0x08008020
+EC u32 SECTION(".text.AllocationTree_AllocateBlock") AllocationTree_AllocateBlock(AllocationTree * self, u32 order)
+{
+    i32 full;
+    do
+    {
+        if (order <= 9)
+        {
+            i32 child_index = 0;
+            AllocationTreeBranch * child = &self->children[0];
+            do
+            {
+                full = child->full;
+                if (full == 0)
+                {
+                    u32 tile_index = func_080D7568(child, order);
+                    if (AllocationTreeBranchIndex_IsValid(tile_index))
+                    {
+                        self->empty = full;
+                        self->full = self->children[0].full && self->children[1].full;
+                        return (child_index << 9) | tile_index;
+                    }
+                }
+                ++child;
+                ++child_index;
+            }
+            while (child_index <= 1);
+        }
+        else if (order == 10 && self->empty != 0)
+        {
+            AllocationTree_MarkFull(self);
+            return 0;
+        }
+    }
+    while (0);
+    return 1024;
+}
+
 struct TileHeapOwner {};
 
 union TileHeapEntry

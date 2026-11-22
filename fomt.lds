@@ -184,6 +184,8 @@ SECTIONS
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
         asm/hardware.o(.text.after_08007EC8);
+        src/hardware.o(.text.AllocationTree_AllocateBlock);
+        asm/hardware.o(.text.after_08008020);
         src/hardware.o(.text.TilePool_Initialize);
         asm/hardware.o(.text.after_0800835C);
         src/hardware.o(.text.TilePool_Destroy);
