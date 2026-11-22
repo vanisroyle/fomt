@@ -359,20 +359,23 @@ EC void SECTION(".text.AllocationBitset_FreeBlock") AllocationBitset_FreeBlock(A
         self->bits = 0;
 }
 
-struct AllocationTreeBranch
+template<u32 Depth> struct AllocationTreeNode
 {
-    u8 full;
-    u8 empty;
-    u8 subtree_storage[122];
-};
-
-struct AllocationTree
-{
+    AllocationTreeNode(u8 initial_full = 0) : full(initial_full), empty(!initial_full) {}
     u8 full;
     u8 empty;
     u16 alignment_padding;
-    AllocationTreeBranch children[2];
+    AllocationTreeNode<Depth - 1> children[2];
 };
+
+template<> struct AllocationTreeNode<0>
+{
+    AllocationTreeNode() : bits(0) {}
+    u32 bits;
+};
+
+typedef AllocationTreeNode<4> AllocationTreeBranch;
+typedef AllocationTreeNode<5> AllocationTree;
 
 EC void AllocationTreeBranch_MarkFull(AllocationTreeBranch *);
 EC void AllocationTreeBranch_MarkEmpty(AllocationTreeBranch *);
@@ -396,6 +399,51 @@ EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(Alloc
 }
 
 EC u32 func_080D7568(AllocationTreeBranch *, u32);
+
+EC void func_080D7118(AllocationTreeBranch *, u32, u32);
+
+inline u32 const & AllocationTree_MinRangeLength(u32 const & count, u32 const & limit)
+{
+    return limit < count ? limit : count;
+}
+
+inline u32 AllocationTree_RangeValue(u32 value) { return value; }
+
+// 0x08007EE8
+EC void SECTION(".text.AllocationTree_MarkRangeFull") AllocationTree_MarkRangeFull(AllocationTree * self, u32 start, u32 count)
+{
+    i32 right_child_count;
+    if (start <= 1023 && AllocationTree_RangeValue(count) != 0)
+    {
+        if (start == 0 && count > 1023)
+        {
+            AllocationTree_MarkFull(self);
+            return;
+        }
+        if (start <= 511)
+        {
+            u32 child_count = AllocationTree_MinRangeLength(count, 512 - start);
+            func_080D7118(&self->children[0], start, child_count);
+        }
+        u32 end = start + count;
+        if (end > 512)
+        {
+            u32 left_last = AllocationTree_RangeValue(511);
+            u32 child_start = 0;
+            if (1)
+            {
+                if (start > left_last)
+                    child_start = start - 512;
+                do {} while (0);
+            }
+            right_child_count = end - 512;
+            right_child_count -= child_start;
+            func_080D7118(&self->children[1], child_start, right_child_count);
+        }
+        self->full = self->children[0].full && self->children[1].full;
+        self->empty = 0;
+    }
+}
 
 inline bool AllocationTreeBranchIndex_IsValid(u32 index) { return index <= 511; }
 
@@ -443,6 +491,44 @@ EC void func_080D76C0(AllocationTreeBranch *, u32, u32);
 
 inline u8 AllocationTreeBranch_GetEmptyFlag(AllocationTreeBranch const * child) { return child->empty; }
 
+EC void func_080D734C(AllocationTreeBranch *, u32, u32);
+
+// 0x08007F84
+EC void SECTION(".text.AllocationTree_MarkRangeEmpty") AllocationTree_MarkRangeEmpty(AllocationTree * self, u32 start, u32 count)
+{
+    i32 right_child_count;
+    if (start <= 1023 && AllocationTree_RangeValue(count) != 0)
+    {
+        if (start == 0 && count > 1023)
+        {
+            AllocationTree_MarkEmpty(self);
+            return;
+        }
+        if (start <= 511)
+        {
+            u32 child_count = AllocationTree_MinRangeLength(count, 512 - start);
+            func_080D734C(&self->children[0], start, child_count);
+        }
+        u32 end = start + count;
+        if (end > 512)
+        {
+            u32 left_last = AllocationTree_RangeValue(511);
+            u32 child_start = 0;
+            if (1)
+            {
+                if (start > left_last)
+                    child_start = start - 512;
+                do {} while (0);
+            }
+            right_child_count = end - 512;
+            right_child_count -= child_start;
+            func_080D734C(&self->children[1], child_start, right_child_count);
+        }
+        self->full = 0;
+        self->empty = AllocationTreeBranch_GetEmptyFlag(&self->children[0]) && AllocationTreeBranch_GetEmptyFlag(&self->children[1]);
+    }
+}
+
 // 0x080080A0
 EC void SECTION(".text.AllocationTree_FreeBlock") AllocationTree_FreeBlock(AllocationTree * self, u32 tile_index, u32 order)
 {
@@ -477,14 +563,43 @@ union TileHeapEntry
 
 struct TileHeapEntryPool
 {
+    TileHeapEntryPool();
     TileHeapEntry & GetEntry(u32 index) { return entries[index]; }
     void FreeEntry(TileHeapEntry * entry) { entry->next_free = free_head; free_head = entry; }
     TileHeapEntry * free_head;
     TileHeapEntry entries[256];
 };
 
+EC TileHeapEntry * func_080D770C(TileHeapEntry *, u32, TileHeapEntry *);
+
+inline TileHeapEntryPool::TileHeapEntryPool()
+{
+    free_head = func_080D770C(entries, 256, nullptr);
+}
+
+inline void Hardware_FillWords(u32 * first, u32 * last, u32 const & value)
+{
+    for (; first != last; ++first)
+        *first = value;
+}
+
+struct TileHeapAllocationMask
+{
+    void Fill(u32 const & value) { Hardware_FillWords(words, words + 8, value); }
+    TileHeapAllocationMask() { Fill(0); }
+    u32 & operator[](u32 index) { return words[index]; }
+    u32 const & operator[](u32 index) const { return words[index]; }
+    u32 words[8];
+};
+
 struct TileHeapState
 {
+    TileHeapState() : allocated_count(0), owner_count(0), reserved_start(0), reserved_count(0)
+    {
+        allocated_mask.Fill(0);
+        AllocationTree_MarkEmpty(&tree);
+    }
+
     bool IsAllocated(u32 index) const
     {
         return index < 256 && (allocated_mask[index / 32] & (1u << (index % 32))) != 0;
@@ -494,7 +609,7 @@ struct TileHeapState
         if (index < 256)
             allocated_mask[index / 32] &= ~(1u << (index % 32));
     }
-    u32 allocated_mask[8];
+    TileHeapAllocationMask allocated_mask;
     TileHeapEntryPool entry_pool;
     AllocationTree tree;
     u16 allocated_count;
@@ -505,6 +620,18 @@ struct TileHeapState
 };
 
 extern TileHeapState * gTileHeapState; // 0x03000408
+
+struct TileHeapOwner;
+
+// 0x08007874
+EC SECTION(".text.TileHeapOwner_Initialize") TileHeapOwner * TileHeapOwner_Initialize(TileHeapOwner * self)
+{
+    u16 owner_increment = 1;
+    if (gTileHeapState == nullptr)
+        gTileHeapState = new TileHeapState;
+    gTileHeapState->owner_count += owner_increment;
+    return self;
+}
 
 union TileHandle
 {
@@ -698,7 +825,7 @@ EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self
     self->storage = nullptr;
 }
 
-EC TileHeapOwner * func_08007874(TileHeapOwner *);
+EC TileHeapOwner * TileHeapOwner_Initialize(TileHeapOwner *);
 EC void TileHandle_Release(TileHeapOwner *, u32);
 EC u32 TileHandle_GetRefCount(TileHeapOwner *, u32);
 EC u32 TileHandle_Retain(TileHeapOwner *, u32);
@@ -755,12 +882,12 @@ EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHand
             }
             while (next != start);
         }
-        func_08007874(&self->owner);
+        TileHeapOwner_Initialize(&self->owner);
         self->handle = TileHandle_Retain(&self->owner, next->handle);
     }
     else
     {
-        func_08007874(&self->owner);
+        TileHeapOwner_Initialize(&self->owner);
         self->handle = func_08007B54(&self->owner, order);
     }
     return self;

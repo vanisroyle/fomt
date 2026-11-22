@@ -168,6 +168,8 @@ SECTIONS
         asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
+        src/hardware.o(.text.TileHeapOwner_Initialize);
+        asm/hardware.o(.text.after_08007874);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);
@@ -184,6 +186,10 @@ SECTIONS
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
         asm/hardware.o(.text.after_08007EC8);
+        src/hardware.o(.text.AllocationTree_MarkRangeFull);
+        asm/hardware.o(.text.after_08007EE8);
+        src/hardware.o(.text.AllocationTree_MarkRangeEmpty);
+        asm/hardware.o(.text.after_08007F84);
         src/hardware.o(.text.AllocationTree_AllocateBlock);
         asm/hardware.o(.text.after_08008020);
         src/hardware.o(.text.AllocationTree_FreeBlock);
