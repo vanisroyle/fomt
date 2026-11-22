@@ -1948,8 +1948,8 @@ func_08010F54: @ 0x08010F54
 
     .section .text.game_state_08011650, "ax", %progbits
 
-    thumb_func_start func_08011650
-func_08011650: @ 0x08011650
+    thumb_func_start SaveData_LoadFromStorage
+SaveData_LoadFromStorage: @ 0x08011650
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -5684,8 +5684,8 @@ GameScript_QueueSceneVariant2C: @ 0x08013F88
     .section .text.game_state_08014318, "ax", %progbits
 
 
-    thumb_func_start GameScript_UpdateTextPanel
-GameScript_UpdateTextPanel: @ 0x08014318
+    thumb_func_start GameScript_SetGameTime
+GameScript_SetGameTime: @ 0x08014318
     push {r4, r5, r6, r7, lr}
     ldr r4, [r0, #4]
     adds r5, r4, #0
@@ -11283,8 +11283,8 @@ func_080175B4: @ 0x080175B4
 .L080179C4: .4byte vtable_unk_080E602C
 .L080179C8: .4byte 0x000034C4
 
-    thumb_func_start func_080179CC
-func_080179CC: @ 0x080179CC
+    thumb_func_start GameStateMapScene_Destroy
+GameStateMapScene_Destroy: @ 0x080179CC
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}

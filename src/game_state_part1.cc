@@ -89,6 +89,9 @@ struct GameStateAffectionSaveView
     Dog dog;
 };
 
+// 0x08011650
+EC u8 * SaveData_LoadFromStorage(u8 * saveData, void * storage, u32 offset, u32 & errors);
+
 // 0x08010E68
 EC bool SECTION(".text.game_state_08010E68") SaveData_HaveAllAnimalsHighAffection(GameStateAffectionSaveView const & save)
 {
@@ -334,10 +337,10 @@ struct GameStateObject
     virtual i32 RemoveRecordPlayerAlbum();
     virtual i32 SetRecordPlayerAlbum(u32 albumId);
     virtual void vfunc_AC(u32 index);
-    virtual void vfunc_B0();
+    virtual bool KeepClockColonVisible();
     virtual void WarpToLocation(Location const & location, bool preserveEventMusic);
     virtual void vfunc_B8();
-    virtual void vfunc_BC();
+    virtual void SetGameTime(GameTime const & time);
     virtual void vfunc_C0();
     virtual void vfunc_C4();
     virtual void vfunc_C8();
@@ -1207,6 +1210,69 @@ EC void SECTION(".text.game_state_08016834") GameScript_ClearFarmAnimalActor(Gam
 
 // 0x080168D4
 EC void GameScript_RelocateSelectedAnimalActor(GameStateScript & script, u32 kind);
+
+// 0x08014318
+EC void GameScript_SetGameTime(GameStateScript & script, GameTime const & time);
+
+struct GameStateMapOverlay;
+
+struct GameStateMapCleanupResource
+{
+    u32 resourceState[9];
+    virtual ~GameStateMapCleanupResource();
+};
+
+template <u32 Count>
+struct GameStateMapCleanupOwners
+{
+    SmartPtr<GameStateMapCleanupResource> entries[Count];
+};
+
+struct GameStateMapCleanupSlot
+{
+    u32 id;
+    u32 state;
+    SmartPtr<GameStateMapCleanupResource> resource;
+};
+
+struct GameStateMapCleanupSlots
+{
+    GameStateMapCleanupSlot entries[4];
+};
+
+typedef GameStateMapCleanupOwners<6> GameStateMapSpecialResources;
+typedef GameStateMapCleanupOwners<2> GameStateMapResourcePair;
+
+struct GameStateMapSceneCleanupView
+{
+    void const * vtable;
+    u8 contents[0x1034];
+    u8 * saveData;
+    STRUCT_PAD(0x103C, 0x1050);
+    u8 * tileWorkBuffer;
+    STRUCT_PAD(0x1054, 0x1058);
+    SmartPtr<GameStateMapCleanupResource> resource1058;
+    SmartPtr<GameStateMapCleanupResource> resource105C;
+    STRUCT_PAD(0x1060, 0x1064);
+    SmartPtr<GameStateMapCleanupResource> resource1064;
+    SmartPtr<GameStateMapCleanupResource> resource1068;
+    GameStateMapResourcePair resourcePair106C;
+    GameStateMapResourcePair resourcePair1074;
+    GameStateMapOverlay * overlay;
+    GameStateMapCleanupSlots resourceSlots;
+    GameStateMapSpecialResources specialResources;
+    bool applyExitPenalty;
+    bool suppressExitMusic;
+};
+
+typedef char GameStateMapSceneCleanupLayout[
+    sizeof(GameStateMapCleanupResource) == 0x28 &&
+    offsetof(GameStateMapSceneCleanupView, saveData) == 0x1038 &&
+    offsetof(GameStateMapSceneCleanupView, specialResources) == 0x10B0 &&
+    offsetof(GameStateMapSceneCleanupView, suppressExitMusic) == 0x10C9 ? 1 : -1];
+
+// 0x080179CC
+EC void GameStateMapScene_Destroy(GameStateMapSceneCleanupView * scene, u32 flags);
 
 // 0x080127A0
 EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveIndicator(GameStateScript & script, u32 characterId)

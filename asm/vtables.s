@@ -308,7 +308,7 @@ vtable_unk_080E5EB4:
 	.global vtable_unk_080E5EC4
 vtable_unk_080E5EC4: @ game object
 	.word 0, 0
-	.word func_080179CC @ 08
+	.word GameStateMapScene_Destroy @ 08
 	.word func_08017C30 @ 0C
 	.word func_080182C8 @ 10
 	.word GameStateGetMapViewId

@@ -903,7 +903,7 @@ func_080040A0: @ 0x080040A0
     adds r1, #0x90
     mov r2, sl
     mov r3, sb
-    bl func_08011650
+    bl SaveData_LoadFromStorage
     adds r1, r0, #0
     str r1, [sp, #4]
     ldr r0, [sp, #8]
@@ -1262,7 +1262,7 @@ func_080041DC: @ 0x080041DC
     mov r1, sb
     mov r2, r8
     adds r3, r6, #0
-    bl func_08011650
+    bl SaveData_LoadFromStorage
     adds r2, r0, #0
     str r2, [sp, #0x34]
     ldr r0, [sp, #0x3c]
