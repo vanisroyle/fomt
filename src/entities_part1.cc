@@ -297,6 +297,304 @@ inline bool IsEntityCollisionBoxBlocked(void * map, Box const & box)
 
 #define ENTITY_CODE(address) SECTION(".text.entities_part1." #address)
 
+EC u16 const gUnk_080F0FCC[];
+
+struct FarmerActionSelectionFields
+{
+    STRUCT_PAD(0x00, 0x4E);
+    u8 unk_4E;
+    u8 unk_4F;
+};
+
+inline Tool FarmerEntity_GetEquippedTool(FarmerEntity * self)
+{
+    Farmer * farmer = self->farmer;
+    return func_0800E550(*farmer, farmer->unk_5C.GetTool());
+}
+
+inline void FarmerEntity_SetAuxiliaryAnimation(AActorEntity * entity, u32 animation_id)
+{
+    if (entity->anim_id != animation_id)
+        entity->SetAnim(animation_id);
+}
+
+inline u16 FarmerEntity_ResolveActionAnimation(FarmerEntity * self, u32 fallback_animation = 0x192)
+{
+    u32 animation_id = fallback_animation;
+    self->icon = 0xFFFF;
+    switch (i32(self->state))
+    {
+    case 0:
+        if (!func_0800F190(&self->farmer->unk_54))
+        {
+            switch (i32(self->motion))
+            {
+            case 0: animation_id = 0x152; break;
+            case 1: animation_id = 0x156; break;
+            case 2: animation_id = 0x14E; break;
+            default: break;
+            }
+        }
+        else
+        {
+            switch (i32(self->motion))
+            {
+            case 0: animation_id = 0x192; break;
+            case 1:
+            {
+                bool override_state = self->unk_B3;
+                u32 movement_animation = 0x132;
+                if (!override_state) movement_animation += 0x94;
+                animation_id = movement_animation;
+                break;
+            }
+            case 2:
+            {
+                bool override_state = self->unk_B3;
+                u32 movement_animation = 0x132;
+                if (!override_state) movement_animation += 0x2C;
+                animation_id = movement_animation;
+                break;
+            }
+            default: break;
+            }
+        }
+        break;
+    case 2:
+        if (!func_0800F190(&self->farmer->unk_54))
+            animation_id = 0x152;
+        else switch (i32(self->tool_state))
+        {
+        case 0: case 1: case 2: case 3: case 4: case 5:
+        {
+            u16 const * table = gUnk_080F0FCC;
+            u8 const & level = self->tool_level;
+            animation_id = table[self->tool_state * 7 + level];
+            self->icon = FarmerEntity_GetEquippedTool(self).GetIconId();
+            break;
+        }
+        default: animation_id = 0x192; break;
+        }
+        break;
+    case 4:
+    {
+        bool held_item_empty = func_0800F190(&self->farmer->unk_54);
+        animation_id = !held_item_empty ? 0x152 : 0x192;
+        break;
+    }
+    case 1: case 3: case 5:
+    {
+        bool held_item_empty = func_0800F190(&self->farmer->unk_54);
+        animation_id = 0x192;
+        asm("" : "+r"(animation_id));
+        if (!held_item_empty) animation_id -= 0x40;
+        break;
+    }
+    case 13: animation_id = 0x136; break;
+    case 11: case 12: case 14: animation_id = 0x19E; break;
+    case 15: animation_id = 0x4E; break;
+    case 16: animation_id = 0x46; break;
+    case 19: animation_id = 0x13E; break;
+    case 20: animation_id = 0x142; break;
+    case 9:
+        animation_id = self->unk_44;
+        self->icon = FarmerEntity_GetEquippedTool(self).GetIconId();
+        break;
+    case 27:
+        animation_id = 0x1EA;
+        self->icon = FarmerEntity_GetEquippedTool(self).GetIconId();
+        break;
+    case 28: case 29:
+        if (reinterpret_cast<FarmerActionSelectionFields const *>(self)->unk_4E == reinterpret_cast<FarmerActionSelectionFields const *>(self)->unk_4F)
+            animation_id = 0x192;
+        else
+        {
+            i32 const difference = reinterpret_cast<FarmerActionSelectionFields const *>(self)->unk_4F - reinterpret_cast<FarmerActionSelectionFields const *>(self)->unk_4E;
+            animation_id = 0x182;
+            if (difference == 1) animation_id = 0x186;
+            self->icon = FarmerEntity_GetEquippedTool(self).GetIconId();
+        }
+        break;
+    case 25: case 26: animation_id = 0x192; break;
+    case 30:
+        animation_id = 0x76;
+        self->icon = FarmerEntity_GetEquippedTool(self).GetIconId();
+        break;
+    case 31:
+        animation_id = 0x6E;
+        self->icon = FarmerEntity_GetEquippedTool(self).GetIconId();
+        break;
+    case 32:
+        animation_id = 0x72;
+        self->icon = FarmerEntity_GetEquippedTool(self).GetIconId();
+        break;
+    case 22: animation_id = 0x1FA; break;
+    case 23: animation_id = 0x196; break;
+    case 6: animation_id = 0x112; break;
+    case 24: animation_id = 0x116; break;
+    case 7:
+    {
+        AActorEntity * entity = GetCarryableEntityById(self->game_object, 44);
+        switch (i32(self->motion))
+        {
+        default: break;
+        case 0: animation_id = 0xEA; FarmerEntity_SetAuxiliaryAnimation(entity, 0x77A); break;
+        case 1: animation_id = 0xEE; FarmerEntity_SetAuxiliaryAnimation(entity, 0x77E); break;
+        case 2: animation_id = 0xE6; FarmerEntity_SetAuxiliaryAnimation(entity, 0x782); break;
+        }
+        break;
+    }
+    case 34:
+        animation_id = 0x15A;
+        FarmerEntity_SetAuxiliaryAnimation(GetCarryableEntityById(self->game_object, 44), 0x77A);
+        break;
+    case 35:
+        animation_id = 0x9A;
+        FarmerEntity_SetAuxiliaryAnimation(GetCarryableEntityById(self->game_object, 44), 0x77A);
+        break;
+    case 36: animation_id = 0x106; break;
+    case 37: animation_id = 0x102; break;
+    case 38: animation_id = 0xFE; break;
+    case 39: animation_id = 0xFA; break;
+    case 40: animation_id = 0x122; break;
+    case 41: animation_id = 0x11E; break;
+    case 42: case 43: animation_id = 0x11A; break;
+    case 44:
+    {
+        bool held_item_empty = func_0800F190(&self->farmer->unk_54);
+        animation_id = 0x14A;
+        if (held_item_empty) animation_id -= 0x40;
+        break;
+    }
+    case 45:
+        animation_id = 0xE2;
+        FarmerEntity_SetAuxiliaryAnimation(GetCarryableEntityById(self->game_object, 44), 0x792);
+        break;
+    case 46: animation_id = 0x3E; break;
+    case 17: case 33: case 49: case 54: case 55: animation_id = 0x146; break;
+    case 48: case 50: case 56: case 57:
+        animation_id = 0x152;
+        break;
+    case 18: case 51: animation_id = 0x13A; break;
+    case 10: case 21: case 47: case 52: animation_id = 0x42; break;
+    case 53:
+    {
+        bool held_item_empty = func_0800F190(&self->farmer->unk_54);
+        animation_id = 0x1C6;
+        if (!held_item_empty) animation_id = 0x156;
+        break;
+    }
+    case 8:
+    {
+        bool moving = self->unk_3D;
+        animation_id = 0xF6;
+        if (moving) animation_id = 0xF2;
+        break;
+    }
+    }
+    return animation_id;
+}
+
+struct FarmerActionSpriteFields
+{
+    AActorEntity * entity;
+    STRUCT_PAD(0x04, 0xB4);
+    SpriteAnimator animator;
+    bool unk_C8;
+    u8 unk_C9;
+    bool unk_CA;
+    bool unk_CB;
+};
+
+struct FarmerActionSpriteGameVTable
+{
+    STRUCT_PAD(0x00, 0x64);
+    void * (*vfunc_64)(GameObject * game);
+};
+
+EC void func_0805E850(SpriteAnimator * self, void * graphics, u32 animation);
+
+EC void func_0809ABD8(void * earnings, u32 amount);
+
+// 0x0802771C
+EC void func_0802771C(FarmerEntity * self, u32 amount) ENTITY_CODE(0802771C);
+EC void func_0802771C(FarmerEntity * self, u32 amount)
+{
+    func_0809ABD8(reinterpret_cast<u8 *>(self->game_state) + 0x1AA8, amount);
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->active = true;
+    motion->display_mode = 0;
+    motion->Launch(0, 0, 0x150000);
+    FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+    if (sprite != nullptr)
+    {
+        GameObject * game = sprite->entity->game_object;
+        FarmerActionSpriteGameVTable const * table = *reinterpret_cast<FarmerActionSpriteGameVTable const **>(game);
+        void * graphics = table->vfunc_64(game);
+        func_0805E850(&sprite->animator, graphics, 106);
+        sprite->unk_C8 = true;
+        sprite->unk_CA = false;
+        sprite->unk_CB = true;
+    }
+    self->state = 49;
+    u16 const animation = FarmerEntity_ResolveActionAnimation(self);
+    self->SetAnim(animation);
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
+    self->consume_animation_active = true;
+}
+
+// 0x08028B50
+EC void func_08028B50(FarmerEntity * self) ENTITY_CODE(08028B50);
+EC void func_08028B50(FarmerEntity * self)
+{
+    self->state = 14;
+    self->consume_animation_active = true;
+    HeldItem * held_item = reinterpret_cast<HeldItem *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C2C);
+    if (!func_0800F190(held_item))
+    {
+        switch (func_0800F204(held_item))
+        {
+        case HeldItem::KIND_2: case HeldItem::KIND_3:
+            self->state = 13;
+            LaunchFarmerHeldItem(self);
+            break;
+        }
+    }
+    u16 const animation = FarmerEntity_ResolveActionAnimation(self);
+    self->SetAnim(animation);
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 108);
+}
+
+inline void FarmerEntity_SetThrownItemVelocity(ThrownItemMotion * motion, i32 x, i32 y, i32 z)
+{
+    motion->x_velocity = x;
+    motion->y_velocity = y;
+    motion->z_velocity = z;
+}
+
+// 0x08028644
+EC void func_08028644(FarmerEntity * self) ENTITY_CODE(08028644);
+EC void func_08028644(FarmerEntity * self)
+{
+    HeldItem * held_item = reinterpret_cast<HeldItem *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C2C);
+    if (func_0800F190(held_item))
+        return;
+    self->consume_animation_active = true;
+    self->state = 11;
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->Launch(0, 0, 0x150000);
+    switch (GetEntityFacing(self))
+    {
+    case 2: FarmerEntity_SetThrownItemVelocity(motion, -0x1AAAA, 0, 0); break;
+    case 3: FarmerEntity_SetThrownItemVelocity(motion, 0x1AAAA, 0, 0); break;
+    case 1: FarmerEntity_SetThrownItemVelocity(motion, 0, -0x1AAAA, 0); break;
+    case 0: FarmerEntity_SetThrownItemVelocity(motion, 0, 0x1AAAA, 0); break;
+    }
+    u16 const animation = FarmerEntity_ResolveActionAnimation(self);
+    self->SetAnim(animation);
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 108);
+}
+
 inline u32 Map_IsEntityCollisionBoxClear(void * map, Box const & box)
 {
     return !DoesEntityCollisionRectangleHitSolidTile(map, &box);
