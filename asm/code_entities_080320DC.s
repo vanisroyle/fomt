@@ -2059,7 +2059,7 @@ func_08033928: @ 0x08033928
     add r4, sp, #0xc
     adds r0, r4, #0
     adds r1, r6, #0
-    bl func_0809E804
+    bl GetHarvestSpriteHomeLocation
     adds r0, r7, #0
     adds r1, r4, #0
     bl SetLocation__12AActorEntityRC13ActorLocation
@@ -2392,7 +2392,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     str	r4, [sp, #0]
     mov	r6, r8
     str	r6, [sp, #4]
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds	r2, r0, #0
     ldr	r0, [sp, #148]
     ldrb	r1, [r0, #2]
@@ -2696,7 +2696,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     str	r4, [sp, #4]
     ldr	r0, [sp, #156]
     ldr	r1, [sp, #160]
-    bl func_080ABC40
+    bl ChooseEntityFacingTowardPoint
     adds	r2, r0, #0
     adds	r0, r7, #0
     movs	r1, #1
@@ -2760,7 +2760,7 @@ UpdateSpriteWorkerState: @ 0x08033B94
     adds	r0, #48
     ldrb	r1, [r0, #0]
     add	r0, sp, #8
-    bl func_0809E804
+    bl GetHarvestSpriteHomeLocation
     adds	r0, r7, #0
     add	r1, sp, #8
     bl SetLocation__12AActorEntityRC13ActorLocation

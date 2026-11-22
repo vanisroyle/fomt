@@ -805,9 +805,11 @@ vtable_unk_080E7728:
 vtable_unk_080E7738:
 	.incbin "baserom.gba", 0xE7738, 0x10
 
-	.global vtable_unk_080E7748
-vtable_unk_080E7748:
-	.incbin "baserom.gba", 0xE7748, 0x10
+	.global gScriptSceneFactoryVTable
+gScriptSceneFactoryVTable:
+	.4byte 0, 0
+	.4byte func_080E09BC
+	.4byte CreateScriptScene
 
 	.global gDialogWindowTilemapTaskVtable
 gDialogWindowTilemapTaskVtable:
@@ -840,8 +842,8 @@ gPauseMenuWindowVtable:
 vtable_unk_080E77D0:
 	.incbin "baserom.gba", 0xE77D0, 0x10
 
-	.global vtable_unk_080E77E0
-vtable_unk_080E77E0:
+	.global gClockHudVTable
+gClockHudVTable:
 	.incbin "baserom.gba", 0xE77E0, 0x30
 
 	.section .rodata.080E7824

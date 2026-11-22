@@ -8,8 +8,11 @@
 #include "scene.hh"
 #include "shipping_bin.hh"
 #include "bachelorette.hh"
+#include "farmer.hh"
+#include "dog.hh"
 
 #include <stdlib.h>
+#include <new>
 
 struct PACKED GameStateHeader
 {
@@ -56,6 +59,60 @@ EC u32 SECTION(".text.game_state_08011588") SaveData_SumBytes(void const * data,
         } while (--length != 0);
     }
     return sum;
+}
+
+extern u16 gSramErrorFlags;
+EC bool SramProxy_Write(void * proxy, u32 offset, void const * data, u32 size);
+
+// 0x080115B0
+EC u32 SECTION(".text.game_state_080115B0") SaveData_WriteToStorage(void const * saveData, void * storage, u32 offset)
+{
+    u32 headerOffset = offset;
+    u32 const saveSize = 0x34F4;
+    if (!SramProxy_Write(storage, offset, &saveSize, sizeof(saveSize)))
+        return gSramErrorFlags | 0x10000;
+    offset += sizeof(saveSize);
+    if (!SramProxy_Write(storage, offset, saveData, saveSize))
+        return gSramErrorFlags | 0x20000;
+    offset = headerOffset + 0x34F8;
+    u32 checksum = SaveData_SumBytes(saveData, saveSize);
+    if (!SramProxy_Write(storage, offset, &checksum, sizeof(checksum)))
+        return gSramErrorFlags | 0x30000;
+    return 0;
+}
+
+struct GameStateAffectionSaveView
+{
+    STRUCT_PAD(0x00, 0x14);
+    Farm farm;
+    u8 beforeDog[0x1C70 - 0x14 - sizeof(Farm)];
+    Dog dog;
+};
+
+// 0x08010E68
+EC bool SECTION(".text.game_state_08010E68") SaveData_HaveAllAnimalsHighAffection(GameStateAffectionSaveView const & save)
+{
+    bool allHighAffection = true;
+    if (save.dog.GetAffection() < 200)
+        allHighAffection = false;
+    Horse const * horse = save.farm.GetHorse();
+    if (horse != nullptr && horse->GetAffection() < 200)
+        allHighAffection = false;
+    for (u32 index = 0; index < save.farm.coop.GetCapacity(); index++)
+    {
+        Chicken const * chicken = save.farm.coop.GetChicken(index);
+        if (chicken != nullptr && chicken->GetAffection() < 200)
+            allHighAffection = false;
+    }
+    for (u32 index = 0; index < save.farm.barn.GetCapacity(); index++)
+    {
+        Animal const * animal = save.farm.barn.GetCow(index);
+        if (animal == nullptr)
+            animal = save.farm.barn.GetSheep(index);
+        if (animal != nullptr && animal->GetAffection() < 200)
+            allHighAffection = false;
+    }
+    return allHighAffection;
 }
 
 // 0x08010348
@@ -390,6 +447,47 @@ struct GameStateSceneFactoryOwner
 
 extern u8 const vtable_unk_080E5E74[];
 extern u8 const vtable_unk_080E5D74[];
+extern u8 const vtable_unk_080E5E44[];
+extern u8 const vtable_unk_080E5C24[];
+extern u8 const vtable_unk_080E5C14[];
+
+struct GameStateLocatedSceneAction
+{
+    GameStateLocatedSceneAction()
+        : vtable(vtable_unk_080E5E44), stateFlag(false), location(MAP_NONE, 0, 0) {}
+
+    void const * vtable;
+    bool stateFlag;
+    Location location;
+};
+
+struct GameStateModeFlagSceneAction : public GameStateLocatedSceneAction
+{
+    GameStateModeFlagSceneAction(u8 * saveData, u32 modeFlags)
+    {
+        vtable = vtable_unk_080E5C24;
+        this->saveData = saveData;
+        this->modeFlags = modeFlags;
+    }
+
+    u8 * saveData;
+    u32 modeFlags;
+};
+
+struct GameStateModeFlagSceneFactory
+{
+    GameStateModeFlagSceneFactory(u32 modeFlags, u8 * saveData)
+        : vtable(vtable_unk_080E5C14), saveData(saveData)
+    {
+        action = new GameStateModeFlagSceneAction(saveData, modeFlags);
+        this->modeFlags = modeFlags;
+    }
+
+    void const * vtable;
+    u8 * saveData;
+    GameStateModeFlagSceneAction * action;
+    u32 modeFlags;
+};
 
 struct GameScriptSceneFactory
 {
@@ -443,6 +541,219 @@ struct GameStateScript
     GameStateRuntime * runtime;
 };
 
+// 0x08013D04
+EC void SECTION(".text.game_state_08013D04") GameScript_QueueModeFlagScene(GameStateScript & script, u8 modeEnabled)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(
+        new GameStateModeFlagSceneFactory(modeEnabled ? 2 : 0, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08014C34
+EC void SECTION(".text.game_state_08014C34") GameScript_CreateHorseActor(GameStateScript & script, u32 kind, u32 ageYears, u32 mapId, i32 x, i32 y)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    if (kind == 0)
+    {
+        Farm & farm = *reinterpret_cast<Farm *>(runtime.GetSaveData() + 0x14);
+        farm.SetHorse(Horse(ActorLocation(Location(mapId, x, y), 0), ageYears * 120));
+        runtime.scene->vfunc_38(0x2C);
+        GameStateActorEntity * horseActor = runtime.scene->GetActor(0x2C);
+        if (horseActor != nullptr && !horseActor->vfunc_28())
+            horseActor->vfunc_20();
+    }
+}
+
+extern u8 const gTaskNodeVtable[];
+extern u8 const gTaskListVtable[];
+extern u8 const vtable_unk_080E5BD8[];
+extern u8 const vtable_unk_080E5AF0[];
+extern u8 const vtable_unk_080E5AE0[];
+extern u8 const vtable_unk_080E5AD0[];
+EC void TaskNode_Destroy(void * node, u32 flags);
+EC void TaskList_Destroy(void * list, u32 flags);
+EC void TaskList_Append(void * list, void * node);
+
+struct GameStateMapObstacleRecord
+{
+    i32 kind;
+    u32 flags;
+    i16 x;
+    i16 y;
+    u32 state;
+};
+
+struct GameStateMapObstacleResult
+{
+    bool removed;
+    STRUCT_PAD(0x01, 0x04);
+    u32 effectId;
+    i32 x;
+    i32 y;
+    bool additionalAction;
+};
+
+EC void GetMapForageObstacle(GameStateMapObstacleRecord & record, u8 * mapState, u32 index);
+EC void SubtractMapAvailabilityCount(u8 * mapState, u32 index, i32 amount);
+EC u32 GetMapAvailabilityCount(u8 const * mapState, u32 index);
+EC void ClearMapAvailabilityBit(u8 * mapState, u32 index, u32 bit);
+
+// 0x080174C8
+EC bool SECTION(".text.game_state_080174C8") GameState_TryBreakMapObstacle(Farm & farm, u8 * mapState, u32 index, u32 bit, i32 power, bool stoneTool, GameStateMapObstacleResult & result)
+{
+    GameStateMapObstacleRecord record;
+    GetMapForageObstacle(record, mapState, index);
+    GameStateMapObstacleRecord & obstacle = record;
+    i32 requiredPower = 0;
+    if (stoneTool)
+    {
+        switch (obstacle.kind)
+        {
+        case 0x13:
+            requiredPower = 2;
+            break;
+        case 0x14:
+            requiredPower = 7;
+            break;
+        default:
+            return false;
+        }
+    }
+    else
+    {
+        switch (obstacle.kind)
+        {
+        case 0x12:
+            break;
+        case 0x15:
+            requiredPower = 1;
+            break;
+        default:
+            return false;
+        }
+    }
+
+    result.additionalAction = false;
+    i32 remainingPower = power - requiredPower;
+    if (remainingPower > 0)
+    {
+        if (obstacle.kind != 0x12)
+            SubtractMapAvailabilityCount(mapState, index, remainingPower);
+        if (obstacle.kind == 0x12 || GetMapAvailabilityCount(mapState, index) == 0)
+        {
+            ClearMapAvailabilityBit(mapState, index, bit);
+            result.removed = true;
+            result.x = obstacle.x;
+            result.y = obstacle.y;
+            switch (obstacle.kind)
+            {
+            case 0x15:
+                farm.method_08009B68(6);
+                result.effectId = 7;
+                break;
+            case 0x12:
+                farm.method_08009B68(1);
+                result.effectId = 4;
+                break;
+            case 0x13:
+                result.effectId = 6;
+                break;
+            case 0x14:
+                result.effectId = 9;
+                break;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+struct GameStateFrameTaskNode
+{
+    GameStateFrameTaskNode()
+    {
+        vtable = gTaskNodeVtable;
+        previous = nullptr;
+        next = nullptr;
+    }
+
+    GameStateFrameTaskNode ** previous;
+    GameStateFrameTaskNode * next;
+    void const * vtable;
+};
+
+template <u8 const * TaskVtable> struct GameStateFrameTask
+{
+    explicit GameStateFrameTask(void * taskContext)
+    {
+        node.vtable = TaskVtable;
+        context = taskContext;
+    }
+
+    ~GameStateFrameTask() { TaskNode_Destroy(&node, 2); }
+
+    GameStateFrameTaskNode node;
+    void * context;
+};
+
+struct GameStateFrameTaskListNode : public GameStateFrameTaskNode
+{
+    GameStateFrameTaskListNode() { vtable = gTaskListVtable; }
+};
+
+struct GameStateFrameTaskEndNode : public GameStateFrameTaskNode
+{
+    GameStateFrameTaskEndNode() { vtable = vtable_unk_080E5BD8; }
+};
+
+struct GameStateFrameTaskList
+{
+    GameStateFrameTaskList() : first(&sentinel)
+    {
+        sentinel.previous = &first;
+        sentinel.next = &sentinel;
+    }
+
+    ~GameStateFrameTaskList() { TaskList_Destroy(this, 2); }
+
+    GameStateFrameTaskListNode node;
+    GameStateFrameTaskNode * first;
+    GameStateFrameTaskEndNode sentinel;
+};
+
+struct GameStateFrameTaskDispatch
+{
+    GameStateFrameTaskNode ** previous;
+    GameStateFrameTaskNode * next;
+
+    virtual bool Run();
+    virtual ~GameStateFrameTaskDispatch();
+    virtual void Append(void * node);
+    virtual void Remove(void * node);
+};
+
+EC GameStateFrameTaskDispatch & VBlankDispatcher_GetTasks(void * dispatcher);
+EC void VBlankDispatcher_Wait(void * dispatcher);
+
+// 0x08011CD8
+EC void SECTION(".text.game_state_08011CD8") GameState_RunVBlankFrameTasks(GameStateRuntime & runtime, void * oamBuffer)
+{
+    u8 * hardware = reinterpret_cast<u8 *>(&runtime);
+    GameStateFrameTask<vtable_unk_080E5AF0> display(hardware + 0x10);
+    GameStateFrameTask<vtable_unk_080E5AE0> oam(oamBuffer);
+    GameStateFrameTask<vtable_unk_080E5AD0> dma(hardware);
+    GameStateFrameTaskList tasks;
+    TaskList_Append(&tasks, hardware + 0x6C);
+    TaskList_Append(&tasks, &display);
+    TaskList_Append(&tasks, &dma);
+    TaskList_Append(&tasks, &oam);
+    void * dispatcher = hardware + 0x68;
+    VBlankDispatcher_GetTasks(dispatcher).Append(&tasks);
+    VBlankDispatcher_Wait(dispatcher);
+    VBlankDispatcher_GetTasks(dispatcher).Remove(&tasks);
+}
+
 // 0x08013E6C
 EC void SECTION(".text.game_state_08013E6C") GameScript_QueueSceneVariant2E(GameStateScript & script)
 {
@@ -461,7 +772,7 @@ struct GameStateSceneContainerFactory
     void * argument;
 };
 
-EC GameStateSceneContainerFactory & func_0803B6FC(GameStateSceneContainerFactory & self, GameStateSceneFactoryOwner factory, void * argument);
+EC GameStateSceneContainerFactory & InitializeScriptSceneFactory(GameStateSceneContainerFactory & self, GameStateSceneFactoryOwner factory, void * argument);
 
 // 0x08013EF8
 EC void SECTION(".text.game_state_08013EF8") GameScript_QueueSceneVariant2F(GameStateScript & script, void * argument)
@@ -470,7 +781,7 @@ EC void SECTION(".text.game_state_08013EF8") GameScript_QueueSceneVariant2F(Game
     GameScriptSceneSpec spec;
     spec.variant = 0x2F;
     GameStateSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
-    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(&func_0803B6FC(*new GameStateSceneContainerFactory, factory, argument));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(&InitializeScriptSceneFactory(*new GameStateSceneContainerFactory, factory, argument));
     runtime.pendingCommand = 0x18;
 }
 
@@ -560,6 +871,30 @@ struct GameStateScriptEngine : public ScriptEngine
     virtual int OnCall(int id);
 };
 
+struct GameStateScriptEvent
+{
+    GameStateScriptEvent(u32 id, u32 argument) : id(id), argument(argument) {}
+
+    u32 id;
+    u32 argument;
+};
+
+template <u32 Capacity> struct GameStateScriptEventQueue
+{
+    void Push(GameStateScriptEvent const & event)
+    {
+        if (count < Capacity)
+        {
+            u32 offset = sizeof(count) + count * sizeof(GameStateScriptEvent);
+            new (reinterpret_cast<u8 *>(this) + offset) GameStateScriptEvent(event);
+            count++;
+        }
+    }
+
+    u32 count;
+    GameStateScriptEvent events[Capacity];
+};
+
 struct GameStateGlobal
 {
     GameStateGlobal();
@@ -568,9 +903,31 @@ struct GameStateGlobal
     GameStateScriptEngine engine;
     STRUCT_PAD(0x364, 0x36C);
     GameStateGlobalStatus status;
+    GameStateScriptEventQueue<2> smallEventQueue;
+    GameStateScriptEventQueue<40> largeEventQueue;
+    GameStateScriptEventQueue<1> singleEventQueue;
 };
 
 extern GameStateGlobal * gActiveGameScene;
+
+// 0x08012B24
+EC void SECTION(".text.game_state_08012B24") GameScript_QueueSceneEvent(GameStateScript & script, GameStateScriptEvent const & event, i32 queue)
+{
+    GameStateGlobal & game = *gActiveGameScene;
+    GameStateScriptEventQueue<2> & small = game.smallEventQueue;
+    switch (queue)
+    {
+    case 0:
+        small.Push(event);
+        break;
+    case 1:
+        game.largeEventQueue.Push(event);
+        break;
+    case 2:
+        game.singleEventQueue.Push(event);
+        break;
+    }
+}
 
 // 0x08016D9C
 EC u32 SECTION(".text.game_state_08016D9C") GameScript_GetReturnMap()
@@ -614,6 +971,46 @@ EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 EC void AudioPlayer_FadeOut(void * self, u32 speed);
+
+struct G1NpcSchedule;
+EC void AdvanceNpcScheduleDailyCounter(G1NpcSchedule * schedule);
+
+// 0x08016FA4
+EC void SECTION(".text.game_state_08016FA4") GameScript_SetActorMapLocation(GameStateScript & script, i32 actorId, u32 mapId, i32 x, i32 y, i32 facing)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u32 targetMapId = mapId;
+    if (actorId <= 0x49)
+    {
+        AActorEntity * actor = runtime.scene->GetActor(actorId);
+        if (actor != nullptr)
+        {
+            actor->SetLocation(ActorLocation(Location(targetMapId, x, y), facing));
+            actor->vfunc_20();
+        }
+    }
+    else
+    {
+        AEntity * entity = runtime.scene->GetActor(actorId);
+        if (entity != nullptr)
+        {
+            entity->SetLocation(Location(targetMapId, x, y));
+            entity->vfunc_20();
+        }
+    }
+    if (actorId == 0)
+    {
+        if (targetMapId == 0x19)
+            AdvanceNpcScheduleDailyCounter(reinterpret_cast<G1NpcSchedule *>(runtime.saveData + 0x1CD4));
+        i32 mineFloor = 0;
+        if (targetMapId - 0x35 <= 0xFE)
+            mineFloor = targetMapId - 0x34;
+        else if (targetMapId - 0x135 <= 0xFE)
+            mineFloor = targetMapId - 0x134;
+        if (mineFloor > 0)
+            func_0800EECC(*reinterpret_cast<Farmer *>(runtime.saveData + 0x1BD8), mineFloor);
+    }
+}
 
 // 0x080122E0
 EC void SECTION(".text.game_state_080122E0") GameScript_WarpToLocation(GameStateScript & script, u32 mapId, i32 x, i32 y)

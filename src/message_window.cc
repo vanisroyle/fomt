@@ -952,3 +952,84 @@ EC SECTION(".text.message_window.08050E98") u32 ClearMessageWindowButtonMask(Mes
     state->inputFlags.buttons = previous & ~mask;
     return previous;
 }
+
+inline void ClearMessageGlyphTile(MessageGlyphTile * tile)
+{
+    void * buffer = tile->tileBuffer;
+    FillMessageTiles(MessageTileSize(4, 2), (u8 *) buffer + 4, 0);
+    tile->dirty = tile->allocation[1] != 0;
+}
+
+inline void ClearMessageGlyphRow(MessageGlyphTile * tiles)
+{
+    for (i32 column = 0; column <= 6; ++column)
+        ClearMessageGlyphTile(tiles + column);
+}
+
+EC SECTION(".text.message_rendering.0804F060") void AdvanceMessageTextLine(MessageTextCursor * cursor)
+{
+    if (cursor->row <= 1)
+    {
+        ++cursor->row;
+        return;
+    }
+    ++cursor->firstRow;
+    if (cursor->firstRow > 2) cursor->firstRow = 0;
+    i32 physicalRow = cursor->firstRow + 2;
+    if (physicalRow > 2) physicalRow = cursor->firstRow - 1;
+    ClearMessageGlyphRow(*((MessageGlyphTile **) ((u8 *) cursor + physicalRow * 4) + 2));
+    cursor->needsClear = 1;
+    cursor->changed = 1;
+}
+
+inline bool IsMessagePixelAligned(u32 value) { return (value & 7) == 0; }
+
+inline u32 ExpandMessagePixelColor(u32 color)
+{
+    color &= 15;
+    color |= color << 4;
+    color |= color << 8;
+    color |= color << 16;
+    return color;
+}
+
+EC SECTION(".text.message_rendering.0804E7DC") void FillMessagePixelRect(MessageTileSize size, void * pixels, u32 x, u32 y, u32 width, u32 height, u32 color)
+{
+    register u32 pattern = ExpandMessagePixelColor(color);
+    u32 fill;
+    u32 columns = size.width;
+    u32 rows = size.height;
+    u32 pixelWidth = columns * 8;
+    u32 pixelHeight = rows * 8;
+    i32 columnBytes;
+    if (x == 0 && y == 0 && width >= pixelWidth && height >= pixelHeight)
+    {
+        columnBytes = rows * 32;
+        u32 bufferBytes = columns * columnBytes;
+        fill = pattern;
+        CpuFastSet(&fill, pixels, ((bufferBytes >> 2) & 0x1fffff) | 0x1000000);
+        return;
+    }
+    if (x < columns && y < rows)
+    {
+        if (x + width >= pixelWidth)
+        {
+            // matches original codegen
+            do { width = pixelWidth - x; } while (0);
+        }
+        if (y + height >= pixelHeight) height = pixelHeight - y;
+        if (IsMessagePixelAligned(x) && IsMessagePixelAligned(y) && IsMessagePixelAligned(width) && IsMessagePixelAligned(height))
+        {
+            u32 count = height >> 3;
+            u8 * destination = (u8 *) pixels + (((y >> 3) * columns + (x >> 3)) * 32);
+            u32 stride = columns * 32;
+            u32 words = (((width >> 3) * 32) >> 2) & 0x1fffff;
+            do
+            {
+                fill = pattern;
+                CpuFastSet(&fill, destination, words | 0x1000000);
+                destination += stride;
+            } while (--count);
+        }
+    }
+}

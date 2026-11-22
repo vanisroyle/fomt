@@ -98,6 +98,8 @@ SECTIONS
         asm/new_game.o(.text);
         src/new_game.o(.text.func_08003C28);
         asm/new_game.o(.text.after_08003C28);
+        src/new_game.o(.text.func_08003DF0);
+        src/new_game.o(.text.func_08003E88);
         src/new_game.o(.text.func_08003EEC);
         asm/new_game.o(.text.after_08003EEC);
         src/new_game.o(.text.func_08004B58);
@@ -129,11 +131,13 @@ SECTIONS
         src/new_game.o(.text.func_08006334);
         asm/new_game.o(.text.after_08006334);
         src/new_game.o(.text.func_08006858);
-        asm/new_game.o(.text.after_08006858);
+        src/new_game.o(.text.func_080068CC);
+        asm/new_game.o(.text.after_080068CC);
         src/new_game.o(.text.func_08006C28);
         asm/new_game.o(.text.after_08006C28);
         src/new_game.o(.text.func_08006C60);
         asm/new_game.o(.text.after_08006C60);
+        src/new_game.o(.text.func_08006CDC);
         src/new_game.o(.text.func_08006ED8);
         asm/new_game.o(.text.after_08006ED8);
         src/new_game.o(.text.func_08007078);
@@ -141,7 +145,7 @@ SECTIONS
         src/new_game.o(.text.func_080070A4);
         asm/new_game.o(.text.after_080070A4);
         src/new_game.o(.text.func_08007110);
-        asm/new_game.o(.text.after_08007110);
+        src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
         asm/hardware.o(.text.handle_alloc);
         src/hardware.o(.text.handle_retain);
@@ -372,7 +376,7 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08010348);
         asm/game_state.o(.text.game_state_08010358);
         src/game_state_part1.o(.text.game_state_08010E48);
-        asm/game_state.o(.text.game_state_08010E68);
+        src/game_state_part1.o(.text.game_state_08010E68);
         src/game_state_part1.o(.text.game_state_08010F04);
         asm/game_state.o(.text.game_state_08010F0C);
         src/game_state_part1.o(.text.game_state_08010F0C);
@@ -400,8 +404,10 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08011588);
         asm/game_state.o(.text.game_state_080115A8);
         src/game_state_part1.o(.text.game_state_080115A8);
-        asm/game_state.o(.text.game_state_080115B0);
+        src/game_state_part1.o(.text.game_state_080115B0);
         asm/game_state.o(.text.game_state_08011650);
+        src/game_state_part1.o(.text.game_state_08011CD8);
+        asm/game_state.o(.text.game_state_08011DC4);
         src/game_state_part1.o(.text.game_state_08011FE8);
         asm/game_state.o(.text.game_state_08012028);
         src/game_state_part1.o(.text.game_state_08012064);
@@ -468,9 +474,11 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08012ADC);
         src/game_state_part1.o(.text.game_state_08012B04);
         asm/game_state.o(.text.game_state_08012B04);
-        asm/game_state.o(.text.game_state_08012B24);
+        src/game_state_part1.o(.text.game_state_08012B24);
         src/game_state_part1.o(.text.game_state_08012BAC);
         asm/game_state.o(.text.game_state_08012BBC);
+        src/game_state_part1.o(.text.game_state_08013D04);
+        asm/game_state.o(.text.game_state_08013DC8);
         src/game_state_part1.o(.text.game_state_08013E6C);
         src/game_state_part1.o(.text.game_state_08013EF8);
         asm/game_state.o(.text.game_state_08013F88);
@@ -507,7 +515,7 @@ SECTIONS
         asm/game_state.o(.text.game_state_080146FC);
         src/game_state_part1.o(.text.game_state_08014BD8);
         src/game_state_part1.o(.text.game_state_08014C0C);
-        asm/game_state.o(.text.game_state_08014C34);
+        src/game_state_part1.o(.text.game_state_08014C34);
         src/game_state_part1.o(.text.game_state_08014D30);
         src/game_state_part1.o(.text.game_state_08014D5C);
         asm/game_state.o(.text.game_state_08014D7C);
@@ -571,11 +579,13 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08016F34);
         asm/game_state.o(.text.game_state_08016F60);
         src/game_state_part1.o(.text.game_state_08016F60);
-        asm/game_state.o(.text.game_state_08016FA4);
+        src/game_state_part1.o(.text.game_state_08016FA4);
+        asm/game_state.o(.text.game_state_08017180);
         asm/game_state.o(.text.game_state_080171F8);
         src/game_state_part1.o(.text.game_state_0801740C);
         src/game_state_part1.o(.text.game_state_0801746C);
-        asm/game_state.o(.text.game_state_080174C8);
+        src/game_state_part1.o(.text.game_state_080174C8);
+        asm/game_state.o(.text.game_state_080175B4);
         src/game_state_part1.o(.text.game_state_08017C00);
         asm/game_state.o(.text.game_state_08017C30);
         *(SORT_BY_NAME(.text.game_state_c2.*));
@@ -886,19 +896,20 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.0803A8A0);
 
         src/code_0803A8A4.o(.text.0803A8A4);
-        asm/code_0803A8A4.o(.text);
+        src/code_0803A8A4.o(.text.0803AB30);
         src/code_0803A8A4.o(.text.0803AC78);
-        asm/code_0803A8A4.o(.text.0803ACD8);
+        src/code_0803A8A4.o(.text.0803ACD8);
         src/fixed_sprite_overlay_draw.o(.text.0803AE58);
-        asm/code_0803A8A4.o(.text.0803AEA0);
+        src/code_0803A8A4.o(.text.0803AEA0);
         src/code_0803A8A4.o(.text.0803B0A8);
-        asm/code_0803A8A4.o(.text.0803B128);
+        src/code_0803A8A4.o(.text.0803B128);
         src/code_0803A8A4.o(.text.0803B2A8);
         src/map_overlay_draw.o(.text.0803B368);
         src/code_0803A8A4.o(.text.0803B454);
         src/code_0803A8A4.o(.text.0803B4DC);
         src/code_0803A8A4.o(.text.0803B6B8);
-        asm/code_0803A8A4.o(.text.0803B718);
+        src/script_scene.o(.text.0803B6FC);
+        src/script_scene.o(.text.0803B718);
         src/code_0803A8A4.o(.text.0803B840);
         asm/code_0803A8A4.o(.text.0803B8CC);
         src/code_0803A8A4.o(.text.0803BCF8);
@@ -909,16 +920,17 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803C00C);
         asm/code_0803A8A4.o(.text.0803C028);
         src/code_0803A8A4.o(.text.0803C518);
-        asm/code_0803A8A4.o(.text.0803C5B0);
-        src/code_0803A8A4.o(.text.0803C7A0);
+        src/clock_display.o(.text.0803C5B0);
+        src/clock_display.o(.text.0803C7A0);
         asm/code_0803A8A4.o(.text.0803C7C8);
+        src/code_0803A8A4.o(.text.0803CD4C);
         src/code_0803A8A4.o(.text.0803D080);
         src/code_0803A8A4.o(.text.0803D0F0);
         src/code_0803A8A4.o(.text.0803D240);
         src/code_0803A8A4.o(.text.0803D2E8);
         src/code_0803A8A4.o(.text.0803D464);
         src/code_0803A8A4.o(.text.0803D4D8);
-        asm/code_0803A8A4.o(.text.0803D52C);
+        src/code_0803A8A4.o(.text.0803D52C);
         src/code_0803A8A4.o(.text.0803D644);
         src/code_0803A8A4.o(.text.0803D688);
         src/code_0803A8A4.o(.text.0803D7E4);
@@ -980,12 +992,12 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809E0AC);
         src/code_actor_0809BFE8.o(.text.0809E118);
         src/code_actor_0809BFE8.o(.text.0809E174);
-        asm/code_actor_0809BFE8.o(.text.0809E1B4);
+        src/code_actor_0809BFE8.o(.text.0809E1B4);
         src/npc.o(.text);
         src/bachelorette.o(.text);
         src/harvest_sprite.o(.text);
 
-        asm/g1_npc.o(.text.g1_start);
+        src/g1_sprite_location.o(.text.g1_0809E804);
         src/g1_events.o(.text.g1_0809E8E4);
         asm/g1_npc.o(.text.g1_after_b2_0809E8E4);
         src/g1_schedule_extra.o(.text.g1_0809E968);
@@ -1112,6 +1124,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A1478);
         src/g1_npc.o(.text.g1_080A1480);
         asm/g1_npc.o(.text.g1_after_080A1480);
+        src/g1_roster_penalty.o(.text.g1_080A1484);
+        asm/g1_npc.o(.text.g1_after_b11_080A1484);
         src/g1_roster.o(.text.g1_080A17A0);
         asm/g1_npc.o(.text.g1_after_b3_080A17A0);
         src/g1_roster.o(.text.g1_080A1890);
@@ -1138,6 +1152,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1EF4);
         src/g1_map_counts.o(.text.g1_080A1FC4);
         asm/g1_npc.o(.text.g1_after_b4_080A1FC4);
+        src/g1_calendar_numbers.o(.text.g1_080A3588);
+        asm/g1_npc.o(.text.g1_after_b9_080A3588);
         src/g1_scene_wrapper.o(.text.g1_080A3744);
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
@@ -1183,12 +1199,16 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A5A9C);
         src/g1_map_reload.o(.text.g1_080A5BD8);
         asm/g1_npc.o(.text.g1_after_b3_080A5BD8);
+        src/g1_map_reload.o(.text.g1_080A5CC0);
+        asm/g1_npc.o(.text.g1_after_b11_080A5CC0);
         src/g1_map_reload.o(.text.g1_080A5D14);
         asm/g1_npc.o(.text.g1_after_b3_080A5D14);
         src/g1_map_reload.o(.text.g1_080A5DB8);
         asm/g1_npc.o(.text.g1_after_b3_080A5DB8);
         src/g1_npc.o(.text.g1_080A5EA0);
         asm/g1_npc.o(.text.g1_after_080A5EA0);
+        src/g1_map_tiles.o(.text.g1_080A5F78);
+        asm/g1_npc.o(.text.g1_after_b11_080A5F78);
         src/g1_npc.o(.text.g1_080A601C);
         asm/g1_npc.o(.text.g1_after_080A601C);
         src/g1_map.o(.text.g1_080A6024);
@@ -1223,7 +1243,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A6640);
         asm/code_809E804.o(.text);
         src/g1_map_buffers.o(.text.080AA540);
-        asm/code_809E804.o(.text.080AA6D0);
+        src/game_state_part2.o(.text.080AA6D0);
         src/map_updates.o(.text.080AA850);
         src/map_updates.o(.text.080AA89C);
         src/map_updates.o(.text.080AA8BC);
@@ -1232,7 +1252,7 @@ SECTIONS
         asm/code_809E804.o(.text.080AA9C8);
         src/map_updates.o(.text.080AACB8);
         src/map_updates.o(.text.080AAE14);
-        asm/code_809E804.o(.text.080AAE44);
+        src/map_updates.o(.text.080AAE44);
         src/map_updates.o(.text.080AAF10);
         src/map_updates.o(.text.080AAF1C);
         src/map_updates.o(.text.080AAF28);
@@ -1255,9 +1275,12 @@ SECTIONS
         src/entity_movement.o(.text.080ABBC4);
         src/entity_movement.o(.text.080ABBEC);
         src/entity_movement.o(.text.080ABC14);
-        asm/code_809E804.o(.text.080ABC40);
+        src/entity_movement.o(.text.080ABC40);
+        src/entity_movement.o(.text.080ABE58);
         src/entity_movement.o(.text.080AC070);
-        asm/code_809E804.o(.text.080AC124);
+        src/entity_movement.o(.text.080AC124);
+        src/entity_movement.o(.text.080AC388);
+        src/entity_movement.o(.text.080AC5D0);
         src/map_scene.o(.text.080AC674);
         src/map_scene.o(.text.080AC85C);
         src/game_state_part2.o(.text.080AC96C);
@@ -1270,6 +1293,7 @@ SECTIONS
         src/map_scene.o(.text.080AD69C);
         src/map_scene.o(.text.080AD724);
         asm/code_809E804.o(.text.080AD774);
+        src/map_scene.o(.text.080AD77C);
         src/map_scene.o(.text.080AD8C4);
         src/map_scene.o(.text.080AD938);
         src/map_scene.o(.text.080AD944);
@@ -1340,7 +1364,7 @@ SECTIONS
         asm/code_809E804.o(.text.080B1D94);
         src/chicken_feeding.o(.text.080B34DC);
         src/chicken_feeding.o(.text.080B3518);
-        asm/code_809E804.o(.text.080B36B4);
+        src/chicken_feeding.o(.text.080B36B4);
         src/g3_chicken_festival.o(.text.g3_080B3948);
         asm/code_809E804.o(.text.g3_after_080B3948);
         src/g3_state.o(.text.g3_080B3990);
@@ -1413,6 +1437,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080B9F38);
         src/g3_chicken_festival.o(.text.g3_080B9F64);
         asm/code_809E804.o(.text.g3_after_080B9F64);
+        src/g3_chicken_festival.o(.text.g3_080BA0C4);
+        asm/code_809E804.o(.text.g3_after_080BA0C4);
         src/g3_chicken_festival.o(.text.g3_080BA1A4);
         asm/code_809E804.o(.text.g3_after_080BA1A4);
         src/g3_state.o(.text.g3_080BA1F4);
@@ -1423,6 +1449,8 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080BA1FC);
         src/g3_state.o(.text.g3_080BA200);
         asm/code_809E804.o(.text.g3_after_080BA200);
+        src/g3_chicken_festival.o(.text.g3_080BA204);
+        asm/code_809E804.o(.text.g3_after_080BA204);
         src/g3_chicken_festival.o(.text.g3_080BA284);
         asm/code_809E804.o(.text.g3_after_080BA284);
         src/g3_chicken_festival.o(.text.g3_080BA2C4);
@@ -1501,6 +1529,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CD950);
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
+        src/g5_navigation.o(.text.g5_080CDB08);
+        asm/code_080C8360.o(.text.g5_after_080CDB08);
         src/g5_navigation.o(.text.g5_080CDD7C);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);
@@ -1535,6 +1565,7 @@ SECTIONS
         src/g5_runtime.o(.text.g5_080D035C);
         src/g5_runtime.o(.text.g5_requests);
         asm/code_080D035C.o(.text.g5_0490);
+        src/g5_buffer_exchange.o(.text.g5_080D0558);
         src/g5_runtime.o(.text.g5_transfer);
         asm/code_080D035C.o(.text.g5_after_transfer);
         src/g5_runtime.o(.text.g5_080D0644);
@@ -1611,11 +1642,17 @@ SECTIONS
     __iwram_vma_end = ADDR(.iwram) + SIZEOF(.iwram);
     __iwram_lma     = LOADADDR(.iwram);
 
-    .pad : ALIGN(4)
+    .rom_tail : ALIGN(4)
     {
         LONG(0);
-        . = 0x08800000 - 0x0875C240;
+        *(.script_overflow);
+        . = ALIGN(4);
+        *(.vietnamese_font);
+        . = ALIGN(0x800000);
     } > ROM = 0xFF
+
+    ASSERT(ADDR(.rom_tail) == 0x0875C240, "original ROM suffix moved")
+    ASSERT(ADDR(.rom_tail) + SIZEOF(.rom_tail) <= 0x0A000000, "ROM exceeds 32 MiB")
 
     /* DWARF 2 sections */
     .debug_aranges  0 : { *(.debug_aranges) }
