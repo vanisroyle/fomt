@@ -342,7 +342,7 @@ gMedalExchangePrizeItemIds:
 
 	.global gUnk_080FB1E4
 gUnk_080FB1E4:
-	.incbin "baserom.gba", 0xFB1E4, 0x50
+	.include "build/assets/graphics-rest-table.s"
 
 	.global gChildhoodMemorySpeakerMother
 .set gChildhoodMemorySpeakerMother, gNonScriptText_0FB234
