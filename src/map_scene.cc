@@ -1,6 +1,7 @@
 #include "prelude.h"
 
 #include "actor.hh"
+#include "fixed_sprite_overlay.hh"
 #include "sprite_animation.hh"
 #include "unknown_types.hh"
 
@@ -43,7 +44,6 @@ struct MapSceneAnimationSlot
     STRUCT_PAD(0x08, 0x30);
 };
 
-struct MapSceneOverlay;
 struct GameStateSpriteCache;
 struct MapTileEffectQueue;
 
@@ -81,16 +81,16 @@ struct MapScene
     MapUpdateState * map;
     MapSceneEntity * entities[100];
     STRUCT_PAD(0x198, 0x1BC);
-    MapSceneObjectPalette objectPalettes[16];
-    STRUCT_PAD(0x9FC, 0xDB0);
+    MapSceneObjectPalette objectPalettes[22];
+    STRUCT_PAD(0xD14, 0xDB0);
     MapSceneAnimationSlot animations[13];
     STRUCT_PAD(0x1020, 0x1024);
-    MapSceneOverlay * overlay;
+    FixedSpriteOverlay * overlay;
     MapTileEffectQueue * tileEffects;
     MapSceneEffectSlot effect;
 };
 
-EC void func_080AB68C(MapTileEffectQueue *, int, int, u32);
+EC void ScheduleMapTileEffect(MapTileEffectQueue *, int, int, u32);
 EC i32 AssignMapSceneSpriteCacheSlot(GameStateSpriteCache &, u32);
 
 struct MapSceneTerrainSource
@@ -130,10 +130,8 @@ EC void ApplyMapRow15PatchB(G1MapState * map);
 EC void ApplyMapRow15PatchA(G1MapState * map);
 EC void StartMapTransitionDelay(u8 * self);
 EC bool IsMapTransitionIdle(u8 * self);
-EC void DestroyFixedSpriteOverlay(MapSceneOverlay *, unsigned);
-EC void func_080AB2E4(MapTileEffectQueue *, unsigned);
+EC void DestroyMapTileEffectQueue(MapTileEffectQueue *, unsigned);
 EC void LoadMapAtLocation(G1MapState *, Location const *, void *, void *, void *);
-EC MapSceneOverlay * func_0803AB30(void *, MapScene *);
 EC MapTileEffectQueue * func_080AAFC8(void *, MapScene *, unsigned);
 EC void UpdateMapTileEffectQueue(MapTileEffectQueue &);
 
@@ -289,7 +287,7 @@ struct MapSceneContents
     MapSceneResourceSlot resources[13];
     u8 resourceFlags[2];
     MapSceneAnimationSlot animations[13];
-    MapSceneOverlay * overlay;
+    FixedSpriteOverlay * overlay;
     MapTileEffectQueue * tileEffects;
     MapSceneEffectSlot effect;
 };
@@ -457,9 +455,9 @@ EC SECTION(".text.080AC674") MapSceneContents * InitializeMapSceneContents(MapSc
     InitSpriteAnimationData(reinterpret_cast<SpriteAnimationData *>(&contents->animations[12]), gUnk_086F2FAC);
     register unsigned overlayOffset asm("r2") = offsetof(MapSceneContents, overlay);
     asm ("" : "+l" (overlayOffset));
-    register MapSceneOverlay ** overlay asm("r0") = reinterpret_cast<MapSceneOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
+    register FixedSpriteOverlay ** overlay asm("r0") = reinterpret_cast<FixedSpriteOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
     asm ("" : "+l" (overlay));
-    *overlay = reinterpret_cast<MapSceneOverlay *>(clear);
+    *overlay = reinterpret_cast<FixedSpriteOverlay *>(clear);
     animationOffset += offsetof(MapSceneContents, tileEffects) - (offsetof(MapSceneContents, animations) + 11 * sizeof(MapSceneAnimationSlot));
     asm ("" : "+l" (animationOffset));
     *reinterpret_cast<MapTileEffectQueue **>(reinterpret_cast<u8 *>(contents) + animationOffset) = reinterpret_cast<MapTileEffectQueue *>(clear);
@@ -533,12 +531,12 @@ EC SECTION(".text.080AC85C") void DestroyMapSceneContents(MapSceneContents * inp
     asm ("" : "+l" (queueSlot));
     MapTileEffectQueue * queue = *queueSlot;
     if (queue)
-        func_080AB2E4(queue, 3);
+        DestroyMapTileEffectQueue(queue, 3);
     register unsigned overlayOffset asm("r1") = offsetof(MapSceneContents, overlay);
     asm ("" : "+l" (overlayOffset));
-    register MapSceneOverlay ** overlaySlot asm("r0") = reinterpret_cast<MapSceneOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
+    register FixedSpriteOverlay ** overlaySlot asm("r0") = reinterpret_cast<FixedSpriteOverlay **>(reinterpret_cast<u8 *>(contents) + overlayOffset);
     asm ("" : "+l" (overlaySlot));
-    MapSceneOverlay * overlay = *overlaySlot;
+    FixedSpriteOverlay * overlay = *overlaySlot;
     if (overlay)
         DestroyFixedSpriteOverlay(overlay, 3);
     register unsigned animationOffset asm("r2") = offsetof(MapSceneContents, animations) + 12 * sizeof(MapSceneAnimationSlot);
@@ -817,11 +815,12 @@ EC SECTION(".text.080AC9EC") MapScene * ConstructMapScene(void * memory, void **
     asm ("" : "+l" (map), "+l" (position));
     LoadMapAtLocation(reinterpret_cast<G1MapState *>(map), reinterpret_cast<Location const *>(position), 0, 0, reinterpret_cast<void *>(30));
 
-    register MapSceneOverlay * overlay asm("r0") = func_0803AB30(operator new(0xA0), scene);
+    register FixedSpriteOverlay * overlay asm("r0") = InitializeFixedSpriteOverlay(
+        operator new(sizeof(FixedSpriteOverlay)), reinterpret_cast<OverlaySpriteResources *>(scene));
     asm ("" : "+l" (overlay));
-    register MapSceneOverlay ** overlaySlot asm("r5") = &scene->overlay;
+    register FixedSpriteOverlay ** overlaySlot asm("r5") = &scene->overlay;
     asm ("" : "+l" (overlaySlot));
-    MapSceneOverlay * nextOverlay = overlay;
+    FixedSpriteOverlay * nextOverlay = overlay;
     asm ("" : "+l" (nextOverlay));
     if (nextOverlay != *overlaySlot && *overlaySlot)
         DestroyFixedSpriteOverlay(*overlaySlot, 3);
@@ -834,7 +833,7 @@ EC SECTION(".text.080AC9EC") MapScene * ConstructMapScene(void * memory, void **
     register MapTileEffectQueue * emptyQueue asm("r5") = 0;
     asm ("" : "+l" (emptyQueue));
     if (emptyQueue != *queueSlot && *queueSlot)
-        func_080AB2E4(*queueSlot, 3);
+        DestroyMapTileEffectQueue(*queueSlot, 3);
     *queueSlot = emptyQueue;
 
     void * queueMemory = operator new(4);
@@ -846,7 +845,7 @@ EC SECTION(".text.080AC9EC") MapScene * ConstructMapScene(void * memory, void **
     MapTileEffectQueue * nextQueue = queue;
     asm ("" : "+l" (nextQueue));
     if (nextQueue != *targetQueue && *targetQueue)
-        func_080AB2E4(*targetQueue, 3);
+        DestroyMapTileEffectQueue(*targetQueue, 3);
     *targetQueue = nextQueue;
 
     for (unsigned slot = 0; slot < 100; ++slot)
@@ -879,9 +878,9 @@ EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, Loca
     }
     register unsigned overlayOffset asm("r1") = offsetof(MapScene, overlay);
     asm ("" : "+l" (overlayOffset));
-    register MapSceneOverlay ** overlaySlot asm("r4") = reinterpret_cast<MapSceneOverlay **>(reinterpret_cast<u8 *>(&scene) + overlayOffset);
+    register FixedSpriteOverlay ** overlaySlot asm("r4") = reinterpret_cast<FixedSpriteOverlay **>(reinterpret_cast<u8 *>(&scene) + overlayOffset);
     asm ("" : "+l" (overlaySlot));
-    register MapSceneOverlay * emptyOverlay asm("r5") = 0;
+    register FixedSpriteOverlay * emptyOverlay asm("r5") = 0;
     asm ("" : "+l" (emptyOverlay));
     if (emptyOverlay != *overlaySlot && *overlaySlot)
         DestroyFixedSpriteOverlay(*overlaySlot, 3);
@@ -893,14 +892,15 @@ EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, Loca
     register MapTileEffectQueue * emptyQueue asm("r5") = 0;
     asm ("" : "+l" (emptyQueue));
     if (emptyQueue != *queueSlot && *queueSlot)
-        func_080AB2E4(*queueSlot, 3);
+        DestroyMapTileEffectQueue(*queueSlot, 3);
     *queueSlot = emptyQueue;
     LoadMapAtLocation(reinterpret_cast<G1MapState *>(scene.map), location, 0, 0, reinterpret_cast<void *>(30));
-    register MapSceneOverlay * overlay asm("r0") = func_0803AB30(operator new(0xA0), &scene);
+    register FixedSpriteOverlay * overlay asm("r0") = InitializeFixedSpriteOverlay(
+        operator new(sizeof(FixedSpriteOverlay)), reinterpret_cast<OverlaySpriteResources *>(&scene));
     asm ("" : "+l" (overlay));
-    register MapSceneOverlay ** targetOverlay asm("r5") = &scene.overlay;
+    register FixedSpriteOverlay ** targetOverlay asm("r5") = &scene.overlay;
     asm ("" : "+l" (targetOverlay));
-    MapSceneOverlay * nextOverlay = overlay;
+    FixedSpriteOverlay * nextOverlay = overlay;
     asm ("" : "+l" (nextOverlay));
     if (nextOverlay != *targetOverlay && *targetOverlay)
         DestroyFixedSpriteOverlay(*targetOverlay, 3);
@@ -914,7 +914,7 @@ EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, Loca
     MapTileEffectQueue * nextQueue = queue;
     asm ("" : "+l" (nextQueue));
     if (nextQueue != *targetQueue && *targetQueue)
-        func_080AB2E4(*targetQueue, 3);
+        DestroyMapTileEffectQueue(*targetQueue, 3);
     *targetQueue = nextQueue;
     entry = scene.entities;
     end = entry + 100;
@@ -930,6 +930,57 @@ EC SECTION(".text.080AD3B0") void ReloadMapSceneResources(MapScene & scene, Loca
         }
         while (entry != end);
     }
+}
+
+EC SECTION(".text.080AD5D8") unsigned ReserveMapSceneObjectPaletteSlot(MapScene & scene, unsigned paletteKind)
+{
+    unsigned slot;
+    u8 * flagAddress;
+    switch (paletteKind)
+    {
+    case 0:
+        return 0;
+    case 1:
+    case 2:
+    case 4:
+        return 1;
+    case 3:
+    case 5:
+        return 2;
+    case 14:
+        return 3;
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+        return 4;
+    case 6:
+    case 7:
+    case 8:
+    case 26:
+        return 5;
+    }
+
+    goto search;
+reserveSlot:
+    *reinterpret_cast<bool *>(flagAddress) = true;
+    return slot;
+search:
+    slot = 6;
+    flagAddress = reinterpret_cast<u8 *>(&scene.objectPalettes)
+        + 6 * sizeof(MapSceneObjectPalette) + offsetof(MapSceneObjectPalette, flag);
+    do
+    {
+        if (!*reinterpret_cast<bool *>(flagAddress))
+            goto reserveSlot;
+        flagAddress += sizeof(MapSceneObjectPalette);
+        ++slot;
+        asm ("" : "+l" (slot));
+        unsigned endSlot = ARRAY_COUNT(scene.objectPalettes);
+        if (slot >= endSlot)
+            break;
+    } while (true);
+    return ARRAY_COUNT(scene.objectPalettes) - 1;
 }
 
 EC SECTION(".text.080AD69C") MapSceneTerrainGrid & GetMapSceneTerrainGrid(MapSceneTerrainGrid & result, MapScene const & scene, u32 requestedMap)
@@ -1058,7 +1109,7 @@ EC SECTION(".text.080AD8C4") void QueueMapSceneTileEffect(MapScene & scene, int 
     asm ("" : "+l" (pixelY));
     offsetY += 56;
     asm ("" : "+l" (offsetY));
-    func_080AB68C(queue, pixelX, pixelY + offsetY, effect);
+    ScheduleMapTileEffect(queue, pixelX, pixelY + offsetY, effect);
 }
 
 EC SECTION(".text.080ADAFC") i32 GetMapSceneCachedSpriteSlot(MapScene & scene, u32 slot)
@@ -1098,11 +1149,21 @@ struct MapTileEffect
     u8 padding;
 };
 
+struct MapTileEffectDisplayOwner;
+
 struct MapTileEffectState
 {
-    STRUCT_PAD(0, 8);
+    MapTileEffectDisplayOwner * displayOwner;
+    STRUCT_PAD(4, 5);
+    u8 assetsChanged;
+    u8 effectQueued;
+    STRUCT_PAD(7, 8);
     MapTileEffectAssets assets[10];
-    STRUCT_PAD(0x350, 0x368);
+    STRUCT_PAD(0x350, 0x354);
+    u8 displaySlot;
+    STRUCT_PAD(0x355, 0x364);
+    u8 lastQueuedType;
+    STRUCT_PAD(0x365, 0x368);
     MapTileEffect effects[16];
 };
 
@@ -1112,6 +1173,225 @@ struct MapTileEffectQueue
 };
 
 EC void func_08007C28(MapTileEffectResource &, u32);
+EC u32 func_08007B54(MapTileEffectResource *, u32);
+
+EC SECTION(".text.080AB68C") void ScheduleMapTileEffect(MapTileEffectQueue * queue, int x, int y, u32 type)
+{
+    register int pixelY asm("r5") = y;
+    register u32 effectType asm("r2") = type;
+    MapTileEffectState * state = queue->state;
+    register unsigned index asm("r4") = 0;
+    do
+    {
+        register unsigned offset asm("r0") = index * sizeof(MapTileEffect);
+        register unsigned effectsOffset asm("r3") = offsetof(MapTileEffectState, effects);
+        offset += effectsOffset;
+        asm ("" : "+l" (offset));
+        register MapTileEffect * effect asm("r3") = reinterpret_cast<MapTileEffect *>(reinterpret_cast<u8 *>(state) + offset);
+        if (effect->active)
+            goto nextEffect;
+        {
+            effect->x = x;
+            effect->y = pixelY;
+            effect->active = 1;
+            effect->frames = 12;
+            effect->type = effectType;
+            register unsigned stride asm("r0") = sizeof(MapTileEffectAssets);
+            asm ("" : "+l" (stride));
+            stride *= effectType;
+            register u8 * assetBase asm("r0");
+            asm ("add %0, %1, %2" : "=l" (assetBase) : "l" (stride), "l" (state) : "cc");
+            register unsigned active asm("r0") = assetBase[offsetof(MapTileEffectState, assets)];
+            register unsigned typeOffset asm("r1") = offsetof(MapTileEffectState, lastQueuedType);
+            asm ("" : "+l" (typeOffset));
+            register u8 * lastType asm("sb") = reinterpret_cast<u8 *>(state) + typeOffset;
+            asm ("" : "+h" (lastType));
+            if (!active)
+            {
+                register unsigned tileCount asm("r1");
+                switch (effectType)
+                {
+                case 1:
+                case 2:
+                    tileCount = 2;
+                    break;
+                case 0:
+                default:
+                    tileCount = 3;
+                    break;
+                case 6:
+                case 7:
+                    tileCount = 5;
+                    break;
+                case 8:
+                    tileCount = 4;
+                    break;
+                case 9:
+                    tileCount = 6;
+                    break;
+                }
+                asm ("" : "+l" (tileCount));
+                register unsigned assetStride asm("r0") = sizeof(MapTileEffectAssets);
+                asm ("" : "+l" (assetStride));
+                register unsigned assetOffset asm("r5") = effectType;
+                assetOffset *= assetStride;
+                asm ("" : "+l" (assetOffset));
+                register u8 * assetAddress asm("r5");
+                asm ("add %0, %1, %2" : "=l" (assetAddress) : "l" (assetOffset), "l" (state) : "cc");
+                assetAddress += offsetof(MapTileEffectState, assets);
+                asm ("" : "+l" (assetAddress));
+                register unsigned allocationCount asm("r8") = tileCount;
+                register unsigned resourceIndex asm("r6") = 0;
+                register unsigned secondTypeOffset asm("r3") = offsetof(MapTileEffectState, lastQueuedType);
+                asm ("" : "+l" (secondTypeOffset));
+                lastType = reinterpret_cast<u8 *>(state) + secondTypeOffset;
+                asm ("" : "+h" (lastType));
+                MapTileEffectAssets * assets = reinterpret_cast<MapTileEffectAssets *>(assetAddress);
+                register MapTileEffectResource * resource asm("r4") = assets->resources;
+                asm ("" : "+l" (resource));
+                do
+                {
+                    register u32 previousHandle asm("r1") = resource->handle;
+                    register MapTileEffectResource * releaseResource asm("r0") = resource;
+                    asm ("" : "+l" (releaseResource));
+                    volatile u32 savedType = effectType;
+                    func_08007C28(*releaseResource, previousHandle);
+                    register u32 handle asm("r0") = func_08007B54(resource, allocationCount);
+                    resource->handle = handle;
+                    register u32 negatedHandle asm("r1") = -handle;
+                    asm ("" : "+l" (negatedHandle));
+                    negatedHandle |= handle;
+                    effectType = savedType;
+                    asm ("" : "+l" (effectType));
+                    if (static_cast<i32>(negatedHandle) >= 0)
+                        goto markAssetChange;
+                    ++resource;
+                    ++resourceIndex;
+                } while (resourceIndex <= 1);
+                assets->active = 1;
+                assets->loaded = 1;
+            markAssetChange:
+                {
+                    register unsigned changed asm("r0") = 1;
+                    asm ("" : "+l" (changed));
+                    state->assetsChanged = changed;
+                }
+            }
+            register unsigned queued asm("r0") = 1;
+            asm ("" : "+l" (queued));
+            state->effectQueued = queued;
+            *lastType = effectType;
+            goto done;
+        }
+    nextEffect:
+        ++index;
+    } while (index <= 15);
+done:
+    return;
+}
+
+struct MapTileEffectDisplayMethods
+{
+    STRUCT_PAD(0, 0x4C);
+    void (* releaseSlot)(MapTileEffectDisplayOwner *, unsigned);
+};
+struct MapTileEffectDisplayOwner
+{
+    MapTileEffectDisplayMethods const * methods;
+};
+EC void TileHeapOwner_Destroy(MapTileEffectResource *, unsigned);
+
+EC SECTION(".text.080AB2E4") void DestroyMapTileEffectQueue(MapTileEffectQueue * inputQueue, unsigned flags)
+{
+    register MapTileEffectQueue * input asm("r0") = inputQueue;
+    register MapTileEffectQueue * queue asm("sl");
+    asm ("mov %0, %1" : "=h" (queue) : "l" (input));
+    volatile unsigned savedFlags = flags;
+    register MapTileEffectState * initialState asm("r0") = input->state;
+    asm ("" : "+l" (initialState));
+    if (initialState)
+    {
+        register MapTileEffectState * state asm("r8");
+        asm ("mov %0, %1" : "=h" (state) : "l" (initialState));
+        register MapTileEffectDisplayOwner * owner asm("r0") = initialState->displayOwner;
+        asm ("" : "+l" (owner));
+        register MapTileEffectDisplayMethods const * methods asm("r2") = owner->methods;
+        asm ("" : "+l" (methods));
+        register unsigned assetsEnd asm("r4") = offsetof(MapTileEffectState, assets) + sizeof(state->assets);
+        asm ("" : "+l" (assetsEnd));
+        asm ("add %0, %1" : "+l" (assetsEnd) : "h" (state));
+        register unsigned slotOffset asm("r1") = offsetof(MapTileEffectState, displaySlot);
+        asm ("" : "+l" (slotOffset));
+        asm ("add %0, %1" : "+l" (slotOffset) : "h" (state));
+        register unsigned slot asm("r1") = *reinterpret_cast<u8 *>(slotOffset);
+        asm ("" : "+l" (slot));
+        register void (* release)(MapTileEffectDisplayOwner *, unsigned) asm("r2") = methods->releaseSlot;
+        asm ("" : "+l" (release));
+        release(owner, slot);
+
+        register u8 * firstAsset asm("r0") = reinterpret_cast<u8 *>(state);
+        asm ("" : "+l" (firstAsset));
+        firstAsset += offsetof(MapTileEffectState, assets);
+        asm ("" : "+l" (firstAsset));
+        if (firstAsset)
+        {
+            register u8 * asset asm("r6") = reinterpret_cast<u8 *>(assetsEnd);
+            asm ("" : "+l" (asset));
+            if (firstAsset != asset)
+            {
+                register unsigned resourcesStart asm("r5") = offsetof(MapTileEffectState, assets) + sizeof(state->assets) + offsetof(MapTileEffectAssets, resources);
+                asm ("" : "+l" (resourcesStart));
+                asm ("add %0, %1" : "+l" (resourcesStart) : "h" (state));
+                register u8 * resources asm("r5") = reinterpret_cast<u8 *>(resourcesStart);
+                do
+                {
+                    resources -= sizeof(MapTileEffectAssets);
+                    asm ("" : "+l" (resources));
+                    asset -= sizeof(MapTileEffectAssets);
+                    asm ("" : "+l" (asset));
+                    register unsigned offset asm("r0") = offsetof(MapTileEffectState, assets);
+                    asm ("" : "+l" (offset));
+                    asm ("add %0, %1" : "+l" (offset) : "h" (state));
+                    register u8 * assetsStart asm("sb") = reinterpret_cast<u8 *>(offset);
+                    asm ("" : "+h" (assetsStart));
+                    if (resources)
+                    {
+                        register u8 * assetEnd asm("r4") = asset;
+                        asm ("" : "+l" (assetEnd));
+                        assetEnd += sizeof(MapTileEffectAssets);
+                        asm ("" : "+l" (assetEnd));
+                        if (resources != assetEnd)
+                        {
+                            MapTileEffectResource * firstResource = reinterpret_cast<MapTileEffectResource *>(resources);
+                            asm ("" : "+l" (firstResource));
+                            register MapTileEffectResource * resource asm("r4") = reinterpret_cast<MapTileEffectResource *>(assetEnd);
+                            do
+                            {
+                                --resource;
+                                asm ("" : "+l" (resource));
+                                register unsigned handle asm("r1") = resource->handle;
+                                asm ("" : "+l" (handle));
+                                func_08007C28(*resource, handle);
+                                TileHeapOwner_Destroy(resource, 2);
+                            } while (firstResource != resource);
+                        }
+                    }
+                    asm ("" : : "h" (assetsStart), "l" (asset));
+                    if (assetsStart == asset)
+                        break;
+                } while (true);
+            }
+        }
+        operator delete(state);
+    }
+
+    register unsigned deleteFlag asm("r0") = 1;
+    asm ("" : "+l" (deleteFlag));
+    register unsigned destructorFlags asm("r1") = savedFlags;
+    asm ("" : "+l" (destructorFlags));
+    if (deleteFlag & destructorFlags)
+        operator delete(queue);
+}
 
 EC SECTION(".text.080AB380") void UpdateMapTileEffectQueue(MapTileEffectQueue & queue)
 {
@@ -1209,7 +1489,7 @@ EC SECTION(".text.080ADBB4") bool IsMapEventCalendarDate(u8 const * packedDate)
     return event != end && yearDay >= *event;
 }
 
-EC SECTION(".text.080ADA78") MapSceneOverlay * GetMapSceneOverlay(MapScene const & scene)
+EC SECTION(".text.080ADA78") FixedSpriteOverlay * GetMapSceneOverlay(MapScene const & scene)
 {
     return scene.overlay;
 }
@@ -1423,4 +1703,163 @@ EC SECTION(".text.080ADB8C") int GetSceneMapScrollX(MapScene const & scene)
 EC SECTION(".text.080ADB94") u32 GetSceneMapId(MapScene const & scene)
 {
     return reinterpret_cast<MapScrollFields const *>(scene.map)->mapId;
+}
+
+struct MapSceneReactionMethods
+{
+    STRUCT_PAD(0, 0x34);
+    MapSceneTerrainGrid & (* terrainGrid)(MapSceneTerrainGrid &, MapScene &, u32);
+    STRUCT_PAD(0x38, 0x64);
+    SpriteAnimationData const * (* animationBank)(MapScene &);
+};
+
+struct MapSceneEffectPosition
+{
+    i16 x;
+    i16 y;
+};
+
+EC bool AreEntityFootTilesMarked(MapSceneTerrainGrid const &, int, int);
+EC MapSceneEffect * InitializeAnimatedMapSpriteSinglePalette(void *, SpriteAnimationData const *, u32,
+    MapScene *, u32, u32, bool);
+
+inline void ReplaceMapSceneReactionEffect(MapSceneEffectSlot * slot, MapSceneEffect * next)
+{
+    register MapSceneEffectSlot * effectSlot asm("r4") = slot;
+    asm ("" : "+l" (effectSlot));
+    register MapSceneEffect * previous asm("r1") = effectSlot->effect;
+    asm ("" : "+l" (previous));
+    if (next != previous && previous)
+        previous->methods[2](*previous, 3);
+    effectSlot->effect = next;
+}
+
+EC SECTION(".text.080AD77C") int SetMapSceneReactionEffect(MapScene & inputScene,
+    MapSceneStartPosition const & location, u32 animation)
+{
+    register MapScene * scene asm("r6") = &inputScene;
+    register MapSceneStartPosition const * position asm("r4") = &location;
+    asm ("" : "+l" (scene), "+l" (position));
+    register unsigned inputAnimation asm("r2") = animation;
+    asm ("" : "+l" (inputAnimation));
+    inputAnimation = static_cast<u16>(inputAnimation);
+    asm ("" : "+l" (inputAnimation));
+    register unsigned selectedAnimation asm("sb") = inputAnimation;
+    asm ("" : "+h" (selectedAnimation));
+    MapSceneTerrainGrid terrain;
+    register MapSceneReactionMethods const * methods asm("r1") = *reinterpret_cast<MapSceneReactionMethods const **>(scene);
+    asm ("" : "+l" (methods));
+    register unsigned mapId asm("r2") = position->mapIdAndXFraction;
+    asm ("" : "+l" (mapId));
+    mapId = mapId << 22 >> 22;
+    asm ("" : "+l" (mapId));
+    register MapSceneTerrainGrid * terrainOutput asm("r0") = &terrain;
+    asm ("" : "+l" (terrainOutput));
+    methods->terrainGrid(*terrainOutput, *scene, mapId);
+
+    register unsigned xFraction asm("r0");
+    asm ("ldrb %0, [%1, #1]" : "=l" (xFraction) : "l" (position) : "memory");
+    xFraction >>= 2;
+    asm ("" : "+l" (xFraction));
+    register unsigned xWord asm("r1") = position->xAndYFraction;
+    asm ("" : "+l" (xWord));
+    register unsigned coordinateMask asm("r5") = 0x3FF;
+    asm ("" : "+l" (coordinateMask));
+    asm ("and %0, %1" : "+l" (xWord) : "l" (coordinateMask) : "cc");
+    register int x asm("r1") = static_cast<i16>((xWord << 6) | xFraction);
+    asm ("" : "+l" (x));
+    register unsigned yFraction asm("r0");
+    asm ("ldrb %0, [%1, #3]" : "=l" (yFraction) : "l" (position) : "memory");
+    yFraction >>= 2;
+    asm ("" : "+l" (yFraction));
+    register unsigned yWord asm("r2") = position->yAndPadding;
+    asm ("" : "+l" (yWord));
+    asm ("and %0, %1" : "+l" (yWord) : "l" (coordinateMask) : "cc");
+    register int y asm("r2") = static_cast<i16>((yWord << 6) | yFraction);
+    asm ("" : "+l" (y));
+    register bool footTilesMarked asm("r0") = AreEntityFootTilesMarked(terrain, x, y);
+    register unsigned marked asm("r0");
+    asm ("" : "=l" (marked) : "0" (footTilesMarked));
+    register unsigned invert asm("r1") = 1;
+    asm ("" : "+l" (invert));
+    marked ^= invert;
+    asm ("" : "+l" (marked));
+    register unsigned canShowReaction asm("r8") = static_cast<u8>(marked);
+    asm ("" : "+h" (canShowReaction));
+
+    asm ("ldrb %0, [%1, #1]" : "=l" (xFraction) : "l" (position) : "memory");
+    xFraction >>= 2;
+    asm ("" : "+l" (xFraction));
+    xWord = position->xAndYFraction;
+    asm ("and %0, %1" : "+l" (xWord) : "l" (coordinateMask) : "cc");
+    register unsigned packedX asm("r1") = (xWord << 6) | xFraction;
+    asm ("" : "+l" (packedX));
+    register unsigned secondYFraction asm("r2");
+    asm ("ldrb %0, [%1, #3]" : "=l" (secondYFraction) : "l" (position) : "memory");
+    secondYFraction >>= 2;
+    asm ("" : "+l" (secondYFraction));
+    register unsigned secondYWord asm("r0") = position->yAndPadding;
+    asm ("" : "+l" (secondYWord));
+    asm ("and %0, %1" : "+l" (secondYWord) : "l" (coordinateMask) : "cc");
+    register int packedY asm("r0") = static_cast<i16>((secondYWord << 6) | secondYFraction);
+    asm ("" : "+l" (packedY));
+    union
+    {
+        MapSceneEffectPosition coordinates;
+        u32 packed;
+    } effectPosition;
+    register MapSceneEffectPosition * coordinates asm("r2") = &effectPosition.coordinates;
+    asm ("" : "+l" (coordinates));
+    coordinates->x = packedX;
+    coordinates->y = packedY;
+    asm ("" : "+m" (effectPosition));
+    register MapSceneReactionMethods const * animationMethods asm("r0") = *reinterpret_cast<MapSceneReactionMethods const **>(scene);
+    asm ("" : "+l" (animationMethods));
+    register SpriteAnimationData const * bankResult asm("r0") = animationMethods->animationBank(*scene);
+    asm ("" : "+l" (bankResult));
+    register unsigned effectOffset asm("r1") = offsetof(MapScene, effect);
+    asm ("" : "+l" (effectOffset));
+    register MapSceneEffectSlot * slot asm("r4") = reinterpret_cast<MapSceneEffectSlot *>(reinterpret_cast<u8 *>(scene) + effectOffset);
+    asm ("" : "+l" (slot));
+    register SpriteAnimationData const * animationBank;
+    asm ("mov %0, %1" : "=&l" (animationBank) : "l" (bankResult), "l" (slot) : "r1", "r2", "r3", "r5", "r6");
+    slot->position = effectPosition.packed;
+    register MapSceneEffect * empty asm("r5") = 0;
+    asm ("" : "+l" (empty));
+    ReplaceMapSceneReactionEffect(slot, empty);
+    *reinterpret_cast<u8 *>(&slot->timed) = canShowReaction;
+    register unsigned timed asm("r5") = canShowReaction;
+    asm ("" : "+l" (timed));
+    if (timed)
+    {
+        void * storage = operator new(sizeof(MapSceneEffect));
+        register MapSceneEffect * next asm("r5") = InitializeAnimatedMapSpriteSinglePalette(
+            storage, animationBank, selectedAnimation, scene, 2, 3, false);
+        asm ("" : "+l" (next));
+        ReplaceMapSceneReactionEffect(slot, next);
+        slot->remainingFrames = 16;
+        slot->phase = 0;
+        return 16;
+    }
+
+    register void * storage asm("r0") = operator new(sizeof(MapSceneEffect));
+    register MapSceneEffect * initialized asm("r0");
+    asm volatile (
+        "movs r1, #2\n\t"
+        "str r1, [sp]\n\t"
+        "movs r1, #3\n\t"
+        "str r1, [sp, #4]\n\t"
+        "add r1, sp, #8\n\t"
+        "strb %2, [r1]\n\t"
+        "add r1, %3, #0\n\t"
+        "ldr r2, =%5\n\t"
+        "add r3, %4, #0\n\t"
+        "bl InitializeAnimatedMapSpriteSinglePalette"
+        : "=l" (initialized)
+        : "0" (storage), "l" (timed), "l" (animationBank), "l" (scene), "i" (0x1A9)
+        : "r1", "r2", "r3", "ip", "lr", "cc", "memory");
+    register MapSceneEffect * next asm("r5") = initialized;
+    asm ("" : "+l" (next));
+    ReplaceMapSceneReactionEffect(slot, next);
+    return 0;
 }

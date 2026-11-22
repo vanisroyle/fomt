@@ -319,15 +319,31 @@ gMapOverlayParticleMotion:
 	@ Two (dx, dy) vectors per overlay kind, in signed Q16 pixels per update.
 	.4byte -0x3333, 0x10000, 0x3333, 0x10000
 	.4byte -0x3333, 0x40000, 0xCCCC, 0x40000
-	.incbin "baserom.gba", 0xF1968, 0x38
+	.incbin "baserom.gba", 0xF1968, 0xC
+
+	.global gGoldenLumberNickname
+gGoldenLumberNickname:
+	.asciz "Moneybags "
+	.zero 1
+
+	.global gMissingHorseName
+gMissingHorseName:
+	.zero 4
+
+	.global gMissingChildName
+gMissingChildName:
+	.asciz "Unnamed setting"
+
+	.incbin "baserom.gba", 0xF1994, 0xC
 
 	.global gUnk_080F19A0
 gUnk_080F19A0:
 	.incbin "baserom.gba", 0xF19A0, 0xE
 
-	.global gUnk_080F19AE
-gUnk_080F19AE:
-	.incbin "baserom.gba", 0xF19AE, 0x1E
+	.global gScriptSceneScriptIds
+gScriptSceneScriptIds:
+	.2byte 0x0427, 0x0423
+	.incbin "baserom.gba", 0xF19B2, 0x1A
 
 	.global gUnk_080F19CC
 gUnk_080F19CC:

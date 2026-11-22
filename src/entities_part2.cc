@@ -62,11 +62,11 @@ struct FarmerEffectGraphics : FarmerIconGraphics
     u8 next_step_effect;
 };
 
-EC void func_0803260C(FarmerIconGraphics * graphics);
+EC void UpdateSideActorAnimationLayers(FarmerIconGraphics * graphics);
 EC void TickFarmerEffectGraphics(FarmerEffectGraphics * graphics) ENTITY_CODE(0802B3B4);
 EC void TickFarmerEffectGraphics(FarmerEffectGraphics * graphics)
 {
-    func_0803260C(graphics);
+    UpdateSideActorAnimationLayers(graphics);
     FarmerEntity * farmer = *reinterpret_cast<FarmerEntity **>(graphics);
     register u8 base_frame_changed asm("r3") = graphics->unk_44;
     register u16 * icon asm("r2") = &farmer->icon;
@@ -1110,7 +1110,7 @@ struct FarmerDiscardGameVTable
     STRUCT_PAD(0x38, 0xE8);
     u32 (*check_article_drop)(GameObject *, Location const &, Article const &);
 };
-EC bool IsFarmerTerrainAreaFlaggedForArticleDrop(FarmerTerrainGrid const *, i32, i32) asm("func_080AC5D0");
+EC bool AreEntityFootTilesMarked(FarmerTerrainGrid const &, i32, i32);
 
 struct FarmerDiscardBounds
 {
@@ -1200,7 +1200,7 @@ EC u32 CheckFarmerHeldItemDiscard(FarmerEntity * self)
                 switch (case_index)
                 {
                 case 0:
-                    if (IsFarmerTerrainAreaFlaggedForArticleDrop(terrain, sample_x, sample_y))
+                    if (AreEntityFootTilesMarked(*terrain, sample_x, sample_y))
                     {
                         asm volatile("");
                         goto allowed;
@@ -2240,7 +2240,7 @@ EC void BeginItemDisplayStateTwo(ItemDisplayEntity * display)
 EC void TickItemDisplayIcon(FarmerIconGraphics * graphics) ENTITY_CODE(0802BFA0);
 EC void TickItemDisplayIcon(FarmerIconGraphics * graphics)
 {
-    func_0803260C(graphics);
+    UpdateSideActorAnimationLayers(graphics);
     ItemDisplayEntity * display = *reinterpret_cast<ItemDisplayEntity **>(graphics);
     if (display->HasThrownItem())
     {

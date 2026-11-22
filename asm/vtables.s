@@ -320,7 +320,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateGetMapWidthPixels
 	.word GameStateGetMapHeightPixels
 	.word GameStateGetMapTerrain @ 34
-	.word func_0801A8E0
+	.word GameStateRespawnActor
 	.word GameStateRemoveEntitySlot
 	.word GameStateGetEntitySlot
 	.word GameStateGetConstEntitySlot
@@ -779,9 +779,11 @@ vtable_unk_080E76BC:
 vtable_unk_080E76D4:
 	.incbin "baserom.gba", 0xE76D4, 0x14
 
-	.global vtable_unk_080E76E8
-vtable_unk_080E76E8:
-	.incbin "baserom.gba", 0xE76E8, 0x10
+	.global gGameScriptTextVariablesVTable
+gGameScriptTextVariablesVTable:
+	.4byte 0, 0
+	.4byte DestroyGameScriptTextVariables
+	.4byte ResolveGameScriptTextVariable
 
 	.global vtable_unk_080E76F8
 vtable_unk_080E76F8:
@@ -803,9 +805,11 @@ vtable_unk_080E7728:
 vtable_unk_080E7738:
 	.incbin "baserom.gba", 0xE7738, 0x10
 
-	.global vtable_unk_080E7748
-vtable_unk_080E7748:
-	.incbin "baserom.gba", 0xE7748, 0x10
+	.global gScriptSceneFactoryVTable
+gScriptSceneFactoryVTable:
+	.4byte 0, 0
+	.4byte func_080E09BC
+	.4byte CreateScriptScene
 
 	.global gDialogWindowTilemapTaskVtable
 gDialogWindowTilemapTaskVtable:
@@ -838,8 +842,8 @@ gPauseMenuWindowVtable:
 vtable_unk_080E77D0:
 	.incbin "baserom.gba", 0xE77D0, 0x10
 
-	.global vtable_unk_080E77E0
-vtable_unk_080E77E0:
+	.global gClockHudVTable
+gClockHudVTable:
 	.incbin "baserom.gba", 0xE77E0, 0x30
 
 	.section .rodata.080E7824
@@ -1345,6 +1349,8 @@ vtable_unk_080E850C:
 	.incbin "baserom.gba", 0xE850C, 0x10
 
 	.global vtable_unk_080E851C
+	.global __vt_20ChickenFestivalScene
+__vt_20ChickenFestivalScene:
 vtable_unk_080E851C:
 	.incbin "baserom.gba", 0xE851C, 0xC
 
@@ -1353,6 +1359,8 @@ vtable_unk_080E8528:
 	.incbin "baserom.gba", 0xE8528, 0x10
 
 	.global vtable_unk_080E8538
+	.global __vt_21SpriteHarvestingScene
+__vt_21SpriteHarvestingScene:
 vtable_unk_080E8538:
 	.incbin "baserom.gba", 0xE8538, 0xC
 

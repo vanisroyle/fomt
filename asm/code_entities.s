@@ -11293,7 +11293,7 @@ sub_08030E0A: @ 0x08030E0A
     cmp r0, #0
     beq .L08031928
     mov r1, sp
-    bl func_08035A48
+    bl ReactToNearbyNpcLocation
 .L08031928:
     adds r4, #1
     cmp r4, #0x23
