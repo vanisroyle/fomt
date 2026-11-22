@@ -6739,7 +6739,7 @@ func_080CC15C: @ 0x080CC15C
 	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r6]
 	adds r5, r5, r7
 	movs r4, #0xbb
@@ -6768,7 +6768,7 @@ func_080CC15C: @ 0x080CC15C
 	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r6, #0xa9
 	lsls r6, r6, #2

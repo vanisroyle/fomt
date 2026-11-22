@@ -3478,7 +3478,7 @@ func_080A220C: @ 0x080A220C
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #7
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0xbe
 	lsls r1, r1, #1
@@ -3511,7 +3511,7 @@ func_080A220C: @ 0x080A220C
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #6
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0xce
 	lsls r1, r1, #1
@@ -3528,7 +3528,7 @@ func_080A220C: @ 0x080A220C
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r3, #0xd6
 	lsls r3, r3, #1

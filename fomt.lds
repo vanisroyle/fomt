@@ -172,6 +172,8 @@ SECTIONS
         asm/hardware.o(.text.after_08007874);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
+        src/hardware.o(.text.TileHandle_Allocate);
+        asm/hardware.o(.text.after_08007B54);
         src/hardware.o(.text.TileHandle_Release);
         asm/hardware.o(.text.after_08007C28);
         src/hardware.o(.text.TileHandle_Retain);

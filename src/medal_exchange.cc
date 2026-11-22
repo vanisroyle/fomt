@@ -126,7 +126,7 @@ EC MessageWindow * CreateMessageWindow(MessageWindow *, u32, u32, u32, u32, Tile
 EC AudioPlayer * AudioPlayer_Initialize(AudioPlayer *, u8);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void const *);
 EC void InitMedalExchangeTiles(MedalExchangeObjAllocation *) asm("TileHeapOwner_Initialize");
-EC u32 AllocateMedalExchangeTiles(MedalExchangeObjAllocation *, u32) asm("func_08007B54");
+EC u32 AllocateMedalExchangeTiles(MedalExchangeObjAllocation *, u32) asm("TileHandle_Allocate");
 EC void ResourceHandles_Initialize(MedalExchangeObjAllocation *);
 EC u32 AllocateMedalExchangePalette(MedalExchangeObjAllocation *) asm("func_0800736C");
 EC char const gMedalExchangeScreenVTable[] asm("vtable_unk_080E799C");

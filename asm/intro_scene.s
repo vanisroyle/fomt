@@ -212,7 +212,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #4
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     movs r0, #0xd9
     lsls r0, r0, #7
@@ -228,7 +228,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #4
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r0, .L08000D18 @ =0x00006C90
     adds r4, r5, r0
@@ -243,7 +243,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #4
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r0, .L08000D20 @ =0x00006CA0
     adds r4, r5, r0
@@ -258,7 +258,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #4
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r0, .L08000D28 @ =0x00006CB0
     adds r4, r5, r0
@@ -266,7 +266,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #2
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r1, .L08000D2C @ =0x00006CB8
     adds r4, r5, r1
@@ -281,7 +281,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #2
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r1, .L08000D34 @ =0x00006CC8
     adds r4, r5, r1
@@ -296,7 +296,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #1
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r1, .L08000D3C @ =0x00006CD8
     adds r4, r5, r1
@@ -304,7 +304,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #1
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r0, .L08000D40 @ =0x00006CE0
     adds r4, r5, r0
@@ -312,7 +312,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #3
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r1, .L08000D44 @ =0x00006CE8
     adds r4, r5, r1
@@ -327,7 +327,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #5
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r1, .L08000D4C @ =0x00006CF8
     adds r4, r5, r1
@@ -335,7 +335,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #5
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     movs r0, #0xda
     lsls r0, r0, #7
@@ -351,7 +351,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #6
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r0, .L08000D54 @ =0x00006D10
     adds r4, r5, r0
@@ -366,7 +366,7 @@ func_08000914: @ 0x08000914
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #2
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     ldr r0, .L08000D5C @ =0x00006D20
     adds r4, r5, r0

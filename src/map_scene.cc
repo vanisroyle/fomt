@@ -1173,7 +1173,7 @@ struct MapTileEffectQueue
 };
 
 EC void TileHandle_Release(MapTileEffectResource &, u32);
-EC u32 func_08007B54(MapTileEffectResource *, u32);
+EC u32 TileHandle_Allocate(MapTileEffectResource *, u32);
 
 EC SECTION(".text.080AB68C") void ScheduleMapTileEffect(MapTileEffectQueue * queue, int x, int y, u32 type)
 {
@@ -1256,7 +1256,7 @@ EC SECTION(".text.080AB68C") void ScheduleMapTileEffect(MapTileEffectQueue * que
                     asm ("" : "+l" (releaseResource));
                     volatile u32 savedType = effectType;
                     TileHandle_Release(*releaseResource, previousHandle);
-                    register u32 handle asm("r0") = func_08007B54(resource, allocationCount);
+                    register u32 handle asm("r0") = TileHandle_Allocate(resource, allocationCount);
                     resource->handle = handle;
                     register u32 negatedHandle asm("r1") = -handle;
                     asm ("" : "+l" (negatedHandle));
