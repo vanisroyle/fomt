@@ -27478,7 +27478,7 @@ DrawMessageGlyphWithColors: @ 0x0804E5AC
 	adds r6, r3, #0
 	ldr r1, [sp, #0xc0]
 	add r0, sp, #0xc
-	bl func_080D0D28
+	bl Font_DecodeGlyph
 	str r0, [sp, #0x8c]
 	subs r0, #1
 	cmp r0, #1
