@@ -420,7 +420,7 @@ struct MedalExchangeDisplayRegisters
     u16 bg2_scroll_x, bg2_scroll_y;
     u16 bg3_scroll_x, bg3_scroll_y;
     STRUCT_PAD(0x20, 0x50);
-    u16 window_inside;
+    u16 blend_control;
 };
 
 EC MedalExchangeDisplayRegisters * GetMedalExchangeDisplayRegisters(MedalExchange *) asm("HardwareContext_GetDisplayRegisters");
@@ -1236,7 +1236,7 @@ EC SECTION(".text.f3.0805D170") void ** RunMedalExchangeScreen(void ** output, M
         START_FADE_OUT, FADE_OUT };
     enum { JEWEL_OF_TRUTH = 0, POWER_BERRY = 1, TRUFFLE = 8, DRESS = 10, PERFUME = 11 };
     enum { KEY_UP = 0x40, KEY_DOWN = 0x80, KEY_A = 1, KEY_B = 2, DIALOGUE_IDLE = 2 };
-    enum { WINDOW_0_ALL_LAYERS_AND_EFFECTS = 0x3F, FADE_MODE = 1, FADE_MOSAIC = 1 };
+    enum { BLEND_ALL_FIRST_TARGETS = 0x3F, FADE_MODE = 1, FADE_MOSAIC = 1 };
     enum { MEDAL_VENDOR_PORTRAIT = 0x75, SFX_CONFIRM = 0xC5, SFX_CANCEL = 0xC6, SFX_CURSOR = 0xCB };
     enum { VISIBLE_PRIZE_ROWS = 8, PRIZE_ROW_HEIGHT = 16, SCROLL_PIXELS_PER_FRAME = 4 };
     enum { POWER_BERRY_FLAG = 1 << 3, JEWEL_FLAG = 1 << 4 };
@@ -1257,10 +1257,10 @@ EC SECTION(".text.f3.0805D170") void ** RunMedalExchangeScreen(void ** output, M
     register MedalExchangeDisplayRegisters * regs asm("r0") = GetMedalExchangeDisplayRegisters(self);
     register u16 * value_address asm("r1");
     asm ("mov %0, sp" : "=l" (value_address));
-    register u32 value asm("r2") = WINDOW_0_ALL_LAYERS_AND_EFFECTS;
+    register u32 value asm("r2") = BLEND_ALL_FIRST_TARGETS;
     asm ("" : "+l" (value), "+l" (regs));
     *value_address = value;
-    regs->window_inside = value;
+    regs->blend_control = value;
     register MedalRunFadeTask * fade asm("r4") = static_cast<MedalRunFadeTask *>(__builtin_new(sizeof(MedalRunFadeTask)));
     asm ("" : "+l" (fade));
     register MedalExchangeDisplayRegisters * fade_registers asm("r1") = GetMedalExchangeDisplayRegisters(self);
