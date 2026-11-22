@@ -157,6 +157,49 @@ EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(
     }
 }
 
+EC void DrawFrisbeeSymbol(void *, i32, i32, i32);
+
+EC SECTION(".text.frisbee.08057CB0") void DrawFrisbeeNumber(void * volatile screen, i32 x, i32 inputY, i32 inputValue, u32 small)
+{
+    register i32 y asm("r10") = inputY;
+    register i32 value asm("r9") = inputValue;
+    register u32 mode asm("r1") = small;
+    asm ("" : "+r" (mode));
+    i32 divisor = 100;
+    register i32 symbol asm("r3") = 0;
+    if (mode)
+    {
+        symbol = 12;
+    }
+    i32 initialSpacing = 8;
+    if (!mode)
+    {
+        initialSpacing = 16;
+    }
+    register i32 firstSymbol asm("r8") = symbol;
+    asm ("" : "+r" (initialSpacing));
+    i32 spacing = initialSpacing;
+    do
+    {
+        i32 digit = value / divisor;
+        register i32 base asm("r0") = firstSymbol;
+        asm ("" : "+r" (base));
+        DrawFrisbeeSymbol(screen, x, y, digit + base);
+        x += spacing;
+        value -= digit * divisor;
+        divisor /= 10;
+        if (divisor == 1)
+        {
+            void * markerScreen = screen;
+            register i32 markerX asm("r1") = x;
+            register i32 markerY asm("r3") = y;
+            asm ("" : "+r" (markerX), "+r" (markerY));
+            DrawFrisbeeSymbol(markerScreen, markerX, markerY + spacing, firstSymbol + 10);
+            x += 8;
+        }
+    } while (divisor > 0);
+}
+
 struct FrisbeeSymbolGraphics
 {
     u8 padding[0x2334];
