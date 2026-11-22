@@ -68,12 +68,23 @@ class RemainingGraphicsTests(unittest.TestCase):
     def test_guarded_instruction_ranges_reject_changed_bytes(self):
         rom = bytearray(0x800000)
         record = {"start": 4, "end": 10, "sha256": hashlib.sha256(bytes(6)).hexdigest()}
-        with patch.object(Path, "read_text", return_value=json.dumps({"regions": [record]})), patch.object(audit.sprites, "sections"):
+        with patch.object(Path, "read_text", return_value=json.dumps({"regions": [record]})), patch.object(audit.sprites, "sections", return_value=[(0, 0)] * 7):
             self.assertEqual(audit.regions(bytes(rom))[0], (4, bytes(6)))
             rom[5] = 1
             with self.assertRaisesRegex(ValueError, "audited Thumb instructions changed"):
                 audit.regions(bytes(rom))
         self.assertEqual(audit.regions(b""), ())
+
+    def test_guarded_data_ranges_reject_changed_bytes(self):
+        rom = bytearray(0x800000)
+        record = {"start": 12, "end": 16, "sha256": hashlib.sha256(bytes(4)).hexdigest()}
+        manifest = json.dumps({"regions": [], "data_regions": [record]})
+        sections = [(0, 0)] * 7
+        with patch.object(Path, "read_text", return_value=manifest), patch.object(audit.sprites, "sections", return_value=sections):
+            self.assertEqual(audit.regions(bytes(rom))[0], (12, bytes(4)))
+            rom[12] = 1
+            with self.assertRaisesRegex(ValueError, "audited non-pointer data changed"):
+                audit.regions(bytes(rom))
 
 
 if __name__ == "__main__":
