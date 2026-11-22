@@ -579,7 +579,7 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08014304);
         asm/game_state.o(.text.game_state_08014318);
         src/game_state_part1.o(.text.game_state_0801437C);
-        asm/game_state.o(.text.game_state_08014410);
+        src/game_state_part1.o(.text.game_state_08014410);
         src/game_state_part1.o(.text.game_state_080144BC);
         src/game_state_part1.o(.text.game_state_08014550);
         src/game_state_part1.o(.text.game_state_080145F8);
@@ -610,6 +610,7 @@ SECTIONS
         asm/game_state.o(.text.game_state_08015990);
         src/game_state_part1.o(.text.game_state_08015990);
         asm/game_state.o(.text.game_state_080159B0);
+        src/game_state_part1.o(.text.game_state_08016758);
         src/game_state_part1.o(.text.game_state_08016784);
         src/game_state_part1.o(.text.game_state_080167AC);
         src/game_state_part1.o(.text.game_state_080167CC);
@@ -678,7 +679,7 @@ SECTIONS
         src/npc_side_batch6.o(.text.npc_side.080324BC);
         src/npc_side_batch6.o(.text.npc_side.08032560);
         src/npc_side_batch8.o(.text.npc_side.0803260C);
-        asm/code_entities_080320DC.o(.text.npc_side.08032690);
+        src/npc_side_batch14_draw.o(.text.npc_side.08032690);
         src/npc_side_entities.o(.text.npc_side.08032900);
         src/npc_side_batch5.o(.text.npc_side.08032934);
         src/npc_side_batch6.o(.text.npc_side.0803295C);
@@ -944,7 +945,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.08039200);
         src/npc_side_batch11.o(.text.npc_extra.08039204);
         src/npc_side_batch4.o(.text.npc_extra.0803930C);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039310);
+        src/npc_side_batch14_states.o(.text.npc_extra.08039310);
         src/npc_side_batch12_states.o(.text.npc_extra.0803955C);
         src/npc_side_batch4.o(.text.npc_extra.080396F4);
         src/npc_side_batch13_states.o(.text.npc_extra.08039708);
@@ -1615,12 +1616,15 @@ SECTIONS
         src/g5_commands.o(.text.g5_080CAF6C);
         src/g5_slot_panel.o(.text.g5_080CAFC4);
         asm/code_080C8360.o(.text.g5_after_080CAF6C);
+        src/g5_slot_panel_redraw.o(.text.g5_080CB090);
         src/g5_helpers.o(.text.g5_080CB2E8);
         asm/code_080C8360.o(.text.g5_080CB304);
         src/g5_drawing.o(.text.g5_080CB948);
         asm/code_080C8360.o(.text.g5_after_080CB948);
         src/g5_drawing.o(.text.g5_080CC0B4);
         src/g5_helpers.o(.text.g5_080CC134);
+        src/g5_resource_slot_panel.o(.text.g5_080CC15C);
+        src/g5_slot_panel_redraw.o(.text.g5_080CC310);
         asm/code_080C8360.o(.text.g5_080CC15C);
         src/g5_helpers.o(.text.g5_080CC70C);
         asm/code_080C8360.o(.text.g5_080CC728);
@@ -1687,7 +1691,7 @@ SECTIONS
         src/g5_runtime.o(.text.g5_queries);
         src/g5_runtime.o(.text.g5_080D06DC);
         src/g5_runtime.o(.text.g5_080D0704);
-        asm/code_080D035C.o(.text.g5_after_080D0704);
+        src/g5_receive.o(.text.g5_080D078C);
         src/g5_transmit.o(.text.g5_080D091C);
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
