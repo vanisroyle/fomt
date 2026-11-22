@@ -532,6 +532,7 @@ struct GameStateSavedSceneFactoryOwner
 };
 
 extern u8 const vtable_unk_080E5E34[];
+extern u8 const vtable_unk_080E5CB4[];
 extern u8 const vtable_unk_080E5D84[];
 extern u8 const vtable_unk_080E5D64[];
 extern u8 const vtable_unk_080E5DA4[];
@@ -935,6 +936,17 @@ EC void SECTION(".text.game_state_080132D0") GameScript_QueueSceneVariant17(Game
     spec.variant = 0x17;
     GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
     runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5D84>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013544
+EC void SECTION(".text.game_state_08013544") GameScript_QueueSceneVariant19(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x19;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5CB4>(factory, runtime.GetSaveData()));
     runtime.pendingCommand = 0x18;
 }
 
