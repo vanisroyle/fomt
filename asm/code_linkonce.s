@@ -7669,7 +7669,7 @@ func_080D772C: @ 0x080D772C
 	bl func_08007874
 	ldr r1, [r5, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 .L080D7794:
 	adds r5, #8
@@ -16967,7 +16967,7 @@ func_080DC840: @ 0x080DC840
 	bl func_08007874
 	ldr r1, [r6, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 	ldrh r0, [r5, #0xc]
 	movs r1, #0
@@ -18590,7 +18590,7 @@ func_080DD540: @ 0x080DD540
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #9
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DD57E
 	ldr r0, [r4, #0x50]
@@ -18822,7 +18822,7 @@ func_080DD5E4: @ 0x080DD5E4
 	movs r2, #0x80
 	lsls r2, r2, #8
 	adds r0, r5, #0
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DD772
 	adds r0, r5, #0
@@ -18946,7 +18946,7 @@ func_080DD7E4: @ 0x080DD7E4
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #8
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DD854
 	adds r0, r4, #0
@@ -19063,7 +19063,7 @@ func_080DD8BC: @ 0x080DD8BC
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #8
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DD92E
 	adds r0, r4, #0
@@ -19879,7 +19879,7 @@ func_080DDEC4: @ 0x080DDEC4
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #6
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DDF02
 	ldr r0, [r4, #0x50]
@@ -19970,7 +19970,7 @@ func_080DDF68: @ 0x080DDF68
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #7
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DDFA6
 	ldr r0, [r4, #0x50]
@@ -20061,7 +20061,7 @@ func_080DE00C: @ 0x080DE00C
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #8
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DE04A
 	ldr r0, [r4, #0x50]
@@ -20150,7 +20150,7 @@ func_080DE0AC: @ 0x080DE0AC
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #8
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DE11E
 	adds r0, r4, #0
@@ -25985,7 +25985,7 @@ func_080E0F90: @ 0x080E0F90
 	ldr r4, [r5]
 	adds r4, #4
 	adds r0, r2, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	ldr r0, .L080E1014 @ =0x06010000
@@ -29696,7 +29696,7 @@ func_080E2BB4: @ 0x080E2BB4
 	bge .L080E2CBE
 	ldr r1, [r4, #0x14]
 	mov r0, sl
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	b .L080E2CC2
 .L080E2CBE:
 	movs r0, #1
@@ -32745,7 +32745,7 @@ func_080E4438: @ 0x080E4438
 	bl TileHandle_Release
 	ldr r1, [r5, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 .L080E449A:
 	adds r4, #8

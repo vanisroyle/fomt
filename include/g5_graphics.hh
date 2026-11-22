@@ -44,6 +44,10 @@ struct CommandIterator
 // vtable at +0x210. The sentinel has links but no initialized command payload.
 EC u8 * InventoryMenu_InitializePanelBase(u8 * panel, DrawCommand * draw_owner); // 0x080CADB4
 
+// Slot captions occupy +0x28c and truncate to eight bytes, plus a terminator.
+// The last selectable slot at +0x298 is retained separately from entry count.
+EC u8 * InventoryMenu_InitializeSlotPanel(u8 * panel, void * owner, DrawCommand * draw_owner, u32 slots, char const * caption, u32 special_slot_enabled); // 0x080CAFC4
+
 // Destructors also release panel resources; flags bit 0 deletes the panel.
 EC void DestroyPanelDrawCommands(u8 * panel, u32 flags); // 0x080CADF0
 EC void PruneInactivePanelDrawCommands(u8 * panel); // 0x080CAF6C
