@@ -119804,7 +119804,7 @@ func_0808A55C: @ 0x0808A55C
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
@@ -127389,7 +127389,7 @@ func_0808E6FC: @ 0x0808E6FC
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
@@ -131299,7 +131299,7 @@ func_08090960: @ 0x08090960
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
