@@ -1590,9 +1590,11 @@ SECTIONS
         src/g5_ui.o(.text.g5_buttons);
         src/g5_ui.o(.text.g5_080CAC3C);
         src/g5_ui.o(.text.g5_entry_init);
+        src/g5_animated_entries.o(.text.g5_080CAC7C);
         asm/code_080C8360.o(.text.g5_CAC7C);
         src/g5_ui.o(.text.g5_080CAD08);
         src/g5_ui.o(.text.g5_entry_access);
+        src/g5_animated_entries.o(.text.g5_080CAD18);
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
         src/g5_commands.o(.text.g5_080CADB4);
