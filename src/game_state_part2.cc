@@ -950,8 +950,12 @@ static inline void TintClearEveningFrom(DaylightColors & output, DaylightColors 
     register DaylightTint * remembered asm("r10") = next_slot;
 
     register DaylightTint * second_weight asm("r10");
-    // Keep the second endpoint's weights across the first blend.
-    asm volatile("add r1, sp, #72\n\tmov %0, r1" : "=h"(second_weight) : : "r1");
+    {
+        register DaylightTint * slot asm("r1") = const_cast<DaylightTint *>(&DaylightStackScratch().tint[5]);
+        asm("" : "+l"(slot));
+        second_weight = slot;
+        asm volatile("" : "+h"(second_weight));
+    }
     register u8 * word asm("r1") = DaylightWashStack();
     asm("" : "+l"(word));
     word += 76;
@@ -1085,9 +1089,12 @@ static inline void TintOvercastMorningFrom(DaylightColors & output, DaylightColo
     register DaylightColors * from asm("r7") = out;
     asm("" : "+l"(from) : "h"(out));
     register DaylightTint * params_later asm("r10");
-    // Keep the second endpoint's weights across the first blend.
-    asm volatile("add r3, sp, #104\n\tmov %0, r3"
-        : "=h"(params_later) : : "r3");
+    {
+        register DaylightTint * slot asm("r3") = const_cast<DaylightTint *>(&DaylightStackScratch().tint[9]);
+        asm("" : "+l"(slot));
+        params_later = slot;
+        asm volatile("" : "+h"(params_later));
+    }
     register u8 * address asm("r0") = DaylightWashStack();
     asm("" : "+l"(address));
     address += 108;
@@ -3785,6 +3792,9 @@ EC SECTION(".text.game_state_c2.0801DEB4") bool GameStateClearNearestEligibleFar
         GameStateFarmField * field;
         int center_y;
     } scratch;
+    asm(".ifnc \"%0\", \"[sp]\"\n\t"
+        ".error \"Field redraw argument must be at the outgoing argument slot\"\n\t"
+        ".endif" : : "m"(scratch.outgoing_neighbor_tiles));
     const u32 field_offset_in_map_data = offsetof(GameStateMapData, farm) + offsetof(Farm, field);
     scratch.best_distance = 0;
     register int best_x asm("r8") = 0;
@@ -3951,19 +3961,17 @@ EC SECTION(".text.game_state_c2.0801DEB4") bool GameStateClearNearestEligibleFar
                         north = nullptr;
                     register Unk_Something const * adjacent asm("r0") = current->method_0800AF5C(south, north);
                     scratch.outgoing_neighbor_tiles = adjacent;
-                    // Load the redraw arguments and call the map updater.
-                    asm volatile (
-                        ".ifnc \"%1\", \"[sp]\"\n\t"
-                        ".error \"Field redraw argument must be at the outgoing argument slot\"\n\t"
-                        ".endif\n\t"
-                                        "ldr r0, %2\n\t"
-                        "ldr r1, %3\n\t"
-                        "mov r2, %4\n\t"
-                        "add r3, %5, #0\n\t"
-                        "bl ApplyFieldPlotToMap"
-                        : "=l"(adjacent)
-                        : "m"(scratch.outgoing_neighbor_tiles), "m"(scratch.view), "m"(scratch.tile_x), "h"(tile_y), "l"(selected)
-                        : "r1", "r2", "r3", "ip", "lr", "cc", "memory");
+                    register GameStateMapView * redraw_view asm("r0") = scratch.view;
+                    asm("" : "+l"(redraw_view) : "m"(scratch.outgoing_neighbor_tiles));
+                    register int redraw_x asm("r1") = scratch.tile_x;
+                    asm("" : "+l"(redraw_x) : "l"(redraw_view));
+                    register int redraw_y asm("r2") = tile_y;
+                    asm("" : "+l"(redraw_y) : "l"(redraw_x), "l"(redraw_view));
+                    register FieldPlot * redraw_plot asm("r3") = selected;
+                    // Call the map updater with the prepared redraw arguments.
+                    asm volatile("bl ApplyFieldPlotToMap"
+                        : "+l"(redraw_view), "+l"(redraw_x), "+l"(redraw_y), "+l"(redraw_plot)
+                        : "m"(scratch.outgoing_neighbor_tiles) : "ip", "lr", "cc", "memory");
                 }
                 register int step asm("r6") = 2;
                 tile_y += step;
@@ -4701,11 +4709,16 @@ static inline ClockActorMethods const & ClockMethods(AEntity * actor)
 }
 
 // The clock's actor lists and calendar temporaries share its scratch frame.
+static inline u8 * ClockStackBase()
+{
+    register u8 * stack asm("sp");
+    asm("" : "=h"(stack));
+    return stack;
+}
+
 static inline ClockAdvanceWork volatile & ClockStackWork()
 {
-    register ClockAdvanceWork * stack asm("sp");
-    asm("" : "=h"(stack));
-    return *stack;
+    return *reinterpret_cast<ClockAdvanceWork volatile *>(ClockStackBase());
 }
 
 static inline bool AdvanceClockFrame(ClockCounters & state, ClockAdvanceWork & work, u32)
@@ -4793,8 +4806,7 @@ static inline bool AdvanceClockFrame(ClockCounters & state, ClockAdvanceWork & w
             register u8 * season_out asm("r5");
             // Address the saved season byte for rollover.
             asm volatile("add %0, sp, #0x348" : "=l"(season_out) : "l"(preserve));
-            // Store the updated season byte after applying rollover.
-            asm volatile("strb %1, [%0]" : : "l"(season_out), "l"(preserve) : "memory");
+            *static_cast<volatile u8 *>(season_out) = preserve;
             register u32 stored_season asm("r1") = (preserve << 30) >> 30;
             register u32 low_mask_final asm("r0");
             // Recover the low-bit mask for the packed calendar byte.
@@ -4915,9 +4927,8 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
     asm("" : "+l"(actors));
     register u32 tick_offset asm("r3") = offsetof(ClockAdvanceWork, tick);
     asm("" : "+l"(tick_offset) : "l"(actors));
-    register ClockTickContext * tick_ptr asm("r3");
-    // Locate this actor's clock-tick callback record in the frame.
-    asm("add %0, sp" : "=l"(tick_ptr) : "0"(tick_offset));
+    register ClockTickContext * tick_ptr asm("r3") = reinterpret_cast<ClockTickContext *>(ClockStackBase() + tick_offset);
+    asm("" : "+l"(tick_ptr));
     register ClockTickContext * tick asm("r8") = tick_ptr;
     asm("" : "+h"(tick));
     if (actors != end)
@@ -4978,16 +4989,14 @@ EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(Game
     asm("" : "+l"(size));
     register u32 fast_offset asm("r0") = size * sizeof(AEntity *) + offsetof(ClockActorList, actors);
     asm("" : "+l"(fast_offset));
-    register AEntity ** fast_ptr asm("r0");
-    // Address the slot for a fast clock callback.
-    asm("add %0, sp" : "=l"(fast_ptr) : "0"(fast_offset));
+    register AEntity ** fast_ptr asm("r0") = reinterpret_cast<AEntity **>(ClockStackBase() + fast_offset);
+    asm("" : "+l"(fast_ptr));
     register AEntity ** fast_end asm("r9") = fast_ptr;
     asm("" : "+h"(fast_end));
     register u32 slow_offset asm("r2") = offsetof(ClockAdvanceWork, slow);
     asm("" : "+l"(slow_offset));
-    register u8 * stack asm("r3");
-    // Get the base of the actor callback records on the stack.
-    asm("mov %0, sp" : "=l"(stack));
+    register u8 * stack asm("r3") = reinterpret_cast<u8 *>(&work);
+    asm("" : "+l"(stack) : "l"(slow_offset));
     register ClockActorList * slow_list asm("r1") = reinterpret_cast<ClockActorList *>(stack + slow_offset);
     asm("" : "+l"(slow_list));
     register u32 clear asm("r0") = 0;
