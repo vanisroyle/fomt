@@ -226,6 +226,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008940);
         src/hardware.o(.text.HardwareContext_GetVBlankTasks);
         asm/hardware.o(.text.after_0800894C);
+        src/hardware.o(.text.VBlankDispatcher_Initialize);
+        asm/hardware.o(.text.after_08008980);
         src/hardware.o(.text.VBlankDispatcher_Destroy);
         asm/hardware.o(.text.after_08008A68);
         src/hardware.o(.text.VBlankDispatcher_GetTasks);

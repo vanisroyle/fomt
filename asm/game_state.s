@@ -2763,7 +2763,7 @@ GameScript_InitializeWithSceneSpec: @ 0x08011DC4
     bl DisplayRegisters_Initialize
     adds r0, r7, #0
     adds r0, #0x68
-    bl func_08008980
+    bl VBlankDispatcher_Initialize
     adds r2, r7, #0
     adds r2, #0x6c
     str r4, [r7, #0x6c]

@@ -2222,7 +2222,7 @@ func_08004C68: @ 0x08004C68
     sub sp, #0x5c
     str r0, [sp, #0x4c]
     add r0, sp, #4
-    bl func_08008980
+    bl VBlankDispatcher_Initialize
     movs r0, #0x23
     bl Audio_StartOrChangeSong
     add r4, sp, #8

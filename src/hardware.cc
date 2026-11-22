@@ -1697,7 +1697,7 @@ struct VBlankRuntime
     TaskList pending_tasks;
     TaskNode audio_vblank;
     VBlankRootTaskList root;
-    bool restore_audio_dma;
+    u8 restore_audio_dma;
 };
 
 struct VBlankDispatcher
@@ -1738,7 +1738,7 @@ extern TaskVtable gVBlankRootTaskListVtable; // 0x080E5B18
 extern TaskVtable gDisplayFadeTaskVtable; // 0x080E5B80
 EC void func_080D7944(VBlankIrqSubscription *, u32);
 
-EC void func_08008980(VBlankDispatcher *);
+EC VBlankDispatcher * VBlankDispatcher_Initialize(VBlankDispatcher *);
 extern TaskVtable vtable_unk_080E5BD8;
 
 inline void HardwareDmaAllocation_Initialize(HardwareDmaAllocation * self) { self->capacity_end = nullptr; }
@@ -1760,7 +1760,7 @@ EC SECTION(".text.HardwareContext_Initialize") HardwareContext * HardwareContext
     HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
     DisplayRegisters_Initialize(&state->display);
     OamBuffer_Initialize(&state->oam, 0, 32);
-    func_08008980(&state->vblank);
+    VBlankDispatcher_Initialize(&state->vblank);
     TaskList * tasks = &state->frame_tasks;
     frame_tasks = tasks;
     task_list = tasks;
@@ -1805,7 +1805,7 @@ EC SECTION(".text.HardwareContext_InitializeWithKeyRepeat") HardwareContext * Ha
     HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
     DisplayRegisters_Initialize(&state->display);
     OamBuffer_Initialize(&state->oam, 0, 32);
-    func_08008980(&state->vblank);
+    VBlankDispatcher_Initialize(&state->vblank);
     TaskList * tasks = &state->frame_tasks;
     frame_tasks = tasks;
     task_list = tasks;
@@ -1850,7 +1850,7 @@ EC SECTION(".text.HardwareContext_InitializeWithOamReservation") HardwareContext
     HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
     DisplayRegisters_Initialize(&state->display);
     OamBuffer_Initialize(&state->oam, oam->reserved_sprites, oam->reserved_affines);
-    func_08008980(&state->vblank);
+    VBlankDispatcher_Initialize(&state->vblank);
     TaskList * tasks = &state->frame_tasks;
     frame_tasks = tasks;
     task_list = tasks;
@@ -1977,6 +1977,62 @@ EC void SECTION(".text.HardwareContext_CommitFrame") HardwareContext_CommitFrame
     TaskNode_Destroy(dma_node, 2);
     TaskNode_Destroy(&oam_task.node, 2);
     TaskNode_Destroy(&display_task.node, 2);
+}
+
+EC void func_080D78F8(VBlankIrqSubscription *, TaskList **);
+extern TaskVtable vtable_unk_080E5B70;
+extern TaskVtable vtable_unk_080E5B60;
+
+// 0x08008980
+EC SECTION(".text.VBlankDispatcher_Initialize") VBlankDispatcher * VBlankDispatcher_Initialize(VBlankDispatcher * self)
+{
+    VBlankRuntime * state = new VBlankRuntime;
+    u8 * restore_audio_dma;
+    state->audio_update.previous_link = 0;
+    state->audio_update.next = 0;
+    state->audio_update.vtable = &vtable_unk_080E5B70;
+    TaskList * pending = &state->pending_tasks;
+    pending->node.previous_link = 0;
+    pending->node.next = 0;
+    pending->node.vtable = &gTaskListVtable;
+    TaskNode * sentinel = &pending->sentinel;
+    pending->first = sentinel;
+    sentinel->previous_link = 0;
+    sentinel->next = 0;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    pending->sentinel.previous_link = &pending->first;
+    pending->sentinel.next = sentinel;
+    pending->node.vtable = &gIrqTaskListVtable;
+    TaskNode * audio_vblank = &state->audio_vblank;
+    audio_vblank->previous_link = 0;
+    audio_vblank->next = 0;
+    audio_vblank->vtable = &vtable_unk_080E5B60;
+    TaskList * root = &state->root.tasks;
+    root->node.previous_link = 0;
+    root->node.next = 0;
+    root->node.vtable = &gTaskListVtable;
+    TaskNode * root_sentinel = &root->sentinel;
+    root->first = root_sentinel;
+    root_sentinel->previous_link = 0;
+    root_sentinel->next = 0;
+    root_sentinel->vtable = &vtable_unk_080E5BD8;
+    root->sentinel.previous_link = &root->first;
+    root->sentinel.next = root_sentinel;
+    root->node.vtable = &gIrqTaskListVtable;
+    VBlankIrqSubscription * subscription = &state->root.irq_subscription;
+    TaskList * irq_tasks = root;
+    func_080D78F8(subscription, &irq_tasks);
+    reinterpret_cast<VBlankRootTaskList *>(root)->irq_subscription.vtable = gVBlankIrqSubscriptionVtable;
+    root->node.vtable = &gVBlankRootTaskListVtable;
+    restore_audio_dma = &state->restore_audio_dma;
+    state->restore_audio_dma = Audio_IsDma1Enabled() ^ 1;
+    if (*restore_audio_dma)
+        Audio_EnableVBlankDma();
+    IrqTaskList_Append(root, &state->audio_update);
+    IrqTaskList_Append(root, &pending->node);
+    IrqTaskList_Append(root, audio_vblank);
+    self->state = state;
+    return self;
 }
 
 // 0x08008A68
