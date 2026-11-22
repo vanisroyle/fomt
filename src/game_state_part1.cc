@@ -89,6 +89,9 @@ struct GameStateAffectionSaveView
     Dog dog;
 };
 
+// 0x08011650
+EC u8 * SaveData_LoadFromStorage(u8 * saveData, void * storage, u32 offset, u32 & errors);
+
 // 0x08010E68
 EC bool SECTION(".text.game_state_08010E68") SaveData_HaveAllAnimalsHighAffection(GameStateAffectionSaveView const & save)
 {
@@ -303,9 +306,10 @@ struct GameStateObject
     virtual void vfunc_2C();
     virtual void vfunc_30();
     virtual void vfunc_34();
-    virtual void vfunc_38(u32 id);
+    virtual void CreateActor(u32 actorId);
     virtual void RemoveActor(u32 actorId);
     virtual GameStateActorEntity * GetActor(u32 actorId);
+
     virtual void vfunc_44();
     virtual void vfunc_48();
     virtual void vfunc_4C();
@@ -333,10 +337,10 @@ struct GameStateObject
     virtual i32 RemoveRecordPlayerAlbum();
     virtual i32 SetRecordPlayerAlbum(u32 albumId);
     virtual void vfunc_AC(u32 index);
-    virtual void vfunc_B0();
+    virtual bool KeepClockColonVisible();
     virtual void WarpToLocation(Location const & location, bool preserveEventMusic);
     virtual void vfunc_B8();
-    virtual void vfunc_BC();
+    virtual void SetGameTime(GameTime const & time);
     virtual void vfunc_C0();
     virtual void vfunc_C4();
     virtual void vfunc_C8();
@@ -508,15 +512,28 @@ struct GameStateNestedSceneFactory
     GameStateSceneFactory * factory;
 };
 
+struct GameStateScript;
+
+struct GameStateRuntimeDmaQueue
+{
+    void * begin;
+    void * end;
+    u32 allocationState;
+    void * capacityEnd;
+};
+
 struct GameStateRuntime
 {
-    STRUCT_PAD(0x00, 0x10);
-    u16 flags;
-    STRUCT_PAD(0x12, 0x8C);
+    GameStateRuntimeDmaQueue dmaQueue;
+    u16 displayControl;
+    u16 displayRegisters[0x2A];
+    void * taskDispatcher;
+    STRUCT_PAD(0x6C, 0x88);
+    GameStateScript * script;
     u8 * saveData;
-    STRUCT_PAD(0x90, 0x9C);
+    GameScriptSceneSpec sceneSpec;
     u32 pendingCommand;
-    STRUCT_PAD(0xA0, 0xA4);
+    void * displayFade;
     SmartPtr<GameStateSceneFactory> pendingSceneFactory;
     GameStateObject * scene;
     GameStateDialogueOwner dialogue;
@@ -528,7 +545,11 @@ struct GameStateRuntime
     u16 pendingArgument;
     STRUCT_PAD(0xE2, 0xE4);
     GameStateActorEntity * waitActor;
-    STRUCT_PAD(0xE8, 0xF4);
+    bool fadeState;
+    u8 fadeTarget;
+    bool scriptBackgroundEnabled;
+    u16 scriptBackgroundColor;
+    char * temporaryText;
     virtual ~GameStateRuntime();
 
     void * GetTextVariables() const { return textVariables; }
@@ -558,7 +579,7 @@ EC void SECTION(".text.game_state_08014C34") GameScript_CreateHorseActor(GameSta
     {
         Farm & farm = *reinterpret_cast<Farm *>(runtime.GetSaveData() + 0x14);
         farm.SetHorse(Horse(ActorLocation(Location(mapId, x, y), 0), ageYears * 120));
-        runtime.scene->vfunc_38(0x2C);
+        runtime.scene->CreateActor(0x2C);
         GameStateActorEntity * horseActor = runtime.scene->GetActor(0x2C);
         if (horseActor != nullptr && !horseActor->vfunc_28())
             horseActor->vfunc_20();
@@ -792,7 +813,7 @@ EC void SECTION(".text.game_state_080125EC") GameScript_CloseDialoguePanels(Game
     runtime.textPanel = nullptr;
     runtime.secondaryTextPanel = nullptr;
     runtime.dialogue = nullptr;
-    runtime.flags &= ~0x100;
+    runtime.displayControl &= ~0x100;
 }
 
 
@@ -910,6 +931,12 @@ struct GameStateGlobal
 
 extern GameStateGlobal * gActiveGameScene;
 
+// 0x08011DC4
+EC GameStateScript * GameScript_InitializeWithSceneSpec(GameStateScript * script, u8 * saveData, GameScriptSceneSpec const & sceneSpec);
+
+// 0x08011ED8
+EC GameStateScript * GameScript_InitializeDefaultScene(GameStateScript * script, u8 * saveData);
+
 // 0x08012B24
 EC void SECTION(".text.game_state_08012B24") GameScript_QueueSceneEvent(GameStateScript & script, GameStateScriptEvent const & event, i32 queue)
 {
@@ -971,6 +998,65 @@ EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 EC void AudioPlayer_FadeOut(void * self, u32 speed);
+EC void AudioPlayer_ResetChannels(void * player);
+EC void AudioPlayer_SetTempo(void * player, u16 tempo);
+EC void AudioPlayer_SetTrackVolume(void * player, u16 volume, u16 tracks);
+EC void AudioPlayer_SetTrackPitch(void * player, i16 pitch, u16 tracks);
+EC void AudioPlayer_SetTrackPan(void * player, i8 pan, u16 tracks);
+EC void AudioPlayer_SetTrackModDepth(void * player, u8 depth, u16 tracks);
+EC void AudioPlayer_SetTrackLfoSpeed(void * player, u8 speed, u16 tracks);
+
+struct GameStateScriptMusicSettings
+{
+    u16 tempo;
+    u16 volume;
+    i16 pitch;
+    i8 pan;
+    u8 modulation;
+    u8 lfoSpeed;
+};
+
+struct GameStateMusicPlayer
+{
+    void StartWithMode(i32 mode, u16 song)
+    {
+        switch (mode)
+        {
+        case 0:
+            AudioPlayer_StartSong(this, song);
+            break;
+        case 1:
+            AudioPlayer_StartSongIfStoppedOrChanged(this, song);
+            break;
+        case 2:
+            AudioPlayer_StartOrResumeSong(this, song);
+            break;
+        }
+    }
+
+    void ResetChannels() { AudioPlayer_ResetChannels(this); }
+    void SetTempo(u16 tempo) { AudioPlayer_SetTempo(this, tempo); }
+    void SetVolume(u16 volume) { AudioPlayer_SetTrackVolume(this, volume, 0xFFFF); }
+    void SetPitch(i16 pitch) { AudioPlayer_SetTrackPitch(this, pitch, 0xFFFF); }
+    void SetPan(i8 pan) { AudioPlayer_SetTrackPan(this, pan, 0xFFFF); }
+    void SetModulation(u8 depth) { AudioPlayer_SetTrackModDepth(this, depth, 0xFFFF); }
+    void SetLfoSpeed(u8 speed) { AudioPlayer_SetTrackLfoSpeed(this, speed, 0xFFFF); }
+};
+
+// 0x080123CC
+EC void SECTION(".text.game_state_080123CC") GameScript_ConfigureMusic(GameStateScript & script, i32 mode, u32 songId, GameStateScriptMusicSettings const & settings)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    reinterpret_cast<GameStateMusicPlayer *>(runtime.musicPlayer)->StartWithMode(mode, songId);
+    GameStateMusicPlayer * music = reinterpret_cast<GameStateMusicPlayer *>(runtime.musicPlayer);
+    music->ResetChannels();
+    music->SetTempo(settings.tempo);
+    music->SetVolume(settings.volume);
+    music->SetPitch(settings.pitch);
+    music->SetPan(settings.pan);
+    music->SetModulation(settings.modulation);
+    music->SetLfoSpeed(settings.lfoSpeed);
+}
 
 struct G1NpcSchedule;
 EC void AdvanceNpcScheduleDailyCounter(G1NpcSchedule * schedule);
@@ -1121,6 +1207,71 @@ EC void SECTION(".text.game_state_08016834") GameScript_ClearFarmAnimalActor(Gam
         break;
     }
 }
+
+// 0x080168D4
+EC void GameScript_RelocateSelectedAnimalActor(GameStateScript & script, u32 kind);
+
+// 0x08014318
+EC void GameScript_SetGameTime(GameStateScript & script, GameTime const & time);
+
+struct GameStateMapOverlay;
+
+struct GameStateMapCleanupResource
+{
+    u32 resourceState[9];
+    virtual ~GameStateMapCleanupResource();
+};
+
+template <u32 Count>
+struct GameStateMapCleanupOwners
+{
+    SmartPtr<GameStateMapCleanupResource> entries[Count];
+};
+
+struct GameStateMapCleanupSlot
+{
+    u32 metadata[2];
+    SmartPtr<GameStateMapCleanupResource> resource;
+};
+
+struct GameStateMapCleanupSlots
+{
+    GameStateMapCleanupSlot entries[4];
+};
+
+typedef GameStateMapCleanupOwners<6> GameStateMapSpecialResources;
+typedef GameStateMapCleanupOwners<2> GameStateMapResourcePair;
+
+struct GameStateMapSceneCleanupView
+{
+    void const * vtable;
+    u8 contents[0x1034];
+    u8 * saveData;
+    STRUCT_PAD(0x103C, 0x1050);
+    u8 * tileWorkBuffer;
+    STRUCT_PAD(0x1054, 0x1058);
+    SmartPtr<GameStateMapCleanupResource> resource1058;
+    SmartPtr<GameStateMapCleanupResource> resource105C;
+    STRUCT_PAD(0x1060, 0x1064);
+    SmartPtr<GameStateMapCleanupResource> resource1064;
+    SmartPtr<GameStateMapCleanupResource> resource1068;
+    GameStateMapResourcePair resourcePair106C;
+    GameStateMapResourcePair resourcePair1074;
+    GameStateMapOverlay * overlay;
+    GameStateMapCleanupSlots resourceSlots;
+    GameStateMapSpecialResources specialResources;
+    bool applyExitPenalty;
+    bool skipExitPenaltyEvent;
+};
+
+typedef char GameStateMapSceneCleanupLayout[
+    sizeof(GameStateMapCleanupResource) == 0x28 &&
+    offsetof(GameStateMapSceneCleanupView, saveData) == 0x1038 &&
+    offsetof(GameStateMapSceneCleanupView, specialResources) == 0x10B0 &&
+    offsetof(GameStateMapSceneCleanupView, skipExitPenaltyEvent) == 0x10C9 ? 1 : -1];
+
+// 0x080179CC
+EC void GameStateMapScene_Destroy(GameStateMapSceneCleanupView * scene, u32 flags);
 
 // 0x080127A0
 EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveIndicator(GameStateScript & script, u32 characterId)
@@ -2068,7 +2219,7 @@ EC SECTION(".text.game_state_08012064") void GameScript_StartRuntimeOperation(Ga
 EC SECTION(".text.game_state_08016CEC") void GameScript_ActivateActor(GameStateScript & script, u32 actorId)
 {
     GameStateObject * & object = script.runtime->scene;
-    object->vfunc_38(actorId);
+    object->CreateActor(actorId);
     AActorEntity * entity = object->GetActor(actorId);
     if (entity != nullptr && !entity->vfunc_28())
         entity->vfunc_20();
@@ -2080,7 +2231,7 @@ EC SECTION(".text.game_state_080167DC") void GameScript_RefreshActor23(GameState
     GameStateRuntime & runtime = *script.runtime;
     ActivateRosterNamedNpc(runtime.saveData + 0x1CD4, runtime.saveData + 0x11);
     GameStateObject * & object = runtime.scene;
-    object->vfunc_38(0x23);
+    object->CreateActor(0x23);
     AActorEntity * entity = object->GetActor(0x23);
     if (entity != nullptr && !entity->vfunc_28())
         entity->vfunc_20();

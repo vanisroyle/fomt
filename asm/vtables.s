@@ -308,7 +308,7 @@ vtable_unk_080E5EB4:
 	.global vtable_unk_080E5EC4
 vtable_unk_080E5EC4: @ game object
 	.word 0, 0
-	.word func_080179CC @ 08
+	.word GameStateMapScene_Destroy @ 08
 	.word func_08017C30 @ 0C
 	.word func_080182C8 @ 10
 	.word GameStateGetMapViewId
@@ -962,9 +962,11 @@ gSpriteAnimationDataVTable:
 vtable_unk_080E79DC:
 	.incbin "baserom.gba", 0xE79DC, 0xC
 
-	.global vtable_unk_080E79E8
-vtable_unk_080E79E8:
-	.incbin "baserom.gba", 0xE79E8, 0x10
+	.global gChildhoodMemoryFarmerNameVTable
+gChildhoodMemoryFarmerNameVTable:
+	.4byte 0, 0
+	.4byte func_080E1A28
+	.4byte ResolveChildhoodMemoryFarmerName
 
 	.global gChildhoodMemorySceneVTable
 gChildhoodMemorySceneVTable:

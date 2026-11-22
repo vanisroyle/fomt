@@ -420,6 +420,7 @@ SECTIONS
         asm/game_state.o(.text.game_state_08011650);
         src/game_state_part1.o(.text.game_state_08011CD8);
         asm/game_state.o(.text.game_state_08011DC4);
+        asm/game_state.o(.text.game_state_08011ED8);
         src/game_state_part1.o(.text.game_state_08011FE8);
         asm/game_state.o(.text.game_state_08012028);
         src/game_state_part1.o(.text.game_state_08012064);
@@ -454,7 +455,7 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_0801238C);
         asm/game_state.o(.text.game_state_080123A4);
         src/game_state_part1.o(.text.game_state_080123A4);
-        asm/game_state.o(.text.game_state_080123CC);
+        src/game_state_part1.o(.text.game_state_080123CC);
         src/game_state_part1.o(.text.game_state_08012454);
         asm/game_state.o(.text.game_state_08012464);
         src/game_state_part1.o(.text.game_state_08012464);
@@ -1629,6 +1630,8 @@ SECTIONS
         asm/code_linkonce.o(.text.code_080E0EF0);
         *(.text.medal_exchange.080E1844);
         asm/code_linkonce.o(.text.code_080E18A4);
+        *(.text.childhood_memory.080E19A4);
+        asm/code_linkonce.o(.text.code_080E19F8);
 
         *(.gnu.linkonce.d.__vt_6AScene);
         *(.gnu.linkonce.d.__vt_13AUnk_0800080C);
