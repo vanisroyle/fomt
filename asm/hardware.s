@@ -374,7 +374,7 @@ func_08007A28: @ 0x08007A28
     adds r1, r3, #0
     lsrs r2, r2, #0x1c
     ldr r0, [sp, #0xc]
-    bl func_080080A0
+    bl AllocationTree_FreeBlock
     movs r0, #0
     strh r0, [r6, #4]
     ldr r0, [r5, #0x20]
@@ -535,7 +535,7 @@ func_08007B54: @ 0x08007B54
 .L08007C14:
     adds r0, r6, #0
     adds r2, r7, #0
-    bl func_080080A0
+    bl AllocationTree_FreeBlock
 .L08007C1C:
     movs r1, #0
 .L08007C1E:
@@ -723,48 +723,7 @@ func_08007F84: @ 0x08007F84
 .L0800801C: .4byte 0xFFFFFE00
 
     .section .text.after_08008020, "ax"
-    thumb_func_start func_080080A0
-func_080080A0: @ 0x080080A0
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    cmp r2, #9
-    bhi .L080080DA
-    movs r0, #0x80
-    lsls r0, r0, #2
-    ands r0, r1
-    adds r5, r4, #4
-    adds r3, r5, #0
-    cmp r0, #0
-    beq .L080080BA
-    adds r3, r4, #0
-    adds r3, #0x80
-.L080080BA:
-    adds r0, r3, #0
-    bl func_080D76C0
-    movs r0, #0
-    strb r0, [r4]
-    movs r1, #0
-    ldrb r0, [r5, #1]
-    cmp r0, #0
-    beq .L080080D6
-    adds r0, r4, #0
-    adds r0, #0x80
-    ldrb r0, [r0, #1]
-    rsbs r0, r0, #0
-    lsrs r1, r0, #0x1f
-.L080080D6:
-    strb r1, [r4, #1]
-    b .L080080E4
-.L080080DA:
-    cmp r2, #0xa
-    bne .L080080E4
-    adds r0, r4, #0
-    bl AllocationTree_MarkEmpty
-.L080080E4:
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
+    .section .text.after_080080A0, "ax"
 .L080080EC:
     .byte 0x40, 0x78, 0x70, 0x47
     .byte 0x00, 0x78, 0x70, 0x47, 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0x82, 0xB0

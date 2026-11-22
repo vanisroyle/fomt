@@ -437,6 +437,28 @@ EC u32 SECTION(".text.AllocationTree_AllocateBlock") AllocationTree_AllocateBloc
 
 struct TileHeapOwner {};
 
+EC void func_080D76C0(AllocationTreeBranch *, u32, u32);
+
+inline u8 AllocationTreeBranch_GetEmptyFlag(AllocationTreeBranch const * child) { return child->empty; }
+
+// 0x080080A0
+EC void SECTION(".text.AllocationTree_FreeBlock") AllocationTree_FreeBlock(AllocationTree * self, u32 tile_index, u32 order)
+{
+    if (order <= 9)
+    {
+        u32 child_selector = tile_index & 512;
+        AllocationTreeBranch * first_child = &self->children[0];
+        AllocationTreeBranch * child = first_child;
+        if (child_selector)
+            child = &self->children[1];
+        func_080D76C0(child, tile_index, order);
+        self->full = 0;
+        self->empty = first_child->empty && AllocationTreeBranch_GetEmptyFlag(&self->children[1]);
+    }
+    else if (order == 10)
+        AllocationTree_MarkEmpty(self);
+}
+
 union TileHeapEntry
 {
     TileHeapEntry * next_free;
@@ -500,7 +522,6 @@ inline bool TileHeapEntry_Matches(TileHeapEntry const & entry, u32 handle)
     return u16(handle >> 8) == entry.params.generation;
 }
 
-EC void func_080080A0(AllocationTree *, u32, u32);
 
 // 0x08007C28
 EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * self, u32 handle)
@@ -525,7 +546,7 @@ EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * s
                 u16 ref_count = --entry->params.ref_count;
                 if (ref_count == no_references)
                 {
-                    func_080080A0(&heap->tree, entry->params.tile_index, entry->params.order);
+                    AllocationTree_FreeBlock(&heap->tree, entry->params.tile_index, entry->params.order);
                     entry->params.generation = ref_count;
                     heap->entry_pool.FreeEntry(entry);
                     heap->ClearAllocated(entry_index);
