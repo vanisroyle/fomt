@@ -28693,7 +28693,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	bl TileHandle_Release
 	ldr r1, [sp, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 .L0804F448:
 	ldr r1, [sp, #4]

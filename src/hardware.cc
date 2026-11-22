@@ -494,6 +494,37 @@ EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * s
     }
 }
 
+// 0x08007CD8
+EC u32 SECTION(".text.TileHandle_Retain") TileHandle_Retain(TileHeapOwner * self, u32 handle)
+{
+    u16 retained_ref_count;
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    int generation_status;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_status = TileHeapEntry_Matches(*entry, handle);
+            generation_matches = generation_status;
+            if (generation_matches)
+            {
+                u16 previous_ref_count = entry->params.ref_count;
+                int ref_count = previous_ref_count + 1;
+                entry->params.ref_count = ref_count;
+                if ((retained_ref_count = ref_count) != 0)
+                    return handle;
+                entry->params.ref_count = previous_ref_count;
+            }
+        }
+    }
+    return 0;
+}
+
 // 0x08007D4C
 EC u32 SECTION(".text.TileHandle_GetTileIndex") TileHandle_GetTileIndex(TileHeapOwner * self, u32 handle)
 {
@@ -563,7 +594,7 @@ EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self
 EC TileHeapOwner * func_08007874(TileHeapOwner *);
 EC void TileHandle_Release(TileHeapOwner *, u32);
 EC u32 func_08007E24(TileHeapOwner *, u32);
-EC u32 func_08007CD8(TileHeapOwner *, u32);
+EC u32 TileHandle_Retain(TileHeapOwner *, u32);
 EC u32 func_08007B54(TileHeapOwner *, u32);
 
 // 0x08008364
@@ -618,7 +649,7 @@ EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHand
             while (next != start);
         }
         func_08007874(&self->owner);
-        self->handle = func_08007CD8(&self->owner, next->handle);
+        self->handle = TileHandle_Retain(&self->owner, next->handle);
     }
     else
     {

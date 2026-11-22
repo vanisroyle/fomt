@@ -321,7 +321,7 @@ func_0803AEA0: @ 0x0803AEA0
 	bl func_08007874
 	ldr r1, [r5, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 .L0803AF7C:
 	ldr r0, [r6, #4]

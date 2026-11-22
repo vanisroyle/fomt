@@ -7669,7 +7669,7 @@ func_080D772C: @ 0x080D772C
 	bl func_08007874
 	ldr r1, [r5, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 .L080D7794:
 	adds r5, #8
@@ -16967,7 +16967,7 @@ func_080DC840: @ 0x080DC840
 	bl func_08007874
 	ldr r1, [r6, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 	ldrh r0, [r5, #0xc]
 	movs r1, #0
@@ -32884,7 +32884,7 @@ func_080E4438: @ 0x080E4438
 	bl TileHandle_Release
 	ldr r1, [r5, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 .L080E449A:
 	adds r4, #8
