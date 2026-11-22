@@ -3,6 +3,28 @@
 EC u32 func_080D078C(u32 * packet);
 EC u32 func_080D091C();
 
+EC SECTION(".text.g5_080D0644") void Joybus_QueueWordExchange(u32 send_word, u32 require_handshake) // 0x080D0644
+{
+    register JoybusState ** state_slot asm("r4") = &gJoybusState;
+    asm ("" : "+l" (state_slot));
+    u8 * bytes = (u8 *) *state_slot;
+    bytes[0x28] = send_word;
+    bytes = (u8 *) *state_slot;
+    register u32 next_byte asm("r3") = send_word >> 8;
+    asm ("" : "+l" (next_byte));
+    bytes[0x29] = next_byte;
+    bytes = (u8 *) *state_slot;
+    next_byte = send_word >> 16;
+    asm ("" : "+l" (next_byte));
+    bytes[0x2a] = next_byte;
+    bytes = (u8 *) *state_slot;
+    send_word >>= 24;
+    asm ("" : "+l" (send_word));
+    bytes[0x2b] = send_word;
+    (*state_slot)->unknown_00[12] = require_handshake;
+    Joybus_QueueExchangeCommands();
+}
+
 EC SECTION(".text.g5_init") void InitializeJoybusState(JoybusState * state) // 0x080D02CC
 {
     gJoybusState = state;
@@ -185,7 +207,7 @@ EC SECTION(".text.g5_queries") u32 func_080D0678()
         ((u8 *) state)[0x2e] << 16 | ((u8 *) state)[0x2f] << 24;
 }
 
-EC SECTION(".text.g5_transfer") void func_080D05DC()
+EC SECTION(".text.g5_transfer") void Joybus_QueueExchangeCommands() // 0x080D05DC
 {
     JoybusCommand command;
     gJoybusState->unknown_00[5] = 5;

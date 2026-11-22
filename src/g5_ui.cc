@@ -5,6 +5,29 @@ EC void ClearMessageWindowButtonMask(void *, u32);
 EC void SetMessageWindowText(void *, const char *);
 EC void SetMessageWindowTextOptions(void *, const char *, u16, const void *);
 
+EC SECTION(".text.g5_080CAC3C") u8 func_080CAC3C(u8 * menu) // 0x080CAC3C
+{
+    return menu[0x6a3];
+}
+
+EC SECTION(".text.g5_080CAC3C") u8 func_080CAC48(u8 * menu) // 0x080CAC48
+{
+    return menu[0x6a1];
+}
+
+EC SECTION(".text.g5_080CAC3C") void G5Display_SetVCountCompare(void * context, u16 scanline) // 0x080CAC54
+{
+    *(volatile u16 *) 0x04000004 &= 0xff;
+    *(volatile u16 *) 0x04000004 |= scanline << 8;
+}
+
+EC SECTION(".text.g5_080CAD08") void InitializeUiEntryWithValue(UiEntry * entry, u32 tile_data, u32 palette_data, u32 value) // 0x080CAD08
+{
+    entry->tile_data = tile_data;
+    entry->palette_data = palette_data;
+    entry->value = value;
+}
+
 EC SECTION(".text.g5_buttons") void func_080CABA0(u8 * self, u32 value)
 {
     void * buttons = self + 0x348;
@@ -32,8 +55,8 @@ EC SECTION(".text.g5_buttons") void func_080CABEC(u8 * self, u32 value)
 EC SECTION(".text.g5_entry_init") void InitializeUiEntry(UiEntry * self) // 0x080CAC70
 {
     self->value = 0;
-    self->unknown_04 = 0;
-    self->unknown_08 = 0;
+    self->tile_data = 0;
+    self->palette_data = 0;
 }
 
 EC SECTION(".text.g5_entry_access") void SetUiEntryValue(UiEntry * self, u32 value) // 0x080CAD10
@@ -46,16 +69,16 @@ EC SECTION(".text.g5_entry_access") u32 GetUiEntryValue(UiEntry * self) // 0x080
     return self->value;
 }
 
-EC SECTION(".text.g5_entry_update") void SetUiEntry(UiEntry * self, u32 unknown_04, u32 unknown_08, u32 value) // 0x080CADA0
+EC SECTION(".text.g5_entry_update") void SetUiEntry(UiEntry * self, u32 tile_data, u32 palette_data, u32 value) // 0x080CADA0
 {
-    self->unknown_04 = unknown_04;
-    self->unknown_08 = unknown_08;
+    self->tile_data = tile_data;
+    self->palette_data = palette_data;
     self->value = value;
 }
 
 EC SECTION(".text.g5_entry_update") void ClearUiEntry(UiEntry * self) // 0x080CADA8
 {
     self->value = 0;
-    self->unknown_04 = 0;
-    self->unknown_08 = 0;
+    self->tile_data = 0;
+    self->palette_data = 0;
 }

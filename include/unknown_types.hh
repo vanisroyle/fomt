@@ -48,10 +48,11 @@ struct Box
 
 struct TerrainInfo
 {
-    // bit 0 is 1 if this is a solid tile
-    // somewhere between bit 1 and 17 is some warp info
-    // bits 17 onward (unknown end) are a interaction script ID
-    STRUCT_PAD(0x00, 0x04);
+    u8 solid : 1;
+    u8 reserved_00 : 7;
+    u8 reserved_01;
+    u16 reserved_02 : 1;
+    u16 interaction_script : 15;
 };
 
 // NOTE: this is not used yet in code, but I'm pretty sure that's correct
@@ -60,15 +61,15 @@ struct MapData
     /* +00 */ void const * packed_img;
     /* +04 */ void const * packed_pal1;
     /* +08 */ void const * packed_pal2;
-    /* +0C */ void const * packed_tiles1;
-    /* +10 */ void const * packed_tiles2;
-    /* +14 */ void const * packed_tiles3;
+    /* +0C */ void const * packed_tilemaps[3];
     /* +18 */ TerrainInfo const * terrain_info;
     /* +1C */ u8 const * terrain_map;
     /* +20 */ u16 width;
     /* +22 */ u16 height;
     /* +24 */ bool is_interior;
 };
+
+EC u32 GetMapGraphicsVariantId(u32 mapId, u32 season, u32 houseLevel, u32 coopLevel, u32 barnLevel);
 
 // TODO: rename
 // TODO: move elsewhere

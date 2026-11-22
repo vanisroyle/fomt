@@ -10,7 +10,7 @@ struct FestivalChicken
     u32 action;
     u32 previousAction;
     u32 facing;
-    u32 unknown_0C;
+    u32 previousFacing;
     u32 movementDecision;
     u32 reaction;
     i32 ringDistance;
@@ -74,7 +74,7 @@ struct MinigameState
 EC u8 vtable_unk_080E850C[];
 EC u8 vtable_unk_080E8528[];
 EC void * func_080ADF6C(void *, void *);
-EC void * func_080B3CC8(void *, void *);
+EC void * InitializeChickenFestivalScene(void *, void *);
 EC void Scene_DestroyBase(void *, u32);
 EC void AudioPlayer_StartSong(void *, u32);
 struct ChickenFeedingScene;
@@ -114,6 +114,37 @@ EC SECTION(".text.g3_080B3948") void AdvanceFeedingEffectTimers(FeedingEffectTim
             break;
         }
     }
+}
+
+struct FestivalInstructionChickens
+{
+    u8 unknown_000[0x6c];
+    FestivalChicken chickens[2];
+    u8 unknown_0EC[0xa72];
+    u8 speed;
+};
+
+EC void CreateFestivalChickenSprites(void *, u8);
+
+EC SECTION(".text.g3_080B5788") void ResetFestivalInstructionChickens(FestivalInstructionChickens * state)
+{
+    for (i32 i = 0; i < 2; ++i)
+    {
+        state->chickens[i].x = 0x7800;
+        state->chickens[i].y = (i * 24 + 58) << 8;
+        state->chickens[i].speed = state->speed;
+        state->chickens[i].unknown_31[0] = 1;
+        state->chickens[i].unknown_27[2] = 1;
+        state->chickens[i].action = 2;
+        state->chickens[i].previousAction = 2;
+        state->chickens[i].unknown_31[14] = 0;
+    }
+    state->chickens[0].facing = 3;
+    state->chickens[0].previousFacing = 3;
+    state->chickens[1].facing = 1;
+    state->chickens[1].previousFacing = 1;
+    CreateFestivalChickenSprites(state, 0);
+    CreateFestivalChickenSprites(state, 1);
 }
 
 EC SECTION(".text.g3_080B3BA8") void ToggleFeedingPause(u8 * state)
@@ -260,7 +291,7 @@ EC SECTION(".text.g3_080BA574") void ShowFestivalInstructionPage(u8 * state, u32
 EC SECTION(".text.g3_080BC898") MinigameWrapper * CreateChickenFestivalWrapper(MinigameWrapper * self, void * entrant)
 {
     self->vtable = vtable_unk_080E8528;
-    self->state = func_080B3CC8(operator new(0xb78), entrant);
+    self->state = InitializeChickenFestivalScene(operator new(0xb78), entrant);
     return self;
 }
 
@@ -490,7 +521,7 @@ EC void UpdateFestivalChickenAction2(FestivalChicken *);
 EC void UpdateFestivalChickenAction4(FestivalChicken *);
 EC void UpdateFestivalChickenIdle(FestivalChicken *);
 EC void UpdateFestivalChickenAction3(FestivalChicken *);
-EC void func_080BA204(FestivalChicken *);
+EC void UpdateFestivalCheerHop(FestivalChicken *);
 
 EC SECTION(".text.g3_080B9AC0") void UpdateFestivalChickenMovement(ChickenFestivalCombat * state)
 {
@@ -503,7 +534,7 @@ EC SECTION(".text.g3_080B9AC0") void UpdateFestivalChickenMovement(ChickenFestiv
         case 4: UpdateFestivalChickenAction4(&state->chickens[i]); break;
         case 0: UpdateFestivalChickenIdle(&state->chickens[i]); break;
         case 3: UpdateFestivalChickenAction3(&state->chickens[i]); break;
-        case 5: func_080BA204(&state->chickens[i]); break;
+        case 5: UpdateFestivalCheerHop(&state->chickens[i]); break;
         }
     }
 }
@@ -1256,4 +1287,111 @@ EC SECTION(".text.g3_080BA2C4") i32 RunFestivalInstructionDialogue(FestivalInstr
     }
     UpdateFestivalCheerDemonstration((FestivalCheerDemonstration *) state);
     return timer;
+}
+
+
+struct FestivalCrowdAnimation
+{
+    u8 unknown_000[0xb18];
+    u32 round;
+};
+
+EC SECTION(".text.g3_080BA0C4") void ChooseFestivalMovementDecision(FestivalChicken * chicken)
+{
+    u32 range = 100;
+    u32 roll = (range * (rand() & 0xffff)) >> 16;
+    short affection = chicken->affection;
+    u32 affectionLevel = affection;
+    if (affectionLevel <= 80)
+    {
+        if (chicken->movementBias)
+        {
+            if (roll <= 29) chicken->movementDecision = 0;
+            else if (roll <= 44) chicken->movementDecision = 1;
+            else if (roll <= 59) chicken->movementDecision = 2;
+            else chicken->movementDecision = 3;
+        }
+        else
+        {
+            if (roll <= 34) chicken->movementDecision = 0;
+            else if (roll <= 54) chicken->movementDecision = 1;
+            else if (roll <= 74) chicken->movementDecision = 2;
+            else chicken->movementDecision = 3;
+        }
+    }
+    else if ((u8) (affection - 81) <= 159)
+    {
+        if (chicken->movementBias)
+        {
+            if (roll <= 34) chicken->movementDecision = 0;
+            else if (roll <= 44) chicken->movementDecision = 1;
+            else if (roll <= 54) chicken->movementDecision = 2;
+            else chicken->movementDecision = 3;
+        }
+        else
+        {
+            if (roll <= 39) chicken->movementDecision = 0;
+            else if (roll <= 54) chicken->movementDecision = 1;
+            else if (roll <= 69) chicken->movementDecision = 2;
+            else chicken->movementDecision = 3;
+        }
+    }
+    else if (affectionLevel > 240)
+    {
+        if (chicken->movementBias)
+        {
+            if (roll <= 39) chicken->movementDecision = 0;
+            else if (roll <= 44) chicken->movementDecision = 1;
+            else if (roll <= 49) chicken->movementDecision = 2;
+            else chicken->movementDecision = 3;
+        }
+        else
+        {
+            if (roll <= 44) chicken->movementDecision = 0;
+            else if (roll <= 54) chicken->movementDecision = 1;
+            else if (roll <= 64) chicken->movementDecision = 2;
+            else chicken->movementDecision = 3;
+        }
+    }
+}
+
+EC SECTION(".text.g3_080BA204") void UpdateFestivalCheerHop(FestivalChicken * chicken)
+{
+    if (chicken->actionFrames <= 1)
+        chicken->displayY = chicken->y;
+    else if (chicken->actionFrames == 2)
+        chicken->displayY = chicken->y;
+    else if (chicken->actionFrames == 9)
+        chicken->displayY = chicken->y - 0x350;
+    else if (chicken->actionFrames == 19)
+        chicken->displayY = chicken->y - 0x600;
+    else if (chicken->actionFrames == 29)
+        chicken->displayY = chicken->y - 0x800;
+    else if (chicken->actionFrames == 39)
+        chicken->displayY = chicken->y - 0x600;
+    else if (chicken->actionFrames == 49)
+        chicken->displayY = chicken->y - 0x350;
+    else if (chicken->actionFrames == 57)
+        chicken->displayY = chicken->y;
+    else if (chicken->actionFrames > 57)
+        chicken->displayY = chicken->y;
+}
+
+EC SECTION(".text.g3_080BB890") u16 GetFestivalCrowdAnimation(FestivalCrowdAnimation * state, i32 group, i32 participant, i32 pose)
+{
+    u16 animation = 0;
+    switch (group)
+    {
+    case 0:
+        animation = gUnk_08107D3C[participant];
+        break;
+    case 1:
+        if (participant != 0) participant += state->round;
+        animation = gUnk_08107D46[participant][pose];
+        break;
+    case 2:
+        animation = gUnk_08107D66[pose];
+        break;
+    }
+    return animation;
 }

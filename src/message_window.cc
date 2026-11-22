@@ -2,6 +2,7 @@
 #include <new>
 #include <string.h>
 #include "gbasvc.h"
+#include "sprite_animation.hh"
 
 struct PACKED MessageWindowFlags
 {
@@ -56,6 +57,18 @@ struct MessageNumberCommand
     u32 stride;
 };
 
+struct MessageTileCopyCommand
+{
+    u32 state;
+    u32 unknown_04;
+    void * vtable;
+    u32 * source;
+    u32 * destination;
+    u16 tileCount : 14;
+    u16 alternate : 1;
+    u16 masked : 1;
+};
+
 struct MessageTilemapRectCommand
 {
     u32 state;
@@ -93,12 +106,20 @@ struct MessageWindowState
     MessageWindowInputFlags inputFlags;
 };
 struct MessageWindow { MessageWindowState * state; };
-struct MessageTextAdvanceGate;
+struct MessageTextAdvanceGate
+{
+    void * vtable;
+    u8 enabled;
+    u8 unknown_05[3];
+    bool ready;
+    u8 GetEnabled() const { return enabled; }
+    bool IsEnabled() const { return GetEnabled(); }
+};
 
 EC void __builtin_delete(void *);
 EC void FillMessageTiles(MessageTileSize, void *, u32);
-EC u32 func_0804E4AC(MessageTileSize, void *, u32, u32, u32);
-EC u32 func_0804E5AC(MessageTileSize, void *, u32, u32, u32, u32, u32);
+EC u32 DrawMessageGlyph(MessageTileSize, void *, u32, u32, u32);
+EC u32 DrawMessageGlyphWithColors(MessageTileSize, void *, u32, u32, u32, u32, u32);
 EC void DrawMessageTileString(MessageTileSize, void *, u32, u32, const char *);
 EC void DrawMessageChoiceText(MessageWindowState *, const u8 &, const char *, const void *);
 EC u32 GetMessageChoicePosition(u32, u32);
@@ -137,9 +158,39 @@ struct MessagePortraitClips
     MessagePortraitClip * entries;
 };
 
+struct PACKED MessageGraphicsFlags
+{
+    u32 screenBase : 5;
+    u32 firstTile : 10;
+    u32 palette : 4;
+    u32 spritePalette : 4;
+    u32 unused : 9;
+};
+struct MessageWindowGraphics
+{
+    u32 unknown[3];
+    MessageGraphicsFlags flags;
+};
+struct MessageGraphicsFrame
+{
+    u32 unknown[4];
+    const void * palette;
+    u32 tail[3];
+};
+struct MessageWindowGraphicsScratch
+{
+    u32 fill;
+    MessageGraphicsFrame frame;
+    MessagePortraitResources resources;
+};
+
+EC void DrawMessageFrame(u16 *, u32, u32, u32, u32, u32, u32);
+EC const void * gUnk_080F9F78;
+EC const u8 gUnk_08728208[];
+EC void func_0805E790(MessageGraphicsFrame *, MessagePortraitResources *, u32);
+
 EC void func_0805E6CC(MessagePortraitResources *, void const *);
 EC u8 const gUnk_0852D984[];
-EC void func_080ADCA4(void *, u32);
 EC void func_0805E860(void *, u32);
 EC const u8 gUnk_080F9F3C[];
 EC void DestroyMessageWindowState(MessageWindowState *, u32);
@@ -157,6 +208,102 @@ EC void SetMessageWindowStatePromptChoices(MessageWindowState *, const char *, c
 EC void SetMessageWindowStatePortrait(MessageWindowState *, u32);
 EC void SetMessageWindowStateSpeakerName(MessageWindowState *, const char *);
 EC void SetMessageWindowStateIndicator(MessageWindowState *, u32);
+
+struct MessagePortraitClipSet
+{
+    MessagePortraitClip clips[4];
+};
+
+struct MessagePortraitAnimationMethods
+{
+    STRUCT_PAD(0, 0xC);
+    void (*getClip)(SpriteAnimationClip *, MessagePortraitResources const *, u32);
+    void (*getFrame)(SpriteFrameView *, MessagePortraitResources const *, u32);
+};
+
+EC void * CopyMessagePortraitFrameBytes(void *, void const *, unsigned) asm("memcpy");
+
+EC SECTION(".text.080ADCA4") void LoadMessagePortraitAnimationFrame(MessagePortraitClips & owner, u32 portraitId)
+{
+    struct PortraitFrameLookup
+    {
+        MessagePortraitClipSet frame;
+        MessagePortraitResources resources;
+        MessagePortraitClip clip;
+    } lookup;
+    register u32 clipId asm("r8") = portraitId;
+    asm ("" : "+h" (clipId));
+    register MessagePortraitClipSet * destination asm("r4") = reinterpret_cast<MessagePortraitClipSet *>(owner.entries);
+    asm ("" : "+l" (destination));
+    register void const * data asm("r1") = gUnk_0852D984;
+    asm ("" : "+l" (data));
+    register MessagePortraitResources * initialize asm("r0") = &lookup.resources;
+    asm ("" : "+l" (initialize));
+    func_0805E6CC(initialize, data);
+    register MessagePortraitResources * resources asm("r6");
+    asm ("add %0, sp, %2" : "=l" (resources) : "m" (lookup.resources.vtable), "I" (offsetof(PortraitFrameLookup, resources)));
+    register MessagePortraitAnimationMethods const * methods asm("r5") =
+        reinterpret_cast<MessagePortraitAnimationMethods const *>(lookup.resources.vtable);
+    asm ("" : "+l" (methods));
+    register SpriteAnimationClip * clip asm("r0") = reinterpret_cast<SpriteAnimationClip *>(&lookup.clip);
+    asm ("" : "+l" (clip));
+    methods->getClip(clip, resources, clipId);
+    register unsigned frameId asm("r2") = static_cast<SpriteKeyframe const *>(lookup.clip.keyframes)->frame;
+    asm ("" : "+l" (frameId));
+    register SpriteFrameView * frame asm("r0") = reinterpret_cast<SpriteFrameView *>(&lookup.frame);
+    asm ("" : "+l" (frame));
+    methods->getFrame(frame, resources, frameId);
+    lookup.resources.vtable = reinterpret_cast<u32 const *>(vtable_unk_080E5A28);
+    frame = reinterpret_cast<SpriteFrameView *>(&lookup.frame);
+    asm ("" : "+l" (frame));
+    register MessagePortraitClipSet * frameSource asm("r1") = &lookup.frame;
+    asm ("" : "+l" (frameSource));
+    CopyMessagePortraitFrameBytes(frame, frameSource, sizeof(*frame));
+    *destination = lookup.frame;
+}
+
+static inline void ClearMessagePortraitClipLength(MessagePortraitClip * clip, unsigned zero)
+{
+    asm ("strh %1, [%2, #4]" : "=m" (clip->length) : "l" (zero), "l" (clip));
+}
+
+EC SECTION(".text.080ADC00") MessagePortraitClips * CreateMessagePortraitClips(MessagePortraitClips * owner)
+{
+    register MessagePortraitClipSet * set asm("r2") =
+        static_cast<MessagePortraitClipSet *>(operator new(sizeof(MessagePortraitClipSet)));
+    asm ("" : "+l" (set));
+    register unsigned zero asm("r0") = 0;
+    asm ("" : "+l" (zero));
+    set->clips[0].keyframes = reinterpret_cast<void *>(zero);
+    ClearMessagePortraitClipLength(set->clips, zero);
+    register MessagePortraitClip * clip asm("r1") = set->clips;
+    asm ("" : "+l" (clip));
+    ++clip;
+    asm ("" : "+l" (clip));
+    set->clips[1].keyframes = reinterpret_cast<void *>(zero);
+    ClearMessagePortraitClipLength(clip, zero);
+    ++clip;
+    asm ("" : "+l" (clip));
+    set->clips[2].keyframes = reinterpret_cast<void *>(zero);
+    ClearMessagePortraitClipLength(clip, zero);
+    ++clip;
+    asm ("" : "+l" (clip));
+    set->clips[3].keyframes = reinterpret_cast<void *>(zero);
+    ClearMessagePortraitClipLength(clip, zero);
+    owner->entries = set->clips;
+    return owner;
+}
+
+EC SECTION(".text.080ADD08") MessagePortraitClipSet & CopyMessagePortraitClips(MessagePortraitClipSet & output, MessagePortraitClips const & owner)
+{
+    register MessagePortraitClipSet * original asm("r0") = &output;
+    register MessagePortraitClipSet * destination asm("r2") = original;
+    asm ("" : "+l" (destination) : "l" (original));
+    register MessagePortraitClipSet const * source asm("r1") = reinterpret_cast<MessagePortraitClipSet const *>(owner.entries);
+    asm ("" : "+l" (source));
+    *destination = *source;
+    return *original;
+}
 
 EC SECTION(".text.080ADC84") void DestroyMessagePortraitClips(MessagePortraitClips * clips, unsigned flags)
 {
@@ -496,7 +643,7 @@ EC SECTION(".text.message_rendering.0804E8F0") void DrawMessageTileString(Messag
     while (byte != 0 && x < lineWidth)
     {
         code |= byte;
-        switch (func_0804E4AC(size, pixels, x, y, code))
+        switch (DrawMessageGlyph(size, pixels, x, y, code))
         {
         case 1: code = 0; x += 8; break;
         case 2: code = 0; x += 16; break;
@@ -517,7 +664,7 @@ EC SECTION(".text.message_rendering.0804E958") void DrawMessageTileStringWithCol
     while (byte != 0 && x < lineWidth)
     {
         code |= byte;
-        switch (func_0804E5AC(size, pixels, x, y, code, foreground, background))
+        switch (DrawMessageGlyphWithColors(size, pixels, x, y, code, foreground, background))
         {
         case 1: code = 0; x += 8; break;
         case 2: code = 0; x += 16; break;
@@ -684,4 +831,124 @@ EC SECTION(".text.message_window.08050CC0") MessageWindow * CreateMessageWindow(
     MessageWindowState * state = (MessageWindowState *) operator new(0x554);
     window->state = InitializeMessageWindowState(state, background, tiles, palette, style, graphics, font);
     return window;
+}
+
+EC SECTION(".text.message_rendering.0804E9C8") u32 DrawUnalignedMessageGlyph(MessageTileSize, void *, u32, u32, const void *)
+{
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804E9CC") u32 DrawUnalignedMessageGlyphWithColors(MessageTileSize, void *, u32, u32, const void *, u32, u32)
+{
+    return 0;
+}
+
+EC SECTION(".text.message_rendering.0804F160") bool IsMessageTextAdvanceEnabled(MessageTextAdvanceGate * gate)
+{
+    return gate->IsEnabled();
+}
+
+EC SECTION(".text.message_rendering.0804F178") bool ShouldMessageTextAdvance(MessageTextAdvanceGate * gate)
+{
+    return gate->ready && gate->IsEnabled();
+}
+
+EC SECTION(".text.message_rendering.0804E9D0") void CopyMessageTiles(MessageTileSize size, void * destination, const void * source)
+{
+    CpuFastSet(source, destination, ((size.width * size.height * 32u) >> 2) & 0x1fffff);
+}
+
+EC SECTION(".text.message_rendering.0804ED7C") MessageNumberCommand * InitializeLargeMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
+{
+    command->state = 0;
+    command->unknown_04 = 0;
+    command->vtable = vtable_unk_080E7858;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804EDF8") MessageNumberCommand * InitializeTallMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
+{
+    command->state = 0;
+    command->unknown_04 = 0;
+    command->vtable = vtable_unk_080E7848;
+    command->value = value;
+    command->tilemap = tilemap;
+    command->firstTile = firstTile;
+    command->palette = palette;
+    command->stride = stride;
+    return command;
+}
+
+EC SECTION(".text.message_rendering.0804F058") void ResetMessageTextColumn(MessageTextCursor * cursor)
+{
+    cursor->column = 0;
+}
+
+EC SECTION(".text.message_rendering.0804EF20") bool RunMessageTileCopyCommand(MessageTileCopyCommand * command)
+{
+    u32 * source = command->source;
+    u32 * destination = command->destination;
+    if (command->masked)
+    {
+        u32 * end = destination + command->tileCount * 8;
+        u32 alternate = command->alternate ^ 1;
+        command->alternate = alternate;
+        u32 mask = 0x0f0f0f0f << (alternate * 4);
+        u32 inverse = ~mask;
+        do
+        {
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+            *destination++ = *source++ & mask;
+            *destination++ = *source++ & inverse;
+        } while (destination != end);
+        return true;
+    }
+    CpuFastSet(source, destination, command->tileCount * 8);
+    return false;
+}
+
+inline void FillMessageGraphicsMap(void * destination, u32 count, u32 pattern, u32 & fill)
+{
+    fill = pattern;
+    CpuFastSet(&fill, destination, count | 0x1000000);
+}
+
+inline void LoadMessageFramePalette(u32 bank)
+{
+    CpuFastSet(gUnk_080F9F78, (void *) (0x5000000 + bank * 32), 8);
+}
+
+EC SECTION(".text.message_rendering.0804F19C") u32 LoadMessageWindowGraphics(MessageWindowGraphics * graphics)
+{
+    MessageWindowGraphicsScratch scratch;
+    u16 tile = ((graphics->flags.firstTile + 3) & 0x3ff) | (graphics->flags.palette << 12);
+    u32 pattern = tile | (tile << 16);
+    FillMessageGraphicsMap((void *) (0x6000000 + graphics->flags.screenBase * 0x800), 0xa0, pattern, scratch.fill);
+    DrawMessageFrame((u16 *) (0x6000000 + graphics->flags.screenBase * 0x800), 16, 0, 14, 3, graphics->flags.firstTile, graphics->flags.palette);
+    DrawMessageFrame((u16 *) (0x6000000 + graphics->flags.screenBase * 0x800), 0, 3, 30, 7, graphics->flags.firstTile, graphics->flags.palette);
+    LoadMessageFramePalette(graphics->flags.palette);
+    register MessagePortraitResources * resources asm("r4") = &scratch.resources;
+    func_0805E6CC(resources, gUnk_08728208);
+    func_0805E790(&scratch.frame, resources, 0);
+    CpuFastSet(scratch.frame.palette, (void *) (0x5000200 + graphics->flags.spritePalette * 32), 8);
+    scratch.resources.vtable = (const u32 *) vtable_unk_080E5A28;
+    return 0;
+}
+
+EC SECTION(".text.message_window.08050E98") u32 ClearMessageWindowButtonMask(MessageWindow * window, u32 mask)
+{
+    MessageWindowState * state = window->state;
+    u32 previous = state->inputFlags.buttons;
+    state->inputFlags.buttons = previous & ~mask;
+    return previous;
 }
