@@ -1948,8 +1948,8 @@ func_08010F54: @ 0x08010F54
 
     .section .text.game_state_08011650, "ax", %progbits
 
-    thumb_func_start func_08011650
-func_08011650: @ 0x08011650
+    thumb_func_start SaveData_LoadFromStorage
+SaveData_LoadFromStorage: @ 0x08011650
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -2735,8 +2735,8 @@ GameState_AppendLivestockStateNames: @ 0x08011934
 
     .section .text.game_state_08011DC4, "ax", %progbits
 
-    thumb_func_start func_08011DC4
-func_08011DC4: @ 0x08011DC4
+    thumb_func_start GameScript_InitializeWithSceneSpec
+GameScript_InitializeWithSceneSpec: @ 0x08011DC4
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -2861,7 +2861,10 @@ func_08011DC4: @ 0x08011DC4
 .L08011ECC: .4byte vtable_unk_080E5BD8
 .L08011ED0: .4byte 0x04000004
 .L08011ED4: .4byte gActiveGameScene
-.L08011ED8:
+    .section .text.game_state_08011ED8, "ax", %progbits
+
+    thumb_func_start GameScript_InitializeDefaultScene
+GameScript_InitializeDefaultScene: @ 0x08011ED8
     .byte 0xF0, 0xB5, 0x85, 0xB0, 0x05, 0x1C, 0x0E, 0x1C
     .byte 0x3B, 0x48, 0x28, 0x60, 0xF8, 0x20, 0xEE, 0xF7, 0x75, 0xFB, 0x07, 0x1C, 0x02, 0x20, 0x00, 0x90
     .byte 0x39, 0x1C, 0xF4, 0x31, 0x37, 0x48, 0x08, 0x60, 0x00, 0x24, 0x3C, 0x60, 0x7C, 0x60, 0x38, 0x1C
@@ -2880,6 +2883,7 @@ func_08011DC4: @ 0x08011DC4
     .byte 0x2D, 0xF0, 0x6E, 0xFC, 0x28, 0x1C, 0x05, 0xB0, 0xF0, 0xBC, 0x02, 0xBC, 0x08, 0x47, 0x00, 0x00
     .byte 0x64, 0x5E, 0x0E, 0x08, 0x08, 0x5C, 0x0E, 0x08, 0xB4, 0x5B, 0x0E, 0x08, 0xD8, 0x5B, 0x0E, 0x08
     .byte 0x04, 0x00, 0x00, 0x04, 0x0C, 0x04, 0x00, 0x03
+
 
     .section .text.game_state_08012028, "ax", %progbits
 
@@ -2950,71 +2954,6 @@ GameScript_RunRuntime: @ 0x08012028
     .section .text.game_state_080123CC, "ax", %progbits
 
 
-    thumb_func_start GameScript_ConfigureMusic
-GameScript_ConfigureMusic: @ 0x080123CC
-    push {r4, r5, lr}
-    adds r5, r3, #0
-    ldr r4, [r0, #4]
-    lsls r2, r2, #0x10
-    lsrs r2, r2, #0x10
-    adds r0, r4, #0
-    adds r0, #0xbc
-    cmp r1, #1
-    beq .L080123F6
-    cmp r1, #1
-    bgt .L080123E8
-    cmp r1, #0
-    beq .L080123EE
-    b .L08012404
-.L080123E8:
-    cmp r1, #2
-    beq .L080123FE
-    b .L08012404
-.L080123EE:
-    adds r1, r2, #0
-    bl AudioPlayer_StartSong
-    b .L08012404
-.L080123F6:
-    adds r1, r2, #0
-    bl AudioPlayer_StartSongIfStoppedOrChanged
-    b .L08012404
-.L080123FE:
-    adds r1, r2, #0
-    bl AudioPlayer_StartOrResumeSong
-.L08012404:
-    adds r4, #0xbc
-    adds r0, r4, #0
-    bl AudioPlayer_ResetChannels
-    ldrh r1, [r5]
-    adds r0, r4, #0
-    bl AudioPlayer_SetTempo
-    ldrh r1, [r5, #2]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackVolume
-    movs r0, #4
-    ldrsh r1, [r5, r0]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackPitch
-    movs r1, #6
-    ldrsb r1, [r5, r1]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackPan
-    ldrb r1, [r5, #7]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackModDepth
-    ldrb r1, [r5, #8]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackLfoSpeed
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012450: .4byte 0x0000FFFF
     .section .text.game_state_08012464, "ax", %progbits
 
 
@@ -5745,8 +5684,8 @@ GameScript_QueueSceneVariant2C: @ 0x08013F88
     .section .text.game_state_08014318, "ax", %progbits
 
 
-    thumb_func_start GameScript_UpdateTextPanel
-GameScript_UpdateTextPanel: @ 0x08014318
+    thumb_func_start GameScript_SetGameTime
+GameScript_SetGameTime: @ 0x08014318
     push {r4, r5, r6, r7, lr}
     ldr r4, [r0, #4]
     adds r5, r4, #0
@@ -10119,8 +10058,8 @@ func_08015E30: @ 0x08015E30
 
     .section .text.game_state_080168D4, "ax", %progbits
 
-    thumb_func_start func_080168D4
-func_080168D4: @ 0x080168D4
+    thumb_func_start GameScript_RelocateSelectedAnimalActor
+GameScript_RelocateSelectedAnimalActor: @ 0x080168D4
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -11344,8 +11283,8 @@ func_080175B4: @ 0x080175B4
 .L080179C4: .4byte vtable_unk_080E602C
 .L080179C8: .4byte 0x000034C4
 
-    thumb_func_start func_080179CC
-func_080179CC: @ 0x080179CC
+    thumb_func_start GameStateMapScene_Destroy
+GameStateMapScene_Destroy: @ 0x080179CC
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}

@@ -764,7 +764,7 @@ EC AEntity * InitializeScheduledNpc34(void * storage, GameStateMapOwner & game, 
 EC AEntity * InitializeScheduledNpc25(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
 
 EC AEntity * SpawnFarmer(GameStateMapOwner &, GameStateMapData *) asm("NewFarmerMapEntity");
-EC AEntity * SpawnSoldier(void *, GameStateMapOwner &, u32, void *, Farm &) asm("func_08033928");
+EC AEntity * SpawnSoldier(void *, GameStateMapOwner &, u32, void *, Farm &) asm("InitializeSpriteWorkerEntity");
 EC bool ShouldSpawnDog(void const *) asm("func_0800F190");
 EC u32 DogPlacementState(void const *) asm("func_0800F204");
 EC AEntity * InitDog(void *, GameStateMapOwner &, void *, void *) asm("DogEntity_Init");
@@ -777,7 +777,7 @@ EC AEntity * MakeSheep(void *, GameStateMapOwner &, Sheep *) asm("SheepEntity_In
 EC AEntity * MakeEgg(void *, GameStateMapOwner &, Location const &) asm("InitializeReactionEntity");
 EC AEntity * MakeTimedReaction(void *, GameStateMapOwner &, void *) asm("InitializeTimedReactionEntity");
 EC AEntity * MakePickupSprite(void *, GameStateMapOwner &, void *) asm("InitializeLaunchedSideSprite");
-EC AEntity * MakeSpecialFieldActor(void *, GameStateMapOwner &, void *) asm("func_080398A4");
+EC AEntity * MakeSpecialFieldActor(void *, GameStateMapOwner &, void *) asm("InitializeActivityNpcEntity");
 EC AEntity * MakeActiveSceneEffect(GameStateMapOwner &, void *) asm("CreateActiveSideEffectEntity");
 EC AEntity * MakeUpdateEffect(void *, GameStateMapOwner &, void *) asm("InitializeSideEffectEntity");
 EC AEntity * MakeRecordedActor(void *, GameStateMapOwner &, void *) asm("InitializeRecordedSideActor");
