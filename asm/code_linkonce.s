@@ -18590,7 +18590,7 @@ func_080DD540: @ 0x080DD540
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #9
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DD57E
 	ldr r0, [r4, #0x50]
@@ -18822,7 +18822,7 @@ func_080DD5E4: @ 0x080DD5E4
 	movs r2, #0x80
 	lsls r2, r2, #8
 	adds r0, r5, #0
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DD772
 	adds r0, r5, #0
@@ -18946,7 +18946,7 @@ func_080DD7E4: @ 0x080DD7E4
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #8
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DD854
 	adds r0, r4, #0
@@ -19063,7 +19063,7 @@ func_080DD8BC: @ 0x080DD8BC
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #8
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DD92E
 	adds r0, r4, #0
@@ -19879,7 +19879,7 @@ func_080DDEC4: @ 0x080DDEC4
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #6
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DDF02
 	ldr r0, [r4, #0x50]
@@ -19970,7 +19970,7 @@ func_080DDF68: @ 0x080DDF68
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #7
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DDFA6
 	ldr r0, [r4, #0x50]
@@ -20061,7 +20061,7 @@ func_080DE00C: @ 0x080DE00C
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #8
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DE04A
 	ldr r0, [r4, #0x50]
@@ -20150,7 +20150,7 @@ func_080DE0AC: @ 0x080DE0AC
 	adds r1, #0x50
 	movs r2, #0x80
 	lsls r2, r2, #8
-	bl func_0803A180
+	bl UpdateActivityNpcWandering
 	cmp r0, #0
 	beq .L080DE11E
 	adds r0, r4, #0
@@ -24061,7 +24061,7 @@ func_080E0094: @ 0x080E0094
 	adds r7, r1, #0
 	adds r6, r7, #4
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
@@ -25128,7 +25128,7 @@ func_080E0094: @ 0x080E0094
 	ldr r0, [r0]
 	bl DisplayFade_Update
 	mov r0, sl
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	b .L080E044A
 .L080E08F4:
 	ldr r0, [sp, #0x7c]

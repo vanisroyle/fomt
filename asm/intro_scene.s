@@ -9,7 +9,7 @@ func_08000914: @ 0x08000914
     mov r4, r8
     push {r4, r5, r6}
     adds r5, r0, #0
-    bl func_08008444
+    bl HardwareContext_Initialize
     ldr r0, .L08000CB0 @ =vtable_unk_080E5A0C
     str r0, [r5, #4]
     adds r0, r5, #0
@@ -540,7 +540,7 @@ func_08000E1C: @ 0x08000E1C
     push {r4, r5, r6, r7, lr}
     sub sp, #8
     adds r7, r0, #0
-    bl func_08008724
+    bl HardwareContext_ForceBlank
     adds r0, r7, #0
     bl func_08000F5C
     adds r0, r7, #0
@@ -588,7 +588,7 @@ func_08000E1C: @ 0x08000E1C
     adds r5, r7, r0
 .L08000E92:
     adds r0, r7, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
     adds r0, r7, #0
     bl HardwareContext_UpdateKeys
     movs r1, #0
@@ -760,7 +760,7 @@ func_08000FF8: @ 0x08000FF8
     push {r5, r6, r7}
     sub sp, #0x20
     adds r7, r0, #0
-    bl func_08008724
+    bl HardwareContext_ForceBlank
     adds r0, r7, #0
     bl func_080019D8
     adds r0, r7, #0
@@ -847,7 +847,7 @@ func_08000FF8: @ 0x08000FF8
 sub_080010BE: @ 0x080010BE
     bl rand
     adds r0, r7, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
     adds r0, r7, #0
     bl HardwareContext_UpdateKeys
     ldr r4, [sp, #0x10]

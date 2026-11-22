@@ -3529,7 +3529,7 @@ func_080A220C: @ 0x080A220C
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	adds r0, r7, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L080A245C @ =vtable_unk_080E825C
 	str r0, [r7, #4]
 	str r4, [r7, #8]
@@ -3967,7 +3967,7 @@ func_080A25B0: @ 0x080A25B0
 	mov sl, r0
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080A2BA4
 	adds r0, r7, #0
@@ -4022,7 +4022,7 @@ func_080A25B0: @ 0x080A25B0
 	str r3, [sp, #0x14]
 .L080A2640:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	movs r6, #0x85
@@ -7659,56 +7659,6 @@ func_080A4F50: @ 0x080A4F50
 
     .section .text.g1_after_b4_080A58EC, "ax", %progbits
 
-
-	thumb_func_start func_080A5960
-func_080A5960: @ 0x080A5960
-	push {r4, r5, lr}
-	sub sp, #8
-	adds r5, r0, #0
-	adds r4, r1, #0
-	adds r3, r2, #0
-	mov r0, sp
-	adds r1, r5, #0
-	adds r2, r4, #0
-	bl ClampMapCameraPosition
-	ldr r0, [sp]
-	str r0, [sp, #4]
-	add r2, sp, #4
-	adds r3, r2, #0
-	movs r0, #0xa
-	ldrsh r1, [r5, r0]
-	movs r4, #0
-	ldrsh r0, [r2, r4]
-	cmp r1, r0
-	beq .L080A5998
-	adds r1, r5, #0
-	adds r1, #0x29
-	movs r0, #1
-	strb r0, [r1]
-	movs r1, #0
-	ldrsh r0, [r2, r1]
-	lsls r0, r0, #0x10
-	str r0, [r5, #8]
-.L080A5998:
-	movs r2, #0xe
-	ldrsh r1, [r5, r2]
-	movs r4, #2
-	ldrsh r0, [r3, r4]
-	cmp r1, r0
-	beq .L080A59B4
-	adds r1, r5, #0
-	adds r1, #0x29
-	movs r0, #1
-	strb r0, [r1]
-	movs r1, #2
-	ldrsh r0, [r3, r1]
-	lsls r0, r0, #0x10
-	str r0, [r5, #0xc]
-.L080A59B4:
-	add sp, #8
-	pop {r4, r5}
-	pop {r0}
-	bx r0
 
     .section .text.g1_after_b5_080A59BC, "ax", %progbits
 

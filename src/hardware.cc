@@ -1454,7 +1454,7 @@ struct TaskVtable
     void (*abi_header_04)();
     bool (*run)(TaskNode *);
     void (*destroy)();
-    void (*append)();
+    void (*append)(TaskList *, TaskNode *);
     void (*remove)(TaskList *, TaskNode *);
 };
 
@@ -1697,7 +1697,7 @@ struct VBlankRuntime
     TaskList pending_tasks;
     TaskNode audio_vblank;
     VBlankRootTaskList root;
-    bool restore_audio_dma;
+    u8 restore_audio_dma;
 };
 
 struct VBlankDispatcher
@@ -1705,10 +1705,27 @@ struct VBlankDispatcher
     VBlankRuntime * state;
 };
 
+struct HardwareDmaAllocation
+{
+    u32 allocation_state;
+    DmaCommand * capacity_end;
+};
+
+struct HardwareDmaQueueStorage
+{
+    DmaCommand * begin;
+    DmaCommand * end;
+    HardwareDmaAllocation allocation;
+};
+
 struct HardwareRuntime
 {
     KeyRepeatState keys;
-    DmaTransferQueue dma_queue;
+    union
+    {
+        DmaTransferQueue dma_queue;
+        HardwareDmaQueueStorage dma_storage;
+    };
     DisplayRegisterBuffer display;
     OamBuffer oam;
     VBlankDispatcher vblank;
@@ -1720,6 +1737,303 @@ extern void const * gVBlankIrqSubscriptionVtable[]; // 0x080E5B0C
 extern TaskVtable gVBlankRootTaskListVtable; // 0x080E5B18
 extern TaskVtable gDisplayFadeTaskVtable; // 0x080E5B80
 EC void func_080D7944(VBlankIrqSubscription *, u32);
+
+EC VBlankDispatcher * VBlankDispatcher_Initialize(VBlankDispatcher *);
+extern TaskVtable vtable_unk_080E5BD8;
+
+inline void HardwareDmaAllocation_Initialize(HardwareDmaAllocation * self) { self->capacity_end = nullptr; }
+inline u16 DisplayRegisters_ReadHalfword(u16 * registers, int index) { return registers[index]; }
+
+// 0x08008444
+EC SECTION(".text.HardwareContext_Initialize") HardwareContext * HardwareContext_Initialize(HardwareContext * self)
+{
+    TaskList * task_list;
+    TaskList * frame_tasks;
+    u16 * display_registers;
+    HardwareContextState * initialized_state;
+    volatile u32 stack_padding;
+    self->vtable = gHardwareContextVtable;
+    HardwareRuntime * state = new HardwareRuntime;
+    KeyRepeat_Initialize(&state->keys, 30, 4);
+    state->dma_storage.begin = nullptr;
+    state->dma_storage.end = nullptr;
+    HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
+    DisplayRegisters_Initialize(&state->display);
+    OamBuffer_Initialize(&state->oam, 0, 32);
+    VBlankDispatcher_Initialize(&state->vblank);
+    TaskList * tasks = &state->frame_tasks;
+    frame_tasks = tasks;
+    task_list = tasks;
+    frame_tasks->node.previous_link = nullptr;
+    frame_tasks->node.next = nullptr;
+    tasks->node.vtable = &gTaskListVtable;
+    frame_tasks->first = &task_list->sentinel;
+    TaskNode * sentinel = &frame_tasks->sentinel;
+    sentinel->previous_link = nullptr;
+    display_registers = state->display.register_halfwords;
+    sentinel->next = nullptr;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    frame_tasks->sentinel.previous_link = &frame_tasks->first;
+    task_list->sentinel.next = &frame_tasks->sentinel;
+    u16 display_status = DisplayRegisters_ReadHalfword(display_registers, 2) | 8;
+    state->display.register_halfwords[2] = display_status;
+    initialized_state = reinterpret_cast<HardwareContextState *>(state);
+    *reinterpret_cast<u16 volatile *>(0x04000004) = display_status;
+    self->state = initialized_state;
+    return self;
+}
+
+struct HardwareKeyRepeatConfig
+{
+    u16 delay;
+    u16 period;
+};
+
+// 0x080084DC
+EC SECTION(".text.HardwareContext_InitializeWithKeyRepeat") HardwareContext * HardwareContext_InitializeWithKeyRepeat(HardwareContext * self, HardwareKeyRepeatConfig const * key_repeat)
+{
+    TaskList * task_list;
+    TaskList * frame_tasks;
+    u16 * display_registers;
+    HardwareContextState * initialized_state;
+    volatile u32 stack_padding;
+    self->vtable = gHardwareContextVtable;
+    HardwareRuntime * state = new HardwareRuntime;
+    KeyRepeat_Initialize(&state->keys, key_repeat->delay, key_repeat->period);
+    state->dma_storage.begin = nullptr;
+    state->dma_storage.end = nullptr;
+    HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
+    DisplayRegisters_Initialize(&state->display);
+    OamBuffer_Initialize(&state->oam, 0, 32);
+    VBlankDispatcher_Initialize(&state->vblank);
+    TaskList * tasks = &state->frame_tasks;
+    frame_tasks = tasks;
+    task_list = tasks;
+    frame_tasks->node.previous_link = nullptr;
+    frame_tasks->node.next = nullptr;
+    tasks->node.vtable = &gTaskListVtable;
+    frame_tasks->first = &task_list->sentinel;
+    TaskNode * sentinel = &frame_tasks->sentinel;
+    sentinel->previous_link = nullptr;
+    display_registers = state->display.register_halfwords;
+    sentinel->next = nullptr;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    frame_tasks->sentinel.previous_link = &frame_tasks->first;
+    task_list->sentinel.next = &frame_tasks->sentinel;
+    u16 display_status = DisplayRegisters_ReadHalfword(display_registers, 2) | 8;
+    state->display.register_halfwords[2] = display_status;
+    initialized_state = reinterpret_cast<HardwareContextState *>(state);
+    *reinterpret_cast<u16 volatile *>(0x04000004) = display_status;
+    self->state = initialized_state;
+    return self;
+}
+
+struct HardwareOamConfig
+{
+    u8 reserved_sprites;
+    u8 reserved_affines;
+};
+
+// 0x08008574
+EC SECTION(".text.HardwareContext_InitializeWithOamReservation") HardwareContext * HardwareContext_InitializeWithOamReservation(HardwareContext * self, HardwareOamConfig const * oam)
+{
+    TaskList * task_list;
+    TaskList * frame_tasks;
+    u16 * display_registers;
+    HardwareContextState * initialized_state;
+    volatile u32 stack_padding;
+    self->vtable = gHardwareContextVtable;
+    HardwareRuntime * state = new HardwareRuntime;
+    KeyRepeat_Initialize(&state->keys, 30, 4);
+    state->dma_storage.begin = nullptr;
+    state->dma_storage.end = nullptr;
+    HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
+    DisplayRegisters_Initialize(&state->display);
+    OamBuffer_Initialize(&state->oam, oam->reserved_sprites, oam->reserved_affines);
+    VBlankDispatcher_Initialize(&state->vblank);
+    TaskList * tasks = &state->frame_tasks;
+    frame_tasks = tasks;
+    task_list = tasks;
+    frame_tasks->node.previous_link = nullptr;
+    frame_tasks->node.next = nullptr;
+    tasks->node.vtable = &gTaskListVtable;
+    frame_tasks->first = &task_list->sentinel;
+    TaskNode * sentinel = &frame_tasks->sentinel;
+    sentinel->previous_link = nullptr;
+    display_registers = state->display.register_halfwords;
+    sentinel->next = nullptr;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    frame_tasks->sentinel.previous_link = &frame_tasks->first;
+    task_list->sentinel.next = &frame_tasks->sentinel;
+    u16 display_status = DisplayRegisters_ReadHalfword(display_registers, 2) | 8;
+    state->display.register_halfwords[2] = display_status;
+    initialized_state = reinterpret_cast<HardwareContextState *>(state);
+    *reinterpret_cast<u16 volatile *>(0x04000004) = display_status;
+    self->state = initialized_state;
+    return self;
+}
+
+struct HardwareDisplayCommitTask
+{
+    TaskNode node;
+    DisplayRegisterBuffer * registers;
+};
+
+extern TaskVtable vtable_unk_080E5AF0;
+
+// 0x08008724
+EC void SECTION(".text.HardwareContext_ForceBlank") HardwareContext_ForceBlank(HardwareContext * self)
+{
+    HardwareRuntime * state = reinterpret_cast<HardwareRuntime *>(self->state);
+    DisplayRegisterBuffer * registers = &state->display;
+    u32 unlinked = 0;
+    state->display.register_halfwords[0] = DisplayRegisters_ReadHalfword(registers->register_halfwords, 0) | 0x80;
+    HardwareDisplayCommitTask task;
+    task.node.previous_link = reinterpret_cast<TaskNode **>(unlinked);
+    task.node.next = reinterpret_cast<TaskNode *>(unlinked);
+    task.node.vtable = &vtable_unk_080E5AF0;
+    task.registers = registers;
+    VBlankDispatcher * dispatcher = &state->vblank;
+    TaskList * tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    tasks->node.vtable->append(tasks, &task.node);
+    VBlankDispatcher_Wait(dispatcher);
+    TaskNode_Destroy(&task.node, 2);
+}
+
+struct HardwareOamCommitTask
+{
+    TaskNode node;
+    OamBuffer * oam;
+};
+
+struct HardwareDmaCommitTask
+{
+    TaskNode node;
+    DmaTransferQueue * queue;
+};
+
+extern TaskVtable vtable_unk_080E5AE0;
+extern TaskVtable vtable_unk_080E5AD0;
+
+template<typename T>
+inline void HardwareTask_WriteField(T * field, T value)
+{
+    *reinterpret_cast<T volatile *>(field) = value;
+}
+
+// 0x080087C8
+EC void SECTION(".text.HardwareContext_CommitFrame") HardwareContext_CommitFrame(HardwareContext * self)
+{
+    TaskVtable * remove_vtable;
+    HardwareRuntime * state = reinterpret_cast<HardwareRuntime *>(self->state);
+    u8 * commit_buffer = reinterpret_cast<u8 *>(&state->display);
+    TaskVtable * base_vtable = &gTaskNodeVtable;
+    TaskNode * oam_node;
+    TaskNode * dma_node;
+    HardwareDisplayCommitTask display_task;
+    display_task.node.previous_link = 0;
+    display_task.node.next = 0;
+    display_task.node.vtable = &vtable_unk_080E5AF0;
+    display_task.registers = reinterpret_cast<DisplayRegisterBuffer *>(commit_buffer);
+    HardwareOamCommitTask oam_task;
+    oam_node = &oam_task.node;
+    commit_buffer += sizeof(state->display);
+    oam_task.node.previous_link = 0;
+    oam_task.node.next = 0;
+    HardwareTask_WriteField(&oam_task.node.vtable, &vtable_unk_080E5AE0);
+    HardwareTask_WriteField(&oam_task.oam, reinterpret_cast<OamBuffer *>(commit_buffer));
+    HardwareDmaCommitTask dma_task;
+    dma_node = &dma_task.node;
+    commit_buffer -= sizeof(state->display) + sizeof(state->dma_queue);
+    dma_task.node.previous_link = 0;
+    dma_task.node.next = 0;
+    HardwareTask_WriteField(&dma_task.node.vtable, &vtable_unk_080E5AD0);
+    HardwareTask_WriteField(&dma_task.queue, reinterpret_cast<DmaTransferQueue *>(commit_buffer));
+    TaskList frame_batch;
+    TaskList * batch = &frame_batch;
+    batch->node.previous_link = 0;
+    batch->node.next = 0;
+    HardwareTask_WriteField(&frame_batch.node.vtable, &gTaskListVtable);
+    TaskNode * sentinel = &batch->sentinel;
+    batch->first = sentinel;
+    HardwareTask_WriteField(&frame_batch.sentinel.vtable, base_vtable);
+    sentinel->previous_link = 0;
+    sentinel->next = 0;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    batch->sentinel.previous_link = &batch->first;
+    batch->sentinel.next = sentinel;
+    TaskList_Append(batch, &state->frame_tasks.node);
+    TaskList_Append(batch, &display_task.node);
+    TaskList_Append(batch, dma_node);
+    TaskList_Append(batch, oam_node);
+    VBlankDispatcher * dispatcher = &state->vblank;
+    TaskList * tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    tasks->node.vtable->append(tasks, &batch->node);
+    VBlankDispatcher_Wait(dispatcher);
+    TaskList * queued_tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    remove_vtable = queued_tasks->node.vtable;
+    remove_vtable->remove(queued_tasks, &batch->node);
+    TaskList_Destroy(batch, 2);
+    TaskNode_Destroy(dma_node, 2);
+    TaskNode_Destroy(&oam_task.node, 2);
+    TaskNode_Destroy(&display_task.node, 2);
+}
+
+EC void func_080D78F8(VBlankIrqSubscription *, TaskList **);
+extern TaskVtable vtable_unk_080E5B70;
+extern TaskVtable vtable_unk_080E5B60;
+
+// 0x08008980
+EC SECTION(".text.VBlankDispatcher_Initialize") VBlankDispatcher * VBlankDispatcher_Initialize(VBlankDispatcher * self)
+{
+    VBlankRuntime * state = new VBlankRuntime;
+    u8 * restore_audio_dma;
+    state->audio_update.previous_link = 0;
+    state->audio_update.next = 0;
+    state->audio_update.vtable = &vtable_unk_080E5B70;
+    TaskList * pending = &state->pending_tasks;
+    pending->node.previous_link = 0;
+    pending->node.next = 0;
+    pending->node.vtable = &gTaskListVtable;
+    TaskNode * sentinel = &pending->sentinel;
+    pending->first = sentinel;
+    sentinel->previous_link = 0;
+    sentinel->next = 0;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    pending->sentinel.previous_link = &pending->first;
+    pending->sentinel.next = sentinel;
+    pending->node.vtable = &gIrqTaskListVtable;
+    TaskNode * audio_vblank = &state->audio_vblank;
+    audio_vblank->previous_link = 0;
+    audio_vblank->next = 0;
+    audio_vblank->vtable = &vtable_unk_080E5B60;
+    TaskList * root = &state->root.tasks;
+    root->node.previous_link = 0;
+    root->node.next = 0;
+    root->node.vtable = &gTaskListVtable;
+    TaskNode * root_sentinel = &root->sentinel;
+    root->first = root_sentinel;
+    root_sentinel->previous_link = 0;
+    root_sentinel->next = 0;
+    root_sentinel->vtable = &vtable_unk_080E5BD8;
+    root->sentinel.previous_link = &root->first;
+    root->sentinel.next = root_sentinel;
+    root->node.vtable = &gIrqTaskListVtable;
+    VBlankIrqSubscription * subscription = &state->root.irq_subscription;
+    TaskList * irq_tasks = root;
+    func_080D78F8(subscription, &irq_tasks);
+    reinterpret_cast<VBlankRootTaskList *>(root)->irq_subscription.vtable = gVBlankIrqSubscriptionVtable;
+    root->node.vtable = &gVBlankRootTaskListVtable;
+    restore_audio_dma = &state->restore_audio_dma;
+    state->restore_audio_dma = Audio_IsDma1Enabled() ^ 1;
+    if (*restore_audio_dma)
+        Audio_EnableVBlankDma();
+    IrqTaskList_Append(root, &state->audio_update);
+    IrqTaskList_Append(root, &pending->node);
+    IrqTaskList_Append(root, audio_vblank);
+    self->state = state;
+    return self;
+}
 
 // 0x08008A68
 EC void SECTION(".text.VBlankDispatcher_Destroy") VBlankDispatcher_Destroy(VBlankDispatcher * self, u32 destructor_flags)
