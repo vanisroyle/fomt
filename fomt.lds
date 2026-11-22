@@ -1209,6 +1209,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
         asm/g1_npc.o(.text.g1_after_b4_080A3774);
+        src/g1_chicken_festival.o(.text.g1_080A37A8);
+        asm/g1_npc.o(.text.g1_after_b16_080A37A8);
         src/g1_minigame_run.o(.text.g1_080A3900);
         asm/g1_npc.o(.text.g1_after_b13_080A3900);
         src/g1_minigame_run.o(.text.g1_080A39FC);
