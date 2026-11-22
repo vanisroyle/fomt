@@ -2954,71 +2954,6 @@ GameScript_RunRuntime: @ 0x08012028
     .section .text.game_state_080123CC, "ax", %progbits
 
 
-    thumb_func_start GameScript_ConfigureMusic
-GameScript_ConfigureMusic: @ 0x080123CC
-    push {r4, r5, lr}
-    adds r5, r3, #0
-    ldr r4, [r0, #4]
-    lsls r2, r2, #0x10
-    lsrs r2, r2, #0x10
-    adds r0, r4, #0
-    adds r0, #0xbc
-    cmp r1, #1
-    beq .L080123F6
-    cmp r1, #1
-    bgt .L080123E8
-    cmp r1, #0
-    beq .L080123EE
-    b .L08012404
-.L080123E8:
-    cmp r1, #2
-    beq .L080123FE
-    b .L08012404
-.L080123EE:
-    adds r1, r2, #0
-    bl AudioPlayer_StartSong
-    b .L08012404
-.L080123F6:
-    adds r1, r2, #0
-    bl AudioPlayer_StartSongIfStoppedOrChanged
-    b .L08012404
-.L080123FE:
-    adds r1, r2, #0
-    bl AudioPlayer_StartOrResumeSong
-.L08012404:
-    adds r4, #0xbc
-    adds r0, r4, #0
-    bl AudioPlayer_ResetChannels
-    ldrh r1, [r5]
-    adds r0, r4, #0
-    bl AudioPlayer_SetTempo
-    ldrh r1, [r5, #2]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackVolume
-    movs r0, #4
-    ldrsh r1, [r5, r0]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackPitch
-    movs r1, #6
-    ldrsb r1, [r5, r1]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackPan
-    ldrb r1, [r5, #7]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackModDepth
-    ldrb r1, [r5, #8]
-    adds r0, r4, #0
-    ldr r2, .L08012450 @ =0x0000FFFF
-    bl AudioPlayer_SetTrackLfoSpeed
-    pop {r4, r5}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012450: .4byte 0x0000FFFF
     .section .text.game_state_08012464, "ax", %progbits
 
 
@@ -10123,8 +10058,8 @@ func_08015E30: @ 0x08015E30
 
     .section .text.game_state_080168D4, "ax", %progbits
 
-    thumb_func_start func_080168D4
-func_080168D4: @ 0x080168D4
+    thumb_func_start GameScript_RelocateSelectedAnimalActor
+GameScript_RelocateSelectedAnimalActor: @ 0x080168D4
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}

@@ -303,9 +303,10 @@ struct GameStateObject
     virtual void vfunc_2C();
     virtual void vfunc_30();
     virtual void vfunc_34();
-    virtual void vfunc_38(u32 id);
+    virtual void CreateActor(u32 actorId);
     virtual void RemoveActor(u32 actorId);
     virtual GameStateActorEntity * GetActor(u32 actorId);
+
     virtual void vfunc_44();
     virtual void vfunc_48();
     virtual void vfunc_4C();
@@ -575,7 +576,7 @@ EC void SECTION(".text.game_state_08014C34") GameScript_CreateHorseActor(GameSta
     {
         Farm & farm = *reinterpret_cast<Farm *>(runtime.GetSaveData() + 0x14);
         farm.SetHorse(Horse(ActorLocation(Location(mapId, x, y), 0), ageYears * 120));
-        runtime.scene->vfunc_38(0x2C);
+        runtime.scene->CreateActor(0x2C);
         GameStateActorEntity * horseActor = runtime.scene->GetActor(0x2C);
         if (horseActor != nullptr && !horseActor->vfunc_28())
             horseActor->vfunc_20();
@@ -994,6 +995,65 @@ EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 EC void AudioPlayer_FadeOut(void * self, u32 speed);
+EC void AudioPlayer_ResetChannels(void * player);
+EC void AudioPlayer_SetTempo(void * player, u16 tempo);
+EC void AudioPlayer_SetTrackVolume(void * player, u16 volume, u16 tracks);
+EC void AudioPlayer_SetTrackPitch(void * player, i16 pitch, u16 tracks);
+EC void AudioPlayer_SetTrackPan(void * player, i8 pan, u16 tracks);
+EC void AudioPlayer_SetTrackModDepth(void * player, u8 depth, u16 tracks);
+EC void AudioPlayer_SetTrackLfoSpeed(void * player, u8 speed, u16 tracks);
+
+struct GameStateScriptMusicSettings
+{
+    u16 tempo;
+    u16 volume;
+    i16 pitch;
+    i8 pan;
+    u8 modulation;
+    u8 lfoSpeed;
+};
+
+struct GameStateMusicPlayer
+{
+    void StartWithMode(i32 mode, u16 song)
+    {
+        switch (mode)
+        {
+        case 0:
+            AudioPlayer_StartSong(this, song);
+            break;
+        case 1:
+            AudioPlayer_StartSongIfStoppedOrChanged(this, song);
+            break;
+        case 2:
+            AudioPlayer_StartOrResumeSong(this, song);
+            break;
+        }
+    }
+
+    void ResetChannels() { AudioPlayer_ResetChannels(this); }
+    void SetTempo(u16 tempo) { AudioPlayer_SetTempo(this, tempo); }
+    void SetVolume(u16 volume) { AudioPlayer_SetTrackVolume(this, volume, 0xFFFF); }
+    void SetPitch(i16 pitch) { AudioPlayer_SetTrackPitch(this, pitch, 0xFFFF); }
+    void SetPan(i8 pan) { AudioPlayer_SetTrackPan(this, pan, 0xFFFF); }
+    void SetModulation(u8 depth) { AudioPlayer_SetTrackModDepth(this, depth, 0xFFFF); }
+    void SetLfoSpeed(u8 speed) { AudioPlayer_SetTrackLfoSpeed(this, speed, 0xFFFF); }
+};
+
+// 0x080123CC
+EC void SECTION(".text.game_state_080123CC") GameScript_ConfigureMusic(GameStateScript & script, i32 mode, u32 songId, GameStateScriptMusicSettings const & settings)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    reinterpret_cast<GameStateMusicPlayer *>(runtime.musicPlayer)->StartWithMode(mode, songId);
+    GameStateMusicPlayer * music = reinterpret_cast<GameStateMusicPlayer *>(runtime.musicPlayer);
+    music->ResetChannels();
+    music->SetTempo(settings.tempo);
+    music->SetVolume(settings.volume);
+    music->SetPitch(settings.pitch);
+    music->SetPan(settings.pan);
+    music->SetModulation(settings.modulation);
+    music->SetLfoSpeed(settings.lfoSpeed);
+}
 
 struct G1NpcSchedule;
 EC void AdvanceNpcScheduleDailyCounter(G1NpcSchedule * schedule);
@@ -1144,6 +1204,9 @@ EC void SECTION(".text.game_state_08016834") GameScript_ClearFarmAnimalActor(Gam
         break;
     }
 }
+
+// 0x080168D4
+EC void GameScript_RelocateSelectedAnimalActor(GameStateScript & script, u32 kind);
 
 // 0x080127A0
 EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveIndicator(GameStateScript & script, u32 characterId)
@@ -2091,7 +2154,7 @@ EC SECTION(".text.game_state_08012064") void GameScript_StartRuntimeOperation(Ga
 EC SECTION(".text.game_state_08016CEC") void GameScript_ActivateActor(GameStateScript & script, u32 actorId)
 {
     GameStateObject * & object = script.runtime->scene;
-    object->vfunc_38(actorId);
+    object->CreateActor(actorId);
     AActorEntity * entity = object->GetActor(actorId);
     if (entity != nullptr && !entity->vfunc_28())
         entity->vfunc_20();
@@ -2103,7 +2166,7 @@ EC SECTION(".text.game_state_080167DC") void GameScript_RefreshActor23(GameState
     GameStateRuntime & runtime = *script.runtime;
     ActivateRosterNamedNpc(runtime.saveData + 0x1CD4, runtime.saveData + 0x11);
     GameStateObject * & object = runtime.scene;
-    object->vfunc_38(0x23);
+    object->CreateActor(0x23);
     AActorEntity * entity = object->GetActor(0x23);
     if (entity != nullptr && !entity->vfunc_28())
         entity->vfunc_20();
