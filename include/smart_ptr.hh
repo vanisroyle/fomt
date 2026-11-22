@@ -33,6 +33,8 @@ struct SmartPtr
     {
     }
 
+    SmartPtr(SmartPtr & other) : inner(other.Move()) {}
+
     SmartPtr(MoveReference const & reference) : inner(reference.Take()) {}
 
     operator MoveReference() { return MoveReference(inner, inner); }
@@ -60,10 +62,6 @@ struct SmartPtr
         inner = nullptr;
         return tmp;
     }
-
-private:
-    // TODO
-    SmartPtr(SmartPtr &) {}
 
 private:
     /* +00 */ T * inner;

@@ -415,6 +415,7 @@ SECTIONS
         asm/more_items.o(.text.after_0800FFF4);
         src/more_items.o(.text.set);
         asm/more_items.o(.text.clear);
+        src/game_scene.o(.text.GameScene_RunScript);
         asm/game_scene.o(.text);
         src/game_scene.o(.text);
         asm/game_scene.o(.text.tail);
