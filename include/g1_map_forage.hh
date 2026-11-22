@@ -3,6 +3,8 @@
 
 #include "g1_map.hh"
 
+struct RucksackItem;
+
 struct G1MapForageLocation
 {
     i32 kind;
@@ -18,5 +20,6 @@ struct G1MapForageObstacle
 };
 
 EC G1MapForageLocation const gUnk_081043BC[];
+EC RucksackItem PickUpMapForageItem(G1MapAvailability *, i32, Box const *, i32);
 
 #endif
