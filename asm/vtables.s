@@ -980,36 +980,42 @@ vtable_unk_080E7A08:
 vtable_unk_080E7A18:
 	.incbin "baserom.gba", 0xE7A18, 0x10
 
-	.global vtable_unk_080E7A28
-vtable_unk_080E7A28:
+	.global gHarvestSpriteReportVTable
+gHarvestSpriteReportVTable:
 	.incbin "baserom.gba", 0xE7A28, 0x10
 
-	.global vtable_unk_080E7A38
-vtable_unk_080E7A38:
-	.incbin "baserom.gba", 0xE7A38, 0xC
+	.global gSheepReportVTable
+gSheepReportVTable:
+	.4byte 0, 0
+	.4byte DestroySheepReport
 	.4byte DrawLivestockReport
 
-	.global vtable_unk_080E7A48
-vtable_unk_080E7A48:
-	.incbin "baserom.gba", 0xE7A48, 0xC
+	.global gCowReportVTable
+gCowReportVTable:
+	.4byte 0, 0
+	.4byte DestroyCowReport
 	.4byte DrawLivestockReport
 
-	.global vtable_unk_080E7A58
-vtable_unk_080E7A58:
-	.incbin "baserom.gba", 0xE7A58, 0xC
+	.global gChickenReportVTable
+gChickenReportVTable:
+	.4byte 0, 0
+	.4byte DestroyChickenReport
 	.4byte DrawLivestockReport
 
-	.global vtable_unk_080E7A68
-vtable_unk_080E7A68:
-	.incbin "baserom.gba", 0xE7A68, 0xC
+	.global gLivestockReportVTable
+gLivestockReportVTable:
+	.4byte 0, 0
+	.4byte DestroyLivestockReport
 	.4byte DrawLivestockReport
 
-	.global vtable_unk_080E7A78
-vtable_unk_080E7A78:
-	.incbin "baserom.gba", 0xE7A78, 0x10
+	.global gFarmOverviewReportVTable
+gFarmOverviewReportVTable:
+	.4byte 0, 0
+	.4byte DestroyFarmOverviewReport
+	.4byte DrawFarmOverviewReport
 
-	.global vtable_unk_080E7A88
-vtable_unk_080E7A88:
+	.global gFarmReportMenuVTable
+gFarmReportMenuVTable:
 	.incbin "baserom.gba", 0xE7A88, 0x10
 
 	.global vtable_unk_080E7A98

@@ -52290,7 +52290,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r5, [sp, #.Lfarm_overview_sp_report]
 	ldr r7, .L080600AC @ =.Lfarm_overview_vtable
 	adds r1, r5, r7
-	ldr r0, .L080600B0 @ =vtable_unk_080E7A78
+	ldr r0, .L080600B0 @ =gFarmOverviewReportVTable
 	str r0, [r1]
 	ldr r0, [r5, #4]
 	str r0, [sp, #.Lfarm_overview_sp_scroll_panel]
@@ -52414,7 +52414,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080600A4: .4byte -.Lfarm_overview_stack_bytes
 .L080600A8: .4byte gFarmReportPropertySuffix
 .L080600AC: .4byte .Lfarm_overview_vtable
-.L080600B0: .4byte vtable_unk_080E7A78
+.L080600B0: .4byte gFarmOverviewReportVTable
 .L080600B4: .4byte gFarmReportBlankLabel
 .L080600B8: .4byte 0x000005BC
 .L080600BC: .4byte 0x000006C4
@@ -58245,7 +58245,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [sp, #0xa8]
 	ldr r2, .L08062FA4 @ =0x000005B4
 	adds r1, r0, r2
-	ldr r0, .L08062FA8 @ =vtable_unk_080E7A68
+	ldr r0, .L08062FA8 @ =gLivestockReportVTable
 	str r0, [r1]
 	movs r0, #0xf
 	add r4, sp, #0x14
@@ -58362,7 +58362,7 @@ InitLivestockReport: @ 0x08062E9C
 	b .L080630EC
 	.align 2, 0
 .L08062FA4: .4byte 0x000005B4
-.L08062FA8: .4byte vtable_unk_080E7A68
+.L08062FA8: .4byte gLivestockReportVTable
 .L08062FAC: .4byte 0x000005BC
 .L08062FB0: .4byte gLivestockReportHealthyLabel
 .L08062FB4: .4byte 0x06000700
@@ -60985,7 +60985,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	ldr r0, [sp, #.Lhs_report_sp_report]
 	ldr r2, .L080646C0 @ =0x000005B4
 	adds r1, r0, r2
-	ldr r0, .L080646C4 @ =vtable_unk_080E7A28
+	ldr r0, .L080646C4 @ =gHarvestSpriteReportVTable
 	str r0, [r1]
 	movs r0, #6
 	add r3, sp, #0x28
@@ -61072,7 +61072,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	.align 2, 0
 .L080646BC: .4byte gHarvestSpriteReportTitle
 .L080646C0: .4byte 0x000005B4
-.L080646C4: .4byte vtable_unk_080E7A28
+.L080646C4: .4byte gHarvestSpriteReportVTable
 .L080646C8: .4byte 0x00002164
 .L080646CC: .4byte gFarmReportDaySuffix
 .L080646D0: .4byte 0x000005BC
