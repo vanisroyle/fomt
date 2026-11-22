@@ -114929,7 +114929,7 @@ func_0807E508: @ 0x0807E508
 	push {lr}
 	ldr r2, .L0807E518 @ =vtable_unk_080E7C40
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -116129,7 +116129,7 @@ func_0807EED4: @ 0x0807EED4
 	bl __builtin_delete
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -117070,7 +117070,7 @@ func_0807F670: @ 0x0807F670
 	push {lr}
 	ldr r2, .L0807F680 @ =vtable_unk_080E7C78
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -118888,7 +118888,7 @@ func_0808052C: @ 0x0808052C
 	push {lr}
 	ldr r2, .L0808053C @ =vtable_unk_080E7C94
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -119993,7 +119993,7 @@ func_08080E54: @ 0x08080E54
 	push {lr}
 	ldr r2, .L08080E64 @ =vtable_unk_080E7CB0
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -121546,7 +121546,7 @@ func_08081B00: @ 0x08081B00
 	bl __builtin_delete
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -122440,7 +122440,7 @@ func_08082250: @ 0x08082250
 	push {lr}
 	ldr r2, .L08082260 @ =vtable_unk_080E7CE8
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -125547,7 +125547,7 @@ func_08083C50: @ 0x08083C50
 	push {lr}
 	ldr r2, .L08083C60 @ =vtable_unk_080E7D14
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -127943,7 +127943,7 @@ func_0808562C: @ 0x0808562C
 	push {lr}
 	ldr r2, .L0808563C @ =vtable_unk_080E7D30
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0

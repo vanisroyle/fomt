@@ -1484,7 +1484,7 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080BCEBC);
         src/g3_chicken_festival.o(.text.g3_080BCEC8);
         asm/code_809E804.o(.text.g3_after_080BCEC8);
-        asm/code_080C8360.o(.text);
+        src/g5_teardown.o(.text.g5_080C8360);
         src/g5_panels.o(.text.g5_080C8550);
         asm/code_080C8360.o(.text.g5_after_080C8550);
         src/g5_encoding.o(.text.g5_080CA6F4);
