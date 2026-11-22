@@ -248,6 +248,170 @@ EC SECTION(".text.frisbee.08054F40") void LoadFrisbeeBackground(void * screen)
 #undef WRITE_FRISBEE_REGISTER
 #undef CLEAR_FRISBEE_SCROLL
 
+enum FrisbeeDialoguePhase
+{
+    FrisbeeDialogueStart,
+    FrisbeeDialogueClosing,
+    FrisbeeDialogueComplete,
+    FrisbeeDialogueReady,
+    FrisbeeDialogueChoosing,
+    FrisbeeDialogueFinish
+};
+
+struct FrisbeeDialogueState
+{
+    u8 padding00[0x10];
+    void * message;
+    u8 messageState[1];
+    u8 padding15[0x2328 - 0x15];
+    i16 page;
+    u8 padding232a[2];
+    i16 phase;
+    i16 exitRequested;
+    u8 padding2330[0x70];
+    u32 substitutions[1];
+};
+
+EC void * HardwareContext_GetState(void *);
+EC void * HardwareContext_GetFrameTasks(void *);
+EC void * HardwareContext_GetVBlankTasks(void *);
+EC u32 UpdateMessageWindow(void *, void *, void *, void *, void *, void *, void *);
+EC void OpenMessageWindow(void *);
+EC void CloseMessageWindow(void *);
+EC i32 GetMessageWindowSelection(void *);
+EC void SetMessageWindowText(void *, const char *);
+EC void SetMessageWindowTextSubstitutions(void *, const char *, void *);
+EC void ConfigureMessageWindowPromptChoices(void *, const char *, const char *, const char *, u32, u32, void *);
+EC const char gUnk_080FA39C[], gUnk_080FA3B8[], gUnk_080FA3BC[], gUnk_080FA3C0[];
+EC const char gUnk_080FA458[], gUnk_080FA49C[], gUnk_080FA510[], gUnk_080FA614[];
+EC const char gUnk_080FA660[], gUnk_080FA670[], gUnk_080FA684[], gUnk_080FA6A0[];
+EC const char gUnk_080FA6AC[], gUnk_080FA6E0[], gUnk_080FA6F4[];
+
+EC SECTION(".text.frisbee.08053634") void UpdateFrisbeeDialogue(FrisbeeDialogueState * state)
+{
+    typedef char FrisbeeDialogueLayout[
+        offsetof(FrisbeeDialogueState, messageState) == 0x14 &&
+        offsetof(FrisbeeDialogueState, page) == 0x2328 &&
+        offsetof(FrisbeeDialogueState, phase) == 0x232c &&
+        offsetof(FrisbeeDialogueState, exitRequested) == 0x232e &&
+        offsetof(FrisbeeDialogueState, substitutions) == 0x23a0 ? 1 : -1];
+    void * message = state->message;
+    void * input = HardwareContext_GetState(state);
+    void * oam = HardwareContext_GetOamBuffer(state);
+    void * display = HardwareContext_GetDisplayRegisters(state);
+    void * frames = HardwareContext_GetFrameTasks(state);
+    void * vblank = HardwareContext_GetVBlankTasks(state);
+    register void * messageState asm("r1") = state->messageState;
+    asm ("" : "+r" (messageState) : "r" (frames), "r" (vblank));
+    switch (UpdateMessageWindow(message, input, oam, display, frames, vblank, messageState))
+    {
+    case 0:
+        if (state->phase == FrisbeeDialogueStart)
+        {
+            OpenMessageWindow(state->message);
+            state->phase = FrisbeeDialogueReady;
+        }
+        else state->phase = FrisbeeDialogueComplete;
+        break;
+    case 3:
+        if (state->phase == FrisbeeDialogueFinish)
+        {
+            CloseMessageWindow(state->message);
+            state->phase = FrisbeeDialogueClosing;
+        }
+        else if (state->phase == FrisbeeDialogueChoosing)
+        {
+            i32 choice = GetMessageWindowSelection(state->message);
+            state->phase = FrisbeeDialogueReady;
+            switch (state->page)
+            {
+            case 2:
+                if (choice == 1)
+                {
+                    state->exitRequested = 0;
+                    state->page = 3;
+                }
+                else if (choice == 2)
+                {
+                    state->exitRequested = 1;
+                    state->phase = FrisbeeDialogueFinish;
+                }
+                break;
+            case 9:
+                if (choice == 1) state->exitRequested = 0;
+                else if (choice == 2) state->exitRequested = 1;
+                state->phase = FrisbeeDialogueFinish;
+                break;
+            case 23:
+                if (choice == 1) state->exitRequested = 0;
+                else if (choice == 2) state->exitRequested = 1;
+                state->phase = FrisbeeDialogueFinish;
+                break;
+            }
+        }
+        else if (state->phase == FrisbeeDialogueReady)
+        {
+            state->phase = FrisbeeDialogueFinish;
+            switch ((u32) (i16) (state->page - 2))
+            {
+            case 0:
+                ConfigureMessageWindowPromptChoices(state->message, gUnk_080FA39C, gUnk_080FA3B8, gUnk_080FA3BC, 0, 0, nullptr);
+                state->phase = FrisbeeDialogueChoosing;
+                break;
+            case 1:
+                SetMessageWindowText(state->message, gUnk_080FA3C0);
+                break;
+            case 3:
+                SetMessageWindowText(state->message, gUnk_080FA458);
+                break;
+            case 4:
+                SetMessageWindowText(state->message, gUnk_080FA49C);
+                break;
+            case 5:
+                SetMessageWindowText(state->message, gUnk_080FA510);
+                state->page = 9;
+                state->phase = FrisbeeDialogueReady;
+                break;
+            case 6:
+                SetMessageWindowText(state->message, gUnk_080FA614);
+                state->page = 9;
+                state->phase = FrisbeeDialogueReady;
+                break;
+            case 7:
+                ConfigureMessageWindowPromptChoices(state->message, gUnk_080FA660, gUnk_080FA3BC, gUnk_080FA3B8, 0, 0, nullptr);
+                state->phase = FrisbeeDialogueChoosing;
+                break;
+            case 22:
+                SetMessageWindowText(state->message, gUnk_080FA670);
+                break;
+            case 23:
+                SetMessageWindowText(state->message, gUnk_080FA684);
+                break;
+            case 21:
+                ConfigureMessageWindowPromptChoices(state->message, gUnk_080FA6A0, gUnk_080FA3B8, gUnk_080FA3BC, 0, 0, nullptr);
+                state->phase = FrisbeeDialogueChoosing;
+                break;
+            case 24:
+                SetMessageWindowText(state->message, gUnk_080FA6AC);
+                break;
+            case 18:
+                SetMessageWindowTextSubstitutions(state->message, gUnk_080FA6E0, state->substitutions);
+                break;
+            case 19:
+                SetMessageWindowText(state->message, gUnk_080FA6F4);
+                break;
+            }
+        }
+        break;
+    case 1:
+    case 2:
+    case 4:
+    case 5:
+    case 6:
+        break;
+    }
+}
+
 EC void DrawFrisbeeSymbol(void *, i32, i32, i32);
 
 struct FrisbeeScoreboardState
