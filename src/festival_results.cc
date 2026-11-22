@@ -79,7 +79,7 @@ struct FestivalResultsKeyRepeat
 EC void * HardwareContext_InitializeWithKeyRepeat(void *, const FestivalResultsKeyRepeat *);
 EC void * AudioPlayer_Initialize(void *, u32);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, const void *);
-EC void * func_08007874(void *);
+EC void * TileHeapOwner_Initialize(void *);
 EC u32 func_08007B54(void *, u32);
 EC void * ResourceHandles_Initialize(void *);
 EC u32 func_0800736C(void *);
@@ -139,7 +139,7 @@ EC SECTION(".text.festival_results.0805143C") FestivalResultsScreen * Initialize
     }
     InitializeFestivalResultsDrawOptions(&screen->sprites[1].options);
     FestivalResultsResource * tiles = &screen->tiles;
-    func_08007874(&tiles->owner);
+    TileHeapOwner_Initialize(&tiles->owner);
     tiles->handle = func_08007B54(&tiles->owner, 4);
     FestivalResultsResource * palettes = &screen->palettes;
     ResourceHandles_Initialize(&palettes->owner);

@@ -92,7 +92,7 @@ EC void DrawSpriteWorkerEffectLayer(NpcWorkerLayerSprite * input_self, NpcLayerD
     register NpcLayerDrawContext * context asm("r4") = input_context;
     register NpcWorkerLayerSprite * target asm("r0") = input_self;
     register NpcLayerDrawContext * draw_context asm("r1") = input_context;
-    asm volatile("bl func_08032690" : "+r"(target), "+r"(draw_context) : : "r2", "r3", "r12", "lr", "cc", "memory");
+    asm volatile("bl DrawSpriteWorkerLayers" : "+r"(target), "+r"(draw_context) : : "r2", "r3", "r12", "lr", "cc", "memory");
     if (self->effect_timer != 0)
     {
         NpcLayerQueues queues(context->tiles, context->sprites);

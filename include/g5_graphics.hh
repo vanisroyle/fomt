@@ -50,6 +50,9 @@ EC u8 * InventoryMenu_InitializePanelBase(u8 * panel, DrawCommand * draw_owner);
 // Slot captions occupy +0x28c and truncate to eight bytes, plus a terminator.
 // The last selectable slot at +0x298 is retained separately from entry count.
 EC u8 * InventoryMenu_InitializeSlotPanel(u8 * panel, void * owner, DrawCommand * draw_owner, u32 slots, char const * caption, u32 special_slot_enabled); // 0x080CAFC4
+// Resource-backed panels initialize eight tile/palette handles and reserve
+// two tile units per slot. The low byte of the flag enables the special slot.
+EC u8 * InventoryMenu_InitializeResourceSlotPanel(u8 * panel, void * owner, DrawCommand * draw_owner, u32 slots, char const * caption, u32 special_slot_enabled); // 0x080CC15C
 
 // Destructors also release panel resources; flags bit 0 deletes the panel.
 EC void DestroyPanelDrawCommands(u8 * panel, u32 flags); // 0x080CADF0

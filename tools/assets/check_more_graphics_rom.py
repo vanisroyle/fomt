@@ -50,7 +50,7 @@ def main():
                                    g.palette_rgb(more.palette_for(scene, scene["palettes"][0], streams)),
                                    scene["width"], scene["height"], True, g)
             Path("/home/ubuntu/screenshots/gfx_more_farm-block-edit-layer-0.png").write_bytes(preview)
-            audit = more.relocation_audit(streams)
+            audit = more.relocation_audit(streams, original)
             assert g.growth_safe(original, (address, streams[address]["size"], tuple(sorted(set(streams[address]["references"])))), *audit)
         else:
             rows[y][x] ^= 1
