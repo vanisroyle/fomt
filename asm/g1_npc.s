@@ -1,121 +1,6 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
 
-    .section .text.g1_start, "ax", %progbits
-
-	thumb_func_start func_0809E804
-func_0809E804: @ 0x0809E804
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #8
-	adds r7, r0, #0
-	cmp r1, #6
-	bhi .L0809E894
-	ldr r0, .L0809E88C @ =gUnk_081040EC
-	lsls r1, r1, #2
-	mov r8, r1
-	add r8, r0
-	mov r0, r8
-	ldrb r6, [r0]
-	ldrb r1, [r0, #1]
-	mov sb, r1
-	mov r3, sp
-	movs r2, #0x1c
-	ldrh r1, [r3]
-	ldr r4, .L0809E890 @ =0xFFFFFC00
-	adds r0, r4, #0
-	ands r0, r1
-	orrs r0, r2
-	strh r0, [r3]
-	movs r0, #0x3f
-	mov sl, r0
-	adds r1, r6, #0
-	ands r1, r0
-	lsls r1, r1, #2
-	ldrb r5, [r3, #1]
-	movs r2, #3
-	adds r0, r2, #0
-	ands r0, r5
-	orrs r0, r1
-	strb r0, [r3, #1]
-	lsrs r6, r6, #6
-	ldrh r1, [r3, #2]
-	adds r0, r4, #0
-	ands r0, r1
-	orrs r0, r6
-	strh r0, [r3, #2]
-	mov r0, sb
-	mov r1, sl
-	ands r0, r1
-	lsls r0, r0, #2
-	ldrb r1, [r3, #3]
-	ands r2, r1
-	orrs r2, r0
-	strb r2, [r3, #3]
-	mov r0, sb
-	lsrs r0, r0, #6
-	mov sb, r0
-	ldrh r0, [r3, #4]
-	ands r4, r0
-	mov r1, sb
-	orrs r4, r1
-	strh r4, [r3, #4]
-	mov r0, r8
-	ldrb r4, [r0, #2]
-	adds r0, r7, #0
-	mov r1, sp
-	movs r2, #6
-	bl memcpy
-	strb r4, [r7, #6]
-	b .L0809E8CE
-	.align 2, 0
-.L0809E88C: .4byte gUnk_081040EC
-.L0809E890: .4byte 0xFFFFFC00
-.L0809E894:
-	mov r1, sp
-	movs r4, #0x1c
-	ldrh r2, [r1]
-	ldr r3, .L0809E8E0 @ =0xFFFFFC00
-	adds r0, r3, #0
-	ands r0, r2
-	orrs r0, r4
-	strh r0, [r1]
-	movs r5, #0
-	ldrb r4, [r1, #1]
-	movs r2, #3
-	adds r0, r2, #0
-	ands r0, r4
-	strb r0, [r1, #1]
-	ldrh r4, [r1, #2]
-	adds r0, r3, #0
-	ands r0, r4
-	strh r0, [r1, #2]
-	ldrb r0, [r1, #3]
-	ands r2, r0
-	strb r2, [r1, #3]
-	ldrh r0, [r1, #4]
-	ands r3, r0
-	strh r3, [r1, #4]
-	adds r0, r7, #0
-	movs r2, #6
-	bl memcpy
-	strb r5, [r7, #6]
-.L0809E8CE:
-	adds r0, r7, #0
-	add sp, #8
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0809E8E0: .4byte 0xFFFFFC00
-
     .section .text.g1_after_b2_0809E8E4, "ax", %progbits
 
 
@@ -130,26 +15,7 @@ func_0809E804: @ 0x0809E804
 
     .section .text.g1_after_0809E988, "ax", %progbits
 
-	thumb_func_start ClearNpcEventSlot
-ClearNpcEventSlot: @ 0x0809E994
-	push {r4, lr}
-	sub sp, #8
-	lsls r1, r1, #3
-	mov r4, sp
-	ldrb r3, [r4]
-	movs r2, #0x10
-	rsbs r2, r2, #0
-	ands r2, r3
-	strb r2, [r4]
-	adds r1, r1, r0
-	mov r0, sp
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	add sp, #8
-	pop {r4}
-	pop {r0}
-	bx r0
-	.align 2, 0
+    .section .text.g1_after_b7_0809E994, "ax", %progbits
 
 
     .section .text.g1_after_0809E994, "ax", %progbits
@@ -2324,106 +2190,7 @@ func_0809FE74: @ 0x0809FE74
 	.byte 0x03, 0xD0, 0x48, 0x30, 0x02, 0xE0, 0x50, 0x30, 0x00, 0xE0, 0x58, 0x30, 0x02, 0xBC, 0x08, 0x47
 	.byte 0x60, 0x30, 0x70, 0x47, 0x68, 0x30, 0x70, 0x47
 
-	thumb_func_start func_080A05E8
-func_080A05E8: @ 0x080A05E8
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0x38
-	adds r7, r0, #0
-	mov sb, r1
-	ldrb r1, [r7, #3]
-	lsls r0, r1, #0x1e
-	lsrs r0, r0, #0x1f
-	mov r8, r0
-	cmp r0, #0
-	bne .L080A069E
-	movs r0, #2
-	orrs r0, r1
-	strb r0, [r7, #3]
-	add r1, sp, #0x30
-	movs r4, #0x1d
-	ldrh r2, [r1]
-	ldr r3, .L080A06AC @ =0xFFFFFC00
-	adds r0, r3, #0
-	ands r0, r2
-	orrs r0, r4
-	strh r0, [r1]
-	movs r6, #0x90
-	ldrb r4, [r1, #1]
-	movs r2, #3
-	adds r0, r2, #0
-	ands r0, r4
-	orrs r0, r6
-	strb r0, [r1, #1]
-	movs r5, #1
-	ldrh r4, [r1, #2]
-	adds r0, r3, #0
-	ands r0, r4
-	orrs r0, r5
-	strh r0, [r1, #2]
-	ldrb r0, [r1, #3]
-	ands r2, r0
-	orrs r2, r6
-	strb r2, [r1, #3]
-	ldrh r0, [r1, #4]
-	ands r3, r0
-	orrs r3, r5
-	strh r3, [r1, #4]
-	add r4, sp, #0x28
-	adds r0, r4, #0
-	movs r2, #6
-	bl memcpy
-	mov r0, r8
-	strb r0, [r4, #6]
-	mov r0, sp
-	mov r1, sb
-	adds r2, r4, #0
-	bl __15G1NamedNpcStateRC17G1NamedNpcVariantRC13ActorLocation
-	adds r1, r7, #4
-	mov r0, sp
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	adds r0, r7, #0
-	adds r0, #0x18
-	add r1, sp, #0x14
-	bl strcpy
-	adds r1, r7, #0
-	adds r1, #0x28
-	add r0, sp, #0x24
-	ldrb r0, [r0]
-	strb r0, [r1]
-	mov r0, sp
-	adds r0, #0x25
-	ldrb r0, [r0]
-	adds r1, #1
-	strb r0, [r1]
-	mov r0, sp
-	adds r0, #0x26
-	ldrb r1, [r0]
-	lsls r1, r1, #0x1f
-	adds r3, r7, #0
-	adds r3, #0x2a
-	lsrs r1, r1, #0x1f
-	ldrb r2, [r3]
-	movs r0, #2
-	rsbs r0, r0, #0
-	ands r0, r2
-	orrs r0, r1
-	strb r0, [r3]
-.L080A069E:
-	add sp, #0x38
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080A06AC: .4byte 0xFFFFFC00
+    .section .text.g1_after_b7_080A05E8, "ax", %progbits
 
     .section .text.g1_after_b4_080A06B0, "ax", %progbits
 
@@ -2848,7 +2615,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #0
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2870,7 +2637,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #1
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2888,7 +2655,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #2
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2906,7 +2673,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #3
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2924,7 +2691,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #4
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2942,7 +2709,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #5
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -2959,7 +2726,7 @@ func_080A0B18: @ 0x080A0B18
 	bl DayUpdate__13HarvestSprite
 	mov r0, sp
 	movs r1, #6
-	bl func_0809E804
+	bl GetHarvestSpriteHomeLocation
 	adds r0, r4, #0
 	mov r1, sp
 	bl SetLocation__3NpcRC13ActorLocation
@@ -3519,339 +3286,7 @@ func_080A0B18: @ 0x080A0B18
 
     .section .text.g1_after_080A1480, "ax", %progbits
 
-	thumb_func_start func_080A1484
-func_080A1484: @ 0x080A1484
-	push {r4, r5, r6, lr}
-	adds r4, r0, #0
-	adds r6, r2, #0
-	ldrh r0, [r1]
-	lsls r0, r0, #0x16
-	lsrs r0, r0, #0x16
-	cmp r0, #0x2a
-	bls .L080A1496
-	b .L080A1798
-.L080A1496:
-	lsls r0, r0, #2
-	ldr r1, .L080A14A0 @ =.L080A14A4
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L080A14A0: .4byte .L080A14A4
-.L080A14A4: @ jump table
-	.4byte .L080A1550 @ case 0
-	.4byte .L080A1550 @ case 1
-	.4byte .L080A1798 @ case 2
-	.4byte .L080A1550 @ case 3
-	.4byte .L080A1550 @ case 4
-	.4byte .L080A1550 @ case 5
-	.4byte .L080A1550 @ case 6
-	.4byte .L080A1550 @ case 7
-	.4byte .L080A1550 @ case 8
-	.4byte .L080A1798 @ case 9
-	.4byte .L080A1636 @ case 10
-	.4byte .L080A1636 @ case 11
-	.4byte .L080A164E @ case 12
-	.4byte .L080A1654 @ case 13
-	.4byte .L080A165A @ case 14
-	.4byte .L080A1678 @ case 15
-	.4byte .L080A1678 @ case 16
-	.4byte .L080A1798 @ case 17
-	.4byte .L080A1798 @ case 18
-	.4byte .L080A1696 @ case 19
-	.4byte .L080A1696 @ case 20
-	.4byte .L080A16A8 @ case 21
-	.4byte .L080A16A8 @ case 22
-	.4byte .L080A16A8 @ case 23
-	.4byte .L080A16BA @ case 24
-	.4byte .L080A16BA @ case 25
-	.4byte .L080A16BA @ case 26
-	.4byte .L080A16BA @ case 27
-	.4byte .L080A16EC @ case 28
-	.4byte .L080A1798 @ case 29
-	.4byte .L080A173C @ case 30
-	.4byte .L080A174E @ case 31
-	.4byte .L080A174E @ case 32
-	.4byte .L080A174E @ case 33
-	.4byte .L080A174E @ case 34
-	.4byte .L080A1798 @ case 35
-	.4byte .L080A1760 @ case 36
-	.4byte .L080A1798 @ case 37
-	.4byte .L080A1766 @ case 38
-	.4byte .L080A1798 @ case 39
-	.4byte .L080A1776 @ case 40
-	.4byte .L080A1784 @ case 41
-	.4byte .L080A1784 @ case 42
-.L080A1550:
-	movs r5, #1
-.L080A1552:
-	movs r1, #1
-	cmp r5, #0x21
-	beq .L080A1570
-	cmp r5, #0x21
-	bhi .L080A1562
-	cmp r5, #0x20
-	beq .L080A1580
-	b .L080A1582
-.L080A1562:
-	cmp r5, #0x22
-	bne .L080A1582
-	adds r0, r6, #0
-	adds r0, #0x3b
-	ldrb r0, [r0]
-	lsls r0, r0, #0x1b
-	b .L080A1578
-.L080A1570:
-	adds r0, r6, #0
-	adds r0, #0x3a
-	ldrb r0, [r0]
-	lsls r0, r0, #0x19
-.L080A1578:
-	lsrs r0, r0, #0x1e
-	cmp r0, #2
-	beq .L080A1582
-	b .L080A1598
-.L080A1580:
-	movs r1, #0
-.L080A1582:
-	cmp r1, #0
-	beq .L080A1598
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl GetRosterNpcByIdConst
-	cmp r0, #0
-	beq .L080A1598
-	movs r1, #1
-	bl SubtractFriendship__3Npci
-.L080A1598:
-	subs r0, r5, #3
-	cmp r0, #0x1c
-	bhi .L080A162E
-	lsls r0, r0, #2
-	ldr r1, .L080A15A8 @ =.L080A15AC
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L080A15A8: .4byte .L080A15AC
-.L080A15AC: @ jump table
-	.4byte .L080A1620 @ case 0
-	.4byte .L080A162E @ case 1
-	.4byte .L080A162E @ case 2
-	.4byte .L080A162E @ case 3
-	.4byte .L080A162E @ case 4
-	.4byte .L080A162E @ case 5
-	.4byte .L080A162E @ case 6
-	.4byte .L080A162E @ case 7
-	.4byte .L080A162E @ case 8
-	.4byte .L080A1620 @ case 9
-	.4byte .L080A162E @ case 10
-	.4byte .L080A162E @ case 11
-	.4byte .L080A162E @ case 12
-	.4byte .L080A162E @ case 13
-	.4byte .L080A162E @ case 14
-	.4byte .L080A162E @ case 15
-	.4byte .L080A1620 @ case 16
-	.4byte .L080A162E @ case 17
-	.4byte .L080A1620 @ case 18
-	.4byte .L080A162E @ case 19
-	.4byte .L080A162E @ case 20
-	.4byte .L080A162E @ case 21
-	.4byte .L080A1620 @ case 22
-	.4byte .L080A162E @ case 23
-	.4byte .L080A162E @ case 24
-	.4byte .L080A162E @ case 25
-	.4byte .L080A162E @ case 26
-	.4byte .L080A162E @ case 27
-	.4byte .L080A1620 @ case 28
-.L080A1620:
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl GetRosterBacheloretteByIdConst
-	movs r1, #0xc8
-	bl SubtractLove__12Bachelorettei
-.L080A162E:
-	adds r5, #1
-	cmp r5, #0x2a
-	bls .L080A1552
-	b .L080A1798
-.L080A1636:
-	adds r0, r4, #0
-	adds r0, #0x70
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	adds r0, r4, #0
-	adds r0, #0x84
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	adds r4, #0x98
-	b .L080A16D8
-.L080A164E:
-	movs r1, #0x8a
-	lsls r1, r1, #2
-	b .L080A177A
-.L080A1654:
-	movs r1, #0xaa
-	lsls r1, r1, #2
-	b .L080A177A
-.L080A165A:
-	movs r1, #0xca
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xd4
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r0, #0x84
-	lsls r0, r0, #2
-	b .L080A16D6
-.L080A1678:
-	movs r1, #0xde
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xe8
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r0, #0xf2
-	lsls r0, r0, #1
-	b .L080A16D6
-.L080A1696:
-	movs r1, #0xfe
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r0, #0x84
-	lsls r0, r0, #2
-	b .L080A16D6
-.L080A16A8:
-	movs r1, #0x94
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r0, #0x99
-	lsls r0, r0, #2
-	b .L080A16D6
-.L080A16BA:
-	movs r1, #0x96
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xa0
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r0, #0xaa
-	lsls r0, r0, #1
-.L080A16D6:
-	adds r4, r4, r0
-.L080A16D8:
-	adds r0, r4, #0
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xfa
-	lsls r1, r1, #1
-	adds r0, r4, #0
-	bl SubtractLove__12Bachelorettei
-	b .L080A1798
-.L080A16EC:
-	movs r1, #0xcf
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xd8
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xe1
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xea
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xf3
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xfc
-	lsls r1, r1, #2
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	ldr r1, .L080A1738 @ =0x00000414
-	b .L080A177A
-	.align 2, 0
-.L080A1738: .4byte 0x00000414
-.L080A173C:
-	movs r1, #0xb6
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0xc0
-	lsls r1, r1, #1
-	b .L080A177A
-.L080A174E:
-	movs r1, #0x82
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	movs r1, #0x8c
-	lsls r1, r1, #1
-	b .L080A177A
-.L080A1760:
-	movs r1, #0x9f
-	lsls r1, r1, #2
-	b .L080A177A
-.L080A1766:
-	adds r0, r4, #0
-	adds r0, #0xd8
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	adds r0, r4, #0
-	adds r0, #0xf0
-	b .L080A177C
-.L080A1776:
-	movs r1, #0xa4
-	lsls r1, r1, #2
-.L080A177A:
-	adds r0, r4, r1
-.L080A177C:
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	b .L080A1798
-.L080A1784:
-	adds r0, r4, #0
-	adds r0, #0xb0
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-	adds r0, r4, #0
-	adds r0, #0xc4
-	movs r1, #5
-	bl SubtractFriendship__3Npci
-.L080A1798:
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
+    .section .text.g1_after_b11_080A1484, "ax", %progbits
 
     .section .text.g1_after_b3_080A17A0, "ax", %progbits
 
@@ -6372,7 +5807,7 @@ func_080A32A4: @ 0x080A32A4
 	adds r0, r6, #0
 	movs r1, #0x11
 	movs r2, #1
-	bl func_080A3588
+	bl DrawCalendarNumber
 	str r4, [sp]
 	adds r0, r6, #0
 	movs r1, #0x41
@@ -6453,7 +5888,7 @@ func_080A32A4: @ 0x080A32A4
 	adds r1, r7, #0
 	mov r2, r8
 	adds r2, #0x2a
-	bl func_080A3588
+	bl DrawCalendarNumber
 .L080A3566:
 	adds r4, #1
 	adds r7, #0x22
@@ -6473,85 +5908,7 @@ func_080A32A4: @ 0x080A32A4
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080A3588
-func_080A3588: @ 0x080A3588
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #4
-	mov sl, r0
-	adds r7, r1, #0
-	mov sb, r2
-	adds r6, r3, #0
-	ldr r4, [sp, #0x24]
-	movs r0, #0
-	mov r8, r0
-	cmp r4, #1
-	ble .L080A35BE
-	subs r4, #1
-	movs r5, #0xa
-	cmp r4, #1
-	ble .L080A35BA
-.L080A35AE:
-	lsls r0, r5, #2
-	adds r0, r0, r5
-	lsls r5, r0, #1
-	subs r4, #1
-	cmp r4, #1
-	bgt .L080A35AE
-.L080A35BA:
-	adds r4, r5, #0
-	b .L080A3602
-.L080A35BE:
-	movs r4, #1
-.L080A35C0:
-	cmp r4, #1
-	bne .L080A35C8
-	movs r0, #1
-	mov r8, r0
-.L080A35C8:
-	adds r0, r6, #0
-	adds r1, r4, #0
-	bl __divsi3
-	adds r5, r0, #0
-	cmp r5, #0
-	bne .L080A35DC
-	mov r0, r8
-	cmp r0, #0
-	beq .L080A35F0
-.L080A35DC:
-	ldr r0, [sp, #0x28]
-	str r0, [sp]
-	mov r0, sl
-	adds r1, r7, #0
-	mov r2, sb
-	adds r3, r5, #0
-	bl func_080A3618
-	movs r0, #1
-	mov r8, r0
-.L080A35F0:
-	adds r7, #0x10
-	adds r0, r5, #0
-	muls r0, r4, r0
-	subs r6, r6, r0
-	adds r0, r4, #0
-	movs r1, #0xa
-	bl __divsi3
-	adds r4, r0, #0
-.L080A3602:
-	cmp r4, #0
-	bgt .L080A35C0
-	add sp, #4
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
+    .section .text.g1_after_b9_080A3588, "ax", %progbits
 
 	thumb_func_start func_080A3618
 func_080A3618: @ 0x080A3618
@@ -9434,63 +8791,6 @@ func_080A4F50: @ 0x080A4F50
 	.align 2, 0
 .L080A566C: .4byte gUnk_08107154
 
-	thumb_func_start func_080A5670
-func_080A5670: @ 0x080A5670
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	mov r8, r0
-	ldrh r0, [r0, #0x24]
-	lsls r0, r0, #1
-	mov sb, r0
-	ldr r0, .L080A56D4 @ =0x040000D4
-	mov sl, r0
-	movs r1, #0
-.L080A5688:
-	lsls r2, r1, #3
-	mov r0, r8
-	adds r0, #0xc
-	adds r0, r0, r2
-	ldr r0, [r0]
-	adds r7, r1, #1
-	cmp r0, #0
-	beq .L080A56BC
-	adds r5, r0, #0
-	mov r0, r8
-	adds r0, #0x10
-	adds r0, r0, r2
-	ldr r4, [r0]
-	movs r1, #0xa8
-	lsls r1, r1, #3
-	adds r6, r4, r1
-.L080A56A8:
-	adds r0, r5, #0
-	adds r1, r4, #0
-	ldr r2, .L080A56D8 @ =0x8000001F
-	mov r3, sl
-	bl Dma_ExecuteTransfer
-	add r5, sb
-	adds r4, #0x40
-	cmp r4, r6
-	bne .L080A56A8
-.L080A56BC:
-	adds r1, r7, #0
-	cmp r1, #2
-	bls .L080A5688
-	movs r0, #0
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080A56D4: .4byte 0x040000D4
-.L080A56D8: .4byte 0x8000001F
-
     .section .text.g1_after_b4_080A56DC, "ax", %progbits
 
 
@@ -9924,51 +9224,7 @@ func_080A5AB0: @ 0x080A5AB0
     .section .text.g1_after_b3_080A5BD8, "ax", %progbits
 
 
-	thumb_func_start ReloadMapTilemaps
-ReloadMapTilemaps: @ 0x080A5CC0
-	push {r4, r5, r6, r7, lr}
-	adds r7, r0, #0
-	ldr r0, [r7, #4]
-	bl GetMapData
-	adds r5, r0, #0
-	movs r6, #0
-	adds r4, r7, #0
-	adds r4, #0x10
-.L080A5CD2:
-	lsls r1, r6, #2
-	adds r0, r5, #0
-	adds r0, #0xc
-	adds r0, r0, r1
-	ldr r0, [r0]
-	cmp r0, #0
-	beq .L080A5CE8
-	ldr r1, [r4]
-	bl Unpack
-	b .L080A5CF8
-.L080A5CE8:
-	ldr r1, [r4]
-	ldrh r2, [r5, #0x20]
-	ldrh r0, [r5, #0x22]
-	lsls r0, r0, #1
-	muls r2, r0, r2
-	ldr r0, .L080A5D10 @ =0x03FF03FF
-	bl Dma3_Fill
-.L080A5CF8:
-	adds r4, #4
-	adds r6, #1
-	cmp r6, #2
-	bls .L080A5CD2
-	adds r1, r7, #0
-	adds r1, #0x29
-	movs r0, #1
-	strb r0, [r1]
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080A5D10: .4byte 0x03FF03FF
-
-
+    .section .text.g1_after_b11_080A5CC0, "ax", %progbits
 
     .section .text.g1_after_b3_080A5D14, "ax", %progbits
 
@@ -10166,92 +9422,7 @@ func_080A5EB8: @ 0x080A5EB8
 	bx r1
 	.align 2, 0
 
-	thumb_func_start func_080A5F78
-func_080A5F78: @ 0x080A5F78
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #4
-	adds r5, r0, #0
-	adds r4, r1, #0
-	mov r8, r2
-	mov sb, r3
-	ldr r0, [r5, #4]
-	bl GetMapData
-	ldrh r0, [r0, #0x20]
-	mov sl, r0
-	movs r6, #0
-	ldr r0, [sp, #0x24]
-	cmp r6, r0
-	bhs .L080A5FFE
-	lsls r4, r4, #2
-	str r4, [sp]
-.L080A5FA2:
-	movs r4, #0
-	adds r1, r6, #1
-	mov ip, r1
-	cmp r4, sb
-	bhs .L080A5FF6
-	adds r0, r5, #0
-	adds r0, #0x10
-	ldr r2, [sp]
-	adds r7, r0, r2
-.L080A5FB4:
-	mov r3, r8
-	movs r0, #0
-	ldrsh r1, [r3, r0]
-	adds r1, r1, r4
-	movs r2, #2
-	ldrsh r0, [r3, r2]
-	adds r0, r0, r6
-	mov r3, sl
-	muls r3, r0, r3
-	adds r0, r3, #0
-	adds r1, r1, r0
-	lsls r2, r1, #1
-	ldr r0, [r7]
-	adds r0, r0, r2
-	ldr r2, .L080A6018 @ =0x000003FF
-	strh r2, [r0]
-	ldr r2, [r5, #0x2c]
-	lsls r1, r1, #2
-	adds r2, r1, r2
-	ldrb r3, [r2]
-	movs r0, #2
-	rsbs r0, r0, #0
-	ands r0, r3
-	strb r0, [r2]
-	ldr r0, [r5, #0x2c]
-	adds r1, r1, r0
-	ldrh r2, [r1, #2]
-	movs r0, #1
-	ands r0, r2
-	strh r0, [r1, #2]
-	adds r4, #1
-	cmp r4, sb
-	blo .L080A5FB4
-.L080A5FF6:
-	mov r6, ip
-	ldr r3, [sp, #0x24]
-	cmp r6, r3
-	blo .L080A5FA2
-.L080A5FFE:
-	adds r1, r5, #0
-	adds r1, #0x29
-	movs r0, #1
-	strb r0, [r1]
-	add sp, #4
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080A6018: .4byte 0x000003FF
+    .section .text.g1_after_b11_080A5F78, "ax", %progbits
 
     .section .text.g1_after_080A601C, "ax", %progbits
 

@@ -142,8 +142,8 @@ gUnk_080FA71C:
 gUnk_080FA728:
 	.incbin "baserom.gba", 0xFA728, 0x6E
 
-	.global gUnk_080FA796
-gUnk_080FA796:
+	.global gHorseRaceOpponentNames
+gHorseRaceOpponentNames:
 	.incbin "baserom.gba", 0xFA796, 0x208
 
 	.global gUnk_080FA99E
@@ -238,33 +238,71 @@ gUnk_080FADDC:
 gUnk_080FAE00:
 	.incbin "baserom.gba", 0xFAE00, 0x6A
 
-	.global gUnk_080FAE6A
-gUnk_080FAE6A:
-	.incbin "baserom.gba", 0xFAE6A, 0x32
+	.global gHorseRaceBettingGlyphCodes
+gHorseRaceBettingGlyphCodes:
+	.2byte '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', 'x', 'G'
+	.2byte 'Y', 'o', 'u', 'r', ' ', 'm', 'e', 'd', 'a', 'l', 's', 0
 
-	.global gUnk_080FAE9C
-gUnk_080FAE9C:
-	.incbin "baserom.gba", 0xFAE9C, 0x1C
+	.global gHorseRaceBettingTableHeader
+gHorseRaceBettingTableHeader:
+	.asciz "Race  Winning Ticket    "
+	.zero 3
 
-	.global gUnk_080FAEB8
-gUnk_080FAEB8:
-	.incbin "baserom.gba", 0xFAEB8, 0xC
+	.global gHorseRaceEnterLabel
+gHorseRaceEnterLabel:
+	.asciz "   Enter"
+	.zero 3
 
-	.global gUnk_080FAEC4
-gUnk_080FAEC4:
-	.incbin "baserom.gba", 0xFAEC4, 0x104
+	.global gHorseRaceMedalsToWinLabel
+gHorseRaceMedalsToWinLabel:
+	.asciz "  Medals to Win     "
+	.zero 3
+	.incbin "baserom.gba", 0xFAEDC, 0xEC
 
 	.global gUnk_080FAFC8
 gUnk_080FAFC8:
 	.incbin "baserom.gba", 0xFAFC8, 0x38
 
+	.macro medal_prize name, price
+.Lmedal_prize_name\@:
+	.asciz "\name"
+	.if (. - .Lmedal_prize_name\@) > 16
+	.error "Medal prize name exceeds its 16-byte field including the terminator"
+	.endif
+	.space 16 - (. - .Lmedal_prize_name\@)
+	.2byte \price, 0
+	.endm
+
 	.global gMedalExchangePrizes
 gMedalExchangePrizes:
-	.incbin "baserom.gba", 0xFB000, 0xF0
+	medal_prize "Jewel of Truth", 1000
+	medal_prize "Power Berry", 900
+	medal_prize "Facial Pack", 42
+	medal_prize "Skin Lotion", 35
+	medal_prize "Sunblock", 30
+	medal_prize "Necklace", 20
+	medal_prize "Broach", 18
+	medal_prize "Diamond", 14
+	medal_prize "Truffle", 10
+	medal_prize "Adamantite", 4
+	medal_prize "Dress", 250
+	medal_prize "Perfume", 150
+	.purgem medal_prize
 
-	.global gUnk_080FB0F0
-gUnk_080FB0F0:
-	.incbin "baserom.gba", 0xFB0F0, 0x18
+	.global gMedalExchangePrizeItemIds
+gMedalExchangePrizeItemIds:
+	.2byte 0x27 @ Jewel of Truth
+	.2byte 0x00 @ Power Berry
+	.2byte 0x56 @ Facial Pack
+	.2byte 0x57 @ Skin Lotion
+	.2byte 0x58 @ Sunblock
+	.2byte 0x2d @ Necklace
+	.2byte 0x2f @ Broach
+	.2byte 0x1d @ Diamond
+	.2byte 0x2e @ Truffle
+	.2byte 0x17 @ Adamantite
+	.2byte 0x55 @ Dress
+	.2byte 0x51 @ Perfume
 
 	.global gAskToExchangeMedals
 gAskToExchangeMedals:
@@ -306,193 +344,151 @@ gUnk_080FB1A6:
 gUnk_080FB1E4:
 	.incbin "baserom.gba", 0xFB1E4, 0x50
 
-	.global gUnk_080FB234
-gUnk_080FB234:
+	.global gChildhoodMemorySpeakerMother
+gChildhoodMemorySpeakerMother:
 	.incbin "baserom.gba", 0xFB234, 0x8
 
-	.global gUnk_080FB23C
-gUnk_080FB23C:
+	.global gChildhoodMemoryTripOpening
+gChildhoodMemoryTripOpening:
 	.incbin "baserom.gba", 0xFB23C, 0x40
 
-	.global gUnk_080FB27C
-gUnk_080FB27C:
+	.global gChildhoodMemorySpeakerFather
+gChildhoodMemorySpeakerFather:
 	.incbin "baserom.gba", 0xFB27C, 0x8
 
-	.global gUnk_080FB284
-gUnk_080FB284:
+	.global gChildhoodMemoryFishingInvite
+gChildhoodMemoryFishingInvite:
 	.incbin "baserom.gba", 0xFB284, 0x4C
 
-	.global gUnk_080FB2D0
-gUnk_080FB2D0:
+	.global gChildhoodMemoryLostChild
+gChildhoodMemoryLostChild:
 	.incbin "baserom.gba", 0xFB2D0, 0x24
 
-	.global gUnk_080FB2F4
-gUnk_080FB2F4:
+	.global gChildhoodMemoryLostChildReaction
+gChildhoodMemoryLostChildReaction:
 	.incbin "baserom.gba", 0xFB2F4, 0xC
 
-	.global gUnk_080FB300
-gUnk_080FB300:
+	.global gChildhoodMemorySpeakerOldMan
+gChildhoodMemorySpeakerOldMan:
 	.incbin "baserom.gba", 0xFB300, 0x8
 
-	.global gUnk_080FB308
-gUnk_080FB308:
+	.global gChildhoodMemoryFoundChild
+gChildhoodMemoryFoundChild:
 	.incbin "baserom.gba", 0xFB308, 0x90
 
-	.global gUnk_080FB398
-gUnk_080FB398:
+	.global gChildhoodMemoryThankYou
+gChildhoodMemoryThankYou:
 	.incbin "baserom.gba", 0xFB398, 0x34
 
-	.global gUnk_080FB3CC
-gUnk_080FB3CC:
+	.global gChildhoodMemoryCountryTrip
+gChildhoodMemoryCountryTrip:
 	.incbin "baserom.gba", 0xFB3CC, 0x54
 
-	.global gUnk_080FB420
-gUnk_080FB420:
+	.global gChildhoodMemoryFarmInvite
+gChildhoodMemoryFarmInvite:
 	.incbin "baserom.gba", 0xFB420, 0x4C
 
-	.global gUnk_080FB46C
-gUnk_080FB46C:
+	.global gChildhoodMemoryFarmInviteReaction
+gChildhoodMemoryFarmInviteReaction:
 	.incbin "baserom.gba", 0xFB46C, 0x18
 
-	.global gUnk_080FB484
-gUnk_080FB484:
+	.global gChildhoodMemoryWelcomeToFarm
+gChildhoodMemoryWelcomeToFarm:
 	.incbin "baserom.gba", 0xFB484, 0x50
 
-	.global gUnk_080FB4D4
-gUnk_080FB4D4:
+	.global gChildhoodMemoryFarmPlay
+gChildhoodMemoryFarmPlay:
 	.incbin "baserom.gba", 0xFB4D4, 0x48
 
-	.global gUnk_080FB51C
-gUnk_080FB51C:
+	.global gChildhoodMemorySpeakerUnseenGirl
+gChildhoodMemorySpeakerUnseenGirl:
 	.incbin "baserom.gba", 0xFB51C, 0x4
 
-	.global gUnk_080FB520
-gUnk_080FB520:
+	.global gChildhoodMemoryCallingOut
+gChildhoodMemoryCallingOut:
 	.incbin "baserom.gba", 0xFB520, 0x14
 
-	.global gUnk_080FB534
-gUnk_080FB534:
+	.global gChildhoodMemorySurprise
+gChildhoodMemorySurprise:
 	.incbin "baserom.gba", 0xFB534, 0x8
 
-	.global gUnk_080FB53C
-gUnk_080FB53C:
+	.global gChildhoodMemorySpeakerGirl
+gChildhoodMemorySpeakerGirl:
 	.incbin "baserom.gba", 0xFB53C, 0x8
 
-	.global gUnk_080FB544
-gUnk_080FB544:
+	.global gChildhoodMemoryCheckingOnChild
+gChildhoodMemoryCheckingOnChild:
 	.incbin "baserom.gba", 0xFB544, 0x34
 
-	.global gUnk_080FB578
-gUnk_080FB578:
+	.global gChildhoodMemoryPlayInvite
+gChildhoodMemoryPlayInvite:
 	.incbin "baserom.gba", 0xFB578, 0x5C
 
-	.global gUnk_080FB5D4
-gUnk_080FB5D4:
+	.global gChildhoodMemoryTellMeAboutYourself
+gChildhoodMemoryTellMeAboutYourself:
 	.incbin "baserom.gba", 0xFB5D4, 0x60
 
-	.global gUnk_080FB634
-gUnk_080FB634:
+	.global gChildhoodMemoryFarmFarewell
+gChildhoodMemoryFarmFarewell:
 	.incbin "baserom.gba", 0xFB634, 0x8C
 
-	.global gUnk_080FB6C0
-gUnk_080FB6C0:
+	.global gChildhoodMemoryLetterRequest
+gChildhoodMemoryLetterRequest:
 	.incbin "baserom.gba", 0xFB6C0, 0x50
 
-	.global gUnk_080FB710
-gUnk_080FB710:
+	.global gChildhoodMemoryFarmAddress
+gChildhoodMemoryFarmAddress:
 	.incbin "baserom.gba", 0xFB710, 0x28
 
-	.global gUnk_080FB738
-gUnk_080FB738:
+	.global gChildhoodMemoryLeavingReaction
+gChildhoodMemoryLeavingReaction:
 	.incbin "baserom.gba", 0xFB738, 0x1C
 
-	.global gUnk_080FB754
-gUnk_080FB754:
+	.global gChildhoodMemoryPromiseToReturn
+gChildhoodMemoryPromiseToReturn:
 	.incbin "baserom.gba", 0xFB754, 0x4C
 
-	.global gUnk_080FB7A0
-gUnk_080FB7A0:
+	.global gChildhoodMemoryMadeAFriend
+gChildhoodMemoryMadeAFriend:
 	.incbin "baserom.gba", 0xFB7A0, 0x50
 
-	.global gUnk_080FB7F0
-gUnk_080FB7F0:
+	.global gChildhoodMemoryWaitingForLetter
+gChildhoodMemoryWaitingForLetter:
 	.incbin "baserom.gba", 0xFB7F0, 0x34
 
-	.global gUnk_080FB824
-gUnk_080FB824:
-	.incbin "baserom.gba", 0xFB824, 0xC
+	@ Keep the original byte slots; report tile widths are set by the callers.
+	.macro farm_report_text symbol, slot_bytes, value
+	.global \symbol
+\symbol:
+	.asciz "\value"
+	.if (. - \symbol) > \slot_bytes
+	.error "Farm report text exceeds its byte slot including the terminator"
+	.elseif (. - \symbol) < \slot_bytes
+	.space \slot_bytes - (. - \symbol)
+	.endif
+	.endm
 
-	.global gUnk_080FB830
-gUnk_080FB830:
-	.incbin "baserom.gba", 0xFB830, 0x4
+	farm_report_text gFarmReportPropertySuffix, 12, " Property "
+	farm_report_text gFarmReportBlankLabel, 4, "  "
+	farm_report_text gFarmReportGoldSuffix, 4, "G "
+	farm_report_text gLivestockReportHealthyLabel, 12, "Healthy "
+	farm_report_text gLivestockReportUnhappyLabel, 12, "Unhappy "
+	farm_report_text gLivestockReportSickLabel, 12, "Sick    "
+	farm_report_text gLivestockReportSpringLabel, 8, "Spring"
+	farm_report_text gLivestockReportSummerLabel, 8, "Summer"
+	farm_report_text gLivestockReportFallLabel, 8, "Fall  "
+	farm_report_text gLivestockReportWinterLabel, 8, "Winter"
+	farm_report_text gLivestockReportYearAgeSuffix, 4, "yr"
+	farm_report_text gChickenReportTitle, 20, "List of Chickens"
+	farm_report_text gCowReportTitle, 16, "List of Cattle"
+	farm_report_text gSheepReportTitle, 16, "List of Sheep "
+	farm_report_text gHarvestSpriteReportTitle, 20, "Harvest Sprites "
+	farm_report_text gFarmReportDaySuffix, 4, "D "
+	farm_report_text gHarvestSpriteReportDaysLeftLabel, 8, "left"
+	farm_report_text gHarvestSpriteReportWorkLabel, 12, "work    "
+	farm_report_text gHarvestSpriteReportNotAssignedLabel, 16, "N/A         "
 
-	.global gUnk_080FB834
-gUnk_080FB834:
-	.incbin "baserom.gba", 0xFB834, 0x4
-
-	.global gUnk_080FB838
-gUnk_080FB838:
-	.incbin "baserom.gba", 0xFB838, 0xC
-
-	.global gUnk_080FB844
-gUnk_080FB844:
-	.incbin "baserom.gba", 0xFB844, 0xC
-
-	.global gUnk_080FB850
-gUnk_080FB850:
-	.incbin "baserom.gba", 0xFB850, 0xC
-
-	.global gUnk_080FB85C
-gUnk_080FB85C:
-	.incbin "baserom.gba", 0xFB85C, 0x8
-
-	.global gUnk_080FB864
-gUnk_080FB864:
-	.incbin "baserom.gba", 0xFB864, 0x8
-
-	.global gUnk_080FB86C
-gUnk_080FB86C:
-	.incbin "baserom.gba", 0xFB86C, 0x8
-
-	.global gUnk_080FB874
-gUnk_080FB874:
-	.incbin "baserom.gba", 0xFB874, 0x8
-
-	.global gUnk_080FB87C
-gUnk_080FB87C:
-	.incbin "baserom.gba", 0xFB87C, 0x4
-
-	.global gUnk_080FB880
-gUnk_080FB880:
-	.incbin "baserom.gba", 0xFB880, 0x14
-
-	.global gUnk_080FB894
-gUnk_080FB894:
-	.incbin "baserom.gba", 0xFB894, 0x10
-
-	.global gUnk_080FB8A4
-gUnk_080FB8A4:
-	.incbin "baserom.gba", 0xFB8A4, 0x10
-
-	.global gUnk_080FB8B4
-gUnk_080FB8B4:
-	.incbin "baserom.gba", 0xFB8B4, 0x14
-
-	.global gUnk_080FB8C8
-gUnk_080FB8C8:
-	.incbin "baserom.gba", 0xFB8C8, 0x4
-
-	.global gUnk_080FB8CC
-gUnk_080FB8CC:
-	.incbin "baserom.gba", 0xFB8CC, 0x8
-
-	.global gUnk_080FB8D4
-gUnk_080FB8D4:
-	.incbin "baserom.gba", 0xFB8D4, 0xC
-
-	.global gUnk_080FB8E0
-gUnk_080FB8E0:
-	.incbin "baserom.gba", 0xFB8E0, 0x10
+	.purgem farm_report_text
 
 	.global gUnk_080FB8F0
 gUnk_080FB8F0:
