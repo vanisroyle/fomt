@@ -292,12 +292,15 @@ struct GameStateActiveEntity : public AActorEntity
 };
 
 
+struct GameStateMapUpdateEvent;
+struct GameStateAudioList;
+
 struct GameStateObject
 {
     virtual ~GameStateObject();
     virtual void vfunc_C();
     virtual void vfunc_10();
-    virtual u32 vfunc_14();
+    virtual u32 GetMapId() const;
     virtual void vfunc_18();
     virtual void vfunc_1C();
     virtual void vfunc_20();
@@ -318,7 +321,7 @@ struct GameStateObject
     virtual void vfunc_58();
     virtual void vfunc_5C();
     virtual void vfunc_60();
-    virtual void vfunc_64();
+    virtual void const * GetVaseSpriteArchive() const;
     virtual void vfunc_68();
     virtual void vfunc_6C();
     virtual void vfunc_70();
@@ -373,10 +376,10 @@ struct GameStateObject
     virtual void vfunc_134();
     virtual void vfunc_138();
     virtual void vfunc_13C();
-    virtual void vfunc_140();
+    virtual void QueueMapScriptEvent(GameStateMapUpdateEvent const & event, u32 queue);
     virtual void vfunc_144();
     virtual u32 GetMusicTrack() const;
-    virtual void vfunc_14C();
+    virtual GameStateAudioList * GetAudioPlayers();
     virtual void vfunc_150(u32 value);
     virtual void vfunc_154(u32 value);
     virtual void vfunc_158();
@@ -1465,6 +1468,7 @@ EC void SECTION(".text.game_state_08012B24") GameScript_QueueSceneEvent(GameStat
         break;
     }
 }
+
 
 extern u8 const vtable_unk_080E5E64[];
 extern u8 const vtable_unk_080E5C08[];
@@ -2851,8 +2855,8 @@ EC SECTION(".text.game_state_08011FE8") void GameScript_Destroy(GameStateScript 
 EC SECTION(".text.game_state_08012064") void GameScript_StartRuntimeOperation(GameStateScript & script, i32 id, u32 value_2, u32 value_3, u32 value_4)
 {
     GameStateRuntime & runtime = *script.runtime;
-    u32 value_1 = runtime.scene->vfunc_14();
-    func_080D7F9C(runtime, id, value_1, value_2, value_3, value_4);
+    u32 mapId = runtime.scene->GetMapId();
+    func_080D7F9C(runtime, id, mapId, value_2, value_3, value_4);
 }
 
 // 0x08016CEC
