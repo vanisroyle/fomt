@@ -2876,7 +2876,8 @@ private:
 inline void * operator new(size_t, GameStateMapHandle * storage) { return storage; }
 
 EC GameStateSavedMapView * InitializeWorldMapBuffers(GameStateSavedMapView * view, GameStateMapData & state);
-EC GameStateMapObject * func_080175B4(GameStateMapObject * map, GameStateMapData & state, GameStateScript * script,
+// 0x080175B4
+EC GameStateMapObject * GameStateMapScene_Initialize(GameStateMapObject * map, GameStateMapData & state, GameStateScript * script,
     GameStateSavedMapView * & view, bool restore_events);
 
 EC SECTION(".text.game_state_c2.0801FB7C") GameStateMapHandle * GameStateCreateMapObject(
@@ -2884,7 +2885,7 @@ EC SECTION(".text.game_state_c2.0801FB7C") GameStateMapHandle * GameStateCreateM
 {
     GameStateSavedMapView * view = InitializeWorldMapBuffers(
         static_cast<GameStateSavedMapView *>(::operator new(sizeof(GameStateSavedMapView))), state);
-    GameStateMapHandle map(func_080175B4(
+    GameStateMapHandle map(GameStateMapScene_Initialize(
         static_cast<GameStateMapObject *>(::operator new(sizeof(GameStateMapOwner))), state, script, view, restore_events));
     return new (result) GameStateMapHandle(map.Move());
 }

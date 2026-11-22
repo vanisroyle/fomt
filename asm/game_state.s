@@ -8018,8 +8018,8 @@ GameStateMap_BuildFarmTerrain: @ 0x080171F8
     .section .text.game_state_080174C8, "ax", %progbits
     .section .text.game_state_080175B4, "ax", %progbits
 
-    thumb_func_start func_080175B4
-func_080175B4: @ 0x080175B4
+    thumb_func_start GameStateMapScene_Initialize
+GameStateMapScene_Initialize: @ 0x080175B4
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -8782,8 +8782,8 @@ GameStateMapScene_Destroy: @ 0x080179CC
 
 
     .section .text.game_state_08017C30, "ax", %progbits
-    thumb_func_start func_08017C30
-func_08017C30: @ 0x08017C30
+    thumb_func_start GameStateMapScene_Update
+GameStateMapScene_Update: @ 0x08017C30
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -9620,8 +9620,8 @@ func_08017C30: @ 0x08017C30
 .L080182C0: .4byte 0x00001054
 .L080182C4: .4byte 0x0000214C
 
-    thumb_func_start func_080182C8
-func_080182C8: @ 0x080182C8
+    thumb_func_start GameStateMapScene_Draw
+GameStateMapScene_Draw: @ 0x080182C8
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
