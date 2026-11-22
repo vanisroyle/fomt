@@ -20573,7 +20573,7 @@ func_080B469C: @ 0x080B469C
 	add r0, sp, #0x34
 	bl ResourceHandles_Initialize
 	add r0, sp, #0x34
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [sp, #0x38]
 	movs r0, #0x79
 	str r0, [sp, #0x90]
@@ -26111,7 +26111,7 @@ func_080B7648: @ 0x080B7648
 	add r0, sp, #0x30
 	bl ResourceHandles_Initialize
 	add r0, sp, #0x30
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [sp, #0x34]
 	movs r0, #0x14
 	bl __builtin_new
@@ -28477,7 +28477,7 @@ func_080B888C: @ 0x080B888C
 	add r0, sp, #0x34
 	bl ResourceHandles_Initialize
 	add r0, sp, #0x34
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [sp, #0x38]
 	mov r1, sb
 	strb r1, [r7, #8]
@@ -57029,7 +57029,7 @@ func_080C7F58: @ 0x080C7F58
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xd9
 	lsls r0, r0, #2
@@ -57046,7 +57046,7 @@ func_080C7F58: @ 0x080C7F58
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xdd
 	lsls r0, r0, #2
@@ -57072,7 +57072,7 @@ func_080C7F58: @ 0x080C7F58
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0xe3
 	lsls r1, r1, #2
@@ -57098,7 +57098,7 @@ func_080C7F58: @ 0x080C7F58
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xe9
 	lsls r0, r0, #2
@@ -57383,7 +57383,7 @@ func_080C7F58: @ 0x080C7F58
 	adds r0, r5, #0
 	bl ResourceHandle_Release
 	adds r0, r5, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r6, #0x48]
 	adds r6, #8
 	movs r1, #1

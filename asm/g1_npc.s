@@ -3486,7 +3486,7 @@ func_080A220C: @ 0x080A220C
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0xc2
 	lsls r2, r2, #1
@@ -3494,7 +3494,7 @@ func_080A220C: @ 0x080A220C
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r3, #0xc6
 	lsls r3, r3, #1
@@ -3502,7 +3502,7 @@ func_080A220C: @ 0x080A220C
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xca
 	lsls r0, r0, #1
@@ -3519,7 +3519,7 @@ func_080A220C: @ 0x080A220C
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0xd2
 	lsls r2, r2, #1
@@ -3536,7 +3536,7 @@ func_080A220C: @ 0x080A220C
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xef
 	lsls r0, r0, #1

@@ -1088,7 +1088,7 @@ func_080041DC: @ 0x080041DC
     adds r0, r4, #0
     bl ResourceHandles_Initialize
     adds r0, r4, #0
-    bl func_0800736C
+    bl ResourceHandle_Allocate
     str r0, [r4, #4]
     movs r0, #0
     movs r1, #0

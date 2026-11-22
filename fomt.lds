@@ -149,7 +149,8 @@ SECTIONS
         src/new_game.o(.text.func_08007110);
         src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
-        asm/hardware.o(.text.handle_alloc);
+        src/hardware.o(.text.ResourceHandle_Allocate);
+        asm/hardware.o(.text.after_0800736C);
         src/hardware.o(.text.ResourceHandle_Release);
         asm/hardware.o(.text.after_080073E0);
         src/hardware.o(.text.handle_retain);

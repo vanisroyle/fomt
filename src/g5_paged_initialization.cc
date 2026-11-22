@@ -7,7 +7,7 @@ EC void * func_080D3BC0(u32);
 EC void TileHeapOwner_Initialize(void *);
 EC u32 TileHandle_Allocate(void *, u32);
 EC void ResourceHandles_Initialize(void *);
-EC u32 func_0800736C(void *);
+EC u32 ResourceHandle_Allocate(void *);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void const *);
 EC u8 const gUnk_08527094[];
 
@@ -25,7 +25,7 @@ EC SECTION(".text.g5_080CE2FC") u8 * InventoryMenu_InitializePagedDrawPanel(u8 *
     handles[1] = TileHandle_Allocate(handles, 2);
     handles += 2;
     ResourceHandles_Initialize(handles);
-    handles[1] = func_0800736C(handles);
+    handles[1] = ResourceHandle_Allocate(handles);
     register SpriteAnimationData * data asm("r6") = (SpriteAnimationData *) (panel + 0x1c);
     asm ("" : "+l" (data));
     InitSpriteAnimationData(data, gUnk_08527094);

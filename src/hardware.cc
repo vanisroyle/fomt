@@ -98,6 +98,11 @@ union HardwareHandle
     } fields;
 
     HardwareHandle(u32 value) : value(value) {}
+    HardwareHandle(u32 index, u16 const & generation) : value(0)
+    {
+        fields.index = index;
+        fields.generation = generation;
+    }
     u32 Index() const { return fields.index; }
 };
 
@@ -134,6 +139,35 @@ ResourceHandleOwner::~ResourceHandleOwner()
 
         gResourceHandleRegistry = nullptr;
     }
+}
+
+// 0x0800736C
+EC u32 SECTION(".text.ResourceHandle_Allocate") ResourceHandle_Allocate(ResourceHandleOwner * owner)
+{
+    u32 handle_value;
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
+    ResourceHandleEntry * entry = registry->free_head;
+    ResourceHandleEntry * allocated_entry = entry;
+    {
+        allocated_entry = registry->AllocEntry(entry);
+    }
+    if (allocated_entry != 0)
+    {
+        u32 index = registry->IndexOf(allocated_entry);
+        registry->SetAllocated(index);
+        ++registry->allocated_count;
+        allocated_entry->params.ref_count = 1;
+        u32 generation = registry->next_generation + 1;
+        if (generation > 0xFFFFu)
+            generation = 1;
+        allocated_entry->params.generation = generation;
+        registry->next_generation = generation;
+        HardwareHandle packed = HardwareHandle(index, allocated_entry->params.generation);
+        handle_value = packed.value;
+    }
+    else
+        handle_value = 0;
+    return handle_value;
 }
 
 // 0x080073E0
@@ -250,7 +284,7 @@ EC SECTION(".text.ResourcePool_Initialize") ResourcePool * ResourcePool_Initiali
 }
 
 EC void ResourceHandle_Release(ResourceHandleOwner *, u32);
-EC u32 func_0800736C(ResourceHandleOwner *);
+EC u32 ResourceHandle_Allocate(ResourceHandleOwner *);
 EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
 
 // 0x08007714
@@ -304,7 +338,7 @@ EC SECTION(".text.ResourcePool_Acquire") ResourceHandleValue * ResourcePool_Acqu
     else
     {
         ResourceHandles_Initialize(&self->owner);
-        self->handle = func_0800736C(&self->owner);
+        self->handle = ResourceHandle_Allocate(&self->owner);
     }
     return self;
 }

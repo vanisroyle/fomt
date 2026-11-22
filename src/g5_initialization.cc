@@ -4,7 +4,7 @@
 EC void TileHeapOwner_Initialize(void * owner);
 EC u32 TileHandle_Allocate(void * owner, u32 order);
 EC void ResourceHandles_Initialize(void * owner);
-EC u32 func_0800736C(void * owner);
+EC u32 ResourceHandle_Allocate(void * owner);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData * data, void const * source);
 EC void HardwareContext_Initialize(void * context);
 EC void AudioPlayer_Initialize(void * player, u32 tracks);
@@ -61,7 +61,7 @@ EC SECTION(".text.g5_080CEC00") u8 * InventoryMenu_InitializeCursor(u8 * cursor,
     handles[1] = TileHandle_Allocate(handles, 4);
     handles += 2;
     ResourceHandles_Initialize(handles);
-    handles[1] = func_0800736C(handles);
+    handles[1] = ResourceHandle_Allocate(handles);
     *(u32 *) (cursor + 0x7c) = 0x12;
     *(u32 *) (cursor + 0x80) = word_zero;
     *(u8 *) (cursor + 0x84) = byte_zero;
@@ -79,7 +79,7 @@ EC SECTION(".text.g5_080CD9B0") u8 * InventoryMenu_InitializeNavigation(u8 * nav
     handles[1] = TileHandle_Allocate(handles, 2);
     handles += 2;
     ResourceHandles_Initialize(handles);
-    handles[1] = func_0800736C(handles);
+    handles[1] = ResourceHandle_Allocate(handles);
     SpriteAnimationData * data = (SpriteAnimationData *) (navigation + 0x24);
     InitSpriteAnimationData(data, gUnk_08728208);
     register u16 * position asm("r0") = (u16 *) (navigation + 0x54);

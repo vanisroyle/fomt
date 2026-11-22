@@ -128,7 +128,7 @@ EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void con
 EC void InitMedalExchangeTiles(MedalExchangeObjAllocation *) asm("TileHeapOwner_Initialize");
 EC u32 AllocateMedalExchangeTiles(MedalExchangeObjAllocation *, u32) asm("TileHandle_Allocate");
 EC void ResourceHandles_Initialize(MedalExchangeObjAllocation *);
-EC u32 AllocateMedalExchangePalette(MedalExchangeObjAllocation *) asm("func_0800736C");
+EC u32 AllocateMedalExchangePalette(MedalExchangeObjAllocation *) asm("ResourceHandle_Allocate");
 EC char const gMedalExchangeScreenVTable[] asm("vtable_unk_080E799C");
 EC char const gMedalExchangeTextSubstitutionsVTable[];
 EC u8 const gMedalExchangeMenuAnimation[] asm("gUnk_08527094");

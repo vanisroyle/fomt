@@ -296,7 +296,7 @@ EC ResourceHandleOwner * ResourceHandles_Initialize(ResourceHandleOwner *);
 EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
 EC void ResourceHandle_Release(ResourceHandleOwner *, u32);
 EC u8 vtable_unk_080E5A28[];
-EC u32 func_0800736C(ResourceHandleOwner *);
+EC u32 ResourceHandle_Allocate(ResourceHandleOwner *);
 EC u8 ResourceHandle_GetIndex(ResourceHandleOwner *);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void const *);
 EC u8 const gUnk_0858BA28[], gUnk_086678A0[], gUnk_0871EF00[], gUnk_086FAA80[], gUnk_0871D51C[];
@@ -400,7 +400,7 @@ EC SECTION(".text.080AC674") MapSceneContents * InitializeMapSceneContents(MapSc
     do
     {
         ResourceHandles_Initialize(reinterpret_cast<ResourceHandleOwner *>(resource));
-        register unsigned handle asm("r1") = func_0800736C(reinterpret_cast<ResourceHandleOwner *>(resource));
+        register unsigned handle asm("r1") = ResourceHandle_Allocate(reinterpret_cast<ResourceHandleOwner *>(resource));
         asm ("" : "+l" (handle));
         resource->handle = handle;
         resource->status = ResourceHandle_GetIndex(reinterpret_cast<ResourceHandleOwner *>(resource));

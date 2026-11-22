@@ -18,7 +18,7 @@ struct ResourceHandleOwner;
 struct TileHeapOwner;
 
 EC ResourceHandleOwner * ResourceHandles_Initialize(ResourceHandleOwner *);
-EC u32 AllocateClockPalette(ResourceHandleOwner *) asm("func_0800736C");
+EC u32 AllocateClockPalette(ResourceHandleOwner *) asm("ResourceHandle_Allocate");
 EC TileHeapOwner * InitializeClockTileHeap(TileHeapOwner *) asm("TileHeapOwner_Initialize");
 EC u32 AllocateClockTiles(TileHeapOwner *, u32) asm("TileHandle_Allocate");
 

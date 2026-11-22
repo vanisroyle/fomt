@@ -6749,7 +6749,7 @@ func_080CC15C: @ 0x080CC15C
 	adds r0, r5, #0
 	bl ResourceHandle_Release
 	adds r0, r5, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r6, #0x40]
 	adds r6, #8
 	movs r5, #1
@@ -6777,7 +6777,7 @@ func_080CC15C: @ 0x080CC15C
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 .L080CC2F8:
 	adds r0, r7, #0
