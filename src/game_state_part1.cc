@@ -1427,6 +1427,7 @@ EC void SECTION(".text.game_state_08012B24") GameScript_QueueSceneEvent(GameStat
     }
 }
 
+
 extern u8 const vtable_unk_080E5E64[];
 extern u8 const vtable_unk_080E5C08[];
 asm(".set __vt_23GameStateRuntimeStorage, vtable_unk_080E5C08");
@@ -1530,6 +1531,22 @@ EC SECTION(".text.game_state_08011DC4") GameStateScript * GameScript_InitializeW
     asm volatile("" : "=m"(constructorScratch));
     script->vtable = u32(vtable_unk_080E5E64);
     script->runtime = reinterpret_cast<GameStateRuntime *>(new GameStateRuntimeStorage(script, saveData, sceneSpec));
+    gActiveGameScene->engine.SetUnk(script);
+    return script;
+}
+
+struct GameStateDefaultSceneSpec : GameScriptSceneSpec
+{
+    GameStateDefaultSceneSpec() { variant = 2; }
+};
+
+// 0x08011ED8
+EC SECTION(".text.game_state_08011ED8") GameStateScript * GameScript_InitializeDefaultScene(GameStateScript * script, u8 * saveData)
+{
+    u32 constructorScratch[2];
+    asm volatile("" : "=m"(constructorScratch));
+    script->vtable = u32(vtable_unk_080E5E64);
+    script->runtime = reinterpret_cast<GameStateRuntime *>(new GameStateRuntimeStorage(script, saveData, GameStateDefaultSceneSpec()));
     gActiveGameScene->engine.SetUnk(script);
     return script;
 }
