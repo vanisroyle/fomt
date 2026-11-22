@@ -1215,6 +1215,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A1A48);
         src/g1_map_counts.o(.text.g1_080A1A4C);
         asm/g1_npc.o(.text.g1_after_b4_080A1A4C);
+        src/g1_map_forage.o(.text.g1_080A1B38);
         src/g1_map.o(.text.g1_080A1C94);
         asm/g1_npc.o(.text.g1_after_b2_080A1C94);
         src/g1_map_forage.o(.text.g1_080A1CBC);
