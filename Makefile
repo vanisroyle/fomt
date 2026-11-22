@@ -123,6 +123,16 @@ $(GRAPHICS_PRODUCTS): $(BUILD_DIR)/assets/graphics.stamp
 
 $(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/graphics.stamp $(GRAPHICS_PRODUCTS)
 
+$(BUILD_DIR)/assets/audio.stamp: FORCE
+	@$(PYTHON) tools/assets/audio_assets.py build $(if $(AUDIO_OVERFLOW_SONG),--overflow-song $(AUDIO_OVERFLOW_SONG),)
+
+AUDIO_ASM := $(addprefix $(BUILD_DIR)/assets/audio-,bank.s voices.s table.s)
+
+$(AUDIO_ASM): $(BUILD_DIR)/assets/audio.stamp
+	@test -f $@
+
+$(BUILD_DIR)/src/sound_data.o $(BUILD_DIR)/asm/data/data_080F9EB8.o $(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/audio.stamp $(AUDIO_ASM)
+
 ifneq (,$(and $(filter extract,$(MAKECMDGOALS)),$(filter-out extract clean assets-test,$(MAKECMDGOALS))))
 $(error run `make extract` on its own, then build in a separate make invocation)
 endif
@@ -131,6 +141,7 @@ extract:
 	@$(PYTHON) tools/assets/fomt_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
 	@$(PYTHON) tools/assets/font_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
 	@$(PYTHON) tools/assets/graphics_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
+	@$(PYTHON) tools/assets/audio_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
 
 assets-test:
 	@$(PYTHON) -m unittest discover -s tools/assets -p 'test_*.py'
@@ -184,6 +195,7 @@ $(BUILD_DIR)/%.o: %.s
 $(BUILD_DIR)/src/m4a.o: CC1 := $(OLD_CC1)
 $(BUILD_DIR)/src/fixed_sprite_overlay_draw.o: CXXFLAGS += -mlong-calls
 $(BUILD_DIR)/src/map_overlay_draw.o: CXXFLAGS += -mlong-calls
+$(BUILD_DIR)/src/npc_side_batch12.o: CXXFLAGS += -mlong-calls
 
 clean:
 	@echo "RM $(ROM) $(ELF) $(MAP) $(BUILD_DIR)"
