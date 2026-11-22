@@ -59,5 +59,6 @@ struct G1SpriteFeedingSceneWrapper
 };
 
 EC G1SceneOwner RunSpriteFeedingMinigameScene(G1SpriteMinigameScene * self);
+EC G1SceneOwner RunSpriteHarvestMinigameScene(G1SpriteMinigameScene * self);
 
 #endif
