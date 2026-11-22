@@ -12,6 +12,7 @@ import sys
 import fomt_assets as fa
 from font_assets import original_rom
 import indexed_png
+import more_graphics as more
 import unpack_codec as codec
 import title_graphics as title
 
@@ -96,6 +97,7 @@ def preview(tiles, tilemap):
 
 def extract(rom, assets, force=False):
     title.extract(rom, assets, sys.modules[__name__], force)
+    more.extract(rom, assets, sys.modules[__name__], force)
     data = logo_data(rom)
     root = assets / "graphics"
     fa.write_missing(root / "boot-logo.png", indexed_png.write(tile_sheet(data["tiles"]), palette_rgb(data["palette"])), force)
@@ -171,7 +173,8 @@ def build(rom, assets, output):
     fa.write_changed(output / "graphics-layout.json", (json.dumps(layout, indent=2) + "\n").encode())
     fa.write_changed(output / "boot-logo-preview.png", indexed_png.write(preview(data["tiles"], data["map"]), palette))
     title_products = title.build(rom, assets, output, sys.modules[__name__])
-    digest = hashlib.sha256(b"".join(products.values()) + title_products).hexdigest()
+    more_products = more.build(rom, assets, output, sys.modules[__name__])
+    digest = hashlib.sha256(b"".join(products.values()) + title_products + more_products).hexdigest()
     fa.write_changed(output / "graphics.stamp", (digest + "\n").encode())
 
 
@@ -193,9 +196,10 @@ def inventory(rom):
     return result
 
 
-def roundtrip(rom, output):
+def roundtrip(rom, output, assets=Path("assets")):
     streams = inventory(rom)
     identified = {TILES[0], TILEMAP[0], title.RESOURCE[0], title.BACKGROUND[0], *(part[0] for part in title.MAPS)}
+    identified.update(more.roundtrip(rom, assets, sys.modules[__name__]))
     located = {item["offset"] for item in streams}
     if not identified <= located:
         raise ValueError("an identified graphics stream is missing from the inventory")
@@ -211,7 +215,7 @@ def roundtrip(rom, output):
     print(f"Unpack inventory: {len(streams)} valid aligned candidates; {sum(bool(s['references']) for s in streams)} have aligned ROM pointers")
     print(f"Unpack formats (atom/LZSS/diff): {dict(sorted(Counter(s['format'] for s in streams).items()))}")
     print(f"Unpack encoder roundtrip: {len(streams)}/{len(streams)} streams; greedy byte-identical: {exact}/{len(streams)}")
-    print(f"Identified editable Unpack streams: {len(identified)}/{len(streams)} (boot logo 2; title OBJ container 1; background tiles 1; background maps 4)")
+    print(f"Identified editable Unpack streams: {len(identified)}/{len(streams)} (boot/title 8; world maps and chicken-feeding backgrounds {len(identified) - 8})")
 
 
 def main():
@@ -221,7 +225,7 @@ def main():
     parser.add_argument("--assets", type=Path, default=Path("assets"))
     parser.add_argument("--output", type=Path, default=Path("build/assets"))
     parser.add_argument("--force", action="store_true")
-    parser.add_argument("--previews", type=Path, help="copy title previews to an existing review directory")
+    parser.add_argument("--previews", type=Path, help="write title and additional graphics previews to an existing directory")
     args = parser.parse_args()
     try:
         if args.force and args.command != "extract":
@@ -233,8 +237,9 @@ def main():
             build(rom, args.assets, args.output)
             if args.previews:
                 title.review_previews(args.output, args.previews)
+                more.review_previews(rom, args.assets, args.previews, sys.modules[__name__])
         else:
-            roundtrip(rom, args.output)
+            roundtrip(rom, args.output, args.assets)
     except (OSError, ValueError) as error:
         parser.exit(1, f"error: {error}\n")
 

@@ -122,6 +122,7 @@ $(GRAPHICS_PRODUCTS): $(BUILD_DIR)/assets/graphics.stamp
 	@test -f $@
 
 $(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/graphics.stamp $(GRAPHICS_PRODUCTS)
+$(BUILD_DIR)/asm/data/data_080F9EB8.o: $(BUILD_DIR)/assets/graphics.stamp
 
 $(BUILD_DIR)/assets/audio.stamp: FORCE
 	@$(PYTHON) tools/assets/audio_assets.py build $(if $(AUDIO_OVERFLOW_SONG),--overflow-song $(AUDIO_OVERFLOW_SONG),)

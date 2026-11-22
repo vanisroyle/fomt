@@ -184,6 +184,115 @@ letters, not those raw UI tiles. Other menus/banners have **not been
 exhaustively audited**. Unverified loader families are not exported under
 guessed screen names or palettes.
 
+## World maps, signs and chicken-feeding background
+
+The additional catalogue makes **264 more Unpack streams** editable, for
+**272/356 total**. This is **261 world-map streams** (30 tile sheets,
+45 compressed palettes, 186 tilemaps) plus the chicken-feeding background
+(one tile sheet and two tilemaps, with one raw palette). There are 63 supported
+world-map graphics definitions and one chicken-feeding definition. A stream
+shared by several definitions is extracted only once.
+
+```sh
+make extract
+python3 tools/assets/graphics_assets.py build --previews /home/ubuntu/screenshots
+python3 tools/assets/graphics_assets.py roundtrip
+make -j8 compare
+python3 tools/assets/check_more_graphics_rom.py --output /home/ubuntu/more-graphics-edit.gba
+```
+
+Sources live in `assets/graphics/more/`, which is ignored by Git:
+
+* `catalog.json` maps each scene to its tile/palette/tilemap ROM offsets,
+  dimensions and audited root references. This is informational, not editable
+  configuration. Map numbers are **graphics definition indices**, not logical
+  locations. `GetMapGraphicsVariantId` in `src/code_0803A8A4.cc` maps logical
+  locations, seasons and building upgrades to these indices.
+* `XXXXXX.tiles.png` is an editable indexed **4bpp** tile sheet, using one
+  verified consumer's primary palette and original tilemap palette-bank hints.
+  Keep dimensions and each tile's high four palette-index bits. Unused tiles
+  use bank 1 for world maps (bank 0 for chicken-feeding). A tile used with
+  multiple banks has one sheet preview bank; its tilemap previews show the
+  other usages. Padding pixels must remain zero.
+* `XXXXXX.palette.png` is the **single palette owner** for that stream. Edit
+  its indexed colors, not the swatch pixels. Palette edits in tile sheets fail
+  explicitly instead of being ignored or overriding another file. The
+  secondary/time-of-day palettes are separate owner files when distinct.
+* `XXXXXX.map.bin` contains little-endian u16, **row-major**, exactly
+  `width * height` entries (not GBA screen-block ordering). Each entry holds
+  tile index 0..1023, X/Y flip bits 10/11, and palette bank bits 12..15.
+  Preserve dimensions; invalid tile references are rejected. Tile 1023 must
+  remain empty because missing layers and runtime patches use it as blank.
+
+This includes the farm and its signs (definitions 0/1), farmhouse upgrades
+(41..43), coop upgrades (36/37), barn upgrades (38/39), mine variants
+(56..59/61), other outdoor areas and interiors. The files are keyed by source
+offset, not guessed English screen names. Follow `catalog.json` for the full
+list and shared ownership. Previews are
+`/home/ubuntu/screenshots/gfx_more_map-NN-layer-L.png` and
+`gfx_more_chicken-feeding-layer-L.png` (188 layers). These show primary-palette
+layers independently, not final composited gameplay, lighting interpolation,
+door/crop patches, animated water, actors or text windows. Transparent pixels
+use palette index zero in the review image. Tile sheets are source art; do not
+edit the previews.
+
+### Runtime verification
+
+`gMapDefinitions` at `0x105EDC` contains 66 `MapData` records of 40 bytes
+(`include/unknown_types.hh`, `GetMapData` in `src/g1_map.cc`). For every supported
+record the first six pointers are followed, not discovered through a stream
+signature scan:
+
+| Record field | Loader and destination |
+|---|---|
+| +00, tile graphics | `LoadMapBackgroundTiles`, `src/g1_npc.cc`, `0x080A5EA0`: Unpack to `0x06000000`; 32768 bytes = 1024 complete 4bpp tiles |
+| +04/+08, primary/alternate palettes | `ReloadMapPalette`, `src/g1_map_reload.cc`, `0x080A5DB8`; modes 0/1/2 use primary, mode 3 uses alternate, 480-byte buffers |
+| +0C/+10/+14, three layers | `ReloadMapTilemaps`, `asm/g1_npc.s`, `0x080A5CC0`; Unpack to three layer buffers, or fill null layers with `0x03FF03FF` |
+| +20/+22, width/height | used as row stride by `func_080A4F50` and its layer copy path, and `ApplyMapPatch` |
+
+The display loop at `0x080A4FCC` builds BG control words from screen-block
+indices, layer priorities, and `0x40`: char base zero, bit 7 clear (**4bpp**).
+The scrolling map copy at `0x080A5670` transfers entries unchanged in 31-column
+rows; tile indices, bank bits and flip bits therefore retain their meanings.
+The palette frame-task path copies/interpolates the 480 bytes into BG palette
+RAM **`0x05000020`**, reserving bank 0 for other scene/UI ownership. Preview
+palettes explicitly pad this bank; it is not an editable guessed palette.
+Map edits referencing nonblank world tiles through bank zero fail clearly.
+
+Three definitions remain deliberately excluded: **11 and 15** use nonblank
+bank-zero tiles whose palette ownership was not established; **62** uses
+special palette overrides in `MapGraphics_LoadPaletteBuffer` at `0x080CFB5C`
+(`src/g5_map_graphics.cc`). That path unpacks the primary palette, then copies
+`gUnk_086D6368` to bytes `0x100..0x15F` and `gUnk_08699FF4` to
+`0x160..0x1DF`. The primary palette is shared with supported definitions;
+edits to those overwritten bytes are conservatively rejected. Eleven unique
+streams belonging only to the excluded definitions remain unexported. These
+are limitations, not inferred palettes or a claim that every map is covered.
+
+`LoadChickenFeedingBackground` in `src/chicken_feeding.cc` (`0x080AE7D0`)
+first clears tile 1023 at `0x06007FE0`, then unpacks `0x72FC34` to BG2's
+`0x0600F800` map and `0x72FE6C` to BG1's `0x0600F000` map. Both maps are 32x32.
+It unpacks the 29696-byte tile stream `0x72FEF8` to char base zero and copies
+the complete 512-byte palette at `0x731940` to `0x05000000`. BG controls
+`0x1E41/0x1F42` prove **4bpp**, char base zero and 32x32 maps. Literal roots
+are at `0xAE87C/0xAE880/0xAE884/0xAE888` respectively. The sprites/portraits
+used by the minigame are not part of this background family.
+
+The map table fields and these four chicken-feeding code references are now
+symbolic. Unchanged streams preserve their complete original packed slots;
+larger edits use the existing graphics overflow section **only** if the
+whole-ROM root/interior-reference audit passes. Pointer-shaped words in other
+data are not silently repointed or blanket-excluded. Consequently some edits
+still fail conservatively, even though their map-table roots are symbolic.
+`check_more_graphics_rom.py` demonstrates a safe one-pixel relocation and
+checks all 265 payloads, every audited pointer, and unrelated original bytes.
+
+No additional independent English menu/name-entry/shop/calendar/diary bitmap
+or compressed portrait family was verified in this pass. Font-rendered labels
+belong to the existing non-script text/font tools (see `editing_text.md`), not
+guessed graphics resources. The common map loader was chosen to cover signs
+and many shared backgrounds without inventing palette ownership.
+
 ## Compression, unchanged builds and growth
 
 `tools/assets/unpack_codec.py` writes the game's custom `0x70` Unpack format:
@@ -234,10 +343,10 @@ claimed by this custom-format scan.
 The original US ROM yields **356** valid aligned candidates in **21** format
 combinations; **353** have aligned ROM pointers. All 356 round-trip through the
 greedy encoder, but **0/356** reproduce the original packed bytes.
-**8/356 streams** are now identified and editable: two Natsume streams, one
-title OBJ container, one shared scenery tile stream and four scenery map
-streams. Palettes and the four exported title OBJ images do not add separate
-compressed streams to that count.
+**272/356 streams** are now identified and editable: the original eight
+Natsume/title streams, 261 world-map streams, and three chicken-feeding
+background streams. Raw palettes and the four exported title OBJ images do
+not add separate compressed streams to that count.
 
 The local-ROM integration checker changes one indexed pixel, rebuilds, follows
 both symbolic tile pointers, checks the exact decoded-byte change and verifies
