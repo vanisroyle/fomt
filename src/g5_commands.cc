@@ -43,6 +43,32 @@ static inline CommandIterator EraseCommand(CommandIterator position)
     return CommandIterator(next);
 }
 
+EC SECTION(".text.g5_080CADB4") u8 * InventoryMenu_InitializePanelBase(u8 * panel, DrawCommand * draw_owner) // 0x080CADB4
+{
+    u32 constructor_frame[2];
+    asm ("" : "=m" (constructor_frame));
+    *(void **) (panel + 0x210) = vtable_unk_080E85CC;
+    DrawCommand ** owner_slot = (DrawCommand **) panel;
+    *owner_slot++ = draw_owner;
+    CommandList * commands = (CommandList *) owner_slot;
+    commands->sentinel = nullptr;
+    CommandNode * sentinel = (CommandNode *) malloc(sizeof(CommandNode));
+    if (sentinel != nullptr)
+    {
+        sentinel->next = sentinel;
+        sentinel->previous = sentinel;
+        commands->sentinel = sentinel;
+    }
+    else
+    {
+        sentinel = (CommandNode *) func_080D3BC0(sizeof(CommandNode));
+        sentinel->next = sentinel;
+        sentinel->previous = sentinel;
+        commands->sentinel = sentinel;
+    }
+    return panel;
+}
+
 EC SECTION(".text.g5_080CADF0") void DestroyPanelDrawCommands(u8 * self, u32 flags) // 0x080CADF0
 {
     *(void **) (self + 0x210) = vtable_unk_080E85CC;

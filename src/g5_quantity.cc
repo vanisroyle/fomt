@@ -63,19 +63,19 @@ EC SECTION(".text.g5_080CA98C") void InventoryMenu_UpdateQuantitySelector(Quanti
 {
     bool changed = false;
     u32 previous_quantity = selector->quantity;
-    if (GetQuantityRepeatedKeys(selector->context,0x40))
+    if (GetQuantityRepeatedKeys(selector->context, 0x40))
     {
         selector->quantity++;
         if (selector->quantity > selector->limit)
             selector->quantity = 1;
     }
-    else if (GetQuantityRepeatedKeys(selector->context,0x80))
+    else if (GetQuantityRepeatedKeys(selector->context, 0x80))
     {
         selector->quantity--;
         if (selector->quantity == 0)
             selector->quantity = selector->limit;
     }
-    else if (GetQuantityRepeatedKeys(selector->context,0x10))
+    else if (GetQuantityRepeatedKeys(selector->context, 0x10))
     {
         if (selector->quantity == selector->limit)
             selector->quantity = 1;
@@ -86,7 +86,7 @@ EC SECTION(".text.g5_080CA98C") void InventoryMenu_UpdateQuantitySelector(Quanti
                 selector->quantity = selector->limit;
         }
     }
-    else if (GetQuantityRepeatedKeys(selector->context,0x20))
+    else if (GetQuantityRepeatedKeys(selector->context, 0x20))
     {
         if (selector->quantity == 1)
             selector->quantity = selector->limit;

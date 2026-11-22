@@ -15,7 +15,8 @@ static inline void DecodeNarrowGlyph(void const * data, void * out)
 }
 
 EC void func_03000714(void const *, void *);
-static inline void DecodeWideGlyph(void const * data,void * out) {
+static inline void DecodeWideGlyph(void const * data, void * out)
+{
     register void * output asm("r1") = out;
     asm ("" : "+l" (output));
     register GlyphDecoder decoder asm("r2") = func_03000714;
@@ -94,10 +95,10 @@ EC SECTION(".text.g5_080D0D28") int Font_DecodeGlyph(void * output, int encoded_
         else
             memset(output, 0, 0x80);
     }
-    int result = 0;
+    int return_width = 0;
     if (glyph_index >= 0)
-        result = advance_cells;
-    return result;
+        return_width = advance_cells;
+    return return_width;
 }
 
 #endif

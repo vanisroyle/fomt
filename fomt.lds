@@ -1500,7 +1500,7 @@ SECTIONS
         src/g5_ui.o(.text.g5_entry_access);
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
-        asm/code_080C8360.o(.text.g5_CADB4);
+        src/g5_commands.o(.text.g5_080CADB4);
         src/g5_commands.o(.text.g5_080CADF0);
         asm/code_080C8360.o(.text.g5_after_080CADF0);
         src/g5_commands.o(.text.g5_080CAE60);

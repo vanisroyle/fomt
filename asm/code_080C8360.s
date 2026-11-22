@@ -4979,38 +4979,6 @@ func_080CAD18: @ 0x080CAD18
 	.align 2, 0
 .L080CAD9C: .4byte vtable_unk_080E5A28
 
-.section .text.g5_CADB4, "ax"
-	thumb_func_start func_080CADB4
-func_080CADB4: @ 0x080CADB4
-	push {r4, r5, lr}
-	sub sp, #8
-	adds r5, r0, #0
-	movs r0, #0x84
-	lsls r0, r0, #2
-	adds r2, r5, r0
-	ldr r0, .L080CADEC @ =vtable_unk_080E85CC
-	str r0, [r2]
-	adds r4, r5, #0
-	stm r4!, {r1}
-	movs r0, #0
-	str r0, [r4, #4]
-	movs r0, #0xc
-	bl malloc
-	cmp r0, #0
-	bne .L080CADDC
-	movs r0, #0xc
-	bl func_080D3BC0
-.L080CADDC:
-	str r0, [r0]
-	str r0, [r0, #4]
-	str r0, [r4, #4]
-	adds r0, r5, #0
-	add sp, #8
-	pop {r4, r5}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080CADEC: .4byte vtable_unk_080E85CC
 
 .section .text.g5_after_080CADF0, "ax"
 
@@ -5034,7 +5002,7 @@ func_080CAFC4: @ 0x080CAFC4
 	ldrb r0, [r0]
 	mov r8, r0
 	adds r0, r5, #0
-	bl func_080CADB4
+	bl InventoryMenu_InitializePanelBase
 	movs r0, #0x84
 	lsls r0, r0, #2
 	adds r1, r5, r0
@@ -7092,7 +7060,7 @@ func_080CC15C: @ 0x080CC15C
 	ldrb r0, [r0]
 	mov sl, r0
 	adds r0, r7, #0
-	bl func_080CADB4
+	bl InventoryMenu_InitializePanelBase
 	movs r0, #0x84
 	lsls r0, r0, #2
 	adds r1, r7, r0
