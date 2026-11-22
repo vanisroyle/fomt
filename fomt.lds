@@ -1274,6 +1274,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b18_080A5760);
         src/g1_map_motion.o(.text.g1_080A58EC);
         asm/g1_npc.o(.text.g1_after_b4_080A58EC);
+        src/g1_map_camera.o(.text.g1_080A5960);
         src/g1_map_camera.o(.text.g1_080A59BC);
         asm/g1_npc.o(.text.g1_after_b5_080A59BC);
         src/g1_npc.o(.text.g1_080A5A9C);

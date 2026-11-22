@@ -11,6 +11,26 @@ struct G1CameraPoint
 EC G1CameraPoint ClampMapCameraPosition(G1MapState const *, int, int);
 EC u16 Sqrt(u32);
 
+EC SECTION(".text.g1_080A5960") void SetMapCameraPosition(G1MapState * self, int x, int y)
+{
+    G1CameraPoint clamped = ClampMapCameraPosition(self, x, y);
+    G1CameraPoint target(clamped);
+    G1CameraPoint const * point = &target;
+    G1CameraPoint const * vertical = &target;
+    if (self->camera.x != point->x)
+    {
+        self->tilemaps_dirty = true;
+        self->camera_fixed[0] = point->x;
+        self->camera_fixed[0] <<= 16;
+    }
+    int old_y = self->camera.y;
+    if (old_y != vertical->y)
+    {
+        self->tilemaps_dirty = true;
+        self->camera_fixed[1] = vertical->y << 16;
+    }
+}
+
 EC SECTION(".text.g1_080A59BC") void StartMapCameraPan(G1MapState * self, int x, int y, u32 speed)
 {
     G1CameraPoint clamped = ClampMapCameraPosition(self, x, y);
