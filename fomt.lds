@@ -923,7 +923,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.08039200);
         src/npc_side_batch11.o(.text.npc_extra.08039204);
         src/npc_side_batch4.o(.text.npc_extra.0803930C);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039310);
+        src/npc_side_batch14_states.o(.text.npc_extra.08039310);
         src/npc_side_batch12_states.o(.text.npc_extra.0803955C);
         src/npc_side_batch4.o(.text.npc_extra.080396F4);
         src/npc_side_batch13_states.o(.text.npc_extra.08039708);
