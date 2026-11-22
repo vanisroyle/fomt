@@ -6,7 +6,7 @@ EC u32 func_08007B54(void * owner, u32 order);
 EC void ResourceHandles_Initialize(void * owner);
 EC u32 func_0800736C(void * owner);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData * data, void const * source);
-EC void func_08008444(void * context);
+EC void HardwareContext_Initialize(void * context);
 EC void AudioPlayer_Initialize(void * player, u32 tracks);
 EC void TilePool_Initialize(void * pool);
 EC void * ResourcePool_Initialize(void * pool);
@@ -124,7 +124,7 @@ EC SECTION(".text.g5_080CD9B0") u8 * InventoryMenu_InitializeNavigation(u8 * nav
 
 EC SECTION(".text.g5_080CD578") u8 * InventoryMenu_InitializeContext(u8 * menu, void * owner) // 0x080CD578
 {
-    func_08008444(menu);
+    HardwareContext_Initialize(menu);
     *(void **) (menu + 4) = vtable_unk_080E85A0;
     *(void **) (menu + 8) = owner;
     AudioPlayer_Initialize(menu + 0xc, 1);

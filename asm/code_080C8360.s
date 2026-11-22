@@ -4615,143 +4615,10 @@ func_080CA770: @ 0x080CA770
 .section .text.g5_CAC3C, "ax"
 
 .section .text.g5_CAC7C, "ax"
-	thumb_func_start func_080CAC7C
-func_080CAC7C: @ 0x080CAC7C
-	push {r4, r5, r6, lr}
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6}
-	sub sp, #0x88
-	mov r8, r0
-	adds r5, r2, #0
-	mov sb, r3
-	lsls r5, r5, #0x10
-	lsrs r5, r5, #0x10
-	mov r0, sp
-	bl func_0805E6CC
-	add r0, sp, #0x30
-	movs r6, #0
-	movs r4, #0
-	strh r4, [r0]
-	strh r4, [r0, #2]
-	add r0, sp, #0x34
-	mov r1, sp
-	adds r2, r5, #0
-	movs r3, #0x80
-	lsls r3, r3, #1
-	bl func_0805E824
-	add r0, sp, #0x48
-	strh r4, [r0]
-	strh r4, [r0, #2]
-	strh r4, [r0, #4]
-	strh r4, [r0, #6]
-	strh r4, [r0, #8]
-	str r4, [r0, #0xc]
-	strb r6, [r0, #0x10]
-	strb r6, [r0, #0x11]
-	str r4, [r0, #0x14]
-	strb r6, [r0, #0x18]
-	add r0, sp, #0x64
-	strb r6, [r0]
-	add r0, sp, #0x68
-	add r2, sp, #0x34
-	ldr r1, [sp, #0x34]
-	ldr r4, [r1]
-	ldrh r3, [r2, #0xc]
-	lsls r3, r3, #2
-	ldr r2, [sp, #0x38]
-	adds r2, r2, r3
-	ldrh r2, [r2]
-	ldr r3, [r4, #0x10]
-	bl _call_via_r3
-	ldr r0, [sp, #0x70]
-	mov r1, r8
-	str r0, [r1, #4]
-	ldr r0, [sp, #0x78]
-	str r0, [r1, #8]
-	mov r0, sb
-	str r0, [r1]
-	ldr r0, .L080CAD04 @ =vtable_unk_080E5A28
-	str r0, [sp]
-	mov r0, r8
-	add sp, #0x88
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L080CAD04: .4byte vtable_unk_080E5A28
+
 
 .section .text.g5_CAD18, "ax"
-	thumb_func_start func_080CAD18
-func_080CAD18: @ 0x080CAD18
-	push {r4, r5, r6, lr}
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6}
-	sub sp, #0x88
-	mov r8, r0
-	adds r5, r2, #0
-	mov sb, r3
-	lsls r5, r5, #0x10
-	lsrs r5, r5, #0x10
-	mov r0, sp
-	bl func_0805E6CC
-	add r0, sp, #0x30
-	movs r6, #0
-	movs r4, #0
-	strh r4, [r0]
-	strh r4, [r0, #2]
-	add r0, sp, #0x34
-	mov r1, sp
-	adds r2, r5, #0
-	movs r3, #0x80
-	lsls r3, r3, #1
-	bl func_0805E824
-	add r0, sp, #0x48
-	strh r4, [r0]
-	strh r4, [r0, #2]
-	strh r4, [r0, #4]
-	strh r4, [r0, #6]
-	strh r4, [r0, #8]
-	str r4, [r0, #0xc]
-	strb r6, [r0, #0x10]
-	strb r6, [r0, #0x11]
-	str r4, [r0, #0x14]
-	strb r6, [r0, #0x18]
-	add r0, sp, #0x64
-	strb r6, [r0]
-	add r0, sp, #0x68
-	add r2, sp, #0x34
-	ldr r1, [sp, #0x34]
-	ldr r4, [r1]
-	ldrh r3, [r2, #0xc]
-	lsls r3, r3, #2
-	ldr r2, [sp, #0x38]
-	adds r2, r2, r3
-	ldrh r2, [r2]
-	ldr r3, [r4, #0x10]
-	bl _call_via_r3
-	ldr r0, [sp, #0x70]
-	mov r1, r8
-	str r0, [r1, #4]
-	ldr r0, [sp, #0x78]
-	str r0, [r1, #8]
-	mov r0, sb
-	str r0, [r1]
-	ldr r0, .L080CAD9C @ =vtable_unk_080E5A28
-	str r0, [sp]
-	add sp, #0x88
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L080CAD9C: .4byte vtable_unk_080E5A28
+
 
 
 .section .text.g5_after_080CADF0, "ax"
@@ -5096,7 +4963,7 @@ func_080CB304: @ 0x080CB304
 	adds r4, r4, r6
 	adds r0, r4, #0
 	ldr r3, [sp, #0x70]
-	bl func_080CAD18
+	bl AssignUiEntryFromAnimation
 	ldr r1, [r4, #4]
 	ldr r2, [sp, #0x30]
 	movs r3, #0x9e
@@ -5942,7 +5809,7 @@ func_080CBAF0: @ 0x080CBAF0
 	lsls r4, r4, #2
 	add r4, sl
 	adds r0, r4, #0
-	bl func_080CAD18
+	bl AssignUiEntryFromAnimation
 	ldr r1, [r4, #4]
 	movs r0, #0x9e
 	lsls r0, r0, #2
@@ -7463,7 +7330,7 @@ func_080CC728: @ 0x080CC728
 	adds r1, r6, #0
 	adds r2, r4, #0
 	ldr r3, [sp, #0x74]
-	bl func_080CAC7C
+	bl InitializeUiEntryFromAnimation
 	lsls r0, r5, #1
 	adds r0, r0, r5
 	lsls r0, r0, #2
@@ -7474,7 +7341,7 @@ func_080CC728: @ 0x080CC728
 	adds r1, r6, #0
 	adds r2, r4, #0
 	ldr r3, [sp, #0x74]
-	bl func_080CAD18
+	bl AssignUiEntryFromAnimation
 	lsls r4, r5, #3
 	mov r2, sl
 	adds r0, r4, r2
@@ -8294,7 +8161,7 @@ func_080CCE58: @ 0x080CCE58
 	lsls r5, r5, #2
 	add r5, sl
 	adds r0, r5, #0
-	bl func_080CAD18
+	bl AssignUiEntryFromAnimation
 	movs r0, #0xa7
 	lsls r0, r0, #2
 	add r0, sl
@@ -9418,125 +9285,7 @@ func_080CD620: @ 0x080CD620
 
 .section .text.g5_after_080CDB08, "ax"
 
-	thumb_func_start func_080CDC00
-func_080CDC00: @ 0x080CDC00
-	push {r4, r5, r6, r7, lr}
-	adds r7, r0, #0
-	ldr r1, [r7]
-	ldr r0, [r1, #0x78]
-	mov ip, r0
-	movs r0, #0xa6
-	lsls r0, r0, #2
-	add r0, ip
-	ldr r6, [r0]
-	str r6, [r7, #0xc]
-	ldr r5, [r1, #0x7c]
-	movs r1, #0xa6
-	lsls r1, r1, #2
-	adds r0, r5, r1
-	ldr r0, [r0]
-	adds r4, r0, #0
-	adds r4, #9
-	str r4, [r7, #0x10]
-	ldr r1, .L080CDC4C @ =gUnk_0811788C
-	ldr r3, [r7, #4]
-	lsls r0, r3, #4
-	adds r1, #8
-	adds r0, r0, r1
-	ldr r2, [r0]
-	cmp r2, #8
-	bgt .L080CDC7C
-	cmp r2, #0
-	bne .L080CDC50
-	movs r0, #0x9f
-	lsls r0, r0, #2
-	add r0, ip
-	ldrb r0, [r0]
-	adds r5, r3, #0
-	cmp r0, #0
-	bne .L080CDC6A
-	adds r2, r5, #0
-	b .L080CDC6A
-	.align 2, 0
-.L080CDC4C: .4byte gUnk_0811788C
-.L080CDC50:
-	adds r5, r3, #0
-	cmp r2, r6
-	ble .L080CDC6A
-	adds r3, r6, #0
-.L080CDC58:
-	cmp r3, #4
-	bgt .L080CDC60
-	adds r2, r3, #0
-	b .L080CDC66
-.L080CDC60:
-	lsls r0, r2, #4
-	adds r0, r0, r1
-	ldr r2, [r0]
-.L080CDC66:
-	cmp r2, r3
-	bgt .L080CDC58
-.L080CDC6A:
-	cmp r2, #4
-	bne .L080CDCBE
-	ldr r1, [r7, #8]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	bne .L080CDCBE
-	cmp r1, #4
-	ble .L080CDCBE
-	b .L080CDCBC
-.L080CDC7C:
-	cmp r2, #9
-	bne .L080CDC92
-	movs r1, #0x9f
-	lsls r1, r1, #2
-	adds r0, r5, r1
-	ldrb r0, [r0]
-	adds r5, r3, #0
-	cmp r0, #0
-	bne .L080CDCAC
-	movs r2, #0
-	b .L080CDCAC
-.L080CDC92:
-	adds r5, r3, #0
-	cmp r2, r4
-	ble .L080CDCAC
-	adds r3, r4, #0
-.L080CDC9A:
-	cmp r3, #0xd
-	bgt .L080CDCA2
-	adds r2, r3, #0
-	b .L080CDCA8
-.L080CDCA2:
-	lsls r0, r2, #4
-	adds r0, r0, r1
-	ldr r2, [r0]
-.L080CDCA8:
-	cmp r2, r3
-	bgt .L080CDC9A
-.L080CDCAC:
-	cmp r2, #0xd
-	bne .L080CDCBE
-	ldr r1, [r7, #8]
-	ldr r0, [r7, #0x10]
-	cmp r1, r0
-	bne .L080CDCBE
-	cmp r1, #0xd
-	ble .L080CDCBE
-.L080CDCBC:
-	adds r2, r1, #0
-.L080CDCBE:
-	cmp r2, r5
-	beq .L080CDCC6
-	str r5, [r7, #8]
-	str r2, [r7, #4]
-.L080CDCC6:
-	adds r0, r2, #0
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
+
 
 
 
