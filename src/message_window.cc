@@ -486,6 +486,112 @@ EC SECTION(".text.message_window.08050424") void SetMessageWindowStateText(Messa
     window->phase = 4;
 }
 
+struct MessageChoicePrintContext
+{
+    void * volatile vtable;
+};
+
+struct PACKED MessageChoicePosition
+{
+    u8 row : 2;
+    u8 column : 5;
+    u8 unused : 1;
+};
+
+EC u8 vtable_unk_080E78F0[];
+EC u32 UpdateMessageScript(MessageScript &, MessageTextCursor *, MessageChoicePrintContext *);
+
+inline u32 WrapChoiceCoordinate(u32 coordinate, u32 limit)
+{
+    if (coordinate > limit - 1) coordinate %= limit;
+    return coordinate;
+}
+
+inline void SetChoiceCursorPosition(MessageTextCursor * input, u32 column, u32 row)
+{
+    register MessageTextCursor * cursor asm("r5") = input;
+    cursor->row = WrapChoiceCoordinate(row, 3);
+    asm ("" : : "r" (cursor));
+    cursor->column = WrapChoiceCoordinate(column, 28);
+    cursor->needsClear = 0;
+}
+
+inline void FlushChoiceText(MessageScript & script, MessageTextCursor * cursor)
+{
+    register MessageTextCursor * activeCursor asm("r6") = cursor;
+    asm ("" : "+r" (activeCursor));
+    register MessageScript * activeScript asm("r5") = &script;
+    asm ("" : "+r" (activeScript));
+    register void * methods asm("r4") = vtable_unk_080E78F0;
+    asm ("" : "+r" (methods));
+    u32 result;
+    do
+    {
+        MessageChoicePrintContext context;
+        context.vtable = methods;
+        result = UpdateMessageScript(*activeScript, activeCursor, &context);
+        context.vtable = methods;
+    } while (result == 1);
+}
+
+EC SECTION(".text.message_window.080507F8") void DrawMessageChoiceText(MessageWindowState * window, const u8 & position, const char * text, const void * substitutions)
+{
+    asm ("" : : "r" (window));
+    const MessageChoicePosition & cell = reinterpret_cast<const MessageChoicePosition &>(position);
+    u32 column = cell.column;
+    u32 row = cell.row;
+    register MessageTextCursor * cursor asm("r5") = &window->textCursor;
+    SetChoiceCursorPosition(cursor, column, row);
+    MessageScript & script = *reinterpret_cast<MessageScript *>(window->textParser);
+    StartMessageScript(script, text, substitutions);
+    FlushChoiceText(script, cursor);
+}
+
+inline void ClearMessageCursorGlyphTile(MessageGlyphTile * base, u32 column)
+{
+    MessageGlyphTile * tile = base;
+    tile += column;
+    register void * const * allocation asm("r4") = &tile->tileBuffer;
+    asm ("" : "+r" (allocation));
+    void * buffer = *allocation++;
+    register u32 columns asm("r0") = 4;
+    asm ("" : "+r" (columns));
+    FillMessageTiles(MessageTileSize(columns, 2), (u8 *) buffer + 4, 0);
+    tile->dirty = reinterpret_cast<const u32 *>(allocation)[1] != 0;
+}
+
+EC SECTION(".text.message_rendering.0804F0E0") void ClearMessageTextCursor(MessageTextCursor * cursor)
+{
+    MessageGlyphTile *** currentRow;
+    int changed;
+    i32 row;
+    MessageTextCursor * clearedCursor;
+    i32 nextRow;
+    for (row = 0; row <= 2; row = nextRow)
+    {
+        i32 column = 0;
+        register u32 offset asm("r0") = row * 4;
+        asm ("" : : "r" (offset));
+        nextRow = row + 1;
+        register MessageGlyphTile ** tiles asm("r6") =
+            (MessageGlyphTile **) (offset + (u32) cursor);
+        asm ("" : "+r" (tiles));
+        tiles += 2;
+        for (; column <= 6; ++column)
+        {
+            currentRow = &tiles;
+            ClearMessageCursorGlyphTile(*(*currentRow), column);
+        }
+    }
+    cursor->row = 0;
+    cursor->column = 0;
+    cursor->needsClear = 1;
+    changed = 1;
+    clearedCursor = cursor;
+    clearedCursor->changed = changed;
+    clearedCursor->printedNonSpace = 0;
+}
+
 EC SECTION(".text.message_window.080507D0") u32 GetMessageChoicePosition(u32 layout, u32 choice) // 0x080507D0
 {
     if (layout > 7) layout = 0;
@@ -921,6 +1027,61 @@ EC SECTION(".text.message_rendering.0804EA80") void DestroyMessageTilemapRectCom
 {
     command->vtable = vtable_unk_080E7868;
     TaskNode_Destroy(command, flags);
+}
+
+union MessageSpriteTemplate
+{
+    u64 value;
+    u32 words[2];
+};
+
+EC SECTION(".text.message_rendering.0804EA94") MessageSpriteTemplate InitializeMessageSpriteAttributes(u32 x, u32 y, u32 tile, u32 palette, u32 priority, u32 size, u32 shape)
+{
+    MessageSpriteTemplate attributes;
+    attributes.value = 0;
+    asm ("" : "+m" (attributes));
+    register u32 mosaic asm("r4") = 0x1000;
+    asm ("" : "+r" (mosaic));
+    u32 firstWord = attributes.words[0] | mosaic;
+    attributes.words[0] = firstWord;
+    u32 wrappedY = (u8) (*(u8 *) &attributes + y);
+    u32 positionedY = (firstWord & 0xffffff00) | wrappedY;
+    u32 positionXBits = ((positionedY << 7) >> 23) + x;
+    positionXBits &= 0x1ff;
+    positionXBits <<= 16;
+    asm ("" : "+r" (positionXBits));
+    u32 positionedX = (positionedY & 0xfe00ffff) | positionXBits;
+    u32 secondWord = attributes.words[1];
+    u32 tileIndex = ((((secondWord << 22) >> 22) + tile) << 22) >> 22;
+    register u32 tileAttributes asm("r3") = 0xfffffc00;
+    asm ("" : "+r" (tileAttributes));
+    tileAttributes &= secondWord;
+    tileAttributes |= tileIndex;
+    asm ("" : : "r" (tileAttributes));
+    u16 paletteIndex = ((tileAttributes << 16) >> 28) + palette;
+    asm ("" : "+r" (paletteIndex));
+    u32 paletteBits = (paletteIndex & 15) << 12;
+    asm ("" : "+r" (paletteBits));
+    register u32 paletteAttributes asm("r4") = (tileAttributes & 0xffff0fff) | paletteBits;
+    asm ("" : : "r" (paletteAttributes));
+    u16 priorityIndex = ((paletteAttributes << 20) >> 30) + priority;
+    asm ("" : "+r" (priorityIndex));
+    u32 priorityBits = (priorityIndex & 3) << 10;
+    asm ("" : "+r" (priorityBits));
+    attributes.words[1] = (paletteAttributes & 0xfffff3ff) | priorityBits;
+    u32 shapeIndex = ((positionedX << 16) >> 30) + shape;
+    u32 shapeBits = (shapeIndex & 3) << 14;
+    asm ("" : "+r" (shapeBits));
+    register u32 shapeAttributes asm("r3") = 0xffff3fff;
+    asm ("" : "+r" (shapeAttributes));
+    shapeAttributes &= positionedX;
+    shapeAttributes |= shapeBits;
+    asm ("" : : "r" (shapeAttributes));
+    register u32 sizeIndex asm("r2") = (shapeAttributes >> 30) + size;
+    sizeIndex <<= 30;
+    asm ("" : "+r" (sizeIndex));
+    attributes.words[0] = (shapeAttributes & 0x3fffffff) | sizeIndex;
+    return attributes;
 }
 
 EC SECTION(".text.message_rendering.0804EDA0") void DestroyLargeMessageNumberCommand(MessageNumberCommand * command, u32 flags) // 0x0804EDA0

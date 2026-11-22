@@ -999,6 +999,103 @@ EC SECTION(".text.frisbee.08057E5C") FestivalScene ** RunFrisbeeController(Festi
     return result;
 }
 
+struct __attribute__((packed, aligned(2))) HorseRaceBet
+{
+    i16 tickets;
+    u8 padding02[0x2c - 2];
+};
+
+struct HorseRaceBettingState
+{
+    u8 padding00[0x140a];
+    i16 selectedHorse;
+    u8 padding140c[4];
+    u32 funds;
+    u32 remainingFunds;
+    u8 padding1418[8];
+    i16 totalTickets;
+    u8 padding1422[0x1456 - 0x1422];
+    HorseRaceBet bets[4];
+};
+
+inline u16 GetSelectedHorseTickets(HorseRaceBettingState * state)
+{
+    u32 offset = state->selectedHorse * sizeof(HorseRaceBet);
+    asm ("" : "+r" (offset));
+    u8 * base = (u8 *) state + offset;
+    asm ("" : "+r" (base));
+    return *(i16 *) (base + offsetof(HorseRaceBettingState, bets));
+}
+
+EC SECTION(".text.horse_race.08059780") i32 AdjustHorseRaceBet(HorseRaceBettingState * state, i32 change)
+{
+    typedef char HorseRaceBettingLayout[
+        sizeof(HorseRaceBet) == 0x2c &&
+        offsetof(HorseRaceBettingState, selectedHorse) == 0x140a &&
+        offsetof(HorseRaceBettingState, funds) == 0x1410 &&
+        offsetof(HorseRaceBettingState, remainingFunds) == 0x1414 &&
+        offsetof(HorseRaceBettingState, totalTickets) == 0x1420 &&
+        offsetof(HorseRaceBettingState, bets) == 0x1456 ? 1 : -1];
+    state->totalTickets = 0;
+    i32 horse = 0;
+    register u32 selectedField asm("r2") = offsetof(HorseRaceBettingState, selectedHorse);
+    asm ("" : : "r" (selectedField));
+    register const i16 * selectedHorse asm("r4") = (const i16 *) ((u8 *) state + selectedField);
+    asm ("" : "+r" (selectedHorse));
+    for (; horse <= 3; ++horse)
+    {
+        if (horse != *selectedHorse)
+            state->totalTickets += state->bets[horse].tickets;
+    }
+    register i32 maximum asm("r2") = (state->funds - 50 * state->totalTickets) / 50;
+    asm ("" : "+r" (maximum));
+    if (maximum > 99) maximum = 99;
+    u16 tickets = GetSelectedHorseTickets(state);
+    if ((i16) tickets == maximum && change > 0) tickets = 0;
+    else if (tickets == 0 && change < 0) tickets = maximum;
+    else
+    {
+        register i32 signedTickets asm("r0") = (i16) tickets;
+        asm ("" : "+r" (signedTickets));
+        tickets = signedTickets + change;
+        if ((i16) tickets > maximum) tickets = maximum;
+        if ((i16) tickets < 0) tickets = 0;
+    }
+    asm ("" : : "r" (maximum));
+    register u16 finalTickets asm("r3") = tickets;
+    asm ("" : : "r" (finalTickets));
+    tickets = finalTickets;
+    {
+        register u32 selectedOffset asm("r2") = offsetof(HorseRaceBettingState, selectedHorse);
+        asm ("" : "+r" (selectedOffset));
+        register const i16 * selected asm("r0") = (i16 *) ((u8 *) state + selectedOffset);
+        asm ("" : : "r" (selected));
+        i32 selectedIndex = *selected;
+        asm ("" : : "r" (selectedIndex), "m" (*selected), "r" (selectedOffset), "r" (selectedHorse), "r" (change));
+        u32 offset = selectedIndex * sizeof(HorseRaceBet);
+        asm ("" : "+r" (offset));
+        u8 * base = (u8 *) state + offset;
+        asm ("" : "+r" (base));
+        register u32 ticketOffset asm("r1") = offsetof(HorseRaceBettingState, bets);
+        asm ("" : "+r" (ticketOffset));
+        *(i16 *) (base + ticketOffset) = tickets;
+    }
+    register u32 totalOffset asm("r7") = offsetof(HorseRaceBettingState, totalTickets);
+    register i16 * total asm("r2") = (i16 *) ((u8 *) state + totalOffset);
+    asm ("" : "+r" (total));
+    u32 previousTickets = *(u16 *) total;
+    register i32 selectedTickets asm("r0") = (i16) tickets;
+    asm ("" : "+r" (selectedTickets) : "r" (previousTickets));
+    *total = previousTickets + selectedTickets;
+    register u32 * remaining asm("r4") = &state->remainingFunds;
+    asm ("" : "+r" (remaining));
+    totalOffset -= offsetof(HorseRaceBettingState, totalTickets) - offsetof(HorseRaceBettingState, funds);
+    register u32 * funds asm("r3") = (u32 *) ((u8 *) state + totalOffset);
+    asm ("" : "+r" (funds));
+    *remaining = *funds - 50 * *total;
+    return selectedTickets;
+}
+
 enum HorseRaceDialoguePhase
 {
     HorseRaceDialogueStart,
