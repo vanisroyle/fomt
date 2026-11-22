@@ -3309,183 +3309,6 @@ func_080A0B18: @ 0x080A0B18
     .section .text.g1_after_b4_080A1A4C, "ax", %progbits
 
 
-	thumb_func_start func_080A1B38
-func_080A1B38: @ 0x080A1B38
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #0x10
-	adds r7, r0, #0
-	mov r8, r1
-	adds r4, r2, #0
-	adds r5, r3, #0
-	mov r0, sp
-	bl __12RucksackItem
-	mov r0, r8
-	adds r1, r4, #0
-	adds r2, r5, #0
-	ldr r3, [sp, #0x28]
-	bl FindMapForageLocation
-	adds r6, r0, #0
-	cmp r6, #0
-	bge .L080A1B62
-	b .L080A1C82
-.L080A1B62:
-	ldr r1, .L080A1B88 @ =gUnk_081043BC
-	lsls r0, r6, #1
-	adds r0, r0, r6
-	lsls r0, r0, #2
-	adds r0, r0, r1
-	ldr r0, [r0]
-	cmp r0, #0x12
-	ble .L080A1B74
-	b .L080A1C82
-.L080A1B74:
-	cmp r0, #0xd
-	bgt .L080A1C26
-	movs r1, #0x2a
-	cmp r0, #0xd
-	bhi .L080A1BFE
-	lsls r0, r0, #2
-	ldr r1, .L080A1B8C @ =.L080A1B90
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L080A1B88: .4byte gUnk_081043BC
-.L080A1B8C: .4byte .L080A1B90
-.L080A1B90: @ jump table
-	.4byte .L080A1BC8 @ case 0
-	.4byte .L080A1BCC @ case 1
-	.4byte .L080A1BD0 @ case 2
-	.4byte .L080A1BD4 @ case 3
-	.4byte .L080A1BD8 @ case 4
-	.4byte .L080A1BDC @ case 5
-	.4byte .L080A1BE0 @ case 6
-	.4byte .L080A1BE4 @ case 7
-	.4byte .L080A1BE8 @ case 8
-	.4byte .L080A1BEC @ case 9
-	.4byte .L080A1BF0 @ case 10
-	.4byte .L080A1BF4 @ case 11
-	.4byte .L080A1BF8 @ case 12
-	.4byte .L080A1BFC @ case 13
-.L080A1BC8:
-	movs r1, #0x2a
-	b .L080A1BFE
-.L080A1BCC:
-	movs r1, #0x2b
-	b .L080A1BFE
-.L080A1BD0:
-	movs r1, #0x2c
-	b .L080A1BFE
-.L080A1BD4:
-	movs r1, #0x2d
-	b .L080A1BFE
-.L080A1BD8:
-	movs r1, #0x2e
-	b .L080A1BFE
-.L080A1BDC:
-	movs r1, #0x2f
-	b .L080A1BFE
-.L080A1BE0:
-	movs r1, #0x30
-	b .L080A1BFE
-.L080A1BE4:
-	movs r1, #0x31
-	b .L080A1BFE
-.L080A1BE8:
-	movs r1, #0x32
-	b .L080A1BFE
-.L080A1BEC:
-	movs r1, #0x33
-	b .L080A1BFE
-.L080A1BF0:
-	movs r1, #0x34
-	b .L080A1BFE
-.L080A1BF4:
-	movs r1, #0x35
-	b .L080A1BFE
-.L080A1BF8:
-	movs r1, #0x37
-	b .L080A1BFE
-.L080A1BFC:
-	movs r1, #0x28
-.L080A1BFE:
-	add r5, sp, #4
-	add r4, sp, #8
-	adds r0, r4, #0
-	bl __4FoodUi
-	ldrb r1, [r4]
-	mov r0, sp
-	adds r0, #9
-	ldrb r0, [r0]
-	lsls r0, r0, #8
-	orrs r0, r1
-	mov r1, sp
-	adds r1, #0xa
-	ldrb r1, [r1]
-	lsls r1, r1, #0x10
-	orrs r1, r0
-	adds r0, r5, #0
-	bl __12RucksackItemG4Food
-	b .L080A1C74
-.L080A1C26:
-	movs r1, #0
-	subs r0, #0xe
-	cmp r0, #4
-	bhi .L080A1C62
-	lsls r0, r0, #2
-	ldr r1, .L080A1C38 @ =.L080A1C3C
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L080A1C38: .4byte .L080A1C3C
-.L080A1C3C: @ jump table
-	.4byte .L080A1C50 @ case 0
-	.4byte .L080A1C54 @ case 1
-	.4byte .L080A1C58 @ case 2
-	.4byte .L080A1C5C @ case 3
-	.4byte .L080A1C60 @ case 4
-.L080A1C50:
-	movs r1, #0
-	b .L080A1C62
-.L080A1C54:
-	movs r1, #1
-	b .L080A1C62
-.L080A1C58:
-	movs r1, #2
-	b .L080A1C62
-.L080A1C5C:
-	movs r1, #4
-	b .L080A1C62
-.L080A1C60:
-	movs r1, #0x32
-.L080A1C62:
-	add r5, sp, #4
-	add r4, sp, #0xc
-	adds r0, r4, #0
-	bl __7ArticleUi
-	ldrb r1, [r4]
-	adds r0, r5, #0
-	bl __12RucksackItemG7Article
-.L080A1C74:
-	ldr r0, [sp, #4]
-	str r0, [sp]
-	mov r0, r8
-	adds r1, r6, #0
-	ldr r2, [sp, #0x28]
-	bl ClearMapAvailabilityBit
-.L080A1C82:
-	ldr r0, [sp]
-	str r0, [r7]
-	adds r0, r7, #0
-	add sp, #0x10
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
 
     .section .text.g1_after_b2_080A1C94, "ax", %progbits
 
@@ -3529,7 +3352,7 @@ func_080A220C: @ 0x080A220C
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	adds r0, r7, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L080A245C @ =vtable_unk_080E825C
 	str r0, [r7, #4]
 	str r4, [r7, #8]
@@ -3652,7 +3475,7 @@ func_080A220C: @ 0x080A220C
 	lsls r0, r0, #1
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #7
 	bl func_08007B54
@@ -3685,7 +3508,7 @@ func_080A220C: @ 0x080A220C
 	lsls r0, r0, #1
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #6
 	bl func_08007B54
@@ -3702,7 +3525,7 @@ func_080A220C: @ 0x080A220C
 	lsls r2, r2, #1
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
 	bl func_08007B54
@@ -3967,7 +3790,7 @@ func_080A25B0: @ 0x080A25B0
 	mov sl, r0
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080A2BA4
 	adds r0, r7, #0
@@ -4022,7 +3845,7 @@ func_080A25B0: @ 0x080A25B0
 	str r3, [sp, #0x14]
 .L080A2640:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	movs r6, #0x85
@@ -7659,56 +7482,6 @@ func_080A4F50: @ 0x080A4F50
 
     .section .text.g1_after_b4_080A58EC, "ax", %progbits
 
-
-	thumb_func_start func_080A5960
-func_080A5960: @ 0x080A5960
-	push {r4, r5, lr}
-	sub sp, #8
-	adds r5, r0, #0
-	adds r4, r1, #0
-	adds r3, r2, #0
-	mov r0, sp
-	adds r1, r5, #0
-	adds r2, r4, #0
-	bl ClampMapCameraPosition
-	ldr r0, [sp]
-	str r0, [sp, #4]
-	add r2, sp, #4
-	adds r3, r2, #0
-	movs r0, #0xa
-	ldrsh r1, [r5, r0]
-	movs r4, #0
-	ldrsh r0, [r2, r4]
-	cmp r1, r0
-	beq .L080A5998
-	adds r1, r5, #0
-	adds r1, #0x29
-	movs r0, #1
-	strb r0, [r1]
-	movs r1, #0
-	ldrsh r0, [r2, r1]
-	lsls r0, r0, #0x10
-	str r0, [r5, #8]
-.L080A5998:
-	movs r2, #0xe
-	ldrsh r1, [r5, r2]
-	movs r4, #2
-	ldrsh r0, [r3, r4]
-	cmp r1, r0
-	beq .L080A59B4
-	adds r1, r5, #0
-	adds r1, #0x29
-	movs r0, #1
-	strb r0, [r1]
-	movs r1, #2
-	ldrsh r0, [r3, r1]
-	lsls r0, r0, #0x10
-	str r0, [r5, #0xc]
-.L080A59B4:
-	add sp, #8
-	pop {r4, r5}
-	pop {r0}
-	bx r0
 
     .section .text.g1_after_b5_080A59BC, "ax", %progbits
 

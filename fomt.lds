@@ -168,6 +168,8 @@ SECTIONS
         asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
+        src/hardware.o(.text.TileHeapOwner_Initialize);
+        asm/hardware.o(.text.after_08007874);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);
@@ -184,6 +186,10 @@ SECTIONS
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
         asm/hardware.o(.text.after_08007EC8);
+        src/hardware.o(.text.AllocationTree_MarkRangeFull);
+        asm/hardware.o(.text.after_08007EE8);
+        src/hardware.o(.text.AllocationTree_MarkRangeEmpty);
+        asm/hardware.o(.text.after_08007F84);
         src/hardware.o(.text.AllocationTree_AllocateBlock);
         asm/hardware.o(.text.after_08008020);
         src/hardware.o(.text.AllocationTree_FreeBlock);
@@ -194,8 +200,18 @@ SECTIONS
         asm/hardware.o(.text.after_08008364);
         src/hardware.o(.text.TilePool_Acquire);
         asm/hardware.o(.text.after_080083D0);
+        src/hardware.o(.text.HardwareContext_Initialize);
+        asm/hardware.o(.text.after_08008444);
+        src/hardware.o(.text.HardwareContext_InitializeWithKeyRepeat);
+        asm/hardware.o(.text.after_080084DC);
+        src/hardware.o(.text.HardwareContext_InitializeWithOamReservation);
+        asm/hardware.o(.text.after_08008574);
         src/hardware.o(.text.HardwareContext_Destroy);
         asm/hardware.o(.text.after_080086BC);
+        src/hardware.o(.text.HardwareContext_ForceBlank);
+        asm/hardware.o(.text.after_08008724);
+        src/hardware.o(.text.HardwareContext_CommitFrame);
+        asm/hardware.o(.text.after_080087C8);
         src/hardware.o(.text.HardwareContext_UpdateKeys);
         asm/hardware.o(.text.after_080088B8);
         src/hardware.o(.text.HardwareContext_GetHeldKeys);
@@ -216,6 +232,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008940);
         src/hardware.o(.text.HardwareContext_GetVBlankTasks);
         asm/hardware.o(.text.after_0800894C);
+        src/hardware.o(.text.VBlankDispatcher_Initialize);
+        asm/hardware.o(.text.after_08008980);
         src/hardware.o(.text.VBlankDispatcher_Destroy);
         asm/hardware.o(.text.after_08008A68);
         src/hardware.o(.text.VBlankDispatcher_GetTasks);
@@ -558,7 +576,7 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_08014304);
         asm/game_state.o(.text.game_state_08014318);
         src/game_state_part1.o(.text.game_state_0801437C);
-        asm/game_state.o(.text.game_state_08014410);
+        src/game_state_part1.o(.text.game_state_08014410);
         src/game_state_part1.o(.text.game_state_080144BC);
         src/game_state_part1.o(.text.game_state_08014550);
         src/game_state_part1.o(.text.game_state_080145F8);
@@ -589,6 +607,7 @@ SECTIONS
         asm/game_state.o(.text.game_state_08015990);
         src/game_state_part1.o(.text.game_state_08015990);
         asm/game_state.o(.text.game_state_080159B0);
+        src/game_state_part1.o(.text.game_state_08016758);
         src/game_state_part1.o(.text.game_state_08016784);
         src/game_state_part1.o(.text.game_state_080167AC);
         src/game_state_part1.o(.text.game_state_080167CC);
@@ -693,6 +712,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_side.08032BAC);
         src/npc_side_batch4.o(.text.npc_side.08032BB0);
         asm/code_entities_080320DC.o(.text.npc_side.08032BB4);
+        src/npc_side_batch13_workers.o(.text.npc_side.08033584);
         src/npc_side_batch8.o(.text.npc_side.08033784);
         src/npc_side_batch4.o(.text.npc_side.08033800);
         src/npc_side_batch4.o(.text.npc_side.08033830);
@@ -716,7 +736,7 @@ SECTIONS
         src/npc_side_batch10.o(.text.npc_side.08034940);
         src/npc_side_batch11.o(.text.npc_side.08034A14);
         src/npc_side_batch5.o(.text.npc_side.08034AA0);
-        asm/code_entities_080320DC.o(.text.npc_side.08034AE8);
+        src/npc_side_batch13_effects.o(.text.npc_side.08034AE8);
         src/npc_side_batch2.o(.text.npc_side.08034BFC);
         src/npc_side_batch4.o(.text.npc_side.08034C40);
         src/npc_side_batch4.o(.text.npc_side.08034C48);
@@ -828,7 +848,7 @@ SECTIONS
         src/npc_side_batch10.o(.text.npc_extra.08037118);
         src/npc_side_batch2.o(.text.npc_extra.08037244);
         src/npc_side_batch5.o(.text.npc_extra.08037250);
-        asm/code_entities_08034CEC.o(.text.npc_extra.0803726C);
+        src/npc_side_batch13_movement.o(.text.npc_extra.0803726C);
         src/npc_side_batch2.o(.text.npc_extra.08037430);
         asm/code_entities_08034CEC.o(.text.npc_extra.08037434);
         src/npc_side_batch2.o(.text.npc_extra.08037434);
@@ -925,7 +945,7 @@ SECTIONS
         asm/code_entities_08034CEC.o(.text.npc_extra.08039310);
         src/npc_side_batch12_states.o(.text.npc_extra.0803955C);
         src/npc_side_batch4.o(.text.npc_extra.080396F4);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039708);
+        src/npc_side_batch13_states.o(.text.npc_extra.08039708);
         src/npc_side_batch5.o(.text.npc_extra.080398A0);
         src/npc_side_batch11.o(.text.npc_extra.080398A4);
         src/npc_side_batch8.o(.text.npc_extra.080399C0);
@@ -943,7 +963,7 @@ SECTIONS
         src/npc_side_batch5.o(.text.npc_extra.08039F50);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039F90);
         src/npc_side_batch8.o(.text.npc_extra.0803A144);
-        asm/code_entities_08034CEC.o(.text.npc_extra.0803A180);
+        src/npc_side_batch13_movement.o(.text.npc_extra.0803A180);
         src/npc_side_batch2.o(.text.npc_extra.0803A320);
         src/npc_side_batch2.o(.text.npc_extra.0803A334);
         src/npc_side_batch5.o(.text.npc_extra.0803A350);
@@ -1202,6 +1222,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_080A1A48);
         src/g1_map_counts.o(.text.g1_080A1A4C);
         asm/g1_npc.o(.text.g1_after_b4_080A1A4C);
+        src/g1_map_forage.o(.text.g1_080A1B38);
         src/g1_map.o(.text.g1_080A1C94);
         asm/g1_npc.o(.text.g1_after_b2_080A1C94);
         src/g1_map_forage.o(.text.g1_080A1CBC);
@@ -1273,6 +1294,7 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b18_080A5760);
         src/g1_map_motion.o(.text.g1_080A58EC);
         asm/g1_npc.o(.text.g1_after_b4_080A58EC);
+        src/g1_map_camera.o(.text.g1_080A5960);
         src/g1_map_camera.o(.text.g1_080A59BC);
         asm/g1_npc.o(.text.g1_after_b5_080A59BC);
         src/g1_npc.o(.text.g1_080A5A9C);
@@ -1576,9 +1598,11 @@ SECTIONS
         src/g5_ui.o(.text.g5_buttons);
         src/g5_ui.o(.text.g5_080CAC3C);
         src/g5_ui.o(.text.g5_entry_init);
+        src/g5_animated_entries.o(.text.g5_080CAC7C);
         asm/code_080C8360.o(.text.g5_CAC7C);
         src/g5_ui.o(.text.g5_080CAD08);
         src/g5_ui.o(.text.g5_entry_access);
+        src/g5_animated_entries.o(.text.g5_080CAD18);
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
         src/g5_commands.o(.text.g5_080CADB4);
@@ -1595,6 +1619,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CB948);
         src/g5_drawing.o(.text.g5_080CC0B4);
         src/g5_helpers.o(.text.g5_080CC134);
+        src/g5_resource_slot_panel.o(.text.g5_080CC15C);
         asm/code_080C8360.o(.text.g5_080CC15C);
         src/g5_helpers.o(.text.g5_080CC70C);
         asm/code_080C8360.o(.text.g5_080CC728);
@@ -1613,6 +1638,7 @@ SECTIONS
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_navigation.o(.text.g5_080CDB08);
+        src/g5_left_navigation.o(.text.g5_080CDC00);
         asm/code_080C8360.o(.text.g5_after_080CDB08);
         src/g5_horizontal_navigation.o(.text.g5_080CDCD0);
         src/g5_navigation.o(.text.g5_080CDD7C);
@@ -1626,6 +1652,7 @@ SECTIONS
         src/g5_helpers.o(.text.g5_080CE1C4);
         src/g5_panels.o(.text.g5_080CE294);
         asm/code_080C8360.o(.text.g5_after_080CE294);
+        src/g5_paged_initialization.o(.text.g5_080CE2FC);
         src/g5_commands.o(.text.g5_080CE3DC);
         asm/code_080C8360.o(.text.g5_after_080CE3DC);
         src/g5_commands.o(.text.g5_080CE480);
@@ -1644,6 +1671,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CFB28);
         src/g5_map_graphics.o(.text.g5_080CFB5C);
         asm/code_080C8360.o(.text.g5_after_080CFB5C);
+        src/g5_field_tiles.o(.text.g5_080CFEA8);
+        asm/code_080C8360.o(.text.g5_after_080CFEA8);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
         src/g5_runtime.o(.text.g5_080D035C);
@@ -1657,7 +1686,7 @@ SECTIONS
         src/g5_runtime.o(.text.g5_queries);
         src/g5_runtime.o(.text.g5_080D06DC);
         src/g5_runtime.o(.text.g5_080D0704);
-        asm/code_080D035C.o(.text.g5_after_080D0704);
+        src/g5_receive.o(.text.g5_080D078C);
         src/g5_transmit.o(.text.g5_080D091C);
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
@@ -1669,6 +1698,8 @@ SECTIONS
         asm/code_080D0C68.o(.text.g5_after_080D0D28);
         src/g5_irq.o(.text.g5_080D100C);
         asm/code_080D102C.o(.text);
+        src/g5_random.o(.text.g5_rand);
+        asm/code_080D102C.o(.text.g5_after_rand);
 
         src/m4a_1.o(.text);
         src/m4a.o(.text);

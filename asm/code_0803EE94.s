@@ -8615,7 +8615,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044030
 	bl .L08045572
 .L08044030:
-	bl func_080159B0
+	bl GameScript_GenerateMineFloor
 	bl .L08045572
 .L08044038:
 	movs r4, #0xd5
@@ -8937,7 +8937,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080442CA
 	bl .L08045572
 .L080442CA:
-	bl GameScript_InvokePlayerAction64
+	bl GameScript_ChangePlayerStaminaAndFatigue
 	bl .L08045572
 .L080442D2:
 	movs r4, #0xd5
@@ -10287,7 +10287,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044D50
 	bl .L08045572
 .L08044D50:
-	bl func_08015E30
+	bl GameScript_DescendMineFloor
 	bl .L08045572
 .L08044D58:
 	movs r0, #0xda
@@ -27463,140 +27463,6 @@ func_08048FFC: @ 0x08048FFC
 
 
 
-	.section .text.message_rendering.0804E4AC
-	thumb_func_start DrawMessageGlyph
-DrawMessageGlyph: @ 0x0804E4AC
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x8c
-	adds r5, r0, #0
-	mov sb, r1
-	adds r6, r2, #0
-	adds r7, r3, #0
-	ldr r1, [sp, #0xac]
-	add r0, sp, #4
-	bl Font_DecodeGlyph
-	mov sl, r0
-	subs r0, #1
-	cmp r0, #1
-	bhi .L0804E598
-	lsrs r4, r6, #3
-	str r4, [sp, #0x84]
-	lsrs r2, r7, #3
-	lsls r0, r5, #0x10
-	lsrs r0, r0, #0x10
-	mov r8, r0
-	lsrs r0, r5, #0x10
-	mov ip, r0
-	cmp r4, r8
-	bhs .L0804E594
-	cmp r2, r0
-	bhs .L0804E594
-	movs r1, #0
-	movs r3, #7
-	adds r0, r6, #0
-	ands r0, r3
-	cmp r0, #0
-	bne .L0804E4F6
-	movs r1, #1
-.L0804E4F6:
-	cmp r1, #0
-	beq .L0804E584
-	movs r1, #0
-	adds r0, r7, #0
-	ands r0, r3
-	cmp r0, #0
-	bne .L0804E506
-	movs r1, #1
-.L0804E506:
-	cmp r1, #0
-	beq .L0804E584
-	movs r0, #0
-	str r0, [sp, #0x88]
-	adds r0, r4, #1
-	cmp r0, r8
-	bhs .L0804E518
-	movs r1, #1
-	str r1, [sp, #0x88]
-.L0804E518:
-	movs r7, #0
-	adds r5, r2, #1
-	cmp r5, ip
-	bhs .L0804E522
-	movs r7, #1
-.L0804E522:
-	mov r0, r8
-	muls r0, r2, r0
-	adds r0, r0, r4
-	lsls r0, r0, #5
-	mov r2, sb
-	adds r6, r0, r2
-	add r0, sp, #4
-	adds r1, r6, #0
-	movs r2, #8
-	bl CpuFastSet
-	cmp r7, #0
-	beq .L0804E54E
-	mov r1, r8
-	muls r1, r5, r1
-	adds r1, r1, r4
-	lsls r1, r1, #5
-	add r1, sb
-	add r0, sp, #0x44
-	movs r2, #8
-	bl CpuFastSet
-.L0804E54E:
-	ldr r0, [sp, #0x88]
-	cmp r0, #0
-	beq .L0804E594
-	mov r1, sl
-	cmp r1, #1
-	bls .L0804E594
-	adds r1, r6, #0
-	adds r1, #0x20
-	add r0, sp, #0x24
-	movs r2, #8
-	bl CpuFastSet
-	cmp r7, #0
-	beq .L0804E594
-	mov r0, r8
-	muls r0, r5, r0
-	ldr r2, [sp, #0x84]
-	adds r1, r2, r0
-	lsls r0, r1, #5
-	mov r2, sb
-	adds r1, r0, r2
-	adds r1, #0x20
-	add r0, sp, #0x64
-	movs r2, #8
-	bl CpuFastSet
-	b .L0804E594
-.L0804E584:
-	add r0, sp, #4
-	str r0, [sp]
-	adds r0, r5, #0
-	mov r1, sb
-	adds r2, r6, #0
-	adds r3, r7, #0
-	bl DrawUnalignedMessageGlyph
-.L0804E594:
-	mov r0, sl
-	b .L0804E59A
-.L0804E598:
-	movs r0, #0
-.L0804E59A:
-	add sp, #0x8c
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
 	.section .text.message_rendering.0804E5AC
 	thumb_func_start DrawMessageGlyphWithColors
 DrawMessageGlyphWithColors: @ 0x0804E5AC
@@ -28084,107 +27950,6 @@ FormatMessageInteger: @ 0x0804EC84
 
 
 
-	.section .text.message_rendering.0804EFAC
-	thumb_func_start PrintMessageCursorGlyph
-PrintMessageCursorGlyph: @ 0x0804EFAC
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #8
-	adds r6, r0, #0
-	mov sb, r1
-	ldrh r0, [r6, #0x14]
-	mov r8, r0
-	ldrh r1, [r6, #0x16]
-	ldrb r0, [r6, #0x18]
-	adds r0, r1, r0
-	cmp r0, #2
-	ble .L0804EFCA
-	subs r0, #3
-.L0804EFCA:
-	lsls r0, r0, #2
-	adds r0, r0, r6
-	ldr r1, [r0, #8]
-	mov r2, r8
-	lsrs r0, r2, #2
-	lsls r0, r0, #4
-	adds r7, r1, r0
-	movs r0, #3
-	ands r2, r0
-	cmp r2, #3
-	bhi .L0804F016
-	ldr r1, [r7]
-	ands r2, r0
-	lsls r2, r2, #3
-	add r5, sp, #4
-	movs r3, #4
-	movs r4, #2
-	adds r0, r5, #0
-	strh r3, [r0]
-	strh r4, [r5, #2]
-	ldr r0, [sp, #4]
-	adds r1, #4
-	mov r3, sb
-	str r3, [sp]
-	movs r3, #0
-	bl DrawMessageGlyph
-	adds r2, r0, #0
-	subs r0, r2, #1
-	cmp r0, #1
-	bhi .L0804F012
-	ldr r1, [r7, #8]
-	rsbs r0, r1, #0
-	orrs r0, r1
-	lsrs r0, r0, #0x1f
-	strb r0, [r7, #0xc]
-.L0804F012:
-	adds r0, r2, #0
-	b .L0804F018
-.L0804F016:
-	movs r0, #0
-.L0804F018:
-	cmp r0, #0
-	beq .L0804F020
-	cmp r0, #2
-	bls .L0804F024
-.L0804F020:
-	movs r0, #0
-	b .L0804F046
-.L0804F024:
-	add r0, r8
-	cmp r0, #0x1b
-	bls .L0804F030
-	movs r1, #0x1c
-	bl __umodsi3
-.L0804F030:
-	strh r0, [r6, #0x14]
-	mov r0, sb
-	cmp r0, #0x20
-	beq .L0804F042
-	ldr r0, .L0804F054 @ =0x00008140
-	cmp sb, r0
-	beq .L0804F042
-	movs r0, #1
-	strb r0, [r6, #0x1b]
-.L0804F042:
-	movs r0, #1
-	strb r0, [r6, #0x1a]
-.L0804F046:
-	add sp, #8
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0804F054: .4byte 0x00008140
-
-
-
-
-
 	.section .text.message_rendering.0804F0E0
 	thumb_func_start ClearMessageTextCursor
 ClearMessageTextCursor: @ 0x0804F0E0
@@ -28408,7 +28173,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	adds r4, r5, #0
 	stm r4!, {r0}
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	movs r1, #0
 	str r1, [r4, #4]
 	strb r1, [r5, #0xc]
@@ -30280,196 +30045,6 @@ sub_08050342: @ 0x08050342
 	.align 2, 0
 .L08050398: .4byte vtable_unk_080E78F0
 
-	.section .text.message_window.08050664
-	thumb_func_start SetMessageWindowStatePromptChoices
-SetMessageWindowStatePromptChoices: @ 0x08050664
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0xc
-	adds r5, r0, #0
-	adds r7, r1, #0
-	str r2, [sp, #8]
-	mov sl, r3
-	ldr r0, [sp, #0x2c]
-	mov sb, r0
-	ldr r6, [sp, #0x30]
-	cmp r7, #0
-	beq .L0805068C
-	adds r0, r7, #0
-	bl strlen
-	cmp r0, #0x1c
-	bls .L0805068E
-.L0805068C:
-	ldr r7, .L080506B4 @ =gUnk_080F9F3C
-.L0805068E:
-	movs r4, #7
-	movs r1, #0xc
-	mov r8, r1
-	cmp r6, #0
-	bne .L080506A6
-	movs r4, #6
-	mov r2, sb
-	cmp r2, #0
-	bne .L080506A6
-	movs r0, #0x1a
-	mov r8, r0
-	movs r4, #5
-.L080506A6:
-	cmp r4, #6
-	beq .L080506CE
-	cmp r4, #6
-	bgt .L080506B8
-	cmp r4, #5
-	beq .L080506E2
-	b .L080506BC
-	.align 2, 0
-.L080506B4: .4byte gUnk_080F9F3C
-.L080506B8:
-	cmp r4, #7
-	beq .L080506BE
-.L080506BC:
-	movs r4, #5
-.L080506BE:
-	cmp r6, #0
-	beq .L080506CC
-	adds r0, r6, #0
-	bl strlen
-	cmp r0, r8
-	bls .L080506CE
-.L080506CC:
-	ldr r6, .L08050730 @ =gUnk_080F9F3C
-.L080506CE:
-	mov r1, sb
-	cmp r1, #0
-	beq .L080506DE
-	mov r0, sb
-	bl strlen
-	cmp r0, r8
-	bls .L080506E2
-.L080506DE:
-	ldr r2, .L08050730 @ =gUnk_080F9F3C
-	mov sb, r2
-.L080506E2:
-	mov r0, sl
-	cmp r0, #0
-	beq .L080506F0
-	bl strlen
-	cmp r0, r8
-	bls .L080506F4
-.L080506F0:
-	ldr r1, .L08050730 @ =gUnk_080F9F3C
-	mov sl, r1
-.L080506F4:
-	ldr r2, [sp, #8]
-	cmp r2, #0
-	beq .L08050704
-	adds r0, r2, #0
-	bl strlen
-	cmp r0, r8
-	bls .L08050708
-.L08050704:
-	ldr r0, .L08050730 @ =gUnk_080F9F3C
-	str r0, [sp, #8]
-.L08050708:
-	adds r0, r5, #0
-	adds r0, #0xd0
-	bl ClearMessageTextCursor
-	movs r1, #0
-	mov r0, sp
-	strb r1, [r0]
-	adds r0, r5, #0
-	mov r1, sp
-	adds r2, r7, #0
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-	cmp r4, #6
-	beq .L08050750
-	cmp r4, #6
-	bgt .L08050734
-	cmp r4, #5
-	beq .L08050768
-	b .L08050798
-	.align 2, 0
-.L08050730: .4byte gUnk_080F9F3C
-.L08050734:
-	cmp r4, #7
-	bne .L08050798
-	movs r0, #7
-	movs r1, #4
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #1
-	strb r0, [r1]
-	adds r0, r5, #0
-	adds r2, r6, #0
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-.L08050750:
-	adds r0, r4, #0
-	movs r1, #3
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #2
-	strb r0, [r1]
-	adds r0, r5, #0
-	mov r2, sb
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-.L08050768:
-	adds r0, r4, #0
-	movs r1, #2
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #3
-	strb r0, [r1]
-	adds r0, r5, #0
-	mov r2, sl
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-	adds r0, r4, #0
-	movs r1, #1
-	bl GetMessageChoicePosition
-	add r1, sp, #4
-	strb r0, [r1]
-	adds r0, r5, #0
-	ldr r2, [sp, #8]
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-	b .L0805079A
-.L08050798:
-	movs r4, #5
-.L0805079A:
-	movs r1, #0xae
-	lsls r1, r1, #1
-	adds r0, r5, r1
-	str r4, [r0]
-	movs r2, #0xac
-	lsls r2, r2, #1
-	adds r1, r5, r2
-	movs r0, #1
-	str r0, [r1]
-	movs r0, #6
-	str r0, [r5, #8]
-	movs r1, #0xe0
-	lsls r1, r1, #1
-	adds r0, r5, r1
-	adds r2, #8
-	adds r1, r5, r2
-	movs r2, #0
-	bl func_0805E850
-	add sp, #0xc
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
-
 	.section .text.message_window.080507F8
 	thumb_func_start DrawMessageChoiceText
 DrawMessageChoiceText: @ 0x080507F8
@@ -30851,170 +30426,6 @@ UpdateMessageChoiceSelection: @ 0x08050868
 	bx r1
 	.align 2, 0
 
-	.section .text.message_window.08050AD8
-	thumb_func_start SetMessageWindowStatePortrait
-SetMessageWindowStatePortrait: @ 0x08050AD8
-	push {r4, r5, lr}
-	adds r4, r0, #0
-	adds r5, r1, #0
-	cmp r5, #0
-	blo .L08050AEA
-	bl GetMessagePortraitCount
-	cmp r5, r0
-	blo .L08050AF2
-.L08050AEA:
-	adds r0, r4, #0
-	bl ClearMessageWindowStatePortrait
-	b .L08050B36
-.L08050AF2:
-	movs r0, #0xee
-	lsls r0, r0, #1
-	adds r2, r4, r0
-	ldrb r1, [r2]
-	lsls r0, r1, #0x1f
-	cmp r0, #0
-	beq .L08050B0E
-	movs r1, #0xf0
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	ldr r0, [r0]
-	cmp r0, r5
-	beq .L08050B36
-	b .L08050B14
-.L08050B0E:
-	movs r0, #1
-	orrs r0, r1
-	strb r0, [r2]
-.L08050B14:
-	movs r1, #0xf2
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	adds r1, r5, #0
-	bl LoadMessagePortraitAnimationFrame
-	movs r1, #0xf0
-	lsls r1, r1, #1
-	adds r0, r4, r1
-	str r5, [r0]
-	movs r0, #0xee
-	lsls r0, r0, #1
-	adds r2, r4, r0
-	ldrb r0, [r2]
-	movs r1, #2
-	orrs r0, r1
-	strb r0, [r2]
-.L08050B36:
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-
-	.section .text.message_window.08050B50
-	thumb_func_start SetMessageWindowStateSpeakerName
-SetMessageWindowStateSpeakerName: @ 0x08050B50
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x18
-	mov r8, r0
-	adds r4, r1, #0
-	cmp r4, #0
-	beq .L08050B6E
-	adds r0, r4, #0
-	bl strlen
-	adds r6, r0, #0
-	b .L08050B70
-.L08050B6E:
-	movs r6, #0
-.L08050B70:
-	subs r0, r6, #1
-	cmp r0, #0xb
-	bls .L08050B7E
-	mov r0, r8
-	bl ClearMessageWindowStateSpeakerName
-	b .L08050C06
-.L08050B7E:
-	adds r7, r4, #0
-	movs r5, #0
-	mov r0, sp
-	adds r0, #0xc
-	str r0, [sp, #0x14]
-	movs r2, #4
-	mov sl, r2
-	movs r0, #2
-	mov sb, r0
-.L08050B90:
-	lsls r1, r5, #6
-	adds r1, r1, r5
-	lsls r1, r1, #2
-	add r1, r8
-	add r0, sp, #0xc
-	mov r2, sl
-	strh r2, [r0]
-	mov r2, sb
-	ldr r0, [sp, #0x14]
-	strh r2, [r0, #2]
-	ldr r0, [sp, #0xc]
-	movs r2, #0xfc
-	lsls r2, r2, #1
-	adds r4, r1, r2
-	adds r1, r4, #0
-	movs r2, #0
-	bl FillMessageTiles
-	adds r5, #1
-	cmp r6, #0
-	beq .L08050BF0
-	add r2, sp, #4
-	adds r1, r4, #0
-	add r4, sp, #0x10
-	add r3, sp, #8
-.L08050BC2:
-	ldrb r0, [r7]
-	strb r0, [r2]
-	adds r7, #1
-	adds r2, #1
-	subs r6, #1
-	cmp r6, #0
-	beq .L08050BD4
-	cmp r2, r3
-	bne .L08050BC2
-.L08050BD4:
-	movs r0, #0
-	strb r0, [r2]
-	add r0, sp, #0x10
-	mov r2, sl
-	strh r2, [r0]
-	mov r0, sb
-	strh r0, [r4, #2]
-	ldr r0, [sp, #0x10]
-	add r2, sp, #4
-	str r2, [sp]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-.L08050BF0:
-	cmp r5, #2
-	bls .L08050B90
-	movs r2, #0xf8
-	lsls r2, r2, #1
-	add r2, r8
-	ldrb r0, [r2]
-	movs r1, #1
-	orrs r0, r1
-	movs r1, #2
-	orrs r0, r1
-	strb r0, [r2]
-.L08050C06:
-	add sp, #0x18
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-
 	.section .text.message_window.08050C70
 .L08050C70:
 	.byte 0x10, 0xB5, 0x83, 0xB0, 0x04, 0x1C, 0x02, 0xAA, 0x00, 0x20, 0x10, 0x70, 0x68, 0x46, 0x12, 0x1A
@@ -31286,7 +30697,7 @@ InitializeFestivalResultsScreen: @ 0x0805143C
 	strh r2, [r3, #2]
 	adds r0, r7, #0
 	mov r1, sp
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L080514F8 @ =vtable_unk_080E7928
 	str r0, [r7, #4]
 	str r4, [r7, #8]
@@ -31338,7 +30749,7 @@ InitializeFestivalResultsScreen: @ 0x0805143C
 	strb r6, [r0, #0x18]
 	adds r4, #0x98
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
 	bl func_08007B54
@@ -31373,7 +30784,7 @@ RunFestivalResultsScreen: @ 0x08051504
 	mov sb, r0
 	adds r6, r1, #0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -31421,7 +30832,7 @@ RunFestivalResultsScreen: @ 0x08051504
 	adds r5, r6, r1
 .L08051584:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [r5]
@@ -32914,7 +32325,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	adds r0, r7, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L08052710 @ =vtable_unk_080E7944
 	str r0, [r7, #4]
 	str r6, [r7, #8]
@@ -33275,7 +32686,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r2, #0x24
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
 	bl func_08007B54
@@ -33292,7 +32703,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #7
 	bl func_08007B54
@@ -33309,7 +32720,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -33326,7 +32737,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #6
 	bl func_08007B54
@@ -33343,7 +32754,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -33360,7 +32771,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -33398,7 +32809,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -33407,7 +32818,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r0, r0, #3
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -33424,7 +32835,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r2, r2, #3
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -33439,7 +32850,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	lsls r1, r1, #3
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -33456,7 +32867,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	movs r6, #3
 .L080527FE:
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -33477,7 +32888,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r1, r1, r7
 	mov r8, r1
 	mov r0, r8
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r0, r8
 	movs r1, #4
 	bl func_08007B54
@@ -33642,7 +33053,7 @@ RunFrisbeeScreen: @ 0x08052984
 	movs r0, #0
 	str r0, [sp, #0x30]
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -33703,7 +33114,7 @@ RunFrisbeeScreen: @ 0x08052984
 	non_word_aligned_thumb_func_start sub_08052A1E
 sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	bl rand
@@ -38150,156 +37561,6 @@ ChooseFrisbeeDogAction: @ 0x08054D34
 	pop {r1}
 	bx r1
 	.align 2, 0
-
-	.section .text.frisbee.08054F40
-	thumb_func_start LoadFrisbeeBackground
-LoadFrisbeeBackground: @ 0x08054F40
-	push {r4, r5, r6, lr}
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6}
-	sub sp, #4
-	adds r6, r0, #0
-	ldr r1, .L08055074 @ =0x06007FE0
-	movs r0, #0
-	movs r2, #0x20
-	bl Dma3_Fill
-	movs r4, #1
-	rsbs r4, r4, #0
-	ldr r0, .L08055078 @ =0x0600E000
-	mov sb, r0
-	movs r5, #0x80
-	lsls r5, r5, #4
-	adds r0, r4, #0
-	mov r1, sb
-	adds r2, r5, #0
-	bl Dma3_Fill
-	ldr r1, .L0805507C @ =0x0600E800
-	mov r8, r1
-	adds r0, r4, #0
-	adds r2, r5, #0
-	bl Dma3_Fill
-	ldr r1, .L08055080 @ =0x0600F000
-	adds r0, r4, #0
-	adds r2, r5, #0
-	bl Dma3_Fill
-	ldr r0, .L08055084 @ =gUnk_08738AD8
-	ldr r2, .L08055088 @ =0x00001D5A
-	adds r4, r6, r2
-	adds r1, r4, #0
-	bl Unpack
-	movs r2, #0xa0
-	lsls r2, r2, #3
-	adds r0, r4, #0
-	mov r1, sb
-	bl Dma3_Copy
-	adds r0, r4, #0
-	mov r1, r8
-	movs r2, #0xc0
-	bl Dma3_Copy
-	ldr r0, .L0805508C @ =gUnk_08738CC8
-	adds r1, r4, #0
-	bl Unpack
-	ldr r0, .L08055090 @ =gUnk_08738CF0
-	adds r1, r4, #0
-	bl Unpack
-	ldr r0, .L08055094 @ =gUnk_08738D1C
-	movs r1, #0xc0
-	lsls r1, r1, #0x13
-	bl Unpack
-	ldr r0, .L08055098 @ =gUnk_087399C4
-	movs r1, #0xa0
-	lsls r1, r1, #0x13
-	movs r2, #0x80
-	lsls r2, r2, #2
-	bl Dma3_Copy
-	ldr r0, .L0805509C @ =gUnk_08739A64
-	movs r3, #0xab
-	lsls r3, r3, #3
-	adds r1, r6, r3
-	bl Unpack
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	movs r3, #0xf2
-	lsls r3, r3, #5
-	adds r2, r3, #0
-	strh r2, [r1]
-	movs r4, #0
-	strh r2, [r0]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080550A0 @ =0x00001C43
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xe]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080550A4 @ =0x00001D42
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xc]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r2, sp
-	ldr r3, .L080550A8 @ =0x00001E41
-	adds r1, r3, #0
-	strh r1, [r2]
-	strh r1, [r0, #0xa]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x14]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x16]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x18]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x1a]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x1c]
-	adds r0, r6, #0
-	bl HardwareContext_GetDisplayRegisters
-	mov r1, sp
-	strh r4, [r1]
-	strh r4, [r0, #0x1e]
-	add sp, #4
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08055074: .4byte 0x06007FE0
-.L08055078: .4byte 0x0600E000
-.L0805507C: .4byte 0x0600E800
-.L08055080: .4byte 0x0600F000
-.L08055084: .4byte gUnk_08738AD8
-.L08055088: .4byte 0x00001D5A
-.L0805508C: .4byte gUnk_08738CC8
-.L08055090: .4byte gUnk_08738CF0
-.L08055094: .4byte gUnk_08738D1C
-.L08055098: .4byte gUnk_087399C4
-.L0805509C: .4byte gUnk_08739A64
-.L080550A0: .4byte 0x00001C43
-.L080550A4: .4byte 0x00001D42
-.L080550A8: .4byte 0x00001E41
 
 	.section .text.frisbee.080550AC
 	thumb_func_start UploadFrisbeeBackground
@@ -43654,533 +42915,6 @@ sub_08056442: @ 0x08056442
 .L080579AC: .4byte 0x00002268
 .L080579B0: .4byte 0x00002294
 
-	.section .text.frisbee.080579B4
-	thumb_func_start DrawFrisbeeSpriteList
-DrawFrisbeeSpriteList: @ 0x080579B4
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x10
-	str r0, [sp, #8]
-	mov r8, r3
-	mov sb, r1
-	lsls r2, r2, #3
-	add r2, sb
-	str r2, [sp, #0xc]
-	cmp sb, r2
-	bne .L080579D2
-	b .L08057B4C
-.L080579D2:
-	mov r2, sb
-	ldr r0, [r2]
-	ldr r1, [r2, #4]
-	str r0, [sp]
-	str r1, [sp, #4]
-	ldr r1, [sp]
-	lsls r0, r1, #7
-	asrs r3, r0, #0x17
-	mov r0, sp
-	movs r5, #0
-	ldrsb r5, [r0, r5]
-	lsls r0, r1, #0x10
-	lsrs r0, r0, #0x1e
-	adds r4, r0, #0
-	lsrs r1, r1, #0x1e
-	cmp r4, #0
-	bne .L080579FC
-	movs r6, #8
-	lsls r6, r1
-	adds r4, r6, #0
-	b .L08057A1C
-.L080579FC:
-	adds r0, r1, #1
-	lsrs r0, r0, #1
-	adds r0, #1
-	movs r2, #8
-	lsls r2, r0
-	movs r0, #8
-	cmp r1, #1
-	beq .L08057A0E
-	lsrs r0, r2, #1
-.L08057A0E:
-	cmp r4, #1
-	beq .L08057A18
-	adds r6, r2, #0
-	adds r4, r0, #0
-	b .L08057A1C
-.L08057A18:
-	adds r6, r0, #0
-	adds r4, r2, #0
-.L08057A1C:
-	mov r0, r8
-	ldrb r7, [r0, #0x10]
-	movs r1, #1
-	mov sl, r1
-	mov r0, sl
-	ands r0, r7
-	cmp r0, #0
-	beq .L08057A46
-	adds r0, r3, r4
-	rsbs r3, r0, #0
-	ldr r2, [sp]
-	lsls r1, r2, #3
-	lsrs r1, r1, #0x1f
-	mov r0, sl
-	eors r1, r0
-	ands r1, r0
-	lsls r1, r1, #0x1c
-	ldr r0, .L08057B5C @ =0xEFFFFFFF
-	ands r0, r2
-	orrs r0, r1
-	str r0, [sp]
-.L08057A46:
-	movs r0, #2
-	ands r0, r7
-	cmp r0, #0
-	beq .L08057A68
-	adds r0, r5, r6
-	rsbs r5, r0, #0
-	ldr r2, [sp]
-	lsls r1, r2, #2
-	lsrs r1, r1, #0x1f
-	mov r0, sl
-	eors r1, r0
-	ands r1, r0
-	lsls r1, r1, #0x1d
-	ldr r0, .L08057B60 @ =0xDFFFFFFF
-	ands r0, r2
-	orrs r0, r1
-	str r0, [sp]
-.L08057A68:
-	mov r1, r8
-	movs r2, #0
-	ldrsh r0, [r1, r2]
-	adds r3, r3, r0
-	movs r2, #2
-	ldrsh r0, [r1, r2]
-	adds r5, r5, r0
-	adds r0, r3, r4
-	cmp r0, #0
-	ble .L08057B40
-	cmp r3, #0xef
-	bgt .L08057B40
-	adds r0, r5, r6
-	cmp r0, #0
-	ble .L08057B40
-	cmp r5, #0x9f
-	bgt .L08057B40
-	ldr r0, .L08057B64 @ =0x000001FF
-	ands r3, r0
-	lsls r2, r3, #0x10
-	ldr r1, .L08057B68 @ =0xFE00FFFF
-	ldr r0, [sp]
-	ands r0, r1
-	orrs r0, r2
-	lsls r2, r5, #0x18
-	lsrs r2, r2, #0x18
-	ldr r1, .L08057B6C @ =0xFFFFFF00
-	ands r0, r1
-	orrs r0, r2
-	str r0, [sp]
-	mov r4, sp
-	ldr r0, [sp, #4]
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x1c
-	lsls r0, r0, #3
-	ldr r3, [sp, #0x30]
-	adds r0, r0, r3
-	adds r0, #8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x10
-	movs r1, #0xf
-	ands r0, r1
-	lsls r0, r0, #0xc
-	ldr r1, .L08057B70 @ =0xFFFF0FFF
-	ldr r2, [sp, #4]
-	ands r2, r1
-	orrs r2, r0
-	lsls r0, r2, #0x16
-	lsrs r0, r0, #0x16
-	mov r1, r8
-	ldrh r1, [r1, #6]
-	adds r0, r0, r1
-	lsls r0, r0, #0x16
-	lsrs r0, r0, #0x16
-	ldr r1, .L08057B74 @ =0xFFFFFC00
-	ands r1, r2
-	orrs r1, r0
-	mov r2, r8
-	ldrh r0, [r2, #8]
-	movs r3, #3
-	ands r0, r3
-	lsls r0, r0, #0xa
-	ldr r2, .L08057B78 @ =0xFFFFF3FF
-	ands r1, r2
-	orrs r1, r0
-	str r1, [sp, #4]
-	mov r1, r8
-	ldr r0, [r1, #0xc]
-	ands r0, r3
-	lsls r0, r0, #0xa
-	ldr r1, [sp]
-	ands r1, r2
-	orrs r1, r0
-	mov r3, r8
-	ldr r2, [r3, #0x14]
-	movs r0, #3
-	ands r2, r0
-	lsls r2, r2, #8
-	ldr r0, .L08057B7C @ =0xFFFFFCFF
-	ands r1, r0
-	orrs r1, r2
-	ldrb r2, [r3, #0x18]
-	mov r3, sl
-	ands r2, r3
-	lsls r2, r2, #0xc
-	ldr r0, .L08057B80 @ =0xFFFFEFFF
-	ands r1, r0
-	orrs r1, r2
-	str r1, [sp]
-	ldr r0, [sp, #8]
-	bl HardwareContext_GetOamBuffer
-	adds r3, r0, #0
-	ldrb r2, [r3]
-	cmp r2, #0x7f
-	bhi .L08057B40
-	lsls r1, r2, #3
-	adds r1, #4
-	adds r1, r3, r1
-	ldr r0, [sp]
-	str r0, [r1]
-	ldrh r0, [r4, #4]
-	strh r0, [r1, #4]
-	adds r0, r2, #1
-	strb r0, [r3]
-.L08057B40:
-	movs r0, #8
-	add sb, r0
-	ldr r1, [sp, #0xc]
-	cmp sb, r1
-	beq .L08057B4C
-	b .L080579D2
-.L08057B4C:
-	add sp, #0x10
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08057B5C: .4byte 0xEFFFFFFF
-.L08057B60: .4byte 0xDFFFFFFF
-.L08057B64: .4byte 0x000001FF
-.L08057B68: .4byte 0xFE00FFFF
-.L08057B6C: .4byte 0xFFFFFF00
-.L08057B70: .4byte 0xFFFF0FFF
-.L08057B74: .4byte 0xFFFFFC00
-.L08057B78: .4byte 0xFFFFF3FF
-.L08057B7C: .4byte 0xFFFFFCFF
-.L08057B80: .4byte 0xFFFFEFFF
-
-	.section .text.frisbee.08057B84
-	thumb_func_start DrawFrisbeeScoreboard
-DrawFrisbeeScoreboard: @ 0x08057B84
-	push {r4, r5, lr}
-	sub sp, #4
-	adds r4, r0, #0
-	ldr r1, .L08057BF4 @ =0x000022C4
-	adds r0, r4, r1
-	movs r1, #0
-	ldrsh r3, [r0, r1]
-	movs r0, #0
-	str r0, [sp]
-	adds r0, r4, #0
-	movs r1, #8
-	movs r2, #0xc
-	bl DrawFrisbeeNumber
-	adds r0, r4, #0
-	movs r1, #0x40
-	movs r2, #0x14
-	movs r3, #0xb
-	bl DrawFrisbeeSymbol
-	ldr r1, .L08057BF8 @ =0x00002324
-	adds r0, r4, r1
-	ldrb r0, [r0]
-	cmp r0, #0
-	bne .L08057C00
-	subs r1, #0x58
-	adds r0, r4, r1
-	ldrb r1, [r0]
-	movs r5, #1
-	adds r0, r5, #0
-	ands r0, r1
-	cmp r0, #0
-	beq .L08057C74
-	adds r0, r4, #0
-	movs r1, #0xa0
-	movs r2, #0x10
-	movs r3, #0x1a
-	bl DrawFrisbeeSymbol
-	ldr r1, .L08057BFC @ =0x000022C6
-	adds r0, r4, r1
-	movs r1, #0
-	ldrsh r3, [r0, r1]
-	str r5, [sp]
-	adds r0, r4, #0
-	movs r1, #0xc0
-	movs r2, #0x10
-	bl DrawFrisbeeNumber
-	adds r0, r4, #0
-	movs r1, #0xe0
-	movs r2, #0x10
-	movs r3, #0x17
-	bl DrawFrisbeeSymbol
-	b .L08057C74
-	.align 2, 0
-.L08057BF4: .4byte 0x000022C4
-.L08057BF8: .4byte 0x00002324
-.L08057BFC: .4byte 0x000022C6
-.L08057C00:
-	ldr r0, .L08057CA0 @ =0x000022CC
-	adds r5, r4, r0
-	ldrb r1, [r5]
-	movs r0, #2
-	ands r0, r1
-	cmp r0, #0
-	beq .L08057C3C
-	adds r0, r4, #0
-	movs r1, #0xa0
-	movs r2, #8
-	movs r3, #0x18
-	bl DrawFrisbeeSymbol
-	ldr r1, .L08057CA4 @ =0x000022C8
-	adds r0, r4, r1
-	movs r1, #0
-	ldrsh r3, [r0, r1]
-	movs r0, #1
-	str r0, [sp]
-	adds r0, r4, #0
-	movs r1, #0xc0
-	movs r2, #8
-	bl DrawFrisbeeNumber
-	adds r0, r4, #0
-	movs r1, #0xe0
-	movs r2, #8
-	movs r3, #0x17
-	bl DrawFrisbeeSymbol
-.L08057C3C:
-	ldrb r1, [r5]
-	movs r0, #4
-	ands r0, r1
-	cmp r0, #0
-	beq .L08057C74
-	adds r0, r4, #0
-	movs r1, #0xa0
-	movs r2, #0x18
-	movs r3, #0x19
-	bl DrawFrisbeeSymbol
-	ldr r1, .L08057CA8 @ =0x000022CA
-	adds r0, r4, r1
-	movs r1, #0
-	ldrsh r3, [r0, r1]
-	movs r0, #1
-	str r0, [sp]
-	adds r0, r4, #0
-	movs r1, #0xc0
-	movs r2, #0x16
-	bl DrawFrisbeeNumber
-	adds r0, r4, #0
-	movs r1, #0xe0
-	movs r2, #0x16
-	movs r3, #0x17
-	bl DrawFrisbeeSymbol
-.L08057C74:
-	ldr r1, .L08057CAC @ =0x000022CE
-	adds r0, r4, r1
-	ldrb r1, [r0]
-	adds r1, #1
-	strb r1, [r0]
-	movs r0, #0xf
-	ands r1, r0
-	cmp r1, #0
-	bne .L08057C96
-	ldr r0, .L08057CA0 @ =0x000022CC
-	adds r2, r4, r0
-	adds r0, #1
-	adds r1, r4, r0
-	ldrb r0, [r2]
-	ldrb r1, [r1]
-	eors r0, r1
-	strb r0, [r2]
-.L08057C96:
-	add sp, #4
-	pop {r4, r5}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08057CA0: .4byte 0x000022CC
-.L08057CA4: .4byte 0x000022C8
-.L08057CA8: .4byte 0x000022CA
-.L08057CAC: .4byte 0x000022CE
-
-
-	.section .text.frisbee.08057CB0
-	thumb_func_start DrawFrisbeeNumber
-DrawFrisbeeNumber: @ 0x08057CB0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #4
-	str r0, [sp]
-	adds r5, r1, #0
-	mov sl, r2
-	mov sb, r3
-	ldr r1, [sp, #0x24]
-	movs r6, #0x64
-	movs r3, #0
-	cmp r1, #0
-	beq .L08057CD0
-	movs r3, #0xc
-.L08057CD0:
-	movs r0, #8
-	cmp r1, #0
-	bne .L08057CD8
-	movs r0, #0x10
-.L08057CD8:
-	mov r8, r3
-	adds r7, r0, #0
-.L08057CDC:
-	mov r0, sb
-	adds r1, r6, #0
-	bl __divsi3
-	adds r4, r0, #0
-	mov r0, r8
-	adds r3, r4, r0
-	ldr r0, [sp]
-	adds r1, r5, #0
-	mov r2, sl
-	bl DrawFrisbeeSymbol
-	adds r5, r5, r7
-	adds r0, r4, #0
-	muls r0, r6, r0
-	mov r1, sb
-	subs r1, r1, r0
-	mov sb, r1
-	adds r0, r6, #0
-	movs r1, #0xa
-	bl __divsi3
-	adds r6, r0, #0
-	cmp r6, #1
-	bne .L08057D20
-	ldr r0, [sp]
-	adds r1, r5, #0
-	mov r3, sl
-	adds r2, r3, r7
-	mov r3, r8
-	adds r3, #0xa
-	bl DrawFrisbeeSymbol
-	adds r5, #8
-.L08057D20:
-	cmp r6, #0
-	bgt .L08057CDC
-	add sp, #4
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.section .text.frisbee.08057D34
-	thumb_func_start DrawFrisbeeSymbol
-DrawFrisbeeSymbol: @ 0x08057D34
-	push {r4, r5, r6, r7, lr}
-	mov r7, r8
-	push {r7}
-	sub sp, #0x3c
-	adds r5, r0, #0
-	adds r6, r1, #0
-	mov r8, r2
-	adds r4, r3, #0
-	mov r1, sp
-	movs r2, #0
-	movs r0, #0
-	strh r0, [r1]
-	strh r0, [r1, #2]
-	strh r0, [r1, #4]
-	strh r0, [r1, #6]
-	strh r0, [r1, #8]
-	str r0, [sp, #0xc]
-	strb r2, [r1, #0x10]
-	strb r2, [r1, #0x11]
-	str r0, [sp, #0x14]
-	strb r2, [r1, #0x18]
-	add r7, sp, #0x1c
-	adds r1, r5, #0
-	adds r1, #0x50
-	adds r0, r7, #0
-	adds r2, r4, #0
-	bl func_0805E790
-	mov r0, sp
-	strh r6, [r0]
-	mov r1, r8
-	strh r1, [r0, #2]
-	movs r3, #0x90
-	lsls r3, r3, #3
-	adds r0, r5, r3
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	mov r1, sp
-	strh r0, [r1, #4]
-	movs r1, #0x8f
-	lsls r1, r1, #3
-	adds r0, r5, r1
-	ldr r1, [r0, #4]
-	bl TileHandle_GetTileIndex
-	mov r2, sp
-	lsls r4, r4, #2
-	ldr r3, .L08057DD4 @ =0x00002334
-	adds r1, r5, r3
-	adds r1, r1, r4
-	ldr r1, [r1]
-	adds r1, r1, r0
-	strh r1, [r2, #6]
-	mov r1, sp
-	movs r2, #1
-	movs r0, #1
-	strh r0, [r1, #8]
-	mov r0, sp
-	strb r2, [r0, #0x18]
-	adds r0, r5, #0
-	bl HardwareContext_GetOamBuffer
-	adds r3, r0, #0
-	ldr r0, [sp, #0x1c]
-	adds r1, r0, #0
-	movs r2, #0
-	cmp r1, #0
-	beq .L08057DC0
-	ldrh r2, [r7, #4]
-.L08057DC0:
-	adds r0, r3, #0
-	mov r3, sp
-	bl func_0805E99C
-	add sp, #0x3c
-	pop {r3}
-	mov r8, r3
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08057DD4: .4byte 0x00002334
-
 	.section .text.horse_race.08057F64
 
 	thumb_func_start PrepareHorseRaceHeat
@@ -44342,7 +43076,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	mov r0, sl
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L08058480 @ =vtable_unk_080E7970
 	mov r1, sl
 	str r0, [r1, #4]
@@ -44904,7 +43638,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -44919,7 +43653,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -44934,7 +43668,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #5
 	bl func_08007B54
@@ -44949,7 +43683,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #6
 	bl func_08007B54
@@ -44964,7 +43698,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -44981,7 +43715,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #7
 	bl func_08007B54
@@ -45006,7 +43740,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -45015,7 +43749,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r5, r5, #3
 	add r5, sl
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -45030,7 +43764,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r4, r4, #3
 	add r4, sl
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -45047,7 +43781,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	lsls r4, r4, #3
 	add r4, sl
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -45058,7 +43792,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	movs r7, #3
 .L080586E0:
 	adds r6, r0, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r6, #0
 	movs r1, #5
 	bl func_08007B54
@@ -45270,7 +44004,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	str r0, [sp, #0x1c]
 	adds r6, r1, #0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -45411,7 +44145,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	b .L08058E4C
 .L080589FC:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r7, .L08058A24 @ =0x00001424
@@ -45932,7 +44666,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	b .L080589FC
 .L08058E4C:
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r2, #0xc1
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -46040,7 +44774,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	b .L08059352
 .L08058F4E:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	movs r4, #0
@@ -46502,7 +45236,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	b .L08058F4E
 .L08059352:
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r2, #0
 	mov sb, r2
 	movs r3, #0xcd
@@ -46616,7 +45350,7 @@ RunHorseRaceScreen: @ 0x080588AC
 .L0805945C: .4byte 0x00000889
 .L08059460:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r2, .L08059488 @ =0x00001424
@@ -47598,7168 +46332,7 @@ UpdateHorseRaceDialogue: @ 0x08059878
 	.align 2, 0
 .L08059C90: .4byte gUnk_080FAE00
 
-	.equ .Lfarm_overview_stack_bytes, 0x29C
-	.equ .Lfarm_overview_game_data, 0x58C
-	.equ .Lfarm_overview_portrait_uploads, 0x594
-	.equ .Lfarm_overview_vtable, 0x5B4
-	.equ .Lfarm_overview_panel_tilemap, 0x18
-
-	.equ .Lfarm_overview_sp_report, 0x1C4
-	.equ .Lfarm_overview_sp_menu, 0x1C8
-	.equ .Lfarm_overview_sp_scroll_panel, 0x1CC
-	.equ .Lfarm_overview_sp_portrait_tile_row, 0x1D0
-	.equ .Lfarm_overview_sp_spouse_id, 0x1D4
-	.equ .Lfarm_overview_sp_spouse, 0x1D8
-	.equ .Lfarm_overview_sp_active_npc, 0x1DC
-	.equ .Lfarm_overview_sp_horse, 0x1E0
-	.equ .Lfarm_overview_sp_content_tile_rows, 0x210
-	.equ .Lfarm_overview_sp_portrait_lower_tile_row, 0x214
-	.equ .Lfarm_overview_sp_dog_tile_row, 0x218
-	.equ .Lfarm_overview_sp_portrait_y_pixels, 0x21C
-	.equ .Lfarm_overview_sp_portrait_tilemap_offset, 0x220
-	.equ .Lfarm_overview_sp_horse_name_tiles, 0x224
-	.equ .Lfarm_overview_sp_name_copy_command_ptr, 0x228
-	.equ .Lfarm_overview_sp_old_transfer_list_end, 0x294
-	.equ .Lfarm_overview_sp_new_transfer_list_buffer, 0x298
-
-	@ r6 = list, r5 = new end. Preserve the original empty destructor loop before freeing.
-	.macro CommitFarmOverviewTransferList capacity_bytes, new_begin
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .Lfarm_overview_free_transfers\@
-.Lfarm_overview_retire_transfer\@:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .Lfarm_overview_retire_transfer\@
-.Lfarm_overview_free_transfers\@:
-	cmp r0, #0
-	beq .Lfarm_overview_publish_transfers\@
-	bl free
-.Lfarm_overview_publish_transfers\@:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, \capacity_bytes
-	ldr \new_begin, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str \new_begin, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-	.endm
-
-	.section .text.f3.0805FF14, "ax", %progbits
-	thumb_func_start InitFarmOverviewReport
-InitFarmOverviewReport: @ 0x0805FF14
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	ldr r4, .L080600A4
-	add sp, r4
-	str r0, [sp, #.Lfarm_overview_sp_report]
-	str r1, [sp, #.Lfarm_overview_sp_menu]
-	mov sl, r2
-	mov r0, sl
-	adds r0, #0x14
-	bl GetName__C4Farm
-	adds r6, r0, #0
-	add r5, sp, #0x20
-	bl strlen
-	adds r4, r0, #0
-	cmp r4, #0x16
-	bls .L0805FF40
-	movs r4, #0x16
-.L0805FF40:
-	adds r0, r5, #0
-	adds r1, r6, #0
-	adds r2, r4, #0
-	bl memcpy
-	adds r0, r5, r4
-	movs r1, #0
-	mov sb, r1
-	strb r1, [r0]
-	adds r7, r5, #0
-	ldr r2, .L080600A8 @ =gFarmReportPropertySuffix
-	mov r8, r2
-	adds r0, r7, #0
-	bl strlen
-	adds r6, r7, r0
-	movs r1, #0x16
-	subs r5, r1, r0
-	cmp r5, #0
-	beq .L0805FF86
-	mov r0, r8
-	bl strlen
-	adds r4, r0, #0
-	cmp r4, r5
-	bls .L0805FF76
-	adds r4, r5, #0
-.L0805FF76:
-	adds r0, r6, #0
-	mov r1, r8
-	adds r2, r4, #0
-	bl memcpy
-	adds r0, r6, r4
-	mov r3, sb
-	strb r3, [r0]
-.L0805FF86:
-	add r0, sp, #8
-	adds r1, r7, #0
-	bl strcpy
-	add r0, sp, #8
-	adds r1, r0, #0
-	movs r2, #0x18
-	bl memcpy
-	add r4, sp, #8
-	str r4, [sp]
-	ldr r0, [sp, #.Lfarm_overview_sp_report]
-	ldr r1, [sp, #.Lfarm_overview_sp_menu]
-	mov r2, sl
-	movs r3, #0x40
-	bl func_08076BFC
-	ldr r5, [sp, #.Lfarm_overview_sp_report]
-	ldr r7, .L080600AC @ =.Lfarm_overview_vtable
-	adds r1, r5, r7
-	ldr r0, .L080600B0 @ =gFarmOverviewReportVTable
-	str r0, [r1]
-	ldr r0, [r5, #4]
-	str r0, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r2, .L080600B4 @ =gFarmReportBlankLabel
-	add r1, sp, #0x58
-	movs r0, #2
-	strh r0, [r1]
-	strh r0, [r1, #2]
-	ldr r0, [sp, #0x58]
-	ldr r1, .L080600B8 @ =0x000005BC
-	adds r4, r5, r1
-	str r2, [sp]
-	adds r1, r4, #0
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r0, [r5]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	movs r3, #0x38
-	lsls r2, r3, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	adds r1, r4, #0
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #0x38
-	mov r8, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	mov sl, r8
-	cmp r1, r0
-	beq .L080600D0
-	cmp r1, #0
-	beq .L0806000C
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806000C:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	mov r3, sp
-	adds r3, #0x64
-	str r3, [sp, #0x22c]
-	movs r5, #0xc8
-	lsls r5, r5, #3
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	adds r5, r4, r5
-	str r5, [sp, #0x1f4]
-	mov r7, sp
-	adds r7, #0x70
-	str r7, [sp, #0x230]
-	ldr r0, .L080600BC @ =0x000006C4
-	adds r0, r4, r0
-	str r0, [sp, #0x1f8]
-	mov r1, sp
-	adds r1, #0x7c
-	str r1, [sp, #0x234]
-	movs r2, #0xe9
-	lsls r2, r2, #3
-	adds r2, r4, r2
-	str r2, [sp, #0x1fc]
-	adds r3, #0x24
-	str r3, [sp, #0x23c]
-	ldr r5, .L080600C0 @ =0x000007CC
-	adds r5, r4, r5
-	str r5, [sp, #0x200]
-	adds r7, #0x24
-	str r7, [sp, #0x240]
-	movs r0, #0x85
-	lsls r0, r0, #4
-	adds r0, r4, r0
-	str r0, [sp, #0x204]
-	adds r1, #0x24
-	str r1, [sp, #0x244]
-	ldr r2, .L080600C4 @ =0x000008D4
-	adds r2, r4, r2
-	str r2, [sp, #0x208]
-	adds r3, #0x74
-	str r3, [sp, #0x248]
-	ldr r5, .L080600C8 @ =0x00000958
-	adds r5, r4, r5
-	str r5, [sp, #0x20c]
-	movs r7, #0x80
-	lsls r7, r7, #1
-	add r7, sp
-	str r7, [sp, #0x24c]
-	mov r0, sp
-	adds r0, #0x48
-	str r0, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
-	movs r1, #0xaa
-	lsls r1, r1, #1
-	add r1, sp
-	str r1, [sp, #0x274]
-	ldr r2, .L080600CC @ =0x00001568
-	adds r2, r4, r2
-	str r2, [sp, #.Lfarm_overview_sp_horse_name_tiles]
-	movs r3, #0xac
-	lsls r3, r3, #1
-	add r3, sp
-	str r3, [sp, #0x278]
-	movs r4, #0xb2
-	lsls r4, r4, #1
-	add r4, sp
-	str r4, [sp, #0x27c]
-	movs r5, #0xb4
-	lsls r5, r5, #1
-	add r5, sp
-	str r5, [sp, #0x280]
-	movs r7, #0x38
-	lsls r7, r7, #0x10
-	str r7, [sp, #0x238]
-	b .Lfarm_overview_draw_first_blank_label
-	.align 2, 0
-.L080600A4: .4byte -.Lfarm_overview_stack_bytes
-.L080600A8: .4byte gFarmReportPropertySuffix
-.L080600AC: .4byte .Lfarm_overview_vtable
-.L080600B0: .4byte gFarmOverviewReportVTable
-.L080600B4: .4byte gFarmReportBlankLabel
-.L080600B8: .4byte 0x000005BC
-.L080600BC: .4byte 0x000006C4
-.L080600C0: .4byte 0x000007CC
-.L080600C4: .4byte 0x000008D4
-.L080600C8: .4byte 0x00000958
-.L080600CC: .4byte 0x00001568
-.L080600D0:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	str r0, [sp, #0x60]
-	ldr r0, [r6]
-	subs r0, r1, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x5c]
-	add r1, sp, #0x60
-	add r0, sp, #0x5c
-	cmp r4, #1
-	bhs .L080600E8
-	adds r0, r1, #0
-.L080600E8:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060106
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0806010A
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0806010A
-.L08060106:
-	movs r0, #0
-	mov sb, r0
-.L0806010A:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	mov r4, sp
-	adds r4, #0x64
-	str r4, [sp, #0x22c]
-	movs r7, #0xc8
-	lsls r7, r7, #3
-	ldr r5, [sp, #.Lfarm_overview_sp_report]
-	adds r7, r5, r7
-	str r7, [sp, #0x1f4]
-	mov r0, sp
-	adds r0, #0x70
-	str r0, [sp, #0x230]
-	ldr r1, .L080601DC @ =0x000006C4
-	adds r1, r5, r1
-	str r1, [sp, #0x1f8]
-	adds r4, #0x18
-	str r4, [sp, #0x234]
-	movs r7, #0xe9
-	lsls r7, r7, #3
-	adds r7, r5, r7
-	str r7, [sp, #0x1fc]
-	adds r0, #0x18
-	str r0, [sp, #0x23c]
-	ldr r1, .L080601E0 @ =0x000007CC
-	adds r1, r5, r1
-	str r1, [sp, #0x200]
-	adds r4, #0x18
-	str r4, [sp, #0x240]
-	movs r7, #0x85
-	lsls r7, r7, #4
-	adds r7, r5, r7
-	str r7, [sp, #0x204]
-	adds r0, #0x18
-	str r0, [sp, #0x244]
-	ldr r1, .L080601E4 @ =0x000008D4
-	adds r1, r5, r1
-	str r1, [sp, #0x208]
-	adds r4, #0x68
-	str r4, [sp, #0x248]
-	ldr r7, .L080601E8 @ =0x00000958
-	adds r7, r5, r7
-	str r7, [sp, #0x20c]
-	movs r0, #0x80
-	lsls r0, r0, #1
-	add r0, sp
-	str r0, [sp, #0x24c]
-	mov r1, sp
-	adds r1, #0x48
-	str r1, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
-	movs r4, #0xaa
-	lsls r4, r4, #1
-	add r4, sp
-	str r4, [sp, #0x274]
-	ldr r7, .L080601EC @ =0x00001568
-	adds r7, r5, r7
-	str r7, [sp, #.Lfarm_overview_sp_horse_name_tiles]
-	movs r0, #0xac
-	lsls r0, r0, #1
-	add r0, sp
-	str r0, [sp, #0x278]
-	movs r1, #0xb2
-	lsls r1, r1, #1
-	add r1, sp
-	str r1, [sp, #0x27c]
-	movs r4, #0xb4
-	lsls r4, r4, #1
-	add r4, sp
-	str r4, [sp, #0x280]
-	movs r5, #0x38
-	lsls r5, r5, #0x10
-	str r5, [sp, #0x238]
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r7
-	beq .L080601BE
-.L080601A4:
-	cmp r3, #0
-	beq .L080601B4
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080601B4:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L080601A4
-.L080601BE:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x60]
-	cmp r0, #1
-	bne .L080601F0
-	cmp r5, #0
-	beq .L080601D6
-	adds r0, r5, #0
-	mov r1, r8
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080601D6:
-	adds r5, #0x10
-	b .L08060212
-	.align 2, 0
-.L080601DC: .4byte 0x000006C4
-.L080601E0: .4byte 0x000007CC
-.L080601E4: .4byte 0x000008D4
-.L080601E8: .4byte 0x00000958
-.L080601EC: .4byte 0x00001568
-.L080601F0:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060210
-.L080601F8:
-	cmp r2, #0
-	beq .L08060208
-	adds r0, r2, #0
-	mov r1, r8
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060208:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080601F8
-.L08060210:
-	adds r5, r2, #0
-.L08060212:
-	CommitFarmOverviewTransferList sb, r7
-	@ Rasterize the fixed-width text labels before filling the panel.
-.Lfarm_overview_draw_first_blank_label:
-	ldr r2, .L08060298 @ =gFarmReportBlankLabel
-	movs r1, #2
-	add r0, sp, #0x64
-	strh r1, [r0]
-	ldr r0, [sp, #0x22c]
-	strh r1, [r0, #2]
-	ldr r0, [sp, #0x64]
-	str r2, [sp]
-	ldr r1, [sp, #0x1f4]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	movs r3, #0x3c
-	lsls r2, r3, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	ldr r1, [sp, #0x1f4]
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L0806029C
-	cmp r1, #0
-	beq .L08060288
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060288:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	movs r0, #0x3c
-	lsls r0, r0, #0x10
-	str r0, [sp, #0x260]
-	b .L08060366
-	.align 2, 0
-.L08060298: .4byte gFarmReportBlankLabel
-.L0806029C:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	str r0, [sp, #0x6c]
-	ldr r0, [r6]
-	subs r0, r1, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x68]
-	add r1, sp, #0x6c
-	add r0, sp, #0x68
-	cmp r4, #1
-	bhs .L080602B4
-	adds r0, r1, #0
-.L080602B4:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080602D2
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080602D6
-	mov r0, r8
-	bl func_080D3BC0
-	b .L080602D6
-.L080602D2:
-	movs r0, #0
-	mov r8, r0
-.L080602D6:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	movs r4, #0x3c
-	lsls r4, r4, #0x10
-	str r4, [sp, #0x260]
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	beq .L08060304
-.L080602EA:
-	cmp r3, #0
-	beq .L080602FA
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080602FA:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r7
-	bne .L080602EA
-.L08060304:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x6c]
-	cmp r0, #1
-	bne .L08060320
-	cmp r5, #0
-	beq .L0806031C
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806031C:
-	adds r5, #0x10
-	b .L08060342
-.L08060320:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060340
-.L08060328:
-	cmp r2, #0
-	beq .L08060338
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060338:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060328
-.L08060340:
-	adds r5, r2, #0
-.L08060342:
-	CommitFarmOverviewTransferList r8, r7
-.L08060366:
-	ldr r2, .L080603B8 @ =gFarmReportBlankLabel
-	movs r1, #2
-	add r0, sp, #0x70
-	strh r1, [r0]
-	ldr r0, [sp, #0x230]
-	strh r1, [r0, #2]
-	ldr r0, [sp, #0x70]
-	str r2, [sp]
-	ldr r1, [sp, #0x1f8]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r2, .L080603BC @ =0x06000800
-	add r0, sp, #0x38
-	ldr r1, [sp, #0x1f8]
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080603C0
-	cmp r1, #0
-	beq .L080603B0
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080603B0:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08060486
-	.align 2, 0
-.L080603B8: .4byte gFarmReportBlankLabel
-.L080603BC: .4byte 0x06000800
-.L080603C0:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	str r0, [sp, #0x78]
-	ldr r0, [r6]
-	adds r5, r1, #0
-	subs r0, r5, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x74]
-	add r1, sp, #0x78
-	add r0, sp, #0x74
-	cmp r4, #1
-	bhs .L080603DA
-	adds r0, r1, #0
-.L080603DA:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080603F8
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080603FC
-	mov r0, r8
-	bl func_080D3BC0
-	b .L080603FC
-.L080603F8:
-	movs r0, #0
-	mov r8, r0
-.L080603FC:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r7
-	beq .L08060424
-.L0806040A:
-	cmp r3, #0
-	beq .L0806041A
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806041A:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L0806040A
-.L08060424:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x78]
-	cmp r0, #1
-	bne .L08060440
-	cmp r5, #0
-	beq .L0806043C
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806043C:
-	adds r5, #0x10
-	b .L08060462
-.L08060440:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060460
-.L08060448:
-	cmp r2, #0
-	beq .L08060458
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060458:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060448
-.L08060460:
-	adds r5, r2, #0
-.L08060462:
-	CommitFarmOverviewTransferList r8, r7
-.L08060486:
-	ldr r2, .L080604E8 @ =gFarmReportBlankLabel
-	movs r1, #2
-	add r0, sp, #0x7c
-	strh r1, [r0]
-	ldr r0, [sp, #0x234]
-	strh r1, [r0, #2]
-	ldr r0, [sp, #0x7c]
-	str r2, [sp]
-	ldr r1, [sp, #0x1fc]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	movs r3, #0x44
-	lsls r2, r3, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	ldr r1, [sp, #0x1fc]
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080604EC
-	cmp r1, #0
-	beq .L080604D8
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080604D8:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	movs r0, #0x44
-	lsls r0, r0, #0x10
-	str r0, [sp, #0x1e4]
-	b .L080605B6
-	.align 2, 0
-.L080604E8: .4byte gFarmReportBlankLabel
-.L080604EC:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	str r0, [sp, #0x84]
-	ldr r0, [r6]
-	subs r0, r1, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x80]
-	add r1, sp, #0x84
-	add r0, sp, #0x80
-	cmp r4, #1
-	bhs .L08060504
-	adds r0, r1, #0
-.L08060504:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060522
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08060526
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08060526
-.L08060522:
-	movs r0, #0
-	mov r8, r0
-.L08060526:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	movs r4, #0x44
-	lsls r4, r4, #0x10
-	str r4, [sp, #0x1e4]
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	beq .L08060554
-.L0806053A:
-	cmp r3, #0
-	beq .L0806054A
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806054A:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r7
-	bne .L0806053A
-.L08060554:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x84]
-	cmp r0, #1
-	bne .L08060570
-	cmp r5, #0
-	beq .L0806056C
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806056C:
-	adds r5, #0x10
-	b .L08060592
-.L08060570:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060590
-.L08060578:
-	cmp r2, #0
-	beq .L08060588
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060588:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060578
-.L08060590:
-	adds r5, r2, #0
-.L08060592:
-	CommitFarmOverviewTransferList r8, r7
-.L080605B6:
-	ldr r2, .L08060618 @ =gFarmReportBlankLabel
-	movs r0, #2
-	add r1, sp, #0x88
-	strh r0, [r1]
-	ldr r3, [sp, #0x23c]
-	strh r0, [r3, #2]
-	ldr r0, [r1]
-	str r2, [sp]
-	ldr r1, [sp, #0x200]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r4]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	movs r5, #0x48
-	lsls r2, r5, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	ldr r1, [sp, #0x200]
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L0806061C
-	cmp r1, #0
-	beq .L08060608
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060608:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	movs r4, #0x48
-	lsls r4, r4, #0x10
-	str r4, [sp, #0x1e8]
-	b .L080606E6
-	.align 2, 0
-.L08060618: .4byte gFarmReportBlankLabel
-.L0806061C:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x90
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r5, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x8c
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060638
-	adds r0, r1, #0
-.L08060638:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060656
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L0806065A
-	mov r0, r8
-	bl func_080D3BC0
-	b .L0806065A
-.L08060656:
-	movs r0, #0
-	mov r8, r0
-.L0806065A:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	movs r7, #0x48
-	lsls r7, r7, #0x10
-	str r7, [sp, #0x1e8]
-	b .L0806067E
-.L0806066A:
-	cmp r3, #0
-	beq .L0806067A
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806067A:
-	adds r2, #0x10
-	adds r3, #0x10
-.L0806067E:
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L0806066A
-	adds r5, r3, #0
-	ldr r1, [sp, #0x90]
-	cmp r1, #1
-	bne .L080606A0
-	cmp r5, #0
-	beq .L0806069C
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806069C:
-	adds r5, #0x10
-	b .L080606C2
-.L080606A0:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080606C0
-.L080606A8:
-	cmp r2, #0
-	beq .L080606B8
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080606B8:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080606A8
-.L080606C0:
-	adds r5, r2, #0
-.L080606C2:
-	CommitFarmOverviewTransferList r8, r7
-.L080606E6:
-	ldr r2, .L08060748 @ =gFarmReportBlankLabel
-	movs r0, #2
-	add r1, sp, #0x94
-	strh r0, [r1]
-	ldr r3, [sp, #0x240]
-	strh r0, [r3, #2]
-	ldr r0, [r1]
-	str r2, [sp]
-	ldr r1, [sp, #0x204]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r4]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	movs r5, #0x4c
-	lsls r2, r5, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	ldr r1, [sp, #0x204]
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L0806074C
-	cmp r1, #0
-	beq .L08060738
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060738:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	movs r4, #0x4c
-	lsls r4, r4, #0x10
-	str r4, [sp, #0x1ec]
-	b .Lfarm_overview_draw_gold_suffix
-	.align 2, 0
-.L08060748: .4byte gFarmReportBlankLabel
-.L0806074C:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x9c
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r5, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x98
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060768
-	adds r0, r1, #0
-.L08060768:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060786
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L0806078A
-	mov r0, r8
-	bl func_080D3BC0
-	b .L0806078A
-.L08060786:
-	movs r0, #0
-	mov r8, r0
-.L0806078A:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	movs r7, #0x4c
-	lsls r7, r7, #0x10
-	str r7, [sp, #0x1ec]
-	b .L080607AE
-.L0806079A:
-	cmp r3, #0
-	beq .L080607AA
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080607AA:
-	adds r2, #0x10
-	adds r3, #0x10
-.L080607AE:
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L0806079A
-	adds r5, r3, #0
-	ldr r1, [sp, #0x9c]
-	cmp r1, #1
-	bne .L080607D0
-	cmp r5, #0
-	beq .L080607CC
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080607CC:
-	adds r5, #0x10
-	b .L080607F2
-.L080607D0:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080607F0
-.L080607D8:
-	cmp r2, #0
-	beq .L080607E8
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080607E8:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080607D8
-.L080607F0:
-	adds r5, r2, #0
-.L080607F2:
-	CommitFarmOverviewTransferList r8, r7
-.Lfarm_overview_draw_gold_suffix:
-	ldr r2, .L08060878 @ =gFarmReportGoldSuffix
-	movs r0, #2
-	add r1, sp, #0xa0
-	strh r0, [r1]
-	ldr r3, [sp, #0x244]
-	strh r0, [r3, #2]
-	ldr r0, [r1]
-	str r2, [sp]
-	ldr r1, [sp, #0x208]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r4]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	movs r5, #0x50
-	lsls r2, r5, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	ldr r1, [sp, #0x208]
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L0806087C
-	cmp r1, #0
-	beq .L08060868
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060868:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	movs r4, #0x50
-	lsls r4, r4, #0x10
-	str r4, [sp, #0x1f0]
-	b .L08060946
-	.align 2, 0
-.L08060878: .4byte gFarmReportGoldSuffix
-.L0806087C:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xa8
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r5, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xa4
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060898
-	adds r0, r1, #0
-.L08060898:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080608B6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080608BA
-	mov r0, r8
-	bl func_080D3BC0
-	b .L080608BA
-.L080608B6:
-	movs r0, #0
-	mov r8, r0
-.L080608BA:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	movs r7, #0x50
-	lsls r7, r7, #0x10
-	str r7, [sp, #0x1f0]
-	b .L080608DE
-.L080608CA:
-	cmp r3, #0
-	beq .L080608DA
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080608DA:
-	adds r2, #0x10
-	adds r3, #0x10
-.L080608DE:
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L080608CA
-	adds r5, r3, #0
-	ldr r1, [sp, #0xa8]
-	cmp r1, #1
-	bne .L08060900
-	cmp r5, #0
-	beq .L080608FC
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080608FC:
-	adds r5, #0x10
-	b .L08060922
-.L08060900:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060920
-.L08060908:
-	cmp r2, #0
-	beq .L08060918
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060918:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060908
-.L08060920:
-	adds r5, r2, #0
-.L08060922:
-	CommitFarmOverviewTransferList r8, r7
-.L08060946:
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08060988 @ =gUnk_0875196C
-	movs r3, #0x54
-	lsls r2, r3, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L0806098C
-	cmp r1, #0
-	beq .L0806097E
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806097E:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08060A54
-	.align 2, 0
-.L08060988: .4byte gUnk_0875196C
-.L0806098C:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xb0
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r2, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xac
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L080609A8
-	adds r0, r1, #0
-.L080609A8:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080609C6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080609CA
-	mov r0, r8
-	bl func_080D3BC0
-	b .L080609CA
-.L080609C6:
-	movs r0, #0
-	mov r8, r0
-.L080609CA:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r4
-	beq .L080609F2
-.L080609D8:
-	cmp r3, #0
-	beq .L080609E8
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080609E8:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	bne .L080609D8
-.L080609F2:
-	adds r5, r3, #0
-	ldr r1, [sp, #0xb0]
-	cmp r1, #1
-	bne .L08060A0E
-	cmp r5, #0
-	beq .L08060A0A
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060A0A:
-	adds r5, #0x10
-	b .L08060A30
-.L08060A0E:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060A2E
-.L08060A16:
-	cmp r2, #0
-	beq .L08060A26
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060A26:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060A16
-.L08060A2E:
-	adds r5, r2, #0
-.L08060A30:
-	CommitFarmOverviewTransferList r8, r1
-.L08060A54:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r2]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08060A8C @ =gUnk_087519EC
-	add r0, sp, #0x38
-	ldr r2, .L08060A90 @ =0x05000020
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08060A94
-	cmp r1, #0
-	beq .L08060A84
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060A84:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08060B58
-	.align 2, 0
-.L08060A8C: .4byte gUnk_087519EC
-.L08060A90: .4byte 0x05000020
-.L08060A94:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xb8
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xb4
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060AB0
-	adds r0, r1, #0
-.L08060AB0:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060ACE
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08060AD2
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08060AD2
-.L08060ACE:
-	movs r0, #0
-	mov r8, r0
-.L08060AD2:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	b .L08060AF0
-.L08060ADC:
-	cmp r3, #0
-	beq .L08060AEC
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060AEC:
-	adds r2, #0x10
-	adds r3, #0x10
-.L08060AF0:
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L08060ADC
-	adds r5, r3, #0
-	ldr r1, [sp, #0xb8]
-	cmp r1, #1
-	bne .L08060B12
-	cmp r5, #0
-	beq .L08060B0E
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060B0E:
-	adds r5, #0x10
-	b .L08060B34
-.L08060B12:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060B32
-.L08060B1A:
-	cmp r2, #0
-	beq .L08060B2A
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060B2A:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060B1A
-.L08060B32:
-	adds r5, r2, #0
-.L08060B34:
-	CommitFarmOverviewTransferList r8, r7
-.L08060B58:
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08060B98 @ =gUnk_0875254C
-	movs r3, #0x58
-	lsls r2, r3, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08060B9C
-	cmp r1, #0
-	beq .L08060B90
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060B90:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08060C64
-	.align 2, 0
-.L08060B98: .4byte gUnk_0875254C
-.L08060B9C:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xc0
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r2, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xbc
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060BB8
-	adds r0, r1, #0
-.L08060BB8:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060BD6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08060BDA
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08060BDA
-.L08060BD6:
-	movs r0, #0
-	mov r8, r0
-.L08060BDA:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r4
-	beq .L08060C02
-.L08060BE8:
-	cmp r3, #0
-	beq .L08060BF8
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060BF8:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	bne .L08060BE8
-.L08060C02:
-	adds r5, r3, #0
-	ldr r1, [sp, #0xc0]
-	cmp r1, #1
-	bne .L08060C1E
-	cmp r5, #0
-	beq .L08060C1A
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060C1A:
-	adds r5, #0x10
-	b .L08060C40
-.L08060C1E:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060C3E
-.L08060C26:
-	cmp r2, #0
-	beq .L08060C36
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060C36:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060C26
-.L08060C3E:
-	adds r5, r2, #0
-.L08060C40:
-	CommitFarmOverviewTransferList r8, r1
-.L08060C64:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r2]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08060C9C @ =gUnk_087525CC
-	add r0, sp, #0x38
-	ldr r2, .L08060CA0 @ =0x05000040
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08060CA4
-	cmp r1, #0
-	beq .L08060C94
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060C94:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08060D68
-	.align 2, 0
-.L08060C9C: .4byte gUnk_087525CC
-.L08060CA0: .4byte 0x05000040
-.L08060CA4:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xc8
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xc4
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060CC0
-	adds r0, r1, #0
-.L08060CC0:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060CDE
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08060CE2
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08060CE2
-.L08060CDE:
-	movs r0, #0
-	mov r8, r0
-.L08060CE2:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	b .L08060D00
-.L08060CEC:
-	cmp r3, #0
-	beq .L08060CFC
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060CFC:
-	adds r2, #0x10
-	adds r3, #0x10
-.L08060D00:
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L08060CEC
-	adds r5, r3, #0
-	ldr r1, [sp, #0xc8]
-	cmp r1, #1
-	bne .L08060D22
-	cmp r5, #0
-	beq .L08060D1E
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060D1E:
-	adds r5, #0x10
-	b .L08060D44
-.L08060D22:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060D42
-.L08060D2A:
-	cmp r2, #0
-	beq .L08060D3A
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060D3A:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060D2A
-.L08060D42:
-	adds r5, r2, #0
-.L08060D44:
-	CommitFarmOverviewTransferList r8, r7
-.L08060D68:
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08060DA8 @ =gUnk_087530CC
-	movs r3, #0x5c
-	lsls r2, r3, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08060DAC
-	cmp r1, #0
-	beq .L08060DA0
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060DA0:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08060E74
-	.align 2, 0
-.L08060DA8: .4byte gUnk_087530CC
-.L08060DAC:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xd0
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r2, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xcc
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060DC8
-	adds r0, r1, #0
-.L08060DC8:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060DE6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08060DEA
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08060DEA
-.L08060DE6:
-	movs r0, #0
-	mov r8, r0
-.L08060DEA:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r4
-	beq .L08060E12
-.L08060DF8:
-	cmp r3, #0
-	beq .L08060E08
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060E08:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	bne .L08060DF8
-.L08060E12:
-	adds r5, r3, #0
-	ldr r1, [sp, #0xd0]
-	cmp r1, #1
-	bne .L08060E2E
-	cmp r5, #0
-	beq .L08060E2A
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060E2A:
-	adds r5, #0x10
-	b .L08060E50
-.L08060E2E:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060E4E
-.L08060E36:
-	cmp r2, #0
-	beq .L08060E46
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060E46:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060E36
-.L08060E4E:
-	adds r5, r2, #0
-.L08060E50:
-	CommitFarmOverviewTransferList r8, r1
-.L08060E74:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r2]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08060EAC @ =gUnk_0875314C
-	add r0, sp, #0x38
-	ldr r2, .L08060EB0 @ =0x05000060
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08060EB4
-	cmp r1, #0
-	beq .L08060EA4
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060EA4:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08060F78
-	.align 2, 0
-.L08060EAC: .4byte gUnk_0875314C
-.L08060EB0: .4byte 0x05000060
-.L08060EB4:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xd8
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xd4
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060ED0
-	adds r0, r1, #0
-.L08060ED0:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060EEE
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08060EF2
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08060EF2
-.L08060EEE:
-	movs r0, #0
-	mov r8, r0
-.L08060EF2:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	b .L08060F10
-.L08060EFC:
-	cmp r3, #0
-	beq .L08060F0C
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060F0C:
-	adds r2, #0x10
-	adds r3, #0x10
-.L08060F10:
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L08060EFC
-	adds r5, r3, #0
-	ldr r1, [sp, #0xd8]
-	cmp r1, #1
-	bne .L08060F32
-	cmp r5, #0
-	beq .L08060F2E
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060F2E:
-	adds r5, #0x10
-	b .L08060F54
-.L08060F32:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08060F52
-.L08060F3A:
-	cmp r2, #0
-	beq .L08060F4A
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060F4A:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08060F3A
-.L08060F52:
-	adds r5, r2, #0
-.L08060F54:
-	CommitFarmOverviewTransferList r8, r7
-.L08060F78:
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08060FB8 @ =gUnk_0875348C
-	movs r3, #0x5d
-	lsls r2, r3, #5
-	movs r0, #0xc0
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #0x38
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08060FBC
-	cmp r1, #0
-	beq .L08060FB0
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08060FB0:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08061084
-	.align 2, 0
-.L08060FB8: .4byte gUnk_0875348C
-.L08060FBC:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xe0
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r2, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xdc
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L08060FD8
-	adds r0, r1, #0
-.L08060FD8:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08060FF6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08060FFA
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08060FFA
-.L08060FF6:
-	movs r0, #0
-	mov r8, r0
-.L08060FFA:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r4
-	beq .L08061022
-.L08061008:
-	cmp r3, #0
-	beq .L08061018
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061018:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	bne .L08061008
-.L08061022:
-	adds r5, r3, #0
-	ldr r1, [sp, #0xe0]
-	cmp r1, #1
-	bne .L0806103E
-	cmp r5, #0
-	beq .L0806103A
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806103A:
-	adds r5, #0x10
-	b .L08061060
-.L0806103E:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L0806105E
-.L08061046:
-	cmp r2, #0
-	beq .L08061056
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061056:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08061046
-.L0806105E:
-	adds r5, r2, #0
-.L08061060:
-	CommitFarmOverviewTransferList r8, r1
-.L08061084:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r2]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L080610BC @ =gUnk_0875350C
-	add r0, sp, #0x38
-	ldr r2, .L080610C0 @ =0x05000080
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	mov sb, sl
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080610C4
-	cmp r1, #0
-	beq .L080610B4
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080610B4:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lfarm_overview_queue_farmer_portrait
-	.align 2, 0
-.L080610BC: .4byte gUnk_0875350C
-.L080610C0: .4byte 0x05000080
-.L080610C4:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xe8
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xe4
-	str r4, [r0]
-	ldr r2, [r1]
-	cmp r4, r2
-	bhs .L080610E0
-	adds r0, r1, #0
-.L080610E0:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080610FE
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08061102
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08061102
-.L080610FE:
-	movs r0, #0
-	mov r8, r0
-.L08061102:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	b .L08061120
-.L0806110C:
-	cmp r3, #0
-	beq .L0806111C
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806111C:
-	adds r2, #0x10
-	adds r3, #0x10
-.L08061120:
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L0806110C
-	adds r5, r3, #0
-	ldr r1, [sp, #0xe8]
-	cmp r1, #1
-	bne .L08061142
-	cmp r5, #0
-	beq .L0806113E
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806113E:
-	adds r5, #0x10
-	b .L08061164
-.L08061142:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08061162
-.L0806114A:
-	cmp r2, #0
-	beq .L0806115A
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806115A:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L0806114A
-.L08061162:
-	adds r5, r2, #0
-.L08061164:
-	CommitFarmOverviewTransferList r8, r7
-	@ The farmer row contains the name and collected Power Berries.
-.Lfarm_overview_queue_farmer_portrait:
-	movs r0, #4
-	str r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	movs r0, #0x20
-	movs r1, #0
-	mov r2, sl
-	strh r0, [r2]
-	str r1, [r2, #4]
-	ldr r0, .L080611C8 @ =gUnk_08752F8C
-	str r0, [r2, #8]
-	ldr r0, .L080611CC @ =gUnk_0875300C
-	str r0, [r2, #0xc]
-	ldr r3, [sp, #.Lfarm_overview_sp_report]
-	ldr r4, .L080611D0 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r3, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080611D4
-	cmp r1, #0
-	beq .L080611BC
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080611BC:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	movs r3, #7
-	str r3, [sp, #.Lfarm_overview_sp_content_tile_rows]
-	b .L080612AC
-	.align 2, 0
-.L080611C8: .4byte gUnk_08752F8C
-.L080611CC: .4byte gUnk_0875300C
-.L080611D0: .4byte .Lfarm_overview_portrait_uploads
-.L080611D4:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xf0
-	str r0, [r1]
-	ldr r3, [r6]
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r4, r3
-	asrs r4, r0, #4
-	add r0, sp, #0xec
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sb, r1
-	adds r1, r3, #0
-	cmp r4, r2
-	bhs .L080611F4
-	mov r0, sb
-.L080611F4:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08061214
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08061210
-	mov r0, r8
-	bl func_080D3BC0
-.L08061210:
-	ldr r1, [r6]
-	b .L08061218
-.L08061214:
-	movs r0, #0
-	mov r8, r0
-.L08061218:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r3, r1, #0
-	adds r2, r5, #0
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r5, #3
-	str r5, [sp, #.Lfarm_overview_sp_content_tile_rows]
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r3, r7
-	beq .L08061246
-.L0806122C:
-	cmp r2, #0
-	beq .L0806123C
-	adds r0, r2, #0
-	adds r1, r3, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806123C:
-	adds r3, #0x10
-	adds r2, #0x10
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r3, r0
-	bne .L0806122C
-.L08061246:
-	adds r5, r2, #0
-	mov r2, sb
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .L08061264
-	cmp r5, #0
-	beq .L08061260
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061260:
-	adds r5, #0x10
-	b .L08061286
-.L08061264:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08061284
-.L0806126C:
-	cmp r2, #0
-	beq .L0806127C
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L0806127C:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L0806126C
-.L08061284:
-	adds r5, r2, #0
-.L08061286:
-	ldr r2, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08061296
-.L08061290:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L08061290
-.L08061296:
-	cmp r1, #0
-	beq .L080612A0
-	adds r0, r1, #0
-	bl free
-.L080612A0:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L080612AC:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r3, .L08061334 @ =.Lfarm_overview_game_data
-	adds r0, r2, r3
-	ldr r0, [r0]
-	ldr r4, .L08061338 @ =0x00001AA8
-	adds r0, r0, r4
-	ldr r0, [r0]
-	ldr r5, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r1, [r5, #.Lfarm_overview_panel_tilemap]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r4, r7, #6
-	adds r1, r1, r4
-	adds r1, #0x2c
-	movs r2, #0x90
-	lsls r2, r2, #1
-	movs r5, #0x20
-	str r5, [sp]
-	movs r3, #0
-	bl DrawTallMessageNumber
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	adds r0, r0, r4
-	adds r0, #0x2e
-	ldr r2, [sp, #0x1f0]
-	lsrs r1, r2, #0x10
-	movs r4, #0
-	str r4, [sp]
-	str r5, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-	ldr r3, [sp, #.Lfarm_overview_sp_content_tile_rows]
-	str r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r0, r3, #3
-	mov r5, sl
-	strh r0, [r5]
-	str r4, [r5, #4]
-	ldr r0, .L0806133C @ =gUnk_087518CC
-	str r0, [r5, #8]
-	ldr r0, .L08061340 @ =gUnk_0875194C
-	str r0, [r5, #0xc]
-	ldr r7, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, .L08061344 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r7, r0
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08061348
-	cmp r1, #0
-	beq .L08061320
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061320:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r5, r5, #6
-	str r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r7, #4
-	str r7, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
-	b .Lfarm_overview_draw_farmer_name
-	.align 2, 0
-.L08061334: .4byte .Lfarm_overview_game_data
-.L08061338: .4byte 0x00001AA8
-.L0806133C: .4byte gUnk_087518CC
-.L08061340: .4byte gUnk_0875194C
-.L08061344: .4byte .Lfarm_overview_portrait_uploads
-.L08061348:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0xf8
-	str r0, [r1]
-	ldr r3, [r6]
-	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r2, r3
-	asrs r4, r0, #4
-	add r0, sp, #0xf4
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sb, r1
-	adds r1, r3, #0
-	cmp r4, r2
-	bhs .L08061368
-	mov r0, sb
-.L08061368:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08061388
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08061384
-	mov r0, r8
-	bl func_080D3BC0
-.L08061384:
-	ldr r1, [r6]
-	b .L0806138C
-.L08061388:
-	movs r0, #0
-	mov r8, r0
-.L0806138C:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r3, r1, #0
-	adds r2, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r4, r4, #6
-	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r5, #4
-	str r5, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r3, r7
-	beq .L080613C0
-.L080613A6:
-	cmp r2, #0
-	beq .L080613B6
-	adds r0, r2, #0
-	adds r1, r3, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080613B6:
-	adds r3, #0x10
-	adds r2, #0x10
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r3, r0
-	bne .L080613A6
-.L080613C0:
-	adds r5, r2, #0
-	mov r2, sb
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .L080613DE
-	cmp r5, #0
-	beq .L080613DA
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080613DA:
-	adds r5, #0x10
-	b .L08061400
-.L080613DE:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080613FE
-.L080613E6:
-	cmp r2, #0
-	beq .L080613F6
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080613F6:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080613E6
-.L080613FE:
-	adds r5, r2, #0
-.L08061400:
-	ldr r2, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08061410
-.L0806140A:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L0806140A
-.L08061410:
-	cmp r1, #0
-	beq .L0806141A
-	adds r0, r1, #0
-	bl free
-.L0806141A:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.Lfarm_overview_draw_farmer_name:
-	movs r4, #0xc
-	movs r5, #2
-	add r0, sp, #0xfc
-	strh r4, [r0]
-	ldr r2, [sp, #0x248]
-	strh r5, [r2, #2]
-	ldr r0, [r0]
-	ldr r1, [sp, #0x20c]
-	movs r2, #0
-	bl FillMessageTiles
-	ldr r3, [sp, #.Lfarm_overview_sp_report]
-	ldr r7, .L080614A0 @ =.Lfarm_overview_game_data
-	adds r0, r3, r7
-	ldr r0, [r0]
-	ldr r1, .L080614A4 @ =0x00001BD8
-	adds r0, r0, r1
-	bl GetFarmerName
-	adds r1, r0, #0
-	add r0, sp, #0x100
-	strh r4, [r0]
-	ldr r2, [sp, #0x24c]
-	strh r5, [r2, #2]
-	ldr r0, [r0]
-	str r1, [sp]
-	ldr r1, [sp, #0x20c]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r3, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r3]
-	bl HardwareContext_GetDmaQueue
-	movs r3, #0xc0
-	lsls r3, r3, #2
-	adds r6, r0, #0
-	add r0, sp, #0x48
-	ldr r1, [sp, #0x20c]
-	ldr r2, .L080614A8 @ =0x06003000
-	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080614AC
-	cmp r1, #0
-	beq .L08061498
-	adds r0, r1, #0
-	adds r1, r4, #0
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061498:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08061578
-	.align 2, 0
-.L080614A0: .4byte .Lfarm_overview_game_data
-.L080614A4: .4byte 0x00001BD8
-.L080614A8: .4byte 0x06003000
-.L080614AC:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r2, sp, #0x108
-	str r0, [r2]
-	ldr r0, [r6]
-	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r3, r0
-	asrs r4, r0, #4
-	add r1, sp, #0x104
-	str r4, [r1]
-	adds r3, r2, #0
-	ldr r0, [r2]
-	cmp r4, r0
-	bhs .L080614CA
-	adds r1, r3, #0
-.L080614CA:
-	ldr r0, [r1]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080614E8
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080614EC
-	mov r0, r8
-	bl func_080D3BC0
-	b .L080614EC
-.L080614E8:
-	movs r0, #0
-	mov r8, r0
-.L080614EC:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r4
-	beq .L08061514
-.L080614FA:
-	cmp r3, #0
-	beq .L0806150A
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806150A:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	bne .L080614FA
-.L08061514:
-	adds r5, r3, #0
-	add r0, sp, #0x108
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08061532
-	cmp r5, #0
-	beq .L0806152E
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806152E:
-	adds r5, #0x10
-	b .L08061554
-.L08061532:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08061552
-.L0806153A:
-	cmp r2, #0
-	beq .L0806154A
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806154A:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L0806153A
-.L08061552:
-	adds r5, r2, #0
-.L08061554:
-	CommitFarmOverviewTransferList r8, r1
-.L08061578:
-	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
-	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r0, r0, r3
-	adds r0, #4
-	movs r1, #0xc0
-	lsls r1, r1, #1
-	movs r2, #0
-	str r2, [sp]
-	movs r6, #0x20
-	str r6, [sp, #4]
-	movs r2, #0xc
-	movs r3, #2
-	bl FillMessageTilemapRect
-	ldr r5, [sp, #.Lfarm_overview_sp_report]
-	ldr r7, .L08061658 @ =.Lfarm_overview_game_data
-	adds r4, r5, r7
-	ldr r0, [r4]
-	ldr r5, .L0806165C @ =0x00001BD8
-	adds r0, r0, r5
-	bl func_0800E53C
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L080615CA
-	ldr r1, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r1, #2
-	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
-	lsls r1, r1, #6
-	adds r0, r0, r1
-	adds r0, #4
-	movs r1, #0x5d
-	movs r2, #4
-	str r2, [sp]
-	str r6, [sp, #4]
-	movs r2, #1
-	movs r3, #1
-	bl FillMessageTilemapRect
-.L080615CA:
-	ldr r0, [r4]
-	adds r0, r0, r5
-	bl func_0800E530
-	adds r6, r0, #0
-	movs r4, #0
-	cmp r4, r6
-	bhs .Lfarm_overview_check_for_spouse
-	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r0, #2
-	lsls r0, r0, #6
-	mov r8, r0
-	movs r5, #8
-	movs r3, #0x5c
-	lsls r7, r3, #0x10
-.L080615E8:
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	add r0, r8
-	adds r0, r0, r5
-	movs r1, #3
-	str r1, [sp]
-	movs r1, #0x20
-	str r1, [sp, #4]
-	lsrs r1, r7, #0x10
-	movs r2, #1
-	movs r3, #1
-	bl FillMessageTilemapRect
-	adds r5, #2
-	adds r4, #1
-	cmp r4, r6
-	blo .L080615E8
-.Lfarm_overview_check_for_spouse:
-	ldr r2, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
-	str r2, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	ldr r3, [sp, #.Lfarm_overview_sp_report]
-	ldr r5, .L08061658 @ =.Lfarm_overview_game_data
-	adds r4, r3, r5
-	ldr r0, [r4]
-	ldr r7, .L08061660 @ =0x00001CD4
-	adds r0, r0, r7
-	bl HasRosterEntry
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	bne .Lfarm_overview_select_spouse_portrait
-	bl .Lfarm_overview_dog_row
-	@ Only spouse NPC IDs with a matching portrait get a row.
-.Lfarm_overview_select_spouse_portrait:
-	ldr r0, [r4]
-	adds r1, r7, #0
-	adds r0, r0, r1
-	bl GetRosterMarriageCandidate
-	str r0, [sp, #.Lfarm_overview_sp_spouse_id]
-	ldr r0, [r4]
-	adds r2, r7, #0
-	adds r0, r0, r2
-	ldr r1, [sp, #.Lfarm_overview_sp_spouse_id]
-	bl GetRosterBacheloretteById
-	str r0, [sp, #.Lfarm_overview_sp_spouse]
-	ldr r0, [sp, #.Lfarm_overview_sp_spouse_id]
-	subs r0, #3
-	cmp r0, #0x1c
-	bls .L0806164C
-	b .Lfarm_overview_skip_unsupported_spouse
-.L0806164C:
-	lsls r0, r0, #2
-	ldr r1, .L08061664 @ =.Lfarm_overview_spouse_portrait_table
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L08061658: .4byte .Lfarm_overview_game_data
-.L0806165C: .4byte 0x00001BD8
-.L08061660: .4byte 0x00001CD4
-.L08061664: .4byte .Lfarm_overview_spouse_portrait_table
-.Lfarm_overview_spouse_portrait_table: @ NPC ID minus 3
-	.4byte .L080616DC @ case 0
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 1
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 2
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 3
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 4
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 5
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 6
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 7
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 8
-	.4byte .L080616F0 @ case 9
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 10
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 11
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 12
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 13
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 14
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 15
-	.4byte .L08061704 @ case 16
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 17
-	.4byte .L0806172C @ case 18
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 19
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 20
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 21
-	.4byte .L08061718 @ case 22
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 23
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 24
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 25
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 26
-	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 27
-	.4byte .L08061740 @ case 28
-.L080616DC:
-	ldr r0, .L080616E8 @ =gUnk_08751A0C
-	mov r3, sl
-	str r0, [r3, #8]
-	ldr r0, .L080616EC @ =gUnk_08751A8C
-	str r0, [r3, #0xc]
-	b .L08061758
-	.align 2, 0
-.L080616E8: .4byte gUnk_08751A0C
-.L080616EC: .4byte gUnk_08751A8C
-.L080616F0:
-	ldr r0, .L080616FC @ =gUnk_08752E4C
-	mov r4, sl
-	str r0, [r4, #8]
-	ldr r0, .L08061700 @ =gUnk_08752ECC
-	str r0, [r4, #0xc]
-	b .L08061758
-	.align 2, 0
-.L080616FC: .4byte gUnk_08752E4C
-.L08061700: .4byte gUnk_08752ECC
-.L08061704:
-	ldr r0, .L08061710 @ =gUnk_087524AC
-	mov r5, sl
-	str r0, [r5, #8]
-	ldr r0, .L08061714 @ =gUnk_0875252C
-	str r0, [r5, #0xc]
-	b .L08061758
-	.align 2, 0
-.L08061710: .4byte gUnk_087524AC
-.L08061714: .4byte gUnk_0875252C
-.L08061718:
-	ldr r0, .L08061724 @ =gUnk_0875286C
-	mov r7, sl
-	str r0, [r7, #8]
-	ldr r0, .L08061728 @ =gUnk_087528EC
-	str r0, [r7, #0xc]
-	b .L08061758
-	.align 2, 0
-.L08061724: .4byte gUnk_0875286C
-.L08061728: .4byte gUnk_087528EC
-.L0806172C:
-	ldr r0, .L08061738 @ =gUnk_0875302C
-	mov r1, sl
-	str r0, [r1, #8]
-	ldr r0, .L0806173C @ =gUnk_087530AC
-	str r0, [r1, #0xc]
-	b .L08061758
-	.align 2, 0
-.L08061738: .4byte gUnk_0875302C
-.L0806173C: .4byte gUnk_087530AC
-.L08061740:
-	ldr r0, .L0806174C @ =gUnk_0875240C
-	mov r2, sl
-	str r0, [r2, #8]
-	ldr r0, .L08061750 @ =gUnk_0875248C
-	str r0, [r2, #0xc]
-	b .L08061758
-	.align 2, 0
-.L0806174C: .4byte gUnk_0875240C
-.L08061750: .4byte gUnk_0875248C
-.Lfarm_overview_skip_unsupported_spouse:
-	movs r3, #0
-	str r3, [sp, #.Lfarm_overview_sp_spouse]
-.L08061758:
-	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r4, #5
-	str r4, [sp, #.Lfarm_overview_sp_dog_tile_row]
-	ldr r5, [sp, #.Lfarm_overview_sp_spouse]
-	cmp r5, #0
-	bne .L08061766
-	b .Lfarm_overview_find_active_npc
-.L08061766:
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r0, r7, #3
-	movs r1, #0
-	mov r2, sl
-	strh r0, [r2]
-	str r1, [r2, #4]
-	ldr r3, [sp, #.Lfarm_overview_sp_report]
-	ldr r4, .L080617C8 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r3, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080617D0
-	cmp r1, #0
-	beq .L08061790
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061790:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r3, r3, #6
-	str r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	movs r4, #0x8a
-	lsls r4, r4, #1
-	add r4, sp
-	str r4, [sp, #0x250]
-	ldr r5, [sp, #.Lfarm_overview_sp_report]
-	ldr r7, .L080617CC @ =0x00000C5C
-	adds r5, r5, r7
-	mov sb, r5
-	movs r0, #0x8c
-	lsls r0, r0, #1
-	add r0, sp
-	str r0, [sp, #0x254]
-	movs r1, #0x92
-	lsls r1, r1, #1
-	add r1, sp
-	str r1, [sp, #0x258]
-	movs r2, #0x94
-	lsls r2, r2, #1
-	add r2, sp
-	str r2, [sp, #0x25c]
-	b .L080618D8
-	.align 2, 0
-.L080617C8: .4byte .Lfarm_overview_portrait_uploads
-.L080617CC: .4byte 0x00000C5C
-.L080617D0:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x110
-	str r0, [r1]
-	ldr r2, [r6]
-	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r3, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x10c
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x10c
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L080617F2
-	adds r3, r5, #0
-.L080617F2:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08061812
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L0806180E
-	mov r0, r8
-	bl func_080D3BC0
-.L0806180E:
-	ldr r1, [r6]
-	b .L08061816
-.L08061812:
-	movs r0, #0
-	mov r8, r0
-.L08061816:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r4, r4, #6
-	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	movs r5, #0x8a
-	lsls r5, r5, #1
-	add r5, sp
-	str r5, [sp, #0x250]
-	ldr r7, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, .L08061854 @ =0x00000C5C
-	adds r7, r7, r0
-	mov sb, r7
-	movs r1, #0x8c
-	lsls r1, r1, #1
-	add r1, sp
-	str r1, [sp, #0x254]
-	movs r4, #0x92
-	lsls r4, r4, #1
-	add r4, sp
-	str r4, [sp, #0x258]
-	movs r5, #0x94
-	lsls r5, r5, #1
-	add r5, sp
-	str r5, [sp, #0x25c]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r7, #5
-	str r7, [sp, #.Lfarm_overview_sp_dog_tile_row]
-	b .L0806186C
-	.align 2, 0
-.L08061854: .4byte 0x00000C5C
-.L08061858:
-	cmp r3, #0
-	beq .L08061868
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061868:
-	adds r2, #0x10
-	adds r3, #0x10
-.L0806186C:
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L08061858
-	adds r5, r3, #0
-	add r0, sp, #0x110
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08061890
-	cmp r5, #0
-	beq .L0806188C
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L0806188C:
-	adds r5, #0x10
-	b .L080618B2
-.L08061890:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080618B0
-.L08061898:
-	cmp r2, #0
-	beq .L080618A8
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080618A8:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08061898
-.L080618B0:
-	adds r5, r2, #0
-.L080618B2:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L080618C2
-.L080618BC:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L080618BC
-.L080618C2:
-	cmp r1, #0
-	beq .L080618CC
-	adds r0, r1, #0
-	bl free
-.L080618CC:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L080618D8:
-	movs r4, #0xc
-	movs r5, #2
-	add r0, sp, #0x114
-	strh r4, [r0]
-	ldr r1, [sp, #0x250]
-	strh r5, [r1, #2]
-	ldr r0, [r0]
-	mov r1, sb
-	movs r2, #0
-	bl FillMessageTiles
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r3, .L08061954 @ =.Lfarm_overview_game_data
-	adds r0, r2, r3
-	ldr r0, [r0]
-	ldr r7, .L08061958 @ =0x00001CD4
-	adds r0, r0, r7
-	ldr r1, [sp, #.Lfarm_overview_sp_spouse_id]
-	bl GetRosterNpcName
-	adds r1, r0, #0
-	add r0, sp, #0x118
-	strh r4, [r0]
-	ldr r2, [sp, #0x254]
-	strh r5, [r2, #2]
-	ldr r0, [r0]
-	str r1, [sp]
-	mov r1, sb
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r3, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r3]
-	bl HardwareContext_GetDmaQueue
-	movs r3, #0xc0
-	lsls r3, r3, #2
-	adds r6, r0, #0
-	add r0, sp, #0x48
-	mov r1, sb
-	ldr r2, .L0806195C @ =0x06003300
-	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08061960
-	cmp r1, #0
-	beq .L0806194C
-	adds r0, r1, #0
-	adds r1, r4, #0
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806194C:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08061A2E
-	.align 2, 0
-.L08061954: .4byte .Lfarm_overview_game_data
-.L08061958: .4byte 0x00001CD4
-.L0806195C: .4byte 0x06003300
-.L08061960:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x120
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r3, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x11c
-	str r4, [r0]
-	adds r2, r1, #0
-	ldr r0, [r1]
-	add r1, sp, #0x11c
-	cmp r4, r0
-	bhs .L08061980
-	adds r1, r2, #0
-.L08061980:
-	ldr r0, [r1]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0806199E
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080619A2
-	mov r0, r8
-	bl func_080D3BC0
-	b .L080619A2
-.L0806199E:
-	movs r0, #0
-	mov r8, r0
-.L080619A2:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r4
-	beq .L080619CA
-.L080619B0:
-	cmp r3, #0
-	beq .L080619C0
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080619C0:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	bne .L080619B0
-.L080619CA:
-	adds r5, r3, #0
-	add r0, sp, #0x120
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L080619E8
-	cmp r5, #0
-	beq .L080619E4
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080619E4:
-	adds r5, #0x10
-	b .L08061A0A
-.L080619E8:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08061A08
-.L080619F0:
-	cmp r2, #0
-	beq .L08061A00
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061A00:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080619F0
-.L08061A08:
-	adds r5, r2, #0
-.L08061A0A:
-	CommitFarmOverviewTransferList r8, r1
-.L08061A2E:
-	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
-	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r0, r0, r3
-	adds r0, #4
-	movs r1, #0xcc
-	lsls r1, r1, #1
-	movs r2, #0
-	str r2, [sp]
-	movs r2, #0x20
-	str r2, [sp, #4]
-	movs r2, #0xc
-	movs r3, #2
-	bl FillMessageTilemapRect
-	movs r0, #0xa
-	add r4, sp, #0x124
-	str r0, [r4]
-	ldr r0, [sp, #.Lfarm_overview_sp_spouse]
-	bl GetLove__C12Bachelorette
-	ldr r1, .L08061B28 @ =0x00001999
-	bl __udivsi3
-	add r1, sp, #0x128
-	str r0, [r1]
-	ldr r1, [r4]
-	ldr r2, [sp, #0x258]
-	cmp r1, r0
-	bls .L08061A6C
-	ldr r2, [sp, #0x25c]
-.L08061A6C:
-	ldr r6, [r2]
-	movs r4, #0
-	cmp r4, r6
-	bhs .Lfarm_overview_find_active_npc
-	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r0, #2
-	lsls r0, r0, #6
-	mov r8, r0
-	movs r5, #8
-	movs r0, #0x58
-	lsls r7, r0, #0x10
-.L08061A82:
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	add r0, r8
-	adds r0, r0, r5
-	movs r1, #2
-	str r1, [sp]
-	movs r1, #0x20
-	str r1, [sp, #4]
-	lsrs r1, r7, #0x10
-	movs r2, #1
-	movs r3, #1
-	bl FillMessageTilemapRect
-	adds r5, #2
-	adds r4, #1
-	cmp r4, r6
-	blo .L08061A82
-	@ The active NPC has a separate portrait, name, and friendship meter.
-.Lfarm_overview_find_active_npc:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r3, .L08061B2C @ =.Lfarm_overview_game_data
-	adds r0, r2, r3
-	ldr r0, [r0]
-	ldr r4, .L08061B30 @ =0x00001CD4
-	adds r0, r0, r4
-	bl GetActiveRosterNpc
-	str r0, [sp, #.Lfarm_overview_sp_active_npc]
-	cmp r0, #0
-	bne .Lfarm_overview_queue_active_npc_portrait
-	b .Lfarm_overview_set_dog_row
-.Lfarm_overview_queue_active_npc_portrait:
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r0, r5, #3
-	mov r7, sl
-	strh r0, [r7]
-	movs r0, #0x78
-	str r0, [r7, #4]
-	ldr r0, .L08061B34 @ =gUnk_08751AAC
-	str r0, [r7, #8]
-	ldr r0, .L08061B38 @ =gUnk_08751B2C
-	str r0, [r7, #0xc]
-	ldr r0, [sp, #.Lfarm_overview_sp_report]
-	ldr r1, .L08061B3C @ =.Lfarm_overview_portrait_uploads
-	adds r6, r0, r1
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08061B40
-	cmp r1, #0
-	beq .L08061AEE
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061AEE:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r5, r5, #6
-	str r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	movs r7, #0x9a
-	lsls r7, r7, #1
-	add r7, sp
-	str r7, [sp, #0x264]
-	ldr r0, [sp, #.Lfarm_overview_sp_report]
-	movs r1, #0xf6
-	lsls r1, r1, #4
-	adds r0, r0, r1
-	mov sb, r0
-	movs r2, #0x9c
-	lsls r2, r2, #1
-	add r2, sp
-	str r2, [sp, #0x268]
-	movs r3, #0xa2
-	lsls r3, r3, #1
-	add r3, sp
-	str r3, [sp, #0x26c]
-	movs r4, #0xa4
-	lsls r4, r4, #1
-	add r4, sp
-	str r4, [sp, #0x270]
-	b .L08061C44
-	.align 2, 0
-.L08061B28: .4byte 0x00001999
-.L08061B2C: .4byte .Lfarm_overview_game_data
-.L08061B30: .4byte 0x00001CD4
-.L08061B34: .4byte gUnk_08751AAC
-.L08061B38: .4byte gUnk_08751B2C
-.L08061B3C: .4byte .Lfarm_overview_portrait_uploads
-.L08061B40:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x130
-	str r0, [r1]
-	ldr r2, [r6]
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r5, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x12c
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x12c
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L08061B62
-	adds r3, r5, #0
-.L08061B62:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08061B82
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08061B7E
-	mov r0, r8
-	bl func_080D3BC0
-.L08061B7E:
-	ldr r1, [r6]
-	b .L08061B86
-.L08061B82:
-	movs r0, #0
-	mov r8, r0
-.L08061B86:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r7, r7, #6
-	str r7, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	movs r0, #0x9a
-	lsls r0, r0, #1
-	add r0, sp
-	str r0, [sp, #0x264]
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	movs r4, #0xf6
-	lsls r4, r4, #4
-	adds r1, r1, r4
-	mov sb, r1
-	movs r5, #0x9c
-	lsls r5, r5, #1
-	add r5, sp
-	str r5, [sp, #0x268]
-	movs r7, #0xa2
-	lsls r7, r7, #1
-	add r7, sp
-	str r7, [sp, #0x26c]
-	movs r0, #0xa4
-	lsls r0, r0, #1
-	add r0, sp
-	str r0, [sp, #0x270]
-	ldr r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r1
-	beq .L08061BDE
-.L08061BC4:
-	cmp r3, #0
-	beq .L08061BD4
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061BD4:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L08061BC4
-.L08061BDE:
-	adds r5, r3, #0
-	add r0, sp, #0x130
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08061BFC
-	cmp r5, #0
-	beq .L08061BF8
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061BF8:
-	adds r5, #0x10
-	b .L08061C1E
-.L08061BFC:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08061C1C
-.L08061C04:
-	cmp r2, #0
-	beq .L08061C14
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061C14:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08061C04
-.L08061C1C:
-	adds r5, r2, #0
-.L08061C1E:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L08061C2E
-.L08061C28:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L08061C28
-.L08061C2E:
-	cmp r1, #0
-	beq .L08061C38
-	adds r0, r1, #0
-	bl free
-.L08061C38:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L08061C44:
-	movs r4, #0xc
-	movs r5, #2
-	add r0, sp, #0x134
-	strh r4, [r0]
-	ldr r1, [sp, #0x264]
-	strh r5, [r1, #2]
-	ldr r0, [r0]
-	mov r1, sb
-	movs r2, #0
-	bl FillMessageTiles
-	ldr r0, [sp, #.Lfarm_overview_sp_active_npc]
-	bl GetNamedNpcName
-	adds r1, r0, #0
-	add r0, sp, #0x138
-	strh r4, [r0]
-	ldr r2, [sp, #0x268]
-	strh r5, [r2, #2]
-	ldr r0, [r0]
-	str r1, [sp]
-	mov r1, sb
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r3, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r3]
-	bl HardwareContext_GetDmaQueue
-	movs r3, #0xc0
-	lsls r3, r3, #2
-	adds r6, r0, #0
-	add r0, sp, #0x48
-	mov r1, sb
-	ldr r2, .L08061CB4 @ =0x06003600
-	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08061CB8
-	cmp r1, #0
-	beq .L08061CAC
-	adds r0, r1, #0
-	adds r1, r4, #0
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061CAC:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08061D86
-	.align 2, 0
-.L08061CB4: .4byte 0x06003600
-.L08061CB8:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x140
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r3, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x13c
-	str r4, [r0]
-	adds r2, r1, #0
-	ldr r0, [r1]
-	add r1, sp, #0x13c
-	cmp r4, r0
-	bhs .L08061CD8
-	adds r1, r2, #0
-.L08061CD8:
-	ldr r0, [r1]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08061CF6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08061CFA
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08061CFA
-.L08061CF6:
-	movs r0, #0
-	mov r8, r0
-.L08061CFA:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r4
-	beq .L08061D22
-.L08061D08:
-	cmp r3, #0
-	beq .L08061D18
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061D18:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	bne .L08061D08
-.L08061D22:
-	adds r5, r3, #0
-	add r0, sp, #0x140
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08061D40
-	cmp r5, #0
-	beq .L08061D3C
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061D3C:
-	adds r5, #0x10
-	b .L08061D62
-.L08061D40:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08061D60
-.L08061D48:
-	cmp r2, #0
-	beq .L08061D58
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061D58:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08061D48
-.L08061D60:
-	adds r5, r2, #0
-.L08061D62:
-	CommitFarmOverviewTransferList r8, r1
-.L08061D86:
-	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
-	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r0, r0, r3
-	adds r0, #0x22
-	movs r1, #0xd8
-	lsls r1, r1, #1
-	movs r2, #0
-	str r2, [sp]
-	movs r2, #0x20
-	str r2, [sp, #4]
-	movs r2, #0xc
-	movs r3, #2
-	bl FillMessageTilemapRect
-	movs r0, #0xa
-	add r4, sp, #0x144
-	str r0, [r4]
-	ldr r0, [sp, #.Lfarm_overview_sp_active_npc]
-	bl GetFriendship__C3Npc
-	movs r1, #0x19
-	bl __udivsi3
-	add r1, sp, #0x148
-	str r0, [r1]
-	ldr r1, [r4]
-	ldr r2, [sp, #0x26c]
-	cmp r1, r0
-	bls .L08061DC4
-	ldr r2, [sp, #0x270]
-.L08061DC4:
-	ldr r6, [r2]
-	movs r4, #0
-	cmp r4, r6
-	bhs .Lfarm_overview_set_dog_row
-	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r0, #2
-	lsls r0, r0, #6
-	mov r8, r0
-	movs r5, #0x26
-	movs r0, #0x58
-	lsls r7, r0, #0x10
-.L08061DDA:
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	add r0, r8
-	adds r0, r0, r5
-	movs r1, #2
-	str r1, [sp]
-	movs r1, #0x20
-	str r1, [sp, #4]
-	lsrs r1, r7, #0x10
-	movs r2, #1
-	movs r3, #1
-	bl FillMessageTilemapRect
-	adds r5, #2
-	adds r4, #1
-	cmp r4, r6
-	blo .L08061DDA
-.Lfarm_overview_set_dog_row:
-	ldr r2, [sp, #.Lfarm_overview_sp_dog_tile_row]
-	str r2, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-
-	.align 2, 0
-.Lfarm_overview_dog_row: @ Shares InitFarmOverviewReport's stack frame.
-	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r1, r3, #3
-	movs r0, #0
-	mov r4, sl
-	strh r1, [r4]
-	str r0, [r4, #4]
-	ldr r0, .L08061E48 @ =gUnk_08751E6C
-	str r0, [r4, #8]
-	ldr r0, .L08061E4C @ =gUnk_08751EEC
-	str r0, [r4, #0xc]
-	ldr r5, [sp, #.Lfarm_overview_sp_report]
-	ldr r7, .L08061E50 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r5, r7
-	ldr r2, [r6, #4]
-	ldr r0, [r6, #0xc]
-	str r1, [sp, #.Lfarm_overview_sp_portrait_y_pixels]
-	cmp r2, r0
-	beq .L08061E54
-	cmp r2, #0
-	beq .L08061E34
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061E34:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r5, r5, #6
-	str r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r7, #4
-	str r7, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
-	b .L08061F30
-	.align 2, 0
-.L08061E48: .4byte gUnk_08751E6C
-.L08061E4C: .4byte gUnk_08751EEC
-.L08061E50: .4byte .Lfarm_overview_portrait_uploads
-.L08061E54:
-	mov sb, r2
-	movs r0, #1
-	add r1, sp, #0x150
-	str r0, [r1]
-	ldr r2, [r6]
-	mov r3, sb
-	subs r0, r3, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x14c
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x14c
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L08061E76
-	adds r3, r5, #0
-.L08061E76:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08061E96
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08061E92
-	mov r0, r8
-	bl func_080D3BC0
-.L08061E92:
-	ldr r1, [r6]
-	b .L08061E9A
-.L08061E96:
-	movs r0, #0
-	mov r8, r0
-.L08061E9A:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r4, r4, #6
-	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r5, #4
-	str r5, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
-	cmp r2, sb
-	beq .L08061ECA
-.L08061EB2:
-	cmp r3, #0
-	beq .L08061EC2
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061EC2:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sb
-	bne .L08061EB2
-.L08061ECA:
-	adds r5, r3, #0
-	add r0, sp, #0x150
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08061EE8
-	cmp r5, #0
-	beq .L08061EE4
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061EE4:
-	adds r5, #0x10
-	b .L08061F0A
-.L08061EE8:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08061F08
-.L08061EF0:
-	cmp r2, #0
-	beq .L08061F00
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08061F00:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08061EF0
-.L08061F08:
-	adds r5, r2, #0
-.L08061F0A:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L08061F1A
-.L08061F14:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L08061F14
-.L08061F1A:
-	cmp r1, #0
-	beq .L08061F24
-	adds r0, r1, #0
-	bl free
-.L08061F24:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L08061F30:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r3, .L08061FD8 @ =.Lfarm_overview_game_data
-	adds r6, r2, r3
-	ldr r0, [r6]
-	ldr r7, .L08061FDC @ =0x00001C70
-	adds r0, r0, r7
-	bl IsFestivalWinner__C6Animal
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .L08061F64
-	ldr r1, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	subs r1, #2
-	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r4, #.Lfarm_overview_panel_tilemap]
-	lsls r1, r1, #6
-	adds r0, r0, r1
-	movs r1, #0x54
-	movs r2, #1
-	str r2, [sp]
-	movs r2, #0x20
-	str r2, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-.L08061F64:
-	movs r4, #0xc
-	movs r5, #2
-	add r0, sp, #0x154
-	strh r4, [r0]
-	ldr r1, [sp, #0x274]
-	strh r5, [r1, #2]
-	ldr r0, [r0]
-	ldr r1, [sp, #.Lfarm_overview_sp_horse_name_tiles]
-	movs r2, #0
-	bl FillMessageTiles
-	ldr r0, [r6]
-	adds r0, r0, r7
-	bl GetName__C6Animal
-	adds r1, r0, #0
-	add r0, sp, #0x158
-	strh r4, [r0]
-	ldr r2, [sp, #0x278]
-	strh r5, [r2, #2]
-	ldr r0, [r0]
-	str r1, [sp]
-	ldr r1, [sp, #.Lfarm_overview_sp_horse_name_tiles]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r3, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r3]
-	bl HardwareContext_GetDmaQueue
-	movs r3, #0xc0
-	lsls r3, r3, #2
-	adds r6, r0, #0
-	add r0, sp, #0x48
-	ldr r1, [sp, #.Lfarm_overview_sp_horse_name_tiles]
-	ldr r2, .L08061FE0 @ =0x06003900
-	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08061FE4
-	cmp r1, #0
-	beq .L08061FCE
-	adds r0, r1, #0
-	adds r1, r4, #0
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08061FCE:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L080620B2
-	.align 2, 0
-.L08061FD8: .4byte .Lfarm_overview_game_data
-.L08061FDC: .4byte 0x00001C70
-.L08061FE0: .4byte 0x06003900
-.L08061FE4:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x160
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r3, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x15c
-	str r4, [r0]
-	adds r2, r1, #0
-	ldr r0, [r1]
-	add r1, sp, #0x15c
-	cmp r4, r0
-	bhs .L08062004
-	adds r1, r2, #0
-.L08062004:
-	ldr r0, [r1]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08062022
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08062026
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08062026
-.L08062022:
-	movs r0, #0
-	mov r8, r0
-.L08062026:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r4
-	beq .L0806204E
-.L08062034:
-	cmp r3, #0
-	beq .L08062044
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062044:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r5
-	bne .L08062034
-.L0806204E:
-	adds r5, r3, #0
-	add r0, sp, #0x160
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L0806206C
-	cmp r5, #0
-	beq .L08062068
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062068:
-	adds r5, #0x10
-	b .L0806208E
-.L0806206C:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L0806208C
-.L08062074:
-	cmp r2, #0
-	beq .L08062084
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062084:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08062074
-.L0806208C:
-	adds r5, r2, #0
-.L0806208E:
-	CommitFarmOverviewTransferList r8, r1
-.L080620B2:
-	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
-	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r0, r0, r3
-	adds r0, #4
-	movs r1, #0xe4
-	lsls r1, r1, #1
-	movs r2, #0
-	str r2, [sp]
-	movs r2, #0x20
-	str r2, [sp, #4]
-	movs r2, #0xc
-	movs r3, #2
-	bl FillMessageTilemapRect
-	movs r0, #0xa
-	add r4, sp, #0x164
-	str r0, [r4]
-	ldr r5, [sp, #.Lfarm_overview_sp_report]
-	ldr r7, .L080621A8 @ =.Lfarm_overview_game_data
-	adds r0, r5, r7
-	ldr r0, [r0]
-	ldr r1, .L080621AC @ =0x00001C70
-	adds r0, r0, r1
-	bl GetAffection__C6Animal
-	movs r1, #0x19
-	bl __udivsi3
-	add r1, sp, #0x168
-	str r0, [r1]
-	ldr r1, [r4]
-	ldr r2, [sp, #0x27c]
-	cmp r1, r0
-	bls .L080620FA
-	ldr r2, [sp, #0x280]
-.L080620FA:
-	ldr r6, [r2]
-	movs r4, #0
-	cmp r4, r6
-	bhs .Lfarm_overview_horse_row
-	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r0, #2
-	lsls r0, r0, #6
-	mov r8, r0
-	movs r5, #8
-	movs r2, #0x58
-	lsls r7, r2, #0x10
-.L08062110:
-	ldr r3, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r3, #.Lfarm_overview_panel_tilemap]
-	add r0, r8
-	adds r0, r0, r5
-	movs r1, #2
-	str r1, [sp]
-	movs r1, #0x20
-	str r1, [sp, #4]
-	lsrs r1, r7, #0x10
-	movs r2, #1
-	movs r3, #1
-	bl FillMessageTilemapRect
-	adds r5, #2
-	adds r4, #1
-	cmp r4, r6
-	blo .L08062110
-.Lfarm_overview_horse_row:
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	ldr r5, .L080621A8 @ =.Lfarm_overview_game_data
-	adds r0, r4, r5
-	ldr r0, [r0]
-	adds r0, #0x14
-	bl GetHorse__C4Farm
-	str r0, [sp, #.Lfarm_overview_sp_horse]
-	cmp r0, #0
-	bne .Lfarm_overview_queue_horse_portrait
-	b .Lfarm_overview_draw_chicken_count_row
-.Lfarm_overview_queue_horse_portrait:
-	add r7, sp, #.Lfarm_overview_sp_portrait_y_pixels
-	ldrh r0, [r7]
-	mov r7, sl
-	strh r0, [r7]
-	movs r0, #0x78
-	str r0, [r7, #4]
-	ldr r0, .L080621B0 @ =gUnk_087527CC
-	str r0, [r7, #8]
-	ldr r0, .L080621B4 @ =gUnk_0875284C
-	str r0, [r7, #0xc]
-	ldr r0, .L080621B8 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r4, r0
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080621C0
-	cmp r1, #0
-	beq .L08062178
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062178:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	movs r5, #0xba
-	lsls r5, r5, #1
-	add r5, sp
-	str r5, [sp, #0x284]
-	ldr r7, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, .L080621BC @ =0x0000186C
-	adds r7, r7, r0
-	mov sb, r7
-	movs r1, #0xbc
-	lsls r1, r1, #1
-	add r1, sp
-	str r1, [sp, #0x288]
-	movs r2, #0xc2
-	lsls r2, r2, #1
-	add r2, sp
-	str r2, [sp, #0x28c]
-	movs r3, #0xc4
-	lsls r3, r3, #1
-	add r3, sp
-	str r3, [sp, #0x290]
-	b .L080622C0
-	.align 2, 0
-.L080621A8: .4byte .Lfarm_overview_game_data
-.L080621AC: .4byte 0x00001C70
-.L080621B0: .4byte gUnk_087527CC
-.L080621B4: .4byte gUnk_0875284C
-.L080621B8: .4byte .Lfarm_overview_portrait_uploads
-.L080621BC: .4byte 0x0000186C
-.L080621C0:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x170
-	str r0, [r1]
-	ldr r2, [r6]
-	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r4, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x16c
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x16c
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L080621E2
-	adds r3, r5, #0
-.L080621E2:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08062202
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080621FE
-	mov r0, r8
-	bl func_080D3BC0
-.L080621FE:
-	ldr r1, [r6]
-	b .L08062206
-.L08062202:
-	movs r0, #0
-	mov r8, r0
-.L08062206:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	movs r5, #0xba
-	lsls r5, r5, #1
-	add r5, sp
-	str r5, [sp, #0x284]
-	ldr r7, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, .L08062274 @ =0x0000186C
-	adds r7, r7, r0
-	mov sb, r7
-	movs r1, #0xbc
-	lsls r1, r1, #1
-	add r1, sp
-	str r1, [sp, #0x288]
-	movs r4, #0xc2
-	lsls r4, r4, #1
-	add r4, sp
-	str r4, [sp, #0x28c]
-	movs r5, #0xc4
-	lsls r5, r5, #1
-	add r5, sp
-	str r5, [sp, #0x290]
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r7
-	beq .L08062256
-.L0806223C:
-	cmp r3, #0
-	beq .L0806224C
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806224C:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L0806223C
-.L08062256:
-	adds r5, r3, #0
-	add r0, sp, #0x170
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08062278
-	cmp r5, #0
-	beq .L08062270
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062270:
-	adds r5, #0x10
-	b .L0806229A
-	.align 2, 0
-.L08062274: .4byte 0x0000186C
-.L08062278:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08062298
-.L08062280:
-	cmp r2, #0
-	beq .L08062290
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062290:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08062280
-.L08062298:
-	adds r5, r2, #0
-.L0806229A:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L080622AA
-.L080622A4:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L080622A4
-.L080622AA:
-	cmp r1, #0
-	beq .L080622B4
-	adds r0, r1, #0
-	bl free
-.L080622B4:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L080622C0:
-	ldr r0, [sp, #.Lfarm_overview_sp_horse]
-	bl IsFestivalWinner__C6Animal
-	lsls r0, r0, #0x18
-	cmp r0, #0
-	beq .Lfarm_overview_draw_horse_name
-	ldr r1, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	subs r1, #2
-	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
-	lsls r1, r1, #6
-	adds r0, r0, r1
-	adds r0, #0x1e
-	movs r1, #0x54
-	movs r2, #1
-	str r2, [sp]
-	movs r2, #0x20
-	str r2, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-.Lfarm_overview_draw_horse_name:
-	movs r4, #0xc
-	movs r5, #2
-	add r0, sp, #0x174
-	strh r4, [r0]
-	ldr r3, [sp, #0x284]
-	strh r5, [r3, #2]
-	ldr r0, [r0]
-	mov r1, sb
-	movs r2, #0
-	bl FillMessageTiles
-	ldr r0, [sp, #.Lfarm_overview_sp_horse]
-	bl GetName__C6Animal
-	adds r1, r0, #0
-	add r0, sp, #0x178
-	strh r4, [r0]
-	ldr r4, [sp, #0x288]
-	strh r5, [r4, #2]
-	ldr r0, [r0]
-	str r1, [sp]
-	mov r1, sb
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r5, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, [r5]
-	bl HardwareContext_GetDmaQueue
-	movs r3, #0xc0
-	lsls r3, r3, #2
-	adds r6, r0, #0
-	add r0, sp, #0x48
-	mov r1, sb
-	ldr r2, .L0806235C @ =0x06003C00
-	bl DmaCommand_InitializeCopy
-	ldr r7, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
-	mov r8, r7
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08062360
-	cmp r1, #0
-	beq .L08062354
-	adds r0, r1, #0
-	mov r1, r8
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062354:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L0806242E
-	.align 2, 0
-.L0806235C: .4byte 0x06003C00
-.L08062360:
-	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	movs r0, #1
-	add r1, sp, #0x180
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	subs r0, r5, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x17c
-	str r4, [r0]
-	adds r2, r1, #0
-	ldr r0, [r1]
-	add r1, sp, #0x17c
-	cmp r4, r0
-	bhs .L08062380
-	adds r1, r2, #0
-.L08062380:
-	ldr r0, [r1]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0806239E
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L080623A2
-	mov r0, sb
-	bl func_080D3BC0
-	b .L080623A2
-.L0806239E:
-	movs r0, #0
-	mov sb, r0
-.L080623A2:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r7
-	beq .L080623CA
-.L080623B0:
-	cmp r3, #0
-	beq .L080623C0
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080623C0:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
-	cmp r2, r0
-	bne .L080623B0
-.L080623CA:
-	adds r5, r3, #0
-	add r0, sp, #0x180
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L080623E8
-	cmp r5, #0
-	beq .L080623E4
-	adds r0, r5, #0
-	mov r1, r8
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080623E4:
-	adds r5, #0x10
-	b .L0806240A
-.L080623E8:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08062408
-.L080623F0:
-	cmp r2, #0
-	beq .L08062400
-	adds r0, r2, #0
-	mov r1, r8
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062400:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080623F0
-.L08062408:
-	adds r5, r2, #0
-.L0806240A:
-	CommitFarmOverviewTransferList sb, r7
-.L0806242E:
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	ldr r2, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r0, r0, r2
-	adds r0, #0x22
-	movs r1, #0xf0
-	lsls r1, r1, #1
-	movs r2, #0
-	str r2, [sp]
-	movs r2, #0x20
-	str r2, [sp, #4]
-	movs r2, #0xc
-	movs r3, #2
-	bl FillMessageTilemapRect
-	movs r0, #0xa
-	add r4, sp, #0x184
-	str r0, [r4]
-	ldr r0, [sp, #.Lfarm_overview_sp_horse]
-	bl GetAffection__C6Animal
-	movs r1, #0x19
-	bl __udivsi3
-	add r1, sp, #0x188
-	str r0, [r1]
-	ldr r1, [r4]
-	ldr r2, [sp, #0x28c]
-	cmp r1, r0
-	bls .L0806246C
-	ldr r2, [sp, #0x290]
-.L0806246C:
-	ldr r6, [r2]
-	movs r4, #0
-	cmp r4, r6
-	bhs .Lfarm_overview_draw_chicken_count_row
-	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r0, #2
-	lsls r0, r0, #6
-	mov r8, r0
-	movs r5, #0x26
-	movs r3, #0x58
-	lsls r7, r3, #0x10
-.L08062482:
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	add r0, r8
-	adds r0, r0, r5
-	movs r1, #2
-	str r1, [sp]
-	movs r1, #0x20
-	str r1, [sp, #4]
-	lsrs r1, r7, #0x10
-	movs r2, #1
-	movs r3, #1
-	bl FillMessageTilemapRect
-	adds r5, #2
-	adds r4, #1
-	cmp r4, r6
-	blo .L08062482
-	@ The lower panel pairs animal counts with the coop and barn feed stocks.
-.Lfarm_overview_draw_chicken_count_row:
-	ldr r2, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
-	str r2, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r0, r2, #3
-	mov r3, sl
-	strh r0, [r3]
-	movs r0, #0x20
-	str r0, [r3, #4]
-	ldr r0, .L080624E8 @ =gUnk_0875268C
-	str r0, [r3, #8]
-	ldr r0, .L080624EC @ =gUnk_0875270C
-	str r0, [r3, #0xc]
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	ldr r5, .L080624F0 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r4, r5
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080624F4
-	cmp r1, #0
-	beq .L080624D8
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080624D8:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r4, r4, #6
-	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	b .Lfarm_overview_draw_chicken_count
-	.align 2, 0
-.L080624E8: .4byte gUnk_0875268C
-.L080624EC: .4byte gUnk_0875270C
-.L080624F0: .4byte .Lfarm_overview_portrait_uploads
-.L080624F4:
-	mov sb, r1
-	movs r0, #1
-	add r1, sp, #0x190
-	str r0, [r1]
-	ldr r2, [r6]
-	mov r5, sb
-	subs r0, r5, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x18c
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x18c
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L08062516
-	adds r3, r5, #0
-.L08062516:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08062536
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08062532
-	mov r0, r8
-	bl func_080D3BC0
-.L08062532:
-	ldr r1, [r6]
-	b .L0806253A
-.L08062536:
-	movs r0, #0
-	mov r8, r0
-.L0806253A:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r7, r7, #6
-	str r7, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	cmp r2, sb
-	beq .L08062564
-.L0806254C:
-	cmp r3, #0
-	beq .L0806255C
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806255C:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sb
-	bne .L0806254C
-.L08062564:
-	adds r5, r3, #0
-	add r0, sp, #0x190
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08062582
-	cmp r5, #0
-	beq .L0806257E
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L0806257E:
-	adds r5, #0x10
-	b .L080625A4
-.L08062582:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080625A2
-.L0806258A:
-	cmp r2, #0
-	beq .L0806259A
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L0806259A:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L0806258A
-.L080625A2:
-	adds r5, r2, #0
-.L080625A4:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L080625B4
-.L080625AE:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L080625AE
-.L080625B4:
-	cmp r1, #0
-	beq .L080625BE
-	adds r0, r1, #0
-	bl free
-.L080625BE:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.Lfarm_overview_draw_chicken_count:
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r2, .L08062644 @ =.Lfarm_overview_game_data
-	adds r0, r1, r2
-	ldr r0, [r0]
-	movs r3, #0x82
-	lsls r3, r3, #3
-	adds r0, r0, r3
-	bl CountChickens__C4Coop
-	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r1, [r4, #.Lfarm_overview_panel_tilemap]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r1, r1, r5
-	adds r1, #0x12
-	movs r2, #0x90
-	lsls r2, r2, #1
-	movs r4, #0x20
-	str r4, [sp]
-	movs r3, #0
-	bl DrawTallMessageNumber
-	ldr r7, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r7, #.Lfarm_overview_panel_tilemap]
-	adds r0, r0, r5
-	adds r0, #0x14
-	ldr r2, [sp, #0x238]
-	lsrs r1, r2, #0x10
-	movs r2, #0
-	str r2, [sp]
-	str r4, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-	movs r0, #0x94
-	mov r3, sl
-	str r0, [r3, #4]
-	ldr r0, .L08062648 @ =gUnk_087525EC
-	str r0, [r3, #8]
-	ldr r0, .L0806264C @ =gUnk_0875266C
-	str r0, [r3, #0xc]
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	ldr r5, .L08062650 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r4, r5
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08062654
-	cmp r1, #0
-	beq .L0806263A
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L0806263A:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lfarm_overview_draw_chicken_feed_count
-	.align 2, 0
-.L08062644: .4byte .Lfarm_overview_game_data
-.L08062648: .4byte gUnk_087525EC
-.L0806264C: .4byte gUnk_0875266C
-.L08062650: .4byte .Lfarm_overview_portrait_uploads
-.L08062654:
-	mov sb, r1
-	movs r0, #1
-	add r1, sp, #0x198
-	str r0, [r1]
-	ldr r2, [r6]
-	mov r4, sb
-	subs r0, r4, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x194
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x194
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L08062676
-	adds r3, r5, #0
-.L08062676:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08062696
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08062692
-	mov r0, r8
-	bl func_080D3BC0
-.L08062692:
-	ldr r1, [r6]
-	b .L0806269A
-.L08062696:
-	movs r0, #0
-	mov r8, r0
-.L0806269A:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sb
-	beq .L080626BE
-.L080626A6:
-	cmp r3, #0
-	beq .L080626B6
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080626B6:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sb
-	bne .L080626A6
-.L080626BE:
-	adds r5, r3, #0
-	add r0, sp, #0x198
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L080626DC
-	cmp r5, #0
-	beq .L080626D8
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080626D8:
-	adds r5, #0x10
-	b .L080626FE
-.L080626DC:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080626FC
-.L080626E4:
-	cmp r2, #0
-	beq .L080626F4
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080626F4:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080626E4
-.L080626FC:
-	adds r5, r2, #0
-.L080626FE:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L0806270E
-.L08062708:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L08062708
-.L0806270E:
-	cmp r1, #0
-	beq .L08062718
-	adds r0, r1, #0
-	bl free
-.L08062718:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.Lfarm_overview_draw_chicken_feed_count:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r3, .L080627AC @ =.Lfarm_overview_game_data
-	adds r0, r2, r3
-	ldr r0, [r0]
-	movs r4, #0x82
-	lsls r4, r4, #3
-	adds r0, r0, r4
-	bl GetStoredBushelCount__C4Coop
-	ldr r5, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r1, [r5, #.Lfarm_overview_panel_tilemap]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r5, r7, #6
-	adds r1, r1, r5
-	adds r1, #0x32
-	movs r2, #0x90
-	lsls r2, r2, #1
-	movs r4, #0x20
-	str r4, [sp]
-	movs r3, #0
-	bl DrawTallMessageNumber
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	adds r0, r0, r5
-	adds r0, #0x34
-	ldr r2, [sp, #0x1e8]
-	lsrs r1, r2, #0x10
-	movs r2, #0
-	str r2, [sp]
-	str r4, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-	adds r3, r7, #0
-	adds r3, #3
-	str r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r0, r3, #3
-	mov r5, sl
-	strh r0, [r5]
-	str r4, [r5, #4]
-	ldr r0, .L080627B0 @ =gUnk_08751B4C
-	str r0, [r5, #8]
-	ldr r0, .L080627B4 @ =gUnk_08751BCC
-	str r0, [r5, #0xc]
-	ldr r7, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, .L080627B8 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r7, r0
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L080627BC
-	cmp r1, #0
-	beq .L0806279E
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L0806279E:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r5, r5, #6
-	str r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	b .Lfarm_overview_draw_cow_count
-	.align 2, 0
-.L080627AC: .4byte .Lfarm_overview_game_data
-.L080627B0: .4byte gUnk_08751B4C
-.L080627B4: .4byte gUnk_08751BCC
-.L080627B8: .4byte .Lfarm_overview_portrait_uploads
-.L080627BC:
-	mov sb, r1
-	movs r0, #1
-	add r1, sp, #0x1a0
-	str r0, [r1]
-	ldr r2, [r6]
-	mov r7, sb
-	subs r0, r7, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x19c
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x19c
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L080627DE
-	adds r3, r5, #0
-.L080627DE:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080627FE
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080627FA
-	mov r0, r8
-	bl func_080D3BC0
-.L080627FA:
-	ldr r1, [r6]
-	b .L08062802
-.L080627FE:
-	movs r0, #0
-	mov r8, r0
-.L08062802:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r0, r0, #6
-	str r0, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	cmp r2, sb
-	beq .L0806282C
-.L08062814:
-	cmp r3, #0
-	beq .L08062824
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062824:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sb
-	bne .L08062814
-.L0806282C:
-	adds r5, r3, #0
-	add r0, sp, #0x1a0
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L0806284A
-	cmp r5, #0
-	beq .L08062846
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062846:
-	adds r5, #0x10
-	b .L0806286C
-.L0806284A:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L0806286A
-.L08062852:
-	cmp r2, #0
-	beq .L08062862
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062862:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08062852
-.L0806286A:
-	adds r5, r2, #0
-.L0806286C:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L0806287C
-.L08062876:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L08062876
-.L0806287C:
-	cmp r1, #0
-	beq .L08062886
-	adds r0, r1, #0
-	bl free
-.L08062886:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.Lfarm_overview_draw_cow_count:
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r2, .L0806290C @ =.Lfarm_overview_game_data
-	adds r0, r1, r2
-	ldr r0, [r0]
-	movs r3, #0xbe
-	lsls r3, r3, #3
-	adds r0, r0, r3
-	bl CountCows__C4Barn
-	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r1, [r4, #.Lfarm_overview_panel_tilemap]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r1, r1, r5
-	adds r1, #0x12
-	movs r2, #0x90
-	lsls r2, r2, #1
-	movs r4, #0x20
-	str r4, [sp]
-	movs r3, #0
-	bl DrawTallMessageNumber
-	ldr r7, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r7, #.Lfarm_overview_panel_tilemap]
-	adds r0, r0, r5
-	adds r0, #0x14
-	ldr r2, [sp, #0x260]
-	lsrs r1, r2, #0x10
-	movs r2, #0
-	str r2, [sp]
-	str r4, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-	movs r0, #0x94
-	mov r3, sl
-	str r0, [r3, #4]
-	ldr r0, .L08062910 @ =gUnk_0875236C
-	str r0, [r3, #8]
-	ldr r0, .L08062914 @ =gUnk_087523EC
-	str r0, [r3, #0xc]
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	ldr r5, .L08062918 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r4, r5
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L0806291C
-	cmp r1, #0
-	beq .L08062902
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062902:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lfarm_overview_draw_fodder_count
-	.align 2, 0
-.L0806290C: .4byte .Lfarm_overview_game_data
-.L08062910: .4byte gUnk_0875236C
-.L08062914: .4byte gUnk_087523EC
-.L08062918: .4byte .Lfarm_overview_portrait_uploads
-.L0806291C:
-	mov sb, r1
-	movs r0, #1
-	add r1, sp, #0x1a8
-	str r0, [r1]
-	ldr r2, [r6]
-	mov r4, sb
-	subs r0, r4, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x1a4
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x1a4
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L0806293E
-	adds r3, r5, #0
-.L0806293E:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0806295E
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L0806295A
-	mov r0, r8
-	bl func_080D3BC0
-.L0806295A:
-	ldr r1, [r6]
-	b .L08062962
-.L0806295E:
-	movs r0, #0
-	mov r8, r0
-.L08062962:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sb
-	beq .L08062986
-.L0806296E:
-	cmp r3, #0
-	beq .L0806297E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806297E:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sb
-	bne .L0806296E
-.L08062986:
-	adds r5, r3, #0
-	add r0, sp, #0x1a8
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L080629A4
-	cmp r5, #0
-	beq .L080629A0
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080629A0:
-	adds r5, #0x10
-	b .L080629C6
-.L080629A4:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080629C4
-.L080629AC:
-	cmp r2, #0
-	beq .L080629BC
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L080629BC:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080629AC
-.L080629C4:
-	adds r5, r2, #0
-.L080629C6:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L080629D6
-.L080629D0:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L080629D0
-.L080629D6:
-	cmp r1, #0
-	beq .L080629E0
-	adds r0, r1, #0
-	bl free
-.L080629E0:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.Lfarm_overview_draw_fodder_count:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r3, .L08062A70 @ =.Lfarm_overview_game_data
-	adds r0, r2, r3
-	ldr r0, [r0]
-	movs r4, #0xbe
-	lsls r4, r4, #3
-	adds r0, r0, r4
-	bl GetStoredBushelCount__C4Barn
-	ldr r5, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r1, [r5, #.Lfarm_overview_panel_tilemap]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r5, r7, #6
-	adds r1, r1, r5
-	adds r1, #0x32
-	movs r2, #0x90
-	lsls r2, r2, #1
-	movs r4, #0x20
-	str r4, [sp]
-	movs r3, #0
-	bl DrawTallMessageNumber
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	adds r0, r0, r5
-	adds r0, #0x34
-	ldr r2, [sp, #0x1e8]
-	lsrs r1, r2, #0x10
-	movs r2, #0
-	str r2, [sp]
-	str r4, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-	adds r3, r7, #0
-	adds r3, #3
-	str r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r0, r3, #3
-	mov r5, sl
-	strh r0, [r5]
-	str r4, [r5, #4]
-	ldr r0, .L08062A74 @ =gUnk_0875320C
-	str r0, [r5, #8]
-	ldr r0, .L08062A78 @ =gUnk_0875328C
-	str r0, [r5, #0xc]
-	ldr r7, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, .L08062A7C @ =.Lfarm_overview_portrait_uploads
-	adds r6, r7, r0
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08062A80
-	cmp r1, #0
-	beq .L08062A66
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062A66:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lfarm_overview_draw_sheep_count
-	.align 2, 0
-.L08062A70: .4byte .Lfarm_overview_game_data
-.L08062A74: .4byte gUnk_0875320C
-.L08062A78: .4byte gUnk_0875328C
-.L08062A7C: .4byte .Lfarm_overview_portrait_uploads
-.L08062A80:
-	mov sb, r1
-	movs r0, #1
-	add r1, sp, #0x1b0
-	str r0, [r1]
-	ldr r2, [r6]
-	mov r5, sb
-	subs r0, r5, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x1ac
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x1ac
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L08062AA2
-	adds r3, r5, #0
-.L08062AA2:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08062AC2
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08062ABE
-	mov r0, r8
-	bl func_080D3BC0
-.L08062ABE:
-	ldr r1, [r6]
-	b .L08062AC6
-.L08062AC2:
-	movs r0, #0
-	mov r8, r0
-.L08062AC6:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sb
-	beq .L08062AEA
-.L08062AD2:
-	cmp r3, #0
-	beq .L08062AE2
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062AE2:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sb
-	bne .L08062AD2
-.L08062AEA:
-	adds r5, r3, #0
-	add r0, sp, #0x1b0
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08062B08
-	cmp r5, #0
-	beq .L08062B04
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062B04:
-	adds r5, #0x10
-	b .L08062B2A
-.L08062B08:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08062B28
-.L08062B10:
-	cmp r2, #0
-	beq .L08062B20
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062B20:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08062B10
-.L08062B28:
-	adds r5, r2, #0
-.L08062B2A:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L08062B3A
-.L08062B34:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L08062B34
-.L08062B3A:
-	cmp r1, #0
-	beq .L08062B44
-	adds r0, r1, #0
-	bl free
-.L08062B44:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.Lfarm_overview_draw_sheep_count:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r3, .L08062BE0 @ =.Lfarm_overview_game_data
-	adds r0, r2, r3
-	ldr r0, [r0]
-	movs r4, #0xbe
-	lsls r4, r4, #3
-	adds r0, r0, r4
-	bl CountSheeps__C4Barn
-	ldr r5, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r1, [r5, #.Lfarm_overview_panel_tilemap]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r5, r7, #6
-	adds r1, r1, r5
-	adds r1, #0x12
-	movs r2, #0x90
-	lsls r2, r2, #1
-	movs r4, #0x20
-	str r4, [sp]
-	movs r3, #0
-	bl DrawTallMessageNumber
-	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
-	adds r0, r0, r5
-	adds r0, #0x14
-	ldr r2, [sp, #0x260]
-	lsrs r1, r2, #0x10
-	movs r2, #0
-	str r2, [sp]
-	str r4, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-	adds r3, r7, #0
-	adds r3, #3
-	str r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r2, r3, #3
-	mov r5, sl
-	strh r2, [r5]
-	str r4, [r5, #4]
-	ldr r0, .L08062BE4 @ =gUnk_0875316C
-	str r0, [r5, #8]
-	ldr r0, .L08062BE8 @ =gUnk_087531EC
-	str r0, [r5, #0xc]
-	ldr r7, [sp, #.Lfarm_overview_sp_report]
-	ldr r0, .L08062BEC @ =.Lfarm_overview_portrait_uploads
-	adds r6, r7, r0
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08062BF0
-	cmp r1, #0
-	beq .L08062BCA
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062BCA:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r7, r7, #6
-	str r7, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r0, #3
-	str r0, [sp, #.Lfarm_overview_sp_content_tile_rows]
-	str r2, [sp, #.Lfarm_overview_sp_portrait_y_pixels]
-	b .L08062CD2
-	.align 2, 0
-.L08062BE0: .4byte .Lfarm_overview_game_data
-.L08062BE4: .4byte gUnk_0875316C
-.L08062BE8: .4byte gUnk_087531EC
-.L08062BEC: .4byte .Lfarm_overview_portrait_uploads
-.L08062BF0:
-	mov sb, r1
-	movs r0, #1
-	add r1, sp, #0x1b8
-	str r0, [r1]
-	ldr r2, [r6]
-	mov r3, sb
-	subs r0, r3, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x1b4
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x1b4
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L08062C12
-	adds r3, r5, #0
-.L08062C12:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08062C32
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08062C2E
-	mov r0, r8
-	bl func_080D3BC0
-.L08062C2E:
-	ldr r1, [r6]
-	b .L08062C36
-.L08062C32:
-	movs r0, #0
-	mov r8, r0
-.L08062C36:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r4, r4, #6
-	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	adds r5, #3
-	str r5, [sp, #.Lfarm_overview_sp_content_tile_rows]
-	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
-	lsls r7, r7, #3
-	str r7, [sp, #.Lfarm_overview_sp_portrait_y_pixels]
-	cmp r2, sb
-	beq .L08062C6C
-.L08062C54:
-	cmp r3, #0
-	beq .L08062C64
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062C64:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sb
-	bne .L08062C54
-.L08062C6C:
-	adds r5, r3, #0
-	add r0, sp, #0x1b8
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08062C8A
-	cmp r5, #0
-	beq .L08062C86
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062C86:
-	adds r5, #0x10
-	b .L08062CAC
-.L08062C8A:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08062CAA
-.L08062C92:
-	cmp r2, #0
-	beq .L08062CA2
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062CA2:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08062C92
-.L08062CAA:
-	adds r5, r2, #0
-.L08062CAC:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L08062CBC
-.L08062CB6:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L08062CB6
-.L08062CBC:
-	cmp r1, #0
-	beq .L08062CC6
-	adds r0, r1, #0
-	bl free
-.L08062CC6:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L08062CD2:
-	ldr r1, [sp, #.Lfarm_overview_sp_report]
-	ldr r2, .L08062D50 @ =.Lfarm_overview_game_data
-	adds r0, r1, r2
-	ldr r0, [r0]
-	ldr r3, .L08062D54 @ =0x00002214
-	adds r0, r0, r3
-	bl func_0809AA28
-	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r1, [r4, #.Lfarm_overview_panel_tilemap]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r1, r1, r5
-	adds r1, #0x16
-	movs r2, #0x90
-	lsls r2, r2, #1
-	movs r4, #0x20
-	str r4, [sp]
-	movs r3, #0
-	bl DrawTallMessageNumber
-	ldr r7, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r7, #.Lfarm_overview_panel_tilemap]
-	adds r0, r0, r5
-	adds r0, #0x18
-	ldr r2, [sp, #0x1e4]
-	lsrs r1, r2, #0x10
-	movs r2, #0
-	str r2, [sp]
-	str r4, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-	add r3, sp, #0x21c
-	ldrh r4, [r3]
-	mov r3, sl
-	strh r4, [r3]
-	movs r0, #0x94
-	str r0, [r3, #4]
-	ldr r0, .L08062D58 @ =gUnk_08752EEC
-	str r0, [r3, #8]
-	ldr r0, .L08062D5C @ =gUnk_08752F6C
-	str r0, [r3, #0xc]
-	ldr r4, [sp, #.Lfarm_overview_sp_report]
-	ldr r5, .L08062D60 @ =.Lfarm_overview_portrait_uploads
-	adds r6, r4, r5
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .L08062D64
-	cmp r1, #0
-	beq .L08062D46
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062D46:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .L08062E34
-	.align 2, 0
-.L08062D50: .4byte .Lfarm_overview_game_data
-.L08062D54: .4byte 0x00002214
-.L08062D58: .4byte gUnk_08752EEC
-.L08062D5C: .4byte gUnk_08752F6C
-.L08062D60: .4byte .Lfarm_overview_portrait_uploads
-.L08062D64:
-	mov sb, r1
-	movs r0, #1
-	add r1, sp, #0x1c0
-	str r0, [r1]
-	ldr r2, [r6]
-	mov r4, sb
-	subs r0, r4, r2
-	asrs r4, r0, #4
-	add r0, sp, #0x1bc
-	str r4, [r0]
-	adds r5, r1, #0
-	ldr r0, [r1]
-	add r3, sp, #0x1bc
-	adds r1, r2, #0
-	cmp r4, r0
-	bhs .L08062D86
-	adds r3, r5, #0
-.L08062D86:
-	ldr r0, [r3]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08062DA6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08062DA2
-	mov r0, r8
-	bl func_080D3BC0
-.L08062DA2:
-	ldr r1, [r6]
-	b .L08062DAA
-.L08062DA6:
-	movs r0, #0
-	mov r8, r0
-.L08062DAA:
-	adds r5, r0, #0
-	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sb
-	beq .L08062DCE
-.L08062DB6:
-	cmp r3, #0
-	beq .L08062DC6
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08062DC6:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sb
-	bne .L08062DB6
-.L08062DCE:
-	adds r5, r3, #0
-	add r0, sp, #0x1c0
-	ldr r0, [r0]
-	cmp r0, #1
-	bne .L08062DEC
-	cmp r5, #0
-	beq .L08062DE8
-	adds r0, r5, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062DE8:
-	adds r5, #0x10
-	b .L08062E0E
-.L08062DEC:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08062E0C
-.L08062DF4:
-	cmp r2, #0
-	beq .L08062E04
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [sp, #0x44]
-	str r1, [r0]
-.L08062E04:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08062DF4
-.L08062E0C:
-	adds r5, r2, #0
-.L08062E0E:
-	ldr r3, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r3
-	beq .L08062E1E
-.L08062E18:
-	adds r0, #0x10
-	cmp r0, r3
-	bne .L08062E18
-.L08062E1E:
-	cmp r1, #0
-	beq .L08062E28
-	adds r0, r1, #0
-	bl free
-.L08062E28:
-	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	add r0, r8
-	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L08062E34:
-	ldr r2, [sp, #.Lfarm_overview_sp_report]
-	ldr r3, .L08062E98 @ =.Lfarm_overview_game_data
-	adds r0, r2, r3
-	ldr r0, [r0]
-	adds r0, #0x14
-	bl GetUnk10__C4Farm
-	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r1, [r4, #.Lfarm_overview_panel_tilemap]
-	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
-	adds r1, r1, r5
-	adds r1, #0x32
-	movs r2, #0x90
-	lsls r2, r2, #1
-	movs r4, #0x20
-	str r4, [sp]
-	movs r3, #0
-	bl DrawTallMessageNumber
-	ldr r7, [sp, #.Lfarm_overview_sp_scroll_panel]
-	ldr r0, [r7, #.Lfarm_overview_panel_tilemap]
-	adds r0, r0, r5
-	adds r0, #0x34
-	ldr r2, [sp, #0x1ec]
-	lsrs r1, r2, #0x10
-	movs r2, #0
-	str r2, [sp]
-	str r4, [sp, #4]
-	movs r2, #2
-	movs r3, #2
-	bl FillMessageTilemapRect
-	ldr r3, [sp, #.Lfarm_overview_sp_content_tile_rows]
-	lsls r1, r3, #0x13
-	asrs r1, r1, #0x10
-	ldr r0, [sp, #.Lfarm_overview_sp_scroll_panel]
-	bl func_08075E24
-	ldr r0, [sp, #.Lfarm_overview_sp_report]
-	movs r3, #(.Lfarm_overview_stack_bytes >> 2)
-	lsls r3, r3, #2
-	add sp, r3
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L08062E98: .4byte .Lfarm_overview_game_data
-
-	.purgem CommitFarmOverviewTransferList
-
-	.equ .Llivestock_trophy_tile, 0xA0
-	.equ .Llivestock_heart_tile, 0xA4
-	.equ .Llivestock_year_tile, 0x98
-	.equ .Llivestock_day_tile, 0x9C
-	.equ .Llivestock_first_season_tile, 0x68
-	.equ .Llivestock_init_stack_bytes, 0xf4
-	.equ .Llivestock_init_sp_title_arg, (.Llivestock_init_stack_bytes + 0x20)
-	.equ .Llivestock_init_sp_dma_command, 4
-	.equ .Llivestock_init_sp_report, 0xa8
-	.equ .Llivestock_init_sp_old_dma_end, 0xec
-	.equ .Llivestock_init_sp_dma_buffer, 0xf0
-	.equ .Llivestock_init_healthy_bitmap, 0x5BC
-	.equ .Llivestock_init_sick_bitmap, 0x9C4
-	.equ .Llivestock_init_spring_bitmap, 0xCD0
-	.equ .Llivestock_init_summer_bitmap, 0xE54
-	.equ .Llivestock_init_autumn_bitmap, 0xFD8
-	.equ .Llivestock_init_winter_bitmap, 0x115C
-	.equ .Llivestock_init_years_bitmap, 0xBC8
-	.equ .Llivestock_init_birthday_unit_bitmap, 0xC4C
-	.equ .Llivestock_init_unhappy_bitmap, 0x7C0
-	.equ .Llivestock_init_bg_char_base, 0x06000000
-	.equ .Llivestock_init_tile_size, 32
-
-	@ Retire the old DMA commands and publish the new buffer.
-	.macro CommitLivestockInitDmaBuffer new_begin
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .Llivestock_init_free_old_buffer\@
-.Llivestock_init_retire_old_buffer\@:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .Llivestock_init_retire_old_buffer\@
-.Llivestock_init_free_old_buffer\@:
-	cmp r1, #0
-	beq .Llivestock_init_publish_new_buffer\@
-	adds r0, r1, #0
-	bl free
-.Llivestock_init_publish_new_buffer\@:
-	ldr r0, [sp, #.Llivestock_init_sp_dma_buffer]
-	add r0, r8
-	ldr \new_begin, [sp, #.Llivestock_init_sp_dma_buffer]
-	str \new_begin, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-	.endm
-
-	@ Insert one label copy command, growing the queue by max(size, 1).
-	@ r7 = DMA queue, r1 = old end, sb = new command.
-	.macro GrowLivestockInitLabelDmaQueue occupied_slot, end_tmp, copy_last, new_begin
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #(\occupied_slot + 4)]
-	ldr r1, [r7]
-	mov \end_tmp, sl
-	subs r0, \end_tmp, r1
-	asrs r4, r0, #4
-	str r4, [sp, #\occupied_slot]
-	add r2, sp, #(\occupied_slot + 4)
-	add r0, sp, #\occupied_slot
-	cmp r4, #1
-	bhs .Llivestock_init_grow_use_larger_count\@
-	adds r0, r2, #0
-.Llivestock_init_grow_use_larger_count\@:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .Llivestock_init_grow_no_allocation\@
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .Llivestock_init_grow_reload_old_start\@
-	mov r0, r8
-	bl func_080D3BC0
-.Llivestock_init_grow_reload_old_start\@:
-	ldr r1, [r7]
-	b .Llivestock_init_grow_prepare_copy\@
-.Llivestock_init_grow_no_allocation\@:
-	movs r0, #0
-	mov r8, r0
-.Llivestock_init_grow_prepare_copy\@:
-	adds r5, r0, #0
-	str r5, [sp, #.Llivestock_init_sp_dma_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .Llivestock_init_grow_insert\@
-.Llivestock_init_grow_copy_existing\@:
-	cmp r3, #0
-	beq .Llivestock_init_grow_next_existing\@
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Llivestock_init_grow_next_existing\@:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .Llivestock_init_grow_copy_existing\@
-.Llivestock_init_grow_insert\@:
-	adds r5, r3, #0
-	ldr r0, [sp, #(\occupied_slot + 4)]
-	cmp r0, #1
-	bne .Llivestock_init_grow_insert_many\@
-	cmp r5, #0
-	beq .Llivestock_init_grow_skip_single_copy\@
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, \copy_last}
-	stm r0!, {r2, r3, \copy_last}
-	ldr r1, [r1]
-	str r1, [r0]
-.Llivestock_init_grow_skip_single_copy\@:
-	adds r5, #0x10
-	b .Llivestock_init_grow_publish\@
-.Llivestock_init_grow_insert_many\@:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .Llivestock_init_grow_insert_complete\@
-.Llivestock_init_grow_copy_inserted\@:
-	cmp r2, #0
-	beq .Llivestock_init_grow_next_inserted\@
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Llivestock_init_grow_next_inserted\@:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .Llivestock_init_grow_copy_inserted\@
-.Llivestock_init_grow_insert_complete\@:
-	adds r5, r2, #0
-.Llivestock_init_grow_publish\@:
-	CommitLivestockInitDmaBuffer \new_begin
-	.endm
-
-	@ Same growth for icon uploads; the old end and insert count use stack slots.
-	.macro GrowLivestockInitIconDmaQueue occupied_slot
-	str r1, [sp, #.Llivestock_init_sp_old_dma_end]
-	movs r0, #1
-	add r1, sp, #(\occupied_slot + 4)
-	str r0, [r1]
-	ldr r0, [r7]
-	ldr r6, [sp, #.Llivestock_init_sp_old_dma_end]
-	subs r0, r6, r0
-	asrs r4, r0, #4
-	add r0, sp, #\occupied_slot
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sl, r1
-	cmp r4, r2
-	bhs .Llivestock_init_grow_use_larger_count\@
-	mov r0, sl
-.Llivestock_init_grow_use_larger_count\@:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .Llivestock_init_grow_no_allocation\@
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .Llivestock_init_grow_prepare_copy\@
-	mov r0, r8
-	bl func_080D3BC0
-	b .Llivestock_init_grow_prepare_copy\@
-.Llivestock_init_grow_no_allocation\@:
-	movs r0, #0
-	mov r8, r0
-.Llivestock_init_grow_prepare_copy\@:
-	adds r5, r0, #0
-	str r5, [sp, #.Llivestock_init_sp_dma_buffer]
-	ldr r2, [r7]
-	adds r3, r5, #0
-	b .Llivestock_init_grow_check_existing_end\@
-.Llivestock_init_grow_copy_existing\@:
-	cmp r3, #0
-	beq .Llivestock_init_grow_next_existing\@
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Llivestock_init_grow_next_existing\@:
-	adds r2, #0x10
-	adds r3, #0x10
-.Llivestock_init_grow_check_existing_end\@:
-	ldr r0, [sp, #.Llivestock_init_sp_old_dma_end]
-	cmp r2, r0
-	bne .Llivestock_init_grow_copy_existing\@
-	adds r5, r3, #0
-	mov r2, sl
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .Llivestock_init_grow_insert_many\@
-	cmp r5, #0
-	beq .Llivestock_init_grow_skip_single_copy\@
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r3, r4, r6}
-	stm r0!, {r3, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Llivestock_init_grow_skip_single_copy\@:
-	adds r5, #0x10
-	b .Llivestock_init_grow_publish\@
-.Llivestock_init_grow_insert_many\@:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .Llivestock_init_grow_insert_complete\@
-.Llivestock_init_grow_copy_inserted\@:
-	cmp r2, #0
-	beq .Llivestock_init_grow_next_inserted\@
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Llivestock_init_grow_next_inserted\@:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .Llivestock_init_grow_copy_inserted\@
-.Llivestock_init_grow_insert_complete\@:
-	adds r5, r2, #0
-.Llivestock_init_grow_publish\@:
-	CommitLivestockInitDmaBuffer r1
-	.endm
-
-	thumb_func_start InitLivestockReport
-InitLivestockReport: @ 0x08062E9C
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #.Llivestock_init_stack_bytes
-	str r0, [sp, #.Llivestock_init_sp_report]
-	ldr r0, [sp, #.Llivestock_init_sp_title_arg]
-	str r0, [sp]
-	ldr r0, [sp, #.Llivestock_init_sp_report]
-	bl func_08076BFC
-	ldr r0, [sp, #.Llivestock_init_sp_report]
-	ldr r2, .L08062FA4 @ =0x000005B4
-	adds r1, r0, r2
-	ldr r0, .L08062FA8 @ =gLivestockReportVTable
-	str r0, [r1]
-	movs r0, #0xf
-	add r4, sp, #0x14
-	add r3, sp, #0x18
-	mov r8, r3
-	mov r5, sp
-	adds r5, #0x24
-	str r5, [sp, #0xd4]
-	mov r6, sp
-	adds r6, #0x30
-	str r6, [sp, #0xd8]
-	mov r1, sp
-	adds r1, #0x34
-	str r1, [sp, #0xdc]
-	mov r2, sp
-	adds r2, #0x40
-	str r2, [sp, #0xe0]
-	mov r3, sp
-	adds r3, #0x4c
-	str r3, [sp, #0xe4]
-	adds r5, #0x34
-	str r5, [sp, #0xe8]
-	adds r6, #0x34
-	str r6, [sp, #0xac]
-	adds r1, #0x3c
-	str r1, [sp, #0xb0]
-	adds r2, #0x3c
-	str r2, [sp, #0xb4]
-	movs r1, #1
-	rsbs r1, r1, #0
-.Llivestock_init_countdown:
-	subs r0, #1
-	cmp r0, r1
-	bne .Llivestock_init_countdown
-	ldr r3, [sp, #.Llivestock_init_sp_report]
-	ldr r0, [r3]
-	bl HardwareContext_GetDmaQueue
-	adds r7, r0, #0
-	movs r5, #8
-	movs r6, #2
-	add r0, sp, #0x14
-	strh r5, [r0]
-	strh r6, [r4, #2]
-	ldr r0, [sp, #0x14]
-	ldr r1, [sp, #.Llivestock_init_sp_report]
-	ldr r2, .L08062FAC @ =.Llivestock_init_healthy_bitmap
-	adds r4, r1, r2
-	adds r1, r4, #0
-	movs r2, #0
-	bl FillMessageTiles
-	ldr r1, .L08062FB0 @ =gLivestockReportHealthyLabel
-	add r0, sp, #0x18
-	strh r5, [r0]
-	mov r3, r8
-	strh r6, [r3, #2]
-	ldr r0, [sp, #0x18]
-	str r1, [sp]
-	adds r1, r4, #0
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	movs r3, #0x80
-	lsls r3, r3, #2
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	adds r1, r4, #0
-	ldr r2, .L08062FB4 @ =(.Llivestock_init_bg_char_base + 0x38 * .Llivestock_init_tile_size)
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r4
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_healthy_label
-	cmp r1, #0
-	beq .Llivestock_init_finish_healthy_fast_append
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r5, r6}
-	stm r0!, {r2, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.Llivestock_init_finish_healthy_fast_append:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	ldr r3, [sp, #.Llivestock_init_sp_report]
-	movs r4, #(.Llivestock_init_unhappy_bitmap >> 3)
-	lsls r4, r4, #3
-	adds r3, r3, r4
-	mov sl, r3
-	ldr r6, .L08062FB8 @ =.Llivestock_init_sick_bitmap
-	ldr r5, [sp, #.Llivestock_init_sp_report]
-	adds r6, r5, r6
-	str r6, [sp, #0xc8]
-	movs r0, #(.Llivestock_init_spring_bitmap >> 4)
-	lsls r0, r0, #4
-	adds r0, r5, r0
-	str r0, [sp, #0xc4]
-	ldr r1, .L08062FBC @ =.Llivestock_init_summer_bitmap
-	adds r1, r5, r1
-	str r1, [sp, #0xd0]
-	ldr r2, .L08062FC0 @ =.Llivestock_init_autumn_bitmap
-	adds r2, r5, r2
-	str r2, [sp, #0xbc]
-	ldr r3, .L08062FC4 @ =.Llivestock_init_winter_bitmap
-	adds r3, r5, r3
-	str r3, [sp, #0xcc]
-	ldr r4, .L08062FC8 @ =.Llivestock_init_years_bitmap
-	adds r4, r5, r4
-	str r4, [sp, #0xb8]
-	ldr r6, .L08062FCC @ =.Llivestock_init_birthday_unit_bitmap
-	adds r6, r5, r6
-	str r6, [sp, #0xc0]
-	b .Llivestock_init_render_unhappy_label
-	.align 2, 0
-.L08062FA4: .4byte 0x000005B4
-.L08062FA8: .4byte gLivestockReportVTable
-.L08062FAC: .4byte .Llivestock_init_healthy_bitmap
-.L08062FB0: .4byte gLivestockReportHealthyLabel
-.L08062FB4: .4byte (.Llivestock_init_bg_char_base + 0x38 * .Llivestock_init_tile_size)
-.L08062FB8: .4byte .Llivestock_init_sick_bitmap
-.L08062FBC: .4byte .Llivestock_init_summer_bitmap
-.L08062FC0: .4byte .Llivestock_init_autumn_bitmap
-.L08062FC4: .4byte .Llivestock_init_winter_bitmap
-.L08062FC8: .4byte .Llivestock_init_years_bitmap
-.L08062FCC: .4byte .Llivestock_init_birthday_unit_bitmap
-.Llivestock_init_grow_healthy_label:
-	str r1, [sp, #.Llivestock_init_sp_old_dma_end]
-	movs r0, #1
-	str r0, [sp, #0x20]
-	ldr r1, [r7]
-	ldr r2, [sp, #.Llivestock_init_sp_old_dma_end]
-	subs r0, r2, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x1c]
-	add r2, sp, #0x20
-	add r0, sp, #0x1c
-	cmp r4, #1
-	bhs .L08062FEA
-	adds r0, r2, #0
-.L08062FEA:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0806300A
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08063006
-	mov r0, r8
-	bl func_080D3BC0
-.L08063006:
-	ldr r1, [r7]
-	b .L0806300E
-.L0806300A:
-	movs r0, #0
-	mov r8, r0
-.L0806300E:
-	adds r5, r0, #0
-	str r5, [sp, #.Llivestock_init_sp_dma_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	ldr r4, [sp, #.Llivestock_init_sp_report]
-	movs r5, #(.Llivestock_init_unhappy_bitmap >> 3)
-	lsls r5, r5, #3
-	adds r4, r4, r5
-	mov sl, r4
-	ldr r0, .L0806308C @ =.Llivestock_init_sick_bitmap
-	ldr r6, [sp, #.Llivestock_init_sp_report]
-	adds r0, r6, r0
-	str r0, [sp, #0xc8]
-	movs r1, #(.Llivestock_init_spring_bitmap >> 4)
-	lsls r1, r1, #4
-	adds r1, r6, r1
-	str r1, [sp, #0xc4]
-	ldr r4, .L08063090 @ =.Llivestock_init_summer_bitmap
-	adds r4, r6, r4
-	str r4, [sp, #0xd0]
-	ldr r5, .L08063094 @ =.Llivestock_init_autumn_bitmap
-	adds r5, r6, r5
-	str r5, [sp, #0xbc]
-	ldr r0, .L08063098 @ =.Llivestock_init_winter_bitmap
-	adds r0, r6, r0
-	str r0, [sp, #0xcc]
-	ldr r1, .L0806309C @ =.Llivestock_init_years_bitmap
-	adds r1, r6, r1
-	str r1, [sp, #0xb8]
-	ldr r4, .L080630A0 @ =.Llivestock_init_birthday_unit_bitmap
-	adds r4, r6, r4
-	str r4, [sp, #0xc0]
-	ldr r5, [sp, #.Llivestock_init_sp_old_dma_end]
-	cmp r2, r5
-	beq .L0806306E
-.L08063054:
-	cmp r3, #0
-	beq .L08063064
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063064:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r6, [sp, #.Llivestock_init_sp_old_dma_end]
-	cmp r2, r6
-	bne .L08063054
-.L0806306E:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x20]
-	cmp r0, #1
-	bne .L080630A4
-	cmp r5, #0
-	beq .L08063086
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063086:
-	adds r5, #0x10
-	b .L080630C6
-	.align 2, 0
-.L0806308C: .4byte .Llivestock_init_sick_bitmap
-.L08063090: .4byte .Llivestock_init_summer_bitmap
-.L08063094: .4byte .Llivestock_init_autumn_bitmap
-.L08063098: .4byte .Llivestock_init_winter_bitmap
-.L0806309C: .4byte .Llivestock_init_years_bitmap
-.L080630A0: .4byte .Llivestock_init_birthday_unit_bitmap
-.L080630A4:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080630C4
-.L080630AC:
-	cmp r2, #0
-	beq .L080630BC
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080630BC:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080630AC
-.L080630C4:
-	adds r5, r2, #0
-.L080630C6:
-	CommitLivestockInitDmaBuffer r6
-.Llivestock_init_render_unhappy_label:
-	ldr r3, .L0806313C @ =gLivestockReportUnhappyLabel
-	movs r1, #8
-	movs r2, #2
-	add r0, sp, #0x24
-	strh r1, [r0]
-	ldr r0, [sp, #0xd4]
-	strh r2, [r0, #2]
-	ldr r0, [sp, #0x24]
-	str r3, [sp]
-	mov r1, sl
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	movs r3, #0x80
-	lsls r3, r3, #2
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	mov r1, sl
-	ldr r2, .L08063140 @ =(.Llivestock_init_bg_char_base + 0x48 * .Llivestock_init_tile_size)
-	bl DmaCommand_InitializeCopy
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r1
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_unhappy_label
-	cmp r1, #0
-	beq .L08063132
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063132:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_render_sick_label
-	.align 2, 0
-.L0806313C: .4byte gLivestockReportUnhappyLabel
-.L08063140: .4byte (.Llivestock_init_bg_char_base + 0x48 * .Llivestock_init_tile_size)
-.Llivestock_init_grow_unhappy_label:
-	GrowLivestockInitLabelDmaQueue 0x28, r5, r6, r1
-.Llivestock_init_render_sick_label:
-	movs r4, #8
-	movs r5, #2
-	add r0, sp, #0x30
-	strh r4, [r0]
-	ldr r2, [sp, #0xd8]
-	strh r5, [r2, #2]
-	ldr r0, [sp, #0x30]
-	ldr r1, [sp, #0xc8]
-	movs r2, #0
-	bl FillMessageTiles
-	ldr r1, .L0806326C @ =gLivestockReportSickLabel
-	add r0, sp, #0x34
-	strh r4, [r0]
-	ldr r3, [sp, #0xdc]
-	strh r5, [r3, #2]
-	ldr r0, [sp, #0x34]
-	str r1, [sp]
-	ldr r1, [sp, #0xc8]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	movs r3, #0x80
-	lsls r3, r3, #2
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r1, [sp, #0xc8]
-	ldr r2, .L08063270 @ =(.Llivestock_init_bg_char_base + 0x58 * .Llivestock_init_tile_size)
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r4
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_sick_label
-	cmp r1, #0
-	beq .L08063262
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r5, r6}
-	stm r0!, {r2, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063262:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_render_spring_label
-	.align 2, 0
-.L0806326C: .4byte gLivestockReportSickLabel
-.L08063270: .4byte (.Llivestock_init_bg_char_base + 0x58 * .Llivestock_init_tile_size)
-.Llivestock_init_grow_sick_label:
-	GrowLivestockInitLabelDmaQueue 0x38, r3, r4, r6
-.Llivestock_init_render_spring_label:
-	ldr r3, .L08063388 @ =gLivestockReportSpringLabel
-	movs r1, #6
-	movs r2, #2
-	add r0, sp, #0x40
-	strh r1, [r0]
-	ldr r0, [sp, #0xe0]
-	strh r2, [r0, #2]
-	ldr r0, [sp, #0x40]
-	str r3, [sp]
-	ldr r1, [sp, #0xc4]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	movs r3, #0xc0
-	lsls r3, r3, #1
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r1, [sp, #0xc4]
-	ldr r2, .L0806338C @ =(.Llivestock_init_bg_char_base + .Llivestock_first_season_tile * .Llivestock_init_tile_size)
-	bl DmaCommand_InitializeCopy
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r1
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_spring_label
-	cmp r1, #0
-	beq .L08063380
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063380:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_render_summer_label
-	.align 2, 0
-.L08063388: .4byte gLivestockReportSpringLabel
-.L0806338C: .4byte (.Llivestock_init_bg_char_base + .Llivestock_first_season_tile * .Llivestock_init_tile_size)
-.Llivestock_init_grow_spring_label:
-	GrowLivestockInitLabelDmaQueue 0x44, r5, r6, r1
-.Llivestock_init_render_summer_label:
-	ldr r3, .L080634A4 @ =gLivestockReportSummerLabel
-	movs r1, #6
-	movs r2, #2
-	add r0, sp, #0x4c
-	strh r1, [r0]
-	ldr r4, [sp, #0xe4]
-	strh r2, [r4, #2]
-	ldr r0, [sp, #0x4c]
-	str r3, [sp]
-	ldr r1, [sp, #0xd0]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	movs r3, #0xc0
-	lsls r3, r3, #1
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r1, [sp, #0xd0]
-	ldr r2, .L080634A8 @ =(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 12) * .Llivestock_init_tile_size)
-	bl DmaCommand_InitializeCopy
-	add r5, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r5
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_summer_label
-	cmp r1, #0
-	beq .L0806349C
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806349C:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_render_autumn_label
-	.align 2, 0
-.L080634A4: .4byte gLivestockReportSummerLabel
-.L080634A8: .4byte (.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 12) * .Llivestock_init_tile_size)
-.Llivestock_init_grow_summer_label:
-	GrowLivestockInitLabelDmaQueue 0x50, r4, r6, r1
-.Llivestock_init_render_autumn_label:
-	ldr r3, .L080635C0 @ =gLivestockReportFallLabel
-	movs r1, #6
-	movs r2, #2
-	add r0, sp, #0x58
-	strh r1, [r0]
-	ldr r4, [sp, #0xe8]
-	strh r2, [r4, #2]
-	ldr r0, [sp, #0x58]
-	str r3, [sp]
-	ldr r1, [sp, #0xbc]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	movs r3, #0xc0
-	lsls r3, r3, #1
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r1, [sp, #0xbc]
-	ldr r2, .L080635C4 @ =(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 24) * .Llivestock_init_tile_size)
-	bl DmaCommand_InitializeCopy
-	add r5, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r5
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_autumn_label
-	cmp r1, #0
-	beq .L080635B8
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080635B8:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_render_winter_label
-	.align 2, 0
-.L080635C0: .4byte gLivestockReportFallLabel
-.L080635C4: .4byte (.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 24) * .Llivestock_init_tile_size)
-.Llivestock_init_grow_autumn_label:
-	GrowLivestockInitLabelDmaQueue 0x5c, r4, r6, r1
-.Llivestock_init_render_winter_label:
-	ldr r3, .L080636DC @ =gLivestockReportWinterLabel
-	movs r1, #6
-	movs r2, #2
-	add r0, sp, #0x64
-	strh r1, [r0]
-	ldr r4, [sp, #0xac]
-	strh r2, [r4, #2]
-	ldr r0, [sp, #0x64]
-	str r3, [sp]
-	ldr r1, [sp, #0xcc]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	movs r3, #0xc0
-	lsls r3, r3, #1
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r1, [sp, #0xcc]
-	ldr r2, .L080636E0 @ =(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 36) * .Llivestock_init_tile_size)
-	bl DmaCommand_InitializeCopy
-	add r5, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r5
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_winter_label
-	cmp r1, #0
-	beq .L080636D4
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080636D4:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_render_years_suffix
-	.align 2, 0
-.L080636DC: .4byte gLivestockReportWinterLabel
-.L080636E0: .4byte (.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 36) * .Llivestock_init_tile_size)
-.Llivestock_init_grow_winter_label:
-	GrowLivestockInitLabelDmaQueue 0x68, r4, r6, r1
-.Llivestock_init_render_years_suffix:
-	ldr r2, .L080637F4 @ =gLivestockReportYearAgeSuffix
-	movs r1, #2
-	add r0, sp, #0x70
-	strh r1, [r0]
-	ldr r3, [sp, #0xb0]
-	strh r1, [r3, #2]
-	ldr r0, [sp, #0x70]
-	str r2, [sp]
-	ldr r1, [sp, #0xb8]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r1, [sp, #0xb8]
-	ldr r2, .L080637F8 @ =(.Llivestock_init_bg_char_base + .Llivestock_year_tile * .Llivestock_init_tile_size)
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r4
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_years_suffix
-	cmp r1, #0
-	beq .L080637EC
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r5, r6}
-	stm r0!, {r2, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080637EC:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_render_birthday_unit
-	.align 2, 0
-.L080637F4: .4byte gLivestockReportYearAgeSuffix
-.L080637F8: .4byte (.Llivestock_init_bg_char_base + .Llivestock_year_tile * .Llivestock_init_tile_size)
-.Llivestock_init_grow_years_suffix:
-	GrowLivestockInitLabelDmaQueue 0x74, r3, r4, r6
-.Llivestock_init_render_birthday_unit:
-	ldr r2, .L0806390C @ =gFarmReportBlankLabel
-	movs r1, #2
-	add r0, sp, #0x7c
-	strh r1, [r0]
-	ldr r0, [sp, #0xb4]
-	strh r1, [r0, #2]
-	ldr r0, [sp, #0x7c]
-	str r2, [sp]
-	ldr r1, [sp, #0xc0]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r1, [sp, #0xc0]
-	ldr r2, .L08063910 @ =(.Llivestock_init_bg_char_base + .Llivestock_day_tile * .Llivestock_init_tile_size)
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r1
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_birthday_unit
-	cmp r1, #0
-	beq .L08063904
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063904:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_upload_trophy_tiles
-	.align 2, 0
-.L0806390C: .4byte gFarmReportBlankLabel
-.L08063910: .4byte (.Llivestock_init_bg_char_base + .Llivestock_day_tile * .Llivestock_init_tile_size)
-.Llivestock_init_grow_birthday_unit:
-	str r1, [sp, #.Llivestock_init_sp_old_dma_end]
-	movs r0, #1
-	add r1, sp, #0x84
-	str r0, [r1]
-	ldr r0, [r7]
-	ldr r5, [sp, #.Llivestock_init_sp_old_dma_end]
-	subs r0, r5, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x80]
-	ldr r0, [r1]
-	add r2, sp, #0x80
-	mov sl, r1
-	cmp r4, r0
-	bhs .L08063932
-	mov r2, sl
-.L08063932:
-	ldr r0, [r2]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08063950
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08063954
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08063954
-.L08063950:
-	movs r0, #0
-	mov r8, r0
-.L08063954:
-	adds r5, r0, #0
-	str r5, [sp, #.Llivestock_init_sp_dma_buffer]
-	ldr r2, [r7]
-	adds r3, r5, #0
-	ldr r6, [sp, #.Llivestock_init_sp_old_dma_end]
-	cmp r2, r6
-	beq .L0806397C
-.L08063962:
-	cmp r3, #0
-	beq .L08063972
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063972:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #.Llivestock_init_sp_old_dma_end]
-	cmp r2, r0
-	bne .L08063962
-.L0806397C:
-	adds r5, r3, #0
-	mov r2, sl
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .L0806399A
-	cmp r5, #0
-	beq .L08063996
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r3, r4, r6}
-	stm r0!, {r3, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063996:
-	adds r5, #0x10
-	b .L080639BC
-.L0806399A:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080639BA
-.L080639A2:
-	cmp r2, #0
-	beq .L080639B2
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080639B2:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080639A2
-.L080639BA:
-	adds r5, r2, #0
-.L080639BC:
-	CommitLivestockInitDmaBuffer r1
-.Llivestock_init_upload_trophy_tiles:
-	ldr r1, .L08063A14 @ =gUnk_0875196C
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r2, .L08063A18 @ =(.Llivestock_init_bg_char_base + .Llivestock_trophy_tile * .Llivestock_init_tile_size)
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r2, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r2
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_trophy_tiles
-	cmp r1, #0
-	beq .L08063A0A
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063A0A:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_upload_trophy_palette
-	.align 2, 0
-.L08063A14: .4byte gUnk_0875196C
-.L08063A18: .4byte (.Llivestock_init_bg_char_base + .Llivestock_trophy_tile * .Llivestock_init_tile_size)
-.Llivestock_init_grow_trophy_tiles:
-	GrowLivestockInitIconDmaQueue 0x88
-.Llivestock_init_upload_trophy_palette:
-	ldr r1, .L08063B18 @ =gUnk_087519EC
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r2, .L08063B1C @ =0x05000020
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r2, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r2
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_trophy_palette
-	cmp r1, #0
-	beq .L08063B0E
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063B0E:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_upload_heart_tiles
-	.align 2, 0
-.L08063B18: .4byte gUnk_087519EC
-.L08063B1C: .4byte 0x05000020
-.Llivestock_init_grow_trophy_palette:
-	GrowLivestockInitIconDmaQueue 0x90
-.Llivestock_init_upload_heart_tiles:
-	ldr r1, .L08063C1C @ =gUnk_0875254C
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r2, .L08063C20 @ =(.Llivestock_init_bg_char_base + .Llivestock_heart_tile * .Llivestock_init_tile_size)
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r2, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r2
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_heart_tiles
-	cmp r1, #0
-	beq .L08063C12
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063C12:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_upload_heart_palette
-	.align 2, 0
-.L08063C1C: .4byte gUnk_0875254C
-.L08063C20: .4byte (.Llivestock_init_bg_char_base + .Llivestock_heart_tile * .Llivestock_init_tile_size)
-.Llivestock_init_grow_heart_tiles:
-	GrowLivestockInitIconDmaQueue 0x98
-.Llivestock_init_upload_heart_palette:
-	ldr r1, .L08063D20 @ =gUnk_087525CC
-	add r0, sp, #.Llivestock_init_sp_dma_command
-	ldr r2, .L08063D24 @ =0x05000040
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r2, sp, #.Llivestock_init_sp_dma_command
-	mov sb, r2
-	ldr r1, [r7, #4]
-	ldr r0, [r7, #0xc]
-	cmp r1, r0
-	beq .Llivestock_init_grow_heart_palette
-	cmp r1, #0
-	beq .L08063D16
-	adds r0, r1, #0
-	add r1, sp, #.Llivestock_init_sp_dma_command
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063D16:
-	ldr r0, [r7, #4]
-	adds r0, #0x10
-	str r0, [r7, #4]
-	b .Llivestock_init_return_report
-	.align 2, 0
-.L08063D20: .4byte gUnk_087525CC
-.L08063D24: .4byte 0x05000040
-.Llivestock_init_grow_heart_palette:
-	GrowLivestockInitIconDmaQueue 0xa0
-.Llivestock_init_return_report:
-	ldr r0, [sp, #.Llivestock_init_sp_report]
-	add sp, #.Llivestock_init_stack_bytes
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-
-	.purgem CommitLivestockInitDmaBuffer
-	.purgem GrowLivestockInitLabelDmaQueue
-	.purgem GrowLivestockInitIconDmaQueue
-
-	.section .text.f3.080645F0, "ax", %progbits
+	@ InitHarvestSpriteReport's row loop in F4 shares the setup's frame.
 	.equ .Lhs_report_sp_report, 0xf0
 	.equ .Lhs_report_sp_panel, 0xf4
 	.equ .Lhs_report_sp_roster_index, 0xf8
@@ -54782,1385 +46355,6 @@ InitLivestockReport: @ 0x08062E9C
 	.equ .Lhs_report_task_water, 1
 	.equ .Lhs_report_task_animals, 2
 	.equ .Lhs_report_task_none, 3
-
-	.equ .Lhs_report_sp_copy_command, 8
-	.equ .Lhs_report_sp_dma_old_end, 0x160
-	.equ .Lhs_report_sp_dma_new_buffer, 0x164
-	.equ .Lhs_report_vtable, 0x5b4
-	.equ .Lhs_report_day_suffix_bitmap, 0x5bc
-	.equ .Lhs_report_days_left_bitmap, 0x640
-	.equ .Lhs_report_work_label_bitmap, 0x744
-	.equ .Lhs_report_not_assigned_bitmap, 0x948
-	.equ .Lhs_report_bg_tile_vram, 0x06000000
-	.equ .Lhs_report_bg_palette_ram, 0x05000000
-	.equ .Lhs_report_obj_tile_vram, 0x06010000
-	.equ .Lhs_report_obj_palette_ram, 0x05000200
-	.equ .Lhs_report_tile_bytes, 32
-	.equ .Lhs_report_palette_bytes, 32
-	.equ .Lhs_report_day_suffix_tile, 0x38
-	.equ .Lhs_report_days_left_tile, 0x3c
-	.equ .Lhs_report_work_label_tile, 0x44
-	.equ .Lhs_report_not_assigned_tile, 0x54
-	.equ .Lhs_report_friendship_tile, 0x6c
-	.equ .Lhs_report_small_watering_icon_tile, 0x70
-	.equ .Lhs_report_small_harvesting_icon_tile, 0x71
-	.equ .Lhs_report_small_animal_care_icon_tile, 0x72
-	.equ .Lhs_report_watering_task_tile, 0x73
-	.equ .Lhs_report_harvesting_task_tile, 0x77
-	.equ .Lhs_report_animal_care_task_tile, 0x7b
-	.equ .Lhs_report_watering_skill_tile, 0x9c
-	.equ .Lhs_report_harvesting_skill_tile, 0xa5
-	.equ .Lhs_report_animal_care_skill_tile, 0xae
-
-	@ Retire the old commands and publish the new DMA buffer.
-	.macro CommitHarvestSpriteReportDmaBuffer new_begin, old_begin_reg
-	.ifc \old_begin_reg,reload_r1
-	ldr r2, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .Lhs_report_dma_free_old\@
-.Lhs_report_dma_walk_old\@:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .Lhs_report_dma_walk_old\@
-.Lhs_report_dma_free_old\@:
-	cmp r1, #0
-	beq .Lhs_report_dma_publish_replacement\@
-	adds r0, r1, #0
-	bl free
-.Lhs_report_dma_publish_replacement\@:
-	.else
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .Lhs_report_dma_free_old\@
-.Lhs_report_dma_walk_old\@:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .Lhs_report_dma_walk_old\@
-.Lhs_report_dma_free_old\@:
-	cmp r0, #0
-	beq .Lhs_report_dma_publish_replacement\@
-	bl free
-.Lhs_report_dma_publish_replacement\@:
-	.endif
-	ldr r0, [sp, #.Lhs_report_sp_dma_new_buffer]
-	add r0, r8
-	ldr \new_begin, [sp, #.Lhs_report_sp_dma_new_buffer]
-	str \new_begin, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-	.endm
-
-	@ Grow by max(size, 1); sl holds the old end until insertion.
-	.macro GrowHarvestSpriteLabelDmaQueue occupied_slot, new_begin
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #(\occupied_slot + 4)]
-	ldr r0, [r6]
-	subs r0, r1, r0
-	asrs r4, r0, #4
-	str r4, [sp, #\occupied_slot]
-	add r1, sp, #(\occupied_slot + 4)
-	add r0, sp, #\occupied_slot
-	cmp r4, #1
-	bhs .Lhs_report_dma_choose_growth\@
-	adds r0, r1, #0
-.Lhs_report_dma_choose_growth\@:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .Lhs_report_dma_empty_capacity\@
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .Lhs_report_dma_have_buffer\@
-	mov r0, r8
-	bl func_080D3BC0
-	b .Lhs_report_dma_have_buffer\@
-.Lhs_report_dma_empty_capacity\@:
-	movs r0, #0
-	mov r8, r0
-.Lhs_report_dma_have_buffer\@:
-	adds r5, r0, #0
-	str r5, [sp, #.Lhs_report_sp_dma_new_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .Lhs_report_dma_insert\@
-.Lhs_report_dma_copy_existing\@:
-	cmp r3, #0
-	beq .Lhs_report_dma_next_existing\@
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_next_existing\@:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .Lhs_report_dma_copy_existing\@
-.Lhs_report_dma_insert\@:
-	adds r5, r3, #0
-	ldr r0, [sp, #(\occupied_slot + 4)]
-	cmp r0, #1
-	bne .Lhs_report_dma_insert_many\@
-	cmp r5, #0
-	beq .Lhs_report_dma_skip_single_copy\@
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_skip_single_copy\@:
-	adds r5, #0x10
-	b .Lhs_report_dma_release_old\@
-.Lhs_report_dma_insert_many\@:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .Lhs_report_dma_finish_insert\@
-.Lhs_report_dma_copy_inserted\@:
-	cmp r2, #0
-	beq .Lhs_report_dma_next_inserted\@
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_next_inserted\@:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .Lhs_report_dma_copy_inserted\@
-.Lhs_report_dma_finish_insert\@:
-	adds r5, r2, #0
-.Lhs_report_dma_release_old\@:
-	CommitHarvestSpriteReportDmaBuffer \new_begin, reload_r0
-	.endm
-
-	@ Same append, reloading the original queue start after allocation.
-	.macro GrowHarvestSpriteSmallIconDmaQueue occupied_slot, end_tmp, new_begin
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #(\occupied_slot + 4)]
-	ldr r1, [r6]
-	mov \end_tmp, sl
-	subs r0, \end_tmp, r1
-	asrs r4, r0, #4
-	str r4, [sp, #\occupied_slot]
-	add r2, sp, #(\occupied_slot + 4)
-	add r0, sp, #\occupied_slot
-	cmp r4, #1
-	bhs .Lhs_report_dma_choose_growth\@
-	adds r0, r2, #0
-.Lhs_report_dma_choose_growth\@:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .Lhs_report_dma_empty_capacity\@
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .Lhs_report_dma_reload_old_start\@
-	mov r0, r8
-	bl func_080D3BC0
-.Lhs_report_dma_reload_old_start\@:
-	ldr r1, [r6]
-	b .Lhs_report_dma_have_buffer\@
-.Lhs_report_dma_empty_capacity\@:
-	movs r0, #0
-	mov r8, r0
-.Lhs_report_dma_have_buffer\@:
-	adds r5, r0, #0
-	str r5, [sp, #.Lhs_report_sp_dma_new_buffer]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .Lhs_report_dma_insert\@
-.Lhs_report_dma_copy_existing\@:
-	cmp r3, #0
-	beq .Lhs_report_dma_next_existing\@
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_next_existing\@:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .Lhs_report_dma_copy_existing\@
-.Lhs_report_dma_insert\@:
-	adds r5, r3, #0
-	ldr r0, [sp, #(\occupied_slot + 4)]
-	cmp r0, #1
-	bne .Lhs_report_dma_insert_many\@
-	cmp r5, #0
-	beq .Lhs_report_dma_skip_single_copy\@
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_skip_single_copy\@:
-	adds r5, #0x10
-	b .Lhs_report_dma_release_old\@
-.Lhs_report_dma_insert_many\@:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .Lhs_report_dma_finish_insert\@
-.Lhs_report_dma_copy_inserted\@:
-	cmp r2, #0
-	beq .Lhs_report_dma_next_inserted\@
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_next_inserted\@:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .Lhs_report_dma_copy_inserted\@
-.Lhs_report_dma_finish_insert\@:
-	adds r5, r2, #0
-.Lhs_report_dma_release_old\@:
-	CommitHarvestSpriteReportDmaBuffer \new_begin, reload_r1
-	.endm
-
-	@ Later uploads keep the old end and insert count in stack slots.
-	.macro GrowHarvestSpriteTileDmaQueue occupied_slot, end_tmp, new_begin
-	str r1, [sp, #.Lhs_report_sp_dma_old_end]
-	movs r0, #1
-	add r1, sp, #(\occupied_slot + 4)
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr \end_tmp, [sp, #.Lhs_report_sp_dma_old_end]
-	subs r0, \end_tmp, r0
-	asrs r4, r0, #4
-	add r0, sp, #\occupied_slot
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sl, r1
-	cmp r4, r2
-	bhs .Lhs_report_dma_choose_growth\@
-	mov r0, sl
-.Lhs_report_dma_choose_growth\@:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .Lhs_report_dma_empty_capacity\@
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .Lhs_report_dma_have_buffer\@
-	mov r0, r8
-	bl func_080D3BC0
-	b .Lhs_report_dma_have_buffer\@
-.Lhs_report_dma_empty_capacity\@:
-	movs r0, #0
-	mov r8, r0
-.Lhs_report_dma_have_buffer\@:
-	adds r5, r0, #0
-	str r5, [sp, #.Lhs_report_sp_dma_new_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lhs_report_sp_dma_old_end]
-	cmp r2, r4
-	beq .Lhs_report_dma_insert\@
-.Lhs_report_dma_copy_existing\@:
-	cmp r3, #0
-	beq .Lhs_report_dma_next_existing\@
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_next_existing\@:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lhs_report_sp_dma_old_end]
-	cmp r2, r5
-	bne .Lhs_report_dma_copy_existing\@
-.Lhs_report_dma_insert\@:
-	adds r5, r3, #0
-	mov r7, sl
-	ldr r1, [r7]
-	cmp r1, #1
-	bne .Lhs_report_dma_insert_many\@
-	cmp r5, #0
-	beq .Lhs_report_dma_skip_single_copy\@
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_skip_single_copy\@:
-	adds r5, #0x10
-	b .Lhs_report_dma_release_old\@
-.Lhs_report_dma_insert_many\@:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .Lhs_report_dma_finish_insert\@
-.Lhs_report_dma_copy_inserted\@:
-	cmp r2, #0
-	beq .Lhs_report_dma_next_inserted\@
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_next_inserted\@:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .Lhs_report_dma_copy_inserted\@
-.Lhs_report_dma_finish_insert\@:
-	adds r5, r2, #0
-.Lhs_report_dma_release_old\@:
-	CommitHarvestSpriteReportDmaBuffer \new_begin, reload_r0
-	.endm
-
-	@ Palette uploads test for the end of the old buffer at the loop tail.
-	.macro GrowHarvestSpritePaletteDmaQueue occupied_slot, new_begin
-	str r1, [sp, #.Lhs_report_sp_dma_old_end]
-	movs r0, #1
-	add r1, sp, #(\occupied_slot + 4)
-	str r0, [r1]
-	ldr r0, [r6]
-	ldr r7, [sp, #.Lhs_report_sp_dma_old_end]
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	add r0, sp, #\occupied_slot
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sl, r1
-	cmp r4, r2
-	bhs .Lhs_report_dma_choose_growth\@
-	mov r0, sl
-.Lhs_report_dma_choose_growth\@:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .Lhs_report_dma_empty_capacity\@
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .Lhs_report_dma_have_buffer\@
-	mov r0, r8
-	bl func_080D3BC0
-	b .Lhs_report_dma_have_buffer\@
-.Lhs_report_dma_empty_capacity\@:
-	movs r0, #0
-	mov r8, r0
-.Lhs_report_dma_have_buffer\@:
-	adds r5, r0, #0
-	str r5, [sp, #.Lhs_report_sp_dma_new_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	b .Lhs_report_dma_check_existing_end\@
-.Lhs_report_dma_copy_existing\@:
-	cmp r3, #0
-	beq .Lhs_report_dma_next_existing\@
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_next_existing\@:
-	adds r2, #0x10
-	adds r3, #0x10
-.Lhs_report_dma_check_existing_end\@:
-	ldr r0, [sp, #.Lhs_report_sp_dma_old_end]
-	cmp r2, r0
-	bne .Lhs_report_dma_copy_existing\@
-	adds r5, r3, #0
-	mov r2, sl
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .Lhs_report_dma_insert_many\@
-	cmp r5, #0
-	beq .Lhs_report_dma_skip_single_copy\@
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_skip_single_copy\@:
-	adds r5, #0x10
-	b .Lhs_report_dma_release_old\@
-.Lhs_report_dma_insert_many\@:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .Lhs_report_dma_finish_insert\@
-.Lhs_report_dma_copy_inserted\@:
-	cmp r2, #0
-	beq .Lhs_report_dma_next_inserted\@
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.Lhs_report_dma_next_inserted\@:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .Lhs_report_dma_copy_inserted\@
-.Lhs_report_dma_finish_insert\@:
-	adds r5, r2, #0
-.Lhs_report_dma_release_old\@:
-	CommitHarvestSpriteReportDmaBuffer \new_begin, reload_r0
-	.endm
-
-	thumb_func_start InitHarvestSpriteReport
-InitHarvestSpriteReport: @ 0x080645F0
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x168
-	str r0, [sp, #.Lhs_report_sp_report]
-	ldr r0, .L080646BC @ =gHarvestSpriteReportTitle
-	str r0, [sp]
-	ldr r0, [sp, #.Lhs_report_sp_report]
-	movs r3, #0x35
-	bl func_08076BFC
-	ldr r0, [sp, #.Lhs_report_sp_report]
-	ldr r2, .L080646C0 @ =.Lhs_report_vtable
-	adds r1, r0, r2
-	ldr r0, .L080646C4 @ =gHarvestSpriteReportVTable
-	str r0, [r1]
-	movs r0, #6
-	add r3, sp, #0x28
-	mov r4, sp
-	adds r4, #0x34
-	str r4, [sp, #0x110]
-	mov r5, sp
-	adds r5, #0x40
-	str r5, [sp, #0x114]
-	mov r7, sp
-	adds r7, #0x4c
-	str r7, [sp, #0x118]
-	movs r1, #1
-	rsbs r1, r1, #0
-.Lhs_report_countdown:
-	subs r0, #1
-	cmp r0, r1
-	bne .Lhs_report_countdown
-	ldr r0, [sp, #.Lhs_report_sp_report]
-	ldr r2, .L080646C8 @ =.Lhs_report_skill_uploads
-	adds r1, r0, r2
-	movs r0, #0
-	str r0, [r1]
-	ldr r4, [sp, #.Lhs_report_sp_report]
-	ldr r4, [r4, #4]
-	str r4, [sp, #.Lhs_report_sp_panel]
-	ldr r2, .L080646CC @ =gFarmReportDaySuffix
-	movs r1, #2
-	add r0, sp, #0x28
-	strh r1, [r0]
-	strh r1, [r3, #2]
-	ldr r0, [sp, #0x28]
-	ldr r5, [sp, #.Lhs_report_sp_report]
-	ldr r7, .L080646D0 @ =.Lhs_report_day_suffix_bitmap
-	adds r4, r5, r7
-	str r2, [sp]
-	adds r1, r4, #0
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r0, [r5]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	movs r0, #0x38
-	lsls r2, r0, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	adds r1, r4, #0
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r1, sp, #.Lhs_report_sp_copy_command
-	mov sb, r1
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_day_suffix
-	cmp r1, #0
-	beq .L0806469A
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806469A:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	ldr r5, [sp, #.Lhs_report_sp_report]
-	movs r7, #(.Lhs_report_days_left_bitmap >> 3)
-	lsls r7, r7, #3
-	adds r5, r5, r7
-	mov sl, r5
-	ldr r1, .L080646D4 @ =.Lhs_report_work_label_bitmap
-	ldr r0, [sp, #.Lhs_report_sp_report]
-	adds r1, r0, r1
-	str r1, [sp, #0x10c]
-	ldr r2, .L080646D8 @ =.Lhs_report_not_assigned_bitmap
-	adds r2, r0, r2
-	str r2, [sp, #0x130]
-	b .Lhs_report_upload_days_left_label
-	.align 2, 0
-.L080646BC: .4byte gHarvestSpriteReportTitle
-.L080646C0: .4byte .Lhs_report_vtable
-.L080646C4: .4byte gHarvestSpriteReportVTable
-.L080646C8: .4byte .Lhs_report_skill_uploads
-.L080646CC: .4byte gFarmReportDaySuffix
-.L080646D0: .4byte .Lhs_report_day_suffix_bitmap
-.L080646D4: .4byte .Lhs_report_work_label_bitmap
-.L080646D8: .4byte .Lhs_report_not_assigned_bitmap
-.Lhs_report_grow_day_suffix:
-	str r1, [sp, #.Lhs_report_sp_dma_old_end]
-	movs r0, #1
-	str r0, [sp, #0x30]
-	ldr r0, [r6]
-	adds r3, r1, #0
-	subs r0, r3, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x2c]
-	add r1, sp, #0x30
-	add r0, sp, #0x2c
-	cmp r4, #1
-	bhs .L080646F6
-	adds r0, r1, #0
-.L080646F6:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08064714
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08064718
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08064718
-.L08064714:
-	movs r0, #0
-	mov r8, r0
-.L08064718:
-	adds r5, r0, #0
-	str r5, [sp, #.Lhs_report_sp_dma_new_buffer]
-	ldr r2, [r6]
-	adds r3, r5, #0
-	ldr r4, [sp, #.Lhs_report_sp_report]
-	movs r5, #(.Lhs_report_days_left_bitmap >> 3)
-	lsls r5, r5, #3
-	adds r4, r4, r5
-	mov sl, r4
-	ldr r0, .L08064774 @ =.Lhs_report_work_label_bitmap
-	ldr r7, [sp, #.Lhs_report_sp_report]
-	adds r0, r7, r0
-	str r0, [sp, #0x10c]
-	ldr r1, .L08064778 @ =.Lhs_report_not_assigned_bitmap
-	adds r1, r7, r1
-	str r1, [sp, #0x130]
-	ldr r4, [sp, #.Lhs_report_sp_dma_old_end]
-	cmp r2, r4
-	beq .L08064758
-.L0806473E:
-	cmp r3, #0
-	beq .L0806474E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806474E:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lhs_report_sp_dma_old_end]
-	cmp r2, r5
-	bne .L0806473E
-.L08064758:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x30]
-	cmp r0, #1
-	bne .L0806477C
-	cmp r5, #0
-	beq .L08064770
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064770:
-	adds r5, #0x10
-	b .L0806479E
-	.align 2, 0
-.L08064774: .4byte .Lhs_report_work_label_bitmap
-.L08064778: .4byte .Lhs_report_not_assigned_bitmap
-.L0806477C:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L0806479C
-.L08064784:
-	cmp r2, #0
-	beq .L08064794
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064794:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08064784
-.L0806479C:
-	adds r5, r2, #0
-.L0806479E:
-	CommitHarvestSpriteReportDmaBuffer r1, reload_r0
-.Lhs_report_upload_days_left_label:
-	ldr r3, .L08064824 @ =gHarvestSpriteReportDaysLeftLabel
-	movs r1, #4
-	movs r2, #2
-	add r0, sp, #0x34
-	strh r1, [r0]
-	ldr r4, [sp, #0x110]
-	strh r2, [r4, #2]
-	ldr r0, [sp, #0x34]
-	str r3, [sp]
-	mov r1, sl
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r5, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r5]
-	bl HardwareContext_GetDmaQueue
-	movs r3, #0x80
-	lsls r3, r3, #1
-	adds r6, r0, #0
-	movs r7, #0x3c
-	lsls r2, r7, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	mov r1, sl
-	bl DmaCommand_InitializeCopy
-	add r0, sp, #.Lhs_report_sp_copy_command
-	mov sb, r0
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_days_left_label
-	cmp r1, #0
-	beq .L0806481A
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806481A:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_work_label
-	.align 2, 0
-.L08064824: .4byte gHarvestSpriteReportDaysLeftLabel
-.Lhs_report_grow_days_left_label:
-	GrowHarvestSpriteLabelDmaQueue 0x38, r1
-.Lhs_report_upload_work_label:
-	ldr r3, .L08064948 @ =gHarvestSpriteReportWorkLabel
-	movs r1, #8
-	movs r2, #2
-	add r0, sp, #0x40
-	strh r1, [r0]
-	ldr r4, [sp, #0x114]
-	strh r2, [r4, #2]
-	ldr r0, [sp, #0x40]
-	str r3, [sp]
-	ldr r1, [sp, #0x10c]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r5, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r5]
-	bl HardwareContext_GetDmaQueue
-	movs r3, #0x80
-	lsls r3, r3, #2
-	adds r6, r0, #0
-	movs r7, #0x44
-	lsls r2, r7, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	ldr r1, [sp, #0x10c]
-	bl DmaCommand_InitializeCopy
-	add r0, sp, #.Lhs_report_sp_copy_command
-	mov sb, r0
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_work_label
-	cmp r1, #0
-	beq .L08064940
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064940:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_not_assigned_label
-	.align 2, 0
-.L08064948: .4byte gHarvestSpriteReportWorkLabel
-.Lhs_report_grow_work_label:
-	GrowHarvestSpriteLabelDmaQueue 0x44, r1
-.Lhs_report_upload_not_assigned_label:
-	ldr r3, .L08064A6C @ =gHarvestSpriteReportNotAssignedLabel
-	movs r1, #0xc
-	movs r2, #2
-	add r0, sp, #0x4c
-	strh r1, [r0]
-	ldr r4, [sp, #0x118]
-	strh r2, [r4, #2]
-	ldr r0, [sp, #0x4c]
-	str r3, [sp]
-	ldr r1, [sp, #0x130]
-	movs r2, #0
-	movs r3, #0
-	bl DrawMessageTileString
-	ldr r5, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r5]
-	bl HardwareContext_GetDmaQueue
-	movs r3, #0xc0
-	lsls r3, r3, #2
-	adds r6, r0, #0
-	movs r7, #0x54
-	lsls r2, r7, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	ldr r1, [sp, #0x130]
-	bl DmaCommand_InitializeCopy
-	add r0, sp, #.Lhs_report_sp_copy_command
-	mov sb, r0
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_not_assigned_label
-	cmp r1, #0
-	beq .L08064A64
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064A64:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_friendship_tiles
-	.align 2, 0
-.L08064A6C: .4byte gHarvestSpriteReportNotAssignedLabel
-.Lhs_report_grow_not_assigned_label:
-	GrowHarvestSpriteLabelDmaQueue 0x50, r1
-.Lhs_report_upload_friendship_tiles:
-	ldr r2, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r2]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08064B74 @ =gUnk_0875254C
-	movs r3, #0x6c
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_friendship_tiles
-	cmp r1, #0
-	beq .L08064B6A
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064B6A:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_friendship_palette
-	.align 2, 0
-.L08064B74: .4byte gUnk_0875254C
-.Lhs_report_grow_friendship_tiles:
-	GrowHarvestSpriteSmallIconDmaQueue 0x58, r3, r7
-.Lhs_report_upload_friendship_palette:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08064C78 @ =gUnk_087525CC
-	add r0, sp, #.Lhs_report_sp_copy_command
-	ldr r2, .L08064C7C @ =(.Lhs_report_bg_palette_ram + .Lhs_report_palette_bytes)
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r2, sp, #.Lhs_report_sp_copy_command
-	mov sb, r2
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_friendship_palette
-	cmp r1, #0
-	beq .L08064C70
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064C70:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_small_watering_icon
-	.align 2, 0
-.L08064C78: .4byte gUnk_087525CC
-.L08064C7C: .4byte (.Lhs_report_bg_palette_ram + .Lhs_report_palette_bytes)
-.Lhs_report_grow_friendship_palette:
-	GrowHarvestSpriteSmallIconDmaQueue 0x60, r7, r7
-.Lhs_report_upload_small_watering_icon:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08064D88 @ =gUnk_08752DCC
-	movs r3, #0x70
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_small_watering_icon
-	cmp r1, #0
-	beq .L08064D80
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064D80:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_small_harvesting_icon
-	.align 2, 0
-.L08064D88: .4byte gUnk_08752DCC
-.Lhs_report_grow_small_watering_icon:
-	GrowHarvestSpriteSmallIconDmaQueue 0x68, r3, r7
-.Lhs_report_upload_small_harvesting_icon:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08064E94 @ =gUnk_08752B4C
-	movs r3, #0x71
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_small_harvesting_icon
-	cmp r1, #0
-	beq .L08064E8C
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064E8C:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_small_animal_care_icon
-	.align 2, 0
-.L08064E94: .4byte gUnk_08752B4C
-.Lhs_report_grow_small_harvesting_icon:
-	GrowHarvestSpriteSmallIconDmaQueue 0x70, r3, r7
-.Lhs_report_upload_small_animal_care_icon:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08064FA0 @ =gUnk_087529AC
-	movs r3, #0x72
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_small_animal_care_icon
-	cmp r1, #0
-	beq .L08064F98
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08064F98:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_watering_task_tiles
-	.align 2, 0
-.L08064FA0: .4byte gUnk_087529AC
-.Lhs_report_grow_small_animal_care_icon:
-	GrowHarvestSpriteSmallIconDmaQueue 0x78, r3, r7
-.Lhs_report_upload_watering_task_tiles:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L080650AC @ =gUnk_08752D4C
-	movs r3, #0x73
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_watering_task_tiles
-	cmp r1, #0
-	beq .L080650A4
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080650A4:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_harvesting_task_tiles
-	.align 2, 0
-.L080650AC: .4byte gUnk_08752D4C
-.Lhs_report_grow_watering_task_tiles:
-	GrowHarvestSpriteSmallIconDmaQueue 0x80, r3, r7
-.Lhs_report_upload_harvesting_task_tiles:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L080651B8 @ =gUnk_08752ACC
-	movs r3, #0x77
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_harvesting_task_tiles
-	cmp r1, #0
-	beq .L080651B0
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080651B0:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_animal_care_task_tiles
-	.align 2, 0
-.L080651B8: .4byte gUnk_08752ACC
-.Lhs_report_grow_harvesting_task_tiles:
-	GrowHarvestSpriteTileDmaQueue 0x88, r3, r7
-.Lhs_report_upload_animal_care_task_tiles:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L080652CC @ =gUnk_0875290C
-	movs r3, #0x7b
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	movs r3, #0x80
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_animal_care_task_tiles
-	cmp r1, #0
-	beq .L080652C2
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080652C2:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_task_icon_palette
-	.align 2, 0
-.L080652CC: .4byte gUnk_0875290C
-.Lhs_report_grow_animal_care_task_tiles:
-	GrowHarvestSpriteTileDmaQueue 0x90, r3, r7
-.Lhs_report_upload_task_icon_palette:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L080653D8 @ =gUnk_0875298C
-	add r0, sp, #.Lhs_report_sp_copy_command
-	ldr r2, .L080653DC @ =(.Lhs_report_bg_palette_ram + 2 * .Lhs_report_palette_bytes)
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r2, sp, #.Lhs_report_sp_copy_command
-	mov sb, r2
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_task_icon_palette
-	cmp r1, #0
-	beq .L080653CE
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080653CE:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_watering_skill_tiles
-	.align 2, 0
-.L080653D8: .4byte gUnk_0875298C
-.L080653DC: .4byte (.Lhs_report_bg_palette_ram + 2 * .Lhs_report_palette_bytes)
-.Lhs_report_grow_task_icon_palette:
-	GrowHarvestSpritePaletteDmaQueue 0x98, r1
-.Lhs_report_upload_watering_skill_tiles:
-	ldr r2, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r2]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L080654EC @ =gUnk_087517AC
-	movs r3, #0x9c
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	adds r3, #(9 * .Lhs_report_tile_bytes - .Lhs_report_watering_skill_tile)
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_watering_skill_tiles
-	cmp r1, #0
-	beq .L080654E2
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080654E2:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_harvesting_skill_tiles
-	.align 2, 0
-.L080654EC: .4byte gUnk_087517AC
-.Lhs_report_grow_watering_skill_tiles:
-	GrowHarvestSpriteTileDmaQueue 0xa0, r3, r7
-.Lhs_report_upload_harvesting_skill_tiles:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08065600 @ =gUnk_08750F8C
-	movs r3, #0xa5
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	adds r3, #(9 * .Lhs_report_tile_bytes - .Lhs_report_harvesting_skill_tile)
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_harvesting_skill_tiles
-	cmp r1, #0
-	beq .L080655F6
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080655F6:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_animal_care_skill_tiles
-	.align 2, 0
-.L08065600: .4byte gUnk_08750F8C
-.Lhs_report_grow_harvesting_skill_tiles:
-	GrowHarvestSpriteTileDmaQueue 0xa8, r3, r7
-.Lhs_report_upload_animal_care_skill_tiles:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08065714 @ =gUnk_08750E4C
-	movs r3, #0xae
-	lsls r2, r3, #5
-	movs r0, #(.Lhs_report_bg_tile_vram >> 19)
-	lsls r0, r0, #0x13
-	adds r2, r2, r0
-	add r0, sp, #.Lhs_report_sp_copy_command
-	adds r3, #(9 * .Lhs_report_tile_bytes - .Lhs_report_animal_care_skill_tile)
-	bl DmaCommand_InitializeCopy
-	add r4, sp, #.Lhs_report_sp_copy_command
-	mov sb, r4
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_animal_care_skill_tiles
-	cmp r1, #0
-	beq .L0806570A
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806570A:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_skill_bar_palette
-	.align 2, 0
-.L08065714: .4byte gUnk_08750E4C
-.Lhs_report_grow_animal_care_skill_tiles:
-	GrowHarvestSpriteTileDmaQueue 0xb0, r3, r7
-.Lhs_report_upload_skill_bar_palette:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08065820 @ =gUnk_08750F6C
-	add r0, sp, #.Lhs_report_sp_copy_command
-	ldr r2, .L08065824 @ =(.Lhs_report_bg_palette_ram + 3 * .Lhs_report_palette_bytes)
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r2, sp, #.Lhs_report_sp_copy_command
-	mov sb, r2
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_skill_bar_palette
-	cmp r1, #0
-	beq .L08065816
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08065816:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_skill_marker_obj_tile
-	.align 2, 0
-.L08065820: .4byte gUnk_08750F6C
-.L08065824: .4byte (.Lhs_report_bg_palette_ram + 3 * .Lhs_report_palette_bytes)
-.Lhs_report_grow_skill_bar_palette:
-	GrowHarvestSpritePaletteDmaQueue 0xb8, r1
-.Lhs_report_upload_skill_marker_obj_tile:
-	ldr r2, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r2]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L0806592C @ =gUnk_08750C4C
-	add r0, sp, #.Lhs_report_sp_copy_command
-	ldr r2, .L08065930 @ =(.Lhs_report_obj_tile_vram + 5 * .Lhs_report_tile_bytes)
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r3, sp, #.Lhs_report_sp_copy_command
-	mov sb, r3
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_skill_marker_obj_tile
-	cmp r1, #0
-	beq .L08065922
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08065922:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lhs_report_upload_skill_marker_obj_palette
-	.align 2, 0
-.L0806592C: .4byte gUnk_08750C4C
-.L08065930: .4byte (.Lhs_report_obj_tile_vram + 5 * .Lhs_report_tile_bytes)
-.Lhs_report_grow_skill_marker_obj_tile:
-	GrowHarvestSpriteTileDmaQueue 0xc0, r2, r7
-.Lhs_report_upload_skill_marker_obj_palette:
-	ldr r1, [sp, #.Lhs_report_sp_report]
-	ldr r0, [r1]
-	bl HardwareContext_GetDmaQueue
-	adds r6, r0, #0
-	ldr r1, .L08065A3C @ =gUnk_08750C6C
-	add r0, sp, #.Lhs_report_sp_copy_command
-	ldr r2, .L08065A40 @ =(.Lhs_report_obj_palette_ram + .Lhs_report_palette_bytes)
-	movs r3, #0x20
-	bl DmaCommand_InitializeCopy
-	add r2, sp, #.Lhs_report_sp_copy_command
-	mov sb, r2
-	ldr r1, [r6, #4]
-	ldr r0, [r6, #0xc]
-	cmp r1, r0
-	beq .Lhs_report_grow_skill_marker_obj_palette
-	cmp r1, #0
-	beq .L08065A32
-	adds r0, r1, #0
-	add r1, sp, #.Lhs_report_sp_copy_command
-	ldm r1!, {r3, r4, r5}
-	stm r0!, {r3, r4, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08065A32:
-	ldr r0, [r6, #4]
-	adds r0, #0x10
-	str r0, [r6, #4]
-	b .Lharvest_sprite_report_start_rows
-	.align 2, 0
-.L08065A3C: .4byte gUnk_08750C6C
-.L08065A40: .4byte (.Lhs_report_obj_palette_ram + .Lhs_report_palette_bytes)
-.Lhs_report_grow_skill_marker_obj_palette:
-	GrowHarvestSpritePaletteDmaQueue 0xc8, r1
-.Lharvest_sprite_report_start_rows:
-	movs r2, #4
-	mov r8, r2
-	movs r3, #0
-	str r3, [sp, #.Lhs_report_sp_roster_index]
-
-	.purgem CommitHarvestSpriteReportDmaBuffer
-	.purgem GrowHarvestSpriteLabelDmaQueue
-	.purgem GrowHarvestSpriteSmallIconDmaQueue
-	.purgem GrowHarvestSpriteTileDmaQueue
-	.purgem GrowHarvestSpritePaletteDmaQueue
 
 	.section .text.after_f3, "ax", %progbits
 	.align 2, 0
@@ -65182,7 +55376,7 @@ func_08069F14: @ 0x08069F14
 	mov sb, r1
 	adds r5, r2, #0
 	mov sl, r3
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L0806A120 @ =vtable_unk_080E7AA8
 	str r0, [r7, #4]
 	mov r1, sb
@@ -65340,7 +55534,7 @@ func_08069F14: @ 0x08069F14
 	ldr r0, .L0806A134 @ =0x000040B0
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #1
 	bl func_08007B54
@@ -65355,7 +55549,7 @@ func_08069F14: @ 0x08069F14
 	ldr r2, .L0806A13C @ =0x000040C0
 	adds r4, r7, r2
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -65376,7 +55570,7 @@ func_08069F14: @ 0x08069F14
 	rsbs r6, r6, #0
 .L0806A0CC:
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r0, r8
 	str r0, [r4, #4]
 	adds r4, #8
@@ -65521,7 +55715,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r0, [sp, #0x20c]
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
@@ -70039,7 +60233,7 @@ func_0806A1F4: @ 0x0806A1F4
 	non_word_aligned_thumb_func_start sub_0806C492
 sub_0806C492: @ 0x0806C492
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -72768,7 +62962,7 @@ func_0806D990: @ 0x0806D990
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	adds r0, r7, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L0806DAB0 @ =vtable_unk_080E7AC4
 	str r0, [r7, #4]
 	mov r0, r8
@@ -72809,7 +63003,7 @@ func_0806D990: @ 0x0806D990
 	adds r4, r7, #0
 	adds r4, #0x18
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #7
 	bl func_08007B54
@@ -72822,7 +63016,7 @@ func_0806D990: @ 0x0806D990
 	str r0, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
 	bl func_08007B54
@@ -72963,7 +63157,7 @@ func_0806DB38: @ 0x0806DB38
 	mov sl, r0
 	adds r5, r1, #0
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -73013,7 +63207,7 @@ func_0806DB38: @ 0x0806DB38
 	str r0, [sp, #0x14]
 .L0806DBC0:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r1, .L0806DBEC @ =0x0000044C
@@ -74909,7 +65103,7 @@ func_0806EA78: @ 0x0806EA78
 	adds r0, r5, #0
 	bl func_08070140
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L0806EAD8:
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -74966,7 +65160,7 @@ func_0806EAF4: @ 0x0806EAF4
 	adds r0, r5, #0
 	bl func_08070140
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L0806EB54:
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -77910,7 +68104,7 @@ func_080701BC: @ 0x080701BC
 	str r5, [r2]
 	str r1, [sp, #4]
 	adds r7, r0, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080704F0 @ =vtable_unk_080E7AE0
 	str r0, [r7, #4]
 	str r4, [r7, #8]
@@ -79013,7 +69207,7 @@ func_08070A08: @ 0x08070A08
 	bl func_08070140
 .L08070B14:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L08070B1A:
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
@@ -89885,7 +80079,7 @@ func_08075E7C: @ 0x08075E7C
 	lsrs r0, r0, #0x18
 	mov sl, r0
 	adds r0, r7, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L0807615C @ =vtable_unk_080E7B78
 	str r0, [r7, #4]
 	movs r4, #0
@@ -90004,7 +80198,7 @@ func_08075E7C: @ 0x08075E7C
 	mov r3, sl
 	strb r3, [r0]
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
@@ -91360,7 +81554,7 @@ func_080769A0: @ 0x080769A0
 	mov sb, r4
 .L080769FE:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r6, #0
@@ -92696,7 +82890,7 @@ func_080773E8: @ 0x080773E8
 	strh r2, [r3, #2]
 	adds r0, r4, #0
 	mov r1, sp
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L0807747C @ =vtable_unk_080E7B98
 	str r0, [r4, #4]
 	adds r0, r4, #0
@@ -92770,7 +82964,7 @@ func_08077490: @ 0x08077490
 	mov sb, r0
 	adds r5, r1, #0
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -92820,7 +83014,7 @@ func_08077490: @ 0x08077490
 	mov sl, r1
 .L08077518:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r2, .L08077544 @ =0x0000072A
@@ -93770,7 +83964,7 @@ func_08077CE0: @ 0x08077CE0
 	adds r0, r5, #0
 	bl func_080785C8
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L08077D40:
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -93827,7 +84021,7 @@ func_08077D5C: @ 0x08077D5C
 	adds r0, r5, #0
 	bl func_080785C8
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L08077DBC:
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -95004,7 +85198,7 @@ func_0807865C: @ 0x0807865C
 	add r5, sp, #0x10
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080789FC @ =vtable_unk_080E7BB4
 	str r0, [r7, #4]
 	str r4, [r7, #8]
@@ -95592,7 +85786,7 @@ func_08078E40: @ 0x08078E40
 	mov sl, r0
 	strh r2, [r1, #2]
 	adds r0, r6, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L0807900C @ =vtable_unk_080E7BD0
 	str r0, [r6, #4]
 	str r4, [r6, #8]
@@ -95696,7 +85890,7 @@ func_08078E40: @ 0x08078E40
 	lsls r0, r0, #4
 	adds r4, r6, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
 	bl func_08007B54
@@ -95712,7 +85906,7 @@ func_08078E40: @ 0x08078E40
 	lsls r3, r3, #4
 	adds r4, r6, r3
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #6
 	bl func_08007B54
@@ -95728,7 +85922,7 @@ func_08078E40: @ 0x08078E40
 	lsls r1, r1, #4
 	adds r4, r6, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -95887,7 +86081,7 @@ func_080790E4: @ 0x080790E4
 	mov sl, r0
 	adds r5, r1, #0
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -95930,7 +86124,7 @@ func_080790E4: @ 0x080790E4
 	b .L08079504
 .L08079154:
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	ldr r4, .L080791C8 @ =0x00000856
 	adds r0, r5, r4
 	ldrh r1, [r0]
@@ -95963,7 +86157,7 @@ func_080790E4: @ 0x080790E4
 	movs r4, #0
 .L0807919E:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r6, .L080791C4 @ =0x00000A58
@@ -96375,7 +86569,7 @@ func_080790E4: @ 0x080790E4
 	b .L0807980C
 .L08079504:
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl func_08079F8C
 	ldr r0, [sp, #4]
@@ -96393,7 +86587,7 @@ func_080790E4: @ 0x080790E4
 	movs r7, #0
 .L08079530:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r4, .L08079554 @ =0x00000A58
@@ -101617,7 +91811,7 @@ func_0807BEC8: @ 0x0807BEC8
 	push {r5, r6, r7}
 	sub sp, #0xa4
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -101979,7 +92173,7 @@ func_0807BEC8: @ 0x0807BEC8
 	thumb_func_start sub_0807C194
 sub_0807C194: @ 0x0807C194
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0xc]
@@ -103843,7 +94037,7 @@ func_0807D218: @ 0x0807D218
 	push {r5, r6, r7}
 	sub sp, #0xe8
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	ldr r0, [r7, #8]
@@ -104457,7 +94651,7 @@ func_0807D218: @ 0x0807D218
 	str r4, [sp, #0xdc]
 .L0807D6E0:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe4]
@@ -105328,7 +95522,7 @@ func_0807DE3C: @ 0x0807DE3C
 	push {r5, r6, r7}
 	sub sp, #0xd8
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0x10
@@ -105790,7 +95984,7 @@ func_0807DE3C: @ 0x0807DE3C
 	mov sb, r0
 .L0807E238:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r1, [sp, #0xd4]
@@ -106157,7 +96351,7 @@ func_0807E558: @ 0x0807E558
 	push {r5, r6, r7}
 	sub sp, #0xec
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -106481,7 +96675,7 @@ func_0807E558: @ 0x0807E558
 	str r4, [sp, #0xd4]
 .L0807E804:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe8]
@@ -107405,7 +97599,7 @@ func_0807EF90: @ 0x0807EF90
 	push {r5, r6, r7}
 	sub sp, #0xf4
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -107819,7 +98013,7 @@ func_0807EF90: @ 0x0807EF90
 	mov r8, r6
 .L0807F2D0:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	mov r0, sb
@@ -108559,7 +98753,7 @@ func_0807F8C8: @ 0x0807F8C8
 	push {r5, r6, r7}
 	sub sp, #0x44
 	adds r6, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl func_080C85A0
 	movs r5, #1
@@ -108937,7 +99131,7 @@ func_0807F8C8: @ 0x0807F8C8
 	str r0, [sp, #0x3c]
 .L0807FBBA:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #4]
@@ -110087,7 +100281,7 @@ func_08080540: @ 0x08080540
 	push {r5, r6, r7}
 	sub sp, #0xec
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -110364,7 +100558,7 @@ func_08080540: @ 0x08080540
 	str r4, [sp, #0xd4]
 .L08080792:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe8]
@@ -111556,7 +101750,7 @@ func_0808114C: @ 0x0808114C
 	push {r5, r6, r7}
 	sub sp, #0x2c
 	adds r6, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl func_080C85A0
 	movs r4, #0
@@ -111736,7 +101930,7 @@ func_0808114C: @ 0x0808114C
 	str r2, [sp, #0x24]
 .L080812BE:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #4]
@@ -112822,7 +103016,7 @@ func_08081BBC: @ 0x08081BBC
 	push {r5, r6, r7}
 	sub sp, #0xf8
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -113162,7 +103356,7 @@ func_08081BBC: @ 0x08081BBC
 	mov r8, r0
 .L08081E78:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r1, [sp, #0xf0]
@@ -115001,7 +105195,7 @@ func_08082CEC: @ 0x08082CEC
 	push {r6, r7}
 	sub sp, #0x50
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -115308,7 +105502,7 @@ func_08082CEC: @ 0x08082CEC
 	thumb_func_start sub_08082F50
 sub_08082F50: @ 0x08082F50
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0x28]
@@ -117428,7 +107622,7 @@ func_08084228: @ 0x08084228
 	push {r5, r6, r7}
 	sub sp, #0x70
 	adds r6, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl func_080C85A0
 	movs r0, #0
@@ -117734,7 +107928,7 @@ func_08084228: @ 0x08084228
 	strb r0, [r1]
 .L08084498:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0x10]
@@ -121662,7 +111856,7 @@ func_08086A08: @ 0x08086A08
 	push {r5, r6, r7}
 	sub sp, #0xb4
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -122177,7 +112371,7 @@ func_08086A08: @ 0x08086A08
 	non_word_aligned_thumb_func_start sub_08086DFA
 sub_08086DFA: @ 0x08086DFA
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0xc]
@@ -128675,7 +118869,7 @@ func_0808A55C: @ 0x0808A55C
 	push {r5, r6, r7}
 	sub sp, #0x1c
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x80
@@ -128745,7 +118939,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -128769,7 +118963,7 @@ func_0808A55C: @ 0x0808A55C
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
@@ -128909,7 +119103,7 @@ func_0808A55C: @ 0x0808A55C
 	mov r8, r1
 .L0808A786:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -129005,7 +119199,7 @@ func_0808A55C: @ 0x0808A55C
 	cmp r0, #0
 	beq .L0808A86C
 	ldr r0, [r6]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L0808A89A
 .L0808A86C:
 	movs r4, #0
@@ -131867,7 +122061,7 @@ func_0808C0BC: @ 0x0808C0BC
 	push {r5, r6, r7}
 	sub sp, #0x10
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x82
@@ -131937,7 +122131,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r5, #0
 	adds r1, r4, #0
 	mov r3, r8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -132075,7 +122269,7 @@ func_0808C0BC: @ 0x0808C0BC
 	mov sl, r0
 .L0808C2AC:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -132157,7 +122351,7 @@ func_0808C0BC: @ 0x0808C0BC
 	cmp r0, #0
 	beq .L0808C364
 	ldr r0, [r4]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L0808C394
 .L0808C364:
 	movs r4, #0
@@ -136260,7 +126454,7 @@ func_0808E6FC: @ 0x0808E6FC
 	push {r5, r6, r7}
 	sub sp, #0x1c
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x80
@@ -136330,7 +126524,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -136354,7 +126548,7 @@ func_0808E6FC: @ 0x0808E6FC
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
@@ -136494,7 +126688,7 @@ func_0808E6FC: @ 0x0808E6FC
 	mov r8, r1
 .L0808E926:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -136590,7 +126784,7 @@ func_0808E6FC: @ 0x0808E6FC
 	cmp r0, #0
 	beq .L0808EA0C
 	ldr r0, [r6]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L0808EA3A
 .L0808EA0C:
 	movs r4, #0
@@ -140170,7 +130364,7 @@ func_08090960: @ 0x08090960
 	push {r5, r6, r7}
 	sub sp, #0x14
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x80
@@ -140240,7 +130434,7 @@ func_08090960: @ 0x08090960
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -140264,7 +130458,7 @@ func_08090960: @ 0x08090960
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
@@ -140404,7 +130598,7 @@ func_08090960: @ 0x08090960
 	mov r8, r1
 .L08090B8A:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -140493,7 +130687,7 @@ func_08090960: @ 0x08090960
 	cmp r0, #0
 	beq .L08090C54
 	ldr r0, [r6]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L08090C82
 .L08090C54:
 	movs r4, #0
@@ -141601,7 +131795,7 @@ func_0809152C: @ 0x0809152C
 	str r0, [sp, #0x40]
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x82
@@ -141671,7 +131865,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r5, #0
 	adds r1, r4, #0
 	mov r3, r8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -141856,7 +132050,7 @@ func_0809152C: @ 0x0809152C
 	str r2, [sp, #0x5c]
 .L0809178A:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -141980,7 +132174,7 @@ func_0809152C: @ 0x0809152C
 	beq .L080918B4
 	ldr r1, [sp, #0x60]
 	ldr r0, [r1]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L080918E4
 .L080918B4:
 	movs r4, #0
@@ -144458,7 +134652,7 @@ func_08092D64: @ 0x08092D64
 	push {r5, r6, r7}
 	sub sp, #0x14
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x82
@@ -144528,7 +134722,7 @@ func_08092D64: @ 0x08092D64
 	adds r0, r5, #0
 	adds r1, r4, #0
 	mov r3, r8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -144667,7 +134861,7 @@ func_08092D64: @ 0x08092D64
 	mov sl, r2
 .L08092F56:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -144751,7 +134945,7 @@ func_08092D64: @ 0x08092D64
 	cmp r0, #0
 	beq .L08093014
 	ldr r0, [r6]
-	bl func_080CDC00
+	bl InventoryMenu_MoveSelectionLeft
 	b .L08093044
 .L08093014:
 	movs r4, #0
@@ -145035,7 +135229,7 @@ func_0809323C: @ 0x0809323C
 	sub sp, #0x14
 	adds r7, r0, #0
 	adds r5, r1, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	adds r4, r7, #0
 	adds r4, #8
 	adds r0, r4, #0
@@ -145170,7 +135364,7 @@ func_08093364: @ 0x08093364
 	push {r5, r6, r7}
 	sub sp, #0x5c
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
@@ -145309,7 +135503,7 @@ func_08093364: @ 0x08093364
 	str r3, [sp, #0x50]
 .L080934B8:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [r7, #8]
@@ -148010,7 +138204,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r3, r3, #2
 	adds r5, r7, r3
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #2
 	bl func_08007B54
@@ -148025,7 +138219,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r1, r1, #2
 	adds r5, r7, r1
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #2
 	bl func_08007B54
@@ -148042,7 +138236,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r3, r3, #2
 	adds r5, r7, r3
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #6
 	bl func_08007B54
@@ -148057,7 +138251,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r1, r1, #2
 	adds r5, r7, r1
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -148066,7 +138260,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r2, r2, #2
 	adds r5, r7, r2
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
 	bl func_08007B54
@@ -148081,7 +138275,7 @@ func_08094AC0: @ 0x08094AC0
 	lsls r0, r0, #2
 	adds r5, r7, r0
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #7
 	bl func_08007B54
@@ -148351,7 +138545,7 @@ func_08094F6C: @ 0x08094F6C
 	mov r8, r0
 	adds r4, r1, #0
 	adds r0, r4, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r7, #0
 	add r0, sp, #4
 	mov sb, r0
@@ -148656,7 +138850,7 @@ func_080951B4: @ 0x080951B4
 	mov sb, r0
 	movs r7, #0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r1, #0xba
 	lsls r1, r1, #2
 	adds r4, r6, r1
@@ -148717,7 +138911,7 @@ func_080951B4: @ 0x080951B4
 	mov sl, r4
 .L0809525C:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -149548,7 +139742,7 @@ func_080958C0: @ 0x080958C0
 	movs r2, #0
 	mov sb, r2
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r3, #0xc8
 	lsls r3, r3, #2
 	adds r4, r6, r3
@@ -149626,7 +139820,7 @@ func_080958C0: @ 0x080958C0
 	mov sl, r1
 .L0809598A:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -150128,7 +140322,7 @@ func_08095D80: @ 0x08095D80
 	str r0, [sp, #8]
 	mov sl, r0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r1, #0xc8
 	lsls r1, r1, #2
 	adds r4, r6, r1
@@ -150204,7 +140398,7 @@ func_08095D80: @ 0x08095D80
 	str r1, [sp, #0x18]
 .L08095E44:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	mov r0, sl
@@ -150803,7 +140997,7 @@ func_080962F0: @ 0x080962F0
 	ldrb r4, [r4]
 	strb r4, [r6]
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r0, #0xba
 	lsls r0, r0, #2
 	adds r4, r7, r0
@@ -150896,7 +141090,7 @@ func_080962F0: @ 0x080962F0
 	str r1, [sp, #0xc0]
 .L080963EE:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xac]
@@ -152767,7 +142961,7 @@ func_080972AC: @ 0x080972AC
 	movs r2, #0
 	mov sb, r2
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r3, #0xc8
 	lsls r3, r3, #2
 	adds r4, r6, r3
@@ -152824,7 +143018,7 @@ func_080972AC: @ 0x080972AC
 	mov sl, r0
 .L0809734E:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -153811,7 +144005,7 @@ func_08097AE4: @ 0x08097AE4
 	mov sb, r0
 	movs r7, #0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r1, #0xc8
 	lsls r1, r1, #2
 	adds r4, r6, r1
@@ -153878,7 +144072,7 @@ func_08097AE4: @ 0x08097AE4
 	movs r4, #0
 .L08097B90:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -155779,7 +145973,7 @@ func_080989DC: @ 0x080989DC
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	mov r5, r8
 	adds r4, r0, #0
 	ldr r1, [r7, #0x7c]
@@ -157359,7 +147553,7 @@ func_0809964C: @ 0x0809964C
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r1, [r7, #0x7c]
