@@ -60,16 +60,6 @@ struct G1NpcRoster
     HarvestSprite sprites[7];
 };
 
-struct G1NpcPenaltyState
-{
-    u8 reserved[0x3a];
-    u8 : 5;
-    u8 npc_33_stage : 2;
-    u8 : 1;
-    u8 : 3;
-    u8 npc_34_stage : 2;
-};
-
 EC Npc * GetRosterNpcById(G1NpcRoster *, u32);
 EC u32 GetRosterMarriageCandidate(G1NpcRoster const *);
 
