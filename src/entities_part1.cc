@@ -50,7 +50,7 @@ EC u16 const gUnk_080F0A68[];
 EC u16 const gUnk_080F0C3C[];
 EC u16 const gUnk_080F0E34[];
 EC void func_080323C8(AEntity * self);
-EC void func_0802A588(AEntity * self);
+EC void RefreshFarmerHeldItemDisplay(FarmerEntity * self);
 
 EC bool DoesEntityCollisionRectangleHitSolidTile(void * map, Box const * box);
 
@@ -144,7 +144,8 @@ EC void ItemCollection_SetExtraItems(void * self, Location const & location);
 EC u32 ChickenEntity_GetStateAnimation(ChickenEntity * self, u32 state);
 EC void __builtin_delete(void * ptr);
 EC void * __builtin_new(size_t size);
-EC UnknownEntityThing * func_0802B260(void * memory, FarmerEntity * self);
+struct FarmerEffectGraphicsInit;
+EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * self);
 struct ScriptEventSelection;
 EC bool IsSelectedScriptEvent(ScriptEventSelection const & events, u16 eventId);
 EC u32 func_08022320(u32 growth_stage);
@@ -411,7 +412,7 @@ EC ChickenBehaviorChoice const gUnk_080F09C8[2][2][2][5];
 EC u32 RollEntityMovementRandom(u32 bound);
 EC u32 ChooseWeightedEntityMovement(ChickenBehaviorChoice const * choices, u32 count);
 EC i32 RotateEntityMovementFacing(i32 facing, i32 turn);
-EC u32 func_080ABE58(i32 x, i32 y, i32 target_x, i32 target_y, EntityMovementBounds * bounds, u32 facing);
+EC u32 ChooseEntityFacingAwayFromPoint(i32 x, i32 y, i32 target_x, i32 target_y, EntityCollisionProbe * probe, u32 facing);
 EC void ConstrainEntityMovementAgainstRectangle(EntityMovementBounds * bounds, Box const & box, u32 argument);
 EC bool AEntity_IsAnimationFinished(AEntity * self);
 EC void AActorEntity_ApplyBoundedMovement(AActorEntity * self, EntityMovementBounds * bounds);
@@ -535,7 +536,8 @@ EC void ChickenEntity_Update(ChickenEntity * self, ChickenEntityUpdateContext co
                     if (running != 0)
                         state = 4;
                     u32 const old_facing = self->facing;
-                    u32 facing = func_080ABE58(x, y, target_x, target_y, &bounds, old_facing);
+                    u32 facing = ChooseEntityFacingAwayFromPoint(x, y, target_x, target_y,
+                        reinterpret_cast<EntityCollisionProbe *>(&bounds), old_facing);
                     ChickenEntity_SetAnimationState(self, state, facing);
                     direction_time = RollEntityMovementRandom(30) + 1;
                 }
@@ -779,7 +781,7 @@ EC UnknownEntityThing * FarmerEntity_CreateSprite(FarmerEntity * self)
             priority = 1;
     }
     self->unk_21 = priority;
-    return func_0802B260(__builtin_new(0x284), self);
+    return InitFarmerEffectGraphics(static_cast<FarmerEffectGraphicsInit *>(__builtin_new(0x284)), self);
 }
 
 // 0x080233B4
@@ -976,7 +978,7 @@ EC FarmerEntity * FarmerEntity_Init(FarmerEntity * self, GameObject * game, void
     self->unk_44 = 0;
     self->held_anim.Init();
     self->unk_78 = false;
-    self->unk_79 = false;
+    self->pet_interaction_flags = 0;
     self->unk_7A = false;
     self->icon = 0xFFFF;
     self->unk_80 = 0;
@@ -1038,7 +1040,7 @@ EC void FarmerEntity_LiftRucksackItem(FarmerEntity * self, RucksackItem const * 
     func_0800F418(&self->farmer->unk_54, *item);
     if (wrapped)
         func_0800F528(&self->farmer->unk_54);
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
@@ -1312,7 +1314,7 @@ EC void FarmerEntity_LiftObject(FarmerEntity * self) ENTITY_CODE(08025FC4);
 EC void FarmerEntity_LiftObject(FarmerEntity * self)
 {
     func_0800F4D8(&self->farmer->unk_54);
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
@@ -1323,7 +1325,7 @@ EC void FarmerEntity_LiftChicken(FarmerEntity * self, u8 value) ENTITY_CODE(0802
 EC void FarmerEntity_LiftChicken(FarmerEntity * self, u8 value)
 {
     func_0800F4F0(&self->farmer->unk_54, value);
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
@@ -1334,7 +1336,7 @@ EC void FarmerEntity_LiftDog(FarmerEntity * self) ENTITY_CODE(08025E38);
 EC void FarmerEntity_LiftDog(FarmerEntity * self)
 {
     func_0800F4C0(&self->farmer->unk_54);
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(self);
     self->state = 17;
     LaunchFarmerHeldItem(self);
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
@@ -1400,7 +1402,7 @@ EC void FarmerEntity_CycleHeldItemWithFeedback(FarmerEntity * self, bool next)
         result = func_0800EBC4(*self->farmer);
     if (result != 0)
     {
-        func_0802A588(self);
+        RefreshFarmerHeldItemDisplay(self);
         self->state = 20;
         AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 107);
     }
@@ -1963,7 +1965,7 @@ EC void func_08024BE8(AEntity * self) ENTITY_CODE(08024BE8);
 EC void func_08024BE8(AEntity * self)
 {
     self->AEntity::vfunc_10();
-    func_0802A588(self);
+    RefreshFarmerHeldItemDisplay(static_cast<FarmerEntity *>(self));
 }
 
 // 0x08024C54

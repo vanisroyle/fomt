@@ -46009,7 +46009,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r6, #0
 	bl LoadHorseRaceCourseGraphics
 	adds r0, r6, #0
-	bl func_0805AD14
+	bl UpdateHorseRaceCourseScroll
 	adds r0, r6, #0
 	bl func_0805B38C
 	adds r0, r6, #0
@@ -46314,7 +46314,7 @@ RunHorseRaceScreen: @ 0x080588AC
 .L080591C0: .4byte 0x00001404
 .L080591C4:
 	adds r0, r6, #0
-	bl func_0805C96C
+	bl UpdateHorseRaceProgress
 	cmp r0, #3
 	ble .L080591E0
 	ldr r7, .L080591E8 @ =0x00001406
@@ -46328,7 +46328,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	strh r0, [r1]
 .L080591E0:
 	adds r0, r6, #0
-	bl func_0805AD14
+	bl UpdateHorseRaceCourseScroll
 	b .L0805933E
 	.align 2, 0
 .L080591E8: .4byte 0x00001406
@@ -47598,9 +47598,152 @@ UpdateHorseRaceDialogue: @ 0x08059878
 	.align 2, 0
 .L08059C90: .4byte gUnk_080FAE00
 
+	.equ .Lrace_bg1_scroll_x, 0x13EA
+	.equ .Lrace_bg2_scroll_x, 0x13EC
+	.equ .Lrace_bg3_scroll_x, 0x13EE
+	.equ .Lrace_bg1_last_tile_scroll, 0x13F0
+	.equ .Lrace_bg2_last_tile_scroll, 0x13F2
+	.equ .Lrace_bg3_last_tile_scroll, 0x13F4
+	.equ .Lrace_bg1_pattern_phase, 0x13F6
+	.equ .Lrace_bg2_pattern_phase, 0x13F8
+	.equ .Lrace_bg3_pattern_phase, 0x13FA
+
+	.equ .Lrace_course_bg3_pattern, 0xBEA
+	.equ .Lrace_course_bg2_pattern, 0xCEA
+	.equ .Lrace_course_bg1_pattern, 0xDEA
+	.equ .Lrace_course_bg2_alternate, 0xEEA
+	.equ .Lrace_course_bg3_tilemap, 0x0600C800
+	.equ .Lrace_course_bg2_tilemap, 0x0600D800
+	.equ .Lrace_course_bg1_tilemap, 0x0600E800
+	.equ .Lrace_course_scroll_mask, 0xFFF0
+
+	@ Expand the DMA queue to size + max(size, 1) when a tile copy fills it.
+	@ r5 = queue, r1 = old end, r7 = tile row. Scratch registers vary by loop.
+	.macro GrowRaceCourseDmaQueue old_size, command_ptr, tail_reg, next_row_reg, end_reg
+	str r1, [sp, #0x60]
+	movs r0, #1
+	str r0, [sp, #(\old_size + 4)]
+	ldr r0, [r5]
+	adds \tail_reg, r1, #0
+	subs r0, \tail_reg, r0
+	asrs r4, r0, #4
+	str r4, [sp, #\old_size]
+	add r1, sp, #(\old_size + 4)
+	add r0, sp, #\old_size
+	cmp r4, #1
+	bhs .Lrace_dma_use_growth\@
+	adds r0, r1, #0
+.Lrace_dma_use_growth\@:
+	ldr r0, [r0]
+	adds r0, r4, r0
+	cmp r0, #0
+	beq .Lrace_dma_empty_capacity\@
+	lsls r4, r0, #4
+	adds r0, r4, #0
+	bl malloc
+	mov sb, r4
+	cmp r0, #0
+	bne .Lrace_dma_have_storage\@
+	mov r0, sb
+	bl func_080D3BC0
+	b .Lrace_dma_have_storage\@
+.Lrace_dma_empty_capacity\@:
+	movs r0, #0
+	mov sb, r0
+	@ Copy the queued commands into the resized buffer.
+.Lrace_dma_have_storage\@:
+	adds r4, r0, #0
+	mov r8, r4
+	ldr r2, [r5]
+	mov r3, r8
+	adds \next_row_reg, r7, #1
+	str \next_row_reg, [sp, #0x64]
+	ldr \end_reg, [sp, #0x60]
+	cmp r2, \end_reg
+	beq .Lrace_dma_append_new_commands\@
+.Lrace_dma_copy_old_commands\@:
+	cmp r3, #0
+	beq .Lrace_dma_next_old_command\@
+	adds r0, r3, #0
+	adds r1, r2, #0
+	ldm r1!, {r4, r6, r7}
+	stm r0!, {r4, r6, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lrace_dma_next_old_command\@:
+	adds r2, #0x10
+	adds r3, #0x10
+	ldr r0, [sp, #0x60]
+	cmp r2, r0
+	bne .Lrace_dma_copy_old_commands\@
+	@ Append the new command with the original fill-insert branches.
+.Lrace_dma_append_new_commands\@:
+	adds r4, r3, #0
+	ldr r0, [sp, #(\old_size + 4)]
+	cmp r0, #1
+	bne .Lrace_dma_append_multiple_commands\@
+	cmp r4, #0
+	beq .Lrace_dma_advance_single_command\@
+	adds r0, r4, #0
+	ldr r1, [sp, #\command_ptr]
+	ldm r1!, {r2, r3, r6}
+	stm r0!, {r2, r3, r6}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lrace_dma_advance_single_command\@:
+	adds r4, #0x10
+	b .Lrace_dma_release_old_storage\@
+.Lrace_dma_append_multiple_commands\@:
+	mov ip, r0
+	adds r2, r4, #0
+	cmp r0, #0
+	beq .Lrace_dma_finish_append\@
+.Lrace_dma_append_next_command\@:
+	cmp r2, #0
+	beq .Lrace_dma_advance_appended_command\@
+	adds r0, r2, #0
+	ldr r1, [sp, #\command_ptr]
+	ldm r1!, {r3, r4, r7}
+	stm r0!, {r3, r4, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lrace_dma_advance_appended_command\@:
+	movs r6, #1
+	rsbs r6, r6, #0
+	add ip, r6
+	adds r2, #0x10
+	mov r7, ip
+	cmp r7, #0
+	bne .Lrace_dma_append_next_command\@
+.Lrace_dma_finish_append\@:
+	adds r4, r2, #0
+	@ Discard the old buffer and publish the new queue.
+.Lrace_dma_release_old_storage\@:
+	ldr r2, [r5, #4]
+	ldr r0, [r5]
+	adds r1, r0, #0
+	cmp r0, r2
+	beq .Lrace_dma_free_old_storage\@
+.Lrace_dma_destroy_old_commands\@:
+	adds r1, #0x10
+	cmp r1, r2
+	bne .Lrace_dma_destroy_old_commands\@
+.Lrace_dma_free_old_storage\@:
+	cmp r0, #0
+	beq .Lrace_dma_write_queue\@
+	bl free
+.Lrace_dma_write_queue\@:
+	mov r0, sb
+	add r0, r8
+	mov r1, r8
+	str r1, [r5]
+	str r4, [r5, #4]
+	str r0, [r5, #0xc]
+	.endm
+
 	.section .text.f3.0805AD14, "ax", %progbits
-	thumb_func_start func_0805AD14
-func_0805AD14: @ 0x0805AD14
+	thumb_func_start UpdateHorseRaceCourseScroll
+UpdateHorseRaceCourseScroll: @ 0x0805AD14
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -47608,6 +47751,7 @@ func_0805AD14: @ 0x0805AD14
 	push {r5, r6, r7}
 	sub sp, #0x68
 	mov sl, r0
+	@ Apply horizontal positions to the display shadow for all three layers.
 	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
 	ldr r1, .L0805ADF8 @ =0x000013EA
@@ -47638,9 +47782,10 @@ func_0805AD14: @ 0x0805AD14
 	ands r1, r0
 	ldrh r0, [r2]
 	cmp r0, r1
-	bne .L0805AD68
-	b .L0805AEF0
-.L0805AD68:
+	bne .Lrace_scroll_update_near_pattern
+	b .Lrace_scroll_check_middle_scroll
+.Lrace_scroll_update_near_pattern:
+	@ When the scroll moves by 16 pixels, stream a two-tile strip into the wrapping map.
 	strh r1, [r2]
 	ldr r1, .L0805AE0C @ =0x000013FA
 	add r1, sl
@@ -47649,10 +47794,10 @@ func_0805AD14: @ 0x0805AD14
 	strh r0, [r1]
 	lsls r0, r0, #0x10
 	cmp r0, #0
-	bge .L0805AD7E
+	bge .Lrace_scroll_near_pattern_wrapped
 	movs r0, #2
 	strh r0, [r1]
-.L0805AD7E:
+.Lrace_scroll_near_pattern_wrapped:
 	ldrh r0, [r2]
 	subs r0, #0x10
 	movs r1, #0xf8
@@ -47670,7 +47815,7 @@ func_0805AD14: @ 0x0805AD14
 	ands r2, r0
 	lsls r2, r2, #1
 	str r2, [sp, #0x34]
-.L0805ADA0:
+.Lrace_scroll_queue_near_row:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805AE0C @ =0x000013FA
@@ -47698,154 +47843,40 @@ func_0805AD14: @ 0x0805AD14
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
-	beq .L0805AE18
+	beq .Lrace_scroll_grow_near_dma_queue
 	cmp r1, #0
-	beq .L0805ADEC
+	beq .Lrace_scroll_advance_near_dma_end
 	adds r0, r1, #0
 	ldr r1, [sp, #0x3c]
 	ldm r1!, {r2, r4, r6}
 	stm r0!, {r2, r4, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805ADEC:
+.Lrace_scroll_advance_near_dma_end:
 	ldr r0, [r5, #4]
 	adds r0, #0x10
 	str r0, [r5, #4]
 	adds r3, r7, #1
 	str r3, [sp, #0x64]
-	b .L0805AEE8
+	b .Lrace_scroll_next_near_row
 	.align 2, 0
-.L0805ADF8: .4byte 0x000013EA
-.L0805ADFC: .4byte 0x000013EC
-.L0805AE00: .4byte 0x000013EE
-.L0805AE04: .4byte 0x000013F4
-.L0805AE08: .4byte 0x0000FFF0
-.L0805AE0C: .4byte 0x000013FA
-.L0805AE10: .4byte 0x00000BEA
-.L0805AE14: .4byte 0x0600C800
-.L0805AE18:
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #0x18]
-	ldr r0, [r5]
-	adds r4, r1, #0
-	subs r0, r4, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x14]
-	add r1, sp, #0x18
-	add r0, sp, #0x14
-	cmp r4, #1
-	bhs .L0805AE32
-	adds r0, r1, #0
-.L0805AE32:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805AE50
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805AE54
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805AE54
-.L0805AE50:
-	movs r0, #0
-	mov sb, r0
-.L0805AE54:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds r6, r7, #1
-	str r6, [sp, #0x64]
-	ldr r7, [sp, #0x60]
-	cmp r2, r7
-	beq .L0805AE80
-.L0805AE66:
-	cmp r3, #0
-	beq .L0805AE76
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805AE76:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .L0805AE66
-.L0805AE80:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x18]
-	cmp r0, #1
-	bne .L0805AE9C
-	cmp r4, #0
-	beq .L0805AE98
-	adds r0, r4, #0
-	ldr r1, [sp, #0x3c]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805AE98:
-	adds r4, #0x10
-	b .L0805AEC4
-.L0805AE9C:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805AEC2
-.L0805AEA4:
-	cmp r2, #0
-	beq .L0805AEB4
-	adds r0, r2, #0
-	ldr r1, [sp, #0x3c]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805AEB4:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805AEA4
-.L0805AEC2:
-	adds r4, r2, #0
-.L0805AEC4:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805AED4
-.L0805AECE:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805AECE
-.L0805AED4:
-	cmp r0, #0
-	beq .L0805AEDC
-	bl free
-.L0805AEDC:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-.L0805AEE8:
+.L0805ADF8: .4byte .Lrace_bg1_scroll_x
+.L0805ADFC: .4byte .Lrace_bg2_scroll_x
+.L0805AE00: .4byte .Lrace_bg3_scroll_x
+.L0805AE04: .4byte .Lrace_bg3_last_tile_scroll
+.L0805AE08: .4byte .Lrace_course_scroll_mask
+.L0805AE0C: .4byte .Lrace_bg3_pattern_phase
+.L0805AE10: .4byte .Lrace_course_bg3_pattern
+.L0805AE14: .4byte .Lrace_course_bg3_tilemap
+.Lrace_scroll_grow_near_dma_queue:
+	GrowRaceCourseDmaQueue 0x14, 0x3c, r4, r6, r7
+.Lrace_scroll_next_near_row:
 	ldr r7, [sp, #0x64]
 	cmp r7, #0x13
-	bgt .L0805AEF0
-	b .L0805ADA0
-.L0805AEF0:
+	bgt .Lrace_scroll_check_middle_scroll
+	b .Lrace_scroll_queue_near_row
+.Lrace_scroll_check_middle_scroll:
+	@ BG2 streams track tiles for rows 3-17; a short section uses the alternate pattern.
 	ldr r2, .L0805AFA4 @ =0x000013F2
 	add r2, sl
 	ldr r0, .L0805AFA8 @ =0x000013EC
@@ -47855,9 +47886,9 @@ func_0805AD14: @ 0x0805AD14
 	ands r1, r0
 	ldrh r0, [r2]
 	cmp r0, r1
-	bne .L0805AF06
-	b .L0805B1E8
-.L0805AF06:
+	bne .Lrace_scroll_update_middle_pattern
+	b .Lrace_scroll_check_far_scroll
+.Lrace_scroll_update_middle_pattern:
 	strh r1, [r2]
 	ldr r1, .L0805AFB0 @ =0x000013F8
 	add r1, sl
@@ -47866,10 +47897,10 @@ func_0805AD14: @ 0x0805AD14
 	strh r0, [r1]
 	lsls r0, r0, #0x10
 	cmp r0, #0
-	bge .L0805AF1C
+	bge .Lrace_scroll_middle_pattern_wrapped
 	movs r0, #2
 	strh r0, [r1]
-.L0805AF1C:
+.Lrace_scroll_middle_pattern_wrapped:
 	ldrh r0, [r2]
 	adds r3, r0, #0
 	subs r3, #0x10
@@ -47881,9 +47912,9 @@ func_0805AD14: @ 0x0805AD14
 	lsls r0, r0, #0x10
 	lsrs r0, r0, #0x10
 	cmp r0, #0x2f
-	bls .L0805AF36
-	b .L0805B096
-.L0805AF36:
+	bls .Lrace_scroll_use_alternate_middle_pattern
+	b .Lrace_scroll_use_default_middle_pattern
+.Lrace_scroll_use_alternate_middle_pattern:
 	movs r7, #3
 	asrs r3, r3, #8
 	str r3, [sp, #0x5c]
@@ -47893,7 +47924,7 @@ func_0805AD14: @ 0x0805AD14
 	str r2, [sp, #0x40]
 	mov r2, sp
 	str r2, [sp, #0x44]
-.L0805AF48:
+.Lrace_scroll_queue_alternate_middle_row:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805AFB0 @ =0x000013F8
@@ -47922,154 +47953,39 @@ func_0805AD14: @ 0x0805AD14
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
-	beq .L0805AFBC
+	beq .Lrace_scroll_grow_alternate_middle_dma_queue
 	cmp r1, #0
-	beq .L0805AF96
+	beq .Lrace_scroll_advance_alternate_middle_dma_end
 	adds r0, r1, #0
 	mov r1, sp
 	ldm r1!, {r2, r4, r6}
 	stm r0!, {r2, r4, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805AF96:
+.Lrace_scroll_advance_alternate_middle_dma_end:
 	ldr r0, [r5, #4]
 	adds r0, #0x10
 	str r0, [r5, #4]
 	adds r3, r7, #1
 	str r3, [sp, #0x64]
-	b .L0805B08C
+	b .Lrace_scroll_next_alternate_middle_row
 	.align 2, 0
-.L0805AFA4: .4byte 0x000013F2
-.L0805AFA8: .4byte 0x000013EC
-.L0805AFAC: .4byte 0x0000FFF0
-.L0805AFB0: .4byte 0x000013F8
-.L0805AFB4: .4byte 0x00000EEA
-.L0805AFB8: .4byte 0x0600D800
-.L0805AFBC:
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #0x20]
-	ldr r0, [r5]
-	adds r4, r1, #0
-	subs r0, r4, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x1c]
-	add r1, sp, #0x20
-	add r0, sp, #0x1c
-	cmp r4, #1
-	bhs .L0805AFD6
-	adds r0, r1, #0
-.L0805AFD6:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805AFF4
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805AFF8
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805AFF8
-.L0805AFF4:
-	movs r0, #0
-	mov sb, r0
-.L0805AFF8:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds r6, r7, #1
-	str r6, [sp, #0x64]
-	ldr r7, [sp, #0x60]
-	cmp r2, r7
-	beq .L0805B024
-.L0805B00A:
-	cmp r3, #0
-	beq .L0805B01A
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B01A:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .L0805B00A
-.L0805B024:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x20]
-	cmp r0, #1
-	bne .L0805B040
-	cmp r4, #0
-	beq .L0805B03C
-	adds r0, r4, #0
-	ldr r1, [sp, #0x44]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B03C:
-	adds r4, #0x10
-	b .L0805B068
-.L0805B040:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805B066
-.L0805B048:
-	cmp r2, #0
-	beq .L0805B058
-	adds r0, r2, #0
-	ldr r1, [sp, #0x44]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B058:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805B048
-.L0805B066:
-	adds r4, r2, #0
-.L0805B068:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805B078
-.L0805B072:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805B072
-.L0805B078:
-	cmp r0, #0
-	beq .L0805B080
-	bl free
-.L0805B080:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-.L0805B08C:
+.L0805AFA4: .4byte .Lrace_bg2_last_tile_scroll
+.L0805AFA8: .4byte .Lrace_bg2_scroll_x
+.L0805AFAC: .4byte .Lrace_course_scroll_mask
+.L0805AFB0: .4byte .Lrace_bg2_pattern_phase
+.L0805AFB4: .4byte .Lrace_course_bg2_alternate
+.L0805AFB8: .4byte .Lrace_course_bg2_tilemap
+.Lrace_scroll_grow_alternate_middle_dma_queue:
+	GrowRaceCourseDmaQueue 0x1c, 0x44, r4, r6, r7
+.Lrace_scroll_next_alternate_middle_row:
 	ldr r7, [sp, #0x64]
 	cmp r7, #0x11
-	bgt .L0805B094
-	b .L0805AF48
-.L0805B094:
-	b .L0805B1E8
-.L0805B096:
+	bgt .Lrace_scroll_skip_default_middle_pattern
+	b .Lrace_scroll_queue_alternate_middle_row
+.Lrace_scroll_skip_default_middle_pattern:
+	b .Lrace_scroll_check_far_scroll
+.Lrace_scroll_use_default_middle_pattern:
 	movs r7, #3
 	asrs r3, r3, #8
 	str r3, [sp, #0x5c]
@@ -48079,7 +47995,7 @@ func_0805AD14: @ 0x0805AD14
 	str r2, [sp, #0x48]
 	mov r2, sp
 	str r2, [sp, #0x4c]
-.L0805B0A8:
+.Lrace_scroll_queue_default_middle_row:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805B104 @ =0x000013F8
@@ -48108,149 +48024,35 @@ func_0805AD14: @ 0x0805AD14
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
-	beq .L0805B110
+	beq .Lrace_scroll_grow_default_middle_dma_queue
 	cmp r1, #0
-	beq .L0805B0F6
+	beq .Lrace_scroll_advance_default_middle_dma_end
 	adds r0, r1, #0
 	mov r1, sp
 	ldm r1!, {r2, r4, r6}
 	stm r0!, {r2, r4, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805B0F6:
+.Lrace_scroll_advance_default_middle_dma_end:
 	ldr r0, [r5, #4]
 	adds r0, #0x10
 	str r0, [r5, #4]
 	adds r3, r7, #1
 	str r3, [sp, #0x64]
-	b .L0805B1E0
+	b .Lrace_scroll_next_default_middle_row
 	.align 2, 0
-.L0805B104: .4byte 0x000013F8
-.L0805B108: .4byte 0x00000CEA
-.L0805B10C: .4byte 0x0600D800
-.L0805B110:
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #0x28]
-	ldr r0, [r5]
-	adds r4, r1, #0
-	subs r0, r4, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x24]
-	add r1, sp, #0x28
-	add r0, sp, #0x24
-	cmp r4, #1
-	bhs .L0805B12A
-	adds r0, r1, #0
-.L0805B12A:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805B148
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805B14C
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805B14C
-.L0805B148:
-	movs r0, #0
-	mov sb, r0
-.L0805B14C:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds r6, r7, #1
-	str r6, [sp, #0x64]
-	ldr r7, [sp, #0x60]
-	cmp r2, r7
-	beq .L0805B178
-.L0805B15E:
-	cmp r3, #0
-	beq .L0805B16E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B16E:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .L0805B15E
-.L0805B178:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x28]
-	cmp r0, #1
-	bne .L0805B194
-	cmp r4, #0
-	beq .L0805B190
-	adds r0, r4, #0
-	ldr r1, [sp, #0x4c]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B190:
-	adds r4, #0x10
-	b .L0805B1BC
-.L0805B194:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805B1BA
-.L0805B19C:
-	cmp r2, #0
-	beq .L0805B1AC
-	adds r0, r2, #0
-	ldr r1, [sp, #0x4c]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B1AC:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805B19C
-.L0805B1BA:
-	adds r4, r2, #0
-.L0805B1BC:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805B1CC
-.L0805B1C6:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805B1C6
-.L0805B1CC:
-	cmp r0, #0
-	beq .L0805B1D4
-	bl free
-.L0805B1D4:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-.L0805B1E0:
+.L0805B104: .4byte .Lrace_bg2_pattern_phase
+.L0805B108: .4byte .Lrace_course_bg2_pattern
+.L0805B10C: .4byte .Lrace_course_bg2_tilemap
+.Lrace_scroll_grow_default_middle_dma_queue:
+	GrowRaceCourseDmaQueue 0x24, 0x4c, r4, r6, r7
+.Lrace_scroll_next_default_middle_row:
 	ldr r7, [sp, #0x64]
 	cmp r7, #0x11
-	bgt .L0805B1E8
-	b .L0805B0A8
-.L0805B1E8:
+	bgt .Lrace_scroll_check_far_scroll
+	b .Lrace_scroll_queue_default_middle_row
+.Lrace_scroll_check_far_scroll:
+	@ BG1 only streams the three rows occupied by the distant scenery.
 	ldr r2, .L0805B28C @ =0x000013F0
 	add r2, sl
 	ldr r0, .L0805B290 @ =0x000013EA
@@ -48260,9 +48062,9 @@ func_0805AD14: @ 0x0805AD14
 	ands r1, r0
 	ldrh r0, [r2]
 	cmp r0, r1
-	bne .L0805B1FE
-	b .L0805B37C
-.L0805B1FE:
+	bne .Lrace_scroll_update_far_pattern
+	b .Lrace_scroll_done
+.Lrace_scroll_update_far_pattern:
 	strh r1, [r2]
 	ldr r1, .L0805B298 @ =0x000013F6
 	add r1, sl
@@ -48271,10 +48073,10 @@ func_0805AD14: @ 0x0805AD14
 	strh r0, [r1]
 	lsls r0, r0, #0x10
 	cmp r0, #0
-	bge .L0805B214
+	bge .Lrace_scroll_far_pattern_wrapped
 	movs r0, #2
 	strh r0, [r1]
-.L0805B214:
+.Lrace_scroll_far_pattern_wrapped:
 	ldrh r0, [r2]
 	subs r0, #0x10
 	movs r1, #0xf8
@@ -48291,7 +48093,7 @@ func_0805AD14: @ 0x0805AD14
 	ands r2, r0
 	lsls r2, r2, #1
 	str r2, [sp, #0x50]
-.L0805B234:
+.Lrace_scroll_queue_far_row:
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
 	ldr r1, .L0805B298 @ =0x000013F6
@@ -48319,152 +48121,37 @@ func_0805AD14: @ 0x0805AD14
 	ldr r1, [r5, #4]
 	ldr r0, [r5, #0xc]
 	cmp r1, r0
-	beq .L0805B2A4
+	beq .Lrace_scroll_grow_far_dma_queue
 	cmp r1, #0
-	beq .L0805B280
+	beq .Lrace_scroll_advance_far_dma_end
 	adds r0, r1, #0
 	mov r1, sp
 	ldm r1!, {r2, r3, r6}
 	stm r0!, {r2, r3, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805B280:
+.Lrace_scroll_advance_far_dma_end:
 	ldr r0, [r5, #4]
 	adds r0, #0x10
 	str r0, [r5, #4]
 	adds r4, r7, #1
 	str r4, [sp, #0x64]
-	b .L0805B374
+	b .Lrace_scroll_next_far_row
 	.align 2, 0
-.L0805B28C: .4byte 0x000013F0
-.L0805B290: .4byte 0x000013EA
-.L0805B294: .4byte 0x0000FFF0
-.L0805B298: .4byte 0x000013F6
-.L0805B29C: .4byte 0x00000DEA
-.L0805B2A0: .4byte 0x0600E800
-.L0805B2A4:
-	str r1, [sp, #0x60]
-	movs r0, #1
-	str r0, [sp, #0x30]
-	ldr r0, [r5]
-	adds r6, r1, #0
-	subs r0, r6, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x2c]
-	add r1, sp, #0x30
-	add r0, sp, #0x2c
-	cmp r4, #1
-	bhs .L0805B2BE
-	adds r0, r1, #0
-.L0805B2BE:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805B2DC
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805B2E0
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805B2E0
-.L0805B2DC:
-	movs r0, #0
-	mov sb, r0
-.L0805B2E0:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r2, [r5]
-	mov r3, r8
-	adds r0, r7, #1
-	str r0, [sp, #0x64]
-	ldr r1, [sp, #0x60]
-	cmp r2, r1
-	beq .L0805B30C
-.L0805B2F2:
-	cmp r3, #0
-	beq .L0805B302
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r6, r7}
-	stm r0!, {r4, r6, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B302:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #0x60]
-	cmp r2, r0
-	bne .L0805B2F2
-.L0805B30C:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x30]
-	cmp r0, #1
-	bne .L0805B328
-	cmp r4, #0
-	beq .L0805B324
-	adds r0, r4, #0
-	ldr r1, [sp, #0x58]
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B324:
-	adds r4, #0x10
-	b .L0805B350
-.L0805B328:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805B34E
-.L0805B330:
-	cmp r2, #0
-	beq .L0805B340
-	adds r0, r2, #0
-	ldr r1, [sp, #0x58]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805B340:
-	movs r6, #1
-	rsbs r6, r6, #0
-	add ip, r6
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805B330
-.L0805B34E:
-	adds r4, r2, #0
-.L0805B350:
-	ldr r2, [r5, #4]
-	ldr r0, [r5]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805B360
-.L0805B35A:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805B35A
-.L0805B360:
-	cmp r0, #0
-	beq .L0805B368
-	bl free
-.L0805B368:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	str r1, [r5]
-	str r4, [r5, #4]
-	str r0, [r5, #0xc]
-.L0805B374:
+.L0805B28C: .4byte .Lrace_bg1_last_tile_scroll
+.L0805B290: .4byte .Lrace_bg1_scroll_x
+.L0805B294: .4byte .Lrace_course_scroll_mask
+.L0805B298: .4byte .Lrace_bg1_pattern_phase
+.L0805B29C: .4byte .Lrace_course_bg1_pattern
+.L0805B2A0: .4byte .Lrace_course_bg1_tilemap
+.Lrace_scroll_grow_far_dma_queue:
+	GrowRaceCourseDmaQueue 0x2c, 0x58, r6, r0, r1
+.Lrace_scroll_next_far_row:
 	ldr r7, [sp, #0x64]
 	cmp r7, #0x13
-	bgt .L0805B37C
-	b .L0805B234
-.L0805B37C:
+	bgt .Lrace_scroll_done
+	b .Lrace_scroll_queue_far_row
+.Lrace_scroll_done:
 	add sp, #0x68
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -48473,6 +48160,8 @@ func_0805AD14: @ 0x0805AD14
 	pop {r4, r5, r6, r7}
 	pop {r0}
 	bx r0
+
+	.purgem GrowRaceCourseDmaQueue
 
 	thumb_func_start func_0805B38C
 func_0805B38C: @ 0x0805B38C
@@ -50804,714 +50493,6 @@ func_0805BC34: @ 0x0805BC34
 .L0805C634: .4byte 0x0000059C
 .L0805C638: .4byte 0x000006BA
 
-	.section .text.f3.0805C96C, "ax", %progbits
-	thumb_func_start func_0805C96C
-func_0805C96C: @ 0x0805C96C
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x24
-	adds r6, r0, #0
-	ldr r0, .L0805C9C4 @ =0x0000142C
-	adds r5, r6, r0
-	movs r1, #0xd7
-	lsls r1, r1, #0x13
-	str r1, [sp, #0x20]
-	movs r2, #0
-	mov r8, r2
-	add r3, sp, #0x10
-	mov sl, r3
-.L0805C98C:
-	ldrb r0, [r5, #0x1c]
-	adds r0, #1
-	movs r1, #0
-	strb r0, [r5, #0x1c]
-	lsls r0, r0, #0x18
-	lsrs r0, r0, #0x18
-	cmp r0, #9
-	bls .L0805C9B0
-	strb r1, [r5, #0x1c]
-	ldrh r0, [r5, #0x1a]
-	adds r0, #3
-	strh r0, [r5, #0x1a]
-	lsls r0, r0, #0x10
-	asrs r0, r0, #0x10
-	cmp r0, #0xfe
-	ble .L0805C9B0
-	movs r0, #0xff
-	strh r0, [r5, #0x1a]
-.L0805C9B0:
-	ldrh r0, [r5, #0x22]
-	cmp r0, #4
-	bls .L0805C9B8
-	b .L0805CBA6
-.L0805C9B8:
-	lsls r0, r0, #2
-	ldr r1, .L0805C9C8 @ =.L0805C9CC
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0805C9C4: .4byte 0x0000142C
-.L0805C9C8: .4byte .L0805C9CC
-.L0805C9CC: @ jump table
-	.4byte .L0805CBA6 @ case 0
-	.4byte .L0805C9E0 @ case 1
-	.4byte .L0805CA96 @ case 2
-	.4byte .L0805CAC4 @ case 3
-	.4byte .L0805CAF4 @ case 4
-.L0805C9E0:
-	mov r7, r8
-	cmp r7, #1
-	beq .L0805CA16
-	cmp r7, #1
-	bgt .L0805C9F0
-	cmp r7, #0
-	beq .L0805C9FC
-	b .L0805CA8E
-.L0805C9F0:
-	mov r0, r8
-	cmp r0, #2
-	beq .L0805CA32
-	cmp r0, #3
-	beq .L0805CA6E
-	b .L0805CA8E
-.L0805C9FC:
-	movs r1, #0x82
-	lsls r1, r1, #2
-	adds r0, r6, r1
-	subs r1, #0x88
-	strh r1, [r0, #0x10]
-	movs r2, #0xe4
-	lsls r2, r2, #2
-	adds r0, r6, r2
-	strh r1, [r0, #0x10]
-	movs r3, #0x8e
-	lsls r3, r3, #3
-	adds r0, r6, r3
-	b .L0805CA66
-.L0805CA16:
-	movs r7, #0x90
-	lsls r7, r7, #2
-	adds r0, r6, r7
-	movs r1, #0xc0
-	lsls r1, r1, #1
-	strh r1, [r0, #0x10]
-	movs r2, #0xf2
-	lsls r2, r2, #2
-	adds r0, r6, r2
-	strh r1, [r0, #0x10]
-	movs r3, #0x95
-	lsls r3, r3, #3
-	adds r0, r6, r3
-	b .L0805CA66
-.L0805CA32:
-	ldr r7, .L0805CA44 @ =0x0000140E
-	adds r0, r6, r7
-	ldrb r0, [r0]
-	cmp r0, #0
-	bne .L0805CA48
-	movs r0, #0x9e
-	lsls r0, r0, #2
-	adds r1, r6, r0
-	b .L0805CA4E
-	.align 2, 0
-.L0805CA44: .4byte 0x0000140E
-.L0805CA48:
-	movs r2, #0xba
-	lsls r2, r2, #2
-	adds r1, r6, r2
-.L0805CA4E:
-	movs r0, #0xc0
-	lsls r0, r0, #1
-	strh r0, [r1, #0x10]
-	movs r3, #0x80
-	lsls r3, r3, #3
-	adds r0, r6, r3
-	movs r1, #0xc0
-	lsls r1, r1, #1
-	strh r1, [r0, #0x10]
-	movs r7, #0x9c
-	lsls r7, r7, #3
-	adds r0, r6, r7
-.L0805CA66:
-	movs r1, #0
-	bl func_0805E860
-	b .L0805CA8E
-.L0805CA6E:
-	movs r1, #0xac
-	lsls r1, r1, #2
-	adds r0, r6, r1
-	movs r1, #0xc0
-	lsls r1, r1, #1
-	strh r1, [r0, #0x10]
-	movs r2, #0x87
-	lsls r2, r2, #3
-	adds r0, r6, r2
-	strh r1, [r0, #0x10]
-	movs r3, #0xa3
-	lsls r3, r3, #3
-	adds r0, r6, r3
-	movs r1, #0
-	bl func_0805E860
-.L0805CA8E:
-	movs r0, #0x3c
-	strh r0, [r5, #0x18]
-	movs r0, #2
-	strh r0, [r5, #0x22]
-.L0805CA96:
-	ldr r1, [r5, #0x10]
-	ldr r0, [r5, #8]
-	adds r1, r1, r0
-	str r1, [r5, #0x10]
-	ldrh r0, [r5, #0x18]
-	subs r0, #1
-	movs r3, #0
-	strh r0, [r5, #0x18]
-	ldr r0, [r5, #4]
-	adds r2, r0, #0
-	cmp r1, r2
-	blt .L0805CAB0
-	strh r3, [r5, #0x18]
-.L0805CAB0:
-	movs r7, #0x18
-	ldrsh r0, [r5, r7]
-	cmp r0, #0
-	bgt .L0805CBA6
-	movs r0, #3
-	strh r0, [r5, #0x22]
-	str r2, [r5, #0x10]
-	movs r0, #0x3c
-	strh r0, [r5, #0x18]
-	b .L0805CBA6
-.L0805CAC4:
-	ldrh r0, [r5, #0x18]
-	subs r0, #1
-	strh r0, [r5, #0x18]
-	lsls r0, r0, #0x10
-	cmp r0, #0
-	bgt .L0805CBA6
-	movs r0, #4
-	strh r0, [r5, #0x22]
-	movs r0, #0x1a
-	ldrsh r1, [r5, r0]
-	movs r0, #0x3c
-	bl __divsi3
-	adds r0, #0x1e
-	strh r0, [r5, #0x18]
-	ldr r0, [r5, #4]
-	ldr r1, [r5]
-	subs r0, r0, r1
-	movs r2, #0x18
-	ldrsh r1, [r5, r2]
-	bl __divsi3
-	str r0, [r5, #0xc]
-	b .L0805CBA6
-.L0805CAF4:
-	ldr r1, [r5, #0x10]
-	ldr r0, [r5, #0xc]
-	subs r1, r1, r0
-	str r1, [r5, #0x10]
-	ldrh r0, [r5, #0x18]
-	subs r0, #1
-	movs r3, #0
-	strh r0, [r5, #0x18]
-	ldr r0, [r5]
-	adds r2, r0, #0
-	cmp r1, r2
-	bgt .L0805CB0E
-	strh r3, [r5, #0x18]
-.L0805CB0E:
-	movs r7, #0x18
-	ldrsh r0, [r5, r7]
-	cmp r0, #0
-	bgt .L0805CBA6
-	strh r3, [r5, #0x22]
-	str r2, [r5, #0x10]
-	movs r0, #0xc
-	strh r0, [r5, #0x18]
-	mov r0, r8
-	cmp r0, #1
-	beq .L0805CB4E
-	cmp r0, #1
-	bgt .L0805CB2E
-	cmp r0, #0
-	beq .L0805CB3A
-	b .L0805CBA6
-.L0805CB2E:
-	mov r1, r8
-	cmp r1, #2
-	beq .L0805CB62
-	cmp r1, #3
-	beq .L0805CB92
-	b .L0805CBA6
-.L0805CB3A:
-	movs r2, #0x82
-	lsls r2, r2, #2
-	adds r0, r6, r2
-	movs r1, #0x80
-	lsls r1, r1, #1
-	strh r1, [r0, #0x10]
-	movs r3, #0xe4
-	lsls r3, r3, #2
-	adds r0, r6, r3
-	b .L0805CBA4
-.L0805CB4E:
-	movs r7, #0x90
-	lsls r7, r7, #2
-	adds r0, r6, r7
-	movs r1, #0x80
-	lsls r1, r1, #1
-	strh r1, [r0, #0x10]
-	movs r2, #0xf2
-	lsls r2, r2, #2
-	adds r0, r6, r2
-	b .L0805CBA4
-.L0805CB62:
-	ldr r3, .L0805CB74 @ =0x0000140E
-	adds r0, r6, r3
-	ldrb r0, [r0]
-	cmp r0, #0
-	bne .L0805CB78
-	movs r7, #0x9e
-	lsls r7, r7, #2
-	adds r1, r6, r7
-	b .L0805CB7E
-	.align 2, 0
-.L0805CB74: .4byte 0x0000140E
-.L0805CB78:
-	movs r0, #0xba
-	lsls r0, r0, #2
-	adds r1, r6, r0
-.L0805CB7E:
-	movs r0, #0x80
-	lsls r0, r0, #1
-	strh r0, [r1, #0x10]
-	movs r2, #0x80
-	lsls r2, r2, #3
-	adds r1, r6, r2
-	movs r0, #0x80
-	lsls r0, r0, #1
-	strh r0, [r1, #0x10]
-	b .L0805CBA6
-.L0805CB92:
-	movs r3, #0xac
-	lsls r3, r3, #2
-	adds r0, r6, r3
-	movs r1, #0x80
-	lsls r1, r1, #1
-	strh r1, [r0, #0x10]
-	movs r7, #0x87
-	lsls r7, r7, #3
-	adds r0, r6, r7
-.L0805CBA4:
-	strh r1, [r0, #0x10]
-.L0805CBA6:
-	ldr r1, [r5, #0x14]
-	ldr r0, [r5, #0x10]
-	subs r1, r1, r0
-	str r1, [r5, #0x14]
-	mov r2, r8
-	lsls r0, r2, #2
-	add r0, sl
-	str r1, [r0]
-	ldr r3, [sp, #0x20]
-	cmp r3, r1
-	ble .L0805CBBE
-	str r1, [sp, #0x20]
-.L0805CBBE:
-	lsrs r7, r1, #0x10
-	lsls r0, r7, #0x10
-	asrs r4, r0, #0x10
-	cmp r4, #0x1f
-	ble .L0805CBF0
-	asrs r0, r0, #0x15
-	movs r2, #7
-	mov r3, r8
-	lsls r1, r3, #3
-	ands r0, r2
-	adds r1, r1, r0
-	lsls r1, r1, #2
-	movs r2, #0xd7
-	lsls r2, r2, #3
-	adds r0, r6, r2
-	adds r3, r0, r1
-	movs r0, #0
-	ldrsh r1, [r3, r0]
-	ldr r2, .L0805CC9C @ =0x0000FFE0
-	ands r1, r2
-	adds r0, r4, #0
-	ands r0, r2
-	cmp r1, r0
-	beq .L0805CBF0
-	strh r7, [r3]
-.L0805CBF0:
-	movs r1, #1
-	add r8, r1
-	adds r5, #0x2c
-	mov r2, r8
-	cmp r2, #3
-	bgt .L0805CBFE
-	b .L0805C98C
-.L0805CBFE:
-	movs r3, #0
-	mov r8, r3
-	mov r7, sl
-	mov r5, sl
-.L0805CC06:
-	movs r0, #0
-	mov sb, r0
-	movs r3, #0
-	adds r4, r5, #0
-	adds r2, r7, #0
-.L0805CC10:
-	cmp r8, r3
-	beq .L0805CC20
-	ldr r1, [r4]
-	ldr r0, [r2]
-	cmp r1, r0
-	ble .L0805CC20
-	movs r1, #1
-	add sb, r1
-.L0805CC20:
-	adds r2, #4
-	adds r3, #1
-	cmp r3, #3
-	ble .L0805CC10
-	mov r2, sb
-	lsls r0, r2, #2
-	add r0, sp
-	mov r3, r8
-	str r3, [r0]
-	adds r5, #4
-	movs r0, #1
-	add r8, r0
-	mov r1, r8
-	cmp r1, #3
-	ble .L0805CC06
-	movs r2, #0
-	mov sb, r2
-	mov r8, r2
-.L0805CC44:
-	mov r3, r8
-	lsls r1, r3, #2
-	mov r7, sp
-	adds r4, r7, r1
-	ldr r3, [r4]
-	movs r0, #0x2c
-	muls r0, r3, r0
-	ldr r2, .L0805CCA0 @ =0x0000142C
-	adds r0, r0, r2
-	adds r5, r6, r0
-	ldrb r0, [r5, #0x1f]
-	cmp r0, #0xff
-	beq .L0805CC60
-	b .L0805CE26
-.L0805CC60:
-	movs r0, #0xb8
-	lsls r0, r0, #0x10
-	ldr r7, [r5, #0x14]
-	cmp r7, r0
-	bgt .L0805CD18
-	ldr r7, .L0805CCA4 @ =0x000013FC
-	adds r2, r6, r7
-	movs r0, #0
-	ldrsh r1, [r2, r0]
-	lsls r1, r1, #1
-	adds r7, #2
-	adds r0, r6, r7
-	adds r0, r0, r1
-	strh r3, [r0]
-	ldrh r1, [r2]
-	adds r0, r1, #1
-	strh r0, [r2]
-	strb r1, [r5, #0x1f]
-	lsls r1, r1, #0x18
-	cmp r1, #0
-	beq .L0805CC8C
-	b .L0805CE34
-.L0805CC8C:
-	ldr r0, [r4]
-	cmp r0, #1
-	beq .L0805CCC0
-	cmp r0, #1
-	bgt .L0805CCA8
-	cmp r0, #0
-	beq .L0805CCB2
-	b .L0805CE34
-	.align 2, 0
-.L0805CC9C: .4byte 0x0000FFE0
-.L0805CCA0: .4byte 0x0000142C
-.L0805CCA4: .4byte 0x000013FC
-.L0805CCA8:
-	cmp r0, #2
-	beq .L0805CCD0
-	cmp r0, #3
-	beq .L0805CCFC
-	b .L0805CE34
-.L0805CCB2:
-	movs r0, #0x82
-	lsls r0, r0, #2
-	adds r4, r6, r0
-	ldr r1, .L0805CCBC @ =0x0000076A
-	b .L0805CD04
-	.align 2, 0
-.L0805CCBC: .4byte 0x0000076A
-.L0805CCC0:
-	movs r1, #0x90
-	lsls r1, r1, #2
-	adds r4, r6, r1
-	ldr r1, .L0805CCCC @ =0x00000746
-	b .L0805CD04
-	.align 2, 0
-.L0805CCCC: .4byte 0x00000746
-.L0805CCD0:
-	ldr r2, .L0805CCE4 @ =0x0000140E
-	adds r0, r6, r2
-	ldrb r0, [r0]
-	cmp r0, #0
-	bne .L0805CCEC
-	movs r3, #0x9e
-	lsls r3, r3, #2
-	adds r4, r6, r3
-	ldr r1, .L0805CCE8 @ =0x00000752
-	b .L0805CD04
-	.align 2, 0
-.L0805CCE4: .4byte 0x0000140E
-.L0805CCE8: .4byte 0x00000752
-.L0805CCEC:
-	movs r7, #0xba
-	lsls r7, r7, #2
-	adds r4, r6, r7
-	ldr r1, .L0805CCF8 @ =0x00000776
-	b .L0805CD04
-	.align 2, 0
-.L0805CCF8: .4byte 0x00000776
-.L0805CCFC:
-	movs r0, #0xac
-	lsls r0, r0, #2
-	adds r4, r6, r0
-	ldr r1, .L0805CD14 @ =0x0000075E
-.L0805CD04:
-	adds r0, r4, #0
-	bl func_0805E860
-	movs r0, #0x80
-	lsls r0, r0, #1
-	strh r0, [r4, #0x10]
-	b .L0805CE34
-	.align 2, 0
-.L0805CD14: .4byte 0x0000075E
-.L0805CD18:
-	ldr r2, .L0805CD58 @ =0x0000140E
-	adds r0, r6, r2
-	ldrb r0, [r0]
-	cmp r0, #1
-	bne .L0805CD88
-	cmp r3, #2
-	bne .L0805CD88
-	adds r0, r6, #0
-	bl HardwareContext_GetPressedKeys
-	movs r1, #1
-	ands r0, r1
-	cmp r0, #0
-	bne .L0805CD36
-	b .L0805CE34
-.L0805CD36:
-	adds r0, r6, #0
-	adds r0, #0x1c
-	movs r1, #0xa8
-	bl AudioPlayer_StartSong
-	movs r3, #0x1a
-	ldrsh r0, [r5, r3]
-	cmp r0, #0x28
-	ble .L0805CE34
-	ldrh r0, [r5, #0x22]
-	cmp r0, #4
-	bhi .L0805CE34
-	lsls r0, r0, #2
-	ldr r1, .L0805CD5C @ =.L0805CD60
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0805CD58: .4byte 0x0000140E
-.L0805CD5C: .4byte .L0805CD60
-.L0805CD60: @ jump table
-	.4byte .L0805CD74 @ case 0
-	.4byte .L0805CE34 @ case 1
-	.4byte .L0805CE34 @ case 2
-	.4byte .L0805CD7A @ case 3
-	.4byte .L0805CD74 @ case 4
-.L0805CD74:
-	movs r0, #1
-	strh r0, [r5, #0x22]
-	b .L0805CD80
-.L0805CD7A:
-	ldrh r0, [r5, #0x18]
-	adds r0, #0x3c
-	strh r0, [r5, #0x18]
-.L0805CD80:
-	ldrh r0, [r5, #0x1a]
-	subs r0, #0x28
-	strh r0, [r5, #0x1a]
-	b .L0805CE34
-.L0805CD88:
-	ldrh r0, [r5, #0x22]
-	cmp r0, #0
-	bne .L0805CE34
-	ldrh r2, [r5, #0x18]
-	movs r3, #0x18
-	ldrsh r0, [r5, r3]
-	cmp r0, #0
-	ble .L0805CD9E
-	subs r0, r2, #1
-	strh r0, [r5, #0x18]
-	b .L0805CE34
-.L0805CD9E:
-	movs r2, #0
-	mov r0, r8
-	cmp r0, #0
-	ble .L0805CDCC
-	mov r3, sp
-	adds r0, r3, r1
-	ldr r1, [r0]
-	lsls r1, r1, #2
-	add r1, sl
-	mov r0, r8
-	subs r0, #1
-	lsls r0, r0, #2
-	add r0, sp
-	ldr r0, [r0]
-	lsls r0, r0, #2
-	add r0, sl
-	ldr r1, [r1]
-	ldr r0, [r0]
-	subs r1, r1, r0
-	ldr r0, .L0805CE14 @ =0x001FFFFF
-	cmp r1, r0
-	ble .L0805CDCC
-	movs r2, #1
-.L0805CDCC:
-	ldr r0, .L0805CE18 @ =0x02FFFFFF
-	cmp r7, r0
-	bgt .L0805CDD4
-	adds r2, #2
-.L0805CDD4:
-	adds r0, r5, #0
-	adds r0, #0x24
-	adds r0, r0, r2
-	ldrb r4, [r0]
-	bl rand
-	movs r1, #0x64
-	bl __modsi3
-	cmp r4, r0
-	ble .L0805CE20
-	ldrh r1, [r5, #0x1a]
-	movs r7, #0x1a
-	ldrsh r0, [r5, r7]
-	cmp r0, #0x27
-	ble .L0805CE34
-	adds r0, r1, #0
-	subs r0, #0x28
-	strh r0, [r5, #0x1a]
-	movs r0, #1
-	strh r0, [r5, #0x22]
-	ldr r1, .L0805CE1C @ =0x0000140E
-	adds r0, r6, r1
-	ldrb r0, [r0]
-	cmp r0, #0
-	bne .L0805CE34
-	adds r0, r6, #0
-	adds r0, #0x1c
-	movs r1, #0xa8
-	bl AudioPlayer_StartSong
-	b .L0805CE34
-	.align 2, 0
-.L0805CE14: .4byte 0x001FFFFF
-.L0805CE18: .4byte 0x02FFFFFF
-.L0805CE1C: .4byte 0x0000140E
-.L0805CE20:
-	movs r0, #0xc
-	strh r0, [r5, #0x18]
-	b .L0805CE34
-.L0805CE26:
-	ldr r0, [r5, #0x14]
-	cmp r0, #0
-	bge .L0805CE34
-	movs r0, #0
-	str r0, [r5, #0x10]
-	movs r2, #1
-	add sb, r2
-.L0805CE34:
-	movs r3, #1
-	add r8, r3
-	mov r7, r8
-	cmp r7, #3
-	bgt .L0805CE40
-	b .L0805CC44
-.L0805CE40:
-	ldr r1, .L0805CEA8 @ =0x0000140E
-	adds r0, r6, r1
-	ldrb r0, [r0]
-	cmp r0, #1
-	bne .L0805CE50
-	mov r2, sl
-	ldr r2, [r2, #8]
-	str r2, [sp, #0x20]
-.L0805CE50:
-	ldr r3, .L0805CEAC @ =0x000013EC
-	adds r2, r6, r3
-	ldrh r0, [r2]
-	cmp r0, #0x30
-	bls .L0805CE94
-	ldr r7, [sp, #0x20]
-	asrs r7, r7, #0x10
-	str r7, [sp, #0x20]
-	ldrh r0, [r2]
-	adds r0, #0x78
-	cmp r7, r0
-	bge .L0805CE94
-	adds r0, r7, #0
-	subs r0, #0x78
-	strh r0, [r2]
-	lsls r0, r0, #0x10
-	lsrs r0, r0, #0x10
-	cmp r0, #0x2f
-	bhi .L0805CE7A
-	movs r0, #0x30
-	strh r0, [r2]
-.L0805CE7A:
-	ldrh r0, [r2]
-	movs r1, #0xc0
-	lsls r1, r1, #3
-	subs r0, r1, r0
-	lsls r0, r0, #1
-	subs r1, r1, r0
-	ldr r3, .L0805CEB0 @ =0x000013EA
-	adds r0, r6, r3
-	strh r1, [r0]
-	ldrh r1, [r2]
-	ldr r7, .L0805CEB4 @ =0x000013EE
-	adds r0, r6, r7
-	strh r1, [r0]
-.L0805CE94:
-	mov r0, sb
-	add sp, #0x24
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
-.L0805CEA8: .4byte 0x0000140E
-.L0805CEAC: .4byte 0x000013EC
-.L0805CEB0: .4byte 0x000013EA
-.L0805CEB4: .4byte 0x000013EE
-
 	.section .text.f3.0805D170, "ax", %progbits
 	thumb_func_start RunMedalExchangeScreen
 RunMedalExchangeScreen: @ 0x0805D170
@@ -53042,6 +52023,215 @@ func_0805DFC4: @ 0x0805DFC4
 .L0805E61C: .4byte 0xFFFFFF00
 .L0805E620: .4byte 0xFFFFFC00
 
+	.equ .Lmemory_scene_cue, 0x6420
+	.equ .Lmemory_scene_phase, 0x6422
+	.equ .Lmemory_dialogue_line, 0x6424
+	.equ .Lmemory_dialogue_phase, 0x6426
+	.equ .Lmemory_fade_step, 0x889
+	.equ .Lmemory_tick_timer_word, 0xFFFF0000
+	.equ .Lmemory_bg3_tilemap_vram, 0x0600F000
+	.equ .Lmemory_bg1_tilemap_vram, 0x0600E800
+
+	.equ .Lmemory_phase_start_dark_fade, 1
+	.equ .Lmemory_phase_pause_before_fade, 2
+	.equ .Lmemory_phase_start_light_fade, 3
+	.equ .Lmemory_phase_wait_fade_in, 4
+	.equ .Lmemory_phase_pause_before_text, 5
+	.equ .Lmemory_phase_wait_text, 6
+	.equ .Lmemory_phase_pause_without_text, 7
+	.equ .Lmemory_phase_next_cue, 8
+	.equ .Lmemory_phase_wait_fade_out, 9
+	.equ .Lmemory_phase_exit_after_fade, 10
+
+	.equ .Lmemory_cue_lost_child, 1
+	.equ .Lmemory_cue_unseen_girl, 9
+	.equ .Lmemory_cue_cabin_farewell, 11
+	.equ .Lmemory_cue_girl_farewell, 12
+	.equ .Lmemory_cue_letter_farewell, 13
+
+	.equ .Lmemory_fade_all_layers, 0x3F
+	.equ .Lmemory_bldcnt, 0x50
+	.equ .Lmemory_music_song, 0x25
+	.equ .Lmemory_fade_controller, 0xC
+	.equ .Lmemory_brighten, 1
+	.equ .Lmemory_darken, 2
+	.equ .Lmemory_long_dialogue_pause, 60
+	.equ .Lmemory_silent_pause, 180
+	.equ .Lmemory_farewell_pause, 120
+	.equ .Lmemory_display_obj_bg1, 0x1240
+	.equ .Lmemory_display_obj_only, 0x1040
+	.equ .Lmemory_display_obj_bg123, 0x1C40
+	.equ .Lmemory_map_bytes, 0x500
+	.equ .Lmemory_maps, 0x20
+	.equ .Lmemory_line_trip, 0
+	.equ .Lmemory_line_found_child, 4
+	.equ .Lmemory_line_thank_you, 5
+	.equ .Lmemory_line_calling_out, 14
+	.equ .Lmemory_line_meet_girl, 16
+	.equ .Lmemory_line_farm_farewell, 19
+	.equ .Lmemory_line_leaving_reaction, 22
+	.equ .Lmemory_line_waiting_for_letter, 25
+	.equ .Lmemory_dialogue_open_requested, 0
+	.equ .Lmemory_dialogue_idle, 2
+
+	.equ .Lmemory_sp_display_halfword, 0x0
+	.equ .Lmemory_sp_fade_task, 0x4
+	.equ .Lmemory_sp_copy_command, 0x8
+	.equ .Lmemory_sp_bg3_dma_old_size, 0x18
+	.equ .Lmemory_sp_bg1_dma_old_size, 0x20
+	.equ .Lmemory_sp_empty_result_owner, 0x28
+	.equ .Lmemory_sp_result_out, 0x30
+	.equ .Lmemory_sp_delay_frames, 0x34
+	.equ .Lmemory_sp_scene_done, 0x38
+	.equ .Lmemory_sp_bg3_command_ptr, 0x3C
+	.equ .Lmemory_sp_copy_command_ptr, 0x40
+	.equ .Lmemory_sp_empty_result_owner_ptr, 0x44
+	.equ .Lmemory_sp_map_index_times_four, 0x48
+	.equ .Lmemory_sp_dma_old_end, 0x4C
+
+	.macro AppendChildhoodFadeTask
+	adds r0, r5, #0
+	bl HardwareContext_GetFrameTasks
+	ldr r2, [r0, #8]
+	ldr r1, [sp, #.Lmemory_sp_fade_task]
+	ldr r2, [r2, #0x10]
+	bl _call_via_r2
+	.endm
+
+	@ Expand to size + max(size, 1), append the map copy, and free the old buffer.
+	@ r6 = queue; the two map uploads keep the command pointer in different places.
+	.macro GrowChildhoodMapDmaQueue old_size, size_end, copy_end, dest_test, command
+	str r1, [sp, #.Lmemory_sp_dma_old_end]
+	movs r0, #1
+	str r0, [sp, #(\old_size + 4)]
+	ldr r1, [r6]
+	ldr \size_end, [sp, #.Lmemory_sp_dma_old_end]
+	subs r0, \size_end, r1
+	asrs r4, r0, #4
+	str r4, [sp, #\old_size]
+	add r2, sp, #(\old_size + 4)
+	add r0, sp, #\old_size
+	cmp r4, #1
+	bhs .Lmemory_dma_use_growth\@
+	adds r0, r2, #0
+.Lmemory_dma_use_growth\@:
+	ldr r0, [r0]
+	adds r0, r4, r0
+	cmp r0, #0
+	beq .Lmemory_dma_empty_capacity\@
+	lsls r4, r0, #4
+	adds r0, r4, #0
+	bl malloc
+	mov sb, r4
+	cmp r0, #0
+	bne .Lmemory_dma_reload_old_buffer\@
+	mov r0, sb
+	bl func_080D3BC0
+.Lmemory_dma_reload_old_buffer\@:
+	ldr r1, [r6]
+	b .Lmemory_dma_have_storage\@
+.Lmemory_dma_empty_capacity\@:
+	movs r0, #0
+	mov sb, r0
+.Lmemory_dma_have_storage\@:
+	adds r4, r0, #0
+	mov r8, r4
+	adds r2, r1, #0
+	mov ip, r8
+	ldr \copy_end, [sp, #.Lmemory_sp_dma_old_end]
+	cmp r2, \copy_end
+	beq .Lmemory_dma_append_new\@
+.Lmemory_dma_copy_old\@:
+	mov \dest_test, ip
+	cmp \dest_test, #0
+	beq .Lmemory_dma_advance_old\@
+	.ifnc \dest_test,r0
+	mov r0, ip
+	.endif
+	adds r1, r2, #0
+	ldm r1!, {r3, r4, r7}
+	stm r0!, {r3, r4, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmemory_dma_advance_old\@:
+	adds r2, #0x10
+	movs r0, #0x10
+	add ip, r0
+	ldr r1, [sp, #.Lmemory_sp_dma_old_end]
+	cmp r2, r1
+	bne .Lmemory_dma_copy_old\@
+.Lmemory_dma_append_new\@:
+	mov r4, ip
+	ldr r0, [sp, #(\old_size + 4)]
+	cmp r0, #1
+	bne .Lmemory_dma_append_multiple\@
+	cmp r4, #0
+	beq .Lmemory_dma_advance_single\@
+	adds r0, r4, #0
+	.ifc \command,sl
+	mov r1, sl
+	.else
+	ldr r1, [sp, #\command]
+	.endif
+	ldm r1!, {r2, r3, r7}
+	stm r0!, {r2, r3, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmemory_dma_advance_single\@:
+	adds r4, #0x10
+	b .Lmemory_dma_release_old_buffer\@
+.Lmemory_dma_append_multiple\@:
+	mov ip, r0
+	adds r2, r4, #0
+	cmp r0, #0
+	beq .Lmemory_dma_finish_append\@
+.Lmemory_dma_append_next\@:
+	cmp r2, #0
+	beq .Lmemory_dma_advance_new\@
+	adds r0, r2, #0
+	.ifc \command,sl
+	mov r1, sl
+	.else
+	ldr r1, [sp, #\command]
+	.endif
+	ldm r1!, {r3, r4, r7}
+	stm r0!, {r3, r4, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmemory_dma_advance_new\@:
+	movs r0, #1
+	rsbs r0, r0, #0
+	add ip, r0
+	adds r2, #0x10
+	mov r1, ip
+	cmp r1, #0
+	bne .Lmemory_dma_append_next\@
+.Lmemory_dma_finish_append\@:
+	adds r4, r2, #0
+.Lmemory_dma_release_old_buffer\@:
+	ldr r2, [r6, #4]
+	ldr r1, [r6]
+	adds r0, r1, #0
+	cmp r1, r2
+	beq .Lmemory_dma_free_old_buffer\@
+.Lmemory_dma_walk_old_buffer\@:
+	adds r0, #0x10
+	cmp r0, r2
+	bne .Lmemory_dma_walk_old_buffer\@
+.Lmemory_dma_free_old_buffer\@:
+	cmp r1, #0
+	beq .Lmemory_dma_publish_queue\@
+	adds r0, r1, #0
+	bl free
+.Lmemory_dma_publish_queue\@:
+	mov r0, sb
+	add r0, r8
+	mov r2, r8
+	str r2, [r6]
+	str r4, [r6, #4]
+	str r0, [r6, #0xc]
+	.endm
+
 	.section .text.f3.0805EE44, "ax", %progbits
 	thumb_func_start RunChildhoodMemoryScreen
 RunChildhoodMemoryScreen: @ 0x0805EE44
@@ -53051,20 +52241,20 @@ RunChildhoodMemoryScreen: @ 0x0805EE44
 	mov r5, r8
 	push {r5, r6, r7}
 	sub sp, #0x50
-	str r0, [sp, #0x30]
+	str r0, [sp, #.Lmemory_sp_result_out]
 	adds r5, r1, #0
 	movs r0, #0
-	str r0, [sp, #0x34]
+	str r0, [sp, #.Lmemory_sp_delay_frames]
 	movs r1, #0
-	str r1, [sp, #0x38]
+	str r1, [sp, #.Lmemory_sp_scene_done]
 	adds r0, r5, #0
 	bl func_08008724
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
-	movs r2, #0x3f
+	movs r2, #.Lmemory_fade_all_layers
 	strh r2, [r1]
-	adds r0, #0x50
+	adds r0, #.Lmemory_bldcnt
 	strh r2, [r0]
 	movs r0, #0x10
 	bl __builtin_new
@@ -53072,558 +52262,535 @@ RunChildhoodMemoryScreen: @ 0x0805EE44
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	adds r1, r0, #0
-	ldr r2, [sp, #0x38]
+	ldr r2, [sp, #.Lmemory_sp_scene_done]
 	str r2, [r4]
 	str r2, [r4, #4]
 	ldr r0, .L0805EF00 @ =gDisplayFadeTaskVtable
 	str r0, [r4, #8]
 	adds r0, r4, #0
-	adds r0, #0xc
+	adds r0, #.Lmemory_fade_controller
 	bl DisplayFade_Initialize
-	str r4, [sp, #4]
+	str r4, [sp, #.Lmemory_sp_fade_task]
 	adds r0, r5, #0
 	bl LoadChildhoodMemoryGraphics
 	adds r0, r5, #0
 	adds r0, #0x18
-	movs r1, #0x25
+	movs r1, #.Lmemory_music_song
 	bl AudioPlayer_StartSong
-	ldr r0, [sp, #4]
-	ldr r1, .L0805EF04 @ =0x00000889
-	adds r0, #0xc
-	movs r2, #1
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
+	ldr r1, .L0805EF04 @ =.Lmemory_fade_step
+	adds r0, #.Lmemory_fade_controller
+	movs r2, #.Lmemory_brighten
 	movs r3, #0
 	bl DisplayFade_StartIn
-	adds r0, r5, #0
-	bl HardwareContext_GetFrameTasks
-	ldr r2, [r0, #8]
-	ldr r1, [sp, #4]
-	ldr r2, [r2, #0x10]
-	bl _call_via_r2
-	ldr r3, .L0805EF08 @ =0x00006422
+	AppendChildhoodFadeTask
+	ldr r3, .L0805EF08 @ =.Lmemory_scene_phase
 	adds r1, r5, r3
-	movs r0, #4
+	movs r0, #.Lmemory_phase_wait_fade_in
 	strh r0, [r1]
 	mov r4, sp
-	adds r4, #8
-	str r4, [sp, #0x40]
+	adds r4, #.Lmemory_sp_copy_command
+	str r4, [sp, #.Lmemory_sp_copy_command_ptr]
 	mov r7, sp
-	adds r7, #0x28
-	str r7, [sp, #0x44]
-.L0805EED8:
+	adds r7, #.Lmemory_sp_empty_result_owner
+	str r7, [sp, #.Lmemory_sp_empty_result_owner_ptr]
+	@ The opening and farewells use dialogue; the montage advances on a timer.
+	@ A cue changes graphics only after the previous fade completes.
+.Lmemory_next_frame:
 	adds r0, r5, #0
 	bl func_080087C8
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
-	ldr r1, .L0805EF08 @ =0x00006422
+	ldr r1, .L0805EF08 @ =.Lmemory_scene_phase
 	adds r0, r5, r1
 	ldrh r0, [r0]
 	subs r0, #1
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
-	cmp r0, #9
-	bls .L0805EEF6
-	b .L0805F59E
-.L0805EEF6:
+	cmp r0, #(.Lmemory_phase_exit_after_fade - .Lmemory_phase_start_dark_fade)
+	bls .Lmemory_dispatch_phase
+	b .Lmemory_update_dialogue
+.Lmemory_dispatch_phase:
 	lsls r0, r0, #2
-	ldr r1, .L0805EF0C @ =.L0805EF10
+	ldr r1, .L0805EF0C @ =.Lmemory_phase_table
 	adds r0, r0, r1
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
 .L0805EF00: .4byte gDisplayFadeTaskVtable
-.L0805EF04: .4byte 0x00000889
-.L0805EF08: .4byte 0x00006422
-.L0805EF0C: .4byte .L0805EF10
-.L0805EF10: @ jump table
-	.4byte .L0805EF38 @ case 0
-	.4byte .L0805EF64 @ case 1
-	.4byte .L0805EF88 @ case 2
-	.4byte .L0805EFB4 @ case 3
-	.4byte .L0805EFF6 @ case 4
-	.4byte .L0805F11C @ case 5
-	.4byte .L0805F138 @ case 6
-	.4byte .L0805F15C @ case 7
-	.4byte .L0805F1FA @ case 8
-	.4byte .L0805F58E @ case 9
-.L0805EF38:
-	ldr r0, [sp, #4]
-	ldr r1, .L0805EF5C @ =0x00000889
-	adds r0, #0xc
-	movs r2, #2
+.L0805EF04: .4byte .Lmemory_fade_step
+.L0805EF08: .4byte .Lmemory_scene_phase
+.L0805EF0C: .4byte .Lmemory_phase_table
+.Lmemory_phase_table: @ scene phase (1-10)
+	.4byte .Lmemory_fade_in_darken @ start_dark_fade
+	.4byte .Lmemory_wait_before_fade_in @ pause_before_fade
+	.4byte .Lmemory_fade_in_brighten @ start_light_fade
+	.4byte .Lmemory_wait_for_fade_in @ wait_fade_in
+	.4byte .Lmemory_wait_before_dialogue @ pause_before_text
+	.4byte .Lmemory_wait_for_dialogue @ wait_text
+	.4byte .Lmemory_wait_silent_pause @ pause_without_text
+	.4byte .Lmemory_advance_cue @ next_cue
+	.4byte .Lmemory_wait_for_transition @ wait_fade_out
+	.4byte .Lmemory_wait_for_exit @ exit_after_fade
+.Lmemory_fade_in_darken:
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
+	ldr r1, .L0805EF5C @ =.Lmemory_fade_step
+	adds r0, #.Lmemory_fade_controller
+	movs r2, #.Lmemory_darken
 	movs r3, #0
 	bl DisplayFade_StartIn
-	adds r0, r5, #0
-	bl HardwareContext_GetFrameTasks
-	ldr r2, [r0, #8]
-	ldr r1, [sp, #4]
-	ldr r2, [r2, #0x10]
-	bl _call_via_r2
-	ldr r2, .L0805EF60 @ =0x00006422
+	AppendChildhoodFadeTask
+	ldr r2, .L0805EF60 @ =.Lmemory_scene_phase
 	adds r1, r5, r2
-	b .L0805F090
+	b .Lmemory_store_wait_fade_in_phase
 	.align 2, 0
-.L0805EF5C: .4byte 0x00000889
-.L0805EF60: .4byte 0x00006422
-.L0805EF64:
-	ldr r3, [sp, #0x34]
+.L0805EF5C: .4byte .Lmemory_fade_step
+.L0805EF60: .4byte .Lmemory_scene_phase
+.Lmemory_wait_before_fade_in:
+	ldr r3, [sp, #.Lmemory_sp_delay_frames]
 	lsls r0, r3, #0x10
-	ldr r4, .L0805EF80 @ =0xFFFF0000
+	ldr r4, .L0805EF80 @ =.Lmemory_tick_timer_word
 	adds r0, r0, r4
 	lsrs r7, r0, #0x10
-	str r7, [sp, #0x34]
+	str r7, [sp, #.Lmemory_sp_delay_frames]
 	cmp r0, #0
-	blt .L0805EF76
-	b .L0805F59E
-.L0805EF76:
-	ldr r0, .L0805EF84 @ =0x00006422
+	blt .Lmemory_begin_bright_fade_in
+	b .Lmemory_update_dialogue
+.Lmemory_begin_bright_fade_in:
+	ldr r0, .L0805EF84 @ =.Lmemory_scene_phase
 	adds r1, r5, r0
-	movs r0, #3
+	movs r0, #.Lmemory_phase_start_light_fade
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805EF80: .4byte 0xFFFF0000
-.L0805EF84: .4byte 0x00006422
-.L0805EF88:
-	ldr r0, [sp, #4]
-	ldr r1, .L0805EFAC @ =0x00000889
-	adds r0, #0xc
-	movs r2, #1
+.L0805EF80: .4byte .Lmemory_tick_timer_word
+.L0805EF84: .4byte .Lmemory_scene_phase
+.Lmemory_fade_in_brighten:
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
+	ldr r1, .L0805EFAC @ =.Lmemory_fade_step
+	adds r0, #.Lmemory_fade_controller
+	movs r2, #.Lmemory_brighten
 	movs r3, #0
 	bl DisplayFade_StartIn
-	adds r0, r5, #0
-	bl HardwareContext_GetFrameTasks
-	ldr r2, [r0, #8]
-	ldr r1, [sp, #4]
-	ldr r2, [r2, #0x10]
-	bl _call_via_r2
-	ldr r2, .L0805EFB0 @ =0x00006422
+	AppendChildhoodFadeTask
+	ldr r2, .L0805EFB0 @ =.Lmemory_scene_phase
 	adds r1, r5, r2
-	b .L0805F090
+	b .Lmemory_store_wait_fade_in_phase
 	.align 2, 0
-.L0805EFAC: .4byte 0x00000889
-.L0805EFB0: .4byte 0x00006422
-.L0805EFB4:
-	ldr r0, [sp, #4]
+.L0805EFAC: .4byte .Lmemory_fade_step
+.L0805EFB0: .4byte .Lmemory_scene_phase
+.Lmemory_wait_for_fade_in:
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
 	ldr r1, [r0]
 	rsbs r0, r1, #0
 	orrs r0, r1
 	cmp r0, #0
-	bge .L0805EFC2
-	b .L0805F59E
-.L0805EFC2:
-	ldr r3, .L0805EFE8 @ =0x00006422
+	bge .Lmemory_start_dialogue_pause
+	b .Lmemory_update_dialogue
+.Lmemory_start_dialogue_pause:
+	ldr r3, .L0805EFE8 @ =.Lmemory_scene_phase
 	adds r0, r5, r3
-	movs r1, #5
+	movs r1, #.Lmemory_phase_pause_before_text
 	strh r1, [r0]
-	ldr r4, .L0805EFEC @ =0x00006420
+	ldr r4, .L0805EFEC @ =.Lmemory_scene_cue
 	adds r0, r5, r4
 	movs r7, #0
 	ldrsh r0, [r0, r7]
-	cmp r0, #1
-	beq .L0805EFE2
-	cmp r0, #1
-	blt .L0805EFF0
-	cmp r0, #0xc
-	bgt .L0805EFF0
-	cmp r0, #0xb
-	blt .L0805EFF0
-.L0805EFE2:
-	movs r0, #0x3c
-	str r0, [sp, #0x34]
-	b .L0805F59E
+	cmp r0, #.Lmemory_cue_lost_child
+	beq .Lmemory_use_longer_dialogue_pause
+	cmp r0, #.Lmemory_cue_lost_child
+	blt .Lmemory_skip_dialogue_pause
+	cmp r0, #.Lmemory_cue_girl_farewell
+	bgt .Lmemory_skip_dialogue_pause
+	cmp r0, #.Lmemory_cue_cabin_farewell
+	blt .Lmemory_skip_dialogue_pause
+.Lmemory_use_longer_dialogue_pause:
+	movs r0, #.Lmemory_long_dialogue_pause
+	str r0, [sp, #.Lmemory_sp_delay_frames]
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805EFE8: .4byte 0x00006422
-.L0805EFEC: .4byte 0x00006420
-.L0805EFF0:
+.L0805EFE8: .4byte .Lmemory_scene_phase
+.L0805EFEC: .4byte .Lmemory_scene_cue
+.Lmemory_skip_dialogue_pause:
 	movs r1, #0
-	str r1, [sp, #0x34]
-	b .L0805F59E
-.L0805EFF6:
-	ldr r2, [sp, #0x34]
+	str r1, [sp, #.Lmemory_sp_delay_frames]
+	b .Lmemory_update_dialogue
+.Lmemory_wait_before_dialogue:
+	ldr r2, [sp, #.Lmemory_sp_delay_frames]
 	lsls r0, r2, #0x10
-	ldr r3, .L0805F030 @ =0xFFFF0000
+	ldr r3, .L0805F030 @ =.Lmemory_tick_timer_word
 	adds r0, r0, r3
 	lsrs r4, r0, #0x10
-	str r4, [sp, #0x34]
+	str r4, [sp, #.Lmemory_sp_delay_frames]
 	cmp r0, #0
-	blt .L0805F008
-	b .L0805F59E
-.L0805F008:
-	ldr r7, .L0805F034 @ =0x00006422
+	blt .Lmemory_request_dialogue
+	b .Lmemory_update_dialogue
+.Lmemory_request_dialogue:
+	ldr r7, .L0805F034 @ =.Lmemory_scene_phase
 	adds r1, r5, r7
-	movs r2, #0
-	movs r0, #6
+	movs r2, #.Lmemory_dialogue_open_requested
+	movs r0, #.Lmemory_phase_wait_text
 	strh r0, [r1]
-	ldr r1, .L0805F038 @ =0x00006426
+	ldr r1, .L0805F038 @ =.Lmemory_dialogue_phase
 	adds r0, r5, r1
 	strh r2, [r0]
-	ldr r2, .L0805F03C @ =0x00006420
+	ldr r2, .L0805F03C @ =.Lmemory_scene_cue
 	adds r0, r5, r2
 	movs r3, #0
 	ldrsh r0, [r0, r3]
-	cmp r0, #0xd
-	bhi .L0805F0FC
+	cmp r0, #.Lmemory_cue_letter_farewell
+	bhi .Lmemory_pause_without_dialogue
 	lsls r0, r0, #2
-	ldr r1, .L0805F040 @ =.L0805F044
+	ldr r1, .L0805F040 @ =.Lmemory_dialogue_cue_table
 	adds r0, r0, r1
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0805F030: .4byte 0xFFFF0000
-.L0805F034: .4byte 0x00006422
-.L0805F038: .4byte 0x00006426
-.L0805F03C: .4byte 0x00006420
-.L0805F040: .4byte .L0805F044
-.L0805F044: @ jump table
-	.4byte .L0805F07C @ case 0
-	.4byte .L0805F08C @ case 1
-	.4byte .L0805F09C @ case 2
-	.4byte .L0805F0FC @ case 3
-	.4byte .L0805F0FC @ case 4
-	.4byte .L0805F0FC @ case 5
-	.4byte .L0805F0FC @ case 6
-	.4byte .L0805F0FC @ case 7
-	.4byte .L0805F0FC @ case 8
-	.4byte .L0805F0AC @ case 9
-	.4byte .L0805F0BC @ case 10
-	.4byte .L0805F0CC @ case 11
-	.4byte .L0805F0DC @ case 12
-	.4byte .L0805F0EC @ case 13
-.L0805F07C:
-	ldr r4, .L0805F088 @ =0x00006424
+.L0805F030: .4byte .Lmemory_tick_timer_word
+.L0805F034: .4byte .Lmemory_scene_phase
+.L0805F038: .4byte .Lmemory_dialogue_phase
+.L0805F03C: .4byte .Lmemory_scene_cue
+.L0805F040: .4byte .Lmemory_dialogue_cue_table
+.Lmemory_dialogue_cue_table: @ dialogue or silent pause for each scene cue (0-13)
+	.4byte .Lmemory_start_trip_dialogue @ trip
+	.4byte .Lmemory_start_lost_child_dialogue @ lost_child
+	.4byte .Lmemory_start_parents_thank_you @ parents_reunited
+	.4byte .Lmemory_pause_without_dialogue @ montage_begin
+	.4byte .Lmemory_pause_without_dialogue @ montage
+	.4byte .Lmemory_pause_without_dialogue @ montage
+	.4byte .Lmemory_pause_without_dialogue @ montage
+	.4byte .Lmemory_pause_without_dialogue @ montage
+	.4byte .Lmemory_pause_without_dialogue @ montage_end
+	.4byte .Lmemory_start_unseen_girl_dialogue @ unseen_girl
+	.4byte .Lmemory_start_girl_dialogue @ meet_girl
+	.4byte .Lmemory_start_farewell_dialogue @ cabin_farewell
+	.4byte .Lmemory_start_departure_dialogue @ girl_farewell
+	.4byte .Lmemory_start_final_line @ letter_farewell
+.Lmemory_start_trip_dialogue:
+	ldr r4, .L0805F088 @ =.Lmemory_dialogue_line
 	adds r1, r5, r4
-	movs r0, #0
+	movs r0, #.Lmemory_line_trip
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F088: .4byte 0x00006424
-.L0805F08C:
-	ldr r7, .L0805F098 @ =0x00006424
+.L0805F088: .4byte .Lmemory_dialogue_line
+.Lmemory_start_lost_child_dialogue:
+	ldr r7, .L0805F098 @ =.Lmemory_dialogue_line
 	adds r1, r5, r7
-.L0805F090:
-	movs r0, #4
+	@ The scene-phase and dialogue-line stores share their constant and tail.
+	.if .Lmemory_line_found_child != .Lmemory_phase_wait_fade_in
+	.error "Split the shared scene phase and dialogue line store"
+	.endif
+.Lmemory_store_wait_fade_in_phase:
+	movs r0, #.Lmemory_phase_wait_fade_in
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F098: .4byte 0x00006424
-.L0805F09C:
-	ldr r0, .L0805F0A8 @ =0x00006424
+.L0805F098: .4byte .Lmemory_dialogue_line
+.Lmemory_start_parents_thank_you:
+	ldr r0, .L0805F0A8 @ =.Lmemory_dialogue_line
 	adds r1, r5, r0
-	movs r0, #5
+	movs r0, #.Lmemory_line_thank_you
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F0A8: .4byte 0x00006424
-.L0805F0AC:
-	ldr r2, .L0805F0B8 @ =0x00006424
+.L0805F0A8: .4byte .Lmemory_dialogue_line
+.Lmemory_start_unseen_girl_dialogue:
+	ldr r2, .L0805F0B8 @ =.Lmemory_dialogue_line
 	adds r1, r5, r2
-	movs r0, #0xe
+	movs r0, #.Lmemory_line_calling_out
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F0B8: .4byte 0x00006424
-.L0805F0BC:
-	ldr r3, .L0805F0C8 @ =0x00006424
+.L0805F0B8: .4byte .Lmemory_dialogue_line
+.Lmemory_start_girl_dialogue:
+	ldr r3, .L0805F0C8 @ =.Lmemory_dialogue_line
 	adds r1, r5, r3
-	movs r0, #0x10
+	movs r0, #.Lmemory_line_meet_girl
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F0C8: .4byte 0x00006424
-.L0805F0CC:
-	ldr r4, .L0805F0D8 @ =0x00006424
+.L0805F0C8: .4byte .Lmemory_dialogue_line
+.Lmemory_start_farewell_dialogue:
+	ldr r4, .L0805F0D8 @ =.Lmemory_dialogue_line
 	adds r1, r5, r4
-	movs r0, #0x13
+	movs r0, #.Lmemory_line_farm_farewell
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F0D8: .4byte 0x00006424
-.L0805F0DC:
-	ldr r7, .L0805F0E8 @ =0x00006424
+.L0805F0D8: .4byte .Lmemory_dialogue_line
+.Lmemory_start_departure_dialogue:
+	ldr r7, .L0805F0E8 @ =.Lmemory_dialogue_line
 	adds r1, r5, r7
-	movs r0, #0x16
+	movs r0, #.Lmemory_line_leaving_reaction
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F0E8: .4byte 0x00006424
-.L0805F0EC:
-	ldr r0, .L0805F0F8 @ =0x00006424
+.L0805F0E8: .4byte .Lmemory_dialogue_line
+.Lmemory_start_final_line:
+	ldr r0, .L0805F0F8 @ =.Lmemory_dialogue_line
 	adds r1, r5, r0
-	movs r0, #0x19
+	movs r0, #.Lmemory_line_waiting_for_letter
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F0F8: .4byte 0x00006424
-.L0805F0FC:
-	movs r1, #0xb4
-	str r1, [sp, #0x34]
-	ldr r2, .L0805F114 @ =0x00006426
+.L0805F0F8: .4byte .Lmemory_dialogue_line
+.Lmemory_pause_without_dialogue:
+	movs r1, #.Lmemory_silent_pause
+	str r1, [sp, #.Lmemory_sp_delay_frames]
+	ldr r2, .L0805F114 @ =.Lmemory_dialogue_phase
 	adds r1, r5, r2
-	movs r0, #2
+	movs r0, #.Lmemory_dialogue_idle
 	strh r0, [r1]
-	ldr r3, .L0805F118 @ =0x00006422
+	ldr r3, .L0805F118 @ =.Lmemory_scene_phase
 	adds r1, r5, r3
-	movs r0, #7
+	movs r0, #.Lmemory_phase_pause_without_text
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F114: .4byte 0x00006426
-.L0805F118: .4byte 0x00006422
-.L0805F11C:
-	ldr r4, .L0805F130 @ =0x00006426
+.L0805F114: .4byte .Lmemory_dialogue_phase
+.L0805F118: .4byte .Lmemory_scene_phase
+.Lmemory_wait_for_dialogue:
+	ldr r4, .L0805F130 @ =.Lmemory_dialogue_phase
 	adds r0, r5, r4
 	movs r7, #0
 	ldrsh r0, [r0, r7]
-	cmp r0, #2
-	beq .L0805F12A
-	b .L0805F59E
-.L0805F12A:
-	ldr r0, .L0805F134 @ =0x00006422
+	cmp r0, #.Lmemory_dialogue_idle
+	beq .Lmemory_advance_after_dialogue
+	b .Lmemory_update_dialogue
+.Lmemory_advance_after_dialogue:
+	ldr r0, .L0805F134 @ =.Lmemory_scene_phase
 	adds r1, r5, r0
-	b .L0805F14E
+	b .Lmemory_store_advance_cue_phase
 	.align 2, 0
-.L0805F130: .4byte 0x00006426
-.L0805F134: .4byte 0x00006422
-.L0805F138:
-	ldr r1, [sp, #0x34]
+.L0805F130: .4byte .Lmemory_dialogue_phase
+.L0805F134: .4byte .Lmemory_scene_phase
+.Lmemory_wait_silent_pause:
+	ldr r1, [sp, #.Lmemory_sp_delay_frames]
 	lsls r0, r1, #0x10
-	ldr r2, .L0805F154 @ =0xFFFF0000
+	ldr r2, .L0805F154 @ =.Lmemory_tick_timer_word
 	adds r0, r0, r2
 	lsrs r3, r0, #0x10
-	str r3, [sp, #0x34]
+	str r3, [sp, #.Lmemory_sp_delay_frames]
 	cmp r0, #0
-	blt .L0805F14A
-	b .L0805F59E
-.L0805F14A:
-	ldr r4, .L0805F158 @ =0x00006422
+	blt .Lmemory_advance_after_silent_pause
+	b .Lmemory_update_dialogue
+.Lmemory_advance_after_silent_pause:
+	ldr r4, .L0805F158 @ =.Lmemory_scene_phase
 	adds r1, r5, r4
-.L0805F14E:
-	movs r0, #8
+.Lmemory_store_advance_cue_phase:
+	movs r0, #.Lmemory_phase_next_cue
 	strh r0, [r1]
-	b .L0805F59E
+	b .Lmemory_update_dialogue
 	.align 2, 0
-.L0805F154: .4byte 0xFFFF0000
-.L0805F158: .4byte 0x00006422
-.L0805F15C:
-	ldr r7, .L0805F19C @ =0x00006420
+.L0805F154: .4byte .Lmemory_tick_timer_word
+.L0805F158: .4byte .Lmemory_scene_phase
+.Lmemory_advance_cue:
+	ldr r7, .L0805F19C @ =.Lmemory_scene_cue
 	adds r1, r5, r7
 	ldrh r2, [r1]
 	adds r0, r2, #1
 	strh r0, [r1]
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
-	cmp r0, #0xd
-	bgt .L0805F1D4
+	cmp r0, #.Lmemory_cue_letter_farewell
+	bgt .Lmemory_fade_out_to_exit
 	adds r0, r2, #0
-	subs r0, #8
+	subs r0, #(.Lmemory_cue_unseen_girl - 1)
 	lsls r0, r0, #0x10
 	lsrs r0, r0, #0x10
-	cmp r0, #2
-	bhi .L0805F1A4
-	ldr r0, [sp, #4]
-	ldr r1, .L0805F1A0 @ =0x00000889
-	adds r0, #0xc
-	movs r2, #1
+	cmp r0, #(.Lmemory_cue_cabin_farewell - .Lmemory_cue_unseen_girl)
+	bhi .Lmemory_fade_out_darken
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
+	ldr r1, .L0805F1A0 @ =.Lmemory_fade_step
+	adds r0, #.Lmemory_fade_controller
+	movs r2, #.Lmemory_brighten
 	movs r3, #0
 	bl DisplayFade_StartOut
-	adds r0, r5, #0
-	bl HardwareContext_GetFrameTasks
-	ldr r2, [r0, #8]
-	ldr r1, [sp, #4]
-	ldr r2, [r2, #0x10]
-	bl _call_via_r2
-	b .L0805F1C2
+	AppendChildhoodFadeTask
+	b .Lmemory_begin_wait_for_transition
 	.align 2, 0
-.L0805F19C: .4byte 0x00006420
-.L0805F1A0: .4byte 0x00000889
-.L0805F1A4:
-	ldr r0, [sp, #4]
-	ldr r1, .L0805F1CC @ =0x00000889
-	adds r0, #0xc
-	movs r2, #2
+.L0805F19C: .4byte .Lmemory_scene_cue
+.L0805F1A0: .4byte .Lmemory_fade_step
+.Lmemory_fade_out_darken:
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
+	ldr r1, .L0805F1CC @ =.Lmemory_fade_step
+	adds r0, #.Lmemory_fade_controller
+	movs r2, #.Lmemory_darken
 	movs r3, #0
 	bl DisplayFade_StartOut
-	adds r0, r5, #0
-	bl HardwareContext_GetFrameTasks
-	ldr r2, [r0, #8]
-	ldr r1, [sp, #4]
-	ldr r2, [r2, #0x10]
-	bl _call_via_r2
-.L0805F1C2:
-	ldr r0, .L0805F1D0 @ =0x00006422
+	AppendChildhoodFadeTask
+.Lmemory_begin_wait_for_transition:
+	ldr r0, .L0805F1D0 @ =.Lmemory_scene_phase
 	adds r1, r5, r0
-	movs r0, #9
-	b .L0805F1F8
+	movs r0, #.Lmemory_phase_wait_fade_out
+	b .Lmemory_store_wait_phase
 	.align 2, 0
-.L0805F1CC: .4byte 0x00000889
-.L0805F1D0: .4byte 0x00006422
-.L0805F1D4:
-	ldr r0, [sp, #4]
-	ldr r1, .L0805F22C @ =0x00000889
-	adds r0, #0xc
-	movs r2, #1
+.L0805F1CC: .4byte .Lmemory_fade_step
+.L0805F1D0: .4byte .Lmemory_scene_phase
+.Lmemory_fade_out_to_exit:
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
+	ldr r1, .L0805F22C @ =.Lmemory_fade_step
+	adds r0, #.Lmemory_fade_controller
+	movs r2, #.Lmemory_brighten
 	movs r3, #1
 	bl DisplayFade_StartOut
-	adds r0, r5, #0
-	bl HardwareContext_GetFrameTasks
-	ldr r2, [r0, #8]
-	ldr r1, [sp, #4]
-	ldr r2, [r2, #0x10]
-	bl _call_via_r2
-	ldr r2, .L0805F230 @ =0x00006422
+	AppendChildhoodFadeTask
+	ldr r2, .L0805F230 @ =.Lmemory_scene_phase
 	adds r1, r5, r2
-	movs r0, #0xa
-.L0805F1F8:
+	movs r0, #.Lmemory_phase_exit_after_fade
+.Lmemory_store_wait_phase:
 	strh r0, [r1]
-.L0805F1FA:
-	ldr r0, [sp, #4]
+.Lmemory_wait_for_transition:
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
 	ldr r1, [r0]
 	rsbs r0, r1, #0
 	orrs r0, r1
 	cmp r0, #0
-	bge .L0805F208
-	b .L0805F59E
-.L0805F208:
+	bge .Lmemory_select_next_background
+	b .Lmemory_update_dialogue
+.Lmemory_select_next_background:
 	movs r3, #1
 	rsbs r3, r3, #0
 	mov sl, r3
-	ldr r4, .L0805F234 @ =0x00006420
+	ldr r4, .L0805F234 @ =.Lmemory_scene_cue
 	adds r0, r5, r4
 	ldrh r0, [r0]
 	subs r0, #1
 	lsls r0, r0, #0x10
 	asrs r0, r0, #0x10
-	cmp r0, #0xc
-	bls .L0805F220
-	b .L0805F32E
-.L0805F220:
+	cmp r0, #(.Lmemory_cue_letter_farewell - .Lmemory_cue_lost_child)
+	bls .Lmemory_dispatch_background_cue
+	b .Lmemory_check_for_background_upload
+.Lmemory_dispatch_background_cue:
 	lsls r0, r0, #2
-	ldr r1, .L0805F238 @ =.L0805F23C
+	ldr r1, .L0805F238 @ =.Lmemory_background_cue_table
 	adds r0, r0, r1
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L0805F22C: .4byte 0x00000889
-.L0805F230: .4byte 0x00006422
-.L0805F234: .4byte 0x00006420
-.L0805F238: .4byte .L0805F23C
-.L0805F23C: @ jump table
-	.4byte .L0805F270 @ case 0
-	.4byte .L0805F280 @ case 1
-	.4byte .L0805F2BC @ case 2
-	.4byte .L0805F2BC @ case 3
-	.4byte .L0805F2BC @ case 4
-	.4byte .L0805F2BC @ case 5
-	.4byte .L0805F2BC @ case 6
-	.4byte .L0805F2BC @ case 7
-	.4byte .L0805F29C @ case 8
-	.4byte .L0805F2DC @ case 9
-	.4byte .L0805F2F8 @ case 10
-	.4byte .L0805F318 @ case 11
-	.4byte .L0805F280 @ case 12
-.L0805F270:
+.L0805F22C: .4byte .Lmemory_fade_step
+.L0805F230: .4byte .Lmemory_scene_phase
+.L0805F234: .4byte .Lmemory_scene_cue
+.L0805F238: .4byte .Lmemory_background_cue_table
+.Lmemory_background_cue_table: @ background transition for each scene cue (1-13)
+	.4byte .Lmemory_show_first_background_pair @ lost_child
+	.4byte .Lmemory_show_bg1_only @ parents_reunited
+	.4byte .Lmemory_show_montage_background_pair @ montage_begin
+	.4byte .Lmemory_show_montage_background_pair @ montage
+	.4byte .Lmemory_show_montage_background_pair @ montage
+	.4byte .Lmemory_show_montage_background_pair @ montage
+	.4byte .Lmemory_show_montage_background_pair @ montage
+	.4byte .Lmemory_show_montage_background_pair @ montage_end
+	.4byte .Lmemory_hide_backgrounds @ unseen_girl
+	.4byte .Lmemory_show_girl_background_pair @ meet_girl
+	.4byte .Lmemory_show_farewell_background_pair @ cabin_farewell
+	.4byte .Lmemory_show_departure_background_pair @ girl_farewell
+	.4byte .Lmemory_show_bg1_only @ letter_farewell
+.Lmemory_show_first_background_pair:
 	movs r7, #0
 	mov sl, r7
-	ldr r0, .L0805F27C @ =0x00006422
+	ldr r0, .L0805F27C @ =.Lmemory_scene_phase
 	adds r1, r5, r0
-	b .L0805F2CE
+	b .Lmemory_store_darken_fade_in_phase
 	.align 2, 0
-.L0805F27C: .4byte 0x00006422
-.L0805F280:
+.L0805F27C: .4byte .Lmemory_scene_phase
+.Lmemory_show_bg1_only:
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
-	movs r3, #0x92
+	movs r3, #(.Lmemory_display_obj_bg1 >> 5)
 	lsls r3, r3, #5
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0]
-	ldr r4, .L0805F298 @ =0x00006422
+	ldr r4, .L0805F298 @ =.Lmemory_scene_phase
 	adds r1, r5, r4
-	b .L0805F2CE
+	b .Lmemory_store_darken_fade_in_phase
 	.align 2, 0
-.L0805F298: .4byte 0x00006422
-.L0805F29C:
+.L0805F298: .4byte .Lmemory_scene_phase
+.Lmemory_hide_backgrounds:
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
-	movs r7, #0x82
+	movs r7, #(.Lmemory_display_obj_only >> 5)
 	lsls r7, r7, #5
 	adds r1, r7, #0
 	strh r1, [r2]
 	strh r1, [r0]
-	ldr r0, .L0805F2B8 @ =0x00006422
+	ldr r0, .L0805F2B8 @ =.Lmemory_scene_phase
 	adds r1, r5, r0
-	movs r0, #3
+	movs r0, #.Lmemory_phase_start_light_fade
 	strh r0, [r1]
-	b .L0805F32E
+	b .Lmemory_check_for_background_upload
 	.align 2, 0
-.L0805F2B8: .4byte 0x00006422
-.L0805F2BC:
-	ldr r1, .L0805F2D4 @ =0x00006420
+.L0805F2B8: .4byte .Lmemory_scene_phase
+.Lmemory_show_montage_background_pair:
+	ldr r1, .L0805F2D4 @ =.Lmemory_scene_cue
 	adds r0, r5, r1
 	movs r2, #0
 	ldrsh r0, [r0, r2]
 	subs r0, #2
 	lsls r0, r0, #1
 	mov sl, r0
-	ldr r3, .L0805F2D8 @ =0x00006422
+	ldr r3, .L0805F2D8 @ =.Lmemory_scene_phase
 	adds r1, r5, r3
-.L0805F2CE:
-	movs r0, #1
+.Lmemory_store_darken_fade_in_phase:
+	movs r0, #.Lmemory_phase_start_dark_fade
 	strh r0, [r1]
-	b .L0805F32E
+	b .Lmemory_check_for_background_upload
 	.align 2, 0
-.L0805F2D4: .4byte 0x00006420
-.L0805F2D8: .4byte 0x00006422
-.L0805F2DC:
-	ldr r4, .L0805F2F0 @ =0x00006422
+.L0805F2D4: .4byte .Lmemory_scene_cue
+.L0805F2D8: .4byte .Lmemory_scene_phase
+.Lmemory_show_girl_background_pair:
+	ldr r4, .L0805F2F0 @ =.Lmemory_scene_phase
 	adds r1, r5, r4
-	movs r0, #3
+	movs r0, #.Lmemory_phase_start_light_fade
 	strh r0, [r1]
-	ldr r7, .L0805F2F4 @ =0x00006420
+	ldr r7, .L0805F2F4 @ =.Lmemory_scene_cue
 	adds r0, r5, r7
 	movs r1, #0
 	ldrsh r0, [r0, r1]
-	b .L0805F328
+	b .Lmemory_select_late_background_pair
 	.align 2, 0
-.L0805F2F0: .4byte 0x00006422
-.L0805F2F4: .4byte 0x00006420
-.L0805F2F8:
-	movs r2, #0x78
-	str r2, [sp, #0x34]
-	ldr r3, .L0805F310 @ =0x00006422
+.L0805F2F0: .4byte .Lmemory_scene_phase
+.L0805F2F4: .4byte .Lmemory_scene_cue
+.Lmemory_show_farewell_background_pair:
+	movs r2, #.Lmemory_farewell_pause
+	str r2, [sp, #.Lmemory_sp_delay_frames]
+	ldr r3, .L0805F310 @ =.Lmemory_scene_phase
 	adds r1, r5, r3
-	movs r0, #2
+	movs r0, #.Lmemory_phase_pause_before_fade
 	strh r0, [r1]
-	ldr r4, .L0805F314 @ =0x00006420
+	ldr r4, .L0805F314 @ =.Lmemory_scene_cue
 	adds r0, r5, r4
 	movs r7, #0
 	ldrsh r0, [r0, r7]
-	b .L0805F328
+	b .Lmemory_select_late_background_pair
 	.align 2, 0
-.L0805F310: .4byte 0x00006422
-.L0805F314: .4byte 0x00006420
-.L0805F318:
-	ldr r0, .L0805F380 @ =0x00006422
+.L0805F310: .4byte .Lmemory_scene_phase
+.L0805F314: .4byte .Lmemory_scene_cue
+.Lmemory_show_departure_background_pair:
+	ldr r0, .L0805F380 @ =.Lmemory_scene_phase
 	adds r1, r5, r0
-	movs r0, #1
+	movs r0, #.Lmemory_phase_start_dark_fade
 	strh r0, [r1]
-	ldr r1, .L0805F384 @ =0x00006420
+	ldr r1, .L0805F384 @ =.Lmemory_scene_cue
 	adds r0, r5, r1
 	movs r2, #0
 	ldrsh r0, [r0, r2]
-.L0805F328:
+.Lmemory_select_late_background_pair:
 	subs r0, #3
 	lsls r0, r0, #1
 	mov sl, r0
-.L0805F32E:
+.Lmemory_check_for_background_upload:
 	movs r0, #1
 	rsbs r0, r0, #0
 	cmp sl, r0
-	bne .L0805F338
-	b .L0805F59E
-.L0805F338:
+	bne .Lmemory_queue_bg3_map
+	b .Lmemory_update_dialogue
+	@ Each illustration uses consecutive BG3 and BG1 tilemaps.
+.Lmemory_queue_bg3_map:
 	adds r0, r5, #0
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -53632,366 +52799,132 @@ RunChildhoodMemoryScreen: @ 0x0805EE44
 	adds r1, r4, r3
 	lsls r1, r1, #8
 	adds r1, r1, r5
-	adds r1, #0x20
-	add r0, sp, #8
-	ldr r2, .L0805F388 @ =0x0600F000
-	movs r3, #0xa0
+	adds r1, #.Lmemory_maps
+	add r0, sp, #.Lmemory_sp_copy_command
+	ldr r2, .L0805F388 @ =.Lmemory_bg3_tilemap_vram
+	movs r3, #(.Lmemory_map_bytes >> 3)
 	lsls r3, r3, #3
 	bl DmaCommand_InitializeCopy
-	ldr r7, [sp, #0x40]
-	str r7, [sp, #0x3c]
+	ldr r7, [sp, #.Lmemory_sp_copy_command_ptr]
+	str r7, [sp, #.Lmemory_sp_bg3_command_ptr]
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
-	str r4, [sp, #0x48]
+	str r4, [sp, #.Lmemory_sp_map_index_times_four]
 	cmp r1, r0
-	beq .L0805F38C
+	beq .Lmemory_grow_bg3_dma_queue
 	cmp r1, #0
-	beq .L0805F376
+	beq .Lmemory_advance_bg3_dma_queue
 	adds r0, r1, #0
 	adds r1, r7, #0
 	ldm r1!, {r2, r3, r4}
 	stm r0!, {r2, r3, r4}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805F376:
+.Lmemory_advance_bg3_dma_queue:
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	b .L0805F460
+	b .Lmemory_queue_bg1_map
 	.align 2, 0
-.L0805F380: .4byte 0x00006422
-.L0805F384: .4byte 0x00006420
-.L0805F388: .4byte 0x0600F000
-.L0805F38C:
-	str r1, [sp, #0x4c]
-	movs r0, #1
-	str r0, [sp, #0x1c]
-	ldr r1, [r6]
-	ldr r7, [sp, #0x4c]
-	subs r0, r7, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x18]
-	add r2, sp, #0x1c
-	add r0, sp, #0x18
-	cmp r4, #1
-	bhs .L0805F3A6
-	adds r0, r2, #0
-.L0805F3A6:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805F3C6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805F3C2
-	mov r0, sb
-	bl func_080D3BC0
-.L0805F3C2:
-	ldr r1, [r6]
-	b .L0805F3CA
-.L0805F3C6:
-	movs r0, #0
-	mov sb, r0
-.L0805F3CA:
-	adds r4, r0, #0
-	mov r8, r4
-	adds r2, r1, #0
-	mov ip, r8
-	ldr r0, [sp, #0x4c]
-	cmp r2, r0
-	beq .L0805F3F6
-.L0805F3D8:
-	mov r1, ip
-	cmp r1, #0
-	beq .L0805F3EA
-	mov r0, ip
-	adds r1, r2, #0
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805F3EA:
-	adds r2, #0x10
-	movs r0, #0x10
-	add ip, r0
-	ldr r1, [sp, #0x4c]
-	cmp r2, r1
-	bne .L0805F3D8
-.L0805F3F6:
-	mov r4, ip
-	ldr r0, [sp, #0x1c]
-	cmp r0, #1
-	bne .L0805F412
-	cmp r4, #0
-	beq .L0805F40E
-	adds r0, r4, #0
-	ldr r1, [sp, #0x3c]
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805F40E:
-	adds r4, #0x10
-	b .L0805F43A
-.L0805F412:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805F438
-.L0805F41A:
-	cmp r2, #0
-	beq .L0805F42A
-	adds r0, r2, #0
-	ldr r1, [sp, #0x3c]
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805F42A:
-	movs r0, #1
-	rsbs r0, r0, #0
-	add ip, r0
-	adds r2, #0x10
-	mov r1, ip
-	cmp r1, #0
-	bne .L0805F41A
-.L0805F438:
-	adds r4, r2, #0
-.L0805F43A:
-	ldr r2, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L0805F44A
-.L0805F444:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L0805F444
-.L0805F44A:
-	cmp r1, #0
-	beq .L0805F454
-	adds r0, r1, #0
-	bl free
-.L0805F454:
-	mov r0, sb
-	add r0, r8
-	mov r2, r8
-	str r2, [r6]
-	str r4, [r6, #4]
-	str r0, [r6, #0xc]
-.L0805F460:
+.L0805F380: .4byte .Lmemory_scene_phase
+.L0805F384: .4byte .Lmemory_scene_cue
+.L0805F388: .4byte .Lmemory_bg3_tilemap_vram
+.Lmemory_grow_bg3_dma_queue:
+	GrowChildhoodMapDmaQueue .Lmemory_sp_bg3_dma_old_size, r7, r0, r1, .Lmemory_sp_bg3_command_ptr
+.Lmemory_queue_bg1_map:
 	adds r0, r5, #0
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
-	ldr r1, [sp, #0x48]
+	ldr r1, [sp, #.Lmemory_sp_map_index_times_four]
 	add r1, sl
 	lsls r1, r1, #8
 	adds r1, r1, r5
-	movs r3, #0xa4
+	movs r3, #((.Lmemory_maps + .Lmemory_map_bytes) >> 3)
 	lsls r3, r3, #3
 	adds r1, r1, r3
-	add r0, sp, #8
-	ldr r2, .L0805F4A4 @ =0x0600E800
-	subs r3, #0x20
+	add r0, sp, #.Lmemory_sp_copy_command
+	ldr r2, .L0805F4A4 @ =.Lmemory_bg1_tilemap_vram
+	subs r3, #.Lmemory_maps
 	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #0x40]
+	ldr r4, [sp, #.Lmemory_sp_copy_command_ptr]
 	mov sl, r4
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
 	cmp r1, r0
-	beq .L0805F4A8
+	beq .Lmemory_grow_bg1_dma_queue
 	cmp r1, #0
-	beq .L0805F49C
+	beq .Lmemory_advance_bg1_dma_queue
 	adds r0, r1, #0
 	adds r1, r4, #0
 	ldm r1!, {r2, r3, r7}
 	stm r0!, {r2, r3, r7}
 	ldr r1, [r1]
 	str r1, [r0]
-.L0805F49C:
+.Lmemory_advance_bg1_dma_queue:
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	b .L0805F57A
+	b .Lmemory_enable_background_layers
 	.align 2, 0
-.L0805F4A4: .4byte 0x0600E800
-.L0805F4A8:
-	str r1, [sp, #0x4c]
-	movs r0, #1
-	str r0, [sp, #0x24]
-	ldr r1, [r6]
-	ldr r4, [sp, #0x4c]
-	subs r0, r4, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x20]
-	add r2, sp, #0x24
-	add r0, sp, #0x20
-	cmp r4, #1
-	bhs .L0805F4C2
-	adds r0, r2, #0
-.L0805F4C2:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805F4E2
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805F4DE
-	mov r0, sb
-	bl func_080D3BC0
-.L0805F4DE:
-	ldr r1, [r6]
-	b .L0805F4E6
-.L0805F4E2:
-	movs r0, #0
-	mov sb, r0
-.L0805F4E6:
-	adds r4, r0, #0
-	mov r8, r4
-	adds r2, r1, #0
-	mov ip, r8
-	ldr r7, [sp, #0x4c]
-	cmp r2, r7
-	beq .L0805F510
-.L0805F4F4:
-	mov r0, ip
-	cmp r0, #0
-	beq .L0805F504
-	adds r1, r2, #0
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805F504:
-	adds r2, #0x10
-	movs r0, #0x10
-	add ip, r0
-	ldr r1, [sp, #0x4c]
-	cmp r2, r1
-	bne .L0805F4F4
-.L0805F510:
-	mov r4, ip
-	ldr r0, [sp, #0x24]
-	cmp r0, #1
-	bne .L0805F52C
-	cmp r4, #0
-	beq .L0805F528
-	adds r0, r4, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805F528:
-	adds r4, #0x10
-	b .L0805F554
-.L0805F52C:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805F552
-.L0805F534:
-	cmp r2, #0
-	beq .L0805F544
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805F544:
-	movs r0, #1
-	rsbs r0, r0, #0
-	add ip, r0
-	adds r2, #0x10
-	mov r1, ip
-	cmp r1, #0
-	bne .L0805F534
-.L0805F552:
-	adds r4, r2, #0
-.L0805F554:
-	ldr r2, [r6, #4]
-	ldr r1, [r6]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L0805F564
-.L0805F55E:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L0805F55E
-.L0805F564:
-	cmp r1, #0
-	beq .L0805F56E
-	adds r0, r1, #0
-	bl free
-.L0805F56E:
-	mov r0, sb
-	add r0, r8
-	mov r2, r8
-	str r2, [r6]
-	str r4, [r6, #4]
-	str r0, [r6, #0xc]
-.L0805F57A:
+.L0805F4A4: .4byte .Lmemory_bg1_tilemap_vram
+.Lmemory_grow_bg1_dma_queue:
+	GrowChildhoodMapDmaQueue .Lmemory_sp_bg1_dma_old_size, r4, r7, r0, sl
+.Lmemory_enable_background_layers:
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r2, sp
-	movs r3, #0xe2
+	movs r3, #(.Lmemory_display_obj_bg123 >> 5)
 	lsls r3, r3, #5
 	adds r1, r3, #0
 	strh r1, [r2]
 	strh r1, [r0]
-	b .L0805F59E
-.L0805F58E:
-	ldr r0, [sp, #4]
+	b .Lmemory_update_dialogue
+.Lmemory_wait_for_exit:
+	ldr r0, [sp, #.Lmemory_sp_fade_task]
 	ldr r1, [r0]
 	rsbs r0, r1, #0
 	orrs r0, r1
 	cmp r0, #0
-	blt .L0805F59E
+	blt .Lmemory_update_dialogue
 	movs r4, #1
-	str r4, [sp, #0x38]
-.L0805F59E:
+	str r4, [sp, #.Lmemory_sp_scene_done]
+.Lmemory_update_dialogue:
 	adds r0, r5, #0
 	bl UpdateChildhoodMemoryDialogue
-	ldr r7, [sp, #0x38]
+	ldr r7, [sp, #.Lmemory_sp_scene_done]
 	cmp r7, #0
-	bne .L0805F5AC
-	b .L0805EED8
-.L0805F5AC:
+	bne .Lmemory_clear_scene_result
+	b .Lmemory_next_frame
+	@ This flashback returns no replacement scene.
+.Lmemory_clear_scene_result:
 	movs r0, #0
-	str r0, [sp, #8]
-	ldr r1, [sp, #0x40]
-	str r1, [sp, #0x28]
-	ldr r2, [sp, #0x44]
+	str r0, [sp, #.Lmemory_sp_copy_command]
+	ldr r1, [sp, #.Lmemory_sp_copy_command_ptr]
+	str r1, [sp, #.Lmemory_sp_empty_result_owner]
+	ldr r2, [sp, #.Lmemory_sp_empty_result_owner_ptr]
 	str r0, [r2, #4]
 	str r0, [r1]
-	ldr r3, [sp, #0x30]
+	ldr r3, [sp, #.Lmemory_sp_result_out]
 	str r0, [r3]
-	ldr r1, [sp, #8]
+	ldr r1, [sp, #.Lmemory_sp_copy_command]
 	cmp r1, #0
-	beq .L0805F5D0
+	beq .Lmemory_destroy_fade_task
 	ldr r0, [r1]
 	ldr r2, [r0, #8]
 	adds r0, r1, #0
 	movs r1, #3
 	bl _call_via_r2
-.L0805F5D0:
-	ldr r1, [sp, #4]
+.Lmemory_destroy_fade_task:
+	ldr r1, [sp, #.Lmemory_sp_fade_task]
 	cmp r1, #0
-	beq .L0805F5E2
+	beq .Lmemory_return_scene_result
 	ldr r0, [r1, #8]
 	ldr r2, [r0, #0xc]
 	adds r0, r1, #0
 	movs r1, #3
 	bl _call_via_r2
-.L0805F5E2:
-	ldr r0, [sp, #0x30]
+.Lmemory_return_scene_result:
+	ldr r0, [sp, #.Lmemory_sp_result_out]
 	add sp, #0x50
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -54001,606 +52934,8 @@ RunChildhoodMemoryScreen: @ 0x0805EE44
 	pop {r1}
 	bx r1
 
-	thumb_func_start UpdateChildhoodMemoryDialogue
-UpdateChildhoodMemoryDialogue: @ 0x0805F5F4
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0xc
-	adds r7, r0, #0
-	ldr r0, [r7, #0x10]
-	mov sb, r0
-	adds r0, r7, #0
-	bl HardwareContext_GetState
-	mov r8, r0
-	adds r0, r7, #0
-	bl HardwareContext_GetOamBuffer
-	adds r6, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetDisplayRegisters
-	adds r5, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetFrameTasks
-	adds r4, r0, #0
-	adds r0, r7, #0
-	bl HardwareContext_GetVBlankTasks
-	adds r1, r7, #0
-	adds r1, #0x14
-	str r4, [sp]
-	str r0, [sp, #4]
-	str r1, [sp, #8]
-	mov r0, sb
-	mov r1, r8
-	adds r2, r6, #0
-	adds r3, r5, #0
-	bl UpdateMessageWindow
-	cmp r0, #6
-	bls .L0805F646
-	b .L0805FB9C
-.L0805F646:
-	lsls r0, r0, #2
-	ldr r1, .L0805F650 @ =.L0805F654
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0805F650: .4byte .L0805F654
-.L0805F654: @ jump table
-	.4byte .L0805F670 @ case 0
-	.4byte .L0805FB9C @ case 1
-	.4byte .L0805FB9C @ case 2
-	.4byte .L0805F6A4 @ case 3
-	.4byte .L0805FB9C @ case 4
-	.4byte .L0805FB9C @ case 5
-	.4byte .L0805FB9C @ case 6
-.L0805F670:
-	ldr r1, .L0805F690 @ =0x00006426
-	adds r4, r7, r1
-	movs r2, #0
-	ldrsh r0, [r4, r2]
-	cmp r0, #0
-	bne .L0805F694
-	ldr r0, [r7, #0x10]
-	bl ClearMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	bl OpenMessageWindow
-	movs r0, #3
-	strh r0, [r4]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F690: .4byte 0x00006426
-.L0805F694:
-	cmp r0, #6
-	bne .L0805F69E
-	movs r0, #0
-	strh r0, [r4]
-	b .L0805FB9C
-.L0805F69E:
-	movs r0, #2
-	strh r0, [r4]
-	b .L0805FB9C
-.L0805F6A4:
-	ldr r3, .L0805F6BC @ =0x00006426
-	adds r4, r7, r3
-	movs r1, #0
-	ldrsh r0, [r4, r1]
-	cmp r0, #5
-	bne .L0805F6C0
-	ldr r0, [r7, #0x10]
-	bl CloseMessageWindow
-	movs r0, #1
-	strh r0, [r4]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F6BC: .4byte 0x00006426
-.L0805F6C0:
-	cmp r0, #6
-	bne .L0805F6CC
-	ldr r0, [r7, #0x10]
-	bl CloseMessageWindow
-	b .L0805FB9C
-.L0805F6CC:
-	cmp r0, #3
-	beq .L0805F6D2
-	b .L0805FB9C
-.L0805F6D2:
-	movs r0, #5
-	strh r0, [r4]
-	ldr r2, .L0805F6F0 @ =0x00006424
-	adds r0, r7, r2
-	movs r3, #0
-	ldrsh r0, [r0, r3]
-	cmp r0, #0x19
-	bls .L0805F6E4
-	b .L0805FB9C
-.L0805F6E4:
-	lsls r0, r0, #2
-	ldr r1, .L0805F6F4 @ =.L0805F6F8
-	adds r0, r0, r1
-	ldr r0, [r0]
-	mov pc, r0
-	.align 2, 0
-.L0805F6F0: .4byte 0x00006424
-.L0805F6F4: .4byte .L0805F6F8
-.L0805F6F8: @ jump table
-	.4byte .L0805F760 @ case 0
-	.4byte .L0805F79C @ case 1
-	.4byte .L0805F7D8 @ case 2
-	.4byte .L0805F814 @ case 3
-	.4byte .L0805F82C @ case 4
-	.4byte .L0805F844 @ case 5
-	.4byte .L0805F87C @ case 6
-	.4byte .L0805F8B8 @ case 7
-	.4byte .L0805FB9C @ case 8
-	.4byte .L0805F8F4 @ case 9
-	.4byte .L0805F930 @ case 10
-	.4byte .L0805F96C @ case 11
-	.4byte .L0805FB9C @ case 12
-	.4byte .L0805FB9C @ case 13
-	.4byte .L0805F984 @ case 14
-	.4byte .L0805F9C0 @ case 15
-	.4byte .L0805F9CC @ case 16
-	.4byte .L0805FA08 @ case 17
-	.4byte .L0805FA44 @ case 18
-	.4byte .L0805FA5C @ case 19
-	.4byte .L0805FA98 @ case 20
-	.4byte .L0805FAD4 @ case 21
-	.4byte .L0805FAEC @ case 22
-	.4byte .L0805FB28 @ case 23
-	.4byte .L0805FB64 @ case 24
-	.4byte .L0805FB88 @ case 25
-.L0805F760:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F788 @ =gUnk_080FB234
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F78C @ =gUnk_080FB23C
-	ldr r3, .L0805F790 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805F794 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805F798 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #1
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F788: .4byte gUnk_080FB234
-.L0805F78C: .4byte gUnk_080FB23C
-.L0805F790: .4byte 0x00006428
-.L0805F794: .4byte 0x00006426
-.L0805F798: .4byte 0x00006424
-.L0805F79C:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F7C4 @ =gUnk_080FB27C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F7C8 @ =gUnk_080FB284
-	ldr r3, .L0805F7CC @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805F7D0 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805F7D4 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #2
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F7C4: .4byte gUnk_080FB27C
-.L0805F7C8: .4byte gUnk_080FB284
-.L0805F7CC: .4byte 0x00006428
-.L0805F7D0: .4byte 0x00006426
-.L0805F7D4: .4byte 0x00006424
-.L0805F7D8:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F800 @ =gUnk_080FB234
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F804 @ =gUnk_080FB2D0
-	ldr r3, .L0805F808 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805F80C @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805F810 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #3
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F800: .4byte gUnk_080FB234
-.L0805F804: .4byte gUnk_080FB2D0
-.L0805F808: .4byte 0x00006428
-.L0805F80C: .4byte 0x00006426
-.L0805F810: .4byte 0x00006424
-.L0805F814:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F824 @ =gUnk_080FB27C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F828 @ =gUnk_080FB2F4
-	b .L0805FB70
-	.align 2, 0
-.L0805F824: .4byte gUnk_080FB27C
-.L0805F828: .4byte gUnk_080FB2F4
-.L0805F82C:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F83C @ =gUnk_080FB300
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F840 @ =gUnk_080FB308
-	b .L0805FB70
-	.align 2, 0
-.L0805F83C: .4byte gUnk_080FB300
-.L0805F840: .4byte gUnk_080FB308
-.L0805F844:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F868 @ =gUnk_080FB234
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F86C @ =gUnk_080FB398
-	ldr r3, .L0805F870 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r1, .L0805F874 @ =0x00006426
-	adds r0, r7, r1
-	movs r1, #6
-	strh r1, [r0]
-	ldr r2, .L0805F878 @ =0x00006424
-	adds r0, r7, r2
-	strh r1, [r0]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F868: .4byte gUnk_080FB234
-.L0805F86C: .4byte gUnk_080FB398
-.L0805F870: .4byte 0x00006428
-.L0805F874: .4byte 0x00006426
-.L0805F878: .4byte 0x00006424
-.L0805F87C:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F8A4 @ =gUnk_080FB27C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F8A8 @ =gUnk_080FB3CC
-	ldr r3, .L0805F8AC @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805F8B0 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805F8B4 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #7
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F8A4: .4byte gUnk_080FB27C
-.L0805F8A8: .4byte gUnk_080FB3CC
-.L0805F8AC: .4byte 0x00006428
-.L0805F8B0: .4byte 0x00006426
-.L0805F8B4: .4byte 0x00006424
-.L0805F8B8:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F8E0 @ =gUnk_080FB300
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F8E4 @ =gUnk_080FB420
-	ldr r3, .L0805F8E8 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805F8EC @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805F8F0 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #9
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F8E0: .4byte gUnk_080FB300
-.L0805F8E4: .4byte gUnk_080FB420
-.L0805F8E8: .4byte 0x00006428
-.L0805F8EC: .4byte 0x00006426
-.L0805F8F0: .4byte 0x00006424
-.L0805F8F4:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F91C @ =gUnk_080FB27C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F920 @ =gUnk_080FB46C
-	ldr r3, .L0805F924 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805F928 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805F92C @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0xa
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F91C: .4byte gUnk_080FB27C
-.L0805F920: .4byte gUnk_080FB46C
-.L0805F924: .4byte 0x00006428
-.L0805F928: .4byte 0x00006426
-.L0805F92C: .4byte 0x00006424
-.L0805F930:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F958 @ =gUnk_080FB300
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F95C @ =gUnk_080FB484
-	ldr r3, .L0805F960 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805F964 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805F968 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0xb
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F958: .4byte gUnk_080FB300
-.L0805F95C: .4byte gUnk_080FB484
-.L0805F960: .4byte 0x00006428
-.L0805F964: .4byte 0x00006426
-.L0805F968: .4byte 0x00006424
-.L0805F96C:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F97C @ =gUnk_080FB234
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F980 @ =gUnk_080FB4D4
-	b .L0805FB70
-	.align 2, 0
-.L0805F97C: .4byte gUnk_080FB234
-.L0805F980: .4byte gUnk_080FB4D4
-.L0805F984:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F9AC @ =gUnk_080FB51C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F9B0 @ =gUnk_080FB520
-	ldr r3, .L0805F9B4 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805F9B8 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805F9BC @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0xf
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F9AC: .4byte gUnk_080FB51C
-.L0805F9B0: .4byte gUnk_080FB520
-.L0805F9B4: .4byte 0x00006428
-.L0805F9B8: .4byte 0x00006426
-.L0805F9BC: .4byte 0x00006424
-.L0805F9C0:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F9C8 @ =gUnk_080FB534
-	b .L0805FB70
-	.align 2, 0
-.L0805F9C8: .4byte gUnk_080FB534
-.L0805F9CC:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F9F4 @ =gUnk_080FB53C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805F9F8 @ =gUnk_080FB544
-	ldr r3, .L0805F9FC @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805FA00 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805FA04 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0x11
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805F9F4: .4byte gUnk_080FB53C
-.L0805F9F8: .4byte gUnk_080FB544
-.L0805F9FC: .4byte 0x00006428
-.L0805FA00: .4byte 0x00006426
-.L0805FA04: .4byte 0x00006424
-.L0805FA08:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FA30 @ =gUnk_080FB53C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FA34 @ =gUnk_080FB578
-	ldr r3, .L0805FA38 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805FA3C @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805FA40 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0x12
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805FA30: .4byte gUnk_080FB53C
-.L0805FA34: .4byte gUnk_080FB578
-.L0805FA38: .4byte 0x00006428
-.L0805FA3C: .4byte 0x00006426
-.L0805FA40: .4byte 0x00006424
-.L0805FA44:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FA54 @ =gUnk_080FB53C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FA58 @ =gUnk_080FB5D4
-	b .L0805FB70
-	.align 2, 0
-.L0805FA54: .4byte gUnk_080FB53C
-.L0805FA58: .4byte gUnk_080FB5D4
-.L0805FA5C:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FA84 @ =gUnk_080FB300
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FA88 @ =gUnk_080FB634
-	ldr r3, .L0805FA8C @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805FA90 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805FA94 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0x14
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805FA84: .4byte gUnk_080FB300
-.L0805FA88: .4byte gUnk_080FB634
-.L0805FA8C: .4byte 0x00006428
-.L0805FA90: .4byte 0x00006426
-.L0805FA94: .4byte 0x00006424
-.L0805FA98:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FAC0 @ =gUnk_080FB300
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FAC4 @ =gUnk_080FB6C0
-	ldr r3, .L0805FAC8 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805FACC @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805FAD0 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0x15
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805FAC0: .4byte gUnk_080FB300
-.L0805FAC4: .4byte gUnk_080FB6C0
-.L0805FAC8: .4byte 0x00006428
-.L0805FACC: .4byte 0x00006426
-.L0805FAD0: .4byte 0x00006424
-.L0805FAD4:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FAE4 @ =gUnk_080FB300
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FAE8 @ =gUnk_080FB710
-	b .L0805FB70
-	.align 2, 0
-.L0805FAE4: .4byte gUnk_080FB300
-.L0805FAE8: .4byte gUnk_080FB710
-.L0805FAEC:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FB14 @ =gUnk_080FB53C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FB18 @ =gUnk_080FB738
-	ldr r3, .L0805FB1C @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805FB20 @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805FB24 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0x17
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805FB14: .4byte gUnk_080FB53C
-.L0805FB18: .4byte gUnk_080FB738
-.L0805FB1C: .4byte 0x00006428
-.L0805FB20: .4byte 0x00006426
-.L0805FB24: .4byte 0x00006424
-.L0805FB28:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FB50 @ =gUnk_080FB53C
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FB54 @ =gUnk_080FB754
-	ldr r3, .L0805FB58 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	ldr r0, .L0805FB5C @ =0x00006426
-	adds r1, r7, r0
-	movs r0, #6
-	strh r0, [r1]
-	ldr r2, .L0805FB60 @ =0x00006424
-	adds r1, r7, r2
-	movs r0, #0x18
-	strh r0, [r1]
-	b .L0805FB9C
-	.align 2, 0
-.L0805FB50: .4byte gUnk_080FB53C
-.L0805FB54: .4byte gUnk_080FB754
-.L0805FB58: .4byte 0x00006428
-.L0805FB5C: .4byte 0x00006426
-.L0805FB60: .4byte 0x00006424
-.L0805FB64:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FB7C @ =gUnk_080FB300
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FB80 @ =gUnk_080FB7A0
-.L0805FB70:
-	ldr r3, .L0805FB84 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-	b .L0805FB9C
-	.align 2, 0
-.L0805FB7C: .4byte gUnk_080FB300
-.L0805FB80: .4byte gUnk_080FB7A0
-.L0805FB84: .4byte 0x00006428
-.L0805FB88:
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FBAC @ =gUnk_080FB300
-	bl SetMessageWindowSpeakerName
-	ldr r0, [r7, #0x10]
-	ldr r1, .L0805FBB0 @ =gUnk_080FB7F0
-	ldr r3, .L0805FBB4 @ =0x00006428
-	adds r2, r7, r3
-	bl SetMessageWindowTextSubstitutions
-.L0805FB9C:
-	add sp, #0xc
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805FBAC: .4byte gUnk_080FB300
-.L0805FBB0: .4byte gUnk_080FB7F0
-.L0805FBB4: .4byte 0x00006428
+	.purgem GrowChildhoodMapDmaQueue
+	.purgem AppendChildhoodFadeTask
 
 	.section .text.f3.0805FF14, "ax", %progbits
 	thumb_func_start func_0805FF14
@@ -105435,7 +103770,7 @@ func_080785C8: @ 0x080785C8
 	movs r1, #0x98
 	movs r2, #0x50
 	adds r3, r4, #0
-	bl DrawDialogChoices
+	bl DrawClockDisplay
 .L0807864E:
 	add sp, #0x24
 	pop {r4, r5, r6, r7}
@@ -105505,7 +103840,7 @@ func_0807865C: @ 0x0807865C
 	bl TilePool_Destroy
 	adds r0, r7, #0
 	adds r0, #0x1c
-	bl func_0803C5B0
+	bl InitializeClockDisplay
 	adds r0, r7, #0
 	adds r0, #0x20
 	bl func_080756B0
@@ -139453,7 +137788,7 @@ func_0808A55C: @ 0x0808A55C
 	bl func_08088574
 .L0808A838:
 	ldr r0, [r6]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L0808A89A
 .L0808A840:
 	adds r0, r7, #0
@@ -142605,7 +140940,7 @@ func_0808C0BC: @ 0x0808C0BC
 	cmp r0, #0
 	beq .L0808C338
 	ldr r0, [r4]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L0808C394
 .L0808C338:
 	adds r0, r7, #0
@@ -147038,7 +145373,7 @@ func_0808E6FC: @ 0x0808E6FC
 	bl func_0808C8BC
 .L0808E9D8:
 	ldr r0, [r6]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L0808EA3A
 .L0808E9E0:
 	adds r0, r7, #0
@@ -150941,7 +149276,7 @@ func_08090960: @ 0x08090960
 	bl func_0808EF30
 .L08090C20:
 	ldr r0, [r6]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L08090C82
 .L08090C28:
 	adds r0, r7, #0
@@ -152426,7 +150761,7 @@ func_0809152C: @ 0x0809152C
 	beq .L08091884
 	ldr r1, [sp, #0x60]
 	ldr r0, [r1]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L080918E4
 .L08091884:
 	adds r0, r7, #0
@@ -155199,7 +153534,7 @@ func_08092D64: @ 0x08092D64
 	cmp r0, #0
 	beq .L08092FE8
 	ldr r0, [r6]
-	bl func_080CDB08
+	bl InventoryMenu_MoveSelectionUp
 	b .L08093044
 .L08092FE8:
 	adds r0, r7, #0

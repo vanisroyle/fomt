@@ -11989,7 +11989,7 @@ func_080175B4: @ 0x080175B4
     movs r0, #0xa0
     bl __builtin_new
     adds r1, r7, #0
-    bl func_0803AB30
+    bl InitializeFixedSpriteOverlay
     ldr r1, .L08017878 @ =0x00001024
     adds r5, r7, r1
     adds r4, r0, #0
@@ -12312,7 +12312,7 @@ func_080179CC: @ 0x080179CC
     ldr r1, .L08017A6C @ =0x0000214C
     adds r2, r2, r1
     adds r1, r7, #0
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
     b .L08017A86
     .align 2, 0
 .L08017A50: .4byte vtable_unk_080E5EC4
@@ -12610,7 +12610,7 @@ func_08017C30: @ 0x08017C30
     ldr r1, .L08017D8C @ =0x0000214C
     adds r2, r2, r1
     adds r1, r6, #0
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
     ldrb r0, [r6, #1]
     lsrs r0, r0, #2
     ldrh r2, [r6, #2]
@@ -16664,7 +16664,7 @@ func_08019BEC: @ 0x08019BEC
     movs r0, #0xa0
     bl __builtin_new
     adds r1, r7, #0
-    bl func_0803AB30
+    bl InitializeFixedSpriteOverlay
     ldr r1, .L08019E14 @ =0x00001024
     adds r5, r7, r1
     adds r4, r0, #0
@@ -18065,217 +18065,19 @@ func_0801A13C: @ 0x0801A13C
     .byte 0x08, 0x1C, 0x03, 0x21, 0xB7, 0xF0, 0x1E, 0xF9, 0x25, 0x60, 0x30, 0xBC, 0x01, 0xBC, 0x00, 0x47
     .byte 0x0C, 0x04, 0x00, 0x03, 0xDC, 0x04, 0x00, 0x00, 0xB0, 0x10, 0x00, 0x00
 
-    .section .text.game_state_c2.0801C874, "ax", %progbits
-
-    thumb_func_start func_0801C874
-func_0801C874: @ 0x0801C874
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    adds r7, r0, #0
-    mov sl, r3
-    ldr r3, .L0801C8C0 @ =0x00001038
-    adds r0, r7, r3
-    ldr r3, [r0]
-    ldr r0, .L0801C8C4 @ =0x000009DC
-    adds r3, r3, r0
-    movs r0, #0x2b
-    muls r0, r2, r0
-    adds r0, r1, r0
-    lsls r0, r0, #2
-    adds r4, r3, r0
-    adds r6, r1, #0
-    mov r8, r2
-    adds r0, r4, #0
-    bl method_0800A78C__C9FieldPlot
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0801C916
-    adds r0, r4, #0
-    bl GameStateVariant_GetColumn
-    cmp r0, #1
-    beq .L0801C8C8
-    cmp r0, #1
-    ble .L0801C8DC
-    cmp r0, #2
-    beq .L0801C8CC
-    cmp r0, #3
-    beq .L0801C8D4
-    b .L0801C8DC
-    .align 2, 0
-.L0801C8C0: .4byte 0x00001038
-.L0801C8C4: .4byte 0x000009DC
-.L0801C8C8:
-    subs r6, #1
-    b .L0801C8DC
-.L0801C8CC:
-    movs r1, #1
-    rsbs r1, r1, #0
-    add r8, r1
-    b .L0801C8DC
-.L0801C8D4:
-    subs r6, #1
-    movs r2, #1
-    rsbs r2, r2, #0
-    add r8, r2
-.L0801C8DC:
-    adds r0, r7, #0
-    adds r1, r6, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    mov sb, r0
-    adds r5, r6, #1
-    adds r0, r7, #0
-    adds r1, r5, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    mov r4, r8
-    adds r4, #1
-    adds r0, r7, #0
-    adds r1, r6, #0
-    adds r2, r4, #0
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    adds r0, r7, #0
-    adds r1, r5, #0
-    adds r2, r4, #0
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    b .L0801C924
-.L0801C916:
-    adds r0, r7, #0
-    adds r1, r6, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateHitFieldPlot
-    mov sb, r0
-.L0801C924:
-    ldr r0, [r7]
-    ldr r1, [r0, #0x14]
-    adds r0, r7, #0
-    bl _call_via_r1
-    cmp r0, #2
-    bne .L0801CA06
-    mov r3, sb
-    cmp r3, #8
-    bhi .L0801CA06
-    lsls r0, r3, #2
-    ldr r1, .L0801C944 @ =.L0801C948
-    adds r0, r0, r1
-    ldr r0, [r0]
-    mov pc, r0
-    .align 2, 0
-.L0801C944: .4byte .L0801C948
-.L0801C948: @ jump table
-    .4byte .L0801CA06 @ case 0
-    .4byte .L0801CA06 @ case 1
-    .4byte .L0801CA06 @ case 2
-    .4byte .L0801C96C @ case 3
-    .4byte .L0801C98C @ case 4
-    .4byte .L0801C9AC @ case 5
-    .4byte .L0801CA06 @ case 6
-    .4byte .L0801C9CC @ case 7
-    .4byte .L0801C9EC @ case 8
-.L0801C96C:
-    ldr r1, .L0801C988 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x8c
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xc0
-    movs r3, #3
-    bl ScheduleMapTileEffect
-    b .L0801CA06
-    .align 2, 0
-.L0801C988: .4byte 0x00001028
-.L0801C98C:
-    ldr r1, .L0801C9A8 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x8c
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xc0
-    movs r3, #1
-    bl ScheduleMapTileEffect
-    b .L0801CA06
-    .align 2, 0
-.L0801C9A8: .4byte 0x00001028
-.L0801C9AC:
-    ldr r1, .L0801C9C8 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x8c
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xc0
-    movs r3, #2
-    bl ScheduleMapTileEffect
-    b .L0801CA06
-    .align 2, 0
-.L0801C9C8: .4byte 0x00001028
-.L0801C9CC:
-    ldr r1, .L0801C9E8 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x90
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xd0
-    movs r3, #8
-    bl ScheduleMapTileEffect
-    b .L0801CA06
-    .align 2, 0
-.L0801C9E8: .4byte 0x00001028
-.L0801C9EC:
-    ldr r1, .L0801CA18 @ =0x00001028
-    adds r0, r7, r1
-    ldr r0, [r0]
-    lsls r1, r6, #4
-    movs r2, #0x90
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xd0
-    movs r3, #6
-    bl ScheduleMapTileEffect
-.L0801CA06:
-    movs r0, #0
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801CA18: .4byte 0x00001028
+    .section .text.game_state_c2.0801CA1C, "ax", %progbits
 .L0801CA1C:
     .byte 0xF0, 0xB5, 0x89, 0xB0
     .byte 0x05, 0x1C, 0x0E, 0x1C, 0x17, 0x1C, 0x01, 0xA9, 0x00, 0x20, 0x01, 0x90, 0x88, 0x80, 0xC8, 0x80
     .byte 0x08, 0x81, 0x48, 0x81, 0x28, 0x1C, 0x31, 0x1C, 0x01, 0xAA, 0xFF, 0xF7, 0x5D, 0xFB, 0x00, 0x06
     .byte 0x00, 0x28, 0x0D, 0xD0, 0x01, 0xA8, 0x01, 0x89, 0x42, 0x89, 0x04, 0x48, 0x38, 0x18, 0x03, 0x78
-    .byte 0x28, 0x1C, 0xFF, 0xF7, 0x0F, 0xFF, 0x00, 0x06, 0x00, 0x0E, 0x36, 0xE0, 0x00, 0x08, 0x0F, 0x08
+    .byte 0x28, 0x1C
+    bl GameStateStrikeFieldPlots
+    .byte 0x00, 0x06, 0x00, 0x0E, 0x36, 0xE0, 0x00, 0x08, 0x0F, 0x08
     .byte 0x04, 0xAC, 0x00, 0x20, 0x20, 0x70, 0x01, 0x20, 0x20, 0x74, 0x09, 0x48, 0x38, 0x18, 0x02, 0x78
-    .byte 0x00, 0x94, 0x28, 0x1C, 0x31, 0x1C, 0x01, 0x23, 0x00, 0xF0, 0x44, 0xFB, 0x20, 0x78, 0x00, 0x28
+    .byte 0x00, 0x94, 0x28, 0x1C, 0x31, 0x1C, 0x01, 0x23
+    bl GameStateBreakLooseItem
+    .byte 0x20, 0x78, 0x00, 0x28
     .byte 0x20, 0xD0, 0x60, 0x68, 0x06, 0x28, 0x05, 0xD0, 0x09, 0x28, 0x11, 0xD0, 0x00, 0x20, 0x1C, 0xE0
     .byte 0x00, 0x08, 0x0F, 0x08, 0x05, 0x49, 0x68, 0x18, 0x00, 0x68, 0xA1, 0x68, 0x10, 0x31, 0xE2, 0x68
     .byte 0x20, 0x32, 0x06, 0x23, 0x8E, 0xF0, 0xF2, 0xFD, 0x0C, 0xE0, 0x00, 0x00, 0x28, 0x10, 0x00, 0x00
@@ -18318,171 +18120,19 @@ func_0801C874: @ 0x0801C874
     .byte 0x08, 0x47, 0x00, 0x00, 0x38, 0x10, 0x00, 0x00, 0xC8, 0x34, 0x00, 0x00, 0x00, 0x08, 0x0F, 0x08
     .byte 0xDD, 0x03, 0x00, 0x00
 
-    .section .text.game_state_c2.0801CDBC, "ax", %progbits
-
-    thumb_func_start func_0801CDBC
-func_0801CDBC: @ 0x0801CDBC
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    adds r6, r0, #0
-    mov sl, r3
-    ldr r3, .L0801CE08 @ =0x00001038
-    adds r0, r6, r3
-    ldr r3, [r0]
-    ldr r0, .L0801CE0C @ =0x000009DC
-    adds r3, r3, r0
-    movs r0, #0x2b
-    muls r0, r2, r0
-    adds r0, r1, r0
-    lsls r0, r0, #2
-    adds r4, r3, r0
-    adds r7, r1, #0
-    mov r8, r2
-    adds r0, r4, #0
-    bl method_0800A78C__C9FieldPlot
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L0801CE5E
-    adds r0, r4, #0
-    bl GameStateVariant_GetColumn
-    cmp r0, #1
-    beq .L0801CE10
-    cmp r0, #1
-    ble .L0801CE24
-    cmp r0, #2
-    beq .L0801CE14
-    cmp r0, #3
-    beq .L0801CE1C
-    b .L0801CE24
-    .align 2, 0
-.L0801CE08: .4byte 0x00001038
-.L0801CE0C: .4byte 0x000009DC
-.L0801CE10:
-    subs r7, #1
-    b .L0801CE24
-.L0801CE14:
-    movs r1, #1
-    rsbs r1, r1, #0
-    add r8, r1
-    b .L0801CE24
-.L0801CE1C:
-    subs r7, #1
-    movs r2, #1
-    rsbs r2, r2, #0
-    add r8, r2
-.L0801CE24:
-    adds r0, r6, #0
-    adds r1, r7, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    mov sb, r0
-    adds r5, r7, #1
-    adds r0, r6, #0
-    adds r1, r5, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    mov r4, r8
-    adds r4, #1
-    adds r0, r6, #0
-    adds r1, r7, #0
-    adds r2, r4, #0
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    adds r0, r6, #0
-    adds r1, r5, #0
-    adds r2, r4, #0
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    b .L0801CE6C
-.L0801CE5E:
-    adds r0, r6, #0
-    adds r1, r7, #0
-    mov r2, r8
-    mov r3, sl
-    bl GameStateDamageFieldDebris
-    mov sb, r0
-.L0801CE6C:
-    ldr r0, [r6]
-    ldr r1, [r0, #0x14]
-    adds r0, r6, #0
-    bl _call_via_r1
-    cmp r0, #2
-    bne .L0801CEE4
-    mov r3, sb
-    cmp r3, #1
-    beq .L0801CE8A
-    cmp r3, #1
-    ble .L0801CEE4
-    cmp r3, #2
-    beq .L0801CEBC
-    b .L0801CEE4
-.L0801CE8A:
-    ldr r1, .L0801CEB4 @ =0x00001038
-    adds r0, r6, r1
-    ldr r0, [r0]
-    adds r0, #0x14
-    movs r1, #1
-    bl method_08009B68__4FarmUi
-    ldr r2, .L0801CEB8 @ =0x00001028
-    adds r0, r6, r2
-    ldr r0, [r0]
-    lsls r1, r7, #4
-    movs r3, #0x8c
-    lsls r3, r3, #1
-    adds r1, r1, r3
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xbb
-    movs r3, #4
-    bl ScheduleMapTileEffect
-    b .L0801CEE4
-    .align 2, 0
-.L0801CEB4: .4byte 0x00001038
-.L0801CEB8: .4byte 0x00001028
-.L0801CEBC:
-    ldr r1, .L0801CEF4 @ =0x00001038
-    adds r0, r6, r1
-    ldr r0, [r0]
-    adds r0, #0x14
-    movs r1, #6
-    bl method_08009B68__4FarmUi
-    ldr r2, .L0801CEF8 @ =0x00001028
-    adds r0, r6, r2
-    ldr r0, [r0]
-    lsls r1, r7, #4
-    movs r3, #0x90
-    lsls r3, r3, #1
-    adds r1, r1, r3
-    mov r3, r8
-    lsls r2, r3, #4
-    adds r2, #0xd0
-    movs r3, #7
-    bl ScheduleMapTileEffect
-.L0801CEE4:
-    movs r0, #0
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801CEF4: .4byte 0x00001038
-.L0801CEF8: .4byte 0x00001028
+    .section .text.game_state_c2.0801CEFC, "ax", %progbits
 .L0801CEFC:
     .byte 0xF0, 0xB5, 0x89, 0xB0
     .byte 0x05, 0x1C, 0x0E, 0x1C, 0x17, 0x1C, 0x01, 0xA9, 0x00, 0x20, 0x01, 0x90, 0x88, 0x80, 0xC8, 0x80
     .byte 0x08, 0x81, 0x48, 0x81, 0x28, 0x1C, 0x31, 0x1C, 0x01, 0xAA, 0xFF, 0xF7, 0xED, 0xF8, 0x00, 0x06
     .byte 0x00, 0x28, 0x0D, 0xD0, 0x01, 0xA8, 0x01, 0x89, 0x42, 0x89, 0x04, 0x48, 0x38, 0x18, 0x03, 0x78
-    .byte 0x28, 0x1C, 0xFF, 0xF7, 0x43, 0xFF, 0x00, 0x06, 0x00, 0x0E, 0x36, 0xE0, 0x07, 0x08, 0x0F, 0x08
+    .byte 0x28, 0x1C
+    bl GameStateStrikeFieldDebris
+    .byte 0x00, 0x06, 0x00, 0x0E, 0x36, 0xE0, 0x07, 0x08, 0x0F, 0x08
     .byte 0x04, 0xAC, 0x00, 0x20, 0x20, 0x70, 0x01, 0x20, 0x20, 0x74, 0x09, 0x48, 0x38, 0x18, 0x02, 0x78
-    .byte 0x00, 0x94, 0x28, 0x1C, 0x31, 0x1C, 0x00, 0x23, 0x00, 0xF0, 0xD4, 0xF8, 0x20, 0x78, 0x00, 0x28
+    .byte 0x00, 0x94, 0x28, 0x1C, 0x31, 0x1C, 0x00, 0x23
+    bl GameStateBreakLooseItem
+    .byte 0x20, 0x78, 0x00, 0x28
     .byte 0x20, 0xD0, 0x60, 0x68, 0x04, 0x28, 0x13, 0xD0, 0x07, 0x28, 0x03, 0xD0, 0x00, 0x20, 0x1C, 0xE0
     .byte 0x07, 0x08, 0x0F, 0x08, 0x05, 0x49, 0x68, 0x18, 0x00, 0x68, 0xA1, 0x68, 0x10, 0x31, 0xE2, 0x68
     .byte 0x20, 0x32, 0x07, 0x23, 0x8E, 0xF0, 0x82, 0xFB, 0x0C, 0xE0, 0x00, 0x00, 0x28, 0x10, 0x00, 0x00
@@ -18511,168 +18161,7 @@ func_0801CDBC: @ 0x0801CDBC
     .byte 0x02, 0xBC, 0x08, 0x47, 0x38, 0x10, 0x00, 0x00, 0xC8, 0x34, 0x00, 0x00, 0x07, 0x08, 0x0F, 0x08
     .byte 0xCF, 0x03, 0x00, 0x00
 
-    thumb_func_start func_0801D104
-func_0801D104: @ 0x0801D104
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x30
-    mov sl, r0
-    adds r5, r1, #0
-    str r2, [sp, #0x28]
-    ldr r0, [sp, #0x50]
-    mov sb, r0
-    lsls r3, r3, #0x18
-    lsrs r3, r3, #0x18
-    str r3, [sp, #0x2c]
-    ldr r7, .L0801D1D4 @ =0x00001038
-    add r7, sl
-    ldr r0, [r7]
-    ldr r1, .L0801D1D8 @ =0x000034C8
-    adds r6, r0, r1
-    adds r0, #0x10
-    bl func_0800E324
-    mov r8, r0
-    ldrb r0, [r5, #1]
-    lsrs r0, r0, #2
-    ldrh r1, [r5, #2]
-    ldr r3, .L0801D1DC @ =0x000003FF
-    ands r1, r3
-    lsls r1, r1, #6
-    orrs r1, r0
-    lsls r1, r1, #0x10
-    asrs r1, r1, #0x10
-    ldrb r2, [r5, #3]
-    lsrs r2, r2, #2
-    ldrh r0, [r5, #4]
-    ands r0, r3
-    lsls r0, r0, #6
-    orrs r0, r2
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x10
-    add r2, sp, #0x1c
-    strh r1, [r2]
-    strh r0, [r2, #2]
-    adds r1, #1
-    strh r1, [r2, #4]
-    adds r0, #1
-    strh r0, [r2, #6]
-    ldrh r1, [r5]
-    lsls r1, r1, #0x16
-    lsrs r1, r1, #0x16
-    adds r0, r6, #0
-    mov r3, r8
-    bl FindMapForageLocation
-    adds r4, r0, #0
-    movs r0, #1
-    rsbs r0, r0, #0
-    cmp r4, r0
-    beq .L0801D228
-    add r0, sp, #0xc
-    adds r1, r6, #0
-    adds r2, r4, #0
-    bl GetMapForageObstacle
-    add r6, sp, #0xc
-    ldr r1, [r7]
-    adds r0, r1, #0
-    adds r0, #0x14
-    ldr r2, .L0801D1D8 @ =0x000034C8
-    adds r1, r1, r2
-    ldr r3, [sp, #0x28]
-    str r3, [sp]
-    add r2, sp, #4
-    add r7, sp, #0x2c
-    ldrb r7, [r7]
-    strb r7, [r2]
-    mov r2, sb
-    str r2, [sp, #8]
-    adds r2, r4, #0
-    mov r3, r8
-    bl func_080174C8
-    mov r3, sb
-    ldrb r0, [r3]
-    cmp r0, #0
-    beq .L0801D224
-    ldrh r0, [r5]
-    lsls r0, r0, #0x16
-    lsrs r0, r0, #0x16
-    mov r7, sl
-    ldr r1, [r7, #4]
-    ldr r2, [r1]
-    adds r5, r1, #0
-    cmp r0, r2
-    bne .L0801D224
-    ldr r0, [r3, #4]
-    cmp r0, #6
-    beq .L0801D1F4
-    cmp r0, #6
-    bgt .L0801D1E0
-    cmp r0, #4
-    beq .L0801D1EA
-    b .L0801D228
-    .align 2, 0
-.L0801D1D4: .4byte 0x00001038
-.L0801D1D8: .4byte 0x000034C8
-.L0801D1DC: .4byte 0x000003FF
-.L0801D1E0:
-    cmp r0, #7
-    beq .L0801D1F0
-    cmp r0, #9
-    beq .L0801D1F8
-    b .L0801D228
-.L0801D1EA:
-    movs r3, #2
-    movs r4, #2
-    b .L0801D1FC
-.L0801D1F0:
-    movs r3, #4
-    b .L0801D1FA
-.L0801D1F4:
-    movs r3, #4
-    b .L0801D1FA
-.L0801D1F8:
-    movs r3, #6
-.L0801D1FA:
-    movs r4, #4
-.L0801D1FC:
-    movs r1, #8
-    ldrsh r0, [r6, r1]
-    cmp r0, #0
-    bge .L0801D206
-    adds r0, #7
-.L0801D206:
-    asrs r1, r0, #3
-    movs r2, #0xa
-    ldrsh r0, [r6, r2]
-    cmp r0, #0
-    bge .L0801D212
-    adds r0, #7
-.L0801D212:
-    asrs r0, r0, #3
-    add r2, sp, #0x24
-    strh r1, [r2]
-    strh r0, [r2, #2]
-    str r4, [sp]
-    adds r0, r5, #0
-    movs r1, #1
-    bl func_080A5F78
-.L0801D224:
-    movs r0, #1
-    b .L0801D22A
-.L0801D228:
-    movs r0, #0
-.L0801D22A:
-    add sp, #0x30
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
+    .section .text.game_state_c2.0801D23C, "ax", %progbits
 .L0801D23C:
     .byte 0xF0, 0xB5, 0x57, 0x46
     .byte 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0x8A, 0xB0, 0x80, 0x46, 0x0C, 0x1C, 0x01, 0xA9, 0x00, 0x20
@@ -18744,135 +18233,12 @@ func_0801D104: @ 0x0801D104
     .byte 0x02, 0xDC, 0x18, 0x2A, 0x00, 0xDC, 0x01, 0x20, 0x00, 0x28, 0x05, 0xD0, 0x2B, 0x20, 0x50, 0x43
     .byte 0x18, 0x18, 0x80, 0x00, 0x22, 0x18, 0x00, 0xE0, 0x00, 0x22, 0x28, 0x1C, 0xED, 0xF7, 0x6E, 0xFC
     .byte 0x01, 0xA9, 0x89, 0x88, 0x01, 0xAA, 0xD2, 0x88, 0x01, 0x9B, 0x00, 0x90, 0x30, 0x1C, 0x8D, 0xF0
-    .byte 0x1F, 0xF8, 0x06, 0xE0, 0x04, 0xA8, 0x21, 0x1C, 0x2A, 0x1C, 0x00, 0xF0, 0x07, 0xF8, 0x04, 0x98
+    .byte 0x1F, 0xF8, 0x06, 0xE0, 0x04, 0xA8, 0x21, 0x1C, 0x2A, 0x1C
+    bl GameStateCollectLooseItem
+    .byte 0x04, 0x98
     .byte 0x30, 0x60, 0x05, 0xB0, 0x70, 0xBC, 0x01, 0xBC, 0x00, 0x47, 0x00, 0x00
 
-    thumb_func_start func_0801D6AC
-func_0801D6AC: @ 0x0801D6AC
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x28
-    mov sl, r0
-    adds r7, r1, #0
-    adds r5, r2, #0
-    ldr r1, .L0801D7A4 @ =0x00001038
-    adds r0, r7, r1
-    ldr r0, [r0]
-    ldr r2, .L0801D7A8 @ =0x000034C8
-    adds r6, r0, r2
-    adds r0, #0x10
-    bl func_0800E324
-    mov sb, r0
-    ldrb r0, [r5, #1]
-    lsrs r0, r0, #2
-    ldrh r1, [r5, #2]
-    ldr r3, .L0801D7AC @ =0x000003FF
-    ands r1, r3
-    lsls r1, r1, #6
-    orrs r1, r0
-    lsls r1, r1, #0x10
-    asrs r1, r1, #0x10
-    ldrb r2, [r5, #3]
-    lsrs r2, r2, #2
-    ldrh r0, [r5, #4]
-    ands r0, r3
-    lsls r0, r0, #6
-    orrs r0, r2
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x10
-    add r4, sp, #0x1c
-    strh r1, [r4]
-    strh r0, [r4, #2]
-    adds r1, #1
-    strh r1, [r4, #4]
-    adds r0, #1
-    strh r0, [r4, #6]
-    ldrh r1, [r5]
-    lsls r1, r1, #0x16
-    lsrs r1, r1, #0x16
-    adds r0, r6, #0
-    adds r2, r4, #0
-    mov r3, sb
-    bl FindMapForageLocation
-    mov r8, r0
-    add r0, sp, #4
-    bl __12RucksackItem
-    movs r0, #1
-    rsbs r0, r0, #0
-    cmp r8, r0
-    beq .L0801D78C
-    ldrh r2, [r5]
-    lsls r2, r2, #0x16
-    lsrs r2, r2, #0x16
-    mov r0, sb
-    str r0, [sp]
-    add r0, sp, #8
-    adds r1, r6, #0
-    adds r3, r4, #0
-    bl func_080A1B38
-    ldr r0, [sp, #8]
-    str r0, [sp, #4]
-    add r0, sp, #4
-    bl IsEmpty__C12RucksackItem
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L0801D78C
-    ldrh r0, [r5]
-    lsls r0, r0, #0x16
-    lsrs r0, r0, #0x16
-    ldr r1, [r7, #4]
-    ldr r1, [r1]
-    cmp r0, r1
-    bne .L0801D78C
-    add r4, sp, #0xc
-    adds r0, r4, #0
-    adds r1, r6, #0
-    mov r2, r8
-    bl GetMapForageObstacle
-    ldr r1, [r7, #4]
-    movs r2, #8
-    ldrsh r0, [r4, r2]
-    cmp r0, #0
-    bge .L0801D76A
-    adds r0, #7
-.L0801D76A:
-    asrs r3, r0, #3
-    movs r2, #0xa
-    ldrsh r0, [r4, r2]
-    cmp r0, #0
-    bge .L0801D776
-    adds r0, #7
-.L0801D776:
-    asrs r0, r0, #3
-    add r2, sp, #0x24
-    strh r3, [r2]
-    strh r0, [r2, #2]
-    movs r0, #2
-    str r0, [sp]
-    adds r0, r1, #0
-    movs r1, #1
-    movs r3, #2
-    bl func_080A5F78
-.L0801D78C:
-    ldr r0, [sp, #4]
-    mov r1, sl
-    str r0, [r1]
-    mov r0, sl
-    add sp, #0x28
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r1}
-    bx r1
-    .align 2, 0
-.L0801D7A4: .4byte 0x00001038
-.L0801D7A8: .4byte 0x000034C8
-.L0801D7AC: .4byte 0x000003FF
+    .section .text.game_state_c2.0801D7B0, "ax", %progbits
 .L0801D7B0:
     .byte 0x70, 0xB5, 0x84, 0xB0, 0x04, 0x1C, 0x0D, 0x1C, 0x16, 0x1C, 0x01, 0xA9, 0x00, 0x20, 0x01, 0x90
     .byte 0x88, 0x80, 0xC8, 0x80, 0x08, 0x81, 0x48, 0x81, 0x20, 0x1C, 0x29, 0x1C, 0x01, 0xAA, 0xFE, 0xF7
@@ -19169,7 +18535,9 @@ func_0801DEB4: @ 0x0801DEB4
     bx r1
 .L0801E084:
     .byte 0xF0, 0xB5, 0x57, 0x46, 0x4E, 0x46, 0x45, 0x46, 0xE0, 0xB4, 0x93, 0xB0
-    .byte 0x10, 0x90, 0x00, 0xF0, 0x3B, 0xFC, 0x00, 0x20, 0x11, 0x90, 0x00, 0x21, 0x12, 0x91, 0x12, 0x9A
+    .byte 0x10, 0x90
+    bl GameStateClearFieldPlotsUnderActors
+    .byte 0x00, 0x20, 0x11, 0x90, 0x00, 0x21, 0x12, 0x91, 0x12, 0x9A
     .byte 0x91, 0x46, 0x10, 0x9B, 0x18, 0x68, 0x02, 0x6C, 0x18, 0x1C, 0x12, 0x99, 0xB5, 0xF0, 0x32, 0xFC
     .byte 0x07, 0x1C, 0x00, 0x2F, 0x00, 0xD1, 0xBB, 0xE2, 0x00, 0x20, 0x82, 0x46, 0x12, 0x98, 0x2B, 0x38
     .byte 0x28, 0x28, 0x00, 0xD9, 0xEA, 0xE0, 0x80, 0x00, 0x01, 0x49, 0x40, 0x18, 0x00, 0x68, 0x87, 0x46
@@ -19518,213 +18886,7 @@ func_0801E67C: @ 0x0801E67C
     .align 2, 0
 .L0801E908: .4byte 0x00001038
 
-    thumb_func_start func_0801E90C
-func_0801E90C: @ 0x0801E90C
-    push {r4, r5, r6, r7, lr}
-    mov r7, sl
-    mov r6, sb
-    mov r5, r8
-    push {r5, r6, r7}
-    sub sp, #0x40
-    mov r8, r0
-    movs r0, #0
-    str r0, [sp, #0x34]
-    movs r4, #0
-.L0801E920:
-    mov r1, r8
-    ldr r0, [r1]
-    ldr r2, [r0, #0x40]
-    mov r0, r8
-    adds r1, r4, #0
-    bl _call_via_r2
-    adds r3, r0, #0
-    adds r4, #1
-    mov sl, r4
-    cmp r3, #0
-    beq .L0801EA18
-    ldrh r0, [r3, #4]
-    cmp r0, #2
-    bne .L0801EA18
-    ldr r1, [r3, #0x14]
-    add r0, sp, #4
-    ldr r2, [r1, #0xc]
-    adds r1, r3, #0
-    bl _call_via_r2
-    ldr r0, [sp, #4]
-    ldr r1, [sp, #8]
-    str r0, [sp, #0xc]
-    str r1, [sp, #0x10]
-    add r4, sp, #0xc
-    adds r6, r4, #0
-    movs r5, #0
-    str r5, [sp, #0x14]
-    ldrh r0, [r4]
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x13
-    subs r0, #0x22
-    asrs r0, r0, #1
-    str r0, [sp, #0x18]
-    add r1, sp, #0x18
-    add r2, sp, #0x14
-    cmp r5, r0
-    bge .L0801E970
-    adds r2, r1, #0
-.L0801E970:
-    ldr r2, [r2]
-    mov sb, r2
-    movs r1, #0x2a
-    str r1, [sp, #0x1c]
-    movs r2, #4
-    ldrsh r0, [r4, r2]
-    subs r0, #1
-    asrs r0, r0, #3
-    subs r0, #0x22
-    asrs r0, r0, #1
-    str r0, [sp, #0x20]
-    add r2, sp, #0x20
-    add r3, sp, #0x1c
-    cmp r1, r0
-    ble .L0801E990
-    adds r3, r2, #0
-.L0801E990:
-    ldr r7, [r3]
-    str r5, [sp, #0x24]
-    ldrh r0, [r4, #2]
-    lsls r0, r0, #0x10
-    asrs r0, r0, #0x13
-    subs r0, #0x16
-    asrs r0, r0, #1
-    str r0, [sp, #0x28]
-    add r1, sp, #0x28
-    add r2, sp, #0x24
-    cmp r5, r0
-    bge .L0801E9AA
-    adds r2, r1, #0
-.L0801E9AA:
-    ldr r4, [r2]
-    movs r1, #0x18
-    str r1, [sp, #0x2c]
-    movs r2, #6
-    ldrsh r0, [r6, r2]
-    subs r0, #1
-    asrs r0, r0, #3
-    subs r0, #0x16
-    asrs r0, r0, #1
-    str r0, [sp, #0x30]
-    add r2, sp, #0x30
-    add r3, sp, #0x2c
-    cmp r1, r0
-    ble .L0801E9C8
-    adds r3, r2, #0
-.L0801E9C8:
-    ldr r2, [r3]
-    adds r1, r4, #0
-    cmp r1, r2
-    bgt .L0801EA18
-    mov r0, sb
-    lsls r3, r0, #2
-.L0801E9D4:
-    mov r4, sb
-    adds r6, r1, #1
-    cmp r4, r7
-    bgt .L0801EA12
-    movs r0, #0xac
-    muls r0, r1, r0
-    adds r5, r3, r0
-.L0801E9E2:
-    ldr r0, .L0801EA50 @ =0x00001038
-    add r0, r8
-    ldr r0, [r0]
-    ldr r1, .L0801EA54 @ =0x000009DC
-    adds r0, r0, r1
-    adds r1, r0, r5
-    ldr r0, [r1]
-    lsls r0, r0, #0x18
-    lsrs r0, r0, #0x1a
-    cmp r0, #0x15
-    bne .L0801EA0A
-    mov r0, sp
-    str r2, [sp, #0x38]
-    str r3, [sp, #0x3c]
-    bl method_0800A4A4__9FieldPlot
-    movs r0, #1
-    str r0, [sp, #0x34]
-    ldr r3, [sp, #0x3c]
-    ldr r2, [sp, #0x38]
-.L0801EA0A:
-    adds r5, #4
-    adds r4, #1
-    cmp r4, r7
-    ble .L0801E9E2
-.L0801EA12:
-    adds r1, r6, #0
-    cmp r1, r2
-    ble .L0801E9D4
-.L0801EA18:
-    mov r4, sl
-    cmp r4, #0x63
-    bgt .L0801EA20
-    b .L0801E920
-.L0801EA20:
-    ldr r1, [sp, #0x34]
-    cmp r1, #0
-    beq .L0801EA86
-    mov r2, r8
-    ldr r5, [r2, #4]
-    ldr r0, [r5]
-    cmp r0, #2
-    bne .L0801EA60
-    adds r0, r5, #0
-    adds r0, #0x90
-    ldr r4, [r0]
-    ldr r0, .L0801EA58 @ =0x00001048
-    add r0, r8
-    ldr r1, [r0]
-    ldr r0, .L0801EA5C @ =0x0000104C
-    add r0, r8
-    ldrb r2, [r0]
-    movs r3, #0x1e
-    subs r3, r3, r2
-    ldr r4, [r4, #0x14]
-    adds r0, r5, #0
-    bl _call_via_r4
-    b .L0801EA86
-    .align 2, 0
-.L0801EA50: .4byte 0x00001038
-.L0801EA54: .4byte 0x000009DC
-.L0801EA58: .4byte 0x00001048
-.L0801EA5C: .4byte 0x0000104C
-.L0801EA60:
-    ldr r0, .L0801EA98 @ =0x00001050
-    add r0, r8
-    ldr r5, [r0]
-    ldr r0, .L0801EA9C @ =0x00001038
-    add r0, r8
-    ldr r0, [r0]
-    adds r4, r0, #0
-    adds r4, #0x14
-    adds r0, #0x10
-    bl func_0800E324
-    movs r2, #0
-    cmp r0, #3
-    bne .L0801EA7E
-    movs r2, #1
-.L0801EA7E:
-    adds r0, r5, #0
-    adds r1, r4, #0
-    bl func_080171F8
-.L0801EA86:
-    add sp, #0x40
-    pop {r3, r4, r5}
-    mov r8, r3
-    mov sb, r4
-    mov sl, r5
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L0801EA98: .4byte 0x00001050
-.L0801EA9C: .4byte 0x00001038
+    .section .text.game_state_c2.0801EAA0, "ax", %progbits
 
     thumb_func_start func_0801EAA0
 func_0801EAA0: @ 0x0801EAA0
@@ -20401,7 +19563,7 @@ func_0801EE00: @ 0x0801EE00
     ldr r4, .L0801F014 @ =0x0000214C
     adds r2, r2, r4
     mov r1, sb
-    bl func_080A1484
+    bl ApplyRosterLitteringPenalty
 .L0801EFE0:
     adds r0, r7, #0
     bl IsWrapped__C12RucksackItem
