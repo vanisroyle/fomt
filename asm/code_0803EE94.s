@@ -52952,7 +52952,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov sb, r1
 	strb r1, [r0]
 	adds r7, r5, #0
-	ldr r2, .L080600A8 @ =gUnk_080FB824
+	ldr r2, .L080600A8 @ =gFarmReportPropertySuffix
 	mov r8, r2
 	adds r0, r7, #0
 	bl strlen
@@ -52997,7 +52997,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r1]
 	ldr r0, [r5, #4]
 	str r0, [sp, #0x1cc]
-	ldr r2, .L080600B4 @ =gUnk_080FB830
+	ldr r2, .L080600B4 @ =gFarmReportBlankLabel
 	add r1, sp, #0x58
 	movs r0, #2
 	strh r0, [r1]
@@ -53115,10 +53115,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	b .L08060236
 	.align 2, 0
 .L080600A4: .4byte 0xFFFFFD64
-.L080600A8: .4byte gUnk_080FB824
+.L080600A8: .4byte gFarmReportPropertySuffix
 .L080600AC: .4byte 0x000005B4
 .L080600B0: .4byte vtable_unk_080E7A78
-.L080600B4: .4byte gUnk_080FB830
+.L080600B4: .4byte gFarmReportBlankLabel
 .L080600B8: .4byte 0x000005BC
 .L080600BC: .4byte 0x000006C4
 .L080600C0: .4byte 0x000007CC
@@ -53313,7 +53313,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08060236:
-	ldr r2, .L08060298 @ =gUnk_080FB830
+	ldr r2, .L08060298 @ =gFarmReportBlankLabel
 	movs r1, #2
 	add r0, sp, #0x64
 	strh r1, [r0]
@@ -53360,7 +53360,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [sp, #0x260]
 	b .L08060366
 	.align 2, 0
-.L08060298: .4byte gUnk_080FB830
+.L08060298: .4byte gFarmReportBlankLabel
 .L0806029C:
 	str r1, [sp, #0x294]
 	movs r0, #1
@@ -53476,7 +53476,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08060366:
-	ldr r2, .L080603B8 @ =gUnk_080FB830
+	ldr r2, .L080603B8 @ =gFarmReportBlankLabel
 	movs r1, #2
 	add r0, sp, #0x70
 	strh r1, [r0]
@@ -53516,7 +53516,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r6, #4]
 	b .L08060486
 	.align 2, 0
-.L080603B8: .4byte gUnk_080FB830
+.L080603B8: .4byte gFarmReportBlankLabel
 .L080603BC: .4byte 0x06000800
 .L080603C0:
 	str r1, [sp, #0x294]
@@ -53631,7 +53631,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08060486:
-	ldr r2, .L080604E8 @ =gUnk_080FB830
+	ldr r2, .L080604E8 @ =gFarmReportBlankLabel
 	movs r1, #2
 	add r0, sp, #0x7c
 	strh r1, [r0]
@@ -53678,7 +53678,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [sp, #0x1e4]
 	b .L080605B6
 	.align 2, 0
-.L080604E8: .4byte gUnk_080FB830
+.L080604E8: .4byte gFarmReportBlankLabel
 .L080604EC:
 	str r1, [sp, #0x294]
 	movs r0, #1
@@ -53794,7 +53794,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080605B6:
-	ldr r2, .L08060618 @ =gUnk_080FB830
+	ldr r2, .L08060618 @ =gFarmReportBlankLabel
 	movs r0, #2
 	add r1, sp, #0x88
 	strh r0, [r1]
@@ -53841,7 +53841,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp, #0x1e8]
 	b .L080606E6
 	.align 2, 0
-.L08060618: .4byte gUnk_080FB830
+.L08060618: .4byte gFarmReportBlankLabel
 .L0806061C:
 	str r1, [sp, #0x294]
 	movs r0, #1
@@ -53957,7 +53957,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080606E6:
-	ldr r2, .L08060748 @ =gUnk_080FB830
+	ldr r2, .L08060748 @ =gFarmReportBlankLabel
 	movs r0, #2
 	add r1, sp, #0x94
 	strh r0, [r1]
@@ -54004,7 +54004,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp, #0x1ec]
 	b .L08060816
 	.align 2, 0
-.L08060748: .4byte gUnk_080FB830
+.L08060748: .4byte gFarmReportBlankLabel
 .L0806074C:
 	str r1, [sp, #0x294]
 	movs r0, #1
@@ -54120,7 +54120,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08060816:
-	ldr r2, .L08060878 @ =gUnk_080FB834
+	ldr r2, .L08060878 @ =gFarmReportGoldSuffix
 	movs r0, #2
 	add r1, sp, #0xa0
 	strh r0, [r1]
@@ -54167,7 +54167,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp, #0x1f0]
 	b .L08060946
 	.align 2, 0
-.L08060878: .4byte gUnk_080FB834
+.L08060878: .4byte gFarmReportGoldSuffix
 .L0806087C:
 	str r1, [sp, #0x294]
 	movs r0, #1
@@ -59372,7 +59372,7 @@ InitLivestockReport: @ 0x08062E9C
 	adds r1, r4, #0
 	movs r2, #0
 	bl FillMessageTiles
-	ldr r1, .L08062FB0 @ =gUnk_080FB838
+	ldr r1, .L08062FB0 @ =gLivestockReportHealthyLabel
 	add r0, sp, #0x18
 	strh r5, [r0]
 	mov r3, r8
@@ -59440,7 +59440,7 @@ InitLivestockReport: @ 0x08062E9C
 .L08062FA4: .4byte 0x000005B4
 .L08062FA8: .4byte vtable_unk_080E7A68
 .L08062FAC: .4byte 0x000005BC
-.L08062FB0: .4byte gUnk_080FB838
+.L08062FB0: .4byte gLivestockReportHealthyLabel
 .L08062FB4: .4byte 0x06000700
 .L08062FB8: .4byte 0x000009C4
 .L08062FBC: .4byte 0x00000E54
@@ -59599,7 +59599,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r5, [r7, #4]
 	str r0, [r7, #0xc]
 .L080630EC:
-	ldr r3, .L0806313C @ =gUnk_080FB844
+	ldr r3, .L0806313C @ =gLivestockReportUnhappyLabel
 	movs r1, #8
 	movs r2, #2
 	add r0, sp, #0x24
@@ -59638,7 +59638,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r0, [r7, #4]
 	b .L0806320A
 	.align 2, 0
-.L0806313C: .4byte gUnk_080FB844
+.L0806313C: .4byte gLivestockReportUnhappyLabel
 .L08063140: .4byte 0x06000900
 .L08063144:
 	mov sl, r1
@@ -59764,7 +59764,7 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r1, [sp, #0xc8]
 	movs r2, #0
 	bl FillMessageTiles
-	ldr r1, .L0806326C @ =gUnk_080FB850
+	ldr r1, .L0806326C @ =gLivestockReportSickLabel
 	add r0, sp, #0x34
 	strh r4, [r0]
 	ldr r3, [sp, #0xdc]
@@ -59801,7 +59801,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r0, [r7, #4]
 	b .L0806333A
 	.align 2, 0
-.L0806326C: .4byte gUnk_080FB850
+.L0806326C: .4byte gLivestockReportSickLabel
 .L08063270: .4byte 0x06000B00
 .L08063274:
 	mov sl, r1
@@ -59917,7 +59917,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r5, [r7, #4]
 	str r0, [r7, #0xc]
 .L0806333A:
-	ldr r3, .L08063388 @ =gUnk_080FB85C
+	ldr r3, .L08063388 @ =gLivestockReportSpringLabel
 	movs r1, #6
 	movs r2, #2
 	add r0, sp, #0x40
@@ -59956,7 +59956,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r0, [r7, #4]
 	b .L08063456
 	.align 2, 0
-.L08063388: .4byte gUnk_080FB85C
+.L08063388: .4byte gLivestockReportSpringLabel
 .L0806338C: .4byte 0x06000D00
 .L08063390:
 	mov sl, r1
@@ -60072,7 +60072,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r5, [r7, #4]
 	str r0, [r7, #0xc]
 .L08063456:
-	ldr r3, .L080634A4 @ =gUnk_080FB864
+	ldr r3, .L080634A4 @ =gLivestockReportSummerLabel
 	movs r1, #6
 	movs r2, #2
 	add r0, sp, #0x4c
@@ -60111,7 +60111,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r0, [r7, #4]
 	b .L08063572
 	.align 2, 0
-.L080634A4: .4byte gUnk_080FB864
+.L080634A4: .4byte gLivestockReportSummerLabel
 .L080634A8: .4byte 0x06000E80
 .L080634AC:
 	mov sl, r1
@@ -60227,7 +60227,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r5, [r7, #4]
 	str r0, [r7, #0xc]
 .L08063572:
-	ldr r3, .L080635C0 @ =gUnk_080FB86C
+	ldr r3, .L080635C0 @ =gLivestockReportFallLabel
 	movs r1, #6
 	movs r2, #2
 	add r0, sp, #0x58
@@ -60266,7 +60266,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r0, [r7, #4]
 	b .L0806368E
 	.align 2, 0
-.L080635C0: .4byte gUnk_080FB86C
+.L080635C0: .4byte gLivestockReportFallLabel
 .L080635C4: .4byte 0x06001000
 .L080635C8:
 	mov sl, r1
@@ -60382,7 +60382,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r5, [r7, #4]
 	str r0, [r7, #0xc]
 .L0806368E:
-	ldr r3, .L080636DC @ =gUnk_080FB874
+	ldr r3, .L080636DC @ =gLivestockReportWinterLabel
 	movs r1, #6
 	movs r2, #2
 	add r0, sp, #0x64
@@ -60421,7 +60421,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r0, [r7, #4]
 	b .L080637AA
 	.align 2, 0
-.L080636DC: .4byte gUnk_080FB874
+.L080636DC: .4byte gLivestockReportWinterLabel
 .L080636E0: .4byte 0x06001180
 .L080636E4:
 	mov sl, r1
@@ -60537,7 +60537,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r5, [r7, #4]
 	str r0, [r7, #0xc]
 .L080637AA:
-	ldr r2, .L080637F4 @ =gUnk_080FB87C
+	ldr r2, .L080637F4 @ =gLivestockReportYearAgeSuffix
 	movs r1, #2
 	add r0, sp, #0x70
 	strh r1, [r0]
@@ -60574,7 +60574,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r0, [r7, #4]
 	b .L080638C2
 	.align 2, 0
-.L080637F4: .4byte gUnk_080FB87C
+.L080637F4: .4byte gLivestockReportYearAgeSuffix
 .L080637F8: .4byte 0x06001300
 .L080637FC:
 	mov sl, r1
@@ -60690,7 +60690,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r5, [r7, #4]
 	str r0, [r7, #0xc]
 .L080638C2:
-	ldr r2, .L0806390C @ =gUnk_080FB830
+	ldr r2, .L0806390C @ =gFarmReportBlankLabel
 	movs r1, #2
 	add r0, sp, #0x7c
 	strh r1, [r0]
@@ -60727,7 +60727,7 @@ InitLivestockReport: @ 0x08062E9C
 	str r0, [r7, #4]
 	b .L080639E2
 	.align 2, 0
-.L0806390C: .4byte gUnk_080FB830
+.L0806390C: .4byte gFarmReportBlankLabel
 .L08063910: .4byte 0x06001380
 .L08063914:
 	str r1, [sp, #0xec]
@@ -62053,7 +62053,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	push {r5, r6, r7}
 	sub sp, #0x168
 	str r0, [sp, #.Lhs_report_sp_report]
-	ldr r0, .L080646BC @ =gUnk_080FB8B4
+	ldr r0, .L080646BC @ =gHarvestSpriteReportTitle
 	str r0, [sp]
 	ldr r0, [sp, #.Lhs_report_sp_report]
 	movs r3, #0x35
@@ -62088,7 +62088,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	ldr r4, [sp, #.Lhs_report_sp_report]
 	ldr r4, [r4, #4]
 	str r4, [sp, #.Lhs_report_sp_panel]
-	ldr r2, .L080646CC @ =gUnk_080FB8C8
+	ldr r2, .L080646CC @ =gFarmReportDaySuffix
 	movs r1, #2
 	add r0, sp, #0x28
 	strh r1, [r0]
@@ -62146,11 +62146,11 @@ InitHarvestSpriteReport: @ 0x080645F0
 	str r2, [sp, #0x130]
 	b .L080647C2
 	.align 2, 0
-.L080646BC: .4byte gUnk_080FB8B4
+.L080646BC: .4byte gHarvestSpriteReportTitle
 .L080646C0: .4byte 0x000005B4
 .L080646C4: .4byte vtable_unk_080E7A28
 .L080646C8: .4byte 0x00002164
-.L080646CC: .4byte gUnk_080FB8C8
+.L080646CC: .4byte gFarmReportDaySuffix
 .L080646D0: .4byte 0x000005BC
 .L080646D4: .4byte 0x00000744
 .L080646D8: .4byte 0x00000948
@@ -62282,7 +62282,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080647C2:
-	ldr r3, .L08064824 @ =gUnk_080FB8CC
+	ldr r3, .L08064824 @ =gHarvestSpriteReportDaysLeftLabel
 	movs r1, #4
 	movs r2, #2
 	add r0, sp, #0x34
@@ -62329,7 +62329,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	str r0, [r6, #4]
 	b .L080648E8
 	.align 2, 0
-.L08064824: .4byte gUnk_080FB8CC
+.L08064824: .4byte gHarvestSpriteReportDaysLeftLabel
 .L08064828:
 	mov sl, r1
 	movs r0, #1
@@ -62440,7 +62440,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080648E8:
-	ldr r3, .L08064948 @ =gUnk_080FB8D4
+	ldr r3, .L08064948 @ =gHarvestSpriteReportWorkLabel
 	movs r1, #8
 	movs r2, #2
 	add r0, sp, #0x40
@@ -62487,7 +62487,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	str r0, [r6, #4]
 	b .L08064A0C
 	.align 2, 0
-.L08064948: .4byte gUnk_080FB8D4
+.L08064948: .4byte gHarvestSpriteReportWorkLabel
 .L0806494C:
 	mov sl, r1
 	movs r0, #1
@@ -62598,7 +62598,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08064A0C:
-	ldr r3, .L08064A6C @ =gUnk_080FB8E0
+	ldr r3, .L08064A6C @ =gHarvestSpriteReportNotAssignedLabel
 	movs r1, #0xc
 	movs r2, #2
 	add r0, sp, #0x4c
@@ -62645,7 +62645,7 @@ InitHarvestSpriteReport: @ 0x080645F0
 	str r0, [r6, #4]
 	b .L08064B30
 	.align 2, 0
-.L08064A6C: .4byte gUnk_080FB8E0
+.L08064A6C: .4byte gHarvestSpriteReportNotAssignedLabel
 .L08064A70:
 	mov sl, r1
 	movs r0, #1
@@ -66199,7 +66199,7 @@ func_0806644C: @ 0x0806644C
 	str r1, [r0]
 	ldr r6, [r3, #4]
 	str r6, [sp, #0xec]
-	ldr r2, .L0806658C @ =gUnk_080FB8C8
+	ldr r2, .L0806658C @ =gFarmReportDaySuffix
 	add r1, sp, #0x18
 	movs r0, #2
 	strh r0, [r1]
@@ -66325,7 +66325,7 @@ func_0806644C: @ 0x0806644C
 .L08066580: .4byte vtable_unk_080E7A18
 .L08066584: .4byte 0x00001264
 .L08066588: .4byte 0x00001638
-.L0806658C: .4byte gUnk_080FB8C8
+.L0806658C: .4byte gFarmReportDaySuffix
 .L08066590: .4byte 0x000005BC
 .L08066594: .4byte 0x000006C4
 .L08066598: .4byte 0x00000A54
@@ -66519,7 +66519,7 @@ func_0806644C: @ 0x0806644C
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08066712:
-	ldr r2, .L08066774 @ =gUnk_080FB834
+	ldr r2, .L08066774 @ =gFarmReportGoldSuffix
 	movs r1, #2
 	add r0, sp, #0x24
 	strh r1, [r0]
@@ -66567,7 +66567,7 @@ func_0806644C: @ 0x0806644C
 	str r3, [sp, #0x16c]
 	b .L0806683E
 	.align 2, 0
-.L08066774: .4byte gUnk_080FB834
+.L08066774: .4byte gFarmReportGoldSuffix
 .L08066778:
 	mov sl, r1
 	movs r0, #1
@@ -67015,7 +67015,7 @@ func_0806644C: @ 0x0806644C
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08066AAC:
-	ldr r3, .L08066B0C @ =gUnk_080FB85C
+	ldr r3, .L08066B0C @ =gLivestockReportSpringLabel
 	movs r1, #6
 	movs r2, #2
 	add r0, sp, #0x48
@@ -67062,7 +67062,7 @@ func_0806644C: @ 0x0806644C
 	str r0, [r6, #4]
 	b .L08066BD0
 	.align 2, 0
-.L08066B0C: .4byte gUnk_080FB85C
+.L08066B0C: .4byte gLivestockReportSpringLabel
 .L08066B10:
 	mov sl, r1
 	movs r0, #1
@@ -67173,7 +67173,7 @@ func_0806644C: @ 0x0806644C
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08066BD0:
-	ldr r3, .L08066C28 @ =gUnk_080FB864
+	ldr r3, .L08066C28 @ =gLivestockReportSummerLabel
 	movs r1, #6
 	movs r2, #2
 	add r0, sp, #0x54
@@ -67216,7 +67216,7 @@ func_0806644C: @ 0x0806644C
 	str r0, [r6, #4]
 	b .L08066CF0
 	.align 2, 0
-.L08066C28: .4byte gUnk_080FB864
+.L08066C28: .4byte gLivestockReportSummerLabel
 .L08066C2C: .4byte 0x06000A80
 .L08066C30:
 	mov sl, r1
@@ -67328,7 +67328,7 @@ func_0806644C: @ 0x0806644C
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08066CF0:
-	ldr r3, .L08066D48 @ =gUnk_080FB86C
+	ldr r3, .L08066D48 @ =gLivestockReportFallLabel
 	movs r1, #6
 	movs r2, #2
 	add r0, sp, #0x60
@@ -67371,7 +67371,7 @@ func_0806644C: @ 0x0806644C
 	str r0, [r6, #4]
 	b .L08066E10
 	.align 2, 0
-.L08066D48: .4byte gUnk_080FB86C
+.L08066D48: .4byte gLivestockReportFallLabel
 .L08066D4C: .4byte 0x06000C00
 .L08066D50:
 	mov sl, r1
@@ -67483,7 +67483,7 @@ func_0806644C: @ 0x0806644C
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08066E10:
-	ldr r3, .L08066E68 @ =gUnk_080FB874
+	ldr r3, .L08066E68 @ =gLivestockReportWinterLabel
 	movs r1, #6
 	movs r2, #2
 	add r0, sp, #0x6c
@@ -67526,7 +67526,7 @@ func_0806644C: @ 0x0806644C
 	str r0, [r6, #4]
 	b .L08066F30
 	.align 2, 0
-.L08066E68: .4byte gUnk_080FB874
+.L08066E68: .4byte gLivestockReportWinterLabel
 .L08066E6C: .4byte 0x06000D80
 .L08066E70:
 	mov sl, r1
