@@ -1230,8 +1230,7 @@ struct GameStateMapCleanupOwners
 
 struct GameStateMapCleanupSlot
 {
-    u32 id;
-    u32 state;
+    u32 metadata[2];
     SmartPtr<GameStateMapCleanupResource> resource;
 };
 
@@ -1262,14 +1261,14 @@ struct GameStateMapSceneCleanupView
     GameStateMapCleanupSlots resourceSlots;
     GameStateMapSpecialResources specialResources;
     bool applyExitPenalty;
-    bool suppressExitMusic;
+    bool skipExitPenaltyEvent;
 };
 
 typedef char GameStateMapSceneCleanupLayout[
     sizeof(GameStateMapCleanupResource) == 0x28 &&
     offsetof(GameStateMapSceneCleanupView, saveData) == 0x1038 &&
     offsetof(GameStateMapSceneCleanupView, specialResources) == 0x10B0 &&
-    offsetof(GameStateMapSceneCleanupView, suppressExitMusic) == 0x10C9 ? 1 : -1];
+    offsetof(GameStateMapSceneCleanupView, skipExitPenaltyEvent) == 0x10C9 ? 1 : -1];
 
 // 0x080179CC
 EC void GameStateMapScene_Destroy(GameStateMapSceneCleanupView * scene, u32 flags);
