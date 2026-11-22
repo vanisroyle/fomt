@@ -118991,7 +118991,7 @@ func_0808AC28: @ 0x0808AC28
 	movs r0, #1
 	str r0, [sp]
 	adds r0, r4, #0
-	bl func_080CCA40
+	bl InventoryMenu_SetResourceSlotEntry
 	add r0, sp, #0x1c
 	movs r3, #0x80
 	lsls r3, r3, #1
@@ -119043,7 +119043,7 @@ func_0808AC28: @ 0x0808AC28
 	movs r0, #1
 	str r0, [sp]
 	adds r0, r4, #0
-	bl func_080CCA40
+	bl InventoryMenu_SetResourceSlotEntry
 	add r0, sp, #0x1c
 	movs r1, #0x80
 	lsls r1, r1, #1
@@ -119967,7 +119967,7 @@ func_0808B16C: @ 0x0808B16C
 	ldr r0, [sp, #0x38]
 	str r0, [sp]
 	adds r0, r4, #0
-	bl func_080CCA40
+	bl InventoryMenu_SetResourceSlotEntry
 	ldr r4, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
@@ -120025,7 +120025,7 @@ func_0808B16C: @ 0x0808B16C
 	ldr r0, [sp, #0x38]
 	str r0, [sp]
 	adds r0, r4, #0
-	bl func_080CCA40
+	bl InventoryMenu_SetResourceSlotEntry
 	b .L0808BA4A
 .L0808B9E2:
 	ldr r4, [r5]
@@ -120059,7 +120059,7 @@ func_0808B16C: @ 0x0808B16C
 	ldr r0, [sp, #0x38]
 	str r0, [sp]
 	adds r0, r4, #0
-	bl func_080CCA40
+	bl InventoryMenu_SetResourceSlotEntry
 	ldr r4, [r7, #0x7c]
 	adds r0, r7, #0
 	mov r1, sb
@@ -120071,7 +120071,7 @@ func_0808B16C: @ 0x0808B16C
 	ldr r0, [sp, #0x38]
 	str r0, [sp]
 	adds r0, r4, #0
-	bl func_080CCA40
+	bl InventoryMenu_SetResourceSlotEntry
 .L0808BA4A:
 	add r1, sp, #0x38
 	ldrb r0, [r1]
@@ -120688,7 +120688,7 @@ func_0808BDA0: @ 0x0808BDA0
 	ldr r2, .L0808BF70 @ =0x00000734
 .L0808BF62:
 	movs r3, #1
-	bl func_080CCE58
+	bl InventoryMenu_SetAnimatedResourceSpecialSlotEntry
 	b .L0808BF80
 	.align 2, 0
 .L0808BF6C: .4byte gUnk_0858BA28
@@ -120698,7 +120698,7 @@ func_0808BDA0: @ 0x0808BDA0
 	ldr r1, .L0808BF88 @ =gUnk_086678A0
 	movs r2, #0x35
 	movs r3, #1
-	bl func_080CCE58
+	bl InventoryMenu_SetAnimatedResourceSpecialSlotEntry
 .L0808BF80:
 	add sp, #0x10
 	pop {r4, r5, r6, r7}
@@ -128219,7 +128219,7 @@ func_0808F784: @ 0x0808F784
 	adds r1, r4, #0
 	adds r2, r5, #0
 	adds r3, r6, #0
-	bl func_080CCA40
+	bl InventoryMenu_SetResourceSlotEntry
 	b .L080908B0
 .L080900F6:
 	adds r1, r7, #0
@@ -130224,7 +130224,7 @@ func_08091094: @ 0x08091094
 	ldr r2, .L08091264 @ =0x00000734
 .L08091256:
 	movs r3, #1
-	bl func_080CCE58
+	bl InventoryMenu_SetAnimatedResourceSpecialSlotEntry
 	b .L08091274
 	.align 2, 0
 .L08091260: .4byte gUnk_0858BA28
@@ -130234,7 +130234,7 @@ func_08091094: @ 0x08091094
 	ldr r1, .L0809127C @ =gUnk_086678A0
 	movs r2, #0x35
 	movs r3, #1
-	bl func_080CCE58
+	bl InventoryMenu_SetAnimatedResourceSpecialSlotEntry
 .L08091274:
 	add sp, #0x10
 	pop {r4, r5, r6, r7}
@@ -132926,7 +132926,7 @@ func_08092754: @ 0x08092754
 	ldr r2, .L08092924 @ =0x00000734
 .L08092916:
 	movs r3, #1
-	bl func_080CCE58
+	bl InventoryMenu_SetAnimatedResourceSpecialSlotEntry
 	b .L08092934
 	.align 2, 0
 .L08092920: .4byte gUnk_0858BA28
@@ -132936,7 +132936,7 @@ func_08092754: @ 0x08092754
 	ldr r1, .L0809293C @ =gUnk_086678A0
 	movs r2, #0x35
 	movs r3, #1
-	bl func_080CCE58
+	bl InventoryMenu_SetAnimatedResourceSpecialSlotEntry
 .L08092934:
 	add sp, #0x10
 	pop {r4, r5, r6, r7}
@@ -133393,7 +133393,7 @@ func_08092CD0: @ 0x08092CD0
 	movs r2, #0xb0
 	lsls r2, r2, #1
 	movs r3, #1
-	bl func_080CCE58
+	bl InventoryMenu_SetAnimatedResourceSpecialSlotEntry
 	b .L08092D38
 	.align 2, 0
 .L08092CF8: .4byte gUnk_086678A0

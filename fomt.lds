@@ -1626,7 +1626,9 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_080CC15C);
         src/g5_helpers.o(.text.g5_080CC70C);
         asm/code_080C8360.o(.text.g5_080CC728);
+        src/g5_resource_slot_entries.o(.text.g5_080CCA40);
         src/g5_drawing.o(.text.g5_080CCD48);
+        src/g5_resource_slot_entries.o(.text.g5_080CCE58);
         asm/code_080C8360.o(.text.g5_after_080CCD48);
         src/g5_drawing.o(.text.g5_080CD4D4);
         src/g5_helpers.o(.text.g5_080CD534);

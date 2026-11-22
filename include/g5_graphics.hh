@@ -75,4 +75,8 @@ EC void MapGraphics_DrawFieldPlot(u8 * renderer, int x, int y, FieldPlot * plot,
 EC void InventoryMenu_SetSpecialSlotEntry(u8 *panel, u32 tile_data, u32 palette_data, u32 value); // 0x080CBDD4
 EC void InventoryMenu_SetAnimatedSpecialSlotEntry(u8 *panel, void const *data, u32 animation, u32 value); // 0x080CBAF0
 
+// Resource-backed panels use allocated OBJ tiles/palettes and right-side counts.
+EC void InventoryMenu_SetResourceSlotEntry(u8 * panel, u32 slot, u32 tile_data, u32 palette_data, u32 value); // 0x080CCA40
+EC void InventoryMenu_SetAnimatedResourceSpecialSlotEntry(u8 * panel, void const * data, u32 animation, u32 value); // 0x080CCE58
+
 #endif
