@@ -280,8 +280,13 @@ def build_script(assets, script_id, mapping):
         if len(tag) != 4:
             raise ValueError(f"{path}: chunk tag must be four bytes")
         if tag == b"CODE":
-            code = event[0] if event is not None else (assets / "scripts" / (name + ".code.bin")).read_bytes()
-            payload = pack(len(code)) + code + bytes.fromhex(item["tail"])
+            original_code = (assets / "scripts" / (name + ".code.bin")).read_bytes()
+            code = event[0] if event is not None else original_code
+            tail = bytes.fromhex(item["tail"])
+            if len(code) != len(original_code):
+                padding = (len(original_code) + len(tail) - len(code)) % 4
+                tail = tail[:padding] + bytes(max(0, padding - len(tail)))
+            payload = pack(len(code)) + code + tail
         elif tag == b"JUMP":
             payload = event[1] if event is not None else (assets / "scripts" / (name + ".jump.bin")).read_bytes()
         else:

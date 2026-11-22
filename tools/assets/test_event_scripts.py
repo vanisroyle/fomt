@@ -98,7 +98,12 @@ class EventTests(unittest.TestCase):
             path = root / "scripts/0001.evt"
             path.write_text(".code\nEVT_NOP\nEVT_END\n")
             rebuilt = dict(fa.chunks(fa.build_script(root, 1, {})))
-            self.assertEqual(rebuilt[b"CODE"], fa.pack(2) + b"\x00\x20\xab\xcd")
+            self.assertEqual(rebuilt[b"CODE"], fa.pack(2) + b"\x00\x20\xab")
+            str_offset = lambda data: data.index(b"STR ")
+            self.assertEqual(str_offset(fa.build_script(root, 1, {})) % 4, str_offset(original) % 4)
+            path.write_text(".code\nEVT_NOP\nEVT_NOP\nEVT_NOP\nEVT_NOP\nEVT_END\n")
+            self.assertEqual(str_offset(fa.build_script(root, 1, {})) % 4, str_offset(original) % 4)
+            path.write_text(".code\nEVT_NOP\nEVT_END\n")
             path.write_text(".code\n.jump\n.word 0\n")
             with self.assertRaisesRegex(ValueError, "presence must match"):
                 fa.build_script(root, 1, {})
