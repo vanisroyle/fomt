@@ -352,7 +352,7 @@ EC void DrawPrizeNameTiles(PrizeNameTileSize, void *, u32, u32, char const *, u3
 EC void Dma3_Copy(void const *, void *, u32);
 EC void Dma3_Fill(u32, void *, u32);
 EC u32 ResolveMedalObjPalette(MedalExchangeObjAllocation *, u32) asm("ResourceHandle_GetIndex");
-EC u32 ResolveMedalObjTile(MedalExchangeObjAllocation *, u32) asm("func_08007D4C");
+EC u32 ResolveMedalObjTile(MedalExchangeObjAllocation *, u32) asm("TileHandle_GetTileIndex");
 EC void ReadPrizeFrame(MedalExchangeFrameView *, SpriteAnimationData const *, u32) asm("GetSpriteAnimationDataFrame");
 EC void * CopyPrizeFrame(void *, void const *, size_t) asm("memcpy");
 

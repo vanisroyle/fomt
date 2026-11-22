@@ -172,6 +172,8 @@ SECTIONS
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);
         asm/hardware.o(.text.after_08007C28);
+        src/hardware.o(.text.TileHandle_GetTileIndex);
+        asm/hardware.o(.text.after_08007D4C);
         src/hardware.o(.text.AllocationTree_MarkFull);
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
