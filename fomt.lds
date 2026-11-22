@@ -1573,6 +1573,7 @@ SECTIONS
         asm/code_080D035C.o(.text.g5_06DC);
         src/g5_runtime.o(.text.g5_080D0704);
         asm/code_080D035C.o(.text.g5_after_080D0704);
+        src/g5_transmit.o(.text.g5_080D091C);
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
         asm/code_080D0C68.o(.text);
