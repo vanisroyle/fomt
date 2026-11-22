@@ -203,9 +203,205 @@ ROM_TEXT(0803B2A8) void UpdateGameStateMapOverlay(GameStateMapOverlay & overlay)
     } while (index < count);
 }
 
-EC void func_08007C28(OverlayTileAllocation *, u32);
 EC void TileHeapOwner_Destroy(OverlayTileAllocation *, unsigned);
 EC void __builtin_delete(void *);
+
+struct FixedOverlayClipView
+{
+    SpriteKeyframe const * keyframes;
+    u16 length;
+};
+
+struct FixedOverlayAnimationMethods
+{
+    STRUCT_PAD(0, 0xC);
+    void (*getClip)(FixedOverlayClipView *, FixedOverlayAnimation *, unsigned);
+    void (*getFrame)(FixedOverlayFrameView *, FixedOverlayAnimation *, unsigned);
+};
+
+struct FixedOverlayAnimation
+{
+    FixedOverlayAnimationMethods const * methods;
+};
+
+struct FixedOverlayBuildScratch
+{
+    FixedOverlayFrameView view;
+    u8 palette;
+    FixedOverlayClipView clip;
+};
+
+EC void InitOverlayTileHeap(OverlayTileAllocation *) asm("func_08007874");
+EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007C28");
+EC u32 AllocateOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007B54");
+EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("func_08007D4C");
+EC void * CopyOverlayFrame(void *, void const *, size_t) asm("memcpy");
+
+ROM_TEXT(0803AB30) FixedSpriteOverlay * InitializeFixedSpriteOverlay(void * storage, OverlaySpriteResources * inputResources)
+{
+    // Register and stack constraints preserve the original Thumb layout.
+    enum { FIXED_OVERLAY_PALETTE_KIND = 15, FIRST_FIXED_OVERLAY_CLIP = 0x91A, TILE_ALLOCATION_ORDER = 2 };
+    register FixedSpriteOverlay * overlay asm("r9") = static_cast<FixedSpriteOverlay *>(storage);
+    register OverlaySpriteResources * resources asm("r10");
+    register OverlaySpriteResources * resourceArgument asm("r1") = inputResources;
+    register FixedSpriteOverlay::Frame * tileFrame asm("r6");
+    asm("mov %1, %3\n\tmov %0, %2\n\tstmia %0!, {%3}"
+        : "=l"(tileFrame), "=h"(resources) : "h"(overlay), "l"(resourceArgument) : "memory");
+    int remaining = ARRAY_COUNT(overlay->frames) - 1;
+    asm("" : "+l"(remaining));
+    FixedOverlayBuildScratch local;
+    register u8 * paletteLow asm("r0");
+    register u8 * palette asm("r8");
+    asm("add %1, sp, %2\n\tmov %0, %1"
+        : "=h"(palette), "=l"(paletteLow) : "i"(offsetof(FixedOverlayBuildScratch, palette)));
+    register FixedOverlayClipView * clipPointer asm("r1");
+    asm(".syntax unified\n\tmov %0, sp\n\tadds %0, %1\n\t.syntax divided"
+        : "=l"(clipPointer) : "i"(offsetof(FixedOverlayBuildScratch, clip)));
+    FixedOverlayClipView * volatile clipView = clipPointer;
+    register unsigned zero asm("r5") = 0;
+    asm("" : "+l"(zero));
+    register FixedSpriteOverlay::Frame * frame asm("r4") = tileFrame;
+    asm("" : "+l"(frame));
+    do
+    {
+        frame->view.objects.data = reinterpret_cast<SpriteFrameObject const *>(zero);
+        asm("strh %1, [%2, %3]" : "=m"(frame->view.objects.length)
+            : "l"(zero), "l"(frame), "i"(offsetof(FixedSpriteOverlay::Frame, view.objects.length)));
+        frame->view.tileBytes.data = reinterpret_cast<u8 const *>(zero);
+        asm("strh %1, [%2, %3]" : "=m"(frame->view.tileBytes.length)
+            : "l"(zero), "l"(frame), "i"(offsetof(FixedSpriteOverlay::Frame, view.tileBytes.length)));
+        frame->view.paletteBytes.data = reinterpret_cast<u16 const *>(zero);
+        asm("strh %1, [%2, %3]" : "=m"(frame->view.paletteBytes.length)
+            : "l"(zero), "l"(frame), "i"(offsetof(FixedSpriteOverlay::Frame, view.paletteBytes.length)));
+        frame->view.extras.data = reinterpret_cast<SpriteFrameExtra const *>(zero);
+        asm("strh %1, [%2, %3]" : "=m"(frame->view.extras.length)
+            : "l"(zero), "l"(frame), "i"(offsetof(FixedSpriteOverlay::Frame, view.extras.length)));
+        InitOverlayTileHeap(&tileFrame->tiles);
+        frame->tiles.handle = zero;
+        ++frame;
+        ++tileFrame;
+        --remaining;
+        register int exhausted asm("r0");
+        asm(".syntax unified\n\tmovs %0, #1\n\trsbs %0, %0, #0\n\t.syntax divided" : "=l"(exhausted));
+        if (remaining == exhausted)
+            break;
+    }
+    while (true);
+    register OverlayPaletteTable * paletteTable asm("r6");
+    asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+        : "=l"(paletteTable) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes)));
+    paletteTable->count = 0;
+    register u8 * uploadPending asm("r0");
+    asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+        : "=l"(uploadPending) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, uploadPending)) : "memory");
+    register unsigned paletteCount asm("r4") = 1;
+    asm("" : "+l"(paletteCount));
+    *uploadPending = paletteCount;
+    register OverlaySpriteResources * paletteResources asm("r2") = resources;
+    asm("" : "+l"(paletteResources));
+    register unsigned paletteSlot asm("r0") = paletteResources->vtable->reservePalette(resources, FIXED_OVERLAY_PALETTE_KIND);
+    register u8 * paletteOut asm("r3") = palette;
+    asm("" : "+l"(paletteOut) : "l"(paletteSlot));
+    *paletteOut = paletteSlot;
+    register OverlayPaletteTable * palettes asm("r5") = paletteTable;
+    asm("" : "+l"(palettes) : "l"(paletteOut));
+    register unsigned size asm("r2") = palettes->count;
+    asm("" : "+l"(size));
+    if (paletteCount > size)
+    {
+        register u8 * begin asm("r0");
+        asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+            : "=l"(begin) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids)));
+        register u8 * end asm("r2");
+        asm(".syntax unified\n\tadds %0, %2\n\tadds %0, %1, %0\n\t.syntax divided"
+            : "=l"(end) : "l"(palettes), "i"(offsetof(OverlayPaletteTable, ids)), "0"(size));
+        register unsigned value asm("r1") = *paletteOut;
+        asm("" : "+l"(value) : "l"(end), "l"(begin));
+        memset(begin, value, end - begin);
+        size = palettes->count;
+        asm("" : "+l"(size));
+        asm(".syntax unified\n\tadds %0, %2, %3\n\tadds %0, %1, %0\n\t.syntax divided"
+            : "=l"(begin) : "l"(palettes), "l"(size), "I"(offsetof(OverlayPaletteTable, ids)));
+        register u8 * source asm("r1") = &local.palette;
+        asm("" : "+l"(source) : "l"(begin));
+        value = *source;
+        asm("" : "+l"(value));
+        memset(begin, value, paletteCount - size);
+        palettes->count = paletteCount;
+    }
+    else
+    {
+        register u8 * begin asm("r0");
+        asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+            : "=l"(begin) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids)));
+        register u8 * newEnd asm("r4");
+        asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+            : "=l"(newEnd) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids) + 1));
+        register u8 * source asm("r2") = palette;
+        asm("" : "+l"(source) : "l"(newEnd), "l"(begin));
+        register unsigned value asm("r1") = *source;
+        asm("" : "+l"(value));
+        memset(begin, value, newEnd - begin);
+        register u8 * oldEnd asm("r0") = palettes->ids + palettes->count;
+        asm("" : "+l"(oldEnd));
+        register size_t removed asm("r0") = oldEnd - newEnd;
+        asm("" : "+l"(removed));
+        paletteTable->count -= removed;
+    }
+    register OverlaySpriteResources * animationResources asm("r3") = resources;
+    asm("" : "+l"(animationResources));
+    register FixedOverlayAnimation * animation asm("r8") = animationResources->vtable->getAnimationSlot0(resources);
+    asm("" : "+r"(animation));
+    register unsigned index asm("r7") = 0;
+    asm("" : "+l"(index));
+    do
+    {
+        register unsigned stride asm("r0") = sizeof(FixedSpriteOverlay::Frame);
+        asm("" : "+l"(stride) : "l"(index));
+        register uintptr_t frameAddress asm("r6") = index * stride;
+        register FixedSpriteOverlay::Frame * start asm("r4");
+        asm(".syntax unified\n\tadd %1, %3\n\tadds %0, %1, %2\n\t.syntax divided"
+            : "=&l"(start), "+l"(frameAddress) : "I"(offsetof(FixedSpriteOverlay, frames)), "h"(overlay));
+        register unsigned firstClip asm("r0") = FIRST_FIXED_OVERLAY_CLIP;
+        asm("" : "+l"(firstClip) : "l"(start));
+        register unsigned clip asm("r2") = index + firstClip;
+        asm("" : "+l"(clip));
+        register FixedOverlayAnimation * lookup asm("r1") = animation;
+        asm("" : "+l"(lookup) : "l"(clip));
+        register FixedOverlayAnimationMethods const * methods asm("r5") = lookup->methods;
+        asm("" : "+l"(methods));
+        methods->getClip(clipView, lookup, clip);
+        register SpriteKeyframe const * keyframes asm("r0") = local.clip.keyframes;
+        asm("" : "+l"(keyframes));
+        register unsigned firstFrame asm("r2") = keyframes[0].frame;
+        asm("" : "+l"(firstFrame));
+        register FixedOverlayFrameView * frameView asm("r0") = &local.view;
+        asm("" : "+l"(frameView));
+        methods->getFrame(frameView, animation, firstFrame);
+        // Preserve the compiler's original temporary self-copy.
+        CopyOverlayFrame(&local.view, &local.view, sizeof(local.view));
+        register FixedOverlayFrameView * output asm("r4") = &start->view;
+        asm volatile(".syntax unified\n\tmov r0, sp\n"
+            "\tldmia r0!, {r1, r2, r3}\n\tstmia %0!, {r1, r2, r3}\n"
+            "\tldmia r0!, {r1, r2, r3}\n\tstmia %0!, {r1, r2, r3}\n"
+            "\tldmia r0!, {r2, r3}\n\tstmia %0!, {r2, r3}\n\t.syntax divided"
+            : "+l"(output) :
+            : "r0", "r1", "r2", "r3", "memory");
+        register OverlayTileAllocation * tiles asm("r4") =
+            reinterpret_cast<OverlayTileAllocation *>(frameAddress + offsetof(FixedSpriteOverlay, frames) + offsetof(FixedSpriteOverlay::Frame, tiles));
+        asm("" : "+l"(tiles));
+        ReleaseOverlayTiles(tiles, tiles->handle);
+        register unsigned handle asm("r1") = AllocateOverlayTiles(tiles, TILE_ALLOCATION_ORDER);
+        asm("" : "+l"(handle));
+        tiles->handle = handle;
+        reinterpret_cast<FixedSpriteOverlay::Frame *>(frameAddress + offsetof(FixedSpriteOverlay, frames))->baseTile =
+            GetOverlayBaseTile(tiles, handle);
+        ++index;
+        asm("" : "+l"(index));
+    }
+    while (index < ARRAY_COUNT(overlay->frames));
+    return overlay;
+}
 
 ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOverlay, unsigned inputFlags)
 {
@@ -232,7 +428,7 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
             {
                 --frame;
                 OverlayTileAllocation * tiles = &frame->tiles;
-                func_08007C28(tiles, tiles->handle);
+                ReleaseOverlayTiles(tiles, tiles->handle);
                 TileHeapOwner_Destroy(tiles, 2);
             }
             while (first != frame);
@@ -258,7 +454,7 @@ ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay
     for (GameStateMapOverlay::Frame * frame = frames.entries; frame != framesEnd; ++frame)
     {
         OverlayTileAllocation * tiles = &frame->tiles;
-        func_08007C28(tiles, tiles->handle);
+        ReleaseOverlayTiles(tiles, tiles->handle);
         TileHeapOwner_Destroy(tiles, 2);
     }
     if (destructorFlags & 1)
@@ -963,7 +1159,7 @@ ROM_TEXT(0803D2E8) void HideClockToolIcon(ClockDisplay & self)
 }
 
 struct SavedCalendarDate;
-EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, bool colonVisible);
+EC void SetClockDateAndTimeTiles(ClockDisplay &, SavedCalendarDate const &, unsigned colonVisible);
 
 struct ClockHud : DialogWindow
 {
@@ -1172,7 +1368,7 @@ struct PACKED SavedCalendarDate
     u8 yearInCycle : 3;
     u8 yearCycle : 5;
     u8 packedDate;
-    u8 packedTime;
+    u8 packedTime[2];
 };
 
 enum NpcScheduleWeekday
@@ -1217,7 +1413,7 @@ struct NpcScheduleContext
     u32 weather;
     STRUCT_PAD(0x000C, 0x0010);
     SavedCalendarDate calendar;
-    STRUCT_PAD(0x0013, 0x1CD4);
+    STRUCT_PAD(0x0014, 0x1CD4);
     u8 unk_1CD4[4];
     STRUCT_PAD(0x1CD8, 0x1D6C);
     Bachelorette popuri;
@@ -1417,6 +1613,281 @@ ROM_TEXT(0803D52C) CalendarDate & DecodeNpcScheduleDate(CalendarDate & result, S
     EXTRACT_CALENDAR_FIELD(scheduleWeekday, weekdayStorage, 0, WEEKDAY_WIDTH);
     result.weekday = scheduleWeekday;
     return result;
+}
+
+ROM_TEXT(0803CD4C) void SetClockDateAndTimeTiles(ClockDisplay & display, SavedCalendarDate const & calendar, unsigned colonVisible)
+{
+    enum
+    {
+        SEASON_BIT = 0,
+        SEASON_WIDTH = 2,
+        DAY_BIT = 2,
+        DAY_WIDTH = 5,
+        HOUR_BIT = 16,
+        HOUR_WIDTH = 5,
+        MINUTE_BIT = 21,
+        MINUTE_WIDTH = 6,
+        WEEKDAY_YEAR_OFFSET = 6,
+        DAYS_PER_SEASON = 30,
+        DAYS_PER_YEAR = 4 * DAYS_PER_SEASON,
+        DAYS_PER_WEEK = 7,
+        WEEKDAY_MASK = 7,
+        HOURS_PER_HALF_DAY = 12,
+        MINUTES_PER_DISPLAY_STEP = 10,
+        AM_TILE = 28,
+        PM_TILE = 30,
+        COLON_TILE = 10,
+    };
+    struct ClockTileLocals
+    {
+        unsigned weekdayTiles[CLOCK_TILE_BYTES / sizeof(unsigned)];
+        SavedCalendarDate const * calendar;
+        unsigned showColon;
+        STRUCT_PAD(0x28, 0x2C);
+        u8 * timeDirty;
+    } local;
+    // The scratch tile and register constraints preserve the original Thumb layout.
+    local.calendar = &calendar;
+    asm("" : : "m"(local.calendar) : "memory");
+    register unsigned colonFlag asm("r2");
+    EXTRACT_CALENDAR_FIELD(colonFlag, colonVisible, 0, 8);
+    local.showColon = colonFlag;
+    asm("" : : "m"(local.calendar), "m"(local.showColon) : "memory");
+    ClockDisplayData * clock = display.inner;
+    unsigned packedSeason = calendar.packedDate;
+    asm("" : "+l"(packedSeason));
+    unsigned season;
+    EXTRACT_CALENDAR_FIELD(season, packedSeason, SEASON_BIT, SEASON_WIDTH);
+    register unsigned firstSeasonTile asm("r5");
+    unsigned secondSeasonTile;
+    switch (int(season))
+    {
+    case SEASON_SPRING:
+    default: firstSeasonTile = 11; secondSeasonTile = 12; break;
+    case SEASON_SUMMER: firstSeasonTile = 13; secondSeasonTile = 14; break;
+    case SEASON_AUTUMN: firstSeasonTile = 15; secondSeasonTile = 16; break;
+    case SEASON_WINTER: firstSeasonTile = 17; secondSeasonTile = 18; break;
+    }
+    asm("" : "+l"(firstSeasonTile), "+l"(secondSeasonTile));
+    u8 * firstSeasonDest = clock->seasonFirstTiles;
+    unsigned firstSeasonOffset = firstSeasonTile * sizeof(ClockTile);
+    ClockTile const * font = gClockFont;
+    asm("" : "+r"(font));
+    memcpy(firstSeasonDest, reinterpret_cast<u8 const *>(font) + firstSeasonOffset, sizeof(ClockTile));
+    u8 * dateDirty = &clock->dateTilesDirty;
+    register unsigned firstDirty asm("r1") = 1;
+    asm("" : "+l"(firstDirty));
+    unsigned initialDirty = firstDirty;
+    asm("" : "+r"(initialDirty));
+    register unsigned markSeasonFirst asm("r2");
+    asm("mov %0, %1" : "=l"(markSeasonFirst) : "r"(initialDirty));
+    *dateDirty = markSeasonFirst;
+    u8 const * secondSeasonTileData = font[secondSeasonTile];
+    memcpy(clock->seasonSecondTiles, secondSeasonTileData, sizeof(ClockTile));
+    unsigned markSeasonSecond;
+    asm("mov %0, %1" : "=l"(markSeasonSecond) : "r"(initialDirty));
+    *dateDirty = markSeasonSecond;
+
+    SavedCalendarDate const * saved = local.calendar;
+    unsigned packedDate = saved->packedDate;
+    register unsigned dayExtracted asm("r0");
+    EXTRACT_CALENDAR_FIELD(dayExtracted, packedDate, DAY_BIT, DAY_WIDTH);
+    dayExtracted++;
+    asm("" : "+l"(dayExtracted));
+    unsigned day = dayExtracted;
+    unsigned yearInCycle = saved->yearInCycle;
+    unsigned daySeason;
+    EXTRACT_CALENDAR_FIELD(daySeason, packedDate, SEASON_BIT, SEASON_WIDTH);
+    yearInCycle += WEEKDAY_YEAR_OFFSET;
+    unsigned weekday = daySeason * DAYS_PER_SEASON + yearInCycle * DAYS_PER_YEAR + day;
+    weekday--;
+    register u8 * dateUploadDirty asm("r9") = dateDirty;
+    asm("" : "+r"(dateUploadDirty));
+    if (weekday >= DAYS_PER_WEEK)
+        weekday %= DAYS_PER_WEEK;
+    register unsigned weekdayMask asm("r0") = WEEKDAY_MASK;
+    asm("" : "+l"(weekdayMask));
+    unsigned weekdayIndex = weekdayMask & weekday;
+    int dayTens = day / 10;
+    day %= 10;
+    if (dayTens > 0)
+    {
+        u8 const * dayTensTile = font[dayTens];
+        memcpy(clock->dayTensTiles, dayTensTile, sizeof(ClockTile));
+        unsigned markDayTens;
+        register u8 * dayTensDirty asm("r2");
+        asm("mov %0, %2; mov %1, %3" : "=l"(markDayTens), "=l"(dayTensDirty)
+            : "r"(initialDirty), "r"(dateUploadDirty));
+        *dayTensDirty = markDayTens;
+    }
+    else
+    {
+        memset(local.weekdayTiles, 0, sizeof(ClockTile));
+        u8 * blankDayTensDest = clock->dayTensTiles;
+        u8 const * blankDayTens = reinterpret_cast<u8 const *>(local.weekdayTiles);
+        memcpy(blankDayTensDest, blankDayTens, sizeof(ClockTile));
+        register unsigned markBlankDayTens asm("r2");
+        register u8 * blankDayTensDirty asm("r1");
+        asm("mov %0, %2; mov %1, %3" : "=l"(markBlankDayTens), "=l"(blankDayTensDirty)
+            : "r"(initialDirty), "r"(dateUploadDirty));
+        *blankDayTensDirty = markBlankDayTens;
+    }
+    unsigned dayOnesOffset = day * sizeof(ClockTile);
+    register ClockTile const * dayOnesFont asm("r0") = gClockFont;
+    u8 const * dayOnesTile;
+    asm(".syntax unified; adds %0, %1, %2; .syntax divided"
+        : "=l"(dayOnesTile) : "l"(dayOnesOffset), "l"(dayOnesFont));
+    memcpy(clock->dayOnesTiles, dayOnesTile, sizeof(ClockTile));
+    unsigned markDayOnes = 1;
+    register u8 * dayOnesDirty asm("r1");
+    asm("mov %0, %1" : "=l"(dayOnesDirty) : "r"(dateUploadDirty));
+    *dayOnesDirty = markDayOnes;
+    switch (weekdayIndex)
+    {
+    case 0:
+    default: local.weekdayTiles[0] = 0x60; local.weekdayTiles[1] = 0x61; local.weekdayTiles[2] = 0x62; break;
+    case 1: local.weekdayTiles[0] = 0x63; local.weekdayTiles[1] = 0x64; local.weekdayTiles[2] = 0x65; break;
+    case 2: local.weekdayTiles[0] = 0x66; local.weekdayTiles[1] = 0x67; local.weekdayTiles[2] = 0x68; break;
+    case 3: local.weekdayTiles[0] = 0x69; local.weekdayTiles[1] = 0x6A; local.weekdayTiles[2] = 0x6B; break;
+    case 4: local.weekdayTiles[0] = 0x6C; local.weekdayTiles[1] = 0x6D; local.weekdayTiles[2] = 0x6E; break;
+    case 5: local.weekdayTiles[0] = 0x6F; local.weekdayTiles[1] = 0x70; local.weekdayTiles[2] = 0x71; break;
+    case 6: local.weekdayTiles[0] = 0x72; local.weekdayTiles[1] = 0x73; local.weekdayTiles[2] = 0x74; break;
+    }
+    asm("" : : "l"(weekdayIndex));
+    register unsigned weekdayFirstDestOffset asm("r2") = offsetof(ClockDisplayData, weekdayFirstTiles);
+    asm("" : "+l"(weekdayFirstDestOffset));
+    u8 * weekdayFirstDest = reinterpret_cast<u8 *>(clock) + weekdayFirstDestOffset;
+    unsigned weekdayFirstTileOffset = local.weekdayTiles[0] * sizeof(ClockTile);
+    ClockTile const * timeFont = gClockFont;
+    asm("" : "+r"(timeFont));
+    memcpy(weekdayFirstDest, reinterpret_cast<u8 const *>(timeFont) + weekdayFirstTileOffset, sizeof(ClockTile));
+    u8 * timeDirty = &clock->tilesDirty;
+    register unsigned markTimeDirty asm("r6") = 1;
+    *timeDirty = markTimeDirty;
+    u8 const * secondWeekdayTile = timeFont[local.weekdayTiles[1]];
+    unsigned weekdaySecondDestOffset = offsetof(ClockDisplayData, weekdaySecondTiles);
+    memcpy(reinterpret_cast<u8 *>(clock) + weekdaySecondDestOffset, secondWeekdayTile, sizeof(ClockTile));
+    *timeDirty = markTimeDirty;
+    u8 const * thirdWeekdayTile = timeFont[local.weekdayTiles[2]];
+    unsigned weekdayThirdDestOffset = offsetof(ClockDisplayData, weekdayThirdTiles);
+    memcpy(reinterpret_cast<u8 *>(clock) + weekdayThirdDestOffset, thirdWeekdayTile, sizeof(ClockTile));
+    *timeDirty = markTimeDirty;
+    register SavedCalendarDate const * savedTime asm("r1") = local.calendar;
+    unsigned packedCalendar;
+    asm("ldr %0, [%1]" : "=l"(packedCalendar) : "l"(savedTime) : "memory");
+    register unsigned decodedHour asm("r0");
+    EXTRACT_CALENDAR_FIELD(decodedHour, packedCalendar, HOUR_BIT, HOUR_WIDTH);
+    unsigned hour = decodedHour;
+    asm("" : "+l"(hour));
+    register unsigned meridiemTile asm("r1") = PM_TILE;
+    local.timeDirty = timeDirty;
+    asm("" : : "m"(local.timeDirty), "l"(meridiemTile) : "memory");
+    if (hour < HOURS_PER_HALF_DAY)
+        meridiemTile = AM_TILE;
+    u8 const * meridiemTileData = timeFont[meridiemTile];
+    unsigned meridiemDestOffset = offsetof(ClockDisplayData, meridiemTiles);
+    memcpy(reinterpret_cast<u8 *>(clock) + meridiemDestOffset, meridiemTileData, sizeof(ClockTile));
+    *dateUploadDirty = markTimeDirty;
+    unsigned displayedHour = HOURS_PER_HALF_DAY;
+    if (hour != HOURS_PER_HALF_DAY)
+    {
+        displayedHour = hour;
+        if (displayedHour >= HOURS_PER_HALF_DAY)
+            displayedHour -= HOURS_PER_HALF_DAY;
+    }
+    int hourTens = displayedHour / 10;
+    unsigned hourOnes = displayedHour % 10;
+    u8 const * hourTensTile;
+    u8 * hourTensDest;
+    if (hourTens > 0)
+    {
+        unsigned hourTensOffset = hourTens * sizeof(ClockTile);
+        ClockTile const * hourTensFont = gClockFont;
+        register u8 const * tensTile asm("r1");
+        asm(".syntax unified; adds %0, %1, %2; .syntax divided"
+            : "=l"(tensTile) : "l"(hourTensOffset), "l"(hourTensFont));
+        unsigned hourTensDestOffset = offsetof(ClockDisplayData, hourTensTiles);
+        hourTensDest = reinterpret_cast<u8 *>(clock) + hourTensDestOffset;
+        hourTensTile = tensTile;
+    }
+    else
+    {
+        memset(local.weekdayTiles, 0, sizeof(ClockTile));
+        register unsigned hourTensDestOffset asm("r2") = offsetof(ClockDisplayData, hourTensTiles);
+        asm("" : "+l"(hourTensDestOffset));
+        hourTensDest = reinterpret_cast<u8 *>(clock) + hourTensDestOffset;
+        hourTensTile = reinterpret_cast<u8 *>(local.weekdayTiles);
+    }
+    memcpy(hourTensDest, hourTensTile, sizeof(ClockTile));
+    unsigned markHourTens = 1;
+    register u8 * hourTensDirty asm("r1");
+    asm("mov %0, %1" : "=l"(hourTensDirty) : "r"(dateUploadDirty));
+    *hourTensDirty = markHourTens;
+    unsigned hourOnesOffset = hourOnes * sizeof(ClockTile);
+    register ClockTile const * timeRowFontAddress asm("r2") = gClockFont;
+    asm("" : "+l"(timeRowFontAddress));
+    ClockTile const * timeRowFont = timeRowFontAddress;
+    asm("" : "+r"(timeRowFont));
+    u8 const * hourOnesTile = reinterpret_cast<u8 const *>(timeRowFont) + hourOnesOffset;
+    unsigned hourOnesDestOffset = offsetof(ClockDisplayData, hourOnesTiles);
+    memcpy(reinterpret_cast<u8 *>(clock) + hourOnesDestOffset, hourOnesTile, sizeof(ClockTile));
+    unsigned markTimeRowDirty = 1;
+    asm("" : "+r"(markTimeRowDirty));
+    register unsigned markHourOnes asm("r2");
+    register u8 * hourOnesDirty asm("r1");
+    asm("mov %0, %2; mov %1, %3" : "=l"(markHourOnes), "=l"(hourOnesDirty)
+        : "r"(markTimeRowDirty), "r"(dateUploadDirty));
+    *hourOnesDirty = markHourOnes;
+
+    register SavedCalendarDate const * savedMinute asm("r1") = local.calendar;
+    asm("ldr %0, [%1]" : "=l"(packedCalendar) : "l"(savedMinute) : "memory");
+    unsigned minute;
+    EXTRACT_CALENDAR_FIELD(minute, packedCalendar, MINUTE_BIT, MINUTE_WIDTH);
+    // The bulk HUD refresh displays minutes in ten-minute steps.
+    unsigned displayedMinute = u8(minute / MINUTES_PER_DISPLAY_STEP) * MINUTES_PER_DISPLAY_STEP;
+    unsigned minuteTens = displayedMinute / 10;
+    unsigned minuteOnes = displayedMinute % 10;
+    u8 const * minuteTensTile = timeRowFont[minuteTens];
+    u8 * colonDest = clock->colonTiles;
+    asm("" : "+l"(colonDest));
+    register unsigned minuteTensDestOffset asm("r1") = offsetof(ClockDisplayData, minuteTensTiles);
+    asm("" : "+l"(minuteTensDestOffset));
+    u8 * minuteTensDest = reinterpret_cast<u8 *>(clock) + minuteTensDestOffset;
+    memcpy(minuteTensDest, minuteTensTile, sizeof(ClockTile));
+    unsigned markMinuteTens;
+    asm("mov %0, %1" : "=l"(markMinuteTens) : "r"(markTimeRowDirty));
+    register u8 * minuteTensDirty asm("r2") = local.timeDirty;
+    *minuteTensDirty = markMinuteTens;
+    u8 const * minuteOnesTile = timeRowFont[minuteOnes];
+    register unsigned minuteOnesDestOffset asm("r1") = offsetof(ClockDisplayData, minuteOnesTiles);
+    asm("" : "+l"(minuteOnesDestOffset));
+    u8 * minuteOnesDest = reinterpret_cast<u8 *>(clock) + minuteOnesDestOffset;
+    memcpy(minuteOnesDest, minuteOnesTile, sizeof(ClockTile));
+    unsigned markMinuteOnes;
+    asm("mov %0, %1" : "=l"(markMinuteOnes) : "r"(markTimeRowDirty));
+    register u8 * minuteOnesDirty asm("r2") = local.timeDirty;
+    *minuteOnesDirty = markMinuteOnes;
+    unsigned showColon = local.showColon;
+    asm("" : "+l"(showColon) : : "r0");
+    if (showColon)
+    {
+        memcpy(colonDest, timeRowFont[COLON_TILE], sizeof(ClockTile));
+        unsigned markColon;
+        asm("mov %0, %1" : "=l"(markColon) : "r"(markTimeRowDirty));
+        register u8 * colonDirty asm("r2") = local.timeDirty;
+        *colonDirty = markColon;
+    }
+    else
+    {
+        memset(local.weekdayTiles, 0, sizeof(ClockTile));
+        u8 * blankColonDest = colonDest;
+        u8 const * blankColon = reinterpret_cast<u8 const *>(local.weekdayTiles);
+        memcpy(blankColonDest, blankColon, sizeof(ClockTile));
+        register unsigned markBlankColon asm("r2");
+        asm("mov %0, %1" : "=l"(markBlankColon) : "r"(markTimeRowDirty));
+        register u8 * blankColonDirty asm("r1") = local.timeDirty;
+        *blankColonDirty = markBlankColon;
+    }
 }
 
 #undef EXTRACT_CALENDAR_FIELD
@@ -2567,7 +3038,7 @@ struct CarpenterScheduleContext
     unsigned weather;
     STRUCT_PAD(0xC, 0x10);
     SavedCalendarDate date;
-    STRUCT_PAD(0x13, 0x1F4);
+    STRUCT_PAD(0x14, 0x1F4);
     FarmHouse farmHouse;
     u8 padAfterFarmHouse[0x1F64 - 0x1F4 - sizeof(FarmHouse)];
     CarpenterConstructionState construction;

@@ -1,6 +1,9 @@
+#include "coop.hh"
+#include "dog.hh"
 #include "farmer_entity_layout.hh"
 #include "entity_sound_channel.hh"
 #include "farm_house.hh"
+#include "shipping_bin.hh"
 #include "sprite_animation.hh"
 
 #define ENTITY_CODE(addr) SECTION(".text.entities_part2." #addr)
@@ -243,6 +246,223 @@ EC void ShowFarmerToolDisplay(FarmerEntity * farmer)
         void * sprites = FarmerItemSprites(graphics);
         func_0805E850(&graphics->icon_animator, sprites, animation);
         RestartFarmerIcon(&graphics->icon_state);
+    }
+}
+
+EC bool func_0800F388(HeldItem const *);
+EC bool AEntity_IsOnOutdoorMap(AEntity const *);
+EC u32 func_0800F344(HeldItem const *);
+EC int func_0800F360(HeldItem const *);
+EC void CopyHeldFood(Food *, HeldItem const *) asm("func_0800F20C");
+EC u32 FarmerHeldItemIsEmptyRaw(HeldItem const *) asm("func_0800F190");
+EC u32 ReadHeldArticleId(HeldItem const *) asm("func_0800F258");
+EC u32 ReadDogGrowthStage(Dog const *) asm("GetGrowthStage__C3Dog");
+EC u32 ReadChickenGrowthStage(Chicken const *) asm("GetGrowthStage__C7Chicken");
+EC u32 ReadFoodIconId(Food const *) asm("GetIconId__C4Food");
+EC u32 ReadArticleIconId(Article const *) asm("GetIconId__C7Article");
+
+EC void RefreshFarmerHeldItemDisplay(FarmerEntity * farmer) ENTITY_CODE(0802A588);
+EC void RefreshFarmerHeldItemDisplay(FarmerEntity * farmer)
+{
+    register FarmerEntity * self asm("r6") = farmer;
+    asm volatile("" : "+r"(self));
+    register Farmer * model asm("r0") = self->farmer;
+    asm volatile("" : : "r"(model));
+    register HeldItem * held asm("r4") = &model->unk_54;
+    asm volatile("" : : "r"(held));
+    register u32 hand_shift asm("r0") = FarmerHeldItemIsEmptyRaw(held) << 24;
+    asm volatile("" : "+r"(hand_shift));
+    u32 empty = hand_shift >> 24;
+    asm volatile("" : "+r"(empty));
+    if (empty)
+        goto clear_item;
+    {
+        register ThrownItemMotion * motion asm("r0") = &self->thrown_item;
+        asm volatile("" : : "r"(motion));
+        register u32 enabled asm("r8") = 1;
+        asm volatile("" : : "r"(enabled));
+        register u32 active asm("r2") = enabled;
+        asm volatile("" : : "r"(active));
+        motion->active = active;
+        motion->display_mode = empty;
+        register i32 z_speed asm("r1") = 21 << 16;
+        asm volatile("" : : "r"(z_speed));
+        motion->x_speed = empty;
+        motion->y_speed = empty;
+        motion->z_speed = z_speed;
+        register FarmerIconGraphics * icon_graphics asm("r0") = static_cast<FarmerIconGraphics *>(self->unk_10.Get());
+        uintptr_t graphics_address = reinterpret_cast<uintptr_t>(icon_graphics);
+        if (!graphics_address)
+            return;
+        register FarmerIconGraphics * graphics asm("r5") = icon_graphics;
+
+        struct
+        {
+            u32 food;
+            u8 article;
+            u8 displayed_article;
+        } item_values;
+        register u8 * icon_flags asm("r0");
+        register u32 icon_on asm("r1");
+        register u32 item_icon asm("r4");
+        void * sprites;
+        SpriteAnimator * animator;
+        u32 animation;
+        asm volatile("" : : "r"(empty));
+        if (func_0800F388(held))
+        {
+            void * bank = FarmerItemSprites(graphics);
+            asm volatile("" : : "r"(bank));
+            func_0805E850(&graphics->icon_animator, bank, 0x160);
+            icon_flags = reinterpret_cast<u8 *>(&graphics->icon_state);
+            icon_on = enabled;
+            *icon_flags = icon_on;
+            icon_flags += 2;
+            asm volatile("" : : "r"(empty));
+            *icon_flags = empty;
+            asm volatile("" : : "m"(*icon_flags));
+            goto restart_icon;
+        }
+
+        switch (func_0800F204(held))
+        {
+        case HeldItem::KIND_FOOD:
+        {
+            Food * food = reinterpret_cast<Food *>(&item_values.food);
+            CopyHeldFood(food, held);
+            item_icon = ReadFoodIconId(food);
+            asm volatile("" : "+r"(item_icon));
+            item_icon <<= 16;
+            asm volatile("" : : "r"(item_icon));
+            item_icon >>= 16;
+            goto item_sprite;
+        }
+        case HeldItem::KIND_ARTICLE:
+        {
+            register u32 article_id asm("r1") = ReadHeldArticleId(held);
+            asm volatile("" : : "r"(article_id));
+            register u8 * article_ptr asm("r0") = &item_values.article;
+            *article_ptr = article_id;
+            Article & article = *reinterpret_cast<Article *>(article_ptr);
+            if (article.GetId() == ARTICLE_ALEXANDRITE)
+            {
+                u8 outdoors = AEntity_IsOnOutdoorMap(self);
+                if (outdoors)
+                {
+                    sprites = FarmerItemSprites(graphics);
+                    animator = &graphics->icon_animator;
+                    animation = 4;
+                    goto set_animation;
+                }
+                void * bank = FarmerItemSprites(graphics);
+                asm volatile("" : : "r"(bank));
+                func_0805E850(&graphics->icon_animator, bank, 3);
+                icon_flags = reinterpret_cast<u8 *>(&graphics->icon_state);
+                icon_on = 1;
+                *icon_flags = icon_on;
+                icon_flags += 2;
+                *icon_flags = outdoors;
+                asm volatile("" : : "m"(*icon_flags));
+                goto restart_icon;
+            }
+            register u32 displayed_id asm("r1") = ReadHeldArticleId(held);
+            asm volatile("" : : "r"(displayed_id));
+            register u8 * displayed_article asm("r0") = &item_values.displayed_article;
+            *displayed_article = displayed_id;
+            item_icon = ReadArticleIconId(reinterpret_cast<Article *>(displayed_article));
+            asm volatile("" : "+r"(item_icon));
+            item_icon <<= 16;
+            asm volatile("" : : "r"(item_icon));
+            item_icon >>= 16;
+            goto item_sprite;
+        }
+        case HeldItem::KIND_2:
+        {
+            Dog * dog = reinterpret_cast<Dog *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C70);
+            register u32 stage asm("r4") = ReadDogGrowthStage(dog);
+            asm volatile("" : "+r"(stage));
+            if (stage == 0)
+            {
+                void * bank = FarmerActorSprites(graphics);
+                asm volatile("" : : "r"(bank));
+                func_0805E850(&graphics->icon_animator, bank, 0x3DA);
+                icon_flags = reinterpret_cast<u8 *>(&graphics->icon_state);
+                icon_on = 1;
+                *icon_flags = icon_on;
+                icon_flags += 2;
+                *icon_flags = stage;
+                asm volatile("" : : "m"(*icon_flags));
+                goto restart_icon;
+            }
+            sprites = FarmerActorSprites(graphics);
+            animator = &graphics->icon_animator;
+            animation = 0x374;
+            goto set_animation;
+        }
+        case HeldItem::KIND_3:
+        {
+            register u32 chicken_index asm("r1") = func_0800F344(held);
+            asm volatile("" : : "r"(chicken_index));
+            Coop * coop = reinterpret_cast<Coop *>(reinterpret_cast<u8 *>(self->game_state) + 0x410);
+            Chicken * chicken = coop->GetChicken(chicken_index);
+            register u32 stage asm("r4") = ReadChickenGrowthStage(chicken);
+            asm volatile("" : "+r"(stage));
+            if (stage == 0)
+            {
+                void * bank = FarmerActorSprites(graphics);
+                asm volatile("" : : "r"(bank));
+                func_0805E850(&graphics->icon_animator, bank, 0x73D);
+                icon_flags = reinterpret_cast<u8 *>(&graphics->icon_state);
+                icon_on = 1;
+                *icon_flags = icon_on;
+                icon_flags += 2;
+                *icon_flags = stage;
+                asm volatile("" : : "m"(*icon_flags));
+                goto restart_icon;
+            }
+            sprites = FarmerActorSprites(graphics);
+            animator = &graphics->icon_animator;
+            animation = 0x734;
+            goto set_animation;
+        }
+        case HeldItem::KIND_4:
+            sprites = FarmerItemSprites(graphics);
+            animator = &graphics->icon_animator;
+            animation = 0x35;
+            goto set_animation;
+        case HeldItem::KIND_5:
+            item_icon = func_0800F360(held);
+            goto item_sprite;
+        default:
+            return;
+        }
+
+item_sprite:
+        sprites = FarmerItemSprites(graphics);
+        animator = &graphics->icon_animator;
+        animation = item_icon;
+set_animation:
+        func_0805E850(animator, sprites, animation);
+        icon_flags = reinterpret_cast<u8 *>(&graphics->icon_state);
+        {
+            register u32 frame_zero asm("r2") = 0;
+            asm volatile("" : : "r"(frame_zero));
+            icon_on = 1;
+            *icon_flags = icon_on;
+            icon_flags += 2;
+            *icon_flags = frame_zero;
+        }
+restart_icon:
+        icon_flags += 1;
+        asm volatile("" : "+r"(icon_flags));
+        icon_flags[0] = icon_on;
+        return;
+    }
+clear_item:
+    {
+        register ThrownItemMotion * clear_to asm("r1") = &self->thrown_item;
+        asm volatile("" : : "r"(clear_to));
+        clear_to->active = false;
     }
 }
 
@@ -718,6 +938,196 @@ struct FarmerEventGameVTable
     FarmerEventDispatch dispatch_event;
 };
 
+EC u32 CountHarvestGoddessJewels(void const *);
+EC u32 CountKappaJewels(void const *);
+EC bool HaveAllCursedToolsStarted(void const *);
+EC bool func_0809E174(void const *);
+EC bool func_0809E184(void const *);
+EC bool func_0809E194(void const *);
+EC bool func_0809E1A4(void const *);
+EC i32 const gHarvestGoddessCollectionProducts[] asm("gUnk_080F11BC");
+EC i32 const gKappaCollectionProducts[] asm("gUnk_080F11E0");
+struct FarmerCollectionEventLocals
+{
+    u8 goddess_jewel;
+    FarmerEventRequest goddess_jewel_event;
+    u8 kappa_jewel;
+    FarmerEventRequest kappa_jewel_event;
+    FarmerEventRequest goddess_collection_event;
+    FarmerEventRequest kappa_collection_event;
+};
+
+EC void CheckFarmerCollectionEvents(FarmerEntity *) ENTITY_CODE(0802B054);
+EC void CheckFarmerCollectionEvents(FarmerEntity * self)
+{
+    FarmerCollectionEventLocals locals;
+    register FarmerEntity * farmer asm("r5") = self;
+    asm volatile("" : : "r"(farmer));
+    {
+        register u32 jewels asm("r0") = CountHarvestGoddessJewels(reinterpret_cast<u8 const *>(farmer->game_state) + 0x2E58) << 24;
+        asm volatile("" : "+r"(jewels));
+        if ((jewels >> 24) != 9)
+            goto check_kappa_jewels;
+    }
+    {
+        register u32 flags asm("r0") = reinterpret_cast<u8 const *>(farmer->game_state)[0x2189];
+        asm volatile("" : : "r"(flags));
+        register u32 exchanged asm("r4") = 0x30;
+        exchanged &= flags;
+        asm volatile("" : : "r"(exchanged));
+        if (exchanged != 0)
+            goto check_kappa_jewels;
+        register u32 held_kind asm("r0") = func_0800F204(&farmer->farmer->unk_54);
+        asm volatile("" : : "r"(held_kind));
+        if (held_kind != HeldItem::KIND_ARTICLE)
+            goto check_kappa_jewels;
+        register u32 article_id asm("r0") = ReadHeldArticleId(&farmer->farmer->unk_54);
+        asm volatile("" : : "r"(article_id));
+        register u8 * value asm("r1") = &locals.goddess_jewel;
+        *value = article_id;
+        Article const * article = reinterpret_cast<Article const *>(&locals.goddess_jewel);
+        if (article->GetId() != ARTICLE_HARVEST_GODDESS_JEWEL)
+            goto check_kappa_jewels;
+        GameObject * game = farmer->game_object;
+        FarmerEventGameVTable const * table = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+        FarmerEventDispatch const * handler = &table->dispatch_event;
+        FarmerEventRequest * args = &locals.goddess_jewel_event;
+        args->id = 0x330;
+        args->argument = exchanged;
+        FarmerEventDispatch dispatch = *handler;
+        dispatch(game, args, 0);
+    }
+check_kappa_jewels:
+    {
+        register u32 jewels asm("r0") = CountKappaJewels(reinterpret_cast<u8 const *>(farmer->game_state) + 0x2E58) << 24;
+        asm volatile("" : "+r"(jewels));
+        if ((jewels >> 24) != 9)
+            goto check_goddess_shipping;
+    }
+    {
+        register u32 flags asm("r0") = reinterpret_cast<u8 const *>(farmer->game_state)[0x218b];
+        asm volatile("" : : "r"(flags));
+        register u32 exchanged asm("r4") = 0x18;
+        exchanged &= flags;
+        asm volatile("" : : "r"(exchanged));
+        if (exchanged != 0)
+            goto check_goddess_shipping;
+        register u32 held_kind asm("r0") = func_0800F204(&farmer->farmer->unk_54);
+        asm volatile("" : : "r"(held_kind));
+        if (held_kind != HeldItem::KIND_ARTICLE)
+            goto check_goddess_shipping;
+        register u32 article_id asm("r0") = ReadHeldArticleId(&farmer->farmer->unk_54);
+        asm volatile("" : : "r"(article_id));
+        register u32 encoded asm("r1") = article_id;
+        asm volatile("" : : "r"(encoded));
+        register u8 * value asm("r0") = &locals.kappa_jewel;
+        *value = encoded;
+        Article const * article = reinterpret_cast<Article const *>(&locals.kappa_jewel);
+        if (article->GetId() != ARTICLE_KAPPA_JEWEL)
+            goto check_goddess_shipping;
+        GameObject * game = farmer->game_object;
+        FarmerEventGameVTable const * table = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+        FarmerEventDispatch const * handler = &table->dispatch_event;
+        FarmerEventRequest * args = &locals.kappa_jewel_event;
+        args->id = 0x332;
+        args->argument = exchanged;
+        FarmerEventDispatch dispatch = *handler;
+        dispatch(game, args, 0);
+    }
+check_goddess_shipping:
+    if (reinterpret_cast<u8 const *>(farmer->game_state)[0x2194] & 0xc0)
+        goto check_kappa_shipping;
+    {
+        u32 have_shipped = 1;
+        u32 index = 0;
+        register i32 const * item asm("r4") = gHarvestGoddessCollectionProducts;
+        asm volatile("" : "+r"(have_shipped), "+r"(index), "+r"(item));
+        for (; index < 9; ++item, ++index)
+        {
+            if (!reinterpret_cast<ShippingBin const *>(reinterpret_cast<u8 const *>(farmer->game_state) + 0x54)->IsDisplayEnabled(*item))
+            {
+                have_shipped = 0;
+                break;
+            }
+        }
+        asm volatile("" : "+r"(have_shipped));
+        asm volatile("" : : "r"(index));
+        if (!have_shipped)
+            goto check_kappa_shipping;
+        register u8 const * state asm("r0") = reinterpret_cast<u8 const *>(farmer->game_state);
+        asm volatile("" : : "r"(state));
+        register u32 mine_record_offset asm("r4") = 0x2E58;
+        asm volatile("" : : "r"(mine_record_offset));
+        if (!func_0809E184(state + mine_record_offset))
+            goto check_kappa_shipping;
+        if (!func_0809E194(reinterpret_cast<u8 const *>(farmer->game_state) + mine_record_offset))
+            goto check_kappa_shipping;
+        if (!u8(CountHarvestGoddessJewels(reinterpret_cast<u8 const *>(farmer->game_state) + mine_record_offset)))
+            goto check_kappa_shipping;
+        if (!func_0809E1A4(reinterpret_cast<u8 const *>(farmer->game_state) + mine_record_offset))
+            goto check_kappa_shipping;
+        GameObject * game = farmer->game_object;
+        register FarmerEventGameVTable const * table asm("r2") = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+        asm volatile("" : : "r"(table));
+        register u32 dispatch_slot asm("r1") = 0x140;
+        asm volatile("" : : "r"(dispatch_slot));
+        register FarmerEventDispatch const * handler asm("r2") = reinterpret_cast<FarmerEventDispatch const *>(reinterpret_cast<u8 const *>(table) + dispatch_slot);
+        asm volatile("" : "+r"(handler));
+        FarmerEventRequest * args = &locals.goddess_collection_event;
+        register u32 event_id asm("r3") = 0x34d;
+        register u32 argument asm("r4") = 0;
+        asm volatile("" : : "r"(event_id), "r"(argument));
+        args->id = event_id;
+        args->argument = argument;
+        FarmerEventDispatch dispatch = *handler;
+        dispatch(game, args, 0);
+    }
+check_kappa_shipping:
+    if (reinterpret_cast<u8 const *>(farmer->game_state)[0x2195] & 0x3)
+        goto done;
+    {
+        u32 have_shipped = 1;
+        u32 index = 0;
+        register i32 const * item asm("r4") = gKappaCollectionProducts;
+        asm volatile("" : "+r"(have_shipped), "+r"(index), "+r"(item));
+        for (; index < 14; ++item, ++index)
+        {
+            if (!reinterpret_cast<ShippingBin const *>(reinterpret_cast<u8 const *>(farmer->game_state) + 0x54)->IsDisplayEnabled(*item))
+            {
+                have_shipped = 0;
+                break;
+            }
+        }
+        asm volatile("" : "+r"(have_shipped));
+        asm volatile("" : : "r"(index));
+        if (!have_shipped)
+            goto done;
+        if (!HaveAllCursedToolsStarted(reinterpret_cast<u8 const *>(farmer->game_state) + 0x3480))
+            goto done;
+        if (!func_0809E174(reinterpret_cast<u8 const *>(farmer->game_state) + 0x2e58))
+            goto done;
+        if (!u8(CountKappaJewels(reinterpret_cast<u8 const *>(farmer->game_state) + 0x2e58)))
+            goto done;
+        GameObject * game = farmer->game_object;
+        register FarmerEventGameVTable const * table asm("r2") = *reinterpret_cast<FarmerEventGameVTable const **>(game);
+        asm volatile("" : : "r"(table));
+        register u32 dispatch_slot asm("r1") = 0x140;
+        asm volatile("" : : "r"(dispatch_slot));
+        register FarmerEventDispatch const * handler asm("r2") = reinterpret_cast<FarmerEventDispatch const *>(reinterpret_cast<u8 const *>(table) + dispatch_slot);
+        asm volatile("" : "+r"(handler));
+        FarmerEventRequest * args = &locals.kappa_collection_event;
+        register u32 event_id asm("r3") = 0x34e;
+        register u32 argument asm("r4") = 0;
+        asm volatile("" : : "r"(event_id), "r"(argument));
+        args->id = event_id;
+        args->argument = argument;
+        FarmerEventDispatch dispatch = *handler;
+        dispatch(game, args, 0);
+    }
+done:
+    return;
+}
+
 #define SEND_PEDOMETER_MILESTONE(id_value) \
     { \
         GameObject * game = farmer->game_object; \
@@ -772,6 +1182,137 @@ struct FarmerStepCoordinateQ16
     i16 fraction;
     i16 pixel;
 };
+
+struct FarmerStepSprite
+{
+    STRUCT_PAD(0x00, 0x24);
+    void const * vtable;
+};
+
+struct FarmerStepSpriteAnimatorStorage
+{
+    u32 words[sizeof(SpriteAnimator) / sizeof(u32)];
+};
+
+struct FarmerStepSpriteSlot
+{
+    u8 active;
+    STRUCT_PAD(0x01, 0x04);
+    FarmerStepSprite sprite;
+    FarmerStepSpriteAnimatorStorage animator;
+    FarmerIconState icon_state;
+    FarmerStepPosition position;
+};
+
+struct FarmerEffectSlots
+{
+    u32 count;
+    FarmerStepSpriteSlot slots[6];
+};
+
+struct FarmerEffectGraphicsInit : FarmerIconGraphics
+{
+    FarmerEffectSlots effects;
+    u8 next_step_effect;
+    bool refresh_icon;
+};
+
+struct FarmerStepSpriteCallFrame
+{
+    u32 priority;
+    u32 layer;
+    bool mirrored;
+    STRUCT_PAD(0x09, 0x14);
+    FarmerStepSpriteSlot slot;
+};
+
+EC char const gUnk_080F1218[];
+EC char const vtable_unk_080E6708[];
+EC char const vtable_unk_080E681C[];
+EC void CopyFarmerStepSprite(FarmerStepSprite *, FarmerStepSprite const *) asm("func_080DC840");
+EC void DestroyFarmerStepSprite(FarmerStepSprite *, u32) asm("DestroyMapSpriteResource");
+EC void InitFarmerStepSpriteWithStackArgs(FarmerStepSprite *, void *, u32, GameObject *) asm("InitializeAnimatedMapSpriteSinglePalette");
+
+EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * farmer) ENTITY_CODE(0802B260);
+EC UnknownEntityThing * InitFarmerEffectGraphics(FarmerEffectGraphicsInit * graphics, FarmerEntity * farmer)
+{
+    GameObject * sprite_game[2];
+    FarmerStepSpriteSlot * copied_effect;
+    void * sprite_bank[2];
+    FarmerEffectSlots * effects;
+    FarmerStepSpriteSlot * destination;
+    FarmerStepSpriteSlot effect;
+    u32 effect_index;
+    FarmerStepSprite * effect_sprite;
+    FarmerStepPosition * position;
+    register FarmerStepSpriteCallFrame * call_frame asm("sp");
+    bool * mirrored_argument;
+
+    InitializePrioritizedSideActorSprite(graphics, farmer, 6, gUnk_080F1218, 3, 1, 0, 1, true);
+    reinterpret_cast<void const **>(graphics)[1] = vtable_unk_080E6708;
+    sprite_game[0] = farmer->game_object;
+    sprite_bank[1] = (*reinterpret_cast<FarmerIconGameVTable const **>(sprite_game[0]))->get_item_sprites(sprite_game[0]);
+    sprite_game[0] = farmer->game_object;
+    InitializeAnimatedMapSpriteSinglePalette(reinterpret_cast<u8 *>(graphics) + 0x8C, sprite_bank[1], 0, sprite_game[0], 2, 1, false);
+    register FarmerEffectSlots * effect_slots asm("r1") = &graphics->effects;
+    effect_slots->count = 0;
+    graphics->refresh_icon = false;
+    effect_index = 0;
+    mirrored_argument = &call_frame->mirrored;
+    effect_sprite = &effect.sprite;
+    position = &effect.position;
+    register FarmerStepSpriteSlot * template_effect asm("sl") = &effect;
+    register u32 inactive asm("r7") = 0;
+    asm volatile("" : : "r"(template_effect), "r"(inactive) : "r6");
+    effects = effect_slots;
+    do
+    {
+        u32 count;
+        sprite_game[0] = farmer->game_object;
+        sprite_bank[0] = (*reinterpret_cast<FarmerIconGameVTable const **>(sprite_game[0]))->get_actor_sprites(sprite_game[0]);
+        sprite_bank[1] = sprite_bank[0];
+        sprite_game[0] = farmer->game_object;
+        sprite_game[1] = sprite_game[0];
+        register FarmerStepSpriteSlot * current_effect asm("r4") = template_effect;
+        current_effect->active = 0;
+
+        // The stack arguments are shared with the icon initialization above.
+        call_frame->priority = 0;
+        call_frame->layer = 18;
+        *mirrored_argument = false;
+        register FarmerStepSpriteCallFrame * effect_frame asm("sp");
+        asm volatile("" : "=r"(effect_frame) : "0"(call_frame));
+        InitFarmerStepSpriteWithStackArgs(&effect_frame->slot.sprite, sprite_bank[1], 0, sprite_game[1]);
+
+        position->y = (position->x = 0);
+        count = effects->count;
+        if (count < 6)
+        {
+            FarmerStepSpriteSlot * slot = &effects->slots[count];
+            destination = slot;
+            copied_effect = destination;
+            if (copied_effect)
+            {
+                FarmerStepSprite * sprite;
+                destination->active = current_effect->active;
+                sprite = &destination->sprite;
+                CopyFarmerStepSprite(sprite, &effect.sprite);
+                sprite->vtable = vtable_unk_080E681C;
+                destination->animator = effect.animator;
+                destination->icon_state.enabled = effect.icon_state.enabled;
+                copied_effect->icon_state.reserved = effect.icon_state.reserved;
+                copied_effect->icon_state.frame_state = effect.icon_state.frame_state;
+                destination->icon_state.restart = effect.icon_state.restart;
+                destination->position = effect.position;
+            }
+            ++effects->count;
+        }
+        DestroyFarmerStepSprite(effect_sprite, 2);
+        ++effect_index;
+    } while (effect_index < 6);
+    graphics->next_step_effect = 0;
+    return graphics;
+}
 
 EC void SpawnFarmerStepEffect(FarmerEffectGraphics * graphics) ENTITY_CODE(0802B46C);
 EC void SpawnFarmerStepEffect(FarmerEffectGraphics * graphics)
@@ -1128,11 +1669,8 @@ union FarmerHeldItemKeyWord
     u8 bytes[4];
 };
 
-EC bool func_0800F388(HeldItem const *);
 EC void FarmerEntity_CycleHeldItem(FarmerEntity *, bool);
 EC void FarmerEntity_CycleHeldItemWithFeedback(FarmerEntity *, bool);
-
-EC void CopyHeldFood(Food *, HeldItem const *) asm("func_0800F20C");
 
 EC u32 HeldFoodIsDrink(Food const *) asm("IsDrink__C4Food");
 
@@ -1283,6 +1821,195 @@ no_use:
     return;
 cancel_cycle:
     farmer->state = cycling;
+}
+
+EC void HandleFarmerPetInteractionInput(FarmerEntity * farmer, FarmerInputState const * input) ENTITY_CODE(0802DBF0);
+EC void HandleFarmerPetInteractionInput(FarmerEntity * farmer, FarmerInputState const * input)
+{
+    enum { FARMER_STATE_PET_INTERACTION = 0x16 };
+    struct
+    {
+        u32 food_storage;
+        FarmerHeldItemKeyWord held;
+        FarmerHeldItemKeyWord pressed;
+    } locals;
+    register u32 clear asm("r2") = 0;
+    asm volatile("" : "+r"(clear));
+    locals.held.word = clear;
+    locals.pressed.word = clear;
+    if (input)
+    {
+        locals.held.word = input->held;
+        locals.pressed.word = input->pressed;
+    }
+    asm volatile("" : : "m"(locals.held), "m"(locals.pressed));
+    register void ** channel asm("r4");
+    register void ** end asm("r5");
+    register u32 hand_empty asm("r1");
+    void * player;
+    if (farmer->exhaustion_state)
+        goto reset;
+    {
+        register volatile u8 * held_bytes asm("r0") = locals.held.bytes;
+        register u32 held_high asm("r1") = held_bytes[1];
+        asm volatile("" : "+r"(held_high));
+        register u32 button_l asm("r5") = INPUT_L >> 8;
+        asm volatile("" : "+r"(button_l));
+        register u32 held_l asm("r0") = button_l & held_high;
+        if (!held_l)
+            goto interact_with_both_pets;
+
+        register u32 pressed asm("r2") = locals.pressed.word;
+        asm volatile("" : "+r"(pressed));
+        register u32 vertical asm("r1") = ((pressed << 25) >> 31) | ((pressed << 26) >> 31);
+        if (vertical)
+        {
+            {
+                register u32 empty_status asm("r0") = FarmerHeldItemIsEmptyRaw(&farmer->farmer->unk_54) << 24;
+                asm volatile("" : "+r"(empty_status));
+                hand_empty = empty_status >> 24;
+            }
+            if (!hand_empty)
+                goto holding_item;
+            farmer->state = FARMER_STATE_PET_INTERACTION;
+            farmer->pet_interaction_flags = 1;
+            GameObject * game = farmer->game_object;
+            EntitySoundGameVTable const * methods = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+            EntitySoundChannels const * channels = methods->get_channels(game);
+            channel = channels->begin;
+            end = channels->end;
+            for (; channel != end; ++channel)
+            {
+                if (!AudioPlayer_IsPlaying(*channel))
+                    goto play_available;
+            }
+            goto play_last;
+        }
+        register u32 down asm("r1") = (pressed << 24) >> 31;
+        register u32 right asm("r0") = (pressed << 27) >> 31;
+        register u32 horizontal asm("r1") = down | right;
+        if (horizontal)
+        {
+            {
+                register u32 empty_status asm("r0") = FarmerHeldItemIsEmptyRaw(&farmer->farmer->unk_54) << 24;
+                asm volatile("" : "+r"(empty_status));
+                hand_empty = empty_status >> 24;
+            }
+            if (!hand_empty)
+                goto holding_item;
+            farmer->state = FARMER_STATE_PET_INTERACTION;
+            farmer->pet_interaction_flags = button_l;
+            GameObject * game = farmer->game_object;
+            EntitySoundGameVTable const * methods = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+            EntitySoundChannels const * channels = methods->get_channels(game);
+            channel = channels->begin;
+            end = channels->end;
+            for (; channel != end; ++channel)
+            {
+                if (!AudioPlayer_IsPlaying(*channel))
+                    goto play_available;
+            }
+            goto play_last;
+        }
+        register volatile u8 * pressed_bytes asm("r3") = locals.pressed.bytes;
+        register u32 pressed_low asm("r1") = pressed_bytes[0];
+        asm volatile("" : "+r"(pressed_low));
+        register u32 button_a asm("r4") = INPUT_A;
+        asm volatile("" : "+r"(button_a));
+        register u32 pressed_a asm("r0") = button_a & pressed_low;
+        if (pressed_a)
+        {
+            if (func_0800F190(&farmer->farmer->unk_54))
+                FarmerEntity_CycleHeldItemWithFeedback(farmer, true);
+            else
+                FarmerEntity_CycleHeldItem(farmer, true);
+            return;
+        }
+        register u32 pressed_b asm("r0") = button_l & pressed_low;
+        asm volatile("" : "+r"(pressed_b));
+        register u32 pressed_b_shifted asm("r0") = pressed_b << 24;
+        asm volatile("" : : "r"(pressed_b_shifted));
+        clear = pressed_b_shifted >> 24;
+        if (!clear)
+            goto press_r;
+        if (func_0800F190(&farmer->farmer->unk_54))
+        {
+            FarmerEntity_CycleTool(farmer, false);
+            return;
+        }
+        if (!func_0800F388(&farmer->farmer->unk_54) && func_0800F204(&farmer->farmer->unk_54) == HeldItem::KIND_FOOD)
+        {
+            Food * food = reinterpret_cast<Food *>(&locals.food_storage);
+            CopyHeldFood(food, &farmer->farmer->unk_54);
+            FarmerActionVTable const * actions = reinterpret_cast<FarmerActionVTable const **>(farmer)[5];
+            i32 stamina = food->GetStaminaGain();
+            i32 fatigue = food->GetFatigueGain();
+            actions->change_stamina_and_fatigue(farmer, stamina, fatigue);
+            if (!HeldFoodIsDrink(food))
+            {
+                farmer->state = 0xF;
+                AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 0x65);
+            }
+            else
+            {
+                farmer->state = 0x10;
+                AudioPlayer_StartSong(FindEntitySoundChannel(farmer->game_object), 0x66);
+            }
+            CancelFarmerItemDisplay(farmer);
+            func_0800F390(&farmer->farmer->unk_54);
+            return;
+        }
+        farmer->state = 0;
+        return;
+press_r:
+        {
+            register u32 pressed_high asm("r1") = pressed_bytes[1];
+            asm volatile("" : "+r"(pressed_high));
+            register u32 pressed_r asm("r0") = button_a & pressed_high;
+            if (pressed_r)
+                goto reset;
+            return;
+        }
+    }
+reset:
+    farmer->state = clear;
+    return;
+play_available:
+    player = *channel;
+    goto play;
+interact_with_both_pets:
+    {
+        register u32 empty_status asm("r0") = FarmerHeldItemIsEmptyRaw(&farmer->farmer->unk_54) << 24;
+        asm volatile("" : "+r"(empty_status));
+        hand_empty = empty_status >> 24;
+    }
+    if (!hand_empty)
+        goto holding_item;
+    farmer->state = FARMER_STATE_PET_INTERACTION;
+    farmer->pet_interaction_flags = 3;
+    {
+        GameObject * game = farmer->game_object;
+        EntitySoundGameVTable const * methods = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+        EntitySoundChannels const * channels = methods->get_channels(game);
+        channel = channels->begin;
+        end = channels->end;
+        for (; channel != end; ++channel)
+        {
+            if (!AudioPlayer_IsPlaying(*channel))
+                goto play_available;
+        }
+    }
+play_last:
+    {
+        register void ** last_channel asm("r0") = end - 1;
+        player = *last_channel;
+    }
+    goto play;
+play:
+    AudioPlayer_StartSong(player, 0x67);
+    return;
+holding_item:
+    farmer->state = hand_empty;
 }
 
 EC void FarmerEntity_StoreHeldItem(FarmerEntity *);

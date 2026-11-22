@@ -16,12 +16,13 @@ struct DrawingPosition
     unsigned int y_and_unknown : 24;
 };
 
-// A slot stores its displayed value and two as-yet-unidentified asset words.
+// A slot stores its displayed value and the selected sprite frame's tile and
+// palette data addresses. Empty entries clear all three words.
 struct UiEntry
 {
     u32 value;
-    u32 unknown_04;
-    u32 unknown_08;
+    u32 tile_data;
+    u32 palette_data;
 };
 
 EC G5Position const gInventorySpecialSlotPosition; // 0x08117838
@@ -31,9 +32,9 @@ EC DrawingPosition const gInventorySlotCountPositions[]; // 0x08117860
 EC void InitializeUiEntry(UiEntry * entry); // 0x080CAC70
 EC void SetUiEntryValue(UiEntry * entry, u32 value); // 0x080CAD10
 EC u32 GetUiEntryValue(UiEntry * entry); // 0x080CAD14
-EC void SetUiEntry(UiEntry * entry, u32 unknown_04, u32 unknown_08, u32 value); // 0x080CADA0
+EC void SetUiEntry(UiEntry * entry, u32 tile_data, u32 palette_data, u32 value); // 0x080CADA0
 EC void ClearUiEntry(UiEntry * entry); // 0x080CADA8
-EC void InitializeUiEntryWithValue(UiEntry * entry, u32 unknown_04, u32 unknown_08, u32 value); // 0x080CAD08
+EC void InitializeUiEntryWithValue(UiEntry * entry, u32 tile_data, u32 palette_data, u32 value); // 0x080CAD08
 EC void InventoryMenu_ClearLeftSpecialSlotCount(u8 * panel); // 0x080CC0B4
 EC void InventoryMenu_ClearRightSpecialSlotCount(u8 * panel); // 0x080CD4D4
 EC void InventoryMenu_GetSpecialSlotCountPosition(DrawingPosition * position, void * panel); // 0x080CD994
