@@ -992,7 +992,7 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809E0AC);
         src/code_actor_0809BFE8.o(.text.0809E118);
         src/code_actor_0809BFE8.o(.text.0809E174);
-        asm/code_actor_0809BFE8.o(.text.0809E1B4);
+        src/code_actor_0809BFE8.o(.text.0809E1B4);
         src/npc.o(.text);
         src/bachelorette.o(.text);
         src/harvest_sprite.o(.text);
