@@ -65,6 +65,8 @@ SECTIONS
         asm/main.o(.text.after_08000240);
         src/sram_header.o(.text);
         asm/sram_proxy_1.o(.text);
+        src/sram_proxy.o(.text.SaveSlot_GetSramOffset);
+        asm/sram_proxy_1.o(.text.after_080003DC);
         src/sram_header.o(.text.flags);
         asm/sram_proxy_1.o(.text.tail);
         src/sram_selection.o(.text);
@@ -148,8 +150,12 @@ SECTIONS
         src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
         asm/hardware.o(.text.handle_alloc);
+        src/hardware.o(.text.ResourceHandle_Release);
+        asm/hardware.o(.text.after_080073E0);
         src/hardware.o(.text.handle_retain);
         asm/hardware.o(.text.handle_index);
+        src/hardware.o(.text.ResourceHandle_GetIndex);
+        asm/hardware.o(.text.after_080074C0);
         src/hardware.o(.text.handle_count);
         asm/hardware.o(.text);
         src/hardware.o(.text.ResourcePool_Initialize);
@@ -158,10 +164,14 @@ SECTIONS
         asm/hardware.o(.text.after_08007714);
         src/hardware.o(.text.ResourcePool_Acquire);
         asm/hardware.o(.text.after_08007770);
+        src/hardware.o(.text.AllocationBitset_AllocateBlock);
+        asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
+        src/hardware.o(.text.TileHandle_Release);
+        asm/hardware.o(.text.after_08007C28);
         src/hardware.o(.text.AllocationTree_MarkFull);
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
@@ -304,6 +314,8 @@ SECTIONS
         asm/hardware.o(.text.after_080094AC);
         src/hardware.o(.text.DisplayFadeTask_Destroy);
         asm/hardware.o(.text.after_080094B8);
+        src/hardware.o(.text.DisplayFadeTask_SetSpeed);
+        asm/hardware.o(.text.after_08009508);
         src/hardware.o(.text.IrqTaskList_Clear);
         asm/hardware.o(.text.after_0800956C);
         src/hardware.o(.text.IrqTaskList_Destroy);
@@ -408,6 +420,7 @@ SECTIONS
         asm/game_state.o(.text.game_state_08011650);
         src/game_state_part1.o(.text.game_state_08011CD8);
         asm/game_state.o(.text.game_state_08011DC4);
+        asm/game_state.o(.text.game_state_08011ED8);
         src/game_state_part1.o(.text.game_state_08011FE8);
         asm/game_state.o(.text.game_state_08012028);
         src/game_state_part1.o(.text.game_state_08012064);
@@ -442,7 +455,7 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_0801238C);
         asm/game_state.o(.text.game_state_080123A4);
         src/game_state_part1.o(.text.game_state_080123A4);
-        asm/game_state.o(.text.game_state_080123CC);
+        src/game_state_part1.o(.text.game_state_080123CC);
         src/game_state_part1.o(.text.game_state_08012454);
         asm/game_state.o(.text.game_state_08012464);
         src/game_state_part1.o(.text.game_state_08012464);
@@ -914,7 +927,7 @@ SECTIONS
         src/script_scene.o(.text.0803B718);
         src/code_0803A8A4.o(.text.0803B840);
         src/code_0803A8A4.o(.text.0803B8CC);
-        asm/code_0803A8A4.o(.text.0803BAAC);
+        src/code_0803A8A4.o(.text.0803BAAC);
         src/code_0803A8A4.o(.text.0803BCF8);
         src/code_0803A8A4.o(.text.0803BD60);
         src/code_0803A8A4.o(.text.0803BF14);
@@ -981,7 +994,8 @@ SECTIONS
         asm/code_actor_0809BFE8.o(.text.0809C6BC);
         src/code_actor_0809BFE8.o(.text.0809CD78);
         src/code_actor_0809BFE8.o(.text.0809CE8C);
-        asm/code_actor_0809BFE8.o(.text.0809CF34);
+        src/code_actor_0809BFE8.o(.text.0809CF34);
+        asm/code_actor_0809BFE8.o(.text.0809D168);
         src/code_actor_0809BFE8.o(.text.0809D418);
         asm/code_actor_0809BFE8.o(.text.0809D500);
         src/code_actor_0809BFE8.o(.text.0809D79C);
@@ -1614,6 +1628,10 @@ SECTIONS
         asm/code_linkonce.o(.text.code_080D7CFC);
         *(.gnu.linkonce.t.__lower_bound__H4ZPC12JumpTableEntZiZ28ScriptJumpTableSearchCompareZl_X01T0RCX11X21PX31_X01);
         asm/code_linkonce.o(.text.code_080E0EF0);
+        *(.text.medal_exchange.080E1844);
+        asm/code_linkonce.o(.text.code_080E18A4);
+        *(.text.childhood_memory.080E19A4);
+        asm/code_linkonce.o(.text.code_080E19F8);
 
         *(.gnu.linkonce.d.__vt_6AScene);
         *(.gnu.linkonce.d.__vt_13AUnk_0800080C);
@@ -1652,6 +1670,8 @@ SECTIONS
         *(.script_overflow);
         . = ALIGN(4);
         *(.vietnamese_font);
+        . = ALIGN(4);
+        *(.graphics_overflow);
         . = ALIGN(0x800000);
     } > ROM = 0xFF
 

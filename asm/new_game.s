@@ -758,7 +758,7 @@ func_08003F9C: @ 0x08003F9C
     adds r4, #0x90
     adds r0, r4, #0
     mov r1, r8
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     str r0, [sp, #4]
     movs r0, #3
     mov sb, r0
@@ -881,7 +881,7 @@ func_080040A0: @ 0x080040A0
     adds r4, #0x90
     adds r0, r4, #0
     mov r1, r8
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     mov sl, r0
     movs r0, #0
     str r0, [sp, #8]
@@ -903,7 +903,7 @@ func_080040A0: @ 0x080040A0
     adds r1, #0x90
     mov r2, sl
     mov r3, sb
-    bl func_08011650
+    bl SaveData_LoadFromStorage
     adds r1, r0, #0
     str r1, [sp, #4]
     ldr r0, [sp, #8]
@@ -1195,7 +1195,7 @@ func_080041DC: @ 0x080041DC
     ldr r3, [sp, #0x44]
     ldr r1, [r3, #4]
     adds r0, r3, #0
-    bl func_080074C0
+    bl ResourceHandle_GetIndex
     lsls r0, r0, #4
     ldr r1, [sp, #0x50]
     ldrb r2, [r1]
@@ -1228,7 +1228,7 @@ func_080041DC: @ 0x080041DC
     bge .L08004426
     mov r0, sb
     adds r1, r4, #0
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     mov r8, r0
     movs r0, #0
     str r0, [sp, #0x3c]
@@ -1262,7 +1262,7 @@ func_080041DC: @ 0x080041DC
     mov r1, sb
     mov r2, r8
     adds r3, r6, #0
-    bl func_08011650
+    bl SaveData_LoadFromStorage
     adds r2, r0, #0
     str r2, [sp, #0x34]
     ldr r0, [sp, #0x3c]
@@ -1542,7 +1542,7 @@ func_08004570: @ 0x08004570
     adds r0, r6, #0
     adds r0, #0x54
     ldr r1, [r0, #4]
-    bl func_080074C0
+    bl ResourceHandle_GetIndex
     adds r1, r0, #0
     lsls r1, r1, #5
     ldr r2, .L080046C4 @ =0x05000200
@@ -3756,7 +3756,7 @@ func_08005B68: @ 0x08005B68
     str r5, [sp, #4]
     mov r0, sp
     movs r1, #0
-    bl func_08007C28
+    bl TileHandle_Release
     mov r0, sp
     movs r1, #3
     bl func_08007B54
@@ -3889,7 +3889,7 @@ func_08005B68: @ 0x08005B68
     bl DisplayFadeTask_Destroy
     ldr r1, [sp, #4]
     mov r0, sp
-    bl func_08007C28
+    bl TileHandle_Release
     mov r0, sp
     movs r1, #2
     bl TileHeapOwner_Destroy
