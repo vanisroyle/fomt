@@ -31721,41 +31721,6 @@ LoadFestivalResultsGraphics: @ 0x080516F0
 .L08051D2C: .4byte 0x00000A74
 
 
-	.section .text.festival_results.08051D30
-	thumb_func_start DrawFestivalResultsDigit
-DrawFestivalResultsDigit: @ 0x08051D30
-	push {r4, r5, r6, r7, lr}
-	lsls r3, r3, #1
-	movs r4, #0x83
-	lsls r4, r4, #6
-	adds r6, r3, r4
-	movs r5, #0
-	lsls r4, r2, #6
-	ldr r7, .L08051D6C @ =0x000020C1
-	adds r3, r3, r7
-	lsls r1, r1, #1
-	adds r4, #0xf8
-	adds r4, r1, r4
-	adds r4, r4, r0
-	lsls r2, r2, #6
-	adds r2, #0xb8
-	adds r1, r1, r2
-	adds r1, r1, r0
-.L08051D52:
-	adds r0, r6, r5
-	strh r0, [r1]
-	strh r3, [r4]
-	adds r3, #1
-	adds r4, #2
-	adds r1, #2
-	adds r5, #1
-	cmp r5, #0
-	ble .L08051D52
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L08051D6C: .4byte 0x000020C1
 	.section .text.festival_results.08051D70
 
 	thumb_func_start DrawFestivalResultsFrame

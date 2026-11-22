@@ -199,6 +199,42 @@ EC SECTION(".text.horse_race.08057F64") void PrepareHorseRaceHeat(HorseRaceLineu
     }
 }
 
+struct FestivalResultsDigitSurface
+{
+    u8 padding00[0xb8];
+    u16 tilemap[32][32];
+};
+
+EC SECTION(".text.festival_results.08051D30") void DrawFestivalResultsDigit(FestivalResultsDigitSurface * screen, u32 column, u32 row, u32 digit)
+{
+    u32 topTile = digit * 2 + 0x20c0;
+    i32 index = 0;
+    register u32 rowOffset asm("r4") = row * 64;
+    asm ("" : "+r" (rowOffset));
+    u32 bottomTile = digit * 2 + 0x20c1;
+    u32 columnOffset = column * 2;
+    rowOffset += offsetof(FestivalResultsDigitSurface, tilemap) + 64;
+    rowOffset = columnOffset + rowOffset;
+    rowOffset += (u32) screen;
+    u16 * bottom = (u16 *) rowOffset;
+    asm ("" : "+r" (row));
+    register u32 topOffset asm("r2") = row * 64;
+    asm ("" : "+r" (topOffset));
+    topOffset += offsetof(FestivalResultsDigitSurface, tilemap);
+    register u32 topAddress asm("r1") = columnOffset + topOffset;
+    topAddress += (u32) screen;
+    u16 * top = (u16 *) topAddress;
+    do
+    {
+        *top = topTile + index;
+        *bottom = bottomTile;
+        ++bottomTile;
+        ++bottom;
+        ++top;
+        ++index;
+    } while (index <= 0);
+}
+
 EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(AnimalFestivalScoreTable * table, u32 affection)
 {
     u32 level = affection != 0 ? (affection - 1) / 25 : 0;
