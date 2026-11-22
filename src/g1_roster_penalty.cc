@@ -1,9 +1,10 @@
 #include "g1_roster.hh"
+#include "saved_script_events.hh"
 
 EC Npc const * GetRosterNpcByIdConst(G1NpcRoster const *, u32);
 EC Bachelorette const * GetRosterBacheloretteByIdConst(G1NpcRoster const *, u32);
 
-EC SECTION(".text.g1_080A1484") void ApplyRosterLitteringPenalty(G1NpcRoster * self, Location const * location, G1NpcPenaltyState const * state)
+EC SECTION(".text.g1_080A1484") void ApplyRosterLitteringPenalty(G1NpcRoster * self, Location const * location, SavedScriptEvents const * state)
 {
     switch (location->map)
     {
@@ -15,13 +16,13 @@ EC SECTION(".text.g1_080A1484") void ApplyRosterLitteringPenalty(G1NpcRoster * s
             {
             case 34:
             {
-                u32 stage = state->npc_34_stage;
+                u32 stage = state->packedProgress.npc34StoryStage;
                 if (stage != 2) available = 0;
                 break;
             }
             case 33:
             {
-                u32 stage = state->npc_33_stage;
+                u32 stage = state->packedProgress.npc33StoryStage;
                 if (stage != 2) available = 0;
                 break;
             }

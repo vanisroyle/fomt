@@ -144,7 +144,7 @@ func_08010358: @ 0x08010358
     bl func_0809EEE8
     ldr r1, .L08010618 @ =0x0000214C
     adds r0, r7, r1
-    bl func_0809C6BC
+    bl InitializeSavedScriptEvents
     bl Random_NonZero
     ldr r3, .L0801061C @ =0x000021CC
     adds r2, r7, r3
@@ -2047,7 +2047,7 @@ SaveData_LoadFromStorage: @ 0x08011650
     bl func_0809EEE8
     ldr r2, .L08011890 @ =0x0000214C
     adds r0, r7, r2
-    bl func_0809C6BC
+    bl InitializeSavedScriptEvents
     ldr r3, .L08011894 @ =0x000021CC
     adds r2, r7, r3
     movs r0, #1

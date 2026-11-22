@@ -855,7 +855,7 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.08037CF0);
         src/npc_side_batch6.o(.text.npc_extra.08037D08);
         src/npc_side_batch5.o(.text.npc_extra.08037D70);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037D74);
+        src/npc_side_batch12.o(.text.npc_extra.08037D74);
         src/npc_side_batch5.o(.text.npc_extra.08037E18);
         src/npc_side_batch6.o(.text.npc_extra.08037E48);
         src/npc_side_batch2.o(.text.npc_extra.08037E9C);
@@ -864,7 +864,7 @@ SECTIONS
         src/npc_side_batch6.o(.text.npc_extra.08037EF0);
         src/npc_side_batch2.o(.text.npc_extra.08037F60);
         src/npc_side_batch2.o(.text.npc_extra.08037F74);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037F7C);
+        src/npc_side_batch12.o(.text.npc_extra.08037F7C);
         src/npc_side_batch6.o(.text.npc_extra.08038028);
         src/npc_side_batch6.o(.text.npc_extra.08038098);
         src/npc_side_batch2.o(.text.npc_extra.080380EC);
@@ -890,7 +890,9 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.080387FC);
         asm/code_entities_08034CEC.o(.text.npc_extra.0803880C);
         src/npc_side_batch2.o(.text.npc_extra.0803880C);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08038820);
+        src/npc_side_batch12_effects.o(.text.npc_extra.08038820);
+        src/npc_side_batch12_effects.o(.text.npc_extra.08038928);
+        asm/code_entities_08034CEC.o(.text.npc_extra.08038A70);
         src/npc_side_batch6.o(.text.npc_extra.08038DF0);
         src/npc_side_batch2.o(.text.npc_extra.08038E90);
         src/npc_side_batch2.o(.text.npc_extra.08038EA0);
@@ -908,6 +910,7 @@ SECTIONS
         src/npc_side_batch11.o(.text.npc_extra.08039204);
         src/npc_side_batch4.o(.text.npc_extra.0803930C);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039310);
+        src/npc_side_batch12_states.o(.text.npc_extra.0803955C);
         src/npc_side_batch4.o(.text.npc_extra.080396F4);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039708);
         src/npc_side_batch5.o(.text.npc_extra.080398A0);
