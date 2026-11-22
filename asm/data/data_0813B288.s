@@ -103,7 +103,7 @@ gUnk_08667060:
 
 	.global gUnk_086678A0
 gUnk_086678A0:
-	.incbin "baserom.gba", 0x6678A0, 0x30080
+	.include "build/assets/graphics-more-6678A0.s"
 
 	.global gUnk_08697920
 gUnk_08697920:
@@ -127,7 +127,7 @@ gUnk_0869A0A4:
 
 	.global gUnk_0869B284
 gUnk_0869B284:
-	.incbin "baserom.gba", 0x69B284, 0x3A284
+	.include "build/assets/graphics-more-69B284.s"
 
 	.global gUnk_086D5508
 gUnk_086D5508:
@@ -167,7 +167,7 @@ gUnk_086D6698:
 
 	.global gUnk_086D74F8
 gUnk_086D74F8:
-	.incbin "baserom.gba", 0x6D74F8, 0x4ECC
+	.include "build/assets/graphics-more-6D74F8.s"
 
 	.global gMineSoilTiles
 gMineSoilTiles:
@@ -187,7 +187,7 @@ gMineUpStairsTiles:
 
 	.global gMineRockTiles
 gMineRockTiles:
-	.incbin "baserom.gba", 0x6DC3F4, 0x158
+	.include "build/assets/graphics-more-6DC3F4.s"
 
 	.global gUnk_086DC54C
 gUnk_086DC54C:
@@ -262,20 +262,20 @@ gUnk_086FAA80:
 	.incbin "baserom.gba", 0x6FAA80, 0x584
 
 	.global gUnk_086FB004
-gUnk_086FB004:
-	.incbin "baserom.gba", 0x6FB004, 0x2198
+.set gUnk_086FB004, gMoreGraphics_6FB004
+	.include "build/assets/graphics-more-6FB004.s"
 
 	.global gUnk_086FD19C
-gUnk_086FD19C:
-	.incbin "baserom.gba", 0x6FD19C, 0xA4
+.set gUnk_086FD19C, gMoreGraphics_6FD19C
+	.include "build/assets/graphics-more-6FD19C.s"
 
 	.global gUnk_086FD240
-gUnk_086FD240:
-	.incbin "baserom.gba", 0x6FD240, 0x177F0
+.set gUnk_086FD240, gMoreGraphics_6FD240
+	.include "build/assets/graphics-more-6FD240.s"
 
 	.global gUnk_08714A30
 gUnk_08714A30:
-	.incbin "baserom.gba", 0x714A30, 0x130
+	.include "build/assets/graphics-more-714A30.s"
 
 	.global gUnk_08714B60
 gUnk_08714B60:
@@ -283,15 +283,15 @@ gUnk_08714B60:
 
 	.global gUnk_08714BEC
 gUnk_08714BEC:
-	.incbin "baserom.gba", 0x714BEC, 0x2398
+	.include "build/assets/graphics-more-714BEC.s"
 
 	.global gUnk_08716F84
 gUnk_08716F84:
-	.incbin "baserom.gba", 0x716F84, 0x134
+	.include "build/assets/graphics-more-716F84.s"
 
 	.global gUnk_087170B8
 gUnk_087170B8:
-	.incbin "baserom.gba", 0x7170B8, 0x6464
+	.include "build/assets/graphics-more-7170B8.s"
 
 	.global gUnk_0871D51C
 gUnk_0871D51C:
@@ -414,20 +414,20 @@ gUnk_0872FBFC:
 	.incbin "baserom.gba", 0x72FBFC, 0x38
 
 	.global gUnk_0872FC34
-gUnk_0872FC34:
-	.incbin "baserom.gba", 0x72FC34, 0x238
+.set gUnk_0872FC34, gMoreGraphics_72FC34
+	.include "build/assets/graphics-more-72FC34.s"
 
 	.global gUnk_0872FE6C
-gUnk_0872FE6C:
-	.incbin "baserom.gba", 0x72FE6C, 0x8C
+.set gUnk_0872FE6C, gMoreGraphics_72FE6C
+	.include "build/assets/graphics-more-72FE6C.s"
 
 	.global gUnk_0872FEF8
-gUnk_0872FEF8:
-	.incbin "baserom.gba", 0x72FEF8, 0x1A48
+.set gUnk_0872FEF8, gMoreGraphics_72FEF8
+	.include "build/assets/graphics-more-72FEF8.s"
 
 	.global gUnk_08731940
-gUnk_08731940:
-	.incbin "baserom.gba", 0x731940, 0x200
+.set gUnk_08731940, gMoreGraphics_731940
+	.include "build/assets/graphics-more-731940.s"
 
 	.global gUnk_08731B40 @ChickenPortraits
 gUnk_08731B40:

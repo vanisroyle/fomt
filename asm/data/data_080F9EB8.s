@@ -2465,7 +2465,7 @@ gUnk_08105708:
 
 	.global gMapDefinitions
 gMapDefinitions: @ map data?
-	.incbin "baserom.gba", 0x105EDC, 0xA50
+	.include "build/assets/graphics-more-table.s"
 
 	.global gUnk_0810692C
 gUnk_0810692C:
