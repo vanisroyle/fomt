@@ -542,6 +542,8 @@ SECTIONS
         asm/game_state.o(.text.game_state_08014318);
         src/game_state_part1.o(.text.game_state_0801437C);
         asm/game_state.o(.text.game_state_08014410);
+        src/game_state_part1.o(.text.game_state_080144BC);
+        asm/game_state.o(.text.game_state_08014550);
         src/game_state_part1.o(.text.game_state_0801468C);
         asm/game_state.o(.text.game_state_08014694);
         src/game_state_part1.o(.text.game_state_08014694);
