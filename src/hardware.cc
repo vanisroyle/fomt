@@ -1,5 +1,6 @@
 #include "prelude.h"
 #include "dma_queue.hh"
+#include "key_repeat.hh"
 #include "m4a.h"
 #include "gbasvc.h"
 #include "unknown_inlines.hh"
@@ -394,7 +395,71 @@ EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(Alloc
     self->empty = 1;
 }
 
+EC u32 func_080D7568(AllocationTreeBranch *, u32);
+
+inline bool AllocationTreeBranchIndex_IsValid(u32 index) { return index <= 511; }
+
+// 0x08008020
+EC u32 SECTION(".text.AllocationTree_AllocateBlock") AllocationTree_AllocateBlock(AllocationTree * self, u32 order)
+{
+    i32 full;
+    do
+    {
+        if (order <= 9)
+        {
+            i32 child_index = 0;
+            AllocationTreeBranch * child = &self->children[0];
+            do
+            {
+                full = child->full;
+                if (full == 0)
+                {
+                    u32 tile_index = func_080D7568(child, order);
+                    if (AllocationTreeBranchIndex_IsValid(tile_index))
+                    {
+                        self->empty = full;
+                        self->full = self->children[0].full && self->children[1].full;
+                        return (child_index << 9) | tile_index;
+                    }
+                }
+                ++child;
+                ++child_index;
+            }
+            while (child_index <= 1);
+        }
+        else if (order == 10 && self->empty != 0)
+        {
+            AllocationTree_MarkFull(self);
+            return 0;
+        }
+    }
+    while (0);
+    return 1024;
+}
+
 struct TileHeapOwner {};
+
+EC void func_080D76C0(AllocationTreeBranch *, u32, u32);
+
+inline u8 AllocationTreeBranch_GetEmptyFlag(AllocationTreeBranch const * child) { return child->empty; }
+
+// 0x080080A0
+EC void SECTION(".text.AllocationTree_FreeBlock") AllocationTree_FreeBlock(AllocationTree * self, u32 tile_index, u32 order)
+{
+    if (order <= 9)
+    {
+        u32 child_selector = tile_index & 512;
+        AllocationTreeBranch * first_child = &self->children[0];
+        AllocationTreeBranch * child = first_child;
+        if (child_selector)
+            child = &self->children[1];
+        func_080D76C0(child, tile_index, order);
+        self->full = 0;
+        self->empty = first_child->empty && AllocationTreeBranch_GetEmptyFlag(&self->children[1]);
+    }
+    else if (order == 10)
+        AllocationTree_MarkEmpty(self);
+}
 
 union TileHeapEntry
 {
@@ -459,7 +524,6 @@ inline bool TileHeapEntry_Matches(TileHeapEntry const & entry, u32 handle)
     return u16(handle >> 8) == entry.params.generation;
 }
 
-EC void func_080080A0(AllocationTree *, u32, u32);
 
 // 0x08007C28
 EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * self, u32 handle)
@@ -484,7 +548,7 @@ EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * s
                 u16 ref_count = --entry->params.ref_count;
                 if (ref_count == no_references)
                 {
-                    func_080080A0(&heap->tree, entry->params.tile_index, entry->params.order);
+                    AllocationTree_FreeBlock(&heap->tree, entry->params.tile_index, entry->params.order);
                     entry->params.generation = ref_count;
                     heap->entry_pool.FreeEntry(entry);
                     heap->ClearAllocated(entry_index);
@@ -493,6 +557,100 @@ EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * s
             }
         }
     }
+}
+
+// 0x08007CD8
+EC u32 SECTION(".text.TileHandle_Retain") TileHandle_Retain(TileHeapOwner * self, u32 handle)
+{
+    u16 retained_ref_count;
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    int generation_status;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_status = TileHeapEntry_Matches(*entry, handle);
+            generation_matches = generation_status;
+            if (generation_matches)
+            {
+                u16 previous_ref_count = entry->params.ref_count;
+                int ref_count = previous_ref_count + 1;
+                entry->params.ref_count = ref_count;
+                if ((retained_ref_count = ref_count) != 0)
+                    return handle;
+                entry->params.ref_count = previous_ref_count;
+            }
+        }
+    }
+    return 0;
+}
+
+// 0x08007D4C
+EC u32 SECTION(".text.TileHandle_GetTileIndex") TileHandle_GetTileIndex(TileHeapOwner * self, u32 handle)
+{
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            if (generation_matches)
+                return entry->params.tile_index;
+        }
+    }
+    return ~0u;
+}
+
+// 0x08007DB8
+EC u32 SECTION(".text.TileHandle_GetOrder") TileHandle_GetOrder(TileHeapOwner * self, u32 handle)
+{
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            if (generation_matches)
+                return entry->params.order;
+        }
+    }
+    return 11;
+}
+
+// 0x08007E24
+EC u32 SECTION(".text.TileHandle_GetRefCount") TileHandle_GetRefCount(TileHeapOwner * self, u32 handle)
+{
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            if (generation_matches)
+                return entry->params.ref_count;
+        }
+    }
+    return 0;
 }
 
 // 0x080079E8
@@ -542,8 +700,8 @@ EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self
 
 EC TileHeapOwner * func_08007874(TileHeapOwner *);
 EC void TileHandle_Release(TileHeapOwner *, u32);
-EC u32 func_08007E24(TileHeapOwner *, u32);
-EC u32 func_08007CD8(TileHeapOwner *, u32);
+EC u32 TileHandle_GetRefCount(TileHeapOwner *, u32);
+EC u32 TileHandle_Retain(TileHeapOwner *, u32);
 EC u32 func_08007B54(TileHeapOwner *, u32);
 
 // 0x08008364
@@ -588,7 +746,7 @@ EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHand
                 TileHandleValue * candidate = next;
                 if (++next == end)
                     next = bucket->begin;
-                if (func_08007E24(&candidate->owner, candidate->handle) == 1)
+                if (TileHandle_GetRefCount(&candidate->owner, candidate->handle) == 1)
                 {
                     bucket->cursor = next;
                     next = candidate;
@@ -598,7 +756,7 @@ EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHand
             while (next != start);
         }
         func_08007874(&self->owner);
-        self->handle = func_08007CD8(&self->owner, next->handle);
+        self->handle = TileHandle_Retain(&self->owner, next->handle);
     }
     else
     {
@@ -959,18 +1117,6 @@ EC SECTION(".text.DmaCommand_InitializeFill") DmaCommand * DmaCommand_Initialize
     self->control_flags = control_flags;
     return self;
 }
-
-struct KeyRepeatState
-{
-    u16 held_keys;
-    u16 alignment_padding;
-    u16 pressed_keys;
-    u16 edge_padding;
-    u16 repeated_keys;
-    u16 repeat_delay;
-    u16 repeat_period;
-    i16 repeat_counters[10];
-};
 
 // 0x0800912C
 EC u32 SECTION(".text.Keys_ReadHardware") Keys_ReadHardware()
