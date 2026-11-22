@@ -1029,6 +1029,61 @@ EC SECTION(".text.message_rendering.0804EA80") void DestroyMessageTilemapRectCom
     TaskNode_Destroy(command, flags);
 }
 
+union MessageSpriteTemplate
+{
+    u64 value;
+    u32 words[2];
+};
+
+EC SECTION(".text.message_rendering.0804EA94") MessageSpriteTemplate InitializeMessageSpriteAttributes(u32 x, u32 y, u32 tile, u32 palette, u32 priority, u32 size, u32 shape)
+{
+    MessageSpriteTemplate attributes;
+    attributes.value = 0;
+    asm ("" : "+m" (attributes));
+    register u32 mosaic asm("r4") = 0x1000;
+    asm ("" : "+r" (mosaic));
+    u32 firstWord = attributes.words[0] | mosaic;
+    attributes.words[0] = firstWord;
+    u32 wrappedY = (u8) (*(u8 *) &attributes + y);
+    u32 positionedY = (firstWord & 0xffffff00) | wrappedY;
+    u32 positionXBits = ((positionedY << 7) >> 23) + x;
+    positionXBits &= 0x1ff;
+    positionXBits <<= 16;
+    asm ("" : "+r" (positionXBits));
+    u32 positionedX = (positionedY & 0xfe00ffff) | positionXBits;
+    u32 secondWord = attributes.words[1];
+    u32 tileIndex = ((((secondWord << 22) >> 22) + tile) << 22) >> 22;
+    register u32 tileAttributes asm("r3") = 0xfffffc00;
+    asm ("" : "+r" (tileAttributes));
+    tileAttributes &= secondWord;
+    tileAttributes |= tileIndex;
+    asm ("" : : "r" (tileAttributes));
+    u16 paletteIndex = ((tileAttributes << 16) >> 28) + palette;
+    asm ("" : "+r" (paletteIndex));
+    u32 paletteBits = (paletteIndex & 15) << 12;
+    asm ("" : "+r" (paletteBits));
+    register u32 paletteAttributes asm("r4") = (tileAttributes & 0xffff0fff) | paletteBits;
+    asm ("" : : "r" (paletteAttributes));
+    u16 priorityIndex = ((paletteAttributes << 20) >> 30) + priority;
+    asm ("" : "+r" (priorityIndex));
+    u32 priorityBits = (priorityIndex & 3) << 10;
+    asm ("" : "+r" (priorityBits));
+    attributes.words[1] = (paletteAttributes & 0xfffff3ff) | priorityBits;
+    u32 shapeIndex = ((positionedX << 16) >> 30) + shape;
+    u32 shapeBits = (shapeIndex & 3) << 14;
+    asm ("" : "+r" (shapeBits));
+    register u32 shapeAttributes asm("r3") = 0xffff3fff;
+    asm ("" : "+r" (shapeAttributes));
+    shapeAttributes &= positionedX;
+    shapeAttributes |= shapeBits;
+    asm ("" : : "r" (shapeAttributes));
+    register u32 sizeIndex asm("r2") = (shapeAttributes >> 30) + size;
+    sizeIndex <<= 30;
+    asm ("" : "+r" (sizeIndex));
+    attributes.words[0] = (shapeAttributes & 0x3fffffff) | sizeIndex;
+    return attributes;
+}
+
 EC SECTION(".text.message_rendering.0804EDA0") void DestroyLargeMessageNumberCommand(MessageNumberCommand * command, u32 flags) // 0x0804EDA0
 {
     command->vtable = vtable_unk_080E7858;
