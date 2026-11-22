@@ -3579,6 +3579,7 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
     register ItemDisplayGraphics * self asm("r6") = graphics;
     register ItemDisplayRenderContext const * context asm("r8") = render;
     ItemDisplayFrameData local;
+    register ItemDisplayFrameData * stack asm("sp");
     register ItemDisplayEntity * display asm("r4") = *reinterpret_cast<ItemDisplayEntity **>(self);
     local.map = display->location_map;
     asm volatile("" : "+m"(local.map));
@@ -3601,10 +3602,16 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
     resources->sprite_queue = sprite_queue;
     local.region = ClassifySideEntityFarmRegion(local.map, x, y);
     register u8 * region_dest asm("r0") = reinterpret_cast<u8 *>(self) + 0x8B;
-    register u8 * region_address asm("r7") = reinterpret_cast<u8 *>(&local.region);
-    asm volatile("ldrb %0, [%0]" : "+l"(region_address));
-    register u32 farm_region asm("r7") = reinterpret_cast<u32>(region_address);
-    *region_dest = farm_region;
+    register u32 keep_byte_r1 asm("r1");
+    register u32 keep_byte_r2 asm("r2");
+    register u32 keep_byte_r3 asm("r3");
+    register u32 keep_byte_r5 asm("r5");
+    asm volatile("" : "=l"(keep_byte_r1), "=l"(keep_byte_r2), "=l"(keep_byte_r3), "=l"(keep_byte_r5));
+    register u8 const * region_slot = reinterpret_cast<u8 const *>(&local.region);
+    asm volatile("" : "+l"(region_slot));
+    u32 region_byte = *region_slot;
+    asm volatile("" : "+l"(region_byte) : "l"(keep_byte_r1), "l"(keep_byte_r2), "l"(keep_byte_r3), "l"(keep_byte_r5) : "memory");
+    *region_dest = region_byte;
     register ThrownItemMotion * display_motion asm("r4") = &display->thrown_item;
     register ThrownItemMotion * motion asm("sl") = display_motion;
     register u32 displaying_throw asm("r1") = 0;
@@ -3618,18 +3625,27 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
         item_x_q16 = world_x + item_x_q16;
         item_x_q16 >>= 16;
         register ItemDisplayRenderContext const * scroll asm("r3") = context;
-        register u32 x_field asm("r7") = 0xC;
-        register i32 camera_x asm("r1");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_x) : "l"(scroll), "l"(x_field) : "memory");
+        register u32 keep_camera_x_r2 asm("r2");
+        register u32 keep_camera_x_r4 asm("r4");
+        register u32 keep_camera_x_r5 asm("r5");
+        asm volatile("" : "=l"(keep_camera_x_r2), "=l"(keep_camera_x_r4), "=l"(keep_camera_x_r5));
+        register i32 camera_x asm("r1") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(scroll) + 0xC);
+        asm volatile("" : "+l"(camera_x) : "l"(keep_camera_x_r2), "l"(keep_camera_x_r4), "l"(keep_camera_x_r5) : "memory");
         local.screen_x = item_x_q16 - camera_x;
         motion_position = motion;
         register i32 y_offset_q16 asm("r0") = motion_position->y_speed;
         register i32 entity_y_q16 asm("r2") = local.y_q16;
         register i32 world_y asm("r4") = entity_y_q16 + y_offset_q16;
         register i32 ground_y asm("r1") = world_y >> 16;
-        register u32 y_field asm("r7") = 0xE;
-        register i32 camera_y asm("r0");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_y) : "l"(scroll), "l"(y_field) : "memory");
+        register ItemDisplayRenderContext const * camera_base = scroll;
+        asm volatile("" : "+l"(camera_base));
+        register u32 keep_camera_y_r2 asm("r2");
+        register u32 keep_camera_y_r4 asm("r4");
+        register u32 keep_camera_y_r5 asm("r5");
+        asm volatile("" : "=l"(keep_camera_y_r2), "=l"(keep_camera_y_r4), "=l"(keep_camera_y_r5));
+        register i32 camera_y asm("r0") = camera_base->scroll_y;
+        asm volatile("" : "+l"(camera_y) : "l"(keep_camera_y_r2), "l"(keep_camera_y_r4), "l"(keep_camera_y_r5) : "memory");
+
         register i32 shadow_y asm("r7") = ground_y - camera_y;
         local.sort_y = 0x8000 - ground_y;
         register u32 show_shadow asm("r1") = 0;
@@ -3644,7 +3660,8 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
             register ItemDisplayRenderContext const * queue_context asm("r2") = context;
             register OamBuffer * sprite_queue asm("r1") = queue_context->sprite_queue;
             register u32 shadow_frame asm("r2") = 0;
-            asm volatile("str %0, [sp]" : : "l"(shadow_frame), "m"(local.stack_arguments[0]) : "memory");
+            stack->stack_arguments[0] = shadow_frame;
+            asm volatile("" : : "m"(stack->stack_arguments[0]) : "memory");
             register i32 shadow_x asm("r2") = local.screen_x;
             DrawItemDisplayShadow(geometry, sprite_queue, shadow_x, shadow_y);
         }
@@ -3652,10 +3669,10 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
         register i32 elevation asm("r0") = motion_for_height->z_speed;
         elevation = world_y - elevation;
         elevation >>= 16;
-        register ItemDisplayRenderContext const * scroll_again asm("r7") = context;
-        register u32 scroll_y_field asm("r2") = 0xE;
-        register i32 camera_y_again asm("r1");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_y_again) : "l"(scroll_again), "l"(scroll_y_field) : "memory");
+        register ItemDisplayRenderContext const * camera = context;
+        asm volatile("" : "+r"(camera) : : "r1", "r2", "r3", "r4", "r5");
+        register i32 camera_y_again asm("r1") = camera->scroll_y;
+        asm volatile("" : "+l"(camera_y_again) : "l"(camera), "l"(elevation) : "memory");
         local.screen_y = elevation - camera_y_again;
         register u32 priority asm("r0");
         register i32 map asm("r3") = local.map;
@@ -3669,10 +3686,12 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
         else
             priority = 1;
         register ItemDisplaySprite * sprite asm("r5") = reinterpret_cast<ItemDisplaySprite *>(reinterpret_cast<u8 *>(self) + 0x8C);
-        register u8 * stack_base asm("r1");
-        asm volatile("mov %0, sp" : "=l"(stack_base));
-        stack_base += 0x34;
-        local.saved_resources = reinterpret_cast<ItemDisplayResources const *>(stack_base);
+        register ItemDisplayFrameData * call_frame asm("sp");
+        register u8 * resources_address asm("r1") = reinterpret_cast<u8 *>(call_frame);
+        asm volatile("" : "+l"(resources_address));
+        resources_address += sizeof(ItemDisplayFrame) + sizeof(local.stack_arguments);
+        asm volatile("" : "+l"(resources_address));
+        local.saved_resources = reinterpret_cast<ItemDisplayResources const *>(resources_address);
         register u32 priorities asm("r4") = (priority << 2) | priority;
         priorities |= priority << 4;
         priorities |= priority << 6;
@@ -3689,12 +3708,13 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
         register ItemDisplayFrame * frame_dest asm("r0") = &local.frame;
         register void (*get_frame)(ItemDisplayFrame *, ItemDisplaySpriteSource const *, u32) asm("r3") = table->get_frame;
         get_frame(frame_dest, source, frame_id);
-        ItemDisplayFrame * frame;
-        asm volatile("add %0, sp, #20" : "=l"(frame));
+        register ItemDisplayFrameData * current_frame asm("sp");
+        ItemDisplayFrame * frame = &current_frame->frame;
         register ItemDisplayResources const * saved_resources asm("r2") = local.saved_resources;
         register OamBuffer * queue_arg asm("r2") = saved_resources->sprite_queue;
         register OamBuffer * queue asm("ip") = queue_arg;
         register void * sprite_resources asm("r2") = sprite->sprite_resources;
+        asm volatile("" : "+l"(sprite_resources));
         register G1MapTileOwner const * tiles asm("r0") = &reinterpret_cast<G1MapSpriteResource *>(reinterpret_cast<u8 *>(self) + 0x8C)->tiles;
         register i32 handle asm("r1") = tiles->handle;
         register i32 handle_check asm("r0") = -handle | handle;
@@ -3705,15 +3725,18 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
             register u32 tile asm("r0") = sprite->base_tile;
             register OverlayPaletteTable const * palettes asm("r1") = reinterpret_cast<OverlayPaletteTable *>(reinterpret_cast<u8 *>(self) + 0x9C);
             register u32 sort_y asm("r3") = local.sort_y;
-            asm volatile("str %0, [sp]" : : "l"(sort_y), "m"(local.stack_arguments[0]) : "memory");
-            register ItemDisplayFrame const * frame_arg asm("r3");
-            asm volatile("add %0, %1, #0" : "=l"(frame_arg) : "l"(frame));
-            asm volatile(
-                "str %0, [sp, #4]\n\t"
-                "str %1, [sp, #8]\n\t"
-                "str %2, [sp, #12]\n\t"
-                "str %3, [sp, #16]"
-                : : "l"(frame_arg), "l"(sprite_resources), "l"(tile), "l"(palettes) : "memory");
+            stack->stack_arguments[0] = sort_y;
+            asm volatile("" : : "m"(stack->stack_arguments[0]) : "memory");
+            register ItemDisplayFrame const * frame_arg asm("r3") = frame;
+            asm volatile("" : "+l"(frame_arg));
+            stack->stack_arguments[1] = reinterpret_cast<u32>(frame_arg);
+            asm volatile("" : : "m"(stack->stack_arguments[1]) : "memory");
+            stack->stack_arguments[2] = reinterpret_cast<u32>(sprite_resources);
+            asm volatile("" : : "m"(stack->stack_arguments[2]) : "memory");
+            stack->stack_arguments[3] = tile;
+            asm volatile("" : : "m"(stack->stack_arguments[3]) : "memory");
+            stack->stack_arguments[4] = reinterpret_cast<u32>(palettes);
+            asm volatile("" : : "m"(stack->stack_arguments[4]) : "memory");
             register OamBuffer * queue_arg asm("r0") = queue;
             register i32 screen_x asm("r1") = local.screen_x;
             register i32 screen_y asm("r2") = local.screen_y;
