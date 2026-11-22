@@ -622,6 +622,93 @@ EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(Messa
     if (flags & 1) operator delete(window);
 }
 
+inline bool IsMessageGlyphPixelAligned(u32 position) { return (position & 7) == 0; }
+inline u8 * GetMessageGlyphTilePixels(void * pixels, u32 columns, u32 column, u32 row)
+{
+    return (u8 *) ((columns * row + column) * 32 + (u32) pixels);
+}
+EC u32 func_080D0D28(void *, u32);
+EC u32 DrawUnalignedMessageGlyph(MessageTileSize, void *, u32, u32, const void *);
+
+EC SECTION(".text.message_rendering.0804E4AC") u32 DrawMessageGlyph(MessageTileSize size, void * pixels, u32 x, u32 y, u32 glyph)
+{
+    i32 cachedColumn;
+    u32 tiles[4][8];
+    u32 rowStep;
+    u32 * columnAddress;
+    u8 * rightPixels;
+    u8 * bottomPixels;
+    u32 boundsRows;
+    u32 width = func_080D0D28(tiles, glyph);
+    i32 bottomRightTile;
+    if (width - 1 <= 1)
+    {
+        u32 column = x >> 3;
+        u32 row = y >> 3;
+        register u32 columns = size.width;
+        u16 rows = size.height;
+        bottomRightTile = 3;
+        rowStep = 1;
+        boundsRows = rows;
+        columnAddress = &column;
+        cachedColumn = *columnAddress;
+        if (*columnAddress < columns && row < boundsRows)
+        {
+            if (IsMessageGlyphPixelAligned(x) && IsMessageGlyphPixelAligned(y))
+            {
+                i32 right = 0;
+                if (*columnAddress + 1 < columns)
+                {
+                    register u32 rightValue asm("r1") = 1;
+                    asm ("" : "+r" (rightValue));
+                    right = rightValue;
+                }
+                bool bottom = row + rowStep < rows;
+                register u32 firstOffset asm("r0") = (columns * row + *columnAddress) * 32;
+                register u32 firstBase asm("r2") = (u32) pixels;
+                asm ("" : "+r" (firstOffset), "+r" (firstBase));
+                u8 * destination = (u8 *) (firstOffset + firstBase);
+                CpuFastSet(tiles[0], destination, 8);
+                if (bottom)
+                {
+                    bottomPixels = GetMessageGlyphTilePixels(pixels, size.width, *columnAddress, row + rowStep);
+                    CpuFastSet(tiles[2], bottomPixels, 8);
+                }
+                if (right)
+                {
+                    register u32 glyphWidth asm("r1") = width;
+                    asm ("" : "+r" (glyphWidth));
+                    if (glyphWidth > 1)
+                    {
+                        rightPixels = destination + 32;
+                        CpuFastSet(tiles[1], rightPixels, 8);
+                        if (bottom)
+                        {
+                            register u32 product asm("r0") = columns * (row + rowStep);
+                            register u32 copyColumn asm("r2") = cachedColumn;
+                            asm ("" : "+r" (product), "+r" (copyColumn));
+                            register u32 tileIndex asm("r1") = copyColumn + product;
+                            asm ("" : "+r" (tileIndex));
+                            register u32 byteOffset asm("r0") = tileIndex * 32;
+                            register u32 pixelBase asm("r2") = (u32) pixels;
+                            asm ("" : "+r" (byteOffset), "+r" (pixelBase));
+                            u8 * copyDestination = (u8 *) (byteOffset + pixelBase + 32);
+                            column = 8;
+                            CpuFastSet(tiles[bottomRightTile], copyDestination, column);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                DrawUnalignedMessageGlyph(size, pixels, x, y, tiles);
+            }
+        }
+        return width;
+    }
+    return 0;
+}
+
 EC SECTION(".text.message_rendering.0804E7A0") void FillMessageTiles(MessageTileSize size, void * pixels, u32 color) // 0x0804E7A0
 {
     color &= 15;
