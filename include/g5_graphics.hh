@@ -3,6 +3,9 @@
 
 #include "prelude.h"
 
+struct FieldPlot;
+struct Unk_Something;
+
 // Panels retain draw commands in a circular, sentinel-based doubly linked
 // list. Inactive commands are destroyed and unlinked by the panel update.
 // The renderer itself and the tile/number command constructors are outside G5.
@@ -53,9 +56,11 @@ EC void DestroyPanelDrawCommands(u8 * panel, u32 flags); // 0x080CADF0
 EC void PruneInactivePanelDrawCommands(u8 * panel); // 0x080CAF6C
 EC void QueuePanelTileDraw(u8 * panel, void * destination, u16 tile, u32 width, u32 height, u16 palette, u32 stride); // 0x080CAE60
 EC void QueuePanelNumberDraw(u8 * panel, u32 value, void * destination, u16 style, u16 palette, u32 stride); // 0x080CAEEC
+EC u8 * InventoryMenu_InitializePagedDrawPanel(u8 * panel, void * owner); // 0x080CE2FC
 EC void DestroyPagedPanelDrawCommands(u8 * panel, u32 flags); // 0x080CE3DC
 EC void QueuePagedPanelTileDraw(u8 * panel, void * destination, u16 tile, u32 width, u32 height, u16 palette, u32 stride); // 0x080CE480
 EC void QueuePagedPanelNumberDraw(u8 * panel, u32 value, void * destination, u16 style, u16 palette, u32 stride); // 0x080CE510
 EC void MapGraphics_LoadPaletteBuffer(u8 * renderer, u32 unused, u32 buffer_index); // 0x080CFB5C
+EC void MapGraphics_DrawFieldPlot(u8 * renderer, int x, int y, FieldPlot * plot, Unk_Something const * variant); // 0x080CFEA8
 
 #endif
