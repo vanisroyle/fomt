@@ -4022,7 +4022,7 @@ func_080A25B0: @ 0x080A25B0
 	str r3, [sp, #0x14]
 .L080A2640:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	movs r6, #0x85

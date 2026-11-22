@@ -588,7 +588,7 @@ func_08000E1C: @ 0x08000E1C
     adds r5, r7, r0
 .L08000E92:
     adds r0, r7, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
     adds r0, r7, #0
     bl HardwareContext_UpdateKeys
     movs r1, #0
@@ -847,7 +847,7 @@ func_08000FF8: @ 0x08000FF8
 sub_080010BE: @ 0x080010BE
     bl rand
     adds r0, r7, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
     adds r0, r7, #0
     bl HardwareContext_UpdateKeys
     ldr r4, [sp, #0x10]

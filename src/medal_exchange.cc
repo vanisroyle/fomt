@@ -1175,7 +1175,7 @@ EC MedalRunFade * DisplayFade_Initialize(MedalRunFade *, MedalExchangeDisplayReg
 EC void StartMedalFadeIn(MedalRunFade *, i32, u32, u32) asm("DisplayFade_StartIn");
 EC void StartMedalFadeOut(MedalRunFade *, i32, u32, u32) asm("DisplayFade_StartOut");
 EC void BlankMedalExchangeDisplay(MedalExchange *) asm("HardwareContext_ForceBlank");
-EC void RenderMedalExchangeFrame(MedalExchange *) asm("func_080087C8");
+EC void RenderMedalExchangeFrame(MedalExchange *) asm("HardwareContext_CommitFrame");
 EC void SetMessageWindowPortrait(MessageWindow *, u32);
 EC void HardwareContext_UpdateKeys(MedalExchange *);
 EC u32 HardwareContext_GetRepeatedKeys(MedalExchange *);

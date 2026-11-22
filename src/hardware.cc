@@ -1900,6 +1900,85 @@ EC void SECTION(".text.HardwareContext_ForceBlank") HardwareContext_ForceBlank(H
     TaskNode_Destroy(&task.node, 2);
 }
 
+struct HardwareOamCommitTask
+{
+    TaskNode node;
+    OamBuffer * oam;
+};
+
+struct HardwareDmaCommitTask
+{
+    TaskNode node;
+    DmaTransferQueue * queue;
+};
+
+extern TaskVtable vtable_unk_080E5AE0;
+extern TaskVtable vtable_unk_080E5AD0;
+
+template<typename T>
+inline void HardwareTask_WriteField(T * field, T value)
+{
+    *reinterpret_cast<T volatile *>(field) = value;
+}
+
+// 0x080087C8
+EC void SECTION(".text.HardwareContext_CommitFrame") HardwareContext_CommitFrame(HardwareContext * self)
+{
+    TaskVtable * remove_vtable;
+    HardwareRuntime * state = reinterpret_cast<HardwareRuntime *>(self->state);
+    u8 * commit_buffer = reinterpret_cast<u8 *>(&state->display);
+    TaskVtable * base_vtable = &gTaskNodeVtable;
+    TaskNode * oam_node;
+    TaskNode * dma_node;
+    HardwareDisplayCommitTask display_task;
+    display_task.node.previous_link = 0;
+    display_task.node.next = 0;
+    display_task.node.vtable = &vtable_unk_080E5AF0;
+    display_task.registers = reinterpret_cast<DisplayRegisterBuffer *>(commit_buffer);
+    HardwareOamCommitTask oam_task;
+    oam_node = &oam_task.node;
+    commit_buffer += sizeof(state->display);
+    oam_task.node.previous_link = 0;
+    oam_task.node.next = 0;
+    HardwareTask_WriteField(&oam_task.node.vtable, &vtable_unk_080E5AE0);
+    HardwareTask_WriteField(&oam_task.oam, reinterpret_cast<OamBuffer *>(commit_buffer));
+    HardwareDmaCommitTask dma_task;
+    dma_node = &dma_task.node;
+    commit_buffer -= sizeof(state->display) + sizeof(state->dma_queue);
+    dma_task.node.previous_link = 0;
+    dma_task.node.next = 0;
+    HardwareTask_WriteField(&dma_task.node.vtable, &vtable_unk_080E5AD0);
+    HardwareTask_WriteField(&dma_task.queue, reinterpret_cast<DmaTransferQueue *>(commit_buffer));
+    TaskList frame_batch;
+    TaskList * batch = &frame_batch;
+    batch->node.previous_link = 0;
+    batch->node.next = 0;
+    HardwareTask_WriteField(&frame_batch.node.vtable, &gTaskListVtable);
+    TaskNode * sentinel = &batch->sentinel;
+    batch->first = sentinel;
+    HardwareTask_WriteField(&frame_batch.sentinel.vtable, base_vtable);
+    sentinel->previous_link = 0;
+    sentinel->next = 0;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    batch->sentinel.previous_link = &batch->first;
+    batch->sentinel.next = sentinel;
+    TaskList_Append(batch, &state->frame_tasks.node);
+    TaskList_Append(batch, &display_task.node);
+    TaskList_Append(batch, dma_node);
+    TaskList_Append(batch, oam_node);
+    VBlankDispatcher * dispatcher = &state->vblank;
+    TaskList * tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    tasks->node.vtable->append(tasks, &batch->node);
+    VBlankDispatcher_Wait(dispatcher);
+    TaskList * queued_tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    remove_vtable = queued_tasks->node.vtable;
+    remove_vtable->remove(queued_tasks, &batch->node);
+    TaskList_Destroy(batch, 2);
+    TaskNode_Destroy(dma_node, 2);
+    TaskNode_Destroy(&oam_task.node, 2);
+    TaskNode_Destroy(&display_task.node, 2);
+}
+
 // 0x08008A68
 EC void SECTION(".text.VBlankDispatcher_Destroy") VBlankDispatcher_Destroy(VBlankDispatcher * self, u32 destructor_flags)
 {

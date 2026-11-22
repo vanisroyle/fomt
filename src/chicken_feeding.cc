@@ -278,7 +278,7 @@ EC void Unpack(void const *, void *);
 EC void * HardwareContext_GetDisplayRegisters(ChickenFeedingScene *);
 EC void AudioPlayer_StartSong(void *, u32);
 EC void func_080AF814(ChickenFeedingScene &);
-EC void func_080087C8(ChickenFeedingScene &);
+EC void HardwareContext_CommitFrame(ChickenFeedingScene &);
 EC void FormatMessageInteger(i32, char *, u32);
 EC void ClearMessageWindowPortrait(MessageWindow *);
 EC i32 GetMessageWindowPhase(MessageWindow *);
@@ -687,7 +687,7 @@ EC SECTION(".text.080B1B40") void RunChickenFeedingTargetMessage(ChickenFeedingS
     goto render;
 update:
     {
-        func_080087C8(scene);
+        HardwareContext_CommitFrame(scene);
         HardwareContext_UpdateKeys(&scene);
         register unsigned currentWindowOffset asm("r0") = offsetof(ChickenFeedingScene, message) / 8;
         asm ("" : "+l" (currentWindowOffset));
@@ -814,7 +814,7 @@ EC SECTION(".text.080B1D34") void RunChickenFeedingTransition(ChickenFeedingScen
         asm ("" : "+l" (nextPhase));
         do
         {
-            func_080087C8(scene);
+            HardwareContext_CommitFrame(scene);
             func_080AF814(scene);
             if (++frames > 120)
                 *phase = nextPhase;

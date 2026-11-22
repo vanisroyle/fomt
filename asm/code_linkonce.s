@@ -25128,7 +25128,7 @@ func_080E0094: @ 0x080E0094
 	ldr r0, [r0]
 	bl DisplayFade_Update
 	mov r0, sl
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	b .L080E044A
 .L080E08F4:
 	ldr r0, [sp, #0x7c]

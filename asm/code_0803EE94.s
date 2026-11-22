@@ -31421,7 +31421,7 @@ RunFestivalResultsScreen: @ 0x08051504
 	adds r5, r6, r1
 .L08051584:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [r5]
@@ -33703,7 +33703,7 @@ RunFrisbeeScreen: @ 0x08052984
 	non_word_aligned_thumb_func_start sub_08052A1E
 sub_08052A1E: @ 0x08052A1E
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	bl rand
@@ -45411,7 +45411,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	b .L08058E4C
 .L080589FC:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r7, .L08058A24 @ =0x00001424
@@ -46040,7 +46040,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	b .L08059352
 .L08058F4E:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	movs r4, #0
@@ -46616,7 +46616,7 @@ RunHorseRaceScreen: @ 0x080588AC
 .L0805945C: .4byte 0x00000889
 .L08059460:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r2, .L08059488 @ =0x00001424
@@ -50779,7 +50779,7 @@ RunChildhoodMemoryScreen: @ 0x0805EE44
 	@ A cue changes graphics only after the previous fade completes.
 .Lmemory_next_frame:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r1, .L0805EF08 @ =.Lmemory_scene_phase
@@ -73859,7 +73859,7 @@ func_0806A1F4: @ 0x0806A1F4
 	non_word_aligned_thumb_func_start sub_0806C492
 sub_0806C492: @ 0x0806C492
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -76833,7 +76833,7 @@ func_0806DB38: @ 0x0806DB38
 	str r0, [sp, #0x14]
 .L0806DBC0:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r1, .L0806DBEC @ =0x0000044C
@@ -78729,7 +78729,7 @@ func_0806EA78: @ 0x0806EA78
 	adds r0, r5, #0
 	bl func_08070140
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L0806EAD8:
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -78786,7 +78786,7 @@ func_0806EAF4: @ 0x0806EAF4
 	adds r0, r5, #0
 	bl func_08070140
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L0806EB54:
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -82833,7 +82833,7 @@ func_08070A08: @ 0x08070A08
 	bl func_08070140
 .L08070B14:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L08070B1A:
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
@@ -95180,7 +95180,7 @@ func_080769A0: @ 0x080769A0
 	mov sb, r4
 .L080769FE:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r6, #0
@@ -96640,7 +96640,7 @@ func_08077490: @ 0x08077490
 	mov sl, r1
 .L08077518:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r2, .L08077544 @ =0x0000072A
@@ -97590,7 +97590,7 @@ func_08077CE0: @ 0x08077CE0
 	adds r0, r5, #0
 	bl func_080785C8
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L08077D40:
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -97647,7 +97647,7 @@ func_08077D5C: @ 0x08077D5C
 	adds r0, r5, #0
 	bl func_080785C8
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 .L08077DBC:
 	ldr r1, [sp, #4]
 	rsbs r0, r1, #0
@@ -99783,7 +99783,7 @@ func_080790E4: @ 0x080790E4
 	movs r4, #0
 .L0807919E:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r6, .L080791C4 @ =0x00000A58
@@ -100213,7 +100213,7 @@ func_080790E4: @ 0x080790E4
 	movs r7, #0
 .L08079530:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r4, .L08079554 @ =0x00000A58
@@ -105799,7 +105799,7 @@ func_0807BEC8: @ 0x0807BEC8
 	thumb_func_start sub_0807C194
 sub_0807C194: @ 0x0807C194
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0xc]
@@ -108277,7 +108277,7 @@ func_0807D218: @ 0x0807D218
 	str r4, [sp, #0xdc]
 .L0807D6E0:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe4]
@@ -109610,7 +109610,7 @@ func_0807DE3C: @ 0x0807DE3C
 	mov sb, r0
 .L0807E238:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r1, [sp, #0xd4]
@@ -110301,7 +110301,7 @@ func_0807E558: @ 0x0807E558
 	str r4, [sp, #0xd4]
 .L0807E804:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe8]
@@ -111639,7 +111639,7 @@ func_0807EF90: @ 0x0807EF90
 	mov r8, r6
 .L0807F2D0:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	mov r0, sb
@@ -112757,7 +112757,7 @@ func_0807F8C8: @ 0x0807F8C8
 	str r0, [sp, #0x3c]
 .L0807FBBA:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #4]
@@ -114184,7 +114184,7 @@ func_08080540: @ 0x08080540
 	str r4, [sp, #0xd4]
 .L08080792:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xe8]
@@ -115556,7 +115556,7 @@ func_0808114C: @ 0x0808114C
 	str r2, [sp, #0x24]
 .L080812BE:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #4]
@@ -116982,7 +116982,7 @@ func_08081BBC: @ 0x08081BBC
 	mov r8, r0
 .L08081E78:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r1, [sp, #0xf0]
@@ -119128,7 +119128,7 @@ func_08082CEC: @ 0x08082CEC
 	thumb_func_start sub_08082F50
 sub_08082F50: @ 0x08082F50
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0x28]
@@ -121554,7 +121554,7 @@ func_08084228: @ 0x08084228
 	strb r0, [r1]
 .L08084498:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0x10]
@@ -125997,7 +125997,7 @@ func_08086A08: @ 0x08086A08
 	non_word_aligned_thumb_func_start sub_08086DFA
 sub_08086DFA: @ 0x08086DFA
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r3, [sp, #0xc]
@@ -132729,7 +132729,7 @@ func_0808A55C: @ 0x0808A55C
 	mov r8, r1
 .L0808A786:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -135895,7 +135895,7 @@ func_0808C0BC: @ 0x0808C0BC
 	mov sl, r0
 .L0808C2AC:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -140314,7 +140314,7 @@ func_0808E6FC: @ 0x0808E6FC
 	mov r8, r1
 .L0808E926:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -144224,7 +144224,7 @@ func_08090960: @ 0x08090960
 	mov r8, r1
 .L08090B8A:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -145676,7 +145676,7 @@ func_0809152C: @ 0x0809152C
 	str r2, [sp, #0x5c]
 .L0809178A:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -148487,7 +148487,7 @@ func_08092D64: @ 0x08092D64
 	mov sl, r2
 .L08092F56:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -149129,7 +149129,7 @@ func_08093364: @ 0x08093364
 	str r3, [sp, #0x50]
 .L080934B8:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [r7, #8]
@@ -152537,7 +152537,7 @@ func_080951B4: @ 0x080951B4
 	mov sl, r4
 .L0809525C:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -153446,7 +153446,7 @@ func_080958C0: @ 0x080958C0
 	mov sl, r1
 .L0809598A:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -154024,7 +154024,7 @@ func_08095D80: @ 0x08095D80
 	str r1, [sp, #0x18]
 .L08095E44:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	mov r0, sl
@@ -154716,7 +154716,7 @@ func_080962F0: @ 0x080962F0
 	str r1, [sp, #0xc0]
 .L080963EE:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0xac]
@@ -156644,7 +156644,7 @@ func_080972AC: @ 0x080972AC
 	mov sl, r0
 .L0809734E:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -157698,7 +157698,7 @@ func_08097AE4: @ 0x08097AE4
 	movs r4, #0
 .L08097B90:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
