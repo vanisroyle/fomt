@@ -1691,6 +1691,8 @@ SECTIONS
         asm/code_080D0C68.o(.text.g5_after_080D0D28);
         src/g5_irq.o(.text.g5_080D100C);
         asm/code_080D102C.o(.text);
+        src/g5_random.o(.text.g5_rand);
+        asm/code_080D102C.o(.text.g5_after_rand);
 
         src/m4a_1.o(.text);
         src/m4a.o(.text);
