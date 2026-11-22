@@ -14214,7 +14214,7 @@ sub_080DA76C: @ 0x080DA76C
 .L080DB0BC:
 	mov r0, sl
 	add r1, sp, #0x34
-	bl func_08011CD8
+	bl GameState_RunVBlankFrameTasks
 	bl .L080D8FE8
 	.align 2, 0
 .L080DB0C8: .4byte 0x000004D4

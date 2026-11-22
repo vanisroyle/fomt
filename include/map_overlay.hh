@@ -11,8 +11,11 @@ struct MapOverlaySceneVtable
     STRUCT_PAD(0x00, 0x18);
     int (*getCameraX)(MapOverlayScene *);
     int (*getCameraY)(MapOverlayScene *);
-    STRUCT_PAD(0x20, 0x4C);
+    STRUCT_PAD(0x20, 0x48);
+    unsigned (*reservePalette)(MapOverlayScene *, unsigned);
     void (*releasePalette)(MapOverlayScene *, unsigned);
+    STRUCT_PAD(0x50, 0x54);
+    void (*setObjectPalette)(MapOverlayScene *, u16 const * colors, int slot, u8 overrideParameter);
 };
 
 struct MapOverlayScene
@@ -31,7 +34,7 @@ struct GameStateMapOverlay
 {
     struct Frame
     {
-        STRUCT_PAD(0x00, 0x20);
+        FixedOverlayFrameView view;
         OverlayTileAllocation tiles;
     };
 
@@ -43,7 +46,7 @@ struct GameStateMapOverlay
     } frames;
     OverlayPaletteTable palettes;
     u8 kind;
-    u8 unk_E5;
+    u8 uploadPending;
     u8 drawHalf;
     STRUCT_PAD(0xE7, 0xE8);
     struct ParticleList
@@ -52,5 +55,13 @@ struct GameStateMapOverlay
         MapOverlayParticle entries[32];
     } particles;
 };
+
+EC GameStateMapOverlay * InitializeGameStateMapOverlay(GameStateMapOverlay *, MapOverlayScene *,
+    SpriteAnimationSource const *, u32 kind, unsigned particleCount);
+EC void DestroyGameStateMapOverlay(GameStateMapOverlay *, unsigned destructorFlags);
+EC void QueueGameStateMapOverlayGraphics(GameStateMapOverlay &, DmaTransferQueue &);
+
+typedef char MapOverlayFrameSizeCheck[sizeof(GameStateMapOverlay::Frame) == 0x28 ? 1 : -1];
+typedef char MapOverlaySizeCheck[sizeof(GameStateMapOverlay) == 0x46C ? 1 : -1];
 
 #endif // MAP_OVERLAY_HH
