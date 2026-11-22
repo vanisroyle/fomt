@@ -3,6 +3,7 @@
 #include <string.h>
 #include "gbasvc.h"
 #include "sprite_animation.hh"
+#include "g5_font.hh"
 
 struct PACKED MessageWindowFlags
 {
@@ -678,7 +679,6 @@ inline u8 * GetMessageGlyphTilePixels(void * pixels, u32 columns, u32 column, u3
 {
     return (u8 *) ((columns * row + column) * 32 + (u32) pixels);
 }
-EC u32 func_080D0D28(void *, u32);
 EC u32 DrawUnalignedMessageGlyph(MessageTileSize, void *, u32, u32, const void *);
 
 EC SECTION(".text.message_rendering.0804E4AC") u32 DrawMessageGlyph(MessageTileSize size, void * pixels, u32 x, u32 y, u32 glyph)
@@ -690,7 +690,7 @@ EC SECTION(".text.message_rendering.0804E4AC") u32 DrawMessageGlyph(MessageTileS
     u8 * rightPixels;
     u8 * bottomPixels;
     u32 boundsRows;
-    u32 width = func_080D0D28(tiles, glyph);
+    u32 width = Font_DecodeGlyph(tiles, glyph);
     i32 bottomRightTile;
     if (width - 1 <= 1)
     {
