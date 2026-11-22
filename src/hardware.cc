@@ -1,4 +1,5 @@
 #include "prelude.h"
+#include "dma_queue.hh"
 #include "m4a.h"
 #include "gbasvc.h"
 #include "unknown_inlines.hh"
@@ -134,6 +135,31 @@ ResourceHandleOwner::~ResourceHandleOwner()
     }
 }
 
+// 0x080073E0
+EC void SECTION(".text.ResourceHandle_Release") ResourceHandle_Release(ResourceHandleOwner * self, u32 handle)
+{
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
+    bool generation_matches;
+    int generation_status;
+    if (handle != 0)
+    {
+        u32 index = HardwareHandle(handle).Index();
+        if (registry->IsAllocated(index))
+        {
+            ResourceHandleEntry * entry = &registry->GetEntry(index);
+            generation_status = registry->Matches(*entry, handle);
+            generation_matches = generation_status;
+            if (generation_matches && --entry->params.ref_count == 0)
+            {
+                entry->params.generation = 0;
+                registry->FreeEntry(entry);
+                registry->ClearAllocated(index);
+                --registry->allocated_count;
+            }
+        }
+    }
+}
+
 // 0x0800745C
 EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner * self, u32 handle)
 {
@@ -154,6 +180,28 @@ EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner 
         }
     }
     return 0;
+}
+
+// 0x080074C0
+EC u32 SECTION(".text.ResourceHandle_GetIndex") ResourceHandle_GetIndex(ResourceHandleOwner * self, u32 handle)
+{
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
+    u32 result;
+    bool generation_matches;
+    if (handle != 0)
+    {
+        u32 index = HardwareHandle(handle).Index();
+        if (registry->IsAllocated(index))
+        {
+            ResourceHandleEntry * entry = &registry->GetEntry(index);
+            generation_matches = registry->Matches(*entry, handle);
+            result = index;
+            if (generation_matches)
+                return result;
+        }
+    }
+    result = ~0u;
+    return result;
 }
 
 // 0x08007510
@@ -200,7 +248,7 @@ EC SECTION(".text.ResourcePool_Initialize") ResourcePool * ResourcePool_Initiali
     return self;
 }
 
-EC void func_080073E0(ResourceHandleOwner *, u32);
+EC void ResourceHandle_Release(ResourceHandleOwner *, u32);
 EC u32 func_0800736C(ResourceHandleOwner *);
 EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
 
@@ -213,7 +261,7 @@ EC void SECTION(".text.ResourcePool_Destroy") ResourcePool_Destroy(ResourcePool 
         ResourceHandleValue * end = storage->end;
         for (ResourceHandleValue * value = storage->begin; value != end; ++value)
         {
-            func_080073E0(&value->owner, value->handle);
+            ResourceHandle_Release(&value->owner, value->handle);
             ResourceHandles_Destroy(&value->owner, 2);
         }
         if (storage->begin != nullptr)
@@ -262,8 +310,44 @@ EC SECTION(".text.ResourcePool_Acquire") ResourceHandleValue * ResourcePool_Acqu
 
 struct AllocationBitset
 {
+    bool IsFull() const { return bits + 1u == 0; }
+    bool IsEmpty() const { return bits == 0; }
     u32 bits;
 };
+
+// 0x080077DC
+EC u32 SECTION(".text.AllocationBitset_AllocateBlock") AllocationBitset_AllocateBlock(AllocationBitset * self, u32 order)
+{
+    u32 occupied_bits;
+    if (!self->IsFull())
+    {
+        if (self->IsEmpty())
+        {
+            self->bits |= (1u << (1u << order)) - 1;
+            return 0;
+        }
+        if (order <= 4)
+        {
+            u32 bits = self->bits;
+            u32 width = 1u << order;
+            u32 index = 0;
+            u32 mask = (1u << width) - 1;
+            occupied_bits = bits;
+            do
+            {
+                if ((occupied_bits & mask) == 0)
+                {
+                    self->bits |= mask;
+                    return index;
+                }
+                index += width;
+                mask <<= width;
+            }
+            while (mask != 0);
+        }
+    }
+    return 32;
+}
 
 // 0x08007844
 EC void SECTION(".text.AllocationBitset_FreeBlock") AllocationBitset_FreeBlock(AllocationBitset * self, u32 index, u32 order)
@@ -312,10 +396,41 @@ EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(Alloc
 
 struct TileHeapOwner {};
 
+union TileHeapEntry
+{
+    TileHeapEntry * next_free;
+    struct
+    {
+        u16 tile_index : 10;
+        u16 order : 4;
+        u16 reserved : 2;
+        u16 ref_count;
+        u16 generation;
+        u16 alignment_padding;
+    } params;
+};
+
+struct TileHeapEntryPool
+{
+    TileHeapEntry & GetEntry(u32 index) { return entries[index]; }
+    void FreeEntry(TileHeapEntry * entry) { entry->next_free = free_head; free_head = entry; }
+    TileHeapEntry * free_head;
+    TileHeapEntry entries[256];
+};
+
 struct TileHeapState
 {
+    bool IsAllocated(u32 index) const
+    {
+        return index < 256 && (allocated_mask[index / 32] & (1u << (index % 32))) != 0;
+    }
+    void ClearAllocated(u32 index)
+    {
+        if (index < 256)
+            allocated_mask[index / 32] &= ~(1u << (index % 32));
+    }
     u32 allocated_mask[8];
-    u8 entry_pool[0x804];
+    TileHeapEntryPool entry_pool;
     AllocationTree tree;
     u16 allocated_count;
     u16 next_generation;
@@ -325,6 +440,60 @@ struct TileHeapState
 };
 
 extern TileHeapState * gTileHeapState; // 0x03000408
+
+union TileHandle
+{
+    u32 value;
+    u8 bytes[4];
+    struct
+    {
+        u32 index : 8;
+        u32 generation : 16;
+    } fields;
+    TileHandle(u32 value) : value(value) {}
+    u32 Index() const { return bytes[0]; }
+};
+
+inline bool TileHeapEntry_Matches(TileHeapEntry const & entry, u32 handle)
+{
+    return u16(handle >> 8) == entry.params.generation;
+}
+
+EC void func_080080A0(AllocationTree *, u32, u32);
+
+// 0x08007C28
+EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * self, u32 handle)
+{
+    int no_references;
+    TileHeapState * heap = gTileHeapState;
+    TileHeapState * allocation_heap;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        allocation_heap = heap;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            no_references = 0;
+            if (generation_matches)
+            {
+                u16 ref_count = --entry->params.ref_count;
+                if (ref_count == no_references)
+                {
+                    func_080080A0(&heap->tree, entry->params.tile_index, entry->params.order);
+                    entry->params.generation = ref_count;
+                    heap->entry_pool.FreeEntry(entry);
+                    heap->ClearAllocated(entry_index);
+                    --allocation_heap->allocated_count;
+                }
+            }
+        }
+    }
+}
 
 // 0x080079E8
 EC void SECTION(".text.TileHeapOwner_Destroy") TileHeapOwner_Destroy(TileHeapOwner * self, u32 destructor_flags)
@@ -372,7 +541,7 @@ EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self
 }
 
 EC TileHeapOwner * func_08007874(TileHeapOwner *);
-EC void func_08007C28(TileHeapOwner *, u32);
+EC void TileHandle_Release(TileHeapOwner *, u32);
 EC u32 func_08007E24(TileHeapOwner *, u32);
 EC u32 func_08007CD8(TileHeapOwner *, u32);
 EC u32 func_08007B54(TileHeapOwner *, u32);
@@ -390,7 +559,7 @@ EC void SECTION(".text.TilePool_Destroy") TilePool_Destroy(TilePool * self, u32 
             TileHandleValue * end = bucket->end;
             for (TileHandleValue * value = bucket->begin; value != end; ++value)
             {
-                func_08007C28(&value->owner, value->handle);
+                TileHandle_Release(&value->owner, value->handle);
                 TileHeapOwner_Destroy(&value->owner, 2);
             }
             if (bucket->begin != nullptr)
@@ -748,14 +917,6 @@ EC void SECTION(".text.Dma3_Fill") Dma3_Fill(u32 fill_value, void * destination,
             reinterpret_cast<void volatile *>(0x040000D4));
     }
 }
-
-struct DmaCommand
-{
-    u32 is_fill;
-    u32 source_or_fill_value;
-    void * destination;
-    u32 control_flags;
-};
 
 // 0x08008FE4
 EC void SECTION(".text.DmaCommand_ExecuteRange") DmaCommand_ExecuteRange(DmaCommand const * begin, DmaCommand const * end)
@@ -1372,16 +1533,6 @@ EC void SECTION(".text.Boot_SoftResetFromKeys") Boot_SoftResetFromKeys()
     for (;;) {}
 }
 
-struct DmaTransferQueue
-{
-    DmaCommand * Begin() const { return begin; }
-    DmaCommand * End() const { return end; }
-    DmaCommand * begin;
-    DmaCommand * end;
-    u32 allocation_state;
-    DmaCommand * capacity_end;
-};
-
 struct VBlankIrqSubscription
 {
     u8 storage[0x14];
@@ -1473,6 +1624,12 @@ struct DisplayFadeTask
     TaskNode node;
     DisplayFade fade;
 };
+
+// 0x08009508
+EC i16 SECTION(".text.DisplayFadeTask_SetSpeed") DisplayFadeTask_SetSpeed(DisplayFadeTask * self, i16 step)
+{
+    return DisplayFade_SetSpeed(&self->fade, step);
+}
 
 // 0x080094B8
 EC void SECTION(".text.DisplayFadeTask_Destroy") DisplayFadeTask_Destroy(DisplayFadeTask * self, u32 destructor_flags)
