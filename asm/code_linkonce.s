@@ -27125,50 +27125,7 @@ func_080E1984: @ 0x080E1984
 	.align 2, 0
 .L080E19A0: .4byte vtable_unk_080E5A28
 
-	thumb_func_start func_080E19A4
-func_080E19A4: @ 0x080E19A4
-	push {r4, r5, r6, lr}
-	sub sp, #0x20
-	adds r5, r0, #0
-	cmp r2, #0xff
-	bne .L080E19DE
-	ldr r6, [r1, #4]
-	adds r0, r6, #0
-	bl strlen
-	adds r4, r0, #0
-	cmp r4, #0x1f
-	bls .L080E19BE
-	movs r4, #0x1f
-.L080E19BE:
-	mov r0, sp
-	adds r1, r6, #0
-	adds r2, r4, #0
-	bl memcpy
-	mov r0, sp
-	adds r1, r0, r4
-	movs r0, #0
-	strb r0, [r1]
-	movs r0, #1
-	strb r0, [r5]
-	adds r0, r5, #4
-	mov r1, sp
-	bl strcpy
-	b .L080E19EC
-.L080E19DE:
-	mov r1, sp
-	movs r0, #0
-	strb r0, [r1]
-	strb r0, [r5]
-	adds r0, r5, #4
-	bl strcpy
-.L080E19EC:
-	adds r0, r5, #0
-	add sp, #0x20
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-	.align 2, 0
-
+	.section .text.code_080E19F8, "ax", %progbits
 	thumb_func_start func_080E19F8
 func_080E19F8: @ 0x080E19F8
 	push {r4, r5, lr}
@@ -27644,54 +27601,7 @@ func_080E1D54: @ 0x080E1D54
 .L080E1D84: .4byte 0x00002164
 .L080E1D88: .4byte 0x00002168
 
-	thumb_func_start func_080E1D8C
-func_080E1D8C: @ 0x080E1D8C
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080E1D98
-func_080E1D98: @ 0x080E1D98
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080E1DA4
-func_080E1DA4: @ 0x080E1DA4
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080E1DB0
-func_080E1DB0: @ 0x080E1DB0
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
-	thumb_func_start func_080E1DBC
-func_080E1DBC: @ 0x080E1DBC
-	push {lr}
-	bl func_08076EA8
-	movs r0, #1
-	pop {r1}
-	bx r1
-
-	thumb_func_start func_080E1DC8
-func_080E1DC8: @ 0x080E1DC8
-	push {lr}
-	bl func_08076E0C
-	pop {r0}
-	bx r0
-	.align 2, 0
-
+	.section .text.code_080E1DD4, "ax", %progbits
 	thumb_func_start func_080E1DD4
 func_080E1DD4: @ 0x080E1DD4
 	push {r4, r5, lr}

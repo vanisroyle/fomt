@@ -685,7 +685,7 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_side.08033830);
         src/npc_side_entities.o(.text.npc_side.080338F0);
         src/npc_side_batch7.o(.text.npc_side.08033914);
-        asm/code_entities_080320DC.o(.text.npc_side.08033928);
+        src/npc_side_batch11.o(.text.npc_side.08033928);
         src/npc_side_batch6.o(.text.npc_side.08033A2C);
         src/npc_side_batch5.o(.text.npc_side.08033A80);
         src/npc_side_batch5.o(.text.npc_side.08033AE4);
@@ -701,7 +701,7 @@ SECTIONS
         src/npc_side_batch7.o(.text.npc_side.080342D8);
         asm/code_entities_080320DC.o(.text.npc_side.0803436C);
         src/npc_side_batch10.o(.text.npc_side.08034940);
-        asm/code_entities_080320DC.o(.text.npc_side.08034A14);
+        src/npc_side_batch11.o(.text.npc_side.08034A14);
         src/npc_side_batch5.o(.text.npc_side.08034AA0);
         asm/code_entities_080320DC.o(.text.npc_side.08034AE8);
         src/npc_side_batch2.o(.text.npc_side.08034BFC);
@@ -824,12 +824,12 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.08037470);
         src/npc_side_batch9.o(.text.npc_extra.08037494);
         src/npc_side_batch4.o(.text.npc_extra.0803753C);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037568);
+        src/npc_side_batch11.o(.text.npc_extra.08037568);
         src/npc_side_batch2.o(.text.npc_extra.08037618);
         src/npc_side_batch2.o(.text.npc_extra.08037628);
         src/npc_side_batch9.o(.text.npc_extra.0803763C);
         src/npc_side_batch4.o(.text.npc_extra.080376E4);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037714);
+        src/npc_side_batch11.o(.text.npc_extra.08037714);
         src/npc_side_batch2.o(.text.npc_extra.080377C4);
         src/npc_side_batch2.o(.text.npc_extra.080377D4);
         src/npc_side_batch9.o(.text.npc_extra.080377E8);
@@ -905,13 +905,13 @@ SECTIONS
         src/npc_side_batch4.o(.text.npc_extra.080391C0);
         src/npc_side_batch4.o(.text.npc_extra.080391FC);
         src/npc_side_batch4.o(.text.npc_extra.08039200);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08039204);
+        src/npc_side_batch11.o(.text.npc_extra.08039204);
         src/npc_side_batch4.o(.text.npc_extra.0803930C);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039310);
         src/npc_side_batch4.o(.text.npc_extra.080396F4);
         asm/code_entities_08034CEC.o(.text.npc_extra.08039708);
         src/npc_side_batch5.o(.text.npc_extra.080398A0);
-        asm/code_entities_08034CEC.o(.text.npc_extra.080398A4);
+        src/npc_side_batch11.o(.text.npc_extra.080398A4);
         src/npc_side_batch8.o(.text.npc_extra.080399C0);
         src/npc_side_batch4.o(.text.npc_extra.08039A30);
         src/npc_side_batch4.o(.text.npc_extra.08039A5C);
@@ -1026,14 +1026,14 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809CD78);
         src/code_actor_0809BFE8.o(.text.0809CE8C);
         src/code_actor_0809BFE8.o(.text.0809CF34);
-        asm/code_actor_0809BFE8.o(.text.0809D168);
+        src/code_actor_0809BFE8.o(.text.0809D168);
         src/code_actor_0809BFE8.o(.text.0809D418);
-        asm/code_actor_0809BFE8.o(.text.0809D500);
+        src/code_actor_0809BFE8.o(.text.0809D500);
         src/code_actor_0809BFE8.o(.text.0809D79C);
         src/code_actor_0809BFE8.o(.text.0809D7D8);
         src/code_actor_0809BFE8.o(.text.0809D8E8);
         src/code_actor_0809BFE8.o(.text.0809D9B4);
-        asm/code_actor_0809BFE8.o(.text.0809DA00);
+        src/code_actor_0809BFE8.o(.text.0809DA00);
         src/code_actor_0809BFE8.o(.text.0809DF2C);
         src/code_actor_0809BFE8.o(.text.0809DFAC);
         src/code_actor_0809BFE8.o(.text.0809E02C);
@@ -1661,6 +1661,10 @@ SECTIONS
         asm/code_linkonce.o(.text.code_080E0EF0);
         *(.text.medal_exchange.080E1844);
         asm/code_linkonce.o(.text.code_080E18A4);
+        *(.text.childhood_memory.080E19A4);
+        asm/code_linkonce.o(.text.code_080E19F8);
+        *(SORT_BY_NAME(.text.farm_report_callbacks.*));
+        asm/code_linkonce.o(.text.code_080E1DD4);
 
         *(.gnu.linkonce.d.__vt_6AScene);
         *(.gnu.linkonce.d.__vt_13AUnk_0800080C);
