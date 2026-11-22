@@ -1618,6 +1618,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CB948);
         src/g5_drawing.o(.text.g5_080CC0B4);
         src/g5_helpers.o(.text.g5_080CC134);
+        src/g5_resource_slot_panel.o(.text.g5_080CC15C);
         asm/code_080C8360.o(.text.g5_080CC15C);
         src/g5_helpers.o(.text.g5_080CC70C);
         asm/code_080C8360.o(.text.g5_080CC728);
@@ -1684,7 +1685,7 @@ SECTIONS
         src/g5_runtime.o(.text.g5_queries);
         src/g5_runtime.o(.text.g5_080D06DC);
         src/g5_runtime.o(.text.g5_080D0704);
-        asm/code_080D035C.o(.text.g5_after_080D0704);
+        src/g5_receive.o(.text.g5_080D078C);
         src/g5_transmit.o(.text.g5_080D091C);
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
