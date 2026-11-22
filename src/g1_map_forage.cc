@@ -1,6 +1,9 @@
 #include "g1_map_forage.hh"
+#include "rucksack_item.hh"
 
 EC u32 GetMapStateBit(u8 *, u32, u32);
+EC i32 FindMapForageLocation(G1MapAvailability *, i32, Box const *, i32);
+EC void ClearMapAvailabilityBit(G1MapAvailability *, u32, int);
 
 struct G1MapForageBounds
 {
@@ -12,6 +15,57 @@ struct G1MapForageBounds
 static inline bool MapForageOverlaps(G1MapForageBounds const & a, Box const & b)
 {
     return ((a.x1 - b.x2) & (b.x1 - a.x2) & (a.y1 - b.y2) & (b.y1 - a.y2)) < 0;
+}
+
+EC SECTION(".text.g1_080A1B38") RucksackItem PickUpMapForageItem(G1MapAvailability * self, i32 map, Box const * area, i32 season)
+{
+    RucksackItem result;
+    i32 index = FindMapForageLocation(self, map, area, season);
+    if (index >= 0)
+    {
+        i32 kind = gUnk_081043BC[index].kind;
+        if (kind <= 18)
+        {
+            if (kind <= 13)
+            {
+                u32 id = FOOD_BAMBOO_SHOOT;
+                switch (kind)
+                {
+                case 0: id = FOOD_BAMBOO_SHOOT; break;
+                case 1: id = FOOD_WILD_GRAPES; break;
+                case 2: id = FOOD_MUSHROOM; break;
+                case 3: id = FOOD_POISONOUS_MUSHROOM; break;
+                case 4: id = FOOD_TRUFFLE; break;
+                case 5: id = FOOD_BLUE_GRASS; break;
+                case 6: id = FOOD_GREEN_GRASS; break;
+                case 7: id = FOOD_RED_GRASS; break;
+                case 8: id = FOOD_YELLOW_GRASS; break;
+                case 9: id = FOOD_ORANGE_GRASS; break;
+                case 10: id = FOOD_PURPLE_GRASS; break;
+                case 11: id = FOOD_INDIGO_GRASS; break;
+                case 12: id = FOOD_WHITE_GRASS; break;
+                case 13: id = FOOD_APPLE; break;
+                }
+                result = RucksackItem(Food(id));
+            }
+            else
+            {
+                u32 id = ARTICLE_MOON_DROP_GRASS;
+                switch ((u32)(kind - 14))
+                {
+                case 0: id = ARTICLE_MOON_DROP_GRASS; break;
+                case 1: id = ARTICLE_PINK_CAT_GRASS; break;
+                case 2: id = ARTICLE_BLUE_MAGIC_GRASS; break;
+                case 3: id = ARTICLE_TOY_FLOWER; break;
+                case 4: id = ARTICLE_BRANCHES; break;
+                }
+                result = RucksackItem(Article(id));
+            }
+            ClearMapAvailabilityBit(self, index, season);
+            return result;
+        }
+    }
+    return result;
 }
 
 EC SECTION(".text.g1_080A1D20") i32 FindMapForageLocation(G1MapAvailability * self, i32 map, Box const * area, i32 season)

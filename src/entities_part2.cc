@@ -3580,6 +3580,7 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
     register ItemDisplayGraphics * self asm("r6") = graphics;
     register ItemDisplayRenderContext const * context asm("r8") = render;
     ItemDisplayFrameData local;
+    register ItemDisplayFrameData * stack asm("sp");
     register ItemDisplayEntity * display asm("r4") = *reinterpret_cast<ItemDisplayEntity **>(self);
     local.map = display->location_map;
     asm volatile("" : "+m"(local.map));
@@ -3602,10 +3603,16 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
     resources->sprite_queue = sprite_queue;
     local.region = ClassifySideEntityFarmRegion(local.map, x, y);
     register u8 * region_dest asm("r0") = reinterpret_cast<u8 *>(self) + 0x8B;
-    register u8 * region_address asm("r7") = reinterpret_cast<u8 *>(&local.region);
-    asm volatile("ldrb %0, [%0]" : "+l"(region_address));
-    register u32 farm_region asm("r7") = reinterpret_cast<u32>(region_address);
-    *region_dest = farm_region;
+    register u32 keep_byte_r1 asm("r1");
+    register u32 keep_byte_r2 asm("r2");
+    register u32 keep_byte_r3 asm("r3");
+    register u32 keep_byte_r5 asm("r5");
+    asm volatile("" : "=l"(keep_byte_r1), "=l"(keep_byte_r2), "=l"(keep_byte_r3), "=l"(keep_byte_r5));
+    register u8 const * region_slot = reinterpret_cast<u8 const *>(&local.region);
+    asm volatile("" : "+l"(region_slot));
+    u32 region_byte = *region_slot;
+    asm volatile("" : "+l"(region_byte) : "l"(keep_byte_r1), "l"(keep_byte_r2), "l"(keep_byte_r3), "l"(keep_byte_r5) : "memory");
+    *region_dest = region_byte;
     register ThrownItemMotion * display_motion asm("r4") = &display->thrown_item;
     register ThrownItemMotion * motion asm("sl") = display_motion;
     register u32 displaying_throw asm("r1") = 0;
@@ -3619,18 +3626,27 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
         item_x_q16 = world_x + item_x_q16;
         item_x_q16 >>= 16;
         register ItemDisplayRenderContext const * scroll asm("r3") = context;
-        register u32 x_field asm("r7") = 0xC;
-        register i32 camera_x asm("r1");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_x) : "l"(scroll), "l"(x_field) : "memory");
+        register u32 keep_camera_x_r2 asm("r2");
+        register u32 keep_camera_x_r4 asm("r4");
+        register u32 keep_camera_x_r5 asm("r5");
+        asm volatile("" : "=l"(keep_camera_x_r2), "=l"(keep_camera_x_r4), "=l"(keep_camera_x_r5));
+        register i32 camera_x asm("r1") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(scroll) + 0xC);
+        asm volatile("" : "+l"(camera_x) : "l"(keep_camera_x_r2), "l"(keep_camera_x_r4), "l"(keep_camera_x_r5) : "memory");
         local.screen_x = item_x_q16 - camera_x;
         motion_position = motion;
         register i32 y_offset_q16 asm("r0") = motion_position->y_speed;
         register i32 entity_y_q16 asm("r2") = local.y_q16;
         register i32 world_y asm("r4") = entity_y_q16 + y_offset_q16;
         register i32 ground_y asm("r1") = world_y >> 16;
-        register u32 y_field asm("r7") = 0xE;
-        register i32 camera_y asm("r0");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_y) : "l"(scroll), "l"(y_field) : "memory");
+        register ItemDisplayRenderContext const * camera_base = scroll;
+        asm volatile("" : "+l"(camera_base));
+        register u32 keep_camera_y_r2 asm("r2");
+        register u32 keep_camera_y_r4 asm("r4");
+        register u32 keep_camera_y_r5 asm("r5");
+        asm volatile("" : "=l"(keep_camera_y_r2), "=l"(keep_camera_y_r4), "=l"(keep_camera_y_r5));
+        register i32 camera_y asm("r0") = camera_base->scroll_y;
+        asm volatile("" : "+l"(camera_y) : "l"(keep_camera_y_r2), "l"(keep_camera_y_r4), "l"(keep_camera_y_r5) : "memory");
+
         register i32 shadow_y asm("r7") = ground_y - camera_y;
         local.sort_y = 0x8000 - ground_y;
         register u32 show_shadow asm("r1") = 0;
@@ -3645,7 +3661,8 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
             register ItemDisplayRenderContext const * queue_context asm("r2") = context;
             register OamBuffer * sprite_queue asm("r1") = queue_context->sprite_queue;
             register u32 shadow_frame asm("r2") = 0;
-            asm volatile("str %0, [sp]" : : "l"(shadow_frame), "m"(local.stack_arguments[0]) : "memory");
+            stack->stack_arguments[0] = shadow_frame;
+            asm volatile("" : : "m"(stack->stack_arguments[0]) : "memory");
             register i32 shadow_x asm("r2") = local.screen_x;
             DrawItemDisplayShadow(geometry, sprite_queue, shadow_x, shadow_y);
         }
@@ -3653,10 +3670,10 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
         register i32 elevation asm("r0") = motion_for_height->z_speed;
         elevation = world_y - elevation;
         elevation >>= 16;
-        register ItemDisplayRenderContext const * scroll_again asm("r7") = context;
-        register u32 scroll_y_field asm("r2") = 0xE;
-        register i32 camera_y_again asm("r1");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_y_again) : "l"(scroll_again), "l"(scroll_y_field) : "memory");
+        register ItemDisplayRenderContext const * camera = context;
+        asm volatile("" : "+r"(camera) : : "r1", "r2", "r3", "r4", "r5");
+        register i32 camera_y_again asm("r1") = camera->scroll_y;
+        asm volatile("" : "+l"(camera_y_again) : "l"(camera), "l"(elevation) : "memory");
         local.screen_y = elevation - camera_y_again;
         register u32 priority asm("r0");
         register i32 map asm("r3") = local.map;
@@ -3670,10 +3687,12 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
         else
             priority = 1;
         register ItemDisplaySprite * sprite asm("r5") = reinterpret_cast<ItemDisplaySprite *>(reinterpret_cast<u8 *>(self) + 0x8C);
-        register u8 * stack_base asm("r1");
-        asm volatile("mov %0, sp" : "=l"(stack_base));
-        stack_base += 0x34;
-        local.saved_resources = reinterpret_cast<ItemDisplayResources const *>(stack_base);
+        register ItemDisplayFrameData * call_frame asm("sp");
+        register u8 * resources_address asm("r1") = reinterpret_cast<u8 *>(call_frame);
+        asm volatile("" : "+l"(resources_address));
+        resources_address += sizeof(ItemDisplayFrame) + sizeof(local.stack_arguments);
+        asm volatile("" : "+l"(resources_address));
+        local.saved_resources = reinterpret_cast<ItemDisplayResources const *>(resources_address);
         register u32 priorities asm("r4") = (priority << 2) | priority;
         priorities |= priority << 4;
         priorities |= priority << 6;
@@ -3690,12 +3709,13 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
         register ItemDisplayFrame * frame_dest asm("r0") = &local.frame;
         register void (*get_frame)(ItemDisplayFrame *, ItemDisplaySpriteSource const *, u32) asm("r3") = table->get_frame;
         get_frame(frame_dest, source, frame_id);
-        ItemDisplayFrame * frame;
-        asm volatile("add %0, sp, #20" : "=l"(frame));
+        register ItemDisplayFrameData * current_frame asm("sp");
+        ItemDisplayFrame * frame = &current_frame->frame;
         register ItemDisplayResources const * saved_resources asm("r2") = local.saved_resources;
         register OamBuffer * queue_arg asm("r2") = saved_resources->sprite_queue;
         register OamBuffer * queue asm("ip") = queue_arg;
         register void * sprite_resources asm("r2") = sprite->sprite_resources;
+        asm volatile("" : "+l"(sprite_resources));
         register G1MapTileOwner const * tiles asm("r0") = &reinterpret_cast<G1MapSpriteResource *>(reinterpret_cast<u8 *>(self) + 0x8C)->tiles;
         register i32 handle asm("r1") = tiles->handle;
         register i32 handle_check asm("r0") = -handle | handle;
@@ -3706,15 +3726,18 @@ EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRende
             register u32 tile asm("r0") = sprite->base_tile;
             register OverlayPaletteTable const * palettes asm("r1") = reinterpret_cast<OverlayPaletteTable *>(reinterpret_cast<u8 *>(self) + 0x9C);
             register u32 sort_y asm("r3") = local.sort_y;
-            asm volatile("str %0, [sp]" : : "l"(sort_y), "m"(local.stack_arguments[0]) : "memory");
-            register ItemDisplayFrame const * frame_arg asm("r3");
-            asm volatile("add %0, %1, #0" : "=l"(frame_arg) : "l"(frame));
-            asm volatile(
-                "str %0, [sp, #4]\n\t"
-                "str %1, [sp, #8]\n\t"
-                "str %2, [sp, #12]\n\t"
-                "str %3, [sp, #16]"
-                : : "l"(frame_arg), "l"(sprite_resources), "l"(tile), "l"(palettes) : "memory");
+            stack->stack_arguments[0] = sort_y;
+            asm volatile("" : : "m"(stack->stack_arguments[0]) : "memory");
+            register ItemDisplayFrame const * frame_arg asm("r3") = frame;
+            asm volatile("" : "+l"(frame_arg));
+            stack->stack_arguments[1] = reinterpret_cast<u32>(frame_arg);
+            asm volatile("" : : "m"(stack->stack_arguments[1]) : "memory");
+            stack->stack_arguments[2] = reinterpret_cast<u32>(sprite_resources);
+            asm volatile("" : : "m"(stack->stack_arguments[2]) : "memory");
+            stack->stack_arguments[3] = tile;
+            asm volatile("" : : "m"(stack->stack_arguments[3]) : "memory");
+            stack->stack_arguments[4] = reinterpret_cast<u32>(palettes);
+            asm volatile("" : : "m"(stack->stack_arguments[4]) : "memory");
             register OamBuffer * queue_arg asm("r0") = queue;
             register i32 screen_x asm("r1") = local.screen_x;
             register i32 screen_y asm("r2") = local.screen_y;
@@ -6135,7 +6158,6 @@ EC void UpdateFarmerMovementCollision(FarmerEntity * self)
         }
         *pressure = scale;
     }
-
 check_position:
     frame.game = self->game_object;
     asm volatile("" : "+m"(frame.game));
@@ -6172,25 +6194,29 @@ check_actor_collisions:
         asm volatile("" : "+m"(frame.facing));
         frame.pressure = *reinterpret_cast<u8 *>(&self->unk_B4);
         asm volatile("" : "+m"(frame.pressure));
-        register u32 dx_offset asm("r4") = 0x1A;
-        register i32 dx asm("r3");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(dx) : "l"(self), "l"(dx_offset) : "memory");
-        register u32 dy_offset asm("r5") = 0x1E;
-        register i32 dy asm("r4");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(dy) : "l"(self), "l"(dy_offset) : "memory");
+        register u32 keep_dx_r0 asm("r0");
+        register u32 keep_dx_r1 asm("r1");
+        register u32 keep_dx_r2 asm("r2");
+        asm volatile("" : "=l"(keep_dx_r0), "=l"(keep_dx_r1), "=l"(keep_dx_r2));
+        register i32 dx asm("r3") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(self) + 0x1A);
+        asm volatile("" : "+l"(dx) : "l"(keep_dx_r0), "l"(keep_dx_r1), "l"(keep_dx_r2) : "memory");
+        register u32 keep_dy_r0 asm("r0");
+        register u32 keep_dy_r1 asm("r1");
+        register u32 keep_dy_r2 asm("r2");
+        asm volatile("" : "=l"(keep_dy_r0), "=l"(keep_dy_r1), "=l"(keep_dy_r2));
+        register i32 dy asm("r4") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(self) + 0x1E);
+        asm volatile("" : "+l"(dy) : "l"(keep_dy_r0), "l"(keep_dy_r1), "l"(keep_dy_r2) : "memory");
         register FarmerTargetBounds const * bounds_ptr asm("r6") = current;
-        register u32 left_offset asm("r1") = 0;
-        register i32 left asm("r0");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(left) : "l"(bounds_ptr), "l"(left_offset) : "memory");
-        register u32 top_offset asm("r5") = 2;
-        register i32 top asm("r2");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(top) : "l"(bounds_ptr), "l"(top_offset) : "memory");
-        register u32 right_offset asm("r1") = 4;
-        register i32 right asm("r5");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(right) : "l"(bounds_ptr), "l"(right_offset) : "memory");
-        register u32 bottom_offset asm("r1") = 6;
-        register i32 bottom asm("r6");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(bottom) : "l"(bounds_ptr), "l"(bottom_offset) : "memory");
+        register i32 left asm("r0") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(bounds_ptr) + 0);
+        asm volatile("" : "+l"(left) : : "memory");
+        register u32 keep_top_r1 asm("r1");
+        asm volatile("" : "=l"(keep_top_r1));
+        register i32 top asm("r2") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(bounds_ptr) + 2);
+        asm volatile("" : "+l"(top) : "l"(keep_top_r1) : "memory");
+        register i32 right asm("r5") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(bounds_ptr) + 4);
+        asm volatile("" : "+l"(right) : : "memory");
+        register i32 bottom asm("r6") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(bounds_ptr) + 6);
+        asm volatile("" : "+l"(bottom) : : "memory");
         register i32 bottom_copy asm("r8") = bottom;
         register FarmerTargetBounds * output_box asm("r1") = &frame.next_return;
         left = dx + left;
@@ -6227,12 +6253,11 @@ check_actor_collisions:
         asm volatile("" : "+m"(frame.count), "+m"(frame.slots));
         register u32 first_index asm("r0") = 0;
         frame.index = first_index;
-        asm volatile("" : "+m"(frame.index));
         register u32 count asm("r1") = frame.count;
         if (first_index >= count)
-            goto move_farmer;
+            goto finished_actor_scan;
+
         register FarmerTargetBounds const * target_box asm("r2") = &frame.target;
-        asm volatile("" : "+r"(target_box));
         register FarmerTargetBounds const * target asm("r8") = target_box;
         do
         {
@@ -6247,7 +6272,6 @@ check_actor_collisions:
             register GameObject * game_arg asm("r0") = game;
             register AEntity * entity asm("r3") = get_entity(game_arg, frame.slot);
             frame.entity = entity;
-            asm volatile("" : "+m"(frame.entity));
             if (!entity)
                 goto next_slot;
             {
@@ -6262,68 +6286,61 @@ check_actor_collisions:
                 register void (*get_target_bounds)(FarmerTargetBounds *, AEntity *) asm("r2") = actor_methods->get_bounds;
                 get_target_bounds(output, entity);
                 frame.target = frame.target_return;
-                asm volatile("" : "+m"(frame.target));
-                register FarmerTargetBounds const * target_ptr asm("r0") = target;
-                register u32 left_offset asm("r1") = 0;
-                register i32 left asm("r0");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(left) : "l"(target_ptr), "l"(left_offset) : "memory");
+                register FarmerTargetBounds const * target_ptr = target;
+                register u32 keep_target_left_r2 asm("r2");
+                register u32 keep_target_left_r3 asm("r3");
+                register u32 keep_target_left_r4 asm("r4");
+                register u32 keep_target_left_r5 asm("r5");
+                register u32 keep_target_left_r6 asm("r6");
+                asm volatile("" : "=l"(keep_target_left_r2), "=l"(keep_target_left_r3), "=l"(keep_target_left_r4), "=l"(keep_target_left_r5), "=l"(keep_target_left_r6));
+                register i32 left = target_ptr->x1;
+                asm volatile("" : "+l"(left) : "l"(keep_target_left_r2), "l"(keep_target_left_r3), "l"(keep_target_left_r4), "l"(keep_target_left_r5), "l"(keep_target_left_r6) : "memory");
                 register i32 target_left asm("ip") = left;
-                register FarmerTargetBounds const * current_ptr asm("r2") = current;
-                register u32 old_gap_offset asm("r3") = 4;
-                register i32 old_gap asm("r1");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(old_gap) : "l"(current_ptr), "l"(old_gap_offset) : "memory");
+
+                register FarmerTargetBounds const * current_ptr = current;
+                register i32 old_gap asm("r1") = current_ptr->x2;
                 old_gap = left - old_gap;
-                register u32 diff_offset asm("r4") = 0;
-                register i32 diff asm("r0");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(diff) : "l"(current_ptr), "l"(diff_offset) : "memory");
+                register i32 diff asm("r0") = reinterpret_cast<i16 const *>(current_ptr)[0];
+
                 register FarmerTargetBounds const * target_read asm("r5") = target;
-                register u32 target_right_offset asm("r6") = 4;
-                register i32 target_right asm("r4");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(target_right) : "l"(target_read), "l"(target_right_offset) : "memory");
+                register i32 target_right asm("r4") = target_read->x2;
                 diff -= target_right;
                 old_gap &= diff;
-                register u32 target_top_offset asm("r2") = 2;
-                register i32 target_top asm("r0");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(target_top) : "l"(target_read), "l"(target_top_offset) : "memory");
+                register i32 target_top asm("r0") = target_read->y1;
                 *reinterpret_cast<i32 volatile *>(&frame.target_y) = target_top;
                 register FarmerTargetBounds const * old_box asm("r3") = current;
-                register u32 old_bottom_offset asm("r5") = 6;
-                register i32 old_bottom asm("r0");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(old_bottom) : "l"(old_box), "l"(old_bottom_offset) : "memory");
+                register i32 old_bottom asm("r0") = old_box->y2;
                 register i32 top asm("r6") = frame.target_y;
                 old_gap &= top - old_bottom;
-                register i32 old_top asm("r0") = reinterpret_cast<i16 const *>(old_box)[1];
+                register u32 keep_old_top_r5 asm("r5");
+                register u32 keep_old_top_r6 asm("r6");
+                register i32 old_top asm("r0") = old_box->y1;
                 register FarmerTargetBounds const * target_bottom_ptr asm("r5") = target;
-                register u32 target_bottom_offset asm("r6") = 6;
-                register i32 target_bottom asm("r3");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(target_bottom) : "l"(target_bottom_ptr), "l"(target_bottom_offset) : "memory");
+                register u32 keep_bottom_r2 asm("r2");
+                asm volatile("" : "=l"(keep_bottom_r2) : "l"(old_top), "l"(target_bottom_ptr), "l"(keep_old_top_r5), "l"(keep_old_top_r6));
+                register i32 target_bottom asm("r3") = target_bottom_ptr->y2;
+                asm volatile("" : "+l"(target_bottom) : "l"(keep_bottom_r2), "l"(target_bottom_ptr) : "memory");
                 old_gap &= old_top - target_bottom;
                 register u32 clear asm("r2") = static_cast<u32>(old_gap) >> 31;
                 if (clear)
                     goto next_slot;
-                register FarmerTargetBounds const * new_ptr asm("r0") = next;
-                register u32 new_gap_offset asm("r5") = 4;
-                register i32 new_gap asm("r1");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(new_gap) : "l"(new_ptr), "l"(new_gap_offset) : "memory");
+
+                register FarmerTargetBounds const * new_ptr = next;
+                register i32 new_gap asm("r1") = new_ptr->x2;
                 register i32 left_copy asm("r6") = target_left;
-                asm volatile("" : "+r"(left_copy));
                 new_gap = left_copy - new_gap;
-                register u32 new_left_offset asm("r5") = 0;
-                register i32 new_left asm("r0");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(new_left) : "l"(new_ptr), "l"(new_left_offset) : "memory");
+                register i32 new_left asm("r0") = new_ptr->x1;
                 new_gap &= new_left - target_right;
                 register FarmerTargetBounds const * new_box asm("r6") = next;
-                register u32 new_bottom_offset asm("r4") = 6;
-                register i32 new_bottom asm("r0");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(new_bottom) : "l"(new_box), "l"(new_bottom_offset) : "memory");
+                register i32 new_bottom asm("r0") = new_box->y2;
                 register i32 top_copy asm("r5") = frame.target_y;
                 new_gap &= top_copy - new_bottom;
-                register u32 new_top_offset asm("r4") = 2;
-                register i32 new_top asm("r0");
-                asm volatile("ldrsh %0, [%1, %2]" : "=l"(new_top) : "l"(new_box), "l"(new_top_offset) : "memory");
+                register i32 new_top asm("r0") = static_cast<i16>(reinterpret_cast<u16 const *>(new_box)[1]);
+                asm volatile("" : : "l"(new_top), "l"(top_copy), "l"(new_box));
                 new_gap &= new_top - target_bottom;
                 if (new_gap >= 0)
                     goto next_slot;
+
                 self->x_speed_q16 = clear;
                 self->y_speed_q16 = clear;
                 register u32 can_react asm("r5") = frame.can_react;
@@ -6333,7 +6350,6 @@ check_actor_collisions:
                 register u32 reaction_slot asm("r0") = frame.slot;
                 if (reaction_slot - 0x2B <= 0x1A)
                     reacts = 1;
-                asm volatile("" : "+r"(reacts));
                 if (!reacts)
                     goto next_slot;
                 register AEntity * collided asm("r6") = frame.entity;
@@ -6342,7 +6358,6 @@ check_actor_collisions:
                 register AEntity * actor_arg asm("r0") = collided;
                 register u32 facing_arg asm("r1") = frame.facing;
                 register u32 pressure_arg asm("r2") = frame.pressure;
-                asm volatile("" : "+r"(facing_arg), "+r"(pressure_arg));
                 react(actor_arg, facing_arg, pressure_arg);
                 *reinterpret_cast<u8 *>(&self->unk_B3) = 8;
             }
@@ -6352,10 +6367,12 @@ check_actor_collisions:
             ++next_index;
             *reinterpret_cast<u32 volatile *>(&frame.index) = next_index;
             register u32 count asm("r1") = frame.count;
-            if (next_index >= count)
-                break;
+            if (next_index < count)
+                continue;
+            goto move_farmer;
         } while (true);
     }
+finished_actor_scan:
 move_farmer:
     register i32 x_move asm("r0") = self->x_speed_q16;
     register i32 y_move asm("r1") = self->y_speed_q16;
@@ -6440,26 +6457,28 @@ move_farmer:
         register i32 new_y_tile asm("r1") = new_y >> 16;
         register i32 old_y_tile asm("r0") = old_y >> 16;
         old_y = new_y_tile - old_y_tile;
-        register u32 left_offset asm("r3") = 0;
-        register i32 left asm("r0");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(left) : "l"(bounds), "l"(left_offset) : "memory");
-        register u32 top_offset asm("r1") = 2;
-        register i32 top asm("r2");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(top) : "l"(bounds), "l"(top_offset) : "memory");
-        register u32 right_offset asm("r1") = 4;
-        register i32 right asm("r3");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(right) : "l"(bounds), "l"(right_offset) : "memory");
-        register u32 bottom_offset asm("r1") = 6;
-        register i32 bottom asm("r4");
-        asm volatile("ldrsh %0, [%1, %2]" : "=l"(bottom) : "l"(bounds), "l"(bottom_offset) : "memory");
+        asm volatile("" : "+l"(bounds));
+        register u32 keep_left_r1 asm("r1");
+        register u32 keep_left_r2 asm("r2");
+        asm volatile("" : "=l"(keep_left_r1), "=l"(keep_left_r2));
+        register i32 left asm("r0") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(bounds) + 0);
+        asm volatile("" : "+l"(left) : "l"(keep_left_r1), "l"(keep_left_r2) : "memory");
+        register u32 keep_top_r3 asm("r3");
+        asm volatile("" : "=l"(keep_top_r3));
+        register i32 top asm("r2") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(bounds) + 2);
+        asm volatile("" : "+l"(top) : "l"(keep_top_r3) : "memory");
+        register i32 right asm("r3") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(bounds) + 4);
+        asm volatile("" : "+l"(right) : : "memory");
+        register i32 bottom asm("r4") = *reinterpret_cast<i16 const *>(reinterpret_cast<u8 const *>(bounds) + 6);
+        asm volatile("" : "+l"(bottom) : : "memory");
         register FarmerTargetBounds * next_box asm("r1") = &frame.next_tile;
-        asm volatile("add %0, %1, %0" : "+l"(left) : "l"(old_x));
+        left = old_x + left;
         next_box->x1 = left;
-        asm volatile("add %0, %1, %0" : "+l"(top) : "l"(old_y));
+        top = old_y + top;
         next_box->y1 = top;
-        asm volatile("add %0, %1, %0" : "+l"(right) : "l"(old_x));
+        right = old_x + right;
         next_box->x2 = right;
-        asm volatile("add %0, %1, %0" : "+l"(bottom) : "l"(old_y));
+        bottom = old_y + bottom;
         next_box->y2 = bottom;
         register u32 solid_tile asm("r0") = CheckFarmerCollisionTile(&frame.grid, next_box);
         register u32 mask asm("r1") = 1;
@@ -7887,12 +7906,14 @@ read_buttons:
         frame.held.word = input->held;
         register FarmerInputState const * pressed_input asm("r1") = input;
         register u32 pressed_bits asm("r0");
-        asm volatile("ldrh %0, [%1, #4]" : "=l"(pressed_bits) : "l"(pressed_input) : "memory");
+        pressed_bits = pressed_input->pressed;
+        asm volatile("" : "+l"(pressed_bits));
         frame.pressed.word = pressed_bits;
     }
     {
         register u8 * motion_output asm("r3") = motion_state;
-        asm volatile("strb %1, [%0]" : : "l"(motion_output), "l"(empty_keys) : "memory");
+        *motion_output = empty_keys;
+        asm volatile("" : "+m"(*motion_output) : : "memory");
     }
 
     register FarmerHeldItemKeyWord * pressed asm("r4") = &frame.pressed;
@@ -7910,9 +7931,8 @@ read_buttons:
         register u32 b_initial asm("r2") = INPUT_B;
         register u32 b_mask asm("r0") = b_initial;
         b_mask &= buttons;
-        b_mask <<= 24;
-        register u32 b_pressed asm("r3") = b_mask >> 24;
-        if (b_pressed != 0)
+        register u32 b_pressed asm("r3") = static_cast<u8>(b_mask);
+        if (static_cast<u8>(b_pressed))
         {
             self->state = b_initial;
             *idle_ticks = a_pressed;
@@ -7957,7 +7977,12 @@ read_buttons:
                     register u32 left_mask asm("r0") = INPUT_LEFT;
                     register u8 * facing asm("r6");
                     register FarmerHeldItemKeyWord * held_keys asm("sb");
-                    asm volatile("and %0, %3\n\tadd %1, %4, #0\n\tmov %2, %5" : "+l"(left_mask), "=l"(facing), "=r"(held_keys) : "l"(directional_keys), "l"(facing_address), "l"(directional_keys_address) : "cc");
+                    left_mask &= directional_keys;
+                    asm volatile("" : "+l"(left_mask));
+                    facing = facing_address;
+                    asm volatile("" : "+l"(facing));
+                    held_keys = directional_keys_address;
+                    asm volatile("" : "+r"(held_keys));
                     u32 left_test = left_mask;
                     asm volatile("" : "+r"(left_test) : "r"(facing), "r"(held_keys));
                     if (left_test)
@@ -8021,13 +8046,16 @@ read_buttons:
                     if (run_setting)
                         goto default_fast;
                     {
-                        register u32 key_register asm("r3") = reinterpret_cast<u32>(held_keys);
-                        register u32 high_keys asm("r1");
-                        asm volatile("ldrb %0, [%1, #1]\n\tmov %1, #1 @ slow" : "=&l"(high_keys), "+l"(key_register) : : "memory");
-                        run_key = key_register;
-                        register u32 mask asm("r0");
-                        asm volatile("add %0, %1, #0\n\tand %0, %2" : "=&l"(mask) : "l"(run_key), "l"(high_keys) : "cc");
-                        u32 keys = mask;
+                        register FarmerHeldItemKeyWord const volatile * held_snapshot asm("r3") = held_keys;
+                        asm volatile("" : "+l"(held_snapshot));
+                        register u32 held_high_byte asm("r1") = held_snapshot->bytes[1];
+                        asm volatile("" : "+l"(held_high_byte));
+                        run_key = 1;
+                        asm volatile("" : "+l"(run_key));
+                        register u32 run_key_pressed asm("r0") = run_key;
+                        run_key_pressed &= held_high_byte;
+                        asm volatile("" : "+l"(run_key_pressed));
+                        u32 keys = run_key_pressed;
                         asm volatile("" : "+r"(keys));
                         if (!keys)
                             goto walk;
@@ -8035,13 +8063,16 @@ read_buttons:
                     }
                 default_fast:
                     {
-                        register u32 key_register asm("r3") = reinterpret_cast<u32>(held_keys);
-                        register u32 high_keys asm("r1");
-                        asm volatile("ldrb %0, [%1, #1]\n\tmov %1, #1 @ fast" : "=&l"(high_keys), "+l"(key_register) : : "memory");
-                        run_key = key_register;
-                        register u32 mask asm("r0");
-                        asm volatile("add %0, %1, #0\n\tand %0, %2" : "=&l"(mask) : "l"(run_key), "l"(high_keys) : "cc");
-                        u32 keys = mask;
+                        register FarmerHeldItemKeyWord const volatile * held_snapshot asm("r3") = held_keys;
+                        asm volatile("" : "+l"(held_snapshot));
+                        register u32 held_high_byte asm("r1") = held_snapshot->bytes[1];
+                        asm volatile("" : "+l"(held_high_byte));
+                        run_key = 1;
+                        asm volatile("" : "+l"(run_key));
+                        register u32 run_key_pressed asm("r0") = run_key;
+                        run_key_pressed &= held_high_byte;
+                        asm volatile("" : "+l"(run_key_pressed));
+                        u32 keys = run_key_pressed;
                         asm volatile("" : "+r"(keys));
                         if (keys)
                             goto walk;
@@ -8114,7 +8145,9 @@ step_effects:
                 game = (self)->game_object;
                 methods = FARMER_IDLE_GAME(game);
                 method_offset = 0xA6;
-                asm volatile("lsl %0, %0, #1" : "+l"(method_offset) : "r"(methods));
+                asm volatile("" : "+l"(method_offset) : "r"(methods));
+                method_offset <<= 1;
+                asm volatile("" : "+l"(method_offset));
                 get_channels = *reinterpret_cast<EntitySoundChannels const * (**)(GameObject *)>(reinterpret_cast<u32>(methods) + method_offset);
                 channels = get_channels(game);
                 day_channel = channels->begin;
@@ -8195,7 +8228,8 @@ other_step_sound:
         game = (self)->game_object;
         methods = FARMER_IDLE_GAME(game);
         method_offset = 0xA6;
-        asm volatile("lsl %0, %0, #1" : "+l"(method_offset) : "r"(methods));
+        asm volatile("" : "+l"(method_offset) : "r"(methods));
+        method_offset <<= 1;
         get_channels = *reinterpret_cast<EntitySoundChannels const * (**)(GameObject *)>(reinterpret_cast<u32>(methods) + method_offset);
         channels = get_channels(game);
         channel = channels->begin;

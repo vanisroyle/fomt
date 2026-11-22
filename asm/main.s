@@ -39,7 +39,7 @@ AgbMain: @ 0x0800018C
     bl Irq_AcknowledgeAndEnable
     bl Audio_Initialize
     mov r0, sp
-    bl func_08008980
+    bl VBlankDispatcher_Initialize
     movs r0, #8
     bl __builtin_new
     bl func_080036F8

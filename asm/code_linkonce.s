@@ -24061,7 +24061,7 @@ func_080E0094: @ 0x080E0094
 	adds r7, r1, #0
 	adds r6, r7, #4
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
@@ -25128,7 +25128,7 @@ func_080E0094: @ 0x080E0094
 	ldr r0, [r0]
 	bl DisplayFade_Update
 	mov r0, sl
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	b .L080E044A
 .L080E08F4:
 	ldr r0, [sp, #0x7c]

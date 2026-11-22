@@ -1470,7 +1470,7 @@ extern u8 const vtable_unk_080E5E64[];
 extern u8 const vtable_unk_080E5C08[];
 asm(".set __vt_23GameStateRuntimeStorage, vtable_unk_080E5C08");
 EC void * DisplayRegisters_Initialize(void * registers);
-EC void * func_08008980(void * dispatcher);
+EC void * VBlankDispatcher_Initialize(void * dispatcher);
 EC void * AudioPlayer_Initialize(void * player, u8 index);
 
 struct GameStateRuntimeAllocationStorage
@@ -1503,7 +1503,7 @@ struct GameStateRuntimeDisplayStorage
 
 struct GameStateRuntimeDispatcherStorage
 {
-    GameStateRuntimeDispatcherStorage() { func_08008980(this); }
+    GameStateRuntimeDispatcherStorage() { VBlankDispatcher_Initialize(this); }
 
     void * state;
 };
