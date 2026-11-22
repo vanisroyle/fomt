@@ -50466,6 +50466,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	.equ .Lmedal_screen_prize_ids, 0xae0
 	.equ .Lmedal_screen_second_row_prize_id, 0xae1
 	.equ .Lmedal_screen_last_row_prize_id, 0xae9
+	.equ .Lmedal_screen_dialogue_prize_id, 0xaf0
 	.equ .Lmedal_screen_medal_balance, 0xad0
 	.equ .Lmedal_screen_scroll_y, 0x14c
 	.equ .Lmedal_screen_save_medal_and_prize_flags_byte, 0x2c4a
@@ -50808,7 +50809,7 @@ RunMedalExchangeScreen: @ 0x0805D170
 	ldr r0, [r0]
 	cmp r1, r0
 	bgt .Lmedal_screen_start_insufficient_medals_prompt
-	movs r1, #0xaf
+	movs r1, #(.Lmedal_screen_dialogue_prize_id >> 4)
 	lsls r1, r1, #4
 	adds r0, r6, r1
 	str r3, [r0]

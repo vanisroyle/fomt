@@ -27005,56 +27005,7 @@ func_080E1824: @ 0x080E1824
 	.align 2, 0
 .L080E1840: .4byte vtable_unk_080E76F8
 
-	thumb_func_start func_080E1844
-func_080E1844: @ 0x080E1844
-	push {r4, r5, r6, lr}
-	sub sp, #0x20
-	adds r6, r0, #0
-	cmp r2, #0xff
-	bne .L080E188C
-	ldr r0, [r1, #4]
-	lsls r1, r0, #2
-	adds r1, r1, r0
-	lsls r1, r1, #2
-	ldr r0, .L080E1888 @ =gMedalExchangePrizes
-	adds r5, r1, r0
-	adds r0, r5, #0
-	bl strlen
-	adds r4, r0, #0
-	cmp r4, #0x1f
-	bls .L080E1868
-	movs r4, #0x1f
-.L080E1868:
-	mov r0, sp
-	adds r1, r5, #0
-	adds r2, r4, #0
-	bl memcpy
-	mov r0, sp
-	adds r1, r0, r4
-	movs r0, #0
-	strb r0, [r1]
-	movs r0, #1
-	strb r0, [r6]
-	adds r0, r6, #4
-	mov r1, sp
-	bl strcpy
-	b .L080E189A
-	.align 2, 0
-.L080E1888: .4byte gMedalExchangePrizes
-.L080E188C:
-	mov r1, sp
-	movs r0, #0
-	strb r0, [r1]
-	strb r0, [r6]
-	adds r0, r6, #4
-	bl strcpy
-.L080E189A:
-	adds r0, r6, #0
-	add sp, #0x20
-	pop {r4, r5, r6}
-	pop {r1}
-	bx r1
-
+	.section .text.code_080E18A4, "ax", %progbits
 	thumb_func_start func_080E18A4
 func_080E18A4: @ 0x080E18A4
 	push {r4, r5, r6, lr}
