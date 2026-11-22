@@ -1,4 +1,5 @@
 #include "prelude.h"
+#include "dma_queue.hh"
 #include "m4a.h"
 #include "gbasvc.h"
 #include "unknown_inlines.hh"
@@ -749,14 +750,6 @@ EC void SECTION(".text.Dma3_Fill") Dma3_Fill(u32 fill_value, void * destination,
     }
 }
 
-struct DmaCommand
-{
-    u32 is_fill;
-    u32 source_or_fill_value;
-    void * destination;
-    u32 control_flags;
-};
-
 // 0x08008FE4
 EC void SECTION(".text.DmaCommand_ExecuteRange") DmaCommand_ExecuteRange(DmaCommand const * begin, DmaCommand const * end)
 {
@@ -1371,16 +1364,6 @@ EC void SECTION(".text.Boot_SoftResetFromKeys") Boot_SoftResetFromKeys()
     SoftReset(0xFF);
     for (;;) {}
 }
-
-struct DmaTransferQueue
-{
-    DmaCommand * Begin() const { return begin; }
-    DmaCommand * End() const { return end; }
-    DmaCommand * begin;
-    DmaCommand * end;
-    u32 allocation_state;
-    DmaCommand * capacity_end;
-};
 
 struct VBlankIrqSubscription
 {
