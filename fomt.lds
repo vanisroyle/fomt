@@ -188,6 +188,8 @@ SECTIONS
         asm/hardware.o(.text.after_08007EC8);
         src/hardware.o(.text.AllocationTree_MarkRangeFull);
         asm/hardware.o(.text.after_08007EE8);
+        src/hardware.o(.text.AllocationTree_MarkRangeEmpty);
+        asm/hardware.o(.text.after_08007F84);
         src/hardware.o(.text.AllocationTree_AllocateBlock);
         asm/hardware.o(.text.after_08008020);
         src/hardware.o(.text.AllocationTree_FreeBlock);
