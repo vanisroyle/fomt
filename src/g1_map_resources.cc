@@ -4,8 +4,8 @@
 EC char const vtable_unk_080E82D8[];
 EC void func_08007874(G1MapTileOwner *);
 EC u32 func_08007B54(G1MapTileOwner *, u32);
-EC u32 func_08007D4C(G1MapTileOwner *, u32);
-EC void func_08007C28(G1MapTileOwner *, u32);
+EC u32 TileHandle_GetTileIndex(G1MapTileOwner *, u32);
+EC void TileHandle_Release(G1MapTileOwner *, u32);
 EC void TileHeapOwner_Destroy(G1MapTileOwner *, u32);
 EC char const vtable_unk_080E681C[];
 
@@ -17,7 +17,7 @@ EC SECTION(".text.g1_080A46AC") G1MapSpriteResource * InitializeMapSpriteResourc
     func_08007874(tiles);
     u32 handle = func_08007B54(tiles, tile_count);
     tiles->handle = handle;
-    self->tile_index = func_08007D4C(tiles, handle);
+    self->tile_index = TileHandle_GetTileIndex(tiles, handle);
     volatile u8 initial_palette = 0;
     self->palette_count = 0;
     if (palette_count <= 16)
@@ -49,7 +49,7 @@ EC SECTION(".text.g1_080A4740") G1MapSpriteResource * InitializeMapSpriteSingleP
     func_08007874(tiles);
     u32 handle = func_08007B54(tiles, tile_count);
     tiles->handle = handle;
-    self->tile_index = func_08007D4C(tiles, handle);
+    self->tile_index = TileHandle_GetTileIndex(tiles, handle);
     u32 palette_count = 1;
     volatile u8 initial_palette = 0;
     self->palette_count = 0;
@@ -75,7 +75,7 @@ EC SECTION(".text.g1_080A47B4") void DestroyMapSpriteResource(G1MapSpriteResourc
         while (i < self->palette_count);
     }
     G1MapTileOwner * tiles = &self->tiles;
-    func_08007C28(tiles, tiles->handle);
+    TileHandle_Release(tiles, tiles->handle);
     TileHeapOwner_Destroy(tiles, 2);
     if (flags & 1)
         delete self;

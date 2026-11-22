@@ -4,15 +4,16 @@ import sys
 
 
 def select_section(source, section):
-    match = re.search(
-        r"^\s*\.section\s+" + re.escape(section)
-        + r"[,\s][\s\S]*?(?=^\s*\.(?:section|text)\b|\Z)",
+    matches = re.finditer(
+        r'^[ \t]*\.section[ \t]+(?:"([^"]+)"|([^,\s]+))[^\n]*\n'
+        r'[\s\S]*?(?=^[ \t]*\.(?:section|text)\b|\Z)',
         source,
         re.MULTILINE,
     )
-    if match is None:
+    chunks = [match[0] for match in matches if (match[1] or match[2]) == section]
+    if not chunks:
         raise ValueError("Missing function section: " + section)
-    return "\t.code 16\n" + match[0]
+    return "\t.code 16\n" + "".join(chunks)
 
 
 if __name__ == "__main__":

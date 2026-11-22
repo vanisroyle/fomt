@@ -2,7 +2,7 @@
 
 The two original D3 units are `code_entities_080320DC.s` and
 `code_entities_08034CEC.s`. Matching replacements are in `src/npc_side_entities.cc`
-and `src/npc_side_batch2.cc` through `src/npc_side_batch8.cc`.
+and `src/npc_side_batch2.cc` through `src/npc_side_batch9.cc`.
 Names describe observed behavior; numbered variants are not verified character IDs.
 The carpenter is identified by `gCarpenterScheduleInfo` and its vtable chain.
 
@@ -13,7 +13,7 @@ The carpenter is identified by `gCarpenterScheduleInfo` and its vtable chain.
   Some selectors use marriage-candidate IDs, map 29, relationship flags, the active
   roster NPC's age and `IsFamilyScheduleAwayFromHome` (`08034C64`).
 - **Moving NPCs** keep a saved location, movement box, animation and countdown.
-  Movement choices change facing, duration and velocity; variants provide speed,
+  Day/night movement tables change facing, duration and velocity; variants provide speed,
   animation and reset hooks. Facing-to-velocity conversion is shared.
 - **Reaction NPCs** include arrival-triggered and timed reactions. They choose a
   reaction/animation, create a reaction renderer and advance an optional timer.
@@ -50,24 +50,24 @@ owned sprites and conditionally deletes the entity according to destructor flags
 
 ## Still in assembly
 
-There are **12** marked routines in `080320DC` and **28** in `08034CEC`, with
+There are **11** marked routines in `080320DC` and **24** in `08034CEC`, with
 **no remaining raw byte spans**. Both former spans are single routines, now fully
 disassembled: `08033B94` and `DrawSpriteWorkerEffectLayer` (`08034AE8`).
 Batch 8 audited all 55 original entries: each has its own prologue/return, matches
 its ROM address, and has no incoming cross-function non-call branch; none needed
-folding. Bounds, task selection, family schedules/paths, animation and proximity/
-arrival logic, effect targeting and activity destruction now match in C++.
+folding. Bounds, schedules/paths, animation, proximity/arrival and effect/activity
+logic, day/night movement choices and worker state changes now match in C++.
 Remaining unnamed symbols have the prefix `func_`; the complete address inventory:
 
 ```text
 080320DC unit:
 0803242C 08032690 08032BB4 080330F4 08033584
-08033928 08033B94 08034180 0803436C 08034940 08034A14
+08033928 08033B94 0803436C 08034940 08034A14
 08034AE8
 08034CEC unit:
 08035380 08037118
-0803726C 08037494 08037568 0803763C 08037714 080377E8 08037A5C 08037AD0
-08037D74 08037F7C 08038110 08038398 080385B0 08038820 08038928 08038A70
+0803726C 08037568 08037714 08037A5C 08037AD0
+08037D74 08037F7C 08038110 080385B0 08038820 08038928 08038A70
 08038EE0 08039204 08039310 0803955C 08039708 080398A4
 08039A60 08039F90 0803A180 0803A394
 ```

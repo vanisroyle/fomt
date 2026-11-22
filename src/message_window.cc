@@ -124,9 +124,9 @@ EC void DrawMessageTileString(MessageTileSize, void *, u32, u32, const char *);
 EC void DrawMessageChoiceText(MessageWindowState *, const u8 &, const char *, const void *);
 EC u32 GetMessageChoicePosition(u32, u32);
 EC void func_0805E850(void *, void *, u32);
-EC void func_080073E0(void *, u32);
+EC void ResourceHandle_Release(void *, u32);
 EC void ResourceHandles_Destroy(void *, u32);
-EC void func_08007C28(void *, u32);
+EC void TileHandle_Release(void *, u32);
 EC void TileHeapOwner_Destroy(void *, u32);
 EC void TaskNode_Destroy(void *, u32);
 EC void func_080E105C(void *, u32);
@@ -592,15 +592,15 @@ EC SECTION(".text.message_window.08050478") void SetMessageWindowStateChoices(Me
 EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(MessageWindowState * window, u32 flags) // 0x0804F69C
 {
     register void * resource asm("r4") = (u8 *) window + 0x548;
-    func_080073E0(resource, *((u32 *) resource + 1));
+    ResourceHandle_Release(resource, *((u32 *) resource + 1));
     ResourceHandles_Destroy(resource, 2);
     *(void **) ((u8 *) window + 0x504) = vtable_unk_080E5A28;
     resource = (u8 *) window + 0x1e8;
-    func_080073E0(resource, *((u32 *) resource + 1));
+    ResourceHandle_Release(resource, *((u32 *) resource + 1));
     ResourceHandles_Destroy(resource, 2);
     DestroyMessagePortraitClips(reinterpret_cast<MessagePortraitClips *>((u8 *) window + 0x1e4), 2);
     resource = (u8 *) window + 0x1d4;
-    func_08007C28(resource, *((u32 *) resource + 1));
+    TileHandle_Release(resource, *((u32 *) resource + 1));
     TileHeapOwner_Destroy(resource, 2);
     *(void **) ((u8 *) window + 0x190) = vtable_unk_080E5A28;
     *(void **) ((u8 *) window + 0x160) = vtable_unk_080E5A28;
@@ -614,10 +614,10 @@ EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(Messa
     for (u8 * transfer = (u8 *) window + 0x40; transfer != end; transfer += 16) {}
     TaskList_Destroy((u8 *) window + 0x20, 2);
     resource = (u8 *) window + 0x18;
-    func_08007C28(resource, *((u32 *) resource + 1));
+    TileHandle_Release(resource, *((u32 *) resource + 1));
     TileHeapOwner_Destroy(resource, 2);
     resource = (u8 *) window + 0x10;
-    func_080073E0(resource, *((u32 *) resource + 1));
+    ResourceHandle_Release(resource, *((u32 *) resource + 1));
     ResourceHandles_Destroy(resource, 2);
     if (flags & 1) operator delete(window);
 }

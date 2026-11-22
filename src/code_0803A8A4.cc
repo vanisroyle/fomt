@@ -2,17 +2,20 @@
 
 #include "bachelorette.hh"
 #include "clock_display.hh"
+#include "dma_queue.hh"
 #include "dog.hh"
 #include "farm.hh"
 #include "farm_house.hh"
 #include "farmer.hh"
 #include "fixed_sprite_overlay.hh"
 #include "gbasvc.h"
+#include "key_repeat.hh"
 #include "map_overlay.hh"
 #include "message_script.hh"
 #include "npc.hh"
 #include "schedule_info.hh"
 #include "sprite_animation.hh"
+#include "sprite_rendering.hh"
 #include "unknown_types.hh"
 
 #include <algorithm>
@@ -232,9 +235,9 @@ struct FixedOverlayBuildScratch
 };
 
 EC void InitOverlayTileHeap(OverlayTileAllocation *) asm("func_08007874");
-EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007C28");
+EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("TileHandle_Release");
 EC u32 AllocateOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007B54");
-EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("func_08007D4C");
+EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("TileHandle_GetTileIndex");
 EC void * CopyOverlayFrame(void *, void const *, size_t) asm("memcpy");
 
 ROM_TEXT(0803AB30) FixedSpriteOverlay * InitializeFixedSpriteOverlay(void * storage, OverlaySpriteResources * inputResources)
@@ -438,6 +441,514 @@ ROM_TEXT(0803AC78) void DestroyFixedSpriteOverlay(FixedSpriteOverlay * inputOver
         __builtin_delete(overlay);
 }
 
+EC void * RetryDmaAllocation(u32) asm("func_080D3BC0");
+
+#define COPY_DMA_COMMAND(destination, source, a, b, c) \
+    do { \
+        register DmaCommand * out asm("r0") = destination; \
+        register DmaCommand const * in asm("r1") = source; \
+        asm volatile(".syntax unified\n\tldmia %1!, {" #a ", " #b ", " #c "}\n" \
+            "\tstmia %0!, {" #a ", " #b ", " #c "}\n\tldr %1, [%1]\n\tstr %1, [%0]\n\t.syntax divided" \
+            : "+l"(out), "+l"(in) : : #a, #b, #c, "memory"); \
+    } while (false)
+
+ROM_TEXT(0803ACD8) void QueueFixedSpriteOverlayGraphics(FixedSpriteOverlay & inputOverlay, DmaTransferQueue & outputQueue)
+{
+    // Keep the original Thumb register assignments around each DMA command copy.
+    enum { OBJ_VRAM_BASE = 0x06010000, OBJ_TILE_BYTES = 32 };
+    register FixedSpriteOverlay * overlay asm("r9") = &inputOverlay;
+    asm("" : "+h"(overlay));
+    register DmaTransferQueue * queue asm("r5") = &outputQueue;
+    asm("" : "+l"(queue));
+    register unsigned initialIndex asm("r0") = 0;
+    asm("" : "+l"(initialIndex));
+    register unsigned index asm("r10") = initialIndex;
+    asm("" : "+h"(index));
+    struct
+    {
+        DmaCommand command;
+        unsigned count;
+        unsigned inserted;
+        DmaCommand const * volatile commandSource;
+        u8 const * volatile paletteIds;
+        DmaCommand * volatile insertionPoint;
+        DmaCommand * volatile buffer;
+    } local;
+    do
+    {
+        register unsigned stride asm("r0") = sizeof(FixedSpriteOverlay::Frame);
+        asm("" : "+l"(stride));
+        register unsigned lowIndex asm("r1") = index;
+        asm("" : "+l"(lowIndex));
+        register uintptr_t frameOffset asm("r0");
+        asm(".syntax unified\n\tmuls %1, %0, %1\n\tadds %0, %1, #0\n\t.syntax divided"
+            : "=l"(frameOffset), "+l"(lowIndex) : "0"(stride) : "cc");
+        register FixedSpriteOverlay::Frame * frame asm("r4");
+        asm(".syntax unified\n\tadds %0, %1, %2\n\tadd %0, %3\n\t.syntax divided"
+            : "=&l"(frame) : "l"(frameOffset), "I"(offsetof(FixedSpriteOverlay, frames)), "h"(overlay));
+        register FixedOverlayFrameSlice<u8> const * tileData asm("r6") = &frame->view.tileBytes;
+        asm("" : "+l"(tileData));
+        u8 const * source = frame->view.tileBytes.data;
+        asm("" : "+l"(source));
+        register OverlayTileAllocation * allocation asm("r0");
+        asm(".syntax unified\n\tadd %0, %1\n\tadds %0, %2\n\t.syntax divided"
+            : "=l"(allocation) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, frames[0].tiles)), "0"(frameOffset));
+        register unsigned tile asm("r2") = GetOverlayBaseTile(allocation, allocation->handle);
+        asm("" : "+l"(tile));
+        unsigned bytes = frame->view.tileBytes.data ? tileData->length : 0;
+        register unsigned tileOffset asm("r2") = tile * OBJ_TILE_BYTES;
+        asm("" : "+l"(tileOffset) : "l"(bytes));
+        register unsigned vramBase asm("r4") = OBJ_VRAM_BASE;
+        asm("" : "+l"(vramBase));
+        DmaCommand_InitializeCopy(&local.command, source, reinterpret_cast<void *>(tileOffset + vramBase), bytes);
+        register DmaCommand * command asm("r6") = &local.command;
+        asm("" : "+l"(command));
+        local.commandSource = command;
+        register DmaCommand * position asm("r1") = queue->end;
+        asm("" : "+l"(position));
+        if (position != queue->capacity_end)
+        {
+            if (position)
+                COPY_DMA_COMMAND(position, &local.command, r2, r3, r7);
+            ++queue->end;
+            register unsigned step asm("r4") = 1;
+            asm("" : "+l"(step));
+            index += step;
+            register u8 const * firstPalette asm("r6");
+            asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+                : "=l"(firstPalette) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids)));
+            local.paletteIds = firstPalette;
+        }
+        else
+        {
+            // Grow by the larger of the queue's size and the insertion count.
+            local.insertionPoint = position;
+            local.inserted = 1;
+            register DmaCommand * begin asm("r1") = queue->begin;
+            asm("" : "+l"(begin));
+            register DmaCommand * end asm("r7") = local.insertionPoint;
+            asm("" : "+l"(end));
+            register intptr_t occupiedBytes asm("r0") = reinterpret_cast<intptr_t>(end) - reinterpret_cast<intptr_t>(begin);
+            asm("" : "+l"(occupiedBytes));
+            register unsigned count asm("r4") = occupiedBytes >> 4;
+            asm("" : "+l"(count));
+            local.count = count;
+            register unsigned * insertCount asm("r2") = &local.inserted;
+            asm("" : "+l"(insertCount));
+            register unsigned * growthCount asm("r0") = &local.count;
+            asm("" : "+l"(growthCount));
+            asm(".syntax unified\n\tcmp %1, #1\n\tbhs 1f\n\tadds %0, %2, #0\n1:\n\t.syntax divided"
+                : "+l"(growthCount) : "l"(count), "l"(insertCount) : "cc");
+            unsigned growth = *growthCount;
+            register unsigned newCapacity asm("r0") = count + growth;
+            asm("" : "+l"(newCapacity));
+            register unsigned bufferBytes asm("r8");
+            register DmaCommand * buffer asm("r0");
+            if (newCapacity)
+            {
+                register unsigned bytes asm("r4") = newCapacity * sizeof(DmaCommand);
+                asm("" : "+l"(bytes));
+                buffer = static_cast<DmaCommand *>(malloc(bytes));
+                bufferBytes = bytes;
+                asm("" : "+h"(bufferBytes) : "l"(buffer));
+                if (!buffer)
+                    buffer = static_cast<DmaCommand *>(RetryDmaAllocation(bufferBytes));
+                begin = queue->begin;
+                asm("" : "+l"(begin) : "l"(buffer));
+            }
+            else
+            {
+                buffer = 0;
+                asm("" : "+l"(buffer));
+                bufferBytes = reinterpret_cast<unsigned>(buffer);
+                asm("" : "+h"(bufferBytes));
+            }
+            register DmaCommand * newBuffer asm("r4") = buffer;
+            asm("" : "+l"(newBuffer));
+            local.buffer = newBuffer;
+            register DmaCommand const * from asm("r2") = begin;
+            asm("" : "+l"(from));
+            register DmaCommand * to asm("r3") = newBuffer;
+            asm("" : "+l"(to));
+            register unsigned step asm("r0") = 1;
+            asm("" : "+l"(step));
+            index += step;
+            register u8 const * firstPalette asm("r1");
+            asm(".syntax unified\n\tmov %0, %1\n\tadds %0, %2\n\t.syntax divided"
+                : "=l"(firstPalette) : "h"(overlay), "i"(offsetof(FixedSpriteOverlay, palettes.ids)));
+            local.paletteIds = firstPalette;
+            register DmaCommand const * oldEnd asm("r4") = local.insertionPoint;
+            asm("" : "+l"(oldEnd));
+            if (from != oldEnd)
+                do
+                {
+                    if (to)
+                        COPY_DMA_COMMAND(to, from, r4, r6, r7);
+                    ++from;
+                    ++to;
+                    register DmaCommand const * positionReload asm("r6") = local.insertionPoint;
+                    asm("" : "+l"(positionReload));
+                    if (from == positionReload)
+                        break;
+                }
+                while (true);
+            register DmaCommand * after asm("r4") = to;
+            asm("" : "+l"(after));
+            register unsigned insertedCount asm("r0") = local.inserted;
+            asm("" : "+l"(insertedCount));
+            if (insertedCount == 1)
+            {
+                if (after)
+                    COPY_DMA_COMMAND(after, local.commandSource, r2, r3, r7);
+                ++after;
+            }
+            else
+            {
+                register unsigned remaining asm("r3") = insertedCount;
+                asm("" : "+l"(remaining));
+                register DmaCommand * target asm("r2") = after;
+                asm("" : "+l"(target));
+                while (remaining)
+                {
+                    if (target)
+                        COPY_DMA_COMMAND(target, local.commandSource, r4, r6, r7);
+                    --remaining;
+                    ++target;
+                }
+                after = target;
+                asm("" : "+l"(after));
+            }
+            register DmaCommand * limit asm("r2") = queue->end;
+            asm("" : "+l"(limit));
+            register DmaCommand * old asm("r1") = queue->begin;
+            asm("" : "+l"(old));
+            register DmaCommand * item asm("r0") = old;
+            asm("" : "+l"(item));
+            // The original queue walks the old commands before freeing their storage.
+            if (old != limit)
+                do { ++item; } while (item != limit);
+            if (old)
+                free(old);
+            register uintptr_t capacityEnd asm("r0") = reinterpret_cast<uintptr_t>(local.buffer);
+            asm("add %0, %1" : "+l"(capacityEnd) : "h"(bufferBytes));
+            register DmaCommand * replacement asm("r1") = local.buffer;
+            asm("" : "+l"(replacement));
+            queue->begin = replacement;
+            queue->end = after;
+            queue->capacity_end = reinterpret_cast<DmaCommand *>(capacityEnd);
+        }
+        register unsigned next asm("r2") = index;
+        asm("" : "+l"(next));
+        if (next >= ARRAY_COUNT(overlay->frames))
+            break;
+    }
+    while (true);
+    register FixedSpriteOverlay * owner asm("r3") = overlay;
+    asm("" : "+l"(owner));
+    register OverlaySpriteResources * resources asm("r0") = owner->resources;
+    asm("" : "+l"(resources));
+    register OverlaySpriteResourceVtable const * methods asm("r3") = resources->vtable;
+    asm("" : "+l"(methods));
+    register FixedSpriteOverlay * data asm("r4") = overlay;
+    asm("" : "+l"(data));
+    register u16 const * colors asm("r1") = data->frames[0].view.paletteBytes.data;
+    asm("" : "+l"(colors));
+    register u8 const * ids asm("r6") = local.paletteIds;
+    asm("" : "+l"(ids));
+    register unsigned palette asm("r2") = *ids;
+    asm("" : "+l"(palette));
+    methods->setObjectPalette(resources, colors, palette, 1);
+}
+
+struct MapOverlayAnimationMethods
+{
+    STRUCT_PAD(0x00, 0x0C);
+    void (*getClip)(FixedOverlayClipView *, SpriteAnimationSource const *, unsigned);
+    void (*getFrame)(FixedOverlayFrameView *, SpriteAnimationSource const *, unsigned);
+};
+
+EC u32 RetainOverlayTiles(OverlayTileAllocation *, unsigned) asm("TileHandle_Retain");
+EC MapOverlayParticle & InitMapOverlayParticle(MapOverlayParticle &, SpriteAnimator const &, int, int);
+
+ROM_TEXT(0803AEA0) GameStateMapOverlay * InitializeGameStateMapOverlay(GameStateMapOverlay * input,
+    MapOverlayScene * scene, SpriteAnimationSource const * archive, u32 kind, unsigned particleCount)
+{
+    // Keep the scratch buffers and copies in the original Thumb stack slots.
+    enum { PRIMARY_PALETTE_KIND = 16, ALTERNATE_PALETTE_KIND = 17, OVERLAY_CLIP_ID = 0 };
+    register GameStateMapOverlay * overlay asm("r6") = input;
+    asm("" : "+l"(overlay));
+    register MapOverlayScene * inputResources asm("r1") = scene;
+    asm("" : "+l"(inputResources));
+    register MapOverlayScene * resources asm("r9") = inputResources;
+    asm("" : "+h"(resources));
+    register SpriteAnimationSource const * animation asm("r10") = archive;
+    asm("" : "+h"(animation));
+    struct BuildScratch
+    {
+        u32 workspace[8];
+        OverlayTileAllocation tiles;
+        FixedOverlayFrameView frame;
+        FixedOverlayClipView clip;
+        volatile u32 kind;
+        volatile unsigned frameCount;
+        GameStateMapOverlay::FrameList * volatile frames;
+        volatile int cameraX;
+        OverlayPaletteTable * volatile palettes;
+        volatile unsigned index;
+    } scratch;
+    scratch.kind = kind;
+    overlay->scene = inputResources;
+    register unsigned zero asm("r1") = 0;
+    asm("" : "+l"(zero));
+    overlay->frames.count = zero;
+    register OverlayPaletteTable * palettes asm("r5") = &overlay->palettes;
+    asm("" : "+l"(palettes));
+    palettes->count = zero;
+    register GameStateMapOverlay * storage asm("r0") = input;
+    register u8 * overlayKind asm("r0");
+    asm(".syntax unified\n\tadds %0, %2\n\t.syntax divided"
+        : "=l"(overlayKind) : "0"(storage), "i"(offsetof(GameStateMapOverlay, kind)));
+    register volatile u32 * kindAddress asm("r2") = &scratch.kind;
+    asm("" : "+l"(kindAddress));
+    *overlayKind = *reinterpret_cast<u8 volatile *>(kindAddress);
+    register u8 * uploadPending asm("r2") = &overlay->uploadPending;
+    asm("" : "+l"(uploadPending));
+    register unsigned one asm("r0") = 1;
+    asm("" : "+l"(one));
+    *uploadPending = one;
+    register u8 * drawHalf asm("r0") = &overlay->drawHalf;
+    asm("" : "+l"(drawHalf));
+    *drawHalf = zero;
+    register unsigned * count asm("r0") = reinterpret_cast<unsigned *>(drawHalf
+        + offsetof(GameStateMapOverlay, particles) - offsetof(GameStateMapOverlay, drawHalf));
+    asm("" : "+l"(count));
+    *count = zero;
+    register SpriteAnimationSource const * methodOwner asm("r3") = animation;
+    asm("" : "+l"(methodOwner));
+    register MapOverlayAnimationMethods const * methods asm("r1") = *reinterpret_cast<MapOverlayAnimationMethods const * const *>(methodOwner);
+    asm("" : "+l"(methods));
+    register FixedOverlayClipView * clip asm("r4") = &scratch.clip;
+    asm("" : "+l"(clip));
+    register FixedOverlayClipView * clipOut asm("r0") = clip;
+    asm("" : "+l"(clipOut));
+    methods->getClip(clipOut, animation, OVERLAY_CLIP_ID);
+    register unsigned frameCount asm("r1");
+    asm(".syntax unified\n\tldr r0, [sp, %2]\n\tmovs %0, #0\n\tcmp r0, #0\n\tbeq 1f\n"
+        "\tldrh %0, [%1, %3]\n1:\n\t.syntax divided"
+        : "=&l"(frameCount)
+        : "l"(clip), "i"(offsetof(BuildScratch, clip) + offsetof(FixedOverlayClipView, keyframes)),
+          "i"(offsetof(FixedOverlayClipView, length))
+        : "r0", "cc", "memory");
+    scratch.frameCount = frameCount;
+    register unsigned firstKey asm("r4") = 0;
+    asm("" : "+l"(firstKey));
+    scratch.index = firstKey;
+    scratch.palettes = palettes;
+    if (firstKey < frameCount)
+    {
+        FixedOverlayFrameView * frameOutLow;
+        asm(".syntax unified\n\tadd %0, sp, %2\n\t.syntax divided"
+            : "=&l"(frameOutLow) : "l"(overlay), "i"(offsetof(BuildScratch, frame)) : "r0", "r1", "r2", "r3", "r4", "r5");
+        register FixedOverlayFrameView * frameOut asm("r8") = frameOutLow;
+        asm("" : "+h"(frameOut));
+        register OverlayTileAllocation * tiles asm("r5") = &scratch.tiles;
+        asm("" : "+l"(tiles));
+        scratch.frames = &overlay->frames;
+        do
+        {
+            register SpriteAnimationSource const * methodOwner asm("r1") = animation;
+            asm("" : "+l"(methodOwner));
+            register MapOverlayAnimationMethods const * methods asm("r3") = *reinterpret_cast<MapOverlayAnimationMethods const * const *>(methodOwner);
+            asm("" : "+l"(methods));
+            register unsigned key asm("r2") = scratch.index;
+            asm("" : "+l"(key));
+            register unsigned offset asm("r1") = key * sizeof(SpriteKeyframe);
+            asm("" : "+l"(offset));
+            register SpriteKeyframe const * base asm("r0") = scratch.clip.keyframes;
+            asm("" : "+l"(base));
+            unsigned frameId = reinterpret_cast<SpriteKeyframe const *>(reinterpret_cast<uintptr_t>(base) + offset)->frame;
+            register FixedOverlayFrameView * frameResult asm("r0") = frameOut;
+            asm("" : "+l"(frameResult) : "r"(frameId));
+            methods->getFrame(frameResult, animation, frameId);
+            register void * copyDest asm("r1");
+            register FixedOverlayFrameView * copySource asm("r0");
+            asm volatile(".syntax unified\n\tmov %0, sp\n\tmov %1, %2\n"
+                "\tldmia %1!, {r3, r4, r7}\n\tstmia %0!, {r3, r4, r7}\n"
+                "\tldmia %1!, {r2, r3, r4}\n\tstmia %0!, {r2, r3, r4}\n"
+                "\tldmia %1!, {r2, r7}\n\tstmia %0!, {r2, r7}\n\t.syntax divided"
+                : "=&l"(copyDest), "=&l"(copySource) : "h"(frameOut) : "r2", "r3", "r4", "r7", "memory");
+            InitOverlayTileHeap(tiles);
+            tiles->handle = AllocateOverlayTiles(tiles, 0);
+            unsigned frameIndex = overlay->frames.count;
+            if (frameIndex < ARRAY_COUNT(overlay->frames.entries))
+            {
+                register unsigned frameOffset asm("r0") = frameIndex * sizeof(GameStateMapOverlay::Frame)
+                    + offsetof(GameStateMapOverlay::FrameList, entries);
+                asm("" : "+l"(frameOffset));
+                register GameStateMapOverlay::FrameList * frameList asm("r3") = scratch.frames;
+                asm("" : "+l"(frameList));
+                register GameStateMapOverlay::Frame * frame asm("r4") =
+                    reinterpret_cast<GameStateMapOverlay::Frame *>(reinterpret_cast<uintptr_t>(frameList) + frameOffset);
+                asm("" : "+l"(frame));
+                if (frame)
+                {
+                    register void * to asm("r1") = frame;
+                    register void const * from asm("r0") = scratch.workspace;
+                    asm volatile(".syntax unified\n"
+                        "\tldmia %1!, {r2, r3, r7}\n\tstmia %0!, {r2, r3, r7}\n"
+                        "\tldmia %1!, {r2, r3, r7}\n\tstmia %0!, {r2, r3, r7}\n"
+                        "\tldmia %1!, {r2, r7}\n\tstmia %0!, {r2, r7}\n\t.syntax divided"
+                        : "+l"(to), "+l"(from) : : "r2", "r3", "r7", "memory");
+                    register OverlayTileAllocation * frameTiles asm("r4") = &frame->tiles;
+                    asm("" : "+l"(frameTiles));
+                    InitOverlayTileHeap(frameTiles);
+                    frameTiles->handle = RetainOverlayTiles(frameTiles, tiles->handle);
+                }
+                ++overlay->frames.count;
+            }
+            ReleaseOverlayTiles(tiles, tiles->handle);
+            TileHeapOwner_Destroy(tiles, 2);
+            register unsigned next asm("r3") = scratch.index + 1;
+            asm("" : "+l"(next));
+            scratch.index = next;
+            register unsigned limit asm("r4") = scratch.frameCount;
+            asm("" : "+l"(limit));
+            if (next >= limit)
+                break;
+        }
+        while (true);
+    }
+    register unsigned overlayType asm("r7") = scratch.kind;
+    asm("" : "+l"(overlayType));
+    register unsigned paletteKind asm("r1");
+    asm(".syntax unified\n\tcmp %1, #0\n\tbeq 1f\n\tcmp %1, #1\n\tbeq 2f\n"
+        "1:\n\tmovs %0, %2\n\tb 3f\n2:\n\tmovs %0, %3\n3:\n\t.syntax divided"
+        : "=l"(paletteKind) : "l"(overlayType), "i"(PRIMARY_PALETTE_KIND), "i"(ALTERNATE_PALETTE_KIND) : "cc");
+    register MapOverlayScene * paletteOwner asm("r2") = resources;
+    asm("" : "+l"(paletteOwner) : "l"(paletteKind));
+    unsigned palette = paletteOwner->vtable->reservePalette(resources, paletteKind);
+    OverlayPaletteTable * slots = scratch.palettes;
+    unsigned slotIndex = slots->count;
+    if (slotIndex < ARRAY_COUNT(slots->ids))
+    {
+        u8 * slot = &slots->ids[slotIndex];
+        if (slot)
+            *slot = palette;
+        register OverlayPaletteTable * storedSlots asm("r3") = scratch.palettes;
+        asm("" : "+l"(storedSlots));
+        ++storedSlots->count;
+    }
+    register unsigned initialDuration asm("r4") = 0;
+    asm("" : "+l"(initialDuration));
+    register unsigned totalDuration asm("r8") = initialDuration;
+    asm("" : "+h"(totalDuration));
+    register unsigned key asm("r2") = 0;
+    asm("" : "+l"(key));
+    register MapOverlayScene * cameraOwner asm("r7") = resources;
+    asm("" : "+l"(cameraOwner));
+    register MapOverlaySceneVtable const * cameraMethods asm("r3") = cameraOwner->vtable;
+    asm("" : "+l"(cameraMethods));
+    register unsigned frameLimit asm("r0") = scratch.frameCount;
+    asm("" : "+l"(frameLimit));
+    if (totalDuration < frameLimit)
+    {
+        register SpriteKeyframe const * frame asm("r1") = scratch.clip.keyframes;
+        asm("" : "+l"(frame));
+        do
+        {
+            totalDuration += frame->duration;
+            ++frame;
+            ++key;
+            register unsigned length asm("r4") = scratch.frameCount;
+            asm("" : "+l"(length) : "l"(frame), "l"(key));
+            if (key >= length)
+                break;
+        }
+        while (true);
+    }
+    scratch.cameraX = cameraMethods->getCameraX(resources);
+    cameraOwner = resources;
+    asm("" : "+l"(cameraOwner));
+    register int cameraY asm("r9") = cameraOwner->vtable->getCameraY(resources);
+    asm("" : "+h"(cameraY));
+    register unsigned firstParticle asm("r0") = 0;
+    asm("" : "+l"(firstParticle));
+    scratch.index = firstParticle;
+    register unsigned particleLimit asm("r1");
+    asm volatile("ldr %0, %1" : "=l"(particleLimit) : "m"(particleCount));
+    if (firstParticle < particleLimit)
+    {
+        register SpriteAnimator * animator asm("r5");
+        asm("mov %0, sp" : "=l"(animator) : : "memory");
+        do
+        {
+            register SpriteAnimator * animatorArg asm("r0");
+            asm("mov %0, sp" : "=l"(animatorArg) : : "memory");
+            InitSpriteAnimator(animatorArg, animation, OVERLAY_CLIP_ID, 0x100);
+            unsigned duration;
+            asm volatile("mov %0, %1" : "=l"(duration) : "h"(totalDuration) : "r0", "r1", "r3");
+            unsigned phase;
+            if (duration)
+                phase = rand() % totalDuration;
+            else
+                phase = 0;
+            asm("" : "+l"(phase));
+            if (phase)
+            {
+                register int speed asm("r4");
+                asm(".syntax unified\n\tmovs r3, %2\n\tldrsh %0, [%1, r3]\n\t.syntax divided"
+                    : "=l"(speed) : "l"(animator), "i"(offsetof(SpriteAnimator, speed_q8)) : "r3", "cc", "memory");
+                animator->speed_q8 = phase << 8;
+                asm("mov %0, sp" : "=l"(animatorArg) : : "memory");
+                AdvanceSpriteAnimator(animatorArg);
+                animator->speed_q8 = speed;
+            }
+            register MapOverlayParticle * particle asm("r4") = reinterpret_cast<MapOverlayParticle *>(scratch.workspace + 5);
+            asm("" : "+l"(particle));
+            register MapOverlayParticle * particleArg asm("r0") = particle;
+            asm("" : "+l"(particleArg));
+            register SpriteAnimator * source asm("r1");
+            asm("mov %0, sp" : "=l"(source) : : "memory");
+            InitMapOverlayParticle(*particleArg, *source, scratch.cameraX, cameraY);
+            register GameStateMapOverlay::ParticleList * particles asm("r2");
+            asm volatile(".syntax unified\n\tadds %0, %1, #0\n\tadds %0, %2\n\t.syntax divided"
+                : "=&l"(particles) : "l"(overlay), "i"(offsetof(GameStateMapOverlay, particles)) : "cc", "memory");
+            register unsigned particleIndex asm("r1") = particles->count;
+            asm("" : "+l"(particleIndex));
+            if (particleIndex < ARRAY_COUNT(particles->entries))
+            {
+                register unsigned particleOffset asm("r0") = particleIndex * sizeof(MapOverlayParticle)
+                    + offsetof(GameStateMapOverlay::ParticleList, entries);
+                asm("" : "+l"(particleOffset));
+                MapOverlayParticle * entry;
+                asm(".syntax unified\n\tadds %0, %1, %2\n\t.syntax divided"
+                    : "=l"(entry) : "l"(particles), "0"(particleOffset) : "cc");
+                if (entry)
+                {
+                    register MapOverlayParticle const * from asm("r1") = particle;
+                    asm volatile(".syntax unified\n"
+                        "\tldmia %1!, {r3, r4, r7}\n\tstmia %0!, {r3, r4, r7}\n"
+                        "\tldmia %1!, {r3, r4, r7}\n\tstmia %0!, {r3, r4, r7}\n"
+                        "\tldr %1, [sp, %2]\n\tstr %1, [%0]\n\t.syntax divided"
+                        : "+l"(entry), "+l"(from)
+                        : "i"(5 * sizeof(u32) + offsetof(MapOverlayParticle, yQ16))
+                        : "r3", "r4", "r7", "memory");
+                }
+                ++particles->count;
+            }
+            register unsigned next asm("r4") = scratch.index + 1;
+            asm("" : "+l"(next));
+            scratch.index = next;
+            register unsigned limit asm("r7");
+            asm volatile("ldr %0, %1" : "=l"(limit) : "m"(particleCount));
+            if (next >= limit)
+                break;
+        }
+        while (true);
+    }
+    return overlay;
+}
+
 ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, unsigned destructorFlags)
 {
     overlay->scene->vtable->releasePalette(overlay->scene, overlay->palettes.ids[0]);
@@ -460,6 +971,217 @@ ROM_TEXT(0803B0A8) void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay
     if (destructorFlags & 1)
         __builtin_delete(overlay);
 }
+
+typedef GameStateMapOverlay::Frame MapOverlayFrame;
+
+ROM_TEXT(0803B128) void QueueGameStateMapOverlayGraphics(GameStateMapOverlay & inputOverlay, DmaTransferQueue & outputQueue)
+{
+    enum { OBJ_VRAM_BASE = 0x06010000, OBJ_TILE_BYTES = 32 };
+    struct
+    {
+        DmaCommand command;
+        unsigned count;
+        unsigned inserted;
+        GameStateMapOverlay * volatile overlay;
+        MapOverlayFrame * volatile frameEnd;
+        MapOverlayFrame * volatile nextFrame;
+        DmaCommand * volatile insertionPoint;
+    } local;
+    local.overlay = &inputOverlay;
+    DmaTransferQueue * queue;
+    asm volatile(".syntax unified\n\tadds %0, %1, #0\n\t.syntax divided"
+        : "=l"(queue) : "l"(&outputQueue) : "cc", "memory");
+    register GameStateMapOverlay::FrameList * frames asm("r2");
+    asm(".syntax unified\n\tadds %0, %1, #0\n\tadds %0, #4\n\t.syntax divided"
+        : "=l"(frames) : "l"(&inputOverlay) : "cc");
+    register MapOverlayFrame * frame asm("r5") = frames->entries;
+    asm("" : "+l"(frame));
+    register MapOverlayFrame * endFrame asm("r2");
+    register unsigned frameCount asm("r1") = inputOverlay.frames.count;
+    asm("" : "+l"(frameCount));
+    asm(".syntax unified\n\tlsls r0, %2, #2\n\tadds r0, r0, %2\n\tlsls r0, r0, #3\n\tadds r0, #4\n\tadds %0, %1, r0\n\t.syntax divided"
+        : "=l"(endFrame) : "0"(frames), "l"(frameCount) : "r0", "cc");
+    local.frameEnd = endFrame;
+    if (frame != endFrame)
+        do
+        {
+            register FixedOverlayFrameSlice<u8> const * tileData asm("r0");
+            register u8 const * source asm("r4");
+            asm(".syntax unified\n\tadds %0, %2, #0\n\tadds %0, %3\n\tldr %1, [%2, %3]\n\t.syntax divided"
+                : "=&l"(tileData), "=l"(source)
+                : "l"(frame), "i"(offsetof(FixedOverlayFrameView, tileBytes)) : "cc", "memory");
+            register unsigned bytes asm("r6") = 0;
+            asm("" : "+l"(bytes));
+            if (source)
+                bytes = tileData->length;
+            asm("" : "+l"(bytes));
+            register MapOverlayFrame * next asm("r0") = frame + 1;
+            asm("" : "+l"(next));
+            local.nextFrame = next;
+            if (bytes)
+            {
+                register OverlayTileAllocation * allocation asm("r0") =
+                    reinterpret_cast<OverlayTileAllocation *>(reinterpret_cast<u8 *>(next) - sizeof(OverlayTileAllocation));
+                asm("" : "+l"(allocation));
+                register unsigned tile asm("r2") = GetOverlayBaseTile(allocation, allocation->handle);
+                asm("" : "+l"(tile));
+                register unsigned tileOffset asm("r2") = tile * OBJ_TILE_BYTES;
+                asm("" : "+l"(tileOffset));
+                register unsigned vramBase asm("r1") = OBJ_VRAM_BASE;
+                asm("" : "+l"(vramBase));
+                DmaCommand_InitializeCopy(&local.command, source, reinterpret_cast<void *>(tileOffset + vramBase), bytes);
+                register DmaCommand * command asm("r10");
+                asm("mov %0, sp" : "=h"(command) : : "memory");
+                register DmaCommand * position asm("r1") = queue->end;
+                asm("" : "+l"(position));
+                if (position != queue->capacity_end)
+                {
+                    if (position)
+                        COPY_DMA_COMMAND(position, &local.command, r2, r3, r4);
+                    ++queue->end;
+                }
+                else
+                {
+                    // Grow by the larger of the queue's size and the insertion count.
+                    local.insertionPoint = position;
+                    local.inserted = 1;
+                    register DmaCommand * begin asm("r1") = queue->begin;
+                    asm("" : "+l"(begin));
+                    register DmaCommand * end asm("r6") = local.insertionPoint;
+                    asm("" : "+l"(end));
+                    register intptr_t occupiedBytes asm("r0") = reinterpret_cast<intptr_t>(end) - reinterpret_cast<intptr_t>(begin);
+                    asm("" : "+l"(occupiedBytes));
+                    register unsigned count asm("r4") = occupiedBytes >> 4;
+                    asm("" : "+l"(count));
+                    local.count = count;
+                    register unsigned * insertCount asm("r2") = &local.inserted;
+                    asm("" : "+l"(insertCount));
+                    register unsigned * growthCount asm("r0") = &local.count;
+                    asm("" : "+l"(growthCount));
+                    asm(".syntax unified\n\tcmp %1, #1\n\tbhs 1f\n\tadds %0, %2, #0\n1:\n\t.syntax divided"
+                        : "+l"(growthCount) : "l"(count), "l"(insertCount) : "cc");
+                    unsigned growth = *growthCount;
+                    register unsigned newCapacity asm("r0") = count + growth;
+                    asm("" : "+l"(newCapacity));
+                    register unsigned bufferBytes asm("r9");
+                    register DmaCommand * buffer asm("r0");
+                    if (newCapacity)
+                    {
+                        register unsigned bytes asm("r4") = newCapacity * sizeof(DmaCommand);
+                        asm("" : "+l"(bytes));
+                        buffer = static_cast<DmaCommand *>(malloc(bytes));
+                        bufferBytes = bytes;
+                        asm("" : "+h"(bufferBytes) : "l"(buffer));
+                        if (!buffer)
+                            buffer = static_cast<DmaCommand *>(RetryDmaAllocation(bufferBytes));
+                        begin = queue->begin;
+                        asm("" : "+l"(begin) : "l"(buffer));
+                    }
+                    else
+                    {
+                        buffer = 0;
+                        asm("" : "+l"(buffer));
+                        bufferBytes = reinterpret_cast<unsigned>(buffer);
+                        asm("" : "+h"(bufferBytes));
+                    }
+                    register DmaCommand * allocated asm("r4") = buffer;
+                    asm("" : "+l"(allocated));
+                    register DmaCommand * newBuffer asm("r8") = allocated;
+                    asm("" : "+h"(newBuffer));
+                    register DmaCommand const * from asm("r2") = begin;
+                    asm("" : "+l"(from));
+                    register DmaCommand * to asm("r3") = newBuffer;
+                    asm("" : "+l"(to));
+                    register MapOverlayFrame * following asm("r5") = frame;
+                    asm(".syntax unified\n\tadds %0, %2\n\t.syntax divided"
+                        : "+l"(following) : "l"(to), "i"(sizeof(MapOverlayFrame)) : "cc");
+                    local.nextFrame = following;
+                    while (true)
+                    {
+                        register DmaCommand const * insertionPoint asm("r0") = local.insertionPoint;
+                        asm("" : "+l"(insertionPoint));
+                        if (from == insertionPoint)
+                            break;
+                        if (to)
+                            COPY_DMA_COMMAND(to, from, r4, r5, r6);
+                        ++from;
+                        ++to;
+                    }
+                    register DmaCommand * after asm("r4") = to;
+                    asm("" : "+l"(after));
+                    register unsigned insertedCount asm("r0") = local.inserted;
+                    asm("" : "+l"(insertedCount));
+                    if (insertedCount == 1)
+                    {
+                        if (after)
+                            COPY_DMA_COMMAND(after, command, r2, r3, r5);
+                        ++after;
+                    }
+                    else
+                    {
+                        register unsigned remaining asm("r3") = insertedCount;
+                        asm("" : "+l"(remaining));
+                        register DmaCommand * target asm("r2") = after;
+                        asm("" : "+l"(target));
+                        while (remaining)
+                        {
+                            if (target)
+                                COPY_DMA_COMMAND(target, command, r4, r5, r6);
+                            --remaining;
+                            ++target;
+                        }
+                        after = target;
+                        asm("" : "+l"(after));
+                    }
+                    register DmaCommand * limit asm("r2") = queue->end;
+                    asm("" : "+l"(limit));
+                    register DmaCommand * old asm("r1") = queue->begin;
+                    asm("" : "+l"(old));
+                    register DmaCommand * item asm("r0") = old;
+                    asm("" : "+l"(item));
+                    // The original queue walks the old commands before freeing their storage.
+                    if (old != limit)
+                        do { ++item; } while (item != limit);
+                    if (old)
+                        free(old);
+                    register uintptr_t capacityEnd asm("r0") = bufferBytes;
+                    asm("add %0, %1" : "+l"(capacityEnd) : "h"(newBuffer));
+                    register DmaCommand * replacement asm("r6") = newBuffer;
+                    asm("" : "+l"(replacement));
+                    queue->begin = replacement;
+                    queue->end = after;
+                    queue->capacity_end = reinterpret_cast<DmaCommand *>(capacityEnd);
+                }
+            }
+            frame = local.nextFrame;
+            asm("" : "+l"(frame));
+            register MapOverlayFrame * last asm("r0") = local.frameEnd;
+            asm("" : "+l"(last));
+            if (frame == last)
+                break;
+        }
+        while (true);
+    register GameStateMapOverlay * owner asm("r1") = local.overlay;
+    asm("" : "+l"(owner));
+    register GameStateMapOverlay::FrameList * frameList asm("r1");
+    register MapOverlayScene * resources asm("r0");
+    asm(".syntax unified\n\tldmia %1!, {%0}\n\t.syntax divided"
+        : "=l"(resources), "=l"(frameList) : "1"(owner) : "memory");
+    register MapOverlaySceneVtable const * methods asm("r3") = resources->vtable;
+    asm("" : "+l"(methods));
+    register u16 const * colors asm("r1") =
+        frameList->entries[0].view.paletteBytes.data;
+    asm("" : "+l"(colors));
+    register GameStateMapOverlay * paletteOwner asm("r2") = local.overlay;
+    asm("" : "+l"(paletteOwner));
+    register u8 const * ids asm("r2") = paletteOwner->palettes.ids;
+    asm("" : "+l"(ids));
+    register unsigned palette asm("r2") = *ids;
+    asm("" : "+l"(palette));
+    methods->setObjectPalette(resources, colors, palette, 1);
+}
+
+#undef COPY_DMA_COMMAND
 
 ROM_TEXT(0803B454) MapOverlayParticle & InitMapOverlayParticle(MapOverlayParticle & particle,
     SpriteAnimator const & animation, int cameraX, int cameraY)
@@ -686,16 +1408,27 @@ ROM_TEXT(0803B6B8) void SetGameScriptTextVariable(GameScriptTextVariables & self
 
 struct DialogWindowTilemapTask
 {
-    STRUCT_PAD(0x00, 0x0C);
+    void * previous;
+    void * next;
+    void const * vtable;
     int left;
     int top;
     unsigned width;
     unsigned height;
-    unsigned screenBlock : 5;
-    unsigned firstTile : 10;
-    unsigned paletteBank : 4;
+    enum
+    {
+        ScreenBlockBits = 5,
+        FirstTileBits = 10,
+        PaletteBankBits = 4,
+    };
+    unsigned screenBlock : ScreenBlockBits;
+    unsigned firstTile : FirstTileBits;
+    unsigned paletteBank : PaletteBankBits;
 };
 
+typedef char DialogWindowTilemapTaskSizeCheck[sizeof(DialogWindowTilemapTask) == 0x20 ? 1 : -1];
+
+EC char const gDialogWindowTilemapTaskVtable[];
 EC void DrawMessageFrame(u16 * tilemap, unsigned x, unsigned y, unsigned width, unsigned height,
     unsigned firstTile, unsigned paletteBank);
 EC u16 const * const gUnk_080F9F78;
@@ -747,21 +1480,136 @@ ROM_TEXT(0803B840) bool RunDialogWindowTilemapTask(DialogWindowTilemapTask & tas
     return false;
 }
 
+ROM_TEXT(0803BF14) DialogWindowTilemapTask & InitializeDialogWindowTilemapTask(DialogWindowTilemapTask & task,
+    int left, int top, unsigned width, unsigned height, unsigned screenBlock, unsigned firstTile, unsigned paletteBank)
+{
+    // Preserve the original order of the height store and stack argument loads.
+    asm volatile("ldr r4, %0\n\tstr r4, [%1, %2]"
+        : : "m"(height), "l"(&task), "i"(offsetof(DialogWindowTilemapTask, height)) : "r4", "memory");
+    // Use a register pair so agbcc saves both r6 and r7.
+    register u64 blockPalette asm("r6");
+    register unsigned tile asm("r5");
+    asm volatile("ldr %0, %2\n\tldr %1, %3\n\tldr %H0, %4"
+        : "=l"(blockPalette), "=l"(tile)
+        : "m"(screenBlock), "m"(firstTile), "m"(paletteBank));
+    register unsigned block asm("r6");
+    register unsigned palette asm("r7");
+    // The low and high words of the pair are already in these registers.
+    asm("" : "=l"(block), "=l"(palette) : "l"(blockPalette));
+    task.previous = 0;
+    task.next = 0;
+    task.vtable = gDialogWindowTilemapTaskVtable;
+    task.left = left;
+    task.top = top;
+    task.width = width;
+    // Preserve the original byte, halfword, and word writes to the packed fields.
+    enum
+    {
+        PackedFields = offsetof(DialogWindowTilemapTask, height) + sizeof(unsigned),
+        ScreenBlockMask = (1 << DialogWindowTilemapTask::ScreenBlockBits) - 1,
+        FirstTileShift = DialogWindowTilemapTask::ScreenBlockBits,
+        FirstTileMask = (1 << DialogWindowTilemapTask::FirstTileBits) - 1,
+        PaletteBankShift = FirstTileShift + DialogWindowTilemapTask::FirstTileBits,
+        PaletteBankMask = (1 << DialogWindowTilemapTask::PaletteBankBits) - 1,
+    };
+    u8 * packed = reinterpret_cast<u8 *>(&task) + PackedFields;
+    {
+        register unsigned mask asm("r1") = ScreenBlockMask;
+        asm("" : "+l"(mask));
+        block &= mask;
+        asm("" : "+l"(block));
+        register unsigned previous asm("r2") = *packed;
+        asm("" : "+l"(previous) : "l"(block));
+        mask = ~ScreenBlockMask;
+        asm("" : "+l"(mask) : "l"(previous));
+        mask &= previous;
+        mask |= block;
+        *packed = mask;
+    }
+    {
+        register unsigned maskValue asm("r2") = FirstTileMask;
+        asm("" : "+l"(maskValue));
+        register unsigned mask asm("r1") = maskValue;
+        asm("" : "+l"(mask));
+        tile = (tile & mask) << FirstTileShift;
+        asm("" : "+l"(tile));
+        register unsigned previous asm("r2") = *reinterpret_cast<u16 *>(packed);
+        asm("" : "+l"(previous) : "l"(tile));
+        mask = ~(FirstTileMask << FirstTileShift);
+        asm("" : "+l"(mask) : "l"(previous));
+        mask &= previous;
+        mask |= tile;
+        *reinterpret_cast<u16 *>(packed) = mask;
+    }
+    {
+        register unsigned mask asm("r1") = PaletteBankMask;
+        asm("" : "+l"(mask));
+        palette &= mask;
+        asm("" : "+l"(palette));
+        register unsigned paletteBits asm("r3") = palette << PaletteBankShift;
+        asm("" : "+l"(paletteBits));
+        register unsigned previous asm("r1") = *reinterpret_cast<u32 *>(packed);
+        asm("" : "+l"(previous) : "l"(paletteBits));
+        register unsigned preservedMask asm("r2") = ~(PaletteBankMask << PaletteBankShift);
+        asm("" : "+l"(preservedMask) : "l"(previous));
+        previous &= preservedMask;
+        previous |= paletteBits;
+        *reinterpret_cast<u32 *>(packed) = previous;
+    }
+    return task;
+}
+
+struct DialogTaskNode
+{
+    DialogTaskNode ** previousLink;
+    DialogTaskNode * next;
+    void const * vtable;
+};
+
+struct DialogLayerList
+{
+    DialogTaskNode node;
+    DialogTaskNode * first;
+    DialogTaskNode sentinel;
+};
+
+struct DialogFrameGraphicsTask
+{
+    DialogTaskNode node;
+    u8 const * tiles;
+    void * destination;
+    u8 tileCount;
+    u8 alternatePaletteNibbles;
+    u8 paletteNibblePhase;
+};
+
 struct PACKED ALIGN(4) DialogWindowLayers
 {
     i16 x;
     i16 y;
-    STRUCT_PAD(0x04, 0x0A);
-    u16 : 7;
+    u16 width;
+    u16 height;
+    u16 background : 2;
+    u16 screenBlock : 5;
+    u16 charBlock : 2;
+    u16 firstTile : 10;
+    u16 paletteBank : 4;
     u16 layerMode : 8;
     u16 state : 8;
     u8 : 1;
     u8 animationFrames;
     STRUCT_PAD(0x0E, 0x10);
-    u8 layerList[0x1C];
-    u8 backgroundLayer[0x18];
+    DialogLayerList layerList;
+    DialogFrameGraphicsTask backgroundLayer;
     DialogWindowTilemapTask tilemapTask;
 };
+
+typedef char DialogWindowLayersLayoutCheck[
+    sizeof(DialogWindowLayers) == 0x64 &&
+    offsetof(DialogWindowLayers, layerList) == 0x10 &&
+    offsetof(DialogWindowLayers, backgroundLayer) == 0x2C &&
+    offsetof(DialogWindowLayers, tilemapTask) == 0x44 &&
+    offsetof(DialogWindowLayers, animationFrames) == 0x0D ? 1 : -1];
 
 struct DialogWindow
 {
@@ -777,13 +1625,642 @@ enum DialogWindowState
     DIALOG_WINDOW_OPEN,
 };
 
-struct BackgroundVideoState;
-struct DialogLayerRenderer;
-struct TileTransferQueue;
+struct BackgroundVideoState
+{
+    u16 displayControl;
+    STRUCT_PAD(2, 8);
+    u16 backgroundControl[4];
+    struct
+    {
+        u16 horizontal;
+        u16 vertical;
+    } backgroundOffset[4];
+    STRUCT_PAD(0x20, 0x40);
+    u16 windowHorizontal[2];
+    u16 windowVertical[2];
+    u16 windowInside;
+    u16 windowOutside;
+    STRUCT_PAD(0x4C, 0x50);
+    u32 blendControlAndAlpha;
+};
+
+typedef char DialogVideoRegisterLayoutCheck[
+    offsetof(BackgroundVideoState, backgroundControl) == 0x08 &&
+    offsetof(BackgroundVideoState, backgroundOffset) == 0x10 &&
+    offsetof(BackgroundVideoState, windowHorizontal) == 0x40 &&
+    offsetof(BackgroundVideoState, windowVertical) == 0x44 &&
+    offsetof(BackgroundVideoState, windowInside) == 0x48 &&
+    offsetof(BackgroundVideoState, windowOutside) == 0x4A &&
+    offsetof(BackgroundVideoState, blendControlAndAlpha) == 0x50 ? 1 : -1];
+
+struct DialogLayerRenderer
+{
+    void * previous;
+    void * next;
+    struct Vtable
+    {
+        STRUCT_PAD(0, 0x1C);
+        void (*runTaskList)(DialogLayerRenderer *, DialogLayerList *);
+    } const * vtable;
+};
+
+struct TileTransferQueue
+{
+    void * previous;
+    void * next;
+    struct Vtable
+    {
+        STRUCT_PAD(0, 0x10);
+        void (*append)(TileTransferQueue *, DialogFrameGraphicsTask *);
+        void (*remove)(TileTransferQueue *, DialogFrameGraphicsTask *);
+    } const * vtable;
+};
+
 struct OamBuffer;
 
-EC int UpdateDialogWindowLayers(DialogWindowLayers &, BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *);
 EC void TaskList_Append(void *, void *);
+
+EC char const gTaskListVtable[];
+EC char const gDialogTaskListSentinelVtable[] asm("vtable_unk_080E5BD8");
+EC char const gDialogFrameGraphicsTaskVtable[] asm("vtable_unk_080E7768");
+EC u8 const * const gDialogFrameTiles asm("gUnk_080F9F70");
+EC u32 const gDialogFrameTileBytes asm("gUnk_080F9F74");
+
+ROM_TEXT(0803B8CC) DialogWindowLayers * InitializeDialogWindowLayers(DialogWindowLayers * layers,
+    int x, int y, int width, int height, unsigned background, unsigned screenBlock,
+    unsigned paletteBank, unsigned layerMode)
+{
+    enum
+    {
+        BackgroundMask = 3,
+        ScreenBlockMask = (1 << DialogWindowTilemapTask::ScreenBlockBits) - 1,
+        CharacterBlockMask = 3,
+        TileMask = (1 << DialogWindowTilemapTask::FirstTileBits) - 1,
+        PaletteBankMask = (1 << DialogWindowTilemapTask::PaletteBankBits) - 1,
+        LayerModeMask = 255,
+        ScreenBlocksPerCharacterBlock = 8,
+        TilesPerScreenBlock = 64,
+        FrameTileOffset = 20,
+        TilePixels = 8,
+        TileBytes = 32,
+        BackgroundVram = 0x06000000,
+        AlternatingPaletteMode = 1,
+    };
+
+    // Preserve the original Thumb register allocation and packed-field access widths.
+    volatile unsigned tileMask;
+    volatile int left;
+    volatile int top;
+    register DialogWindowLayers * self asm("ip") = layers;
+    asm("" : "+r"(self));
+    register int pixelX asm("r1") = x;
+    register int pixelY asm("r2") = y;
+    register int pixelWidth asm("r3") = width;
+    register u64 screenAndBackground asm("r4");
+    register unsigned palette asm("r6");
+    register int pixelHeight asm("r0");
+    register unsigned zero asm("r9");
+    register DialogWindowLayers * layout asm("r7");
+    asm volatile(
+        "ldr %0, %3\n\tldr %H1, %4\n\tldr %1, %5\n\tldr %2, %6"
+        : "=&l"(pixelHeight), "=l"(screenAndBackground), "=l"(palette)
+        : "m"(height), "m"(background), "m"(screenBlock), "m"(paletteBank));
+    asm volatile(
+        "movs %1, #0\n\tmov %0, %1\n\tmov %1, %2\n\t"
+        "strh %3, [%1]\n\tstrh %4, [%1, #2]\n\tstrh %5, [%1, #4]\n\tstrh %6, [%1, #6]"
+        : "=r"(zero), "=l"(layout)
+        : "r"(self), "l"(pixelX), "l"(pixelY), "l"(pixelWidth), "l"(pixelHeight)
+        : "cc", "memory");
+    register unsigned bg asm("r5");
+    register unsigned screen asm("r4");
+    asm("" : "=l"(bg), "=l"(screen) : "l"(screenAndBackground));
+    register unsigned packedBackground asm("r8");
+    register unsigned screenMask asm("r7");
+    asm volatile(
+        ".syntax unified\n\tmovs r0, %5\n\tands %0, r0\n\tldrb r0, [%1, #8]\n\t"
+        "movs r1, #4\n\tnegs r1, r1\n\tmov %2, r1\n\tmov r2, %2\n\t"
+        "ands r2, r0\n\torrs r2, %0\n\tadds r0, %3, #0\n\t"
+        "movs %1, %6\n\tands r0, %1\n\tlsls r0, r0, #2\n\tsubs r1, %7\n\t"
+        "ands r2, r1\n\torrs r2, r0\n\tmov %2, r2\n\tmov r0, %4\n\tstrb r2, [r0, #8]\n\t.syntax divided"
+        : "+l"(bg), "=l"(screenMask), "=r"(packedBackground)
+        : "l"(screen), "r"(self), "i"(BackgroundMask), "i"(ScreenBlockMask),
+          "i"((ScreenBlockMask << 2) - BackgroundMask), "1"(layout)
+        : "r0", "r1", "r2", "cc", "memory");
+
+    register unsigned characterBits asm("r1");
+    asm(".syntax unified\n\tlsrs %0, %1, #3\n\tmovs r0, %2\n\tands %0, r0\n\tlsls %0, %0, #7\n\t.syntax divided"
+        : "=l"(characterBits) : "l"(screen), "i"(CharacterBlockMask) : "r0", "cc");
+    register u8 * packedFields asm("r2");
+    asm volatile("mov %0, %1" : "=l"(packedFields) : "r"(self), "l"(characterBits));
+    register unsigned previousCharacterBits asm("r0") = *reinterpret_cast<u16 *>(packedFields + 8);
+    asm("" : "+l"(previousCharacterBits));
+    register unsigned packedCharacterBlock asm("r3") =
+        (previousCharacterBits & ~(CharacterBlockMask << 7)) | characterBits;
+    asm("" : "+l"(packedCharacterBlock));
+    *reinterpret_cast<u16 *>(packedFields + 8) = packedCharacterBlock;
+
+    register unsigned firstTile asm("r4") = screen;
+    asm("" : "+l"(firstTile));
+    firstTile &= ScreenBlocksPerCharacterBlock - 1;
+    asm("" : "+l"(firstTile));
+    firstTile = firstTile * TilesPerScreenBlock + FrameTileOffset;
+    asm("" : "+l"(firstTile));
+    register unsigned mask asm("r7") = TileMask;
+    asm("" : "+l"(mask));
+    tileMask = mask;
+    firstTile <<= 9;
+    asm("" : "+l"(firstTile));
+    register unsigned previousTileBits asm("r5") = *reinterpret_cast<u32 *>(packedFields + 8);
+    asm("" : "+l"(previousTileBits));
+    register unsigned clearedTileMask asm("r0") = ~(TileMask << 9);
+    asm("" : "+l"(clearedTileMask) : "l"(previousTileBits));
+    register unsigned packedFirstTile asm("r5") = previousTileBits;
+    asm(".syntax unified\n\tands %0, %1\n\torrs %0, %2\n\t.syntax divided"
+        : "+l"(packedFirstTile) : "l"(clearedTileMask), "l"(firstTile) : "cc");
+    asm("" : "+l"(packedFirstTile));
+    *reinterpret_cast<u32 *>(packedFields + 8) = packedFirstTile;
+
+    register unsigned packedPaletteBank asm("sl");
+    register DialogWindowLayers * stateLayout asm("r6");
+    asm volatile(
+        ".syntax unified\n\tmovs r0, %4\n\tands %1, r0\n\tlsls %1, %1, #3\n\t"
+        "ldrb r0, [%2, #10]\n\tmovs r1, %5\n\tnegs r1, r1\n\tmov %0, r1\n\t"
+        "mov r2, %0\n\tands r2, r0\n\torrs r2, %1\n\tmov %0, r2\n\t"
+        "mov %1, %3\n\tstrb r2, [%1, #10]\n\t.syntax divided"
+        : "=r"(packedPaletteBank), "=l"(stateLayout), "+l"(packedFields)
+        : "r"(self), "i"(PaletteBankMask), "i"(1 + (PaletteBankMask << 3)),
+          "1"(palette)
+        : "r0", "r1", "cc", "memory");
+    register unsigned packedMode asm("r1");
+    asm volatile(".syntax unified\n\tmovs r0, %2\n\tldr %0, %1\n\tands %0, r0\n\tlsls %0, %0, #7\n\t.syntax divided"
+        : "=l"(packedMode) : "m"(layerMode), "i"(LayerModeMask) : "r0", "cc");
+    register unsigned previousMode asm("r2") = *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(stateLayout) + 10);
+    asm("" : "+l"(previousMode));
+    register unsigned newMode asm("r0") = (previousMode & ~(LayerModeMask << 7)) | packedMode;
+    asm("" : "+l"(newMode));
+    *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(stateLayout) + 10) = newMode;
+    stateLayout->state = 0;
+    asm volatile(".syntax unified\n\tmovs r7, #0\n\tstrb r7, [%0, #13]\n\t.syntax divided"
+        : : "l"(stateLayout) : "r7", "cc", "memory");
+
+    // The empty task list points to its embedded sentinel.
+    register DialogLayerList * list asm("r2") = &self->layerList;
+    asm("" : "+l"(list));
+    register DialogTaskNode ** nullListLink asm("r0") = reinterpret_cast<DialogTaskNode **>(zero);
+    asm("" : "+l"(nullListLink));
+    stateLayout->layerList.node.previousLink = nullListLink;
+    list->node.next = reinterpret_cast<DialogTaskNode *>(nullListLink);
+    list->node.vtable = gTaskListVtable;
+    register DialogTaskNode * sentinel asm("r1") = &list->sentinel;
+    asm("" : "+l"(sentinel));
+    list->first = sentinel;
+    register DialogTaskNode * nullEnd asm("r6") = reinterpret_cast<DialogTaskNode *>(zero);
+    asm("" : "+l"(nullEnd));
+    sentinel->next = nullEnd;
+    sentinel->vtable = gDialogTaskListSentinelVtable;
+    register DialogTaskNode ** firstLink asm("r0") = &self->layerList.first;
+    asm("" : "+l"(firstLink));
+    list->sentinel.previousLink = firstLink;
+    list->sentinel.next = sentinel;
+
+    // Configure frame graphics in the character block selected by the screen block.
+    unsigned firstFrameTile;
+    asm(".syntax unified\n\tlsls %0, %0, #23\n\tlsrs %0, %0, #30\n\t"
+        "lsls %2, %2, #13\n\tlsrs %1, %2, #22\n\t.syntax divided"
+        : "+l"(packedCharacterBlock), "=l"(firstFrameTile), "+l"(packedFirstTile) : : "cc");
+    register unsigned charBlock asm("r3") = packedCharacterBlock;
+    charBlock *= ScreenBlocksPerCharacterBlock * TilesPerScreenBlock;
+    asm("" : "+l"(charBlock) : "l"(firstFrameTile));
+    register unsigned frameTileIndex asm("r2");
+    asm(".syntax unified\n\tadds %0, %1, %2\n\t.syntax divided"
+        : "=l"(frameTileIndex) : "l"(charBlock), "l"(firstFrameTile) : "cc");
+    register unsigned bytes asm("r0") = gDialogFrameTileBytes;
+    asm("" : "+l"(bytes) : "l"(frameTileIndex));
+    register unsigned tileCount asm("r5") = bytes / TileBytes;
+    asm("" : "+l"(tileCount));
+    register unsigned alternatePaletteNibbles asm("r4") = 0;
+    asm("" : "+l"(alternatePaletteNibbles));
+    register unsigned mode asm("r0");
+    asm volatile("ldr %0, %1" : "=l"(mode) : "m"(layerMode));
+    if (mode == AlternatingPaletteMode)
+        alternatePaletteNibbles = 1;
+    asm("" : "+l"(alternatePaletteNibbles));
+
+    register DialogFrameGraphicsTask * graphics asm("r1") = &self->backgroundLayer;
+    asm("" : "+l"(graphics));
+    register u8 const * tiles asm("r3") = gDialogFrameTiles;
+    asm("" : "+l"(tiles));
+    frameTileIndex *= TileBytes;
+    asm("" : "+l"(frameTileIndex));
+    register unsigned vram asm("r0") = BackgroundVram;
+    asm("" : "+l"(vram));
+    frameTileIndex += vram;
+    asm("" : "+l"(frameTileIndex));
+    register DialogTaskNode ** nullGraphicsLink asm("r6") = reinterpret_cast<DialogTaskNode **>(zero);
+    asm("" : "+l"(nullGraphicsLink));
+    register DialogWindowLayers * graphicsOwner asm("r0") = self;
+    asm("" : "+l"(graphicsOwner));
+    graphicsOwner->backgroundLayer.node.previousLink = nullGraphicsLink;
+    graphics->node.next = reinterpret_cast<DialogTaskNode *>(nullGraphicsLink);
+    graphics->node.vtable = gDialogFrameGraphicsTaskVtable;
+    graphics->tiles = tiles;
+    graphics->destination = reinterpret_cast<void *>(frameTileIndex);
+    graphics->tileCount = tileCount;
+    graphics->alternatePaletteNibbles = alternatePaletteNibbles;
+    register unsigned initialNibblePhase asm("r2") = 0;
+    asm("" : "+l"(initialNibblePhase));
+    graphics->paletteNibblePhase = initialNibblePhase;
+
+    // The tilemap task uses tile coordinates rather than pixels.
+    register DialogWindowLayers * leftSource asm("r6") = self;
+    asm("" : "+l"(leftSource));
+    register int leftTile asm("r0") = leftSource->x / TilePixels;
+    asm("" : "+l"(leftTile));
+    left = leftTile;
+    register DialogWindowLayers * topSource asm("r2") = self;
+    asm("" : "+l"(topSource));
+    register int topTile asm("r6");
+    asm(".syntax unified\n\tmovs r0, #2\n\tldrsh %0, [%1, r0]\n\t.syntax divided"
+        : "=l"(topTile) : "l"(topSource) : "r0", "cc");
+    topTile /= TilePixels;
+    asm("" : "+l"(topTile));
+    top = topTile;
+    register DialogWindowLayers * dimensions asm("r1") = self;
+    asm("" : "+l"(dimensions));
+    register unsigned columns asm("r4") = dimensions->width / TilePixels;
+    asm("" : "+l"(columns));
+    register unsigned rows asm("r1") = dimensions->height / TilePixels;
+    asm("" : "+l"(rows));
+    register unsigned mapScreenBlock asm("r3");
+    register unsigned mapPaletteHighBits asm("r5");
+    asm(".syntax unified\n\tmov r2, %2\n\tlsls %0, r2, #25\n\tlsrs %0, %0, #27\n\t"
+        "mov r6, %3\n\tlsls %1, r6, #25\n\t.syntax divided"
+        : "=l"(mapScreenBlock), "=l"(mapPaletteHighBits) : "r"(packedBackground), "r"(packedPaletteBank)
+        : "r2", "r6", "cc");
+
+    register DialogWindowTilemapTask * tilemap asm("r2") = &self->tilemapTask;
+    asm("" : "+l"(tilemap));
+    register void * nullTilemapLink asm("r0") = reinterpret_cast<void *>(zero);
+    asm("" : "+l"(nullTilemapLink));
+    register DialogWindowLayers * tilemapOwner asm("r6") = self;
+    asm("" : "+l"(tilemapOwner));
+    tilemapOwner->tilemapTask.previous = nullTilemapLink;
+    tilemap->next = nullTilemapLink;
+    tilemap->vtable = gDialogWindowTilemapTaskVtable;
+    tilemap->left = left;
+    register int topReloaded asm("r6") = top;
+    asm("" : "+l"(topReloaded));
+    tilemap->top = topReloaded;
+    tilemap->width = columns;
+    tilemap->height = rows;
+    register unsigned screenBlockMask asm("r0") = ScreenBlockMask;
+    asm("" : "+l"(screenBlockMask));
+    asm volatile(".syntax unified\n\tands %0, %2\n\tldrb r1, [%1, #28]\n\t"
+        "subs %2, %3\n\tands %2, r1\n\torrs %2, %0\n\tstrb %2, [%1, #28]\n\t.syntax divided"
+        : "+l"(mapScreenBlock), "+l"(tilemap), "+l"(screenBlockMask)
+        : "i"(2 * ScreenBlockMask + 1) : "r1", "cc", "memory");
+    register unsigned tileMaskReloaded asm("r1") = tileMask;
+    asm("" : "+l"(tileMaskReloaded));
+    firstFrameTile &= tileMaskReloaded;
+    asm("" : "+l"(firstFrameTile));
+    register unsigned mapFirstTileBits asm("r3") = firstFrameTile << 5;
+    asm("" : "+l"(mapFirstTileBits));
+    register unsigned oldTilemapHalfword asm("r1");
+    asm volatile("ldrh %0, [%1, #28]" : "=l"(oldTilemapHalfword) : "l"(tilemap) : "memory");
+    register unsigned clearFirstTile asm("r0") = ~(TileMask << 5);
+    asm("" : "+l"(clearFirstTile) : "l"(oldTilemapHalfword));
+    clearFirstTile &= oldTilemapHalfword;
+    clearFirstTile |= mapFirstTileBits;
+    asm("" : "+l"(clearFirstTile));
+    asm volatile("strh %0, [%1, #28]" : : "l"(clearFirstTile), "l"(tilemap) : "memory");
+    mapPaletteHighBits >>= 28;
+    asm("" : "+l"(mapPaletteHighBits));
+    mapPaletteHighBits <<= 15;
+    asm("" : "+l"(mapPaletteHighBits));
+    register unsigned oldTilemapWord asm("r0");
+    asm volatile("ldr %0, [%1, #28]" : "=l"(oldTilemapWord) : "l"(tilemap) : "memory");
+    register unsigned clearPaletteBank asm("r1") = ~(PaletteBankMask << 15);
+    asm("" : "+l"(clearPaletteBank) : "l"(oldTilemapWord));
+    oldTilemapWord &= clearPaletteBank;
+    oldTilemapWord |= mapPaletteHighBits;
+    asm("" : "+l"(oldTilemapWord));
+    asm volatile("str %0, [%1, #28]" : : "l"(oldTilemapWord), "l"(tilemap) : "memory");
+    return self;
+}
+
+ROM_TEXT(0803BAAC) int UpdateDialogWindowLayers(DialogWindowLayers & layers, BackgroundVideoState * video,
+    DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
+{
+    enum
+    {
+        TransitionFrames = 9,
+        Background0Enabled = 1 << 8,
+        BackgroundMosaic = 1 << 6,
+        AllWindowLayers = 0x3F,
+        WindowColorEffects = 1 << 5,
+        AllSecondTargets = 0x3F00,
+        AlphaBlend = 1 << 6,
+        AlphaCoefficients = 0x0808,
+        QueueFrameGraphics = 1,
+        BlendDialogBackground = 2,
+    };
+    // The original Thumb code stages register halfwords at sp and the packed BG byte at sp + 4.
+    u32 registerScratch[2];
+    asm("" : "=m"(registerScratch));
+    register BackgroundVideoState * videoBase asm("r9") = video;
+    asm("" : "+r"(videoBase) : "l"(&layers));
+    register DialogLayerRenderer * renderer asm("r4") = layerRenderer;
+    asm("" : "+l"(renderer) : "r"(videoBase));
+    register TileTransferQueue * transfers asm("r10") = tileTransfers;
+    asm("" : "+r"(transfers) : "l"(renderer));
+    int state = layers.state;
+    switch (state)
+    {
+        case DIALOG_WINDOW_OPENING:
+            if (layers.animationFrames >= TransitionFrames)
+                layers.state = DIALOG_WINDOW_OPEN;
+            else
+                ++layers.animationFrames;
+            break;
+        case DIALOG_WINDOW_CLOSING:
+            if (layers.animationFrames == 0)
+                layers.state = DIALOG_WINDOW_CLOSED;
+            else
+                --layers.animationFrames;
+            break;
+        case DIALOG_WINDOW_CLOSED:
+        default:
+            break;
+    }
+    register DialogLayerList * list asm("r3") = &layers.layerList;
+    register unsigned isEmpty asm("r2");
+    asm("" : "+l"(list));
+    isEmpty = list->first == &list->sentinel;
+    asm("" : "+l"(isEmpty) : "l"(list));
+    if (!isEmpty)
+        renderer->vtable->runTaskList(renderer, list);
+
+    if (layers.state != DIALOG_WINDOW_CLOSED)
+    {
+        register DialogWindowLayers * self asm("r7") = &layers;
+        register unsigned frames asm("r6");
+        register unsigned fullTop asm("r5");
+
+        // Enable the dialog BG and window 0, set the tilemap, and scroll the BG to the dialog origin.
+        asm volatile(
+            ".syntax unified\n\t"
+            "movs r0, #0\n\t"
+            "mov r8, r0\n\t"
+            "ldrb r4, [%3, #8]\n\t"
+            "lsls r2, r4, #30\n\t"
+            "lsrs r2, r2, #30\n\t"
+            "movs r0, %5\n\t"
+            "lsls r0, r0, #1\n\t"
+            "lsls r0, r2\n\t"
+            "movs r3, %5\n\t"
+            "lsls r3, r3, #6\n\t"
+            "adds r1, r3, #0\n\t"
+            "orrs r0, r1\n\t"
+            "mov r5, %4\n\t"
+            "ldrh r1, [r5]\n\t"
+            "orrs r0, r1\n\t"
+            "strh r0, [r5]\n\t"
+            "lsls r3, r2, #1\n\t"
+            "lsls r2, r2, #2\n\t"
+            "mov r5, sp\n\t"
+            "ldrh r1, [%3, #8]\n\t"
+            "lsls r1, r1, #23\n\t"
+            "lsrs r1, r1, #30\n\t"
+            "lsls r1, r1, #2\n\t"
+            "lsls r0, r4, #25\n\t"
+            "lsrs r0, r0, #27\n\t"
+            "lsls r0, r0, #8\n\t"
+            "orrs r1, r0\n\t"
+            "movs r0, %6\n\t"
+            "orrs r1, r0\n\t"
+            "strh r1, [r5]\n\t"
+            "adds r3, %7\n\t"
+            "add r3, %4\n\t"
+            "strh r1, [r3]\n\t"
+            "mov r0, sp\n\t"
+            "mov r1, r8\n\t"
+            "strh r1, [r0]\n\t"
+            "adds r0, r2, #0\n\t"
+            "adds r0, %8\n\t"
+            "add r0, %4\n\t"
+            "strh r1, [r0]\n\t"
+            "mov r1, sp\n\t"
+            "ldrh %1, [%3, #2]\n\t"
+            "negs r0, %1\n\t"
+            "strh r0, [r1]\n\t"
+            "adds r2, %9\n\t"
+            "add r2, %4\n\t"
+            "strh r0, [r2]\n\t"
+            "ldrb %0, [%3, #13]\n\t"
+            "strb r4, [r1, #4]\n\t"
+            ".syntax divided"
+            : "=l"(frames), "=l"(fullTop), "=m"(registerScratch)
+            : "l"(self), "r"(videoBase),
+              "I"(Background0Enabled >> 1), "I"(BackgroundMosaic),
+              "I"(offsetof(BackgroundVideoState, backgroundControl)),
+              "I"(offsetof(BackgroundVideoState, backgroundOffset)),
+              "I"(offsetof(BackgroundVideoState, backgroundOffset) + sizeof(u16))
+            : "r0", "r1", "r2", "r3", "r4", "r8", "cc", "memory");
+
+        if (frames >= TransitionFrames)
+        {
+            // A window bound packs its start in the high byte and its end in the low byte.
+            asm volatile(
+                ".syntax unified\n\t"
+                "mov r3, sp\n\t"
+                "ldrh r0, [%0]\n\t"
+                "lsls r2, r0, #8\n\t"
+                "ldrh r1, [%0, #4]\n\t"
+                "adds r0, r0, r1\n\t"
+                "orrs r2, r0\n\t"
+                "strh r2, [r3]\n\t"
+                "mov r0, %1\n\t"
+                "adds r0, %3\n\t"
+                "strh r2, [r0]\n\t"
+                "mov r2, sp\n\t"
+                "lsls r1, %2, #8\n\t"
+                "ldrh r0, [%0, #6]\n\t"
+                "adds r0, %2, r0\n\t"
+                "orrs r1, r0\n\t"
+                "strh r1, [r2]\n\t"
+                "mov r0, %1\n\t"
+                "adds r0, %4\n\t"
+                "strh r1, [r0]\n\t"
+                ".syntax divided"
+                : : "l"(self), "r"(videoBase), "l"(fullTop),
+                    "I"(offsetof(BackgroundVideoState, windowHorizontal)),
+                    "I"(offsetof(BackgroundVideoState, windowVertical))
+                : "r0", "r1", "r2", "r3", "cc", "memory");
+        }
+        else
+        {
+            // Reveal a centered rectangle that grows and shrinks with the transition.
+            register unsigned height asm("r4") = layers.height;
+            asm("" : "+l"(height));
+            register int animatedHeight asm("r8") = height * frames / TransitionFrames;
+            asm("" : "+r"(animatedHeight));
+            register int originY asm("r5");
+            asm(
+                ".syntax unified\n\t"
+                "movs r2, %2\n\t"
+                "ldrsh %0, [%1, r2]\n\t"
+                ".syntax divided"
+                : "=l"(originY)
+                : "l"(self), "I"(offsetof(DialogWindowLayers, y)) : "r2", "cc", "memory");
+            register int centerY asm("r5") = (originY + (originY + static_cast<int>(height))) / 2;
+            register int halfAnimatedHeight asm("r0");
+            asm(
+                ".syntax unified\n\t"
+                "mov r3, %1\n\t"
+                "lsrs %0, r3, #31\n\t"
+                "add %0, %1\n\t"
+                "asrs %0, %0, #1\n\t"
+                ".syntax divided"
+                : "=l"(halfAnimatedHeight) : "r"(animatedHeight), "l"(centerY) : "r3", "cc");
+            register int top asm("r5") = centerY - halfAnimatedHeight;
+            register int animatedWidth asm("r0") = layers.width * frames / TransitionFrames;
+            register int left asm("r2") = (layers.x + (layers.x + layers.width)) / 2 - animatedWidth / 2;
+            asm volatile(
+                ".syntax unified\n\t"
+                "mov r3, sp\n\t"
+                "lsls r1, %0, #8\n\t"
+                "adds %0, %0, %1\n\t"
+                "orrs r1, %0\n\t"
+                "strh r1, [r3]\n\t"
+                "mov %1, %4\n\t"
+                "adds %1, %5\n\t"
+                "strh r1, [%1]\n\t"
+                "mov r1, sp\n\t"
+                "lsls %1, %2, #8\n\t"
+                "add %2, %3\n\t"
+                "orrs %1, %2\n\t"
+                "strh %1, [r1]\n\t"
+                "mov r1, %4\n\t"
+                "adds r1, %6\n\t"
+                "strh %1, [r1]\n\t"
+                ".syntax divided"
+                : "+l"(left), "+l"(animatedWidth), "+l"(top)
+                : "r"(animatedHeight), "r"(videoBase),
+                  "I"(offsetof(BackgroundVideoState, windowHorizontal)),
+                  "I"(offsetof(BackgroundVideoState, windowVertical))
+                : "r1", "r3", "cc", "memory");
+        }
+
+        // Allow all layers inside window 0, but hide the dialog BG outside it.
+        register u16 * windowInside asm("r3");
+        register unsigned backgroundMask asm("r4");
+        asm volatile(
+            ".syntax unified\n\t"
+            "mov r0, sp\n\t"
+            "movs r1, %3\n\t"
+            "strh r1, [r0]\n\t"
+            "mov %0, %2\n\t"
+            "adds %0, %4\n\t"
+            "strh r1, [%0]\n\t"
+            "mov r2, sp\n\t"
+            "ldrb %1, [r2, #4]\n\t"
+            "lsls r0, %1, #30\n\t"
+            "lsrs r0, r0, #30\n\t"
+            "movs %1, #1\n\t"
+            "lsls %1, r0\n\t"
+            "bics r1, %1\n\t"
+            "strh r1, [r2]\n\t"
+            "mov r0, %2\n\t"
+            "adds r0, %5\n\t"
+            "strh r1, [r0]\n\t"
+            ".syntax divided"
+            : "=l"(windowInside), "=l"(backgroundMask)
+            : "r"(videoBase), "I"(AllWindowLayers),
+              "I"(offsetof(BackgroundVideoState, windowInside)),
+              "I"(offsetof(BackgroundVideoState, windowOutside))
+            : "r0", "r1", "r2", "cc", "memory");
+
+        register int mode asm("r2");
+        asm(
+            ".syntax unified\n\t"
+            "ldrh r0, [%1, #10]\n\t"
+            "lsls r0, r0, #17\n\t"
+            "lsrs %0, r0, #24\n\t"
+            ".syntax divided"
+            : "=l"(mode) : "l"(self), "l"(windowInside), "l"(backgroundMask) : "r0", "cc", "memory");
+        if (mode == BlendDialogBackground)
+        {
+            *windowInside |= WindowColorEffects;
+            register unsigned packedBlend asm("r0") = AllSecondTargets | AlphaBlend | (AlphaCoefficients << 16);
+            asm("" : "+l"(packedBlend) : "l"(windowInside));
+            backgroundMask |= packedBlend;
+            register BackgroundVideoState * registers asm("r5") = videoBase;
+            asm("" : "+l"(registers) : "l"(backgroundMask));
+            registers->blendControlAndAlpha = backgroundMask;
+        }
+        if (mode == QueueFrameGraphics)
+        {
+            register DialogFrameGraphicsTask * frameTask asm("r3") = &layers.backgroundLayer;
+            asm("" : "+l"(frameTask));
+            int link = reinterpret_cast<int>(layers.backgroundLayer.node.previousLink);
+            // Thumb tests the sign of (link | -link) to detect a non-null backlink.
+            int queued = static_cast<int>(0u - static_cast<unsigned>(link)) | link;
+            asm("" : "+l"(queued));
+            if (queued >= 0)
+            {
+                register TileTransferQueue * queue asm("r1") = transfers;
+                asm("" : "+l"(queue) : "l"(frameTask));
+                register TileTransferQueue::Vtable const * vtable asm("r0") = queue->vtable;
+                asm("" : "+l"(vtable));
+                register void (*append)(TileTransferQueue *, DialogFrameGraphicsTask *) asm("r2") = vtable->append;
+                asm("" : "+l"(append));
+                append(transfers, frameTask);
+            }
+        }
+    }
+    else
+    {
+        register DialogWindowLayers * self asm("r7") = &layers;
+        register unsigned enabledBackground asm("r1");
+        asm(
+            ".syntax unified\n\t"
+            "ldrb r0, [%1, #8]\n\t"
+            "lsls r0, r0, #30\n\t"
+            "lsrs r0, r0, #30\n\t"
+            "movs %0, %2\n\t"
+            "lsls %0, %0, #1\n\t"
+            "lsls %0, r0\n\t"
+            ".syntax divided"
+            : "=l"(enabledBackground)
+            : "l"(self), "I"(Background0Enabled >> 1) : "r0", "cc", "memory");
+        register BackgroundVideoState * registers asm("r2") = videoBase;
+        asm("" : "+l"(registers) : "l"(enabledBackground));
+        registers->displayControl &= ~enabledBackground;
+        register DialogFrameGraphicsTask * frameTask asm("r3");
+        register int link asm("r1");
+        asm volatile(
+            ".syntax unified\n\t"
+            "adds %0, %2, #0\n\t"
+            "adds %0, %3\n\t"
+            "ldr %1, [%2, %3]\n\t"
+            ".syntax divided"
+            : "=l"(frameTask), "=l"(link)
+            : "l"(self), "I"(offsetof(DialogWindowLayers, backgroundLayer)) : "cc", "memory");
+        int queued = static_cast<int>(0u - static_cast<unsigned>(link)) | link;
+        asm("" : "+l"(queued));
+        if (queued < 0)
+        {
+            register TileTransferQueue * queue asm("r4") = transfers;
+            asm("" : "+l"(queue) : "l"(frameTask));
+            register TileTransferQueue::Vtable const * vtable asm("r0") = queue->vtable;
+            asm("" : "+l"(vtable));
+            register void (*remove)(TileTransferQueue *, DialogFrameGraphicsTask *) asm("r2") = vtable->remove;
+            asm("" : "+l"(remove));
+            remove(transfers, frameTask);
+        }
+    }
+    return layers.state;
+}
 
 ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
 {
@@ -792,8 +2269,8 @@ ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
     {
         u32 layerMode = self.layerMode;
         if (layerMode != 1)
-            TaskList_Append(self.layerList, self.backgroundLayer);
-        TaskList_Append(self.layerList, &self.tilemapTask);
+            TaskList_Append(&self.layerList, &self.backgroundLayer);
+        TaskList_Append(&self.layerList, &self.tilemapTask);
         self.animationFrames = state;
     }
     int nextState = self.state;
@@ -836,14 +2313,15 @@ ROM_TEXT(0803BD60) void func_0803BDEC(DialogWindowLayers & self, int x, int y)
 }
 
 EC char const vtable_unk_080E7778[];
-EC DialogWindowLayers * InitializeDialogWindowLayers(void *, int, int, int, int, int, int, int, int);
 EC void TaskNode_Destroy(void *, int);
 EC void TaskList_Destroy(void *, int);
 
-ROM_TEXT(0803BD60) DialogWindow & func_0803BDFC(DialogWindow & self, int x, int y, int width, int height, int arg5, int arg6, int arg7, int arg8)
+ROM_TEXT(0803BD60) DialogWindow & func_0803BDFC(DialogWindow & self, int x, int y, int width, int height,
+    int background, int screenBlock, int paletteBank, int layerMode)
 {
     self.vtable = vtable_unk_080E7778;
-    self.inner = InitializeDialogWindowLayers(::operator new(0x64), x, y, width, height, arg5, arg6, arg7, arg8);
+    DialogWindowLayers * layers = static_cast<DialogWindowLayers *>(::operator new(sizeof(DialogWindowLayers)));
+    self.inner = InitializeDialogWindowLayers(layers, x, y, width, height, background, screenBlock, paletteBank, layerMode);
     return self;
 }
 
@@ -913,7 +2391,47 @@ ROM_TEXT(0803BD60) void func_0803BF08(DialogWindow & self, int x, int y)
     func_0803BDEC(*self.inner, x, y);
 }
 
-struct PauseMenuGraphics;
+enum PauseMenuTab
+{
+    PAUSE_MENU_DIARY,
+    PAUSE_MENU_RUCKSACK,
+    PAUSE_MENU_WORLD_MAP,
+    PAUSE_MENU_FARM_MAP,
+    PAUSE_MENU_EARNINGS,
+    PAUSE_MENU_MEMO,
+    PAUSE_MENU_TUTORIAL,
+    PAUSE_MENU_TAB_COUNT,
+};
+
+struct PauseMenuSprite;
+
+struct PauseMenuLabel
+{
+    STRUCT_PAD(0, 4);
+    ClockTile tiles[2][3][4];
+    ClockTileAllocation tileAllocations[3];
+    ClockUploadTask rowUploads[3][2];
+};
+
+struct PauseMenuGraphics
+{
+    // The animation bank starts at offset zero, followed by the shared OBJ palette.
+    STRUCT_PAD(0x00, 0x30);
+    ClockPaletteAllocation spritePalette;
+    ClockUploadTask paletteUpload;
+    PauseMenuSprite * cursor;
+    PauseMenuSprite * tabs[PAUSE_MENU_TAB_COUNT];
+
+    PauseMenuLabel label;
+};
+
+typedef char PauseMenuGraphicsLayoutCheck[
+    sizeof(PauseMenuGraphics) == 0x41C &&
+    offsetof(PauseMenuGraphics, cursor) == 0x50 &&
+    offsetof(PauseMenuGraphics, tabs) == 0x54 &&
+    offsetof(PauseMenuGraphics, label.tiles) == 0x74 &&
+    offsetof(PauseMenuGraphics, label.tileAllocations) == 0x374 &&
+    offsetof(PauseMenuGraphics, label.rowUploads) == 0x38C ? 1 : -1];
 
 struct PauseMenuWindow : DialogWindow
 {
@@ -923,6 +2441,649 @@ struct PauseMenuWindow : DialogWindow
     u8 cursorBlinkFrames;
     bool selectionEnabled;
 };
+
+struct AudioPlayer;
+
+struct PauseMenuFrameView
+{
+    SpriteFrameObject const * objects;
+    u16 objectCount;
+    u8 const * tiles;
+    u16 tileBytes;
+    u16 const * palette;
+    u16 paletteBytes;
+    SpriteFrameExtra const * extras;
+    u16 extraCount;
+};
+
+struct PauseMenuSprite
+{
+    ClockTileAllocation tiles;
+    ClockUploadTask upload;
+    SpriteAnimator animator;
+};
+
+struct PauseMenuDimensions
+{
+    u16 width;
+    u16 height;
+};
+
+struct PauseMenuFrameVtable
+{
+    STRUCT_PAD(0, 0x10);
+    void (*getFrame)(PauseMenuFrameView *, SpriteAnimationSource const *, unsigned);
+};
+
+struct PauseMenuFrameSource
+{
+    PauseMenuFrameVtable const * vtable;
+};
+
+struct PauseMenuUploadQueue;
+
+struct PauseMenuUploadVtable
+{
+    STRUCT_PAD(0, 0x10);
+    void (*append)(PauseMenuUploadQueue *, ClockUploadTask *);
+};
+
+struct PauseMenuUploadQueue
+{
+    void * previous;
+    void * next;
+    PauseMenuUploadVtable const * vtable;
+};
+
+typedef void (*ReadPauseMenuFrame)(PauseMenuFrameView *, SpriteAnimationSource const *, unsigned);
+typedef void (*AppendPauseMenuUpload)(PauseMenuUploadQueue *, ClockUploadTask *);
+
+struct PauseSpriteAttributes
+{
+    u32 position;
+    u32 tilePalette;
+};
+struct PauseMenuWork
+{
+    PauseMenuFrameView frame;
+    PauseSpriteAttributes cursor, tab;
+    PauseMenuDimensions fillDimensions, drawDimensions;
+    PauseSpriteAttributes labelSprite;
+    SpriteOamBuffer * oam;
+    int result;
+    const char *text;
+    PauseMenuLabel *label;
+    unsigned labelChanged;
+    u8 *labelTiles;
+    unsigned nextPart;
+    u8 *tabY;
+    PauseSpriteAttributes *labelAttributes;
+    unsigned negatedText;
+    unsigned tabX;
+    unsigned row;
+};
+
+enum
+{
+    PAUSE_MENU_CONFIRM_KEY = 1,
+    PAUSE_MENU_RIGHT_KEY = 0x10,
+    PAUSE_MENU_LEFT_KEY = 0x20,
+    PAUSE_MENU_CONFIRM_SOUND = 0xC5,
+    PAUSE_MENU_MOVE_SOUND = 0xCB,
+    PAUSE_MENU_TAB_SPACING = 16,
+    PAUSE_MENU_TAB_Y = 150,
+    PAUSE_MENU_CURSOR_VISIBLE_FRAMES = 20,
+    PAUSE_MENU_CURSOR_PERIOD = 40,
+    PAUSE_MENU_LABEL_PARTS = 3,
+    PAUSE_MENU_LABEL_WIDTH_TILES = 12,
+    PAUSE_MENU_LABEL_HEIGHT_TILES = 2,
+    PAUSE_MENU_LABEL_X = 136,
+    PAUSE_MENU_LABEL_Y = 142,
+};
+
+struct PauseMenuUploadFields
+{
+    const void *source;
+    void *destination;
+    unsigned length;
+};
+
+
+EC char const * const gPauseMenuTabLabels[PAUSE_MENU_TAB_COUNT];
+EC unsigned PauseMenuPaletteIndex(ClockPaletteAllocation *, u32) asm("ResourceHandle_GetIndex");
+EC unsigned PauseMenuBaseTile(ClockTileAllocation *, u32) asm("TileHandle_GetTileIndex");
+EC void AudioPlayer_StartSong(AudioPlayer *, u16);
+EC void FillMessageTiles(PauseMenuDimensions, void *, unsigned);
+EC void DrawMessageTileString(PauseMenuDimensions, void *, unsigned, unsigned, char const *);
+
+typedef char PauseMenuWorkLayoutCheck[
+    sizeof(PauseMenuWork) == 0x70 && offsetof(PauseMenuWork, frame) == 0 &&
+    offsetof(PauseMenuWork, cursor) == 0x20 && offsetof(PauseMenuWork, tab) == 0x28 &&
+    offsetof(PauseMenuWork, labelSprite) == 0x38 ? 1 : -1];
+
+// Register and literal-pool constraints keep the original Thumb layout.
+#define BARRIER(obj) asm("" : "+m"(obj))
+#define LOW(type, name, reg, value) register type name asm(reg) = (value); asm("" : "+l"(name))
+#define HIGH(type, name, reg, value) register type name asm(reg) = (value); asm("" : "+h"(name))
+#define FIELD_OFFSET(object, member) ((u32)&((object *)0)->member)
+#define LOAD(type, name, reg, insn, ptr, object, member) \
+    register type name asm(reg); \
+    asm volatile(insn " %0, [%1, %2]" : "=l"(name) : "l"(ptr), "i"(((u32)&((object *)0)->member)) : "memory")
+#define STORE(insn, value, ptr, object, member) \
+    asm volatile(insn " %0, [%1, %2]" : : "l"(value), "l"(ptr), "i"(((u32)&((object *)0)->member)) : "memory")
+#define LITERAL(type, name, reg, label) \
+    register type name asm(reg); \
+    asm("ldr %0, .Lpause_" #label : "=l"(name))
+#define AND(result, input) asm("and %0, %1" : "+l"(result) : "l"(input))
+#define OR(result, input) asm("orr %0, %1" : "+l"(result) : "l"(input))
+#define SP_OFFSET(member) (4 + (u32)&(((PauseMenuWork *)0)->member))
+#define SP_ADDR(type, name, reg, member, format) \
+    register type name asm(reg); \
+    asm(format : "=l"(name) : "i"(SP_OFFSET(member)) : "memory")
+#define STACK_ADDR(type, name, reg, member) SP_ADDR(type, name, reg, member, "add %0, sp, %1")
+#define SPLIT_STACK_ADDR(type, name, reg, member) SP_ADDR(type, name, reg, member, "mov %0, sp\n\tadd %0, %1")
+#define LOAD_QUEUE(upload, queueReg) \
+    LOW(PauseMenuUploadQueue *, queue, queueReg, reinterpret_cast<PauseMenuUploadQueue *>(renderer)); \
+    LOAD(const PauseMenuUploadVtable *, queueVtable, "r0", "ldr", queue, PauseMenuUploadQueue, vtable); \
+    LOAD(AppendPauseMenuUpload, append, "r2", "ldr", queueVtable, PauseMenuUploadVtable, append); \
+    append(queue, upload)
+#define RELOAD_QUEUE(upload) \
+    LOW(PauseMenuUploadQueue *, queue, "r2", reinterpret_cast<PauseMenuUploadQueue *>(renderer)); \
+    LOAD(const PauseMenuUploadVtable *, queueVtable, "r0", "ldr", queue, PauseMenuUploadQueue, vtable); \
+    LOAD(AppendPauseMenuUpload, append, "r2", "ldr", queueVtable, PauseMenuUploadVtable, append); \
+    LOW(PauseMenuUploadQueue *, queueAgain, "r0", reinterpret_cast<PauseMenuUploadQueue *>(renderer)); \
+    append(queueAgain, upload)
+#define UPLOAD(upload, data, slot, bytes, base, baseReg) \
+    LOW(unsigned, destOffset, "r0", slot * 32); \
+    LITERAL(unsigned, destinationBase, baseReg, base); \
+    LOW(unsigned, destination, "r0", destOffset + destinationBase); \
+    STORE("str", data, upload, ClockUploadTask, source); \
+    STORE("str", destination, upload, ClockUploadTask, destination); \
+    STORE("str", bytes, upload, ClockUploadTask, length)
+#define GETFRAME(sprite, keyframeIndex) \
+    LOW(SpriteAnimationSource const *, source, "r1", sprite->animator.source); \
+    LOW(const PauseMenuFrameVtable *, vtable, "r3", ((const PauseMenuFrameSource *)source)->vtable); \
+    LOW(unsigned, key, "r2", keyframeIndex); \
+    LOW(unsigned, keyOffset, "r2", key * sizeof(SpriteKeyframe)); \
+    LOAD(SpriteKeyframe const *, keys, "r0", "ldr", sprite, PauseMenuSprite, animator.clip.keyframes); \
+    LOW(SpriteKeyframe const *, keyframe, "r0", (SpriteKeyframe const *)((u32)keys + keyOffset)); \
+    LOAD(unsigned, frameId, "r2", "ldrh", keyframe, SpriteKeyframe, frame); \
+    LOW(PauseMenuFrameView *, frameOut, "r0", &work.frame); \
+    LOW(ReadPauseMenuFrame, getFrame, "r3", vtable->getFrame); \
+    getFrame(frameOut, source, frameId)
+
+#define QUEUE_SPRITE(positionWord, attr, used, queue, loadQueue, afterPosition) \
+    { \
+    LOW(unsigned, offset, "r0", used * sizeof(SpriteAttributes) + offsetof(SpriteOamBuffer, sprites)); \
+    loadQueue; \
+    LOW(SpriteAttributes *, entry, "r0", (SpriteAttributes *)((u32)queue + offset)); \
+    STORE("str", positionWord, entry, SpriteAttributes, words[0]); \
+    afterPosition; \
+    LOAD(unsigned, tileAndPalette, "r1", "ldrh", attr, PauseSpriteAttributes, tilePalette); \
+    STORE("strh", tileAndPalette, entry, SpriteAttributes, words[1]); \
+    LOW(unsigned, nextCount, "r0", used + 1); \
+    STORE("strb", nextCount, queue, SpriteOamBuffer, sprite_count); \
+    }
+#define LABEL_POOL asm volatile("b .Lpause_after_pool\n\t.align 2, 0\n" \
+    ".Lpause_palettes: .4byte 0x05000200\n" \
+    ".Lpause_labels: .4byte gPauseMenuTabLabels\n" \
+    ".Lpause_tiles: .4byte 0x06010000\n" \
+    ".Lpause_x_mask: .4byte 0x000001FF\n" \
+    ".Lpause_clear_x: .4byte 0xFE00FFFF\n" \
+    ".Lpause_clear_y: .4byte 0xFFFFFF00\n" \
+    ".Lpause_clear_palette: .4byte 0xFFFF0FFF\n" \
+    ".Lpause_clear_tile: .4byte 0xFFFFFC00\n" \
+    ".Lpause_clear_size: .4byte 0x3FFFFFFF\n" \
+    ".Lpause_clear_shape: .4byte 0xFFFF3FFF\n" \
+    ".Lpause_after_pool:" : : : "memory")
+
+#define APPEND_TAB_UPLOAD(upload) LOAD_QUEUE(upload, "r3")
+#define DRAW_ANIMATION(graphics, animation, paletteReg, baseReg, appendUpload) \
+        LOW(ClockPaletteAllocation *, allocation, "r0", &graphics->spritePalette); \
+        LOW(unsigned, paletteResult, "r0", PauseMenuPaletteIndex(allocation, allocation->handle)); \
+        LOW(PauseMenuSprite *, sprite, "r6", animation); \
+        HIGH(unsigned, palette, paletteReg, paletteResult); \
+        LOW(SpriteAnimator *, animator, "r5", &sprite->animator); \
+        LOW(unsigned, advance, "r0", AdvanceSpriteAnimator(animator)); \
+        LOW(unsigned, changed, "r4", advance); \
+        changed = changed << 30 >> 31; \
+        asm("" : "+l"(changed)); \
+        GETFRAME(sprite, animator->keyframe); \
+        if (changed) { \
+            LOW(const u8 *, tiles, "r4", work.frame.tiles); \
+            LOW(unsigned, slot, "r2", PauseMenuBaseTile(&sprite->tiles, sprite->tiles.handle)); \
+            LOW(const u8 **, info, "r1", &work.frame.tiles); \
+            LOW(const u8 *, haveTiles, "r0", work.frame.tiles); \
+            unsigned bytes = 0; \
+            if (haveTiles) bytes = *(u16 *)(info + 1); \
+            LOW(ClockUploadTask *, upload, "r1", &sprite->upload); \
+            UPLOAD(upload, tiles, slot, bytes, tiles, baseReg); \
+            appendUpload(upload); \
+        }
+#define COPY_ATTR(attr) \
+    attr = *(const PauseSpriteAttributes *)work.frame.objects; \
+    BARRIER(attr)
+#define ADD_TAB_X \
+    LOW(unsigned, tabOrigin, "r4", work.tabX); \
+    frameX += tabOrigin; \
+    asm("" : "+l"(frameX))
+#define OFFSET_X(attr, addition) \
+    LOW(unsigned, framePos, "r3", attr.position); \
+    LOW(unsigned, frameX, "r0", (framePos << 7) >> 23); \
+    addition; \
+    LITERAL(unsigned, xMask, "r1", x_mask); \
+    AND(frameX, xMask); \
+    frameX <<= 16; \
+    asm("" : "+l"(frameX)); \
+    LITERAL(unsigned, clearX, "r2", clear_x); \
+    AND(clearX, framePos); \
+    OR(clearX, frameX); \
+    attr.position = clearX; \
+    BARRIER(attr.position)
+#define OFFSET_Y(attr, source, yReg, maskReg) \
+    LOAD(unsigned, frameY, yReg, "ldrb", source, PauseSpriteAttributes, position); \
+    LOW(unsigned, offsetY, yReg, (u8)(frameY + PAUSE_MENU_TAB_Y)); \
+    LITERAL(unsigned, clearY, maskReg, clear_y); \
+    AND(clearY, clearX); \
+    OR(clearY, offsetY); \
+    attr.position = clearY; \
+    BARRIER(attr.position)
+#define PALETTE_BITS(palette, baseReg, maskReg, targetReg) \
+    LOW(unsigned, paletteLow, baseReg, palette); \
+    register unsigned paletteBits asm(targetReg); \
+    asm("lsl %0, %1, #16\n\tlsr %0, %0, #16" : "=l"(paletteBits) : "l"(paletteLow)); \
+    LOW(unsigned, lowNibble, maskReg, 15); \
+    AND(paletteBits, lowNibble); \
+    paletteBits <<= 12; \
+    asm("" : "+l"(paletteBits))
+#define CURSOR_PALETTE_MASK \
+    LITERAL(unsigned, clearPalette, "r2", clear_palette); \
+    LOAD(unsigned, oldTile, "r0", "ldr", attr, PauseSpriteAttributes, tilePalette)
+#define TAB_PALETTE_MASK \
+    STACK_ADDR(PauseSpriteAttributes *, attr, "r4", tab); \
+    LOAD(unsigned, oldTile, "r0", "ldr", attr, PauseSpriteAttributes, tilePalette); \
+    LITERAL(unsigned, clearPalette, "r3", clear_palette)
+#define SET_PALETTE(palette, baseReg, maskReg, attr, loadMask) \
+    PALETTE_BITS(palette, baseReg, maskReg, "r1"); \
+    loadMask; \
+    AND(oldTile, clearPalette); \
+    OR(oldTile, paletteBits); \
+    STORE("str", oldTile, attr, PauseSpriteAttributes, tilePalette)
+#define SET_TILE(sprite, attr) \
+    LOW(unsigned, tile, "r0", PauseMenuBaseTile(&sprite->tiles, sprite->tiles.handle)); \
+    LOW(unsigned, tileBits, "r0", tile << 22 >> 22); \
+    LITERAL(unsigned, clearTile, "r2", clear_tile); \
+    LOAD(unsigned, oldTile2, "r1", "ldr", attr, PauseSpriteAttributes, tilePalette); \
+    AND(oldTile2, clearTile); \
+    OR(oldTile2, tileBits); \
+    STORE("str", oldTile2, attr, PauseSpriteAttributes, tilePalette)
+
+ROM_TEXT(0803C028) int UpdatePauseMenuWindow(PauseMenuWindow & self, KeyRepeatState const & input,
+    OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * volatile renderer,
+    TileTransferQueue * volatile transfers, AudioPlayer * volatile audioArg)
+{
+    PauseMenuWork work;
+    PauseMenuWindow * window = &self;
+    asm("" : "+l"(window));
+    LOW(KeyRepeatState const *, keysInput, "r4", &input);
+    work.oam = reinterpret_cast<SpriteOamBuffer *>(sprites);
+    LOW(BackgroundVideoState *, background, "r1", video);
+    LOW(TileTransferQueue *, drawQueue, "r3", transfers);
+    LOW(AudioPlayer *, audio, "r5", audioArg);
+    LOW(DialogLayerRenderer *, drawRenderer, "r2", renderer);
+    LOW(int, result, "r0", UpdateDialogWindow(self, background, drawRenderer, drawQueue));
+    work.result = result;
+    BARRIER(work.result);
+    switch (result) {
+    case DIALOG_WINDOW_CLOSED: case DIALOG_WINDOW_OPENING: case DIALOG_WINDOW_CLOSING: default: goto done;
+    case DIALOG_WINDOW_OPEN: break;
+    }
+    {
+    work.text = 0;
+    BARRIER(work.text);
+    LOAD(unsigned, selectionEnabled, "r0", "ldrb", window, PauseMenuWindow, selectionEnabled);
+    if (selectionEnabled) {
+        LOW(unsigned, repeated, "r3", keysInput->repeated_keys);
+        LOW(unsigned, directions, "r2", repeated);
+        unsigned changesTab = (directions << 26 >> 31) | (directions << 27 >> 31);
+        if (changesTab) {
+            register unsigned nextTab asm("r0");
+            if (directions & PAUSE_MENU_LEFT_KEY) {
+                LOAD(unsigned, selectedLeft, "r0", "ldrb", window, PauseMenuWindow, selectedTab);
+                nextTab = selectedLeft;
+                if (nextTab == PAUSE_MENU_DIARY) { nextTab = PAUSE_MENU_TUTORIAL; goto setTab; }
+                nextTab -= 1;
+                goto setTab;
+            }
+            { LOW(unsigned, rightMask, "r0", PAUSE_MENU_RIGHT_KEY);
+            asm("and %0, %1" : "+l"(directions) : "l"(rightMask)); }
+            if (directions) {
+                LOAD(unsigned, selectedRight, "r0", "ldrb", window, PauseMenuWindow, selectedTab);
+                nextTab = selectedRight;
+                if (nextTab == PAUSE_MENU_TUTORIAL) {
+                    LOW(u8 *, textBytes, "r1", (u8 *)&work.text);
+                    LOW(unsigned, zeroTab, "r1", *textBytes);
+                    STORE("strb", zeroTab, window, PauseMenuWindow, selectedTab);
+                } else {
+                    nextTab += 1;
+                setTab:
+                    STORE("strb", nextTab, window, PauseMenuWindow, selectedTab);
+                }
+            }
+            if (audio)
+                AudioPlayer_StartSong(audio, PAUSE_MENU_MOVE_SOUND);
+            LOW(char const * const *, labels, "r0", gPauseMenuTabLabels);
+            LOAD(unsigned, selected, "r1", "ldrb", window, PauseMenuWindow, selectedTab);
+            LOW(char const *, text, "r1", labels[selected]);
+            work.text = text;
+            LOW(unsigned, halfBlink, "r0", PAUSE_MENU_CURSOR_VISIBLE_FRAMES);
+            STORE("strb", halfBlink, window, PauseMenuWindow, cursorBlinkFrames);
+        } else {
+            LOW(unsigned, confirmMask, "r0", PAUSE_MENU_CONFIRM_KEY);
+            asm("and %0, %1" : "+l"(repeated) : "l"(confirmMask));
+            if (repeated && audio) AudioPlayer_StartSong(audio, PAUSE_MENU_CONFIRM_SOUND);
+        }
+    }
+
+    LOAD(unsigned, refresh, "r0", "ldrb", window, PauseMenuWindow, needsInitialRefresh);
+    if (refresh) {
+        LOAD(PauseMenuGraphics *, graphics, "r4", "ldr", window, PauseMenuWindow, graphics);
+        LOW(PauseMenuSprite *, animation, "r0", graphics->cursor);
+        GETFRAME(animation, animation->animator.keyframe);
+        LOW(const u16 *, palette, "r5", work.frame.palette);
+        LOW(ClockPaletteAllocation *, allocation, "r0", &graphics->spritePalette);
+        LOW(unsigned, slot, "r2", PauseMenuPaletteIndex(allocation, allocation->handle));
+        LOW(const u16 **, paletteInfo, "r1", &work.frame.palette);
+        LOW(const u16 *, uploadedPalette, "r0", work.frame.palette);
+        unsigned paletteBytes = 0;
+        if (uploadedPalette) paletteBytes = *(u16 *)(paletteInfo + 1);
+        LOW(ClockUploadTask *, upload, "r1", &graphics->paletteUpload);
+        UPLOAD(upload, palette, slot, paletteBytes, palettes, "r2");
+        LOAD_QUEUE(upload, "r3");
+        LITERAL(char const * const *, labels, "r1", labels);
+        LOAD(unsigned, selected, "r0", "ldrb", window, PauseMenuWindow, selectedTab);
+        LOW(char const *, text, "r0", labels[selected]);
+        work.text = text;
+        LOW(unsigned, clear, "r0", 0);
+        STORE("strb", clear, window, PauseMenuWindow, needsInitialRefresh);
+    }
+
+    LOAD(unsigned, blink, "r0", "ldrb", window, PauseMenuWindow, cursorBlinkFrames);
+    blink -= 1;
+    STORE("strb", blink, window, PauseMenuWindow, cursorBlinkFrames);
+    if ((blink << 24) == 0) {
+        LOW(unsigned, reset, "r0", PAUSE_MENU_CURSOR_PERIOD);
+        STORE("strb", reset, window, PauseMenuWindow, cursorBlinkFrames);
+    }
+    LOAD(unsigned, blinkNow, "r0", "ldrb", window, PauseMenuWindow, cursorBlinkFrames);
+    asm volatile("cmp %0, %1\n\tbhi .Lpause_after_cursor"
+        : : "l"(blinkNow), "i"(PAUSE_MENU_CURSOR_VISIBLE_FRAMES - 1) : "cc", "memory");
+    {
+        LOAD(PauseMenuGraphics *, graphics, "r0", "ldr", window, PauseMenuWindow, graphics);
+        LOAD(unsigned, selected, "r1", "ldrb", window, PauseMenuWindow, selectedTab);
+        HIGH(unsigned, x, "r8", selected * PAUSE_MENU_TAB_SPACING + PAUSE_MENU_TAB_SPACING);
+        LOW(PauseMenuSprite *, animation, "r4", graphics->cursor);
+        DRAW_ANIMATION(graphics, animation, "r9", "r5", RELOAD_QUEUE);
+        COPY_ATTR(work.cursor);
+        OFFSET_X(work.cursor, asm("add %0, %1" : "+l"(frameX) : "h"(x)));
+        STACK_ADDR(PauseSpriteAttributes *, attr, "r4", cursor);
+        OFFSET_Y(work.cursor, attr, "r0", "r1");
+        SET_PALETTE(palette, "r3", "r0", attr, CURSOR_PALETTE_MASK);
+        SET_TILE(sprite, attr);
+        LOW(unsigned, mosaic, "r0", 0x1000);
+        LOW(unsigned, visible, "r1", work.cursor.position);
+        OR(visible, mosaic);
+        work.cursor.position = visible;
+        BARRIER(work.cursor.position);
+        LOW(SpriteOamBuffer *, queue, "r5", work.oam);
+        LOAD(unsigned, count, "r2", "ldrb", queue, SpriteOamBuffer, sprite_count);
+        if (count < ARRAY_COUNT(queue->sprites)) QUEUE_SPRITE(visible, attr, count, queue, , );
+    }
+    asm volatile(".Lpause_after_cursor:" : : : "memory");
+    LOAD(PauseMenuGraphics *, tabsLow, "r0", "ldr", window, PauseMenuWindow, graphics);
+    HIGH(PauseMenuGraphics *, tabs, "r10", tabsLow);
+    LOW(unsigned, firstTab, "r1", 0);
+    HIGH(unsigned, tab, "r9", firstTab);
+    SPLIT_STACK_ADDR(u8 *, tabY, "r2", tab);
+    work.tabY = tabY;
+    LOW(unsigned, negatedText, "r3", 0u - (unsigned)work.text);
+    work.negatedText = negatedText;
+    SPLIT_STACK_ADDR(PauseSpriteAttributes *, labelAttributes, "r4", labelSprite);
+    work.labelAttributes = labelAttributes;
+    LOW(unsigned, tabX, "r5", PAUSE_MENU_TAB_SPACING);
+    work.tabX = tabX;
+    BARRIER(work.tabX);
+    do {
+        LOW(unsigned, tabIndex, "r1", tab);
+        LOW(unsigned, tabOffset, "r0", tabIndex * sizeof(PauseMenuSprite *));
+        asm("add %0, %1" : "+l"(tabOffset) : "h"(tabs));
+        LOAD(PauseMenuSprite *, animation, "r4", "ldr", tabOffset, PauseMenuGraphics, tabs);
+        DRAW_ANIMATION(tabs, animation, "r8", "r2", APPEND_TAB_UPLOAD);
+        COPY_ATTR(work.tab);
+        OFFSET_X(work.tab, ADD_TAB_X);
+        LOW(u8 *, tabY, "r5", work.tabY);
+        OFFSET_Y(work.tab, tabY, "r1", "r0");
+        SET_PALETTE(palette, "r0", "r2", attr, TAB_PALETTE_MASK);
+        SET_TILE(sprite, attr);
+        LOW(unsigned, visible, "r1", work.tab.position);
+        LOW(unsigned, mosaic, "r5", 0x1000);
+        OR(visible, mosaic);
+        work.tab.position = visible;
+        BARRIER(work.tab.position);
+        LOW(SpriteOamBuffer *, queue, "r0", work.oam);
+        LOAD(unsigned, count, "r2", "ldrb", queue, SpriteOamBuffer, sprite_count);
+        if (count < ARRAY_COUNT(queue->sprites)) {
+            QUEUE_SPRITE(visible, attr, count, appendQueue,
+                LOW(SpriteOamBuffer *, appendQueue, "r3", work.oam), );
+        }
+        LOW(unsigned, x, "r4", work.tabX);
+        x += PAUSE_MENU_TAB_SPACING;
+        work.tabX = x;
+        BARRIER(work.tabX);
+        LOW(unsigned, one, "r5", 1);
+        asm("add %0, %1" : "+h"(tab) : "l"(one));
+    } while (tab < PAUSE_MENU_TAB_COUNT);
+
+    LOAD(PauseMenuGraphics *, labelGraphics, "r7", "ldr", window, PauseMenuWindow, graphics);
+    HIGH(PauseMenuGraphics *, graphics, "r8", labelGraphics);
+    LOW(char const *, newText, "r1", work.text);
+    if (newText) {
+        STACK_ADDR(PauseMenuDimensions *, fillDimensions, "r0", fillDimensions);
+        LOW(unsigned, labelWidth, "r4", PAUSE_MENU_LABEL_WIDTH_TILES);
+        LOW(unsigned, labelHeight, "r5", PAUSE_MENU_LABEL_HEIGHT_TILES);
+        STORE("strh", labelWidth, fillDimensions, PauseMenuDimensions, width);
+        STORE("strh", labelHeight, fillDimensions, PauseMenuDimensions, height);
+        LOW(PauseMenuDimensions, fillSize, "r0", work.fillDimensions);
+        LOW(u8 *, tiles, "r6", &graphics->label.tiles[0][0][0][0]);
+        FillMessageTiles(fillSize, tiles, 0);
+        STACK_ADDR(PauseMenuDimensions *, drawDimensions, "r0", drawDimensions);
+        STORE("strh", labelWidth, drawDimensions, PauseMenuDimensions, width);
+        STORE("strh", labelHeight, drawDimensions, PauseMenuDimensions, height);
+        LOW(PauseMenuDimensions, drawSize, "r0", work.drawDimensions);
+        LOW(char const *, text, "r2", work.text);
+        DrawMessageTileString(drawSize, tiles, 0, 0, text);
+    }
+    LOW(ClockPaletteAllocation *, allocation, "r0", &graphics->spritePalette);
+    LOW(unsigned, palette, "r0", PauseMenuPaletteIndex(allocation, allocation->handle));
+    LOW(unsigned, textChanged, "r3", work.negatedText);
+    LOW(unsigned, textPointer, "r4", (unsigned)work.text);
+    OR(textChanged, textPointer);
+    LOW(PauseMenuLabel *, label, "r5", &graphics->label);
+    work.label = label;
+    BARRIER(work.label);
+    LOW(unsigned, labelChanged, "r1", textChanged >> 31);
+    work.labelChanged = labelChanged;
+    BARRIER(work.labelChanged);
+    LOW(unsigned, emptyPosition, "r1", 0);
+    LOW(unsigned, emptyTile, "r2", 0);
+    work.labelSprite.position = emptyPosition;
+    work.labelSprite.tilePalette = emptyTile;
+    BARRIER(work.labelSprite);
+    LITERAL(unsigned, sizeMask, "r2", clear_size);
+    LOW(unsigned, labelPos, "r1", work.labelSprite.position);
+    AND(labelPos, sizeMask);
+    LOW(unsigned, oamSize, "r2", 0x80000000u);
+    OR(labelPos, oamSize);
+    LITERAL(unsigned, shapeMask, "r2", clear_shape);
+    AND(labelPos, shapeMask);
+    LOW(unsigned, oamShape, "r2", 0x4000);
+    OR(labelPos, oamShape);
+    work.labelSprite.position = labelPos;
+    BARRIER(work.labelSprite.position);
+    LOW(unsigned, paletteBits, "r0", (u16)palette);
+    LOW(unsigned, lowNibble, "r2", 15);
+    AND(paletteBits, lowNibble);
+    paletteBits <<= 12;
+    asm("" : "+l"(paletteBits));
+    {
+        LOW(PauseSpriteAttributes *, attr, "r3", work.labelAttributes);
+        LOAD(unsigned, oldTile, "r1", "ldr", attr, PauseSpriteAttributes, tilePalette);
+        LITERAL(unsigned, clearPalette, "r4", clear_palette);
+        AND(oldTile, clearPalette);
+        OR(oldTile, paletteBits);
+        STORE("str", oldTile, attr, PauseSpriteAttributes, tilePalette);
+    }
+    LOW(unsigned, labelYPos, "r0", work.labelSprite.position);
+    LITERAL(unsigned, clearY, "r5", clear_y);
+    AND(labelYPos, clearY);
+    LOW(unsigned, labelY, "r1", PAUSE_MENU_LABEL_Y);
+    OR(labelYPos, labelY);
+    LOW(unsigned, mosaic, "r1", 0x1000);
+    OR(labelYPos, mosaic);
+    work.labelSprite.position = labelYPos;
+    BARRIER(work.labelSprite.position);
+    LOW(unsigned, part, "r4", 0);
+    LOW(u8 *, labelTiles, "r2", &graphics->label.tiles[0][0][0][0]);
+    work.labelTiles = labelTiles;
+    BARRIER(work.labelTiles);
+    asm volatile(".Lpause_label_part:" : "+l"(part) : : "memory");
+    {
+        LOW(unsigned, partOffset, "r0", part * sizeof(ClockTileAllocation));
+        LOW(PauseMenuLabel *, partLabel, "r3", work.label);
+        partOffset += (u32)partLabel;
+        asm("" : "+l"(partOffset));
+        LOW(unsigned, tileOffset, "r5", FIELD_OFFSET(PauseMenuLabel, tileAllocations));
+        LOW(ClockTileAllocation *, tileAllocation, "r0", (ClockTileAllocation *)(partOffset + tileOffset));
+        HIGH(unsigned, tile, "r8", PauseMenuBaseTile(tileAllocation, tileAllocation->handle));
+        HIGH(unsigned, xOffset, "r10", part * 32);
+        LOW(unsigned, nextPart, "r1", part + 1);
+        work.nextPart = nextPart;
+        BARRIER(work.nextPart);
+        LOW(unsigned, changed, "r2", work.labelChanged);
+        if (changed) {
+            LOW(unsigned, row, "r3", 0);
+            LOW(unsigned, partTimes2, "r2", part * 2);
+            LOW(unsigned, partTimes4, "r1", part * 4);
+            LOW(unsigned, bytesLow, "r4", 128);
+            HIGH(unsigned, bytes, "r9", bytesLow);
+            LOW(unsigned, uploadOffset, "r1", (partTimes4 + partTimes2) * 8);
+            LOW(PauseMenuLabel *, label, "r5", work.label);
+            LOW(unsigned, uploadFieldsOffset, "r4", FIELD_OFFSET(PauseMenuLabel, rowUploads[0][0].source));
+            LOW(unsigned, labelFields, "r0", (u32)label + uploadFieldsOffset);
+            LOW(PauseMenuUploadFields *, fields, "r4", (PauseMenuUploadFields *)(uploadOffset + labelFields));
+            LOW(unsigned, tileLow, "r5", tile);
+            LOW(unsigned, destOffset, "r0", tileLow * 32);
+            LITERAL(unsigned, objTileBase, "r5", tiles);
+            LOW(unsigned, dest, "r7", destOffset + objTileBase);
+            LOW(unsigned, sourceOffset, "r2", partTimes2 * 64);
+            LOW(u8 *, tileSource, "r0", work.labelTiles);
+            LOW(u8 *, source, "r6", (u8 *)(sourceOffset + (unsigned)tileSource));
+            LOW(PauseMenuLabel *, labelAgain, "r2", work.label);
+            LOW(unsigned, labelUploadOffset, "r5", FIELD_OFFSET(PauseMenuLabel, rowUploads));
+            LOW(unsigned, labelUpload, "r0", (u32)labelAgain + labelUploadOffset);
+            LOW(ClockUploadTask *, upload, "r5", (ClockUploadTask *)(uploadOffset + labelUpload));
+            do {
+                STORE("str", source, fields, PauseMenuUploadFields, source);
+                STORE("str", dest, fields, PauseMenuUploadFields, destination);
+                LOW(unsigned, rowBytes, "r0", bytes);
+                STORE("str", rowBytes, fields, PauseMenuUploadFields, length);
+                LOW(PauseMenuUploadQueue *, queue, "r1", reinterpret_cast<PauseMenuUploadQueue *>(renderer));
+                LOAD(const PauseMenuUploadVtable *, queueVtable, "r0", "ldr", queue, PauseMenuUploadQueue, vtable);
+                LOAD(AppendPauseMenuUpload, append, "r2", "ldr", queueVtable, PauseMenuUploadVtable, append);
+                LOW(PauseMenuUploadQueue *, queueArg, "r0", queue);
+                LOW(ClockUploadTask *, uploadArg, "r1", upload);
+                work.row = row;
+                BARRIER(work.row);
+                append(queueArg, uploadArg);
+                fields = (PauseMenuUploadFields *)((u8 *)fields + sizeof(ClockUploadTask));
+                asm("" : "+l"(fields));
+                dest += 128;
+                asm("" : "+l"(dest));
+                LOW(unsigned, lineStride, "r2", 384);
+                source += lineStride;
+                asm("" : "+l"(source));
+                ++upload;
+                asm("" : "+l"(upload));
+                row = work.row;
+                asm("" : "+l"(row));
+                ++row;
+                asm("" : "+l"(row));
+            } while (row <= 1);
+        }
+        LOW(unsigned, tileLow, "r3", tile);
+        LOW(unsigned, tileBits, "r1", tileLow << 22 >> 22);
+        LITERAL(unsigned, clearTile, "r2", clear_tile);
+        LOW(PauseSpriteAttributes *, attr, "r4", work.labelAttributes);
+        LOAD(unsigned, oldTile, "r0", "ldr", attr, PauseSpriteAttributes, tilePalette);
+        AND(oldTile, clearTile);
+        OR(oldTile, tileBits);
+        STORE("str", oldTile, attr, PauseSpriteAttributes, tilePalette);
+        LOW(unsigned, x, "r1", xOffset);
+        x += PAUSE_MENU_LABEL_X;
+        asm("" : "+l"(x));
+        LITERAL(unsigned, xMask, "r0", x_mask);
+        AND(x, xMask);
+        x <<= 16;
+        asm("" : "+l"(x));
+        LITERAL(unsigned, clearX, "r0", clear_x);
+        LOW(unsigned, labelPos, "r2", work.labelSprite.position);
+        AND(labelPos, clearX);
+        OR(labelPos, x);
+        work.labelSprite.position = labelPos;
+        BARRIER(work.labelSprite.position);
+        LOW(SpriteOamBuffer *, queue, "r5", work.oam);
+        LOAD(unsigned, count, "r3", "ldrb", queue, SpriteOamBuffer, sprite_count);
+        if (count < ARRAY_COUNT(queue->sprites)) QUEUE_SPRITE(labelPos, attr, count, queue, , LABEL_POOL);
+        part = work.nextPart;
+        asm("" : "+l"(part));
+        asm volatile("cmp %0, %1\n\tbls .Lpause_label_part"
+            : : "l"(part), "i"(PAUSE_MENU_LABEL_PARTS - 1) : "cc", "memory");
+    }
+    }
+done:
+    return work.result;
+}
+
+#undef BARRIER
+#undef LOW
+#undef HIGH
+#undef FIELD_OFFSET
+#undef LOAD
+#undef STORE
+#undef LITERAL
+#undef AND
+#undef OR
+#undef SP_OFFSET
+#undef SP_ADDR
+#undef STACK_ADDR
+#undef SPLIT_STACK_ADDR
+#undef LOAD_QUEUE
+#undef RELOAD_QUEUE
+#undef UPLOAD
+#undef GETFRAME
+#undef QUEUE_SPRITE
+#undef APPEND_TAB_UPLOAD
+#undef DRAW_ANIMATION
+#undef COPY_ATTR
+#undef OFFSET_X
+#undef OFFSET_Y
+#undef PALETTE_BITS
+#undef SET_PALETTE
+#undef SET_TILE
+#undef LABEL_POOL
+#undef ADD_TAB_X
+#undef CURSOR_PALETTE_MASK
+#undef TAB_PALETTE_MASK
 
 ROM_TEXT(0803C518) void OpenPauseMenuWindow(PauseMenuWindow & self)
 {
@@ -3147,13 +5308,10 @@ ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const 
     return 1;
 }
 
-struct ControllerInput;
 struct AudioPlayer;
 
-EC int UpdatePauseMenuWindow(PauseMenuWindow &, ControllerInput const &, OamBuffer *,
-    BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *, AudioPlayer *);
 EC void func_0803BE50(DialogWindow &, int);
-EC void func_080E0C38(PauseMenuGraphics *, int);
+EC void DestroyPauseMenuGraphics(PauseMenuGraphics *, int) asm("func_080E0C38");
 EC char const gPauseMenuWindowVtable[];
 EC char const gClockHudVTable[];
 
@@ -3180,14 +5338,14 @@ ROM_TEXT(0803D4D8) int UpdateClockHud(ClockHud & self, OamBuffer * oam,
 
 EC DialogWindow & func_0803BDFC(DialogWindow &, int, int, int, int, int, int, int, int);
 
-EC PauseMenuGraphics * func_080E0A94(void *);
+EC PauseMenuGraphics * InitializePauseMenuGraphics(void *) asm("func_080E0A94");
 
 ROM_TEXT(0803BF78) PauseMenuWindow & InitializePauseMenuWindow(PauseMenuWindow & self, int background,
     int screenBlock, int paletteBank, int layerMode, int selectedTab)
 {
     func_0803BDFC(self, 0, 136, 240, 24, background, screenBlock, paletteBank, layerMode);
     self.vtable = gPauseMenuWindowVtable;
-    self.graphics = func_080E0A94(::operator new(0x41C));
+    self.graphics = InitializePauseMenuGraphics(::operator new(sizeof(PauseMenuGraphics)));
     self.selectedTab = selectedTab;
     self.needsInitialRefresh = false;
     self.cursorBlinkFrames = 1;
@@ -3199,17 +5357,17 @@ ROM_TEXT(0803BF78) void DestroyPauseMenuWindow(PauseMenuWindow & self, int flags
 {
     self.vtable = gPauseMenuWindowVtable;
     if (self.graphics)
-        func_080E0C38(self.graphics, 3);
+        DestroyPauseMenuGraphics(self.graphics, 3);
     func_0803BE50(self, flags);
 }
 
-ROM_TEXT(0803BFF0) int UpdatePauseMenuWindowWithoutAudio(PauseMenuWindow & self, ControllerInput const & input,
+ROM_TEXT(0803BFF0) int UpdatePauseMenuWindowWithoutAudio(PauseMenuWindow & self, KeyRepeatState const & input,
     OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * renderer, TileTransferQueue * transfers)
 {
     return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, nullptr);
 }
 
-ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, ControllerInput const & input,
+ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, KeyRepeatState const & input,
     OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * renderer, TileTransferQueue * transfers,
     AudioPlayer * audio)
 {

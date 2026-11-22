@@ -1,15 +1,12 @@
     .INCLUDE "asm/macro.inc"
     .SYNTAX UNIFIED
-
-.L080D0C68:
-	.byte 0x01, 0x70, 0x00, 0x21, 0x41, 0x70, 0x82, 0x70
-	.byte 0x12, 0x0A, 0xC2, 0x70, 0x70, 0x47, 0x00, 0x00
-
+    .include "build/assets/vietnamese-mode.inc"
 
 .section .text.g5_after_080D0CD4, "ax"
 
-	thumb_func_start func_080D0D28
-func_080D0D28: @ 0x080D0D28
+	.if VIETNAMESE_FONT
+	thumb_func_start Font_DecodeGlyph
+Font_DecodeGlyph: @ 0x080D0D28
 	push {r4, r5, r6, lr}
 	adds r4, r0, #0
 	adds r2, r1, #0
@@ -154,10 +151,17 @@ func_080D0D28: @ 0x080D0D28
 	blt .L080D0E58
 	ldr r1, .L080D0E7C @ =gUnk_08523290
 	lsls r0, r0, #1
+	.if VIETNAMESE_FONT
+	ldr r2, .LViGlyphLookup
+	bx r2
+.LViGlyphLookup:
+	.4byte gVietnameseGlyphLookup
+	.else
 	adds r0, r0, r1
 	movs r1, #0
 	ldrsh r5, [r0, r1]
 	movs r6, #2
+	.endif
 .L080D0E58:
 	cmp r4, #0
 	beq .L080D0EAE
@@ -207,6 +211,9 @@ func_080D0D28: @ 0x080D0D28
 	pop {r1}
 	bx r1
 
+	.endif
+
+.section .text.g5_after_080D0D28, "ax"
 	thumb_func_start Dma_ExecuteTransfer
 Dma_ExecuteTransfer: @ 0x080D0EBC
 	stm r3!, {r0, r1, r2}

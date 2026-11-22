@@ -8,8 +8,11 @@
 #include "scene.hh"
 #include "shipping_bin.hh"
 #include "bachelorette.hh"
+#include "farmer.hh"
+#include "dog.hh"
 
 #include <stdlib.h>
+#include <new>
 
 struct PACKED GameStateHeader
 {
@@ -56,6 +59,63 @@ EC u32 SECTION(".text.game_state_08011588") SaveData_SumBytes(void const * data,
         } while (--length != 0);
     }
     return sum;
+}
+
+extern u16 gSramErrorFlags;
+EC bool SramProxy_Write(void * proxy, u32 offset, void const * data, u32 size);
+
+// 0x080115B0
+EC u32 SECTION(".text.game_state_080115B0") SaveData_WriteToStorage(void const * saveData, void * storage, u32 offset)
+{
+    u32 headerOffset = offset;
+    u32 const saveSize = 0x34F4;
+    if (!SramProxy_Write(storage, offset, &saveSize, sizeof(saveSize)))
+        return gSramErrorFlags | 0x10000;
+    offset += sizeof(saveSize);
+    if (!SramProxy_Write(storage, offset, saveData, saveSize))
+        return gSramErrorFlags | 0x20000;
+    offset = headerOffset + 0x34F8;
+    u32 checksum = SaveData_SumBytes(saveData, saveSize);
+    if (!SramProxy_Write(storage, offset, &checksum, sizeof(checksum)))
+        return gSramErrorFlags | 0x30000;
+    return 0;
+}
+
+struct GameStateAffectionSaveView
+{
+    STRUCT_PAD(0x00, 0x14);
+    Farm farm;
+    u8 beforeDog[0x1C70 - 0x14 - sizeof(Farm)];
+    Dog dog;
+};
+
+// 0x08011650
+EC u8 * SaveData_LoadFromStorage(u8 * saveData, void * storage, u32 offset, u32 & errors);
+
+// 0x08010E68
+EC bool SECTION(".text.game_state_08010E68") SaveData_HaveAllAnimalsHighAffection(GameStateAffectionSaveView const & save)
+{
+    bool allHighAffection = true;
+    if (save.dog.GetAffection() < 200)
+        allHighAffection = false;
+    Horse const * horse = save.farm.GetHorse();
+    if (horse != nullptr && horse->GetAffection() < 200)
+        allHighAffection = false;
+    for (u32 index = 0; index < save.farm.coop.GetCapacity(); index++)
+    {
+        Chicken const * chicken = save.farm.coop.GetChicken(index);
+        if (chicken != nullptr && chicken->GetAffection() < 200)
+            allHighAffection = false;
+    }
+    for (u32 index = 0; index < save.farm.barn.GetCapacity(); index++)
+    {
+        Animal const * animal = save.farm.barn.GetCow(index);
+        if (animal == nullptr)
+            animal = save.farm.barn.GetSheep(index);
+        if (animal != nullptr && animal->GetAffection() < 200)
+            allHighAffection = false;
+    }
+    return allHighAffection;
 }
 
 // 0x08010348
@@ -246,9 +306,10 @@ struct GameStateObject
     virtual void vfunc_2C();
     virtual void vfunc_30();
     virtual void vfunc_34();
-    virtual void vfunc_38(u32 id);
+    virtual void CreateActor(u32 actorId);
     virtual void RemoveActor(u32 actorId);
     virtual GameStateActorEntity * GetActor(u32 actorId);
+
     virtual void vfunc_44();
     virtual void vfunc_48();
     virtual void vfunc_4C();
@@ -276,10 +337,10 @@ struct GameStateObject
     virtual i32 RemoveRecordPlayerAlbum();
     virtual i32 SetRecordPlayerAlbum(u32 albumId);
     virtual void vfunc_AC(u32 index);
-    virtual void vfunc_B0();
+    virtual bool KeepClockColonVisible();
     virtual void WarpToLocation(Location const & location, bool preserveEventMusic);
     virtual void vfunc_B8();
-    virtual void vfunc_BC();
+    virtual void SetGameTime(GameTime const & time);
     virtual void vfunc_C0();
     virtual void vfunc_C4();
     virtual void vfunc_C8();
@@ -390,6 +451,47 @@ struct GameStateSceneFactoryOwner
 
 extern u8 const vtable_unk_080E5E74[];
 extern u8 const vtable_unk_080E5D74[];
+extern u8 const vtable_unk_080E5E44[];
+extern u8 const vtable_unk_080E5C24[];
+extern u8 const vtable_unk_080E5C14[];
+
+struct GameStateLocatedSceneAction
+{
+    GameStateLocatedSceneAction()
+        : vtable(vtable_unk_080E5E44), stateFlag(false), location(MAP_NONE, 0, 0) {}
+
+    void const * vtable;
+    bool stateFlag;
+    Location location;
+};
+
+struct GameStateModeFlagSceneAction : public GameStateLocatedSceneAction
+{
+    GameStateModeFlagSceneAction(u8 * saveData, u32 modeFlags)
+    {
+        vtable = vtable_unk_080E5C24;
+        this->saveData = saveData;
+        this->modeFlags = modeFlags;
+    }
+
+    u8 * saveData;
+    u32 modeFlags;
+};
+
+struct GameStateModeFlagSceneFactory
+{
+    GameStateModeFlagSceneFactory(u32 modeFlags, u8 * saveData)
+        : vtable(vtable_unk_080E5C14), saveData(saveData)
+    {
+        action = new GameStateModeFlagSceneAction(saveData, modeFlags);
+        this->modeFlags = modeFlags;
+    }
+
+    void const * vtable;
+    u8 * saveData;
+    GameStateModeFlagSceneAction * action;
+    u32 modeFlags;
+};
 
 struct GameScriptSceneFactory
 {
@@ -410,15 +512,147 @@ struct GameStateNestedSceneFactory
     GameStateSceneFactory * factory;
 };
 
+struct GameStateSavedSceneFactoryOwner
+{
+    GameStateSceneFactory * Move()
+    {
+        GameStateSceneFactory * result = factory;
+        factory = nullptr;
+        return result;
+    }
+
+    explicit GameStateSavedSceneFactoryOwner(GameStateSceneFactory * factory) : factory(factory) {}
+    GameStateSavedSceneFactoryOwner(GameStateSavedSceneFactoryOwner & other) : factory(other.Move())
+    {
+        asm ("" : : "m" (factory));
+    }
+    ~GameStateSavedSceneFactoryOwner() { delete factory; }
+
+    GameStateSceneFactory * factory;
+};
+
+extern u8 const vtable_unk_080E5E34[];
+extern u8 const vtable_unk_080E5C64[];
+extern u8 const vtable_unk_080E5E14[];
+extern u8 const vtable_unk_080E5D04[];
+extern u8 const vtable_unk_080E5D14[];
+extern u8 const vtable_unk_080E5C54[];
+extern u8 const vtable_unk_080E5C74[];
+extern u8 const vtable_unk_080E5C84[];
+extern u8 const vtable_unk_080E5C94[];
+extern u8 const vtable_unk_080E5D44[];
+extern u8 const vtable_unk_080E5D54[];
+extern u8 const vtable_unk_080E5D94[];
+extern u8 const vtable_unk_080E5E24[];
+extern u8 const vtable_unk_080E5D24[];
+extern u8 const vtable_unk_080E5CA4[];
+extern u8 const vtable_unk_080E5CF4[];
+extern u8 const vtable_unk_080E5C44[];
+extern u8 const vtable_unk_080E5C34[];
+extern u8 const vtable_unk_080E5E54[];
+extern u8 const vtable_unk_080E5CD4[];
+extern u8 const vtable_unk_080E5CC4[];
+extern u8 const vtable_unk_080E5CE4[];
+extern u8 const vtable_unk_080E5CB4[];
+extern u8 const vtable_unk_080E5D84[];
+extern u8 const vtable_unk_080E5D64[];
+extern u8 const vtable_unk_080E5DA4[];
+extern u8 const vtable_unk_080E5DC4[];
+extern u8 const vtable_unk_080E5DB4[];
+extern u8 const vtable_unk_080E5DD4[];
+extern u8 const vtable_unk_080E5E04[];
+extern u8 const vtable_unk_080E5DF4[];
+extern u8 const vtable_unk_080E5DE4[];
+
+template <u8 const * Methods>
+struct GameStateSavedSceneFactory
+{
+    GameStateSavedSceneFactory(GameStateSavedSceneFactoryOwner factory, u8 * saveData)
+        : vtable(Methods), factory(factory.Move()), saveData(saveData) {}
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    u8 * saveData;
+};
+
+template <u8 const * Methods, typename Argument>
+struct GameStateSavedSceneArgumentFactory
+{
+    GameStateSavedSceneArgumentFactory(GameStateSavedSceneFactoryOwner factory, u8 * saveData, Argument argument)
+        : vtable(Methods), factory(factory.Move()), saveData(saveData), argument(argument) {}
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    u8 * saveData;
+    Argument argument;
+};
+
+template <>
+struct GameStateSavedSceneFactory<vtable_unk_080E5E54>
+{
+    GameStateSavedSceneFactory(GameStateSavedSceneFactoryOwner factory, u8 * saveData)
+        : vtable(vtable_unk_080E5E54), saveData(saveData), factory(factory.Move()) {}
+
+    void const * vtable;
+    u8 * saveData;
+    GameStateSceneFactory * factory;
+};
+
+template <>
+struct GameStateSavedSceneFactory<vtable_unk_080E5E14>
+{
+    GameStateSavedSceneFactory(GameStateSavedSceneFactoryOwner factory, u8 * saveData)
+        : vtable(vtable_unk_080E5E14), factory(factory.Move()), saveData(saveData)
+    {
+        sceneParameters[0] = 0x51;
+        sceneParameters[1] = 0x5F;
+        sceneParameters[2] = 0;
+        sceneParameters[3] = 0;
+        stateFlag = false;
+    }
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    u8 * saveData;
+    u32 sceneParameters[4];
+    bool stateFlag;
+};
+
+template <u8 const * Methods>
+struct GameStateSavedSceneFlaggedArgumentFactory
+{
+    GameStateSavedSceneFlaggedArgumentFactory(GameStateSavedSceneFactoryOwner factory, u8 * saveData, u32 argument, u32 flags)
+        : vtable(Methods), factory(factory.Move()), saveData(saveData), argument(argument), flags(flags) {}
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    u8 * saveData;
+    u32 argument;
+    u8 flags;
+};
+
+struct GameStateScript;
+
+struct GameStateRuntimeDmaQueue
+{
+    void * begin;
+    void * end;
+    u32 allocationState;
+    void * capacityEnd;
+};
+
 struct GameStateRuntime
 {
-    STRUCT_PAD(0x00, 0x10);
-    u16 flags;
-    STRUCT_PAD(0x12, 0x8C);
+    GameStateRuntimeDmaQueue dmaQueue;
+    u16 displayControl;
+    u16 displayRegisters[0x2A];
+    void * taskDispatcher;
+    STRUCT_PAD(0x6C, 0x88);
+    GameStateScript * script;
     u8 * saveData;
-    STRUCT_PAD(0x90, 0x9C);
+    GameScriptSceneSpec sceneSpec;
     u32 pendingCommand;
-    STRUCT_PAD(0xA0, 0xA4);
+    void * displayFade;
     SmartPtr<GameStateSceneFactory> pendingSceneFactory;
     GameStateObject * scene;
     GameStateDialogueOwner dialogue;
@@ -430,7 +664,11 @@ struct GameStateRuntime
     u16 pendingArgument;
     STRUCT_PAD(0xE2, 0xE4);
     GameStateActorEntity * waitActor;
-    STRUCT_PAD(0xE8, 0xF4);
+    bool fadeState;
+    u8 fadeTarget;
+    bool scriptBackgroundEnabled;
+    u16 scriptBackgroundColor;
+    char * temporaryText;
     virtual ~GameStateRuntime();
 
     void * GetTextVariables() const { return textVariables; }
@@ -442,6 +680,610 @@ struct GameStateScript
     u32 vtable;
     GameStateRuntime * runtime;
 };
+
+// 0x08013D04
+EC void SECTION(".text.game_state_08013D04") GameScript_QueueModeFlagScene(GameStateScript & script, u8 modeEnabled)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(
+        new GameStateModeFlagSceneFactory(modeEnabled ? 2 : 0, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08014C34
+EC void SECTION(".text.game_state_08014C34") GameScript_CreateHorseActor(GameStateScript & script, u32 kind, u32 ageYears, u32 mapId, i32 x, i32 y)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    if (kind == 0)
+    {
+        Farm & farm = *reinterpret_cast<Farm *>(runtime.GetSaveData() + 0x14);
+        farm.SetHorse(Horse(ActorLocation(Location(mapId, x, y), 0), ageYears * 120));
+        runtime.scene->CreateActor(0x2C);
+        GameStateActorEntity * horseActor = runtime.scene->GetActor(0x2C);
+        if (horseActor != nullptr && !horseActor->vfunc_28())
+            horseActor->vfunc_20();
+    }
+}
+
+extern u8 const gTaskNodeVtable[];
+extern u8 const gTaskListVtable[];
+extern u8 const vtable_unk_080E5BD8[];
+extern u8 const vtable_unk_080E5AF0[];
+extern u8 const vtable_unk_080E5AE0[];
+extern u8 const vtable_unk_080E5AD0[];
+EC void TaskNode_Destroy(void * node, u32 flags);
+EC void TaskList_Destroy(void * list, u32 flags);
+EC void TaskList_Append(void * list, void * node);
+
+struct GameStateMapObstacleRecord
+{
+    i32 kind;
+    u32 flags;
+    i16 x;
+    i16 y;
+    u32 state;
+};
+
+struct GameStateMapObstacleResult
+{
+    bool removed;
+    STRUCT_PAD(0x01, 0x04);
+    u32 effectId;
+    i32 x;
+    i32 y;
+    bool additionalAction;
+};
+
+EC void GetMapForageObstacle(GameStateMapObstacleRecord & record, u8 * mapState, u32 index);
+EC void SubtractMapAvailabilityCount(u8 * mapState, u32 index, i32 amount);
+EC u32 GetMapAvailabilityCount(u8 const * mapState, u32 index);
+EC void ClearMapAvailabilityBit(u8 * mapState, u32 index, u32 bit);
+
+// 0x080174C8
+EC bool SECTION(".text.game_state_080174C8") GameState_TryBreakMapObstacle(Farm & farm, u8 * mapState, u32 index, u32 bit, i32 power, bool stoneTool, GameStateMapObstacleResult & result)
+{
+    GameStateMapObstacleRecord record;
+    GetMapForageObstacle(record, mapState, index);
+    GameStateMapObstacleRecord & obstacle = record;
+    i32 requiredPower = 0;
+    if (stoneTool)
+    {
+        switch (obstacle.kind)
+        {
+        case 0x13:
+            requiredPower = 2;
+            break;
+        case 0x14:
+            requiredPower = 7;
+            break;
+        default:
+            return false;
+        }
+    }
+    else
+    {
+        switch (obstacle.kind)
+        {
+        case 0x12:
+            break;
+        case 0x15:
+            requiredPower = 1;
+            break;
+        default:
+            return false;
+        }
+    }
+
+    result.additionalAction = false;
+    i32 remainingPower = power - requiredPower;
+    if (remainingPower > 0)
+    {
+        if (obstacle.kind != 0x12)
+            SubtractMapAvailabilityCount(mapState, index, remainingPower);
+        if (obstacle.kind == 0x12 || GetMapAvailabilityCount(mapState, index) == 0)
+        {
+            ClearMapAvailabilityBit(mapState, index, bit);
+            result.removed = true;
+            result.x = obstacle.x;
+            result.y = obstacle.y;
+            switch (obstacle.kind)
+            {
+            case 0x15:
+                farm.method_08009B68(6);
+                result.effectId = 7;
+                break;
+            case 0x12:
+                farm.method_08009B68(1);
+                result.effectId = 4;
+                break;
+            case 0x13:
+                result.effectId = 6;
+                break;
+            case 0x14:
+                result.effectId = 9;
+                break;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+struct GameStateFrameTaskNode
+{
+    GameStateFrameTaskNode()
+    {
+        vtable = gTaskNodeVtable;
+        previous = nullptr;
+        next = nullptr;
+    }
+
+    GameStateFrameTaskNode ** previous;
+    GameStateFrameTaskNode * next;
+    void const * vtable;
+};
+
+template <u8 const * TaskVtable> struct GameStateFrameTask
+{
+    explicit GameStateFrameTask(void * taskContext)
+    {
+        node.vtable = TaskVtable;
+        context = taskContext;
+    }
+
+    ~GameStateFrameTask() { TaskNode_Destroy(&node, 2); }
+
+    GameStateFrameTaskNode node;
+    void * context;
+};
+
+struct GameStateFrameTaskListNode : public GameStateFrameTaskNode
+{
+    GameStateFrameTaskListNode() { vtable = gTaskListVtable; }
+};
+
+struct GameStateFrameTaskEndNode : public GameStateFrameTaskNode
+{
+    GameStateFrameTaskEndNode() { vtable = vtable_unk_080E5BD8; }
+};
+
+struct GameStateFrameTaskList
+{
+    GameStateFrameTaskList() : first(&sentinel)
+    {
+        sentinel.previous = &first;
+        sentinel.next = &sentinel;
+    }
+
+    ~GameStateFrameTaskList() { TaskList_Destroy(this, 2); }
+
+    GameStateFrameTaskListNode node;
+    GameStateFrameTaskNode * first;
+    GameStateFrameTaskEndNode sentinel;
+};
+
+struct GameStateFrameTaskDispatch
+{
+    GameStateFrameTaskNode ** previous;
+    GameStateFrameTaskNode * next;
+
+    virtual bool Run();
+    virtual ~GameStateFrameTaskDispatch();
+    virtual void Append(void * node);
+    virtual void Remove(void * node);
+};
+
+EC GameStateFrameTaskDispatch & VBlankDispatcher_GetTasks(void * dispatcher);
+EC void VBlankDispatcher_Wait(void * dispatcher);
+
+// 0x08011CD8
+EC void SECTION(".text.game_state_08011CD8") GameState_RunVBlankFrameTasks(GameStateRuntime & runtime, void * oamBuffer)
+{
+    u8 * hardware = reinterpret_cast<u8 *>(&runtime);
+    GameStateFrameTask<vtable_unk_080E5AF0> display(hardware + 0x10);
+    GameStateFrameTask<vtable_unk_080E5AE0> oam(oamBuffer);
+    GameStateFrameTask<vtable_unk_080E5AD0> dma(hardware);
+    GameStateFrameTaskList tasks;
+    TaskList_Append(&tasks, hardware + 0x6C);
+    TaskList_Append(&tasks, &display);
+    TaskList_Append(&tasks, &dma);
+    TaskList_Append(&tasks, &oam);
+    void * dispatcher = hardware + 0x68;
+    VBlankDispatcher_GetTasks(dispatcher).Append(&tasks);
+    VBlankDispatcher_Wait(dispatcher);
+    VBlankDispatcher_GetTasks(dispatcher).Remove(&tasks);
+}
+
+// 0x08012BBC
+EC void SECTION(".text.game_state_08012BBC") GameScript_QueueSceneVariant0A(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x0A;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5E34>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08012CF4
+EC void SECTION(".text.game_state_08012CF4") GameScript_QueueSceneVariant0C(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x0C;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5DE4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08012D88
+EC void SECTION(".text.game_state_08012D88") GameScript_QueueSceneVariant0D(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x0D;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5DF4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08012EC0
+EC void SECTION(".text.game_state_08012EC0") GameScript_QueueSceneVariant0F(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x0F;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5E04>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08012F54
+EC void SECTION(".text.game_state_08012F54") GameScript_QueueSceneVariant10(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x10;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5DD4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013080
+EC void SECTION(".text.game_state_08013080") GameScript_QueueSceneVariant12(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x12;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5DB4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013114
+EC void SECTION(".text.game_state_08013114") GameScript_QueueSceneVariant13(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x13;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5DC4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x080131A8
+EC void SECTION(".text.game_state_080131A8") GameScript_QueueSceneVariant14(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x14;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5DA4, u32>(factory, runtime.GetSaveData(), 0));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x0801323C
+EC void SECTION(".text.game_state_0801323C") GameScript_QueueSceneVariant16(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x16;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5D64>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x080132D0
+EC void SECTION(".text.game_state_080132D0") GameScript_QueueSceneVariant17(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x17;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5D84>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013544
+EC void SECTION(".text.game_state_08013544") GameScript_QueueSceneVariant19(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x19;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5CB4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x080135D8
+EC void SECTION(".text.game_state_080135D8") GameScript_QueueSceneVariant1A(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x1A;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5CE4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x0801366C
+EC void SECTION(".text.game_state_0801366C") GameScript_QueueSceneVariant1B(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x1B;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5CC4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013700
+EC void SECTION(".text.game_state_08013700") GameScript_QueueSceneVariant1C(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x1C;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5CD4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013794
+EC void SECTION(".text.game_state_08013794") GameScript_QueueSceneVariant1D(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x1D;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5E54>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x0801395C
+EC void SECTION(".text.game_state_0801395C") GameScript_QueueSceneVariant20(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x20;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5C34>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013BDC
+EC void SECTION(".text.game_state_08013BDC") GameScript_QueueSceneVariant29(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x29;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5C44>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013C70
+EC void SECTION(".text.game_state_08013C70") GameScript_QueueSceneVariant2B(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x2B;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5CF4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x0801437C
+EC void SECTION(".text.game_state_0801437C") GameScript_QueueSceneVariant24(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x24;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5CA4>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x080144BC
+EC void SECTION(".text.game_state_080144BC") GameScript_QueueSceneVariant26(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x26;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5D24>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08012C50
+EC void SECTION(".text.game_state_08012C50") GameScript_QueueSceneVariant0B(GameStateScript & script, u32 argument)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x0B;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5E24, u32>(factory, runtime.GetSaveData(), argument));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08012FE8
+EC void SECTION(".text.game_state_08012FE8") GameScript_QueueSceneVariant11(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x11;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5D94, u32>(factory, runtime.GetSaveData(), 0));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013364
+EC void SECTION(".text.game_state_08013364") GameScript_QueueSceneVariant18(GameStateScript & script, u32 argument)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x18;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5D54, u32>(factory, runtime.GetSaveData(), argument));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013828
+EC void SECTION(".text.game_state_08013828") GameScript_QueueSceneVariant1E(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x1E;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5D44, bool>(factory, runtime.GetSaveData(), false));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x080139F0
+EC void SECTION(".text.game_state_080139F0") GameScript_QueueSceneVariant21(GameStateScript & script, u32 argument)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x21;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5C94, u32>(factory, runtime.GetSaveData(), argument));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013A94
+EC void SECTION(".text.game_state_08013A94") GameScript_QueueSceneVariant22(GameStateScript & script, u32 argument)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x22;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5C84, u32>(factory, runtime.GetSaveData(), argument));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013B38
+EC void SECTION(".text.game_state_08013B38") GameScript_QueueSceneVariant23(GameStateScript & script, u32 argument)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x23;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5C74, u32>(factory, runtime.GetSaveData(), argument));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013DC8
+EC void SECTION(".text.game_state_08013DC8") GameScript_QueueSceneVariant2D(GameStateScript & script, u32 argument)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x2D;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5C54, u32>(factory, runtime.GetSaveData(), argument));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08014550
+EC void SECTION(".text.game_state_08014550") GameScript_QueueSceneVariant27(GameStateScript & script, u8 argument)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x27;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5D14, u8>(factory, runtime.GetSaveData(), argument));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x080145F8
+EC void SECTION(".text.game_state_080145F8") GameScript_QueueSceneVariant28(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x28;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5D04>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08012E1C
+EC void SECTION(".text.game_state_08012E1C") GameScript_QueueSceneVariant0E(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x0E;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5E14>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013F88
+EC void SECTION(".text.game_state_08013F88") GameScript_QueueSceneVariant2C(GameStateScript & script, u32 argument, u32 flags)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x2C;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFlaggedArgumentFactory<vtable_unk_080E5C64>(factory, runtime.GetSaveData(), argument, flags));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x080138C0
+EC void SECTION(".text.game_state_080138C0") GameScript_QueueSceneVariant1F(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x1F;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5D44, u8>(factory,
+        ({ register u8 * saveData asm("r4") = runtime.GetSaveData(); asm("" : "+l"(saveData)); saveData; }),
+        ({ register u8 flag asm("r5") = 1; asm("" : "+l"(flag)); flag; })));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x080134A4
+EC void SECTION(".text.game_state_080134A4") GameScript_QueueSceneVariant18Preset1001(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x18;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5D54, u32>(factory,
+        ({ register u8 * saveData asm("r4") = runtime.GetSaveData(); asm("" : "+l"(saveData)); saveData; }),
+        ({ register u32 preset asm("r5") = 0x1001; asm("" : "+l"(preset)); preset; })));
+    runtime.pendingCommand = 0x18;
+}
+
+// 0x08013408
+EC void SECTION(".text.game_state_08013408") GameScript_QueueSceneVariant18Preset1000(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x18;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5D54, u32>(factory,
+        ({ register u8 * saveData asm("r4") = runtime.GetSaveData(); asm("" : "+l"(saveData)); saveData; }),
+        ({ register u32 preset asm("r5") = 0x1000; asm("" : "+l"(preset)); preset; })));
+    runtime.pendingCommand = 0x18;
+}
 
 // 0x08013E6C
 EC void SECTION(".text.game_state_08013E6C") GameScript_QueueSceneVariant2E(GameStateScript & script)
@@ -481,7 +1323,7 @@ EC void SECTION(".text.game_state_080125EC") GameScript_CloseDialoguePanels(Game
     runtime.textPanel = nullptr;
     runtime.secondaryTextPanel = nullptr;
     runtime.dialogue = nullptr;
-    runtime.flags &= ~0x100;
+    runtime.displayControl &= ~0x100;
 }
 
 
@@ -560,6 +1402,30 @@ struct GameStateScriptEngine : public ScriptEngine
     virtual int OnCall(int id);
 };
 
+struct GameStateScriptEvent
+{
+    GameStateScriptEvent(u32 id, u32 argument) : id(id), argument(argument) {}
+
+    u32 id;
+    u32 argument;
+};
+
+template <u32 Capacity> struct GameStateScriptEventQueue
+{
+    void Push(GameStateScriptEvent const & event)
+    {
+        if (count < Capacity)
+        {
+            u32 offset = sizeof(count) + count * sizeof(GameStateScriptEvent);
+            new (reinterpret_cast<u8 *>(this) + offset) GameStateScriptEvent(event);
+            count++;
+        }
+    }
+
+    u32 count;
+    GameStateScriptEvent events[Capacity];
+};
+
 struct GameStateGlobal
 {
     GameStateGlobal();
@@ -568,9 +1434,161 @@ struct GameStateGlobal
     GameStateScriptEngine engine;
     STRUCT_PAD(0x364, 0x36C);
     GameStateGlobalStatus status;
+    GameStateScriptEventQueue<2> smallEventQueue;
+    GameStateScriptEventQueue<40> largeEventQueue;
+    GameStateScriptEventQueue<1> singleEventQueue;
 };
 
 extern GameStateGlobal * gActiveGameScene;
+
+// 0x08011DC4
+EC GameStateScript * GameScript_InitializeWithSceneSpec(GameStateScript * script, u8 * saveData, GameScriptSceneSpec const & sceneSpec);
+
+// 0x08011ED8
+EC GameStateScript * GameScript_InitializeDefaultScene(GameStateScript * script, u8 * saveData);
+
+// 0x08012B24
+EC void SECTION(".text.game_state_08012B24") GameScript_QueueSceneEvent(GameStateScript & script, GameStateScriptEvent const & event, i32 queue)
+{
+    GameStateGlobal & game = *gActiveGameScene;
+    GameStateScriptEventQueue<2> & small = game.smallEventQueue;
+    switch (queue)
+    {
+    case 0:
+        small.Push(event);
+        break;
+    case 1:
+        game.largeEventQueue.Push(event);
+        break;
+    case 2:
+        game.singleEventQueue.Push(event);
+        break;
+    }
+}
+
+
+extern u8 const vtable_unk_080E5E64[];
+extern u8 const vtable_unk_080E5C08[];
+asm(".set __vt_23GameStateRuntimeStorage, vtable_unk_080E5C08");
+EC void * DisplayRegisters_Initialize(void * registers);
+EC void * func_08008980(void * dispatcher);
+EC void * AudioPlayer_Initialize(void * player, u8 index);
+
+struct GameStateRuntimeAllocationStorage
+{
+    GameStateRuntimeAllocationStorage() : capacityEnd(nullptr) {}
+
+    u32 state;
+    void * capacityEnd;
+};
+
+struct GameStateRuntimeQueueStorage
+{
+    GameStateRuntimeQueueStorage() : begin(nullptr), end(nullptr) {}
+
+    void * begin;
+    void * end;
+    GameStateRuntimeAllocationStorage allocation;
+};
+
+struct GameStateRuntimeDisplayStorage
+{
+    GameStateRuntimeDisplayStorage() { DisplayRegisters_Initialize(this); }
+
+    union
+    {
+        u32 control;
+        u16 halfwords[0x2B];
+    };
+};
+
+struct GameStateRuntimeDispatcherStorage
+{
+    GameStateRuntimeDispatcherStorage() { func_08008980(this); }
+
+    void * state;
+};
+
+struct GameStateRuntimeAudioPlayerStorage
+{
+    GameStateRuntimeAudioPlayerStorage(u8 index) { AudioPlayer_Initialize(this, index); }
+
+    void * player;
+};
+
+struct GameStateRuntimeStorage
+{
+    GameStateRuntimeStorage(GameStateScript * script, u8 * saveData, GameScriptSceneSpec const & sceneSpec)
+        : script(script), saveData(saveData), sceneSpec(sceneSpec),
+          displayFade(nullptr), pendingFactory(nullptr), scene(nullptr), dialogue(nullptr),
+          textVariables(nullptr), textPanel(nullptr), secondaryTextPanel(nullptr),
+          music(0), sound1(1), sound2(2), sound3(3), sound4(4),
+          fadeState(false), scriptBackgroundEnabled(false), temporaryText(nullptr)
+    {
+        u32 displayStatus = display.halfwords[2];
+        displayStatus |= 8;
+        display.halfwords[2] = displayStatus;
+        *reinterpret_cast<u16 volatile *>(0x04000004) = displayStatus;
+    }
+
+    GameStateRuntimeQueueStorage dmaQueue;
+    GameStateRuntimeDisplayStorage display;
+    GameStateRuntimeDispatcherStorage dispatcher;
+    GameStateFrameTaskList frameTasks;
+    GameStateScript * script;
+    u8 * saveData;
+    GameScriptSceneSpec sceneSpec;
+    u32 pendingCommand;
+    void * displayFade;
+    GameStateSceneFactory * pendingFactory;
+    GameStateObject * scene;
+    void * dialogue;
+    GameScriptTextVariables * textVariables;
+    GameStateTextPanel * textPanel;
+    GameStateTextPanel * secondaryTextPanel;
+    GameStateRuntimeAudioPlayerStorage music;
+    GameStateRuntimeAudioPlayerStorage sound1;
+    GameStateRuntimeAudioPlayerStorage sound2;
+    GameStateRuntimeAudioPlayerStorage sound3;
+    GameStateRuntimeAudioPlayerStorage sound4;
+    GameStateRuntimeQueueStorage soundPlayers;
+    u16 pendingArgument;
+    STRUCT_PAD(0xE2, 0xE4);
+    GameStateActorEntity * waitActor;
+    bool fadeState;
+    u8 fadeTarget;
+    bool scriptBackgroundEnabled;
+    u16 scriptBackgroundColor;
+    char * temporaryText;
+    virtual ~GameStateRuntimeStorage();
+};
+
+// 0x08011DC4
+EC SECTION(".text.game_state_08011DC4") GameStateScript * GameScript_InitializeWithSceneSpec(GameStateScript * script, u8 * saveData, GameScriptSceneSpec const & sceneSpec)
+{
+    u32 constructorScratch[2];
+    asm volatile("" : "=m"(constructorScratch));
+    script->vtable = u32(vtable_unk_080E5E64);
+    script->runtime = reinterpret_cast<GameStateRuntime *>(new GameStateRuntimeStorage(script, saveData, sceneSpec));
+    gActiveGameScene->engine.SetUnk(script);
+    return script;
+}
+
+struct GameStateDefaultSceneSpec : GameScriptSceneSpec
+{
+    GameStateDefaultSceneSpec() { variant = 2; }
+};
+
+// 0x08011ED8
+EC SECTION(".text.game_state_08011ED8") GameStateScript * GameScript_InitializeDefaultScene(GameStateScript * script, u8 * saveData)
+{
+    u32 constructorScratch[2];
+    asm volatile("" : "=m"(constructorScratch));
+    script->vtable = u32(vtable_unk_080E5E64);
+    script->runtime = reinterpret_cast<GameStateRuntime *>(new GameStateRuntimeStorage(script, saveData, GameStateDefaultSceneSpec()));
+    gActiveGameScene->engine.SetUnk(script);
+    return script;
+}
 
 // 0x08016D9C
 EC u32 SECTION(".text.game_state_08016D9C") GameScript_GetReturnMap()
@@ -614,6 +1632,105 @@ EC void AudioPlayer_StartSong(void * self, u16 amount);
 EC void AudioPlayer_StartSongIfStoppedOrChanged(void * self, u16 amount);
 EC void AudioPlayer_StartOrResumeSong(void * self, u16 amount);
 EC void AudioPlayer_FadeOut(void * self, u32 speed);
+EC void AudioPlayer_ResetChannels(void * player);
+EC void AudioPlayer_SetTempo(void * player, u16 tempo);
+EC void AudioPlayer_SetTrackVolume(void * player, u16 volume, u16 tracks);
+EC void AudioPlayer_SetTrackPitch(void * player, i16 pitch, u16 tracks);
+EC void AudioPlayer_SetTrackPan(void * player, i8 pan, u16 tracks);
+EC void AudioPlayer_SetTrackModDepth(void * player, u8 depth, u16 tracks);
+EC void AudioPlayer_SetTrackLfoSpeed(void * player, u8 speed, u16 tracks);
+
+struct GameStateScriptMusicSettings
+{
+    u16 tempo;
+    u16 volume;
+    i16 pitch;
+    i8 pan;
+    u8 modulation;
+    u8 lfoSpeed;
+};
+
+struct GameStateMusicPlayer
+{
+    void StartWithMode(i32 mode, u16 song)
+    {
+        switch (mode)
+        {
+        case 0:
+            AudioPlayer_StartSong(this, song);
+            break;
+        case 1:
+            AudioPlayer_StartSongIfStoppedOrChanged(this, song);
+            break;
+        case 2:
+            AudioPlayer_StartOrResumeSong(this, song);
+            break;
+        }
+    }
+
+    void ResetChannels() { AudioPlayer_ResetChannels(this); }
+    void SetTempo(u16 tempo) { AudioPlayer_SetTempo(this, tempo); }
+    void SetVolume(u16 volume) { AudioPlayer_SetTrackVolume(this, volume, 0xFFFF); }
+    void SetPitch(i16 pitch) { AudioPlayer_SetTrackPitch(this, pitch, 0xFFFF); }
+    void SetPan(i8 pan) { AudioPlayer_SetTrackPan(this, pan, 0xFFFF); }
+    void SetModulation(u8 depth) { AudioPlayer_SetTrackModDepth(this, depth, 0xFFFF); }
+    void SetLfoSpeed(u8 speed) { AudioPlayer_SetTrackLfoSpeed(this, speed, 0xFFFF); }
+};
+
+// 0x080123CC
+EC void SECTION(".text.game_state_080123CC") GameScript_ConfigureMusic(GameStateScript & script, i32 mode, u32 songId, GameStateScriptMusicSettings const & settings)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    reinterpret_cast<GameStateMusicPlayer *>(runtime.musicPlayer)->StartWithMode(mode, songId);
+    GameStateMusicPlayer * music = reinterpret_cast<GameStateMusicPlayer *>(runtime.musicPlayer);
+    music->ResetChannels();
+    music->SetTempo(settings.tempo);
+    music->SetVolume(settings.volume);
+    music->SetPitch(settings.pitch);
+    music->SetPan(settings.pan);
+    music->SetModulation(settings.modulation);
+    music->SetLfoSpeed(settings.lfoSpeed);
+}
+
+struct G1NpcSchedule;
+EC void AdvanceNpcScheduleDailyCounter(G1NpcSchedule * schedule);
+
+// 0x08016FA4
+EC void SECTION(".text.game_state_08016FA4") GameScript_SetActorMapLocation(GameStateScript & script, i32 actorId, u32 mapId, i32 x, i32 y, i32 facing)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    u32 targetMapId = mapId;
+    if (actorId <= 0x49)
+    {
+        AActorEntity * actor = runtime.scene->GetActor(actorId);
+        if (actor != nullptr)
+        {
+            actor->SetLocation(ActorLocation(Location(targetMapId, x, y), facing));
+            actor->vfunc_20();
+        }
+    }
+    else
+    {
+        AEntity * entity = runtime.scene->GetActor(actorId);
+        if (entity != nullptr)
+        {
+            entity->SetLocation(Location(targetMapId, x, y));
+            entity->vfunc_20();
+        }
+    }
+    if (actorId == 0)
+    {
+        if (targetMapId == 0x19)
+            AdvanceNpcScheduleDailyCounter(reinterpret_cast<G1NpcSchedule *>(runtime.saveData + 0x1CD4));
+        i32 mineFloor = 0;
+        if (targetMapId - 0x35 <= 0xFE)
+            mineFloor = targetMapId - 0x34;
+        else if (targetMapId - 0x135 <= 0xFE)
+            mineFloor = targetMapId - 0x134;
+        if (mineFloor > 0)
+            func_0800EECC(*reinterpret_cast<Farmer *>(runtime.saveData + 0x1BD8), mineFloor);
+    }
+}
 
 // 0x080122E0
 EC void SECTION(".text.game_state_080122E0") GameScript_WarpToLocation(GameStateScript & script, u32 mapId, i32 x, i32 y)
@@ -724,6 +1841,71 @@ EC void SECTION(".text.game_state_08016834") GameScript_ClearFarmAnimalActor(Gam
         break;
     }
 }
+
+// 0x080168D4
+EC void GameScript_RelocateSelectedAnimalActor(GameStateScript & script, u32 kind);
+
+// 0x08014318
+EC void GameScript_SetGameTime(GameStateScript & script, GameTime const & time);
+
+struct GameStateMapOverlay;
+
+struct GameStateMapCleanupResource
+{
+    u32 resourceState[9];
+    virtual ~GameStateMapCleanupResource();
+};
+
+template <u32 Count>
+struct GameStateMapCleanupOwners
+{
+    SmartPtr<GameStateMapCleanupResource> entries[Count];
+};
+
+struct GameStateMapCleanupSlot
+{
+    u32 metadata[2];
+    SmartPtr<GameStateMapCleanupResource> resource;
+};
+
+struct GameStateMapCleanupSlots
+{
+    GameStateMapCleanupSlot entries[4];
+};
+
+typedef GameStateMapCleanupOwners<6> GameStateMapSpecialResources;
+typedef GameStateMapCleanupOwners<2> GameStateMapResourcePair;
+
+struct GameStateMapSceneCleanupView
+{
+    void const * vtable;
+    u8 contents[0x1034];
+    u8 * saveData;
+    STRUCT_PAD(0x103C, 0x1050);
+    u8 * tileWorkBuffer;
+    STRUCT_PAD(0x1054, 0x1058);
+    SmartPtr<GameStateMapCleanupResource> resource1058;
+    SmartPtr<GameStateMapCleanupResource> resource105C;
+    STRUCT_PAD(0x1060, 0x1064);
+    SmartPtr<GameStateMapCleanupResource> resource1064;
+    SmartPtr<GameStateMapCleanupResource> resource1068;
+    GameStateMapResourcePair resourcePair106C;
+    GameStateMapResourcePair resourcePair1074;
+    GameStateMapOverlay * overlay;
+    GameStateMapCleanupSlots resourceSlots;
+    GameStateMapSpecialResources specialResources;
+    bool applyExitPenalty;
+    bool skipExitPenaltyEvent;
+};
+
+typedef char GameStateMapSceneCleanupLayout[
+    sizeof(GameStateMapCleanupResource) == 0x28 &&
+    offsetof(GameStateMapSceneCleanupView, saveData) == 0x1038 &&
+    offsetof(GameStateMapSceneCleanupView, specialResources) == 0x10B0 &&
+    offsetof(GameStateMapSceneCleanupView, skipExitPenaltyEvent) == 0x10C9 ? 1 : -1];
+
+// 0x080179CC
+EC void GameStateMapScene_Destroy(GameStateMapSceneCleanupView * scene, u32 flags);
 
 // 0x080127A0
 EC void SECTION(".text.game_state_080127A0") GameScript_SetDialogueLoveIndicator(GameStateScript & script, u32 characterId)
@@ -1671,7 +2853,7 @@ EC SECTION(".text.game_state_08012064") void GameScript_StartRuntimeOperation(Ga
 EC SECTION(".text.game_state_08016CEC") void GameScript_ActivateActor(GameStateScript & script, u32 actorId)
 {
     GameStateObject * & object = script.runtime->scene;
-    object->vfunc_38(actorId);
+    object->CreateActor(actorId);
     AActorEntity * entity = object->GetActor(actorId);
     if (entity != nullptr && !entity->vfunc_28())
         entity->vfunc_20();
@@ -1683,7 +2865,7 @@ EC SECTION(".text.game_state_080167DC") void GameScript_RefreshActor23(GameState
     GameStateRuntime & runtime = *script.runtime;
     ActivateRosterNamedNpc(runtime.saveData + 0x1CD4, runtime.saveData + 0x11);
     GameStateObject * & object = runtime.scene;
-    object->vfunc_38(0x23);
+    object->CreateActor(0x23);
     AActorEntity * entity = object->GetActor(0x23);
     if (entity != nullptr && !entity->vfunc_28())
         entity->vfunc_20();
