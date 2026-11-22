@@ -25,7 +25,7 @@ class GraphicsTests(unittest.TestCase):
         self.addCleanup(extract.stop)
         self.addCleanup(build.stop)
         for name, value in (("extract", None), ("build", b"")):
-            for module in (graphics.more, graphics.portraits, graphics.rest):
+            for module in (graphics.more, graphics.portraits, graphics.rest, graphics.ui):
                 mocked = patch.object(module, name, return_value=value)
                 mocked.start()
                 self.addCleanup(mocked.stop)

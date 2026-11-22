@@ -2185,6 +2185,75 @@
       "start": 155066,
       "end": 155072,
       "sha256": "8c1cad3f610580f614a910638802ed1b2f8ce26475c9070c1bde944c7091c84f"
+    },
+    {
+      "start": 636196,
+      "end": 636200,
+      "sha256": "342046c12a62999f1952f1d2841a0860d2fbe35eada1295e4ddac458694f8710"
+    },
+    {
+      "start": 374140,
+      "end": 374144,
+      "sha256": "a785816ed399e18515fa85b6b44fe5c5f5dce7b24deb476cd612c2f8f21fd83c"
+    },
+    {
+      "start": 374286,
+      "end": 374290,
+      "sha256": "a785816ed399e18515fa85b6b44fe5c5f5dce7b24deb476cd612c2f8f21fd83c"
+    },
+    {
+      "start": 374446,
+      "end": 374450,
+      "sha256": "a785816ed399e18515fa85b6b44fe5c5f5dce7b24deb476cd612c2f8f21fd83c"
+    },
+    {
+      "start": 374620,
+      "end": 374624,
+      "sha256": "a785816ed399e18515fa85b6b44fe5c5f5dce7b24deb476cd612c2f8f21fd83c"
+    },
+    {
+      "start": 374716,
+      "end": 374720,
+      "sha256": "a785816ed399e18515fa85b6b44fe5c5f5dce7b24deb476cd612c2f8f21fd83c"
+    },
+    {
+      "start": 374088,
+      "end": 374092,
+      "sha256": "a2f38d919a9c1a3f0d8831f698b1036d2b20cf0add04e6fc2a8b53c2bc2250f4"
+    },
+    {
+      "start": 374234,
+      "end": 374238,
+      "sha256": "a2f38d919a9c1a3f0d8831f698b1036d2b20cf0add04e6fc2a8b53c2bc2250f4"
+    },
+    {
+      "start": 374394,
+      "end": 374398,
+      "sha256": "a2f38d919a9c1a3f0d8831f698b1036d2b20cf0add04e6fc2a8b53c2bc2250f4"
+    },
+    {
+      "start": 374568,
+      "end": 374572,
+      "sha256": "a2f38d919a9c1a3f0d8831f698b1036d2b20cf0add04e6fc2a8b53c2bc2250f4"
+    },
+    {
+      "start": 374768,
+      "end": 374772,
+      "sha256": "a2f38d919a9c1a3f0d8831f698b1036d2b20cf0add04e6fc2a8b53c2bc2250f4"
+    }
+  ],
+  "data_regions": [
+    {
+      "start": 1685184,
+      "end": 1764097,
+      "sha256": "2c41582afd9f0c299107d50e7a5518886e8fc581bced72e6d3be320518452591",
+      "evidence": "DirectSound sample 19B6B0 PCM; audio_assets.inventory validates the tone root, header and sample bank."
+    },
+    {
+      "start": 7251388,
+      "end": 7253212,
+      "sha256": "3e6023e62e8ff685eaec90ba9e2c4219eaf97d97908f4b48cc9a74eefab5fa85",
+      "evidence": "Raw window-style tiles: record 107104 points at 6EA5B8; header is 19 tiles x 3 frames; func_080A5AB0 uploads 32-byte tiles, not pointers."
     }
   ]
 }

@@ -2797,31 +2797,31 @@ gUnk_081071F8:
 
 	.global gUnk_08107204
 gUnk_08107204:
-	.incbin "baserom.gba", 0x107204, 0x2C
+	.include "build/assets/graphics-ui-patch-107204.s"
 
 	.global gUnk_08107230
 gUnk_08107230:
-	.incbin "baserom.gba", 0x107230, 0x2C
+	.include "build/assets/graphics-ui-patch-107230.s"
 
 	.global gUnk_0810725C
 gUnk_0810725C:
-	.incbin "baserom.gba", 0x10725C, 0x2C
+	.include "build/assets/graphics-ui-patch-10725C.s"
 
 	.global gUnk_08107288
 gUnk_08107288:
-	.incbin "baserom.gba", 0x107288, 0x2C
+	.include "build/assets/graphics-ui-patch-107288.s"
 
 	.global gUnk_081072B4
 gUnk_081072B4:
-	.incbin "baserom.gba", 0x1072B4, 0x2C
+	.include "build/assets/graphics-ui-patch-1072B4.s"
 
 	.global gUnk_081072E0
 gUnk_081072E0:
-	.incbin "baserom.gba", 0x1072E0, 0x2C
+	.include "build/assets/graphics-ui-patch-1072E0.s"
 
 	.global gUnk_0810730C
 gUnk_0810730C:
-	.incbin "baserom.gba", 0x10730C, 0x2C
+	.include "build/assets/graphics-ui-patch-10730C.s"
 
 	.global gUnk_08107338
 gUnk_08107338:
