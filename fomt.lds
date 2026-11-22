@@ -1577,7 +1577,7 @@ SECTIONS
         src/g5_transmit.o(.text.g5_080D091C);
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
-        asm/code_080D0C68.o(.text);
+        src/g5_records.o(.text.g5_080D0C68);
         src/g5_records.o(.text.g5_080D0C78);
         src/g5_encoding.o(.text.g5_080D0CD4);
         asm/code_080D0C68.o(.text.g5_after_080D0CD4);
