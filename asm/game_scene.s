@@ -8,7 +8,7 @@ func_0801004C: @ 0x0801004C
     adds r7, r0, #0
     adds r5, r1, #0
     mov r0, sp
-    bl func_08008980
+    bl VBlankDispatcher_Initialize
     movs r1, #0
     str r1, [sp, #4]
     movs r2, #0xd9

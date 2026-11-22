@@ -107,7 +107,7 @@ struct ChildhoodMemoryScreenLayout
     FarmerNameSubstitution farmer_name;
 };
 
-EC void InitScreenHardware(ChildhoodMemoryScreenLayout *, Vec2 const *) asm("func_080084DC");
+EC void InitScreenHardware(ChildhoodMemoryScreenLayout *, Vec2 const *) asm("HardwareContext_InitializeWithKeyRepeat");
 EC void InitTileResources(TileResources *) asm("TilePool_Initialize");
 EC void DestroyTileResources(TileResources *, int) asm("TilePool_Destroy");
 EC ResourcePool * ResourcePool_Initialize(ResourcePool *);
@@ -704,7 +704,7 @@ struct ChildhoodFrameWork
     DmaCommand * old_end;
 };
 
-EC void BlankChildhoodDisplay(ChildhoodMemoryScreenLayout *) asm("func_08008724");
+EC void BlankChildhoodDisplay(ChildhoodMemoryScreenLayout *) asm("HardwareContext_ForceBlank");
 EC ChildhoodFadeRegisters * GetChildhoodFadeRegisters(ChildhoodMemoryScreenLayout *) asm("HardwareContext_GetDisplayRegisters");
 EC void InitializeChildhoodFade(ChildhoodDisplayFade *, ChildhoodFadeRegisters *) asm("DisplayFade_Initialize");
 EC void StartChildhoodFadeIn(ChildhoodDisplayFade *, i32, u32, u32) asm("DisplayFade_StartIn");
@@ -712,7 +712,7 @@ EC void StartChildhoodFadeOut(ChildhoodDisplayFade *, i32, u32, u32) asm("Displa
 EC ChildhoodTaskList * GetChildhoodFrameTasks(ChildhoodMemoryScreenLayout *) asm("HardwareContext_GetFrameTasks");
 EC DmaTransferQueue * GetChildhoodDmaQueue(ChildhoodMemoryScreenLayout *) asm("HardwareContext_GetDmaQueue");
 EC void * RetryChildhoodQueueAllocation(u32) asm("func_080D3BC0");
-EC void RenderChildhoodFrame(ChildhoodMemoryScreenLayout *) asm("func_080087C8");
+EC void RenderChildhoodFrame(ChildhoodMemoryScreenLayout *) asm("HardwareContext_CommitFrame");
 EC void HardwareContext_UpdateKeys(ChildhoodMemoryScreenLayout *);
 EC char const gDisplayFadeTaskVtable[];
 EC void AudioPlayer_StartSong(AudioPlayer *, u32);

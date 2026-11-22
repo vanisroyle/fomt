@@ -10214,7 +10214,7 @@ func_080ADF6C: @ 0x080ADF6C
 	sub sp, #0x40
 	adds r6, r0, #0
 	str r1, [sp, #0x14]
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080AE340 @ =vtable_unk_080E8500
 	str r0, [r6, #4]
 	movs r0, #2
@@ -10893,7 +10893,7 @@ func_080AE4E4: @ 0x080AE4E4
 	beq .L080AE5D4
 .L080AE562:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r1, .L080AE588 @ =0x00000838
 	adds r0, r7, r1
 	ldr r0, [r0]
@@ -10979,7 +10979,7 @@ func_080AE4E4: @ 0x080AE4E4
 	mov sl, r0
 .L080AE61E:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r1, [sp, #0x20]
 	ldr r1, [r1]
 	mov sb, r1
@@ -15455,7 +15455,7 @@ func_080B0BB8: @ 0x080B0BB8
 	thumb_func_start sub_080B0CC0
 sub_080B0CC0: @ 0x080B0CC0
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	movs r5, #0x83
@@ -15611,7 +15611,7 @@ sub_080B0CC0: @ 0x080B0CC0
 .L080B0E14: .4byte 0x00000889
 .L080B0E18:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080AF814
 	ldr r6, .L080B0E58 @ =0x0000043C
@@ -17654,7 +17654,7 @@ func_080B1D94: @ 0x080B1D94
 .L080B208C: .4byte 0x00000838
 .L080B2090:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r4, .L080B20AC @ =0x0000083C
@@ -19524,7 +19524,7 @@ func_080B2114: @ 0x080B2114
 .L080B2EEC: .4byte 0x0000FFFF
 .L080B2EF0:
 	mov r0, sl
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	mov r0, sl
 	bl HardwareContext_UpdateKeys
 	movs r1, #0x84
@@ -20356,7 +20356,7 @@ func_080B44EC: @ 0x080B44EC
 	bne .L080B4586
 .L080B452C:
 	adds r0, r4, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r1, .L080B4550 @ =0x00000B14
 	adds r0, r4, r1
 	ldr r0, [r0]
@@ -20413,7 +20413,7 @@ func_080B44EC: @ 0x080B44EC
 	adds r5, r4, r0
 .L080B459E:
 	adds r0, r4, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r0, [r5]
 	ldr r0, [r0]
 	rsbs r1, r0, #0
@@ -21096,7 +21096,7 @@ func_080B469C: @ 0x080B469C
 .L080B4BC8: .4byte 0x00000B54
 .L080B4BCC:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	movs r1, #0xf4
@@ -22023,7 +22023,7 @@ func_080B55D0: @ 0x080B55D0
 	ldr r4, .L080B5738 @ =0xFFFFDFF0
 	add sp, r4
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	ldr r0, .L080B573C @ =gUnk_086FD240
 	add r1, sp, #0xc
 	bl Unpack
@@ -24437,7 +24437,7 @@ func_080B5824: @ 0x080B5824
 	str r3, [sp, #0x15c]
 .L080B694E:
 	ldr r0, [sp, #0x138]
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r0, [sp, #0x138]
 	bl HardwareContext_UpdateKeys
 	ldr r0, [sp, #0x138]
@@ -25491,7 +25491,7 @@ func_080B7164: @ 0x080B7164
 	sub sp, #0x7c
 	mov sb, r0
 	str r1, [sp, #0x40]
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	ldr r0, .L080B72E8 @ =gUnk_0872D5CC
 	ldr r1, .L080B72EC @ =0x0600F000
 	bl Unpack
@@ -27161,7 +27161,7 @@ func_080B7648: @ 0x080B7648
 .L080B7F0C: .4byte 0x00000B14
 .L080B7F10:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	adds r0, r7, #0
@@ -28573,7 +28573,7 @@ func_080B888C: @ 0x080B888C
 	str r1, [sp, #0x5c]
 .L080B8A70:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	mov r2, sl
@@ -34367,7 +34367,7 @@ func_080BCCE0: @ 0x080BCCE0
 	beq .L080BCDD2
 .L080BCD62:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	movs r1, #0xb4
 	lsls r1, r1, #3
 	adds r0, r7, r1
@@ -34452,7 +34452,7 @@ func_080BCCE0: @ 0x080BCCE0
 	mov sl, r0
 .L080BCE1A:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r1, [sp, #0x20]
 	ldr r1, [r1]
 	mov sb, r1
@@ -38177,7 +38177,7 @@ func_080BEAD4: @ 0x080BEAD4
 .L080BEB80: .4byte 0x0000057C
 .L080BEB84:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	movs r2, #0x83
@@ -38281,7 +38281,7 @@ func_080BEAD4: @ 0x080BEAD4
 .L080BEC70: .4byte 0x00000889
 .L080BEC74:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080BDF40
 	ldr r2, .L080BECB4 @ =0x0000043C
@@ -38944,7 +38944,7 @@ func_080BF0EC: @ 0x080BF0EC
 .L080BF1D8: .4byte 0x0000057C
 .L080BF1DC:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	movs r0, #0x83
@@ -39095,7 +39095,7 @@ func_080BF2EC: @ 0x080BF2EC
 	movs r7, #3
 .L080BF326:
 	adds r0, r4, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r4, #0
 	bl func_080BDF40
 	adds r6, #1
@@ -39501,7 +39501,7 @@ func_080BF348: @ 0x080BF348
 	b .L080BF730
 .L080BF622:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r5, #0
 	bl HardwareContext_UpdateKeys
 	ldr r4, .L080BF644 @ =0x000005A4
@@ -41194,7 +41194,7 @@ func_080BF764: @ 0x080BF764
 .L080C0328: .4byte 0x0000FFFF
 .L080C032C:
 	mov r0, sl
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	mov r0, sl
 	bl HardwareContext_UpdateKeys
 	movs r1, #0xb5
@@ -42580,7 +42580,7 @@ func_080C0DCC: @ 0x080C0DCC
 	sub sp, #0x50
 	adds r6, r0, #0
 	str r1, [sp, #0x14]
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080C11C0 @ =vtable_unk_080E8554
 	str r0, [r6, #4]
 	movs r0, #3
@@ -43208,7 +43208,7 @@ func_080C12C4: @ 0x080C12C4
 	beq .L080C13CC
 .L080C1344:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r1, .L080C1368 @ =0x0000089C
 	adds r0, r7, r1
 	ldr r0, [r0]
@@ -43301,7 +43301,7 @@ func_080C12C4: @ 0x080C12C4
 	mov sl, r0
 .L080C1412:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r1, [sp, #0x20]
 	ldr r1, [r1]
 	mov sb, r1
@@ -43377,7 +43377,7 @@ func_080C12C4: @ 0x080C12C4
 	thumb_func_start func_080C14BC
 func_080C14BC: @ 0x080C14BC
 	push {lr}
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -48698,7 +48698,7 @@ func_080C3D04: @ 0x080C3D04
 	thumb_func_start sub_080C3DC4
 sub_080C3DC4: @ 0x080C3DC4
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl HardwareContext_UpdateKeys
 	ldr r6, .L080C3E2C @ =0x0000051C
@@ -48827,7 +48827,7 @@ sub_080C3DC4: @ 0x080C3DC4
 	adds r4, r7, r1
 .L080C3EE4:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r0, [r4]
 	ldr r0, [r0]
 	rsbs r2, r0, #0
@@ -49255,7 +49255,7 @@ sub_080C3DC4: @ 0x080C3DC4
 	bge .L080C4298
 .L080C427C:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080C2D54
 	ldr r1, .L080C4304 @ =0x00000544
@@ -49298,7 +49298,7 @@ sub_080C3DC4: @ 0x080C3DC4
 	bl .L080C5138
 .L080C42DA:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080C2D54
 	ldr r1, .L080C4304 @ =0x00000544
@@ -49782,7 +49782,7 @@ sub_080C3DC4: @ 0x080C3DC4
 	bge .L080C4730
 .L080C4714:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080C2D54
 	ldr r4, .L080C479C @ =0x00000544
@@ -49825,7 +49825,7 @@ sub_080C3DC4: @ 0x080C3DC4
 	bl .L080C5138
 .L080C4772:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080C2D54
 	ldr r3, .L080C479C @ =0x00000544
@@ -50440,7 +50440,7 @@ sub_080C4BBC: @ 0x080C4BBC
 	bge .L080C4CAE
 .L080C4C92:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080C2D54
 	ldr r1, .L080C4D18 @ =0x00000544
@@ -50483,7 +50483,7 @@ sub_080C4BBC: @ 0x080C4BBC
 	b .L080C5138
 .L080C4CEE:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080C2D54
 	ldr r1, .L080C4D18 @ =0x00000544
@@ -51136,7 +51136,7 @@ func_080C516C: @ 0x080C516C
 .L080C5268: .4byte 0x00000814
 .L080C526C:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r2, .L080C52CC @ =0x0000051C
 	adds r4, r7, r2
 	ldr r0, [r4]
@@ -51435,7 +51435,7 @@ func_080C5378: @ 0x080C5378
 	adds r5, r6, r3
 .L080C54CA:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r1, [r7]
 	cmp r1, #1
 	beq .L080C55B4
@@ -51679,7 +51679,7 @@ func_080C5648: @ 0x080C5648
 	movs r6, #4
 .L080C56CE:
 	adds r0, r5, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	cmp r7, #0x78
 	bne .L080C56DA
 	str r6, [r4]
@@ -52095,7 +52095,7 @@ func_080C5710: @ 0x080C5710
 .L080C59EC: .4byte 0x0000089C
 .L080C59F0:
 	adds r0, r6, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r6, #0
 	bl HardwareContext_UpdateKeys
 	ldr r4, .L080C5A0C @ =0x000008A4
@@ -52210,7 +52210,7 @@ func_080C5A6C: @ 0x080C5A6C
 .L080C5AE0: .4byte 0x0000089C
 .L080C5AE4:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	ldr r5, .L080C5BE0 @ =0x000008AC
 	adds r1, r7, r5
 	ldr r0, [r1]
@@ -52706,7 +52706,7 @@ func_080C5A6C: @ 0x080C5A6C
 	bge .L080C5EBE
 .L080C5EA2:
 	adds r0, r7, #0
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	adds r0, r7, #0
 	bl func_080C2D54
 	ldr r4, .L080C5FA4 @ =0x00000544
@@ -55071,7 +55071,7 @@ func_080C608C: @ 0x080C608C
 .L080C70A4: .4byte 0x0000FFFF
 .L080C70A8:
 	mov r0, sl
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	mov r0, sl
 	bl HardwareContext_UpdateKeys
 	ldr r1, .L080C70D4 @ =0x000008A8
@@ -56972,7 +56972,7 @@ func_080C7F58: @ 0x080C7F58
 	sub sp, #0x58
 	adds r7, r0, #0
 	adds r4, r1, #0
-	bl func_08008444
+	bl HardwareContext_Initialize
 	ldr r0, .L080C8310 @ =vtable_unk_080E8570
 	str r0, [r7, #4]
 	str r4, [r7, #8]

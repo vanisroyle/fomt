@@ -194,8 +194,18 @@ SECTIONS
         asm/hardware.o(.text.after_08008364);
         src/hardware.o(.text.TilePool_Acquire);
         asm/hardware.o(.text.after_080083D0);
+        src/hardware.o(.text.HardwareContext_Initialize);
+        asm/hardware.o(.text.after_08008444);
+        src/hardware.o(.text.HardwareContext_InitializeWithKeyRepeat);
+        asm/hardware.o(.text.after_080084DC);
+        src/hardware.o(.text.HardwareContext_InitializeWithOamReservation);
+        asm/hardware.o(.text.after_08008574);
         src/hardware.o(.text.HardwareContext_Destroy);
         asm/hardware.o(.text.after_080086BC);
+        src/hardware.o(.text.HardwareContext_ForceBlank);
+        asm/hardware.o(.text.after_08008724);
+        src/hardware.o(.text.HardwareContext_CommitFrame);
+        asm/hardware.o(.text.after_080087C8);
         src/hardware.o(.text.HardwareContext_UpdateKeys);
         asm/hardware.o(.text.after_080088B8);
         src/hardware.o(.text.HardwareContext_GetHeldKeys);
@@ -216,6 +226,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008940);
         src/hardware.o(.text.HardwareContext_GetVBlankTasks);
         asm/hardware.o(.text.after_0800894C);
+        src/hardware.o(.text.VBlankDispatcher_Initialize);
+        asm/hardware.o(.text.after_08008980);
         src/hardware.o(.text.VBlankDispatcher_Destroy);
         asm/hardware.o(.text.after_08008A68);
         src/hardware.o(.text.VBlankDispatcher_GetTasks);
