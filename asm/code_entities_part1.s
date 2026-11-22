@@ -2297,7 +2297,7 @@ func_08024CD0: @ 0x08024CD0
     adds r0, r5, #0
     bl func_0802F0EC
     adds r0, r5, #0
-    bl func_0802CDCC
+    bl UpdateFarmerMovementCollision
     adds r0, r5, #0
     bl SelectFarmerAnimation
     lsls r0, r0, #0x10

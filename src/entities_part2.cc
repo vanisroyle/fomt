@@ -1,8 +1,11 @@
 #include "coop.hh"
+#include "dma_queue.hh"
 #include "dog.hh"
 #include "farmer_entity_layout.hh"
 #include "entity_sound_channel.hh"
 #include "farm_house.hh"
+#include "fixed_sprite_overlay.hh"
+#include "g1_map_resources.hh"
 #include "shipping_bin.hh"
 #include "sprite_animation.hh"
 
@@ -3495,6 +3498,296 @@ EC void TickItemDisplayIcon(FarmerIconGraphics * graphics)
     }
 }
 
+struct OamBuffer;
+
+struct ItemDisplayRenderContext
+{
+    DmaTransferQueue * tile_uploads;
+    STRUCT_PAD(4, 8);
+    OamBuffer * sprite_queue;
+    i16 scroll_x;
+    i16 scroll_y;
+};
+typedef FixedOverlayFrameView ItemDisplayFrame;
+struct ItemDisplayResources
+{
+    DmaTransferQueue * tile_uploads;
+    OamBuffer * sprite_queue;
+};
+struct ItemDisplayFrameData
+{
+    u32 stack_arguments[5];
+    ItemDisplayFrame frame;
+    ItemDisplayResources resources;
+    u32 clip[2];
+    i32 map;
+    u32 base_sprite_visible;
+    i32 y_q16;
+    u32 region;
+    i32 screen_x, sort_y, screen_y;
+    ItemDisplayResources const * saved_resources;
+    u8 * frame_upload_pending;
+    i32 x_q16;
+};
+struct ItemDisplaySpriteSource;
+struct ItemDisplaySpriteVTable
+{
+    STRUCT_PAD(0, 0xC);
+    void (*get_clip)(u32 *, ItemDisplaySpriteSource const *, u32);
+    void (*get_frame)(ItemDisplayFrame *, ItemDisplaySpriteSource const *, u32);
+};
+struct ItemDisplaySpriteSource
+{
+    ItemDisplaySpriteVTable const * table;
+};
+struct ItemDisplayRenderVTable
+{
+    STRUCT_PAD(0, 0x48);
+    void * (*get_icon_target)(GameObject *, u32);
+    STRUCT_PAD(0x4C, 0x54);
+    void (*upload_icon_palette)(GameObject *, void const *, void *, u32);
+    FixedSpriteOverlay const * (*get_shadow)(GameObject *);
+    STRUCT_PAD(0x5C, 0x64);
+    ItemDisplaySpriteSource const * (*get_sprites)(GameObject *);
+};
+struct ItemDisplaySprite
+{
+    void * sprite_resources;
+    STRUCT_PAD(4, 8);
+    i32 tile_handle;
+    u16 base_tile;
+    STRUCT_PAD(0xE, 0x3C);
+    u8 frame_upload_pending;
+    u8 force_palette_upload;
+    u8 palette_uploaded;
+};
+
+EC u32 ClassifySideEntityFarmRegion(u32, i32, i32);
+EC void DrawSideActorOverlayLayers(FarmerIconGraphics *, ItemDisplayRenderContext const *) asm("func_08032690");
+EC void QueueItemDisplayTileUpload(G1MapSpriteResource *, DmaTransferQueue *, G1MapResourceData const *) asm("func_080A480C");
+EC void LoadMapSpriteResourcePalettes(G1MapSpriteResource *, G1MapResourceData const *, u8);
+
+typedef u32 (*ItemDisplayQueueCall)(OamBuffer *, i32, i32, u32);
+EC u32 QueueItemDisplayFrame(OamBuffer *, i32, i32, u32) asm("func_030004DC");
+EC void DrawItemDisplayShadow(FixedSpriteOverlay const *, OamBuffer *, i32, i32) asm("DrawFixedSpriteOverlay");
+
+#define ITEM_DISPLAY_GAME(game) (*reinterpret_cast<ItemDisplayRenderVTable const **>(game))
+
+EC void DrawItemDisplayGraphics(ItemDisplayGraphics *, ItemDisplayRenderContext const *) ENTITY_CODE(0802BFE4);
+EC void DrawItemDisplayGraphics(ItemDisplayGraphics * graphics, ItemDisplayRenderContext const * render)
+{
+    register ItemDisplayGraphics * self asm("r6") = graphics;
+    register ItemDisplayRenderContext const * context asm("r8") = render;
+    ItemDisplayFrameData local;
+    register ItemDisplayEntity * display asm("r4") = *reinterpret_cast<ItemDisplayEntity **>(self);
+    local.map = display->location_map;
+    asm volatile("" : "+m"(local.map));
+    register GameObject * game_arg asm("r1") = display->game_object;
+    asm volatile("" : "+r"(game_arg));
+    register GameObject * game asm("sb") = game_arg;
+    local.base_sprite_visible = self->unk_44;
+    register i32 x_q16 asm("r2") = display->x_q16;
+    local.x_q16 = x_q16;
+    register i32 x asm("r1") = x_q16 >> 16;
+    register i32 y_q16 asm("r0") = display->y_q16;
+    local.y_q16 = y_q16;
+    register i32 y asm("r2") = y_q16 >> 16;
+    register ItemDisplayResources * resources asm("r5") = &local.resources;
+    register ItemDisplayRenderContext const * resource_context asm("r3") = context;
+    register DmaTransferQueue * tile_uploads asm("r0") = resource_context->tile_uploads;
+    register OamBuffer * sprite_queue asm("r3") = resource_context->sprite_queue;
+    asm volatile("" : "+r"(sprite_queue));
+    local.resources.tile_uploads = tile_uploads;
+    resources->sprite_queue = sprite_queue;
+    local.region = ClassifySideEntityFarmRegion(local.map, x, y);
+    register u8 * region_dest asm("r0") = reinterpret_cast<u8 *>(self) + 0x8B;
+    register u8 * region_address asm("r7") = reinterpret_cast<u8 *>(&local.region);
+    asm volatile("ldrb %0, [%0]" : "+l"(region_address));
+    register u32 farm_region asm("r7") = reinterpret_cast<u32>(region_address);
+    *region_dest = farm_region;
+    register ThrownItemMotion * display_motion asm("r4") = &display->thrown_item;
+    register ThrownItemMotion * motion asm("sl") = display_motion;
+    register u32 displaying_throw asm("r1") = 0;
+    if (display_motion->active == 1)
+        displaying_throw = 1;
+    if (displaying_throw)
+    {
+        register ThrownItemMotion * motion_position asm("r1") = motion;
+        register i32 item_x_q16 asm("r0") = motion_position->x_speed;
+        register i32 world_x asm("r2") = local.x_q16;
+        item_x_q16 = world_x + item_x_q16;
+        item_x_q16 >>= 16;
+        register ItemDisplayRenderContext const * scroll asm("r3") = context;
+        register u32 x_field asm("r7") = 0xC;
+        register i32 camera_x asm("r1");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_x) : "l"(scroll), "l"(x_field) : "memory");
+        local.screen_x = item_x_q16 - camera_x;
+        motion_position = motion;
+        register i32 y_offset_q16 asm("r0") = motion_position->y_speed;
+        register i32 entity_y_q16 asm("r2") = local.y_q16;
+        register i32 world_y asm("r4") = entity_y_q16 + y_offset_q16;
+        register i32 ground_y asm("r1") = world_y >> 16;
+        register u32 y_field asm("r7") = 0xE;
+        register i32 camera_y asm("r0");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_y) : "l"(scroll), "l"(y_field) : "memory");
+        register i32 shadow_y asm("r7") = ground_y - camera_y;
+        local.sort_y = 0x8000 - ground_y;
+        register u32 show_shadow asm("r1") = 0;
+        register ThrownItemMotion * display_mode asm("r2") = motion;
+        if (display_mode->display_mode == 1)
+            show_shadow = 1;
+        if (show_shadow)
+        {
+            register GameObject * shadow_game asm("r3") = game;
+            register FixedSpriteOverlay const * (*get_shadow)(GameObject *) asm("r1") = ITEM_DISPLAY_GAME(shadow_game)->get_shadow;
+            FixedSpriteOverlay const * geometry = get_shadow(game);
+            register ItemDisplayRenderContext const * queue_context asm("r2") = context;
+            register OamBuffer * sprite_queue asm("r1") = queue_context->sprite_queue;
+            register u32 shadow_frame asm("r2") = 0;
+            asm volatile("str %0, [sp]" : : "l"(shadow_frame), "m"(local.stack_arguments[0]) : "memory");
+            register i32 shadow_x asm("r2") = local.screen_x;
+            DrawItemDisplayShadow(geometry, sprite_queue, shadow_x, shadow_y);
+        }
+        register ThrownItemMotion * motion_for_height asm("r3") = motion;
+        register i32 elevation asm("r0") = motion_for_height->z_speed;
+        elevation = world_y - elevation;
+        elevation >>= 16;
+        register ItemDisplayRenderContext const * scroll_again asm("r7") = context;
+        register u32 scroll_y_field asm("r2") = 0xE;
+        register i32 camera_y_again asm("r1");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(camera_y_again) : "l"(scroll_again), "l"(scroll_y_field) : "memory");
+        local.screen_y = elevation - camera_y_again;
+        register u32 priority asm("r0");
+        register i32 map asm("r3") = local.map;
+        if (map <= 8)
+        {
+            priority = 1;
+            register u32 region asm("r7") = local.region;
+            if (region != 1)
+                priority = 2;
+        }
+        else
+            priority = 1;
+        register ItemDisplaySprite * sprite asm("r5") = reinterpret_cast<ItemDisplaySprite *>(reinterpret_cast<u8 *>(self) + 0x8C);
+        register u8 * stack_base asm("r1");
+        asm volatile("mov %0, sp" : "=l"(stack_base));
+        stack_base += 0x34;
+        local.saved_resources = reinterpret_cast<ItemDisplayResources const *>(stack_base);
+        register u32 priorities asm("r4") = (priority << 2) | priority;
+        priorities |= priority << 4;
+        priorities |= priority << 6;
+        register SpriteAnimator * animator asm("r0") = &self->icon_animator;
+        register ItemDisplaySpriteSource const * source asm("r1") = reinterpret_cast<ItemDisplaySpriteSource const *>(animator->source);
+        ItemDisplaySpriteVTable const * table = source->table;
+        register u32 frame_index asm("r2") = animator->keyframe;
+        register SpriteKeyframe const ** keys_slot asm("r0") = &animator->clip.keyframes;
+        frame_index <<= 2;
+        asm volatile("" : "+r"(frame_index));
+        register u8 const * keys asm("r0") = reinterpret_cast<u8 const *>(*keys_slot);
+        keys += frame_index;
+        register u32 frame_id asm("r2") = *reinterpret_cast<u16 const *>(keys);
+        register ItemDisplayFrame * frame_dest asm("r0") = &local.frame;
+        register void (*get_frame)(ItemDisplayFrame *, ItemDisplaySpriteSource const *, u32) asm("r3") = table->get_frame;
+        get_frame(frame_dest, source, frame_id);
+        ItemDisplayFrame * frame;
+        asm volatile("add %0, sp, #20" : "=l"(frame));
+        register ItemDisplayResources const * saved_resources asm("r2") = local.saved_resources;
+        register OamBuffer * queue_arg asm("r2") = saved_resources->sprite_queue;
+        register OamBuffer * queue asm("ip") = queue_arg;
+        register void * sprite_resources asm("r2") = sprite->sprite_resources;
+        register G1MapTileOwner const * tiles asm("r0") = &reinterpret_cast<G1MapSpriteResource *>(reinterpret_cast<u8 *>(self) + 0x8C)->tiles;
+        register i32 handle asm("r1") = tiles->handle;
+        register i32 handle_check asm("r0") = -handle | handle;
+        u32 queued;
+        if (handle_check >= 0)
+            goto no_sprite;
+        {
+            register u32 tile asm("r0") = sprite->base_tile;
+            register OverlayPaletteTable const * palettes asm("r1") = reinterpret_cast<OverlayPaletteTable *>(reinterpret_cast<u8 *>(self) + 0x9C);
+            register u32 sort_y asm("r3") = local.sort_y;
+            asm volatile("str %0, [sp]" : : "l"(sort_y), "m"(local.stack_arguments[0]) : "memory");
+            register ItemDisplayFrame const * frame_arg asm("r3");
+            asm volatile("add %0, %1, #0" : "=l"(frame_arg) : "l"(frame));
+            asm volatile(
+                "str %0, [sp, #4]\n\t"
+                "str %1, [sp, #8]\n\t"
+                "str %2, [sp, #12]\n\t"
+                "str %3, [sp, #16]"
+                : : "l"(frame_arg), "l"(sprite_resources), "l"(tile), "l"(palettes) : "memory");
+            register OamBuffer * queue_arg asm("r0") = queue;
+            register i32 screen_x asm("r1") = local.screen_x;
+            register i32 screen_y asm("r2") = local.screen_y;
+            register u32 layer asm("r3") = priorities;
+            register ItemDisplayQueueCall enqueue asm("r4") = QueueItemDisplayFrame;
+            queued = enqueue(queue_arg, screen_x, screen_y, layer);
+            goto check_enqueued;
+        }
+    no_sprite:
+        queued = 0;
+    check_enqueued:
+        if (queued)
+        {
+            register u8 * pending asm("r0") = &sprite->frame_upload_pending;
+            register u32 upload_pending asm("r1") = *pending;
+            local.frame_upload_pending = pending;
+            if (upload_pending)
+            {
+                QueueItemDisplayTileUpload(reinterpret_cast<G1MapSpriteResource *>(sprite), local.saved_resources->tile_uploads,
+                    reinterpret_cast<G1MapResourceData const *>(&frame->tileBytes));
+                if (sprite->force_palette_upload)
+                    LoadMapSpriteResourcePalettes(reinterpret_cast<G1MapSpriteResource *>(sprite),
+                        reinterpret_cast<G1MapResourceData const *>(&frame->paletteBytes), 1);
+                else
+                {
+                    register u8 * loaded asm("r4") = &sprite->palette_uploaded;
+                    if (!*loaded)
+                    {
+                        LoadMapSpriteResourcePalettes(reinterpret_cast<G1MapSpriteResource *>(sprite),
+                            reinterpret_cast<G1MapResourceData const *>(&frame->paletteBytes), 1);
+                        *loaded = 1;
+                    }
+                }
+                register u32 zero asm("r0") = 0;
+                *local.frame_upload_pending = zero;
+            }
+        }
+    }
+    DrawSideActorOverlayLayers(self, context);
+    register u32 base_sprite_visible asm("r2") = local.base_sprite_visible;
+    if (!base_sprite_visible)
+        return;
+    register u32 thrown asm("r1") = 0;
+    register ThrownItemMotion * thrown_item asm("r3") = motion;
+    register u32 is_active asm("r0") = thrown_item->active;
+    if (is_active == 1)
+        thrown = 1;
+    if (thrown)
+        return;
+    register u16 * icon asm("r5") = &self->icon;
+    if (*icon == 0xFFFF)
+        return;
+    register GameObject * icon_game asm("r7") = game;
+    register ItemDisplaySpriteSource const * (*get_sprites)(GameObject *) asm("r1") = ITEM_DISPLAY_GAME(icon_game)->get_sprites;
+    register ItemDisplaySpriteSource const * sprites asm("r4") = get_sprites(game);
+    register u32 clip asm("r2") = *icon;
+    register ItemDisplaySpriteVTable const * table asm("r5") = sprites->table;
+    register u32 * clip_destination asm("r0") = local.clip;
+    register void (*get_clip)(u32 *, ItemDisplaySpriteSource const *, u32) asm("r3") = table->get_clip;
+    get_clip(clip_destination, sprites, clip);
+    register u32 frame_id asm("r2") = *reinterpret_cast<u16 *>(local.clip[0]);
+    register ItemDisplayFrame * frame_destination asm("r0") = &local.frame;
+    register void (*get_frame)(ItemDisplayFrame *, ItemDisplaySpriteSource const *, u32) asm("r3") = table->get_frame;
+    get_frame(frame_destination, sprites, frame_id);
+    register void * (*get_target)(GameObject *, u32) asm("r2") = ITEM_DISPLAY_GAME(icon_game)->get_icon_target;
+    register void * target asm("r2") = get_target(game, 2);
+    register ItemDisplayRenderVTable const * icon_table asm("r0") = ITEM_DISPLAY_GAME(icon_game);
+    register void const * palette asm("r1") = local.frame.paletteBytes.data;
+    register void (*upload_icon_palette)(GameObject *, void const *, void *, u32) asm("r4") = icon_table->upload_icon_palette;
+    upload_icon_palette(game, palette, target, 1);
+}
+
+#undef ITEM_DISPLAY_GAME
+
 EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game) ENTITY_CODE(0802C210);
 EC ItemDisplayEntity * NewItemDisplayEntity(GameObject * game)
 {
@@ -4222,6 +4515,368 @@ EC void TickFarmerToolCharge(FarmerEntity * farmer)
         }
     }
 }
+
+EC u32 IsFarmerToolStackEmptyRaw(ToolStack const *) asm("IsEmpty__C9ToolStack");
+EC u32 GetFarmerToolIdRaw(Tool const *) asm("GetId__C4Tool");
+struct FarmerToolTerrainGameVTable
+{
+    STRUCT_PAD(0, 0x34);
+    void (*get_grid)(FarmerTerrainGrid *, GameObject *, u32);
+};
+struct FarmerToolSetupFrame
+{
+    FarmerTerrainGrid grid;
+    u8 tool_for_use;
+    u8 tool_for_charge_limit;
+};
+#define SET_FARMER_TOOL_VALUE(field, value, destination) \
+    output = &self->field; \
+    asm volatile("" : "+r"(output)); \
+    setting = value; \
+    asm volatile("" : : "r"(setting)); \
+    goto destination
+
+EC void PrepareFarmerToolUse(FarmerEntity *) ENTITY_CODE(0802C984);
+EC void PrepareFarmerToolUse(FarmerEntity * farmer)
+{
+    register FarmerEntity * self asm("r6") = farmer;
+    FarmerToolSetupFrame frame;
+    register u8 * charge_counter asm("r0") = &farmer->tool_level;
+    asm volatile("" : "+r"(charge_counter));
+    register u32 zero asm("r1") = 0;
+    asm volatile("" : : "r"(zero));
+    *charge_counter = zero;
+    charge_counter += 2;
+    asm volatile("" : "+r"(charge_counter));
+    *charge_counter = zero;
+    register u8 * output asm("r1");
+    register u32 setting asm("r0");
+    register void ** channel asm("r4");
+    register void * player asm("r0");
+    if (IsFarmerToolStackEmptyRaw(&self->farmer->unk_5C) << 24)
+    {
+        SET_FARMER_TOOL_VALUE(tool_state, 15, write_value);
+    }
+    {
+        Farmer const * model = self->farmer;
+        register u32 resolved asm("r1") = ReadResolvedToolIdRaw(*model, model->unk_5C.GetTool());
+        asm volatile("" : "+r"(resolved));
+        register u8 * id_address asm("r0") = &frame.tool_for_use;
+        asm volatile("" : "+r"(id_address));
+        *id_address = resolved;
+        register u32 id asm("r0") = GetFarmerToolIdRaw(reinterpret_cast<Tool const *>(id_address));
+        asm volatile("" : "+r"(id));
+        switch (id)
+        {
+        case TOOL_IRON_SICKLE:
+        case TOOL_COPPER_SICKLE:
+        case TOOL_SILVER_SICKLE:
+        case TOOL_GOLD_SICKLE:
+        case TOOL_MYSTRILE_SICKLE:
+        case TOOL_CURSED_SICKLE:
+        case TOOL_BLESSED_SICKLE:
+        case TOOL_MYTHIC_SICKLE:
+            SET_FARMER_TOOL_VALUE(tool_state, 0, set_tool_state);
+        case TOOL_IRON_HOE:
+        case TOOL_COPPER_HOE:
+        case TOOL_SILVER_HOE:
+        case TOOL_GOLD_HOE:
+        case TOOL_MYSTRILE_HOE:
+        case TOOL_CURSED_HOE:
+        case TOOL_BLESSED_HOE:
+        case TOOL_MYTHIC_HOE:
+            SET_FARMER_TOOL_VALUE(tool_state, 3, set_tool_state);
+        case TOOL_IRON_AXE:
+        case TOOL_COPPER_AXE:
+        case TOOL_SILVER_AXE:
+        case TOOL_GOLD_AXE:
+        case TOOL_MYSTRILE_AXE:
+        case TOOL_CURSED_AXE:
+        case TOOL_BLESSED_AXE:
+        case TOOL_MYTHIC_AXE:
+            SET_FARMER_TOOL_VALUE(tool_state, 1, set_tool_state);
+        case TOOL_IRON_HAMMER:
+        case TOOL_COPPER_HAMMER:
+        case TOOL_SILVER_HAMMER:
+        case TOOL_GOLD_HAMMER:
+        case TOOL_MYSTRILE_HAMMER:
+        case TOOL_CURSED_HAMMER:
+        case TOOL_BLESSED_HAMMER:
+        case TOOL_MYTHIC_HAMMER:
+            SET_FARMER_TOOL_VALUE(tool_state, 4, set_tool_state);
+        case TOOL_WATERING_CAN:
+        case TOOL_COPPER_WATERING_CAN:
+        case TOOL_SILVER_WATERING_CAN:
+        case TOOL_GOLD_WATERING_CAN:
+        case TOOL_MYSTRILE_WATERING_CAN:
+        case TOOL_CURSED_WATERING_CAN:
+        case TOOL_BLESSED_WATERING_CAN:
+        case TOOL_MYTHIC_WATERING_CAN:
+            {
+                register i32 x asm("r5") = reinterpret_cast<i16 const *>(&self->x_q16)[1];
+                asm volatile("" : "+r"(x));
+                register i32 y asm("r4") = reinterpret_cast<i16 const *>(&self->y_q16)[1];
+                asm volatile("" : "+r"(y));
+                u32 facing = self->facing;
+                asm volatile("" : "+r"(facing));
+                register u32 facing_copy asm("r1") = facing;
+                asm volatile("" : "+r"(facing));
+                if (facing == FACING_UP)
+                    goto face_up;
+                if (static_cast<i32>(facing) > FACING_UP)
+                    goto face_horizontal;
+                if (facing == FACING_DOWN)
+                    goto face_down;
+                goto tile_ahead;
+            face_horizontal:
+                if (facing_copy == FACING_LEFT)
+                    goto face_left;
+                if (facing_copy == FACING_RIGHT)
+                    goto face_right;
+                goto tile_ahead;
+            face_up:
+                y -= 16;
+                goto tile_ahead;
+            face_down:
+                y += 16;
+                goto tile_ahead;
+            face_left:
+                x -= 16;
+                goto tile_ahead;
+            face_right:
+                x += 16;
+            tile_ahead:
+                register u32 map asm("r2") = self->location_map;
+                asm volatile("" : "+r"(map));
+                GameObject * game = self->game_object;
+                asm volatile("" : "+r"(game));
+                register FarmerToolTerrainGameVTable const * vtable asm("r1") = *reinterpret_cast<FarmerToolTerrainGameVTable const **>(game);
+                asm volatile("" : "+r"(vtable));
+                register FarmerTerrainGrid * result asm("r0") = &frame.grid;
+                asm volatile("" : "+r"(result));
+                register void (*get_grid)(FarmerTerrainGrid *, GameObject *, u32) asm("r3") = vtable->get_grid;
+                asm volatile("" : : "r"(get_grid));
+                get_grid(result, game, map);
+                register FarmerTerrainGrid const * grid asm("r1") = &frame.grid;
+                asm volatile("" : "+r"(grid));
+                x >>= 3;
+                asm volatile("" : "+r"(x));
+                register i32 row asm("r3") = y >> 3;
+                asm volatile("" : "+r"(row));
+                register u32 const * properties asm("r2") = frame.grid.properties;
+                asm volatile("" : "+r"(properties));
+                register u32 width asm("r0") = grid->width;
+                asm volatile("" : "+r"(width));
+                u32 const * tile;
+                if (!properties || static_cast<u32>(x) > width || static_cast<u32>(row) > grid->height)
+                    goto no_tile;
+                {
+                    register u8 const * indices asm("r1") = frame.grid.indices;
+                    asm volatile("" : "+r"(indices));
+                    register u32 index asm("r0") = width * row + x;
+                    asm volatile("" : "+r"(index));
+                    if (indices)
+                        index = indices[index];
+                    tile = properties + index;
+                    goto check_tile;
+                }
+            unused_channel:
+                player = *channel;
+                goto play_sound;
+            no_tile:
+                tile = nullptr;
+            check_tile:
+                asm volatile("" : "+r"(tile));
+                if (tile && static_cast<i32>(*tile << 30) < 0)
+                {
+                    {
+                        register u8 * state asm("r1") = &self->state;
+                        asm volatile("" : "+r"(state));
+                        register u32 state_value asm("r0") = 27;
+                        asm volatile("" : : "r"(state_value));
+                        *state = state_value;
+                        state += 3;
+                        asm volatile("" : "+r"(state));
+                        register u32 none asm("r0") = 15;
+                        asm volatile("" : : "r"(none));
+                        *state = none;
+                        register FarmerActionVTable const * actions asm("r4") = reinterpret_cast<FarmerActionVTable const **>(self)[5];
+                        asm volatile("" : "+r"(actions));
+                        register i32 stamina asm("r5") = -2;
+                        asm volatile("" : "+r"(stamina));
+                        register u32 fatigue asm("r2") = FarmerEntity_GetToolFatiguePenalty(self);
+                        asm volatile("" : : "r"(fatigue));
+                        register bool (*adjust)(FarmerEntity *, i32, i32) asm("r3") = actions->change_stamina_and_fatigue;
+                        asm volatile("" : : "r"(adjust));
+                        adjust(self, stamina, fatigue);
+
+                        EntitySoundGameVTable const * sound_table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+                        register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1") = sound_table->get_channels;
+                        asm volatile("" : : "r"(get_channels));
+                        EntitySoundChannels const * channels = get_channels(game);
+                        channel = channels->begin;
+                        register void ** end asm("r5") = channels->end;
+                        asm volatile("" : : "r"(channel), "r"(end));
+                        if (channel != end)
+                        {
+                            do
+                            {
+                                u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                                asm volatile("" : "+r"(playing));
+                                if (!playing)
+                                    goto unused_channel;
+                                ++channel;
+                            } while (channel != end);
+                        }
+                        {
+                            register void ** previous asm("r0") = end - 1;
+                            asm volatile("" : "+r"(previous));
+                            player = *previous;
+                        }
+                    }
+                play_sound:
+                    asm volatile("" : : "r"(player));
+                    AudioPlayer_StartSong(player, 0x92);
+                    return;
+                }
+                if (func_0800E94C(*self->farmer))
+                {
+                    SET_FARMER_TOOL_VALUE(tool_state, 2, set_tool_state);
+                }
+                SET_FARMER_TOOL_VALUE(tool_state, 15, write_value);
+            }
+        case TOOL_FISHING_ROD:
+        case TOOL_COPPER_FISHING_ROD:
+        case TOOL_SILVER_FISHING_ROD:
+        case TOOL_GOLD_FISHING_ROD:
+        case TOOL_MYSTRILE_FISHING_ROD:
+        case TOOL_CURSED_FISHING_ROD:
+        case TOOL_BLESSED_FISHING_ROD:
+        case TOOL_MYTHIC_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_state, 5, set_tool_state);
+        case TOOL_COW_MIRACLE_POTION:
+            SET_FARMER_TOOL_VALUE(tool_state, 6, set_tool_state);
+        case TOOL_SHEEP_MIRACLE_POTION:
+            SET_FARMER_TOOL_VALUE(tool_state, 7, set_tool_state);
+        case TOOL_TURNIP_SEEDS:
+        case TOOL_POTATO_SEEDS:
+        case TOOL_CUCUMBER_SEEDS:
+        case TOOL_STRAWBERRY_SEEDS:
+        case TOOL_CABBAGE_SEEDS:
+        case TOOL_TOMATO_SEEDS:
+        case TOOL_CORN_SEEDS:
+        case TOOL_ONION_SEEDS:
+        case TOOL_PUMPKIN_SEEDS:
+        case TOOL_PINEAPPLE_SEEDS:
+        case TOOL_EGGPLANT_SEEDS:
+        case TOOL_CARROT_SEEDS:
+        case TOOL_SWEET_POTATO_SEEDS:
+        case TOOL_SPINACH_SEEDS:
+        case TOOL_GREEN_PEPPER_SEEDS:
+        case TOOL_GRASS_SEEDS:
+        case TOOL_MOON_DROP_SEEDS:
+        case TOOL_PINK_CAT_SEEDS:
+        case TOOL_MAGIC_SEEDS:
+        case TOOL_TOY_FLOWER_SEEDS:
+            SET_FARMER_TOOL_VALUE(tool_state, 8, set_tool_state);
+        case TOOL_BRUSH:
+            SET_FARMER_TOOL_VALUE(tool_state, 9, set_tool_state);
+        case TOOL_MILKER:
+            SET_FARMER_TOOL_VALUE(tool_state, 10, set_tool_state);
+        case TOOL_CLIPPER:
+            SET_FARMER_TOOL_VALUE(tool_state, 11, set_tool_state);
+        case TOOL_BELL:
+            SET_FARMER_TOOL_VALUE(tool_state, 12, set_tool_state);
+        case TOOL_ANIMAL_MEDICINE:
+            SET_FARMER_TOOL_VALUE(tool_state, 13, set_tool_state);
+        case TOOL_BLUE_FEATHER:
+        case TOOL_PEDOMETER:
+        case TOOL_TELEPORT_STONE:
+        case TOOL_GEM_OF_THE_GODDESS:
+        case TOOL_GEM_OF_THE_KAPPA:
+        case TOOL_GEM_OF_TRUTH:
+            SET_FARMER_TOOL_VALUE(tool_state, 14, set_tool_state);
+        default:
+            SET_FARMER_TOOL_VALUE(tool_state, 15, set_tool_state);
+        }
+    }
+set_tool_state:
+    *output = setting;
+    {
+        Farmer const * model = self->farmer;
+        register u32 resolved asm("r1") = ReadResolvedToolIdRaw(*model, model->unk_5C.GetTool());
+        asm volatile("" : "+r"(resolved));
+        register u8 * id_address asm("r0") = &frame.tool_for_charge_limit;
+        asm volatile("" : "+r"(id_address));
+        *id_address = resolved;
+        register u32 id asm("r0") = GetFarmerToolIdRaw(reinterpret_cast<Tool const *>(id_address));
+        asm volatile("" : "+r"(id));
+        switch (id)
+        {
+        case TOOL_IRON_SICKLE:
+        case TOOL_IRON_HOE:
+        case TOOL_IRON_AXE:
+        case TOOL_IRON_HAMMER:
+        case TOOL_WATERING_CAN:
+        case TOOL_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 1, write_value);
+        case TOOL_COPPER_SICKLE:
+        case TOOL_COPPER_HOE:
+        case TOOL_COPPER_AXE:
+        case TOOL_COPPER_HAMMER:
+        case TOOL_COPPER_WATERING_CAN:
+        case TOOL_COPPER_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 2, write_value);
+        case TOOL_SILVER_SICKLE:
+        case TOOL_SILVER_HOE:
+        case TOOL_SILVER_AXE:
+        case TOOL_SILVER_HAMMER:
+        case TOOL_SILVER_WATERING_CAN:
+        case TOOL_SILVER_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 3, write_value);
+        case TOOL_GOLD_SICKLE:
+        case TOOL_GOLD_HOE:
+        case TOOL_GOLD_AXE:
+        case TOOL_GOLD_HAMMER:
+        case TOOL_GOLD_WATERING_CAN:
+        case TOOL_GOLD_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 4, write_value);
+        case TOOL_MYSTRILE_SICKLE:
+        case TOOL_MYSTRILE_HOE:
+        case TOOL_MYSTRILE_AXE:
+        case TOOL_MYSTRILE_HAMMER:
+        case TOOL_MYSTRILE_WATERING_CAN:
+        case TOOL_MYSTRILE_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 5, write_value);
+        case TOOL_CURSED_SICKLE:
+        case TOOL_BLESSED_SICKLE:
+        case TOOL_CURSED_HOE:
+        case TOOL_BLESSED_HOE:
+        case TOOL_CURSED_AXE:
+        case TOOL_BLESSED_AXE:
+        case TOOL_CURSED_HAMMER:
+        case TOOL_BLESSED_HAMMER:
+        case TOOL_CURSED_WATERING_CAN:
+        case TOOL_BLESSED_WATERING_CAN:
+        case TOOL_CURSED_FISHING_ROD:
+        case TOOL_BLESSED_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 6, write_value);
+        case TOOL_MYTHIC_SICKLE:
+        case TOOL_MYTHIC_HOE:
+        case TOOL_MYTHIC_AXE:
+        case TOOL_MYTHIC_HAMMER:
+        case TOOL_MYTHIC_WATERING_CAN:
+        case TOOL_MYTHIC_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 7, write_value);
+        default:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 0, write_value);
+        }
+    }
+write_value:
+    *output = setting;
+}
+
+#undef SET_FARMER_TOOL_VALUE
 
 struct FarmerInputState
 {
@@ -5390,3 +6045,1047 @@ EC u32 SumSpriteAnimationFrameDelays(SpriteAnimationSource const * source, u32 a
     }
     return total_delay;
 }
+
+struct FarmerCollisionGameVTable
+{
+    STRUCT_PAD(0, 0x2C);
+    i32 (*get_width)(GameObject *, u32);
+    i32 (*get_height)(GameObject *, u32);
+    void (*get_grid)(FarmerTerrainGrid *, GameObject *, u32);
+    STRUCT_PAD(0x38, 0x40);
+    AEntity * (*get_entity)(GameObject *, u32);
+};
+
+struct FarmerCollisionActorVTable
+{
+    STRUCT_PAD(0, 0xC);
+    void (*get_bounds)(FarmerTargetBounds *, AEntity *);
+    STRUCT_PAD(0x10, 0x40);
+    u32 (*get_interaction_state)(AEntity *);
+    STRUCT_PAD(0x44, 0x84);
+    void (*show_collision_reaction)(AEntity *, u32, u32);
+};
+
+struct FarmerCollisionFrame
+{
+    FarmerTerrainGrid grid;
+    FarmerTargetBounds current_return, current, next_return, next, target_return, target;
+    FarmerTargetBounds tile_return, tile, next_tile;
+    GameObject * game;
+    u32 map, can_react, facing, pressure, count;
+    u32 const * slots;
+    u32 index, slot;
+    AEntity * entity;
+    i32 target_y;
+};
+
+EC u32 const farmer_collision_slots[60] asm("gUnk_080F0E88");
+EC u32 const farmer_reduced_collision_slots[21] asm("gUnk_080F0F78");
+EC void FarmerEntity_MoveWithSliding(FarmerEntity *, u32, i32);
+EC u32 CheckFarmerCollisionTile(FarmerTerrainGrid const *, FarmerTargetBounds const *) asm("DoesEntityCollisionRectangleHitSolidTile");
+
+#define COLLISION_GAME(game) (*reinterpret_cast<FarmerCollisionGameVTable const **>(game))
+#define COLLISION_ACTOR(entity) (reinterpret_cast<FarmerCollisionActorVTable const **>(entity)[5])
+
+EC void UpdateFarmerMovementCollision(FarmerEntity *) ENTITY_CODE(0802CDCC);
+EC void UpdateFarmerMovementCollision(FarmerEntity * self)
+{
+    FarmerCollisionFrame frame;
+    {
+        register u8 * reaction_timer asm("r1") = reinterpret_cast<u8 *>(&self->unk_B3);
+        register u32 remaining asm("r0") = *reaction_timer;
+        register u8 * pressure asm("r1");
+        register u32 scale asm("r0");
+        if (remaining)
+        {
+            --remaining;
+            *reaction_timer = remaining;
+            remaining <<= 24;
+            if (!remaining)
+            {
+                register u32 slot asm("r4") = 0x2B;
+                do
+                {
+                    GameObject * game = self->game_object;
+                    register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = COLLISION_GAME(game)->get_entity;
+                    register AEntity * actor asm("r2") = get_entity(game, slot);
+                    if (actor)
+                    {
+                        register u32 (*refresh)(AEntity *) asm("r1") = COLLISION_ACTOR(actor)->get_interaction_state;
+                        refresh(actor);
+                    }
+                    ++slot;
+                } while (slot <= 0x45);
+                goto check_position;
+            }
+            pressure = reinterpret_cast<u8 *>(&self->unk_B4);
+            scale = *pressure;
+            if (scale > 89)
+                goto check_position;
+            ++scale;
+        }
+        else
+        {
+            pressure = reinterpret_cast<u8 *>(&self->unk_B4);
+            scale = *pressure;
+            if (!scale)
+                goto check_position;
+            --scale;
+        }
+        *pressure = scale;
+    }
+
+check_position:
+    frame.game = self->game_object;
+    asm volatile("" : "+m"(frame.game));
+    register u32 map asm("r1") = self->location_map;
+    frame.map = map;
+    asm volatile("" : "+m"(frame.map));
+    {
+        register u32 x_speed asm("r0") = self->x_speed_q16;
+        if (x_speed)
+            goto check_actor_collisions;
+        register u32 y_speed asm("r1") = self->y_speed_q16;
+        if (!y_speed)
+            goto move_farmer;
+    }
+check_actor_collisions:
+    {
+        register u32 state asm("r0") = self->state;
+        if (state == 0x2C)
+            goto move_farmer;
+        if (state == 0x35)
+            goto move_farmer;
+        register FarmerCollisionActorVTable const * methods asm("r1") = COLLISION_ACTOR(self);
+        register FarmerTargetBounds * output asm("r0") = &frame.current_return;
+        register void (*bounds)(FarmerTargetBounds *, AEntity *) asm("r2") = methods->get_bounds;
+        bounds(output, self);
+        frame.current = frame.current_return;
+        register FarmerTargetBounds const * copied_box asm("r2") = &frame.current;
+        asm volatile("" : "+r"(copied_box) : "m"(frame.current));
+        register FarmerTargetBounds const * current asm("sb") = copied_box;
+        register u32 (*get_state)(AEntity *) asm("r1") = COLLISION_ACTOR(self)->get_interaction_state;
+        frame.can_react = static_cast<u8>(get_state(self) ^ 1);
+        asm volatile("" : "+m"(frame.can_react));
+        frame.facing = self->facing;
+        asm volatile("" : "+m"(frame.facing));
+        frame.pressure = *reinterpret_cast<u8 *>(&self->unk_B4);
+        asm volatile("" : "+m"(frame.pressure));
+        register u32 dx_offset asm("r4") = 0x1A;
+        register i32 dx asm("r3");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(dx) : "l"(self), "l"(dx_offset) : "memory");
+        register u32 dy_offset asm("r5") = 0x1E;
+        register i32 dy asm("r4");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(dy) : "l"(self), "l"(dy_offset) : "memory");
+        register FarmerTargetBounds const * bounds_ptr asm("r6") = current;
+        register u32 left_offset asm("r1") = 0;
+        register i32 left asm("r0");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(left) : "l"(bounds_ptr), "l"(left_offset) : "memory");
+        register u32 top_offset asm("r5") = 2;
+        register i32 top asm("r2");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(top) : "l"(bounds_ptr), "l"(top_offset) : "memory");
+        register u32 right_offset asm("r1") = 4;
+        register i32 right asm("r5");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(right) : "l"(bounds_ptr), "l"(right_offset) : "memory");
+        register u32 bottom_offset asm("r1") = 6;
+        register i32 bottom asm("r6");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(bottom) : "l"(bounds_ptr), "l"(bottom_offset) : "memory");
+        register i32 bottom_copy asm("r8") = bottom;
+        register FarmerTargetBounds * output_box asm("r1") = &frame.next_return;
+        left = dx + left;
+        output_box->x1 = left;
+        asm volatile("" : : "m"(output_box->x1));
+        top = dy + top;
+        output_box->y1 = top;
+        dx += right;
+        output_box->x2 = dx;
+        dy += bottom_copy;
+        output_box->y2 = dy;
+        frame.next = frame.next_return;
+        register FarmerTargetBounds const * copied_next asm("r2") = &frame.next;
+        asm volatile("" : "+r"(copied_next) : "m"(frame.next));
+        register FarmerTargetBounds const * next asm("sl") = copied_next;
+        if (self->motion != 2)
+        {
+            register u32 walking_count asm("r3") = 60;
+            frame.count = walking_count;
+            asm volatile("" : "+m"(frame.count));
+            register u32 const * walking_slots asm("r4") = farmer_collision_slots;
+            frame.slots = walking_slots;
+            asm volatile("" : "+m"(frame.slots));
+        }
+        else
+        {
+            register u32 running_count asm("r5") = 21;
+            frame.count = running_count;
+            asm volatile("" : "+m"(frame.count));
+            register u32 const * running_slots asm("r6") = farmer_reduced_collision_slots;
+            frame.slots = running_slots;
+            asm volatile("" : "+m"(frame.slots));
+        }
+        asm volatile("" : "+m"(frame.count), "+m"(frame.slots));
+        register u32 first_index asm("r0") = 0;
+        frame.index = first_index;
+        asm volatile("" : "+m"(frame.index));
+        register u32 count asm("r1") = frame.count;
+        if (first_index >= count)
+            goto move_farmer;
+        register FarmerTargetBounds const * target_box asm("r2") = &frame.target;
+        asm volatile("" : "+r"(target_box));
+        register FarmerTargetBounds const * target asm("r8") = target_box;
+        do
+        {
+            register u32 i asm("r3") = frame.index;
+            register u32 offset asm("r0") = i << 2;
+            register u32 const * slots asm("r4") = frame.slots;
+            offset += reinterpret_cast<u32>(slots);
+            register u32 slot asm("r0") = *reinterpret_cast<u32 const *>(offset);
+            *reinterpret_cast<u32 volatile *>(&frame.slot) = slot;
+            register GameObject * game asm("r5") = frame.game;
+            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = COLLISION_GAME(game)->get_entity;
+            register GameObject * game_arg asm("r0") = game;
+            register AEntity * entity asm("r3") = get_entity(game_arg, frame.slot);
+            frame.entity = entity;
+            asm volatile("" : "+m"(frame.entity));
+            if (!entity)
+                goto next_slot;
+            {
+                register u32 entity_map asm("r0") = entity->location_map;
+                register u32 current_map asm("r6") = frame.map;
+                if (entity_map != current_map)
+                    goto next_slot;
+            }
+            {
+                register FarmerCollisionActorVTable const * actor_methods asm("r1") = COLLISION_ACTOR(entity);
+                register FarmerTargetBounds * output asm("r0") = &frame.target_return;
+                register void (*get_target_bounds)(FarmerTargetBounds *, AEntity *) asm("r2") = actor_methods->get_bounds;
+                get_target_bounds(output, entity);
+                frame.target = frame.target_return;
+                asm volatile("" : "+m"(frame.target));
+                register FarmerTargetBounds const * target_ptr asm("r0") = target;
+                register u32 left_offset asm("r1") = 0;
+                register i32 left asm("r0");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(left) : "l"(target_ptr), "l"(left_offset) : "memory");
+                register i32 target_left asm("ip") = left;
+                register FarmerTargetBounds const * current_ptr asm("r2") = current;
+                register u32 old_gap_offset asm("r3") = 4;
+                register i32 old_gap asm("r1");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(old_gap) : "l"(current_ptr), "l"(old_gap_offset) : "memory");
+                old_gap = left - old_gap;
+                register u32 diff_offset asm("r4") = 0;
+                register i32 diff asm("r0");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(diff) : "l"(current_ptr), "l"(diff_offset) : "memory");
+                register FarmerTargetBounds const * target_read asm("r5") = target;
+                register u32 target_right_offset asm("r6") = 4;
+                register i32 target_right asm("r4");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(target_right) : "l"(target_read), "l"(target_right_offset) : "memory");
+                diff -= target_right;
+                old_gap &= diff;
+                register u32 target_top_offset asm("r2") = 2;
+                register i32 target_top asm("r0");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(target_top) : "l"(target_read), "l"(target_top_offset) : "memory");
+                *reinterpret_cast<i32 volatile *>(&frame.target_y) = target_top;
+                register FarmerTargetBounds const * old_box asm("r3") = current;
+                register u32 old_bottom_offset asm("r5") = 6;
+                register i32 old_bottom asm("r0");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(old_bottom) : "l"(old_box), "l"(old_bottom_offset) : "memory");
+                register i32 top asm("r6") = frame.target_y;
+                old_gap &= top - old_bottom;
+                register i32 old_top asm("r0") = reinterpret_cast<i16 const *>(old_box)[1];
+                register FarmerTargetBounds const * target_bottom_ptr asm("r5") = target;
+                register u32 target_bottom_offset asm("r6") = 6;
+                register i32 target_bottom asm("r3");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(target_bottom) : "l"(target_bottom_ptr), "l"(target_bottom_offset) : "memory");
+                old_gap &= old_top - target_bottom;
+                register u32 clear asm("r2") = static_cast<u32>(old_gap) >> 31;
+                if (clear)
+                    goto next_slot;
+                register FarmerTargetBounds const * new_ptr asm("r0") = next;
+                register u32 new_gap_offset asm("r5") = 4;
+                register i32 new_gap asm("r1");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(new_gap) : "l"(new_ptr), "l"(new_gap_offset) : "memory");
+                register i32 left_copy asm("r6") = target_left;
+                asm volatile("" : "+r"(left_copy));
+                new_gap = left_copy - new_gap;
+                register u32 new_left_offset asm("r5") = 0;
+                register i32 new_left asm("r0");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(new_left) : "l"(new_ptr), "l"(new_left_offset) : "memory");
+                new_gap &= new_left - target_right;
+                register FarmerTargetBounds const * new_box asm("r6") = next;
+                register u32 new_bottom_offset asm("r4") = 6;
+                register i32 new_bottom asm("r0");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(new_bottom) : "l"(new_box), "l"(new_bottom_offset) : "memory");
+                register i32 top_copy asm("r5") = frame.target_y;
+                new_gap &= top_copy - new_bottom;
+                register u32 new_top_offset asm("r4") = 2;
+                register i32 new_top asm("r0");
+                asm volatile("ldrsh %0, [%1, %2]" : "=l"(new_top) : "l"(new_box), "l"(new_top_offset) : "memory");
+                new_gap &= new_top - target_bottom;
+                if (new_gap >= 0)
+                    goto next_slot;
+                self->x_speed_q16 = clear;
+                self->y_speed_q16 = clear;
+                register u32 can_react asm("r5") = frame.can_react;
+                if (!can_react)
+                    goto next_slot;
+                u32 reacts = 0;
+                register u32 reaction_slot asm("r0") = frame.slot;
+                if (reaction_slot - 0x2B <= 0x1A)
+                    reacts = 1;
+                asm volatile("" : "+r"(reacts));
+                if (!reacts)
+                    goto next_slot;
+                register AEntity * collided asm("r6") = frame.entity;
+                register void (*const * reaction_method)(AEntity *, u32, u32) asm("r0") = &COLLISION_ACTOR(collided)->show_collision_reaction;
+                register void (*react)(AEntity *, u32, u32) asm("r3") = *reaction_method;
+                register AEntity * actor_arg asm("r0") = collided;
+                register u32 facing_arg asm("r1") = frame.facing;
+                register u32 pressure_arg asm("r2") = frame.pressure;
+                asm volatile("" : "+r"(facing_arg), "+r"(pressure_arg));
+                react(actor_arg, facing_arg, pressure_arg);
+                *reinterpret_cast<u8 *>(&self->unk_B3) = 8;
+            }
+        next_slot:
+            ;
+            register u32 next_index asm("r0") = frame.index;
+            ++next_index;
+            *reinterpret_cast<u32 volatile *>(&frame.index) = next_index;
+            register u32 count asm("r1") = frame.count;
+            if (next_index >= count)
+                break;
+        } while (true);
+    }
+move_farmer:
+    register i32 x_move asm("r0") = self->x_speed_q16;
+    register i32 y_move asm("r1") = self->y_speed_q16;
+    if (!x_move && !y_move)
+        return;
+    register i32 old_x asm("r5") = self->x_q16;
+    register i32 old_y asm("r6") = self->y_q16;
+    x_move += old_x;
+    register i32 x asm("r8") = x_move;
+    y_move += old_y;
+    register i32 y asm("sb") = y_move;
+    if (x_move < 0)
+    {
+        register i32 left_edge asm("r2") = 0;
+        asm volatile("" : "+r"(left_edge));
+        x = left_edge;
+    }
+    else
+    {
+        register GameObject * game asm("r3") = frame.game;
+        register i32 (*get_width)(GameObject *, u32) asm("r2") = COLLISION_GAME(game)->get_width;
+        register GameObject * game_arg asm("r0") = game;
+        i32 right = get_width(game_arg, frame.map) << 16;
+        if (x > right)
+            x = right;
+    }
+    register i32 proposed_y asm("r4") = y;
+    asm volatile("" : "+r"(proposed_y));
+    register i32 bottom asm("r0");
+    if (proposed_y < 0)
+    {
+        bottom = 0;
+        goto clamp_bottom;
+    }
+    else
+    {
+        register GameObject * game asm("r1") = frame.game;
+        register FarmerCollisionGameVTable const * methods asm("r0") = COLLISION_GAME(game);
+        register i32 (*get_height)(GameObject *, u32) asm("r2") = methods->get_height;
+        register GameObject * game_arg asm("r0") = game;
+        register u32 map asm("r1") = frame.map;
+        bottom = get_height(game_arg, map) << 16;
+        if (y <= bottom)
+            goto vertical_clamped;
+    }
+    {
+    clamp_bottom:
+        y = bottom;
+    vertical_clamped: ;
+    }
+    if (static_cast<u8>(self->state - 0x2C) <= 1)
+        goto apply_position;
+    {
+        register GameObject * game asm("r4") = frame.game;
+        register FarmerCollisionGameVTable const * methods asm("r1") = COLLISION_GAME(game);
+        register FarmerTerrainGrid * grid asm("r0") = &frame.grid;
+        register void (*get_grid)(FarmerTerrainGrid *, GameObject *, u32) asm("r3") = methods->get_grid;
+        register GameObject * game_arg asm("r1") = game;
+        get_grid(grid, game_arg, frame.map);
+        register FarmerCollisionActorVTable const * actor_methods asm("r1") = COLLISION_ACTOR(self);
+        register FarmerTargetBounds * box_output asm("r0") = &frame.tile_return;
+        register void (*get_bounds)(FarmerTargetBounds *, AEntity *) asm("r2") = actor_methods->get_bounds;
+        get_bounds(box_output, self);
+        frame.tile = frame.tile_return;
+        register FarmerTargetBounds const * bounds asm("r4") = &frame.tile;
+        if (CheckFarmerCollisionTile(&frame.grid, bounds) << 24)
+        {
+            old_x = x;
+            asm volatile("" : "+r"(old_x));
+            self->x_q16 = old_x;
+            old_y = y;
+            asm volatile("" : "+r"(old_y));
+            self->y_q16 = old_y;
+            goto update_mount;
+        }
+        register i32 new_x asm("r0") = x;
+        register i32 new_x_tile asm("r1") = new_x >> 16;
+        new_x = old_x >> 16;
+        old_x = new_x_tile - new_x;
+        register i32 new_y asm("r2") = y;
+        asm volatile("" : "+r"(new_y));
+        register i32 new_y_tile asm("r1") = new_y >> 16;
+        register i32 old_y_tile asm("r0") = old_y >> 16;
+        old_y = new_y_tile - old_y_tile;
+        register u32 left_offset asm("r3") = 0;
+        register i32 left asm("r0");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(left) : "l"(bounds), "l"(left_offset) : "memory");
+        register u32 top_offset asm("r1") = 2;
+        register i32 top asm("r2");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(top) : "l"(bounds), "l"(top_offset) : "memory");
+        register u32 right_offset asm("r1") = 4;
+        register i32 right asm("r3");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(right) : "l"(bounds), "l"(right_offset) : "memory");
+        register u32 bottom_offset asm("r1") = 6;
+        register i32 bottom asm("r4");
+        asm volatile("ldrsh %0, [%1, %2]" : "=l"(bottom) : "l"(bounds), "l"(bottom_offset) : "memory");
+        register FarmerTargetBounds * next_box asm("r1") = &frame.next_tile;
+        asm volatile("add %0, %1, %0" : "+l"(left) : "l"(old_x));
+        next_box->x1 = left;
+        asm volatile("add %0, %1, %0" : "+l"(top) : "l"(old_y));
+        next_box->y1 = top;
+        asm volatile("add %0, %1, %0" : "+l"(right) : "l"(old_x));
+        next_box->x2 = right;
+        asm volatile("add %0, %1, %0" : "+l"(bottom) : "l"(old_y));
+        next_box->y2 = bottom;
+        register u32 solid_tile asm("r0") = CheckFarmerCollisionTile(&frame.grid, next_box);
+        register u32 mask asm("r1") = 1;
+        solid_tile ^= mask;
+        if (!(solid_tile << 24))
+            goto slide_farmer;
+    }
+apply_position:
+    {
+        register i32 applied_x asm("r2") = x;
+        asm volatile("" : "+r"(applied_x));
+        self->x_q16 = applied_x;
+        register i32 applied_y asm("r3") = y;
+        asm volatile("" : "+r"(applied_y));
+        self->y_q16 = applied_y;
+    }
+    goto update_mount;
+slide_farmer:
+    if (old_x > 0)
+        FarmerEntity_MoveWithSliding(self, FACING_RIGHT, old_x);
+    else if (old_x < 0)
+        FarmerEntity_MoveWithSliding(self, FACING_LEFT, -old_x);
+    else if (old_y > 0)
+        FarmerEntity_MoveWithSliding(self, FACING_DOWN, old_y);
+    else if (old_y < 0)
+        FarmerEntity_MoveWithSliding(self, FACING_UP, -old_y);
+update_mount:
+    register u32 (*get_state)(AEntity *) asm("r1") = COLLISION_ACTOR(self)->get_interaction_state;
+    if (get_state(self) << 24)
+    {
+        register GameObject * game asm("r4") = frame.game;
+        register FarmerCollisionGameVTable const * methods asm("r0") = COLLISION_GAME(game);
+        register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = methods->get_entity;
+        AEntity * mount = get_entity(game, 0x2C);
+        mount->x_q16 = self->x_q16;
+        mount->y_q16 = self->y_q16;
+    }
+}
+
+#undef COLLISION_ACTOR
+#undef COLLISION_GAME
+
+struct FarmerIdleGameVTable
+{
+    STRUCT_PAD(0, 0x40);
+    AEntity * (*get_entity)(GameObject *, u32);
+    STRUCT_PAD(0x44, 0x120);
+    u32 (*can_spawn_step_effect)(GameObject *, Location const *);
+    STRUCT_PAD(0x124, 0x14C);
+    EntitySoundChannels const * (*get_channels)(GameObject *);
+};
+
+struct FarmerIdleActorVTable
+{
+    STRUCT_PAD(0, 0x40);
+    void (*cancel_interaction)(AEntity *);
+    STRUCT_PAD(0x44, 0x6C);
+    void (*refresh_after_exhaustion)(FarmerEntity *);
+};
+
+struct FarmerIdleInputFrame
+{
+    u8 step_interval[4];
+    u16 location[3];
+    u16 padding;
+    FarmerHeldItemKeyWord pressed;
+    FarmerHeldItemKeyWord held;
+};
+
+EC void ReadFarmerIdleLocation(Location *, AEntity const *) asm("GetLocation__C7AEntity");
+EC u32 FarmerCheckSpecialTerrain(FarmerEntity *) asm("IsFarmerOnSpecialTerrain");
+EC u32 FarmerGetTimeOfDay(void const *) asm("func_0800E324");
+EC u8 const farmer_step_sound_intervals[3] asm("gUnk_080F117F");
+
+#define FARMER_IDLE_GAME(game) (*reinterpret_cast<FarmerIdleGameVTable const **>(game))
+#define FARMER_IDLE_ACTOR(actor) (reinterpret_cast<FarmerIdleActorVTable const **>(actor)[5])
+
+EC void HandleFarmerIdleInput(FarmerEntity *, FarmerInputState const *) ENTITY_CODE(0802EC00);
+EC void HandleFarmerIdleInput(FarmerEntity * farmer, FarmerInputState const * keys)
+{
+    FarmerEntity * self = farmer;
+    register FarmerInputState const * input asm("sb") = keys;
+    FarmerIdleInputFrame frame;
+    register u8 * flags asm("r0") = reinterpret_cast<u8 *>(farmer);
+    flags += 0xC0;
+    register u32 zero asm("r2") = 0;
+    *flags = zero;
+    flags -= 0x46;
+    *flags = zero;
+
+    register u8 * exhaustion asm("r3") = &self->exhaustion_state;
+    register u32 exhausted_state asm("r1") = *exhaustion;
+    register u32 exhausted_copy asm("r4") = exhausted_state;
+    if (exhausted_copy)
+    {
+        flags -= 0x3E;
+        *flags = exhausted_state;
+        register u16 * counter asm("r1") = &self->unk_A6;
+        register u32 clear asm("r0") = 0;
+        *counter = zero;
+        *exhaustion = clear;
+        register void (*refresh)(FarmerEntity *) asm("r1") = FARMER_IDLE_ACTOR(self)->refresh_after_exhaustion;
+        refresh(self);
+        return;
+    }
+    if (FarmerCheckSpecialTerrain(self) << 24)
+    {
+        register u8 * state asm("r0") = &self->state;
+        *state = 0x35;
+        state += 0x6A;
+        *reinterpret_cast<u16 *>(state) = exhausted_copy;
+        return;
+    }
+
+    register Farmer * inventory asm("r0") = self->farmer;
+    register HeldItem * held_item asm("r4") = &inventory->unk_54;
+    if (FarmerHeldItemIsEmptyRaw(held_item) << 24)
+        goto read_movement;
+    if (func_0800F204(held_item) != 5)
+        goto read_movement;
+    {
+        register int item_id asm("r1") = func_0800F360(held_item);
+        register u8 * state asm("r1");
+        register u32 timer_reset asm("r2");
+        register u32 next_state asm("r0");
+        switch (item_id)
+        {
+        case 0x15F:
+            {
+                register u8 * state asm("sb");
+                register u16 * timer asm("r6");
+                register ThrownItemMotion * motion asm("r8");
+                register u8 * state_timer asm("sl");
+                {
+                    GameObject * game;
+                    register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1");
+                    EntitySoundChannels const * channels;
+                    register void ** channel asm("r4");
+                    register void ** end asm("r5");
+                    register void * player asm("r0");
+                    goto find_channels_use;
+                found_channel_use:
+                    player = *channel;
+                    goto play_song_use;
+                find_channels_use:
+                    game = (self)->game_object;
+                    get_channels = FARMER_IDLE_GAME(game)->get_channels;
+                    channels = get_channels(game);
+                    channel = channels->begin;
+                    end = channels->end;
+                    {
+                        register u32 state_offset asm("r3") = 0x3C;
+                        asm volatile("" : "+r"(state_offset));
+                        state_offset += reinterpret_cast<u32>(self);
+                        state = reinterpret_cast<u8 *>(state_offset);
+                        timer = &self->unk_A6;
+                        register u32 throw_offset asm("r0") = 0x88;
+                        throw_offset += reinterpret_cast<u32>(self);
+                        motion = reinterpret_cast<ThrownItemMotion *>(throw_offset);
+                        register u32 timer_offset asm("r1") = 0x3D;
+                        timer_offset += reinterpret_cast<u32>(self);
+                        state_timer = reinterpret_cast<u8 *>(timer_offset);
+                    }
+                    if (channel != end)
+                    {
+                        do
+                        {
+                            u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                            if (playing == 0)
+                                goto found_channel_use;
+                            ++channel;
+                        } while (channel != end);
+                    }
+                    {
+                        register void ** final_channel asm("r0") = end - 1;
+                        player = *final_channel;
+                    }
+                play_song_use:
+                    AudioPlayer_StartSong(player, 0xB6);
+                }
+                func_0800F390(&self->farmer->unk_54);
+                register i32 speed asm("r0") = -0x80000;
+                register u32 zero asm("r2") = 0;
+                register u32 height asm("r1") = 0x110000;
+                register ThrownItemMotion * move asm("r3") = motion;
+                move->x_speed = speed;
+                move->y_speed = zero;
+                move->z_speed = height;
+                register u32 use_state asm("r0") = 0x2F;
+                register u8 * state_address asm("r1") = state;
+                *state_address = use_state;
+                *timer = zero;
+                register u32 duration asm("r0") = 120;
+                register u8 * timer_address asm("r2") = state_timer;
+                *timer_address = duration;
+                return;
+            }
+        case 0xB: case 0x62: case 0x6B: case 0xF7: case 0x155: case 0x180: case 0x18C: case 0x191: case 0x1A6:
+            {
+                state = &self->state;
+                timer_reset = 0;
+                next_state = 0x38;
+                goto use_item;
+            case 0xD6: case 0x122: case 0x167: case 0x1CD:
+                state = &self->state;
+                timer_reset = 0;
+                next_state = 0x39;
+            use_item:
+                *state = next_state;
+                self->unk_A6 = timer_reset;
+                ++state;
+                asm volatile("" : "+r"(state));
+                *state = 30;
+                func_0800F390(&self->farmer->unk_54);
+                return;
+            }
+        }
+    }
+read_movement:
+    register u8 * motion_addr asm("r0") = reinterpret_cast<u8 *>(self);
+    motion_addr += 0x3e;
+    register u32 initial_motion asm("r5") = *motion_addr;
+    register u8 * motion_state asm("r8") = motion_addr;
+    register u16 * idle_ticks asm("r6");
+    if (initial_motion == 0 && (FarmerHeldItemIsEmptyRaw(held_item) << 24))
+    {
+        register u16 * idle_ticks_address asm("r0") = &self->unk_A6;
+        register u32 elapsed asm("r2") = *idle_ticks_address;
+        register u32 threshold asm("r1") = 600;
+        idle_ticks = idle_ticks_address;
+        if (elapsed > threshold)
+        {
+            self->state = 0x17;
+            *idle_ticks = initial_motion;
+            return;
+        }
+        register u32 next_ticks asm("r0") = elapsed + 1;
+        *idle_ticks = next_ticks;
+    }
+    else
+    {
+        register u16 * idle_ticks_address asm("r1") = &self->unk_A6;
+        *idle_ticks_address = 0;
+        idle_ticks = idle_ticks_address;
+    }
+
+    register u8 * motion_address asm("r3") = motion_state;
+    register i32 last_motion asm("r1") = *motion_address;
+    if (last_motion == 0)
+    {
+        register u8 * step_count asm("r0") = reinterpret_cast<u8 *>(self) + 0xC4;
+        *step_count = last_motion;
+    }
+    else
+    {
+        if (last_motion < 0)
+            goto read_buttons;
+        if (last_motion > 2)
+            goto read_buttons;
+        register u8 * step_count asm("r1") = reinterpret_cast<u8 *>(self) + 0xC4;
+        ++*step_count;
+    }
+
+read_buttons:
+    register u32 x asm("r2");
+    register u32 y asm("r4");
+    register u32 run_key asm("r3");
+    register void ** day_channel asm("r4");
+    register void * day_player asm("r0");
+    register u32 empty_keys asm("r2") = 0;
+    frame.held.word = empty_keys;
+    frame.pressed.word = empty_keys;
+    if (input)
+    {
+        frame.held.word = input->held;
+        register FarmerInputState const * pressed_input asm("r1") = input;
+        register u32 pressed_bits asm("r0");
+        asm volatile("ldrh %0, [%1, #4]" : "=l"(pressed_bits) : "l"(pressed_input) : "memory");
+        frame.pressed.word = pressed_bits;
+    }
+    {
+        register u8 * motion_output asm("r3") = motion_state;
+        asm volatile("strb %1, [%0]" : : "l"(motion_output), "l"(empty_keys) : "memory");
+    }
+
+    register FarmerHeldItemKeyWord * pressed asm("r4") = &frame.pressed;
+    register u32 buttons asm("r3") = pressed->bytes[0];
+    register u32 a_initial asm("r5") = INPUT_A;
+    register u32 a_pressed asm("r1") = a_initial;
+    a_pressed &= buttons;
+    if (a_pressed)
+    {
+        self->state = a_initial;
+        *idle_ticks = empty_keys;
+    }
+    else
+    {
+        register u32 b_initial asm("r2") = INPUT_B;
+        register u32 b_mask asm("r0") = b_initial;
+        b_mask &= buttons;
+        b_mask <<= 24;
+        register u32 b_pressed asm("r3") = b_mask >> 24;
+        if (b_pressed != 0)
+        {
+            self->state = b_initial;
+            *idle_ticks = a_pressed;
+            if (FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24)
+                PrepareFarmerToolUse(self);
+        }
+        else
+        {
+            register u32 high_pressed asm("r1") = pressed->bytes[1];
+            asm volatile("" : "+r"(high_pressed));
+            register u32 l_mask asm("r0") = b_initial;
+            asm volatile("" : "+r"(l_mask) : "r"(b_initial));
+            u32 l_pressed = l_mask & high_pressed;
+            if (l_pressed)
+            {
+                self->state = 3;
+                *idle_ticks = b_pressed;
+            }
+            else
+            {
+                register u32 held asm("r1") = frame.held.word;
+                register u32 directions asm("r2") = held << 25;
+                directions >>= 31;
+                register u32 bit asm("r0") = held << 24;
+                directions |= bit >> 31;
+                bit = held << 26;
+                bit >>= 31;
+                bit |= directions;
+                directions = held << 27;
+                directions >>= 31;
+                directions |= bit;
+                held <<= 23;
+                held >>= 31;
+                held |= directions;
+                if (held != 0)
+                {
+                    register u8 * facing_address asm("r2") = &self->facing;
+                    register u32 direction asm("r5") = *facing_address;
+                    register u32 old_direction asm("r4") = direction;
+                    register FarmerHeldItemKeyWord * directional_keys_address asm("r1") = &frame.held;
+                    register u32 directional_keys asm("r3") = directional_keys_address->bytes[0];
+                    register u32 left_mask asm("r0") = INPUT_LEFT;
+                    register u8 * facing asm("r6");
+                    register FarmerHeldItemKeyWord * held_keys asm("sb");
+                    asm volatile("and %0, %3\n\tadd %1, %4, #0\n\tmov %2, %5" : "+l"(left_mask), "=l"(facing), "=r"(held_keys) : "l"(directional_keys), "l"(facing_address), "l"(directional_keys_address) : "cc");
+                    u32 left_test = left_mask;
+                    asm volatile("" : "+r"(left_test) : "r"(facing), "r"(held_keys));
+                    if (left_test)
+                        direction = FACING_LEFT;
+                    else if (directional_keys & INPUT_RIGHT)
+                        direction = FACING_RIGHT;
+                    else if (directional_keys & INPUT_UP)
+                        direction = FACING_UP;
+                    else if (directional_keys & INPUT_DOWN)
+                        direction = FACING_DOWN;
+                    if (direction != old_direction)
+                    {
+                        self->unk_B3 = false;
+                        register u32 slot asm("r4") = 0x2B;
+                        do
+                        {
+                            GameObject * game = self->game_object;
+                            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = FARMER_IDLE_GAME(game)->get_entity;
+                            register AEntity * entity asm("r2") = get_entity(game, slot);
+                            if (entity)
+                            {
+                                register void (*cancel_interaction)(AEntity *) asm("r1") = FARMER_IDLE_ACTOR(entity)->cancel_interaction;
+                                cancel_interaction(entity);
+                            }
+                            ++slot;
+                        } while (slot <= 0x45);
+                    }
+                    if (*facing != direction)
+                        self->SetAnimFacing(direction);
+                    x = *facing;
+                    if (x == FACING_UP)
+                        goto face_up;
+                    if (static_cast<i32>(x) > FACING_UP)
+                        goto horizontal;
+                    if (x == FACING_DOWN)
+                        goto face_down;
+                    goto face_left;
+                horizontal:
+                    if (x == FACING_LEFT) goto face_left;
+                    if (x == FACING_RIGHT) goto face_right;
+                face_left:
+                    x = 0xFF;
+                    y = 0;
+                    goto have_speed;
+                face_right:
+                    x = 1;
+                    y = 0;
+                    goto have_speed;
+                face_up:
+                    x = 0;
+                    y = 0xFF;
+                    goto have_speed;
+                face_down:
+                    x = 0;
+                    y = 1;
+                have_speed:
+                    asm volatile("" : "+r"(x), "=r"(y) : "r"(y));
+                    u32 run_setting = *reinterpret_cast<u8 const *>(reinterpret_cast<u8 const *>(self->game_state) + 0x2210);
+                    run_setting <<= 31;
+                    asm volatile("" : "+r"(run_setting));
+                    if (run_setting)
+                        goto default_fast;
+                    {
+                        register u32 key_register asm("r3") = reinterpret_cast<u32>(held_keys);
+                        register u32 high_keys asm("r1");
+                        asm volatile("ldrb %0, [%1, #1]\n\tmov %1, #1 @ slow" : "=&l"(high_keys), "+l"(key_register) : : "memory");
+                        run_key = key_register;
+                        register u32 mask asm("r0");
+                        asm volatile("add %0, %1, #0\n\tand %0, %2" : "=&l"(mask) : "l"(run_key), "l"(high_keys) : "cc");
+                        u32 keys = mask;
+                        asm volatile("" : "+r"(keys));
+                        if (!keys)
+                            goto walk;
+                        goto run;
+                    }
+                default_fast:
+                    {
+                        register u32 key_register asm("r3") = reinterpret_cast<u32>(held_keys);
+                        register u32 high_keys asm("r1");
+                        asm volatile("ldrb %0, [%1, #1]\n\tmov %1, #1 @ fast" : "=&l"(high_keys), "+l"(key_register) : : "memory");
+                        run_key = key_register;
+                        register u32 mask asm("r0");
+                        asm volatile("add %0, %1, #0\n\tand %0, %2" : "=&l"(mask) : "l"(run_key), "l"(high_keys) : "cc");
+                        u32 keys = mask;
+                        asm volatile("" : "+r"(keys));
+                        if (keys)
+                            goto walk;
+                    }
+                run:
+                    {
+                        register u32 run_motion asm("r0") = 2;
+                        register u8 * motion_addr asm("r1") = motion_state;
+                        *motion_addr = run_motion;
+                    }
+                    {
+                        register u32 shifted_x asm("r0") = x << 25;
+                        x = shifted_x >> 24;
+                        register u32 shifted_y asm("r0") = y << 25;
+                        y = shifted_y >> 24;
+                    }
+                    goto speed_output;
+                }
+            }
+        }
+    }
+    goto step_effects;
+found_channel_day:
+    day_player = *day_channel;
+    goto play_song_day;
+walk:
+    {
+        register u8 * motion_out asm("r0") = motion_state;
+        *motion_out = run_key;
+    }
+speed_output:
+    {
+        register i32 x_speed asm("r0") = x << 24;
+        self->x_speed_q16 = x_speed >> 8;
+        register i32 y_speed asm("r0") = y << 24;
+        self->y_speed_q16 = y_speed >> 8;
+    }
+step_effects:
+    {
+        memcpy(frame.step_interval, farmer_step_sound_intervals, 3);
+        register u8 * step_motion asm("r1") = motion_state;
+        register u32 step_type asm("r0") = *step_motion;
+        register u32 interval asm("r1") = frame.step_interval[step_type];
+        if (!interval)
+            goto after_step_sound;
+        {
+            register u8 * step_count asm("r2") = reinterpret_cast<u8 *>(self) + 0xC4;
+            if (*step_count < interval)
+                goto after_step_sound;
+            *step_count = 0;
+            register GameObject * game asm("r6") = self->game_object;
+            register u32 (*const * check)(GameObject *, Location const *) asm("r4") = &FARMER_IDLE_GAME(game)->can_spawn_step_effect;
+            register Location * location asm("r5") = reinterpret_cast<Location *>(frame.location);
+            ReadFarmerIdleLocation(location, self);
+            register u32 (*can_spawn)(GameObject *, Location const *) asm("r2") = *check;
+            if (!(can_spawn(game, location) << 24))
+                goto other_step_sound;
+            FarmerEffectGraphics * graphics = reinterpret_cast<FarmerEffectGraphics *>(reinterpret_cast<void **>(self)[4]);
+            if (graphics)
+                SpawnFarmerStepEffect(graphics);
+            if (FarmerGetTimeOfDay(static_cast<u8 *>(self->game_state) + 0x10) == 3)
+                goto night_step_sound;
+            {
+                register u32 method_offset asm("r3");
+                register FarmerIdleGameVTable const * methods asm("r1");
+                GameObject * game;
+                register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1");
+                EntitySoundChannels const * channels;
+                register void ** end asm("r5");
+                game = (self)->game_object;
+                methods = FARMER_IDLE_GAME(game);
+                method_offset = 0xA6;
+                asm volatile("lsl %0, %0, #1" : "+l"(method_offset) : "r"(methods));
+                get_channels = *reinterpret_cast<EntitySoundChannels const * (**)(GameObject *)>(reinterpret_cast<u32>(methods) + method_offset);
+                channels = get_channels(game);
+                day_channel = channels->begin;
+                end = channels->end;
+
+                if (day_channel != end)
+                {
+                    do
+                    {
+                        u32 playing = AudioPlayerIsPlayingRaw(*day_channel) << 24;
+                        if (playing == 0)
+                            goto found_channel_day;
+                        ++day_channel;
+                    } while (day_channel != end);
+                }
+                {
+                    register void ** final_channel asm("r0") = end - 1;
+                    day_player = *final_channel;
+                }
+            }
+        }
+    }
+play_song_day:
+    AudioPlayer_StartSong(day_player, 0xD0);
+    goto after_step_sound;
+night_step_sound:
+    {
+        GameObject * game;
+        register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1");
+        EntitySoundChannels const * channels;
+        register void ** channel asm("r4");
+        register void ** end asm("r5");
+        register void * player asm("r0");
+        goto find_channels_night;
+    found_channel_night:
+        player = *channel;
+        goto play_song_night;
+    find_channels_night:
+        game = (self)->game_object;
+        get_channels = FARMER_IDLE_GAME(game)->get_channels;
+        channels = get_channels(game);
+        channel = channels->begin;
+        end = channels->end;
+
+        if (channel != end)
+        {
+            do
+            {
+                u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                if (playing == 0)
+                    goto found_channel_night;
+                ++channel;
+            } while (channel != end);
+        }
+        {
+            register void ** final_channel asm("r0") = end - 1;
+            player = *final_channel;
+        }
+    play_song_night:
+        AudioPlayer_StartSong(player, 0xD1);
+    }
+    goto after_step_sound;
+other_step_sound:
+    {
+        register u32 method_offset asm("r3");
+        register FarmerIdleGameVTable const * methods asm("r1");
+        GameObject * game;
+        register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1");
+        EntitySoundChannels const * channels;
+        register void ** channel asm("r4");
+        register void ** end asm("r5");
+        register void * player asm("r0");
+        goto find_channels_other;
+    found_channel_other:
+        player = *channel;
+        goto play_song_other;
+    find_channels_other:
+        game = (self)->game_object;
+        methods = FARMER_IDLE_GAME(game);
+        method_offset = 0xA6;
+        asm volatile("lsl %0, %0, #1" : "+l"(method_offset) : "r"(methods));
+        get_channels = *reinterpret_cast<EntitySoundChannels const * (**)(GameObject *)>(reinterpret_cast<u32>(methods) + method_offset);
+        channels = get_channels(game);
+        channel = channels->begin;
+        end = channels->end;
+
+        if (channel != end)
+        {
+            do
+            {
+                u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                if (playing == 0)
+                    goto found_channel_other;
+                ++channel;
+            } while (channel != end);
+        }
+        {
+            register void ** final_channel asm("r0") = end - 1;
+            player = *final_channel;
+        }
+    play_song_other:
+        AudioPlayer_StartSong(player, 0xD0);
+    }
+after_step_sound:
+    register u32 count_steps asm("r1") = 0;
+    if (self->unk_24 == 0)
+        count_steps = 1;
+    if (count_steps)
+    {
+        register u8 * step_motion asm("r1") = motion_state;
+        register u32 speed asm("r0") = *step_motion;
+        if (speed == 1)
+        {
+            TickFarmerPedometer(self);
+            return;
+        }
+        if (speed != 2)
+            return;
+        TickFarmerPedometer(self);
+        TickFarmerPedometer(self);
+    }
+}
+
+#undef FARMER_IDLE_ACTOR
+#undef FARMER_IDLE_GAME
