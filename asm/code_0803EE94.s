@@ -27478,7 +27478,7 @@ DrawMessageGlyph: @ 0x0804E4AC
 	adds r7, r3, #0
 	ldr r1, [sp, #0xac]
 	add r0, sp, #4
-	bl func_080D0D28
+	bl Font_DecodeGlyph
 	mov sl, r0
 	subs r0, #1
 	cmp r0, #1
@@ -27612,7 +27612,7 @@ DrawMessageGlyphWithColors: @ 0x0804E5AC
 	adds r6, r3, #0
 	ldr r1, [sp, #0xc0]
 	add r0, sp, #0xc
-	bl func_080D0D28
+	bl Font_DecodeGlyph
 	str r0, [sp, #0x8c]
 	subs r0, #1
 	cmp r0, #1
@@ -105644,7 +105644,7 @@ sub_0807C194: @ 0x0807C194
 	b .L0807D054
 .L0807CD44:
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0807D054
 	.align 2, 0
 .L0807CD4C: .4byte 0x00000684
@@ -107448,7 +107448,7 @@ func_0807D218: @ 0x0807D218
 	cmp r0, #0
 	beq .L0807DD08
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0807DD08
 	.align 2, 0
 .L0807DCC8: .4byte 0x00000684
@@ -108267,7 +108267,7 @@ func_0807DE3C: @ 0x0807DE3C
 	cmp r0, #0
 	beq .L0807E406
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0807E406
 	.align 2, 0
 .L0807E3CC: .4byte 0x00000684
@@ -108407,7 +108407,7 @@ func_0807E508: @ 0x0807E508
 	push {lr}
 	ldr r2, .L0807E518 @ =vtable_unk_080E7C40
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -109430,7 +109430,7 @@ func_0807E558: @ 0x0807E558
 	cmp r0, #0
 	beq .L0807EDE4
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0807EDE4
 	.align 2, 0
 .L0807ED98: .4byte 0x00000684
@@ -109607,7 +109607,7 @@ func_0807EED4: @ 0x0807EED4
 	bl __builtin_delete
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -110548,7 +110548,7 @@ func_0807F670: @ 0x0807F670
 	push {lr}
 	ldr r2, .L0807F680 @ =vtable_unk_080E7C78
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -112198,7 +112198,7 @@ func_0807F8C8: @ 0x0807F8C8
 	cmp r0, #0
 	beq .L08080430
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L08080430
 	.align 2, 0
 .L080803E8: .4byte 0x00000684
@@ -112366,7 +112366,7 @@ func_0808052C: @ 0x0808052C
 	push {lr}
 	ldr r2, .L0808053C @ =vtable_unk_080E7C94
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -113285,7 +113285,7 @@ func_08080540: @ 0x08080540
 	cmp r0, #0
 	beq .L08080D64
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L08080D64
 	.align 2, 0
 .L08080CF0: .4byte 0x00000684
@@ -113471,7 +113471,7 @@ func_08080E54: @ 0x08080E54
 	push {lr}
 	ldr r2, .L08080E64 @ =vtable_unk_080E7CB0
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -114858,7 +114858,7 @@ func_0808114C: @ 0x0808114C
 	cmp r0, #0
 	beq .L08081A16
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L08081A16
 	.align 2, 0
 .L080819D8: .4byte 0x00000684
@@ -115024,7 +115024,7 @@ func_08081B00: @ 0x08081B00
 	bl __builtin_delete
 	adds r0, r4, #0
 	adds r1, r5, #0
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r4, r5}
 	pop {r0}
 	bx r0
@@ -115918,7 +115918,7 @@ func_08082250: @ 0x08082250
 	push {lr}
 	ldr r2, .L08082260 @ =vtable_unk_080E7CE8
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -119025,7 +119025,7 @@ func_08083C50: @ 0x08083C50
 	push {lr}
 	ldr r2, .L08083C60 @ =vtable_unk_080E7D14
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -120766,7 +120766,7 @@ func_08084228: @ 0x08084228
 	b .L080854C8
 .L080850DC:
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L080854C8
 	.align 2, 0
 .L080850E4: .4byte 0x00000684
@@ -121421,7 +121421,7 @@ func_0808562C: @ 0x0808562C
 	push {lr}
 	ldr r2, .L0808563C @ =vtable_unk_080E7D30
 	str r2, [r0, #4]
-	bl func_080C8360
+	bl InventoryMenu_DestroyHardwareContext
 	pop {r0}
 	bx r0
 	.align 2, 0
@@ -125999,7 +125999,7 @@ sub_08087710: @ 0x08087710
 	b .L0808814C
 .L08087AEC:
 	adds r0, r1, #0
-	bl func_080CA98C
+	bl InventoryMenu_UpdateQuantitySelector
 	b .L0808814C
 	.align 2, 0
 .L08087AF4: .4byte 0x00000684
