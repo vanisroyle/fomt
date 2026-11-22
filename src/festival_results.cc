@@ -199,6 +199,42 @@ EC SECTION(".text.horse_race.08057F64") void PrepareHorseRaceHeat(HorseRaceLineu
     }
 }
 
+struct FestivalResultsDigitSurface
+{
+    u8 padding00[0xb8];
+    u16 tilemap[32][32];
+};
+
+EC SECTION(".text.festival_results.08051D30") void DrawFestivalResultsDigit(FestivalResultsDigitSurface * screen, u32 column, u32 row, u32 digit)
+{
+    u32 topTile = digit * 2 + 0x20c0;
+    i32 index = 0;
+    register u32 rowOffset asm("r4") = row * 64;
+    asm ("" : "+r" (rowOffset));
+    u32 bottomTile = digit * 2 + 0x20c1;
+    u32 columnOffset = column * 2;
+    rowOffset += offsetof(FestivalResultsDigitSurface, tilemap) + 64;
+    rowOffset = columnOffset + rowOffset;
+    rowOffset += (u32) screen;
+    u16 * bottom = (u16 *) rowOffset;
+    asm ("" : "+r" (row));
+    register u32 topOffset asm("r2") = row * 64;
+    asm ("" : "+r" (topOffset));
+    topOffset += offsetof(FestivalResultsDigitSurface, tilemap);
+    register u32 topAddress asm("r1") = columnOffset + topOffset;
+    topAddress += (u32) screen;
+    u16 * top = (u16 *) topAddress;
+    do
+    {
+        *top = topTile + index;
+        *bottom = bottomTile;
+        ++bottomTile;
+        ++bottom;
+        ++top;
+        ++index;
+    } while (index <= 0);
+}
+
 EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(AnimalFestivalScoreTable * table, u32 affection)
 {
     u32 level = affection != 0 ? (affection - 1) / 25 : 0;
@@ -855,4 +891,221 @@ EC SECTION(".text.frisbee.08057E5C") FestivalScene ** RunFrisbeeController(Festi
     controller->continuation = nullptr;
     *result = next;
     return result;
+}
+
+enum HorseRaceDialoguePhase
+{
+    HorseRaceDialogueStart,
+    HorseRaceDialogueClosing,
+    HorseRaceDialogueComplete,
+    HorseRaceDialogueReady,
+    HorseRaceDialogueChoosing,
+    HorseRaceDialogueFinish
+};
+
+struct HorseRaceDialogueState
+{
+    u8 padding00[0x10];
+    void * message;
+    u8 messageState[0x140e - 0x14];
+    u8 playerIsRacing;
+    u8 padding140f[0x1424 - 0x140f];
+    i16 page;
+    u8 padding1426[3];
+    u8 phase;
+    u8 exitRequested;
+    u8 padding142b[0x149e - 0x142b];
+    i16 timer;
+    u8 padding14a0[0x40];
+    u32 substitutions[1];
+};
+
+EC const char gUnk_080FAA40[], gUnk_080FAA5C[], gUnk_080FAA60[], gUnk_080FAA64[], gUnk_080FAA74[], gUnk_080FAA88[], gUnk_080FAAA4[], gUnk_080FAACC[], gUnk_080FAAE0[], gUnk_080FAAFC[], gUnk_080FAB94[], gUnk_080FABE0[], gUnk_080FAC24[], gUnk_080FAC8C[], gUnk_080FAD08[], gUnk_080FAD20[], gUnk_080FAD28[], gUnk_080FAD34[], gUnk_080FAD50[], gUnk_080FAD94[], gUnk_080FADDC[], gUnk_080FAE00[];
+
+EC SECTION(".text.horse_race.08059878") void UpdateHorseRaceDialogue(HorseRaceDialogueState * state)
+{
+    typedef char HorseRaceDialogueLayout[
+        offsetof(HorseRaceDialogueState, messageState) == 0x14 &&
+        offsetof(HorseRaceDialogueState, page) == 0x1424 &&
+        offsetof(HorseRaceDialogueState, phase) == 0x1429 &&
+        offsetof(HorseRaceDialogueState, exitRequested) == 0x142a &&
+        offsetof(HorseRaceDialogueState, timer) == 0x149e &&
+        offsetof(HorseRaceDialogueState, substitutions) == 0x14e0 ? 1 : -1];
+    void * message = state->message;
+    void * input = HardwareContext_GetState(state);
+    void * oam = HardwareContext_GetOamBuffer(state);
+    void * display = HardwareContext_GetDisplayRegisters(state);
+    void * frames = HardwareContext_GetFrameTasks(state);
+    void * vblank = HardwareContext_GetVBlankTasks(state);
+    register void * messageState asm("r1") = state->messageState;
+    asm ("" : "+r" (messageState) : "r" (frames), "r" (vblank));
+    switch (UpdateMessageWindow(message, input, oam, display, frames, vblank, messageState))
+    {
+    case 0:
+        if (state->phase == HorseRaceDialogueStart)
+        {
+            OpenMessageWindow(state->message);
+            state->phase = HorseRaceDialogueReady;
+        }
+        else state->phase = HorseRaceDialogueComplete;
+        break;
+    case 3:
+        if (state->phase == HorseRaceDialogueFinish)
+        {
+            CloseMessageWindow(state->message);
+            state->phase = HorseRaceDialogueClosing;
+        }
+        else if (state->phase == HorseRaceDialogueChoosing)
+        {
+            i32 choice = GetMessageWindowSelection(state->message);
+            state->phase = HorseRaceDialogueReady;
+            switch (state->page)
+            {
+            case 2:
+                if (choice == 1) { state->exitRequested = 0; state->page = 3; }
+                else if (choice == 2) { state->exitRequested = 1; state->page = 4; }
+                break;
+            case 7:
+                if (choice == 1) { state->exitRequested = 0; state->page = 8; }
+                else if (choice == 2) { state->exitRequested = 1; state->page = 9; }
+                break;
+            case 14:
+                if (choice == 1) state->page = 15;
+                else if (choice == 2) state->page = 21;
+                break;
+            case 20:
+                if (choice == 1) state->page = 21;
+                else if (choice == 2) state->page = 15;
+                break;
+            }
+        }
+        else if (state->phase == HorseRaceDialogueReady)
+        {
+            register u8 * dialoguePhase asm("r4") = &state->phase;
+            *dialoguePhase = HorseRaceDialogueFinish;
+            register void * window asm("r0");
+            register const char * text asm("r1");
+            register const char * firstChoice asm("r2");
+            register const char * secondChoice asm("r3");
+            switch ((u32) (i16) (state->page - 2))
+            {
+            case 0:
+                window = state->message; text = gUnk_080FAA40;
+                firstChoice = gUnk_080FAA5C; secondChoice = gUnk_080FAA60;
+                asm ("" : "+r" (window), "+r" (text), "+r" (firstChoice), "+r" (secondChoice));
+                goto showChoices;
+            case 1:
+                window = state->message; text = gUnk_080FAA64;
+                goto showTextWithTemporaryOffset;
+            case 2:
+                window = state->message; text = gUnk_080FAA74;
+                goto showTextWithSavedOffset;
+            case 5:
+                window = state->message; text = gUnk_080FAA88;
+                firstChoice = gUnk_080FAA5C; secondChoice = gUnk_080FAA60;
+                asm ("" : "+r" (window), "+r" (text), "+r" (firstChoice), "+r" (secondChoice));
+                goto showChoices;
+            case 6:
+            {
+                u32 playerFlag = state->playerIsRacing;
+                asm ("" : : "r" (playerFlag), "r" (dialoguePhase));
+                if (playerFlag == 0)
+                {
+                    window = state->message; text = gUnk_080FAAA4;
+                    goto showTextWithTemporaryOffset;
+                }
+                else
+                {
+                    window = state->message; text = gUnk_080FAAA4;
+                    goto showTextWithSavedOffset;
+                }
+                break;
+            }
+            case 7:
+                window = state->message; text = gUnk_080FAACC;
+                goto showTextWithTemporaryOffset;
+            case 12:
+                window = state->message; text = gUnk_080FAAE0;
+                firstChoice = gUnk_080FAA5C; secondChoice = gUnk_080FAA60;
+                asm ("" : "+r" (window), "+r" (text), "+r" (firstChoice), "+r" (secondChoice));
+                goto showChoices;
+            case 13:
+                SetMessageWindowTextSubstitutions(state->message, gUnk_080FAAFC, state->substitutions);
+                state->page = 16; state->phase = HorseRaceDialogueReady;
+                break;
+            case 14:
+                SetMessageWindowTextSubstitutions(state->message, gUnk_080FAB94, state->substitutions);
+                state->page = 17; state->phase = HorseRaceDialogueReady;
+                break;
+            case 15:
+                SetMessageWindowTextSubstitutions(state->message, gUnk_080FABE0, state->substitutions);
+                state->timer = 120; state->page = 18; state->phase = HorseRaceDialogueReady;
+                break;
+            case 16:
+                SetMessageWindowTextSubstitutions(state->message, gUnk_080FAC24, state->substitutions);
+                state->timer = 60; state->page = 19; state->phase = HorseRaceDialogueReady;
+                break;
+            case 17:
+                SetMessageWindowTextSubstitutions(state->message, gUnk_080FAC8C, state->substitutions);
+                state->timer = 255; state->page = 20; state->phase = HorseRaceDialogueReady;
+                break;
+            case 18:
+                window = state->message; text = gUnk_080FAD08;
+                firstChoice = gUnk_080FAD20; secondChoice = gUnk_080FAD28;
+            showChoices:
+                asm ("" : "+r" (window), "+r" (text), "+r" (firstChoice), "+r" (secondChoice));
+                {
+                    register u32 substitutionOffset asm("r4") = offsetof(HorseRaceDialogueState, substitutions);
+                    asm ("" : "+r" (substitutionOffset));
+                    register void * substitutions asm("r5") = (u8 *) state + substitutionOffset;
+                    asm ("" : "+r" (substitutions));
+                    ConfigureMessageWindowPromptChoices(window, text, firstChoice, secondChoice, 0, 0, substitutions);
+                }
+                {
+                    register u32 phaseOffset asm("r0") = offsetof(HorseRaceDialogueState, phase);
+                    asm ("" : "+r" (phaseOffset));
+                    register u8 * phaseAddress asm("r1") = (u8 *) state + phaseOffset;
+                    asm ("" : "+r" (phaseAddress));
+                    *phaseAddress = HorseRaceDialogueChoosing;
+                }
+                break;
+            case 19:
+                window = state->message; text = gUnk_080FAD34;
+                goto showTextWithTemporaryOffset;
+            case 20:
+                window = state->message; text = gUnk_080FAD50;
+                goto showTextWithSavedOffset;
+            case 24:
+                window = state->message; text = gUnk_080FAD94;
+            showTextWithTemporaryOffset:
+            {
+                register u32 offset asm("r3") = offsetof(HorseRaceDialogueState, substitutions);
+                asm ("" : "+r" (offset));
+                SetMessageWindowTextSubstitutions(window, text, (u8 *) state + offset);
+                break;
+            }
+            case 28:
+                window = state->message; text = gUnk_080FADDC;
+            showTextWithSavedOffset:
+            {
+                register u32 offset asm("r4") = offsetof(HorseRaceDialogueState, substitutions);
+                asm ("" : "+r" (offset));
+                SetMessageWindowTextSubstitutions(window, text, (u8 *) state + offset);
+                break;
+            }
+            case 31:
+            {
+                window = state->message; text = gUnk_080FAE00;
+                asm ("" : "+r" (window), "+r" (text));
+                register u32 offset asm("r3") = offsetof(HorseRaceDialogueState, substitutions);
+                asm ("" : "+r" (offset));
+                SetMessageWindowTextSubstitutions(window, text, (u8 *) state + offset);
+                break;
+            }
+            }
+        }
+        break;
+    case 1: case 2: case 4: case 5: case 6:
+        break;
+    }
 }
