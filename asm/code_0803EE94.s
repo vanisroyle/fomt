@@ -8570,7 +8570,7 @@ func_0803F8DC: @ 0x0803F8DC
 	lsls r0, r7, #0xa
 	orrs r1, r0
 	adds r0, r2, #0
-	bl func_080146FC
+	bl GameScript_SetSolidColorBackground
 	bl .L0804168A
 .L08043FDE:
 	movs r3, #0xd5

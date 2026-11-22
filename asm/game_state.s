@@ -3742,8 +3742,8 @@ GameScript_QueueSceneVariant25: @ 0x08014410
 
     .section .text.game_state_080146FC, "ax", %progbits
 
-    thumb_func_start func_080146FC
-func_080146FC: @ 0x080146FC
+    thumb_func_start GameScript_SetSolidColorBackground
+GameScript_SetSolidColorBackground: @ 0x080146FC
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
