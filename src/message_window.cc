@@ -1072,6 +1072,43 @@ EC SECTION(".text.message_rendering.0804E9D0") void CopyMessageTiles(MessageTile
     CpuFastSet(source, destination, ((size.width * size.height * 32u) >> 2) & 0x1fffff);
 }
 
+EC SECTION(".text.message_rendering.0804EC84") void FormatMessageInteger(i32 value, char * output, u32 width)
+{
+    char digits[12];
+    u32 negative = (u32) value >> 31;
+    u32 count = 0;
+    i32 number = value;
+    if (number < 0) number = (i32) (0 - (u32) number);
+    u32 next = 1;
+    for (;;)
+    {
+        digits[count] = number % 10 + '0';
+        count = next;
+        number /= 10;
+        if (number > 0)
+        {
+            register u32 nextCount asm("r0") = count + 1;
+            asm ("" : "+r" (nextCount));
+            next = nextCount;
+            if (next <= 10) continue;
+        }
+        break;
+    }
+    if (width != 0)
+    {
+        if (width < count) count = width;
+        else while (width > count) digits[count++] = ' ';
+    }
+    if (negative) digits[count++] = '-';
+    --count;
+    while (count != (u32) -1)
+    {
+        *output++ = digits[count];
+        --count;
+    }
+    *output = 0;
+}
+
 EC SECTION(".text.message_rendering.0804ED7C") MessageNumberCommand * InitializeLargeMessageNumberCommand(MessageNumberCommand * command, u32 value, u16 * tilemap, u16 firstTile, u16 palette, u32 stride)
 {
     command->state = 0;

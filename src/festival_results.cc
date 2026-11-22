@@ -1,6 +1,7 @@
 #include "prelude.h"
 #include <new>
 #include <stdlib.h>
+#include "sprite_animation.hh"
 #include "sprite_rendering.hh"
 
 struct AnimalFestivalScore
@@ -41,6 +42,111 @@ EC u8 vtable_unk_080E7960[];
 EC FestivalResultsScreen * InitializeFrisbeeScreen(void *, void *, u8);
 EC void RunFrisbeeScreen(FestivalScene **, FestivalResultsScreen *);
 EC const u16 gUnk_080FA174[][10];
+
+struct FestivalResultsAnimatedSprite
+{
+    SpriteAnimator animator;
+    SpriteFrameDrawOptions options;
+    u32 unknown_30;
+};
+
+struct FestivalResultsResource
+{
+    u32 owner;
+    u32 handle;
+};
+
+struct FestivalResultsInitializationState
+{
+    u32 unknown_00;
+    FestivalSceneVtable * vtable;
+    void * game;
+    u32 audioPlayer;
+    u8 animationData[0x30];
+    FestivalResultsAnimatedSprite sprites[2];
+    FestivalResultsResource tiles;
+    FestivalResultsResource palettes;
+    u16 tilemap[32][32];
+    u16 phase;
+};
+
+struct FestivalResultsKeyRepeat
+{
+    u16 delay, interval;
+    FestivalResultsKeyRepeat(u16 delay, u16 interval) : delay(delay), interval(interval) {}
+};
+
+EC void * HardwareContext_InitializeWithKeyRepeat(void *, const FestivalResultsKeyRepeat *);
+EC void * AudioPlayer_Initialize(void *, u32);
+EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, const void *);
+EC void * TileHeapOwner_Initialize(void *);
+EC u32 func_08007B54(void *, u32);
+EC void * ResourceHandles_Initialize(void *);
+EC u32 func_0800736C(void *);
+EC u8 vtable_unk_080E7928[];
+EC const u8 gUnk_08527094[];
+
+inline void InitializeFestivalResultsDrawOptions(SpriteFrameDrawOptions * options)
+{
+    options->offset_x = 0;
+    options->offset_y = 0;
+    options->palette_base = 0;
+    options->tile_base = 0;
+    options->priority = 0;
+    options->object_mode = 0;
+    options->flip = 0;
+    options->affine_index = 0;
+    options->affine_mode = 0;
+    options->mosaic = 0;
+}
+
+EC SECTION(".text.festival_results.0805143C") FestivalResultsScreen * InitializeFestivalResultsScreen(void * memory, void * game)
+{
+    typedef char FestivalResultsInitializationLayout[
+        sizeof(FestivalResultsAnimatedSprite) == 0x34 &&
+        offsetof(FestivalResultsInitializationState, animationData) == 0x10 &&
+        offsetof(FestivalResultsInitializationState, sprites) == 0x40 &&
+        offsetof(FestivalResultsInitializationState, tiles) == 0xa8 &&
+        offsetof(FestivalResultsInitializationState, palettes) == 0xb0 &&
+        offsetof(FestivalResultsInitializationState, tilemap) == 0xb8 &&
+        offsetof(FestivalResultsInitializationState, phase) == 0x8b8 ? 1 : -1];
+    FestivalResultsInitializationState * screen = (FestivalResultsInitializationState *) memory;
+    FestivalResultsKeyRepeat repeat(30, 1);
+    HardwareContext_InitializeWithKeyRepeat(screen, &repeat);
+    screen->vtable = (FestivalSceneVtable *) vtable_unk_080E7928;
+    screen->game = game;
+    AudioPlayer_Initialize(&screen->audioPlayer, 2);
+    SpriteAnimationData * data = (SpriteAnimationData *) screen->animationData;
+    InitSpriteAnimationData(data, gUnk_08527094);
+    {
+        register SpriteAnimator * destination asm("r0") = &screen->sprites[0].animator;
+        register SpriteAnimationSource * animationSource asm("r1") = (SpriteAnimationSource *) data;
+        register u32 animationClip asm("r2") = 0;
+        asm ("" : "+r" (destination), "+r" (animationSource), "+r" (animationClip));
+        register u32 speed asm("r3") = 256;
+        asm ("" : "+r" (speed));
+        InitSpriteAnimator(destination, animationSource, animationClip, speed);
+    }
+    InitializeFestivalResultsDrawOptions(&screen->sprites[0].options);
+    {
+        register SpriteAnimator * destination asm("r0") = &screen->sprites[1].animator;
+        register SpriteAnimationSource * animationSource asm("r1") = (SpriteAnimationSource *) data;
+        register u32 animationClip asm("r2") = 1;
+        asm ("" : "+r" (destination), "+r" (animationSource), "+r" (animationClip));
+        register u32 speed asm("r3") = 256;
+        asm ("" : "+r" (speed));
+        InitSpriteAnimator(destination, animationSource, animationClip, speed);
+    }
+    InitializeFestivalResultsDrawOptions(&screen->sprites[1].options);
+    FestivalResultsResource * tiles = &screen->tiles;
+    TileHeapOwner_Initialize(&tiles->owner);
+    tiles->handle = func_08007B54(&tiles->owner, 4);
+    FestivalResultsResource * palettes = &screen->palettes;
+    ResourceHandles_Initialize(&palettes->owner);
+    palettes->handle = func_0800736C(&palettes->owner);
+    screen->phase = 0;
+    return (FestivalResultsScreen *) screen;
+}
 
 EC SECTION(".text.festival_results.0805218C") FestivalResultsController * InitializeFestivalResultsController(FestivalResultsController * controller, FestivalScene ** continuation, void * game) // 0x0805218C
 {
