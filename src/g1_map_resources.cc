@@ -3,7 +3,7 @@
 
 EC char const vtable_unk_080E82D8[];
 EC void TileHeapOwner_Initialize(G1MapTileOwner *);
-EC u32 func_08007B54(G1MapTileOwner *, u32);
+EC u32 TileHandle_Allocate(G1MapTileOwner *, u32);
 EC u32 TileHandle_GetTileIndex(G1MapTileOwner *, u32);
 EC void TileHandle_Release(G1MapTileOwner *, u32);
 EC void TileHeapOwner_Destroy(G1MapTileOwner *, u32);
@@ -15,7 +15,7 @@ EC SECTION(".text.g1_080A46AC") G1MapSpriteResource * InitializeMapSpriteResourc
     self->graphics = graphics;
     G1MapTileOwner * tiles = &self->tiles;
     TileHeapOwner_Initialize(tiles);
-    u32 handle = func_08007B54(tiles, tile_count);
+    u32 handle = TileHandle_Allocate(tiles, tile_count);
     tiles->handle = handle;
     self->tile_index = TileHandle_GetTileIndex(tiles, handle);
     volatile u8 initial_palette = 0;
@@ -47,7 +47,7 @@ EC SECTION(".text.g1_080A4740") G1MapSpriteResource * InitializeMapSpriteSingleP
     self->graphics = graphics;
     G1MapTileOwner * tiles = &self->tiles;
     TileHeapOwner_Initialize(tiles);
-    u32 handle = func_08007B54(tiles, tile_count);
+    u32 handle = TileHandle_Allocate(tiles, tile_count);
     tiles->handle = handle;
     self->tile_index = TileHandle_GetTileIndex(tiles, handle);
     u32 palette_count = 1;

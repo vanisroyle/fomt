@@ -25369,7 +25369,7 @@ func_080E0A94: @ 0x080E0A94
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	adds r0, r7, #0
 	adds r0, #0x38
@@ -25387,7 +25387,7 @@ func_080E0A94: @ 0x080E0A94
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	adds r0, r5, #0
 	adds r0, #8
@@ -25469,7 +25469,7 @@ func_080E0A94: @ 0x080E0A94
 	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5]
 	adds r5, #8
 	adds r6, #1
@@ -25494,7 +25494,7 @@ func_080E0A94: @ 0x080E0A94
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	adds r1, r4, #0
 	adds r1, #8

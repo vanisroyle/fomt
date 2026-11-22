@@ -32473,7 +32473,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0x8e
 	lsls r0, r0, #3
@@ -32481,7 +32481,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0x8f
 	lsls r1, r1, #3
@@ -32490,7 +32490,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #7
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0x90
 	lsls r2, r2, #3
@@ -32498,7 +32498,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0x91
 	lsls r0, r0, #3
@@ -32507,7 +32507,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0x92
 	lsls r1, r1, #3
@@ -32515,7 +32515,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0x93
 	lsls r2, r2, #3
@@ -32524,7 +32524,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #6
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0x94
 	lsls r0, r0, #3
@@ -32532,7 +32532,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0x95
 	lsls r1, r1, #3
@@ -32541,7 +32541,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0x96
 	lsls r2, r2, #3
@@ -32549,7 +32549,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0x97
 	lsls r0, r0, #3
@@ -32558,7 +32558,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	b .L08052758
 	.align 2, 0
 .L08052710: .4byte vtable_unk_080E7944
@@ -32587,7 +32587,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0x99
 	lsls r2, r2, #3
@@ -32596,7 +32596,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0x9a
 	lsls r0, r0, #3
@@ -32605,7 +32605,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0x9b
 	lsls r1, r1, #3
@@ -32613,7 +32613,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0x9c
 	lsls r2, r2, #3
@@ -32622,7 +32622,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0x9d
 	lsls r0, r0, #3
@@ -32637,7 +32637,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0x9f
 	lsls r2, r2, #3
@@ -32654,7 +32654,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	adds r4, r5, #0
 	adds r4, #8
@@ -32675,7 +32675,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	bl TileHeapOwner_Initialize
 	mov r0, r8
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	mov r2, r8
 	str r0, [r2, #4]
 	movs r0, #0xa9
@@ -32704,7 +32704,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r5]
 	adds r5, #8
 	adds r6, #1
@@ -37766,7 +37766,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	adds r0, r6, #0
 	bl ResourceHandle_Release
 	adds r0, r6, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r5, #0xc]
 	ldr r1, .L080557A8 @ =gUnk_080FA36C
 	mov r3, sb
@@ -37893,7 +37893,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0xfe
 	lsls r1, r1, #2
@@ -37966,7 +37966,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	ldr r1, .L080558C0 @ =0x00000464
 	adds r0, r7, r1
@@ -42925,7 +42925,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xb9
 	lsls r5, r5, #3
@@ -42940,7 +42940,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xbb
 	lsls r5, r5, #3
@@ -42955,7 +42955,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #5
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xbd
 	lsls r5, r5, #3
@@ -42970,7 +42970,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #6
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xbf
 	lsls r5, r5, #3
@@ -42985,7 +42985,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xc1
 	lsls r5, r5, #3
@@ -42993,7 +42993,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	adds r0, r5, #0
 	bl ResourceHandles_Initialize
 	adds r0, r5, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xc2
 	lsls r5, r5, #3
@@ -43002,7 +43002,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #7
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xc3
 	lsls r5, r5, #3
@@ -43010,7 +43010,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	adds r0, r5, #0
 	bl ResourceHandles_Initialize
 	adds r0, r5, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xc4
 	lsls r5, r5, #3
@@ -43018,7 +43018,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	adds r0, r5, #0
 	bl ResourceHandles_Initialize
 	adds r0, r5, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xc5
 	lsls r5, r5, #3
@@ -43027,7 +43027,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xc6
 	lsls r5, r5, #3
@@ -43036,7 +43036,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r5, #0xc7
 	lsls r5, r5, #3
@@ -43051,7 +43051,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r4, #0xc9
 	lsls r4, r4, #3
@@ -43059,7 +43059,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r4, #0xca
 	lsls r4, r4, #3
@@ -43068,7 +43068,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xcb
 	lsls r0, r0, #3
@@ -43079,7 +43079,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	bl TileHeapOwner_Initialize
 	adds r0, r6, #0
 	movs r1, #5
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r6, #4]
 	adds r4, r6, #0
 	adds r4, #8
@@ -43111,7 +43111,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r5]
 	adds r5, #8
 	adds r7, #1
@@ -43987,7 +43987,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0xbb
 	lsls r2, r2, #3
@@ -43996,7 +43996,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r3, #0xbd
 	lsls r3, r3, #3
@@ -44005,7 +44005,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	subs r7, #0x28
 	adds r4, r6, r7
@@ -44013,7 +44013,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xc7
 	lsls r0, r0, #3
@@ -44022,7 +44022,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	adds r0, r6, #0
 	bl LoadHorseRaceCourseGraphics
@@ -44560,7 +44560,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r7, #0xc3
 	lsls r7, r7, #3
@@ -44569,7 +44569,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xc4
 	lsls r0, r0, #3
@@ -44578,7 +44578,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	ldr r2, .L08059444 @ =0x0000140A
 	adds r1, r6, r2
@@ -54337,14 +54337,14 @@ func_08069F14: @ 0x08069F14
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #1
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	ldr r1, .L0806A138 @ =0x000040B8
 	adds r4, r7, r1
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	ldr r2, .L0806A13C @ =0x000040C0
 	adds r4, r7, r2
@@ -54352,14 +54352,14 @@ func_08069F14: @ 0x08069F14
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	ldr r0, .L0806A140 @ =0x000040C8
 	adds r4, r7, r0
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	ldr r1, .L0806A144 @ =0x000040D0
 	adds r4, r7, r1
@@ -54462,7 +54462,7 @@ func_08069F14: @ 0x08069F14
 	bl TileHandle_Release
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r6]
 	adds r5, r5, r7
 	ldr r1, .L0806A1F0 @ =0x00004120
@@ -54471,7 +54471,7 @@ func_08069F14: @ 0x08069F14
 	adds r0, r5, #0
 	bl ResourceHandle_Release
 	adds r0, r5, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r6, #0x50]
 	adds r6, #8
 	movs r2, #1
@@ -61806,26 +61806,26 @@ func_0806D990: @ 0x0806D990
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #7
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #3
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	lsls r1, r6, #0x1e
 	lsls r6, r6, #0x19
@@ -78204,7 +78204,7 @@ func_080757E8: @ 0x080757E8
 	beq .L080758E8
 	mov r0, sb
 	adds r1, r6, #0
-	bl func_08007B54
+	bl TileHandle_Allocate
 	adds r5, r0, #0
 	cmp r5, #0
 	beq .L08075956
@@ -78243,7 +78243,7 @@ func_080757E8: @ 0x080757E8
 	bl TileHandle_Release
 	mov r0, sb
 	adds r1, r6, #0
-	bl func_08007B54
+	bl TileHandle_Allocate
 	adds r1, r0, #0
 	cmp r1, #0
 	beq .L08075930
@@ -78339,7 +78339,7 @@ func_080757E8: @ 0x080757E8
 	mov r6, sb
 	adds r6, #0x14
 	adds r0, r6, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	adds r5, r0, #0
 	cmp r5, #0
 	beq .L080759F4
@@ -84693,14 +84693,14 @@ func_08078E40: @ 0x08078E40
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	ldr r1, .L0807902C @ =0x00000818
 	adds r4, r6, r1
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r3, #0x82
 	lsls r3, r3, #4
@@ -84709,14 +84709,14 @@ func_08078E40: @ 0x08078E40
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #6
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	ldr r0, .L08079030 @ =0x00000828
 	adds r4, r6, r0
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0x83
 	lsls r1, r1, #4
@@ -84725,14 +84725,14 @@ func_08078E40: @ 0x08078E40
 	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r4, #4]
 	ldr r3, .L08079034 @ =0x00000838
 	adds r4, r6, r3
 	adds r0, r4, #0
 	bl ResourceHandles_Initialize
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0xa6
 	lsls r1, r1, #4
@@ -137007,7 +137007,7 @@ func_08094AC0: @ 0x08094AC0
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r0, #0xba
 	lsls r0, r0, #2
@@ -137022,7 +137022,7 @@ func_08094AC0: @ 0x08094AC0
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #2
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r2, #0xbe
 	lsls r2, r2, #2
@@ -137030,7 +137030,7 @@ func_08094AC0: @ 0x08094AC0
 	adds r0, r5, #0
 	bl ResourceHandles_Initialize
 	adds r0, r5, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r5, #4]
 	movs r3, #0xc0
 	lsls r3, r3, #2
@@ -137039,7 +137039,7 @@ func_08094AC0: @ 0x08094AC0
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #6
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r0, #0xc2
 	lsls r0, r0, #2
@@ -137054,7 +137054,7 @@ func_08094AC0: @ 0x08094AC0
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r2, #0xc6
 	lsls r2, r2, #2
@@ -137063,7 +137063,7 @@ func_08094AC0: @ 0x08094AC0
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #4
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r3, #0xc8
 	lsls r3, r3, #2
@@ -137078,7 +137078,7 @@ func_08094AC0: @ 0x08094AC0
 	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #7
-	bl func_08007B54
+	bl TileHandle_Allocate
 	str r0, [r5, #4]
 	movs r2, #0xcd
 	lsls r2, r2, #2
@@ -137658,7 +137658,7 @@ func_080951B4: @ 0x080951B4
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0xc2
 	lsls r2, r2, #2
@@ -137667,7 +137667,7 @@ func_080951B4: @ 0x080951B4
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	adds r0, r6, #0
 	bl func_0809800C
@@ -138550,7 +138550,7 @@ func_080958C0: @ 0x080958C0
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	ldr r4, .L080959A8 @ =0x00002BB0
 	adds r5, r6, r4
@@ -139130,7 +139130,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0xc2
 	lsls r2, r2, #2
@@ -139139,7 +139139,7 @@ func_08095D80: @ 0x08095D80
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r3, #0xd2
 	lsls r3, r3, #2
@@ -139805,7 +139805,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r1, #0xc8
 	lsls r1, r1, #2
@@ -139814,7 +139814,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r2, #0xc2
 	lsls r2, r2, #2
@@ -139823,7 +139823,7 @@ func_080962F0: @ 0x080962F0
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	adds r0, r7, #0
 	bl func_0809964C
@@ -141769,7 +141769,7 @@ func_080972AC: @ 0x080972AC
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	movs r0, #0xd2
 	lsls r0, r0, #2
@@ -142813,7 +142813,7 @@ func_08097AE4: @ 0x08097AE4
 	adds r0, r4, #0
 	bl ResourceHandle_Release
 	adds r0, r4, #0
-	bl func_0800736C
+	bl ResourceHandle_Allocate
 	str r0, [r4, #4]
 	mov r2, r8
 	cmp r2, #0

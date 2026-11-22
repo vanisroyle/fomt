@@ -91,7 +91,7 @@ SECTIONS
         asm/sram_proxy_2.o(.text.tail);
         src/sram_error.o(.text);
         src/scene.o(.text);
-        asm/scene.o(.text);
+        src/scene.o(.text.SceneMain);
         asm/intro_scene.o(.text);
         src/intro_scene.o(.text.func_080036F8);
         asm/intro_scene.o(.text.after_080036F8);
@@ -149,7 +149,8 @@ SECTIONS
         src/new_game.o(.text.func_08007110);
         src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
-        asm/hardware.o(.text.handle_alloc);
+        src/hardware.o(.text.ResourceHandle_Allocate);
+        asm/hardware.o(.text.after_0800736C);
         src/hardware.o(.text.ResourceHandle_Release);
         asm/hardware.o(.text.after_080073E0);
         src/hardware.o(.text.handle_retain);
@@ -172,6 +173,8 @@ SECTIONS
         asm/hardware.o(.text.after_08007874);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
+        src/hardware.o(.text.TileHandle_Allocate);
+        asm/hardware.o(.text.after_08007B54);
         src/hardware.o(.text.TileHandle_Release);
         asm/hardware.o(.text.after_08007C28);
         src/hardware.o(.text.TileHandle_Retain);

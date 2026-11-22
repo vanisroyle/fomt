@@ -1082,13 +1082,13 @@ func_080041DC: @ 0x080041DC
     bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #2
-    bl func_08007B54
+    bl TileHandle_Allocate
     str r0, [r4, #4]
     adds r4, #8
     adds r0, r4, #0
     bl ResourceHandles_Initialize
     adds r0, r4, #0
-    bl func_0800736C
+    bl ResourceHandle_Allocate
     str r0, [r4, #4]
     movs r0, #0
     movs r1, #0
@@ -3759,7 +3759,7 @@ func_08005B68: @ 0x08005B68
     bl TileHandle_Release
     mov r0, sp
     movs r1, #3
-    bl func_08007B54
+    bl TileHandle_Allocate
     adds r1, r0, #0
     str r1, [sp, #4]
     mov r0, sp

@@ -296,7 +296,7 @@ EC ResourceHandleOwner * ResourceHandles_Initialize(ResourceHandleOwner *);
 EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
 EC void ResourceHandle_Release(ResourceHandleOwner *, u32);
 EC u8 vtable_unk_080E5A28[];
-EC u32 func_0800736C(ResourceHandleOwner *);
+EC u32 ResourceHandle_Allocate(ResourceHandleOwner *);
 EC u8 ResourceHandle_GetIndex(ResourceHandleOwner *);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void const *);
 EC u8 const gUnk_0858BA28[], gUnk_086678A0[], gUnk_0871EF00[], gUnk_086FAA80[], gUnk_0871D51C[];
@@ -400,7 +400,7 @@ EC SECTION(".text.080AC674") MapSceneContents * InitializeMapSceneContents(MapSc
     do
     {
         ResourceHandles_Initialize(reinterpret_cast<ResourceHandleOwner *>(resource));
-        register unsigned handle asm("r1") = func_0800736C(reinterpret_cast<ResourceHandleOwner *>(resource));
+        register unsigned handle asm("r1") = ResourceHandle_Allocate(reinterpret_cast<ResourceHandleOwner *>(resource));
         asm ("" : "+l" (handle));
         resource->handle = handle;
         resource->status = ResourceHandle_GetIndex(reinterpret_cast<ResourceHandleOwner *>(resource));
@@ -1173,7 +1173,7 @@ struct MapTileEffectQueue
 };
 
 EC void TileHandle_Release(MapTileEffectResource &, u32);
-EC u32 func_08007B54(MapTileEffectResource *, u32);
+EC u32 TileHandle_Allocate(MapTileEffectResource *, u32);
 
 EC SECTION(".text.080AB68C") void ScheduleMapTileEffect(MapTileEffectQueue * queue, int x, int y, u32 type)
 {
@@ -1256,7 +1256,7 @@ EC SECTION(".text.080AB68C") void ScheduleMapTileEffect(MapTileEffectQueue * que
                     asm ("" : "+l" (releaseResource));
                     volatile u32 savedType = effectType;
                     TileHandle_Release(*releaseResource, previousHandle);
-                    register u32 handle asm("r0") = func_08007B54(resource, allocationCount);
+                    register u32 handle asm("r0") = TileHandle_Allocate(resource, allocationCount);
                     resource->handle = handle;
                     register u32 negatedHandle asm("r1") = -handle;
                     asm ("" : "+l" (negatedHandle));

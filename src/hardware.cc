@@ -98,6 +98,11 @@ union HardwareHandle
     } fields;
 
     HardwareHandle(u32 value) : value(value) {}
+    HardwareHandle(u32 index, u16 const & generation) : value(0)
+    {
+        fields.index = index;
+        fields.generation = generation;
+    }
     u32 Index() const { return fields.index; }
 };
 
@@ -134,6 +139,35 @@ ResourceHandleOwner::~ResourceHandleOwner()
 
         gResourceHandleRegistry = nullptr;
     }
+}
+
+// 0x0800736C
+EC u32 SECTION(".text.ResourceHandle_Allocate") ResourceHandle_Allocate(ResourceHandleOwner * owner)
+{
+    u32 handle_value;
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
+    ResourceHandleEntry * entry = registry->free_head;
+    ResourceHandleEntry * allocated_entry = entry;
+    {
+        allocated_entry = registry->AllocEntry(entry);
+    }
+    if (allocated_entry != 0)
+    {
+        u32 index = registry->IndexOf(allocated_entry);
+        registry->SetAllocated(index);
+        ++registry->allocated_count;
+        allocated_entry->params.ref_count = 1;
+        u32 generation = registry->next_generation + 1;
+        if (generation > 0xFFFFu)
+            generation = 1;
+        allocated_entry->params.generation = generation;
+        registry->next_generation = generation;
+        HardwareHandle packed = HardwareHandle(index, allocated_entry->params.generation);
+        handle_value = packed.value;
+    }
+    else
+        handle_value = 0;
+    return handle_value;
 }
 
 // 0x080073E0
@@ -250,7 +284,7 @@ EC SECTION(".text.ResourcePool_Initialize") ResourcePool * ResourcePool_Initiali
 }
 
 EC void ResourceHandle_Release(ResourceHandleOwner *, u32);
-EC u32 func_0800736C(ResourceHandleOwner *);
+EC u32 ResourceHandle_Allocate(ResourceHandleOwner *);
 EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
 
 // 0x08007714
@@ -304,7 +338,7 @@ EC SECTION(".text.ResourcePool_Acquire") ResourceHandleValue * ResourcePool_Acqu
     else
     {
         ResourceHandles_Initialize(&self->owner);
-        self->handle = func_0800736C(&self->owner);
+        self->handle = ResourceHandle_Allocate(&self->owner);
     }
     return self;
 }
@@ -565,7 +599,16 @@ struct TileHeapEntryPool
 {
     TileHeapEntryPool();
     TileHeapEntry & GetEntry(u32 index) { return entries[index]; }
+    u32 IndexOf(TileHeapEntry * entry) const { return entry - entries; }
     void FreeEntry(TileHeapEntry * entry) { entry->next_free = free_head; free_head = entry; }
+    TileHeapEntry * AllocateEntry(TileHeapEntry * & entry)
+    {
+        TileHeapEntry * previous = free_head;
+        entry = previous;
+        if (entry != 0)
+            free_head = entry->next_free;
+        return previous;
+    }
     TileHeapEntry * free_head;
     TileHeapEntry entries[256];
 };
@@ -609,6 +652,11 @@ struct TileHeapState
         if (index < 256)
             allocated_mask[index / 32] &= ~(1u << (index % 32));
     }
+    void SetAllocated(u32 index)
+    {
+        if (index < 256)
+            allocated_mask[index / 32] |= 1u << (index % 32);
+    }
     TileHeapAllocationMask allocated_mask;
     TileHeapEntryPool entry_pool;
     AllocationTree tree;
@@ -651,6 +699,56 @@ inline bool TileHeapEntry_Matches(TileHeapEntry const & entry, u32 handle)
     return u16(handle >> 8) == entry.params.generation;
 }
 
+inline bool TileIndex_IsValid(u32 index) { return index <= 0x3FF; }
+
+inline u32 TileHeap_AllocateTileBlock(AllocationTree * tree, u32 order)
+{
+    return AllocationTree_AllocateBlock(tree, order);
+}
+
+// 0x08007B54
+EC u32 SECTION(".text.TileHandle_Allocate") TileHandle_Allocate(TileHeapOwner * owner, u32 order)
+{
+    TileHeapState * heap = gTileHeapState;
+    u32 block_start;
+    AllocationTree * allocation_tree = &heap->tree;
+    u32 tile_index = TileHeap_AllocateTileBlock(allocation_tree, order);
+    u32 result_word;
+    u32 rollback_start;
+    block_start = tile_index;
+    if (TileIndex_IsValid(block_start))
+    {
+        TileHeapEntry * entry;
+        if (heap->entry_pool.AllocateEntry(entry) != 0 && entry != 0)
+        {
+            u32 index = heap->entry_pool.IndexOf(entry);
+            heap->SetAllocated(index);
+            ++heap->allocated_count;
+            entry->params.tile_index = block_start;
+            entry->params.order = order;
+            entry->params.ref_count = 1;
+            u32 generation = heap->next_generation + 1;
+            if (generation > 0xFFFFu)
+                generation = 1;
+            entry->params.generation = generation;
+            heap->next_generation = generation;
+            TileHandle packed(0);
+            packed.fields.index = index;
+            packed.fields.generation = entry->params.generation;
+            result_word = packed.value;
+        }
+        else
+        {
+            rollback_start = block_start;
+            tile_index = rollback_start;
+            AllocationTree_FreeBlock(allocation_tree, tile_index, order);
+            result_word = 0;
+        }
+    }
+    else
+        result_word = 0;
+    return result_word;
+}
 
 // 0x08007C28
 EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * self, u32 handle)
@@ -829,7 +927,7 @@ EC TileHeapOwner * TileHeapOwner_Initialize(TileHeapOwner *);
 EC void TileHandle_Release(TileHeapOwner *, u32);
 EC u32 TileHandle_GetRefCount(TileHeapOwner *, u32);
 EC u32 TileHandle_Retain(TileHeapOwner *, u32);
-EC u32 func_08007B54(TileHeapOwner *, u32);
+EC u32 TileHandle_Allocate(TileHeapOwner *, u32);
 
 // 0x08008364
 EC void SECTION(".text.TilePool_Destroy") TilePool_Destroy(TilePool * self, u32 destructor_flags)
@@ -888,7 +986,7 @@ EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHand
     else
     {
         TileHeapOwner_Initialize(&self->owner);
-        self->handle = func_08007B54(&self->owner, order);
+        self->handle = TileHandle_Allocate(&self->owner, order);
     }
     return self;
 }

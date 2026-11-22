@@ -20,6 +20,6 @@ struct AUnk_0800080C
     virtual SmartPtr<AScene> vfunc_0C() = 0;
 };
 
-void SceneMain(SmartPtr<AScene> scene_ptr);
+EC void SceneMain(SmartPtr<AScene> scene_ptr);
 
 #endif // SCENE_HH

@@ -13,10 +13,29 @@ struct SmartPtr
 {
     typedef T element_type;
 
+    struct MoveReference
+    {
+        MoveReference(T * & source, T * value) : source(source), value(value) {}
+
+        T * Take() const
+        {
+            T * ptr = value;
+            source = nullptr;
+            return ptr;
+        }
+
+        T * & source;
+        T * value;
+    };
+
     explicit SmartPtr(T * ptr = nullptr)
         : inner(ptr)
     {
     }
+
+    SmartPtr(MoveReference const & reference) : inner(reference.Take()) {}
+
+    operator MoveReference() { return MoveReference(inner, inner); }
 
     SmartPtr & operator=(T * ptr)
     {

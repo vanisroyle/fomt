@@ -6,9 +6,9 @@ EC u8 vtable_unk_080E85AC[];
 EC void TileHeapOwner_Initialize(void *);
 EC void ResourceHandles_Initialize(void *);
 EC void TileHandle_Release(void *, u32);
-EC u32 func_08007B54(void *, u32);
+EC u32 TileHandle_Allocate(void *, u32);
 EC void ResourceHandle_Release(void *, u32);
-EC u32 func_0800736C(void *);
+EC u32 ResourceHandle_Allocate(void *);
 
 EC SECTION(".text.g5_080CC15C") u8 * InventoryMenu_InitializeResourceSlotPanel(u8 * input, void * owner, DrawCommand * draw_owner, u32 slot_count, char const * caption, u32 special_enabled) // 0x080CC15C
 {
@@ -196,7 +196,7 @@ EC SECTION(".text.g5_080CC15C") u8 * InventoryMenu_InitializeResourceSlotPanel(u
             register u32 tile_id asm("r1") = handles[0];
             asm ("" : "+l" (tile_id));
             TileHandle_Release(tiles, tile_id);
-            handles[0] = func_08007B54(tiles, 2);
+            handles[0] = TileHandle_Allocate(tiles, 2);
             scaled += (u32)panel;
             asm ("" : "+l" (scaled));
             register u32 palette_offset asm("r4") = 0x2ec;
@@ -204,7 +204,7 @@ EC SECTION(".text.g5_080CC15C") u8 * InventoryMenu_InitializeResourceSlotPanel(u
             register u32 * palettes asm("r5") = (u32 *)(scaled + palette_offset);
             asm ("" : "+l" (palettes));
             ResourceHandle_Release(palettes, handles[16]);
-            handles[16] = func_0800736C(palettes);
+            handles[16] = ResourceHandle_Allocate(palettes);
             handles += 2;
             register u32 step asm("r5") = 1;
             asm ("" : "+l" (step));
@@ -222,13 +222,13 @@ EC SECTION(".text.g5_080CC15C") u8 * InventoryMenu_InitializeResourceSlotPanel(u
         register u32 * tiles asm("r4") = (u32 *)(panel + special_tile_offset);
         asm ("" : "+l" (tiles));
         TileHandle_Release(tiles, tiles[1]);
-        tiles[1] = func_08007B54(tiles, 2);
+        tiles[1] = TileHandle_Allocate(tiles, 2);
         register u32 special_palette_offset asm("r6") = 0x2a4;
         asm ("" : "+l" (special_palette_offset));
         register u32 * palettes asm("r4") = (u32 *)(panel + special_palette_offset);
         asm ("" : "+l" (palettes));
         ResourceHandle_Release(palettes, palettes[1]);
-        palettes[1] = func_0800736C(palettes);
+        palettes[1] = ResourceHandle_Allocate(palettes);
     }
     return panel;
 }

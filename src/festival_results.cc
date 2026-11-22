@@ -80,9 +80,9 @@ EC void * HardwareContext_InitializeWithKeyRepeat(void *, const FestivalResultsK
 EC void * AudioPlayer_Initialize(void *, u32);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, const void *);
 EC void * TileHeapOwner_Initialize(void *);
-EC u32 func_08007B54(void *, u32);
+EC u32 TileHandle_Allocate(void *, u32);
 EC void * ResourceHandles_Initialize(void *);
-EC u32 func_0800736C(void *);
+EC u32 ResourceHandle_Allocate(void *);
 EC u8 vtable_unk_080E7928[];
 EC const u8 gUnk_08527094[];
 
@@ -140,10 +140,10 @@ EC SECTION(".text.festival_results.0805143C") FestivalResultsScreen * Initialize
     InitializeFestivalResultsDrawOptions(&screen->sprites[1].options);
     FestivalResultsResource * tiles = &screen->tiles;
     TileHeapOwner_Initialize(&tiles->owner);
-    tiles->handle = func_08007B54(&tiles->owner, 4);
+    tiles->handle = TileHandle_Allocate(&tiles->owner, 4);
     FestivalResultsResource * palettes = &screen->palettes;
     ResourceHandles_Initialize(&palettes->owner);
-    palettes->handle = func_0800736C(&palettes->owner);
+    palettes->handle = ResourceHandle_Allocate(&palettes->owner);
     screen->phase = 0;
     return (FestivalResultsScreen *) screen;
 }

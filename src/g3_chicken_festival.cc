@@ -593,12 +593,12 @@ struct SpriteHarvestingResources
 };
 
 EC void TileHandle_Release(SpriteHarvestingResource *, void *);
-EC void * func_08007B54(SpriteHarvestingResource *, u32);
+EC void * TileHandle_Allocate(SpriteHarvestingResource *, u32);
 
 static inline void ResizeHarvestingResource(SpriteHarvestingResource & resource, u32 count)
 {
     TileHandle_Release(&resource, resource.allocation);
-    resource.allocation = func_08007B54(&resource, count);
+    resource.allocation = TileHandle_Allocate(&resource, count);
 }
 
 EC SECTION(".text.g3_080BCEC8") void AllocateSpriteHarvestingResources(SpriteHarvestingResources * state)

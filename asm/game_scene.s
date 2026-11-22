@@ -49,7 +49,7 @@ func_0801004C: @ 0x0801004C
     str r4, [sp, #4]
     str r0, [sp, #8]
     adds r0, r6, #0
-    bl func_0800082C
+    bl SceneMain
     str r4, [sp, #8]
     add r0, sp, #0x14
     str r6, [sp, #0x14]
