@@ -52168,6 +52168,54 @@ RunChildhoodMemoryScreen: @ 0x0805EE44
 	.purgem GrowChildhoodMapDmaQueue
 	.purgem AppendChildhoodFadeTask
 
+	.equ .Lfarm_overview_stack_bytes, 0x29C
+	.equ .Lfarm_overview_game_data, 0x58C
+	.equ .Lfarm_overview_portrait_uploads, 0x594
+	.equ .Lfarm_overview_vtable, 0x5B4
+	.equ .Lfarm_overview_panel_tilemap, 0x18
+
+	.equ .Lfarm_overview_sp_report, 0x1C4
+	.equ .Lfarm_overview_sp_menu, 0x1C8
+	.equ .Lfarm_overview_sp_scroll_panel, 0x1CC
+	.equ .Lfarm_overview_sp_portrait_tile_row, 0x1D0
+	.equ .Lfarm_overview_sp_spouse_id, 0x1D4
+	.equ .Lfarm_overview_sp_spouse, 0x1D8
+	.equ .Lfarm_overview_sp_active_npc, 0x1DC
+	.equ .Lfarm_overview_sp_horse, 0x1E0
+	.equ .Lfarm_overview_sp_content_tile_rows, 0x210
+	.equ .Lfarm_overview_sp_portrait_lower_tile_row, 0x214
+	.equ .Lfarm_overview_sp_dog_tile_row, 0x218
+	.equ .Lfarm_overview_sp_portrait_y_pixels, 0x21C
+	.equ .Lfarm_overview_sp_portrait_tilemap_offset, 0x220
+	.equ .Lfarm_overview_sp_horse_name_tiles, 0x224
+	.equ .Lfarm_overview_sp_name_copy_command_ptr, 0x228
+	.equ .Lfarm_overview_sp_old_transfer_list_end, 0x294
+	.equ .Lfarm_overview_sp_new_transfer_list_buffer, 0x298
+
+	@ r6 = list, r5 = new end. Preserve the original empty destructor loop before freeing.
+	.macro CommitFarmOverviewTransferList capacity_bytes, new_begin
+	ldr r2, [r6, #4]
+	ldr r0, [r6]
+	adds r1, r0, #0
+	cmp r0, r2
+	beq .Lfarm_overview_free_transfers\@
+.Lfarm_overview_retire_transfer\@:
+	adds r1, #0x10
+	cmp r1, r2
+	bne .Lfarm_overview_retire_transfer\@
+.Lfarm_overview_free_transfers\@:
+	cmp r0, #0
+	beq .Lfarm_overview_publish_transfers\@
+	bl free
+.Lfarm_overview_publish_transfers\@:
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
+	add r0, \capacity_bytes
+	ldr \new_begin, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
+	str \new_begin, [r6]
+	str r5, [r6, #4]
+	str r0, [r6, #0xc]
+	.endm
+
 	.section .text.f3.0805FF14, "ax", %progbits
 	thumb_func_start InitFarmOverviewReport
 InitFarmOverviewReport: @ 0x0805FF14
@@ -52176,10 +52224,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r6, sb
 	mov r5, r8
 	push {r5, r6, r7}
-	ldr r4, .L080600A4 @ =0xFFFFFD64
+	ldr r4, .L080600A4
 	add sp, r4
-	str r0, [sp, #0x1c4]
-	str r1, [sp, #0x1c8]
+	str r0, [sp, #.Lfarm_overview_sp_report]
+	str r1, [sp, #.Lfarm_overview_sp_menu]
 	mov sl, r2
 	mov r0, sl
 	adds r0, #0x14
@@ -52234,18 +52282,18 @@ InitFarmOverviewReport: @ 0x0805FF14
 	bl memcpy
 	add r4, sp, #8
 	str r4, [sp]
-	ldr r0, [sp, #0x1c4]
-	ldr r1, [sp, #0x1c8]
+	ldr r0, [sp, #.Lfarm_overview_sp_report]
+	ldr r1, [sp, #.Lfarm_overview_sp_menu]
 	mov r2, sl
 	movs r3, #0x40
 	bl func_08076BFC
-	ldr r5, [sp, #0x1c4]
-	ldr r7, .L080600AC @ =0x000005B4
+	ldr r5, [sp, #.Lfarm_overview_sp_report]
+	ldr r7, .L080600AC @ =.Lfarm_overview_vtable
 	adds r1, r5, r7
 	ldr r0, .L080600B0 @ =vtable_unk_080E7A78
 	str r0, [r1]
 	ldr r0, [r5, #4]
-	str r0, [sp, #0x1cc]
+	str r0, [sp, #.Lfarm_overview_sp_scroll_panel]
 	ldr r2, .L080600B4 @ =gFarmReportBlankLabel
 	add r1, sp, #0x58
 	movs r0, #2
@@ -52295,7 +52343,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r3, [sp, #0x22c]
 	movs r5, #0xc8
 	lsls r5, r5, #3
-	ldr r4, [sp, #0x1c4]
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
 	adds r5, r4, r5
 	str r5, [sp, #0x1f4]
 	mov r7, sp
@@ -52338,14 +52386,14 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r7, [sp, #0x24c]
 	mov r0, sp
 	adds r0, #0x48
-	str r0, [sp, #0x228]
+	str r0, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
 	movs r1, #0xaa
 	lsls r1, r1, #1
 	add r1, sp
 	str r1, [sp, #0x274]
 	ldr r2, .L080600CC @ =0x00001568
 	adds r2, r4, r2
-	str r2, [sp, #0x224]
+	str r2, [sp, #.Lfarm_overview_sp_horse_name_tiles]
 	movs r3, #0xac
 	lsls r3, r3, #1
 	add r3, sp
@@ -52361,11 +52409,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r7, #0x38
 	lsls r7, r7, #0x10
 	str r7, [sp, #0x238]
-	b .L08060236
+	b .Lfarm_overview_draw_first_blank_label
 	.align 2, 0
-.L080600A4: .4byte 0xFFFFFD64
+.L080600A4: .4byte -.Lfarm_overview_stack_bytes
 .L080600A8: .4byte gFarmReportPropertySuffix
-.L080600AC: .4byte 0x000005B4
+.L080600AC: .4byte .Lfarm_overview_vtable
 .L080600B0: .4byte vtable_unk_080E7A78
 .L080600B4: .4byte gFarmReportBlankLabel
 .L080600B8: .4byte 0x000005BC
@@ -52375,7 +52423,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080600C8: .4byte 0x00000958
 .L080600CC: .4byte 0x00001568
 .L080600D0:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	str r0, [sp, #0x60]
 	ldr r0, [r6]
@@ -52406,7 +52454,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov sb, r0
 .L0806010A:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	mov r4, sp
@@ -52414,7 +52462,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp, #0x22c]
 	movs r7, #0xc8
 	lsls r7, r7, #3
-	ldr r5, [sp, #0x1c4]
+	ldr r5, [sp, #.Lfarm_overview_sp_report]
 	adds r7, r5, r7
 	str r7, [sp, #0x1f4]
 	mov r0, sp
@@ -52456,14 +52504,14 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [sp, #0x24c]
 	mov r1, sp
 	adds r1, #0x48
-	str r1, [sp, #0x228]
+	str r1, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
 	movs r4, #0xaa
 	lsls r4, r4, #1
 	add r4, sp
 	str r4, [sp, #0x274]
 	ldr r7, .L080601EC @ =0x00001568
 	adds r7, r5, r7
-	str r7, [sp, #0x224]
+	str r7, [sp, #.Lfarm_overview_sp_horse_name_tiles]
 	movs r0, #0xac
 	lsls r0, r0, #1
 	add r0, sp
@@ -52479,7 +52527,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r5, #0x38
 	lsls r5, r5, #0x10
 	str r5, [sp, #0x238]
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r7
 	beq .L080601BE
 .L080601A4:
@@ -52494,7 +52542,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080601B4:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L080601A4
 .L080601BE:
@@ -52541,27 +52589,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060210:
 	adds r5, r2, #0
 .L08060212:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060222
-.L0806021C:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0806021C
-.L08060222:
-	cmp r0, #0
-	beq .L0806022A
-	bl free
-.L0806022A:
-	ldr r0, [sp, #0x298]
-	add r0, sb
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L08060236:
+	CommitFarmOverviewTransferList sb, r7
+	@ Rasterize the fixed-width text labels before filling the panel.
+.Lfarm_overview_draw_first_blank_label:
 	ldr r2, .L08060298 @ =gFarmReportBlankLabel
 	movs r1, #2
 	add r0, sp, #0x64
@@ -52574,7 +52604,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r1, [sp, #0x1c4]
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -52611,7 +52641,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L08060298: .4byte gFarmReportBlankLabel
 .L0806029C:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	str r0, [sp, #0x6c]
 	ldr r0, [r6]
@@ -52642,13 +52672,13 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L080602D6:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	movs r4, #0x3c
 	lsls r4, r4, #0x10
 	str r4, [sp, #0x260]
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	beq .L08060304
 .L080602EA:
@@ -52663,7 +52693,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080602FA:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r7
 	bne .L080602EA
 .L08060304:
@@ -52704,26 +52734,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060340:
 	adds r5, r2, #0
 .L08060342:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060352
-.L0806034C:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0806034C
-.L08060352:
-	cmp r0, #0
-	beq .L0806035A
-	bl free
-.L0806035A:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r7
 .L08060366:
 	ldr r2, .L080603B8 @ =gFarmReportBlankLabel
 	movs r1, #2
@@ -52737,7 +52748,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r1, [sp, #0x1c4]
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -52768,7 +52779,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080603B8: .4byte gFarmReportBlankLabel
 .L080603BC: .4byte 0x06000800
 .L080603C0:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	str r0, [sp, #0x78]
 	ldr r0, [r6]
@@ -52800,10 +52811,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L080603FC:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r7
 	beq .L08060424
 .L0806040A:
@@ -52818,7 +52829,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L0806041A:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L0806040A
 .L08060424:
@@ -52859,26 +52870,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060460:
 	adds r5, r2, #0
 .L08060462:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060472
-.L0806046C:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0806046C
-.L08060472:
-	cmp r0, #0
-	beq .L0806047A
-	bl free
-.L0806047A:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r7
 .L08060486:
 	ldr r2, .L080604E8 @ =gFarmReportBlankLabel
 	movs r1, #2
@@ -52892,7 +52884,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r1, [sp, #0x1c4]
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -52929,7 +52921,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L080604E8: .4byte gFarmReportBlankLabel
 .L080604EC:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	str r0, [sp, #0x84]
 	ldr r0, [r6]
@@ -52960,13 +52952,13 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08060526:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	movs r4, #0x44
 	lsls r4, r4, #0x10
 	str r4, [sp, #0x1e4]
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	beq .L08060554
 .L0806053A:
@@ -52981,7 +52973,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L0806054A:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r7
 	bne .L0806053A
 .L08060554:
@@ -53022,26 +53014,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060590:
 	adds r5, r2, #0
 .L08060592:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L080605A2
-.L0806059C:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0806059C
-.L080605A2:
-	cmp r0, #0
-	beq .L080605AA
-	bl free
-.L080605AA:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r7
 .L080605B6:
 	ldr r2, .L08060618 @ =gFarmReportBlankLabel
 	movs r0, #2
@@ -53055,7 +53028,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r4, [sp, #0x1c4]
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -53092,12 +53065,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L08060618: .4byte gFarmReportBlankLabel
 .L0806061C:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x90
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r5, r0
 	asrs r4, r0, #4
 	add r0, sp, #0x8c
@@ -53125,7 +53098,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L0806065A:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	movs r7, #0x48
@@ -53145,7 +53118,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r2, #0x10
 	adds r3, #0x10
 .L0806067E:
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L0806066A
 	adds r5, r3, #0
@@ -53185,26 +53158,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080606C0:
 	adds r5, r2, #0
 .L080606C2:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L080606D2
-.L080606CC:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L080606CC
-.L080606D2:
-	cmp r0, #0
-	beq .L080606DA
-	bl free
-.L080606DA:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r7
 .L080606E6:
 	ldr r2, .L08060748 @ =gFarmReportBlankLabel
 	movs r0, #2
@@ -53218,7 +53172,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r4, [sp, #0x1c4]
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -53251,16 +53205,16 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r4, #0x4c
 	lsls r4, r4, #0x10
 	str r4, [sp, #0x1ec]
-	b .L08060816
+	b .Lfarm_overview_draw_gold_suffix
 	.align 2, 0
 .L08060748: .4byte gFarmReportBlankLabel
 .L0806074C:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x9c
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r5, r0
 	asrs r4, r0, #4
 	add r0, sp, #0x98
@@ -53288,7 +53242,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L0806078A:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	movs r7, #0x4c
@@ -53308,7 +53262,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r2, #0x10
 	adds r3, #0x10
 .L080607AE:
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L0806079A
 	adds r5, r3, #0
@@ -53348,27 +53302,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080607F0:
 	adds r5, r2, #0
 .L080607F2:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060802
-.L080607FC:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L080607FC
-.L08060802:
-	cmp r0, #0
-	beq .L0806080A
-	bl free
-.L0806080A:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L08060816:
+	CommitFarmOverviewTransferList r8, r7
+.Lfarm_overview_draw_gold_suffix:
 	ldr r2, .L08060878 @ =gFarmReportGoldSuffix
 	movs r0, #2
 	add r1, sp, #0xa0
@@ -53381,7 +53316,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r4, [sp, #0x1c4]
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r4]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -53418,12 +53353,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L08060878: .4byte gFarmReportGoldSuffix
 .L0806087C:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xa8
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r5, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xa4
@@ -53451,7 +53386,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L080608BA:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	movs r7, #0x50
@@ -53471,7 +53406,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r2, #0x10
 	adds r3, #0x10
 .L080608DE:
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L080608CA
 	adds r5, r3, #0
@@ -53511,28 +53446,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060920:
 	adds r5, r2, #0
 .L08060922:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060932
-.L0806092C:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0806092C
-.L08060932:
-	cmp r0, #0
-	beq .L0806093A
-	bl free
-.L0806093A:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r7
 .L08060946:
-	ldr r1, [sp, #0x1c4]
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -53566,12 +53482,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L08060988: .4byte gUnk_0875196C
 .L0806098C:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xb0
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r2, [sp, #0x294]
+	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r2, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xac
@@ -53599,10 +53515,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L080609CA:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r4
 	beq .L080609F2
 .L080609D8:
@@ -53617,7 +53533,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080609E8:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	bne .L080609D8
 .L080609F2:
@@ -53658,28 +53574,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060A2E:
 	adds r5, r2, #0
 .L08060A30:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060A40
-.L08060A3A:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08060A3A
-.L08060A40:
-	cmp r0, #0
-	beq .L08060A48
-	bl free
-.L08060A48:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r1, [sp, #0x298]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r1
 .L08060A54:
-	ldr r2, [sp, #0x1c4]
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -53710,12 +53607,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060A8C: .4byte gUnk_087519EC
 .L08060A90: .4byte 0x05000020
 .L08060A94:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xb8
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r7, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xb4
@@ -53743,7 +53640,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08060AD2:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	b .L08060AF0
@@ -53760,7 +53657,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r2, #0x10
 	adds r3, #0x10
 .L08060AF0:
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L08060ADC
 	adds r5, r3, #0
@@ -53800,28 +53697,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060B32:
 	adds r5, r2, #0
 .L08060B34:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060B44
-.L08060B3E:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08060B3E
-.L08060B44:
-	cmp r0, #0
-	beq .L08060B4C
-	bl free
-.L08060B4C:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r7
 .L08060B58:
-	ldr r1, [sp, #0x1c4]
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -53855,12 +53733,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L08060B98: .4byte gUnk_0875254C
 .L08060B9C:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xc0
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r2, [sp, #0x294]
+	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r2, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xbc
@@ -53888,10 +53766,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08060BDA:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r4
 	beq .L08060C02
 .L08060BE8:
@@ -53906,7 +53784,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060BF8:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	bne .L08060BE8
 .L08060C02:
@@ -53947,28 +53825,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060C3E:
 	adds r5, r2, #0
 .L08060C40:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060C50
-.L08060C4A:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08060C4A
-.L08060C50:
-	cmp r0, #0
-	beq .L08060C58
-	bl free
-.L08060C58:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r1, [sp, #0x298]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r1
 .L08060C64:
-	ldr r2, [sp, #0x1c4]
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -53999,12 +53858,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060C9C: .4byte gUnk_087525CC
 .L08060CA0: .4byte 0x05000040
 .L08060CA4:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xc8
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r7, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xc4
@@ -54032,7 +53891,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08060CE2:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	b .L08060D00
@@ -54049,7 +53908,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r2, #0x10
 	adds r3, #0x10
 .L08060D00:
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L08060CEC
 	adds r5, r3, #0
@@ -54089,28 +53948,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060D42:
 	adds r5, r2, #0
 .L08060D44:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060D54
-.L08060D4E:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08060D4E
-.L08060D54:
-	cmp r0, #0
-	beq .L08060D5C
-	bl free
-.L08060D5C:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r7
 .L08060D68:
-	ldr r1, [sp, #0x1c4]
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -54144,12 +53984,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L08060DA8: .4byte gUnk_087530CC
 .L08060DAC:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xd0
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r2, [sp, #0x294]
+	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r2, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xcc
@@ -54177,10 +54017,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08060DEA:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r4
 	beq .L08060E12
 .L08060DF8:
@@ -54195,7 +54035,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060E08:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	bne .L08060DF8
 .L08060E12:
@@ -54236,28 +54076,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060E4E:
 	adds r5, r2, #0
 .L08060E50:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060E60
-.L08060E5A:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08060E5A
-.L08060E60:
-	cmp r0, #0
-	beq .L08060E68
-	bl free
-.L08060E68:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r1, [sp, #0x298]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r1
 .L08060E74:
-	ldr r2, [sp, #0x1c4]
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -54288,12 +54109,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060EAC: .4byte gUnk_0875314C
 .L08060EB0: .4byte 0x05000060
 .L08060EB4:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xd8
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r7, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xd4
@@ -54321,7 +54142,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08060EF2:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	b .L08060F10
@@ -54338,7 +54159,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r2, #0x10
 	adds r3, #0x10
 .L08060F10:
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L08060EFC
 	adds r5, r3, #0
@@ -54378,28 +54199,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08060F52:
 	adds r5, r2, #0
 .L08060F54:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08060F64
-.L08060F5E:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08060F5E
-.L08060F64:
-	cmp r0, #0
-	beq .L08060F6C
-	bl free
-.L08060F6C:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r7
 .L08060F78:
-	ldr r1, [sp, #0x1c4]
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -54433,12 +54235,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L08060FB8: .4byte gUnk_0875348C
 .L08060FBC:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xe0
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r2, [sp, #0x294]
+	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r2, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xdc
@@ -54466,10 +54268,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08060FFA:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r4
 	beq .L08061022
 .L08061008:
@@ -54484,7 +54286,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08061018:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	bne .L08061008
 .L08061022:
@@ -54525,28 +54327,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L0806105E:
 	adds r5, r2, #0
 .L08061060:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08061070
-.L0806106A:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0806106A
-.L08061070:
-	cmp r0, #0
-	beq .L08061078
-	bl free
-.L08061078:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r1, [sp, #0x298]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r1
 .L08061084:
-	ldr r2, [sp, #0x1c4]
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -54572,17 +54355,17 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	b .L08061188
+	b .Lfarm_overview_queue_farmer_portrait
 	.align 2, 0
 .L080610BC: .4byte gUnk_0875350C
 .L080610C0: .4byte 0x05000080
 .L080610C4:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xe8
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r7, r0
 	asrs r4, r0, #4
 	add r0, sp, #0xe4
@@ -54610,7 +54393,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08061102:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
 	b .L08061120
@@ -54627,7 +54410,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r2, #0x10
 	adds r3, #0x10
 .L08061120:
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L0806110C
 	adds r5, r3, #0
@@ -54667,29 +54450,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08061162:
 	adds r5, r2, #0
 .L08061164:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08061174
-.L0806116E:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0806116E
-.L08061174:
-	cmp r0, #0
-	beq .L0806117C
-	bl free
-.L0806117C:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
-.L08061188:
+	CommitFarmOverviewTransferList r8, r7
+	@ The farmer row contains the name and collected Power Berries.
+.Lfarm_overview_queue_farmer_portrait:
 	movs r0, #4
-	str r0, [sp, #0x1d0]
+	str r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	movs r0, #0x20
 	movs r1, #0
 	mov r2, sl
@@ -54699,8 +54464,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r2, #8]
 	ldr r0, .L080611CC @ =gUnk_0875300C
 	str r0, [r2, #0xc]
-	ldr r3, [sp, #0x1c4]
-	ldr r4, .L080611D0 @ =0x00000594
+	ldr r3, [sp, #.Lfarm_overview_sp_report]
+	ldr r4, .L080611D0 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r3, r4
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -54719,19 +54484,19 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, #0x10
 	str r0, [r6, #4]
 	movs r3, #7
-	str r3, [sp, #0x210]
+	str r3, [sp, #.Lfarm_overview_sp_content_tile_rows]
 	b .L080612AC
 	.align 2, 0
 .L080611C8: .4byte gUnk_08752F8C
 .L080611CC: .4byte gUnk_0875300C
-.L080611D0: .4byte 0x00000594
+.L080611D0: .4byte .Lfarm_overview_portrait_uploads
 .L080611D4:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xf0
 	str r0, [r1]
 	ldr r3, [r6]
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r4, r3
 	asrs r4, r0, #4
 	add r0, sp, #0xec
@@ -54763,13 +54528,13 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08061218:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r3, r1, #0
 	adds r2, r5, #0
-	ldr r5, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r5, #3
-	str r5, [sp, #0x210]
-	ldr r7, [sp, #0x294]
+	str r5, [sp, #.Lfarm_overview_sp_content_tile_rows]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r3, r7
 	beq .L08061246
 .L0806122C:
@@ -54784,7 +54549,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L0806123C:
 	adds r3, #0x10
 	adds r2, #0x10
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r3, r0
 	bne .L0806122C
 .L08061246:
@@ -54841,23 +54606,23 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L080612A0:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r1, [sp, #0x298]
+	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r1, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080612AC:
-	ldr r2, [sp, #0x1c4]
-	ldr r3, .L08061334 @ =0x0000058C
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
+	ldr r3, .L08061334 @ =.Lfarm_overview_game_data
 	adds r0, r2, r3
 	ldr r0, [r0]
 	ldr r4, .L08061338 @ =0x00001AA8
 	adds r0, r0, r4
 	ldr r0, [r0]
-	ldr r5, [sp, #0x1cc]
-	ldr r1, [r5, #0x18]
-	ldr r7, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r1, [r5, #.Lfarm_overview_panel_tilemap]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r4, r7, #6
 	adds r1, r1, r4
 	adds r1, #0x2c
@@ -54867,8 +54632,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r5, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
 	adds r0, r0, r4
 	adds r0, #0x2e
 	ldr r2, [sp, #0x1f0]
@@ -54879,8 +54644,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #2
 	movs r3, #2
 	bl FillMessageTilemapRect
-	ldr r3, [sp, #0x210]
-	str r3, [sp, #0x1d0]
+	ldr r3, [sp, #.Lfarm_overview_sp_content_tile_rows]
+	str r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r0, r3, #3
 	mov r5, sl
 	strh r0, [r5]
@@ -54889,8 +54654,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r5, #8]
 	ldr r0, .L08061340 @ =gUnk_0875194C
 	str r0, [r5, #0xc]
-	ldr r7, [sp, #0x1c4]
-	ldr r0, .L08061344 @ =0x00000594
+	ldr r7, [sp, #.Lfarm_overview_sp_report]
+	ldr r0, .L08061344 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r7, r0
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -54908,26 +54673,26 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	ldr r5, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r5, r5, #6
-	str r5, [sp, #0x220]
-	ldr r7, [sp, #0x1d0]
+	str r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r7, #4
-	str r7, [sp, #0x214]
-	b .L08061426
+	str r7, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
+	b .Lfarm_overview_draw_farmer_name
 	.align 2, 0
-.L08061334: .4byte 0x0000058C
+.L08061334: .4byte .Lfarm_overview_game_data
 .L08061338: .4byte 0x00001AA8
 .L0806133C: .4byte gUnk_087518CC
 .L08061340: .4byte gUnk_0875194C
-.L08061344: .4byte 0x00000594
+.L08061344: .4byte .Lfarm_overview_portrait_uploads
 .L08061348:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0xf8
 	str r0, [r1]
 	ldr r3, [r6]
-	ldr r2, [sp, #0x294]
+	ldr r2, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r2, r3
 	asrs r4, r0, #4
 	add r0, sp, #0xf4
@@ -54959,16 +54724,16 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L0806138C:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r3, r1, #0
 	adds r2, r5, #0
-	ldr r4, [sp, #0x1d0]
+	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r4, r4, #6
-	str r4, [sp, #0x220]
-	ldr r5, [sp, #0x1d0]
+	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r5, #4
-	str r5, [sp, #0x214]
-	ldr r7, [sp, #0x294]
+	str r5, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r3, r7
 	beq .L080613C0
 .L080613A6:
@@ -54983,7 +54748,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080613B6:
 	adds r3, #0x10
 	adds r2, #0x10
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r3, r0
 	bne .L080613A6
 .L080613C0:
@@ -55040,13 +54805,13 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L0806141A:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r1, [sp, #0x298]
+	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r1, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L08061426:
+.Lfarm_overview_draw_farmer_name:
 	movs r4, #0xc
 	movs r5, #2
 	add r0, sp, #0xfc
@@ -55057,8 +54822,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r1, [sp, #0x20c]
 	movs r2, #0
 	bl FillMessageTiles
-	ldr r3, [sp, #0x1c4]
-	ldr r7, .L080614A0 @ =0x0000058C
+	ldr r3, [sp, #.Lfarm_overview_sp_report]
+	ldr r7, .L080614A0 @ =.Lfarm_overview_game_data
 	adds r0, r3, r7
 	ldr r0, [r0]
 	ldr r1, .L080614A4 @ =0x00001BD8
@@ -55075,7 +54840,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r3, [sp, #0x1c4]
+	ldr r3, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -55085,7 +54850,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r1, [sp, #0x20c]
 	ldr r2, .L080614A8 @ =0x06003000
 	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #0x228]
+	ldr r4, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
 	mov sb, r4
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -55105,16 +54870,16 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r6, #4]
 	b .L08061578
 	.align 2, 0
-.L080614A0: .4byte 0x0000058C
+.L080614A0: .4byte .Lfarm_overview_game_data
 .L080614A4: .4byte 0x00001BD8
 .L080614A8: .4byte 0x06003000
 .L080614AC:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r2, sp, #0x108
 	str r0, [r2]
 	ldr r0, [r6]
-	ldr r3, [sp, #0x294]
+	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r3, r0
 	asrs r4, r0, #4
 	add r1, sp, #0x104
@@ -55143,10 +54908,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L080614EC:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r4
 	beq .L08061514
 .L080614FA:
@@ -55161,7 +54926,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L0806150A:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	bne .L080614FA
 .L08061514:
@@ -55203,30 +54968,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08061552:
 	adds r5, r2, #0
 .L08061554:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08061564
-.L0806155E:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0806155E
-.L08061564:
-	cmp r0, #0
-	beq .L0806156C
-	bl free
-.L0806156C:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r1, [sp, #0x298]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r1
 .L08061578:
-	ldr r2, [sp, #0x1cc]
-	ldr r0, [r2, #0x18]
-	ldr r3, [sp, #0x220]
+	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
+	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r0, r0, r3
 	adds r0, #4
 	movs r1, #0xc0
@@ -55238,8 +54984,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0xc
 	movs r3, #2
 	bl FillMessageTilemapRect
-	ldr r5, [sp, #0x1c4]
-	ldr r7, .L08061658 @ =0x0000058C
+	ldr r5, [sp, #.Lfarm_overview_sp_report]
+	ldr r7, .L08061658 @ =.Lfarm_overview_game_data
 	adds r4, r5, r7
 	ldr r0, [r4]
 	ldr r5, .L0806165C @ =0x00001BD8
@@ -55248,10 +54994,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L080615CA
-	ldr r1, [sp, #0x1d0]
+	ldr r1, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r1, #2
-	ldr r2, [sp, #0x1cc]
-	ldr r0, [r2, #0x18]
+	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
 	lsls r1, r1, #6
 	adds r0, r0, r1
 	adds r0, #4
@@ -55269,8 +55015,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r6, r0, #0
 	movs r4, #0
 	cmp r4, r6
-	bhs .L0806160A
-	ldr r0, [sp, #0x1d0]
+	bhs .Lfarm_overview_check_for_spouse
+	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r0, #2
 	lsls r0, r0, #6
 	mov r8, r0
@@ -55278,8 +55024,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r3, #0x5c
 	lsls r7, r3, #0x10
 .L080615E8:
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
 	add r0, r8
 	adds r0, r0, r5
 	movs r1, #3
@@ -55294,11 +55040,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r4, #1
 	cmp r4, r6
 	blo .L080615E8
-.L0806160A:
-	ldr r2, [sp, #0x214]
-	str r2, [sp, #0x1d0]
-	ldr r3, [sp, #0x1c4]
-	ldr r5, .L08061658 @ =0x0000058C
+.Lfarm_overview_check_for_spouse:
+	ldr r2, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
+	str r2, [sp, #.Lfarm_overview_sp_portrait_tile_row]
+	ldr r3, [sp, #.Lfarm_overview_sp_report]
+	ldr r5, .L08061658 @ =.Lfarm_overview_game_data
 	adds r4, r3, r5
 	ldr r0, [r4]
 	ldr r7, .L08061660 @ =0x00001CD4
@@ -55306,65 +55052,66 @@ InitFarmOverviewReport: @ 0x0805FF14
 	bl HasRosterEntry
 	lsls r0, r0, #0x18
 	cmp r0, #0
-	bne .L08061628
+	bne .Lfarm_overview_select_spouse_portrait
 	bl .Lfarm_overview_dog_row
-.L08061628:
+	@ Only spouse NPC IDs with a matching portrait get a row.
+.Lfarm_overview_select_spouse_portrait:
 	ldr r0, [r4]
 	adds r1, r7, #0
 	adds r0, r0, r1
 	bl GetRosterMarriageCandidate
-	str r0, [sp, #0x1d4]
+	str r0, [sp, #.Lfarm_overview_sp_spouse_id]
 	ldr r0, [r4]
 	adds r2, r7, #0
 	adds r0, r0, r2
-	ldr r1, [sp, #0x1d4]
+	ldr r1, [sp, #.Lfarm_overview_sp_spouse_id]
 	bl GetRosterBacheloretteById
-	str r0, [sp, #0x1d8]
-	ldr r0, [sp, #0x1d4]
+	str r0, [sp, #.Lfarm_overview_sp_spouse]
+	ldr r0, [sp, #.Lfarm_overview_sp_spouse_id]
 	subs r0, #3
 	cmp r0, #0x1c
 	bls .L0806164C
-	b .L08061754
+	b .Lfarm_overview_skip_unsupported_spouse
 .L0806164C:
 	lsls r0, r0, #2
-	ldr r1, .L08061664 @ =.L08061668
+	ldr r1, .L08061664 @ =.Lfarm_overview_spouse_portrait_table
 	adds r0, r0, r1
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L08061658: .4byte 0x0000058C
+.L08061658: .4byte .Lfarm_overview_game_data
 .L0806165C: .4byte 0x00001BD8
 .L08061660: .4byte 0x00001CD4
-.L08061664: .4byte .L08061668
-.L08061668: @ jump table
+.L08061664: .4byte .Lfarm_overview_spouse_portrait_table
+.Lfarm_overview_spouse_portrait_table: @ NPC ID minus 3
 	.4byte .L080616DC @ case 0
-	.4byte .L08061754 @ case 1
-	.4byte .L08061754 @ case 2
-	.4byte .L08061754 @ case 3
-	.4byte .L08061754 @ case 4
-	.4byte .L08061754 @ case 5
-	.4byte .L08061754 @ case 6
-	.4byte .L08061754 @ case 7
-	.4byte .L08061754 @ case 8
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 1
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 2
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 3
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 4
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 5
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 6
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 7
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 8
 	.4byte .L080616F0 @ case 9
-	.4byte .L08061754 @ case 10
-	.4byte .L08061754 @ case 11
-	.4byte .L08061754 @ case 12
-	.4byte .L08061754 @ case 13
-	.4byte .L08061754 @ case 14
-	.4byte .L08061754 @ case 15
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 10
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 11
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 12
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 13
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 14
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 15
 	.4byte .L08061704 @ case 16
-	.4byte .L08061754 @ case 17
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 17
 	.4byte .L0806172C @ case 18
-	.4byte .L08061754 @ case 19
-	.4byte .L08061754 @ case 20
-	.4byte .L08061754 @ case 21
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 19
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 20
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 21
 	.4byte .L08061718 @ case 22
-	.4byte .L08061754 @ case 23
-	.4byte .L08061754 @ case 24
-	.4byte .L08061754 @ case 25
-	.4byte .L08061754 @ case 26
-	.4byte .L08061754 @ case 27
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 23
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 24
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 25
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 26
+	.4byte .Lfarm_overview_skip_unsupported_spouse @ case 27
 	.4byte .L08061740 @ case 28
 .L080616DC:
 	ldr r0, .L080616E8 @ =gUnk_08751A0C
@@ -55426,26 +55173,26 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L0806174C: .4byte gUnk_0875240C
 .L08061750: .4byte gUnk_0875248C
-.L08061754:
+.Lfarm_overview_skip_unsupported_spouse:
 	movs r3, #0
-	str r3, [sp, #0x1d8]
+	str r3, [sp, #.Lfarm_overview_sp_spouse]
 .L08061758:
-	ldr r4, [sp, #0x1d0]
+	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r4, #5
-	str r4, [sp, #0x218]
-	ldr r5, [sp, #0x1d8]
+	str r4, [sp, #.Lfarm_overview_sp_dog_tile_row]
+	ldr r5, [sp, #.Lfarm_overview_sp_spouse]
 	cmp r5, #0
 	bne .L08061766
-	b .L08061AA4
+	b .Lfarm_overview_find_active_npc
 .L08061766:
-	ldr r7, [sp, #0x1d0]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r0, r7, #3
 	movs r1, #0
 	mov r2, sl
 	strh r0, [r2]
 	str r1, [r2, #4]
-	ldr r3, [sp, #0x1c4]
-	ldr r4, .L080617C8 @ =0x00000594
+	ldr r3, [sp, #.Lfarm_overview_sp_report]
+	ldr r4, .L080617C8 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r3, r4
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -55463,14 +55210,14 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	ldr r3, [sp, #0x1d0]
+	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r3, r3, #6
-	str r3, [sp, #0x220]
+	str r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	movs r4, #0x8a
 	lsls r4, r4, #1
 	add r4, sp
 	str r4, [sp, #0x250]
-	ldr r5, [sp, #0x1c4]
+	ldr r5, [sp, #.Lfarm_overview_sp_report]
 	ldr r7, .L080617CC @ =0x00000C5C
 	adds r5, r5, r7
 	mov sb, r5
@@ -55488,15 +55235,15 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r2, [sp, #0x25c]
 	b .L080618D8
 	.align 2, 0
-.L080617C8: .4byte 0x00000594
+.L080617C8: .4byte .Lfarm_overview_portrait_uploads
 .L080617CC: .4byte 0x00000C5C
 .L080617D0:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x110
 	str r0, [r1]
 	ldr r2, [r6]
-	ldr r3, [sp, #0x294]
+	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r3, r2
 	asrs r4, r0, #4
 	add r0, sp, #0x10c
@@ -55529,17 +55276,17 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08061816:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
-	ldr r4, [sp, #0x1d0]
+	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r4, r4, #6
-	str r4, [sp, #0x220]
+	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	movs r5, #0x8a
 	lsls r5, r5, #1
 	add r5, sp
 	str r5, [sp, #0x250]
-	ldr r7, [sp, #0x1c4]
+	ldr r7, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, .L08061854 @ =0x00000C5C
 	adds r7, r7, r0
 	mov sb, r7
@@ -55555,9 +55302,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 	lsls r5, r5, #1
 	add r5, sp
 	str r5, [sp, #0x25c]
-	ldr r7, [sp, #0x1d0]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r7, #5
-	str r7, [sp, #0x218]
+	str r7, [sp, #.Lfarm_overview_sp_dog_tile_row]
 	b .L0806186C
 	.align 2, 0
 .L08061854: .4byte 0x00000C5C
@@ -55574,7 +55321,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r2, #0x10
 	adds r3, #0x10
 .L0806186C:
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L08061858
 	adds r5, r3, #0
@@ -55630,9 +55377,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L080618CC:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r7, [sp, #0x298]
+	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r7, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
@@ -55647,13 +55394,13 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r1, sb
 	movs r2, #0
 	bl FillMessageTiles
-	ldr r2, [sp, #0x1c4]
-	ldr r3, .L08061954 @ =0x0000058C
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
+	ldr r3, .L08061954 @ =.Lfarm_overview_game_data
 	adds r0, r2, r3
 	ldr r0, [r0]
 	ldr r7, .L08061958 @ =0x00001CD4
 	adds r0, r0, r7
-	ldr r1, [sp, #0x1d4]
+	ldr r1, [sp, #.Lfarm_overview_sp_spouse_id]
 	bl GetRosterNpcName
 	adds r1, r0, #0
 	add r0, sp, #0x118
@@ -55666,7 +55413,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r3, [sp, #0x1c4]
+	ldr r3, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -55676,7 +55423,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r1, sb
 	ldr r2, .L0806195C @ =0x06003300
 	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #0x228]
+	ldr r4, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
 	mov sb, r4
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -55696,16 +55443,16 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r6, #4]
 	b .L08061A2E
 	.align 2, 0
-.L08061954: .4byte 0x0000058C
+.L08061954: .4byte .Lfarm_overview_game_data
 .L08061958: .4byte 0x00001CD4
 .L0806195C: .4byte 0x06003300
 .L08061960:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x120
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r3, [sp, #0x294]
+	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r3, r0
 	asrs r4, r0, #4
 	add r0, sp, #0x11c
@@ -55735,10 +55482,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L080619A2:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r4
 	beq .L080619CA
 .L080619B0:
@@ -55753,7 +55500,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080619C0:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	bne .L080619B0
 .L080619CA:
@@ -55795,30 +55542,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08061A08:
 	adds r5, r2, #0
 .L08061A0A:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08061A1A
-.L08061A14:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08061A14
-.L08061A1A:
-	cmp r0, #0
-	beq .L08061A22
-	bl free
-.L08061A22:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r1, [sp, #0x298]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r1
 .L08061A2E:
-	ldr r2, [sp, #0x1cc]
-	ldr r0, [r2, #0x18]
-	ldr r3, [sp, #0x220]
+	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
+	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r0, r0, r3
 	adds r0, #4
 	movs r1, #0xcc
@@ -55833,7 +55561,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r0, #0xa
 	add r4, sp, #0x124
 	str r0, [r4]
-	ldr r0, [sp, #0x1d8]
+	ldr r0, [sp, #.Lfarm_overview_sp_spouse]
 	bl GetLove__C12Bachelorette
 	ldr r1, .L08061B28 @ =0x00001999
 	bl __udivsi3
@@ -55848,8 +55576,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r6, [r2]
 	movs r4, #0
 	cmp r4, r6
-	bhs .L08061AA4
-	ldr r0, [sp, #0x1d0]
+	bhs .Lfarm_overview_find_active_npc
+	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r0, #2
 	lsls r0, r0, #6
 	mov r8, r0
@@ -55857,8 +55585,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r0, #0x58
 	lsls r7, r0, #0x10
 .L08061A82:
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
 	add r0, r8
 	adds r0, r0, r5
 	movs r1, #2
@@ -55873,20 +55601,21 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r4, #1
 	cmp r4, r6
 	blo .L08061A82
-.L08061AA4:
-	ldr r2, [sp, #0x1c4]
-	ldr r3, .L08061B2C @ =0x0000058C
+	@ The active NPC has a separate portrait, name, and friendship meter.
+.Lfarm_overview_find_active_npc:
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
+	ldr r3, .L08061B2C @ =.Lfarm_overview_game_data
 	adds r0, r2, r3
 	ldr r0, [r0]
 	ldr r4, .L08061B30 @ =0x00001CD4
 	adds r0, r0, r4
 	bl GetActiveRosterNpc
-	str r0, [sp, #0x1dc]
+	str r0, [sp, #.Lfarm_overview_sp_active_npc]
 	cmp r0, #0
-	bne .L08061ABC
-	b .L08061DFC
-.L08061ABC:
-	ldr r5, [sp, #0x1d0]
+	bne .Lfarm_overview_queue_active_npc_portrait
+	b .Lfarm_overview_set_dog_row
+.Lfarm_overview_queue_active_npc_portrait:
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r0, r5, #3
 	mov r7, sl
 	strh r0, [r7]
@@ -55896,8 +55625,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r7, #8]
 	ldr r0, .L08061B38 @ =gUnk_08751B2C
 	str r0, [r7, #0xc]
-	ldr r0, [sp, #0x1c4]
-	ldr r1, .L08061B3C @ =0x00000594
+	ldr r0, [sp, #.Lfarm_overview_sp_report]
+	ldr r1, .L08061B3C @ =.Lfarm_overview_portrait_uploads
 	adds r6, r0, r1
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -55915,14 +55644,14 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	ldr r5, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r5, r5, #6
-	str r5, [sp, #0x220]
+	str r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	movs r7, #0x9a
 	lsls r7, r7, #1
 	add r7, sp
 	str r7, [sp, #0x264]
-	ldr r0, [sp, #0x1c4]
+	ldr r0, [sp, #.Lfarm_overview_sp_report]
 	movs r1, #0xf6
 	lsls r1, r1, #4
 	adds r0, r0, r1
@@ -55942,18 +55671,18 @@ InitFarmOverviewReport: @ 0x0805FF14
 	b .L08061C44
 	.align 2, 0
 .L08061B28: .4byte 0x00001999
-.L08061B2C: .4byte 0x0000058C
+.L08061B2C: .4byte .Lfarm_overview_game_data
 .L08061B30: .4byte 0x00001CD4
 .L08061B34: .4byte gUnk_08751AAC
 .L08061B38: .4byte gUnk_08751B2C
-.L08061B3C: .4byte 0x00000594
+.L08061B3C: .4byte .Lfarm_overview_portrait_uploads
 .L08061B40:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x130
 	str r0, [r1]
 	ldr r2, [r6]
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r5, r2
 	asrs r4, r0, #4
 	add r0, sp, #0x12c
@@ -55986,17 +55715,17 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08061B86:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
-	ldr r7, [sp, #0x1d0]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r7, r7, #6
-	str r7, [sp, #0x220]
+	str r7, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	movs r0, #0x9a
 	lsls r0, r0, #1
 	add r0, sp
 	str r0, [sp, #0x264]
-	ldr r1, [sp, #0x1c4]
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
 	movs r4, #0xf6
 	lsls r4, r4, #4
 	adds r1, r1, r4
@@ -56013,7 +55742,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	lsls r0, r0, #1
 	add r0, sp
 	str r0, [sp, #0x270]
-	ldr r1, [sp, #0x294]
+	ldr r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r1
 	beq .L08061BDE
 .L08061BC4:
@@ -56028,7 +55757,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08061BD4:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L08061BC4
 .L08061BDE:
@@ -56085,9 +55814,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L08061C38:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r7, [sp, #0x298]
+	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r7, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
@@ -56102,7 +55831,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r1, sb
 	movs r2, #0
 	bl FillMessageTiles
-	ldr r0, [sp, #0x1dc]
+	ldr r0, [sp, #.Lfarm_overview_sp_active_npc]
 	bl GetNamedNpcName
 	adds r1, r0, #0
 	add r0, sp, #0x138
@@ -56115,7 +55844,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r3, [sp, #0x1c4]
+	ldr r3, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -56125,7 +55854,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r1, sb
 	ldr r2, .L08061CB4 @ =0x06003600
 	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #0x228]
+	ldr r4, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
 	mov sb, r4
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -56147,12 +55876,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L08061CB4: .4byte 0x06003600
 .L08061CB8:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x140
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r3, [sp, #0x294]
+	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r3, r0
 	asrs r4, r0, #4
 	add r0, sp, #0x13c
@@ -56182,10 +55911,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08061CFA:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r4
 	beq .L08061D22
 .L08061D08:
@@ -56200,7 +55929,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08061D18:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	bne .L08061D08
 .L08061D22:
@@ -56242,30 +55971,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08061D60:
 	adds r5, r2, #0
 .L08061D62:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L08061D72
-.L08061D6C:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08061D6C
-.L08061D72:
-	cmp r0, #0
-	beq .L08061D7A
-	bl free
-.L08061D7A:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r1, [sp, #0x298]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r1
 .L08061D86:
-	ldr r2, [sp, #0x1cc]
-	ldr r0, [r2, #0x18]
-	ldr r3, [sp, #0x220]
+	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
+	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r0, r0, r3
 	adds r0, #0x22
 	movs r1, #0xd8
@@ -56280,7 +55990,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r0, #0xa
 	add r4, sp, #0x144
 	str r0, [r4]
-	ldr r0, [sp, #0x1dc]
+	ldr r0, [sp, #.Lfarm_overview_sp_active_npc]
 	bl GetFriendship__C3Npc
 	movs r1, #0x19
 	bl __udivsi3
@@ -56295,8 +56005,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r6, [r2]
 	movs r4, #0
 	cmp r4, r6
-	bhs .L08061DFC
-	ldr r0, [sp, #0x1d0]
+	bhs .Lfarm_overview_set_dog_row
+	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r0, #2
 	lsls r0, r0, #6
 	mov r8, r0
@@ -56304,8 +56014,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r0, #0x58
 	lsls r7, r0, #0x10
 .L08061DDA:
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
 	add r0, r8
 	adds r0, r0, r5
 	movs r1, #2
@@ -56320,13 +56030,13 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r4, #1
 	cmp r4, r6
 	blo .L08061DDA
-.L08061DFC:
-	ldr r2, [sp, #0x218]
-	str r2, [sp, #0x1d0]
+.Lfarm_overview_set_dog_row:
+	ldr r2, [sp, #.Lfarm_overview_sp_dog_tile_row]
+	str r2, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 
 	.align 2, 0
-.Lfarm_overview_dog_row: @ 0x08061E00; Shares InitFarmOverviewReport's stack frame.
-	ldr r3, [sp, #0x1d0]
+.Lfarm_overview_dog_row: @ Shares InitFarmOverviewReport's stack frame.
+	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r1, r3, #3
 	movs r0, #0
 	mov r4, sl
@@ -56336,12 +56046,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r4, #8]
 	ldr r0, .L08061E4C @ =gUnk_08751EEC
 	str r0, [r4, #0xc]
-	ldr r5, [sp, #0x1c4]
-	ldr r7, .L08061E50 @ =0x00000594
+	ldr r5, [sp, #.Lfarm_overview_sp_report]
+	ldr r7, .L08061E50 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r5, r7
 	ldr r2, [r6, #4]
 	ldr r0, [r6, #0xc]
-	str r1, [sp, #0x21c]
+	str r1, [sp, #.Lfarm_overview_sp_portrait_y_pixels]
 	cmp r2, r0
 	beq .L08061E54
 	cmp r2, #0
@@ -56356,17 +56066,17 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	ldr r5, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r5, r5, #6
-	str r5, [sp, #0x220]
-	ldr r7, [sp, #0x1d0]
+	str r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r7, #4
-	str r7, [sp, #0x214]
+	str r7, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
 	b .L08061F30
 	.align 2, 0
 .L08061E48: .4byte gUnk_08751E6C
 .L08061E4C: .4byte gUnk_08751EEC
-.L08061E50: .4byte 0x00000594
+.L08061E50: .4byte .Lfarm_overview_portrait_uploads
 .L08061E54:
 	mov sb, r2
 	movs r0, #1
@@ -56406,15 +56116,15 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08061E9A:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
-	ldr r4, [sp, #0x1d0]
+	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r4, r4, #6
-	str r4, [sp, #0x220]
-	ldr r5, [sp, #0x1d0]
+	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r5, #4
-	str r5, [sp, #0x214]
+	str r5, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
 	cmp r2, sb
 	beq .L08061ECA
 .L08061EB2:
@@ -56485,15 +56195,15 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L08061F24:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r1, [sp, #0x298]
+	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r1, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08061F30:
-	ldr r2, [sp, #0x1c4]
-	ldr r3, .L08061FD8 @ =0x0000058C
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
+	ldr r3, .L08061FD8 @ =.Lfarm_overview_game_data
 	adds r6, r2, r3
 	ldr r0, [r6]
 	ldr r7, .L08061FDC @ =0x00001C70
@@ -56502,10 +56212,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	beq .L08061F64
-	ldr r1, [sp, #0x1d0]
+	ldr r1, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	subs r1, #2
-	ldr r4, [sp, #0x1cc]
-	ldr r0, [r4, #0x18]
+	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r4, #.Lfarm_overview_panel_tilemap]
 	lsls r1, r1, #6
 	adds r0, r0, r1
 	movs r1, #0x54
@@ -56524,7 +56234,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r1, [sp, #0x274]
 	strh r5, [r1, #2]
 	ldr r0, [r0]
-	ldr r1, [sp, #0x224]
+	ldr r1, [sp, #.Lfarm_overview_sp_horse_name_tiles]
 	movs r2, #0
 	bl FillMessageTiles
 	ldr r0, [r6]
@@ -56537,21 +56247,21 @@ InitFarmOverviewReport: @ 0x0805FF14
 	strh r5, [r2, #2]
 	ldr r0, [r0]
 	str r1, [sp]
-	ldr r1, [sp, #0x224]
+	ldr r1, [sp, #.Lfarm_overview_sp_horse_name_tiles]
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r3, [sp, #0x1c4]
+	ldr r3, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
 	lsls r3, r3, #2
 	adds r6, r0, #0
 	add r0, sp, #0x48
-	ldr r1, [sp, #0x224]
+	ldr r1, [sp, #.Lfarm_overview_sp_horse_name_tiles]
 	ldr r2, .L08061FE0 @ =0x06003900
 	bl DmaCommand_InitializeCopy
-	ldr r4, [sp, #0x228]
+	ldr r4, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
 	mov sb, r4
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -56571,16 +56281,16 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r6, #4]
 	b .L080620B2
 	.align 2, 0
-.L08061FD8: .4byte 0x0000058C
+.L08061FD8: .4byte .Lfarm_overview_game_data
 .L08061FDC: .4byte 0x00001C70
 .L08061FE0: .4byte 0x06003900
 .L08061FE4:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x160
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r3, [sp, #0x294]
+	ldr r3, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r3, r0
 	asrs r4, r0, #4
 	add r0, sp, #0x15c
@@ -56610,10 +56320,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08062026:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r4
 	beq .L0806204E
 .L08062034:
@@ -56628,7 +56338,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08062044:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r5
 	bne .L08062034
 .L0806204E:
@@ -56670,30 +56380,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L0806208C:
 	adds r5, r2, #0
 .L0806208E:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0806209E
-.L08062098:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08062098
-.L0806209E:
-	cmp r0, #0
-	beq .L080620A6
-	bl free
-.L080620A6:
-	ldr r0, [sp, #0x298]
-	add r0, r8
-	ldr r1, [sp, #0x298]
-	str r1, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList r8, r1
 .L080620B2:
-	ldr r2, [sp, #0x1cc]
-	ldr r0, [r2, #0x18]
-	ldr r3, [sp, #0x220]
+	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
+	ldr r3, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r0, r0, r3
 	adds r0, #4
 	movs r1, #0xe4
@@ -56708,8 +56399,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r0, #0xa
 	add r4, sp, #0x164
 	str r0, [r4]
-	ldr r5, [sp, #0x1c4]
-	ldr r7, .L080621A8 @ =0x0000058C
+	ldr r5, [sp, #.Lfarm_overview_sp_report]
+	ldr r7, .L080621A8 @ =.Lfarm_overview_game_data
 	adds r0, r5, r7
 	ldr r0, [r0]
 	ldr r1, .L080621AC @ =0x00001C70
@@ -56729,7 +56420,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r4, #0
 	cmp r4, r6
 	bhs .Lfarm_overview_horse_row
-	ldr r0, [sp, #0x1d0]
+	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r0, #2
 	lsls r0, r0, #6
 	mov r8, r0
@@ -56737,8 +56428,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0x58
 	lsls r7, r2, #0x10
 .L08062110:
-	ldr r3, [sp, #0x1cc]
-	ldr r0, [r3, #0x18]
+	ldr r3, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r3, #.Lfarm_overview_panel_tilemap]
 	add r0, r8
 	adds r0, r0, r5
 	movs r1, #2
@@ -56754,18 +56445,18 @@ InitFarmOverviewReport: @ 0x0805FF14
 	cmp r4, r6
 	blo .L08062110
 .Lfarm_overview_horse_row:
-	ldr r4, [sp, #0x1c4]
-	ldr r5, .L080621A8 @ =0x0000058C
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
+	ldr r5, .L080621A8 @ =.Lfarm_overview_game_data
 	adds r0, r4, r5
 	ldr r0, [r0]
 	adds r0, #0x14
 	bl GetHorse__C4Farm
-	str r0, [sp, #0x1e0]
+	str r0, [sp, #.Lfarm_overview_sp_horse]
 	cmp r0, #0
-	bne .L08062148
-	b .L080624A4
-.L08062148:
-	add r7, sp, #0x21c
+	bne .Lfarm_overview_queue_horse_portrait
+	b .Lfarm_overview_draw_chicken_count_row
+.Lfarm_overview_queue_horse_portrait:
+	add r7, sp, #.Lfarm_overview_sp_portrait_y_pixels
 	ldrh r0, [r7]
 	mov r7, sl
 	strh r0, [r7]
@@ -56775,7 +56466,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r7, #8]
 	ldr r0, .L080621B4 @ =gUnk_0875284C
 	str r0, [r7, #0xc]
-	ldr r0, .L080621B8 @ =0x00000594
+	ldr r0, .L080621B8 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r4, r0
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -56797,7 +56488,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	lsls r5, r5, #1
 	add r5, sp
 	str r5, [sp, #0x284]
-	ldr r7, [sp, #0x1c4]
+	ldr r7, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, .L080621BC @ =0x0000186C
 	adds r7, r7, r0
 	mov sb, r7
@@ -56815,19 +56506,19 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r3, [sp, #0x290]
 	b .L080622C0
 	.align 2, 0
-.L080621A8: .4byte 0x0000058C
+.L080621A8: .4byte .Lfarm_overview_game_data
 .L080621AC: .4byte 0x00001C70
 .L080621B0: .4byte gUnk_087527CC
 .L080621B4: .4byte gUnk_0875284C
-.L080621B8: .4byte 0x00000594
+.L080621B8: .4byte .Lfarm_overview_portrait_uploads
 .L080621BC: .4byte 0x0000186C
 .L080621C0:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x170
 	str r0, [r1]
 	ldr r2, [r6]
-	ldr r4, [sp, #0x294]
+	ldr r4, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r4, r2
 	asrs r4, r0, #4
 	add r0, sp, #0x16c
@@ -56860,14 +56551,14 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08062206:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
 	movs r5, #0xba
 	lsls r5, r5, #1
 	add r5, sp
 	str r5, [sp, #0x284]
-	ldr r7, [sp, #0x1c4]
+	ldr r7, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, .L08062274 @ =0x0000186C
 	adds r7, r7, r0
 	mov sb, r7
@@ -56883,7 +56574,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	lsls r5, r5, #1
 	add r5, sp
 	str r5, [sp, #0x290]
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r7
 	beq .L08062256
 .L0806223C:
@@ -56898,7 +56589,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L0806224C:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L0806223C
 .L08062256:
@@ -56957,22 +56648,22 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L080622B4:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r7, [sp, #0x298]
+	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r7, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080622C0:
-	ldr r0, [sp, #0x1e0]
+	ldr r0, [sp, #.Lfarm_overview_sp_horse]
 	bl IsFestivalWinner__C6Animal
 	lsls r0, r0, #0x18
 	cmp r0, #0
-	beq .L080622EC
-	ldr r1, [sp, #0x1d0]
+	beq .Lfarm_overview_draw_horse_name
+	ldr r1, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	subs r1, #2
-	ldr r2, [sp, #0x1cc]
-	ldr r0, [r2, #0x18]
+	ldr r2, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r2, #.Lfarm_overview_panel_tilemap]
 	lsls r1, r1, #6
 	adds r0, r0, r1
 	adds r0, #0x1e
@@ -56984,7 +56675,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #2
 	movs r3, #2
 	bl FillMessageTilemapRect
-.L080622EC:
+.Lfarm_overview_draw_horse_name:
 	movs r4, #0xc
 	movs r5, #2
 	add r0, sp, #0x174
@@ -56995,7 +56686,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r1, sb
 	movs r2, #0
 	bl FillMessageTiles
-	ldr r0, [sp, #0x1e0]
+	ldr r0, [sp, #.Lfarm_overview_sp_horse]
 	bl GetName__C6Animal
 	adds r1, r0, #0
 	add r0, sp, #0x178
@@ -57008,7 +56699,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r5, [sp, #0x1c4]
+	ldr r5, [sp, #.Lfarm_overview_sp_report]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -57018,7 +56709,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r1, sb
 	ldr r2, .L0806235C @ =0x06003C00
 	bl DmaCommand_InitializeCopy
-	ldr r7, [sp, #0x228]
+	ldr r7, [sp, #.Lfarm_overview_sp_name_copy_command_ptr]
 	mov r8, r7
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -57040,12 +56731,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	.align 2, 0
 .L0806235C: .4byte 0x06003C00
 .L08062360:
-	str r1, [sp, #0x294]
+	str r1, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	movs r0, #1
 	add r1, sp, #0x180
 	str r0, [r1]
 	ldr r0, [r6]
-	ldr r5, [sp, #0x294]
+	ldr r5, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	subs r0, r5, r0
 	asrs r4, r0, #4
 	add r0, sp, #0x17c
@@ -57075,10 +56766,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov sb, r0
 .L080623A2:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r7, [sp, #0x294]
+	ldr r7, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r7
 	beq .L080623CA
 .L080623B0:
@@ -57093,7 +56784,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L080623C0:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r0, [sp, #0x294]
+	ldr r0, [sp, #.Lfarm_overview_sp_old_transfer_list_end]
 	cmp r2, r0
 	bne .L080623B0
 .L080623CA:
@@ -57135,30 +56826,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 .L08062408:
 	adds r5, r2, #0
 .L0806240A:
-	ldr r2, [r6, #4]
-	ldr r0, [r6]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0806241A
-.L08062414:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L08062414
-.L0806241A:
-	cmp r0, #0
-	beq .L08062422
-	bl free
-.L08062422:
-	ldr r0, [sp, #0x298]
-	add r0, sb
-	ldr r7, [sp, #0x298]
-	str r7, [r6]
-	str r5, [r6, #4]
-	str r0, [r6, #0xc]
+	CommitFarmOverviewTransferList sb, r7
 .L0806242E:
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x220]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
+	ldr r2, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r0, r0, r2
 	adds r0, #0x22
 	movs r1, #0xf0
@@ -57173,7 +56845,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r0, #0xa
 	add r4, sp, #0x184
 	str r0, [r4]
-	ldr r0, [sp, #0x1e0]
+	ldr r0, [sp, #.Lfarm_overview_sp_horse]
 	bl GetAffection__C6Animal
 	movs r1, #0x19
 	bl __udivsi3
@@ -57188,8 +56860,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r6, [r2]
 	movs r4, #0
 	cmp r4, r6
-	bhs .L080624A4
-	ldr r0, [sp, #0x1d0]
+	bhs .Lfarm_overview_draw_chicken_count_row
+	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r0, #2
 	lsls r0, r0, #6
 	mov r8, r0
@@ -57197,8 +56869,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r3, #0x58
 	lsls r7, r3, #0x10
 .L08062482:
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
 	add r0, r8
 	adds r0, r0, r5
 	movs r1, #2
@@ -57213,9 +56885,10 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r4, #1
 	cmp r4, r6
 	blo .L08062482
-.L080624A4:
-	ldr r2, [sp, #0x214]
-	str r2, [sp, #0x1d0]
+	@ The lower panel pairs animal counts with the coop and barn feed stocks.
+.Lfarm_overview_draw_chicken_count_row:
+	ldr r2, [sp, #.Lfarm_overview_sp_portrait_lower_tile_row]
+	str r2, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r0, r2, #3
 	mov r3, sl
 	strh r0, [r3]
@@ -57225,8 +56898,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r3, #8]
 	ldr r0, .L080624EC @ =gUnk_0875270C
 	str r0, [r3, #0xc]
-	ldr r4, [sp, #0x1c4]
-	ldr r5, .L080624F0 @ =0x00000594
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
+	ldr r5, .L080624F0 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r4, r5
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -57244,14 +56917,14 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	ldr r4, [sp, #0x1d0]
+	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r4, r4, #6
-	str r4, [sp, #0x220]
-	b .L080625CA
+	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
+	b .Lfarm_overview_draw_chicken_count
 	.align 2, 0
 .L080624E8: .4byte gUnk_0875268C
 .L080624EC: .4byte gUnk_0875270C
-.L080624F0: .4byte 0x00000594
+.L080624F0: .4byte .Lfarm_overview_portrait_uploads
 .L080624F4:
 	mov sb, r1
 	movs r0, #1
@@ -57291,12 +56964,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L0806253A:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
-	ldr r7, [sp, #0x1d0]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r7, r7, #6
-	str r7, [sp, #0x220]
+	str r7, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	cmp r2, sb
 	beq .L08062564
 .L0806254C:
@@ -57367,24 +57040,24 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L080625BE:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r7, [sp, #0x298]
+	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r7, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L080625CA:
-	ldr r1, [sp, #0x1c4]
-	ldr r2, .L08062644 @ =0x0000058C
+.Lfarm_overview_draw_chicken_count:
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
+	ldr r2, .L08062644 @ =.Lfarm_overview_game_data
 	adds r0, r1, r2
 	ldr r0, [r0]
 	movs r3, #0x82
 	lsls r3, r3, #3
 	adds r0, r0, r3
 	bl CountChickens__C4Coop
-	ldr r4, [sp, #0x1cc]
-	ldr r1, [r4, #0x18]
-	ldr r5, [sp, #0x220]
+	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r1, [r4, #.Lfarm_overview_panel_tilemap]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r1, r1, r5
 	adds r1, #0x12
 	movs r2, #0x90
@@ -57393,8 +57066,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r7, [sp, #0x1cc]
-	ldr r0, [r7, #0x18]
+	ldr r7, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r7, #.Lfarm_overview_panel_tilemap]
 	adds r0, r0, r5
 	adds r0, #0x14
 	ldr r2, [sp, #0x238]
@@ -57412,8 +57085,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r3, #8]
 	ldr r0, .L0806264C @ =gUnk_0875266C
 	str r0, [r3, #0xc]
-	ldr r4, [sp, #0x1c4]
-	ldr r5, .L08062650 @ =0x00000594
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
+	ldr r5, .L08062650 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r4, r5
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -57431,12 +57104,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	b .L08062724
+	b .Lfarm_overview_draw_chicken_feed_count
 	.align 2, 0
-.L08062644: .4byte 0x0000058C
+.L08062644: .4byte .Lfarm_overview_game_data
 .L08062648: .4byte gUnk_087525EC
 .L0806264C: .4byte gUnk_0875266C
-.L08062650: .4byte 0x00000594
+.L08062650: .4byte .Lfarm_overview_portrait_uploads
 .L08062654:
 	mov sb, r1
 	movs r0, #1
@@ -57476,7 +57149,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L0806269A:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
 	cmp r2, sb
@@ -57549,24 +57222,24 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L08062718:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r1, [sp, #0x298]
+	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r1, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L08062724:
-	ldr r2, [sp, #0x1c4]
-	ldr r3, .L080627AC @ =0x0000058C
+.Lfarm_overview_draw_chicken_feed_count:
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
+	ldr r3, .L080627AC @ =.Lfarm_overview_game_data
 	adds r0, r2, r3
 	ldr r0, [r0]
 	movs r4, #0x82
 	lsls r4, r4, #3
 	adds r0, r0, r4
 	bl GetStoredBushelCount__C4Coop
-	ldr r5, [sp, #0x1cc]
-	ldr r1, [r5, #0x18]
-	ldr r7, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r1, [r5, #.Lfarm_overview_panel_tilemap]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r5, r7, #6
 	adds r1, r1, r5
 	adds r1, #0x32
@@ -57576,8 +57249,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
 	adds r0, r0, r5
 	adds r0, #0x34
 	ldr r2, [sp, #0x1e8]
@@ -57590,7 +57263,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	bl FillMessageTilemapRect
 	adds r3, r7, #0
 	adds r3, #3
-	str r3, [sp, #0x1d0]
+	str r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r0, r3, #3
 	mov r5, sl
 	strh r0, [r5]
@@ -57599,8 +57272,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r5, #8]
 	ldr r0, .L080627B4 @ =gUnk_08751BCC
 	str r0, [r5, #0xc]
-	ldr r7, [sp, #0x1c4]
-	ldr r0, .L080627B8 @ =0x00000594
+	ldr r7, [sp, #.Lfarm_overview_sp_report]
+	ldr r0, .L080627B8 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r7, r0
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -57618,15 +57291,15 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	ldr r5, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r5, r5, #6
-	str r5, [sp, #0x220]
-	b .L08062892
+	str r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
+	b .Lfarm_overview_draw_cow_count
 	.align 2, 0
-.L080627AC: .4byte 0x0000058C
+.L080627AC: .4byte .Lfarm_overview_game_data
 .L080627B0: .4byte gUnk_08751B4C
 .L080627B4: .4byte gUnk_08751BCC
-.L080627B8: .4byte 0x00000594
+.L080627B8: .4byte .Lfarm_overview_portrait_uploads
 .L080627BC:
 	mov sb, r1
 	movs r0, #1
@@ -57666,12 +57339,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08062802:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
-	ldr r0, [sp, #0x1d0]
+	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r0, r0, #6
-	str r0, [sp, #0x220]
+	str r0, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	cmp r2, sb
 	beq .L0806282C
 .L08062814:
@@ -57742,24 +57415,24 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L08062886:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r7, [sp, #0x298]
+	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r7, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L08062892:
-	ldr r1, [sp, #0x1c4]
-	ldr r2, .L0806290C @ =0x0000058C
+.Lfarm_overview_draw_cow_count:
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
+	ldr r2, .L0806290C @ =.Lfarm_overview_game_data
 	adds r0, r1, r2
 	ldr r0, [r0]
 	movs r3, #0xbe
 	lsls r3, r3, #3
 	adds r0, r0, r3
 	bl CountCows__C4Barn
-	ldr r4, [sp, #0x1cc]
-	ldr r1, [r4, #0x18]
-	ldr r5, [sp, #0x220]
+	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r1, [r4, #.Lfarm_overview_panel_tilemap]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r1, r1, r5
 	adds r1, #0x12
 	movs r2, #0x90
@@ -57768,8 +57441,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r7, [sp, #0x1cc]
-	ldr r0, [r7, #0x18]
+	ldr r7, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r7, #.Lfarm_overview_panel_tilemap]
 	adds r0, r0, r5
 	adds r0, #0x14
 	ldr r2, [sp, #0x260]
@@ -57787,8 +57460,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r3, #8]
 	ldr r0, .L08062914 @ =gUnk_087523EC
 	str r0, [r3, #0xc]
-	ldr r4, [sp, #0x1c4]
-	ldr r5, .L08062918 @ =0x00000594
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
+	ldr r5, .L08062918 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r4, r5
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -57806,12 +57479,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	b .L080629EC
+	b .Lfarm_overview_draw_fodder_count
 	.align 2, 0
-.L0806290C: .4byte 0x0000058C
+.L0806290C: .4byte .Lfarm_overview_game_data
 .L08062910: .4byte gUnk_0875236C
 .L08062914: .4byte gUnk_087523EC
-.L08062918: .4byte 0x00000594
+.L08062918: .4byte .Lfarm_overview_portrait_uploads
 .L0806291C:
 	mov sb, r1
 	movs r0, #1
@@ -57851,7 +57524,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08062962:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
 	cmp r2, sb
@@ -57924,24 +57597,24 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L080629E0:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r1, [sp, #0x298]
+	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r1, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L080629EC:
-	ldr r2, [sp, #0x1c4]
-	ldr r3, .L08062A70 @ =0x0000058C
+.Lfarm_overview_draw_fodder_count:
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
+	ldr r3, .L08062A70 @ =.Lfarm_overview_game_data
 	adds r0, r2, r3
 	ldr r0, [r0]
 	movs r4, #0xbe
 	lsls r4, r4, #3
 	adds r0, r0, r4
 	bl GetStoredBushelCount__C4Barn
-	ldr r5, [sp, #0x1cc]
-	ldr r1, [r5, #0x18]
-	ldr r7, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r1, [r5, #.Lfarm_overview_panel_tilemap]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r5, r7, #6
 	adds r1, r1, r5
 	adds r1, #0x32
@@ -57951,8 +57624,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
 	adds r0, r0, r5
 	adds r0, #0x34
 	ldr r2, [sp, #0x1e8]
@@ -57965,7 +57638,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	bl FillMessageTilemapRect
 	adds r3, r7, #0
 	adds r3, #3
-	str r3, [sp, #0x1d0]
+	str r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r0, r3, #3
 	mov r5, sl
 	strh r0, [r5]
@@ -57974,8 +57647,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r5, #8]
 	ldr r0, .L08062A78 @ =gUnk_0875328C
 	str r0, [r5, #0xc]
-	ldr r7, [sp, #0x1c4]
-	ldr r0, .L08062A7C @ =0x00000594
+	ldr r7, [sp, #.Lfarm_overview_sp_report]
+	ldr r0, .L08062A7C @ =.Lfarm_overview_portrait_uploads
 	adds r6, r7, r0
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -57993,12 +57666,12 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	b .L08062B50
+	b .Lfarm_overview_draw_sheep_count
 	.align 2, 0
-.L08062A70: .4byte 0x0000058C
+.L08062A70: .4byte .Lfarm_overview_game_data
 .L08062A74: .4byte gUnk_0875320C
 .L08062A78: .4byte gUnk_0875328C
-.L08062A7C: .4byte 0x00000594
+.L08062A7C: .4byte .Lfarm_overview_portrait_uploads
 .L08062A80:
 	mov sb, r1
 	movs r0, #1
@@ -58038,7 +57711,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08062AC6:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
 	cmp r2, sb
@@ -58111,24 +57784,24 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L08062B44:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r1, [sp, #0x298]
+	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r1, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L08062B50:
-	ldr r2, [sp, #0x1c4]
-	ldr r3, .L08062BE0 @ =0x0000058C
+.Lfarm_overview_draw_sheep_count:
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
+	ldr r3, .L08062BE0 @ =.Lfarm_overview_game_data
 	adds r0, r2, r3
 	ldr r0, [r0]
 	movs r4, #0xbe
 	lsls r4, r4, #3
 	adds r0, r0, r4
 	bl CountSheeps__C4Barn
-	ldr r5, [sp, #0x1cc]
-	ldr r1, [r5, #0x18]
-	ldr r7, [sp, #0x1d0]
+	ldr r5, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r1, [r5, #.Lfarm_overview_panel_tilemap]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r5, r7, #6
 	adds r1, r1, r5
 	adds r1, #0x12
@@ -58138,8 +57811,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r1, [sp, #0x1cc]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r1, #.Lfarm_overview_panel_tilemap]
 	adds r0, r0, r5
 	adds r0, #0x14
 	ldr r2, [sp, #0x260]
@@ -58152,7 +57825,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	bl FillMessageTilemapRect
 	adds r3, r7, #0
 	adds r3, #3
-	str r3, [sp, #0x1d0]
+	str r3, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r2, r3, #3
 	mov r5, sl
 	strh r2, [r5]
@@ -58161,8 +57834,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r5, #8]
 	ldr r0, .L08062BE8 @ =gUnk_087531EC
 	str r0, [r5, #0xc]
-	ldr r7, [sp, #0x1c4]
-	ldr r0, .L08062BEC @ =0x00000594
+	ldr r7, [sp, #.Lfarm_overview_sp_report]
+	ldr r0, .L08062BEC @ =.Lfarm_overview_portrait_uploads
 	adds r6, r7, r0
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -58180,19 +57853,19 @@ InitFarmOverviewReport: @ 0x0805FF14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	ldr r7, [sp, #0x1d0]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r7, r7, #6
-	str r7, [sp, #0x220]
-	ldr r0, [sp, #0x1d0]
+	str r7, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
+	ldr r0, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r0, #3
-	str r0, [sp, #0x210]
-	str r2, [sp, #0x21c]
+	str r0, [sp, #.Lfarm_overview_sp_content_tile_rows]
+	str r2, [sp, #.Lfarm_overview_sp_portrait_y_pixels]
 	b .L08062CD2
 	.align 2, 0
-.L08062BE0: .4byte 0x0000058C
+.L08062BE0: .4byte .Lfarm_overview_game_data
 .L08062BE4: .4byte gUnk_0875316C
 .L08062BE8: .4byte gUnk_087531EC
-.L08062BEC: .4byte 0x00000594
+.L08062BEC: .4byte .Lfarm_overview_portrait_uploads
 .L08062BF0:
 	mov sb, r1
 	movs r0, #1
@@ -58232,18 +57905,18 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08062C36:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
-	ldr r4, [sp, #0x1d0]
+	ldr r4, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r4, r4, #6
-	str r4, [sp, #0x220]
-	ldr r5, [sp, #0x1d0]
+	str r4, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	adds r5, #3
-	str r5, [sp, #0x210]
-	ldr r7, [sp, #0x1d0]
+	str r5, [sp, #.Lfarm_overview_sp_content_tile_rows]
+	ldr r7, [sp, #.Lfarm_overview_sp_portrait_tile_row]
 	lsls r7, r7, #3
-	str r7, [sp, #0x21c]
+	str r7, [sp, #.Lfarm_overview_sp_portrait_y_pixels]
 	cmp r2, sb
 	beq .L08062C6C
 .L08062C54:
@@ -58314,23 +57987,23 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L08062CC6:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r7, [sp, #0x298]
+	ldr r7, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r7, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08062CD2:
-	ldr r1, [sp, #0x1c4]
-	ldr r2, .L08062D50 @ =0x0000058C
+	ldr r1, [sp, #.Lfarm_overview_sp_report]
+	ldr r2, .L08062D50 @ =.Lfarm_overview_game_data
 	adds r0, r1, r2
 	ldr r0, [r0]
 	ldr r3, .L08062D54 @ =0x00002214
 	adds r0, r0, r3
 	bl func_0809AA28
-	ldr r4, [sp, #0x1cc]
-	ldr r1, [r4, #0x18]
-	ldr r5, [sp, #0x220]
+	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r1, [r4, #.Lfarm_overview_panel_tilemap]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r1, r1, r5
 	adds r1, #0x16
 	movs r2, #0x90
@@ -58339,8 +58012,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r7, [sp, #0x1cc]
-	ldr r0, [r7, #0x18]
+	ldr r7, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r7, #.Lfarm_overview_panel_tilemap]
 	adds r0, r0, r5
 	adds r0, #0x18
 	ldr r2, [sp, #0x1e4]
@@ -58361,8 +58034,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r3, #8]
 	ldr r0, .L08062D5C @ =gUnk_08752F6C
 	str r0, [r3, #0xc]
-	ldr r4, [sp, #0x1c4]
-	ldr r5, .L08062D60 @ =0x00000594
+	ldr r4, [sp, #.Lfarm_overview_sp_report]
+	ldr r5, .L08062D60 @ =.Lfarm_overview_portrait_uploads
 	adds r6, r4, r5
 	ldr r1, [r6, #4]
 	ldr r0, [r6, #0xc]
@@ -58382,11 +58055,11 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r0, [r6, #4]
 	b .L08062E34
 	.align 2, 0
-.L08062D50: .4byte 0x0000058C
+.L08062D50: .4byte .Lfarm_overview_game_data
 .L08062D54: .4byte 0x00002214
 .L08062D58: .4byte gUnk_08752EEC
 .L08062D5C: .4byte gUnk_08752F6C
-.L08062D60: .4byte 0x00000594
+.L08062D60: .4byte .Lfarm_overview_portrait_uploads
 .L08062D64:
 	mov sb, r1
 	movs r0, #1
@@ -58426,7 +58099,7 @@ InitFarmOverviewReport: @ 0x0805FF14
 	mov r8, r0
 .L08062DAA:
 	adds r5, r0, #0
-	str r5, [sp, #0x298]
+	str r5, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
 	cmp r2, sb
@@ -58499,22 +58172,22 @@ InitFarmOverviewReport: @ 0x0805FF14
 	adds r0, r1, #0
 	bl free
 .L08062E28:
-	ldr r0, [sp, #0x298]
+	ldr r0, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	add r0, r8
-	ldr r1, [sp, #0x298]
+	ldr r1, [sp, #.Lfarm_overview_sp_new_transfer_list_buffer]
 	str r1, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08062E34:
-	ldr r2, [sp, #0x1c4]
-	ldr r3, .L08062E98 @ =0x0000058C
+	ldr r2, [sp, #.Lfarm_overview_sp_report]
+	ldr r3, .L08062E98 @ =.Lfarm_overview_game_data
 	adds r0, r2, r3
 	ldr r0, [r0]
 	adds r0, #0x14
 	bl GetUnk10__C4Farm
-	ldr r4, [sp, #0x1cc]
-	ldr r1, [r4, #0x18]
-	ldr r5, [sp, #0x220]
+	ldr r4, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r1, [r4, #.Lfarm_overview_panel_tilemap]
+	ldr r5, [sp, #.Lfarm_overview_sp_portrait_tilemap_offset]
 	adds r1, r1, r5
 	adds r1, #0x32
 	movs r2, #0x90
@@ -58523,8 +58196,8 @@ InitFarmOverviewReport: @ 0x0805FF14
 	str r4, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r7, [sp, #0x1cc]
-	ldr r0, [r7, #0x18]
+	ldr r7, [sp, #.Lfarm_overview_sp_scroll_panel]
+	ldr r0, [r7, #.Lfarm_overview_panel_tilemap]
 	adds r0, r0, r5
 	adds r0, #0x34
 	ldr r2, [sp, #0x1ec]
@@ -58535,13 +58208,13 @@ InitFarmOverviewReport: @ 0x0805FF14
 	movs r2, #2
 	movs r3, #2
 	bl FillMessageTilemapRect
-	ldr r3, [sp, #0x210]
+	ldr r3, [sp, #.Lfarm_overview_sp_content_tile_rows]
 	lsls r1, r3, #0x13
 	asrs r1, r1, #0x10
-	ldr r0, [sp, #0x1cc]
+	ldr r0, [sp, #.Lfarm_overview_sp_scroll_panel]
 	bl func_08075E24
-	ldr r0, [sp, #0x1c4]
-	movs r3, #0xa7
+	ldr r0, [sp, #.Lfarm_overview_sp_report]
+	movs r3, #(.Lfarm_overview_stack_bytes >> 2)
 	lsls r3, r3, #2
 	add sp, r3
 	pop {r3, r4, r5}
@@ -58552,7 +58225,9 @@ InitFarmOverviewReport: @ 0x0805FF14
 	pop {r1}
 	bx r1
 	.align 2, 0
-.L08062E98: .4byte 0x0000058C
+.L08062E98: .4byte .Lfarm_overview_game_data
+
+	.purgem CommitFarmOverviewTransferList
 
 	thumb_func_start InitLivestockReport
 InitLivestockReport: @ 0x08062E9C
