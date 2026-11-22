@@ -65,6 +65,8 @@ SECTIONS
         asm/main.o(.text.after_08000240);
         src/sram_header.o(.text);
         asm/sram_proxy_1.o(.text);
+        src/sram_proxy.o(.text.SaveSlot_GetSramOffset);
+        asm/sram_proxy_1.o(.text.after_080003DC);
         src/sram_header.o(.text.flags);
         asm/sram_proxy_1.o(.text.tail);
         src/sram_selection.o(.text);
@@ -148,8 +150,12 @@ SECTIONS
         src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
         asm/hardware.o(.text.handle_alloc);
+        src/hardware.o(.text.ResourceHandle_Release);
+        asm/hardware.o(.text.after_080073E0);
         src/hardware.o(.text.handle_retain);
         asm/hardware.o(.text.handle_index);
+        src/hardware.o(.text.ResourceHandle_GetIndex);
+        asm/hardware.o(.text.after_080074C0);
         src/hardware.o(.text.handle_count);
         asm/hardware.o(.text);
         src/hardware.o(.text.ResourcePool_Initialize);
@@ -158,10 +164,14 @@ SECTIONS
         asm/hardware.o(.text.after_08007714);
         src/hardware.o(.text.ResourcePool_Acquire);
         asm/hardware.o(.text.after_08007770);
+        src/hardware.o(.text.AllocationBitset_AllocateBlock);
+        asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
+        src/hardware.o(.text.TileHandle_Release);
+        asm/hardware.o(.text.after_08007C28);
         src/hardware.o(.text.AllocationTree_MarkFull);
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
@@ -304,6 +314,8 @@ SECTIONS
         asm/hardware.o(.text.after_080094AC);
         src/hardware.o(.text.DisplayFadeTask_Destroy);
         asm/hardware.o(.text.after_080094B8);
+        src/hardware.o(.text.DisplayFadeTask_SetSpeed);
+        asm/hardware.o(.text.after_08009508);
         src/hardware.o(.text.IrqTaskList_Clear);
         asm/hardware.o(.text.after_0800956C);
         src/hardware.o(.text.IrqTaskList_Destroy);

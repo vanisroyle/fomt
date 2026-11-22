@@ -5,7 +5,7 @@ EC char const vtable_unk_080E82D8[];
 EC void func_08007874(G1MapTileOwner *);
 EC u32 func_08007B54(G1MapTileOwner *, u32);
 EC u32 func_08007D4C(G1MapTileOwner *, u32);
-EC void func_08007C28(G1MapTileOwner *, u32);
+EC void TileHandle_Release(G1MapTileOwner *, u32);
 EC void TileHeapOwner_Destroy(G1MapTileOwner *, u32);
 EC char const vtable_unk_080E681C[];
 
@@ -75,7 +75,7 @@ EC SECTION(".text.g1_080A47B4") void DestroyMapSpriteResource(G1MapSpriteResourc
         while (i < self->palette_count);
     }
     G1MapTileOwner * tiles = &self->tiles;
-    func_08007C28(tiles, tiles->handle);
+    TileHandle_Release(tiles, tiles->handle);
     TileHeapOwner_Destroy(tiles, 2);
     if (flags & 1)
         delete self;

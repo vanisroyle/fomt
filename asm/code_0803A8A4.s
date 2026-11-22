@@ -428,7 +428,7 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	adds r0, r4, #0
 	adds r0, #0x30
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r2, r0, #0
 	add r1, sp, #0x14
 	ldr r0, [sp, #0x14]
@@ -479,7 +479,7 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	ldr r4, [r0, #0x50]
 	adds r0, #0x30
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r6, r4, #0
 	mov sb, r0
 	adds r5, r6, #0
@@ -614,7 +614,7 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	mov r0, sl
 	adds r0, #0x30
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	adds r6, r4, #0
 	mov r8, r0
 	adds r5, r6, #0
@@ -769,7 +769,7 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	mov r0, r8
 	adds r0, #0x30
 	ldr r1, [r0, #4]
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	ldr r3, [sp, #0x68]
 	ldr r4, [sp, #0x4c]
 	orrs r3, r4
@@ -964,7 +964,7 @@ DrawClockDisplay: @ 0x0803C7C8
 	b .L0803CD28
 .L0803C7EC:
 	adds r0, r2, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	str r0, [sp, #0x58]
 	adds r7, r6, #0
 	adds r7, #0x80
@@ -1407,7 +1407,7 @@ DrawClockDisplay: @ 0x0803C7C8
 	mov sb, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_080074C0
+	bl ResourceHandle_GetIndex
 	mov sl, r0
 	movs r2, #0xcd
 	lsls r2, r2, #2
