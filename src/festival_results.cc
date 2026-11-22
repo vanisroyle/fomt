@@ -157,6 +157,96 @@ EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(
     }
 }
 
+EC void DrawFrisbeeSymbol(void *, i32, i32, i32);
+
+struct FrisbeeScoreboardState
+{
+    u8 padding0000[0x22c4];
+    i16 distance;
+    i16 recordDistance;
+    i16 firstThrowDistance;
+    i16 secondThrowDistance;
+    u8 visibleScores;
+    u8 flashingScores;
+    u8 flashTimer;
+    u8 padding22cf[0x55];
+    u8 scoreDisplayMode;
+};
+EC void DrawFrisbeeNumber(void *, i32, i32, i32, u32);
+EC SECTION(".text.frisbee.08057B84") void DrawFrisbeeScoreboard(void * screen)
+{
+    FrisbeeScoreboardState * state = (FrisbeeScoreboardState *) screen;
+    DrawFrisbeeNumber(screen, 8, 12, state->distance, 0);
+    DrawFrisbeeSymbol(screen, 64, 20, 11);
+    if (state->scoreDisplayMode == 0)
+    {
+        if (state->visibleScores & 1)
+        {
+            DrawFrisbeeSymbol(screen, 160, 16, 26);
+            DrawFrisbeeNumber(screen, 192, 16, state->recordDistance, 1);
+            DrawFrisbeeSymbol(screen, 224, 16, 23);
+        }
+    }
+    else
+    {
+        if (state->visibleScores & 2)
+        {
+            DrawFrisbeeSymbol(screen, 160, 8, 24);
+            DrawFrisbeeNumber(screen, 192, 8, state->firstThrowDistance, 1);
+            DrawFrisbeeSymbol(screen, 224, 8, 23);
+        }
+        if (state->visibleScores & 4)
+        {
+            DrawFrisbeeSymbol(screen, 160, 24, 25);
+            DrawFrisbeeNumber(screen, 192, 22, state->secondThrowDistance, 1);
+            DrawFrisbeeSymbol(screen, 224, 22, 23);
+        }
+    }
+    ++state->flashTimer;
+    if (!(state->flashTimer & 15)) state->visibleScores ^= state->flashingScores;
+}
+
+EC SECTION(".text.frisbee.08057CB0") void DrawFrisbeeNumber(void * volatile screen, i32 x, i32 inputY, i32 inputValue, u32 small)
+{
+    register i32 y asm("r10") = inputY;
+    register i32 value asm("r9") = inputValue;
+    register u32 mode asm("r1") = small;
+    asm ("" : "+r" (mode));
+    i32 divisor = 100;
+    register i32 symbol asm("r3") = 0;
+    if (mode)
+    {
+        symbol = 12;
+    }
+    i32 initialSpacing = 8;
+    if (!mode)
+    {
+        initialSpacing = 16;
+    }
+    register i32 firstSymbol asm("r8") = symbol;
+    asm ("" : "+r" (initialSpacing));
+    i32 spacing = initialSpacing;
+    do
+    {
+        i32 digit = value / divisor;
+        register i32 base asm("r0") = firstSymbol;
+        asm ("" : "+r" (base));
+        DrawFrisbeeSymbol(screen, x, y, digit + base);
+        x += spacing;
+        value -= digit * divisor;
+        divisor /= 10;
+        if (divisor == 1)
+        {
+            void * markerScreen = screen;
+            register i32 markerX asm("r1") = x;
+            register i32 markerY asm("r3") = y;
+            asm ("" : "+r" (markerX), "+r" (markerY));
+            DrawFrisbeeSymbol(markerScreen, markerX, markerY + spacing, firstSymbol + 10);
+            x += 8;
+        }
+    } while (divisor > 0);
+}
+
 struct FrisbeeSymbolGraphics
 {
     u8 padding[0x2334];

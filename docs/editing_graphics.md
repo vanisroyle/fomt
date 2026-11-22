@@ -186,7 +186,7 @@ guessed screen names or palettes.
 
 ## World maps, signs and chicken-feeding background
 
-The additional catalogue makes **264 more Unpack streams** editable, for
+The initial additional catalogue made **264 more Unpack streams** editable, for
 **272/356 total**. This is **261 world-map streams** (30 tile sheets,
 45 compressed palettes, 186 tilemaps) plus the chicken-feeding background
 (one tile sheet and two tilemaps, with one raw palette). There are 63 supported
@@ -259,7 +259,8 @@ RAM **`0x05000020`**, reserving bank 0 for other scene/UI ownership. Preview
 palettes explicitly pad this bank; it is not an editable guessed palette.
 Map edits referencing nonblank world tiles through bank zero fail clearly.
 
-Three definitions remain deliberately excluded: **11 and 15** use nonblank
+At that checkpoint three definitions were excluded (see the continuation
+below for current guarded support): **11 and 15** use nonblank
 bank-zero tiles whose palette ownership was not established; **62** uses
 special palette overrides in `MapGraphics_LoadPaletteBuffer` at `0x080CFB5C`
 (`src/g5_map_graphics.cc`). That path unpacks the primary palette, then copies
@@ -490,7 +491,178 @@ at `0x52D984..0x58BA08` and `0x58BA28..0x667060` account for another 89 matches;
 their seven count-delimited sections are validated before being excluded.
 Their tables contain relative indices/OAM fields/pixels/colors, not ROM pointers.
 
-These classifications raise relocation eligibility from **193 to 216 of 264**
+These classifications raised relocation eligibility from **193 to 216 of 264**
 world/chicken-feeding streams, leaving **48** conservatively blocked. Unknown
 literal/data references are not repointed or ignored. This is not a complete
 classification of the original 71 failures.
+
+## UI, minigame and special-map continuation
+
+Current coverage is **353 editable rooted Unpack streams**: boot/title 8,
+world/chicken-feeding 280, childhood-memory 21, UI/minigames/world patches 44.
+This increment adds **60** editable streams and classifies the other **three**
+of the previous 63 candidates. There are **zero unclassified candidates**,
+but this does not make raw sprite containers generally editable or prove every
+possible image in the ROM has been found.
+
+The inventory's original denominator of 356 includes three incidental valid
+decodes, not independently loaded compressed resources:
+
+* `0x52C2D4` lies inside the validated compressed winter farm-overview tiles
+  at `0x52AA6C`; changing the parent owns those bytes.
+* `0x65CCFC` lies inside the validated raw tile section of the sprite animation
+  container `0x58BA28..0x667060`, not at a resource or compressed-frame boundary.
+* `0x699570` lies inside raw tiles `0x698E14..0x699FF4`; the callers at
+  `0x080A81D2` and `0x080CFD96` DMA-copy this source, not Unpack it.
+
+All three lack aligned ROM roots. `incidental_candidates` checks their owners
+and root evidence; roundtrip annotates `graphics-inventory.json`, still tests
+all 356 decoder candidates, and reports the three separately from editable
+streams. No palette is invented for those incidental decodes.
+
+### Sources and verified ownership
+
+New sources live in `assets/graphics/ui/`:
+
+* `ADDRESS.tiles.png`: bank-tagged indexed 4bpp tiles. Edit pixel indices only.
+* `ADDRESS.palette.png`: the single owner of that resource's loaded colors.
+  Do not edit swatch indices; high palette bits are preserved.
+* `ADDRESS.map.bin`: little-endian 16-bit GBA map cells. Preserve dimensions.
+
+Shared resources are exported once. Palettes already owned by the world
+catalogue stay in `assets/graphics/more/`; the looping logo uses the existing
+`assets/graphics/boot-logo.png`. Atlas colors are read-only snapshots of the
+original owning palette, so separate palette edits do not require recoloring
+the atlas file. All dimensions, complete-tile bounds and loaded palette banks
+are validated before building. Padding and partially loaded tiles are not new
+editable image space.
+
+| Family | Tile stream(s) | Load-site and layout evidence |
+| --- | --- | --- |
+| Farm overview, normal/winter | `5275D0`, `52AA6C` | `func_0806EC94`: tiles to `06000000`, 512 palette bytes to `05000000`, three maps passed to `func_0806EB70`; BG controls `DC40/D840/D440` establish 4bpp. Maps contain 64x44 cells and are copied into runtime BG layout. |
+| Town map, normal/winter | `755848`, `75822C` | `func_08077EC0`: tiles to `06000000`, 192 palette bytes to `05000020`, two raw 30x13 maps through `func_08077E34`. The caller at `08078B6C` and BG setup establish the 4bpp map UI. |
+| Minigame panel `b7164` | `72D6D8` | Loader literals `080B72E8..080B7300` select two 32x32 maps, tiles, and 96 palette bytes; BG controls `1D40/1F42` establish 4bpp. |
+| Minigame panel `bd0` | `73BFF0` | `080BD04C..080BD058` select two maps, tiles and 192 palette bytes; controls `1E41/1F42`, 4bpp. The final partial tile is unavailable to map edits. |
+| Minigame panel `c16` | `73F6AC` | `080C16B8..080C16C4` select maps, tiles and 192 palette bytes loaded at `05000020`; controls `1E41/1F42`, 4bpp. |
+| Minigame panel `a2f` | `74F050` | `080A2FD0..080A2FE0` select three 32x20 maps, tiles and 96 palette bytes; controls `1C43/1D41/1E42`, 4bpp. |
+| Mixed-palette panel `b55` | `72C84C` | `080B5754..080B576C` select two 32x32 maps and tiles at `06004000`. Unpack loads existing `6FD19C` colors at `05000000`, not the world's `05000020`; 32 bytes from `72D5AC` override bank 7 at `050000E0`. Controls `1D46/1F42` establish 4bpp. |
+| Horse race | `72F21C` | `LoadHorseRaceCourseGraphics` in `src/race_display.cc` selects four **6x32 repeating strips**, tiles and the palette at `72FA9C`. BG configuration and 32-byte tile addressing establish 4bpp. |
+| Frisbee | `738D1C`, `739A64` | `LoadFrisbeeBackground` selects three maps, tiles and palette `7399C4`; BG controls `1C43/1D42/1E41` establish 4bpp. Timer code at `080534A4` copies one of four **1536-byte / 48-tile** frames from the unpacked `739A64` buffer to VRAM zero. Each frame is validated against the maps. |
+| Looping shared logo map | map `74ECCC` | Loader around `08077970` shares the boot tiles and palette, unpacks this 32x64 map, explicitly clears tile 1023, and sets backdrop color zero white. Only complete loaded tiles or that cleared blank can be referenced. |
+
+The address-based minigame names deliberately avoid guessing scene semantics.
+Their previews expose the actual artwork. Town-map dynamic overlay resources
+are not newly exported. Frisbee map `738CF0` overwrites five rows of another
+map at runtime: the preview shows that patch separately, not a claimed final
+composite. Horse-race previews show the source strips before repetition.
+
+### Seven additional world patch tile streams
+
+`ui_graphics.PATCHES` records seven extended patch structures at
+`107204/107230/10725C/107288/1072B4/1072E0/10730C`. Their tile sources are
+`6ECAAC/6ECEF0/6F292C/6EF994/6F07C0/6ED57C/6ED9F0`.
+The type-6 branches at `080A924C..080A93DC` Unpack structure field `+24`
+to VRAM at tile index `field(+28)`. `ApplyMapPatch` consumes the two raw maps
+at `+4/+8`. The palette branches at `080A9E42..080AA1A6` select `+32` or
+winter `+36`, copy `byte(+41)*32` bytes to palette bank `byte(+40)` through
+the common `05000020` transfer. The common map BG setup establishes 4bpp.
+
+`GetMapGraphicsVariantId` maps location type 6 to definition 2 or winter 3;
+their base palettes `6FD19C/6FFA84` own the ground/shadow colors used alongside
+the patch-specific colors. Previews and atlases combine these verified owners,
+without duplicating their editable files. Patch previews isolate downloaded
+tiles and omit cells belonging to the unchanged base-world tile sheet.
+Existing external cells are preserved; new references must target loaded patch
+tiles. Generated 44-byte table records replace only resource pointer fields
+with symbols; unrelated terrain pointers, dimensions and destination indices
+retain their original bytes. Growth still requires the reference audit.
+
+### Definitions 11/15/62 and conditional palettes
+
+The world catalogue now includes all 66 definitions, plus palette/context
+variants. Five additional conditional palettes (`714A30/714B60/714BEC/716F84/
+7170B8`) follow the map-16/17 selection branches at `080A960C..080A96B4`.
+They share the existing tile/map files; only their owning palette PNGs are new.
+
+**No bank-zero palette was guessed.** Definition 11's tile 399 and definition
+15's tile 647 still contain nonblank pixels with unproven bank-zero ownership.
+Those two tile patterns are **read-only**, including shared contexts; their
+existing bank-zero map cells can remain or be removed but cannot be introduced
+elsewhere. Previews mask those cells rather than assigning a false color.
+All other verified tiles, palettes and maps in those definitions are editable.
+Existing atlas-owner ordering is retained so new scenes do not reinterpret
+previously extracted PNG bank tags.
+
+Definition 62 has both a normal G1 preview and a `map-62-g5` preview with the
+two `MapGraphics_LoadPaletteBuffer` overrides applied. The shared overwritten
+palette ranges remain read-only; the raw overriding resources are not given
+competing palette owners. This distinguishes contexts rather than pretending
+one palette represents both.
+
+### Palette read-past protection and checks
+
+Some minigame loaders copy 512 bytes although their owned palettes are shorter.
+Only 32 bytes at `72D5AC`, 352 at `72FA9C` and 160 at `7399C4` are exported.
+Neighboring streams inside the copied tails must leave their original bytes
+in place: **any edit forces audited relocation even if it would fit**.
+This protects the B55-overlapping next panel, horse-race alternate strip and
+the already editable chicken-feeding map, and the Frisbee animation prefix.
+An unknown reference fails clearly rather than silently changing another
+scene's loaded colors. Raw palette sizes remain fixed.
+
+The B55 panel loader first unpacks the parent palette at `080B561C`, then
+DMA-copies 512 bytes from `72D5AC` to `050000E0` at `080B5640`.
+Only the first 32 source bytes belong to its panel palette (bank 7); the
+following compressed bytes overwrite BG banks 8–15 (and part of OBJ palette
+RAM). Parent-owned banks 0–6 and panel-owned bank 7 remain usable. B55 maps
+reject banks 8–15, including blank-tile references, rather than previewing
+parent colors the loader overwrites. The original two maps use only banks
+0/2 and 0/7 respectively, so unmodified sources remain byte-identical.
+
+```sh
+make assets-test
+python3 tools/assets/graphics_assets.py roundtrip --output build/assets
+make clean && make -j8 compare
+python3 tools/assets/check_ui_graphics_rom.py
+```
+
+The sample checker paints an 8x8 contrasting X into one newly editable minigame-panel
+tile, verifies every world/UI/childhood payload and symbolic root, checks every
+changed ROM byte belongs to that tile stream or its roots, writes
+`/home/ubuntu/ui-graphics-edit.gba`, restores the PNG and runs compare again.
+Preview: `/home/ubuntu/screenshots/gfx_rest_ui-panel-visible-edit.png`.
+Unmodified family previews use `gfx_rest_*.png`. These are asset-layout previews,
+not emulator verification of runtime scene transitions or dynamic overlays.
+
+### Town-map and farm-overview overflow
+
+Both normal-season tile sheets can relocate through their existing symbolic
+loader roots: town map `755848` via `77F38`, farm overview `5275D0` via `6ED6C`.
+No additional loader roots were found. The previously blocking words are data,
+not interior references:
+
+- `6718DC -> 757A99`: raw OBJ tiles in the seven-section `6678A0..67A0E8`
+  animation resource, initialized by `InitSpriteAnimationData` in the map scene.
+- `1A5C6D -> 527C7A`: signed PCM inside DirectSound sample `19B6B0`.
+- `9B524 -> 527FC2`: Thumb `ldrb`/`lsrs`, not a literal pool.
+- `5B57C/5B60E/5B6AE/5B75C/5B7BC -> 528A9A` and
+  `5B548/5B5DA/5B67A/5B728/5B7F0 -> 528ABA`: Thumb `ldrh`/`lsrs`
+  in `LoadHorseRaceObjectGraphics`, verified against ELF `$t` mappings.
+- `6EAC18 -> 528286`: raw 4bpp window-style tiles. Record `107104` points
+  to `6EA5B8`; its header specifies 19 tiles per frame and three frames.
+  `func_080A5AB0` selects a frame and DMA-copies 32-byte tiles.
+- `750633 -> 52944A`: palette colors in the seven-section `74F34C..7506E0`
+  animation resource passed to `func_0805E6CC` in `func_080A220C`.
+
+Only raw tile/palette sections of the two additional animation resources are
+excluded, never their metadata. PCM, window tiles and instructions are guarded
+by SHA-256; changed guarded bytes fail closed. Unknown words elsewhere still
+block relocation. No compressed-payload exclusions were needed for these two
+screens.
+
+Reproduce two solid-tile edits (each restores its source PNG and compares):
+
+```sh
+python3 tools/assets/check_ui_graphics_rom.py --scene town-map --solid-tiles 0 1 --output /home/ubuntu/townmap-edit.gba
+python3 tools/assets/check_ui_graphics_rom.py --scene farm-overview --solid-tiles 0 1 --output /home/ubuntu/farmoverview-edit.gba
+```
