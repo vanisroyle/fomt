@@ -6500,3 +6500,592 @@ update_mount:
 
 #undef COLLISION_ACTOR
 #undef COLLISION_GAME
+
+struct FarmerIdleGameVTable
+{
+    STRUCT_PAD(0, 0x40);
+    AEntity * (*get_entity)(GameObject *, u32);
+    STRUCT_PAD(0x44, 0x120);
+    u32 (*can_spawn_step_effect)(GameObject *, Location const *);
+    STRUCT_PAD(0x124, 0x14C);
+    EntitySoundChannels const * (*get_channels)(GameObject *);
+};
+
+struct FarmerIdleActorVTable
+{
+    STRUCT_PAD(0, 0x40);
+    void (*cancel_interaction)(AEntity *);
+    STRUCT_PAD(0x44, 0x6C);
+    void (*refresh_after_exhaustion)(FarmerEntity *);
+};
+
+struct FarmerIdleInputFrame
+{
+    u8 step_interval[4];
+    u16 location[3];
+    u16 padding;
+    FarmerHeldItemKeyWord pressed;
+    FarmerHeldItemKeyWord held;
+};
+
+EC void ReadFarmerIdleLocation(Location *, AEntity const *) asm("GetLocation__C7AEntity");
+EC u32 FarmerCheckSpecialTerrain(FarmerEntity *) asm("IsFarmerOnSpecialTerrain");
+EC u32 FarmerGetTimeOfDay(void const *) asm("func_0800E324");
+EC u8 const farmer_step_sound_intervals[3] asm("gUnk_080F117F");
+
+#define FARMER_IDLE_GAME(game) (*reinterpret_cast<FarmerIdleGameVTable const **>(game))
+#define FARMER_IDLE_ACTOR(actor) (reinterpret_cast<FarmerIdleActorVTable const **>(actor)[5])
+
+EC void HandleFarmerIdleInput(FarmerEntity *, FarmerInputState const *) ENTITY_CODE(0802EC00);
+EC void HandleFarmerIdleInput(FarmerEntity * farmer, FarmerInputState const * keys)
+{
+    FarmerEntity * self = farmer;
+    register FarmerInputState const * input asm("sb") = keys;
+    FarmerIdleInputFrame frame;
+    register u8 * flags asm("r0") = reinterpret_cast<u8 *>(farmer);
+    flags += 0xC0;
+    register u32 zero asm("r2") = 0;
+    *flags = zero;
+    flags -= 0x46;
+    *flags = zero;
+
+    register u8 * exhaustion asm("r3") = &self->exhaustion_state;
+    register u32 exhausted_state asm("r1") = *exhaustion;
+    register u32 exhausted_copy asm("r4") = exhausted_state;
+    if (exhausted_copy)
+    {
+        flags -= 0x3E;
+        *flags = exhausted_state;
+        register u16 * counter asm("r1") = &self->unk_A6;
+        register u32 clear asm("r0") = 0;
+        *counter = zero;
+        *exhaustion = clear;
+        register void (*refresh)(FarmerEntity *) asm("r1") = FARMER_IDLE_ACTOR(self)->refresh_after_exhaustion;
+        refresh(self);
+        return;
+    }
+    if (FarmerCheckSpecialTerrain(self) << 24)
+    {
+        register u8 * state asm("r0") = &self->state;
+        *state = 0x35;
+        state += 0x6A;
+        *reinterpret_cast<u16 *>(state) = exhausted_copy;
+        return;
+    }
+
+    register Farmer * inventory asm("r0") = self->farmer;
+    register HeldItem * held_item asm("r4") = &inventory->unk_54;
+    if (FarmerHeldItemIsEmptyRaw(held_item) << 24)
+        goto read_movement;
+    if (func_0800F204(held_item) != 5)
+        goto read_movement;
+    {
+        register int item_id asm("r1") = func_0800F360(held_item);
+        register u8 * state asm("r1");
+        register u32 timer_reset asm("r2");
+        register u32 next_state asm("r0");
+        switch (item_id)
+        {
+        case 0x15F:
+            {
+                register u8 * state asm("sb");
+                register u16 * timer asm("r6");
+                register ThrownItemMotion * motion asm("r8");
+                register u8 * state_timer asm("sl");
+                {
+                    GameObject * game;
+                    register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1");
+                    EntitySoundChannels const * channels;
+                    register void ** channel asm("r4");
+                    register void ** end asm("r5");
+                    register void * player asm("r0");
+                    goto find_channels_use;
+                found_channel_use:
+                    player = *channel;
+                    goto play_song_use;
+                find_channels_use:
+                    game = (self)->game_object;
+                    get_channels = FARMER_IDLE_GAME(game)->get_channels;
+                    channels = get_channels(game);
+                    channel = channels->begin;
+                    end = channels->end;
+                    {
+                        register u32 state_offset asm("r3") = 0x3C;
+                        asm volatile("" : "+r"(state_offset));
+                        state_offset += reinterpret_cast<u32>(self);
+                        state = reinterpret_cast<u8 *>(state_offset);
+                        timer = &self->unk_A6;
+                        register u32 throw_offset asm("r0") = 0x88;
+                        throw_offset += reinterpret_cast<u32>(self);
+                        motion = reinterpret_cast<ThrownItemMotion *>(throw_offset);
+                        register u32 timer_offset asm("r1") = 0x3D;
+                        timer_offset += reinterpret_cast<u32>(self);
+                        state_timer = reinterpret_cast<u8 *>(timer_offset);
+                    }
+                    if (channel != end)
+                    {
+                        do
+                        {
+                            u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                            if (playing == 0)
+                                goto found_channel_use;
+                            ++channel;
+                        } while (channel != end);
+                    }
+                    {
+                        register void ** final_channel asm("r0") = end - 1;
+                        player = *final_channel;
+                    }
+                play_song_use:
+                    AudioPlayer_StartSong(player, 0xB6);
+                }
+                func_0800F390(&self->farmer->unk_54);
+                register i32 speed asm("r0") = -0x80000;
+                register u32 zero asm("r2") = 0;
+                register u32 height asm("r1") = 0x110000;
+                register ThrownItemMotion * move asm("r3") = motion;
+                move->x_speed = speed;
+                move->y_speed = zero;
+                move->z_speed = height;
+                register u32 use_state asm("r0") = 0x2F;
+                register u8 * state_address asm("r1") = state;
+                *state_address = use_state;
+                *timer = zero;
+                register u32 duration asm("r0") = 120;
+                register u8 * timer_address asm("r2") = state_timer;
+                *timer_address = duration;
+                return;
+            }
+        case 0xB: case 0x62: case 0x6B: case 0xF7: case 0x155: case 0x180: case 0x18C: case 0x191: case 0x1A6:
+            {
+                state = &self->state;
+                timer_reset = 0;
+                next_state = 0x38;
+                goto use_item;
+            case 0xD6: case 0x122: case 0x167: case 0x1CD:
+                state = &self->state;
+                timer_reset = 0;
+                next_state = 0x39;
+            use_item:
+                *state = next_state;
+                self->unk_A6 = timer_reset;
+                ++state;
+                asm volatile("" : "+r"(state));
+                *state = 30;
+                func_0800F390(&self->farmer->unk_54);
+                return;
+            }
+        }
+    }
+read_movement:
+    register u8 * motion_addr asm("r0") = reinterpret_cast<u8 *>(self);
+    motion_addr += 0x3e;
+    register u32 initial_motion asm("r5") = *motion_addr;
+    register u8 * motion_state asm("r8") = motion_addr;
+    register u16 * idle_ticks asm("r6");
+    if (initial_motion == 0 && (FarmerHeldItemIsEmptyRaw(held_item) << 24))
+    {
+        register u16 * idle_ticks_address asm("r0") = &self->unk_A6;
+        register u32 elapsed asm("r2") = *idle_ticks_address;
+        register u32 threshold asm("r1") = 600;
+        idle_ticks = idle_ticks_address;
+        if (elapsed > threshold)
+        {
+            self->state = 0x17;
+            *idle_ticks = initial_motion;
+            return;
+        }
+        register u32 next_ticks asm("r0") = elapsed + 1;
+        *idle_ticks = next_ticks;
+    }
+    else
+    {
+        register u16 * idle_ticks_address asm("r1") = &self->unk_A6;
+        *idle_ticks_address = 0;
+        idle_ticks = idle_ticks_address;
+    }
+
+    register u8 * motion_address asm("r3") = motion_state;
+    register i32 last_motion asm("r1") = *motion_address;
+    if (last_motion == 0)
+    {
+        register u8 * step_count asm("r0") = reinterpret_cast<u8 *>(self) + 0xC4;
+        *step_count = last_motion;
+    }
+    else
+    {
+        if (last_motion < 0)
+            goto read_buttons;
+        if (last_motion > 2)
+            goto read_buttons;
+        register u8 * step_count asm("r1") = reinterpret_cast<u8 *>(self) + 0xC4;
+        ++*step_count;
+    }
+
+read_buttons:
+    register u32 x asm("r2");
+    register u32 y asm("r4");
+    register u32 run_key asm("r3");
+    register void ** day_channel asm("r4");
+    register void * day_player asm("r0");
+    register u32 empty_keys asm("r2") = 0;
+    frame.held.word = empty_keys;
+    frame.pressed.word = empty_keys;
+    if (input)
+    {
+        frame.held.word = input->held;
+        register FarmerInputState const * pressed_input asm("r1") = input;
+        register u32 pressed_bits asm("r0");
+        asm volatile("ldrh %0, [%1, #4]" : "=l"(pressed_bits) : "l"(pressed_input) : "memory");
+        frame.pressed.word = pressed_bits;
+    }
+    {
+        register u8 * motion_output asm("r3") = motion_state;
+        asm volatile("strb %1, [%0]" : : "l"(motion_output), "l"(empty_keys) : "memory");
+    }
+
+    register FarmerHeldItemKeyWord * pressed asm("r4") = &frame.pressed;
+    register u32 buttons asm("r3") = pressed->bytes[0];
+    register u32 a_initial asm("r5") = INPUT_A;
+    register u32 a_pressed asm("r1") = a_initial;
+    a_pressed &= buttons;
+    if (a_pressed)
+    {
+        self->state = a_initial;
+        *idle_ticks = empty_keys;
+    }
+    else
+    {
+        register u32 b_initial asm("r2") = INPUT_B;
+        register u32 b_mask asm("r0") = b_initial;
+        b_mask &= buttons;
+        b_mask <<= 24;
+        register u32 b_pressed asm("r3") = b_mask >> 24;
+        if (b_pressed != 0)
+        {
+            self->state = b_initial;
+            *idle_ticks = a_pressed;
+            if (FarmerHeldItemIsEmptyRaw(&self->farmer->unk_54) << 24)
+                PrepareFarmerToolUse(self);
+        }
+        else
+        {
+            register u32 high_pressed asm("r1") = pressed->bytes[1];
+            asm volatile("" : "+r"(high_pressed));
+            register u32 l_mask asm("r0") = b_initial;
+            asm volatile("" : "+r"(l_mask) : "r"(b_initial));
+            u32 l_pressed = l_mask & high_pressed;
+            if (l_pressed)
+            {
+                self->state = 3;
+                *idle_ticks = b_pressed;
+            }
+            else
+            {
+                register u32 held asm("r1") = frame.held.word;
+                register u32 directions asm("r2") = held << 25;
+                directions >>= 31;
+                register u32 bit asm("r0") = held << 24;
+                directions |= bit >> 31;
+                bit = held << 26;
+                bit >>= 31;
+                bit |= directions;
+                directions = held << 27;
+                directions >>= 31;
+                directions |= bit;
+                held <<= 23;
+                held >>= 31;
+                held |= directions;
+                if (held != 0)
+                {
+                    register u8 * facing_address asm("r2") = &self->facing;
+                    register u32 direction asm("r5") = *facing_address;
+                    register u32 old_direction asm("r4") = direction;
+                    register FarmerHeldItemKeyWord * directional_keys_address asm("r1") = &frame.held;
+                    register u32 directional_keys asm("r3") = directional_keys_address->bytes[0];
+                    register u32 left_mask asm("r0") = INPUT_LEFT;
+                    register u8 * facing asm("r6");
+                    register FarmerHeldItemKeyWord * held_keys asm("sb");
+                    asm volatile("and %0, %3\n\tadd %1, %4, #0\n\tmov %2, %5" : "+l"(left_mask), "=l"(facing), "=r"(held_keys) : "l"(directional_keys), "l"(facing_address), "l"(directional_keys_address) : "cc");
+                    u32 left_test = left_mask;
+                    asm volatile("" : "+r"(left_test) : "r"(facing), "r"(held_keys));
+                    if (left_test)
+                        direction = FACING_LEFT;
+                    else if (directional_keys & INPUT_RIGHT)
+                        direction = FACING_RIGHT;
+                    else if (directional_keys & INPUT_UP)
+                        direction = FACING_UP;
+                    else if (directional_keys & INPUT_DOWN)
+                        direction = FACING_DOWN;
+                    if (direction != old_direction)
+                    {
+                        self->unk_B3 = false;
+                        register u32 slot asm("r4") = 0x2B;
+                        do
+                        {
+                            GameObject * game = self->game_object;
+                            register AEntity * (*get_entity)(GameObject *, u32) asm("r2") = FARMER_IDLE_GAME(game)->get_entity;
+                            register AEntity * entity asm("r2") = get_entity(game, slot);
+                            if (entity)
+                            {
+                                register void (*cancel_interaction)(AEntity *) asm("r1") = FARMER_IDLE_ACTOR(entity)->cancel_interaction;
+                                cancel_interaction(entity);
+                            }
+                            ++slot;
+                        } while (slot <= 0x45);
+                    }
+                    if (*facing != direction)
+                        self->SetAnimFacing(direction);
+                    x = *facing;
+                    if (x == FACING_UP)
+                        goto face_up;
+                    if (static_cast<i32>(x) > FACING_UP)
+                        goto horizontal;
+                    if (x == FACING_DOWN)
+                        goto face_down;
+                    goto face_left;
+                horizontal:
+                    if (x == FACING_LEFT) goto face_left;
+                    if (x == FACING_RIGHT) goto face_right;
+                face_left:
+                    x = 0xFF;
+                    y = 0;
+                    goto have_speed;
+                face_right:
+                    x = 1;
+                    y = 0;
+                    goto have_speed;
+                face_up:
+                    x = 0;
+                    y = 0xFF;
+                    goto have_speed;
+                face_down:
+                    x = 0;
+                    y = 1;
+                have_speed:
+                    asm volatile("" : "+r"(x), "=r"(y) : "r"(y));
+                    u32 run_setting = *reinterpret_cast<u8 const *>(reinterpret_cast<u8 const *>(self->game_state) + 0x2210);
+                    run_setting <<= 31;
+                    asm volatile("" : "+r"(run_setting));
+                    if (run_setting)
+                        goto default_fast;
+                    {
+                        register u32 key_register asm("r3") = reinterpret_cast<u32>(held_keys);
+                        register u32 high_keys asm("r1");
+                        asm volatile("ldrb %0, [%1, #1]\n\tmov %1, #1 @ slow" : "=&l"(high_keys), "+l"(key_register) : : "memory");
+                        run_key = key_register;
+                        register u32 mask asm("r0");
+                        asm volatile("add %0, %1, #0\n\tand %0, %2" : "=&l"(mask) : "l"(run_key), "l"(high_keys) : "cc");
+                        u32 keys = mask;
+                        asm volatile("" : "+r"(keys));
+                        if (!keys)
+                            goto walk;
+                        goto run;
+                    }
+                default_fast:
+                    {
+                        register u32 key_register asm("r3") = reinterpret_cast<u32>(held_keys);
+                        register u32 high_keys asm("r1");
+                        asm volatile("ldrb %0, [%1, #1]\n\tmov %1, #1 @ fast" : "=&l"(high_keys), "+l"(key_register) : : "memory");
+                        run_key = key_register;
+                        register u32 mask asm("r0");
+                        asm volatile("add %0, %1, #0\n\tand %0, %2" : "=&l"(mask) : "l"(run_key), "l"(high_keys) : "cc");
+                        u32 keys = mask;
+                        asm volatile("" : "+r"(keys));
+                        if (keys)
+                            goto walk;
+                    }
+                run:
+                    {
+                        register u32 run_motion asm("r0") = 2;
+                        register u8 * motion_addr asm("r1") = motion_state;
+                        *motion_addr = run_motion;
+                    }
+                    {
+                        register u32 shifted_x asm("r0") = x << 25;
+                        x = shifted_x >> 24;
+                        register u32 shifted_y asm("r0") = y << 25;
+                        y = shifted_y >> 24;
+                    }
+                    goto speed_output;
+                }
+            }
+        }
+    }
+    goto step_effects;
+found_channel_day:
+    day_player = *day_channel;
+    goto play_song_day;
+walk:
+    {
+        register u8 * motion_out asm("r0") = motion_state;
+        *motion_out = run_key;
+    }
+speed_output:
+    {
+        register i32 x_speed asm("r0") = x << 24;
+        self->x_speed_q16 = x_speed >> 8;
+        register i32 y_speed asm("r0") = y << 24;
+        self->y_speed_q16 = y_speed >> 8;
+    }
+step_effects:
+    {
+        memcpy(frame.step_interval, farmer_step_sound_intervals, 3);
+        register u8 * step_motion asm("r1") = motion_state;
+        register u32 step_type asm("r0") = *step_motion;
+        register u32 interval asm("r1") = frame.step_interval[step_type];
+        if (!interval)
+            goto after_step_sound;
+        {
+            register u8 * step_count asm("r2") = reinterpret_cast<u8 *>(self) + 0xC4;
+            if (*step_count < interval)
+                goto after_step_sound;
+            *step_count = 0;
+            register GameObject * game asm("r6") = self->game_object;
+            register u32 (*const * check)(GameObject *, Location const *) asm("r4") = &FARMER_IDLE_GAME(game)->can_spawn_step_effect;
+            register Location * location asm("r5") = reinterpret_cast<Location *>(frame.location);
+            ReadFarmerIdleLocation(location, self);
+            register u32 (*can_spawn)(GameObject *, Location const *) asm("r2") = *check;
+            if (!(can_spawn(game, location) << 24))
+                goto other_step_sound;
+            FarmerEffectGraphics * graphics = reinterpret_cast<FarmerEffectGraphics *>(reinterpret_cast<void **>(self)[4]);
+            if (graphics)
+                SpawnFarmerStepEffect(graphics);
+            if (FarmerGetTimeOfDay(static_cast<u8 *>(self->game_state) + 0x10) == 3)
+                goto night_step_sound;
+            {
+                register u32 method_offset asm("r3");
+                register FarmerIdleGameVTable const * methods asm("r1");
+                GameObject * game;
+                register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1");
+                EntitySoundChannels const * channels;
+                register void ** end asm("r5");
+                game = (self)->game_object;
+                methods = FARMER_IDLE_GAME(game);
+                method_offset = 0xA6;
+                asm volatile("lsl %0, %0, #1" : "+l"(method_offset) : "r"(methods));
+                get_channels = *reinterpret_cast<EntitySoundChannels const * (**)(GameObject *)>(reinterpret_cast<u32>(methods) + method_offset);
+                channels = get_channels(game);
+                day_channel = channels->begin;
+                end = channels->end;
+
+                if (day_channel != end)
+                {
+                    do
+                    {
+                        u32 playing = AudioPlayerIsPlayingRaw(*day_channel) << 24;
+                        if (playing == 0)
+                            goto found_channel_day;
+                        ++day_channel;
+                    } while (day_channel != end);
+                }
+                {
+                    register void ** final_channel asm("r0") = end - 1;
+                    day_player = *final_channel;
+                }
+            }
+        }
+    }
+play_song_day:
+    AudioPlayer_StartSong(day_player, 0xD0);
+    goto after_step_sound;
+night_step_sound:
+    {
+        GameObject * game;
+        register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1");
+        EntitySoundChannels const * channels;
+        register void ** channel asm("r4");
+        register void ** end asm("r5");
+        register void * player asm("r0");
+        goto find_channels_night;
+    found_channel_night:
+        player = *channel;
+        goto play_song_night;
+    find_channels_night:
+        game = (self)->game_object;
+        get_channels = FARMER_IDLE_GAME(game)->get_channels;
+        channels = get_channels(game);
+        channel = channels->begin;
+        end = channels->end;
+
+        if (channel != end)
+        {
+            do
+            {
+                u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                if (playing == 0)
+                    goto found_channel_night;
+                ++channel;
+            } while (channel != end);
+        }
+        {
+            register void ** final_channel asm("r0") = end - 1;
+            player = *final_channel;
+        }
+    play_song_night:
+        AudioPlayer_StartSong(player, 0xD1);
+    }
+    goto after_step_sound;
+other_step_sound:
+    {
+        register u32 method_offset asm("r3");
+        register FarmerIdleGameVTable const * methods asm("r1");
+        GameObject * game;
+        register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1");
+        EntitySoundChannels const * channels;
+        register void ** channel asm("r4");
+        register void ** end asm("r5");
+        register void * player asm("r0");
+        goto find_channels_other;
+    found_channel_other:
+        player = *channel;
+        goto play_song_other;
+    find_channels_other:
+        game = (self)->game_object;
+        methods = FARMER_IDLE_GAME(game);
+        method_offset = 0xA6;
+        asm volatile("lsl %0, %0, #1" : "+l"(method_offset) : "r"(methods));
+        get_channels = *reinterpret_cast<EntitySoundChannels const * (**)(GameObject *)>(reinterpret_cast<u32>(methods) + method_offset);
+        channels = get_channels(game);
+        channel = channels->begin;
+        end = channels->end;
+
+        if (channel != end)
+        {
+            do
+            {
+                u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                if (playing == 0)
+                    goto found_channel_other;
+                ++channel;
+            } while (channel != end);
+        }
+        {
+            register void ** final_channel asm("r0") = end - 1;
+            player = *final_channel;
+        }
+    play_song_other:
+        AudioPlayer_StartSong(player, 0xD0);
+    }
+after_step_sound:
+    register u32 count_steps asm("r1") = 0;
+    if (self->unk_24 == 0)
+        count_steps = 1;
+    if (count_steps)
+    {
+        register u8 * step_motion asm("r1") = motion_state;
+        register u32 speed asm("r0") = *step_motion;
+        if (speed == 1)
+        {
+            TickFarmerPedometer(self);
+            return;
+        }
+        if (speed != 2)
+            return;
+        TickFarmerPedometer(self);
+        TickFarmerPedometer(self);
+    }
+}
+
+#undef FARMER_IDLE_ACTOR
+#undef FARMER_IDLE_GAME
