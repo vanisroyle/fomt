@@ -431,8 +431,8 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_080115B0);
         asm/game_state.o(.text.game_state_08011650);
         src/game_state_part1.o(.text.game_state_08011CD8);
-        asm/game_state.o(.text.game_state_08011DC4);
-        asm/game_state.o(.text.game_state_08011ED8);
+        src/game_state_part1.o(.text.game_state_08011DC4);
+        src/game_state_part1.o(.text.game_state_08011ED8);
         src/game_state_part1.o(.text.game_state_08011FE8);
         asm/game_state.o(.text.game_state_08012028);
         src/game_state_part1.o(.text.game_state_08012064);
@@ -515,14 +515,15 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_0801323C);
         src/game_state_part1.o(.text.game_state_080132D0);
         src/game_state_part1.o(.text.game_state_08013364);
-        asm/game_state.o(.text.game_state_08013408);
+        src/game_state_part1.o(.text.game_state_08013408);
+        src/game_state_part1.o(.text.game_state_080134A4);
         src/game_state_part1.o(.text.game_state_08013544);
         src/game_state_part1.o(.text.game_state_080135D8);
         src/game_state_part1.o(.text.game_state_0801366C);
         src/game_state_part1.o(.text.game_state_08013700);
         src/game_state_part1.o(.text.game_state_08013794);
         src/game_state_part1.o(.text.game_state_08013828);
-        asm/game_state.o(.text.game_state_080138C0);
+        src/game_state_part1.o(.text.game_state_080138C0);
         src/game_state_part1.o(.text.game_state_0801395C);
         src/game_state_part1.o(.text.game_state_080139F0);
         src/game_state_part1.o(.text.game_state_08013A94);
@@ -980,7 +981,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803BF78);
         src/code_0803A8A4.o(.text.0803BFF0);
         src/code_0803A8A4.o(.text.0803C00C);
-        asm/code_0803A8A4.o(.text.0803C028);
+        src/code_0803A8A4.o(.text.0803C028);
         src/code_0803A8A4.o(.text.0803C518);
         src/clock_display.o(.text.0803C5B0);
         src/clock_display.o(.text.0803C7A0);
@@ -1037,7 +1038,7 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809C4EC);
         src/code_actor_0809BFE8.o(.text.0809C510);
         src/code_actor_0809BFE8.o(.text.0809C5B4);
-        asm/code_actor_0809BFE8.o(.text.0809C6BC);
+        src/code_actor_0809BFE8.o(.text.0809C6BC);
         src/code_actor_0809BFE8.o(.text.0809CD78);
         src/code_actor_0809BFE8.o(.text.0809CE8C);
         src/code_actor_0809BFE8.o(.text.0809CF34);
@@ -1217,6 +1218,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1FC4);
         src/g1_calendar_numbers.o(.text.g1_080A3588);
         asm/g1_npc.o(.text.g1_after_b9_080A3588);
+        src/g1_calendar_numbers.o(.text.g1_080A3618);
+        asm/g1_npc.o(.text.g1_after_b17_080A3618);
         src/g1_scene_wrapper.o(.text.g1_080A3744);
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
@@ -1556,13 +1559,13 @@ SECTIONS
         asm/code_809E804.o(.text.g3_after_080BCEBC);
         src/g3_chicken_festival.o(.text.g3_080BCEC8);
         asm/code_809E804.o(.text.g3_after_080BCEC8);
-        asm/code_080C8360.o(.text);
+        src/g5_teardown.o(.text.g5_080C8360);
         src/g5_panels.o(.text.g5_080C8550);
         asm/code_080C8360.o(.text.g5_after_080C8550);
         src/g5_encoding.o(.text.g5_080CA6F4);
         asm/code_080C8360.o(.text.g5_after_080CA6F4);
         src/g5_quantity.o(.text.g5_080CA8B4);
-        asm/code_080C8360.o(.text.g5_080CA98C);
+        src/g5_quantity.o(.text.g5_080CA98C);
         src/g5_quantity.o(.text.g5_080CAAF4);
         src/g5_ui.o(.text.g5_buttons);
         src/g5_ui.o(.text.g5_080CAC3C);
@@ -1572,7 +1575,7 @@ SECTIONS
         src/g5_ui.o(.text.g5_entry_access);
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
-        asm/code_080C8360.o(.text.g5_CADB4);
+        src/g5_commands.o(.text.g5_080CADB4);
         src/g5_commands.o(.text.g5_080CADF0);
         asm/code_080C8360.o(.text.g5_after_080CADF0);
         src/g5_commands.o(.text.g5_080CAE60);
@@ -1637,22 +1640,25 @@ SECTIONS
         src/g5_runtime.o(.text.g5_init);
         src/g5_runtime.o(.text.g5_080D035C);
         src/g5_runtime.o(.text.g5_requests);
-        asm/code_080D035C.o(.text.g5_0490);
+        src/g5_buffer_exchange.o(.text.g5_080D0490);
+        src/g5_buffer_exchange.o(.text.g5_080D04F4);
         src/g5_buffer_exchange.o(.text.g5_080D0558);
         src/g5_runtime.o(.text.g5_transfer);
         asm/code_080D035C.o(.text.g5_after_transfer);
         src/g5_runtime.o(.text.g5_080D0644);
         src/g5_runtime.o(.text.g5_queries);
-        asm/code_080D035C.o(.text.g5_06DC);
+        src/g5_runtime.o(.text.g5_080D06DC);
         src/g5_runtime.o(.text.g5_080D0704);
         asm/code_080D035C.o(.text.g5_after_080D0704);
         src/g5_transmit.o(.text.g5_080D091C);
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
-        asm/code_080D0C68.o(.text);
+        src/g5_records.o(.text.g5_080D0C68);
         src/g5_records.o(.text.g5_080D0C78);
         src/g5_encoding.o(.text.g5_080D0CD4);
         asm/code_080D0C68.o(.text.g5_after_080D0CD4);
+        src/g5_font.o(.text.g5_080D0D28);
+        asm/code_080D0C68.o(.text.g5_after_080D0D28);
         src/g5_irq.o(.text.g5_080D100C);
         asm/code_080D102C.o(.text);
 
@@ -1732,6 +1738,8 @@ SECTIONS
         *(.vietnamese_font);
         . = ALIGN(4);
         *(.graphics_overflow);
+        . = ALIGN(4);
+        *(.text_table_overflow);
         . = ALIGN(0x800000);
     } > ROM = 0xFF
 
