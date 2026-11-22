@@ -2,8 +2,9 @@
     .SYNTAX UNIFIED
 
 	.section .text.0809C6BC, "ax", %progbits
-    thumb_func_start func_0809C6BC
-func_0809C6BC: @ 0x0809C6BC
+    thumb_func_start InitializeSavedScriptEvents
+InitializeSavedScriptEvents: @ 0x0809C6BC
+    @ Reset the pending count, selection and progress without clearing the pending IDs.
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
