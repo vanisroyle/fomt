@@ -98,7 +98,15 @@ struct AnimalFestivalScoreTable
 struct HorseRaceLineup
 {
     u8 entrants[12];
-    u8 racers[32];
+    struct Racer
+    {
+        u8 speed;
+        u8 stamina;
+        u8 profile;
+        u8 unknown_03;
+        u16 paceDelay;
+        u16 unknown_06;
+    } racers[4];
     u8 heat : 2;
     u8 unused_2c : 6;
     u8 unknown_2d;
@@ -137,6 +145,58 @@ EC SECTION(".text.horse_race.08057F24") void AdvanceHorseRaceHeat(HorseRaceLineu
 EC SECTION(".text.horse_race.08057F4C") bool AreHorseRaceHeatsFinished(HorseRaceLineup * lineup)
 {
     return lineup->heat == 3;
+}
+
+struct HorseRaceStatRange
+{
+    i32 lowSpeed, highSpeed;
+    i32 lowStamina, highStamina;
+};
+
+EC const HorseRaceStatRange gUnk_080FA71C[];
+
+EC SECTION(".text.horse_race.08057F64") void PrepareHorseRaceHeat(HorseRaceLineup * lineup, u32 kind)
+{
+    typedef char HorseRaceRacerLayout[sizeof(HorseRaceLineup::Racer) == 8 ? 1 : -1];
+    register u32 special asm("r1");
+    if (lineup->heat == 2)
+    {
+        register u32 raceFlags asm("r0") = ((const u8 *) lineup)[0x2e];
+        asm ("" : "+r" (raceFlags));
+        special = raceFlags >> 5;
+        asm ("" : "+r" (special));
+        special &= 1;
+    }
+    else special = 0;
+    asm ("" : "+r" (special));
+    u32 useSpecialPresets = special;
+    HorseRaceLineup::Racer * racer = lineup->racers;
+    for (i32 index = 0; index <= 3; ++index, ++racer)
+    {
+        i32 preset;
+        if (!useSpecialPresets) preset = index;
+        else
+        {
+            switch (kind)
+            {
+            case 1:
+            case 3: preset = index; break;
+            case 2: preset = 4; break;
+            case 4: preset = 5; break;
+            default: preset = 6; break;
+            }
+        }
+        i32 low = gUnk_080FA71C[preset].lowSpeed;
+        i32 high = gUnk_080FA71C[preset].highSpeed;
+        racer->speed = rand() % (high - low) + low;
+        low = gUnk_080FA71C[preset].lowStamina;
+        high = gUnk_080FA71C[preset].highStamina;
+        racer->stamina = rand() % (high - low) + low;
+        racer->profile = lineup->entrants[lineup->heat * 4 + index];
+        i32 difference = 250 - racer->speed;
+        i32 delay = difference * difference / 1000;
+        racer->paceDelay = delay + ((rand() & 3) + 1);
+    }
 }
 
 EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(AnimalFestivalScoreTable * table, u32 affection)
