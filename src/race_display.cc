@@ -161,40 +161,64 @@ struct AudioPlayer
 struct RaceCourseMarker
 {
     i16 position;
-    STRUCT_PAD(2, 4);
+    i16 y;
 };
 
 struct HorseRaceState
 {
     STRUCT_PAD(0, 0x1C);
     AudioPlayer sprint_audio_player;
-    STRUCT_PAD(0x20, 0x170);
+    STRUCT_PAD(0x20, 0x50);
+    u8 course_marker_data[0x30] ALIGN(4);
+    u8 start_effect_data[0x30] ALIGN(4);
+    STRUCT_PAD(0xB0, 0xE0);
+    u8 race_banner_data[0x30] ALIGN(4);
+    u8 sprint_effect_data[0x30] ALIGN(4);
+    u8 lane_effect_data[0x30] ALIGN(4);
     u8 entry_animation[0x30] ALIGN(4);
-    STRUCT_PAD(0x1A0, 0x208);
+    STRUCT_PAD(0x1A0, 0x1D0);
+    SpriteAnimator course_end_animator;
+    STRUCT_PAD(0x1E4, 0x208);
     struct RaceLaneAnimator
     {
         SpriteAnimator animator;
         STRUCT_PAD(0x14, 0x38);
     };
     RaceLaneAnimator race_horse_animators[5];
-    STRUCT_PAD(0x320, 0x358);
+    SpriteAnimator start_effect_animator;
+    STRUCT_PAD(0x334, 0x358);
     SpriteAnimator betting_graphics;
     STRUCT_PAD(0x36C, 0x390);
     RaceLaneAnimator race_sprint_animators[4];
     RaceLaneAnimator race_effect_animators[4];
     SpriteAnimator betting_cursor;
     SpriteFrameDrawOptions cursor_options;
-    STRUCT_PAD(0x580, 0x600);
+    STRUCT_PAD(0x580, 0x588);
+    SpriteAnimator entrant_overlay_animator;
+    STRUCT_PAD(0x59C, 0x5C0);
+    RaceObjAllocation course_end_tiles, course_end_palette;
+    RaceObjAllocation course_marker_tiles, course_marker_palette;
+    RaceObjAllocation start_effect_tiles, start_effect_palette;
+    RaceObjAllocation starting_banner_tiles, starting_banner_palette;
     RaceObjAllocation betting_tiles, betting_palette;
     RaceObjAllocation betting_glyph_tiles, betting_glyph_palette;
     RaceObjAllocation prompt_palette;
-    STRUCT_PAD(0x628, 0x640);
+    RaceObjAllocation sprint_effect_tiles, lane_effect_tiles, sprint_effect_palette;
     RaceObjAllocation betting_cursor_tiles, betting_cursor_palette;
-    STRUCT_PAD(0x650, 0x6B8);
+    RaceObjAllocation entrant_overlay_tiles;
+    STRUCT_PAD(0x658, 0x660);
+    RaceObjAllocation lane0_horse_palettes[2];
+    STRUCT_PAD(0x670, 0x678);
+    RaceObjAllocation lane1_horse_palettes[2];
+    STRUCT_PAD(0x688, 0x690);
+    RaceObjAllocation lane2_horse_palettes[2];
+    STRUCT_PAD(0x6A0, 0x6A8);
+    RaceObjAllocation lane3_horse_palettes[2];
     RaceCourseMarker course_markers[4][8];
     RaceGlyph glyphs[148];
     i16 glyph_count;
-    STRUCT_PAD(0xBDA, 0xBEA);
+    u16 sprint_effect_tile_offsets[4];
+    u16 lane_effect_tile_offsets[4];
     u16 tilemap_work[0x800 / sizeof(u16)];
     u16 bg1_scroll_x, bg2_scroll_x, bg3_scroll_x;
     u16 bg1_last_tile_scroll, bg2_last_tile_scroll, bg3_last_tile_scroll;
@@ -596,9 +620,12 @@ struct RaceFrameView
     RaceFrameSlice<SpriteFrameExtra> extras;
 };
 
+struct RaceLiveClipView;
+
 struct RaceFrameSourceVTable
 {
-    STRUCT_PAD(0, 0x10);
+    STRUCT_PAD(0, 0x0C);
+    void (*get_clip)(RaceLiveClipView *, RaceFrameSource const *, u32);
     void (*get_frame)(RaceFrameView *, RaceFrameSource const *, u32);
 };
 
@@ -608,7 +635,7 @@ struct RaceFrameSource
 };
 
 EC u32 ResolveRaceObjPalette(RaceObjAllocation *, u32) asm("ResourceHandle_GetIndex");
-EC u32 ResolveRaceObjTile(RaceObjAllocation *, u32) asm("func_08007D4C");
+EC u32 ResolveRaceObjTile(RaceObjAllocation *, u32) asm("TileHandle_GetTileIndex");
 EC void * CopyRaceFrame(void *, void const *, u32) asm("memcpy");
 EC void DrawMessageFrame(u16 *, u32, u32, u32, u32, u32, u32);
 
@@ -3265,3 +3292,719 @@ update_far_strip:
 scroll_updated:
     ;
 }
+
+// Like SpriteAnimationClip, without a constructor that clears the scratch slots.
+struct RaceLiveClipView
+{
+    SpriteKeyframe const * keyframes;
+    u16 frame_count;
+};
+
+// Scratch layout for the register-bound frame loads and uploads.
+struct RaceLiveGraphicsWork
+{
+    RaceFrameView frame, fetched;
+    RaceLiveClipView start_effect_clip, sprint_effect_clip, lane_effect_clip;
+    RaceFrameSlice<u8> * start_effect_tile_slice;
+    SpriteKeyframe const * const * first_horse_keyframes;
+    RaceLiveClipView * start_effect_clip_ptr;
+    RaceLiveClipView * sprint_effect_clip_ptr;
+    RaceLiveClipView * lane_effect_clip_ptr;
+    SpriteAnimationData const * course_markers;
+    SpriteKeyframe const * const * second_horse_keyframes;
+    u32 next_start_effect_clip;
+    RaceFrameSource const * start_effect;
+    SpriteKeyframe const * const * sprint_effect_keyframes;
+    SpriteKeyframe const * const * fourth_horse_keyframes;
+    SpriteAnimationData const * race_banner;
+    SpriteKeyframe const * const * start_effect_keyframes;
+    SpriteKeyframe const * const * entrant_overlay_keyframes;
+};
+
+// Register constraints preserve the original Thumb calling and transfer sequences.
+#define RACE_LIVE_PIN(value) asm ("" : "+l" (value))
+#define RACE_LIVE_HIGH(value) asm ("" : "+h" (value))
+#define RACE_LIVE_ADDR(ptr, reg, member, offset_shift) \
+    register uintptr_t ptr##_offset asm(reg) = offsetof(HorseRaceState, member) >> offset_shift; \
+    RACE_LIVE_PIN(ptr##_offset); \
+    ptr##_offset <<= offset_shift; \
+    RACE_LIVE_PIN(ptr##_offset); \
+    register __typeof__(&self->member) ptr asm(reg) = \
+        reinterpret_cast<__typeof__(&self->member)>(ptr##_offset + reinterpret_cast<uintptr_t>(self)); \
+    RACE_LIVE_PIN(ptr)
+#define RACE_LIVE_STACK(ptr, reg, member) \
+    register __typeof__(&work.member) ptr asm(reg); \
+    asm ("add %0, sp, %1" : "=l" (ptr) : "I" (offsetof(RaceLiveGraphicsWork, member)))
+#define RACE_LIVE_COPY_FRAME_FROM(prepare_source, regs1, regs2, regs3, clobbers...) do { \
+    register RaceFrameView * destination asm("r1"); \
+    asm ("mov %0, sp" : "=l" (destination)); \
+    prepare_source; \
+    asm volatile ("ldmia %1!, {" regs1 "}\n\tstmia %0!, {" regs1 "}\n\t" \
+        "ldmia %1!, {" regs2 "}\n\tstmia %0!, {" regs2 "}\n\t" \
+        "ldmia %1!, {" regs3 "}\n\tstmia %0!, {" regs3 "}" \
+        : "+l" (destination), "+l" (source) : : clobbers, "memory"); \
+} while(0)
+#define RACE_LIVE_COPY_FRAME(box, regs1, regs2, regs3, clobbers...) \
+    RACE_LIVE_COPY_FRAME_FROM(register RaceFrameView * source asm("r0") = box, regs1, regs2, regs3, clobbers)
+#define RACE_LIVE_COPY_STACK_FRAME(regs1, regs2, regs3, clobbers...) \
+    RACE_LIVE_COPY_FRAME_FROM(RACE_LIVE_STACK(source, "r0", fetched), regs1, regs2, regs3, clobbers)
+#define RACE_LIVE_WORK_READ(value, reg, field) \
+    register __typeof__(work.field) value asm(reg); \
+    asm volatile ("ldr %0, [sp, %1]" : "=l" (value) \
+        : "I" (offsetof(RaceLiveGraphicsWork, field)) : "memory")
+#define RACE_LIVE_WORK_STORE(value, field) \
+    asm volatile ("str %0, [sp, %1]" : : "l" (value), \
+        "I" (offsetof(RaceLiveGraphicsWork, field)) : "memory")
+#define RACE_LIVE_STORE_KEYFRAMES(scratch_reg, state_field, work_field) do { \
+    RACE_LIVE_ADDR(keyframes, scratch_reg, state_field.clip.keyframes, 2); \
+    RACE_LIVE_WORK_STORE(keyframes, work_field); \
+} while (0)
+#define RACE_LIVE_STORE_SMALL_ADDRESS(scratch_reg, state_field, work_field) do { \
+    register uintptr_t address asm(scratch_reg) = reinterpret_cast<uintptr_t>(self); \
+    RACE_LIVE_PIN(address); \
+    address += offsetof(HorseRaceState, state_field); \
+    RACE_LIVE_PIN(address); \
+    RACE_LIVE_WORK_STORE(address, work_field); \
+} while (0)
+#define RACE_LIVE_STORE_SCRATCH_ADDRESS(scratch_reg, work_field, pointer_field) do { \
+    register uintptr_t address asm(scratch_reg); \
+    asm ("mov %0, sp" : "=l" (address)); \
+    address += offsetof(RaceLiveGraphicsWork, work_field); \
+    RACE_LIVE_PIN(address); \
+    RACE_LIVE_WORK_STORE(address, pointer_field); \
+} while (0)
+#define RACE_LIVE_STORE_LITERAL_ADDRESS(scratch_reg, label, work_field) do { \
+    RACE_LIVE_LOAD_LITERAL(address, scratch_reg, label); \
+    address += reinterpret_cast<uintptr_t>(self); \
+    RACE_LIVE_PIN(address); \
+    RACE_LIVE_WORK_STORE(address, work_field); \
+} while (0)
+#define RACE_LIVE_STACK_FRAME_COPY() do { \
+    RACE_LIVE_STACK(target, "r0", fetched); \
+    register RaceFrameView * source asm("r1") = target; \
+    RACE_LIVE_PIN(source); \
+    CopyRaceFrame(target, source, sizeof(work.fetched)); \
+} while (0)
+#define RACE_LIVE_READ_DATA_FRAME(animation, frame, frame_first) do { \
+    frame_first; \
+    register u32 frame_id asm("r2") = frame; \
+    RACE_LIVE_PIN(frame_id); \
+    ReadRaceDataFrame(result, source, frame_id); \
+} while (0)
+#define RACE_LIVE_DATA_FIRST(animation) \
+    RACE_LIVE_WORK_READ(source, "r1", animation); \
+    RACE_LIVE_STACK(result, "r0", fetched)
+#define RACE_LIVE_RESULT_FIRST(animation) \
+    RACE_LIVE_STACK(result, "r0", fetched); \
+    RACE_LIVE_WORK_READ(source, "r1", animation)
+#define RACE_LIVE_SAVED_RESULT() \
+    register RaceFrameView * result asm("r0") = fetched_frame; \
+    RACE_LIVE_PIN(result)
+#define RACE_LIVE_SET_RESULT(scratch) \
+    RACE_LIVE_STACK(result, scratch, fetched); \
+    fetched_frame = result; \
+    RACE_LIVE_HIGH(fetched_frame)
+#define RACE_LIVE_COPY_EFFECT_FRAME(fetched_frame, final_regs) do { \
+    register RaceFrameView * destination_box asm("r0") = fetched_frame; \
+    RACE_LIVE_PIN(destination_box); \
+    register RaceFrameView * source_box asm("r1") = fetched_frame; \
+    RACE_LIVE_PIN(source_box); \
+    CopyRaceFrame(destination_box, source_box, sizeof(*source_box)); \
+    RACE_LIVE_COPY_FRAME(fetched_frame, "r2,r3,r4", "r2,r3,r4", final_regs, "r2", "r3", "r4"); \
+} while (0)
+#define RACE_LIVE_EFFECT_CLIP(source, prepare_clip, clip_setup, clip_field, frame_index) \
+    register RaceFrameSourceVTable const * vtable asm("r4") = source->vtable; \
+    RACE_LIVE_PIN(vtable); \
+    RACE_LIVE_WORK_READ(clip_target, "r0", prepare_clip); \
+    register void (*get_clip)(RaceLiveClipView *, RaceFrameSource const *, u32) asm("r3") = vtable->get_clip; \
+    RACE_LIVE_PIN(get_clip); \
+    register RaceFrameSource const * clip_source asm("r1") = source; \
+    RACE_LIVE_PIN(clip_source); \
+    clip_setup; \
+    get_clip(clip_target, clip_source, clip_index); \
+    register uintptr_t keyframe_offset asm("r1") = frame_index * sizeof(SpriteKeyframe); \
+    RACE_LIVE_PIN(keyframe_offset); \
+    RACE_LIVE_WORK_READ(keyframes, "r0", clip_field.keyframes); \
+    register SpriteKeyframe const * current asm("r0") = reinterpret_cast<SpriteKeyframe const *>( \
+        reinterpret_cast<uintptr_t>(keyframes) + keyframe_offset); \
+    RACE_LIVE_PIN(current); \
+    register u32 frame_id asm("r2") = current->frame; \
+    RACE_LIVE_PIN(frame_id)
+#define RACE_LIVE_EFFECT_FRAME(source) \
+    RACE_LIVE_STACK(frame_target, "r0", fetched); \
+    register void (*get_frame)(RaceFrameView *, RaceFrameSource const *, u32) asm("r3") = vtable->get_frame; \
+    RACE_LIVE_PIN(get_frame); \
+    register RaceFrameSource const * frame_source asm("r1") = source; \
+    RACE_LIVE_PIN(frame_source); \
+    get_frame(frame_target, frame_source, frame_id)
+#define RACE_LIVE_APPEND_TILES(allocation, label, data_reg) do { \
+    RACE_LIVE_READ(data, data_reg, tiles); \
+    RACE_LIVE_ADDR(resource, "r0", allocation, 3); \
+    register u32 handle asm("r1") = resource->handle; \
+    RACE_LIVE_PIN(handle); \
+    register u32 index asm("r0") = ResolveRaceObjTile(resource, handle); \
+    RACE_LIVE_PIN(index); \
+    index += tile_offset; \
+    RACE_LIVE_PIN(index); \
+    index *= 32; \
+    RACE_LIVE_PIN(index); \
+    RACE_LIVE_LOAD_LITERAL(base, "r2", label); \
+    register void * destination asm("r1") = reinterpret_cast<void *>(index + base); \
+    RACE_LIVE_PIN(destination); \
+    RACE_LIVE_READ_LENGTH(bytes, tiles, r3, "r2"); \
+    Dma3_Copy(data, destination, bytes); \
+} while (0)
+#define RACE_LIVE_ADVANCE_TILE_OFFSET(load_slice, length_offset, slice_operand) do { \
+    RACE_LIVE_READ(slice_data, "r0", tiles); \
+    register u32 bytes asm("r1") = 0; \
+    RACE_LIVE_PIN(bytes); \
+    asm volatile ("cmp %1, #0\n\tbeq 1f\n\t" load_slice "\n\tldrh %0, [r4, %2]\n1:" \
+        : "+l" (bytes) : "l" (slice_data), "I" (length_offset), \
+            slice_operand : "r4", "cc", "memory"); \
+    register u32 tile_count asm("r0") = bytes / 32; \
+    RACE_LIVE_PIN(tile_count); \
+    tile_offset += tile_count; \
+    RACE_LIVE_PIN(tile_offset); \
+} while (0)
+#define RACE_LIVE_ADVANCE_SLICE_TILES(load_slice, slice_operand) \
+    RACE_LIVE_ADVANCE_TILE_OFFSET(load_slice, offsetof(__typeof__(work.frame.tiles), length), slice_operand)
+#define RACE_LIVE_RECORD_TILE_OFFSET(field, frame_index, literal) do { \
+    register u32 offset asm("r1") = frame_index * sizeof(self->field[0]); \
+    RACE_LIVE_PIN(offset); \
+    RACE_LIVE_LOAD_LITERAL(address, "r0", literal); \
+    address += reinterpret_cast<uintptr_t>(self); \
+    RACE_LIVE_PIN(address); \
+    register u16 * slot asm("r0") = reinterpret_cast<u16 *>(address + offset); \
+    RACE_LIVE_PIN(slot); \
+    asm volatile ("strh %0, [%1]" : : "l" (tile_offset), "l" (slot) : "memory"); \
+} while (0)
+#define RACE_LIVE_SCALE_KEYFRAME() \
+    register uintptr_t keyframe_offset asm("r2") = keyframe * sizeof(SpriteKeyframe); \
+    RACE_LIVE_PIN(keyframe_offset)
+#define RACE_LIVE_READ_KEYFRAME(address, result_setup) \
+    register SpriteKeyframe const * entries asm("r0") = *address; \
+    RACE_LIVE_PIN(entries); \
+    register SpriteKeyframe const * current asm("r0") = \
+        reinterpret_cast<SpriteKeyframe const *>(reinterpret_cast<uintptr_t>(entries) + keyframe_offset); \
+    RACE_LIVE_PIN(current); \
+    register u32 frame_id asm("r2") = current->frame; \
+    RACE_LIVE_PIN(frame_id); \
+    result_setup; \
+    register void (*get_frame)(RaceFrameView *, RaceFrameSource const *, u32) asm("r3") = vtable->get_frame; \
+    RACE_LIVE_PIN(get_frame); \
+    get_frame(result, source, frame_id)
+#define RACE_LIVE_ANIMATOR_FRAME_SETUP(animator_field, shift) \
+    RACE_LIVE_ADDR(animator, "r0", animator_field, shift); \
+    register RaceFrameSource const * source asm("r1") = reinterpret_cast<RaceFrameSource const *>(animator->source); \
+    RACE_LIVE_PIN(source); \
+    register RaceFrameSourceVTable const * vtable asm("r3") = source->vtable; \
+    RACE_LIVE_PIN(vtable); \
+    register u32 keyframe asm("r2") = animator->keyframe; \
+    RACE_LIVE_PIN(keyframe)
+#define RACE_LIVE_FETCH_ANIMATOR_FRAME(animator_field, shift, clip, clip_reg, result_setup) do { \
+    RACE_LIVE_ANIMATOR_FRAME_SETUP(animator_field, shift); \
+    RACE_LIVE_SCALE_KEYFRAME(); \
+    RACE_LIVE_WORK_READ(keyframes, clip_reg, clip); \
+    RACE_LIVE_READ_KEYFRAME(keyframes, result_setup); \
+} while (0)
+#define RACE_LIVE_FETCH_LANE_TWO_FRAME(lane) do { \
+    RACE_LIVE_ANIMATOR_FRAME_SETUP(race_horse_animators[lane].animator, 2); \
+    RACE_LIVE_ADDR(keyframes, "r0", race_horse_animators[lane].animator.clip.keyframes, 2); \
+    RACE_LIVE_SCALE_KEYFRAME(); \
+    RACE_LIVE_READ_KEYFRAME(keyframes, RACE_LIVE_STACK(result, "r0", fetched)); \
+} while (0)
+#define RACE_LIVE_READ(ptr, reg, field) \
+    register __typeof__(work.frame.field.data) ptr asm(reg); \
+    asm volatile ("ldr %0, [sp, %1]" : "=l" (ptr) : "I" (offsetof(RaceLiveGraphicsWork, frame.field)) : "memory")
+#define RACE_LIVE_READ_LENGTH(count, field, stack_reg, zero_reg) \
+    RACE_LIVE_READ(slice_data, "r0", field); \
+    register u32 count asm(zero_reg) = 0; \
+    RACE_LIVE_PIN(count); \
+    RACE_LIVE_LENGTH_##stack_reg(count, field)
+#define RACE_LIVE_LENGTH_ON_STACK(count, field, stack_reg) \
+    asm volatile ("cmp %1, #0\n\tbeq 1f\n\tmov " stack_reg ", sp\n\tldrh %0, [" stack_reg ", %2]\n1:" \
+        : "+l" (count), "+l" (slice_data) : "I" (offsetof(RaceLiveGraphicsWork, frame.field.length)) \
+        : "cc", "memory", stack_reg)
+#define RACE_LIVE_LENGTH_r3(count, field) RACE_LIVE_LENGTH_ON_STACK(count, field, "r3")
+#define RACE_LIVE_LENGTH_r4(count, field) RACE_LIVE_LENGTH_ON_STACK(count, field, "r4")
+#define RACE_LIVE_LENGTH_r5(count, field) RACE_LIVE_LENGTH_ON_STACK(count, field, "r5")
+#define RACE_LIVE_LENGTH_r7(count, field) RACE_LIVE_LENGTH_ON_STACK(count, field, "r7")
+#define RACE_LIVE_LENGTH_r0(count, field) \
+    asm volatile ("cmp %1, #0\n\tbeq 1f\n\tmov %1, sp\n\tldrh %0, [%1, %2]\n1:" \
+        : "+l" (count), "+l" (slice_data) : "I" (offsetof(RaceLiveGraphicsWork, frame.field.length)) \
+        : "cc", "memory")
+#define RACE_LIVE_LOAD_LITERAL(value, reg, label) \
+    register uintptr_t value asm(reg); \
+    asm ("ldr %0, " label : "=l" (value))
+#define RACE_LIVE_LOAD_PALETTE_BASE(label) \
+    asm ("ldr %0, " label : "=l" (palette_base)); \
+    RACE_LIVE_REUSE_PALETTE_BASE()
+#define RACE_LIVE_REUSE_PALETTE_BASE() \
+    register uintptr_t graphics_base asm("r5") = palette_base; \
+    RACE_LIVE_PIN(graphics_base)
+#define RACE_LIVE_UPLOAD(slice, allocation, resolve, scratch_reg, base, count_shift, prepare_data) do { \
+    prepare_data; \
+    RACE_LIVE_ADDR(resource, "r0", allocation, 3); \
+    register u32 handle asm("r1") = resource->handle; \
+    RACE_LIVE_PIN(handle); \
+    register u32 index asm("r0") = resolve(resource, handle); \
+    RACE_LIVE_PIN(index); \
+    index *= 32; \
+    RACE_LIVE_PIN(index); \
+    base; \
+    register void * destination asm("r1") = reinterpret_cast<void *>(index + graphics_base); \
+    RACE_LIVE_PIN(destination); \
+    RACE_LIVE_READ_LENGTH(bytes, slice, scratch_reg, "r2"); \
+    bytes >>= count_shift; \
+    RACE_LIVE_PIN(bytes); \
+    Dma3_Copy(data, destination, bytes); \
+} while (0)
+#define RACE_LIVE_UPLOAD_TILES(allocation, base, scratch_reg) \
+    RACE_LIVE_UPLOAD(tiles, allocation, ResolveRaceObjTile, scratch_reg, base, 0, RACE_LIVE_READ(data, "r4", tiles))
+#define RACE_LIVE_UPLOAD_PALETTE(allocation, base, scratch_reg, count_shift, prepare_data) \
+    RACE_LIVE_UPLOAD(palette, allocation, ResolveRaceObjPalette, scratch_reg, base, count_shift, prepare_data)
+#define RACE_LIVE_UPLOAD_MARKER_FRAME(base_reg, base_label, length_reg) do { \
+    register u32 handle asm("r1") = marker_allocation->handle; \
+    RACE_LIVE_PIN(handle); \
+    register u32 index asm("r0") = ResolveRaceObjTile(marker_allocation, handle); \
+    RACE_LIVE_PIN(index); \
+    index *= 32; \
+    RACE_LIVE_PIN(index); \
+    RACE_LIVE_LOAD_LITERAL(graphics_base, base_reg, base_label); \
+    register void * destination asm("r1") = reinterpret_cast<void *>(index + graphics_base); \
+    RACE_LIVE_PIN(destination); \
+    RACE_LIVE_READ_LENGTH(bytes, tiles, length_reg, "r2"); \
+    Dma3_Copy(marker_tiles, destination, bytes); \
+} while (0)
+#define RACE_LIVE_RESET_COURSE_MARKERS() do { \
+    register int marker_index asm("r3") = 0; \
+    RACE_LIVE_PIN(marker_index); \
+    RACE_LIVE_LOAD_LITERAL(hidden, "r0", ".Lrace_live_hidden_marker"); \
+    register u32 hidden_mask asm("r4") = hidden; \
+    RACE_LIVE_PIN(hidden_mask); \
+    RACE_LIVE_ADDR(marker, "r2", course_markers[0][0], 3); \
+    do { \
+        register u32 position asm("r0") = static_cast<u16>(marker->position); \
+        RACE_LIVE_PIN(position); \
+        position |= hidden_mask; \
+        RACE_LIVE_PIN(position); \
+        marker->position = position; \
+        asm volatile ("" : : "m" (marker->position)); \
+        register int lane asm("r1") = marker_index >> 3; \
+        RACE_LIVE_PIN(lane); \
+        register u32 y asm("r0") = lane << 1; \
+        RACE_LIVE_PIN(y); \
+        y += lane; \
+        RACE_LIVE_PIN(y); \
+        y <<= 3; \
+        RACE_LIVE_PIN(y); \
+        y += 64; \
+        RACE_LIVE_PIN(y); \
+        marker->y = y; \
+        asm volatile ("" : : "m" (marker->y)); \
+        ++marker; \
+        RACE_LIVE_PIN(marker); \
+        ++marker_index; \
+        RACE_LIVE_PIN(marker_index); \
+    } while (marker_index < int(sizeof(self->course_markers) / sizeof(*marker))); \
+} while (0)
+#define RACE_LIVE_SECOND_PALETTE(scratch_reg) \
+    register u16 const * palette_start asm("r1"); \
+    asm volatile ("ldr %0, [sp, %1]" : "=l" (palette_start) \
+        : "I" (offsetof(RaceLiveGraphicsWork, frame.palette)) : "memory"); \
+    register u32 palette_bytes asm("r0") = 0; \
+    RACE_LIVE_PIN(palette_bytes); \
+    asm volatile ("cmp %1, #0\n\tbeq 1f\n\tmov " scratch_reg ", sp\n\tldrh %0, [" scratch_reg ", %2]\n1:" \
+        : "+l" (palette_bytes) : "l" (palette_start), "I" (offsetof(RaceLiveGraphicsWork, frame.palette.length)) \
+        : "cc", "memory", scratch_reg); \
+    palette_bytes >>= 1; \
+    RACE_LIVE_PIN(palette_bytes); \
+    register u16 const * data asm("r4") = reinterpret_cast<u16 const *>( \
+        reinterpret_cast<uintptr_t>(palette_start) + palette_bytes); \
+    RACE_LIVE_PIN(data)
+// The horse frame stores two palettes of equal byte length.
+#define RACE_LIVE_UPLOAD_LANE_PALETTES(allocation, base, first_length_reg, offset_reg, second_length_reg) \
+    RACE_LIVE_UPLOAD_PALETTE(allocation[0], base, first_length_reg, 1, RACE_LIVE_READ(data, "r4", palette)); \
+    RACE_LIVE_UPLOAD_PALETTE(allocation[1], RACE_LIVE_REUSE_PALETTE_BASE(), second_length_reg, 1, \
+        RACE_LIVE_SECOND_PALETTE(offset_reg))
+#define RACE_LIVE_CLEAR_SLICE(field, reg) do { \
+    register void * slice asm(reg); \
+    asm ("add %0, sp, %1" : "=l" (slice) : "I" (offsetof(RaceLiveGraphicsWork, frame.field))); \
+    asm volatile ("str %0, [sp, %2]\n\tstrh %0, [%1, %3]" \
+        : : "l" (zero), "l" (slice), "I" (offsetof(RaceLiveGraphicsWork, frame.field)), \
+            "I" (offsetof(__typeof__(work.frame.field), length)) : "memory"); \
+} while (0)
+
+EC SECTION(".text.f3.0805B38C") void LoadHorseRaceObjectGraphics(HorseRaceState * race)
+{
+    typedef char RaceLiveGraphicsLayout[
+        sizeof(RaceLiveGraphicsWork) == 0x90 &&
+        offsetof(HorseRaceState, race_effect_animators[0].animator.clip.keyframes) == 0x474 &&
+        offsetof(HorseRaceState, entrant_overlay_animator.clip.keyframes) == 0x58C &&
+        offsetof(HorseRaceState, player_is_racing) == 0x140E &&
+        offsetof(HorseRaceState, sprint_effect_tile_offsets) == 0xBDA &&
+        offsetof(HorseRaceState, lane_effect_tile_offsets) == 0xBE2 ? 1 : -1];
+    RaceLiveGraphicsWork work;
+    register uintptr_t palette_base asm("r5");
+    register HorseRaceState * self asm("r8") = race;
+    asm ("" : "+h" (self));
+    // Reserve the full scratch block even though the accesses use SP directly.
+    register u32 reservation asm("r0");
+    asm ("" : "=l" (reservation) : "m" (work));
+
+    register RaceFrameSlice<SpriteFrameObject> * objects asm("r1");
+    asm ("mov %0, sp" : "=l" (objects));
+    register u32 zero asm("r0") = 0;
+    RACE_LIVE_PIN(zero);
+    asm volatile ("str %0, [sp, #0]\n\tstrh %0, [%1, #4]" : : "l" (zero), "l" (objects) : "memory");
+    RACE_LIVE_CLEAR_SLICE(tiles, "r6");
+    RACE_LIVE_CLEAR_SLICE(palette, "r5");
+    RACE_LIVE_CLEAR_SLICE(extras, "r1");
+
+    register SpriteKeyframe const * const * loop_keyframes asm("r9");
+    {
+        RACE_LIVE_ADDR(animator, "r0", course_end_animator, 1);
+        register RaceFrameSource const * source asm("r1") = reinterpret_cast<RaceFrameSource const *>(animator->source);
+        RACE_LIVE_PIN(source);
+        register RaceFrameSourceVTable const * vtable asm("r3") = source->vtable;
+        RACE_LIVE_PIN(vtable);
+        register u32 keyframe asm("r2") = animator->keyframe;
+        RACE_LIVE_PIN(keyframe);
+        RACE_LIVE_ADDR(keyframes, "r0", course_end_animator.clip.keyframes, 1);
+        loop_keyframes = keyframes;
+        RACE_LIVE_HIGH(loop_keyframes);
+        register uintptr_t keyframe_offset asm("r2") = keyframe * sizeof(SpriteKeyframe);
+        RACE_LIVE_PIN(keyframe_offset);
+        register SpriteKeyframe const * first_keyframe asm("r0") = *keyframes;
+        RACE_LIVE_PIN(first_keyframe);
+        register SpriteKeyframe const * current asm("r0") =
+            reinterpret_cast<SpriteKeyframe const *>(reinterpret_cast<uintptr_t>(first_keyframe) + keyframe_offset);
+        RACE_LIVE_PIN(current);
+        register u32 frame asm("r2") = current->frame;
+        RACE_LIVE_PIN(frame);
+        RACE_LIVE_STACK(result, "r0", fetched);
+        register void (*get_frame)(RaceFrameView *, RaceFrameSource const *, u32) asm("r3") = vtable->get_frame;
+        RACE_LIVE_PIN(get_frame);
+        get_frame(result, source, frame);
+        RACE_LIVE_STACK(box, "r4", fetched);
+        CopyRaceFrame(box, box, sizeof(*box));
+        RACE_LIVE_COPY_FRAME(box, "r2,r3,r7", "r2,r3,r7", "r2,r3", "r2", "r3", "r7");
+
+        RACE_LIVE_READ(palette, "r7", palette);
+        RACE_LIVE_ADDR(resource, "r0", course_end_palette, 3);
+        register u32 handle asm("r1") = resource->handle;
+        RACE_LIVE_PIN(handle);
+        register u32 palette_index asm("r0") = ResolveRaceObjPalette(resource, handle);
+        RACE_LIVE_PIN(palette_index);
+        palette_index *= 32;
+        RACE_LIVE_PIN(palette_index);
+        register u32 vram asm("r2");
+        asm ("ldr %0, .Lrace_live_palette_vram_first" : "=l" (vram));
+        register void * destination asm("r1") = reinterpret_cast<void *>(palette_index + vram);
+        RACE_LIVE_PIN(destination);
+        RACE_LIVE_READ_LENGTH(bytes, palette, r3, "r2");
+        Dma3_Copy(palette, destination, bytes);
+    }
+    // Pack the four course-end clips consecutively in the same OBJ tile allocation.
+    register u32 tile_offset = 0;
+    RACE_LIVE_PIN(tile_offset);
+    register i32 variant asm("r6") = 0;
+    RACE_LIVE_PIN(variant);
+    register SpriteKeyframe const * const * course_end_keyframes asm("r10") = loop_keyframes;
+    RACE_LIVE_HIGH(course_end_keyframes);
+    RACE_LIVE_STORE_KEYFRAMES("r4", race_horse_animators[0].animator, first_horse_keyframes);
+    RACE_LIVE_STORE_KEYFRAMES("r5", race_horse_animators[1].animator, second_horse_keyframes);
+    RACE_LIVE_STORE_KEYFRAMES("r0", race_horse_animators[3].animator, fourth_horse_keyframes);
+    RACE_LIVE_STORE_SMALL_ADDRESS("r2", course_marker_data, course_markers);
+    RACE_LIVE_STORE_KEYFRAMES("r3", start_effect_animator, start_effect_keyframes);
+    RACE_LIVE_STORE_SMALL_ADDRESS("r4", start_effect_data, start_effect);
+    RACE_LIVE_STORE_SCRATCH_ADDRESS("r5", start_effect_clip, start_effect_clip_ptr);
+    RACE_LIVE_STORE_SMALL_ADDRESS("r0", race_banner_data, race_banner);
+    RACE_LIVE_STORE_SCRATCH_ADDRESS("r2", sprint_effect_clip, sprint_effect_clip_ptr);
+    RACE_LIVE_STORE_LITERAL_ADDRESS("r3", ".Lrace_live_sprint_clip_offset", sprint_effect_keyframes);
+    RACE_LIVE_STORE_SCRATCH_ADDRESS("r4", lane_effect_clip, lane_effect_clip_ptr);
+    RACE_LIVE_STORE_LITERAL_ADDRESS("r5", ".Lrace_live_entrant_overlay_clip_offset", entrant_overlay_keyframes);
+    RACE_LIVE_ADDR(course_end_animator, "r5", course_end_animator, 1);
+    RACE_LIVE_STACK(fetched, "r0", fetched);
+    register RaceFrameView * fetched_frame asm("r9") = fetched;
+    RACE_LIVE_HIGH(fetched_frame);
+
+    do
+    {
+        SetSpriteAnimatorClip(course_end_animator, variant);
+        register RaceFrameSource const * source asm("r1") =
+            reinterpret_cast<RaceFrameSource const *>(course_end_animator->source);
+        RACE_LIVE_PIN(source);
+        register RaceFrameSourceVTable const * vtable asm("r3") = source->vtable;
+        RACE_LIVE_PIN(vtable);
+        register u32 keyframe asm("r2") = course_end_animator->keyframe;
+        RACE_LIVE_PIN(keyframe);
+        register uintptr_t keyframe_offset asm("r2") = keyframe * sizeof(SpriteKeyframe);
+        RACE_LIVE_PIN(keyframe_offset);
+        register SpriteKeyframe const * const * first asm("r4") = course_end_keyframes;
+        RACE_LIVE_PIN(first);
+        register SpriteKeyframe const * entries asm("r0") = *first;
+        RACE_LIVE_PIN(entries);
+        register SpriteKeyframe const * current asm("r0") =
+            reinterpret_cast<SpriteKeyframe const *>(reinterpret_cast<uintptr_t>(entries) + keyframe_offset);
+        RACE_LIVE_PIN(current);
+        register u32 frame asm("r2") = current->frame;
+        RACE_LIVE_PIN(frame);
+        RACE_LIVE_STACK(result, "r0", fetched);
+        register void (*get_frame)(RaceFrameView *, RaceFrameSource const *, u32) asm("r3") = vtable->get_frame;
+        RACE_LIVE_PIN(get_frame);
+        get_frame(result, source, frame);
+        RACE_LIVE_COPY_EFFECT_FRAME(fetched_frame, "r2,r3");
+        RACE_LIVE_APPEND_TILES(course_end_tiles, ".Lrace_live_tile_vram_course_end", "r4");
+        RACE_LIVE_ADVANCE_TILE_OFFSET("mov r4, sp", offsetof(RaceLiveGraphicsWork, frame.tiles.length), "I" (0));
+        variant++;
+        RACE_LIVE_PIN(variant);
+    } while (variant <= 3);
+
+    RACE_LIVE_FETCH_ANIMATOR_FRAME(race_horse_animators[0].animator, 2,
+        first_horse_keyframes, "r5", RACE_LIVE_SAVED_RESULT());
+    RACE_LIVE_STACK_FRAME_COPY();
+    RACE_LIVE_COPY_STACK_FRAME("r2,r3,r7", "r4,r5,r7", "r2,r3", "r2", "r3", "r4", "r5", "r7");
+    RACE_LIVE_UPLOAD_LANE_PALETTES(lane0_horse_palettes, RACE_LIVE_LOAD_PALETTE_BASE(".Lrace_live_palette_vram_first"), r7, "r2", r3);
+    RACE_LIVE_FETCH_ANIMATOR_FRAME(race_horse_animators[1].animator, 2,
+        second_horse_keyframes, "r4", RACE_LIVE_STACK(result, "r0", fetched));
+    RACE_LIVE_STACK_FRAME_COPY();
+    RACE_LIVE_COPY_STACK_FRAME("r2,r3,r7", "r2,r4,r7", "r3,r4", "r2", "r3", "r4", "r7");
+    RACE_LIVE_UPLOAD_LANE_PALETTES(lane1_horse_palettes, RACE_LIVE_REUSE_PALETTE_BASE(), r7, "r2", r3);
+    {
+        RACE_LIVE_LOAD_LITERAL(racing_offset, "r0", ".Lrace_live_player_is_racing_offset");
+        register u8 const * racing_field asm("r0") =
+            reinterpret_cast<u8 const *>(reinterpret_cast<uintptr_t>(self) + racing_offset);
+        RACE_LIVE_PIN(racing_field);
+        register u32 racing asm("r0") = *racing_field;
+        RACE_LIVE_PIN(racing);
+        asm volatile ("cmp %0, #0\n\tbne .Lrace_live_player_palette" : : "l" (racing) : "cc");
+    }
+    RACE_LIVE_FETCH_LANE_TWO_FRAME(2);
+    RACE_LIVE_STACK_FRAME_COPY();
+    RACE_LIVE_COPY_STACK_FRAME("r2,r4,r7", "r3,r4,r7", "r2,r3", "r2", "r3", "r4", "r7");
+    RACE_LIVE_UPLOAD_LANE_PALETTES(lane2_horse_palettes, RACE_LIVE_REUSE_PALETTE_BASE(), r7, "r2", r3);
+    // The alternate lane palette begins immediately after the first literal pool.
+    asm volatile (
+        "b .Lrace_live_last_lane_palette\n"
+        ".balign 4, 0\n"
+        ".Lrace_live_palette_vram_first: .4byte 0x05000200\n"
+        ".Lrace_live_sprint_clip_offset: .4byte 0x474\n"
+        ".Lrace_live_entrant_overlay_clip_offset: .4byte 0x58C\n"
+        ".Lrace_live_tile_vram_course_end: .4byte 0x06010000\n"
+        ".Lrace_live_player_is_racing_offset: .4byte 0x140E\n"
+        ".Lrace_live_player_palette:");
+    RACE_LIVE_FETCH_LANE_TWO_FRAME(4);
+    RACE_LIVE_STACK_FRAME_COPY();
+    RACE_LIVE_COPY_STACK_FRAME("r2,r4,r7", "r3,r4,r7", "r2,r3", "r2", "r3", "r4", "r7");
+    RACE_LIVE_UPLOAD_LANE_PALETTES(lane2_horse_palettes, RACE_LIVE_REUSE_PALETTE_BASE(), r7, "r2", r3);
+    asm volatile (".Lrace_live_last_lane_palette:");
+    RACE_LIVE_FETCH_ANIMATOR_FRAME(race_horse_animators[3].animator, 2,
+        fourth_horse_keyframes, "r4", RACE_LIVE_STACK(result, "r0", fetched));
+    RACE_LIVE_STACK_FRAME_COPY();
+    RACE_LIVE_COPY_STACK_FRAME("r2,r5,r7", "r3,r4,r5", "r2,r7", "r2", "r3", "r4", "r5", "r7");
+    RACE_LIVE_UPLOAD_LANE_PALETTES(lane3_horse_palettes, RACE_LIVE_LOAD_PALETTE_BASE(".Lrace_live_palette_vram_second"), r3, "r4", r7);
+
+    RACE_LIVE_READ_DATA_FRAME(course_markers, 0, RACE_LIVE_DATA_FIRST(course_markers));
+    RACE_LIVE_COPY_STACK_FRAME("r2,r3,r4", "r2,r3,r7", "r4,r7", "r2", "r3", "r4", "r7");
+    RACE_LIVE_UPLOAD_PALETTE(course_marker_palette,
+        RACE_LIVE_REUSE_PALETTE_BASE(), r0, 0, RACE_LIVE_READ(data, "r4", palette));
+    {
+        RACE_LIVE_READ(marker_tiles, "r5", tiles);
+        RACE_LIVE_ADDR(marker_allocation, "r4", course_marker_tiles, 3);
+        RACE_LIVE_UPLOAD_MARKER_FRAME("r2", ".Lrace_live_tile_vram_second", r3);
+        RACE_LIVE_READ_DATA_FRAME(course_markers, 1, RACE_LIVE_RESULT_FIRST(course_markers));
+        RACE_LIVE_COPY_STACK_FRAME("r2,r5,r7", "r3,r5,r7", "r2,r3", "r2", "r3", "r5", "r7");
+        asm volatile ("ldr %0, [sp, %1]" : "=l" (marker_tiles)
+            : "I" (offsetof(RaceLiveGraphicsWork, frame.tiles)) : "memory");
+        RACE_LIVE_UPLOAD_MARKER_FRAME("r4", ".Lrace_live_tile_vram_second_marker", r7);
+    }
+    RACE_LIVE_RESET_COURSE_MARKERS();
+
+    RACE_LIVE_FETCH_ANIMATOR_FRAME(start_effect_animator, 2,
+        start_effect_keyframes, "r4", RACE_LIVE_STACK(result, "r0", fetched));
+    RACE_LIVE_STACK_FRAME_COPY();
+    RACE_LIVE_COPY_STACK_FRAME("r2,r5,r7", "r3,r4,r5", "r2,r7", "r2", "r3", "r4", "r5", "r7");
+    RACE_LIVE_UPLOAD_PALETTE(start_effect_palette,
+        RACE_LIVE_LOAD_LITERAL(graphics_base, "r3", ".Lrace_live_palette_vram_second"), r5, 0, RACE_LIVE_READ(data, "r4", palette));
+    {
+        register u32 tile_offset asm("r7") = 0;
+        RACE_LIVE_PIN(tile_offset);
+        register int initial_clip asm("r0") = 0;
+        RACE_LIVE_PIN(initial_clip);
+        register int clip asm("r10") = initial_clip;
+        RACE_LIVE_HIGH(clip);
+        RACE_LIVE_WORK_READ(animation, "r5", start_effect);
+        RACE_LIVE_SET_RESULT("r2");
+        RACE_LIVE_STORE_SCRATCH_ADDRESS("r3", frame.tiles, start_effect_tile_slice);
+        register int next_clip asm("r0");
+        do
+        {
+            register int frame_index asm("r6") = 0;
+            RACE_LIVE_PIN(frame_index);
+            register int following_clip asm("r4") = clip;
+            RACE_LIVE_PIN(following_clip);
+            ++following_clip;
+            RACE_LIVE_PIN(following_clip);
+            RACE_LIVE_WORK_STORE(following_clip, next_start_effect_clip);
+            do
+            {
+                RACE_LIVE_EFFECT_CLIP(animation, start_effect_clip_ptr,
+                    register int clip_index asm("r2") = clip; RACE_LIVE_PIN(clip_index),
+                    start_effect_clip, frame_index);
+                RACE_LIVE_EFFECT_FRAME(animation);
+                RACE_LIVE_COPY_EFFECT_FRAME(fetched_frame, "r2,r3");
+                RACE_LIVE_APPEND_TILES(start_effect_tiles, ".Lrace_live_tile_vram_second", "r4");
+                RACE_LIVE_ADVANCE_SLICE_TILES("ldr r4, [sp, %3]",
+                    "I" (offsetof(RaceLiveGraphicsWork, start_effect_tile_slice)));
+                ++frame_index;
+                RACE_LIVE_PIN(frame_index);
+            } while (frame_index < 2);
+            asm volatile ("ldr %0, [sp, %1]" : "=l" (next_clip)
+                : "I" (offsetof(RaceLiveGraphicsWork, next_start_effect_clip)) : "memory");
+            clip = next_clip;
+            RACE_LIVE_HIGH(clip);
+        } while (next_clip < 3);
+    }
+
+    RACE_LIVE_READ_DATA_FRAME(race_banner, 0, RACE_LIVE_RESULT_FIRST(race_banner));
+    RACE_LIVE_COPY_STACK_FRAME("r2,r3,r4", "r2,r5,r7", "r3,r4", "r2", "r3", "r4", "r5", "r7");
+    RACE_LIVE_UPLOAD_PALETTE(starting_banner_palette,
+        RACE_LIVE_LOAD_PALETTE_BASE(".Lrace_live_palette_vram_second"), r7, 0, RACE_LIVE_READ(data, "r4", palette));
+    RACE_LIVE_UPLOAD_TILES(starting_banner_tiles,
+        RACE_LIVE_LOAD_LITERAL(graphics_base, "r2", ".Lrace_live_tile_vram_second"), r3);
+    {
+        register u32 tile_offset asm("r7") = 0;
+        RACE_LIVE_PIN(tile_offset);
+        register int frame_index asm("r5") = 0;
+        RACE_LIVE_PIN(frame_index);
+        RACE_LIVE_ADDR(animation_data, "r6", sprint_effect_data, 1);
+        register RaceFrameSource const * animation asm("r6") =
+            reinterpret_cast<RaceFrameSource const *>(animation_data);
+        RACE_LIVE_PIN(animation);
+        RACE_LIVE_STACK(tile_slice, "r4", frame.tiles);
+        register RaceFrameSlice<u8> * saved_slice asm("r10") = tile_slice;
+        RACE_LIVE_HIGH(saved_slice);
+        RACE_LIVE_SET_RESULT("r0");
+        do
+        {
+            RACE_LIVE_RECORD_TILE_OFFSET(sprint_effect_tile_offsets, frame_index, ".Lrace_live_sprint_tile_offsets");
+            RACE_LIVE_EFFECT_CLIP(animation, sprint_effect_clip_ptr,
+                register u32 clip_index asm("r2") = 0; RACE_LIVE_PIN(clip_index),
+                sprint_effect_clip, frame_index);
+            RACE_LIVE_EFFECT_FRAME(animation);
+            RACE_LIVE_COPY_EFFECT_FRAME(fetched_frame, "r2,r3");
+            RACE_LIVE_APPEND_TILES(sprint_effect_tiles, ".Lrace_live_tile_vram_second", "r4");
+            RACE_LIVE_ADVANCE_SLICE_TILES("mov r4, %3", "h" (saved_slice));
+            ++frame_index;
+            RACE_LIVE_PIN(frame_index);
+        } while (frame_index < 4);
+    }
+    RACE_LIVE_FETCH_ANIMATOR_FRAME(race_effect_animators[0].animator, 3,
+        sprint_effect_keyframes, "r5", RACE_LIVE_SAVED_RESULT());
+    RACE_LIVE_STACK_FRAME_COPY();
+    RACE_LIVE_COPY_STACK_FRAME("r2,r3,r7", "r4,r5,r7", "r2,r3", "r2", "r3", "r4", "r5", "r7");
+    RACE_LIVE_UPLOAD_PALETTE(sprint_effect_palette,
+        RACE_LIVE_LOAD_PALETTE_BASE(".Lrace_live_palette_vram_second"), r7, 0, RACE_LIVE_READ(data, "r4", palette));
+    {
+        register u32 tile_offset asm("r7") = 0;
+        RACE_LIVE_PIN(tile_offset);
+        register int frame_index asm("r5") = 0;
+        RACE_LIVE_PIN(frame_index);
+        RACE_LIVE_ADDR(animation_data, "r6", lane_effect_data, 1);
+        register RaceFrameSource const * animation asm("r6") =
+            reinterpret_cast<RaceFrameSource const *>(animation_data);
+        RACE_LIVE_PIN(animation);
+        RACE_LIVE_STACK(tile_slice, "r0", frame.tiles);
+        register RaceFrameSlice<u8> * saved_slice asm("r10") = tile_slice;
+        RACE_LIVE_HIGH(saved_slice);
+        RACE_LIVE_SET_RESULT("r2");
+        do
+        {
+            RACE_LIVE_RECORD_TILE_OFFSET(lane_effect_tile_offsets, frame_index, ".Lrace_live_lane_effect_tile_offsets");
+            RACE_LIVE_EFFECT_CLIP(animation, lane_effect_clip_ptr,
+                register u32 clip_index asm("r2") = 0; RACE_LIVE_PIN(clip_index),
+                lane_effect_clip, frame_index);
+            asm volatile (
+                "b 1f\n\t"
+                ".balign 4, 0\n"
+                ".Lrace_live_palette_vram_second: .4byte 0x05000200\n"
+                ".Lrace_live_tile_vram_second: .4byte 0x06010000\n"
+                ".Lrace_live_tile_vram_second_marker: .4byte 0x06010100\n"
+                ".Lrace_live_hidden_marker: .4byte 0xFFFF\n"
+                ".Lrace_live_sprint_tile_offsets: .4byte 0xBDA\n"
+                ".Lrace_live_lane_effect_tile_offsets: .4byte 0xBE2\n"
+                "1:"
+                : : : "memory");
+            RACE_LIVE_EFFECT_FRAME(animation);
+            RACE_LIVE_COPY_EFFECT_FRAME(fetched_frame, "r3,r4");
+            RACE_LIVE_APPEND_TILES(lane_effect_tiles, ".Lrace_live_tile_vram_last", "r4");
+            RACE_LIVE_ADVANCE_SLICE_TILES("mov r4, %3", "h" (saved_slice));
+            ++frame_index;
+            RACE_LIVE_PIN(frame_index);
+        } while (frame_index < 4);
+    }
+    RACE_LIVE_FETCH_ANIMATOR_FRAME(entrant_overlay_animator, 3,
+        entrant_overlay_keyframes, "r5", RACE_LIVE_SAVED_RESULT());
+    RACE_LIVE_STACK_FRAME_COPY();
+    RACE_LIVE_COPY_STACK_FRAME("r2,r3,r7", "r4,r5,r7", "r2,r3", "r2", "r3", "r4", "r5", "r7");
+    RACE_LIVE_UPLOAD_TILES(entrant_overlay_tiles,
+        RACE_LIVE_LOAD_LITERAL(graphics_base, "r5", ".Lrace_live_tile_vram_last"), r7);
+}
+
+asm (
+    ".pushsection .text.f3.0805B38C, \"ax\", %progbits\n"
+    ".balign 4, 0\n"
+    ".Lrace_live_tile_vram_last: .4byte 0x06010000\n"
+    ".popsection");
+
+#undef RACE_LIVE_CLEAR_SLICE
+#undef RACE_LIVE_UPLOAD_LANE_PALETTES
+#undef RACE_LIVE_SECOND_PALETTE
+#undef RACE_LIVE_RESET_COURSE_MARKERS
+#undef RACE_LIVE_UPLOAD_MARKER_FRAME
+#undef RACE_LIVE_UPLOAD_PALETTE
+#undef RACE_LIVE_UPLOAD_TILES
+#undef RACE_LIVE_UPLOAD
+#undef RACE_LIVE_REUSE_PALETTE_BASE
+#undef RACE_LIVE_LOAD_PALETTE_BASE
+#undef RACE_LIVE_LOAD_LITERAL
+#undef RACE_LIVE_LENGTH_r0
+#undef RACE_LIVE_LENGTH_r7
+#undef RACE_LIVE_LENGTH_r5
+#undef RACE_LIVE_LENGTH_r4
+#undef RACE_LIVE_LENGTH_r3
+#undef RACE_LIVE_LENGTH_ON_STACK
+#undef RACE_LIVE_READ_LENGTH
+#undef RACE_LIVE_READ
+#undef RACE_LIVE_FETCH_LANE_TWO_FRAME
+#undef RACE_LIVE_FETCH_ANIMATOR_FRAME
+#undef RACE_LIVE_ANIMATOR_FRAME_SETUP
+#undef RACE_LIVE_READ_KEYFRAME
+#undef RACE_LIVE_SCALE_KEYFRAME
+#undef RACE_LIVE_RECORD_TILE_OFFSET
+#undef RACE_LIVE_ADVANCE_SLICE_TILES
+#undef RACE_LIVE_ADVANCE_TILE_OFFSET
+#undef RACE_LIVE_APPEND_TILES
+#undef RACE_LIVE_EFFECT_FRAME
+#undef RACE_LIVE_EFFECT_CLIP
+#undef RACE_LIVE_COPY_EFFECT_FRAME
+#undef RACE_LIVE_SET_RESULT
+#undef RACE_LIVE_SAVED_RESULT
+#undef RACE_LIVE_RESULT_FIRST
+#undef RACE_LIVE_DATA_FIRST
+#undef RACE_LIVE_READ_DATA_FRAME
+#undef RACE_LIVE_STACK_FRAME_COPY
+#undef RACE_LIVE_STORE_LITERAL_ADDRESS
+#undef RACE_LIVE_STORE_SCRATCH_ADDRESS
+#undef RACE_LIVE_STORE_SMALL_ADDRESS
+#undef RACE_LIVE_STORE_KEYFRAMES
+#undef RACE_LIVE_WORK_STORE
+#undef RACE_LIVE_WORK_READ
+#undef RACE_LIVE_COPY_STACK_FRAME
+#undef RACE_LIVE_COPY_FRAME
+#undef RACE_LIVE_COPY_FRAME_FROM
+#undef RACE_LIVE_STACK
+#undef RACE_LIVE_ADDR
+#undef RACE_LIVE_HIGH
+#undef RACE_LIVE_PIN

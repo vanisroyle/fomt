@@ -4853,7 +4853,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r5, r5, #1
 	adds r0, r7, r5
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r6, .L080A2FF4 @ =0x06010000
 	adds r1, r0, r6
@@ -5053,7 +5053,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r0, r0, r5
 	lsls r0, r0, #5
 	ldr r2, .L080A2FF4 @ =0x06010000
@@ -5172,7 +5172,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	b .L080A2FF8
 	.align 2, 0
 .L080A2FC0: .4byte 0x06007FE0
@@ -5639,7 +5639,7 @@ func_080A32A4: @ 0x080A32A4
 	lsls r2, r2, #1
 	adds r0, r6, r2
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #8
 	strh r0, [r1, #6]
 	movs r3, #0xd6
@@ -5743,7 +5743,7 @@ func_080A32A4: @ 0x080A32A4
 	lsls r1, r1, #1
 	adds r0, r6, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	ldrb r2, [r4, #2]
 	lsls r2, r2, #0x1c
 	lsrs r2, r2, #0x1b
@@ -5813,7 +5813,7 @@ func_080A32A4: @ 0x080A32A4
 	movs r1, #0x41
 	movs r2, #2
 	movs r3, #0xa
-	bl func_080A3618
+	bl DrawCalendarGlyph
 	movs r5, #0xf1
 	lsls r5, r5, #1
 	adds r0, r6, r5
@@ -5824,7 +5824,7 @@ func_080A32A4: @ 0x080A32A4
 	adds r0, r6, #0
 	movs r1, #0x80
 	movs r2, #2
-	bl func_080A3618
+	bl DrawCalendarGlyph
 	movs r5, #6
 .L080A34F0:
 	movs r0, #0
@@ -5845,7 +5845,7 @@ func_080A32A4: @ 0x080A32A4
 	adds r0, r6, #0
 	adds r1, r5, #0
 	movs r2, #0x15
-	bl func_080A3618
+	bl DrawCalendarGlyph
 	adds r5, #0x22
 	adds r4, #1
 	cmp r4, #6
@@ -5910,158 +5910,7 @@ func_080A32A4: @ 0x080A32A4
 
     .section .text.g1_after_b9_080A3588, "ax", %progbits
 
-	thumb_func_start func_080A3618
-func_080A3618: @ 0x080A3618
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #0x5c
-	adds r7, r0, #0
-	mov r8, r1
-	mov sb, r2
-	adds r5, r3, #0
-	mov r1, sp
-	movs r2, #0
-	movs r0, #0
-	strh r0, [r1]
-	strh r0, [r1, #2]
-	strh r0, [r1, #4]
-	strh r0, [r1, #6]
-	strh r0, [r1, #8]
-	str r0, [sp, #0xc]
-	strb r2, [r1, #0x10]
-	strb r2, [r1, #0x11]
-	str r0, [sp, #0x14]
-	strb r2, [r1, #0x18]
-	add r6, sp, #0x1c
-	str r0, [sp, #0x1c]
-	strh r0, [r6, #4]
-	add r1, sp, #0x24
-	str r0, [sp, #0x24]
-	strh r0, [r1, #4]
-	add r1, sp, #0x2c
-	str r0, [sp, #0x2c]
-	strh r0, [r1, #4]
-	add r1, sp, #0x34
-	str r0, [sp, #0x34]
-	strh r0, [r1, #4]
-	adds r4, r7, #0
-	adds r4, #0xb0
-	adds r0, r4, #0
-	adds r1, r5, #0
-	bl SetSpriteAnimatorClip
-	ldr r1, [r4]
-	ldr r3, [r1]
-	ldrh r2, [r4, #0xc]
-	adds r0, r7, #0
-	adds r0, #0xb4
-	lsls r2, r2, #2
-	ldr r0, [r0]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #0x3c
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r4, sp, #0x3c
-	adds r0, r4, #0
-	adds r1, r4, #0
-	movs r2, #0x20
-	bl memcpy
-	adds r0, r6, #0
-	ldm r4!, {r1, r2, r3}
-	stm r0!, {r1, r2, r3}
-	ldm r4!, {r1, r2, r3}
-	stm r0!, {r1, r2, r3}
-	ldm r4!, {r1, r2}
-	stm r0!, {r1, r2}
-	mov r1, sp
-	adds r0, r7, #0
-	adds r0, #0xc4
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldr r0, [r0]
-	str r0, [r1]
-	mov r0, sp
-	mov r3, r8
-	strh r3, [r0]
-	mov r4, sb
-	strh r4, [r0, #2]
-	movs r1, #0xba
-	lsls r1, r1, #1
-	adds r0, r7, r1
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	mov r2, sp
-	lsls r5, r5, #1
-	movs r3, #0xa0
-	lsls r3, r3, #1
-	adds r1, r7, r3
-	adds r1, r1, r5
-	ldrh r1, [r1]
-	adds r1, r1, r0
-	strh r1, [r2, #6]
-	ldr r4, [sp, #0x78]
-	cmp r4, #1
-	beq .L080A36F6
-	cmp r4, #1
-	bgt .L080A36E6
-	cmp r4, #0
-	beq .L080A36EE
-	b .L080A370E
-.L080A36E6:
-	ldr r0, [sp, #0x78]
-	cmp r0, #2
-	beq .L080A36FE
-	b .L080A370E
-.L080A36EE:
-	movs r1, #0xbe
-	lsls r1, r1, #1
-	adds r0, r7, r1
-	b .L080A3704
-.L080A36F6:
-	movs r2, #0xc2
-	lsls r2, r2, #1
-	adds r0, r7, r2
-	b .L080A3704
-.L080A36FE:
-	movs r3, #0xc6
-	lsls r3, r3, #1
-	adds r0, r7, r3
-.L080A3704:
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	mov r1, sp
-	strh r0, [r1, #4]
-.L080A370E:
-	mov r1, sp
-	movs r2, #1
-	movs r0, #1
-	strh r0, [r1, #8]
-	mov r0, sp
-	strb r2, [r0, #0x18]
-	adds r0, r7, #0
-	bl HardwareContext_GetOamBuffer
-	adds r3, r0, #0
-	ldr r0, [sp, #0x1c]
-	adds r1, r0, #0
-	movs r2, #0
-	cmp r1, #0
-	beq .L080A372E
-	ldrh r2, [r6, #4]
-.L080A372E:
-	adds r0, r3, #0
-	mov r3, sp
-	bl func_0805E99C
-	add sp, #0x5c
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
+    .section .text.g1_after_b17_080A3618, "ax", %progbits
 
     .section .text.g1_after_b4_080A3744, "ax", %progbits
 
@@ -7023,7 +6872,7 @@ func_080A480C: @ 0x080A480C
 .L080A482A:
 	adds r0, #4
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	lsls r2, r2, #5
 	ldr r0, .L080A4868 @ =0x06010000

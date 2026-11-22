@@ -172,10 +172,22 @@ SECTIONS
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);
         asm/hardware.o(.text.after_08007C28);
+        src/hardware.o(.text.TileHandle_Retain);
+        asm/hardware.o(.text.after_08007CD8);
+        src/hardware.o(.text.TileHandle_GetTileIndex);
+        asm/hardware.o(.text.after_08007D4C);
+        src/hardware.o(.text.TileHandle_GetOrder);
+        asm/hardware.o(.text.after_08007DB8);
+        src/hardware.o(.text.TileHandle_GetRefCount);
+        asm/hardware.o(.text.after_08007E24);
         src/hardware.o(.text.AllocationTree_MarkFull);
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
         asm/hardware.o(.text.after_08007EC8);
+        src/hardware.o(.text.AllocationTree_AllocateBlock);
+        asm/hardware.o(.text.after_08008020);
+        src/hardware.o(.text.AllocationTree_FreeBlock);
+        asm/hardware.o(.text.after_080080A0);
         src/hardware.o(.text.TilePool_Initialize);
         asm/hardware.o(.text.after_0800835C);
         src/hardware.o(.text.TilePool_Destroy);
@@ -419,8 +431,8 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_080115B0);
         asm/game_state.o(.text.game_state_08011650);
         src/game_state_part1.o(.text.game_state_08011CD8);
-        asm/game_state.o(.text.game_state_08011DC4);
-        asm/game_state.o(.text.game_state_08011ED8);
+        src/game_state_part1.o(.text.game_state_08011DC4);
+        src/game_state_part1.o(.text.game_state_08011ED8);
         src/game_state_part1.o(.text.game_state_08011FE8);
         asm/game_state.o(.text.game_state_08012028);
         src/game_state_part1.o(.text.game_state_08012064);
@@ -503,14 +515,15 @@ SECTIONS
         src/game_state_part1.o(.text.game_state_0801323C);
         src/game_state_part1.o(.text.game_state_080132D0);
         src/game_state_part1.o(.text.game_state_08013364);
-        asm/game_state.o(.text.game_state_08013408);
+        src/game_state_part1.o(.text.game_state_08013408);
+        src/game_state_part1.o(.text.game_state_080134A4);
         src/game_state_part1.o(.text.game_state_08013544);
         src/game_state_part1.o(.text.game_state_080135D8);
         src/game_state_part1.o(.text.game_state_0801366C);
         src/game_state_part1.o(.text.game_state_08013700);
         src/game_state_part1.o(.text.game_state_08013794);
         src/game_state_part1.o(.text.game_state_08013828);
-        asm/game_state.o(.text.game_state_080138C0);
+        src/game_state_part1.o(.text.game_state_080138C0);
         src/game_state_part1.o(.text.game_state_0801395C);
         src/game_state_part1.o(.text.game_state_080139F0);
         src/game_state_part1.o(.text.game_state_08013A94);
@@ -1025,7 +1038,7 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809C4EC);
         src/code_actor_0809BFE8.o(.text.0809C510);
         src/code_actor_0809BFE8.o(.text.0809C5B4);
-        asm/code_actor_0809BFE8.o(.text.0809C6BC);
+        src/code_actor_0809BFE8.o(.text.0809C6BC);
         src/code_actor_0809BFE8.o(.text.0809CD78);
         src/code_actor_0809BFE8.o(.text.0809CE8C);
         src/code_actor_0809BFE8.o(.text.0809CF34);
@@ -1205,6 +1218,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1FC4);
         src/g1_calendar_numbers.o(.text.g1_080A3588);
         asm/g1_npc.o(.text.g1_after_b9_080A3588);
+        src/g1_calendar_numbers.o(.text.g1_080A3618);
+        asm/g1_npc.o(.text.g1_after_b17_080A3618);
         src/g1_scene_wrapper.o(.text.g1_080A3744);
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
@@ -1725,6 +1740,8 @@ SECTIONS
         *(.vietnamese_font);
         . = ALIGN(4);
         *(.graphics_overflow);
+        . = ALIGN(4);
+        *(.text_table_overflow);
         . = ALIGN(0x800000);
     } > ROM = 0xFF
 
