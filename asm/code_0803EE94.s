@@ -58229,6 +58229,243 @@ InitFarmOverviewReport: @ 0x0805FF14
 
 	.purgem CommitFarmOverviewTransferList
 
+	.equ .Llivestock_init_stack_bytes, 0xf4
+	.equ .Llivestock_init_sp_title_arg, (.Llivestock_init_stack_bytes + 0x20)
+	.equ .Llivestock_init_sp_dma_command, 4
+	.equ .Llivestock_init_sp_report, 0xa8
+	.equ .Llivestock_init_sp_old_dma_end, 0xec
+	.equ .Llivestock_init_sp_dma_buffer, 0xf0
+	.equ .Llivestock_init_healthy_bitmap, 0x5BC
+	.equ .Llivestock_init_sick_bitmap, 0x9C4
+	.equ .Llivestock_init_spring_bitmap, 0xCD0
+	.equ .Llivestock_init_summer_bitmap, 0xE54
+	.equ .Llivestock_init_autumn_bitmap, 0xFD8
+	.equ .Llivestock_init_winter_bitmap, 0x115C
+	.equ .Llivestock_init_years_bitmap, 0xBC8
+	.equ .Llivestock_init_birthday_unit_bitmap, 0xC4C
+	.equ .Llivestock_init_unhappy_bitmap, 0x7C0
+	.equ .Llivestock_init_bg_char_base, 0x06000000
+	.equ .Llivestock_init_tile_size, 32
+
+	@ Retire the old DMA commands and publish the new buffer.
+	.macro CommitLivestockInitDmaBuffer new_begin
+	ldr r2, [r7, #4]
+	ldr r1, [r7]
+	adds r0, r1, #0
+	cmp r1, r2
+	beq .Llivestock_init_free_old_buffer\@
+.Llivestock_init_retire_old_buffer\@:
+	adds r0, #0x10
+	cmp r0, r2
+	bne .Llivestock_init_retire_old_buffer\@
+.Llivestock_init_free_old_buffer\@:
+	cmp r1, #0
+	beq .Llivestock_init_publish_new_buffer\@
+	adds r0, r1, #0
+	bl free
+.Llivestock_init_publish_new_buffer\@:
+	ldr r0, [sp, #.Llivestock_init_sp_dma_buffer]
+	add r0, r8
+	ldr \new_begin, [sp, #.Llivestock_init_sp_dma_buffer]
+	str \new_begin, [r7]
+	str r5, [r7, #4]
+	str r0, [r7, #0xc]
+	.endm
+
+	@ Insert one label copy command, growing the queue by max(size, 1).
+	@ r7 = DMA queue, r1 = old end, sb = new command.
+	.macro GrowLivestockInitLabelDmaQueue occupied_slot, end_tmp, copy_last, new_begin
+	mov sl, r1
+	movs r0, #1
+	str r0, [sp, #(\occupied_slot + 4)]
+	ldr r1, [r7]
+	mov \end_tmp, sl
+	subs r0, \end_tmp, r1
+	asrs r4, r0, #4
+	str r4, [sp, #\occupied_slot]
+	add r2, sp, #(\occupied_slot + 4)
+	add r0, sp, #\occupied_slot
+	cmp r4, #1
+	bhs .Llivestock_init_grow_use_larger_count\@
+	adds r0, r2, #0
+.Llivestock_init_grow_use_larger_count\@:
+	ldr r0, [r0]
+	adds r0, r4, r0
+	cmp r0, #0
+	beq .Llivestock_init_grow_no_allocation\@
+	lsls r4, r0, #4
+	adds r0, r4, #0
+	bl malloc
+	mov r8, r4
+	cmp r0, #0
+	bne .Llivestock_init_grow_reload_old_start\@
+	mov r0, r8
+	bl func_080D3BC0
+.Llivestock_init_grow_reload_old_start\@:
+	ldr r1, [r7]
+	b .Llivestock_init_grow_prepare_copy\@
+.Llivestock_init_grow_no_allocation\@:
+	movs r0, #0
+	mov r8, r0
+.Llivestock_init_grow_prepare_copy\@:
+	adds r5, r0, #0
+	str r5, [sp, #.Llivestock_init_sp_dma_buffer]
+	adds r2, r1, #0
+	adds r3, r5, #0
+	cmp r2, sl
+	beq .Llivestock_init_grow_insert\@
+.Llivestock_init_grow_copy_existing\@:
+	cmp r3, #0
+	beq .Llivestock_init_grow_next_existing\@
+	adds r0, r3, #0
+	adds r1, r2, #0
+	ldm r1!, {r4, r5, r6}
+	stm r0!, {r4, r5, r6}
+	ldr r1, [r1]
+	str r1, [r0]
+.Llivestock_init_grow_next_existing\@:
+	adds r2, #0x10
+	adds r3, #0x10
+	cmp r2, sl
+	bne .Llivestock_init_grow_copy_existing\@
+.Llivestock_init_grow_insert\@:
+	adds r5, r3, #0
+	ldr r0, [sp, #(\occupied_slot + 4)]
+	cmp r0, #1
+	bne .Llivestock_init_grow_insert_many\@
+	cmp r5, #0
+	beq .Llivestock_init_grow_skip_single_copy\@
+	adds r0, r5, #0
+	mov r1, sb
+	ldm r1!, {r2, r3, \copy_last}
+	stm r0!, {r2, r3, \copy_last}
+	ldr r1, [r1]
+	str r1, [r0]
+.Llivestock_init_grow_skip_single_copy\@:
+	adds r5, #0x10
+	b .Llivestock_init_grow_publish\@
+.Llivestock_init_grow_insert_many\@:
+	adds r3, r0, #0
+	adds r2, r5, #0
+	cmp r3, #0
+	beq .Llivestock_init_grow_insert_complete\@
+.Llivestock_init_grow_copy_inserted\@:
+	cmp r2, #0
+	beq .Llivestock_init_grow_next_inserted\@
+	adds r0, r2, #0
+	mov r1, sb
+	ldm r1!, {r4, r5, r6}
+	stm r0!, {r4, r5, r6}
+	ldr r1, [r1]
+	str r1, [r0]
+.Llivestock_init_grow_next_inserted\@:
+	subs r3, #1
+	adds r2, #0x10
+	cmp r3, #0
+	bne .Llivestock_init_grow_copy_inserted\@
+.Llivestock_init_grow_insert_complete\@:
+	adds r5, r2, #0
+.Llivestock_init_grow_publish\@:
+	CommitLivestockInitDmaBuffer \new_begin
+	.endm
+
+	@ Same growth for icon uploads; the old end and insert count use stack slots.
+	.macro GrowLivestockInitIconDmaQueue occupied_slot
+	str r1, [sp, #.Llivestock_init_sp_old_dma_end]
+	movs r0, #1
+	add r1, sp, #(\occupied_slot + 4)
+	str r0, [r1]
+	ldr r0, [r7]
+	ldr r6, [sp, #.Llivestock_init_sp_old_dma_end]
+	subs r0, r6, r0
+	asrs r4, r0, #4
+	add r0, sp, #\occupied_slot
+	str r4, [r0]
+	ldr r2, [r1]
+	mov sl, r1
+	cmp r4, r2
+	bhs .Llivestock_init_grow_use_larger_count\@
+	mov r0, sl
+.Llivestock_init_grow_use_larger_count\@:
+	ldr r0, [r0]
+	adds r0, r4, r0
+	cmp r0, #0
+	beq .Llivestock_init_grow_no_allocation\@
+	lsls r4, r0, #4
+	adds r0, r4, #0
+	bl malloc
+	mov r8, r4
+	cmp r0, #0
+	bne .Llivestock_init_grow_prepare_copy\@
+	mov r0, r8
+	bl func_080D3BC0
+	b .Llivestock_init_grow_prepare_copy\@
+.Llivestock_init_grow_no_allocation\@:
+	movs r0, #0
+	mov r8, r0
+.Llivestock_init_grow_prepare_copy\@:
+	adds r5, r0, #0
+	str r5, [sp, #.Llivestock_init_sp_dma_buffer]
+	ldr r2, [r7]
+	adds r3, r5, #0
+	b .Llivestock_init_grow_check_existing_end\@
+.Llivestock_init_grow_copy_existing\@:
+	cmp r3, #0
+	beq .Llivestock_init_grow_next_existing\@
+	adds r0, r3, #0
+	adds r1, r2, #0
+	ldm r1!, {r4, r5, r6}
+	stm r0!, {r4, r5, r6}
+	ldr r1, [r1]
+	str r1, [r0]
+.Llivestock_init_grow_next_existing\@:
+	adds r2, #0x10
+	adds r3, #0x10
+.Llivestock_init_grow_check_existing_end\@:
+	ldr r0, [sp, #.Llivestock_init_sp_old_dma_end]
+	cmp r2, r0
+	bne .Llivestock_init_grow_copy_existing\@
+	adds r5, r3, #0
+	mov r2, sl
+	ldr r1, [r2]
+	cmp r1, #1
+	bne .Llivestock_init_grow_insert_many\@
+	cmp r5, #0
+	beq .Llivestock_init_grow_skip_single_copy\@
+	adds r0, r5, #0
+	mov r1, sb
+	ldm r1!, {r3, r4, r6}
+	stm r0!, {r3, r4, r6}
+	ldr r1, [r1]
+	str r1, [r0]
+.Llivestock_init_grow_skip_single_copy\@:
+	adds r5, #0x10
+	b .Llivestock_init_grow_publish\@
+.Llivestock_init_grow_insert_many\@:
+	adds r3, r1, #0
+	adds r2, r5, #0
+	cmp r3, #0
+	beq .Llivestock_init_grow_insert_complete\@
+.Llivestock_init_grow_copy_inserted\@:
+	cmp r2, #0
+	beq .Llivestock_init_grow_next_inserted\@
+	adds r0, r2, #0
+	mov r1, sb
+	ldm r1!, {r4, r5, r6}
+	stm r0!, {r4, r5, r6}
+	ldr r1, [r1]
+	str r1, [r0]
+.Llivestock_init_grow_next_inserted\@:
+	subs r3, #1
+	adds r2, #0x10
+	cmp r3, #0
+	bne .Llivestock_init_grow_copy_inserted\@
+.Llivestock_init_grow_insert_complete\@:
+	adds r5, r2, #0
+.Llivestock_init_grow_publish\@:
+	CommitLivestockInitDmaBuffer r1
+	.endm
+
 	thumb_func_start InitLivestockReport
 InitLivestockReport: @ 0x08062E9C
 	push {r4, r5, r6, r7, lr}
@@ -58236,13 +58473,13 @@ InitLivestockReport: @ 0x08062E9C
 	mov r6, sb
 	mov r5, r8
 	push {r5, r6, r7}
-	sub sp, #0xf4
-	str r0, [sp, #0xa8]
-	ldr r0, [sp, #0x114]
+	sub sp, #.Llivestock_init_stack_bytes
+	str r0, [sp, #.Llivestock_init_sp_report]
+	ldr r0, [sp, #.Llivestock_init_sp_title_arg]
 	str r0, [sp]
-	ldr r0, [sp, #0xa8]
+	ldr r0, [sp, #.Llivestock_init_sp_report]
 	bl func_08076BFC
-	ldr r0, [sp, #0xa8]
+	ldr r0, [sp, #.Llivestock_init_sp_report]
 	ldr r2, .L08062FA4 @ =0x000005B4
 	adds r1, r0, r2
 	ldr r0, .L08062FA8 @ =vtable_unk_080E7A68
@@ -58276,11 +58513,11 @@ InitLivestockReport: @ 0x08062E9C
 	str r2, [sp, #0xb4]
 	movs r1, #1
 	rsbs r1, r1, #0
-.L08062EF8:
+.Llivestock_init_countdown:
 	subs r0, #1
 	cmp r0, r1
-	bne .L08062EF8
-	ldr r3, [sp, #0xa8]
+	bne .Llivestock_init_countdown
+	ldr r3, [sp, #.Llivestock_init_sp_report]
 	ldr r0, [r3]
 	bl HardwareContext_GetDmaQueue
 	adds r7, r0, #0
@@ -58290,8 +58527,8 @@ InitLivestockReport: @ 0x08062E9C
 	strh r5, [r0]
 	strh r6, [r4, #2]
 	ldr r0, [sp, #0x14]
-	ldr r1, [sp, #0xa8]
-	ldr r2, .L08062FAC @ =0x000005BC
+	ldr r1, [sp, #.Llivestock_init_sp_report]
+	ldr r2, .L08062FAC @ =.Llivestock_init_healthy_bitmap
 	adds r4, r1, r2
 	adds r1, r4, #0
 	movs r2, #0
@@ -58309,75 +58546,75 @@ InitLivestockReport: @ 0x08062E9C
 	bl DrawMessageTileString
 	movs r3, #0x80
 	lsls r3, r3, #2
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	adds r1, r4, #0
-	ldr r2, .L08062FB4 @ =0x06000700
+	ldr r2, .L08062FB4 @ =(.Llivestock_init_bg_char_base + 0x38 * .Llivestock_init_tile_size)
 	bl DmaCommand_InitializeCopy
-	add r4, sp, #4
+	add r4, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r4
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08062FD0
+	beq .Llivestock_init_grow_healthy_label
 	cmp r1, #0
-	beq .L08062F64
+	beq .Llivestock_init_finish_healthy_fast_append
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r5, r6}
 	stm r0!, {r2, r5, r6}
 	ldr r1, [r1]
 	str r1, [r0]
-.L08062F64:
+.Llivestock_init_finish_healthy_fast_append:
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	ldr r3, [sp, #0xa8]
-	movs r4, #0xf8
+	ldr r3, [sp, #.Llivestock_init_sp_report]
+	movs r4, #(.Llivestock_init_unhappy_bitmap >> 3)
 	lsls r4, r4, #3
 	adds r3, r3, r4
 	mov sl, r3
-	ldr r6, .L08062FB8 @ =0x000009C4
-	ldr r5, [sp, #0xa8]
+	ldr r6, .L08062FB8 @ =.Llivestock_init_sick_bitmap
+	ldr r5, [sp, #.Llivestock_init_sp_report]
 	adds r6, r5, r6
 	str r6, [sp, #0xc8]
-	movs r0, #0xcd
+	movs r0, #(.Llivestock_init_spring_bitmap >> 4)
 	lsls r0, r0, #4
 	adds r0, r5, r0
 	str r0, [sp, #0xc4]
-	ldr r1, .L08062FBC @ =0x00000E54
+	ldr r1, .L08062FBC @ =.Llivestock_init_summer_bitmap
 	adds r1, r5, r1
 	str r1, [sp, #0xd0]
-	ldr r2, .L08062FC0 @ =0x00000FD8
+	ldr r2, .L08062FC0 @ =.Llivestock_init_autumn_bitmap
 	adds r2, r5, r2
 	str r2, [sp, #0xbc]
-	ldr r3, .L08062FC4 @ =0x0000115C
+	ldr r3, .L08062FC4 @ =.Llivestock_init_winter_bitmap
 	adds r3, r5, r3
 	str r3, [sp, #0xcc]
-	ldr r4, .L08062FC8 @ =0x00000BC8
+	ldr r4, .L08062FC8 @ =.Llivestock_init_years_bitmap
 	adds r4, r5, r4
 	str r4, [sp, #0xb8]
-	ldr r6, .L08062FCC @ =0x00000C4C
+	ldr r6, .L08062FCC @ =.Llivestock_init_birthday_unit_bitmap
 	adds r6, r5, r6
 	str r6, [sp, #0xc0]
-	b .L080630EC
+	b .Llivestock_init_render_unhappy_label
 	.align 2, 0
 .L08062FA4: .4byte 0x000005B4
 .L08062FA8: .4byte vtable_unk_080E7A68
-.L08062FAC: .4byte 0x000005BC
+.L08062FAC: .4byte .Llivestock_init_healthy_bitmap
 .L08062FB0: .4byte gLivestockReportHealthyLabel
-.L08062FB4: .4byte 0x06000700
-.L08062FB8: .4byte 0x000009C4
-.L08062FBC: .4byte 0x00000E54
-.L08062FC0: .4byte 0x00000FD8
-.L08062FC4: .4byte 0x0000115C
-.L08062FC8: .4byte 0x00000BC8
-.L08062FCC: .4byte 0x00000C4C
-.L08062FD0:
-	str r1, [sp, #0xec]
+.L08062FB4: .4byte (.Llivestock_init_bg_char_base + 0x38 * .Llivestock_init_tile_size)
+.L08062FB8: .4byte .Llivestock_init_sick_bitmap
+.L08062FBC: .4byte .Llivestock_init_summer_bitmap
+.L08062FC0: .4byte .Llivestock_init_autumn_bitmap
+.L08062FC4: .4byte .Llivestock_init_winter_bitmap
+.L08062FC8: .4byte .Llivestock_init_years_bitmap
+.L08062FCC: .4byte .Llivestock_init_birthday_unit_bitmap
+.Llivestock_init_grow_healthy_label:
+	str r1, [sp, #.Llivestock_init_sp_old_dma_end]
 	movs r0, #1
 	str r0, [sp, #0x20]
 	ldr r1, [r7]
-	ldr r2, [sp, #0xec]
+	ldr r2, [sp, #.Llivestock_init_sp_old_dma_end]
 	subs r0, r2, r1
 	asrs r4, r0, #4
 	str r4, [sp, #0x1c]
@@ -58407,38 +58644,38 @@ InitLivestockReport: @ 0x08062E9C
 	mov r8, r0
 .L0806300E:
 	adds r5, r0, #0
-	str r5, [sp, #0xf0]
+	str r5, [sp, #.Llivestock_init_sp_dma_buffer]
 	adds r2, r1, #0
 	adds r3, r5, #0
-	ldr r4, [sp, #0xa8]
-	movs r5, #0xf8
+	ldr r4, [sp, #.Llivestock_init_sp_report]
+	movs r5, #(.Llivestock_init_unhappy_bitmap >> 3)
 	lsls r5, r5, #3
 	adds r4, r4, r5
 	mov sl, r4
-	ldr r0, .L0806308C @ =0x000009C4
-	ldr r6, [sp, #0xa8]
+	ldr r0, .L0806308C @ =.Llivestock_init_sick_bitmap
+	ldr r6, [sp, #.Llivestock_init_sp_report]
 	adds r0, r6, r0
 	str r0, [sp, #0xc8]
-	movs r1, #0xcd
+	movs r1, #(.Llivestock_init_spring_bitmap >> 4)
 	lsls r1, r1, #4
 	adds r1, r6, r1
 	str r1, [sp, #0xc4]
-	ldr r4, .L08063090 @ =0x00000E54
+	ldr r4, .L08063090 @ =.Llivestock_init_summer_bitmap
 	adds r4, r6, r4
 	str r4, [sp, #0xd0]
-	ldr r5, .L08063094 @ =0x00000FD8
+	ldr r5, .L08063094 @ =.Llivestock_init_autumn_bitmap
 	adds r5, r6, r5
 	str r5, [sp, #0xbc]
-	ldr r0, .L08063098 @ =0x0000115C
+	ldr r0, .L08063098 @ =.Llivestock_init_winter_bitmap
 	adds r0, r6, r0
 	str r0, [sp, #0xcc]
-	ldr r1, .L0806309C @ =0x00000BC8
+	ldr r1, .L0806309C @ =.Llivestock_init_years_bitmap
 	adds r1, r6, r1
 	str r1, [sp, #0xb8]
-	ldr r4, .L080630A0 @ =0x00000C4C
+	ldr r4, .L080630A0 @ =.Llivestock_init_birthday_unit_bitmap
 	adds r4, r6, r4
 	str r4, [sp, #0xc0]
-	ldr r5, [sp, #0xec]
+	ldr r5, [sp, #.Llivestock_init_sp_old_dma_end]
 	cmp r2, r5
 	beq .L0806306E
 .L08063054:
@@ -58453,7 +58690,7 @@ InitLivestockReport: @ 0x08062E9C
 .L08063064:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r6, [sp, #0xec]
+	ldr r6, [sp, #.Llivestock_init_sp_old_dma_end]
 	cmp r2, r6
 	bne .L08063054
 .L0806306E:
@@ -58473,12 +58710,12 @@ InitLivestockReport: @ 0x08062E9C
 	adds r5, #0x10
 	b .L080630C6
 	.align 2, 0
-.L0806308C: .4byte 0x000009C4
-.L08063090: .4byte 0x00000E54
-.L08063094: .4byte 0x00000FD8
-.L08063098: .4byte 0x0000115C
-.L0806309C: .4byte 0x00000BC8
-.L080630A0: .4byte 0x00000C4C
+.L0806308C: .4byte .Llivestock_init_sick_bitmap
+.L08063090: .4byte .Llivestock_init_summer_bitmap
+.L08063094: .4byte .Llivestock_init_autumn_bitmap
+.L08063098: .4byte .Llivestock_init_winter_bitmap
+.L0806309C: .4byte .Llivestock_init_years_bitmap
+.L080630A0: .4byte .Llivestock_init_birthday_unit_bitmap
 .L080630A4:
 	adds r3, r0, #0
 	adds r2, r5, #0
@@ -58501,28 +58738,8 @@ InitLivestockReport: @ 0x08062E9C
 .L080630C4:
 	adds r5, r2, #0
 .L080630C6:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L080630D6
-.L080630D0:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L080630D0
-.L080630D6:
-	cmp r1, #0
-	beq .L080630E0
-	adds r0, r1, #0
-	bl free
-.L080630E0:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r6, [sp, #0xf0]
-	str r6, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L080630EC:
+	CommitLivestockInitDmaBuffer r6
+.Llivestock_init_render_unhappy_label:
 	ldr r3, .L0806313C @ =gLivestockReportUnhappyLabel
 	movs r1, #8
 	movs r2, #2
@@ -58538,20 +58755,20 @@ InitLivestockReport: @ 0x08062E9C
 	bl DrawMessageTileString
 	movs r3, #0x80
 	lsls r3, r3, #2
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	mov r1, sl
-	ldr r2, .L08063140 @ =0x06000900
+	ldr r2, .L08063140 @ =(.Llivestock_init_bg_char_base + 0x48 * .Llivestock_init_tile_size)
 	bl DmaCommand_InitializeCopy
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r1
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08063144
+	beq .Llivestock_init_grow_unhappy_label
 	cmp r1, #0
 	beq .L08063132
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r3, r4}
 	stm r0!, {r2, r3, r4}
 	ldr r1, [r1]
@@ -58560,124 +58777,13 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L0806320A
+	b .Llivestock_init_render_sick_label
 	.align 2, 0
 .L0806313C: .4byte gLivestockReportUnhappyLabel
-.L08063140: .4byte 0x06000900
-.L08063144:
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #0x2c]
-	ldr r1, [r7]
-	mov r5, sl
-	subs r0, r5, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x28]
-	add r2, sp, #0x2c
-	add r0, sp, #0x28
-	cmp r4, #1
-	bhs .L0806315E
-	adds r0, r2, #0
-.L0806315E:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0806317E
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L0806317A
-	mov r0, r8
-	bl func_080D3BC0
-.L0806317A:
-	ldr r1, [r7]
-	b .L08063182
-.L0806317E:
-	movs r0, #0
-	mov r8, r0
-.L08063182:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .L080631A6
-.L0806318E:
-	cmp r3, #0
-	beq .L0806319E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806319E:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .L0806318E
-.L080631A6:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x2c]
-	cmp r0, #1
-	bne .L080631C2
-	cmp r5, #0
-	beq .L080631BE
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080631BE:
-	adds r5, #0x10
-	b .L080631E4
-.L080631C2:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L080631E2
-.L080631CA:
-	cmp r2, #0
-	beq .L080631DA
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080631DA:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080631CA
-.L080631E2:
-	adds r5, r2, #0
-.L080631E4:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L080631F4
-.L080631EE:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L080631EE
-.L080631F4:
-	cmp r1, #0
-	beq .L080631FE
-	adds r0, r1, #0
-	bl free
-.L080631FE:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L0806320A:
+.L08063140: .4byte (.Llivestock_init_bg_char_base + 0x48 * .Llivestock_init_tile_size)
+.Llivestock_init_grow_unhappy_label:
+	GrowLivestockInitLabelDmaQueue 0x28, r5, r6, r1
+.Llivestock_init_render_sick_label:
 	movs r4, #8
 	movs r5, #2
 	add r0, sp, #0x30
@@ -58701,20 +58807,20 @@ InitLivestockReport: @ 0x08062E9C
 	bl DrawMessageTileString
 	movs r3, #0x80
 	lsls r3, r3, #2
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r1, [sp, #0xc8]
-	ldr r2, .L08063270 @ =0x06000B00
+	ldr r2, .L08063270 @ =(.Llivestock_init_bg_char_base + 0x58 * .Llivestock_init_tile_size)
 	bl DmaCommand_InitializeCopy
-	add r4, sp, #4
+	add r4, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r4
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08063274
+	beq .Llivestock_init_grow_sick_label
 	cmp r1, #0
 	beq .L08063262
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r5, r6}
 	stm r0!, {r2, r5, r6}
 	ldr r1, [r1]
@@ -58723,124 +58829,13 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L0806333A
+	b .Llivestock_init_render_spring_label
 	.align 2, 0
 .L0806326C: .4byte gLivestockReportSickLabel
-.L08063270: .4byte 0x06000B00
-.L08063274:
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #0x3c]
-	ldr r1, [r7]
-	mov r3, sl
-	subs r0, r3, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x38]
-	add r2, sp, #0x3c
-	add r0, sp, #0x38
-	cmp r4, #1
-	bhs .L0806328E
-	adds r0, r2, #0
-.L0806328E:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080632AE
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080632AA
-	mov r0, r8
-	bl func_080D3BC0
-.L080632AA:
-	ldr r1, [r7]
-	b .L080632B2
-.L080632AE:
-	movs r0, #0
-	mov r8, r0
-.L080632B2:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .L080632D6
-.L080632BE:
-	cmp r3, #0
-	beq .L080632CE
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080632CE:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .L080632BE
-.L080632D6:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x3c]
-	cmp r0, #1
-	bne .L080632F2
-	cmp r5, #0
-	beq .L080632EE
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080632EE:
-	adds r5, #0x10
-	b .L08063314
-.L080632F2:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08063312
-.L080632FA:
-	cmp r2, #0
-	beq .L0806330A
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806330A:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L080632FA
-.L08063312:
-	adds r5, r2, #0
-.L08063314:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063324
-.L0806331E:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L0806331E
-.L08063324:
-	cmp r1, #0
-	beq .L0806332E
-	adds r0, r1, #0
-	bl free
-.L0806332E:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r6, [sp, #0xf0]
-	str r6, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L0806333A:
+.L08063270: .4byte (.Llivestock_init_bg_char_base + 0x58 * .Llivestock_init_tile_size)
+.Llivestock_init_grow_sick_label:
+	GrowLivestockInitLabelDmaQueue 0x38, r3, r4, r6
+.Llivestock_init_render_spring_label:
 	ldr r3, .L08063388 @ =gLivestockReportSpringLabel
 	movs r1, #6
 	movs r2, #2
@@ -58856,20 +58851,20 @@ InitLivestockReport: @ 0x08062E9C
 	bl DrawMessageTileString
 	movs r3, #0xc0
 	lsls r3, r3, #1
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r1, [sp, #0xc4]
-	ldr r2, .L0806338C @ =0x06000D00
+	ldr r2, .L0806338C @ =(.Llivestock_init_bg_char_base + .Llivestock_first_season_tile * .Llivestock_init_tile_size)
 	bl DmaCommand_InitializeCopy
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r1
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08063390
+	beq .Llivestock_init_grow_spring_label
 	cmp r1, #0
 	beq .L08063380
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r3, r4}
 	stm r0!, {r2, r3, r4}
 	ldr r1, [r1]
@@ -58878,124 +58873,13 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L08063456
+	b .Llivestock_init_render_summer_label
 	.align 2, 0
 .L08063388: .4byte gLivestockReportSpringLabel
-.L0806338C: .4byte 0x06000D00
-.L08063390:
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #0x48]
-	ldr r1, [r7]
-	mov r5, sl
-	subs r0, r5, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x44]
-	add r2, sp, #0x48
-	add r0, sp, #0x44
-	cmp r4, #1
-	bhs .L080633AA
-	adds r0, r2, #0
-.L080633AA:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080633CA
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080633C6
-	mov r0, r8
-	bl func_080D3BC0
-.L080633C6:
-	ldr r1, [r7]
-	b .L080633CE
-.L080633CA:
-	movs r0, #0
-	mov r8, r0
-.L080633CE:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .L080633F2
-.L080633DA:
-	cmp r3, #0
-	beq .L080633EA
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L080633EA:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .L080633DA
-.L080633F2:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x48]
-	cmp r0, #1
-	bne .L0806340E
-	cmp r5, #0
-	beq .L0806340A
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806340A:
-	adds r5, #0x10
-	b .L08063430
-.L0806340E:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L0806342E
-.L08063416:
-	cmp r2, #0
-	beq .L08063426
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063426:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08063416
-.L0806342E:
-	adds r5, r2, #0
-.L08063430:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063440
-.L0806343A:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L0806343A
-.L08063440:
-	cmp r1, #0
-	beq .L0806344A
-	adds r0, r1, #0
-	bl free
-.L0806344A:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L08063456:
+.L0806338C: .4byte (.Llivestock_init_bg_char_base + .Llivestock_first_season_tile * .Llivestock_init_tile_size)
+.Llivestock_init_grow_spring_label:
+	GrowLivestockInitLabelDmaQueue 0x44, r5, r6, r1
+.Llivestock_init_render_summer_label:
 	ldr r3, .L080634A4 @ =gLivestockReportSummerLabel
 	movs r1, #6
 	movs r2, #2
@@ -59011,20 +58895,20 @@ InitLivestockReport: @ 0x08062E9C
 	bl DrawMessageTileString
 	movs r3, #0xc0
 	lsls r3, r3, #1
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r1, [sp, #0xd0]
-	ldr r2, .L080634A8 @ =0x06000E80
+	ldr r2, .L080634A8 @ =(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 12) * .Llivestock_init_tile_size)
 	bl DmaCommand_InitializeCopy
-	add r5, sp, #4
+	add r5, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r5
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L080634AC
+	beq .Llivestock_init_grow_summer_label
 	cmp r1, #0
 	beq .L0806349C
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r3, r6}
 	stm r0!, {r2, r3, r6}
 	ldr r1, [r1]
@@ -59033,124 +58917,13 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L08063572
+	b .Llivestock_init_render_autumn_label
 	.align 2, 0
 .L080634A4: .4byte gLivestockReportSummerLabel
-.L080634A8: .4byte 0x06000E80
-.L080634AC:
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #0x54]
-	ldr r1, [r7]
-	mov r4, sl
-	subs r0, r4, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x50]
-	add r2, sp, #0x54
-	add r0, sp, #0x50
-	cmp r4, #1
-	bhs .L080634C6
-	adds r0, r2, #0
-.L080634C6:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L080634E6
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080634E2
-	mov r0, r8
-	bl func_080D3BC0
-.L080634E2:
-	ldr r1, [r7]
-	b .L080634EA
-.L080634E6:
-	movs r0, #0
-	mov r8, r0
-.L080634EA:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .L0806350E
-.L080634F6:
-	cmp r3, #0
-	beq .L08063506
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063506:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .L080634F6
-.L0806350E:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x54]
-	cmp r0, #1
-	bne .L0806352A
-	cmp r5, #0
-	beq .L08063526
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063526:
-	adds r5, #0x10
-	b .L0806354C
-.L0806352A:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L0806354A
-.L08063532:
-	cmp r2, #0
-	beq .L08063542
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063542:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08063532
-.L0806354A:
-	adds r5, r2, #0
-.L0806354C:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L0806355C
-.L08063556:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L08063556
-.L0806355C:
-	cmp r1, #0
-	beq .L08063566
-	adds r0, r1, #0
-	bl free
-.L08063566:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L08063572:
+.L080634A8: .4byte (.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 12) * .Llivestock_init_tile_size)
+.Llivestock_init_grow_summer_label:
+	GrowLivestockInitLabelDmaQueue 0x50, r4, r6, r1
+.Llivestock_init_render_autumn_label:
 	ldr r3, .L080635C0 @ =gLivestockReportFallLabel
 	movs r1, #6
 	movs r2, #2
@@ -59166,20 +58939,20 @@ InitLivestockReport: @ 0x08062E9C
 	bl DrawMessageTileString
 	movs r3, #0xc0
 	lsls r3, r3, #1
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r1, [sp, #0xbc]
-	ldr r2, .L080635C4 @ =0x06001000
+	ldr r2, .L080635C4 @ =(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 24) * .Llivestock_init_tile_size)
 	bl DmaCommand_InitializeCopy
-	add r5, sp, #4
+	add r5, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r5
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L080635C8
+	beq .Llivestock_init_grow_autumn_label
 	cmp r1, #0
 	beq .L080635B8
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r3, r6}
 	stm r0!, {r2, r3, r6}
 	ldr r1, [r1]
@@ -59188,124 +58961,13 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L0806368E
+	b .Llivestock_init_render_winter_label
 	.align 2, 0
 .L080635C0: .4byte gLivestockReportFallLabel
-.L080635C4: .4byte 0x06001000
-.L080635C8:
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #0x60]
-	ldr r1, [r7]
-	mov r4, sl
-	subs r0, r4, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x5c]
-	add r2, sp, #0x60
-	add r0, sp, #0x5c
-	cmp r4, #1
-	bhs .L080635E2
-	adds r0, r2, #0
-.L080635E2:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08063602
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L080635FE
-	mov r0, r8
-	bl func_080D3BC0
-.L080635FE:
-	ldr r1, [r7]
-	b .L08063606
-.L08063602:
-	movs r0, #0
-	mov r8, r0
-.L08063606:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .L0806362A
-.L08063612:
-	cmp r3, #0
-	beq .L08063622
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063622:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .L08063612
-.L0806362A:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x60]
-	cmp r0, #1
-	bne .L08063646
-	cmp r5, #0
-	beq .L08063642
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063642:
-	adds r5, #0x10
-	b .L08063668
-.L08063646:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08063666
-.L0806364E:
-	cmp r2, #0
-	beq .L0806365E
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806365E:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L0806364E
-.L08063666:
-	adds r5, r2, #0
-.L08063668:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063678
-.L08063672:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L08063672
-.L08063678:
-	cmp r1, #0
-	beq .L08063682
-	adds r0, r1, #0
-	bl free
-.L08063682:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L0806368E:
+.L080635C4: .4byte (.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 24) * .Llivestock_init_tile_size)
+.Llivestock_init_grow_autumn_label:
+	GrowLivestockInitLabelDmaQueue 0x5c, r4, r6, r1
+.Llivestock_init_render_winter_label:
 	ldr r3, .L080636DC @ =gLivestockReportWinterLabel
 	movs r1, #6
 	movs r2, #2
@@ -59321,20 +58983,20 @@ InitLivestockReport: @ 0x08062E9C
 	bl DrawMessageTileString
 	movs r3, #0xc0
 	lsls r3, r3, #1
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r1, [sp, #0xcc]
-	ldr r2, .L080636E0 @ =0x06001180
+	ldr r2, .L080636E0 @ =(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 36) * .Llivestock_init_tile_size)
 	bl DmaCommand_InitializeCopy
-	add r5, sp, #4
+	add r5, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r5
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L080636E4
+	beq .Llivestock_init_grow_winter_label
 	cmp r1, #0
 	beq .L080636D4
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r3, r6}
 	stm r0!, {r2, r3, r6}
 	ldr r1, [r1]
@@ -59343,124 +59005,13 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L080637AA
+	b .Llivestock_init_render_years_suffix
 	.align 2, 0
 .L080636DC: .4byte gLivestockReportWinterLabel
-.L080636E0: .4byte 0x06001180
-.L080636E4:
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #0x6c]
-	ldr r1, [r7]
-	mov r4, sl
-	subs r0, r4, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x68]
-	add r2, sp, #0x6c
-	add r0, sp, #0x68
-	cmp r4, #1
-	bhs .L080636FE
-	adds r0, r2, #0
-.L080636FE:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0806371E
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L0806371A
-	mov r0, r8
-	bl func_080D3BC0
-.L0806371A:
-	ldr r1, [r7]
-	b .L08063722
-.L0806371E:
-	movs r0, #0
-	mov r8, r0
-.L08063722:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .L08063746
-.L0806372E:
-	cmp r3, #0
-	beq .L0806373E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806373E:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .L0806372E
-.L08063746:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x6c]
-	cmp r0, #1
-	bne .L08063762
-	cmp r5, #0
-	beq .L0806375E
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r6}
-	stm r0!, {r2, r3, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806375E:
-	adds r5, #0x10
-	b .L08063784
-.L08063762:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08063782
-.L0806376A:
-	cmp r2, #0
-	beq .L0806377A
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0806377A:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L0806376A
-.L08063782:
-	adds r5, r2, #0
-.L08063784:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063794
-.L0806378E:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L0806378E
-.L08063794:
-	cmp r1, #0
-	beq .L0806379E
-	adds r0, r1, #0
-	bl free
-.L0806379E:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L080637AA:
+.L080636E0: .4byte (.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 36) * .Llivestock_init_tile_size)
+.Llivestock_init_grow_winter_label:
+	GrowLivestockInitLabelDmaQueue 0x68, r4, r6, r1
+.Llivestock_init_render_years_suffix:
 	ldr r2, .L080637F4 @ =gLivestockReportYearAgeSuffix
 	movs r1, #2
 	add r0, sp, #0x70
@@ -59473,21 +59024,21 @@ InitLivestockReport: @ 0x08062E9C
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r1, [sp, #0xb8]
-	ldr r2, .L080637F8 @ =0x06001300
+	ldr r2, .L080637F8 @ =(.Llivestock_init_bg_char_base + .Llivestock_year_tile * .Llivestock_init_tile_size)
 	movs r3, #0x80
 	bl DmaCommand_InitializeCopy
-	add r4, sp, #4
+	add r4, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r4
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L080637FC
+	beq .Llivestock_init_grow_years_suffix
 	cmp r1, #0
 	beq .L080637EC
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r5, r6}
 	stm r0!, {r2, r5, r6}
 	ldr r1, [r1]
@@ -59496,124 +59047,13 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L080638C2
+	b .Llivestock_init_render_birthday_unit
 	.align 2, 0
 .L080637F4: .4byte gLivestockReportYearAgeSuffix
-.L080637F8: .4byte 0x06001300
-.L080637FC:
-	mov sl, r1
-	movs r0, #1
-	str r0, [sp, #0x78]
-	ldr r1, [r7]
-	mov r3, sl
-	subs r0, r3, r1
-	asrs r4, r0, #4
-	str r4, [sp, #0x74]
-	add r2, sp, #0x78
-	add r0, sp, #0x74
-	cmp r4, #1
-	bhs .L08063816
-	adds r0, r2, #0
-.L08063816:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08063836
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08063832
-	mov r0, r8
-	bl func_080D3BC0
-.L08063832:
-	ldr r1, [r7]
-	b .L0806383A
-.L08063836:
-	movs r0, #0
-	mov r8, r0
-.L0806383A:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	adds r2, r1, #0
-	adds r3, r5, #0
-	cmp r2, sl
-	beq .L0806385E
-.L08063846:
-	cmp r3, #0
-	beq .L08063856
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063856:
-	adds r2, #0x10
-	adds r3, #0x10
-	cmp r2, sl
-	bne .L08063846
-.L0806385E:
-	adds r5, r3, #0
-	ldr r0, [sp, #0x78]
-	cmp r0, #1
-	bne .L0806387A
-	cmp r5, #0
-	beq .L08063876
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r2, r3, r4}
-	stm r0!, {r2, r3, r4}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063876:
-	adds r5, #0x10
-	b .L0806389C
-.L0806387A:
-	adds r3, r0, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L0806389A
-.L08063882:
-	cmp r2, #0
-	beq .L08063892
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063892:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08063882
-.L0806389A:
-	adds r5, r2, #0
-.L0806389C:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L080638AC
-.L080638A6:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L080638A6
-.L080638AC:
-	cmp r1, #0
-	beq .L080638B6
-	adds r0, r1, #0
-	bl free
-.L080638B6:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r6, [sp, #0xf0]
-	str r6, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L080638C2:
+.L080637F8: .4byte (.Llivestock_init_bg_char_base + .Llivestock_year_tile * .Llivestock_init_tile_size)
+.Llivestock_init_grow_years_suffix:
+	GrowLivestockInitLabelDmaQueue 0x74, r3, r4, r6
+.Llivestock_init_render_birthday_unit:
 	ldr r2, .L0806390C @ =gFarmReportBlankLabel
 	movs r1, #2
 	add r0, sp, #0x7c
@@ -59626,21 +59066,21 @@ InitLivestockReport: @ 0x08062E9C
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r1, [sp, #0xc0]
-	ldr r2, .L08063910 @ =0x06001380
+	ldr r2, .L08063910 @ =(.Llivestock_init_bg_char_base + .Llivestock_day_tile * .Llivestock_init_tile_size)
 	movs r3, #0x80
 	bl DmaCommand_InitializeCopy
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r1
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08063914
+	beq .Llivestock_init_grow_birthday_unit
 	cmp r1, #0
 	beq .L08063904
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r2, r3, r4}
 	stm r0!, {r2, r3, r4}
 	ldr r1, [r1]
@@ -59649,17 +59089,17 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L080639E2
+	b .Llivestock_init_upload_trophy_tiles
 	.align 2, 0
 .L0806390C: .4byte gFarmReportBlankLabel
-.L08063910: .4byte 0x06001380
-.L08063914:
-	str r1, [sp, #0xec]
+.L08063910: .4byte (.Llivestock_init_bg_char_base + .Llivestock_day_tile * .Llivestock_init_tile_size)
+.Llivestock_init_grow_birthday_unit:
+	str r1, [sp, #.Llivestock_init_sp_old_dma_end]
 	movs r0, #1
 	add r1, sp, #0x84
 	str r0, [r1]
 	ldr r0, [r7]
-	ldr r5, [sp, #0xec]
+	ldr r5, [sp, #.Llivestock_init_sp_old_dma_end]
 	subs r0, r5, r0
 	asrs r4, r0, #4
 	str r4, [sp, #0x80]
@@ -59688,10 +59128,10 @@ InitLivestockReport: @ 0x08062E9C
 	mov r8, r0
 .L08063954:
 	adds r5, r0, #0
-	str r5, [sp, #0xf0]
+	str r5, [sp, #.Llivestock_init_sp_dma_buffer]
 	ldr r2, [r7]
 	adds r3, r5, #0
-	ldr r6, [sp, #0xec]
+	ldr r6, [sp, #.Llivestock_init_sp_old_dma_end]
 	cmp r2, r6
 	beq .L0806397C
 .L08063962:
@@ -59706,7 +59146,7 @@ InitLivestockReport: @ 0x08062E9C
 .L08063972:
 	adds r2, #0x10
 	adds r3, #0x10
-	ldr r0, [sp, #0xec]
+	ldr r0, [sp, #.Llivestock_init_sp_old_dma_end]
 	cmp r2, r0
 	bne .L08063962
 .L0806397C:
@@ -59748,43 +59188,23 @@ InitLivestockReport: @ 0x08062E9C
 .L080639BA:
 	adds r5, r2, #0
 .L080639BC:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L080639CC
-.L080639C6:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L080639C6
-.L080639CC:
-	cmp r1, #0
-	beq .L080639D6
-	adds r0, r1, #0
-	bl free
-.L080639D6:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L080639E2:
+	CommitLivestockInitDmaBuffer r1
+.Llivestock_init_upload_trophy_tiles:
 	ldr r1, .L08063A14 @ =gUnk_0875196C
-	add r0, sp, #4
-	ldr r2, .L08063A18 @ =0x06001400
+	add r0, sp, #.Llivestock_init_sp_dma_command
+	ldr r2, .L08063A18 @ =(.Llivestock_init_bg_char_base + .Llivestock_trophy_tile * .Llivestock_init_tile_size)
 	movs r3, #0x80
 	bl DmaCommand_InitializeCopy
-	add r2, sp, #4
+	add r2, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r2
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08063A1C
+	beq .Llivestock_init_grow_trophy_tiles
 	cmp r1, #0
 	beq .L08063A0A
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r3, r4, r5}
 	stm r0!, {r3, r4, r5}
 	ldr r1, [r1]
@@ -59793,140 +59213,28 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L08063AE6
+	b .Llivestock_init_upload_trophy_palette
 	.align 2, 0
 .L08063A14: .4byte gUnk_0875196C
-.L08063A18: .4byte 0x06001400
-.L08063A1C:
-	str r1, [sp, #0xec]
-	movs r0, #1
-	add r1, sp, #0x8c
-	str r0, [r1]
-	ldr r0, [r7]
-	ldr r6, [sp, #0xec]
-	subs r0, r6, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x88
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sl, r1
-	cmp r4, r2
-	bhs .L08063A3A
-	mov r0, sl
-.L08063A3A:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08063A58
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08063A5C
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08063A5C
-.L08063A58:
-	movs r0, #0
-	mov r8, r0
-.L08063A5C:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	ldr r2, [r7]
-	adds r3, r5, #0
-	b .L08063A7A
-.L08063A66:
-	cmp r3, #0
-	beq .L08063A76
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063A76:
-	adds r2, #0x10
-	adds r3, #0x10
-.L08063A7A:
-	ldr r0, [sp, #0xec]
-	cmp r2, r0
-	bne .L08063A66
-	adds r5, r3, #0
-	mov r2, sl
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .L08063A9E
-	cmp r5, #0
-	beq .L08063A9A
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r3, r4, r6}
-	stm r0!, {r3, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063A9A:
-	adds r5, #0x10
-	b .L08063AC0
-.L08063A9E:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08063ABE
-.L08063AA6:
-	cmp r2, #0
-	beq .L08063AB6
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063AB6:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08063AA6
-.L08063ABE:
-	adds r5, r2, #0
-.L08063AC0:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063AD0
-.L08063ACA:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L08063ACA
-.L08063AD0:
-	cmp r1, #0
-	beq .L08063ADA
-	adds r0, r1, #0
-	bl free
-.L08063ADA:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L08063AE6:
+.L08063A18: .4byte (.Llivestock_init_bg_char_base + .Llivestock_trophy_tile * .Llivestock_init_tile_size)
+.Llivestock_init_grow_trophy_tiles:
+	GrowLivestockInitIconDmaQueue 0x88
+.Llivestock_init_upload_trophy_palette:
 	ldr r1, .L08063B18 @ =gUnk_087519EC
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r2, .L08063B1C @ =0x05000020
 	movs r3, #0x20
 	bl DmaCommand_InitializeCopy
-	add r2, sp, #4
+	add r2, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r2
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08063B20
+	beq .Llivestock_init_grow_trophy_palette
 	cmp r1, #0
 	beq .L08063B0E
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r3, r4, r5}
 	stm r0!, {r3, r4, r5}
 	ldr r1, [r1]
@@ -59935,140 +59243,28 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L08063BEA
+	b .Llivestock_init_upload_heart_tiles
 	.align 2, 0
 .L08063B18: .4byte gUnk_087519EC
 .L08063B1C: .4byte 0x05000020
-.L08063B20:
-	str r1, [sp, #0xec]
-	movs r0, #1
-	add r1, sp, #0x94
-	str r0, [r1]
-	ldr r0, [r7]
-	ldr r6, [sp, #0xec]
-	subs r0, r6, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x90
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sl, r1
-	cmp r4, r2
-	bhs .L08063B3E
-	mov r0, sl
-.L08063B3E:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08063B5C
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08063B60
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08063B60
-.L08063B5C:
-	movs r0, #0
-	mov r8, r0
-.L08063B60:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	ldr r2, [r7]
-	adds r3, r5, #0
-	b .L08063B7E
-.L08063B6A:
-	cmp r3, #0
-	beq .L08063B7A
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063B7A:
-	adds r2, #0x10
-	adds r3, #0x10
-.L08063B7E:
-	ldr r0, [sp, #0xec]
-	cmp r2, r0
-	bne .L08063B6A
-	adds r5, r3, #0
-	mov r2, sl
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .L08063BA2
-	cmp r5, #0
-	beq .L08063B9E
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r3, r4, r6}
-	stm r0!, {r3, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063B9E:
-	adds r5, #0x10
-	b .L08063BC4
-.L08063BA2:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08063BC2
-.L08063BAA:
-	cmp r2, #0
-	beq .L08063BBA
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063BBA:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08063BAA
-.L08063BC2:
-	adds r5, r2, #0
-.L08063BC4:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063BD4
-.L08063BCE:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L08063BCE
-.L08063BD4:
-	cmp r1, #0
-	beq .L08063BDE
-	adds r0, r1, #0
-	bl free
-.L08063BDE:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L08063BEA:
+.Llivestock_init_grow_trophy_palette:
+	GrowLivestockInitIconDmaQueue 0x90
+.Llivestock_init_upload_heart_tiles:
 	ldr r1, .L08063C1C @ =gUnk_0875254C
-	add r0, sp, #4
-	ldr r2, .L08063C20 @ =0x06001480
+	add r0, sp, #.Llivestock_init_sp_dma_command
+	ldr r2, .L08063C20 @ =(.Llivestock_init_bg_char_base + .Llivestock_heart_tile * .Llivestock_init_tile_size)
 	movs r3, #0x20
 	bl DmaCommand_InitializeCopy
-	add r2, sp, #4
+	add r2, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r2
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08063C24
+	beq .Llivestock_init_grow_heart_tiles
 	cmp r1, #0
 	beq .L08063C12
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r3, r4, r5}
 	stm r0!, {r3, r4, r5}
 	ldr r1, [r1]
@@ -60077,140 +59273,28 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L08063CEE
+	b .Llivestock_init_upload_heart_palette
 	.align 2, 0
 .L08063C1C: .4byte gUnk_0875254C
-.L08063C20: .4byte 0x06001480
-.L08063C24:
-	str r1, [sp, #0xec]
-	movs r0, #1
-	add r1, sp, #0x9c
-	str r0, [r1]
-	ldr r0, [r7]
-	ldr r6, [sp, #0xec]
-	subs r0, r6, r0
-	asrs r4, r0, #4
-	add r0, sp, #0x98
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sl, r1
-	cmp r4, r2
-	bhs .L08063C42
-	mov r0, sl
-.L08063C42:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08063C60
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08063C64
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08063C64
-.L08063C60:
-	movs r0, #0
-	mov r8, r0
-.L08063C64:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	ldr r2, [r7]
-	adds r3, r5, #0
-	b .L08063C82
-.L08063C6E:
-	cmp r3, #0
-	beq .L08063C7E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063C7E:
-	adds r2, #0x10
-	adds r3, #0x10
-.L08063C82:
-	ldr r0, [sp, #0xec]
-	cmp r2, r0
-	bne .L08063C6E
-	adds r5, r3, #0
-	mov r2, sl
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .L08063CA6
-	cmp r5, #0
-	beq .L08063CA2
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r3, r4, r6}
-	stm r0!, {r3, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063CA2:
-	adds r5, #0x10
-	b .L08063CC8
-.L08063CA6:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08063CC6
-.L08063CAE:
-	cmp r2, #0
-	beq .L08063CBE
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063CBE:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08063CAE
-.L08063CC6:
-	adds r5, r2, #0
-.L08063CC8:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063CD8
-.L08063CD2:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L08063CD2
-.L08063CD8:
-	cmp r1, #0
-	beq .L08063CE2
-	adds r0, r1, #0
-	bl free
-.L08063CE2:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L08063CEE:
+.L08063C20: .4byte (.Llivestock_init_bg_char_base + .Llivestock_heart_tile * .Llivestock_init_tile_size)
+.Llivestock_init_grow_heart_tiles:
+	GrowLivestockInitIconDmaQueue 0x98
+.Llivestock_init_upload_heart_palette:
 	ldr r1, .L08063D20 @ =gUnk_087525CC
-	add r0, sp, #4
+	add r0, sp, #.Llivestock_init_sp_dma_command
 	ldr r2, .L08063D24 @ =0x05000040
 	movs r3, #0x20
 	bl DmaCommand_InitializeCopy
-	add r2, sp, #4
+	add r2, sp, #.Llivestock_init_sp_dma_command
 	mov sb, r2
 	ldr r1, [r7, #4]
 	ldr r0, [r7, #0xc]
 	cmp r1, r0
-	beq .L08063D28
+	beq .Llivestock_init_grow_heart_palette
 	cmp r1, #0
 	beq .L08063D16
 	adds r0, r1, #0
-	add r1, sp, #4
+	add r1, sp, #.Llivestock_init_sp_dma_command
 	ldm r1!, {r3, r4, r5}
 	stm r0!, {r3, r4, r5}
 	ldr r1, [r1]
@@ -60219,127 +59303,15 @@ InitLivestockReport: @ 0x08062E9C
 	ldr r0, [r7, #4]
 	adds r0, #0x10
 	str r0, [r7, #4]
-	b .L08063DF2
+	b .Llivestock_init_return_report
 	.align 2, 0
 .L08063D20: .4byte gUnk_087525CC
 .L08063D24: .4byte 0x05000040
-.L08063D28:
-	str r1, [sp, #0xec]
-	movs r0, #1
-	add r1, sp, #0xa4
-	str r0, [r1]
-	ldr r0, [r7]
-	ldr r6, [sp, #0xec]
-	subs r0, r6, r0
-	asrs r4, r0, #4
-	add r0, sp, #0xa0
-	str r4, [r0]
-	ldr r2, [r1]
-	mov sl, r1
-	cmp r4, r2
-	bhs .L08063D46
-	mov r0, sl
-.L08063D46:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L08063D64
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov r8, r4
-	cmp r0, #0
-	bne .L08063D68
-	mov r0, r8
-	bl func_080D3BC0
-	b .L08063D68
-.L08063D64:
-	movs r0, #0
-	mov r8, r0
-.L08063D68:
-	adds r5, r0, #0
-	str r5, [sp, #0xf0]
-	ldr r2, [r7]
-	adds r3, r5, #0
-	b .L08063D86
-.L08063D72:
-	cmp r3, #0
-	beq .L08063D82
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063D82:
-	adds r2, #0x10
-	adds r3, #0x10
-.L08063D86:
-	ldr r0, [sp, #0xec]
-	cmp r2, r0
-	bne .L08063D72
-	adds r5, r3, #0
-	mov r2, sl
-	ldr r1, [r2]
-	cmp r1, #1
-	bne .L08063DAA
-	cmp r5, #0
-	beq .L08063DA6
-	adds r0, r5, #0
-	mov r1, sb
-	ldm r1!, {r3, r4, r6}
-	stm r0!, {r3, r4, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063DA6:
-	adds r5, #0x10
-	b .L08063DCC
-.L08063DAA:
-	adds r3, r1, #0
-	adds r2, r5, #0
-	cmp r3, #0
-	beq .L08063DCA
-.L08063DB2:
-	cmp r2, #0
-	beq .L08063DC2
-	adds r0, r2, #0
-	mov r1, sb
-	ldm r1!, {r4, r5, r6}
-	stm r0!, {r4, r5, r6}
-	ldr r1, [r1]
-	str r1, [r0]
-.L08063DC2:
-	subs r3, #1
-	adds r2, #0x10
-	cmp r3, #0
-	bne .L08063DB2
-.L08063DCA:
-	adds r5, r2, #0
-.L08063DCC:
-	ldr r2, [r7, #4]
-	ldr r1, [r7]
-	adds r0, r1, #0
-	cmp r1, r2
-	beq .L08063DDC
-.L08063DD6:
-	adds r0, #0x10
-	cmp r0, r2
-	bne .L08063DD6
-.L08063DDC:
-	cmp r1, #0
-	beq .L08063DE6
-	adds r0, r1, #0
-	bl free
-.L08063DE6:
-	ldr r0, [sp, #0xf0]
-	add r0, r8
-	ldr r1, [sp, #0xf0]
-	str r1, [r7]
-	str r5, [r7, #4]
-	str r0, [r7, #0xc]
-.L08063DF2:
-	ldr r0, [sp, #0xa8]
-	add sp, #0xf4
+.Llivestock_init_grow_heart_palette:
+	GrowLivestockInitIconDmaQueue 0xa0
+.Llivestock_init_return_report:
+	ldr r0, [sp, #.Llivestock_init_sp_report]
+	add sp, #.Llivestock_init_stack_bytes
 	pop {r3, r4, r5}
 	mov r8, r3
 	mov sb, r4
@@ -60347,6 +59319,10 @@ InitLivestockReport: @ 0x08062E9C
 	pop {r4, r5, r6, r7}
 	pop {r1}
 	bx r1
+
+	.purgem CommitLivestockInitDmaBuffer
+	.purgem GrowLivestockInitLabelDmaQueue
+	.purgem GrowLivestockInitIconDmaQueue
 
 	.equ .Llivestock_tilemap_ptr, 0x18
 	.equ .Llivestock_game_data_ptr, 0x58C
