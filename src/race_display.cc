@@ -182,11 +182,14 @@ struct HorseRaceState
     struct RaceLaneAnimator
     {
         SpriteAnimator animator;
-        STRUCT_PAD(0x14, 0x38);
+        SpriteFrameDrawOptions options;
+        u32 changes;
+        STRUCT_PAD(0x34, 0x38);
     };
     RaceLaneAnimator race_horse_animators[5];
     SpriteAnimator start_effect_animator;
-    STRUCT_PAD(0x334, 0x358);
+    SpriteFrameDrawOptions start_effect_options;
+    STRUCT_PAD(0x350, 0x358);
     SpriteAnimator betting_graphics;
     STRUCT_PAD(0x36C, 0x390);
     RaceLaneAnimator race_sprint_animators[4];
@@ -195,7 +198,8 @@ struct HorseRaceState
     SpriteFrameDrawOptions cursor_options;
     STRUCT_PAD(0x580, 0x588);
     SpriteAnimator entrant_overlay_animator;
-    STRUCT_PAD(0x59C, 0x5C0);
+    SpriteFrameDrawOptions entrant_overlay_options;
+    STRUCT_PAD(0x5B8, 0x5C0);
     RaceObjAllocation course_end_tiles, course_end_palette;
     RaceObjAllocation course_marker_tiles, course_marker_palette;
     RaceObjAllocation start_effect_tiles, start_effect_palette;
@@ -206,13 +210,13 @@ struct HorseRaceState
     RaceObjAllocation sprint_effect_tiles, lane_effect_tiles, sprint_effect_palette;
     RaceObjAllocation betting_cursor_tiles, betting_cursor_palette;
     RaceObjAllocation entrant_overlay_tiles;
-    STRUCT_PAD(0x658, 0x660);
+    RaceObjAllocation lane0_horse_tiles;
     RaceObjAllocation lane0_horse_palettes[2];
-    STRUCT_PAD(0x670, 0x678);
+    RaceObjAllocation lane1_horse_tiles;
     RaceObjAllocation lane1_horse_palettes[2];
-    STRUCT_PAD(0x688, 0x690);
+    RaceObjAllocation lane2_horse_tiles;
     RaceObjAllocation lane2_horse_palettes[2];
-    STRUCT_PAD(0x6A0, 0x6A8);
+    RaceObjAllocation lane3_horse_tiles;
     RaceObjAllocation lane3_horse_palettes[2];
     RaceCourseMarker course_markers[4][8];
     RaceGlyph glyphs[148];
@@ -225,7 +229,8 @@ struct HorseRaceState
     i16 bg1_pattern_phase, bg2_pattern_phase, bg3_pattern_phase;
     i16 finish_count;
     i16 finish_order[4];
-    STRUCT_PAD(0x1406, 0x140A);
+    STRUCT_PAD(0x1406, 0x1408);
+    i16 player_effort_clip;
     i16 betting_menu_selection;
     STRUCT_PAD(0x140C, 0x140E);
     u8 player_is_racing;
@@ -236,7 +241,9 @@ struct HorseRaceState
     i16 medal_payout;
     STRUCT_PAD(0x1420, 0x1424);
     i16 scene_phase;
-    STRUCT_PAD(0x1426, 0x142C);
+    STRUCT_PAD(0x1426, 0x1427);
+    u8 race_flags;
+    STRUCT_PAD(0x1428, 0x142C);
     RaceEntrant racers[4];
     Pet const * player_horse;
 };
@@ -4008,3 +4015,1508 @@ asm (
 #undef RACE_LIVE_ADDR
 #undef RACE_LIVE_HIGH
 #undef RACE_LIVE_PIN
+
+// The draw routine reuses its frame scratch space for tile DMA commands.
+struct RaceSceneDrawWork
+{
+    RaceObjAllocation * horse_palettes_argument;
+    SpriteFrameDrawOptions options;
+    RaceFrameView frame;
+    RaceFrameView fetched;
+    u32 queue_size, queue_growth;
+    union
+    {
+        u32 zero;
+        HorseRaceState::RaceLaneAnimator * lane_animator;
+    };
+    RaceEntrant * lane_entrant;
+    u16 const * course_scroll;
+    int lane_y;
+    SpriteAnimator * player_effort_animator;
+    SpriteKeyframe const * const * player_effort_keyframes;
+    u32 allocation_size;
+    RaceFrameView * result;
+    int next_lane;
+    int doubled_lane;
+    SpriteKeyframe const * const * overlay_keyframes;
+    STRUCT_PAD(0x94, 0x98);
+    union
+    {
+        SpriteAnimator * course_end_animator;
+        DmaCommand * previous_queue_end;
+    };
+    u32 marker_byte_offset;
+    RaceCourseMarker * marker;
+};
+
+enum
+{
+    RACE_PAUSED = 1,
+    RACE_BACKGROUND_PRIORITY = 2,
+    COURSE_END_VISIBLE_X = 1472,
+    COURSE_END_X = 1752,
+    COURSE_END_FIRST_LANE_Y = 48,
+    COURSE_END_CLIP_TILES = 4,
+    COURSE_LANE_Y_STEP = 24
+};
+
+// agbcc needs the original register and literal-pool layout for an exact match.
+#define RACE_DRAW_CLOBBERS "r0", "r1", "r2", "r3", "r4", "r6", "r7", "r8", "r9", "r10", "lr", "cc", "memory"
+#define RACE_DRAW_PIN(value) asm ("" : "+l" (value))
+#define RACE_DRAW_WORK_WRITE(value, member) \
+    asm volatile ("str %0, [sp, %1]" : : "l" (value), "I" (offsetof(RaceSceneDrawWork, member)) : "memory")
+#define RACE_DRAW_WORK_READ(value, reg, member) \
+    register __typeof__(work.member) value asm(reg); \
+    asm volatile ("ldr %0, [sp, %1]" : "=l" (value) : "I" (offsetof(RaceSceneDrawWork, member)) : "memory")
+#define RACE_DRAW_OPTION_WRITE(options, field, value, store) \
+    asm volatile (store " %0, [%1, %2]" : : "l" (value), "l" (options), \
+        "I" (offsetof(SpriteFrameDrawOptions, field)) : "memory")
+#define RACE_DRAW_CLEAR_ZERO() do { \
+    register u32 zero asm("r0") = 0; \
+    RACE_DRAW_PIN(zero); \
+    work.zero = zero; \
+    asm volatile ("" : : "m" (work.zero)); \
+} while (0)
+#define RACE_DRAW_CLEAR_PRIORITY() do { \
+    register SpriteFrameDrawOptions * options asm("r0"); \
+    asm ("" : "=l" (options)); \
+    register u32 priority asm("r7"); \
+    asm ("add %0, sp, %1\n\tldrh %0, [%0]" \
+        : "=l" (priority) : "I" (offsetof(RaceSceneDrawWork, zero))); \
+    asm volatile ("strh %0, [%1, %2]" : : "l" (priority), "l" (options), \
+        "I" (offsetof(SpriteFrameDrawOptions, priority)) : "memory"); \
+} while (0)
+#define RACE_DRAW_ADDR(ptr, reg, member, shift) \
+    register uintptr_t offset asm(reg) = offsetof(HorseRaceState, member) >> shift; \
+    RACE_DRAW_PIN(offset); \
+    offset <<= shift; \
+    RACE_DRAW_PIN(offset); \
+    register __typeof__(&self->member) ptr asm("r0"); \
+    asm volatile ("add %0, %1, %2" : "=l" (ptr) : "l" (self), "l" (offset))
+#define RACE_DRAW_ADVANCE(member, reg, shift) do { \
+    RACE_DRAW_ADDR(animator, reg, member, shift); \
+    AdvanceSpriteAnimator(animator); \
+} while (0)
+#define RACE_DRAW_RESOLVE(member, reg, resolve) do { \
+    RACE_DRAW_ADDR(allocation, reg, member, 3); \
+    register u32 handle asm("r1") = allocation->handle; \
+    RACE_DRAW_PIN(handle); \
+    register u32 index asm("r0") = resolve(allocation, handle); \
+    RACE_DRAW_PIN(index); \
+} while (0)
+
+#define RACE_DRAW_LANE_TILE_INDEX() do { \
+    register uintptr_t lane_byte_offset asm("r4"); \
+    asm ("" : "=l" (lane_byte_offset)); \
+    register uintptr_t lane_address asm("r0"); \
+    asm ("add %0, %1, %2" : "=l" (lane_address) : "l" (lane_byte_offset), "l" (self)); \
+    register u32 tile_fields asm("r2") = offsetof(HorseRaceState, lane0_horse_tiles) / 8; \
+    RACE_DRAW_PIN(tile_fields); \
+    tile_fields *= 8; \
+    RACE_DRAW_PIN(tile_fields); \
+    register RaceObjAllocation * allocation asm("r0") = \
+        reinterpret_cast<RaceObjAllocation *>(lane_address + tile_fields); \
+    RACE_DRAW_PIN(allocation); \
+    register u32 handle asm("r1") = allocation->handle; \
+    RACE_DRAW_PIN(handle); \
+    register u32 tile_index asm("r0") = ResolveRaceObjTile(allocation, handle); \
+    RACE_DRAW_PIN(tile_index); \
+} while (0)
+
+#define RACE_DRAW_GET_TILE_QUEUE() do { \
+    register DmaTransferQueue * result asm("r0") = HardwareContext_GetDmaQueue(self); \
+    register DmaTransferQueue * queue asm("r6"); \
+    asm volatile ("add %0, %1, #0" : "=l" (queue) : "l" (result)); \
+} while (0)
+
+#define RACE_DRAW_INIT_TILE_COPY() do { \
+    RACE_DRAW_WORK_READ(scratch, "r0", result); \
+    register DmaCommand * command asm("r0") = reinterpret_cast<DmaCommand *>(scratch); \
+    register u8 const * tile_data asm("r1"); \
+    asm ("add %0, r7, #0" : "=l" (tile_data)); \
+    register void * tile_vram asm("r2"); \
+    register u32 byte_count asm("r3"); \
+    asm ("" : "=l" (tile_vram), "=l" (byte_count)); \
+    DmaCommand_InitializeCopy(command, tile_data, tile_vram, byte_count); \
+} while (0)
+
+#define RACE_DRAW_ALLOCATE_TILE_QUEUE() do { \
+    register u32 capacity asm("r0"); \
+    asm ("" : "=l" (capacity)); \
+    register u32 bytes asm("r4") = capacity * sizeof(DmaCommand); \
+    RACE_DRAW_PIN(bytes); \
+    register u32 allocation_bytes asm("r0") = bytes; \
+    RACE_DRAW_PIN(allocation_bytes); \
+    register void * allocation asm("r0") = malloc(allocation_bytes); \
+    RACE_DRAW_PIN(allocation); \
+    RACE_DRAW_WORK_WRITE(bytes, allocation_size); \
+} while (0)
+#define RACE_DRAW_RETRY_TILE_QUEUE() do { \
+    register u32 bytes asm("r4"); \
+    asm ("" : "=l" (bytes)); \
+    register u32 allocation_bytes asm("r0") = bytes; \
+    RACE_DRAW_PIN(allocation_bytes); \
+    register void * allocation asm("r0") = RetryDmaAllocation(allocation_bytes); \
+    RACE_DRAW_PIN(allocation); \
+} while (0)
+#define RACE_DRAW_FREE_TILE_QUEUE() do { \
+    register DmaCommand * old_commands asm("r0"); \
+    asm ("" : "=l" (old_commands)); \
+    free(old_commands); \
+} while (0)
+#define RACE_DRAW_COPY_DMA_COMMAND(group) \
+    asm volatile ( \
+        "ldmia r1!, {" group "}\n" \
+        "stmia r0!, {" group "}\n" \
+        "ldr r1, [r1]\n" \
+        "str r1, [r0]\n" \
+        : : : "r0", "r1", "r2", "r3", "r4", "r7", "memory")
+
+typedef void (*RaceSceneFrameReader)(RaceFrameView *, RaceFrameSource const *, u32);
+
+#define RACE_DRAW_READ_FRAME(load_animator, animator, load_keyframe_index, keyframe_base, \
+    load_keyframes, load_fetched, scratch...) do { \
+    register RaceFrameView * fetched asm("r0"); \
+    register RaceFrameSource const * source asm("r1"); \
+    register u32 frame_id asm("r2"); \
+    register RaceSceneFrameReader get_frame asm("r3"); \
+    asm volatile ( \
+        ".syntax unified\n" \
+        load_animator "\n" \
+        "ldr %1, [" animator "]\n" \
+        "ldr %3, [%1]\n" \
+        load_keyframe_index "\n" \
+        "ldrh %2, [" keyframe_base ", %4]\n" \
+        "lsls %2, %2, #2\n" \
+        load_keyframes "\n" \
+        "adds %0, %0, %2\n" \
+        "ldrh %2, [%0]\n" \
+        load_fetched "\n" \
+        "ldr %3, [%3, %5]\n" \
+        ".syntax divided\n" \
+        : "=l" (fetched), "=l" (source), "=l" (frame_id), "=l" (get_frame) \
+        : "I" (offsetof(SpriteAnimator, keyframe)), "I" (offsetof(RaceFrameSourceVTable, get_frame)) \
+        : "cc", "memory", ## scratch); \
+    get_frame(fetched, source, frame_id); \
+} while (0)
+
+// The original keeps the callback output addressable before the word copies.
+#define RACE_DRAW_MATERIALIZE_FRAME(load_target, load_source) do { \
+    register RaceFrameView * target asm("r0"); \
+    register RaceFrameView * source asm("r1"); \
+    asm (load_target "\n\t" load_source : "=l" (target), "=l" (source) : : "memory"); \
+    register u32 frame_bytes asm("r2") = sizeof(RaceFrameView); \
+    RACE_DRAW_PIN(frame_bytes); \
+    CopyRaceFrame(target, source, frame_bytes); \
+} while (0)
+
+#define RACE_DRAW_COPY_FRAME(load_fetched, group1, group2, group3) \
+    asm volatile ( \
+        ".syntax unified\n" \
+        "add r1, sp, %0\n" \
+        load_fetched "\n" \
+        "ldmia r0!, {" group1 "}\n" \
+        "stmia r1!, {" group1 "}\n" \
+        "ldmia r0!, {" group2 "}\n" \
+        "stmia r1!, {" group2 "}\n" \
+        "ldmia r0!, {" group3 "}\n" \
+        "stmia r1!, {" group3 "}\n" \
+        ".syntax divided\n" \
+        : : "I" (offsetof(RaceSceneDrawWork, frame)) \
+        : "r0", "r1", "r2", "r3", "r4", "r6", "r7", "memory")
+
+#define RACE_DRAW_FRAME(base, hold_oam, save_lane) do { \
+    register SpriteOamBuffer * oam asm("r0") = GetRaceBettingOam(self); \
+    RACE_DRAW_PIN(oam); \
+    register SpriteAttributes const * objects asm("r1"); \
+    register u32 count asm("r2"); \
+    register SpriteFrameDrawOptions const * frame_options asm("r3"); \
+    asm volatile ( \
+        ".syntax unified\n" \
+        ".if " #hold_oam "\n" \
+        "adds r3, r0, #0\n" \
+        "ldr r0, [sp, #.Lrace_obj_draw_sp_frame_objects]\n" \
+        "adds r1, r0, #0\n" \
+        ".else\n" \
+        "ldr r1, [sp, #.Lrace_obj_draw_sp_frame_objects]\n" \
+        ".endif\n" \
+        "movs r2, #0\n" \
+        ".if " #save_lane "\n" \
+        "str r4, [sp, #0x8c]\n" \
+        ".endif\n" \
+        "cmp r1, #0\n" \
+        "beq 1f\n" \
+        "mov " base ", sp\n" \
+        "ldrh r2, [" base ", #.Lrace_obj_draw_sp_object_count]\n" \
+        "1:\n" \
+        ".if " #hold_oam "\n" \
+        "adds r0, r3, #0\n" \
+        ".endif\n" \
+        "add r3, sp, #.Lrace_obj_draw_sp_options\n" \
+        ".syntax divided\n" \
+        : "+l" (oam), "=l" (objects), "=l" (count), "=l" (frame_options) : : base, "cc", "memory"); \
+    DrawSpriteFrameObjects(oam, objects, count, frame_options); \
+} while(0)
+
+EC SECTION(".text.f3.0805BC34") void DrawHorseRaceSceneObjects(HorseRaceState * race)
+{
+    typedef char RaceSceneDrawLayout[
+        sizeof(RaceSceneDrawWork) == 0xA4 &&
+        offsetof(RaceSceneDrawWork, options) == 4 &&
+        offsetof(RaceSceneDrawWork, frame) == 0x20 &&
+        offsetof(RaceSceneDrawWork, fetched) == 0x40 &&
+        offsetof(RaceSceneDrawWork, lane_animator) == 0x68 &&
+        offsetof(RaceSceneDrawWork, result) == 0x84 &&
+        offsetof(RaceSceneDrawWork, previous_queue_end) == 0x98 &&
+        offsetof(HorseRaceState::RaceLaneAnimator, options) == 0x14 &&
+        offsetof(HorseRaceState::RaceLaneAnimator, changes) == 0x30 &&
+        offsetof(HorseRaceState, lane0_horse_tiles) == 0x658 &&
+        offsetof(HorseRaceState, race_flags) == 0x1427 &&
+        offsetof(HorseRaceState, bg2_scroll_x) == 0x13EC &&
+        offsetof(HorseRaceState, entrant_overlay_animator.clip.keyframes) == 0x58C &&
+        offsetof(HorseRaceState, player_is_racing) == 0x140E &&
+        offsetof(HorseRaceState, racers[PLAYER_RACER_SLOT].stamina) == 0x149E &&
+        offsetof(HorseRaceState, player_effort_clip) == 0x1408 &&
+        offsetof(HorseRaceState, scene_phase) == 0x1424 &&
+        offsetof(HorseRaceState, racers[0].sprint_phase) == 0x144E &&
+        offsetof(HorseRaceState, sprint_effect_tile_offsets) == 0xBDA &&
+        offsetof(HorseRaceState, lane_effect_tile_offsets) == 0xBE2 &&
+        offsetof(HorseRaceState, racers[PLAYER_RACER_SLOT].distance_left) == 0x1498 &&
+        offsetof(HorseRaceState, entrant_overlay_options) == 0x59C &&
+        offsetof(HorseRaceState, course_markers[0][0].y) == 0x6BA &&
+        offsetof(RaceSceneDrawWork, marker) == 0xA0 ? 1 : -1];
+    RaceSceneDrawWork work;
+    register HorseRaceState * self asm("r5") = race;
+    RACE_DRAW_PIN(self);
+    asm volatile (
+        ".equ .Lrace_obj_state_bg2_scroll_x, 0x13ec\n"
+        ".equ .Lrace_obj_state_player_is_racing, 0x140e\n"
+        ".equ .Lrace_obj_state_race_flags, 0x1427\n"
+        ".equ .Lrace_obj_state_scene_phase, 0x1424\n"
+        ".equ .Lrace_obj_state_first_racer_sprint_phase, 0x144e\n"
+        ".equ .Lrace_obj_state_player_stamina, 0x149e\n"
+        ".equ .Lrace_obj_state_player_distance_left, 0x1498\n"
+        ".equ .Lrace_obj_entrant_bytes, 0x2c\n"
+        ".equ .Lrace_obj_player_lane, 0x2\n"
+        ".equ .Lrace_obj_pause_flag, 0x1\n"
+        ".equ .Lrace_obj_draw_sp_options, 0x4\n"
+        ".equ .Lrace_obj_draw_sp_frame_objects, 0x20\n"
+        ".equ .Lrace_obj_draw_sp_object_count, 0x24\n"
+        ".equ .Lrace_obj_draw_sp_frame_tiles, 0x28\n"
+        ".equ .Lrace_obj_draw_sp_frame_result, 0x40\n"
+        ".equ .Lrace_obj_draw_sp_frame_result_ptr, 0x84\n"
+    );
+    RACE_DRAW_CLEAR_ZERO();
+    asm volatile (
+        ".syntax unified\n"
+        "add r0, sp, #.Lrace_obj_draw_sp_options\n"
+        "movs r1, #0\n"
+        "add r2, sp, #0x68\n"
+        "ldrh r2, [r2]\n"
+        "strh r2, [r0]\n"
+        "add r3, sp, #0x68\n"
+        "ldrh r3, [r3]\n"
+        "strh r3, [r0, #2]\n"
+        "add r4, sp, #0x68\n"
+        "ldrh r4, [r4]\n"
+        "strh r4, [r0, #4]\n"
+        "add r6, sp, #0x68\n"
+        "ldrh r6, [r6]\n"
+        "strh r6, [r0, #6]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_CLEAR_PRIORITY();
+    asm volatile (
+        ".syntax unified\n"
+        "ldr r2, [sp, #0x68]\n"
+        "str r2, [sp, #0x10]\n"
+        "strb r1, [r0, #0x10]\n"
+        "strb r1, [r0, #0x11]\n"
+        "str r2, [sp, #0x18]\n"
+        "strb r1, [r0, #0x18]\n"
+        "add r3, sp, #.Lrace_obj_draw_sp_frame_objects\n"
+        "str r2, [sp, #.Lrace_obj_draw_sp_frame_objects]\n"
+        "strh r2, [r3, #4]\n"
+        "add r2, sp, #.Lrace_obj_draw_sp_frame_tiles\n"
+        "ldr r6, [sp, #0x68]\n"
+        "str r6, [sp, #.Lrace_obj_draw_sp_frame_tiles]\n"
+        "strh r6, [r2, #4]\n"
+        "add r0, sp, #0x30\n"
+        "ldr r1, [sp, #0x68]\n"
+        "str r1, [sp, #0x30]\n"
+        "strh r1, [r0, #4]\n"
+        "add r0, sp, #0x38\n"
+        "ldr r6, [sp, #0x68]\n"
+        "str r6, [sp, #0x38]\n"
+        "strh r6, [r0, #4]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    {
+        register u32 pause_flags_offset asm("r1");
+        asm ("ldr %0, .Lrace_draw_race_flags" : "=l" (pause_flags_offset));
+        register u8 const * pause_flags asm("r0");
+        asm ("add %0, %1, %2" : "=l" (pause_flags) : "l" (self), "l" (pause_flags_offset));
+        register u32 flags asm("r1");
+        asm ("ldrb %0, [%1]" : "=l" (flags) : "l" (pause_flags) : "memory");
+        register u32 pause_flag asm("r4") = RACE_PAUSED;
+        RACE_DRAW_PIN(pause_flag);
+        register u32 paused asm("r0") = pause_flag;
+        RACE_DRAW_PIN(paused);
+        paused &= flags;
+        RACE_DRAW_PIN(paused);
+
+        register uintptr_t fetched_address asm("r2");
+        asm ("" : "=l" (fetched_address));
+        fetched_address += offsetof(RaceSceneDrawWork, fetched) - offsetof(RaceSceneDrawWork, frame.tiles);
+        RACE_DRAW_PIN(fetched_address);
+        RACE_DRAW_WORK_WRITE(fetched_address, result);
+        if (paused != 0)
+        {
+            register uintptr_t animation asm("r1") = reinterpret_cast<uintptr_t>(self);
+            RACE_DRAW_PIN(animation);
+            animation += offsetof(HorseRaceState, race_banner_data);
+            RACE_DRAW_PIN(animation);
+            register RaceFrameView * fetched asm("r0") = reinterpret_cast<RaceFrameView *>(fetched_address);
+            RACE_DRAW_PIN(fetched);
+            register u32 pause_frame asm("r2") = 0;
+            RACE_DRAW_PIN(pause_frame);
+            ReadRaceDataFrame(fetched, reinterpret_cast<SpriteAnimationData const *>(animation), pause_frame);
+            RACE_DRAW_COPY_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "r3, r6, r7", "r2, r3, r6", "r2, r7");
+
+            register SpriteFrameDrawOptions * options asm("r0");
+            asm ("add %0, sp, %1" : "=l" (options) : "I" (offsetof(RaceSceneDrawWork, options)));
+            register u32 pause_center asm("r1") = 64;
+            RACE_DRAW_PIN(pause_center);
+            RACE_DRAW_OPTION_WRITE(options, offset_x, pause_center, "strh");
+            RACE_DRAW_OPTION_WRITE(options, offset_y, pause_center, "strh");
+            RACE_DRAW_RESOLVE(starting_banner_palette, "r3", ResolveRaceObjPalette);
+            register u32 palette asm("r0");
+            asm ("" : "=l" (palette));
+            register SpriteFrameDrawOptions * draw asm("r1");
+            asm ("add %0, sp, %1" : "=l" (draw) : "I" (offsetof(RaceSceneDrawWork, options)));
+            RACE_DRAW_OPTION_WRITE(draw, palette_base, palette, "strh");
+            RACE_DRAW_RESOLVE(starting_banner_tiles, "r6", ResolveRaceObjTile);
+            register u32 tiles asm("r0");
+            asm ("" : "=l" (tiles));
+            asm ("add %0, sp, %1" : "=l" (draw) : "I" (offsetof(RaceSceneDrawWork, options)));
+            RACE_DRAW_OPTION_WRITE(draw, tile_base, tiles, "strh");
+            register u32 priority asm("r0") = RACE_BACKGROUND_PRIORITY;
+            RACE_DRAW_PIN(priority);
+            RACE_DRAW_OPTION_WRITE(draw, priority, priority, "strh");
+            asm ("add %0, %1, #0" : "=l" (options) : "l" (draw));
+            RACE_DRAW_OPTION_WRITE(options, mosaic, pause_flag, "strb");
+            RACE_DRAW_FRAME("r7", 1, 0);
+        }
+    }
+    {
+        register u32 scroll_offset asm("r1");
+        asm ("ldr %0, .Lrace_draw_course_camera_x" : "=l" (scroll_offset));
+        register u16 const * scroll asm("r0");
+        asm ("add %0, %1, %2" : "=l" (scroll) : "l" (self), "l" (scroll_offset));
+        register u32 camera_x asm("r1");
+        asm ("ldrh %0, [%1]" : "=l" (camera_x) : "l" (scroll) : "memory");
+        register u32 course_end_start asm("r0") = COURSE_END_VISIBLE_X / 8;
+        RACE_DRAW_PIN(course_end_start);
+        course_end_start *= 8;
+        RACE_DRAW_PIN(course_end_start);
+        register uintptr_t keyframes_offset asm("r2");
+        asm ("ldr %0, .Lrace_draw_entrant_overlay_keyframes" : "=l" (keyframes_offset));
+        register SpriteKeyframe const * const * overlay_keyframes asm("r2");
+        asm ("add %0, %1, %2" : "=l" (overlay_keyframes) : "l" (self), "l" (keyframes_offset));
+        RACE_DRAW_WORK_WRITE(overlay_keyframes, overlay_keyframes);
+        asm volatile ("cmp %0, %1\n\tbls .Lrace_obj_check_race_pause" : : "l" (camera_x), "l" (course_end_start) : "cc");
+        {
+            register i32 lane asm("r10");
+            asm volatile ("mov r3, #0\n\tmov %0, r3" : "=h" (lane) : : "r3");
+            register u32 keyframes_address asm("r4") =
+                offsetof(HorseRaceState, course_end_animator.clip.keyframes) / 2;
+            RACE_DRAW_PIN(keyframes_address);
+            keyframes_address *= 2;
+            RACE_DRAW_PIN(keyframes_address);
+            register SpriteKeyframe const * const * keyframes asm("r4") =
+                reinterpret_cast<SpriteKeyframe const * const *>(keyframes_address + reinterpret_cast<uintptr_t>(self));
+            RACE_DRAW_PIN(keyframes);
+            register SpriteKeyframe const * const * course_end_keyframes asm("r9");
+            asm volatile ("mov %0, %1" : "=h" (course_end_keyframes) : "l" (keyframes));
+
+            register u32 animator_offset asm("r6") = offsetof(HorseRaceState, course_end_animator) / 2;
+            RACE_DRAW_PIN(animator_offset);
+            animator_offset *= 2;
+            RACE_DRAW_PIN(animator_offset);
+            register SpriteAnimator * animator asm("r6");
+            asm ("add %0, %1, %2" : "=l" (animator) : "l" (self), "l" (animator_offset));
+            RACE_DRAW_WORK_WRITE(animator, course_end_animator);
+            register SpriteFrameDrawOptions * options asm("r4");
+            asm volatile ("add %0, sp, %1" : "=l" (options) : "I" (offsetof(RaceSceneDrawWork, options)));
+            register i32 lane_y asm("r8");
+            asm volatile ("mov r7, %1\n\tmov %0, r7" : "=h" (lane_y) : "I" (COURSE_END_FIRST_LANE_Y) : "r7");
+            RACE_DRAW_WORK_READ(fetched, "r6", result);
+            register int lane_index asm("r2");
+            do
+            {
+                RACE_DRAW_WORK_READ(course_end, "r0", course_end_animator);
+                register u32 clip asm("r1") = lane;
+                RACE_DRAW_PIN(clip);
+                SetSpriteAnimatorClip(course_end, clip);
+                RACE_DRAW_READ_FRAME("ldr r0, [sp, #0x98]", "r0", "", "r0",
+                    "mov r7, r9\nldr r0, [r7]", "add r0, sp, #.Lrace_obj_draw_sp_frame_result", "r7");
+                RACE_DRAW_MATERIALIZE_FRAME("add r0, r6, #0", "add r1, r6, #0");
+                RACE_DRAW_COPY_FRAME("adds r0, r6, #0", "r2, r3, r7", "r2, r3, r7", "r2, r3");
+
+                register u32 camera_offset asm("r7");
+                asm ("ldr %0, .Lrace_draw_course_camera_x" : "=l" (camera_offset));
+                register u16 const * camera asm("r0");
+                asm ("add %0, %1, %2" : "=l" (camera) : "l" (self), "l" (camera_offset));
+                register u32 scroll_x asm("r1");
+                asm ("ldrh %0, [%1]" : "=l" (scroll_x) : "l" (camera) : "memory");
+                register u32 finish_x asm("r2") = COURSE_END_X / 8;
+                RACE_DRAW_PIN(finish_x);
+                finish_x *= 8;
+                RACE_DRAW_PIN(finish_x);
+                register u32 screen_x asm("r0") = finish_x;
+                RACE_DRAW_PIN(screen_x);
+                screen_x -= scroll_x;
+                RACE_DRAW_PIN(screen_x);
+                RACE_DRAW_OPTION_WRITE(options, offset_x, screen_x, "strh");
+                register u32 screen_y asm("r3") = lane_y;
+                RACE_DRAW_PIN(screen_y);
+                RACE_DRAW_OPTION_WRITE(options, offset_y, screen_y, "strh");
+                RACE_DRAW_RESOLVE(course_end_palette, "r7", ResolveRaceObjPalette);
+                register u32 palette asm("r0");
+                asm ("" : "=l" (palette));
+                RACE_DRAW_OPTION_WRITE(options, palette_base, palette, "strh");
+                RACE_DRAW_RESOLVE(course_end_tiles, "r1", ResolveRaceObjTile);
+                register u32 tiles asm("r0");
+                asm ("" : "=l" (tiles));
+                register u32 lane_tile_offset asm("r2") = lane;
+                RACE_DRAW_PIN(lane_tile_offset);
+                register u32 clip_tile_offset asm("r1") = lane_tile_offset * COURSE_END_CLIP_TILES;
+                RACE_DRAW_PIN(clip_tile_offset);
+                tiles += clip_tile_offset;
+                RACE_DRAW_PIN(tiles);
+                RACE_DRAW_OPTION_WRITE(options, tile_base, tiles, "strh");
+                register u32 priority asm("r0") = RACE_BACKGROUND_PRIORITY;
+                RACE_DRAW_PIN(priority);
+                RACE_DRAW_OPTION_WRITE(options, priority, priority, "strh");
+                register u32 mosaic asm("r0") = 1;
+                RACE_DRAW_PIN(mosaic);
+                RACE_DRAW_OPTION_WRITE(options, mosaic, mosaic, "strb");
+                RACE_DRAW_FRAME("r7", 1, 0);
+                asm volatile ("mov r0, %3\n\tadd %0, r0\n\tmov r1, #1\n\tadd %1, r1\n\tmov %2, %1"
+                    : "+h" (lane_y), "+h" (lane), "=l" (lane_index)
+                    : "I" (COURSE_LANE_Y_STEP) : "r0", "r1");
+            } while (lane_index < int(sizeof(self->racers) / sizeof(RaceEntrant)));
+        }
+    }
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_obj_check_race_pause:\n"
+        "ldr r3, .Lrace_draw_race_flags\n"
+        "adds r0, r5, r3\n"
+        "ldrb r1, [r0]\n"
+        "movs r0, #.Lrace_obj_pause_flag\n"
+        "ands r0, r1\n"
+        "cmp r0, #0\n"
+        "beq .Lrace_obj_advance_horse_animations\n"
+        "b .Lrace_obj_start_lane_draw_loop\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    // A paused race draws the existing frames without advancing the animators.
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_obj_advance_horse_animations:\n"
+        "movs r6, #0x8e\n"
+        "lsls r6, r6, #2\n"
+        "adds r4, r5, r6\n"
+        "movs r7, #0x82\n"
+        "lsls r7, r7, #2\n"
+        "adds r0, r5, r7\n"
+        "bl AdvanceSpriteAnimator\n"
+        "str r0, [r4]\n"
+        "movs r0, #0x9c\n"
+        "lsls r0, r0, #2\n"
+        "adds r4, r5, r0\n"
+        "movs r1, #0x90\n"
+        "lsls r1, r1, #2\n"
+        "adds r0, r5, r1\n"
+        "bl AdvanceSpriteAnimator\n"
+        "str r0, [r4]\n"
+        "movs r2, #0xaa\n"
+        "lsls r2, r2, #2\n"
+        "adds r4, r5, r2\n"
+        "movs r3, #0x9e\n"
+        "lsls r3, r3, #2\n"
+        "adds r0, r5, r3\n"
+        "bl AdvanceSpriteAnimator\n"
+        "str r0, [r4]\n"
+        "adds r6, #0xa8\n"
+        "adds r4, r5, r6\n"
+        "adds r7, #0xa8\n"
+        "adds r0, r5, r7\n"
+        "bl AdvanceSpriteAnimator\n"
+        "str r0, [r4]\n"
+        "movs r0, #0xc6\n"
+        "lsls r0, r0, #2\n"
+        "adds r4, r5, r0\n"
+        "movs r1, #0xba\n"
+        "lsls r1, r1, #2\n"
+        "adds r0, r5, r1\n"
+        "bl AdvanceSpriteAnimator\n"
+        "str r0, [r4]\n"
+        "ldr r2, .Lrace_draw_player_racing\n"
+        "adds r0, r5, r2\n"
+        "ldrb r0, [r0]\n"
+        "cmp r0, #0\n"
+        "beq .Lrace_draw_check_sprint_effects\n"
+        "ldr r3, .Lrace_draw_player_stamina\n"
+        "adds r0, r5, r3\n"
+        "movs r4, #0\n"
+        "ldrsh r0, [r0, r4]\n"
+        "movs r2, #0\n"
+        "cmp r0, #0xab\n"
+        "bgt .Lrace_draw_update_player_effort_clip\n"
+        "movs r2, #2\n"
+        "cmp r0, #0x55\n"
+        "ble .Lrace_draw_update_player_effort_clip\n"
+        "movs r2, #1\n"
+        ".Lrace_draw_update_player_effort_clip:\n"
+        "ldr r6, .Lrace_draw_stamina_clip\n"
+        "adds r1, r5, r6\n"
+        "movs r7, #0\n"
+        "ldrsh r0, [r1, r7]\n"
+        "cmp r0, r2\n"
+        "beq .Lrace_draw_advance_player_effort\n"
+        "strh r2, [r1]\n"
+        "movs r2, #0xc8\n"
+        "lsls r2, r2, #2\n"
+        "adds r0, r5, r2\n"
+        "movs r3, #0\n"
+        "ldrsh r1, [r1, r3]\n"
+        "bl SetSpriteAnimatorClip\n"
+        "b .Lrace_draw_check_sprint_effects\n"
+        ".align 2, 0\n"
+        ".Lrace_draw_race_flags: .4byte .Lrace_obj_state_race_flags\n"
+        ".Lrace_draw_course_camera_x: .4byte .Lrace_obj_state_bg2_scroll_x\n"
+        ".Lrace_draw_entrant_overlay_keyframes: .4byte 0x0000058C\n"
+        ".Lrace_draw_player_racing: .4byte .Lrace_obj_state_player_is_racing\n"
+        ".Lrace_draw_player_stamina: .4byte .Lrace_obj_state_player_stamina\n"
+        ".Lrace_draw_stamina_clip: .4byte 0x00001408\n"
+        ".Lrace_draw_advance_player_effort:\n"
+        "movs r6, #0xd4\n"
+        "lsls r6, r6, #2\n"
+        "adds r4, r5, r6\n"
+        "movs r7, #0xc8\n"
+        "lsls r7, r7, #2\n"
+        "adds r0, r5, r7\n"
+        "bl AdvanceSpriteAnimator\n"
+        "str r0, [r4]\n"
+        ".Lrace_draw_check_sprint_effects:\n"
+        "ldr r1, .Lrace_draw_advance_phase\n"
+        "adds r0, r5, r1\n"
+        "movs r2, #0\n"
+        "ldrsh r0, [r0, r2]\n"
+        "cmp r0, #0x18\n"
+        "bne .Lrace_draw_start_lane_effect_updates\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_ADVANCE(race_sprint_animators[0].animator, "r3", 2);
+    RACE_DRAW_ADVANCE(race_sprint_animators[1].animator, "r4", 2);
+    RACE_DRAW_ADVANCE(race_sprint_animators[2].animator, "r6", 3);
+    RACE_DRAW_ADVANCE(race_sprint_animators[3].animator, "r7", 3);
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_draw_start_lane_effect_updates:\n"
+        "movs r0, #0\n"
+        "mov r10, r0\n"
+        ".Lrace_obj_advance_lane_effects:\n"
+        "movs r0, #.Lrace_obj_entrant_bytes\n"
+        "mov r1, r10\n"
+        "muls r1, r0, r1\n"
+        "adds r0, r1, #0\n"
+        "adds r0, r5, r0\n"
+        "ldr r2, .Lrace_draw_advance_sprint_phase\n"
+        "adds r0, r0, r2\n"
+        "ldrh r0, [r0]\n"
+        "cmp r0, #1\n"
+        "bls .Lrace_draw_advance_next_lane\n"
+        "mov r3, r10\n"
+        "cmp r3, #1\n"
+        "beq .Lrace_draw_advance_lane1_effect\n"
+        "cmp r3, #1\n"
+        "bgt .Lrace_draw_select_upper_lane_effect\n"
+        "cmp r3, #0\n"
+        "beq .Lrace_draw_advance_lane0_effect\n"
+        "b .Lrace_draw_advance_next_lane\n"
+        ".align 2, 0\n"
+        ".Lrace_draw_advance_phase: .4byte .Lrace_obj_state_scene_phase\n"
+        ".Lrace_draw_advance_sprint_phase: .4byte .Lrace_obj_state_first_racer_sprint_phase\n"
+        ".Lrace_draw_select_upper_lane_effect:\n"
+        "mov r4, r10\n"
+        "cmp r4, #2\n"
+        "beq .Lrace_draw_advance_lane2_effect\n"
+        "cmp r4, #3\n"
+        "beq .Lrace_draw_advance_lane3_effect\n"
+        "b .Lrace_draw_advance_next_lane\n"
+        ".Lrace_draw_advance_lane0_effect:\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_ADVANCE(race_effect_animators[0].animator, "r6", 3);
+    asm volatile (
+        ".syntax unified\n"
+        "b .Lrace_draw_advance_next_lane\n"
+        ".Lrace_draw_advance_lane1_effect:\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_ADVANCE(race_effect_animators[1].animator, "r7", 3);
+    asm volatile (
+        ".syntax unified\n"
+        "b .Lrace_draw_advance_next_lane\n"
+        ".Lrace_draw_advance_lane2_effect:\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_ADVANCE(race_effect_animators[2].animator, "r1", 3);
+    asm volatile (
+        ".syntax unified\n"
+        "b .Lrace_draw_advance_next_lane\n"
+        ".Lrace_draw_advance_lane3_effect:\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_ADVANCE(race_effect_animators[3].animator, "r2", 3);
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_draw_advance_next_lane:\n"
+        "movs r3, #1\n"
+        "add r10, r3\n"
+        "mov r4, r10\n"
+        "cmp r4, #3\n"
+        "ble .Lrace_obj_advance_lane_effects\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    // Draw lanes back to front so horses and their overlays keep their OAM order.
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_obj_start_lane_draw_loop:\n"
+        "movs r6, #3\n"
+        "mov r10, r6\n"
+        "add r7, sp, #.Lrace_obj_draw_sp_options\n"
+        "mov r8, r7\n"
+        "movs r0, #0xc8\n"
+        "lsls r0, r0, #2\n"
+        "adds r0, r5, r0\n"
+        "str r0, [sp, #0x78]\n"
+        "movs r1, #0xc9\n"
+        "lsls r1, r1, #2\n"
+        "adds r1, r5, r1\n"
+        "str r1, [sp, #0x7c]\n"
+        ".Lrace_obj_draw_current_lane:\n"
+        "ldr r2, .Lrace_draw_lane_phase\n"
+        "adds r0, r5, r2\n"
+        "movs r3, #0\n"
+        "ldrsh r0, [r0, r3]\n"
+        "mov r4, r10\n"
+        "lsls r4, r4, #1\n"
+        "str r4, [sp, #0x8c]\n"
+        "cmp r0, #0x18\n"
+        "beq .Lrace_draw_pick_sprint_effects\n"
+        "b .Lrace_obj_select_lane_horse_animator\n"
+        ".Lrace_draw_pick_sprint_effects:\n"
+        "movs r7, #0\n"
+        "mov r6, r10\n"
+        "cmp r6, #1\n"
+        "beq .Lrace_draw_pick_lane1_effects\n"
+        "cmp r6, #1\n"
+        "bgt .Lrace_draw_pick_upper_lane_effects\n"
+        "cmp r6, #0\n"
+        "beq .Lrace_draw_pick_lane0_effects\n"
+        "b .Lrace_draw_read_sprint_effect\n"
+        ".align 2, 0\n"
+        ".Lrace_draw_lane_phase: .4byte .Lrace_obj_state_scene_phase\n"
+        ".Lrace_draw_pick_upper_lane_effects:\n"
+        "mov r0, r10\n"
+        "cmp r0, #2\n"
+        "beq .Lrace_draw_pick_lane2_effects\n"
+        "cmp r0, #3\n"
+        "beq .Lrace_draw_pick_lane3_effects\n"
+        "b .Lrace_draw_read_sprint_effect\n"
+        ".Lrace_draw_pick_lane0_effects:\n"
+        "movs r1, #0xe4\n"
+        "lsls r1, r1, #2\n"
+        "adds r1, r5, r1\n"
+        "str r1, [sp, #0x68]\n"
+        "movs r2, #0x8e\n"
+        "lsls r2, r2, #3\n"
+        "b .Lrace_draw_load_lane_effect_animator\n"
+        ".Lrace_draw_pick_lane1_effects:\n"
+        "movs r3, #0xf2\n"
+        "lsls r3, r3, #2\n"
+        "adds r3, r5, r3\n"
+        "str r3, [sp, #0x68]\n"
+        "movs r4, #0x95\n"
+        "lsls r4, r4, #3\n"
+        "adds r7, r5, r4\n"
+        "b .Lrace_draw_read_sprint_effect\n"
+        ".Lrace_draw_pick_lane2_effects:\n"
+        "movs r6, #0x80\n"
+        "lsls r6, r6, #3\n"
+        "adds r6, r5, r6\n"
+        "str r6, [sp, #0x68]\n"
+        "movs r0, #0x9c\n"
+        "lsls r0, r0, #3\n"
+        "adds r7, r5, r0\n"
+        "b .Lrace_draw_read_sprint_effect\n"
+        ".Lrace_draw_pick_lane3_effects:\n"
+        "movs r1, #0x87\n"
+        "lsls r1, r1, #3\n"
+        "adds r1, r5, r1\n"
+        "str r1, [sp, #0x68]\n"
+        "movs r2, #0xa3\n"
+        "lsls r2, r2, #3\n"
+        ".Lrace_draw_load_lane_effect_animator:\n"
+        "adds r7, r5, r2\n"
+        ".Lrace_draw_read_sprint_effect:\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_READ_FRAME("ldr r3, [sp, #0x68]", "r3", "ldr r4, [sp, #0x68]", "r4", "ldr r0, [r4, #4]", "add r0, sp, #.Lrace_obj_draw_sp_frame_result", "r4");
+    RACE_DRAW_MATERIALIZE_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "add r1, r0, #0");
+    RACE_DRAW_COPY_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "r2, r3, r6", "r2, r4, r6", "r3, r4");
+    asm volatile (
+        ".syntax unified\n"
+        "add r1, sp, #.Lrace_obj_draw_sp_options\n"
+        "ldr r0, [sp, #0x68]\n"
+        "adds r0, #0x14\n"
+        "ldmia r0!, {r2, r3, r6}\n"
+        "stmia r1!, {r2, r3, r6}\n"
+        "ldmia r0!, {r2, r4, r6}\n"
+        "stmia r1!, {r2, r4, r6}\n"
+        "ldr r0, [r0]\n"
+        "str r0, [r1]\n"
+        "movs r0, #0x2c\n"
+        "mov r3, r10\n"
+        "muls r3, r0, r3\n"
+        "mov r9, r3\n"
+        "movs r4, #0xa2\n"
+        "lsls r4, r4, #5\n"
+        "adds r0, r5, r4\n"
+        "add r0, r9\n"
+        "str r0, [sp, #0x6c]\n"
+        "movs r6, #2\n"
+        "ldrsh r1, [r0, r6]\n"
+        "ldr r0, .Lrace_draw_sprint_camera_x\n"
+        "adds r0, r5, r0\n"
+        "str r0, [sp, #0x70]\n"
+        "ldrh r0, [r0]\n"
+        "subs r1, r1, r0\n"
+        "mov r2, r8\n"
+        "strh r1, [r2]\n"
+        "mov r3, r10\n"
+        "lsls r4, r3, #1\n"
+        "adds r0, r4, r3\n"
+        "lsls r0, r0, #3\n"
+        "adds r0, #0x3c\n"
+        "str r0, [sp, #0x74]\n"
+        "strh r0, [r2, #2]\n"
+        "movs r0, #2\n"
+        "strh r0, [r2, #8]\n"
+        "movs r1, #0xc7\n"
+        "lsls r1, r1, #3\n"
+        "adds r6, r5, r1\n"
+        "ldr r1, [r6, #4]\n"
+        "adds r0, r6, #0\n"
+        "bl ResourceHandle_GetIndex\n"
+        "mov r2, r8\n"
+        "strh r0, [r2, #4]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_RESOLVE(sprint_effect_tiles, "r3", ResolveRaceObjTile);
+    asm volatile (
+        ".syntax unified\n"
+        "ldr r1, [sp, #0x68]\n"
+        "ldrh r2, [r1, #0xc]\n"
+        "lsls r2, r2, #2\n"
+        "ldr r1, [r1, #4]\n"
+        "adds r1, r1, r2\n"
+        "ldrh r2, [r1]\n"
+        "lsls r2, r2, #1\n"
+        "ldr r3, .Lrace_draw_sprint_tiles\n"
+        "adds r1, r5, r3\n"
+        "adds r1, r1, r2\n"
+        "ldrh r1, [r1]\n"
+        "adds r1, r1, r0\n"
+        "mov r0, r8\n"
+        "strh r1, [r0, #6]\n"
+        "movs r1, #1\n"
+        "strb r1, [r0, #0x18]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_FRAME("r4", 1, 1);
+    asm volatile (
+        ".syntax unified\n"
+        "mov r1, r9\n"
+        "adds r0, r5, r1\n"
+        "ldr r2, .Lrace_draw_lane_sprint_phase\n"
+        "adds r0, r0, r2\n"
+        "ldrh r0, [r0]\n"
+        "cmp r0, #1\n"
+        "bls .Lrace_obj_select_lane_horse_animator\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_READ_FRAME("", "r7", "", "r7", "ldr r0, [r7, #4]", "ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]");
+    RACE_DRAW_MATERIALIZE_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "add r1, r0, #0");
+    RACE_DRAW_COPY_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "r2, r3, r4", "r2, r3, r4", "r3, r4");
+    asm volatile (
+        ".syntax unified\n"
+        "add r1, sp, #.Lrace_obj_draw_sp_options\n"
+        "adds r0, r7, #0\n"
+        "adds r0, #0x14\n"
+        "ldmia r0!, {r2, r3, r4}\n"
+        "stmia r1!, {r2, r3, r4}\n"
+        "ldmia r0!, {r2, r3, r4}\n"
+        "stmia r1!, {r2, r3, r4}\n"
+        "ldr r0, [r0]\n"
+        "str r0, [r1]\n"
+        "ldr r1, [sp, #0x6c]\n"
+        "movs r2, #2\n"
+        "ldrsh r0, [r1, r2]\n"
+        "ldr r3, [sp, #0x70]\n"
+        "ldrh r1, [r3]\n"
+        "subs r0, r0, r1\n"
+        "adds r0, #0x10\n"
+        "mov r4, r8\n"
+        "strh r0, [r4]\n"
+        "add r0, sp, #0x74\n"
+        "ldrh r0, [r0]\n"
+        "strh r0, [r4, #2]\n"
+        "movs r1, #2\n"
+        "strh r1, [r4, #8]\n"
+        "ldr r1, [r6, #4]\n"
+        "adds r0, r6, #0\n"
+        "bl ResourceHandle_GetIndex\n"
+        "strh r0, [r4, #4]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_RESOLVE(lane_effect_tiles, "r2", ResolveRaceObjTile);
+    asm volatile (
+        ".syntax unified\n"
+        "ldrh r2, [r7, #0xc]\n"
+        "lsls r2, r2, #2\n"
+        "ldr r1, [r7, #4]\n"
+        "adds r1, r1, r2\n"
+        "ldrh r2, [r1]\n"
+        "lsls r2, r2, #1\n"
+        "ldr r3, .Lrace_draw_lane_effect_tiles\n"
+        "adds r1, r5, r3\n"
+        "adds r1, r1, r2\n"
+        "ldrh r1, [r1]\n"
+        "adds r1, r1, r0\n"
+        "strh r1, [r4, #6]\n"
+        "movs r6, #1\n"
+        "strb r6, [r4, #0x18]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_FRAME("r7", 0, 0);
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_obj_select_lane_horse_animator:\n"
+        "mov r0, r10\n"
+        "cmp r0, #1\n"
+        "beq .Lrace_draw_select_lane1_horse\n"
+        "cmp r0, #1\n"
+        "bgt .Lrace_draw_select_upper_lane_horse\n"
+        "cmp r0, #0\n"
+        "beq .Lrace_draw_select_lane0_horse\n"
+        "b .Lrace_obj_read_lane_horse_frame\n"
+        ".align 2, 0\n"
+        ".Lrace_draw_sprint_camera_x: .4byte .Lrace_obj_state_bg2_scroll_x\n"
+        ".Lrace_draw_sprint_tiles: .4byte 0x00000BDA\n"
+        ".Lrace_draw_lane_sprint_phase: .4byte .Lrace_obj_state_first_racer_sprint_phase\n"
+        ".Lrace_draw_lane_effect_tiles: .4byte 0x00000BE2\n"
+        ".Lrace_draw_select_upper_lane_horse:\n"
+        "mov r1, r10\n"
+        "cmp r1, #2\n"
+        "beq .Lrace_draw_select_lane2_horse\n"
+        "cmp r1, #3\n"
+        "beq .Lrace_draw_select_lane3_horse\n"
+        "b .Lrace_obj_read_lane_horse_frame\n"
+        ".Lrace_draw_select_lane0_horse:\n"
+        "movs r2, #0x82\n"
+        "lsls r2, r2, #2\n"
+        "adds r2, r5, r2\n"
+        "str r2, [sp, #0x68]\n"
+        "b .Lrace_obj_read_lane_horse_frame\n"
+        ".Lrace_draw_select_lane1_horse:\n"
+        "movs r3, #0x90\n"
+        "lsls r3, r3, #2\n"
+        "adds r3, r5, r3\n"
+        "str r3, [sp, #0x68]\n"
+        "b .Lrace_obj_read_lane_horse_frame\n"
+        ".Lrace_draw_select_lane2_horse:\n"
+        "ldr r4, .Lrace_draw_select_player_racing\n"
+        "adds r0, r5, r4\n"
+        "ldrb r0, [r0]\n"
+        "movs r6, #0xba\n"
+        "lsls r6, r6, #2\n"
+        "adds r6, r5, r6\n"
+        "str r6, [sp, #0x68]\n"
+        "cmp r0, #0\n"
+        "bne .Lrace_obj_read_lane_horse_frame\n"
+        "movs r7, #0x9e\n"
+        "lsls r7, r7, #2\n"
+        "adds r7, r5, r7\n"
+        "str r7, [sp, #0x68]\n"
+        "b .Lrace_obj_read_lane_horse_frame\n"
+        ".align 2, 0\n"
+        ".Lrace_draw_select_player_racing: .4byte .Lrace_obj_state_player_is_racing\n"
+        ".Lrace_draw_select_lane3_horse:\n"
+        "movs r0, #0xac\n"
+        "lsls r0, r0, #2\n"
+        "adds r0, r5, r0\n"
+        "str r0, [sp, #0x68]\n"
+        ".Lrace_obj_read_lane_horse_frame:\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_READ_FRAME("ldr r2, [sp, #0x68]", "r2", "", "r2", "ldr r4, [sp, #0x68]\nldr r0, [r4, #4]", "add r0, sp, #.Lrace_obj_draw_sp_frame_result", "r4");
+    RACE_DRAW_MATERIALIZE_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "add r1, r0, #0");
+    RACE_DRAW_COPY_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "r2, r6, r7", "r3, r4, r6", "r2, r7");
+    asm volatile (
+        ".syntax unified\n"
+        "add r1, sp, #.Lrace_obj_draw_sp_options\n"
+        "ldr r0, [sp, #0x68]\n"
+        "adds r0, #0x14\n"
+        "ldmia r0!, {r3, r4, r6}\n"
+        "stmia r1!, {r3, r4, r6}\n"
+        "ldmia r0!, {r2, r3, r7}\n"
+        "stmia r1!, {r2, r3, r7}\n"
+        "ldr r0, [r0]\n"
+        "str r0, [r1]\n"
+        "movs r0, #.Lrace_obj_entrant_bytes\n"
+        "mov r1, r10\n"
+        "muls r1, r0, r1\n"
+        "movs r4, #0xa2\n"
+        "lsls r4, r4, #5\n"
+        "adds r0, r5, r4\n"
+        "adds r0, r0, r1\n"
+        "movs r6, #2\n"
+        "ldrsh r1, [r0, r6]\n"
+        "ldr r7, .Lrace_draw_horse_camera_x\n"
+        "adds r0, r5, r7\n"
+        "ldrh r0, [r0]\n"
+        "subs r1, r1, r0\n"
+        "mov r0, r8\n"
+        "strh r1, [r0]\n"
+        "ldr r0, [sp, #0x8c]\n"
+        "add r0, r10\n"
+        "lsls r4, r0, #3\n"
+        "adds r0, r4, #0\n"
+        "adds r0, #0x3c\n"
+        "mov r1, r8\n"
+        "strh r0, [r1, #2]\n"
+        "movs r0, #2\n"
+        "strh r0, [r1, #8]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_LANE_TILE_INDEX();
+    asm volatile (
+        ".syntax unified\n"
+        "mov r3, r8\n"
+        "strh r0, [r3, #6]\n"
+        "movs r6, #1\n"
+        "mov r9, r6\n"
+        "mov r7, r9\n"
+        "strb r7, [r3, #0x18]\n"
+        "ldr r0, [sp, #0x68]\n"
+        "adds r0, #0x30\n"
+        "ldrb r0, [r0]\n"
+        "lsls r0, r0, #0x1e\n"
+        "mov r1, r10\n"
+        "subs r1, #1\n"
+        "str r1, [sp, #0x88]\n"
+        "cmp r0, #0\n"
+        "blt .Lrace_obj_queue_changed_horse_tiles\n"
+        "b .Lrace_obj_submit_lane_horse_objects\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    // Only changed horse frames need a fresh upload to OBJ VRAM.
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_obj_queue_changed_horse_tiles:\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_GET_TILE_QUEUE();
+    asm volatile (
+        ".syntax unified\n"
+        "ldr r7, [sp, #.Lrace_obj_draw_sp_frame_tiles]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_LANE_TILE_INDEX();
+    asm volatile (
+        ".syntax unified\n"
+        "adds r2, r0, #0\n"
+        "ldr r0, [sp, #.Lrace_obj_draw_sp_frame_tiles]\n"
+        "movs r3, #0\n"
+        "cmp r0, #0\n"
+        "beq .Lrace_draw_make_horse_tile_copy\n"
+        "mov r4, sp\n"
+        "ldrh r3, [r4, #0x2c]\n"
+        ".Lrace_draw_make_horse_tile_copy:\n"
+        "lsls r2, r2, #5\n"
+        "ldr r0, .Lrace_draw_obj_tile_vram\n"
+        "adds r2, r2, r0\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_INIT_TILE_COPY();
+    asm volatile (
+        ".syntax unified\n"
+        "ldr r1, [r6, #4]\n"
+        "ldr r0, [r6, #0xc]\n"
+        "cmp r1, r0\n"
+        "beq .Lrace_obj_grow_horse_tile_dma_queue\n"
+        "cmp r1, #0\n"
+        "beq .Lrace_draw_advance_queue_tail\n"
+        "adds r0, r1, #0\n"
+        "ldr r1, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_COPY_DMA_COMMAND("r2, r3, r4");
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_draw_advance_queue_tail:\n"
+        "ldr r0, [r6, #4]\n"
+        "adds r0, #0x10\n"
+        "str r0, [r6, #4]\n"
+        "b .Lrace_obj_submit_lane_horse_objects\n"
+        ".align 2, 0\n"
+        ".Lrace_draw_horse_camera_x: .4byte .Lrace_obj_state_bg2_scroll_x\n"
+        ".Lrace_draw_obj_tile_vram: .4byte 0x06010000\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    // Preserve the queued uploads when the command buffer grows.
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_obj_grow_horse_tile_dma_queue:\n"
+        "str r1, [sp, #0x98]\n"
+        "mov r7, r9\n"
+        "str r7, [sp, #0x64]\n"
+        "ldr r0, [r6]\n"
+        "subs r0, r1, r0\n"
+        "asrs r4, r0, #4\n"
+        "str r4, [sp, #0x60]\n"
+        "add r1, sp, #0x64\n"
+        "add r0, sp, #0x60\n"
+        "cmp r4, #1\n"
+        "bhs .Lrace_draw_calculate_queue_capacity\n"
+        "adds r0, r1, #0\n"
+        ".Lrace_draw_calculate_queue_capacity:\n"
+        "ldr r0, [r0]\n"
+        "adds r0, r4, r0\n"
+        "cmp r0, #0\n"
+        "beq .Lrace_draw_empty_queue_allocation\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_ALLOCATE_TILE_QUEUE();
+    asm volatile (
+        ".syntax unified\n"
+        "cmp r0, #0\n"
+        "bne .Lrace_draw_copy_old_queue\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_RETRY_TILE_QUEUE();
+    asm volatile (
+        ".syntax unified\n"
+        "b .Lrace_draw_copy_old_queue\n"
+        ".Lrace_draw_empty_queue_allocation:\n"
+        "movs r0, #0\n"
+        "movs r2, #0\n"
+        "str r2, [sp, #0x80]\n"
+        ".Lrace_draw_copy_old_queue:\n"
+        "adds r4, r0, #0\n"
+        "mov r9, r4\n"
+        "ldr r2, [r6]\n"
+        "mov ip, r9\n"
+        "mov r3, r10\n"
+        "subs r3, #1\n"
+        "str r3, [sp, #0x88]\n"
+        "ldr r4, [sp, #0x98]\n"
+        "cmp r2, r4\n"
+        "beq .Lrace_draw_append_new_command\n"
+        ".Lrace_draw_copy_next_old_command:\n"
+        "mov r7, ip\n"
+        "cmp r7, #0\n"
+        "beq .Lrace_draw_advance_old_command\n"
+        "mov r0, ip\n"
+        "adds r1, r2, #0\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_COPY_DMA_COMMAND("r3, r4, r7");
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_draw_advance_old_command:\n"
+        "adds r2, #0x10\n"
+        "movs r0, #0x10\n"
+        "add ip, r0\n"
+        "ldr r1, [sp, #0x98]\n"
+        "cmp r2, r1\n"
+        "bne .Lrace_draw_copy_next_old_command\n"
+        ".Lrace_draw_append_new_command:\n"
+        "mov r4, ip\n"
+        "ldr r0, [sp, #0x64]\n"
+        "cmp r0, #1\n"
+        "bne .Lrace_draw_append_repeated_commands\n"
+        "cmp r4, #0\n"
+        "beq .Lrace_draw_advance_new_queue_tail\n"
+        "adds r0, r4, #0\n"
+        "add r1, sp, #.Lrace_obj_draw_sp_frame_result\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_COPY_DMA_COMMAND("r2, r3, r7");
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_draw_advance_new_queue_tail:\n"
+        "adds r4, #0x10\n"
+        "b .Lrace_draw_release_old_queue\n"
+        ".Lrace_draw_append_repeated_commands:\n"
+        "mov ip, r0\n"
+        "adds r2, r4, #0\n"
+        "cmp r0, #0\n"
+        "beq .Lrace_draw_get_new_queue_tail\n"
+        ".Lrace_draw_copy_next_new_command:\n"
+        "cmp r2, #0\n"
+        "beq .Lrace_draw_advance_new_command\n"
+        "adds r0, r2, #0\n"
+        "add r1, sp, #.Lrace_obj_draw_sp_frame_result\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_COPY_DMA_COMMAND("r3, r4, r7");
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_draw_advance_new_command:\n"
+        "movs r0, #1\n"
+        "rsbs r0, r0, #0\n"
+        "add ip, r0\n"
+        "adds r2, #0x10\n"
+        "mov r1, ip\n"
+        "cmp r1, #0\n"
+        "bne .Lrace_draw_copy_next_new_command\n"
+        ".Lrace_draw_get_new_queue_tail:\n"
+        "adds r4, r2, #0\n"
+        ".Lrace_draw_release_old_queue:\n"
+        "ldr r2, [r6, #4]\n"
+        "ldr r0, [r6]\n"
+        "adds r1, r0, #0\n"
+        "cmp r0, r2\n"
+        "beq .Lrace_draw_free_old_queue\n"
+        ".Lrace_draw_retire_next_old_command:\n"
+        "adds r1, #0x10\n"
+        "cmp r1, r2\n"
+        "bne .Lrace_draw_retire_next_old_command\n"
+        ".Lrace_draw_free_old_queue:\n"
+        "cmp r0, #0\n"
+        "beq .Lrace_draw_publish_new_queue\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_FREE_TILE_QUEUE();
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_draw_publish_new_queue:\n"
+        "ldr r0, [sp, #0x80]\n"
+        "add r0, r9\n"
+        "mov r2, r9\n"
+        "str r2, [r6]\n"
+        "str r4, [r6, #4]\n"
+        "str r0, [r6, #0xc]\n"
+        ".Lrace_obj_submit_lane_horse_objects:\n"
+        "ldr r0, [sp, #.Lrace_obj_draw_sp_frame_objects]\n"
+        "adds r1, r0, #0\n"
+        "movs r2, #0\n"
+        "cmp r1, #0\n"
+        "beq .Lrace_draw_submit_entrant_objects\n"
+        "mov r3, sp\n"
+        "ldrh r2, [r3, #0x24]\n"
+        ".Lrace_draw_submit_entrant_objects:\n"
+        "ldr r0, [sp, #0x8c]\n"
+        "add r0, r10\n"
+        "lsls r0, r0, #3\n"
+        "movs r4, #0xcb\n"
+        "lsls r4, r4, #3\n"
+        "adds r0, r0, r4\n"
+        "adds r0, r5, r0\n"
+        "str r0, [sp]\n"
+        "adds r0, r5, #0\n"
+        "add r3, sp, #.Lrace_obj_draw_sp_options\n"
+        "bl DrawHorseRaceEntrantObjects\n"
+        "ldr r6, .Lrace_draw_draw_player_racing\n"
+        "adds r0, r5, r6\n"
+        "ldrb r0, [r0]\n"
+        "cmp r0, #0\n"
+        "beq .Lrace_draw_draw_entrant_overlay\n"
+        "mov r7, r10\n"
+        "cmp r7, #.Lrace_obj_player_lane\n"
+        "bne .Lrace_draw_draw_entrant_overlay\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_READ_FRAME("ldr r0, [sp, #0x78]", "r0", "", "r0", "ldr r4, [sp, #0x7c]\nldr r0, [r4]", "add r0, sp, #.Lrace_obj_draw_sp_frame_result", "r4");
+    RACE_DRAW_MATERIALIZE_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "add r1, r0, #0");
+    RACE_DRAW_COPY_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "r2, r6, r7", "r3, r4, r6", "r2, r7");
+    asm volatile (
+        ".syntax unified\n"
+        "add r1, sp, #.Lrace_obj_draw_sp_options\n"
+        "movs r3, #0xcd\n"
+        "lsls r3, r3, #2\n"
+        "adds r0, r5, r3\n"
+        "ldmia r0!, {r4, r6, r7}\n"
+        "stmia r1!, {r4, r6, r7}\n"
+        "ldmia r0!, {r2, r3, r4}\n"
+        "stmia r1!, {r2, r3, r4}\n"
+        "ldr r0, [r0]\n"
+        "str r0, [r1]\n"
+        "ldr r6, .Lrace_draw_player_distance\n"
+        "adds r0, r5, r6\n"
+        "movs r7, #2\n"
+        "ldrsh r1, [r0, r7]\n"
+        "ldr r2, .Lrace_draw_marker_camera_x\n"
+        "adds r0, r5, r2\n"
+        "ldrh r0, [r0]\n"
+        "subs r1, r1, r0\n"
+        "subs r1, #0x27\n"
+        "mov r3, r8\n"
+        "strh r1, [r3]\n"
+        "movs r0, #0x4c\n"
+        "strh r0, [r3, #2]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_RESOLVE(start_effect_palette, "r4", ResolveRaceObjPalette);
+    asm volatile (
+        ".syntax unified\n"
+        "mov r6, r8\n"
+        "strh r0, [r6, #4]\n"
+        "mov r7, r10\n"
+        "strh r7, [r6, #8]\n"
+        "movs r0, #1\n"
+        "strb r0, [r6, #0x18]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_RESOLVE(start_effect_tiles, "r1", ResolveRaceObjTile);
+    asm volatile (
+        ".syntax unified\n"
+        "ldr r3, [sp, #0x78]\n"
+        "ldrh r2, [r3, #0xc]\n"
+        "lsls r2, r2, #2\n"
+        "ldr r4, [sp, #0x7c]\n"
+        "ldr r1, [r4]\n"
+        "adds r1, r1, r2\n"
+        "ldrh r1, [r1]\n"
+        "lsls r1, r1, #2\n"
+        "adds r0, r0, r1\n"
+        "strh r0, [r6, #6]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_FRAME("r6", 0, 0);
+    asm volatile (
+        ".syntax unified\n"
+        ".Lrace_draw_draw_entrant_overlay:\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_ADDR(overlay, "r7", entrant_overlay_animator, 3);
+    RACE_DRAW_READ_FRAME("", "r0", "", "r0", "ldr r4, [sp, #0x90]\nldr r0, [r4]", "add r0, sp, #.Lrace_obj_draw_sp_frame_result", "r4");
+    RACE_DRAW_MATERIALIZE_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "add r1, r0, #0");
+    RACE_DRAW_COPY_FRAME("ldr r0, [sp, #.Lrace_obj_draw_sp_frame_result_ptr]", "r2, r6, r7", "r3, r4, r6", "r2, r7");
+    asm volatile (
+        ".syntax unified\n"
+        "add r1, sp, #.Lrace_obj_draw_sp_options\n"
+        "ldr r3, .Lrace_draw_entrant_overlay_options\n"
+        "adds r0, r5, r3\n"
+        "ldmia r0!, {r4, r6, r7}\n"
+        "stmia r1!, {r4, r6, r7}\n"
+        "ldmia r0!, {r2, r3, r4}\n"
+        "stmia r1!, {r2, r3, r4}\n"
+        "ldr r0, [r0]\n"
+        "str r0, [r1]\n"
+        "movs r0, #.Lrace_obj_entrant_bytes\n"
+        "mov r1, r10\n"
+        "muls r1, r0, r1\n"
+        "movs r6, #0xa2\n"
+        "lsls r6, r6, #5\n"
+        "adds r0, r5, r6\n"
+        "adds r0, r0, r1\n"
+        "movs r7, #2\n"
+        "ldrsh r1, [r0, r7]\n"
+        "ldr r2, .Lrace_draw_marker_camera_x\n"
+        "adds r0, r5, r2\n"
+        "ldrh r0, [r0]\n"
+        "subs r1, r1, r0\n"
+        "mov r3, r8\n"
+        "strh r1, [r3]\n"
+        "ldr r0, [sp, #0x8c]\n"
+        "add r0, r10\n"
+        "lsls r0, r0, #3\n"
+        "adds r0, #0x3c\n"
+        "strh r0, [r3, #2]\n"
+        "movs r0, #2\n"
+        "strh r0, [r3, #8]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_RESOLVE(course_marker_palette, "r4", ResolveRaceObjPalette);
+    asm volatile (
+        ".syntax unified\n"
+        "mov r6, r8\n"
+        "strh r0, [r6, #4]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_RESOLVE(entrant_overlay_tiles, "r7", ResolveRaceObjTile);
+    asm volatile (
+        ".syntax unified\n"
+        "strh r0, [r6, #6]\n"
+        "movs r0, #1\n"
+        "strb r0, [r6, #0x18]\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    RACE_DRAW_FRAME("r0", 1, 0);
+    asm volatile (
+        ".syntax unified\n"
+        "ldr r1, [sp, #0x88]\n"
+        "mov r10, r1\n"
+        "cmp r1, #0\n"
+        "blt .Lrace_obj_start_course_marker_loop\n"
+        "b .Lrace_obj_draw_current_lane\n"
+        ".syntax divided\n"
+        : : "l" (self) : RACE_DRAW_CLOBBERS);
+    asm volatile (".Lrace_obj_start_course_marker_loop:");
+    {
+        register int marker_index asm("r10");
+        register u32 visible_attributes asm("r9");
+        register SpriteFrameDrawOptions * options;
+        register RaceFrameView * fetched asm("r8");
+        asm volatile (
+            "mov r2, #0\n"
+            "mov %0, r2\n"
+            "mov r3, #1\n"
+            "mov %1, r3\n"
+            "add %2, sp, %4\n"
+            "ldr r4, [sp, %5]\n"
+            "mov %3, r4"
+            : "=h" (marker_index), "=h" (visible_attributes), "=l" (options), "=h" (fetched)
+            : "I" (offsetof(RaceSceneDrawWork, options)), "I" (offsetof(RaceSceneDrawWork, result))
+            : "r2", "r3", "r4", "memory");
+        register int current_index asm("r0");
+        asm volatile (".Lrace_draw_course_marker:");
+        {
+            register uintptr_t marker_byte_offset asm("r6") = marker_index;
+            RACE_DRAW_PIN(marker_byte_offset);
+            marker_byte_offset *= sizeof(RaceCourseMarker);
+            RACE_DRAW_PIN(marker_byte_offset);
+            RACE_DRAW_WORK_WRITE(marker_byte_offset, marker_byte_offset);
+            RACE_DRAW_ADDR(markers, "r1", course_markers, 3);
+            register RaceCourseMarker * marker asm("r0") =
+                reinterpret_cast<RaceCourseMarker *>(reinterpret_cast<uintptr_t>(markers) + marker_byte_offset);
+            RACE_DRAW_PIN(marker);
+            RACE_DRAW_WORK_WRITE(marker, marker);
+            register int marker_x asm("r0");
+            asm ("mov r2, #0\n\tldrsh %0, [%1, r2]" : "=l" (marker_x) : "l" (marker) : "r2", "memory");
+            register int hidden_marker asm("r3") = -1;
+            RACE_DRAW_PIN(hidden_marker);
+
+            if (marker_x != hidden_marker)
+            {
+                register u32 frame_id asm("r4") = marker_index;
+                RACE_DRAW_PIN(frame_id);
+                register u32 frame_mask asm("r6") = visible_attributes;
+                RACE_DRAW_PIN(frame_mask);
+                frame_id &= frame_mask;
+                RACE_DRAW_PIN(frame_id);
+                register RaceFrameView * result asm("r0") = fetched;
+                RACE_DRAW_PIN(result);
+                register uintptr_t marker_data asm("r1") = reinterpret_cast<uintptr_t>(self);
+                RACE_DRAW_PIN(marker_data);
+                marker_data += offsetof(HorseRaceState, course_marker_data);
+                RACE_DRAW_PIN(marker_data);
+                register u32 animation_frame asm("r2") = frame_id;
+                RACE_DRAW_PIN(animation_frame);
+                ReadRaceDataFrame(result, reinterpret_cast<SpriteAnimationData const *>(marker_data), animation_frame);
+                RACE_DRAW_COPY_FRAME("mov r0, r8", "r2, r3, r6", "r2, r3, r6", "r2, r3");
+
+                register u32 scroll_offset asm("r6");
+                asm ("ldr %0, .Lrace_draw_marker_camera_x" : "=l" (scroll_offset));
+                register u16 const * scroll asm("r1");
+                asm ("add %0, %1, %2" : "=l" (scroll) : "l" (self), "l" (scroll_offset));
+                RACE_DRAW_WORK_READ(current_marker, "r2", marker);
+                register u32 stored_x asm("r0");
+                asm ("ldrh %0, [%1, %2]" : "=l" (stored_x) : "l" (current_marker),
+                    "I" (offsetof(RaceCourseMarker, position)) : "memory");
+                register u32 camera_x asm("r1");
+                asm ("ldrh %0, [%1]" : "=l" (camera_x) : "l" (scroll) : "memory");
+                register u32 screen_x asm("r0") = stored_x - camera_x;
+                RACE_DRAW_PIN(screen_x);
+                RACE_DRAW_OPTION_WRITE(options, offset_x, screen_x, "strh");
+
+                register uintptr_t marker_y_offset asm("r3");
+                asm ("ldr %0, .Lrace_draw_course_marker_y" : "=l" (marker_y_offset));
+                register uintptr_t first_y asm("r0");
+                asm ("add %0, %1, %2" : "=l" (first_y) : "l" (self), "l" (marker_y_offset));
+                RACE_DRAW_WORK_READ(entry_offset, "r6", marker_byte_offset);
+                register u16 const * marker_y asm("r0") = reinterpret_cast<u16 const *>(first_y + entry_offset);
+                RACE_DRAW_PIN(marker_y);
+                register u16 screen_y asm("r0") = *marker_y;
+                RACE_DRAW_PIN(screen_y);
+                RACE_DRAW_OPTION_WRITE(options, offset_y, screen_y, "strh");
+                RACE_DRAW_RESOLVE(course_marker_palette, "r1", ResolveRaceObjPalette);
+                register u32 palette_index asm("r0");
+                asm ("" : "=l" (palette_index));
+                RACE_DRAW_OPTION_WRITE(options, palette_base, palette_index, "strh");
+                RACE_DRAW_RESOLVE(course_marker_tiles, "r2", ResolveRaceObjTile);
+                register u32 first_tile asm("r0");
+                asm ("" : "=l" (first_tile));
+                frame_id *= 8;
+                RACE_DRAW_PIN(frame_id);
+                register u32 tile_index asm("r0") = first_tile + frame_id;
+                RACE_DRAW_PIN(tile_index);
+                RACE_DRAW_OPTION_WRITE(options, tile_base, tile_index, "strh");
+                register u32 priority asm("r0") = 2;
+                RACE_DRAW_PIN(priority);
+                RACE_DRAW_OPTION_WRITE(options, priority, priority, "strh");
+                register u32 mosaic asm("r3") = visible_attributes;
+                RACE_DRAW_PIN(mosaic);
+                RACE_DRAW_OPTION_WRITE(options, mosaic, mosaic, "strb");
+                RACE_DRAW_FRAME("r4", 1, 0);
+            }
+            asm volatile (
+                "mov r6, #1\n"
+                "add %0, r6\n"
+                "mov %1, %0"
+                : "+h" (marker_index), "=l" (current_index) : : "r6");
+        }
+        asm volatile ("cmp %0, %1\n\tble .Lrace_draw_course_marker" : : "l" (current_index),
+            "I" (sizeof(self->course_markers) / sizeof(RaceCourseMarker) - 1) : "cc");
+    }
+}
+
+asm (
+    ".pushsection .text.f3.0805BC34, \"ax\", %progbits\n"
+        ".align 2, 0\n"
+        ".Lrace_draw_draw_player_racing: .4byte .Lrace_obj_state_player_is_racing\n"
+        ".Lrace_draw_player_distance: .4byte .Lrace_obj_state_player_distance_left\n"
+        ".Lrace_draw_marker_camera_x: .4byte .Lrace_obj_state_bg2_scroll_x\n"
+        ".Lrace_draw_entrant_overlay_options: .4byte 0x0000059C\n"
+        ".Lrace_draw_course_marker_y: .4byte 0x000006BA\n"
+    ".popsection\n"
+);
+
+#undef RACE_DRAW_FRAME
+#undef RACE_DRAW_COPY_FRAME
+#undef RACE_DRAW_MATERIALIZE_FRAME
+#undef RACE_DRAW_READ_FRAME
+#undef RACE_DRAW_COPY_DMA_COMMAND
+#undef RACE_DRAW_FREE_TILE_QUEUE
+#undef RACE_DRAW_RETRY_TILE_QUEUE
+#undef RACE_DRAW_ALLOCATE_TILE_QUEUE
+#undef RACE_DRAW_INIT_TILE_COPY
+#undef RACE_DRAW_GET_TILE_QUEUE
+#undef RACE_DRAW_LANE_TILE_INDEX
+#undef RACE_DRAW_RESOLVE
+#undef RACE_DRAW_ADVANCE
+#undef RACE_DRAW_ADDR
+#undef RACE_DRAW_CLEAR_PRIORITY
+#undef RACE_DRAW_CLEAR_ZERO
+#undef RACE_DRAW_OPTION_WRITE
+#undef RACE_DRAW_WORK_READ
+#undef RACE_DRAW_WORK_WRITE
+#undef RACE_DRAW_PIN
+#undef RACE_DRAW_CLOBBERS
