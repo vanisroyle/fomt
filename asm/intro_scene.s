@@ -540,7 +540,7 @@ func_08000E1C: @ 0x08000E1C
     push {r4, r5, r6, r7, lr}
     sub sp, #8
     adds r7, r0, #0
-    bl func_08008724
+    bl HardwareContext_ForceBlank
     adds r0, r7, #0
     bl func_08000F5C
     adds r0, r7, #0
@@ -760,7 +760,7 @@ func_08000FF8: @ 0x08000FF8
     push {r5, r6, r7}
     sub sp, #0x20
     adds r7, r0, #0
-    bl func_08008724
+    bl HardwareContext_ForceBlank
     adds r0, r7, #0
     bl func_080019D8
     adds r0, r7, #0

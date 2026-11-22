@@ -1460,7 +1460,7 @@ func_08004570: @ 0x08004570
     str r0, [sp, #0x58]
     adds r6, r1, #0
     adds r0, r6, #0
-    bl func_08008724
+    bl HardwareContext_ForceBlank
     adds r0, r6, #0
     bl HardwareContext_GetDisplayRegisters
     adds r5, r0, #0
@@ -3749,7 +3749,7 @@ func_08005B68: @ 0x08005B68
     adds r7, r0, #0
     adds r6, r1, #0
     adds r0, r6, #0
-    bl func_08008724
+    bl HardwareContext_ForceBlank
     mov r0, sp
     bl func_08007874
     movs r5, #0

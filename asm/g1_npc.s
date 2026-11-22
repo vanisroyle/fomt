@@ -3967,7 +3967,7 @@ func_080A25B0: @ 0x080A25B0
 	mov sl, r0
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080A2BA4
 	adds r0, r7, #0

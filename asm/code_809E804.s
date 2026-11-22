@@ -22023,7 +22023,7 @@ func_080B55D0: @ 0x080B55D0
 	ldr r4, .L080B5738 @ =0xFFFFDFF0
 	add sp, r4
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	ldr r0, .L080B573C @ =gUnk_086FD240
 	add r1, sp, #0xc
 	bl Unpack
@@ -25491,7 +25491,7 @@ func_080B7164: @ 0x080B7164
 	sub sp, #0x7c
 	mov sb, r0
 	str r1, [sp, #0x40]
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	ldr r0, .L080B72E8 @ =gUnk_0872D5CC
 	ldr r1, .L080B72EC @ =0x0600F000
 	bl Unpack
@@ -43377,7 +43377,7 @@ func_080C12C4: @ 0x080C12C4
 	thumb_func_start func_080C14BC
 func_080C14BC: @ 0x080C14BC
 	push {lr}
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	pop {r0}
 	bx r0
 	.align 2, 0

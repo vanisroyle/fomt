@@ -31373,7 +31373,7 @@ RunFestivalResultsScreen: @ 0x08051504
 	mov sb, r0
 	adds r6, r1, #0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -33642,7 +33642,7 @@ RunFrisbeeScreen: @ 0x08052984
 	movs r0, #0
 	str r0, [sp, #0x30]
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -45270,7 +45270,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	str r0, [sp, #0x1c]
 	adds r6, r1, #0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -45932,7 +45932,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	b .L080589FC
 .L08058E4C:
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r2, #0xc1
 	lsls r2, r2, #3
 	adds r4, r6, r2
@@ -46502,7 +46502,7 @@ RunHorseRaceScreen: @ 0x080588AC
 	b .L08058F4E
 .L08059352:
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r2, #0
 	mov sb, r2
 	movs r3, #0xcd
@@ -50729,7 +50729,7 @@ RunChildhoodMemoryScreen: @ 0x0805EE44
 	movs r1, #0
 	str r1, [sp, #.Lmemory_sp_scene_done]
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -69341,7 +69341,7 @@ func_0806A1F4: @ 0x0806A1F4
 	str r0, [sp, #0x20c]
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
@@ -76783,7 +76783,7 @@ func_0806DB38: @ 0x0806DB38
 	mov sl, r0
 	adds r5, r1, #0
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -93824,7 +93824,7 @@ func_08075E7C: @ 0x08075E7C
 	mov r3, sl
 	strb r3, [r0]
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
@@ -96590,7 +96590,7 @@ func_08077490: @ 0x08077490
 	mov sb, r0
 	adds r5, r1, #0
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -99707,7 +99707,7 @@ func_080790E4: @ 0x080790E4
 	mov sl, r0
 	adds r5, r1, #0
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl HardwareContext_GetDisplayRegisters
 	mov r1, sp
@@ -99750,7 +99750,7 @@ func_080790E4: @ 0x080790E4
 	b .L08079504
 .L08079154:
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	ldr r4, .L080791C8 @ =0x00000856
 	adds r0, r5, r4
 	ldrh r1, [r0]
@@ -100195,7 +100195,7 @@ func_080790E4: @ 0x080790E4
 	b .L0807980C
 .L08079504:
 	adds r0, r5, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r5, #0
 	bl func_08079F8C
 	ldr r0, [sp, #4]
@@ -105437,7 +105437,7 @@ func_0807BEC8: @ 0x0807BEC8
 	push {r5, r6, r7}
 	sub sp, #0xa4
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -107663,7 +107663,7 @@ func_0807D218: @ 0x0807D218
 	push {r5, r6, r7}
 	sub sp, #0xe8
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	ldr r0, [r7, #8]
@@ -109148,7 +109148,7 @@ func_0807DE3C: @ 0x0807DE3C
 	push {r5, r6, r7}
 	sub sp, #0xd8
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0x10
@@ -109977,7 +109977,7 @@ func_0807E558: @ 0x0807E558
 	push {r5, r6, r7}
 	sub sp, #0xec
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -111225,7 +111225,7 @@ func_0807EF90: @ 0x0807EF90
 	push {r5, r6, r7}
 	sub sp, #0xf4
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -112379,7 +112379,7 @@ func_0807F8C8: @ 0x0807F8C8
 	push {r5, r6, r7}
 	sub sp, #0x44
 	adds r6, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl func_080C85A0
 	movs r5, #1
@@ -113907,7 +113907,7 @@ func_08080540: @ 0x08080540
 	push {r5, r6, r7}
 	sub sp, #0xec
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -115376,7 +115376,7 @@ func_0808114C: @ 0x0808114C
 	push {r5, r6, r7}
 	sub sp, #0x2c
 	adds r6, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl func_080C85A0
 	movs r4, #0
@@ -116642,7 +116642,7 @@ func_08081BBC: @ 0x08081BBC
 	push {r5, r6, r7}
 	sub sp, #0xf8
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -118821,7 +118821,7 @@ func_08082CEC: @ 0x08082CEC
 	push {r6, r7}
 	sub sp, #0x50
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -121248,7 +121248,7 @@ func_08084228: @ 0x08084228
 	push {r5, r6, r7}
 	sub sp, #0x70
 	adds r6, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl func_080C85A0
 	movs r0, #0
@@ -125482,7 +125482,7 @@ func_08086A08: @ 0x08086A08
 	push {r5, r6, r7}
 	sub sp, #0xb4
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080C85A0
 	movs r0, #0xa9
@@ -132495,7 +132495,7 @@ func_0808A55C: @ 0x0808A55C
 	push {r5, r6, r7}
 	sub sp, #0x1c
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x80
@@ -135687,7 +135687,7 @@ func_0808C0BC: @ 0x0808C0BC
 	push {r5, r6, r7}
 	sub sp, #0x10
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x82
@@ -140080,7 +140080,7 @@ func_0808E6FC: @ 0x0808E6FC
 	push {r5, r6, r7}
 	sub sp, #0x1c
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x80
@@ -143990,7 +143990,7 @@ func_08090960: @ 0x08090960
 	push {r5, r6, r7}
 	sub sp, #0x14
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x80
@@ -145421,7 +145421,7 @@ func_0809152C: @ 0x0809152C
 	str r0, [sp, #0x40]
 	adds r7, r1, #0
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x82
@@ -148278,7 +148278,7 @@ func_08092D64: @ 0x08092D64
 	push {r5, r6, r7}
 	sub sp, #0x14
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl func_080CE294
 	movs r1, #0x82
@@ -148990,7 +148990,7 @@ func_08093364: @ 0x08093364
 	push {r5, r6, r7}
 	sub sp, #0x5c
 	adds r7, r0, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r7, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0x10
@@ -152171,7 +152171,7 @@ func_08094F6C: @ 0x08094F6C
 	mov r8, r0
 	adds r4, r1, #0
 	adds r0, r4, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r7, #0
 	add r0, sp, #4
 	mov sb, r0
@@ -152476,7 +152476,7 @@ func_080951B4: @ 0x080951B4
 	mov sb, r0
 	movs r7, #0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r1, #0xba
 	lsls r1, r1, #2
 	adds r4, r6, r1
@@ -153368,7 +153368,7 @@ func_080958C0: @ 0x080958C0
 	movs r2, #0
 	mov sb, r2
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r3, #0xc8
 	lsls r3, r3, #2
 	adds r4, r6, r3
@@ -153948,7 +153948,7 @@ func_08095D80: @ 0x08095D80
 	str r0, [sp, #8]
 	mov sl, r0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r1, #0xc8
 	lsls r1, r1, #2
 	adds r4, r6, r1
@@ -154623,7 +154623,7 @@ func_080962F0: @ 0x080962F0
 	ldrb r4, [r4]
 	strb r4, [r6]
 	adds r0, r7, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r0, #0xba
 	lsls r0, r0, #2
 	adds r4, r7, r0
@@ -156587,7 +156587,7 @@ func_080972AC: @ 0x080972AC
 	movs r2, #0
 	mov sb, r2
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r3, #0xc8
 	lsls r3, r3, #2
 	adds r4, r6, r3
@@ -157631,7 +157631,7 @@ func_08097AE4: @ 0x08097AE4
 	mov sb, r0
 	movs r7, #0
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	movs r1, #0xc8
 	lsls r1, r1, #2
 	adds r4, r6, r1

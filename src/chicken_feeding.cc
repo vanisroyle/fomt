@@ -267,7 +267,7 @@ EC SECTION(".text.080B0AA0") void ResetChickenFeedingRound(ChickenFeedingScene &
     *reinterpret_cast<u8 *>(target) = reset;
 }
 
-EC void func_08008724(ChickenFeedingScene & scene);
+EC void HardwareContext_ForceBlank(ChickenFeedingScene & scene);
 EC void TileHandle_Release(ChickenFeedingResource & resource, u32 handle);
 EC u32 func_08007B54(ChickenFeedingResource & resource, int capacity);
 EC u8 const gUnk_0810787C[5];
@@ -378,7 +378,7 @@ EC SECTION(".text.080AE4D8") u32 GetChickenFeedingResult(ChickenFeedingScene con
 
 EC SECTION(".text.080AE6C0") void BlankChickenFeedingDisplay(ChickenFeedingScene & scene)
 {
-    func_08008724(scene);
+    HardwareContext_ForceBlank(scene);
 }
 
 EC SECTION(".text.080AE6CC") void ResetChickenFeedingResourceHandles(ChickenFeedingScene & scene)

@@ -788,43 +788,7 @@ func_08007F84: @ 0x08007F84
     .byte 0xA4, 0x04, 0x00, 0x00, 0xD8, 0x5B, 0x0E, 0x08, 0x04, 0x00, 0x00, 0x04
 
     .section .text.after_080086BC, "ax"
-    thumb_func_start func_08008724
-func_08008724: @ 0x08008724
-    push {r4, lr}
-    sub sp, #0x10
-    ldr r4, [r0]
-    adds r3, r4, #0
-    adds r3, #0x34
-    movs r2, #0
-    ldrh r0, [r4, #0x34]
-    movs r1, #0x80
-    orrs r0, r1
-    strh r0, [r4, #0x34]
-    str r2, [sp]
-    str r2, [sp, #4]
-    ldr r0, .L08008770 @ =vtable_unk_080E5AF0
-    str r0, [sp, #8]
-    str r3, [sp, #0xc]
-    movs r0, #0x92
-    lsls r0, r0, #3
-    adds r4, r4, r0
-    adds r0, r4, #0
-    bl VBlankDispatcher_GetTasks
-    ldr r1, [r0, #8]
-    ldr r2, [r1, #0x10]
-    mov r1, sp
-    bl _call_via_r2
-    adds r0, r4, #0
-    bl VBlankDispatcher_Wait
-    mov r0, sp
-    movs r1, #2
-    bl TaskNode_Destroy
-    add sp, #0x10
-    pop {r4}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08008770: .4byte vtable_unk_080E5AF0
+    .section .text.after_08008724, "ax"
 .L08008774:
     .byte 0x10, 0xB5, 0x84, 0xB0, 0x04, 0x68, 0x23, 0x1C, 0x34, 0x33, 0x00, 0x22
     .byte 0xA1, 0x8E, 0x0F, 0x48, 0x08, 0x40, 0xA0, 0x86, 0x00, 0x92, 0x01, 0x92, 0x0D, 0x48, 0x02, 0x90

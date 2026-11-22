@@ -24061,7 +24061,7 @@ func_080E0094: @ 0x080E0094
 	adds r7, r1, #0
 	adds r6, r7, #4
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc

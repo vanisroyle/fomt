@@ -1174,7 +1174,7 @@ EC MedalRunFade * DisplayFade_Initialize(MedalRunFade *, MedalExchangeDisplayReg
 // Pass the fixed fade step in the full argument register, without a redundant sign extension.
 EC void StartMedalFadeIn(MedalRunFade *, i32, u32, u32) asm("DisplayFade_StartIn");
 EC void StartMedalFadeOut(MedalRunFade *, i32, u32, u32) asm("DisplayFade_StartOut");
-EC void BlankMedalExchangeDisplay(MedalExchange *) asm("func_08008724");
+EC void BlankMedalExchangeDisplay(MedalExchange *) asm("HardwareContext_ForceBlank");
 EC void RenderMedalExchangeFrame(MedalExchange *) asm("func_080087C8");
 EC void SetMessageWindowPortrait(MessageWindow *, u32);
 EC void HardwareContext_UpdateKeys(MedalExchange *);

@@ -202,6 +202,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008574);
         src/hardware.o(.text.HardwareContext_Destroy);
         asm/hardware.o(.text.after_080086BC);
+        src/hardware.o(.text.HardwareContext_ForceBlank);
+        asm/hardware.o(.text.after_08008724);
         src/hardware.o(.text.HardwareContext_UpdateKeys);
         asm/hardware.o(.text.after_080088B8);
         src/hardware.o(.text.HardwareContext_GetHeldKeys);

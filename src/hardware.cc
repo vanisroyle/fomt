@@ -1454,7 +1454,7 @@ struct TaskVtable
     void (*abi_header_04)();
     bool (*run)(TaskNode *);
     void (*destroy)();
-    void (*append)();
+    void (*append)(TaskList *, TaskNode *);
     void (*remove)(TaskList *, TaskNode *);
 };
 
@@ -1871,6 +1871,33 @@ EC SECTION(".text.HardwareContext_InitializeWithOamReservation") HardwareContext
     *reinterpret_cast<u16 volatile *>(0x04000004) = display_status;
     self->state = initialized_state;
     return self;
+}
+
+struct HardwareDisplayCommitTask
+{
+    TaskNode node;
+    DisplayRegisterBuffer * registers;
+};
+
+extern TaskVtable vtable_unk_080E5AF0;
+
+// 0x08008724
+EC void SECTION(".text.HardwareContext_ForceBlank") HardwareContext_ForceBlank(HardwareContext * self)
+{
+    HardwareRuntime * state = reinterpret_cast<HardwareRuntime *>(self->state);
+    DisplayRegisterBuffer * registers = &state->display;
+    u32 unlinked = 0;
+    state->display.register_halfwords[0] = DisplayRegisters_ReadHalfword(registers->register_halfwords, 0) | 0x80;
+    HardwareDisplayCommitTask task;
+    task.node.previous_link = reinterpret_cast<TaskNode **>(unlinked);
+    task.node.next = reinterpret_cast<TaskNode *>(unlinked);
+    task.node.vtable = &vtable_unk_080E5AF0;
+    task.registers = registers;
+    VBlankDispatcher * dispatcher = &state->vblank;
+    TaskList * tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    tasks->node.vtable->append(tasks, &task.node);
+    VBlankDispatcher_Wait(dispatcher);
+    TaskNode_Destroy(&task.node, 2);
 }
 
 // 0x08008A68
