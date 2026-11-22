@@ -28472,7 +28472,7 @@ InitializeMessageWindowState: @ 0x0804F288
 	bl TileHandle_Release
 	ldr r1, [sp, #4]
 	adds r0, r4, #0
-	bl func_08007CD8
+	bl TileHandle_Retain
 	str r0, [r4, #4]
 .L0804F448:
 	ldr r1, [sp, #4]
@@ -29077,7 +29077,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	ldr r5, [sp, #0x14]
 	ldr r1, [r1, #4]
 	mov r0, sb
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x14
 	ldr r0, [sp, #0x14]
@@ -29227,7 +29227,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	mov r5, sb
 	ldr r1, [r5, #4]
 	mov r0, sb
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #0x16
 	lsrs r0, r0, #0x16
 	ldr r2, .L0804FCD4 @ =0xFFFFFC00
@@ -29403,7 +29403,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	cmp r0, #0
 	bge .L0804FCE4
 	adds r0, r6, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #0x16
 	lsrs r0, r0, #0x16
 	ldr r3, .L0804FCD4 @ =0xFFFFFC00
@@ -29595,7 +29595,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 .L0804FE2A:
 	mov r0, sb
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	adds r4, r7, #0
 	adds r4, #0x3c
@@ -29687,7 +29687,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	lsls r3, r3, #1
 	adds r0, r7, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r0, #0x78
 	strh r0, [r4, #6]
 	movs r5, #0xa9
@@ -29741,7 +29741,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	adds r4, r7, #0
 	adds r4, #0x3c
@@ -29842,7 +29842,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	lsls r5, r5, #1
 	adds r0, r7, r5
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	strh r0, [r4, #6]
 	movs r1, #0xf4
 	lsls r1, r1, #1
@@ -29935,7 +29935,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	bge .L0805014A
 	adds r0, r4, #0
 	adds r1, r2, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	movs r2, #0
 	mov sb, r2
 	adds r4, r7, #0
@@ -30023,7 +30023,7 @@ UpdateMessageWindowState: @ 0x0804F7A4
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r0, #0x60
 	lsls r0, r0, #0x16
 	lsrs r0, r0, #0x16
@@ -32434,7 +32434,7 @@ DrawFestivalResultsFrame: @ 0x08051D70
 	adds r4, #0xa8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	adds r0, r7, #0
@@ -32457,7 +32457,7 @@ DrawFestivalResultsFrame: @ 0x08051D70
 	mov r8, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -32683,7 +32683,7 @@ DrawFestivalResultsFrame: @ 0x08051D70
 	adds r4, #0xa8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	adds r0, #4
 	strh r0, [r1, #6]
@@ -32707,7 +32707,7 @@ DrawFestivalResultsFrame: @ 0x08051D70
 	mov r8, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -37560,7 +37560,7 @@ UpdateFrisbeeGame: @ 0x08053960
 	lsls r3, r3, #3
 	adds r0, r6, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #8]
 	movs r3, #0
@@ -38716,7 +38716,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	lsls r1, r1, #3
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r0, r0, r6
 	lsls r0, r0, #5
 	ldr r2, .L08055694 @ =0x06010000
@@ -38812,7 +38812,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	ldr r4, [sp, #8]
 	mov r0, r8
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r0, r0, r6
 	lsls r0, r0, #5
 	ldr r2, .L08055694 @ =0x06010000
@@ -38898,7 +38898,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	adds r5, r7, r1
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r2, .L08055694 @ =0x06010000
 	adds r1, r0, r2
@@ -38940,7 +38940,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	ldr r6, [sp, #8]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r5, .L080556A0 @ =0x06010040
 	adds r1, r0, r5
@@ -39135,7 +39135,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	ldr r4, [sp, #8]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r2, .L080557B0 @ =0x06010000
 	adds r1, r0, r2
@@ -39260,7 +39260,7 @@ InitializeFrisbeeGraphics: @ 0x08055264
 	lsls r1, r1, #3
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r2, .L080558B8 @ =0x06010000
 	adds r1, r0, r2
@@ -39371,7 +39371,7 @@ DrawFrisbeeGameFrame: @ 0x080558C4
 	lsls r7, r7, #3
 	adds r0, r6, r7
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -39697,7 +39697,7 @@ DrawFrisbeeGameFrame: @ 0x080558C4
 	lsls r4, r4, #3
 	adds r0, r6, r4
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r0, #2
@@ -39785,7 +39785,7 @@ DrawFrisbeeGameFrame: @ 0x080558C4
 	lsls r1, r1, #3
 	adds r0, r6, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -40143,7 +40143,7 @@ DrawFrisbeeGameFrame: @ 0x080558C4
 	lsls r7, r7, #3
 	adds r0, r6, r7
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -40506,7 +40506,7 @@ DrawFrisbeeGameFrame: @ 0x080558C4
 	lsls r7, r7, #3
 	adds r0, r6, r7
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -40854,7 +40854,7 @@ DrawFrisbeeGameFrame: @ 0x080558C4
 	lsls r5, r5, #3
 	adds r0, r6, r5
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r0, #2
@@ -40942,7 +40942,7 @@ sub_08056442: @ 0x08056442
 	lsls r1, r1, #3
 	adds r0, r6, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	ldrh r2, [r5, #0xc]
 	lsls r2, r2, #2
 	ldr r3, [sp, #0x114]
@@ -41058,7 +41058,7 @@ sub_08056442: @ 0x08056442
 	lsls r1, r1, #3
 	adds r0, r0, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	strh r0, [r5, #6]
 	ldrh r0, [r7, #2]
 	lsls r0, r0, #4
@@ -41139,7 +41139,7 @@ sub_08056442: @ 0x08056442
 	lsls r1, r1, #3
 	adds r0, r6, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r0, #2
 	strh r0, [r5, #6]
 	movs r2, #0x96
@@ -41230,7 +41230,7 @@ sub_08056442: @ 0x08056442
 	adds r4, r6, r5
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r7, #0xa9
@@ -41261,7 +41261,7 @@ sub_08056442: @ 0x08056442
 	mov r8, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -41840,7 +41840,7 @@ sub_08056442: @ 0x08056442
 	adds r4, r6, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r1, #0x9b
@@ -41869,7 +41869,7 @@ sub_08056442: @ 0x08056442
 	mov r8, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -42098,7 +42098,7 @@ sub_08056442: @ 0x08056442
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r1, #0x8e
@@ -42129,7 +42129,7 @@ sub_08056442: @ 0x08056442
 	mov r8, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -42368,7 +42368,7 @@ sub_08056442: @ 0x08056442
 	adds r4, r6, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r1, #0x9d
@@ -42397,7 +42397,7 @@ sub_08056442: @ 0x08056442
 	mov r8, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -42641,7 +42641,7 @@ sub_08056442: @ 0x08056442
 	adds r4, r6, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r1, #0x9f
@@ -42670,7 +42670,7 @@ sub_08056442: @ 0x08056442
 	mov r8, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -42914,7 +42914,7 @@ sub_08056442: @ 0x08056442
 	adds r4, r6, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r1, #0x9b
@@ -42943,7 +42943,7 @@ sub_08056442: @ 0x08056442
 	mov r8, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -43183,7 +43183,7 @@ sub_08056442: @ 0x08056442
 	adds r4, r6, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r1, #0x98
@@ -43212,7 +43212,7 @@ sub_08056442: @ 0x08056442
 	mov r8, r7
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x28]
 	movs r3, #0
@@ -43440,7 +43440,7 @@ sub_08056442: @ 0x08056442
 	lsls r4, r4, #3
 	adds r0, r6, r4
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	adds r0, #2
 	strh r0, [r1, #6]
@@ -43532,7 +43532,7 @@ sub_08056442: @ 0x08056442
 	adds r7, r6, r3
 	ldr r1, [r7, #4]
 	adds r0, r7, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	movs r0, #0x96
@@ -43616,7 +43616,7 @@ sub_08056442: @ 0x08056442
 	strh r1, [r0, #8]
 	ldr r1, [r7, #4]
 	adds r0, r7, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #4
 	strh r0, [r1, #6]
 	ldr r1, [r4, #4]
@@ -44144,7 +44144,7 @@ DrawFrisbeeSymbol: @ 0x08057D34
 	lsls r1, r1, #3
 	adds r0, r5, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r2, sp
 	lsls r4, r4, #2
 	ldr r3, .L08057DD4 @ =0x00002334
@@ -47598,7 +47598,7 @@ UpdateHorseRaceDialogue: @ 0x08059878
 	.align 2, 0
 .L08059C90: .4byte gUnk_080FAE00
 
-	.section .text.f3.0805B38C, "ax", %progbits
+	.section .text.f3.0805BC34, "ax", %progbits
 	.equ .Lrace_obj_lane_count, 0x4
 	.equ .Lrace_obj_state_bg2_scroll_x, 0x13ec
 	.equ .Lrace_obj_state_player_is_racing, 0x140e
@@ -47610,9 +47610,6 @@ UpdateHorseRaceDialogue: @ 0x08059878
 	.equ .Lrace_obj_entrant_bytes, 0x2c
 	.equ .Lrace_obj_player_lane, 0x2
 	.equ .Lrace_obj_pause_flag, 0x1
-	.equ .Lrace_obj_load_sp_frame_tiles, 0x8
-	.equ .Lrace_obj_load_sp_frame_palette, 0x10
-	.equ .Lrace_obj_load_sp_frame_result, 0x20
 	.equ .Lrace_obj_draw_sp_options, 0x4
 	.equ .Lrace_obj_draw_sp_frame_objects, 0x20
 	.equ .Lrace_obj_draw_sp_object_count, 0x24
@@ -47646,1068 +47643,6 @@ UpdateHorseRaceDialogue: @ 0x08059878
 	add r3, sp, #.Lrace_obj_draw_sp_options
 	bl DrawSpriteFrameObjects
 	.endm
-
-	thumb_func_start LoadHorseRaceObjectGraphics
-LoadHorseRaceObjectGraphics: @ 0x0805B38C
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x90
-	mov r8, r0
-	mov r1, sp
-	movs r0, #0
-	str r0, [sp]
-	strh r0, [r1, #4]
-	add r6, sp, #.Lrace_obj_load_sp_frame_tiles
-	str r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	strh r0, [r6, #4]
-	add r5, sp, #.Lrace_obj_load_sp_frame_palette
-	str r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	strh r0, [r5, #4]
-	add r1, sp, #0x18
-	str r0, [sp, #0x18]
-	strh r0, [r1, #4]
-	movs r0, #0xe8
-	lsls r0, r0, #1
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	movs r0, #0xea
-	lsls r0, r0, #1
-	add r0, r8
-	mov sb, r0
-	lsls r2, r2, #2
-	ldr r0, [r0]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r4, sp, #.Lrace_obj_load_sp_frame_result
-	adds r0, r4, #0
-	adds r1, r4, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	adds r0, r4, #0
-	ldm r0!, {r2, r3, r7}
-	stm r1!, {r2, r3, r7}
-	ldm r0!, {r2, r3, r7}
-	stm r1!, {r2, r3, r7}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r7, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xb9
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	ldr r2, .L0805B6BC @ =0x05000200
-	adds r1, r0, r2
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B414
-	mov r3, sp
-	ldrh r2, [r3, #0x14]
-.L0805B414:
-	adds r0, r7, #0
-	bl Dma3_Copy
-	movs r7, #0
-	movs r6, #0
-	mov sl, sb
-	movs r4, #0x83
-	lsls r4, r4, #2
-	add r4, r8
-	str r4, [sp, #0x5c]
-	movs r5, #0x91
-	lsls r5, r5, #2
-	add r5, r8
-	str r5, [sp, #0x70]
-	movs r0, #0xad
-	lsls r0, r0, #2
-	add r0, r8
-	str r0, [sp, #0x80]
-	mov r2, r8
-	adds r2, #0x50
-	str r2, [sp, #0x6c]
-	movs r3, #0xc9
-	lsls r3, r3, #2
-	add r3, r8
-	str r3, [sp, #0x88]
-	mov r4, r8
-	adds r4, #0x80
-	str r4, [sp, #0x78]
-	mov r5, sp
-	adds r5, #0x40
-	str r5, [sp, #0x60]
-	mov r0, r8
-	adds r0, #0xe0
-	str r0, [sp, #0x84]
-	mov r2, sp
-	adds r2, #0x48
-	str r2, [sp, #0x64]
-	ldr r3, .L0805B6C0 @ =0x00000474
-	add r3, r8
-	str r3, [sp, #0x7c]
-	mov r4, sp
-	adds r4, #0x50
-	str r4, [sp, #0x68]
-	ldr r5, .L0805B6C4 @ =0x0000058C
-	add r5, r8
-	str r5, [sp, #0x8c]
-	movs r5, #0xe8
-	lsls r5, r5, #1
-	add r5, r8
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	mov sb, r0
-.Lrace_obj_upload_course_end_tiles:
-	adds r0, r5, #0
-	adds r1, r6, #0
-	bl SetSpriteAnimatorClip
-	ldr r1, [r5]
-	ldr r3, [r1]
-	ldrh r2, [r5, #0xc]
-	lsls r2, r2, #2
-	mov r4, sl
-	ldr r0, [r4]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	mov r0, sb
-	mov r1, sb
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	mov r0, sb
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r0, #0xb8
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	adds r0, r0, r7
-	lsls r0, r0, #5
-	ldr r2, .L0805B6C8 @ =0x06010000
-	adds r1, r0, r2
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B4D6
-	mov r3, sp
-	ldrh r2, [r3, #0xc]
-.L0805B4D6:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r1, #0
-	cmp r0, #0
-	beq .L0805B4E8
-	mov r4, sp
-	ldrh r1, [r4, #0xc]
-.L0805B4E8:
-	lsrs r0, r1, #5
-	adds r7, r7, r0
-	adds r6, #1
-	cmp r6, #(.Lrace_obj_lane_count - 1)
-	ble .Lrace_obj_upload_course_end_tiles
-	movs r0, #0x82
-	lsls r0, r0, #2
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	lsls r2, r2, #2
-	ldr r5, [sp, #0x5c]
-	ldr r0, [r5]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	mov r0, sb
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	adds r1, r0, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r3, r7}
-	stm r1!, {r2, r3, r7}
-	ldm r0!, {r4, r5, r7}
-	stm r1!, {r4, r5, r7}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xcc
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	ldr r5, .L0805B6BC @ =0x05000200
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B54A
-	mov r7, sp
-	ldrh r2, [r7, #0x14]
-.L0805B54A:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r1, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0
-	cmp r1, #0
-	beq .L0805B55E
-	mov r2, sp
-	ldrh r0, [r2, #0x14]
-.L0805B55E:
-	lsrs r0, r0, #1
-	adds r4, r1, r0
-	movs r0, #0xcd
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B57E
-	mov r3, sp
-	ldrh r2, [r3, #0x14]
-.L0805B57E:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	movs r0, #0x90
-	lsls r0, r0, #2
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	lsls r2, r2, #2
-	ldr r4, [sp, #0x70]
-	ldr r0, [r4]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	adds r1, r0, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r3, r7}
-	stm r1!, {r2, r3, r7}
-	ldm r0!, {r2, r4, r7}
-	stm r1!, {r2, r4, r7}
-	ldm r0!, {r3, r4}
-	stm r1!, {r3, r4}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xcf
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B5DC
-	mov r7, sp
-	ldrh r2, [r7, #0x14]
-.L0805B5DC:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r1, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0
-	cmp r1, #0
-	beq .L0805B5F0
-	mov r2, sp
-	ldrh r0, [r2, #0x14]
-.L0805B5F0:
-	lsrs r0, r0, #1
-	adds r4, r1, r0
-	movs r0, #0xd0
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B610
-	mov r3, sp
-	ldrh r2, [r3, #0x14]
-.L0805B610:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r0, .L0805B6CC @ =0x0000140E
-	add r0, r8
-	ldrb r0, [r0]
-	cmp r0, #0
-	bne .L0805B6D0
-	movs r0, #0x9e
-	lsls r0, r0, #2
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	movs r0, #0x9f
-	lsls r0, r0, #2
-	add r0, r8
-	lsls r2, r2, #2
-	ldr r0, [r0]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	adds r1, r0, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r4, r7}
-	stm r1!, {r2, r4, r7}
-	ldm r0!, {r3, r4, r7}
-	stm r1!, {r3, r4, r7}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xd2
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B67C
-	mov r7, sp
-	ldrh r2, [r7, #0x14]
-.L0805B67C:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r1, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0
-	cmp r1, #0
-	beq .L0805B690
-	mov r2, sp
-	ldrh r0, [r2, #0x14]
-.L0805B690:
-	lsrs r0, r0, #1
-	adds r4, r1, r0
-	movs r0, #0xd3
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B6B0
-	mov r3, sp
-	ldrh r2, [r3, #0x14]
-.L0805B6B0:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	b .L0805B766
-	.align 2, 0
-.L0805B6BC: .4byte 0x05000200
-.L0805B6C0: .4byte 0x00000474
-.L0805B6C4: .4byte 0x0000058C
-.L0805B6C8: .4byte 0x06010000
-.L0805B6CC: .4byte 0x0000140E
-.L0805B6D0:
-	movs r0, #0xba
-	lsls r0, r0, #2
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	movs r0, #0xbb
-	lsls r0, r0, #2
-	add r0, r8
-	lsls r2, r2, #2
-	ldr r0, [r0]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	adds r1, r0, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r4, r7}
-	stm r1!, {r2, r4, r7}
-	ldm r0!, {r3, r4, r7}
-	stm r1!, {r3, r4, r7}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xd2
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B72A
-	mov r7, sp
-	ldrh r2, [r7, #0x14]
-.L0805B72A:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r1, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0
-	cmp r1, #0
-	beq .L0805B73E
-	mov r2, sp
-	ldrh r0, [r2, #0x14]
-.L0805B73E:
-	lsrs r0, r0, #1
-	adds r4, r1, r0
-	movs r0, #0xd3
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B75E
-	mov r3, sp
-	ldrh r2, [r3, #0x14]
-.L0805B75E:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-.L0805B766:
-	movs r0, #0xac
-	lsls r0, r0, #2
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	lsls r2, r2, #2
-	ldr r4, [sp, #0x80]
-	ldr r0, [r4]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	adds r1, r0, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r5, r7}
-	stm r1!, {r2, r5, r7}
-	ldm r0!, {r3, r4, r5}
-	stm r1!, {r3, r4, r5}
-	ldm r0!, {r2, r7}
-	stm r1!, {r2, r7}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xd5
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	ldr r5, .L0805BB48 @ =0x05000200
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B7BE
-	mov r3, sp
-	ldrh r2, [r3, #0x14]
-.L0805B7BE:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r1, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0
-	cmp r1, #0
-	beq .L0805B7D2
-	mov r4, sp
-	ldrh r0, [r4, #0x14]
-.L0805B7D2:
-	lsrs r0, r0, #1
-	adds r4, r1, r0
-	movs r0, #0xd6
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B7F2
-	mov r7, sp
-	ldrh r2, [r7, #0x14]
-.L0805B7F2:
-	lsrs r2, r2, #1
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r1, [sp, #0x6c]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	movs r2, #0
-	bl GetSpriteAnimationDataFrame
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r7}
-	stm r1!, {r2, r3, r7}
-	ldm r0!, {r4, r7}
-	stm r1!, {r4, r7}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xbb
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B832
-	mov r0, sp
-	ldrh r2, [r0, #0x14]
-.L0805B832:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r5, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r4, #0xba
-	lsls r4, r4, #3
-	add r4, r8
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	lsls r0, r0, #5
-	ldr r2, .L0805BB4C @ =0x06010000
-	adds r1, r0, r2
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B85A
-	mov r3, sp
-	ldrh r2, [r3, #0xc]
-.L0805B85A:
-	adds r0, r5, #0
-	bl Dma3_Copy
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r1, [sp, #0x6c]
-	movs r2, #1
-	bl GetSpriteAnimationDataFrame
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r5, r7}
-	stm r1!, {r2, r5, r7}
-	ldm r0!, {r3, r5, r7}
-	stm r1!, {r3, r5, r7}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r5, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	lsls r0, r0, #5
-	ldr r4, .L0805BB50 @ =0x06010100
-	adds r1, r0, r4
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B896
-	mov r7, sp
-	ldrh r2, [r7, #0xc]
-.L0805B896:
-	adds r0, r5, #0
-	bl Dma3_Copy
-	movs r3, #0
-	ldr r0, .L0805BB54 @ =0x0000FFFF
-	adds r4, r0, #0
-	movs r2, #0xd7
-	lsls r2, r2, #3
-	add r2, r8
-.L0805B8A8:
-	ldrh r0, [r2]
-	orrs r0, r4
-	strh r0, [r2]
-	asrs r1, r3, #3
-	lsls r0, r1, #1
-	adds r0, r0, r1
-	lsls r0, r0, #3
-	adds r0, #0x40
-	strh r0, [r2, #2]
-	adds r2, #4
-	adds r3, #1
-	cmp r3, #0x1f
-	ble .L0805B8A8
-	movs r0, #0xc8
-	lsls r0, r0, #2
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	lsls r2, r2, #2
-	ldr r4, [sp, #0x88]
-	ldr r0, [r4]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	adds r1, r0, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r5, r7}
-	stm r1!, {r2, r5, r7}
-	ldm r0!, {r3, r4, r5}
-	stm r1!, {r3, r4, r5}
-	ldm r0!, {r2, r7}
-	stm r1!, {r2, r7}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xbd
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	ldr r3, .L0805BB48 @ =0x05000200
-	adds r1, r0, r3
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B91A
-	mov r5, sp
-	ldrh r2, [r5, #0x14]
-.L0805B91A:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	movs r7, #0
-	movs r0, #0
-	mov sl, r0
-	ldr r5, [sp, #0x78]
-	add r2, sp, #.Lrace_obj_load_sp_frame_result
-	mov sb, r2
-	mov r3, sp
-	adds r3, #8
-	str r3, [sp, #0x58]
-.L0805B932:
-	movs r6, #0
-	mov r4, sl
-	adds r4, #1
-	str r4, [sp, #0x74]
-.L0805B93A:
-	ldr r4, [r5]
-	ldr r0, [sp, #0x60]
-	ldr r3, [r4, #0xc]
-	adds r1, r5, #0
-	mov r2, sl
-	bl _call_via_r3
-	lsls r1, r6, #2
-	ldr r0, [sp, #0x40]
-	adds r0, r0, r1
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r4, #0x10]
-	adds r1, r5, #0
-	bl _call_via_r3
-	mov r0, sb
-	mov r1, sb
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	mov r0, sb
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r0, #0xbc
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	adds r0, r0, r7
-	lsls r0, r0, #5
-	ldr r2, .L0805BB4C @ =0x06010000
-	adds r1, r0, r2
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B996
-	mov r3, sp
-	ldrh r2, [r3, #0xc]
-.L0805B996:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r1, #0
-	cmp r0, #0
-	beq .L0805B9A8
-	ldr r4, [sp, #0x58]
-	ldrh r1, [r4, #4]
-.L0805B9A8:
-	lsrs r0, r1, #5
-	adds r7, r7, r0
-	adds r6, #1
-	cmp r6, #1
-	ble .L0805B93A
-	ldr r0, [sp, #0x74]
-	mov sl, r0
-	cmp r0, #2
-	ble .L0805B932
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r1, [sp, #0x84]
-	movs r2, #0
-	bl GetSpriteAnimationDataFrame
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r5, r7}
-	stm r1!, {r2, r5, r7}
-	ldm r0!, {r3, r4}
-	stm r1!, {r3, r4}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xbf
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	ldr r5, .L0805BB48 @ =0x05000200
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805B9F4
-	mov r7, sp
-	ldrh r2, [r7, #0x14]
-.L0805B9F4:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r0, #0xbe
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	lsls r0, r0, #5
-	ldr r2, .L0805BB4C @ =0x06010000
-	adds r1, r0, r2
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805BA1A
-	mov r3, sp
-	ldrh r2, [r3, #0xc]
-.L0805BA1A:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	movs r7, #0
-	movs r5, #0
-	movs r6, #0x88
-	lsls r6, r6, #1
-	add r6, r8
-	add r4, sp, #.Lrace_obj_load_sp_frame_tiles
-	mov sl, r4
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	mov sb, r0
-.L0805BA32:
-	lsls r1, r5, #1
-	ldr r0, .L0805BB58 @ =0x00000BDA
-	add r0, r8
-	adds r0, r0, r1
-	strh r7, [r0]
-	ldr r4, [r6]
-	ldr r0, [sp, #0x64]
-	ldr r3, [r4, #0xc]
-	adds r1, r6, #0
-	movs r2, #0
-	bl _call_via_r3
-	lsls r1, r5, #2
-	ldr r0, [sp, #0x48]
-	adds r0, r0, r1
-	ldrh r2, [r0]
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r4, #0x10]
-	adds r1, r6, #0
-	bl _call_via_r3
-	mov r0, sb
-	mov r1, sb
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	mov r0, sb
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r0, #0xc5
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	adds r0, r0, r7
-	lsls r0, r0, #5
-	ldr r2, .L0805BB4C @ =0x06010000
-	adds r1, r0, r2
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805BA98
-	mov r3, sp
-	ldrh r2, [r3, #0xc]
-.L0805BA98:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r1, #0
-	cmp r0, #0
-	beq .L0805BAAA
-	mov r4, sl
-	ldrh r1, [r4, #4]
-.L0805BAAA:
-	lsrs r0, r1, #5
-	adds r7, r7, r0
-	adds r5, #1
-	cmp r5, #3
-	ble .L0805BA32
-	movs r0, #0x8e
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	lsls r2, r2, #2
-	ldr r5, [sp, #0x7c]
-	ldr r0, [r5]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	mov r0, sb
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	adds r1, r0, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r3, r7}
-	stm r1!, {r2, r3, r7}
-	ldm r0!, {r4, r5, r7}
-	stm r1!, {r4, r5, r7}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r0, #0xc7
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	lsls r0, r0, #5
-	ldr r5, .L0805BB48 @ =0x05000200
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_palette]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805BB0C
-	mov r7, sp
-	ldrh r2, [r7, #0x14]
-.L0805BB0C:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	movs r7, #0
-	movs r5, #0
-	movs r6, #0xa0
-	lsls r6, r6, #1
-	add r6, r8
-	add r0, sp, #.Lrace_obj_load_sp_frame_tiles
-	mov sl, r0
-	add r2, sp, #.Lrace_obj_load_sp_frame_result
-	mov sb, r2
-.L0805BB24:
-	lsls r1, r5, #1
-	ldr r0, .L0805BB5C @ =0x00000BE2
-	add r0, r8
-	adds r0, r0, r1
-	strh r7, [r0]
-	ldr r4, [r6]
-	ldr r0, [sp, #0x68]
-	ldr r3, [r4, #0xc]
-	adds r1, r6, #0
-	movs r2, #0
-	bl _call_via_r3
-	lsls r1, r5, #2
-	ldr r0, [sp, #0x50]
-	adds r0, r0, r1
-	ldrh r2, [r0]
-	b .L0805BB60
-	.align 2, 0
-.L0805BB48: .4byte 0x05000200
-.L0805BB4C: .4byte 0x06010000
-.L0805BB50: .4byte 0x06010100
-.L0805BB54: .4byte 0x0000FFFF
-.L0805BB58: .4byte 0x00000BDA
-.L0805BB5C: .4byte 0x00000BE2
-.L0805BB60:
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldr r3, [r4, #0x10]
-	adds r1, r6, #0
-	bl _call_via_r3
-	mov r0, sb
-	mov r1, sb
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	mov r0, sb
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r3, r4}
-	stm r1!, {r3, r4}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r0, #0xc6
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	adds r0, r0, r7
-	lsls r0, r0, #5
-	ldr r2, .L0805BC30 @ =0x06010000
-	adds r1, r0, r2
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805BBA6
-	mov r3, sp
-	ldrh r2, [r3, #0xc]
-.L0805BBA6:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r1, #0
-	cmp r0, #0
-	beq .L0805BBB8
-	mov r4, sl
-	ldrh r1, [r4, #4]
-.L0805BBB8:
-	lsrs r0, r1, #5
-	adds r7, r7, r0
-	adds r5, #1
-	cmp r5, #3
-	ble .L0805BB24
-	movs r0, #0xb1
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0]
-	ldr r3, [r1]
-	ldrh r2, [r0, #0xc]
-	lsls r2, r2, #2
-	ldr r5, [sp, #0x8c]
-	ldr r0, [r5]
-	adds r0, r0, r2
-	ldrh r2, [r0]
-	mov r0, sb
-	ldr r3, [r3, #0x10]
-	bl _call_via_r3
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	adds r1, r0, #0
-	movs r2, #0x20
-	bl memcpy
-	mov r1, sp
-	add r0, sp, #.Lrace_obj_load_sp_frame_result
-	ldm r0!, {r2, r3, r7}
-	stm r1!, {r2, r3, r7}
-	ldm r0!, {r4, r5, r7}
-	stm r1!, {r4, r5, r7}
-	ldm r0!, {r2, r3}
-	stm r1!, {r2, r3}
-	ldr r4, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r0, #0xca
-	lsls r0, r0, #3
-	add r0, r8
-	ldr r1, [r0, #4]
-	bl func_08007D4C
-	lsls r0, r0, #5
-	ldr r5, .L0805BC30 @ =0x06010000
-	adds r1, r0, r5
-	ldr r0, [sp, #.Lrace_obj_load_sp_frame_tiles]
-	movs r2, #0
-	cmp r0, #0
-	beq .L0805BC1A
-	mov r7, sp
-	ldrh r2, [r7, #0xc]
-.L0805BC1A:
-	adds r0, r4, #0
-	bl Dma3_Copy
-	add sp, #0x90
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0805BC30: .4byte 0x06010000
 
 	thumb_func_start DrawHorseRaceSceneObjects
 DrawHorseRaceSceneObjects: @ 0x0805BC34
@@ -48796,7 +47731,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r6, r6, #3
 	adds r0, r5, r6
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #.Lrace_obj_draw_sp_options
 	strh r0, [r1, #6]
 	movs r0, #2
@@ -48877,7 +47812,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r1, r1, #3
 	adds r0, r5, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r2, sl
 	lsls r1, r2, #2
 	adds r0, r0, r1
@@ -49224,7 +48159,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r3, r3, #3
 	adds r0, r5, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	ldr r1, [sp, #0x68]
 	ldrh r2, [r1, #0xc]
 	lsls r2, r2, #2
@@ -49302,7 +48237,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r2, r2, #3
 	adds r0, r5, r2
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	ldrh r2, [r7, #0xc]
 	lsls r2, r2, #2
 	ldr r1, [r7, #4]
@@ -49436,7 +48371,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r2, r2, #3
 	adds r0, r0, r2
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r3, r8
 	strh r0, [r3, #6]
 	movs r6, #1
@@ -49463,7 +48398,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r2, r2, #3
 	adds r0, r0, r2
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #.Lrace_obj_draw_sp_frame_tiles]
 	movs r3, #0
@@ -49708,7 +48643,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r1, r1, #3
 	adds r0, r5, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	ldr r3, [sp, #0x78]
 	ldrh r2, [r3, #0xc]
 	lsls r2, r2, #2
@@ -49789,7 +48724,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r7, r7, #3
 	adds r0, r5, r7
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	strh r0, [r6, #6]
 	movs r0, #1
 	strb r0, [r6, #0x18]
@@ -49861,7 +48796,7 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	lsls r2, r2, #3
 	adds r0, r5, r2
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r4, r4, #3
 	adds r0, r0, r4
 	strh r0, [r7, #6]
@@ -73622,7 +72557,7 @@ sub_0806C492: @ 0x0806C492
 	adds r5, r7, r0
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sl
 	strh r0, [r1, #6]
 	strb r4, [r1, #0x18]
@@ -73644,7 +72579,7 @@ sub_0806C492: @ 0x0806C492
 	mov r8, r2
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [r4]
 	movs r3, #0
@@ -73866,7 +72801,7 @@ sub_0806C492: @ 0x0806C492
 	adds r5, r7, r6
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sl
 	strh r0, [r1, #6]
 	adds r0, r7, #0
@@ -73887,7 +72822,7 @@ sub_0806C492: @ 0x0806C492
 	mov r8, r2
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [r4]
 	movs r3, #0
@@ -74100,7 +73035,7 @@ sub_0806C492: @ 0x0806C492
 	adds r5, r7, r0
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	strh r0, [r4, #6]
 	adds r0, r7, #0
 	bl HardwareContext_GetOamBuffer
@@ -74120,7 +73055,7 @@ sub_0806C492: @ 0x0806C492
 	mov r8, r1
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [r4]
 	movs r3, #0
@@ -74337,7 +73272,7 @@ sub_0806C492: @ 0x0806C492
 	ldr r1, .L0806D4C4 @ =0x000040D0
 	adds r0, r0, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	str r0, [sp, #0x274]
 	adds r4, r4, r7
 	ldr r2, .L0806D4C8 @ =0x00004120
@@ -76335,7 +75270,7 @@ func_0806E234: @ 0x0806E234
 	bl DrawMessageGlyphWithColors
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	adds r1, r1, r4
 	lsls r1, r1, #5
@@ -76432,7 +75367,7 @@ func_0806E43C: @ 0x0806E43C
 	adds r4, #0x28
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r3, r8
 	adds r3, #0x40
 	ldr r2, .L0806E560 @ =0x000003FF
@@ -76467,7 +75402,7 @@ func_0806E43C: @ 0x0806E43C
 .L0806E4FA:
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r0, r0, r7
 	lsls r0, r0, #5
 	lsls r1, r5, #2
@@ -76928,7 +75863,7 @@ func_0806E7E0: @ 0x0806E7E0
 	adds r0, r5, #0
 	adds r0, #0x18
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r5, #0
 	adds r1, #0x4a
 	adds r1, r1, r4
@@ -91522,7 +90457,7 @@ func_080757E8: @ 0x080757E8
 	ldr r4, [sp, #0x1c]
 	mov r0, sb
 	adds r1, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	ldr r2, .L080758E4 @ =0x06010000
@@ -91534,7 +90469,7 @@ func_080757E8: @ 0x080757E8
 	ldr r0, [sp]
 	ldr r1, [r0, #0x14]
 	mov r0, sb
-	bl func_08007DB8
+	bl TileHandle_GetOrder
 	cmp r0, r6
 	bhs .L08075956
 	ldr r0, [sp]
@@ -91549,7 +90484,7 @@ func_080757E8: @ 0x080757E8
 	beq .L08075930
 	ldr r4, [sp, #0x1c]
 	mov r0, sb
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	ldr r0, .L0807592C @ =0x06010000
@@ -99626,7 +98561,7 @@ func_08079A64: @ 0x08079A64
 	lsls r1, r1, #4
 	adds r0, r5, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	ldr r2, .L08079DB4 @ =0x06010000
@@ -99685,7 +98620,7 @@ func_08079A64: @ 0x08079A64
 	lsls r3, r3, #4
 	adds r0, r5, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r0, r6, #1
 	adds r1, r1, r0
@@ -100270,7 +99205,7 @@ func_08079F8C: @ 0x08079F8C
 	lsls r0, r0, #4
 	add r0, sb
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	ldr r3, .L0807A2A8 @ =0x06010000
@@ -100331,7 +99266,7 @@ func_08079F8C: @ 0x08079F8C
 	lsls r0, r0, #4
 	add r0, sb
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r0, r5, #1
 	adds r1, r1, r0
@@ -101218,7 +100153,7 @@ func_0807A878: @ 0x0807A878
 	lsls r1, r1, #4
 	adds r0, r5, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r2, .L0807A988 @ =0x06010000
 	adds r1, r0, r2
@@ -101349,7 +100284,7 @@ func_0807A98C: @ 0x0807A98C
 	str r0, [sp, #0x5c]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r1, r4, #1
 	adds r0, r0, r1
 	lsls r0, r0, #0x16
@@ -101438,7 +100373,7 @@ func_0807A98C: @ 0x0807A98C
 	add r4, r8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	ldr r0, .L0807ABC8 @ =0x00000818
@@ -101460,7 +100395,7 @@ func_0807A98C: @ 0x0807A98C
 	ldr r6, [sp, #0x24]
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -101698,7 +100633,7 @@ func_0807A98C: @ 0x0807A98C
 	add r4, r8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	adds r0, #4
 	strh r0, [r1, #6]
@@ -101720,7 +100655,7 @@ func_0807A98C: @ 0x0807A98C
 	mov sb, r0
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -101946,7 +100881,7 @@ func_0807A98C: @ 0x0807A98C
 	lsls r0, r0, #4
 	add r0, r8
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	ldr r0, .L0807AF74 @ =0x00000838
@@ -130996,7 +129931,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r6, #0
 	adds r1, r5, #0
 	mov r3, r8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	adds r6, r7, #0
 	adds r6, #0x78
 	adds r5, r0, #0
@@ -131289,7 +130224,7 @@ func_0808A55C: @ 0x0808A55C
 	cmp r0, #0
 	beq .L0808A856
 	ldr r0, [r6]
-	bl func_080CDCD0
+	bl InventoryMenu_MoveSelectionRight
 	b .L0808A89A
 .L0808A856:
 	adds r0, r7, #0
@@ -134188,7 +133123,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r6, #0
 	adds r1, r5, #0
 	mov r3, r8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	adds r6, r7, #0
 	adds r6, #0x78
 	adds r5, r0, #0
@@ -134441,7 +133376,7 @@ func_0808C0BC: @ 0x0808C0BC
 	cmp r0, #0
 	beq .L0808C34E
 	ldr r0, [r4]
-	bl func_080CDCD0
+	bl InventoryMenu_MoveSelectionRight
 	b .L0808C394
 .L0808C34E:
 	adds r0, r7, #0
@@ -138581,7 +137516,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r6, #0
 	adds r1, r5, #0
 	mov r3, r8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	adds r6, r7, #0
 	adds r6, #0x78
 	adds r5, r0, #0
@@ -138874,7 +137809,7 @@ func_0808E6FC: @ 0x0808E6FC
 	cmp r0, #0
 	beq .L0808E9F6
 	ldr r0, [r6]
-	bl func_080CDCD0
+	bl InventoryMenu_MoveSelectionRight
 	b .L0808EA3A
 .L0808E9F6:
 	adds r0, r7, #0
@@ -142491,7 +141426,7 @@ func_08090960: @ 0x08090960
 	adds r0, r6, #0
 	adds r1, r5, #0
 	mov r3, r8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	adds r6, r7, #0
 	adds r6, #0x78
 	adds r5, r0, #0
@@ -142777,7 +141712,7 @@ func_08090960: @ 0x08090960
 	cmp r0, #0
 	beq .L08090C3E
 	ldr r0, [r6]
-	bl func_080CDCD0
+	bl InventoryMenu_MoveSelectionRight
 	b .L08090C82
 .L08090C3E:
 	adds r0, r7, #0
@@ -143922,7 +142857,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r6, #0
 	adds r1, r5, #0
 	mov r3, r8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	adds r6, r7, #0
 	adds r6, #0x78
 	adds r5, r0, #0
@@ -144263,7 +143198,7 @@ func_0809152C: @ 0x0809152C
 	beq .L0809189C
 	ldr r2, [sp, #0x60]
 	ldr r0, [r2]
-	bl func_080CDCD0
+	bl InventoryMenu_MoveSelectionRight
 	b .L080918E4
 .L0809189C:
 	adds r0, r7, #0
@@ -146779,7 +145714,7 @@ func_08092D64: @ 0x08092D64
 	adds r0, r6, #0
 	adds r1, r5, #0
 	mov r3, r8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	adds r6, r7, #0
 	adds r6, #0x78
 	adds r5, r0, #0
@@ -147035,7 +145970,7 @@ func_08092D64: @ 0x08092D64
 	cmp r0, #0
 	beq .L08092FFE
 	ldr r0, [r6]
-	bl func_080CDCD0
+	bl InventoryMenu_MoveSelectionRight
 	b .L08093044
 .L08092FFE:
 	adds r0, r7, #0
@@ -156918,7 +155853,7 @@ func_0809800C: @ 0x0809800C
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	ldr r7, .L080983D4 @ =0x06010000
@@ -157016,7 +155951,7 @@ func_0809800C: @ 0x0809800C
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	adds r1, r0, r7
 	ldr r0, [sp, #0x18]
@@ -157032,7 +155967,7 @@ func_0809800C: @ 0x0809800C
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	adds r1, r1, r7
@@ -157082,7 +156017,7 @@ func_0809800C: @ 0x0809800C
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r0, r5, #1
 	adds r1, r1, r0
@@ -157265,7 +156200,7 @@ func_080983E8: @ 0x080983E8
 	str r0, [sp, #0x5c]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r1, r4, #1
 	adds r0, r0, r1
 	lsls r0, r0, #0x16
@@ -157371,7 +156306,7 @@ func_080983E8: @ 0x080983E8
 	str r0, [sp, #0x64]
 	ldr r0, [sp, #0x84]
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	ldr r1, .L08098704 @ =0x00000369
 	add r1, r8
 	adds r1, r1, r4
@@ -157457,7 +156392,7 @@ func_080983E8: @ 0x080983E8
 	add r4, r8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	movs r0, #0xba
@@ -157486,7 +156421,7 @@ func_080983E8: @ 0x080983E8
 	ldr r7, [sp, #0x24]
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -157715,7 +156650,7 @@ func_080983E8: @ 0x080983E8
 	add r4, r8
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	adds r0, #2
 	strh r0, [r1, #6]
@@ -157745,7 +156680,7 @@ func_080983E8: @ 0x080983E8
 	ldr r7, [sp, #0x24]
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -157966,7 +156901,7 @@ func_080989DC: @ 0x080989DC
 	adds r0, r6, #0
 	adds r1, r5, #0
 	movs r3, #8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	adds r6, r7, #0
 	adds r6, #0x78
 	adds r5, r0, #0
@@ -158332,7 +157267,7 @@ func_08098CE8: @ 0x08098CE8
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	mov r5, r8
 	adds r5, #0x78
 	adds r4, r0, #0
@@ -158515,7 +157450,7 @@ func_08098CE8: @ 0x08098CE8
 	lsls r0, r0, #2
 	add r0, r8
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r5, .L08098FEC @ =0x06010000
 	adds r1, r0, r5
@@ -158532,7 +157467,7 @@ func_08098CE8: @ 0x08098CE8
 	lsls r0, r0, #2
 	add r0, r8
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	adds r1, r1, r5
@@ -158587,7 +157522,7 @@ func_08098CE8: @ 0x08098CE8
 	lsls r0, r0, #2
 	add r0, r8
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	mov r2, sl
 	adds r0, r2, r7
@@ -158749,7 +157684,7 @@ func_08099000: @ 0x08099000
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r1, r5, #1
 	add r1, r8
 	adds r0, r0, r1
@@ -158901,7 +157836,7 @@ func_08099144: @ 0x08099144
 	add r7, sb
 	ldr r1, [r7, #4]
 	adds r0, r7, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	movs r0, #0xc8
@@ -158939,7 +157874,7 @@ func_08099144: @ 0x08099144
 	ldr r5, [sp, #0x24]
 	ldr r1, [r7, #4]
 	adds r0, r7, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -159247,7 +158182,7 @@ func_08099144: @ 0x08099144
 	add r4, sb
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	movs r0, #0xc8
@@ -159287,7 +158222,7 @@ func_08099144: @ 0x08099144
 	ldr r7, [sp, #0x24]
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -159526,7 +158461,7 @@ func_0809964C: @ 0x0809964C
 	adds r0, r6, #0
 	adds r1, r5, #0
 	movs r3, #8
-	bl func_080CAFC4
+	bl InventoryMenu_InitializeSlotPanel
 	adds r6, r7, #0
 	adds r6, #0x78
 	adds r5, r0, #0
@@ -159678,7 +158613,7 @@ func_0809964C: @ 0x0809964C
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	ldr r0, .L08099AA0 @ =0x06010000
@@ -159826,7 +158761,7 @@ func_0809964C: @ 0x0809964C
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r2, .L08099AA0 @ =0x06010000
 	adds r1, r0, r2
@@ -159843,7 +158778,7 @@ func_0809964C: @ 0x0809964C
 	lsls r4, r4, #2
 	adds r0, r7, r4
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r1, r1, #5
 	ldr r0, .L08099AA0 @ =0x06010000
@@ -159896,7 +158831,7 @@ func_0809964C: @ 0x0809964C
 	lsls r3, r3, #2
 	adds r0, r7, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r1, r0, #0
 	lsls r0, r5, #1
 	adds r1, r1, r0
@@ -160143,7 +159078,7 @@ func_08099ACC: @ 0x08099ACC
 	str r0, [sp, #0x5c]
 	ldr r0, [sp, #0x8c]
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r1, r4, #1
 	adds r0, r0, r1
 	ldr r1, [sp, #0x7c]
@@ -160231,7 +159166,7 @@ func_08099ACC: @ 0x08099ACC
 	ldr r6, [sp, #0x90]
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r1, r5, #1
 	adds r0, r0, r1
 	ldr r1, [sp, #0x7c]
@@ -160307,7 +159242,7 @@ func_08099ACC: @ 0x08099ACC
 	ldr r6, [sp, #0x90]
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	ldr r2, .L08099E88 @ =0x00000369
 	adds r1, r7, r2
 	adds r1, r1, r5
@@ -160392,7 +159327,7 @@ func_08099ACC: @ 0x08099ACC
 	adds r4, r7, r6
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	movs r1, #0xc8
@@ -160433,7 +159368,7 @@ func_08099ACC: @ 0x08099ACC
 	mov r8, r6
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -160717,7 +159652,7 @@ func_08099ACC: @ 0x08099ACC
 	adds r4, r7, r6
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	movs r1, #0xba
@@ -160747,7 +159682,7 @@ func_08099ACC: @ 0x08099ACC
 	mov r8, r6
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -160971,7 +159906,7 @@ func_08099ACC: @ 0x08099ACC
 	adds r4, r7, r3
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	adds r0, #2
 	strh r0, [r1, #6]
@@ -161002,7 +159937,7 @@ func_08099ACC: @ 0x08099ACC
 	mov r8, r6
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #0x24]
 	movs r3, #0
@@ -161264,7 +160199,7 @@ func_0809A3E0: @ 0x0809A3E0
 	lsls r3, r3, #2
 	adds r0, r5, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	subs r4, #0x68

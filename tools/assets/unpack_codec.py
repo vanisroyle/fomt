@@ -1,6 +1,7 @@
 """Bounded reader for the game's Unpack format and a deterministic raw-atom encoder."""
 
 from collections import defaultdict, deque
+from array import array
 import importlib.util
 from pathlib import Path
 import struct
@@ -70,7 +71,7 @@ class WriteBits:
         return bytes(self.data)
 
 
-def encode(data):
+def encode_greedy(data):
     if len(data) > 0x40000:
         raise ValueError("Unpack output exceeds 256 KiB")
     bits = WriteBits()
@@ -137,3 +138,126 @@ def encode(data):
         pos += consumed
     flush()
     return struct.pack("<I", len(data) << 8 | 0x70) + bits.finish()
+
+
+def difference(data, method):
+    result = bytearray()
+    previous = [0, 0]
+    if method == 0:
+        return bytes(data)
+    if method in (3, 4) and len(data) % 2:
+        raise ValueError("word difference filters require even-sized data")
+    if method == 3:
+        value = 0
+        for (word,) in struct.iter_unpack("<H", data):
+            result.extend(struct.pack("<H", (word - value) & 65535))
+            value = word
+    else:
+        for i, value in enumerate(data):
+            if method == 1:
+                hi, lo = value >> 4, value & 15
+                result.append(((hi - previous[0]) & 15) << 4 | (lo - hi) & 15)
+                previous[0] = lo
+            else:
+                index = i % 2 if method == 4 else 0
+                result.append((value - previous[index]) & 255)
+                previous[index] = value
+    return bytes(result)
+
+
+def optimal_tokens(data):
+    size = len(data)
+    lengths = [bytearray(size), bytearray(size)]
+    distances = [array("H", [0]) * size, array("H", [0]) * size]
+
+    def longest(pos, start, stop, limit):
+        if start > stop or limit < 3:
+            return 0, 0
+        previous = data.rfind(data[pos:pos + 3], start, stop + 3)
+        if previous < 0:
+            return 0, 0
+        best, best_previous = 3, previous
+        if limit > 3:
+            previous = data.rfind(data[pos:pos + limit], start, stop + limit)
+            if previous >= 0:
+                return limit, pos - previous
+        low, high = 4, limit - 1
+        while low <= high:
+            middle = (low + high) // 2
+            previous = data.rfind(data[pos:pos + middle], start, stop + middle)
+            if previous >= 0:
+                best, best_previous, low = middle, previous, middle + 1
+            else:
+                high = middle - 1
+        return best, pos - best_previous
+
+    for pos in range(size):
+        limit = min(66, size - pos)
+        lengths[0][pos], distances[0][pos] = longest(pos, max(0, pos - 256), pos - 1, limit)
+        if lengths[0][pos] < limit:
+            lengths[1][pos], distances[1][pos] = longest(pos, max(0, pos - 4352), pos - 257, limit)
+    costs = [0] * (size + 1)
+    kinds, counts = bytearray(size), bytearray(size)
+    literal = deque()
+    run = 0
+    for pos in range(size - 1, -1, -1):
+        end = pos + 1
+        price = costs[end] + 8 * end
+        while literal and costs[literal[-1]] + 8 * literal[-1] >= price:
+            literal.pop()
+        literal.append(end)
+        while literal[0] > pos + 64:
+            literal.popleft()
+        end = literal[0]
+        cost, kind, count = 8 + 8 * (end - pos) + costs[end], 2, end - pos
+        run = min(65, run + 1) if pos + 1 < size and data[pos] == data[pos + 1] else 1
+        for candidate, minimum, maximum, token_cost in ((3, 2, run, 16),
+                                                       (0, 3, lengths[0][pos], 16),
+                                                       (1, 3, lengths[1][pos], 20)):
+            if maximum < minimum:
+                continue
+            best = min(costs[pos + minimum:pos + maximum + 1])
+            if best + token_cost < cost:
+                end = costs.index(best, pos + minimum, pos + maximum + 1)
+                cost, kind, count = best + token_cost, candidate, end - pos
+        costs[pos], kinds[pos], counts[pos] = cost, kind, count
+    tokens, pos = [], 0
+    while pos < size:
+        kind, count = kinds[pos], counts[pos]
+        tokens.append((kind, count, distances[kind][pos] if kind < 2 else 0))
+        pos += count
+    return tokens, costs[0]
+
+
+def encode_optimal(data, method=0):
+    tokens, _ = optimal_tokens(data)
+    bits = WriteBits()
+    bits.put(method << 5, 8)
+    bits.put(7, 4)
+    bits.put(11, 4)
+    pos = 0
+    for kind, count, distance in tokens:
+        bits.put(kind, 2)
+        if kind == 2:
+            bits.put(count - 1, 6)
+            for value in data[pos:pos + count]:
+                bits.put(value, 8)
+        elif kind == 3:
+            bits.put(count - 2, 6)
+            bits.put(data[pos], 8)
+        else:
+            bits.put(distance - (257 if kind else 1), 12 if kind else 8)
+            bits.put(count - 3, 6)
+        pos += count
+    return struct.pack("<I", len(data) << 8 | 0x70) + bits.finish()
+
+
+def encode(data):
+    if len(data) > 0x40000:
+        raise ValueError("Unpack output exceeds 256 KiB")
+    best = encode_greedy(data)
+    for method in range(5 if len(data) % 2 == 0 else 3):
+        candidate = encode_optimal(difference(data, method), method)
+        if len(candidate) < len(best):
+            best = candidate
+    return best

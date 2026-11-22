@@ -1,6 +1,8 @@
 """Graphics tests use synthetic pixels, palettes, pointers and compressed streams."""
 
 from pathlib import Path
+from functools import lru_cache
+from itertools import product
 import random
 import struct
 import tempfile
@@ -22,6 +24,10 @@ class GraphicsTests(unittest.TestCase):
         build.start()
         self.addCleanup(extract.stop)
         self.addCleanup(build.stop)
+        for name, value in (("extract", None), ("build", b"")):
+            mocked = patch.object(graphics.more, name, return_value=value)
+            mocked.start()
+            self.addCleanup(mocked.stop)
 
     def test_encoder_empty_literals_runs_and_overlapping_matches(self):
         rng = random.Random(29)
@@ -47,6 +53,46 @@ class GraphicsTests(unittest.TestCase):
             bits.put(value, count)
         with self.assertRaisesRegex(ValueError, "reference"):
             codec.decode(struct.pack("<I", 3 << 8 | 0x70) + bits.finish())
+
+    def test_optimal_parser_matches_exhaustive_bit_cost(self):
+        def exhaustive(data):
+            @lru_cache(None)
+            def solve(pos):
+                if pos == len(data):
+                    return 0
+                costs = [8 + length * 8 + solve(pos + length)
+                         for length in range(1, min(64, len(data) - pos) + 1)]
+                for length in range(2, min(65, len(data) - pos) + 1):
+                    if data[pos:pos + length] == data[pos:pos + 1] * length:
+                        costs.append(16 + solve(pos + length))
+                for distance in range(1, min(pos, 4352) + 1):
+                    for length in range(3, min(66, len(data) - pos) + 1):
+                        if data[pos:pos + length] == data[pos - distance:pos - distance + length]:
+                            costs.append((16 if distance <= 256 else 20) + solve(pos + length))
+                return min(costs)
+            return solve(0)
+        for size in range(9):
+            for values in product((0, 1), repeat=size):
+                raw = bytes(values)
+                tokens, cost = codec.optimal_tokens(raw)
+                self.assertEqual(cost, exhaustive(raw), raw)
+                self.assertEqual(sum(count for _, count, _ in tokens), len(raw))
+        raw = b"aabbcc"
+        self.assertLess(len(codec.encode_optimal(raw)), len(codec.encode_greedy(raw)))
+
+    def test_difference_candidates_and_greedy_size_bound(self):
+        rng = random.Random(71)
+        cases = (b"", b"a", b"aabbcc", bytes(range(256)) * 4,
+                 bytes(rng.randrange(256) for _ in range(1024)), bytes(5000),
+                 b"ab" * 200 + bytes(range(256)) + b"ab" * 200)
+        for raw in cases:
+            for method in range(5 if len(raw) % 2 == 0 else 3):
+                encoded = codec.encode_optimal(codec.difference(raw, method), method)
+                self.assertEqual(bytes(codec._decoder.unpack(encoded)[0]), raw)
+            self.assertLessEqual(len(codec.encode(raw)), len(codec.encode_greedy(raw)))
+        for method in (3, 4):
+            with self.assertRaisesRegex(ValueError, "even-sized"):
+                codec.difference(b"a", method)
 
     def test_png_preserves_duplicate_colors_and_indices(self):
         for count in (16, 256):
@@ -141,6 +187,31 @@ class GraphicsTests(unittest.TestCase):
                 graphics.validate_map(struct.pack("<H", tile) + bytes(1278), tiles)
         with self.assertRaisesRegex(ValueError, "unavailable tile"):
             graphics.validate_map(bytes(1280), b"")
+
+    def test_reference_audit_excludes_only_validated_payloads_and_exact_instructions(self):
+        payload = codec.encode_greedy(b"\x74\x90\x08" * 100)
+        rom = bytearray(0x200)
+        rom[0x20:0x20 + len(payload)] = payload
+        # Use a word actually present in encoded bits, not the decoded data.
+        value = struct.unpack_from("<I", payload, 7)[0]
+        part = (value - 0x08000000, 8, (0,))
+        struct.pack_into("<I", rom, 0, value)
+        self.assertFalse(graphics.growth_safe(rom, part))
+        streams = ((0x20, len(payload)),)
+        self.assertTrue(graphics.growth_safe(rom, part, streams))
+        instruction = struct.pack("<I", value + 1)
+        rom[0x80:0x84] = instruction
+        self.assertFalse(graphics.growth_safe(rom, part, streams))
+        expected = ((0x80, instruction),)
+        self.assertTrue(graphics.growth_safe(rom, part, streams, expected))
+        struct.pack_into("<I", rom, 0x90, value + 2)
+        self.assertFalse(graphics.growth_safe(rom, part, streams, expected))
+        rom[0x80] ^= 1
+        with self.assertRaisesRegex(ValueError, "instruction bytes changed"):
+            graphics.growth_safe(rom, part, streams, expected)
+        rom[0x20] = 0
+        with self.assertRaises(ValueError):
+            graphics.growth_safe(rom, part, streams)
 
     def test_extraction_preserves_edits_and_build_is_deterministic(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -237,7 +237,7 @@ struct FixedOverlayBuildScratch
 EC void InitOverlayTileHeap(OverlayTileAllocation *) asm("func_08007874");
 EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("TileHandle_Release");
 EC u32 AllocateOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007B54");
-EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("func_08007D4C");
+EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("TileHandle_GetTileIndex");
 EC void * CopyOverlayFrame(void *, void const *, size_t) asm("memcpy");
 
 ROM_TEXT(0803AB30) FixedSpriteOverlay * InitializeFixedSpriteOverlay(void * storage, OverlaySpriteResources * inputResources)
@@ -667,7 +667,7 @@ struct MapOverlayAnimationMethods
     void (*getFrame)(FixedOverlayFrameView *, SpriteAnimationSource const *, unsigned);
 };
 
-EC u32 RetainOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007CD8");
+EC u32 RetainOverlayTiles(OverlayTileAllocation *, unsigned) asm("TileHandle_Retain");
 EC MapOverlayParticle & InitMapOverlayParticle(MapOverlayParticle &, SpriteAnimator const &, int, int);
 
 ROM_TEXT(0803AEA0) GameStateMapOverlay * InitializeGameStateMapOverlay(GameStateMapOverlay * input,
@@ -2551,7 +2551,7 @@ struct PauseMenuUploadFields
 
 EC char const * const gPauseMenuTabLabels[PAUSE_MENU_TAB_COUNT];
 EC unsigned PauseMenuPaletteIndex(ClockPaletteAllocation *, u32) asm("ResourceHandle_GetIndex");
-EC unsigned PauseMenuBaseTile(ClockTileAllocation *, u32) asm("func_08007D4C");
+EC unsigned PauseMenuBaseTile(ClockTileAllocation *, u32) asm("TileHandle_GetTileIndex");
 EC void AudioPlayer_StartSong(AudioPlayer *, u16);
 EC void FillMessageTiles(PauseMenuDimensions, void *, unsigned);
 EC void DrawMessageTileString(PauseMenuDimensions, void *, unsigned, unsigned, char const *);

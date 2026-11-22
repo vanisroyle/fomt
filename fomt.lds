@@ -172,10 +172,22 @@ SECTIONS
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);
         asm/hardware.o(.text.after_08007C28);
+        src/hardware.o(.text.TileHandle_Retain);
+        asm/hardware.o(.text.after_08007CD8);
+        src/hardware.o(.text.TileHandle_GetTileIndex);
+        asm/hardware.o(.text.after_08007D4C);
+        src/hardware.o(.text.TileHandle_GetOrder);
+        asm/hardware.o(.text.after_08007DB8);
+        src/hardware.o(.text.TileHandle_GetRefCount);
+        asm/hardware.o(.text.after_08007E24);
         src/hardware.o(.text.AllocationTree_MarkFull);
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
         asm/hardware.o(.text.after_08007EC8);
+        src/hardware.o(.text.AllocationTree_AllocateBlock);
+        asm/hardware.o(.text.after_08008020);
+        src/hardware.o(.text.AllocationTree_FreeBlock);
+        asm/hardware.o(.text.after_080080A0);
         src/hardware.o(.text.TilePool_Initialize);
         asm/hardware.o(.text.after_0800835C);
         src/hardware.o(.text.TilePool_Destroy);
@@ -1027,7 +1039,7 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809C4EC);
         src/code_actor_0809BFE8.o(.text.0809C510);
         src/code_actor_0809BFE8.o(.text.0809C5B4);
-        asm/code_actor_0809BFE8.o(.text.0809C6BC);
+        src/code_actor_0809BFE8.o(.text.0809C6BC);
         src/code_actor_0809BFE8.o(.text.0809CD78);
         src/code_actor_0809BFE8.o(.text.0809CE8C);
         src/code_actor_0809BFE8.o(.text.0809CF34);
@@ -1207,6 +1219,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1FC4);
         src/g1_calendar_numbers.o(.text.g1_080A3588);
         asm/g1_npc.o(.text.g1_after_b9_080A3588);
+        src/g1_calendar_numbers.o(.text.g1_080A3618);
+        asm/g1_npc.o(.text.g1_after_b17_080A3618);
         src/g1_scene_wrapper.o(.text.g1_080A3744);
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
@@ -1568,6 +1582,7 @@ SECTIONS
         src/g5_commands.o(.text.g5_080CAE60);
         asm/code_080C8360.o(.text.g5_after_080CAE60);
         src/g5_commands.o(.text.g5_080CAF6C);
+        src/g5_slot_panel.o(.text.g5_080CAFC4);
         asm/code_080C8360.o(.text.g5_after_080CAF6C);
         src/g5_helpers.o(.text.g5_080CB2E8);
         asm/code_080C8360.o(.text.g5_080CB304);
@@ -1594,6 +1609,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_navigation.o(.text.g5_080CDB08);
         asm/code_080C8360.o(.text.g5_after_080CDB08);
+        src/g5_horizontal_navigation.o(.text.g5_080CDCD0);
         src/g5_navigation.o(.text.g5_080CDD7C);
         src/g5_navigation.o(.text.g5_080CDDAC);
         asm/code_080C8360.o(.text.g5_after_080CDDAC);
@@ -1725,6 +1741,8 @@ SECTIONS
         *(.vietnamese_font);
         . = ALIGN(4);
         *(.graphics_overflow);
+        . = ALIGN(4);
+        *(.text_table_overflow);
         . = ALIGN(0x800000);
     } > ROM = 0xFF
 
