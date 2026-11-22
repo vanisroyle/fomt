@@ -19,7 +19,7 @@ struct TileHeapOwner;
 
 EC ResourceHandleOwner * ResourceHandles_Initialize(ResourceHandleOwner *);
 EC u32 AllocateClockPalette(ResourceHandleOwner *) asm("func_0800736C");
-EC TileHeapOwner * InitializeClockTileHeap(TileHeapOwner *) asm("func_08007874");
+EC TileHeapOwner * InitializeClockTileHeap(TileHeapOwner *) asm("TileHeapOwner_Initialize");
 EC u32 AllocateClockTiles(TileHeapOwner *, u32) asm("func_08007B54");
 
 EC void DestroyClockDisplayData(ClockDisplayData *, int);

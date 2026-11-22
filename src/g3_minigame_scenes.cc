@@ -120,7 +120,7 @@ struct MinigameAudioPlayer
 };
 
 struct MinigameTileOwner;
-EC void func_08007874(MinigameTileOwner *);
+EC void TileHeapOwner_Initialize(MinigameTileOwner *);
 
 struct MinigameTileOwner
 {
@@ -128,7 +128,7 @@ struct MinigameTileOwner
     u32 allocation;
     MinigameTileOwner()
     {
-        func_08007874(this);
+        TileHeapOwner_Initialize(this);
         allocation = 0;
     }
 };

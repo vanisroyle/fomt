@@ -125,7 +125,7 @@ EC void DestroyResourcePool(ResourcePool *, int) asm("ResourcePool_Destroy");
 EC MessageWindow * CreateMessageWindow(MessageWindow *, u32, u32, u32, u32, TileResources *, ResourcePool *);
 EC AudioPlayer * AudioPlayer_Initialize(AudioPlayer *, u8);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void const *);
-EC void InitMedalExchangeTiles(MedalExchangeObjAllocation *) asm("func_08007874");
+EC void InitMedalExchangeTiles(MedalExchangeObjAllocation *) asm("TileHeapOwner_Initialize");
 EC u32 AllocateMedalExchangeTiles(MedalExchangeObjAllocation *, u32) asm("func_08007B54");
 EC void ResourceHandles_Initialize(MedalExchangeObjAllocation *);
 EC u32 AllocateMedalExchangePalette(MedalExchangeObjAllocation *) asm("func_0800736C");

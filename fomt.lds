@@ -168,6 +168,8 @@ SECTIONS
         asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
+        src/hardware.o(.text.TileHeapOwner_Initialize);
+        asm/hardware.o(.text.after_08007874);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);
@@ -184,6 +186,10 @@ SECTIONS
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
         asm/hardware.o(.text.after_08007EC8);
+        src/hardware.o(.text.AllocationTree_MarkRangeFull);
+        asm/hardware.o(.text.after_08007EE8);
+        src/hardware.o(.text.AllocationTree_MarkRangeEmpty);
+        asm/hardware.o(.text.after_08007F84);
         src/hardware.o(.text.AllocationTree_AllocateBlock);
         asm/hardware.o(.text.after_08008020);
         src/hardware.o(.text.AllocationTree_FreeBlock);
@@ -1613,6 +1619,7 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CB948);
         src/g5_drawing.o(.text.g5_080CC0B4);
         src/g5_helpers.o(.text.g5_080CC134);
+        src/g5_resource_slot_panel.o(.text.g5_080CC15C);
         asm/code_080C8360.o(.text.g5_080CC15C);
         src/g5_helpers.o(.text.g5_080CC70C);
         asm/code_080C8360.o(.text.g5_080CC728);
@@ -1679,7 +1686,7 @@ SECTIONS
         src/g5_runtime.o(.text.g5_queries);
         src/g5_runtime.o(.text.g5_080D06DC);
         src/g5_runtime.o(.text.g5_080D0704);
-        asm/code_080D035C.o(.text.g5_after_080D0704);
+        src/g5_receive.o(.text.g5_080D078C);
         src/g5_transmit.o(.text.g5_080D091C);
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
