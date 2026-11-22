@@ -27,16 +27,16 @@ gUnk_080F058C:
 	.incbin "baserom.gba", 0xF058C, 0x2C
 
 	.global gUnk_080F05B8
-gUnk_080F05B8:
-	.incbin "baserom.gba", 0xF05B8, 0x8
+.set gUnk_080F05B8, gNonScriptText_0F05B8
+	.include "build/assets/text-tables-0F05B8.s" @ slot 0xf05b8, 0x8
 
 	.global gUnk_080F05C0
-gUnk_080F05C0:
-	.incbin "baserom.gba", 0xF05C0, 0x8
+.set gUnk_080F05C0, gNonScriptText_0F05C0
+	.include "build/assets/text-tables-0F05C0.s" @ slot 0xf05c0, 0x8
 
 	.global gUnk_080F05C8
-gUnk_080F05C8:
-	.incbin "baserom.gba", 0xF05C8, 0xC
+.set gUnk_080F05C8, gNonScriptText_0F05C8
+	.include "build/assets/text-tables-0F05C8.s" @ slot 0xf05c8, 0xc
 
 	.global gUnk_080F05D4
 gUnk_080F05D4:
@@ -47,44 +47,44 @@ gUnk_080F05D9:
 	.incbin "baserom.gba", 0xF05D9, 0x7B
 
 	.global gUnk_080F0654
-gUnk_080F0654:
-	.incbin "baserom.gba", 0xF0654, 0x4
+.set gUnk_080F0654, gNonScriptText_0F0654
+	.include "build/assets/text-tables-0F0654.s" @ slot 0xF0654, 0x4
 
 	.global gUnk_080F0658
-gUnk_080F0658:
-	.incbin "baserom.gba", 0xF0658, 0x4
+.set gUnk_080F0658, gNonScriptText_0F0658
+	.include "build/assets/text-tables-0F0658.s" @ slot 0xF0658, 0x4
 
 	.global gUnk_080F065C
-gUnk_080F065C:
-	.incbin "baserom.gba", 0xF065C, 0x4
+.set gUnk_080F065C, gNonScriptText_0F065C
+	.include "build/assets/text-tables-0F065C.s" @ slot 0xF065C, 0x4
 
 	.global gUnk_080F0660
-gUnk_080F0660:
-	.incbin "baserom.gba", 0xF0660, 0x1C
+.set gUnk_080F0660, gNonScriptText_0F0660
+	.include "build/assets/text-tables-0F0660.s" @ slot 0xF0660, 0x1C
 
 	.global gUnk_080F067C
-gUnk_080F067C:
-	.incbin "baserom.gba", 0xF067C, 0x8
+.set gUnk_080F067C, gNonScriptText_0F067C
+	.include "build/assets/text-tables-0F067C.s" @ slot 0xF067C, 0x8
 
 	.global gUnk_080F0684
-gUnk_080F0684:
-	.incbin "baserom.gba", 0xF0684, 0x8
+.set gUnk_080F0684, gNonScriptText_0F0684
+	.include "build/assets/text-tables-0F0684.s" @ slot 0xF0684, 0x8
 
 	.global gUnk_080F068C
-gUnk_080F068C:
-	.incbin "baserom.gba", 0xF068C, 0x10
+.set gUnk_080F068C, gNonScriptText_0F068C
+	.include "build/assets/text-tables-0F068C.s" @ slot 0xF068C, 0x10
 
 	.global gUnk_080F069C
-gUnk_080F069C:
-	.incbin "baserom.gba", 0xF069C, 0x18
+.set gUnk_080F069C, gNonScriptText_0F069C
+	.include "build/assets/text-tables-0F069C.s" @ slot 0xF069C, 0x18
 
 	.global gUnk_080F06B4
-gUnk_080F06B4:
-	.incbin "baserom.gba", 0xF06B4, 0x1C
+.set gUnk_080F06B4, gNonScriptText_0F06B4
+	.include "build/assets/text-tables-0F06B4.s" @ slot 0xF06B4, 0x1C
 
 	.global gUnk_080F06D0
-gUnk_080F06D0:
-	.incbin "baserom.gba", 0xF06D0, 0x2D
+.set gUnk_080F06D0, gNonScriptText_0F06D0
+	.include "build/assets/text-tables-0F06D0.s" @ slot 0xF06D0, 0x2D
 
 	.global gUnk_080F06FD
 gUnk_080F06FD:
@@ -322,8 +322,8 @@ gMapOverlayParticleMotion:
 	.incbin "baserom.gba", 0xF1968, 0x38
 
 	.global gUnk_080F19A0
-gUnk_080F19A0:
-	.incbin "baserom.gba", 0xF19A0, 0xE
+.set gUnk_080F19A0, gNonScriptText_0F19A0
+	.include "build/assets/text-tables-0F19A0.s" @ slot 0xf19a0, 0xe
 
 	.global gUnk_080F19AE
 gUnk_080F19AE:
