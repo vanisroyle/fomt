@@ -6736,12 +6736,14 @@ read_buttons:
         frame.held.word = input->held;
         register FarmerInputState const * pressed_input asm("r1") = input;
         register u32 pressed_bits asm("r0");
-        asm volatile("ldrh %0, [%1, #4]" : "=l"(pressed_bits) : "l"(pressed_input) : "memory");
+        pressed_bits = pressed_input->pressed;
+        asm volatile("" : "+l"(pressed_bits));
         frame.pressed.word = pressed_bits;
     }
     {
         register u8 * motion_output asm("r3") = motion_state;
-        asm volatile("strb %1, [%0]" : : "l"(motion_output), "l"(empty_keys) : "memory");
+        *motion_output = empty_keys;
+        asm volatile("" : "+m"(*motion_output) : : "memory");
     }
 
     register FarmerHeldItemKeyWord * pressed asm("r4") = &frame.pressed;
@@ -6759,9 +6761,8 @@ read_buttons:
         register u32 b_initial asm("r2") = INPUT_B;
         register u32 b_mask asm("r0") = b_initial;
         b_mask &= buttons;
-        b_mask <<= 24;
-        register u32 b_pressed asm("r3") = b_mask >> 24;
-        if (b_pressed != 0)
+        register u32 b_pressed asm("r3") = static_cast<u8>(b_mask);
+        if (static_cast<u8>(b_pressed))
         {
             self->state = b_initial;
             *idle_ticks = a_pressed;
@@ -6806,7 +6807,12 @@ read_buttons:
                     register u32 left_mask asm("r0") = INPUT_LEFT;
                     register u8 * facing asm("r6");
                     register FarmerHeldItemKeyWord * held_keys asm("sb");
-                    asm volatile("and %0, %3\n\tadd %1, %4, #0\n\tmov %2, %5" : "+l"(left_mask), "=l"(facing), "=r"(held_keys) : "l"(directional_keys), "l"(facing_address), "l"(directional_keys_address) : "cc");
+                    left_mask &= directional_keys;
+                    asm volatile("" : "+l"(left_mask));
+                    facing = facing_address;
+                    asm volatile("" : "+l"(facing));
+                    held_keys = directional_keys_address;
+                    asm volatile("" : "+r"(held_keys));
                     u32 left_test = left_mask;
                     asm volatile("" : "+r"(left_test) : "r"(facing), "r"(held_keys));
                     if (left_test)
@@ -6870,13 +6876,16 @@ read_buttons:
                     if (run_setting)
                         goto default_fast;
                     {
-                        register u32 key_register asm("r3") = reinterpret_cast<u32>(held_keys);
-                        register u32 high_keys asm("r1");
-                        asm volatile("ldrb %0, [%1, #1]\n\tmov %1, #1 @ slow" : "=&l"(high_keys), "+l"(key_register) : : "memory");
-                        run_key = key_register;
-                        register u32 mask asm("r0");
-                        asm volatile("add %0, %1, #0\n\tand %0, %2" : "=&l"(mask) : "l"(run_key), "l"(high_keys) : "cc");
-                        u32 keys = mask;
+                        register FarmerHeldItemKeyWord const volatile * held_snapshot asm("r3") = held_keys;
+                        asm volatile("" : "+l"(held_snapshot));
+                        register u32 held_high_byte asm("r1") = held_snapshot->bytes[1];
+                        asm volatile("" : "+l"(held_high_byte));
+                        run_key = 1;
+                        asm volatile("" : "+l"(run_key));
+                        register u32 run_key_pressed asm("r0") = run_key;
+                        run_key_pressed &= held_high_byte;
+                        asm volatile("" : "+l"(run_key_pressed));
+                        u32 keys = run_key_pressed;
                         asm volatile("" : "+r"(keys));
                         if (!keys)
                             goto walk;
@@ -6884,13 +6893,16 @@ read_buttons:
                     }
                 default_fast:
                     {
-                        register u32 key_register asm("r3") = reinterpret_cast<u32>(held_keys);
-                        register u32 high_keys asm("r1");
-                        asm volatile("ldrb %0, [%1, #1]\n\tmov %1, #1 @ fast" : "=&l"(high_keys), "+l"(key_register) : : "memory");
-                        run_key = key_register;
-                        register u32 mask asm("r0");
-                        asm volatile("add %0, %1, #0\n\tand %0, %2" : "=&l"(mask) : "l"(run_key), "l"(high_keys) : "cc");
-                        u32 keys = mask;
+                        register FarmerHeldItemKeyWord const volatile * held_snapshot asm("r3") = held_keys;
+                        asm volatile("" : "+l"(held_snapshot));
+                        register u32 held_high_byte asm("r1") = held_snapshot->bytes[1];
+                        asm volatile("" : "+l"(held_high_byte));
+                        run_key = 1;
+                        asm volatile("" : "+l"(run_key));
+                        register u32 run_key_pressed asm("r0") = run_key;
+                        run_key_pressed &= held_high_byte;
+                        asm volatile("" : "+l"(run_key_pressed));
+                        u32 keys = run_key_pressed;
                         asm volatile("" : "+r"(keys));
                         if (keys)
                             goto walk;
@@ -6963,7 +6975,9 @@ step_effects:
                 game = (self)->game_object;
                 methods = FARMER_IDLE_GAME(game);
                 method_offset = 0xA6;
-                asm volatile("lsl %0, %0, #1" : "+l"(method_offset) : "r"(methods));
+                asm volatile("" : "+l"(method_offset) : "r"(methods));
+                method_offset <<= 1;
+                asm volatile("" : "+l"(method_offset));
                 get_channels = *reinterpret_cast<EntitySoundChannels const * (**)(GameObject *)>(reinterpret_cast<u32>(methods) + method_offset);
                 channels = get_channels(game);
                 day_channel = channels->begin;
@@ -7044,7 +7058,8 @@ other_step_sound:
         game = (self)->game_object;
         methods = FARMER_IDLE_GAME(game);
         method_offset = 0xA6;
-        asm volatile("lsl %0, %0, #1" : "+l"(method_offset) : "r"(methods));
+        asm volatile("" : "+l"(method_offset) : "r"(methods));
+        method_offset <<= 1;
         get_channels = *reinterpret_cast<EntitySoundChannels const * (**)(GameObject *)>(reinterpret_cast<u32>(methods) + method_offset);
         channels = get_channels(game);
         channel = channels->begin;
