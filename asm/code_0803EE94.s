@@ -8937,7 +8937,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L080442CA
 	bl .L08045572
 .L080442CA:
-	bl GameScript_InvokePlayerAction64
+	bl GameScript_ChangePlayerStaminaAndFatigue
 	bl .L08045572
 .L080442D2:
 	movs r4, #0xd5

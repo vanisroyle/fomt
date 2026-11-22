@@ -247,7 +247,7 @@ struct GameStateActorEntity : public AActorEntity
     virtual void vfunc_58();
     virtual void vfunc_5C(u32 value, u32 enabled);
     virtual void vfunc_60();
-    virtual void vfunc_64(u32 value_1, u32 value_2);
+    virtual bool ChangeStaminaAndFatigue(i32 staminaDelta, i32 fatigueDelta);
     virtual void vfunc_68(u32 value);
     virtual void vfunc_6C();
     virtual void vfunc_70();
@@ -1392,7 +1392,7 @@ struct GameStateGlobalStatus
 
     u8 hasReturnLocation;
     u32 mapId;
-    u16 mapFlags;
+    u16 savedTime;
 };
 
 struct GameStateScriptEngine : public ScriptEngine
@@ -2502,9 +2502,9 @@ EC void SECTION(".text.game_state_080141EC") GameScript_BeginPlayerAction50(Game
 }
 
 // 0x08014C0C
-EC void SECTION(".text.game_state_08014C0C") GameScript_InvokePlayerAction64(GameStateScript & script, u32 value_1, u32 value_2)
+EC void SECTION(".text.game_state_08014C0C") GameScript_ChangePlayerStaminaAndFatigue(GameStateScript & script, i32 staminaDelta, i32 fatigueDelta)
 {
-    script.runtime->scene->GetActor(0)->vfunc_64(value_1, value_2);
+    script.runtime->scene->GetActor(0)->ChangeStaminaAndFatigue(staminaDelta, fatigueDelta);
 }
 
 // 0x080158F8
@@ -2821,7 +2821,7 @@ EC void SECTION(".text.game_state_08016D48") GameScript_SaveReturnLocation(GameS
     u8 * state = runtime.saveData;
     status.hasReturnLocation = 1;
     status.mapId = map;
-    status.mapFlags = *reinterpret_cast<u16 *>(state + 0x12);
+    status.savedTime = *reinterpret_cast<u16 *>(state + 0x12);
 }
 
 // 0x08016F60
