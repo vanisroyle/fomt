@@ -84,7 +84,7 @@ class TitleGraphicsTests(unittest.TestCase):
                 title.build(rom, assets, output, g)
 
     def test_growth_excludes_only_decoded_audited_payload_ranges(self):
-        encoded = g.codec.encode(b"\x74\x90\x08" * 100)
+        encoded = g.codec.encode_greedy(b"\x74\x90\x08" * 100)
         rom = bytearray(0xC000)
         rom[0x100:0x100 + len(encoded)] = encoded
         target = struct.unpack_from("<I", encoded, 7)[0] - 0x08000000 - 4
