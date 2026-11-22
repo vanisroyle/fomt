@@ -1204,6 +1204,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A1EF4);
         src/g1_map_counts.o(.text.g1_080A1FC4);
         asm/g1_npc.o(.text.g1_after_b4_080A1FC4);
+        src/g1_calendar_message.o(.text.g1_080A2940);
+        asm/g1_npc.o(.text.g1_after_b18_080A2940);
         src/g1_calendar_numbers.o(.text.g1_080A3588);
         asm/g1_npc.o(.text.g1_after_b9_080A3588);
         src/g1_calendar_numbers.o(.text.g1_080A3618);
@@ -1255,6 +1257,8 @@ SECTIONS
         src/g1_map_dma.o(.text.g1_080A5670);
         src/g1_map_location.o(.text.g1_080A56DC);
         asm/g1_npc.o(.text.g1_after_b4_080A56DC);
+        src/g1_map_terrain.o(.text.g1_080A5760);
+        asm/g1_npc.o(.text.g1_after_b18_080A5760);
         src/g1_map_motion.o(.text.g1_080A58EC);
         asm/g1_npc.o(.text.g1_after_b4_080A58EC);
         src/g1_map_camera.o(.text.g1_080A59BC);
@@ -1303,6 +1307,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A6474);
         src/g1_map_animation.o(.text.g1_080A64B8);
         asm/g1_npc.o(.text.g1_after_b5_080A64B8);
+        src/g1_map_animation.o(.text.g1_080A6524);
+        asm/g1_npc.o(.text.g1_after_b18_080A6524);
         src/g1_npc.o(.text.g1_080A6640);
         asm/g1_npc.o(.text.g1_after_080A6640);
         asm/code_809E804.o(.text);
