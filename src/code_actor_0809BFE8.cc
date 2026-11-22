@@ -620,6 +620,295 @@ ROM_TEXT(0809CE8C) MineFloor & InitializeMineFloor(MineFloor & floor)
     return *mine;
 }
 
+struct ALIGN(4) MineFloorPosition
+{
+    u8 x;
+    u8 y;
+};
+
+typedef char MineFloorPositionLayoutCheck[sizeof(MineFloorPosition) == 4 ? 1 : -1];
+
+enum MineType
+{
+    SpringMine,
+    LakeMine,
+};
+
+EC int rand();
+EC int GetMineFloorWidth(MineFloor const &);
+EC int GetMineFloorHeight(MineFloor const &);
+EC void GenerateSpringMineOutcomes(MineFloor &, unsigned, unsigned, MineFloorPosition const *);
+EC void GenerateLakeMineOutcomes(MineFloor &, unsigned, unsigned, MineFloorPosition const *);
+
+ROM_TEXT(0809CF34) MineFloorPosition * GenerateMineFloor(MineFloorPosition * entry, MineFloor & floor,
+    unsigned mineType, unsigned floorDepth, MineFloorPosition const * reservedWorldTiles, unsigned count)
+{
+    // Match the two-byte coordinates and word-sized copies in the original stack frame.
+    struct Scratch
+    {
+        MineFloorPosition reservedTiles[12];
+        MineFloorPosition entryTile;
+        MineFloorPosition * result;
+        unsigned selectedMine;
+    } scratch;
+    typedef char MineFloorScratchLayoutCheck[
+        offsetof(Scratch, entryTile) == 0x30 &&
+        offsetof(Scratch, result) == 0x34 &&
+        offsetof(Scratch, selectedMine) == 0x38 ? 1 : -1];
+
+    register MineFloorPosition * entryArg asm("r0") = entry;
+    register MineFloor * floorArg asm("r1") = &floor;
+    register unsigned mineArg asm("r2") = mineType;
+    register unsigned depthArg asm("r3") = floorDepth;
+    register MineFloor * mine asm("r6");
+    register unsigned depth asm("r8");
+    register unsigned reservedCount asm("sb");
+    asm volatile(
+        ".syntax unified\n\tstr r0, %0\n\tadds %2, r1, #0\n\t"
+        "str r2, %1\n\tmov %3, r3\n\tldr r0, %9\n\tmov %4, r0\n\t"
+        ".syntax divided"
+        : "=m"(scratch.result), "=m"(scratch.selectedMine), "=l"(mine), "=h"(depth), "=h"(reservedCount)
+        : "l"(entryArg), "l"(floorArg), "l"(mineArg), "l"(depthArg), "m"(count)
+        : "cc", "memory");
+    register MineFloorPosition * spawn asm("r1");
+    asm("add %0, sp, %1" : "=l"(spawn) : "I"(offsetof(Scratch, entryTile)));
+    spawn->x = 0;
+    spawn->y = 0;
+    register MineFloorPosition * current asm("r0") = scratch.reservedTiles;
+    register unsigned index asm("r2");
+    asm("mov %0, %1" : "=l"(index) : "I"(ARRAY_COUNT(scratch.reservedTiles) - 1), "l"(current));
+    do
+    {
+        current->x = 0;
+        current->y = 0;
+        ++current;
+    }
+    while (--index != static_cast<unsigned>(-1));
+
+    // Reset the packed tile fields with the original store widths.
+    register unsigned stateMask asm("ip");
+    unsigned row = 0;
+    asm volatile("mov r1, %1\n\tneg r1, r1\n\tmov %0, r1"
+        : "=h"(stateMask) : "I"(1 << 4), "l"(row) : "r1", "cc");
+    do
+    {
+        unsigned column = 0;
+        register unsigned rowOffset asm("r1") = row << 3;
+        unsigned nextRow = row + 1;
+        rowOffset -= row;
+        rowOffset <<= 3;
+        register MineFloor::Tile * tiles asm("r0");
+        asm("add %0, %1, %2" : "=l"(tiles) : "l"(mine), "I"(offsetof(MineFloor, tiles)), "l"(rowOffset));
+        volatile MineFloor::Tile * tile = reinterpret_cast<volatile MineFloor::Tile *>(rowOffset + reinterpret_cast<uintptr_t>(tiles));
+        do
+        {
+            register unsigned state asm("r0");
+            asm volatile("ldrb r1, [%1]\n\tmov %0, %2\n\tand %0, r1\n\tstrb %0, [%1]"
+                : "=&l"(state) : "l"(tile), "h"(stateMask) : "r1", "cc", "memory");
+            tile->rockOutcome = MINE_OUTCOME_NONE;
+            tile->digOutcome = MINE_OUTCOME_NONE;
+            ++tile;
+            ++column;
+        }
+        while (column < ARRAY_COUNT(mine->tiles[0]));
+        row = nextRow;
+    }
+    while (row < ARRAY_COUNT(mine->tiles));
+
+    if (reservedWorldTiles)
+        for (unsigned i = 0; i < reservedCount; ++i)
+            scratch.reservedTiles[i] = reservedWorldTiles[i];
+
+    // One generated mine tile spans two world-map tiles on each axis.
+    enum { WorldOriginX = 2, WorldOriginY = 7, LogicalExtent = 28, InvalidTile = 0xff };
+    register MineFloorPosition * pos asm("r1");
+    register unsigned invalid asm("r3");
+    asm(".syntax unified\n\tmovs %0, %2\n\tmov %1, sp\n\t.syntax divided"
+        : "=l"(invalid), "=l"(pos) : "I"(InvalidTile));
+    do
+    {
+        unsigned worldX = pos->x;
+        unsigned localX;
+        if (static_cast<u8>(worldX - WorldOriginX) >= 2 * LogicalExtent)
+            localX = worldX | invalid;
+        else
+        {
+            asm volatile("" : : : "memory");
+            localX = (pos->x - WorldOriginX) >> 1;
+        }
+        pos->x = localX;
+        unsigned worldY = pos->y;
+        unsigned localY;
+        if (static_cast<u8>(worldY - WorldOriginY) >= 2 * LogicalExtent)
+            localY = worldY | invalid;
+        else
+        {
+            asm volatile("" : : : "memory");
+            localY = (pos->y - WorldOriginY) >> 1;
+        }
+        pos->y = localY;
+        ++pos;
+        register MineFloorPosition const * last asm("r0");
+        asm("add %0, sp, %1" : "=l"(last) : "I"(sizeof(scratch.reservedTiles) - sizeof(*pos)));
+        if (reinterpret_cast<int>(pos) > reinterpret_cast<int>(last))
+            break;
+    }
+    while (true);
+
+    enum FloorKind
+    {
+        Entrance,
+        Large,
+        Tall,
+        Standard,
+        LakeLanding,
+    };
+    enum RockCount
+    {
+        EntranceRocks = 20,
+        LargeRocks = 300,
+        TallRocks = 100,
+        StandardRocks = 30,
+        LakeLandingRocks = 40,
+    };
+    register unsigned rockCount asm("sl");
+    register unsigned commonCount asm("r0");
+    unsigned entranceDepth;
+    asm volatile("mov %0, %1" : "=&l"(entranceDepth) : "h"(depth), "l"(mine)
+        : "r0", "r2", "r3", "r4", "r5", "r7");
+    if (entranceDepth == 0)
+    {
+        asm volatile("str %1, [%2]\n\tmov %0, %3" : "=l"(commonCount)
+            : "l"(entranceDepth), "l"(mine), "I"(EntranceRocks) : "cc", "memory");
+        goto usualCount;
+    }
+    unsigned specialDepth;
+    asm volatile("mov %0, %1" : "=&l"(specialDepth) : "h"(depth), "l"(mine)
+        : "r0", "r2", "r3", "r4", "r5", "r7");
+    if (specialDepth == 9 && scratch.selectedMine == LakeMine)
+    {
+        mine->kind = LakeLanding;
+        asm volatile("mov r1, %1\n\tmov %0, r1" : "=h"(rockCount) : "I"(LakeLandingRocks) : "r1", "cc");
+        goto placeEntry;
+    }
+    else if (depth % 5 == 0)
+    {
+        mine->kind = Large;
+        asm volatile("mov %0, %1\n\tlsl %0, %0, #1" : "=l"(commonCount) : "I"(LargeRocks / 2) : "cc");
+        goto usualCount;
+    }
+    else if (depth % 3 == 0)
+    {
+        mine->kind = Tall;
+        asm volatile("mov r1, %1\n\tmov %0, r1" : "=h"(rockCount) : "I"(TallRocks) : "r1", "cc");
+        goto placeEntry;
+    }
+    else
+    {
+        mine->kind = Standard;
+        asm volatile("mov %0, %1" : "=l"(commonCount) : "I"(StandardRocks) : "cc");
+    }
+usualCount:
+    asm volatile("mov %0, %1" : "=h"(rockCount) : "l"(commonCount));
+placeEntry:
+    unsigned hasStairs;
+    asm volatile("mov %0, %1" : "=&l"(hasStairs) : "h"(depth), "l"(mine)
+        : "r0", "r2", "r3", "r4", "r5", "r7");
+    if (hasStairs != 0)
+    {
+        int xRoll = rand();
+        register unsigned west asm("sb") = (xRoll >> 8) % static_cast<unsigned>(GetMineFloorWidth(*mine) - 2);
+        asm("" : "+h"(west));
+        register unsigned x asm("r5") = west + 1;
+        asm("" : "+l"(x));
+        int yRoll = rand();
+        register unsigned north asm("r7") = (yRoll >> 8) % static_cast<unsigned>(GetMineFloorHeight(*mine) - 2);
+        asm("" : "+l"(north));
+        unsigned y = north + 1;
+        register unsigned columnBytes asm("r2") = x * sizeof(MineFloor::Tile);
+        asm("" : "+l"(columnBytes));
+        register unsigned rowBytes asm("r0") = ((y << 3) - y) << 3;
+        asm("" : "+l"(rowBytes) : "l"(columnBytes));
+        asm("add %0, %0, %1\n\tadd %0, %2, %0" : "+l"(columnBytes) : "l"(rowBytes), "l"(mine));
+        asm volatile(
+            ".syntax unified\n\tldrb r1, [%0, %1]\n\tmovs r0, %2\n\t"
+            "negs r0, r0\n\tands r0, r1\n\tmovs r1, %3\n\torrs r0, r1\n\t"
+            "strb r0, [%0, %1]\n\t.syntax divided"
+            : : "l"(columnBytes), "I"(offsetof(MineFloor, tiles)), "I"(1 << 4), "I"(MINE_TILE_STAIRS_UP)
+            : "r0", "r1", "cc", "memory");
+
+        // Spawn beside the stairs and reserve that tile until outcome placement finishes.
+        unsigned direction = (rand() >> 8) & 3;
+        if (direction & 2)
+        {
+            if (direction & 1)
+                x = west;
+            else
+                ++x;
+        }
+        else
+        {
+            if (direction & 1)
+                y = north;
+            else
+                ++y;
+        }
+        register MineFloorPosition * spawn asm("r0");
+        asm("add %0, sp, %1" : "=l"(spawn) : "I"(offsetof(Scratch, entryTile)));
+        spawn->x = x;
+        spawn->y = y;
+        register u8 * tileBase asm("r1");
+        asm volatile(
+            ".syntax unified\n\tldrb %0, [%1]\n\t"
+            "lsls %0, %0, #1\n\tldrb r2, [%1, #1]\n\tlsls r0, r2, #3\n\t"
+            "subs r0, r0, r2\n\tlsls r0, r0, #3\n\tadds %0, %0, r0\n\t"
+            "adds %0, %2, %0\n\t.syntax divided"
+            : "=&l"(tileBase), "+l"(spawn)
+            : "l"(mine)
+            : "r2", "cc", "memory");
+        asm volatile(
+            ".syntax unified\n\tldrb r2, [%0, %1]\n\tmovs r0, %2\n\t"
+            "negs r0, r0\n\tands r0, r2\n\tmovs r2, %3\n\torrs r0, r2\n\t"
+            "strb r0, [%0, %1]\n\t.syntax divided"
+            : : "l"(tileBase), "I"(offsetof(MineFloor, tiles)), "I"(1 << 4), "I"(MINE_TILE_DUG_SOIL)
+            : "r0", "r2", "cc", "memory");
+    }
+
+    unsigned mineToGenerate;
+    asm volatile("ldr %0, [sp, %1]" : "=&l"(mineToGenerate)
+        : "I"(offsetof(Scratch, selectedMine)), "l"(mine)
+        : "r0", "r2", "r3", "r4", "r5", "r7", "memory");
+    if (mineToGenerate == SpringMine)
+        GenerateSpringMineOutcomes(*mine, depth, rockCount, scratch.reservedTiles);
+    else
+        GenerateLakeMineOutcomes(*mine, depth, rockCount, scratch.reservedTiles);
+
+    unsigned generatedDepth;
+    asm volatile("mov %0, %1" : "=l"(generatedDepth) : "h"(depth));
+    if (generatedDepth != 0)
+    {
+        register u8 * tileBase asm("r1");
+        asm volatile(
+            ".syntax unified\n\tadd r0, sp, %2\n\tldrb %0, [r0]\n\t"
+            "lsls %0, %0, #1\n\tldrb r2, [r0, #1]\n\tlsls r0, r2, #3\n\t"
+            "subs r0, r0, r2\n\tlsls r0, r0, #3\n\tadds %0, %0, r0\n\t"
+            "adds %0, %1, %0\n\t.syntax divided"
+            : "=l"(tileBase)
+            : "l"(mine), "I"(offsetof(Scratch, entryTile)), "m"(scratch.entryTile)
+            : "r0", "r2", "cc");
+        register unsigned clearState asm("r0");
+        asm volatile(".syntax unified\n\tldrb r2, [%1, %2]\n\tmovs %0, %3\n\t"
+            "negs %0, %0\n\tands %0, r2\n\tstrb %0, [%1, %2]\n\t.syntax divided"
+            : "=l"(clearState)
+            : "l"(tileBase), "I"(offsetof(MineFloor, tiles)), "I"(1 << 4)
+            : "r2", "cc", "memory");
+    }
+
+    asm volatile("ldr r0, %0\n\tldr r1, %1\n\tstr r0, [r1]"
+        : : "m"(scratch.entryTile), "m"(scratch.result) : "r0", "r1", "memory");
+    return scratch.result;
+}
+
 ROM_TEXT(0809D418) unsigned GetSpringMineDigWeightRow(MineFloor const &, unsigned floor)
 {
     unsigned row = 0;
