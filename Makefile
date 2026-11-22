@@ -105,7 +105,9 @@ $(BUILD_DIR)/assets/fonts.stamp: FORCE
 $(BUILD_DIR)/assets/vietnamese-mode.inc: $(BUILD_DIR)/assets/fonts.stamp
 	@test -f $@
 
-$(BUILD_DIR)/asm/code_080D0C68.o $(BUILD_DIR)/asm/vietnamese_font.o: $(BUILD_DIR)/assets/fonts.stamp $(BUILD_DIR)/assets/vietnamese-mode.inc
+$(BUILD_DIR)/asm/code_080D0C68.o $(BUILD_DIR)/asm/vietnamese_font.o $(BUILD_DIR)/src/g5_font.o: $(BUILD_DIR)/assets/fonts.stamp $(BUILD_DIR)/assets/vietnamese-mode.inc
+
+$(BUILD_DIR)/src/g5_font.o: CPPFLAGS += -DVIETNAMESE_FONT=$(VIETNAMESE_FONT)
 
 $(FONT_BINS): $(BUILD_DIR)/assets/fonts.stamp
 	@test -f $@

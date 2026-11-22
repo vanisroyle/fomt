@@ -40,6 +40,10 @@ struct CommandIterator
     CommandIterator & operator++() { node = node->next; return *this; }
 };
 
+// Simple panels keep their draw owner at +0, this list at +4 and their base
+// vtable at +0x210. The sentinel has links but no initialized command payload.
+EC u8 * InventoryMenu_InitializePanelBase(u8 * panel, DrawCommand * draw_owner); // 0x080CADB4
+
 // Destructors also release panel resources; flags bit 0 deletes the panel.
 EC void DestroyPanelDrawCommands(u8 * panel, u32 flags); // 0x080CADF0
 EC void PruneInactivePanelDrawCommands(u8 * panel); // 0x080CAF6C
