@@ -3,8 +3,8 @@
 
     .section .text.game_state_08010358, "ax", %progbits
 
-    thumb_func_start func_08010358
-func_08010358: @ 0x08010358
+    thumb_func_start SaveData_InitializeNewGame
+SaveData_InitializeNewGame: @ 0x08010358
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -1351,8 +1351,8 @@ func_08010358: @ 0x08010358
 
     .section .text.game_state_08010F54, "ax", %progbits
 
-    thumb_func_start func_08010F54
-func_08010F54: @ 0x08010F54
+    thumb_func_start SaveData_RunDayUpdate
+SaveData_RunDayUpdate: @ 0x08010F54
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -3849,7 +3849,7 @@ GameScript_RebuildMapScene: @ 0x08014AF8
     adds r4, r5, #0
     adds r4, #0x8c
     ldr r0, [r4]
-    bl func_08010F54
+    bl SaveData_RunDayUpdate
     adds r6, r5, #0
     adds r6, #0xa8
     ldr r1, [r4]
