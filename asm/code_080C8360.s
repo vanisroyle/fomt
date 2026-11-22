@@ -6813,7 +6813,7 @@ func_080CC15C: @ 0x080CC15C
 	lsls r6, r6, #2
 	adds r4, r7, r6
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r0, r8
 	str r0, [r4, #4]
 	movs r1, #0xa9
@@ -6832,7 +6832,7 @@ func_080CC15C: @ 0x080CC15C
 	rsbs r6, r6, #0
 .L080CC246:
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r1, r8
 	str r1, [r4, #4]
 	adds r4, #8
@@ -10005,7 +10005,7 @@ func_080CE2FC: @ 0x080CE2FC
 	adds r4, r7, #0
 	stm r4!, {r1}
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -10013,7 +10013,7 @@ func_080CE2FC: @ 0x080CE2FC
 	adds r4, r7, #0
 	adds r4, #0xc
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54

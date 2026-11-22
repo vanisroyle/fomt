@@ -168,6 +168,8 @@ SECTIONS
         asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
+        src/hardware.o(.text.TileHeapOwner_Initialize);
+        asm/hardware.o(.text.after_08007874);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
         src/hardware.o(.text.TileHandle_Release);

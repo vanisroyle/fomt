@@ -1079,7 +1079,7 @@ func_080041DC: @ 0x080041DC
     adds r4, r7, #0
     adds r4, #0x4c
     adds r0, r4, #0
-    bl func_08007874
+    bl TileHeapOwner_Initialize
     adds r0, r4, #0
     movs r1, #2
     bl func_08007B54
@@ -3751,7 +3751,7 @@ func_08005B68: @ 0x08005B68
     adds r0, r6, #0
     bl HardwareContext_ForceBlank
     mov r0, sp
-    bl func_08007874
+    bl TileHeapOwner_Initialize
     movs r5, #0
     str r5, [sp, #4]
     mov r0, sp
