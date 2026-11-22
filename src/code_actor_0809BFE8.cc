@@ -622,6 +622,8 @@ ROM_TEXT(0809CE8C) MineFloor & InitializeMineFloor(MineFloor & floor)
 
 struct ALIGN(4) MineFloorPosition
 {
+    enum { ReservedCapacity = 12 };
+
     u8 x;
     u8 y;
 };
@@ -637,8 +639,8 @@ enum MineType
 EC int rand();
 EC int GetMineFloorWidth(MineFloor const &);
 EC int GetMineFloorHeight(MineFloor const &);
-EC void GenerateSpringMineOutcomes(MineFloor &, unsigned, unsigned, MineFloorPosition const *);
-EC void GenerateLakeMineOutcomes(MineFloor &, unsigned, unsigned, MineFloorPosition const *);
+EC void GenerateSpringMineOutcomes(MineFloor &, unsigned, int, MineFloorPosition const *);
+EC void GenerateLakeMineOutcomes(MineFloor &, unsigned, int, MineFloorPosition const *);
 
 ROM_TEXT(0809CF34) MineFloorPosition * GenerateMineFloor(MineFloorPosition * entry, MineFloor & floor,
     unsigned mineType, unsigned floorDepth, MineFloorPosition const * reservedWorldTiles, unsigned count)
@@ -646,7 +648,7 @@ ROM_TEXT(0809CF34) MineFloorPosition * GenerateMineFloor(MineFloorPosition * ent
     // Match the two-byte coordinates and word-sized copies in the original stack frame.
     struct Scratch
     {
-        MineFloorPosition reservedTiles[12];
+        MineFloorPosition reservedTiles[MineFloorPosition::ReservedCapacity];
         MineFloorPosition entryTile;
         MineFloorPosition * result;
         unsigned selectedMine;
@@ -909,6 +911,347 @@ placeEntry:
     return scratch.result;
 }
 
+EC unsigned __umodsi3(unsigned, unsigned);
+EC unsigned __udivsi3(unsigned, unsigned);
+EC unsigned GetSpringMineDigWeightRow(MineFloor const &, unsigned);
+EC unsigned GetSpringMineRockWeightRow(MineFloor const &, unsigned);
+EC u32 const gSpringMineDigOutcomeIds[5];
+EC u8 const gSpringMineDigOutcomeWeights[][5];
+EC u32 const gSpringMineRockOutcomeIds[10];
+EC u8 const gSpringMineRockOutcomeWeights[][10];
+
+ROM_TEXT(0809D168) void GenerateSpringMineOutcomes(MineFloor & floor, unsigned depth, int rockCount,
+    MineFloorPosition const * reservedTiles)
+{
+    struct Scratch
+    {
+        unsigned depth;
+        int rockCount;
+        MineFloorPosition const * reservedTiles;
+        unsigned width;
+        unsigned height;
+        unsigned weightRow;
+        unsigned firstTile;
+        unsigned tileCount;
+        int remainingRocks;
+        unsigned nextTile;
+    } scratch;
+    typedef char SpringMineScratchLayoutCheck[
+        sizeof(Scratch) == 0x28 && offsetof(Scratch, nextTile) == 0x24 ? 1 : -1];
+
+    register MineFloor * floorArg asm("r0") = &floor;
+    register unsigned depthArg asm("r1") = depth;
+    register int rockCountArg asm("r2") = rockCount;
+    register MineFloorPosition const * reservedArg asm("r3") = reservedTiles;
+    register MineFloor * mine asm("sl");
+    asm volatile("mov %0, %4\n\tstr %5, %1\n\tstr %6, %2\n\tstr %7, %3"
+        : "=h"(mine), "=m"(scratch.depth), "=m"(scratch.rockCount), "=m"(scratch.reservedTiles)
+        : "l"(floorArg), "l"(depthArg), "l"(rockCountArg), "l"(reservedArg));
+    register unsigned widthResult asm("r0") = GetMineFloorWidth(*floorArg);
+    asm volatile("str %1, %0" : "=m"(scratch.width) : "l"(widthResult));
+    unsigned heightResult = GetMineFloorHeight(*mine);
+    asm volatile("str %1, %0" : "=m"(scratch.height) : "l"(heightResult));
+    register MineFloor const * weightMineArg asm("r0");
+    register unsigned weightDepthArg asm("r1");
+    // The fixed y register needs an explicit callee-save in agbcc.
+    unsigned savedCalleeRegister;
+    asm volatile("" : "=l"(savedCalleeRegister) : : "r0", "r1", "r2", "r3", "r4", "r5", "r6");
+    asm("mov %0, %2\n\tldr %1, %3"
+        : "=l"(weightMineArg), "=l"(weightDepthArg) : "h"(mine), "m"(scratch.depth));
+    unsigned digRow = GetSpringMineDigWeightRow(*weightMineArg, weightDepthArg);
+    asm volatile("str %1, %0" : "=m"(scratch.weightRow) : "l"(digRow));
+    register int startingRoll asm("r0") = rand() >> 4;
+    asm("" : "+l"(startingRoll));
+    register unsigned tileCount asm("r4");
+    asm volatile("ldr r1, %1\n\tldr r2, %2\n\tmov %0, r1\n\tmul %0, r2"
+        : "=l"(tileCount) : "m"(scratch.height), "m"(scratch.width) : "r1", "r2", "cc");
+    unsigned firstTile = startingRoll % tileCount;
+    asm volatile("str %1, %0" : "=m"(scratch.firstTile) : "l"(firstTile));
+
+    // Visit every tile once, wrapping from a randomly selected start.
+    register unsigned tileCursor asm("r5") = 0;
+    asm("" : "+l"(tileCursor));
+    if (tileCursor < tileCount)
+    {
+        asm volatile("str %1, %0" : "=m"(scratch.tileCount) : "l"(tileCount));
+        do
+        {
+            register unsigned tileIndex asm("r4");
+            register unsigned limit asm("r0");
+            asm volatile("ldr r3, %2\n\tadd %0, r3, %4\n\tldr %1, %3"
+                : "=l"(tileIndex), "=l"(limit) : "m"(scratch.firstTile), "m"(scratch.tileCount), "l"(tileCursor) : "r3", "cc");
+            if (tileIndex >= limit)
+                tileIndex -= limit;
+            register unsigned tileArg asm("r0");
+            register unsigned widthArg asm("r1");
+            asm("mov %0, %2\n\tldr %1, %3"
+                : "=l"(tileArg), "=l"(widthArg) : "l"(tileIndex), "m"(scratch.width));
+            register unsigned x asm("r8") = __umodsi3(tileArg, widthArg);
+            asm("" : "+h"(x));
+            asm("mov %0, %2\n\tldr %1, %3"
+                : "=l"(tileArg), "=l"(widthArg) : "l"(tileIndex), "m"(scratch.width));
+            register unsigned y asm("r7") = __udivsi3(tileArg, widthArg);
+            asm("" : "+l"(y));
+            register int state asm("r0");
+            asm volatile("mov r1, %2\n\tlsl r0, r1, #1\n\tlsl r1, %3, #3\n\t"
+                "sub r1, r1, %3\n\tlsl r1, r1, #3\n\tadd r0, r0, r1\n\t"
+                "add r0, %1\n\tldrb r0, [r0, #4]\n\tlsl r0, r0, #28\n\tlsr r0, r0, #28"
+                : "=l"(state) : "h"(mine), "h"(x), "l"(y) : "r1", "cc", "memory");
+            asm volatile("add %1, #1\n\tstr %1, %0"
+                : "=m"(scratch.nextTile), "+l"(tileCursor) : : "cc");
+            if (state <= MINE_TILE_DUG_SOIL)
+            {
+                register int randomBits asm("r0") = rand();
+                register int roll asm("r2");
+                asm("asr %0, %1, #4\n\tmov r0, #255\n\tand %0, r0"
+                    : "=l"(roll), "+l"(randomBits) : : "cc");
+                register int outcomeIndex asm("r3") = 0;
+                register unsigned rowScale asm("r6");
+                asm("ldr r4, %1\n\tlsl %0, r4, #2"
+                    : "=l"(rowScale) : "m"(scratch.weightRow), "l"(outcomeIndex) : "r4", "cc");
+                register u8 const * weights asm("r4");
+                asm("ldr %0, .LspringDigWeights" : "=l"(weights) : "l"(rowScale));
+            rollDigOutcome:
+                {
+                    register int weight asm("r0");
+                    asm volatile("ldr r1, %1\n\tadd r0, %2, r1\n\tadd r0, %3, r0\n\tadd r1, r0, %4\n\tldrb r0, [r1]"
+                        : "=l"(weight) : "m"(scratch.weightRow), "l"(rowScale), "l"(outcomeIndex), "l"(weights)
+                        : "r1", "cc", "memory");
+                    if (weight != 0)
+                    {
+                        if (roll < weight)
+                        {
+                            register unsigned outcome asm("r3");
+                            asm("ldr r1, .LspringDigIds\n\tlsl r0, %1, #2\n\tadd r0, r0, r1\n\tldr %0, [r0]"
+                                : "=l"(outcome) : "l"(outcomeIndex) : "r0", "r1", "memory", "cc");
+                            register unsigned columnBytes asm("sb");
+                            register unsigned rowScale asm("ip");
+                            asm volatile(
+                                "mov r2, %3\n\tlsl r2, r2, #1\n\tmov %0, r2\n\t"
+                                "lsl r4, %4, #3\n\tmov %1, r4"
+                                : "=h"(columnBytes), "=h"(rowScale) : "l"(outcome), "h"(x), "l"(y) : "r2", "r4", "cc");
+                            if (outcome != MINE_OUTCOME_STAIRS)
+                                goto saveDigOutcome;
+                            // Down stairs cannot touch the border or the up stairs.
+                            asm("" : "+l"(y));
+                            if (y == 0)
+                                goto rejectBorder;
+                            asm volatile("" : : "l"(y));
+                            register unsigned lastRow asm("r0");
+                            asm volatile("ldr %0, %1\n\tsub %0, #1"
+                                : "=l"(lastRow) : "m"(scratch.height) : "cc");
+                            if (y >= lastRow)
+                                goto rejectBorder;
+                            register unsigned lowX asm("r0");
+                            asm("mov %0, %1" : "=l"(lowX) : "h"(x));
+                            if (lowX == 0)
+                                goto rejectBorder;
+                            register unsigned lastColumn asm("r0");
+                            asm volatile("ldr %0, %1\n\tsub %0, #1"
+                                : "=l"(lastColumn) : "m"(scratch.width) : "cc");
+                            if (x >= lastColumn)
+                                goto rejectBorder;
+                            register int row asm("r4");
+                            register int rowEnd asm("r6");
+                            asm("sub %0, %2, #1\n\tadd %1, %2, #2"
+                                : "=l"(row), "=l"(rowEnd) : "l"(y) : "cc");
+                            register int rowBytes asm("r5");
+                            if (row < rowEnd)
+                            {
+                                asm("lsl r0, %1, #3\n\tsub r0, r0, %1\n\tlsl %0, r0, #3"
+                                    : "=l"(rowBytes) : "l"(row) : "r0", "cc");
+                                do
+                                {
+                                    if (row < 0)
+                                        goto nextNeighborRow;
+                                    register int rowLimit asm("r1");
+                                    asm volatile("ldr %0, %1" : "=l"(rowLimit) : "m"(scratch.height));
+                                    if (row >= rowLimit)
+                                        goto nextNeighborRow;
+                                    register int column asm("r2");
+                                    register int columnEnd asm("r1");
+                                    // The row scan skips a column only when it is negative and not below width.
+                                    asm volatile(
+                                        "mov %0, %3\n\tsub %0, #1\n\tmov %1, %3\n\tadd %1, #2\n\tb 2f\n\t"
+                                        ".balign 4, 0\n"
+                                        ".LspringDigWeights: .word gSpringMineDigOutcomeWeights\n"
+                                        ".LspringDigIds: .word gSpringMineDigOutcomeIds\n"
+                                        "1:\n\tadd %0, #1\n"
+                                        "2:\n\tcmp %0, %1\n\tbge 4f\n\tcmp %0, #0\n\tbge 3f\n\t"
+                                        "ldr r0, %6\n\tcmp %0, r0\n\tbge 1b\n"
+                                        "3:\n\tlsl r0, %0, #1\n\tadd r0, r0, %4\n\tadd r0, %5\n\t"
+                                        "ldrb r0, [r0, #4]\n\tlsl r0, r0, #28\n\tlsr r0, r0, #28\n\t"
+                                        "cmp r0, %7\n\tbne 1b\n\tmov %2, #0\n"
+                                        "4:"
+                                        : "=&l"(column), "=&l"(columnEnd), "+l"(outcome)
+                                        : "h"(x), "l"(rowBytes), "h"(mine), "m"(scratch.width), "I"(MINE_TILE_STAIRS_UP)
+                                        : "r0", "cc", "memory");
+                                    if (outcome == MINE_OUTCOME_NONE)
+                                        goto saveDigOutcome;
+                                nextNeighborRow:
+                                    rowBytes += sizeof(mine->tiles[0]);
+                                    ++row;
+                                }
+                                while (row < rowEnd);
+                            }
+                            goto saveDigOutcome;
+                        rejectBorder:
+                            asm("mov %0, #0\n\tmov r1, %3\n\tlsl r1, r1, #1\n\tmov %1, r1\n\t"
+                                "lsl r2, %4, #3\n\tmov %2, r2"
+                                : "=l"(outcome), "=h"(columnBytes), "=h"(rowScale) : "h"(x), "l"(y) : "r1", "r2", "cc");
+                        saveDigOutcome:
+                            asm volatile("mov r4, %1\n\tsub r1, r4, %2\n\tlsl r1, r1, #3\n\t"
+                                "add r1, %3\n\tadd r1, %4\n\tlsl %0, %0, #2\n\t"
+                                "ldrb r2, [r1, #5]\n\tmov r0, #3\n\tand r0, r2\n\torr r0, %0\n\tstrb r0, [r1, #5]"
+                                : "+l"(outcome) : "h"(rowScale), "l"(y), "h"(columnBytes), "h"(mine)
+                                : "r0", "r1", "r2", "r4", "cc", "memory");
+                            goto digAttemptFinished;
+                        }
+                        roll -= weight;
+                        if (roll < 0)
+                            goto digAttemptFinished;
+                    }
+                    ++outcomeIndex;
+                    if (outcomeIndex < static_cast<int>(ARRAY_COUNT(gSpringMineDigOutcomeIds)))
+                        goto rollDigOutcome;
+                }
+            }
+        digAttemptFinished:
+            asm volatile("ldr %0, %1" : "=l"(tileCursor) : "m"(scratch.nextTile));
+        }
+        while (tileCursor < scratch.tileCount);
+    }
+
+    asm("mov %0, %2\n\tldr %1, %3"
+        : "=l"(weightMineArg), "=l"(weightDepthArg) : "h"(mine), "m"(scratch.depth));
+    unsigned rockRow = GetSpringMineRockWeightRow(*weightMineArg, weightDepthArg);
+    asm volatile("str %1, %0" : "=m"(scratch.weightRow) : "l"(rockRow));
+    enum { MaxRockAttempts = 9 };
+    register int targetRocks asm("r1");
+    asm volatile("ldr %0, %1" : "=l"(targetRocks) : "m"(scratch.rockCount));
+    if (targetRocks <= 0)
+        return;
+    register int rocksRemaining asm("r2");
+    do
+    {
+        register unsigned placed asm("r8");
+        register int attempt asm("sb");
+        asm volatile("mov r2, #0\n\tmov %0, r2\n\tmov r3, #1\n\tmov %1, r3\n\t"
+            "ldr r4, %3\n\tsub r4, #1\n\tstr r4, %2"
+            : "=h"(placed), "=h"(attempt), "=m"(scratch.remainingRocks) : "m"(scratch.rockCount)
+            : "r2", "r3", "r4", "cc");
+    tryRock:
+        {
+            register unsigned x asm("r4") = (rand() >> 8) % scratch.width;
+            asm("" : "+l"(x));
+            register unsigned y asm("r7") = (rand() >> 8) % scratch.height;
+            asm("" : "+l"(y));
+            register int soilBits asm("r0");
+            asm volatile("lsl r1, %1, #1\n\tlsl r0, %2, #3\n\tsub r0, r0, %2\n\t"
+                "lsl r0, r0, #3\n\tadd r1, r1, r0\n\tadd r1, %3\n\t"
+                "ldrb r0, [r1, #4]\n\tlsl r0, r0, #28"
+                : "=l"(soilBits) : "l"(x), "l"(y), "h"(mine) : "r1", "cc", "memory");
+            if (soilBits != 0)
+                goto rockAttemptFinished;
+
+            register int reservationIndex asm("r2");
+            register MineFloorPosition const * reserved asm("r1");
+            register unsigned rowScale asm("r5");
+            register unsigned outcomeIndex asm("ip");
+            asm volatile("mov r0, #1\n\tmov %0, r0\n\tmov %1, #0\n\tldr %2, %3"
+                : "=h"(placed), "=l"(reservationIndex), "=l"(reserved) : "m"(scratch.reservedTiles) : "r0", "cc");
+            if (reserved->x != x || reserved->y != y)
+                goto nextReservedTile;
+            asm("mov %0, %1" : "=h"(placed) : "l"(reservationIndex));
+            goto checkRockPlacement;
+        applyRockOutcome:
+            {
+                register u8 * tileBase asm("r3");
+                asm("sub r3, %2, %3\n\tlsl r3, r3, #3\n\tadd %0, %1, r3\n\tadd %0, %4"
+                    : "=l"(tileBase) : "l"(x), "l"(rowScale), "l"(y), "h"(mine) : "cc");
+                register u32 const * rockIds asm("r1") = gSpringMineRockOutcomeIds;
+                asm("" : "+l"(rockIds) : "l"(tileBase));
+                register unsigned previousBits asm("r0");
+                register unsigned nextOutcomeBits asm("r2");
+                asm volatile("mov r2, %4\n\tlsl r0, r2, #2\n\tadd r0, r0, %3\n\t"
+                    "ldr r2, [r0]\n\tmov r0, #63\n\tand r2, r0\n\tlsl r2, r2, #4\n\t"
+                    "ldrh r0, [%2, #4]"
+                    : "=l"(previousBits), "=l"(nextOutcomeBits)
+                    : "l"(tileBase), "l"(rockIds), "h"(outcomeIndex) : "memory", "cc");
+                register unsigned rockMask asm("r4") = ~(63u << 4);
+                asm volatile("mov r1, %3\n\tand %0, r1\n\torr %0, %1\n\tstrh %0, [%2, #4]"
+                    : "+l"(previousBits) : "l"(nextOutcomeBits), "l"(tileBase), "l"(rockMask)
+                    : "r1", "memory", "cc");
+                goto rockAttemptFinished;
+            }
+        nextReservedTile:
+            ++reservationIndex;
+            if (reservationIndex < MineFloorPosition::ReservedCapacity)
+            {
+                asm volatile("lsl r0, %1, #2\n\tldr r3, %2\n\tadd %0, r0, r3"
+                    : "=l"(reserved) : "l"(reservationIndex), "m"(scratch.reservedTiles) : "r0", "r3", "cc");
+                if (reserved->x != x || reserved->y != y)
+                    goto nextReservedTile;
+                asm("mov r0, #0\n\tmov %0, r0" : "=h"(placed) : : "r0", "cc");
+            }
+        checkRockPlacement:
+            register unsigned canPlace asm("r1");
+            asm("mov %0, %1" : "=l"(canPlace) : "h"(placed));
+            if (canPlace != 1)
+                goto rockAttemptFinished;
+            asm volatile("lsl %0, %0, #1\n\tlsl %1, %2, #3\n\tsub r1, %1, %2\n\t"
+                "lsl r1, r1, #3\n\tadd r1, %0, r1\n\tadd r1, %3\n\t"
+                "ldrb r0, [r1, #4]\n\tmov r3, #16\n\tneg r3, r3\n\tmov r2, r3\n\t"
+                "and r0, r2\n\tmov r2, %4\n\torr r0, r2\n\tstrb r0, [r1, #4]"
+                : "+l"(x), "=l"(rowScale) : "l"(y), "h"(mine), "I"(MINE_TILE_ROCK) : "r0", "r1", "r2", "r3", "cc", "memory");
+
+            register int randomBits asm("r0") = rand();
+            register int roll asm("r2");
+            register u8 const * weights asm("r1");
+            register unsigned rockRowScale asm("r6");
+            asm volatile("asr %0, %3, #8\n\tmov r0, #255\n\tand %0, r0\n\tmov r0, #0\n\tmov %1, r0\n\t"
+                "ldr r1, %4\n\tlsl %2, r1, #2"
+                : "=l"(roll), "=h"(outcomeIndex), "=l"(rockRowScale), "+l"(randomBits)
+                : "m"(scratch.weightRow), "l"(rowScale) : "r1", "cc");
+            asm volatile("ldr %0, =gSpringMineRockOutcomeWeights\n\tldr r3, %1\n\tadd r0, %2, r3\n\t"
+                "lsl r0, r0, #1\n\tadd %0, r0, %0"
+                : "=l"(weights) : "m"(scratch.weightRow), "l"(rockRowScale) : "r0", "r3", "cc");
+            register int lowOutcome asm("r3");
+            do
+            {
+                register int weight asm("r0") = *weights;
+                asm("" : "+l"(weight));
+                if (weight != 0)
+                {
+                    if (roll < weight)
+                        goto applyRockOutcome;
+                    roll -= weight;
+                    if (roll < 0)
+                        goto rockAttemptFinished;
+                }
+                asm volatile("add %0, #1\n\tmov r0, #1\n\tadd %1, r0\n\tmov %2, %1"
+                    : "+l"(weights), "+h"(outcomeIndex), "=l"(lowOutcome) : : "r0", "cc");
+            } while (lowOutcome < static_cast<int>(ARRAY_COUNT(gSpringMineRockOutcomeIds)));
+        }
+    rockAttemptFinished:
+        register unsigned didPlace asm("r4");
+        asm("mov %0, %1" : "=l"(didPlace) : "h"(placed));
+        if (!didPlace)
+        {
+            register int attemptNumber asm("r1");
+            asm volatile("mov r0, #1\n\tadd %0, r0\n\tmov %1, %0"
+                : "+h"(attempt), "=l"(attemptNumber) : : "r0", "cc");
+            if (attemptNumber <= MaxRockAttempts)
+            {
+                asm volatile("");
+                goto tryRock;
+            }
+        }
+        asm volatile("ldr %0, %2\n\tstr %0, %1"
+            : "=l"(rocksRemaining), "=m"(scratch.rockCount) : "m"(scratch.remainingRocks));
+    } while (rocksRemaining > 0);
+}
+
 ROM_TEXT(0809D418) unsigned GetSpringMineDigWeightRow(MineFloor const &, unsigned floor)
 {
     unsigned row = 0;
@@ -982,6 +1325,334 @@ ROM_TEXT(0809D418) unsigned GetSpringMineRockWeightRow(MineFloor const &, unsign
     result = 17;
 done:
     return result;
+}
+
+EC unsigned GetLakeMineDigWeightRow(MineFloor const &, unsigned);
+EC unsigned GetLakeMineRockWeightRow(MineFloor const &, unsigned);
+EC u32 const gLakeMineDigOutcomeIds[10];
+EC u8 const gLakeMineDigOutcomeWeights[][10];
+EC u32 const gLakeMineRockOutcomeIds[14];
+EC u8 const gLakeMineRockOutcomeWeights[][14];
+
+ROM_TEXT(0809D500) void GenerateLakeMineOutcomes(MineFloor & floor, unsigned depth, int rockCount,
+    MineFloorPosition const * reservedTiles)
+{
+    struct Scratch
+    {
+        unsigned depth;
+        int rockCount;
+        MineFloorPosition const * reservedTiles;
+        unsigned width;
+        unsigned height;
+        unsigned weightRow;
+        unsigned firstTile;
+        unsigned tileCount;
+        int remainingRocks;
+        unsigned nextTile;
+    } scratch;
+    typedef char LakeMineScratchLayoutCheck[
+        sizeof(Scratch) == 0x28 && offsetof(Scratch, nextTile) == 0x24 ? 1 : -1];
+
+    register MineFloor * floorArg asm("r0") = &floor;
+    register unsigned depthArg asm("r1") = depth;
+    register int rockCountArg asm("r2") = rockCount;
+    register MineFloorPosition const * reservedArg asm("r3") = reservedTiles;
+    register MineFloor * mine asm("sl");
+    asm volatile("mov %0, %4\n\tstr %5, %1\n\tstr %6, %2\n\tstr %7, %3"
+        : "=h"(mine), "=m"(scratch.depth), "=m"(scratch.rockCount), "=m"(scratch.reservedTiles)
+        : "l"(floorArg), "l"(depthArg), "l"(rockCountArg), "l"(reservedArg));
+    register unsigned widthResult asm("r0") = GetMineFloorWidth(*floorArg);
+    asm volatile("str %1, %0" : "=m"(scratch.width) : "l"(widthResult));
+    unsigned heightResult = GetMineFloorHeight(*mine);
+    asm volatile("str %1, %0" : "=m"(scratch.height) : "l"(heightResult));
+    register MineFloor const * weightMineArg asm("r0");
+    register unsigned weightDepthArg asm("r1");
+    // The fixed y register needs an explicit callee-save in agbcc.
+    unsigned savedCalleeRegister;
+    asm volatile("" : "=l"(savedCalleeRegister) : : "r0", "r1", "r2", "r3", "r4", "r5", "r6");
+    asm("mov %0, %2\n\tldr %1, %3"
+        : "=l"(weightMineArg), "=l"(weightDepthArg) : "h"(mine), "m"(scratch.depth));
+    unsigned digRow = GetLakeMineDigWeightRow(*weightMineArg, weightDepthArg);
+    asm volatile("str %1, %0" : "=m"(scratch.weightRow) : "l"(digRow));
+    register int startingRoll asm("r0") = rand() >> 4;
+    asm("" : "+l"(startingRoll));
+    register unsigned tileCount asm("r4");
+    asm volatile("ldr r1, %1\n\tldr r2, %2\n\tmov %0, r1\n\tmul %0, r2"
+        : "=l"(tileCount) : "m"(scratch.height), "m"(scratch.width) : "r1", "r2", "cc");
+    unsigned firstTile = startingRoll % tileCount;
+    asm volatile("str %1, %0" : "=m"(scratch.firstTile) : "l"(firstTile));
+
+    // Visit every tile once, wrapping from a randomly selected start.
+    register unsigned tileCursor asm("r5") = 0;
+    asm("" : "+l"(tileCursor));
+    if (tileCursor < tileCount)
+    {
+        asm volatile("str %1, %0" : "=m"(scratch.tileCount) : "l"(tileCount));
+        do
+        {
+            register unsigned tileIndex asm("r4");
+            register unsigned limit asm("r0");
+            asm volatile("ldr r3, %2\n\tadd %0, r3, %4\n\tldr %1, %3"
+                : "=l"(tileIndex), "=l"(limit) : "m"(scratch.firstTile), "m"(scratch.tileCount), "l"(tileCursor) : "r3", "cc");
+            if (tileIndex >= limit)
+                tileIndex -= limit;
+            register unsigned tileArg asm("r0");
+            register unsigned widthArg asm("r1");
+            asm("mov %0, %2\n\tldr %1, %3"
+                : "=l"(tileArg), "=l"(widthArg) : "l"(tileIndex), "m"(scratch.width));
+            register unsigned x asm("r7") = __umodsi3(tileArg, widthArg);
+            asm("" : "+l"(x));
+            asm("mov %0, %2\n\tldr %1, %3"
+                : "=l"(tileArg), "=l"(widthArg) : "l"(tileIndex), "m"(scratch.width));
+            register unsigned y asm("r6") = __udivsi3(tileArg, widthArg);
+            asm("" : "+l"(y));
+            register int state asm("r0");
+            asm volatile("lsl r0, %2, #1\n\tlsl r1, %3, #3\n\t"
+                "sub r1, r1, %3\n\tlsl r1, r1, #3\n\tadd r0, r0, r1\n\t"
+                "add r0, %1\n\tldrb r0, [r0, #4]\n\tlsl r0, r0, #28\n\tlsr r0, r0, #28"
+                : "=l"(state) : "h"(mine), "l"(x), "l"(y) : "r1", "cc", "memory");
+            asm volatile("add %1, #1\n\tstr %1, %0"
+                : "=m"(scratch.nextTile), "+l"(tileCursor) : : "cc");
+            if (state <= MINE_TILE_DUG_SOIL)
+            {
+                register int randomBits asm("r0") = rand();
+                register int roll asm("r2");
+                asm("asr %0, %1, #4\n\tmov r0, #255\n\tand %0, r0"
+                    : "=l"(roll), "+l"(randomBits) : : "cc");
+                register int outcomeIndex asm("r3") = 0;
+                register u8 const * weights asm("r1");
+                asm volatile("ldr r1, %1\n\tlsl r0, r1, #2\n\tldr %0, .LlakeDigWeights\n\t"
+                    "ldr r4, %1\n\tadd r0, r0, r4\n\tlsl r0, r0, #1\n\tadd %0, r0, %0"
+                    : "=l"(weights) : "m"(scratch.weightRow), "l"(outcomeIndex) : "r0", "r4", "cc");
+            rollDigOutcome:
+                {
+                    register int weight asm("r0");
+                    asm volatile("ldrb %0, [%1]" : "=l"(weight) : "l"(weights) : "memory");
+                    if (weight != 0)
+                    {
+                        if (roll < weight)
+                        {
+                            register unsigned outcome asm("r3");
+                            asm("ldr r1, .LlakeDigIds\n\tlsl r0, %1, #2\n\tadd r0, r0, r1\n\tldr %0, [r0]"
+                                : "=l"(outcome) : "l"(outcomeIndex) : "r0", "r1", "memory", "cc");
+                            register unsigned columnBytes asm("sb");
+                            register unsigned rowScale asm("r8");
+                            asm volatile("lsl r0, %3, #1\n\tmov %0, r0\n\tlsl r1, %4, #3\n\tmov %1, r1"
+                                : "=h"(columnBytes), "=h"(rowScale) : "l"(outcome), "l"(x), "l"(y) : "r0", "r1", "cc");
+                            if (outcome != MINE_OUTCOME_STAIRS)
+                                goto saveDigOutcome;
+                            // Down stairs cannot touch the border or the up stairs.
+                            asm("" : "+l"(y));
+                            if (y == 0)
+                                goto rejectBorder;
+                            asm volatile("" : : "l"(y));
+                            register unsigned lastRow asm("r0");
+                            asm volatile("ldr %0, %1\n\tsub %0, #1"
+                                : "=l"(lastRow) : "m"(scratch.height) : "cc");
+                            if (y >= lastRow)
+                                goto rejectBorder;
+                            asm("" : "+l"(x));
+                            if (x == 0)
+                                goto rejectBorder;
+                            register unsigned lastColumn asm("r0");
+                            asm volatile("ldr %0, %1\n\tsub %0, #1"
+                                : "=l"(lastColumn) : "m"(scratch.width) : "cc");
+                            if (x >= lastColumn)
+                                goto rejectBorder;
+                            register int row asm("r4");
+                            register int rowEnd asm("ip");
+                            asm("sub %0, %2, #1\n\tadd r2, %2, #2\n\tmov %1, r2"
+                                : "=l"(row), "=h"(rowEnd) : "l"(y) : "r2", "cc");
+                            register int rowBytes asm("r5");
+                            if (row < rowEnd)
+                            {
+                                asm("lsl r0, %1, #3\n\tsub r0, r0, %1\n\tlsl %0, r0, #3"
+                                    : "=l"(rowBytes) : "l"(row) : "r0", "cc");
+                                do
+                                {
+                                    if (row < 0)
+                                        goto nextNeighborRow;
+                                    register int rowLimit asm("r0");
+                                    asm volatile("ldr %0, %1" : "=l"(rowLimit) : "m"(scratch.height));
+                                    if (row >= rowLimit)
+                                        goto nextNeighborRow;
+                                    register int column asm("r2");
+                                    register int columnEnd asm("r1");
+                                    // The row scan skips a column only when it is negative and not below width.
+                                    asm volatile(
+                                        "sub %0, %3, #1\n\tadd %1, %3, #2\n\tb 2f\n\t"
+                                        ".balign 4, 0\n"
+                                        ".LlakeDigWeights: .word gLakeMineDigOutcomeWeights\n"
+                                        ".LlakeDigIds: .word gLakeMineDigOutcomeIds\n"
+                                        "1:\n\tadd %0, #1\n"
+                                        "2:\n\tcmp %0, %1\n\tbge 4f\n\tcmp %0, #0\n\tbge 3f\n\t"
+                                        "ldr r0, %6\n\tcmp %0, r0\n\tbge 1b\n"
+                                        "3:\n\tlsl r0, %0, #1\n\tadd r0, r0, %4\n\tadd r0, %5\n\t"
+                                        "ldrb r0, [r0, #4]\n\tlsl r0, r0, #28\n\tlsr r0, r0, #28\n\t"
+                                        "cmp r0, %7\n\tbne 1b\n\tmov %2, #0\n"
+                                        "4:"
+                                        : "=&l"(column), "=&l"(columnEnd), "+l"(outcome)
+                                        : "l"(x), "l"(rowBytes), "h"(mine), "m"(scratch.width), "I"(MINE_TILE_STAIRS_UP)
+                                        : "r0", "cc", "memory");
+                                    if (outcome == MINE_OUTCOME_NONE)
+                                        goto saveDigOutcome;
+                                nextNeighborRow:
+                                    rowBytes += sizeof(mine->tiles[0]);
+                                    ++row;
+                                }
+                                while (row < rowEnd);
+                            }
+                            goto saveDigOutcome;
+                        rejectBorder:
+                            asm("mov %0, #0\n\tlsl %3, %3, #1\n\tmov %1, %3\n\tlsl r1, %4, #3\n\tmov %2, r1"
+                                : "=l"(outcome), "=h"(columnBytes), "=h"(rowScale), "+l"(x) : "l"(y) : "r1", "cc");
+                        saveDigOutcome:
+                            asm volatile("mov r2, %1\n\tsub r1, r2, %2\n\tlsl r1, r1, #3\n\t"
+                                "add r1, %3\n\tadd r1, %4\n\tlsl %0, %0, #2\n\t"
+                                "ldrb r2, [r1, #5]\n\tmov r0, #3\n\tand r0, r2\n\torr r0, %0\n\tstrb r0, [r1, #5]"
+                                : "+l"(outcome) : "h"(rowScale), "l"(y), "h"(columnBytes), "h"(mine)
+                                : "r0", "r1", "r2", "cc", "memory");
+                            goto digAttemptFinished;
+                        }
+                        roll -= weight;
+                        if (roll < 0)
+                            goto digAttemptFinished;
+                    }
+                    asm volatile("add %0, #1\n\tadd %1, #1" : "+l"(weights), "+l"(outcomeIndex) : : "cc");
+                    if (outcomeIndex < static_cast<int>(ARRAY_COUNT(gLakeMineDigOutcomeIds)))
+                        goto rollDigOutcome;
+                }
+            }
+        digAttemptFinished:
+            asm volatile("ldr %0, %1" : "=l"(tileCursor) : "m"(scratch.nextTile));
+            register unsigned tileLimit asm("r3");
+            asm volatile("ldr %0, %1" : "=l"(tileLimit) : "m"(scratch.tileCount));
+            if (tileCursor >= tileLimit)
+                break;
+        }
+        while (true);
+    }
+
+    asm("mov %0, %2\n\tldr %1, %3"
+        : "=l"(weightMineArg), "=l"(weightDepthArg) : "h"(mine), "m"(scratch.depth));
+    unsigned rockRow = GetLakeMineRockWeightRow(*weightMineArg, weightDepthArg);
+    asm volatile("str %1, %0" : "=m"(scratch.weightRow) : "l"(rockRow));
+    enum { MaxRockAttempts = 9 };
+    register int targetRocks asm("r4");
+    asm volatile("ldr %0, %1" : "=l"(targetRocks) : "m"(scratch.rockCount));
+    if (targetRocks <= 0)
+        return;
+    register int rocksRemaining asm("r2");
+    do
+    {
+        register unsigned placed asm("r8");
+        register int attempt asm("sb");
+        asm volatile("mov r0, #0\n\tmov %0, r0\n\tmov r1, #1\n\tmov %1, r1\n\t"
+            "ldr r2, %3\n\tsub r2, #1\n\tstr r2, %2"
+            : "=h"(placed), "=h"(attempt), "=m"(scratch.remainingRocks) : "m"(scratch.rockCount)
+            : "r0", "r1", "r2", "cc");
+    tryRock:
+        {
+            register unsigned x asm("r4") = (rand() >> 8) % scratch.width;
+            asm("" : "+l"(x));
+            register unsigned y asm("r6") = (rand() >> 8) % scratch.height;
+            asm("" : "+l"(y));
+            register int soilBits asm("r0");
+            asm volatile("lsl r1, %1, #1\n\tlsl r0, %2, #3\n\tsub r0, r0, %2\n\t"
+                "lsl r0, r0, #3\n\tadd r1, r1, r0\n\tadd r1, %3\n\t"
+                "ldrb r0, [r1, #4]\n\tlsl r0, r0, #28"
+                : "=l"(soilBits) : "l"(x), "l"(y), "h"(mine) : "r1", "cc", "memory");
+            if (soilBits != 0)
+                goto rockAttemptFinished;
+
+            register int reservationIndex asm("r2");
+            register MineFloorPosition const * reserved asm("r1");
+            register unsigned rowScale asm("r5");
+            register int outcomeIndex asm("r7");
+            asm volatile("mov r3, #1\n\tmov %0, r3\n\tmov %1, #0\n\tldr %2, %3"
+                : "=h"(placed), "=l"(reservationIndex), "=l"(reserved) : "m"(scratch.reservedTiles) : "r3", "cc");
+            if (reserved->x != x || reserved->y != y)
+                goto nextReservedTile;
+            asm("mov %0, %1" : "=h"(placed) : "l"(reservationIndex));
+            goto checkRockPlacement;
+        applyRockOutcome:
+            {
+                register u8 * tileBase asm("r3");
+                asm("sub r3, %2, %3\n\tlsl r3, r3, #3\n\tadd %0, %1, r3\n\tadd %0, %4"
+                    : "=l"(tileBase) : "l"(x), "l"(rowScale), "l"(y), "h"(mine) : "cc");
+                register u32 const * rockIds asm("r1") = gLakeMineRockOutcomeIds;
+                asm("" : "+l"(rockIds) : "l"(tileBase));
+                register unsigned previousBits asm("r0");
+                register unsigned nextOutcomeBits asm("r2");
+                asm volatile("lsl r0, %4, #2\n\tadd r0, r0, %3\n\t"
+                    "ldr r2, [r0]\n\tmov r0, #63\n\tand r2, r0\n\tlsl r2, r2, #4\n\t"
+                    "ldrh r0, [%2, #4]"
+                    : "=l"(previousBits), "=l"(nextOutcomeBits)
+                    : "l"(tileBase), "l"(rockIds), "l"(outcomeIndex) : "memory", "cc");
+                register unsigned rockMask asm("r4") = ~(63u << 4);
+                asm volatile("mov r1, %3\n\tand %0, r1\n\torr %0, %1\n\tstrh %0, [%2, #4]"
+                    : "+l"(previousBits) : "l"(nextOutcomeBits), "l"(tileBase), "l"(rockMask)
+                    : "r1", "memory", "cc");
+                goto rockAttemptFinished;
+            }
+        nextReservedTile:
+            ++reservationIndex;
+            if (reservationIndex < MineFloorPosition::ReservedCapacity)
+            {
+                asm volatile("lsl r0, %1, #2\n\tldr r3, %2\n\tadd %0, r0, r3"
+                    : "=l"(reserved) : "l"(reservationIndex), "m"(scratch.reservedTiles) : "r0", "r3", "cc");
+                if (reserved->x != x || reserved->y != y)
+                    goto nextReservedTile;
+                asm("mov r0, #0\n\tmov %0, r0" : "=h"(placed) : : "r0", "cc");
+            }
+        checkRockPlacement:
+            register unsigned canPlace asm("r1");
+            asm("mov %0, %1" : "=l"(canPlace) : "h"(placed));
+            if (canPlace != 1)
+                goto rockAttemptFinished;
+            asm volatile("lsl %0, %0, #1\n\tlsl %1, %2, #3\n\tsub r1, %1, %2\n\t"
+                "lsl r1, r1, #3\n\tadd r1, %0, r1\n\tadd r1, %3\n\t"
+                "ldrb r0, [r1, #4]\n\tmov r3, #16\n\tneg r3, r3\n\tmov r2, r3\n\t"
+                "and r0, r2\n\tmov r2, %4\n\torr r0, r2\n\tstrb r0, [r1, #4]"
+                : "+l"(x), "=l"(rowScale) : "l"(y), "h"(mine), "I"(MINE_TILE_ROCK) : "r0", "r1", "r2", "r3", "cc", "memory");
+
+            register int randomBits asm("r0") = rand();
+            register int roll asm("r2");
+            register u8 const * weights asm("r1");
+            asm volatile("asr %0, %3, #8\n\tmov r0, #255\n\tand %0, r0\n\tmov %1, #0\n\t"
+                "ldr %2, =gLakeMineRockOutcomeWeights\n\tldr r3, %4\n\tlsl r0, r3, #3\n\t"
+                "sub r0, r0, r3\n\tlsl r0, r0, #1\n\tadd %2, r0, %2"
+                : "=l"(roll), "=l"(outcomeIndex), "=l"(weights), "+l"(randomBits)
+                : "m"(scratch.weightRow), "l"(rowScale) : "r3", "cc");
+            do
+            {
+                register int weight asm("r0") = *weights;
+                asm("" : "+l"(weight));
+                if (weight != 0)
+                {
+                    if (roll < weight)
+                        goto applyRockOutcome;
+                    roll -= weight;
+                    if (roll < 0)
+                        goto rockAttemptFinished;
+                }
+                asm volatile("add %0, #1\n\tadd %1, #1" : "+l"(weights), "+l"(outcomeIndex) : : "cc");
+            } while (outcomeIndex < static_cast<int>(ARRAY_COUNT(gLakeMineRockOutcomeIds)));
+        }
+    rockAttemptFinished:
+        register unsigned didPlace asm("r4");
+        asm("mov %0, %1" : "=l"(didPlace) : "h"(placed));
+        if (!didPlace)
+        {
+            register int attemptNumber asm("r1");
+            asm volatile("mov r0, #1\n\tadd %0, r0\n\tmov %1, %0"
+                : "+h"(attempt), "=l"(attemptNumber) : : "r0", "cc");
+            if (attemptNumber <= MaxRockAttempts)
+                goto tryRock;
+        }
+        asm volatile("ldr %0, %2\n\tstr %0, %1"
+            : "=l"(rocksRemaining), "=m"(scratch.rockCount) : "m"(scratch.remainingRocks));
+    } while (rocksRemaining > 0);
 }
 
 ROM_TEXT(0809D79C) unsigned GetLakeMineDigWeightRow(MineFloor const &, unsigned floor)
@@ -1288,15 +1959,6 @@ struct MineWeightContext
     STRUCT_PAD(0, 0x1BD8);
     Farmer farmer;
 };
-
-EC u32 const gLakeMineDigOutcomeIds[];
-EC u8 const gLakeMineDigOutcomeWeights[][10];
-EC u32 const gLakeMineRockOutcomeIds[];
-EC u8 const gLakeMineRockOutcomeWeights[][14];
-EC u32 const gSpringMineDigOutcomeIds[];
-EC u8 const gSpringMineDigOutcomeWeights[][5];
-EC u32 const gSpringMineRockOutcomeIds[];
-EC u8 const gSpringMineRockOutcomeWeights[][10];
 
 static inline void CopyMineOutcomeWeights(u8 * weightsByOutcome, u32 const * outcomes, u8 const * weights, int count)
 {
