@@ -34,6 +34,18 @@ def fixture(compressed=True):
 
 
 class UiGraphicsTests(unittest.TestCase):
+    def test_b55_parent_palette_banks_overwritten_by_panel_copy(self):
+        entry = dict(next(entry for entry in ui.SCENES if entry["name"] == "minigame-b55"), width=1, height=1)
+        for bank in range(8):
+            value = bank << 12
+            self.assertEqual(ui.map_values(struct.pack("<H", value), entry, b"\x11" * 32), [value])
+        for bank in range(8, 16):
+            for tiles in (bytes(32), b"\x11" * 32):
+                with self.assertRaisesRegex(ValueError, "overwritten by its loader"):
+                    ui.map_values(struct.pack("<H", bank << 12), entry, tiles)
+        with self.assertRaisesRegex(ValueError, "tilemap"):
+            ui.map_values(b"", entry, bytes(32))
+
     def test_shared_parent_palette_keeps_actual_bank_tags(self):
         entry = ui.scene("parent", 1, (2, 32), ((3, 0),), 0, 0, 1, 1, base=7, palette_parent=4)
         streams = {1: {"raw": b"\x11" * 32}, 3: {"raw": b"\x00\x20"}}

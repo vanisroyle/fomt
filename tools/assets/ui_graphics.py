@@ -10,12 +10,12 @@ import more_graphics as world
 import unpack_codec as codec
 
 
-def scene(name, tiles, palette, maps, tile_ref, palette_ref, width, height, base=0, compressed=True, shapes=None, animation=None, tile_base=0, external=False, palette_parent=None, palette_parent_base=0):
+def scene(name, tiles, palette, maps, tile_ref, palette_ref, width, height, base=0, compressed=True, shapes=None, animation=None, tile_base=0, external=False, palette_parent=None, palette_parent_base=0, palette_limit=None):
     return {"name": name, "tiles": tiles, "palette": palette[0], "palette_size": palette[1],
             "palette_base": base, "maps": maps, "tile_refs": (tile_ref,), "palette_refs": (palette_ref,),
             "width": width, "height": height, "maps_compressed": compressed,
             "shapes": shapes or {}, "animation": animation, "tile_base": tile_base, "external": external,
-            "palette_parent": palette_parent, "palette_parent_base": palette_parent_base}
+            "palette_parent": palette_parent, "palette_parent_base": palette_parent_base, "palette_limit": palette_limit}
 
 
 SCENES = (
@@ -51,7 +51,7 @@ SCENES = (
           0x55094, 0x55098, 32, 20, shapes={0x738CF0: (32, 5)}, animation=(0x739A64, 0x5509C, 48)),
     scene("minigame-b55", 0x72C84C, (0x72D5AC, 32),
           ((0x72C5D0, 0xB5754), (0x72C73C, 0xB575C)),
-          0xB5764, 0xB576C, 32, 32, base=7, palette_parent=0x6FD19C),
+          0xB5764, 0xB576C, 32, 32, base=7, palette_parent=0x6FD19C, palette_limit=8),
 )
 
 PATCHES = (
@@ -131,6 +131,8 @@ def map_values(raw, entry, tiles, original=None):
     values = [v for (v,) in struct.iter_unpack("<H", raw)]
     for i, value in enumerate(values):
         tile, bank = (value & 1023) - entry["tile_base"], value >> 12
+        if entry["palette_limit"] is not None and bank >= entry["palette_limit"]:
+            raise ValueError("UI map references a palette bank overwritten by its loader")
         if not 0 <= tile < len(tiles) // 32:
             if entry["external"] and (original is None or raw[i * 2:i * 2 + 2] == original[i * 2:i * 2 + 2]):
                 continue

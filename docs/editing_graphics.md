@@ -610,6 +610,15 @@ the already editable chicken-feeding map, and the Frisbee animation prefix.
 An unknown reference fails clearly rather than silently changing another
 scene's loaded colors. Raw palette sizes remain fixed.
 
+The B55 panel loader first unpacks the parent palette at `080B561C`, then
+DMA-copies 512 bytes from `72D5AC` to `050000E0` at `080B5640`.
+Only the first 32 source bytes belong to its panel palette (bank 7); the
+following compressed bytes overwrite BG banks 8–15 (and part of OBJ palette
+RAM). Parent-owned banks 0–6 and panel-owned bank 7 remain usable. B55 maps
+reject banks 8–15, including blank-tile references, rather than previewing
+parent colors the loader overwrites. The original two maps use only banks
+0/2 and 0/7 respectively, so unmodified sources remain byte-identical.
+
 ```sh
 make assets-test
 python3 tools/assets/graphics_assets.py roundtrip --output build/assets
