@@ -495,7 +495,7 @@ func_08003B40: @ 0x08003B40
 .L08003B90: .4byte 0x00000889
 .L08003B94:
     adds r0, r5, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
 .L08003B9A:
     ldr r1, [sp, #4]
     rsbs r0, r1, #0
@@ -549,7 +549,7 @@ func_08003BB4: @ 0x08003BB4
 .L08003C04: .4byte 0x00000889
 .L08003C08:
     adds r0, r5, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
 .L08003C0E:
     ldr r1, [sp, #4]
     rsbs r0, r1, #0
@@ -758,7 +758,7 @@ func_08003F9C: @ 0x08003F9C
     adds r4, #0x90
     adds r0, r4, #0
     mov r1, r8
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     str r0, [sp, #4]
     movs r0, #3
     mov sb, r0
@@ -881,7 +881,7 @@ func_080040A0: @ 0x080040A0
     adds r4, #0x90
     adds r0, r4, #0
     mov r1, r8
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     mov sl, r0
     movs r0, #0
     str r0, [sp, #8]
@@ -903,7 +903,7 @@ func_080040A0: @ 0x080040A0
     adds r1, #0x90
     mov r2, sl
     mov r3, sb
-    bl func_08011650
+    bl SaveData_LoadFromStorage
     adds r1, r0, #0
     str r1, [sp, #4]
     ldr r0, [sp, #8]
@@ -1034,7 +1034,7 @@ func_080041DC: @ 0x080041DC
     strb r0, [r1]
     strb r5, [r1, #1]
     adds r0, r7, #0
-    bl func_08008574
+    bl HardwareContext_InitializeWithOamReservation
     ldr r0, .L080043B0 @ =vtable_unk_080E5A5C
     str r0, [r7, #4]
     str r4, [r7, #8]
@@ -1181,7 +1181,7 @@ func_080041DC: @ 0x080041DC
     mov r2, r8
     ldr r1, [r2, #4]
     mov r0, r8
-    bl func_08007D4C
+    bl TileHandle_GetTileIndex
     ldr r3, .L080043B8 @ =0x000003FF
     adds r1, r3, #0
     ands r0, r1
@@ -1195,7 +1195,7 @@ func_080041DC: @ 0x080041DC
     ldr r3, [sp, #0x44]
     ldr r1, [r3, #4]
     adds r0, r3, #0
-    bl func_080074C0
+    bl ResourceHandle_GetIndex
     lsls r0, r0, #4
     ldr r1, [sp, #0x50]
     ldrb r2, [r1]
@@ -1228,7 +1228,7 @@ func_080041DC: @ 0x080041DC
     bge .L08004426
     mov r0, sb
     adds r1, r4, #0
-    bl func_080003DC
+    bl SaveSlot_GetSramOffset
     mov r8, r0
     movs r0, #0
     str r0, [sp, #0x3c]
@@ -1262,7 +1262,7 @@ func_080041DC: @ 0x080041DC
     mov r1, sb
     mov r2, r8
     adds r3, r6, #0
-    bl func_08011650
+    bl SaveData_LoadFromStorage
     adds r2, r0, #0
     str r2, [sp, #0x34]
     ldr r0, [sp, #0x3c]
@@ -1460,7 +1460,7 @@ func_08004570: @ 0x08004570
     str r0, [sp, #0x58]
     adds r6, r1, #0
     adds r0, r6, #0
-    bl func_08008724
+    bl HardwareContext_ForceBlank
     adds r0, r6, #0
     bl HardwareContext_GetDisplayRegisters
     adds r5, r0, #0
@@ -1530,7 +1530,7 @@ func_08004570: @ 0x08004570
     adds r0, r6, #0
     adds r0, #0x4c
     ldr r1, [r0, #4]
-    bl func_08007D4C
+    bl TileHandle_GetTileIndex
     adds r1, r0, #0
     lsls r1, r1, #5
     ldr r0, .L080046C0 @ =0x06010000
@@ -1542,7 +1542,7 @@ func_08004570: @ 0x08004570
     adds r0, r6, #0
     adds r0, #0x54
     ldr r1, [r0, #4]
-    bl func_080074C0
+    bl ResourceHandle_GetIndex
     adds r1, r0, #0
     lsls r1, r1, #5
     ldr r2, .L080046C4 @ =0x05000200
@@ -1567,7 +1567,7 @@ func_08004570: @ 0x08004570
     mov sl, r0
 .L08004674:
     adds r0, r6, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
     adds r0, r6, #0
     bl HardwareContext_UpdateKeys
     adds r0, r6, #0
@@ -2222,7 +2222,7 @@ func_08004C68: @ 0x08004C68
     sub sp, #0x5c
     str r0, [sp, #0x4c]
     add r0, sp, #4
-    bl func_08008980
+    bl VBlankDispatcher_Initialize
     movs r0, #0x23
     bl Audio_StartOrChangeSong
     add r4, sp, #8
@@ -2524,7 +2524,7 @@ func_08004EFC: @ 0x08004EFC
     adds r6, r1, #0
     mov r8, r2
     str r3, [sp, #0x24]
-    bl func_08008444
+    bl HardwareContext_Initialize
     ldr r0, .L080050A4 @ =vtable_unk_080E5A98
     str r0, [r7, #4]
     movs r0, #3
@@ -2782,7 +2782,7 @@ func_080050F8: @ 0x080050F8
     mov r8, r0
 .L08005174:
     adds r0, r6, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
     adds r0, r6, #0
     bl HardwareContext_UpdateKeys
     adds r0, r6, #0
@@ -3646,7 +3646,7 @@ func_08005A58: @ 0x08005A58
     adds r5, r0, #0
     mov r8, r1
     adds r7, r2, #0
-    bl func_08008444
+    bl HardwareContext_Initialize
     ldr r0, .L08005B1C @ =vtable_unk_080E5AB4
     str r0, [r5, #4]
     movs r0, #7
@@ -3749,21 +3749,21 @@ func_08005B68: @ 0x08005B68
     adds r7, r0, #0
     adds r6, r1, #0
     adds r0, r6, #0
-    bl func_08008724
+    bl HardwareContext_ForceBlank
     mov r0, sp
     bl func_08007874
     movs r5, #0
     str r5, [sp, #4]
     mov r0, sp
     movs r1, #0
-    bl func_08007C28
+    bl TileHandle_Release
     mov r0, sp
     movs r1, #3
     bl func_08007B54
     adds r1, r0, #0
     str r1, [sp, #4]
     mov r0, sp
-    bl func_08007D4C
+    bl TileHandle_GetTileIndex
     adds r4, r0, #0
     adds r0, r6, #0
     bl func_08005CDC
@@ -3812,7 +3812,7 @@ func_08005B68: @ 0x08005B68
     bge .L08005C58
 .L08005C0E:
     adds r0, r6, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
     ldr r0, [sp, #0xc]
     rsbs r1, r0, #0
     orrs r1, r0
@@ -3838,7 +3838,7 @@ func_08005B68: @ 0x08005B68
     adds r0, r6, #0
     bl func_08006ED8
     adds r0, r6, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
 .L08005C58:
     ldr r1, .L08005C80 @ =0x00004636
     adds r0, r6, r1
@@ -3862,7 +3862,7 @@ func_08005B68: @ 0x08005B68
 .L08005C84: .4byte 0x00000889
 .L08005C88:
     adds r0, r6, #0
-    bl func_080087C8
+    bl HardwareContext_CommitFrame
 .L08005C8E:
     ldr r1, [sp, #0xc]
     rsbs r0, r1, #0
@@ -3889,7 +3889,7 @@ func_08005B68: @ 0x08005B68
     bl DisplayFadeTask_Destroy
     ldr r1, [sp, #4]
     mov r0, sp
-    bl func_08007C28
+    bl TileHandle_Release
     mov r0, sp
     movs r1, #2
     bl TileHeapOwner_Destroy

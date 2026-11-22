@@ -1,4 +1,6 @@
 #include "prelude.h"
+#include "dma_queue.hh"
+#include "key_repeat.hh"
 #include "m4a.h"
 #include "gbasvc.h"
 #include "unknown_inlines.hh"
@@ -134,6 +136,31 @@ ResourceHandleOwner::~ResourceHandleOwner()
     }
 }
 
+// 0x080073E0
+EC void SECTION(".text.ResourceHandle_Release") ResourceHandle_Release(ResourceHandleOwner * self, u32 handle)
+{
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
+    bool generation_matches;
+    int generation_status;
+    if (handle != 0)
+    {
+        u32 index = HardwareHandle(handle).Index();
+        if (registry->IsAllocated(index))
+        {
+            ResourceHandleEntry * entry = &registry->GetEntry(index);
+            generation_status = registry->Matches(*entry, handle);
+            generation_matches = generation_status;
+            if (generation_matches && --entry->params.ref_count == 0)
+            {
+                entry->params.generation = 0;
+                registry->FreeEntry(entry);
+                registry->ClearAllocated(index);
+                --registry->allocated_count;
+            }
+        }
+    }
+}
+
 // 0x0800745C
 EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner * self, u32 handle)
 {
@@ -154,6 +181,28 @@ EC u32 SECTION(".text.handle_retain") ResourceHandle_Retain(ResourceHandleOwner 
         }
     }
     return 0;
+}
+
+// 0x080074C0
+EC u32 SECTION(".text.ResourceHandle_GetIndex") ResourceHandle_GetIndex(ResourceHandleOwner * self, u32 handle)
+{
+    ResourceHandleRegistry * registry = gResourceHandleRegistry;
+    u32 result;
+    bool generation_matches;
+    if (handle != 0)
+    {
+        u32 index = HardwareHandle(handle).Index();
+        if (registry->IsAllocated(index))
+        {
+            ResourceHandleEntry * entry = &registry->GetEntry(index);
+            generation_matches = registry->Matches(*entry, handle);
+            result = index;
+            if (generation_matches)
+                return result;
+        }
+    }
+    result = ~0u;
+    return result;
 }
 
 // 0x08007510
@@ -200,7 +249,7 @@ EC SECTION(".text.ResourcePool_Initialize") ResourcePool * ResourcePool_Initiali
     return self;
 }
 
-EC void func_080073E0(ResourceHandleOwner *, u32);
+EC void ResourceHandle_Release(ResourceHandleOwner *, u32);
 EC u32 func_0800736C(ResourceHandleOwner *);
 EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
 
@@ -213,7 +262,7 @@ EC void SECTION(".text.ResourcePool_Destroy") ResourcePool_Destroy(ResourcePool 
         ResourceHandleValue * end = storage->end;
         for (ResourceHandleValue * value = storage->begin; value != end; ++value)
         {
-            func_080073E0(&value->owner, value->handle);
+            ResourceHandle_Release(&value->owner, value->handle);
             ResourceHandles_Destroy(&value->owner, 2);
         }
         if (storage->begin != nullptr)
@@ -262,8 +311,44 @@ EC SECTION(".text.ResourcePool_Acquire") ResourceHandleValue * ResourcePool_Acqu
 
 struct AllocationBitset
 {
+    bool IsFull() const { return bits + 1u == 0; }
+    bool IsEmpty() const { return bits == 0; }
     u32 bits;
 };
+
+// 0x080077DC
+EC u32 SECTION(".text.AllocationBitset_AllocateBlock") AllocationBitset_AllocateBlock(AllocationBitset * self, u32 order)
+{
+    u32 occupied_bits;
+    if (!self->IsFull())
+    {
+        if (self->IsEmpty())
+        {
+            self->bits |= (1u << (1u << order)) - 1;
+            return 0;
+        }
+        if (order <= 4)
+        {
+            u32 bits = self->bits;
+            u32 width = 1u << order;
+            u32 index = 0;
+            u32 mask = (1u << width) - 1;
+            occupied_bits = bits;
+            do
+            {
+                if ((occupied_bits & mask) == 0)
+                {
+                    self->bits |= mask;
+                    return index;
+                }
+                index += width;
+                mask <<= width;
+            }
+            while (mask != 0);
+        }
+    }
+    return 32;
+}
 
 // 0x08007844
 EC void SECTION(".text.AllocationBitset_FreeBlock") AllocationBitset_FreeBlock(AllocationBitset * self, u32 index, u32 order)
@@ -310,12 +395,107 @@ EC void SECTION(".text.AllocationTree_MarkEmpty") AllocationTree_MarkEmpty(Alloc
     self->empty = 1;
 }
 
+EC u32 func_080D7568(AllocationTreeBranch *, u32);
+
+inline bool AllocationTreeBranchIndex_IsValid(u32 index) { return index <= 511; }
+
+// 0x08008020
+EC u32 SECTION(".text.AllocationTree_AllocateBlock") AllocationTree_AllocateBlock(AllocationTree * self, u32 order)
+{
+    i32 full;
+    do
+    {
+        if (order <= 9)
+        {
+            i32 child_index = 0;
+            AllocationTreeBranch * child = &self->children[0];
+            do
+            {
+                full = child->full;
+                if (full == 0)
+                {
+                    u32 tile_index = func_080D7568(child, order);
+                    if (AllocationTreeBranchIndex_IsValid(tile_index))
+                    {
+                        self->empty = full;
+                        self->full = self->children[0].full && self->children[1].full;
+                        return (child_index << 9) | tile_index;
+                    }
+                }
+                ++child;
+                ++child_index;
+            }
+            while (child_index <= 1);
+        }
+        else if (order == 10 && self->empty != 0)
+        {
+            AllocationTree_MarkFull(self);
+            return 0;
+        }
+    }
+    while (0);
+    return 1024;
+}
+
 struct TileHeapOwner {};
+
+EC void func_080D76C0(AllocationTreeBranch *, u32, u32);
+
+inline u8 AllocationTreeBranch_GetEmptyFlag(AllocationTreeBranch const * child) { return child->empty; }
+
+// 0x080080A0
+EC void SECTION(".text.AllocationTree_FreeBlock") AllocationTree_FreeBlock(AllocationTree * self, u32 tile_index, u32 order)
+{
+    if (order <= 9)
+    {
+        u32 child_selector = tile_index & 512;
+        AllocationTreeBranch * first_child = &self->children[0];
+        AllocationTreeBranch * child = first_child;
+        if (child_selector)
+            child = &self->children[1];
+        func_080D76C0(child, tile_index, order);
+        self->full = 0;
+        self->empty = first_child->empty && AllocationTreeBranch_GetEmptyFlag(&self->children[1]);
+    }
+    else if (order == 10)
+        AllocationTree_MarkEmpty(self);
+}
+
+union TileHeapEntry
+{
+    TileHeapEntry * next_free;
+    struct
+    {
+        u16 tile_index : 10;
+        u16 order : 4;
+        u16 reserved : 2;
+        u16 ref_count;
+        u16 generation;
+        u16 alignment_padding;
+    } params;
+};
+
+struct TileHeapEntryPool
+{
+    TileHeapEntry & GetEntry(u32 index) { return entries[index]; }
+    void FreeEntry(TileHeapEntry * entry) { entry->next_free = free_head; free_head = entry; }
+    TileHeapEntry * free_head;
+    TileHeapEntry entries[256];
+};
 
 struct TileHeapState
 {
+    bool IsAllocated(u32 index) const
+    {
+        return index < 256 && (allocated_mask[index / 32] & (1u << (index % 32))) != 0;
+    }
+    void ClearAllocated(u32 index)
+    {
+        if (index < 256)
+            allocated_mask[index / 32] &= ~(1u << (index % 32));
+    }
     u32 allocated_mask[8];
-    u8 entry_pool[0x804];
+    TileHeapEntryPool entry_pool;
     AllocationTree tree;
     u16 allocated_count;
     u16 next_generation;
@@ -325,6 +505,153 @@ struct TileHeapState
 };
 
 extern TileHeapState * gTileHeapState; // 0x03000408
+
+union TileHandle
+{
+    u32 value;
+    u8 bytes[4];
+    struct
+    {
+        u32 index : 8;
+        u32 generation : 16;
+    } fields;
+    TileHandle(u32 value) : value(value) {}
+    u32 Index() const { return bytes[0]; }
+};
+
+inline bool TileHeapEntry_Matches(TileHeapEntry const & entry, u32 handle)
+{
+    return u16(handle >> 8) == entry.params.generation;
+}
+
+
+// 0x08007C28
+EC void SECTION(".text.TileHandle_Release") TileHandle_Release(TileHeapOwner * self, u32 handle)
+{
+    int no_references;
+    TileHeapState * heap = gTileHeapState;
+    TileHeapState * allocation_heap;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        allocation_heap = heap;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            no_references = 0;
+            if (generation_matches)
+            {
+                u16 ref_count = --entry->params.ref_count;
+                if (ref_count == no_references)
+                {
+                    AllocationTree_FreeBlock(&heap->tree, entry->params.tile_index, entry->params.order);
+                    entry->params.generation = ref_count;
+                    heap->entry_pool.FreeEntry(entry);
+                    heap->ClearAllocated(entry_index);
+                    --allocation_heap->allocated_count;
+                }
+            }
+        }
+    }
+}
+
+// 0x08007CD8
+EC u32 SECTION(".text.TileHandle_Retain") TileHandle_Retain(TileHeapOwner * self, u32 handle)
+{
+    u16 retained_ref_count;
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    int generation_status;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_status = TileHeapEntry_Matches(*entry, handle);
+            generation_matches = generation_status;
+            if (generation_matches)
+            {
+                u16 previous_ref_count = entry->params.ref_count;
+                int ref_count = previous_ref_count + 1;
+                entry->params.ref_count = ref_count;
+                if ((retained_ref_count = ref_count) != 0)
+                    return handle;
+                entry->params.ref_count = previous_ref_count;
+            }
+        }
+    }
+    return 0;
+}
+
+// 0x08007D4C
+EC u32 SECTION(".text.TileHandle_GetTileIndex") TileHandle_GetTileIndex(TileHeapOwner * self, u32 handle)
+{
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            if (generation_matches)
+                return entry->params.tile_index;
+        }
+    }
+    return ~0u;
+}
+
+// 0x08007DB8
+EC u32 SECTION(".text.TileHandle_GetOrder") TileHandle_GetOrder(TileHeapOwner * self, u32 handle)
+{
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            if (generation_matches)
+                return entry->params.order;
+        }
+    }
+    return 11;
+}
+
+// 0x08007E24
+EC u32 SECTION(".text.TileHandle_GetRefCount") TileHandle_GetRefCount(TileHeapOwner * self, u32 handle)
+{
+    TileHeapState * heap = gTileHeapState;
+    bool generation_matches;
+    u32 entry_index;
+    if (handle != 0)
+    {
+        u32 index = TileHandle(handle).Index();
+        entry_index = index;
+        if (heap->IsAllocated(entry_index))
+        {
+            TileHeapEntry * entry = &heap->entry_pool.GetEntry(entry_index);
+            generation_matches = TileHeapEntry_Matches(*entry, handle);
+            if (generation_matches)
+                return entry->params.ref_count;
+        }
+    }
+    return 0;
+}
 
 // 0x080079E8
 EC void SECTION(".text.TileHeapOwner_Destroy") TileHeapOwner_Destroy(TileHeapOwner * self, u32 destructor_flags)
@@ -372,9 +699,9 @@ EC void SECTION(".text.TilePool_Initialize") TilePool_Initialize(TilePool * self
 }
 
 EC TileHeapOwner * func_08007874(TileHeapOwner *);
-EC void func_08007C28(TileHeapOwner *, u32);
-EC u32 func_08007E24(TileHeapOwner *, u32);
-EC u32 func_08007CD8(TileHeapOwner *, u32);
+EC void TileHandle_Release(TileHeapOwner *, u32);
+EC u32 TileHandle_GetRefCount(TileHeapOwner *, u32);
+EC u32 TileHandle_Retain(TileHeapOwner *, u32);
 EC u32 func_08007B54(TileHeapOwner *, u32);
 
 // 0x08008364
@@ -390,7 +717,7 @@ EC void SECTION(".text.TilePool_Destroy") TilePool_Destroy(TilePool * self, u32 
             TileHandleValue * end = bucket->end;
             for (TileHandleValue * value = bucket->begin; value != end; ++value)
             {
-                func_08007C28(&value->owner, value->handle);
+                TileHandle_Release(&value->owner, value->handle);
                 TileHeapOwner_Destroy(&value->owner, 2);
             }
             if (bucket->begin != nullptr)
@@ -419,7 +746,7 @@ EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHand
                 TileHandleValue * candidate = next;
                 if (++next == end)
                     next = bucket->begin;
-                if (func_08007E24(&candidate->owner, candidate->handle) == 1)
+                if (TileHandle_GetRefCount(&candidate->owner, candidate->handle) == 1)
                 {
                     bucket->cursor = next;
                     next = candidate;
@@ -429,7 +756,7 @@ EC SECTION(".text.TilePool_Acquire") TileHandleValue * TilePool_Acquire(TileHand
             while (next != start);
         }
         func_08007874(&self->owner);
-        self->handle = func_08007CD8(&self->owner, next->handle);
+        self->handle = TileHandle_Retain(&self->owner, next->handle);
     }
     else
     {
@@ -749,14 +1076,6 @@ EC void SECTION(".text.Dma3_Fill") Dma3_Fill(u32 fill_value, void * destination,
     }
 }
 
-struct DmaCommand
-{
-    u32 is_fill;
-    u32 source_or_fill_value;
-    void * destination;
-    u32 control_flags;
-};
-
 // 0x08008FE4
 EC void SECTION(".text.DmaCommand_ExecuteRange") DmaCommand_ExecuteRange(DmaCommand const * begin, DmaCommand const * end)
 {
@@ -798,18 +1117,6 @@ EC SECTION(".text.DmaCommand_InitializeFill") DmaCommand * DmaCommand_Initialize
     self->control_flags = control_flags;
     return self;
 }
-
-struct KeyRepeatState
-{
-    u16 held_keys;
-    u16 alignment_padding;
-    u16 pressed_keys;
-    u16 edge_padding;
-    u16 repeated_keys;
-    u16 repeat_delay;
-    u16 repeat_period;
-    i16 repeat_counters[10];
-};
 
 // 0x0800912C
 EC u32 SECTION(".text.Keys_ReadHardware") Keys_ReadHardware()
@@ -1147,7 +1454,7 @@ struct TaskVtable
     void (*abi_header_04)();
     bool (*run)(TaskNode *);
     void (*destroy)();
-    void (*append)();
+    void (*append)(TaskList *, TaskNode *);
     void (*remove)(TaskList *, TaskNode *);
 };
 
@@ -1372,16 +1679,6 @@ EC void SECTION(".text.Boot_SoftResetFromKeys") Boot_SoftResetFromKeys()
     for (;;) {}
 }
 
-struct DmaTransferQueue
-{
-    DmaCommand * Begin() const { return begin; }
-    DmaCommand * End() const { return end; }
-    DmaCommand * begin;
-    DmaCommand * end;
-    u32 allocation_state;
-    DmaCommand * capacity_end;
-};
-
 struct VBlankIrqSubscription
 {
     u8 storage[0x14];
@@ -1400,7 +1697,7 @@ struct VBlankRuntime
     TaskList pending_tasks;
     TaskNode audio_vblank;
     VBlankRootTaskList root;
-    bool restore_audio_dma;
+    u8 restore_audio_dma;
 };
 
 struct VBlankDispatcher
@@ -1408,10 +1705,27 @@ struct VBlankDispatcher
     VBlankRuntime * state;
 };
 
+struct HardwareDmaAllocation
+{
+    u32 allocation_state;
+    DmaCommand * capacity_end;
+};
+
+struct HardwareDmaQueueStorage
+{
+    DmaCommand * begin;
+    DmaCommand * end;
+    HardwareDmaAllocation allocation;
+};
+
 struct HardwareRuntime
 {
     KeyRepeatState keys;
-    DmaTransferQueue dma_queue;
+    union
+    {
+        DmaTransferQueue dma_queue;
+        HardwareDmaQueueStorage dma_storage;
+    };
     DisplayRegisterBuffer display;
     OamBuffer oam;
     VBlankDispatcher vblank;
@@ -1423,6 +1737,303 @@ extern void const * gVBlankIrqSubscriptionVtable[]; // 0x080E5B0C
 extern TaskVtable gVBlankRootTaskListVtable; // 0x080E5B18
 extern TaskVtable gDisplayFadeTaskVtable; // 0x080E5B80
 EC void func_080D7944(VBlankIrqSubscription *, u32);
+
+EC VBlankDispatcher * VBlankDispatcher_Initialize(VBlankDispatcher *);
+extern TaskVtable vtable_unk_080E5BD8;
+
+inline void HardwareDmaAllocation_Initialize(HardwareDmaAllocation * self) { self->capacity_end = nullptr; }
+inline u16 DisplayRegisters_ReadHalfword(u16 * registers, int index) { return registers[index]; }
+
+// 0x08008444
+EC SECTION(".text.HardwareContext_Initialize") HardwareContext * HardwareContext_Initialize(HardwareContext * self)
+{
+    TaskList * task_list;
+    TaskList * frame_tasks;
+    u16 * display_registers;
+    HardwareContextState * initialized_state;
+    volatile u32 stack_padding;
+    self->vtable = gHardwareContextVtable;
+    HardwareRuntime * state = new HardwareRuntime;
+    KeyRepeat_Initialize(&state->keys, 30, 4);
+    state->dma_storage.begin = nullptr;
+    state->dma_storage.end = nullptr;
+    HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
+    DisplayRegisters_Initialize(&state->display);
+    OamBuffer_Initialize(&state->oam, 0, 32);
+    VBlankDispatcher_Initialize(&state->vblank);
+    TaskList * tasks = &state->frame_tasks;
+    frame_tasks = tasks;
+    task_list = tasks;
+    frame_tasks->node.previous_link = nullptr;
+    frame_tasks->node.next = nullptr;
+    tasks->node.vtable = &gTaskListVtable;
+    frame_tasks->first = &task_list->sentinel;
+    TaskNode * sentinel = &frame_tasks->sentinel;
+    sentinel->previous_link = nullptr;
+    display_registers = state->display.register_halfwords;
+    sentinel->next = nullptr;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    frame_tasks->sentinel.previous_link = &frame_tasks->first;
+    task_list->sentinel.next = &frame_tasks->sentinel;
+    u16 display_status = DisplayRegisters_ReadHalfword(display_registers, 2) | 8;
+    state->display.register_halfwords[2] = display_status;
+    initialized_state = reinterpret_cast<HardwareContextState *>(state);
+    *reinterpret_cast<u16 volatile *>(0x04000004) = display_status;
+    self->state = initialized_state;
+    return self;
+}
+
+struct HardwareKeyRepeatConfig
+{
+    u16 delay;
+    u16 period;
+};
+
+// 0x080084DC
+EC SECTION(".text.HardwareContext_InitializeWithKeyRepeat") HardwareContext * HardwareContext_InitializeWithKeyRepeat(HardwareContext * self, HardwareKeyRepeatConfig const * key_repeat)
+{
+    TaskList * task_list;
+    TaskList * frame_tasks;
+    u16 * display_registers;
+    HardwareContextState * initialized_state;
+    volatile u32 stack_padding;
+    self->vtable = gHardwareContextVtable;
+    HardwareRuntime * state = new HardwareRuntime;
+    KeyRepeat_Initialize(&state->keys, key_repeat->delay, key_repeat->period);
+    state->dma_storage.begin = nullptr;
+    state->dma_storage.end = nullptr;
+    HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
+    DisplayRegisters_Initialize(&state->display);
+    OamBuffer_Initialize(&state->oam, 0, 32);
+    VBlankDispatcher_Initialize(&state->vblank);
+    TaskList * tasks = &state->frame_tasks;
+    frame_tasks = tasks;
+    task_list = tasks;
+    frame_tasks->node.previous_link = nullptr;
+    frame_tasks->node.next = nullptr;
+    tasks->node.vtable = &gTaskListVtable;
+    frame_tasks->first = &task_list->sentinel;
+    TaskNode * sentinel = &frame_tasks->sentinel;
+    sentinel->previous_link = nullptr;
+    display_registers = state->display.register_halfwords;
+    sentinel->next = nullptr;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    frame_tasks->sentinel.previous_link = &frame_tasks->first;
+    task_list->sentinel.next = &frame_tasks->sentinel;
+    u16 display_status = DisplayRegisters_ReadHalfword(display_registers, 2) | 8;
+    state->display.register_halfwords[2] = display_status;
+    initialized_state = reinterpret_cast<HardwareContextState *>(state);
+    *reinterpret_cast<u16 volatile *>(0x04000004) = display_status;
+    self->state = initialized_state;
+    return self;
+}
+
+struct HardwareOamConfig
+{
+    u8 reserved_sprites;
+    u8 reserved_affines;
+};
+
+// 0x08008574
+EC SECTION(".text.HardwareContext_InitializeWithOamReservation") HardwareContext * HardwareContext_InitializeWithOamReservation(HardwareContext * self, HardwareOamConfig const * oam)
+{
+    TaskList * task_list;
+    TaskList * frame_tasks;
+    u16 * display_registers;
+    HardwareContextState * initialized_state;
+    volatile u32 stack_padding;
+    self->vtable = gHardwareContextVtable;
+    HardwareRuntime * state = new HardwareRuntime;
+    KeyRepeat_Initialize(&state->keys, 30, 4);
+    state->dma_storage.begin = nullptr;
+    state->dma_storage.end = nullptr;
+    HardwareDmaAllocation_Initialize(&state->dma_storage.allocation);
+    DisplayRegisters_Initialize(&state->display);
+    OamBuffer_Initialize(&state->oam, oam->reserved_sprites, oam->reserved_affines);
+    VBlankDispatcher_Initialize(&state->vblank);
+    TaskList * tasks = &state->frame_tasks;
+    frame_tasks = tasks;
+    task_list = tasks;
+    frame_tasks->node.previous_link = nullptr;
+    frame_tasks->node.next = nullptr;
+    tasks->node.vtable = &gTaskListVtable;
+    frame_tasks->first = &task_list->sentinel;
+    TaskNode * sentinel = &frame_tasks->sentinel;
+    sentinel->previous_link = nullptr;
+    display_registers = state->display.register_halfwords;
+    sentinel->next = nullptr;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    frame_tasks->sentinel.previous_link = &frame_tasks->first;
+    task_list->sentinel.next = &frame_tasks->sentinel;
+    u16 display_status = DisplayRegisters_ReadHalfword(display_registers, 2) | 8;
+    state->display.register_halfwords[2] = display_status;
+    initialized_state = reinterpret_cast<HardwareContextState *>(state);
+    *reinterpret_cast<u16 volatile *>(0x04000004) = display_status;
+    self->state = initialized_state;
+    return self;
+}
+
+struct HardwareDisplayCommitTask
+{
+    TaskNode node;
+    DisplayRegisterBuffer * registers;
+};
+
+extern TaskVtable vtable_unk_080E5AF0;
+
+// 0x08008724
+EC void SECTION(".text.HardwareContext_ForceBlank") HardwareContext_ForceBlank(HardwareContext * self)
+{
+    HardwareRuntime * state = reinterpret_cast<HardwareRuntime *>(self->state);
+    DisplayRegisterBuffer * registers = &state->display;
+    u32 unlinked = 0;
+    state->display.register_halfwords[0] = DisplayRegisters_ReadHalfword(registers->register_halfwords, 0) | 0x80;
+    HardwareDisplayCommitTask task;
+    task.node.previous_link = reinterpret_cast<TaskNode **>(unlinked);
+    task.node.next = reinterpret_cast<TaskNode *>(unlinked);
+    task.node.vtable = &vtable_unk_080E5AF0;
+    task.registers = registers;
+    VBlankDispatcher * dispatcher = &state->vblank;
+    TaskList * tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    tasks->node.vtable->append(tasks, &task.node);
+    VBlankDispatcher_Wait(dispatcher);
+    TaskNode_Destroy(&task.node, 2);
+}
+
+struct HardwareOamCommitTask
+{
+    TaskNode node;
+    OamBuffer * oam;
+};
+
+struct HardwareDmaCommitTask
+{
+    TaskNode node;
+    DmaTransferQueue * queue;
+};
+
+extern TaskVtable vtable_unk_080E5AE0;
+extern TaskVtable vtable_unk_080E5AD0;
+
+template<typename T>
+inline void HardwareTask_WriteField(T * field, T value)
+{
+    *reinterpret_cast<T volatile *>(field) = value;
+}
+
+// 0x080087C8
+EC void SECTION(".text.HardwareContext_CommitFrame") HardwareContext_CommitFrame(HardwareContext * self)
+{
+    TaskVtable * remove_vtable;
+    HardwareRuntime * state = reinterpret_cast<HardwareRuntime *>(self->state);
+    u8 * commit_buffer = reinterpret_cast<u8 *>(&state->display);
+    TaskVtable * base_vtable = &gTaskNodeVtable;
+    TaskNode * oam_node;
+    TaskNode * dma_node;
+    HardwareDisplayCommitTask display_task;
+    display_task.node.previous_link = 0;
+    display_task.node.next = 0;
+    display_task.node.vtable = &vtable_unk_080E5AF0;
+    display_task.registers = reinterpret_cast<DisplayRegisterBuffer *>(commit_buffer);
+    HardwareOamCommitTask oam_task;
+    oam_node = &oam_task.node;
+    commit_buffer += sizeof(state->display);
+    oam_task.node.previous_link = 0;
+    oam_task.node.next = 0;
+    HardwareTask_WriteField(&oam_task.node.vtable, &vtable_unk_080E5AE0);
+    HardwareTask_WriteField(&oam_task.oam, reinterpret_cast<OamBuffer *>(commit_buffer));
+    HardwareDmaCommitTask dma_task;
+    dma_node = &dma_task.node;
+    commit_buffer -= sizeof(state->display) + sizeof(state->dma_queue);
+    dma_task.node.previous_link = 0;
+    dma_task.node.next = 0;
+    HardwareTask_WriteField(&dma_task.node.vtable, &vtable_unk_080E5AD0);
+    HardwareTask_WriteField(&dma_task.queue, reinterpret_cast<DmaTransferQueue *>(commit_buffer));
+    TaskList frame_batch;
+    TaskList * batch = &frame_batch;
+    batch->node.previous_link = 0;
+    batch->node.next = 0;
+    HardwareTask_WriteField(&frame_batch.node.vtable, &gTaskListVtable);
+    TaskNode * sentinel = &batch->sentinel;
+    batch->first = sentinel;
+    HardwareTask_WriteField(&frame_batch.sentinel.vtable, base_vtable);
+    sentinel->previous_link = 0;
+    sentinel->next = 0;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    batch->sentinel.previous_link = &batch->first;
+    batch->sentinel.next = sentinel;
+    TaskList_Append(batch, &state->frame_tasks.node);
+    TaskList_Append(batch, &display_task.node);
+    TaskList_Append(batch, dma_node);
+    TaskList_Append(batch, oam_node);
+    VBlankDispatcher * dispatcher = &state->vblank;
+    TaskList * tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    tasks->node.vtable->append(tasks, &batch->node);
+    VBlankDispatcher_Wait(dispatcher);
+    TaskList * queued_tasks = static_cast<TaskList *>(VBlankDispatcher_GetTasks(reinterpret_cast<void **>(dispatcher)));
+    remove_vtable = queued_tasks->node.vtable;
+    remove_vtable->remove(queued_tasks, &batch->node);
+    TaskList_Destroy(batch, 2);
+    TaskNode_Destroy(dma_node, 2);
+    TaskNode_Destroy(&oam_task.node, 2);
+    TaskNode_Destroy(&display_task.node, 2);
+}
+
+EC void func_080D78F8(VBlankIrqSubscription *, TaskList **);
+extern TaskVtable vtable_unk_080E5B70;
+extern TaskVtable vtable_unk_080E5B60;
+
+// 0x08008980
+EC SECTION(".text.VBlankDispatcher_Initialize") VBlankDispatcher * VBlankDispatcher_Initialize(VBlankDispatcher * self)
+{
+    VBlankRuntime * state = new VBlankRuntime;
+    u8 * restore_audio_dma;
+    state->audio_update.previous_link = 0;
+    state->audio_update.next = 0;
+    state->audio_update.vtable = &vtable_unk_080E5B70;
+    TaskList * pending = &state->pending_tasks;
+    pending->node.previous_link = 0;
+    pending->node.next = 0;
+    pending->node.vtable = &gTaskListVtable;
+    TaskNode * sentinel = &pending->sentinel;
+    pending->first = sentinel;
+    sentinel->previous_link = 0;
+    sentinel->next = 0;
+    sentinel->vtable = &vtable_unk_080E5BD8;
+    pending->sentinel.previous_link = &pending->first;
+    pending->sentinel.next = sentinel;
+    pending->node.vtable = &gIrqTaskListVtable;
+    TaskNode * audio_vblank = &state->audio_vblank;
+    audio_vblank->previous_link = 0;
+    audio_vblank->next = 0;
+    audio_vblank->vtable = &vtable_unk_080E5B60;
+    TaskList * root = &state->root.tasks;
+    root->node.previous_link = 0;
+    root->node.next = 0;
+    root->node.vtable = &gTaskListVtable;
+    TaskNode * root_sentinel = &root->sentinel;
+    root->first = root_sentinel;
+    root_sentinel->previous_link = 0;
+    root_sentinel->next = 0;
+    root_sentinel->vtable = &vtable_unk_080E5BD8;
+    root->sentinel.previous_link = &root->first;
+    root->sentinel.next = root_sentinel;
+    root->node.vtable = &gIrqTaskListVtable;
+    VBlankIrqSubscription * subscription = &state->root.irq_subscription;
+    TaskList * irq_tasks = root;
+    func_080D78F8(subscription, &irq_tasks);
+    reinterpret_cast<VBlankRootTaskList *>(root)->irq_subscription.vtable = gVBlankIrqSubscriptionVtable;
+    root->node.vtable = &gVBlankRootTaskListVtable;
+    restore_audio_dma = &state->restore_audio_dma;
+    state->restore_audio_dma = Audio_IsDma1Enabled() ^ 1;
+    if (*restore_audio_dma)
+        Audio_EnableVBlankDma();
+    IrqTaskList_Append(root, &state->audio_update);
+    IrqTaskList_Append(root, &pending->node);
+    IrqTaskList_Append(root, audio_vblank);
+    self->state = state;
+    return self;
+}
 
 // 0x08008A68
 EC void SECTION(".text.VBlankDispatcher_Destroy") VBlankDispatcher_Destroy(VBlankDispatcher * self, u32 destructor_flags)
@@ -1473,6 +2084,12 @@ struct DisplayFadeTask
     TaskNode node;
     DisplayFade fade;
 };
+
+// 0x08009508
+EC i16 SECTION(".text.DisplayFadeTask_SetSpeed") DisplayFadeTask_SetSpeed(DisplayFadeTask * self, i16 step)
+{
+    return DisplayFade_SetSpeed(&self->fade, step);
+}
 
 // 0x080094B8
 EC void SECTION(".text.DisplayFadeTask_Destroy") DisplayFadeTask_Destroy(DisplayFadeTask * self, u32 destructor_flags)

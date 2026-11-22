@@ -516,7 +516,7 @@ EC void NameEntryScene_Destroy(NewGameSceneTaskOwner * self, int destructorFlags
     Scene_DestroyBase(self, destructorFlags);
 }
 
-EC void NewGameScene_BlankDisplay(void * self) __asm__("func_08008724");
+EC void NewGameScene_BlankDisplay(void * self) __asm__("HardwareContext_ForceBlank");
 
 EC void NewGameChoiceDialog_BlankDisplay(void * self) SECTION(".text.func_08005254");
 EC void NewGameChoiceDialog_BlankDisplay(void * self)

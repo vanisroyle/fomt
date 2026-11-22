@@ -1,5 +1,15 @@
 #include "g5_records.hh"
 
+EC SECTION(".text.g5_080D0C68") void G5ByteRecord_Initialize(G5ByteRecord * record, u8 header_byte, u16 value) // 0x080D0C68
+{
+    record->unknown_00 = header_byte;
+    register u32 cleared_header asm("r1") = 0;
+    asm ("" : "+l" (cleared_header));
+    record->unknown_01 = cleared_header;
+    record->value_bytes[0] = value;
+    record->value_bytes[1] = value >> 8;
+}
+
 EC SECTION(".text.g5_080D0C78") void func_080D0C78(G5ByteRecord * record, u8 unknown_00, u8 unknown_01, u8 const * value_bytes) // 0x080D0C78
 {
     record->unknown_00 = unknown_00;

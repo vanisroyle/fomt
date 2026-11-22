@@ -2,6 +2,7 @@
 #include "prelude.h"
 #include "scene.hh"
 #include "utility/fixed_str.hh"
+#include "chicken_festival.hh"
 #include <new>
 #include <stdlib.h>
 
@@ -36,14 +37,6 @@ struct ChickenFestivalCombat
 {
     u8 unknown_000[0x6c];
     FestivalChicken chickens[2];
-};
-
-struct ChickenFestivalEntrant
-{
-    FixedStr<12> name;
-    u8 unknown_10;
-    u8 affection;
-    SECTION(".text.g3_080B3C90") ChickenFestivalEntrant();
 };
 
 EC char gUnk_081078BC[];
@@ -599,12 +592,12 @@ struct SpriteHarvestingResources
     SpriteHarvestingResource groups[9];
 };
 
-EC void func_08007C28(SpriteHarvestingResource *, void *);
+EC void TileHandle_Release(SpriteHarvestingResource *, void *);
 EC void * func_08007B54(SpriteHarvestingResource *, u32);
 
 static inline void ResizeHarvestingResource(SpriteHarvestingResource & resource, u32 count)
 {
-    func_08007C28(&resource, resource.allocation);
+    TileHandle_Release(&resource, resource.allocation);
     resource.allocation = func_08007B54(&resource, count);
 }
 

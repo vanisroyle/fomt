@@ -12,6 +12,8 @@ struct G5ByteRecord
     u8 value_bytes[2];
 };
 
+// Sets the first header, clears the second, and encodes value little-endian.
+EC void G5ByteRecord_Initialize(G5ByteRecord * record, u8 header_byte, u16 value); // 0x080D0C68
 EC void func_080D0C78(G5ByteRecord * record, u8 unknown_00, u8 unknown_01, u8 const * value_bytes); // 0x080D0C78
 EC u8 func_080D0C88(G5ByteRecord const * record); // 0x080D0C88
 EC u16 func_080D0C8C(G5ByteRecord const * record); // 0x080D0C8C

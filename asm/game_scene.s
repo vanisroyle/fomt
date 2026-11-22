@@ -8,7 +8,7 @@ func_0801004C: @ 0x0801004C
     adds r7, r0, #0
     adds r5, r1, #0
     mov r0, sp
-    bl func_08008980
+    bl VBlankDispatcher_Initialize
     movs r1, #0
     str r1, [sp, #4]
     movs r2, #0xd9
@@ -29,7 +29,7 @@ func_0801004C: @ 0x0801004C
     bl __builtin_new
     ldr r1, [r5, #4]
     adds r2, r4, #0
-    bl func_08011DC4
+    bl GameScript_InitializeWithSceneSpec
     adds r5, r0, #0
     ldr r1, [sp, #4]
     adds r6, r4, #0

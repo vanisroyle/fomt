@@ -2,24 +2,24 @@
 
     .LDATA_BEG = 0x13B288
 
-	.incbin "baserom.gba", (.LDATA_BEG), (0x2AC0B0 - .LDATA_BEG)
+	.include "build/assets/audio-bank.s"
 	.include "build/assets/scripts.s"
 
 	.global gUnk_084F90CC
 gUnk_084F90CC:
-	.incbin "baserom.gba", 0x4F90CC, 0x16D4
+	.incbin "build/assets/font-small.bin"
 
 	.global gUnk_084FA7A0
 gUnk_084FA7A0:
-	.incbin "baserom.gba", 0x4FA7A0, 0x200
+	.incbin "build/assets/font-single.bin"
 
 	.global gUnk_084FA9A0
 gUnk_084FA9A0:
-	.incbin "baserom.gba", 0x4FA9A0, 0x288F0
+	.incbin "build/assets/font-large.bin"
 
 	.global gUnk_08523290
 gUnk_08523290:
-	.incbin "baserom.gba", 0x523290, 0x3E04
+	.incbin "build/assets/font-double.bin"
 
 	.global gUnk_08527094
 gUnk_08527094:
@@ -103,7 +103,7 @@ gUnk_08667060:
 
 	.global gUnk_086678A0
 gUnk_086678A0:
-	.incbin "baserom.gba", 0x6678A0, 0x30080
+	.include "build/assets/graphics-more-6678A0.s"
 
 	.global gUnk_08697920
 gUnk_08697920:
@@ -127,7 +127,7 @@ gUnk_0869A0A4:
 
 	.global gUnk_0869B284
 gUnk_0869B284:
-	.incbin "baserom.gba", 0x69B284, 0x3A284
+	.include "build/assets/graphics-more-69B284.s"
 
 	.global gUnk_086D5508
 gUnk_086D5508:
@@ -167,7 +167,7 @@ gUnk_086D6698:
 
 	.global gUnk_086D74F8
 gUnk_086D74F8:
-	.incbin "baserom.gba", 0x6D74F8, 0x4ECC
+	.include "build/assets/graphics-more-6D74F8.s"
 
 	.global gMineSoilTiles
 gMineSoilTiles:
@@ -187,7 +187,7 @@ gMineUpStairsTiles:
 
 	.global gMineRockTiles
 gMineRockTiles:
-	.incbin "baserom.gba", 0x6DC3F4, 0x158
+	.include "build/assets/graphics-more-6DC3F4.s"
 
 	.global gUnk_086DC54C
 gUnk_086DC54C:
@@ -262,20 +262,20 @@ gUnk_086FAA80:
 	.incbin "baserom.gba", 0x6FAA80, 0x584
 
 	.global gUnk_086FB004
-gUnk_086FB004:
-	.incbin "baserom.gba", 0x6FB004, 0x2198
+.set gUnk_086FB004, gMoreGraphics_6FB004
+	.include "build/assets/graphics-more-6FB004.s"
 
 	.global gUnk_086FD19C
-gUnk_086FD19C:
-	.incbin "baserom.gba", 0x6FD19C, 0xA4
+.set gUnk_086FD19C, gMoreGraphics_6FD19C
+	.include "build/assets/graphics-more-6FD19C.s"
 
 	.global gUnk_086FD240
-gUnk_086FD240:
-	.incbin "baserom.gba", 0x6FD240, 0x177F0
+.set gUnk_086FD240, gMoreGraphics_6FD240
+	.include "build/assets/graphics-more-6FD240.s"
 
 	.global gUnk_08714A30
 gUnk_08714A30:
-	.incbin "baserom.gba", 0x714A30, 0x130
+	.include "build/assets/graphics-more-714A30.s"
 
 	.global gUnk_08714B60
 gUnk_08714B60:
@@ -283,15 +283,15 @@ gUnk_08714B60:
 
 	.global gUnk_08714BEC
 gUnk_08714BEC:
-	.incbin "baserom.gba", 0x714BEC, 0x2398
+	.include "build/assets/graphics-more-714BEC.s"
 
 	.global gUnk_08716F84
 gUnk_08716F84:
-	.incbin "baserom.gba", 0x716F84, 0x134
+	.include "build/assets/graphics-more-716F84.s"
 
 	.global gUnk_087170B8
 gUnk_087170B8:
-	.incbin "baserom.gba", 0x7170B8, 0x6464
+	.include "build/assets/graphics-more-7170B8.s"
 
 	.global gUnk_0871D51C
 gUnk_0871D51C:
@@ -414,20 +414,20 @@ gUnk_0872FBFC:
 	.incbin "baserom.gba", 0x72FBFC, 0x38
 
 	.global gUnk_0872FC34
-gUnk_0872FC34:
-	.incbin "baserom.gba", 0x72FC34, 0x238
+.set gUnk_0872FC34, gMoreGraphics_72FC34
+	.include "build/assets/graphics-more-72FC34.s"
 
 	.global gUnk_0872FE6C
-gUnk_0872FE6C:
-	.incbin "baserom.gba", 0x72FE6C, 0x8C
+.set gUnk_0872FE6C, gMoreGraphics_72FE6C
+	.include "build/assets/graphics-more-72FE6C.s"
 
 	.global gUnk_0872FEF8
-gUnk_0872FEF8:
-	.incbin "baserom.gba", 0x72FEF8, 0x1A48
+.set gUnk_0872FEF8, gMoreGraphics_72FEF8
+	.include "build/assets/graphics-more-72FEF8.s"
 
 	.global gUnk_08731940
-gUnk_08731940:
-	.incbin "baserom.gba", 0x731940, 0x200
+.set gUnk_08731940, gMoreGraphics_731940
+	.include "build/assets/graphics-more-731940.s"
 
 	.global gUnk_08731B40 @ChickenPortraits
 gUnk_08731B40:
@@ -569,33 +569,21 @@ gUnk_08743058:
 gUnk_08747A14:
 	.incbin "baserom.gba", 0x747A14, 0x60
 
-	.global gUnk_08747A74
-gUnk_08747A74:
-	.incbin "baserom.gba", 0x747A74, 0x2F4C
+	.include "build/assets/graphics-title-resource.s"
+	.include "build/assets/graphics-title-map-0.s"
+	.include "build/assets/graphics-title-map-1.s"
+	.include "build/assets/graphics-title-map-2.s"
+	.include "build/assets/graphics-title-map-3.s"
 
-	.global gUnk_0874A9C0
-gUnk_0874A9C0:
-	.incbin "baserom.gba", 0x74A9C0, 0x3970
+	.include "build/assets/graphics-title-background.s"
 
-	.global gUnk_0874E330
-gUnk_0874E330:
-	.incbin "baserom.gba", 0x74E330, 0x200
+	.include "build/assets/graphics-title-palette.s"
 
 	.global gUnk_0874E530
 gUnk_0874E530:
 	.incbin "baserom.gba", 0x74E530, 0x118
 
-	.global gUnk_0874E648
-gUnk_0874E648:
-	.incbin "baserom.gba", 0x74E648, 0x4F8
-
-	.global gUnk_0874EB40
-gUnk_0874EB40:
-	.incbin "baserom.gba", 0x74EB40, 0x20
-
-	.global gUnk_0874EB60
-gUnk_0874EB60:
-	.incbin "baserom.gba", 0x74EB60, 0x16C
+	.include "build/assets/graphics.s"
 
 	.global gUnk_0874ECCC
 gUnk_0874ECCC:

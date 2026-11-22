@@ -40,6 +40,8 @@ EC bool InventoryMenu_IsSpecialSlotEnabled(InventoryNavigationPanel * panel); //
 EC void InventoryMenu_SetSelection(InventoryNavigation * navigation, int slot); // 0x080CDDAC
 EC int InventoryMenu_SwitchSelectionPanel(InventoryNavigation * navigation); // 0x080CDD7C
 EC int InventoryMenu_MoveSelectionUp(InventoryNavigation * navigation); // 0x080CDB08
+EC int InventoryMenu_MoveSelectionLeft(InventoryNavigation * navigation); // 0x080CDC00
+EC int InventoryMenu_MoveSelectionRight(InventoryNavigation * navigation); // 0x080CDCD0
 // Coordinates are defined only when the selected panel exists.
 EC G5Position * InventoryMenu_GetSelectionPosition(G5Position * position, InventoryNavigationOwner * owner, int slot); // 0x080CE120
 

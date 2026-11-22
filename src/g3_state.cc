@@ -8,7 +8,7 @@ EC u16 gUnk_0810789A[];
 EC u16 gUnk_081078A0[];
 struct ChickenFeedingScene;
 EC u32 GetChickenFeedingResult(ChickenFeedingScene const & scene);
-EC void func_08008724(void *);
+EC void HardwareContext_ForceBlank(void *);
 
 struct ChickenFeedingAnimations
 {
@@ -60,7 +60,7 @@ EC SECTION(".text.g3_080B44E0") u32 DidChickenFestivalPlayerWin(u8 * state) // 0
 
 EC SECTION(".text.g3_080B45E4") void BlankChickenFestivalDisplay(void * display) // 0x080B45E4
 {
-    func_08008724(display);
+    HardwareContext_ForceBlank(display);
 }
 
 EC SECTION(".text.g3_080BA1F4") void UpdateFestivalChickenAction2() // 0x080BA1F4
@@ -91,5 +91,5 @@ EC SECTION(".text.g3_080BCCD4") u32 DidSpriteHarvestingSucceed(u8 * state) // 0x
 
 EC SECTION(".text.g3_080BCEBC") void BlankSpriteHarvestingDisplay(void * display) // 0x080BCEBC
 {
-    func_08008724(display);
+    HardwareContext_ForceBlank(display);
 }
