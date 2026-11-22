@@ -9178,7 +9178,7 @@ sub_080D8178: @ 0x080D8178
 	add r7, sp
 	ldr r7, [r7]
 	ldr r1, [r7]
-	bl func_0803B4B0
+	bl InitializeGameScriptTextVariables
 	movs r1, #0xad
 	lsls r1, r1, #3
 	add r1, sp
@@ -9480,7 +9480,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803C54C
+	bl InitializeClockHud
 	mov r4, sl
 	adds r4, #0xb4
 	adds r5, r0, #0
@@ -11406,7 +11406,7 @@ sub_080D8178: @ 0x080D8178
 	bl __builtin_new
 	adds r1, r5, #0
 	movs r2, #0
-	bl func_0803B6FC
+	bl InitializeScriptSceneFactory
 	b .L080D9BC6
 	.align 2, 0
 .L080D9A9C: .4byte 0x0000055C
@@ -11466,7 +11466,7 @@ sub_080D8178: @ 0x080D8178
 	bl __builtin_new
 	adds r1, r5, #0
 	movs r2, #1
-	bl func_0803B6FC
+	bl InitializeScriptSceneFactory
 	movs r6, #0xac
 	lsls r6, r6, #3
 	add r6, sp
@@ -12228,7 +12228,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803C54C
+	bl InitializeClockHud
 	mov r4, sl
 	adds r4, #0xb4
 	adds r5, r0, #0
@@ -12662,7 +12662,7 @@ sub_080D8178: @ 0x080D8178
 	movs r1, #0
 	movs r2, #0x1f
 	movs r3, #0
-	bl func_0803C54C
+	bl InitializeClockHud
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r1, [r6]
@@ -14214,7 +14214,7 @@ sub_080DA76C: @ 0x080DA76C
 .L080DB0BC:
 	mov r0, sl
 	add r1, sp, #0x34
-	bl func_08011CD8
+	bl GameState_RunVBlankFrameTasks
 	bl .L080D8FE8
 	.align 2, 0
 .L080DB0C8: .4byte 0x000004D4
@@ -18112,7 +18112,7 @@ func_080DCFE0: @ 0x080DCFE0
 	lsls r2, r2, #0x1c
 	asrs r2, r2, #0x1c
 	adds r0, r5, #0
-	bl func_0803A144
+	bl SelectActivitySpriteAnimationPair
 	adds r1, r5, #0
 	adds r1, #0x78
 	movs r2, #0
@@ -18776,7 +18776,7 @@ func_080DD5E4: @ 0x080DD5E4
 	str r4, [sp, #4]
 	mov r2, sb
 	mov r3, r8
-	bl func_080ABE58
+	bl ChooseEntityFacingAwayFromPoint
 	adds r1, r0, #0
 	str r1, [r5, #0x50]
 	adds r6, r5, #0
@@ -19312,7 +19312,7 @@ func_080DD9CC: @ 0x080DD9CC
 	lsls r2, r2, #0x18
 	asrs r2, r2, #0x18
 	adds r0, r5, #0
-	bl func_0803A144
+	bl SelectActivitySpriteAnimationPair
 	adds r0, r5, #0
 	adds r0, #0x68
 	movs r2, #0
@@ -20348,8 +20348,8 @@ func_080DE1B4: @ 0x080DE1B4
 	.align 2, 0
 .L080DE21C: .4byte vtable_unk_080E65E0
 
-	thumb_func_start func_080DE220
-func_080DE220: @ 0x080DE220
+	thumb_func_start DestroyGameScriptTextVariables
+DestroyGameScriptTextVariables: @ 0x080DE220
 	push {lr}
 	adds r2, r0, #0
 	ldr r0, .L080DE23C @ =vtable_unk_080E76F8
@@ -24474,7 +24474,7 @@ func_080E0094: @ 0x080E0094
 	str r0, [r5, #0xc]
 .L080E03AE:
 	ldr r2, .L080E0534 @ =gUnk_080F89D4
-	ldr r1, .L080E0538 @ =gUnk_080F19AE
+	ldr r1, .L080E0538 @ =gScriptSceneScriptIds
 	movs r3, #0xd8
 	lsls r3, r3, #2
 	adds r0, r7, r3
@@ -24656,7 +24656,7 @@ func_080E0094: @ 0x080E0094
 	mov pc, r0
 	.align 2, 0
 .L080E0534: .4byte gUnk_080F89D4
-.L080E0538: .4byte gUnk_080F19AE
+.L080E0538: .4byte gScriptSceneScriptIds
 .L080E053C: .4byte 0x00000889
 .L080E0540: .4byte 0xFFFFFF00
 .L080E0544: .4byte .L080E0548
@@ -25708,8 +25708,8 @@ func_080E0D64: @ 0x080E0D64
 	bx r0
 	.align 2, 0
 
-	thumb_func_start func_080E0D70
-func_080E0D70: @ 0x080E0D70
+	thumb_func_start DestroyClockDisplayData
+DestroyClockDisplayData: @ 0x080E0D70
 	push {r4, r5, r6, lr}
 	adds r6, r0, #0
 	adds r5, r1, #0
@@ -26657,7 +26657,7 @@ func_080E14B8: @ 0x080E14B8
 	movs r0, #0xd
 	adds r5, r1, #0
 	muls r5, r0, r5
-	ldr r0, .L080E1574 @ =gUnk_080FA796
+	ldr r0, .L080E1574 @ =gHorseRaceOpponentNames
 	adds r5, r5, r0
 	adds r0, r5, #0
 	bl strlen
@@ -26680,7 +26680,7 @@ func_080E14B8: @ 0x080E14B8
 	bl strcpy
 	b .L080E15B6
 	.align 2, 0
-.L080E1574: .4byte gUnk_080FA796
+.L080E1574: .4byte gHorseRaceOpponentNames
 .L080E1578:
 	add r1, sp, #8
 	movs r0, #0
@@ -31546,7 +31546,7 @@ func_080E3A6C: @ 0x080E3A6C
 	adds r1, r2, #0
 	adds r2, r3, #0
 	ldr r3, [sp, #4]
-	bl func_080D0558
+	bl Joybus_QueueBufferExchange
 	pop {r0}
 	bx r0
 	.align 2, 0
