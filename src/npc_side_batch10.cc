@@ -5,6 +5,70 @@
 #define NPC_EXTRA_CODE(address) SECTION(".text.npc_extra." #address)
 #define NPC_SIDE_CODE(address) SECTION(".text.npc_side." #address)
 
+struct SlidingSideEntity
+{
+    STRUCT_PAD(0x00, 0x08);
+    i32 x_q16;
+    i32 y_q16;
+    STRUCT_PAD(0x10, 0x24);
+    u16 timer;
+    u16 timer_period;
+    i32 slide_speed;
+    i16 slide_target;
+    u8 slide_axis;
+};
+
+EC void UpdateSlidingSideEntityBase(SlidingSideEntity * self, u32 argument) asm("vfunc_2C__7AEntityUi");
+
+inline int IsSideEntitySlideAxis(SlidingSideEntity * self, int axis)
+{
+    return self->slide_axis == axis;
+}
+
+inline i32 SubtractSlideCoordinate(i32 coordinate, i32 offset)
+{
+    return coordinate - offset;
+}
+
+EC void AdvanceSideEntitySlide(SlidingSideEntity * self, u32 argument) NPC_SIDE_CODE(0803242C);
+EC void AdvanceSideEntitySlide(SlidingSideEntity * self, u32 argument)
+{
+    if (self->timer != 0)
+        self->timer--;
+    else
+        self->timer = self->timer_period;
+    i32 speed = self->slide_speed;
+    if (speed != 0)
+    {
+        u32 horizontal = IsSideEntitySlideAxis(self, 0);
+        i32 coordinate = horizontal ? self->x_q16 : self->y_q16;
+        i32 pixel = coordinate >> 16;
+        i32 target = self->slide_target;
+        i32 distance = SubtractSlideCoordinate(target, pixel);
+        if (distance == 0)
+            self->slide_speed = 0;
+        else
+        {
+            i32 next = coordinate + speed;
+            if (distance <= 0)
+                next = SubtractSlideCoordinate(coordinate, speed);
+            coordinate = next;
+            i32 next_pixel = coordinate >> 16;
+            if (next_pixel != pixel)
+            {
+                i32 remaining = target - next_pixel;
+                if ((distance > 0 && remaining <= 0) || (distance <= 0 && remaining >= 0))
+                    self->slide_speed = 0;
+            }
+            if (horizontal)
+                self->x_q16 = coordinate;
+            else
+                self->y_q16 = coordinate;
+        }
+    }
+    UpdateSlidingSideEntityBase(self, argument);
+}
+
 struct MovingNpcEntity : AActorEntity
 {
     MovingNpcEntity();
