@@ -15,6 +15,7 @@
 #include "npc.hh"
 #include "schedule_info.hh"
 #include "sprite_animation.hh"
+#include "sprite_rendering.hh"
 #include "unknown_types.hh"
 
 #include <algorithm>
@@ -236,7 +237,7 @@ struct FixedOverlayBuildScratch
 EC void InitOverlayTileHeap(OverlayTileAllocation *) asm("func_08007874");
 EC void ReleaseOverlayTiles(OverlayTileAllocation *, unsigned) asm("TileHandle_Release");
 EC u32 AllocateOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007B54");
-EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("func_08007D4C");
+EC unsigned GetOverlayBaseTile(OverlayTileAllocation *, unsigned) asm("TileHandle_GetTileIndex");
 EC void * CopyOverlayFrame(void *, void const *, size_t) asm("memcpy");
 
 ROM_TEXT(0803AB30) FixedSpriteOverlay * InitializeFixedSpriteOverlay(void * storage, OverlaySpriteResources * inputResources)
@@ -666,7 +667,7 @@ struct MapOverlayAnimationMethods
     void (*getFrame)(FixedOverlayFrameView *, SpriteAnimationSource const *, unsigned);
 };
 
-EC u32 RetainOverlayTiles(OverlayTileAllocation *, unsigned) asm("func_08007CD8");
+EC u32 RetainOverlayTiles(OverlayTileAllocation *, unsigned) asm("TileHandle_Retain");
 EC MapOverlayParticle & InitMapOverlayParticle(MapOverlayParticle &, SpriteAnimator const &, int, int);
 
 ROM_TEXT(0803AEA0) GameStateMapOverlay * InitializeGameStateMapOverlay(GameStateMapOverlay * input,
@@ -2404,6 +2405,14 @@ enum PauseMenuTab
 
 struct PauseMenuSprite;
 
+struct PauseMenuLabel
+{
+    STRUCT_PAD(0, 4);
+    ClockTile tiles[2][3][4];
+    ClockTileAllocation tileAllocations[3];
+    ClockUploadTask rowUploads[3][2];
+};
+
 struct PauseMenuGraphics
 {
     // The animation bank starts at offset zero, followed by the shared OBJ palette.
@@ -2413,19 +2422,16 @@ struct PauseMenuGraphics
     PauseMenuSprite * cursor;
     PauseMenuSprite * tabs[PAUSE_MENU_TAB_COUNT];
 
-    STRUCT_PAD(0x70, 0x74);
-    ClockTile labelTiles[2][3][4];
-    ClockTileAllocation labelTileAllocations[3];
-    ClockUploadTask labelRowUploads[3][2];
+    PauseMenuLabel label;
 };
 
 typedef char PauseMenuGraphicsLayoutCheck[
     sizeof(PauseMenuGraphics) == 0x41C &&
     offsetof(PauseMenuGraphics, cursor) == 0x50 &&
     offsetof(PauseMenuGraphics, tabs) == 0x54 &&
-    offsetof(PauseMenuGraphics, labelTiles) == 0x74 &&
-    offsetof(PauseMenuGraphics, labelTileAllocations) == 0x374 &&
-    offsetof(PauseMenuGraphics, labelRowUploads) == 0x38C ? 1 : -1];
+    offsetof(PauseMenuGraphics, label.tiles) == 0x74 &&
+    offsetof(PauseMenuGraphics, label.tileAllocations) == 0x374 &&
+    offsetof(PauseMenuGraphics, label.rowUploads) == 0x38C ? 1 : -1];
 
 struct PauseMenuWindow : DialogWindow
 {
@@ -2435,6 +2441,649 @@ struct PauseMenuWindow : DialogWindow
     u8 cursorBlinkFrames;
     bool selectionEnabled;
 };
+
+struct AudioPlayer;
+
+struct PauseMenuFrameView
+{
+    SpriteFrameObject const * objects;
+    u16 objectCount;
+    u8 const * tiles;
+    u16 tileBytes;
+    u16 const * palette;
+    u16 paletteBytes;
+    SpriteFrameExtra const * extras;
+    u16 extraCount;
+};
+
+struct PauseMenuSprite
+{
+    ClockTileAllocation tiles;
+    ClockUploadTask upload;
+    SpriteAnimator animator;
+};
+
+struct PauseMenuDimensions
+{
+    u16 width;
+    u16 height;
+};
+
+struct PauseMenuFrameVtable
+{
+    STRUCT_PAD(0, 0x10);
+    void (*getFrame)(PauseMenuFrameView *, SpriteAnimationSource const *, unsigned);
+};
+
+struct PauseMenuFrameSource
+{
+    PauseMenuFrameVtable const * vtable;
+};
+
+struct PauseMenuUploadQueue;
+
+struct PauseMenuUploadVtable
+{
+    STRUCT_PAD(0, 0x10);
+    void (*append)(PauseMenuUploadQueue *, ClockUploadTask *);
+};
+
+struct PauseMenuUploadQueue
+{
+    void * previous;
+    void * next;
+    PauseMenuUploadVtable const * vtable;
+};
+
+typedef void (*ReadPauseMenuFrame)(PauseMenuFrameView *, SpriteAnimationSource const *, unsigned);
+typedef void (*AppendPauseMenuUpload)(PauseMenuUploadQueue *, ClockUploadTask *);
+
+struct PauseSpriteAttributes
+{
+    u32 position;
+    u32 tilePalette;
+};
+struct PauseMenuWork
+{
+    PauseMenuFrameView frame;
+    PauseSpriteAttributes cursor, tab;
+    PauseMenuDimensions fillDimensions, drawDimensions;
+    PauseSpriteAttributes labelSprite;
+    SpriteOamBuffer * oam;
+    int result;
+    const char *text;
+    PauseMenuLabel *label;
+    unsigned labelChanged;
+    u8 *labelTiles;
+    unsigned nextPart;
+    u8 *tabY;
+    PauseSpriteAttributes *labelAttributes;
+    unsigned negatedText;
+    unsigned tabX;
+    unsigned row;
+};
+
+enum
+{
+    PAUSE_MENU_CONFIRM_KEY = 1,
+    PAUSE_MENU_RIGHT_KEY = 0x10,
+    PAUSE_MENU_LEFT_KEY = 0x20,
+    PAUSE_MENU_CONFIRM_SOUND = 0xC5,
+    PAUSE_MENU_MOVE_SOUND = 0xCB,
+    PAUSE_MENU_TAB_SPACING = 16,
+    PAUSE_MENU_TAB_Y = 150,
+    PAUSE_MENU_CURSOR_VISIBLE_FRAMES = 20,
+    PAUSE_MENU_CURSOR_PERIOD = 40,
+    PAUSE_MENU_LABEL_PARTS = 3,
+    PAUSE_MENU_LABEL_WIDTH_TILES = 12,
+    PAUSE_MENU_LABEL_HEIGHT_TILES = 2,
+    PAUSE_MENU_LABEL_X = 136,
+    PAUSE_MENU_LABEL_Y = 142,
+};
+
+struct PauseMenuUploadFields
+{
+    const void *source;
+    void *destination;
+    unsigned length;
+};
+
+
+EC char const * const gPauseMenuTabLabels[PAUSE_MENU_TAB_COUNT];
+EC unsigned PauseMenuPaletteIndex(ClockPaletteAllocation *, u32) asm("ResourceHandle_GetIndex");
+EC unsigned PauseMenuBaseTile(ClockTileAllocation *, u32) asm("TileHandle_GetTileIndex");
+EC void AudioPlayer_StartSong(AudioPlayer *, u16);
+EC void FillMessageTiles(PauseMenuDimensions, void *, unsigned);
+EC void DrawMessageTileString(PauseMenuDimensions, void *, unsigned, unsigned, char const *);
+
+typedef char PauseMenuWorkLayoutCheck[
+    sizeof(PauseMenuWork) == 0x70 && offsetof(PauseMenuWork, frame) == 0 &&
+    offsetof(PauseMenuWork, cursor) == 0x20 && offsetof(PauseMenuWork, tab) == 0x28 &&
+    offsetof(PauseMenuWork, labelSprite) == 0x38 ? 1 : -1];
+
+// Register and literal-pool constraints keep the original Thumb layout.
+#define BARRIER(obj) asm("" : "+m"(obj))
+#define LOW(type, name, reg, value) register type name asm(reg) = (value); asm("" : "+l"(name))
+#define HIGH(type, name, reg, value) register type name asm(reg) = (value); asm("" : "+h"(name))
+#define FIELD_OFFSET(object, member) ((u32)&((object *)0)->member)
+#define LOAD(type, name, reg, insn, ptr, object, member) \
+    register type name asm(reg); \
+    asm volatile(insn " %0, [%1, %2]" : "=l"(name) : "l"(ptr), "i"(((u32)&((object *)0)->member)) : "memory")
+#define STORE(insn, value, ptr, object, member) \
+    asm volatile(insn " %0, [%1, %2]" : : "l"(value), "l"(ptr), "i"(((u32)&((object *)0)->member)) : "memory")
+#define LITERAL(type, name, reg, label) \
+    register type name asm(reg); \
+    asm("ldr %0, .Lpause_" #label : "=l"(name))
+#define AND(result, input) asm("and %0, %1" : "+l"(result) : "l"(input))
+#define OR(result, input) asm("orr %0, %1" : "+l"(result) : "l"(input))
+#define SP_OFFSET(member) (4 + (u32)&(((PauseMenuWork *)0)->member))
+#define SP_ADDR(type, name, reg, member, format) \
+    register type name asm(reg); \
+    asm(format : "=l"(name) : "i"(SP_OFFSET(member)) : "memory")
+#define STACK_ADDR(type, name, reg, member) SP_ADDR(type, name, reg, member, "add %0, sp, %1")
+#define SPLIT_STACK_ADDR(type, name, reg, member) SP_ADDR(type, name, reg, member, "mov %0, sp\n\tadd %0, %1")
+#define LOAD_QUEUE(upload, queueReg) \
+    LOW(PauseMenuUploadQueue *, queue, queueReg, reinterpret_cast<PauseMenuUploadQueue *>(renderer)); \
+    LOAD(const PauseMenuUploadVtable *, queueVtable, "r0", "ldr", queue, PauseMenuUploadQueue, vtable); \
+    LOAD(AppendPauseMenuUpload, append, "r2", "ldr", queueVtable, PauseMenuUploadVtable, append); \
+    append(queue, upload)
+#define RELOAD_QUEUE(upload) \
+    LOW(PauseMenuUploadQueue *, queue, "r2", reinterpret_cast<PauseMenuUploadQueue *>(renderer)); \
+    LOAD(const PauseMenuUploadVtable *, queueVtable, "r0", "ldr", queue, PauseMenuUploadQueue, vtable); \
+    LOAD(AppendPauseMenuUpload, append, "r2", "ldr", queueVtable, PauseMenuUploadVtable, append); \
+    LOW(PauseMenuUploadQueue *, queueAgain, "r0", reinterpret_cast<PauseMenuUploadQueue *>(renderer)); \
+    append(queueAgain, upload)
+#define UPLOAD(upload, data, slot, bytes, base, baseReg) \
+    LOW(unsigned, destOffset, "r0", slot * 32); \
+    LITERAL(unsigned, destinationBase, baseReg, base); \
+    LOW(unsigned, destination, "r0", destOffset + destinationBase); \
+    STORE("str", data, upload, ClockUploadTask, source); \
+    STORE("str", destination, upload, ClockUploadTask, destination); \
+    STORE("str", bytes, upload, ClockUploadTask, length)
+#define GETFRAME(sprite, keyframeIndex) \
+    LOW(SpriteAnimationSource const *, source, "r1", sprite->animator.source); \
+    LOW(const PauseMenuFrameVtable *, vtable, "r3", ((const PauseMenuFrameSource *)source)->vtable); \
+    LOW(unsigned, key, "r2", keyframeIndex); \
+    LOW(unsigned, keyOffset, "r2", key * sizeof(SpriteKeyframe)); \
+    LOAD(SpriteKeyframe const *, keys, "r0", "ldr", sprite, PauseMenuSprite, animator.clip.keyframes); \
+    LOW(SpriteKeyframe const *, keyframe, "r0", (SpriteKeyframe const *)((u32)keys + keyOffset)); \
+    LOAD(unsigned, frameId, "r2", "ldrh", keyframe, SpriteKeyframe, frame); \
+    LOW(PauseMenuFrameView *, frameOut, "r0", &work.frame); \
+    LOW(ReadPauseMenuFrame, getFrame, "r3", vtable->getFrame); \
+    getFrame(frameOut, source, frameId)
+
+#define QUEUE_SPRITE(positionWord, attr, used, queue, loadQueue, afterPosition) \
+    { \
+    LOW(unsigned, offset, "r0", used * sizeof(SpriteAttributes) + offsetof(SpriteOamBuffer, sprites)); \
+    loadQueue; \
+    LOW(SpriteAttributes *, entry, "r0", (SpriteAttributes *)((u32)queue + offset)); \
+    STORE("str", positionWord, entry, SpriteAttributes, words[0]); \
+    afterPosition; \
+    LOAD(unsigned, tileAndPalette, "r1", "ldrh", attr, PauseSpriteAttributes, tilePalette); \
+    STORE("strh", tileAndPalette, entry, SpriteAttributes, words[1]); \
+    LOW(unsigned, nextCount, "r0", used + 1); \
+    STORE("strb", nextCount, queue, SpriteOamBuffer, sprite_count); \
+    }
+#define LABEL_POOL asm volatile("b .Lpause_after_pool\n\t.align 2, 0\n" \
+    ".Lpause_palettes: .4byte 0x05000200\n" \
+    ".Lpause_labels: .4byte gPauseMenuTabLabels\n" \
+    ".Lpause_tiles: .4byte 0x06010000\n" \
+    ".Lpause_x_mask: .4byte 0x000001FF\n" \
+    ".Lpause_clear_x: .4byte 0xFE00FFFF\n" \
+    ".Lpause_clear_y: .4byte 0xFFFFFF00\n" \
+    ".Lpause_clear_palette: .4byte 0xFFFF0FFF\n" \
+    ".Lpause_clear_tile: .4byte 0xFFFFFC00\n" \
+    ".Lpause_clear_size: .4byte 0x3FFFFFFF\n" \
+    ".Lpause_clear_shape: .4byte 0xFFFF3FFF\n" \
+    ".Lpause_after_pool:" : : : "memory")
+
+#define APPEND_TAB_UPLOAD(upload) LOAD_QUEUE(upload, "r3")
+#define DRAW_ANIMATION(graphics, animation, paletteReg, baseReg, appendUpload) \
+        LOW(ClockPaletteAllocation *, allocation, "r0", &graphics->spritePalette); \
+        LOW(unsigned, paletteResult, "r0", PauseMenuPaletteIndex(allocation, allocation->handle)); \
+        LOW(PauseMenuSprite *, sprite, "r6", animation); \
+        HIGH(unsigned, palette, paletteReg, paletteResult); \
+        LOW(SpriteAnimator *, animator, "r5", &sprite->animator); \
+        LOW(unsigned, advance, "r0", AdvanceSpriteAnimator(animator)); \
+        LOW(unsigned, changed, "r4", advance); \
+        changed = changed << 30 >> 31; \
+        asm("" : "+l"(changed)); \
+        GETFRAME(sprite, animator->keyframe); \
+        if (changed) { \
+            LOW(const u8 *, tiles, "r4", work.frame.tiles); \
+            LOW(unsigned, slot, "r2", PauseMenuBaseTile(&sprite->tiles, sprite->tiles.handle)); \
+            LOW(const u8 **, info, "r1", &work.frame.tiles); \
+            LOW(const u8 *, haveTiles, "r0", work.frame.tiles); \
+            unsigned bytes = 0; \
+            if (haveTiles) bytes = *(u16 *)(info + 1); \
+            LOW(ClockUploadTask *, upload, "r1", &sprite->upload); \
+            UPLOAD(upload, tiles, slot, bytes, tiles, baseReg); \
+            appendUpload(upload); \
+        }
+#define COPY_ATTR(attr) \
+    attr = *(const PauseSpriteAttributes *)work.frame.objects; \
+    BARRIER(attr)
+#define ADD_TAB_X \
+    LOW(unsigned, tabOrigin, "r4", work.tabX); \
+    frameX += tabOrigin; \
+    asm("" : "+l"(frameX))
+#define OFFSET_X(attr, addition) \
+    LOW(unsigned, framePos, "r3", attr.position); \
+    LOW(unsigned, frameX, "r0", (framePos << 7) >> 23); \
+    addition; \
+    LITERAL(unsigned, xMask, "r1", x_mask); \
+    AND(frameX, xMask); \
+    frameX <<= 16; \
+    asm("" : "+l"(frameX)); \
+    LITERAL(unsigned, clearX, "r2", clear_x); \
+    AND(clearX, framePos); \
+    OR(clearX, frameX); \
+    attr.position = clearX; \
+    BARRIER(attr.position)
+#define OFFSET_Y(attr, source, yReg, maskReg) \
+    LOAD(unsigned, frameY, yReg, "ldrb", source, PauseSpriteAttributes, position); \
+    LOW(unsigned, offsetY, yReg, (u8)(frameY + PAUSE_MENU_TAB_Y)); \
+    LITERAL(unsigned, clearY, maskReg, clear_y); \
+    AND(clearY, clearX); \
+    OR(clearY, offsetY); \
+    attr.position = clearY; \
+    BARRIER(attr.position)
+#define PALETTE_BITS(palette, baseReg, maskReg, targetReg) \
+    LOW(unsigned, paletteLow, baseReg, palette); \
+    register unsigned paletteBits asm(targetReg); \
+    asm("lsl %0, %1, #16\n\tlsr %0, %0, #16" : "=l"(paletteBits) : "l"(paletteLow)); \
+    LOW(unsigned, lowNibble, maskReg, 15); \
+    AND(paletteBits, lowNibble); \
+    paletteBits <<= 12; \
+    asm("" : "+l"(paletteBits))
+#define CURSOR_PALETTE_MASK \
+    LITERAL(unsigned, clearPalette, "r2", clear_palette); \
+    LOAD(unsigned, oldTile, "r0", "ldr", attr, PauseSpriteAttributes, tilePalette)
+#define TAB_PALETTE_MASK \
+    STACK_ADDR(PauseSpriteAttributes *, attr, "r4", tab); \
+    LOAD(unsigned, oldTile, "r0", "ldr", attr, PauseSpriteAttributes, tilePalette); \
+    LITERAL(unsigned, clearPalette, "r3", clear_palette)
+#define SET_PALETTE(palette, baseReg, maskReg, attr, loadMask) \
+    PALETTE_BITS(palette, baseReg, maskReg, "r1"); \
+    loadMask; \
+    AND(oldTile, clearPalette); \
+    OR(oldTile, paletteBits); \
+    STORE("str", oldTile, attr, PauseSpriteAttributes, tilePalette)
+#define SET_TILE(sprite, attr) \
+    LOW(unsigned, tile, "r0", PauseMenuBaseTile(&sprite->tiles, sprite->tiles.handle)); \
+    LOW(unsigned, tileBits, "r0", tile << 22 >> 22); \
+    LITERAL(unsigned, clearTile, "r2", clear_tile); \
+    LOAD(unsigned, oldTile2, "r1", "ldr", attr, PauseSpriteAttributes, tilePalette); \
+    AND(oldTile2, clearTile); \
+    OR(oldTile2, tileBits); \
+    STORE("str", oldTile2, attr, PauseSpriteAttributes, tilePalette)
+
+ROM_TEXT(0803C028) int UpdatePauseMenuWindow(PauseMenuWindow & self, KeyRepeatState const & input,
+    OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * volatile renderer,
+    TileTransferQueue * volatile transfers, AudioPlayer * volatile audioArg)
+{
+    PauseMenuWork work;
+    PauseMenuWindow * window = &self;
+    asm("" : "+l"(window));
+    LOW(KeyRepeatState const *, keysInput, "r4", &input);
+    work.oam = reinterpret_cast<SpriteOamBuffer *>(sprites);
+    LOW(BackgroundVideoState *, background, "r1", video);
+    LOW(TileTransferQueue *, drawQueue, "r3", transfers);
+    LOW(AudioPlayer *, audio, "r5", audioArg);
+    LOW(DialogLayerRenderer *, drawRenderer, "r2", renderer);
+    LOW(int, result, "r0", UpdateDialogWindow(self, background, drawRenderer, drawQueue));
+    work.result = result;
+    BARRIER(work.result);
+    switch (result) {
+    case DIALOG_WINDOW_CLOSED: case DIALOG_WINDOW_OPENING: case DIALOG_WINDOW_CLOSING: default: goto done;
+    case DIALOG_WINDOW_OPEN: break;
+    }
+    {
+    work.text = 0;
+    BARRIER(work.text);
+    LOAD(unsigned, selectionEnabled, "r0", "ldrb", window, PauseMenuWindow, selectionEnabled);
+    if (selectionEnabled) {
+        LOW(unsigned, repeated, "r3", keysInput->repeated_keys);
+        LOW(unsigned, directions, "r2", repeated);
+        unsigned changesTab = (directions << 26 >> 31) | (directions << 27 >> 31);
+        if (changesTab) {
+            register unsigned nextTab asm("r0");
+            if (directions & PAUSE_MENU_LEFT_KEY) {
+                LOAD(unsigned, selectedLeft, "r0", "ldrb", window, PauseMenuWindow, selectedTab);
+                nextTab = selectedLeft;
+                if (nextTab == PAUSE_MENU_DIARY) { nextTab = PAUSE_MENU_TUTORIAL; goto setTab; }
+                nextTab -= 1;
+                goto setTab;
+            }
+            { LOW(unsigned, rightMask, "r0", PAUSE_MENU_RIGHT_KEY);
+            asm("and %0, %1" : "+l"(directions) : "l"(rightMask)); }
+            if (directions) {
+                LOAD(unsigned, selectedRight, "r0", "ldrb", window, PauseMenuWindow, selectedTab);
+                nextTab = selectedRight;
+                if (nextTab == PAUSE_MENU_TUTORIAL) {
+                    LOW(u8 *, textBytes, "r1", (u8 *)&work.text);
+                    LOW(unsigned, zeroTab, "r1", *textBytes);
+                    STORE("strb", zeroTab, window, PauseMenuWindow, selectedTab);
+                } else {
+                    nextTab += 1;
+                setTab:
+                    STORE("strb", nextTab, window, PauseMenuWindow, selectedTab);
+                }
+            }
+            if (audio)
+                AudioPlayer_StartSong(audio, PAUSE_MENU_MOVE_SOUND);
+            LOW(char const * const *, labels, "r0", gPauseMenuTabLabels);
+            LOAD(unsigned, selected, "r1", "ldrb", window, PauseMenuWindow, selectedTab);
+            LOW(char const *, text, "r1", labels[selected]);
+            work.text = text;
+            LOW(unsigned, halfBlink, "r0", PAUSE_MENU_CURSOR_VISIBLE_FRAMES);
+            STORE("strb", halfBlink, window, PauseMenuWindow, cursorBlinkFrames);
+        } else {
+            LOW(unsigned, confirmMask, "r0", PAUSE_MENU_CONFIRM_KEY);
+            asm("and %0, %1" : "+l"(repeated) : "l"(confirmMask));
+            if (repeated && audio) AudioPlayer_StartSong(audio, PAUSE_MENU_CONFIRM_SOUND);
+        }
+    }
+
+    LOAD(unsigned, refresh, "r0", "ldrb", window, PauseMenuWindow, needsInitialRefresh);
+    if (refresh) {
+        LOAD(PauseMenuGraphics *, graphics, "r4", "ldr", window, PauseMenuWindow, graphics);
+        LOW(PauseMenuSprite *, animation, "r0", graphics->cursor);
+        GETFRAME(animation, animation->animator.keyframe);
+        LOW(const u16 *, palette, "r5", work.frame.palette);
+        LOW(ClockPaletteAllocation *, allocation, "r0", &graphics->spritePalette);
+        LOW(unsigned, slot, "r2", PauseMenuPaletteIndex(allocation, allocation->handle));
+        LOW(const u16 **, paletteInfo, "r1", &work.frame.palette);
+        LOW(const u16 *, uploadedPalette, "r0", work.frame.palette);
+        unsigned paletteBytes = 0;
+        if (uploadedPalette) paletteBytes = *(u16 *)(paletteInfo + 1);
+        LOW(ClockUploadTask *, upload, "r1", &graphics->paletteUpload);
+        UPLOAD(upload, palette, slot, paletteBytes, palettes, "r2");
+        LOAD_QUEUE(upload, "r3");
+        LITERAL(char const * const *, labels, "r1", labels);
+        LOAD(unsigned, selected, "r0", "ldrb", window, PauseMenuWindow, selectedTab);
+        LOW(char const *, text, "r0", labels[selected]);
+        work.text = text;
+        LOW(unsigned, clear, "r0", 0);
+        STORE("strb", clear, window, PauseMenuWindow, needsInitialRefresh);
+    }
+
+    LOAD(unsigned, blink, "r0", "ldrb", window, PauseMenuWindow, cursorBlinkFrames);
+    blink -= 1;
+    STORE("strb", blink, window, PauseMenuWindow, cursorBlinkFrames);
+    if ((blink << 24) == 0) {
+        LOW(unsigned, reset, "r0", PAUSE_MENU_CURSOR_PERIOD);
+        STORE("strb", reset, window, PauseMenuWindow, cursorBlinkFrames);
+    }
+    LOAD(unsigned, blinkNow, "r0", "ldrb", window, PauseMenuWindow, cursorBlinkFrames);
+    asm volatile("cmp %0, %1\n\tbhi .Lpause_after_cursor"
+        : : "l"(blinkNow), "i"(PAUSE_MENU_CURSOR_VISIBLE_FRAMES - 1) : "cc", "memory");
+    {
+        LOAD(PauseMenuGraphics *, graphics, "r0", "ldr", window, PauseMenuWindow, graphics);
+        LOAD(unsigned, selected, "r1", "ldrb", window, PauseMenuWindow, selectedTab);
+        HIGH(unsigned, x, "r8", selected * PAUSE_MENU_TAB_SPACING + PAUSE_MENU_TAB_SPACING);
+        LOW(PauseMenuSprite *, animation, "r4", graphics->cursor);
+        DRAW_ANIMATION(graphics, animation, "r9", "r5", RELOAD_QUEUE);
+        COPY_ATTR(work.cursor);
+        OFFSET_X(work.cursor, asm("add %0, %1" : "+l"(frameX) : "h"(x)));
+        STACK_ADDR(PauseSpriteAttributes *, attr, "r4", cursor);
+        OFFSET_Y(work.cursor, attr, "r0", "r1");
+        SET_PALETTE(palette, "r3", "r0", attr, CURSOR_PALETTE_MASK);
+        SET_TILE(sprite, attr);
+        LOW(unsigned, mosaic, "r0", 0x1000);
+        LOW(unsigned, visible, "r1", work.cursor.position);
+        OR(visible, mosaic);
+        work.cursor.position = visible;
+        BARRIER(work.cursor.position);
+        LOW(SpriteOamBuffer *, queue, "r5", work.oam);
+        LOAD(unsigned, count, "r2", "ldrb", queue, SpriteOamBuffer, sprite_count);
+        if (count < ARRAY_COUNT(queue->sprites)) QUEUE_SPRITE(visible, attr, count, queue, , );
+    }
+    asm volatile(".Lpause_after_cursor:" : : : "memory");
+    LOAD(PauseMenuGraphics *, tabsLow, "r0", "ldr", window, PauseMenuWindow, graphics);
+    HIGH(PauseMenuGraphics *, tabs, "r10", tabsLow);
+    LOW(unsigned, firstTab, "r1", 0);
+    HIGH(unsigned, tab, "r9", firstTab);
+    SPLIT_STACK_ADDR(u8 *, tabY, "r2", tab);
+    work.tabY = tabY;
+    LOW(unsigned, negatedText, "r3", 0u - (unsigned)work.text);
+    work.negatedText = negatedText;
+    SPLIT_STACK_ADDR(PauseSpriteAttributes *, labelAttributes, "r4", labelSprite);
+    work.labelAttributes = labelAttributes;
+    LOW(unsigned, tabX, "r5", PAUSE_MENU_TAB_SPACING);
+    work.tabX = tabX;
+    BARRIER(work.tabX);
+    do {
+        LOW(unsigned, tabIndex, "r1", tab);
+        LOW(unsigned, tabOffset, "r0", tabIndex * sizeof(PauseMenuSprite *));
+        asm("add %0, %1" : "+l"(tabOffset) : "h"(tabs));
+        LOAD(PauseMenuSprite *, animation, "r4", "ldr", tabOffset, PauseMenuGraphics, tabs);
+        DRAW_ANIMATION(tabs, animation, "r8", "r2", APPEND_TAB_UPLOAD);
+        COPY_ATTR(work.tab);
+        OFFSET_X(work.tab, ADD_TAB_X);
+        LOW(u8 *, tabY, "r5", work.tabY);
+        OFFSET_Y(work.tab, tabY, "r1", "r0");
+        SET_PALETTE(palette, "r0", "r2", attr, TAB_PALETTE_MASK);
+        SET_TILE(sprite, attr);
+        LOW(unsigned, visible, "r1", work.tab.position);
+        LOW(unsigned, mosaic, "r5", 0x1000);
+        OR(visible, mosaic);
+        work.tab.position = visible;
+        BARRIER(work.tab.position);
+        LOW(SpriteOamBuffer *, queue, "r0", work.oam);
+        LOAD(unsigned, count, "r2", "ldrb", queue, SpriteOamBuffer, sprite_count);
+        if (count < ARRAY_COUNT(queue->sprites)) {
+            QUEUE_SPRITE(visible, attr, count, appendQueue,
+                LOW(SpriteOamBuffer *, appendQueue, "r3", work.oam), );
+        }
+        LOW(unsigned, x, "r4", work.tabX);
+        x += PAUSE_MENU_TAB_SPACING;
+        work.tabX = x;
+        BARRIER(work.tabX);
+        LOW(unsigned, one, "r5", 1);
+        asm("add %0, %1" : "+h"(tab) : "l"(one));
+    } while (tab < PAUSE_MENU_TAB_COUNT);
+
+    LOAD(PauseMenuGraphics *, labelGraphics, "r7", "ldr", window, PauseMenuWindow, graphics);
+    HIGH(PauseMenuGraphics *, graphics, "r8", labelGraphics);
+    LOW(char const *, newText, "r1", work.text);
+    if (newText) {
+        STACK_ADDR(PauseMenuDimensions *, fillDimensions, "r0", fillDimensions);
+        LOW(unsigned, labelWidth, "r4", PAUSE_MENU_LABEL_WIDTH_TILES);
+        LOW(unsigned, labelHeight, "r5", PAUSE_MENU_LABEL_HEIGHT_TILES);
+        STORE("strh", labelWidth, fillDimensions, PauseMenuDimensions, width);
+        STORE("strh", labelHeight, fillDimensions, PauseMenuDimensions, height);
+        LOW(PauseMenuDimensions, fillSize, "r0", work.fillDimensions);
+        LOW(u8 *, tiles, "r6", &graphics->label.tiles[0][0][0][0]);
+        FillMessageTiles(fillSize, tiles, 0);
+        STACK_ADDR(PauseMenuDimensions *, drawDimensions, "r0", drawDimensions);
+        STORE("strh", labelWidth, drawDimensions, PauseMenuDimensions, width);
+        STORE("strh", labelHeight, drawDimensions, PauseMenuDimensions, height);
+        LOW(PauseMenuDimensions, drawSize, "r0", work.drawDimensions);
+        LOW(char const *, text, "r2", work.text);
+        DrawMessageTileString(drawSize, tiles, 0, 0, text);
+    }
+    LOW(ClockPaletteAllocation *, allocation, "r0", &graphics->spritePalette);
+    LOW(unsigned, palette, "r0", PauseMenuPaletteIndex(allocation, allocation->handle));
+    LOW(unsigned, textChanged, "r3", work.negatedText);
+    LOW(unsigned, textPointer, "r4", (unsigned)work.text);
+    OR(textChanged, textPointer);
+    LOW(PauseMenuLabel *, label, "r5", &graphics->label);
+    work.label = label;
+    BARRIER(work.label);
+    LOW(unsigned, labelChanged, "r1", textChanged >> 31);
+    work.labelChanged = labelChanged;
+    BARRIER(work.labelChanged);
+    LOW(unsigned, emptyPosition, "r1", 0);
+    LOW(unsigned, emptyTile, "r2", 0);
+    work.labelSprite.position = emptyPosition;
+    work.labelSprite.tilePalette = emptyTile;
+    BARRIER(work.labelSprite);
+    LITERAL(unsigned, sizeMask, "r2", clear_size);
+    LOW(unsigned, labelPos, "r1", work.labelSprite.position);
+    AND(labelPos, sizeMask);
+    LOW(unsigned, oamSize, "r2", 0x80000000u);
+    OR(labelPos, oamSize);
+    LITERAL(unsigned, shapeMask, "r2", clear_shape);
+    AND(labelPos, shapeMask);
+    LOW(unsigned, oamShape, "r2", 0x4000);
+    OR(labelPos, oamShape);
+    work.labelSprite.position = labelPos;
+    BARRIER(work.labelSprite.position);
+    LOW(unsigned, paletteBits, "r0", (u16)palette);
+    LOW(unsigned, lowNibble, "r2", 15);
+    AND(paletteBits, lowNibble);
+    paletteBits <<= 12;
+    asm("" : "+l"(paletteBits));
+    {
+        LOW(PauseSpriteAttributes *, attr, "r3", work.labelAttributes);
+        LOAD(unsigned, oldTile, "r1", "ldr", attr, PauseSpriteAttributes, tilePalette);
+        LITERAL(unsigned, clearPalette, "r4", clear_palette);
+        AND(oldTile, clearPalette);
+        OR(oldTile, paletteBits);
+        STORE("str", oldTile, attr, PauseSpriteAttributes, tilePalette);
+    }
+    LOW(unsigned, labelYPos, "r0", work.labelSprite.position);
+    LITERAL(unsigned, clearY, "r5", clear_y);
+    AND(labelYPos, clearY);
+    LOW(unsigned, labelY, "r1", PAUSE_MENU_LABEL_Y);
+    OR(labelYPos, labelY);
+    LOW(unsigned, mosaic, "r1", 0x1000);
+    OR(labelYPos, mosaic);
+    work.labelSprite.position = labelYPos;
+    BARRIER(work.labelSprite.position);
+    LOW(unsigned, part, "r4", 0);
+    LOW(u8 *, labelTiles, "r2", &graphics->label.tiles[0][0][0][0]);
+    work.labelTiles = labelTiles;
+    BARRIER(work.labelTiles);
+    asm volatile(".Lpause_label_part:" : "+l"(part) : : "memory");
+    {
+        LOW(unsigned, partOffset, "r0", part * sizeof(ClockTileAllocation));
+        LOW(PauseMenuLabel *, partLabel, "r3", work.label);
+        partOffset += (u32)partLabel;
+        asm("" : "+l"(partOffset));
+        LOW(unsigned, tileOffset, "r5", FIELD_OFFSET(PauseMenuLabel, tileAllocations));
+        LOW(ClockTileAllocation *, tileAllocation, "r0", (ClockTileAllocation *)(partOffset + tileOffset));
+        HIGH(unsigned, tile, "r8", PauseMenuBaseTile(tileAllocation, tileAllocation->handle));
+        HIGH(unsigned, xOffset, "r10", part * 32);
+        LOW(unsigned, nextPart, "r1", part + 1);
+        work.nextPart = nextPart;
+        BARRIER(work.nextPart);
+        LOW(unsigned, changed, "r2", work.labelChanged);
+        if (changed) {
+            LOW(unsigned, row, "r3", 0);
+            LOW(unsigned, partTimes2, "r2", part * 2);
+            LOW(unsigned, partTimes4, "r1", part * 4);
+            LOW(unsigned, bytesLow, "r4", 128);
+            HIGH(unsigned, bytes, "r9", bytesLow);
+            LOW(unsigned, uploadOffset, "r1", (partTimes4 + partTimes2) * 8);
+            LOW(PauseMenuLabel *, label, "r5", work.label);
+            LOW(unsigned, uploadFieldsOffset, "r4", FIELD_OFFSET(PauseMenuLabel, rowUploads[0][0].source));
+            LOW(unsigned, labelFields, "r0", (u32)label + uploadFieldsOffset);
+            LOW(PauseMenuUploadFields *, fields, "r4", (PauseMenuUploadFields *)(uploadOffset + labelFields));
+            LOW(unsigned, tileLow, "r5", tile);
+            LOW(unsigned, destOffset, "r0", tileLow * 32);
+            LITERAL(unsigned, objTileBase, "r5", tiles);
+            LOW(unsigned, dest, "r7", destOffset + objTileBase);
+            LOW(unsigned, sourceOffset, "r2", partTimes2 * 64);
+            LOW(u8 *, tileSource, "r0", work.labelTiles);
+            LOW(u8 *, source, "r6", (u8 *)(sourceOffset + (unsigned)tileSource));
+            LOW(PauseMenuLabel *, labelAgain, "r2", work.label);
+            LOW(unsigned, labelUploadOffset, "r5", FIELD_OFFSET(PauseMenuLabel, rowUploads));
+            LOW(unsigned, labelUpload, "r0", (u32)labelAgain + labelUploadOffset);
+            LOW(ClockUploadTask *, upload, "r5", (ClockUploadTask *)(uploadOffset + labelUpload));
+            do {
+                STORE("str", source, fields, PauseMenuUploadFields, source);
+                STORE("str", dest, fields, PauseMenuUploadFields, destination);
+                LOW(unsigned, rowBytes, "r0", bytes);
+                STORE("str", rowBytes, fields, PauseMenuUploadFields, length);
+                LOW(PauseMenuUploadQueue *, queue, "r1", reinterpret_cast<PauseMenuUploadQueue *>(renderer));
+                LOAD(const PauseMenuUploadVtable *, queueVtable, "r0", "ldr", queue, PauseMenuUploadQueue, vtable);
+                LOAD(AppendPauseMenuUpload, append, "r2", "ldr", queueVtable, PauseMenuUploadVtable, append);
+                LOW(PauseMenuUploadQueue *, queueArg, "r0", queue);
+                LOW(ClockUploadTask *, uploadArg, "r1", upload);
+                work.row = row;
+                BARRIER(work.row);
+                append(queueArg, uploadArg);
+                fields = (PauseMenuUploadFields *)((u8 *)fields + sizeof(ClockUploadTask));
+                asm("" : "+l"(fields));
+                dest += 128;
+                asm("" : "+l"(dest));
+                LOW(unsigned, lineStride, "r2", 384);
+                source += lineStride;
+                asm("" : "+l"(source));
+                ++upload;
+                asm("" : "+l"(upload));
+                row = work.row;
+                asm("" : "+l"(row));
+                ++row;
+                asm("" : "+l"(row));
+            } while (row <= 1);
+        }
+        LOW(unsigned, tileLow, "r3", tile);
+        LOW(unsigned, tileBits, "r1", tileLow << 22 >> 22);
+        LITERAL(unsigned, clearTile, "r2", clear_tile);
+        LOW(PauseSpriteAttributes *, attr, "r4", work.labelAttributes);
+        LOAD(unsigned, oldTile, "r0", "ldr", attr, PauseSpriteAttributes, tilePalette);
+        AND(oldTile, clearTile);
+        OR(oldTile, tileBits);
+        STORE("str", oldTile, attr, PauseSpriteAttributes, tilePalette);
+        LOW(unsigned, x, "r1", xOffset);
+        x += PAUSE_MENU_LABEL_X;
+        asm("" : "+l"(x));
+        LITERAL(unsigned, xMask, "r0", x_mask);
+        AND(x, xMask);
+        x <<= 16;
+        asm("" : "+l"(x));
+        LITERAL(unsigned, clearX, "r0", clear_x);
+        LOW(unsigned, labelPos, "r2", work.labelSprite.position);
+        AND(labelPos, clearX);
+        OR(labelPos, x);
+        work.labelSprite.position = labelPos;
+        BARRIER(work.labelSprite.position);
+        LOW(SpriteOamBuffer *, queue, "r5", work.oam);
+        LOAD(unsigned, count, "r3", "ldrb", queue, SpriteOamBuffer, sprite_count);
+        if (count < ARRAY_COUNT(queue->sprites)) QUEUE_SPRITE(labelPos, attr, count, queue, , LABEL_POOL);
+        part = work.nextPart;
+        asm("" : "+l"(part));
+        asm volatile("cmp %0, %1\n\tbls .Lpause_label_part"
+            : : "l"(part), "i"(PAUSE_MENU_LABEL_PARTS - 1) : "cc", "memory");
+    }
+    }
+done:
+    return work.result;
+}
+
+#undef BARRIER
+#undef LOW
+#undef HIGH
+#undef FIELD_OFFSET
+#undef LOAD
+#undef STORE
+#undef LITERAL
+#undef AND
+#undef OR
+#undef SP_OFFSET
+#undef SP_ADDR
+#undef STACK_ADDR
+#undef SPLIT_STACK_ADDR
+#undef LOAD_QUEUE
+#undef RELOAD_QUEUE
+#undef UPLOAD
+#undef GETFRAME
+#undef QUEUE_SPRITE
+#undef APPEND_TAB_UPLOAD
+#undef DRAW_ANIMATION
+#undef COPY_ATTR
+#undef OFFSET_X
+#undef OFFSET_Y
+#undef PALETTE_BITS
+#undef SET_PALETTE
+#undef SET_TILE
+#undef LABEL_POOL
+#undef ADD_TAB_X
+#undef CURSOR_PALETTE_MASK
+#undef TAB_PALETTE_MASK
 
 ROM_TEXT(0803C518) void OpenPauseMenuWindow(PauseMenuWindow & self)
 {
@@ -4661,8 +5310,6 @@ ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const 
 
 struct AudioPlayer;
 
-EC int UpdatePauseMenuWindow(PauseMenuWindow &, KeyRepeatState const &, OamBuffer *,
-    BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *, AudioPlayer *);
 EC void func_0803BE50(DialogWindow &, int);
 EC void DestroyPauseMenuGraphics(PauseMenuGraphics *, int) asm("func_080E0C38");
 EC char const gPauseMenuWindowVtable[];
