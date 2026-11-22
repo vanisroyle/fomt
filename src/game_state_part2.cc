@@ -1806,7 +1806,7 @@ struct GameStateLooseItemInfo
 
 struct GameStateLooseItemStore
 {
-    RucksackItem PickUp(u32, GameStateLooseItemRect const &, u32) asm("func_080A1B38");
+    RucksackItem PickUp(u32, GameStateLooseItemRect const &, u32) asm("PickUpMapForageItem");
 };
 
 EC int FindLooseItem(GameStateLooseItemStore const &, u32, GameStateLooseItemRect const &, u32)
