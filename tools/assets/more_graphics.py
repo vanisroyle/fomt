@@ -7,6 +7,7 @@ import struct
 import fomt_assets as fa
 import indexed_png
 import unpack_codec as codec
+import graphics_reference_audit
 
 
 TABLE, COUNT, STRIDE = 0x105EDC, 66, 40
@@ -203,9 +204,10 @@ def edited(rom, assets, g):
     return scenes, streams, raw
 
 
-def relocation_audit(streams):
+def relocation_audit(streams, rom=None):
     compressed = tuple((address, stream["size"]) for address, stream in sorted(streams.items()) if stream["compressed"])
-    return compressed + NON_POINTER_STREAMS, INSTRUCTION_BYTES
+    additional = graphics_reference_audit.regions(rom) if rom is not None else ()
+    return compressed + NON_POINTER_STREAMS, INSTRUCTION_BYTES + additional
 
 
 def emit_part(rom, address, stream, value, output, g, audit=((), ())):
@@ -231,7 +233,7 @@ def emit_part(rom, address, stream, value, output, g, audit=((), ())):
 def build(rom, assets, output, g):
     scenes, streams, raw = edited(rom, assets, g)
     fragments, layout, products = {}, {}, []
-    audit = relocation_audit(streams)
+    audit = relocation_audit(streams, rom)
     for address, stream in sorted(streams.items()):
         fragments[address], layout[f"{address:06X}"] = emit_part(rom, address, stream, raw[address], output, g, audit)
     covered = set()
@@ -308,7 +310,7 @@ def roundtrip(rom, assets, g):
             raise ValueError(f"more graphics {address:#x} is edited; roundtrip requires unmodified assets")
     compressed = sum(stream["compressed"] for stream in streams.values())
     print(f"More graphics source roundtrip: {len(streams)}/{len(streams)} payloads byte-identical; {compressed} Unpack streams; {len(scenes)} background definitions")
-    audit = relocation_audit(streams)
+    audit = relocation_audit(streams, rom)
     movable = sum(g.growth_safe(rom, (address, stream["size"], tuple(sorted(set(stream["references"])))), *audit)
                   for address, stream in streams.items() if stream["compressed"])
     print(f"More graphics relocation audit: {movable}/{compressed} compressed streams can relocate through audited symbolic roots")

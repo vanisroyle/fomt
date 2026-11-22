@@ -91,7 +91,7 @@ gUnk_0852D050:
 
 	.global gUnk_0852D984
 gUnk_0852D984:
-	.incbin "baserom.gba", 0x52D984, 0x5E0A4
+	.incbin "build/assets/graphics-portraits.bin"
 
 	.global gUnk_0858BA28
 gUnk_0858BA28:
@@ -559,15 +559,17 @@ gUnk_08740908:
 
 	.global gUnk_087409E4
 gUnk_087409E4:
-	.incbin "baserom.gba", 0x7409E4, 0x2674
+	.incbin "baserom.gba", 0x7409E4, 0x1010
+	.include "build/assets/graphics-rest-maps.s"
 
 	.global gUnk_08743058
-gUnk_08743058:
-	.incbin "baserom.gba", 0x743058, 0x49BC
+.set gUnk_08743058, gRestGraphics_743058
+	.include "build/assets/graphics-rest-743058.s"
 
 	.global gUnk_08747A14
-gUnk_08747A14:
-	.incbin "baserom.gba", 0x747A14, 0x60
+.set gUnk_08747A14, gRestGraphics_747A14
+	.include "build/assets/graphics-rest-747A14.s"
+	.incbin "baserom.gba", 0x747A54, 0x20
 
 	.include "build/assets/graphics-title-resource.s"
 	.include "build/assets/graphics-title-map-0.s"
