@@ -3,8 +3,8 @@
 
     .section .text.game_state_08010358, "ax", %progbits
 
-    thumb_func_start func_08010358
-func_08010358: @ 0x08010358
+    thumb_func_start SaveData_InitializeNewGame
+SaveData_InitializeNewGame: @ 0x08010358
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -1351,8 +1351,8 @@ func_08010358: @ 0x08010358
 
     .section .text.game_state_08010F54, "ax", %progbits
 
-    thumb_func_start func_08010F54
-func_08010F54: @ 0x08010F54
+    thumb_func_start SaveData_RunDayUpdate
+SaveData_RunDayUpdate: @ 0x08010F54
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -3264,91 +3264,6 @@ GameScript_SetGameTime: @ 0x08014318
     .section .text.game_state_0801437C, "ax", %progbits
     .section .text.game_state_08014410, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant25
-GameScript_QueueSceneVariant25: @ 0x08014410
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    sub sp, #0x1c
-    mov r8, r1
-    ldr r7, [r0, #4]
-    movs r0, #0x25
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r6, r7, #0
-    adds r6, #0x8c
-    ldr r1, [r6]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r5}
-    stm r2!, {r3, r4, r5}
-    ldr r1, .L080144B4 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r5}
-    stm r2!, {r3, r4, r5}
-    str r0, [sp, #0xc]
-    movs r0, #0x10
-    bl __builtin_new
-    ldr r5, [sp, #0xc]
-    movs r4, #0
-    str r4, [sp, #0xc]
-    str r5, [sp, #0x10]
-    mov r1, r8
-    rsbs r2, r1, #0
-    orrs r2, r1
-    lsrs r2, r2, #0x1f
-    ldr r3, [r6]
-    ldr r1, .L080144B8 @ =vtable_unk_080E5D34
-    str r1, [r0]
-    str r4, [sp, #0x10]
-    str r5, [r0, #4]
-    str r3, [r0, #8]
-    strb r2, [r0, #0xc]
-    adds r5, r7, #0
-    adds r5, #0xa4
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L0801448A
-    cmp r1, #0
-    beq .L0801448A
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L0801448A:
-    str r4, [r5]
-    adds r1, r7, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L080144A6
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L080144A6:
-    add sp, #0x1c
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L080144B4: .4byte vtable_unk_080E5E74
-.L080144B8: .4byte vtable_unk_080E5D34
-
     .section .text.game_state_08014550, "ax", %progbits
 
     .section .text.game_state_080145F8, "ax", %progbits
@@ -3934,7 +3849,7 @@ GameScript_RebuildMapScene: @ 0x08014AF8
     adds r4, r5, #0
     adds r4, #0x8c
     ldr r0, [r4]
-    bl func_08010F54
+    bl SaveData_RunDayUpdate
     adds r6, r5, #0
     adds r6, #0xa8
     ldr r1, [r4]
@@ -5377,8 +5292,8 @@ GameScript_RemoveLivestockInState1: @ 0x08015790
 
     .section .text.game_state_080159B0, "ax", %progbits
 
-    thumb_func_start func_080159B0
-func_080159B0: @ 0x080159B0
+    thumb_func_start GameScript_GenerateMineFloor
+GameScript_GenerateMineFloor: @ 0x080159B0
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -6003,8 +5918,8 @@ func_080159B0: @ 0x080159B0
 .L08015E28: .4byte 0xFFFFFECC
 .L08015E2C: .4byte 0x00002E58
 
-    thumb_func_start func_08015E30
-func_08015E30: @ 0x08015E30
+    thumb_func_start GameScript_DescendMineFloor
+GameScript_DescendMineFloor: @ 0x08015E30
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -7269,14 +7184,7 @@ func_08015E30: @ 0x08015E30
     .align 2, 0
 .L08016750: .4byte 0x000003FF
 .L08016754: .4byte 0xFFFFFC00
-.L08016758:
-    .byte 0x10, 0xB5, 0x40, 0x68, 0x04, 0x1C, 0xBC, 0x34
-    .byte 0xA8, 0x30, 0x00, 0x68, 0x01, 0x68, 0xA4, 0x22, 0x52, 0x00, 0x89, 0x18, 0x09, 0x68, 0xBD, 0xF0
-    .byte 0xCF, 0xF8, 0x01, 0x1C, 0x09, 0x04, 0x09, 0x0C, 0x20, 0x1C, 0xF2, 0xF7, 0x05, 0xFA, 0x10, 0xBC
-    .byte 0x01, 0xBC, 0x00, 0x47
-
-
-
+    .section .text.game_state_08016758, "ax", %progbits
 
     .section .text.game_state_080167DC, "ax", %progbits
 
@@ -8018,8 +7926,8 @@ GameStateMap_BuildFarmTerrain: @ 0x080171F8
     .section .text.game_state_080174C8, "ax", %progbits
     .section .text.game_state_080175B4, "ax", %progbits
 
-    thumb_func_start func_080175B4
-func_080175B4: @ 0x080175B4
+    thumb_func_start GameStateMapScene_Initialize
+GameStateMapScene_Initialize: @ 0x080175B4
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -8782,8 +8690,8 @@ GameStateMapScene_Destroy: @ 0x080179CC
 
 
     .section .text.game_state_08017C30, "ax", %progbits
-    thumb_func_start func_08017C30
-func_08017C30: @ 0x08017C30
+    thumb_func_start GameStateMapScene_Update
+GameStateMapScene_Update: @ 0x08017C30
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -9620,8 +9528,8 @@ func_08017C30: @ 0x08017C30
 .L080182C0: .4byte 0x00001054
 .L080182C4: .4byte 0x0000214C
 
-    thumb_func_start func_080182C8
-func_080182C8: @ 0x080182C8
+    thumb_func_start GameStateMapScene_Draw
+GameStateMapScene_Draw: @ 0x080182C8
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb

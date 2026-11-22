@@ -6124,7 +6124,7 @@ func_080D6C58: @ 0x080D6C58
 	adds r1, r6, #0
 	mov r2, r8
 	adds r3, r5, #0
-	bl func_08010358
+	bl SaveData_InitializeNewGame
 	adds r1, r0, #0
 	str r1, [r7, #4]
 	adds r0, r7, #0
