@@ -1509,7 +1509,7 @@ EC SECTION(".text.080ADB24") void ClearMapSceneObjectPaletteFlag(MapScene & scen
     scene.objectPalettes[slot].flag = false;
 }
 EC void StartMapCameraPan(MapUpdateState & map, int x, int y, u32 pixelsPerStep);
-EC void func_080A5960(MapUpdateState & map, int x, int y);
+EC void SetMapCameraPosition(MapUpdateState & map, int x, int y);
 
 EC SECTION(".text.080AD938") void SetMapGridCell(MapScene & scene, int column, int row, u32 const & value)
 {
@@ -1656,7 +1656,7 @@ EC SECTION(".text.080ADB9C") void ScrollMapTowardPixel(MapScene & scene, int x, 
 
 EC SECTION(".text.080ADBA8") void CenterMapScrollOnPixel(MapScene & scene, int x, int y)
 {
-    func_080A5960(*scene.map, x, y);
+    SetMapCameraPosition(*scene.map, x, y);
 }
 
 EC SECTION(".text.080ADA84") u32 GetDefaultMapPixelHeight(MapScene const &, u32 mapId)

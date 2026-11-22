@@ -1,6 +1,7 @@
 #include "prelude.h"
 #include <new>
 #include <stdlib.h>
+#include "sprite_rendering.hh"
 
 struct AnimalFestivalScore
 {
@@ -155,6 +156,450 @@ EC SECTION(".text.festival_results.08052230") void GenerateAnimalFestivalScores(
         i32 roll = rand();
         table->entries[index].score = gUnk_080FA174[level][index] + (roll >> 8) % 10;
     }
+}
+
+struct FrisbeeDisplayRegisters
+{
+    u16 control;
+    u8 padding02[6];
+    u16 backgroundControl[4];
+    u16 scroll[4][2];
+};
+
+EC FrisbeeDisplayRegisters * HardwareContext_GetDisplayRegisters(void *);
+EC void Dma3_Fill(u32, void *, u32);
+EC void Dma3_Copy(const void *, void *, u32);
+EC void Unpack(const void *, void *);
+EC const u8 gUnk_08738AD8[];
+EC const u8 gUnk_08738CC8[];
+EC const u8 gUnk_08738CF0[];
+EC const u8 gUnk_08738D1C[];
+EC const u8 gUnk_087399C4[];
+EC const u8 gUnk_08739A64[];
+
+#define WRITE_FRISBEE_REGISTER(field, value, reg) { \
+    FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen); \
+    volatile u16 * scratch = &settingScratch; \
+    register u32 setting asm("r3") = value; \
+    asm ("" : : "r" (setting)); \
+    register u32 output asm(reg) = setting; \
+    *scratch = output; \
+    display->field = output; \
+}
+#define CLEAR_FRISBEE_SCROLL(index) { \
+    FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen); \
+    volatile u16 * scratch = &settingScratch; \
+    *scratch = zero; \
+    display->scroll[index][0] = zero; \
+}
+
+EC SECTION(".text.frisbee.08054F40") void LoadFrisbeeBackground(void * screen)
+{
+    volatile u16 settingScratch;
+    Dma3_Fill(0, (void *) 0x06007fe0, 32);
+    Dma3_Fill(~0u, (void *) 0x0600e000, 0x800);
+    register void * mapInput asm("r1") = (void *) 0x0600e800;
+    asm ("" : "+r" (mapInput));
+    void * secondMap = mapInput;
+    Dma3_Fill(~0u, secondMap, 0x800);
+    Dma3_Fill(~0u, (void *) 0x0600f000, 0x800);
+    register const u8 * pattern asm("r0") = gUnk_08738AD8;
+    asm ("" : : "r" (pattern));
+    register u32 tilemapOffset asm("r2") = 0x1d5a;
+    asm ("" : : "r" (pattern), "r" (tilemapOffset));
+    u8 * tilemap = (u8 *) screen + tilemapOffset;
+    Unpack(pattern, tilemap);
+    Dma3_Copy(tilemap, (void *) 0x0600e000, 0x500);
+    Dma3_Copy(tilemap, secondMap, 0xc0);
+    Unpack(gUnk_08738CC8, tilemap);
+    Unpack(gUnk_08738CF0, tilemap);
+    Unpack(gUnk_08738D1C, (void *) 0x06000000);
+    Dma3_Copy(gUnk_087399C4, (void *) 0x05000000, 0x200);
+    register const u8 * animationPattern asm("r0") = gUnk_08739A64;
+    asm ("" : : "r" (animationPattern));
+    register u32 patternOffset asm("r3") = 0x558;
+    asm ("" : : "r" (animationPattern), "r" (patternOffset));
+    Unpack(animationPattern, (u8 *) screen + patternOffset);
+    WRITE_FRISBEE_REGISTER(control, 0x1e40, "r2");
+    u32 zero = 0;
+    WRITE_FRISBEE_REGISTER(backgroundControl[3], 0x1c43, "r1");
+    WRITE_FRISBEE_REGISTER(backgroundControl[2], 0x1d42, "r1");
+    WRITE_FRISBEE_REGISTER(backgroundControl[1], 0x1e41, "r1");
+    CLEAR_FRISBEE_SCROLL(1);
+    {
+        FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen);
+        settingScratch = zero;
+        display->scroll[1][1] = zero;
+    }
+    CLEAR_FRISBEE_SCROLL(2);
+    {
+        FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen);
+        settingScratch = zero;
+        display->scroll[2][1] = zero;
+    }
+    CLEAR_FRISBEE_SCROLL(3);
+    {
+        FrisbeeDisplayRegisters * display = HardwareContext_GetDisplayRegisters(screen);
+        settingScratch = zero;
+        display->scroll[3][1] = zero;
+    }
+}
+
+#undef WRITE_FRISBEE_REGISTER
+#undef CLEAR_FRISBEE_SCROLL
+
+EC void DrawFrisbeeSymbol(void *, i32, i32, i32);
+
+struct FrisbeeScoreboardState
+{
+    u8 padding0000[0x22c4];
+    i16 distance;
+    i16 recordDistance;
+    i16 firstThrowDistance;
+    i16 secondThrowDistance;
+    u8 visibleScores;
+    u8 flashingScores;
+    u8 flashTimer;
+    u8 padding22cf[0x55];
+    u8 scoreDisplayMode;
+};
+EC void DrawFrisbeeNumber(void *, i32, i32, i32, u32);
+EC SECTION(".text.frisbee.08057B84") void DrawFrisbeeScoreboard(void * screen)
+{
+    FrisbeeScoreboardState * state = (FrisbeeScoreboardState *) screen;
+    DrawFrisbeeNumber(screen, 8, 12, state->distance, 0);
+    DrawFrisbeeSymbol(screen, 64, 20, 11);
+    if (state->scoreDisplayMode == 0)
+    {
+        if (state->visibleScores & 1)
+        {
+            DrawFrisbeeSymbol(screen, 160, 16, 26);
+            DrawFrisbeeNumber(screen, 192, 16, state->recordDistance, 1);
+            DrawFrisbeeSymbol(screen, 224, 16, 23);
+        }
+    }
+    else
+    {
+        if (state->visibleScores & 2)
+        {
+            DrawFrisbeeSymbol(screen, 160, 8, 24);
+            DrawFrisbeeNumber(screen, 192, 8, state->firstThrowDistance, 1);
+            DrawFrisbeeSymbol(screen, 224, 8, 23);
+        }
+        if (state->visibleScores & 4)
+        {
+            DrawFrisbeeSymbol(screen, 160, 24, 25);
+            DrawFrisbeeNumber(screen, 192, 22, state->secondThrowDistance, 1);
+            DrawFrisbeeSymbol(screen, 224, 22, 23);
+        }
+    }
+    ++state->flashTimer;
+    if (!(state->flashTimer & 15)) state->visibleScores ^= state->flashingScores;
+}
+
+EC SECTION(".text.frisbee.08057CB0") void DrawFrisbeeNumber(void * volatile screen, i32 x, i32 inputY, i32 inputValue, u32 small)
+{
+    register i32 y asm("r10") = inputY;
+    register i32 value asm("r9") = inputValue;
+    register u32 mode asm("r1") = small;
+    asm ("" : "+r" (mode));
+    i32 divisor = 100;
+    register i32 symbol asm("r3") = 0;
+    if (mode)
+    {
+        symbol = 12;
+    }
+    i32 initialSpacing = 8;
+    if (!mode)
+    {
+        initialSpacing = 16;
+    }
+    register i32 firstSymbol asm("r8") = symbol;
+    asm ("" : "+r" (initialSpacing));
+    i32 spacing = initialSpacing;
+    do
+    {
+        i32 digit = value / divisor;
+        register i32 base asm("r0") = firstSymbol;
+        asm ("" : "+r" (base));
+        DrawFrisbeeSymbol(screen, x, y, digit + base);
+        x += spacing;
+        value -= digit * divisor;
+        divisor /= 10;
+        if (divisor == 1)
+        {
+            void * markerScreen = screen;
+            register i32 markerX asm("r1") = x;
+            register i32 markerY asm("r3") = y;
+            asm ("" : "+r" (markerX), "+r" (markerY));
+            DrawFrisbeeSymbol(markerScreen, markerX, markerY + spacing, firstSymbol + 10);
+            x += 8;
+        }
+    } while (divisor > 0);
+}
+
+struct FrisbeeSymbolGraphics
+{
+    u8 padding[0x2334];
+    u32 tileOffsets[29];
+};
+struct FrisbeeSpritePlacement
+{
+    u16 x, y, palette, tile, priority;
+    u32 objectMode;
+    u8 flip, affineIndex;
+    u32 affineMode;
+    u8 mosaic;
+    FrisbeeSpritePlacement() : x(0), y(0), palette(0), tile(0), priority(0), objectMode(0), flip(0), affineIndex(0), affineMode(0), mosaic(0) {}
+};
+struct FrisbeeSymbolFrame
+{
+    const void * objects;
+    u16 count;
+    u16 padding;
+    u32 remaining[6];
+};
+EC void func_0805E790(FrisbeeSymbolFrame *, void *, u32);
+struct ResourceHandleOwner;
+struct TileHeapOwner;
+EC u32 ResourceHandle_GetIndex(ResourceHandleOwner *, u32);
+EC u32 TileHandle_GetTileIndex(TileHeapOwner *, u32);
+EC void * HardwareContext_GetOamBuffer(void *);
+EC void func_0805E99C(void *, const void *, u32, const FrisbeeSpritePlacement *);
+EC SECTION(".text.frisbee.08057D34") void DrawFrisbeeSymbol(void * screen, i32 x, i32 y, i32 symbol)
+{
+    FrisbeeSpritePlacement placement;
+    FrisbeeSymbolFrame frame;
+    func_0805E790(&frame, (u8 *) screen + 0x50, symbol);
+    placement.x = x;
+    placement.y = y;
+    ResourceHandleOwner * paletteOwner = (ResourceHandleOwner *) ((u8 *) screen + 0x480);
+    placement.palette = ResourceHandle_GetIndex(paletteOwner, *((u32 *) paletteOwner + 1));
+    TileHeapOwner * tileOwner = (TileHeapOwner *) ((u8 *) screen + 0x478);
+    u32 tileBase = TileHandle_GetTileIndex(tileOwner, *((u32 *) tileOwner + 1));
+    placement.tile = ((FrisbeeSymbolGraphics *) screen)->tileOffsets[symbol] + tileBase;
+    placement.priority = 1;
+    placement.mosaic = true;
+    void * oam = HardwareContext_GetOamBuffer(screen);
+    register const void * rawObjects asm("r0") = frame.objects;
+    asm ("" : "+r" (rawObjects));
+    register const void * objects asm("r1") = rawObjects;
+    asm ("" : "+r" (objects));
+    u32 count = objects != nullptr ? frame.count : 0;
+    func_0805E99C(oam, objects, count, &placement);
+}
+
+struct FrisbeePaletteAllocation
+{
+    u32 allocatorContext;
+    u32 handle;
+};
+
+EC SECTION(".text.frisbee.080579B4") void DrawFrisbeeSpriteList(
+    void * hardware, SpriteAttributes const * objects, u32 count,
+    SpriteFrameDrawOptions const * options, FrisbeePaletteAllocation * sprite_allocations)
+{
+    // Preserve the original register allocation and OAM bit packing.
+    struct
+    {
+        SpriteAttributes object;
+        void * hardware_context;
+        SpriteAttributes const * end;
+    } work;
+    enum { SHAPE_SQUARE = 0, SHAPE_WIDE = 1, SCREEN_WIDTH = 240, SCREEN_HEIGHT = 160 };
+    work.hardware_context = hardware;
+    register SpriteFrameDrawOptions const * config asm("r8") = options;
+    SpriteAttributes const * cursor = objects;
+    SpriteAttributes const * limit = cursor + count;
+    work.end = limit;
+    if (cursor == limit)
+        return;
+    do
+    {
+        SpriteAttributes const * object = cursor;
+        work.object = *object;
+        u32 position_bits = work.object.words[0];
+        register u32 x_shifted asm("r0") = position_bits << 7;
+        asm ("" : "+r" (x_shifted));
+        register int x asm("r3") = static_cast<i32>(x_shifted) >> 23;
+        asm ("" : "+r" (x));
+        SpriteAttributes * sprite_address = &work.object;
+        int y = sprite_address->bits.y;
+        register u32 shape_bits asm("r0") = (position_bits << 16) >> 30;
+        asm ("" : "+r" (shape_bits));
+        u32 shape = shape_bits;
+        u32 size = position_bits >> 30;
+        int width;
+        int height;
+        if (shape == SHAPE_SQUARE)
+        {
+            height = 8 << size;
+            width = height;
+        }
+        else
+        {
+            u32 long_side = 8 << (((size + 1) >> 1) + 1);
+            u32 short_side = 8;
+            if (size != 1)
+                short_side = long_side >> 1;
+            if (shape != SHAPE_WIDE)
+            {
+                height = long_side;
+                width = short_side;
+            }
+            else
+            {
+                height = short_side;
+                width = long_side;
+            }
+        }
+
+        u32 flip = config->flip;
+        register u32 one_low asm("r1") = 1;
+        asm ("" : "+r" (one_low));
+        register u32 flip_bit asm("r10") = one_low;
+        register u32 horizontal asm("r0") = flip_bit;
+        asm ("" : "+r" (horizontal));
+        horizontal &= flip;
+        if (horizontal)
+        {
+            register int right asm("r0") = x + width;
+            asm ("" : "+r" (right));
+            x = -right;
+            u32 packed_flip = work.object.words[0];
+            u32 toggled = (packed_flip << 3) >> 31;
+            u32 one = flip_bit;
+            toggled ^= one;
+            asm ("" : "+r" (toggled));
+            toggled &= one;
+            toggled <<= 28;
+            u32 preserved = ~(1u << 28);
+            preserved &= packed_flip;
+            preserved |= toggled;
+            work.object.words[0] = preserved;
+        }
+        u32 vertical = 2;
+        vertical &= flip;
+        if (vertical)
+        {
+            int bottom = y + height;
+            y = -bottom;
+            u32 packed_flip = work.object.words[0];
+            u32 toggled = (packed_flip << 2) >> 31;
+            u32 one = flip_bit;
+            toggled ^= one;
+            asm ("" : "+r" (toggled));
+            toggled &= one;
+            toggled <<= 29;
+            u32 preserved = ~(1u << 29);
+            preserved &= packed_flip;
+            preserved |= toggled;
+            work.object.words[0] = preserved;
+        }
+
+        SpriteFrameDrawOptions const * position = config;
+        register int offset_x asm("r0");
+        offset_x = position->offset_x;
+        x += offset_x;
+        register int offset_y asm("r0");
+        offset_y = position->offset_y;
+        y += offset_y;
+        int right_edge = x + width;
+        if (right_edge > 0 && x < SCREEN_WIDTH)
+        {
+            int bottom_edge = y + height;
+            if (bottom_edge <= 0 || y >= SCREEN_HEIGHT)
+                goto next_object;
+            register u32 coordinate_mask asm("r0") = 0x1ff;
+            x &= coordinate_mask;
+            register u32 shifted_x asm("r2") = static_cast<u32>(x) << 16;
+            asm ("" : "+r" (shifted_x));
+            u32 x_mask = ~(0x1ffu << 16);
+            register u32 x_preserve asm("r1") = x_mask;
+            register u32 packed asm("r0") = work.object.words[0];
+            packed = (packed & x_preserve) | shifted_x;
+            u32 y_field = static_cast<u8>(y);
+            register u32 y_mask asm("r1") = ~0xffu;
+            packed = (packed & y_mask) | y_field;
+            work.object.words[0] = packed;
+
+            SpriteAttributes * source = &work.object;
+            u32 tile_attrs = work.object.words[1];
+            u32 palette_offset = ((tile_attrs << 16) >> 28) * sizeof(*sprite_allocations);
+            register FrisbeePaletteAllocation * base asm("r3");
+            base = sprite_allocations;
+            asm ("" : "+r" (base));
+            palette_offset += reinterpret_cast<uintptr_t>(base);
+            // The first allocation belongs to the tiles; frame palette indices start after it.
+            const unsigned first_palette_allocation = 1;
+            FrisbeePaletteAllocation * allocation =
+                reinterpret_cast<FrisbeePaletteAllocation *>(palette_offset) + first_palette_allocation;
+            u32 palette = static_cast<u16>(ResourceHandle_GetIndex((ResourceHandleOwner *) allocation, allocation->handle));
+            register u32 palette_bits asm("r1") = 15;
+            palette &= palette_bits;
+            palette <<= 12;
+            register u32 palette_mask asm("r1") = ~(15u << 12);
+            u32 final_tile_attrs = work.object.words[1];
+            final_tile_attrs = (final_tile_attrs & palette_mask) | palette;
+            register u32 tile asm("r0") = (final_tile_attrs << 22) >> 22;
+            register SpriteFrameDrawOptions const * tile_config asm("r1") = config;
+            register u32 tile_base asm("r1") = tile_config->tile_base;
+            tile = ((tile + tile_base) << 22) >> 22;
+            u32 tiles_and_priority = ~0x3ffu;
+            tiles_and_priority &= final_tile_attrs;
+            tiles_and_priority |= tile;
+            register SpriteFrameDrawOptions const * priority_config asm("r2") = config;
+            register u32 priority asm("r0") = priority_config->priority;
+            register u32 priority_bits asm("r3") = 3;
+            asm ("" : "+r" (priority_bits));
+            priority &= priority_bits;
+            priority <<= 10;
+            u32 priority_mask = ~(3u << 10);
+            tiles_and_priority = (tiles_and_priority & priority_mask) | priority;
+            work.object.words[1] = tiles_and_priority;
+
+            register SpriteFrameDrawOptions const * mode_config asm("r1") = config;
+            u32 object_mode = mode_config->object_mode;
+            object_mode &= priority_bits;
+            object_mode <<= 10;
+            u32 position_and_flags = work.object.words[0];
+            position_and_flags &= priority_mask;
+            position_and_flags |= object_mode;
+            SpriteFrameDrawOptions const * flags_config = config;
+            register u32 affine_mode asm("r2") = flags_config->affine_mode;
+            register u32 affine_bits asm("r0") = 3;
+            affine_mode &= affine_bits;
+            affine_mode <<= 8;
+            register u32 affine_mode_mask asm("r0") = ~(3u << 8);
+            position_and_flags = (position_and_flags & affine_mode_mask) | affine_mode;
+            register u32 mosaic asm("r2") = flags_config->mosaic;
+            register u32 mosaic_bit asm("r3") = flip_bit;
+            asm ("" : "+r" (mosaic_bit) : "r" (mosaic));
+            mosaic &= mosaic_bit;
+            mosaic <<= 12;
+            register u32 mosaic_mask asm("r0") = ~(1u << 12);
+            position_and_flags = (position_and_flags & mosaic_mask) | mosaic;
+            work.object.words[0] = position_and_flags;
+
+            SpriteOamBuffer * oam = static_cast<SpriteOamBuffer *>(HardwareContext_GetOamBuffer(work.hardware_context));
+            u32 index = oam->sprite_count;
+            if (index < 128)
+            {
+                SpriteAttributes * dest = oam->sprites + index;
+                dest->words[0] = work.object.words[0];
+                // The fourth halfword belongs to the affine matrix.
+                reinterpret_cast<u16 *>(dest)[2] = reinterpret_cast<u16 const *>(source)[2];
+                oam->sprite_count = index + 1;
+            }
+        }
+    next_object:
+        register u32 step asm("r0") = sizeof(*cursor);
+        asm ("" : "+r" (step));
+        cursor = reinterpret_cast<SpriteAttributes const *>(reinterpret_cast<u8 const *>(cursor) + step);
+        register SpriteAttributes const * end asm("r1") = work.end;
+        if (cursor == end)
+            break;
+    } while (true);
 }
 
 EC SECTION(".text.frisbee.08057DD8") FestivalResultsController * InitializeFrisbeeController(FestivalResultsController * controller, FestivalScene ** continuation, void * game, u8 kind)

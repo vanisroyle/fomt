@@ -6124,7 +6124,7 @@ func_080D6C58: @ 0x080D6C58
 	adds r1, r6, #0
 	mov r2, r8
 	adds r3, r5, #0
-	bl func_08010358
+	bl SaveData_InitializeNewGame
 	adds r1, r0, #0
 	str r1, [r7, #4]
 	adds r0, r7, #0
@@ -7666,7 +7666,7 @@ func_080D772C: @ 0x080D772C
 	cmp r4, #0
 	beq .L080D7794
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r1, [r5, #4]
 	adds r0, r4, #0
 	bl TileHandle_Retain
@@ -16964,7 +16964,7 @@ func_080DC840: @ 0x080DC840
 	adds r4, r7, #0
 	stm r4!, {r0}
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r1, [r6, #4]
 	adds r0, r4, #0
 	bl TileHandle_Retain
@@ -24061,7 +24061,7 @@ func_080E0094: @ 0x080E0094
 	adds r7, r1, #0
 	adds r6, r7, #4
 	adds r0, r6, #0
-	bl func_08008724
+	bl HardwareContext_ForceBlank
 	adds r0, r6, #0
 	bl HardwareContext_GetDisplayRegisters
 	add r2, sp, #0xc
@@ -25128,7 +25128,7 @@ func_080E0094: @ 0x080E0094
 	ldr r0, [r0]
 	bl DisplayFade_Update
 	mov r0, sl
-	bl func_080087C8
+	bl HardwareContext_CommitFrame
 	b .L080E044A
 .L080E08F4:
 	ldr r0, [sp, #0x7c]
@@ -25384,7 +25384,7 @@ func_080E0A94: @ 0x080E0A94
 	movs r0, #0x34
 	bl __builtin_new
 	adds r5, r0, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r5, #0
 	movs r1, #2
 	bl func_08007B54
@@ -25428,7 +25428,7 @@ func_080E0A94: @ 0x080E0A94
 	rsbs r6, r6, #0
 .L080E0B2A:
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r2, sb
 	str r2, [r4, #4]
 	adds r4, #8
@@ -25491,7 +25491,7 @@ func_080E0A94: @ 0x080E0A94
 	adds r0, r0, r1
 	ldr r5, [r0]
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -29845,7 +29845,7 @@ func_080E2DC8: @ 0x080E2DC8
 	push {r4, r5, r6, lr}
 	sub sp, #0x10
 	adds r6, r0, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r4, r6, #4
 	movs r5, #0
 	str r5, [r4, #4]
@@ -34390,53 +34390,53 @@ func_080E4FF0: @ 0x080E4FF0
 func_080E52A0: @ 0x080E52A0
 	push {r4, r5, r6, lr}
 	adds r6, r0, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	movs r5, #0
 	str r5, [r6, #4]
 	adds r4, r6, #0
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r4, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	adds r0, r6, #0
 	pop {r4, r5, r6}
