@@ -194,8 +194,18 @@ SECTIONS
         asm/hardware.o(.text.after_08008364);
         src/hardware.o(.text.TilePool_Acquire);
         asm/hardware.o(.text.after_080083D0);
+        src/hardware.o(.text.HardwareContext_Initialize);
+        asm/hardware.o(.text.after_08008444);
+        src/hardware.o(.text.HardwareContext_InitializeWithKeyRepeat);
+        asm/hardware.o(.text.after_080084DC);
+        src/hardware.o(.text.HardwareContext_InitializeWithOamReservation);
+        asm/hardware.o(.text.after_08008574);
         src/hardware.o(.text.HardwareContext_Destroy);
         asm/hardware.o(.text.after_080086BC);
+        src/hardware.o(.text.HardwareContext_ForceBlank);
+        asm/hardware.o(.text.after_08008724);
+        src/hardware.o(.text.HardwareContext_CommitFrame);
+        asm/hardware.o(.text.after_080087C8);
         src/hardware.o(.text.HardwareContext_UpdateKeys);
         asm/hardware.o(.text.after_080088B8);
         src/hardware.o(.text.HardwareContext_GetHeldKeys);
@@ -216,6 +226,8 @@ SECTIONS
         asm/hardware.o(.text.after_08008940);
         src/hardware.o(.text.HardwareContext_GetVBlankTasks);
         asm/hardware.o(.text.after_0800894C);
+        src/hardware.o(.text.VBlankDispatcher_Initialize);
+        asm/hardware.o(.text.after_08008980);
         src/hardware.o(.text.VBlankDispatcher_Destroy);
         asm/hardware.o(.text.after_08008A68);
         src/hardware.o(.text.VBlankDispatcher_GetTasks);
@@ -1578,9 +1590,11 @@ SECTIONS
         src/g5_ui.o(.text.g5_buttons);
         src/g5_ui.o(.text.g5_080CAC3C);
         src/g5_ui.o(.text.g5_entry_init);
+        src/g5_animated_entries.o(.text.g5_080CAC7C);
         asm/code_080C8360.o(.text.g5_CAC7C);
         src/g5_ui.o(.text.g5_080CAD08);
         src/g5_ui.o(.text.g5_entry_access);
+        src/g5_animated_entries.o(.text.g5_080CAD18);
         asm/code_080C8360.o(.text.g5_CAD18);
         src/g5_ui.o(.text.g5_entry_update);
         src/g5_commands.o(.text.g5_080CADB4);
@@ -1615,6 +1629,7 @@ SECTIONS
         src/g5_navigation.o(.text.g5_080CDA44);
         asm/code_080C8360.o(.text.g5_after_080CDA44);
         src/g5_navigation.o(.text.g5_080CDB08);
+        src/g5_left_navigation.o(.text.g5_080CDC00);
         asm/code_080C8360.o(.text.g5_after_080CDB08);
         src/g5_horizontal_navigation.o(.text.g5_080CDCD0);
         src/g5_navigation.o(.text.g5_080CDD7C);
