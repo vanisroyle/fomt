@@ -5,64 +5,6 @@
 
 
 
-    .section .text.entities_part1.080200C4, "ax", %progbits
-    thumb_func_start AEntity_PlayAnimationSound
-AEntity_PlayAnimationSound: @ 0x080200C4
-    push {r4, r5, r6, r7, lr}
-    mov r7, r8
-    push {r7}
-    adds r4, r0, #0
-    mov r8, r1
-    adds r6, r4, #0
-    adds r6, #0x30
-    ldrb r0, [r6]
-    cmp r0, #0
-    bne .L08020126
-    adds r0, r4, #0
-    bl AEntity_IsOnCurrentMap
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    beq .L08020126
-    ldr r0, [r4]
-    ldr r1, [r0]
-    movs r2, #0xa6
-    lsls r2, r2, #1
-    adds r1, r1, r2
-    ldr r1, [r1]
-    bl _call_via_r1
-    ldr r4, [r0]
-    ldr r5, [r0, #4]
-    adds r7, r6, #0
-    mov r0, r8
-    lsls r6, r0, #0x10
-    cmp r4, r5
-    beq .L08020118
-.L08020102:
-    ldr r0, [r4]
-    bl AudioPlayer_IsPlaying
-    lsls r0, r0, #0x18
-    cmp r0, #0
-    bne .L08020112
-    ldr r0, [r4]
-    b .L0802011C
-.L08020112:
-    adds r4, #4
-    cmp r4, r5
-    bne .L08020102
-.L08020118:
-    subs r0, r5, #4
-    ldr r0, [r0]
-.L0802011C:
-    lsrs r1, r6, #0x10
-    bl AudioPlayer_StartSong
-    movs r0, #1
-    strb r0, [r7]
-.L08020126:
-    pop {r3}
-    mov r8, r3
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
     .section .text.entities_part1.080202C8.tail, "ax", %progbits
 .L080202CC:
     .byte 0x00, 0x20, 0x70, 0x47
