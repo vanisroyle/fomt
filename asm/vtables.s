@@ -353,7 +353,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameMap_IsInteriorOrForced
 	.word GameStateTransitionMap
 	.word GameStateRefreshMapDaylight
-	.word func_0801EAA0
+	.word GameStateAdvanceClockToTime
 	.word GameStateHoeFarmPlot
 	.word 0x0801CA1D
 	.word 0x0801C49D

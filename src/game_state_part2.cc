@@ -365,7 +365,7 @@ EC void ClearSupermarketBlueFeatherDisplay(MapUpdateState & map);
 EC void RequestMap29Refresh(MapUpdateState & map);
 EC bool IsMapTransitionIdle(GameStateMapView & view);
 EC void StartMapCameraPan(GameStateMapView & view, i32 x, i32 y, u32 speed);
-EC void func_080A5960(GameStateMapView & view, i32 x, i32 y);
+EC void SetMapCameraPosition(GameStateMapView & view, i32 x, i32 y);
 EC void SetAlternateMapPatch(u32 & flags, u32 index);
 EC void ClearAlternateMapPatch(u32 & flags, u32 index);
 EC void ApplySavedMapTilePatch(MapUpdateState & map, u32 index);
@@ -2629,7 +2629,7 @@ EC SECTION(".text.game_state_c2.0801FD60") void GameStatePanCamera(GameStateMapO
 
 EC SECTION(".text.game_state_c2.0801FD6C") void GameStateSetCameraCenter(GameStateMapOwner & game, i32 x, i32 y)
 {
-    func_080A5960(*game.map_view, x, y);
+    SetMapCameraPosition(*game.map_view, x, y);
 }
 
 EC SECTION(".text.game_state_c2.0801FAA8") AEntity * GameStateLookupEntitySlot(GameStateMapOwner & game, u32 slot)
@@ -3243,6 +3243,546 @@ EC SECTION(".text.game_state_c2.08019BEC") void GameStateTransitionMap(GameState
         asm("" : "+l"(address));
         GameStateClock const * clock = *address;
         func_0801A13C(game, clock->hour, clock->minute, true);
+    }
+}
+
+struct ClockCalendarTime
+{
+    u8 year_in_cycle : 3;
+    u8 year_cycle : 5;
+    u8 season : 2;
+    u8 day : 5;
+    u32 : 1;
+    u32 hour : 5;
+    u32 minute : 6;
+};
+
+struct ClockCounters
+{
+    ClockCalendarTime * time;
+    u8 frames_since_minute;
+};
+
+struct ClockTickContext
+{
+    u32 value;
+    u8 minute_changed;
+};
+
+struct ClockActorList
+{
+    u32 size;
+    AEntity * actors[100];
+};
+
+struct ClockOwnerMethods
+{
+    STRUCT_PAD(0, 0x124);
+    void (*enable)(GameStateMapOwner &);
+    void (*disable)(GameStateMapOwner &);
+};
+
+struct ClockActorMethods
+{
+    STRUCT_PAD(0, 0x18);
+    void (*tick)(AEntity *, ClockTickContext &);
+    STRUCT_PAD(0x1C, 0xA4);
+    void (*finish)(AEntity *);
+};
+
+struct ClockAdvanceWork
+{
+    ClockActorList fast, slow;
+    ClockTickContext tick;
+    u16 const * target;
+    u16 const * current;
+    u32 was_enabled;
+    AEntity ** actor_begin;
+    AEntity ** actor_end;
+    AEntity ** slow_end;
+    u32 season;
+    u32 date;
+};
+
+extern u32 const sClockFrameActorSlots[] asm("gUnk_080F0748");
+extern u32 const sClockMinuteActorSlots[] asm("gUnk_080F0770");
+
+static inline ClockActorMethods const & ClockMethods(AEntity * actor)
+{
+    return **reinterpret_cast<ClockActorMethods const **>(reinterpret_cast<u8 *>(actor) + 0x14);
+}
+
+static inline bool AdvanceClockFrame(ClockCounters & state, ClockAdvanceWork &, u32)
+{
+    register ClockCounters * counter asm("r6") = &state;
+    asm("" : "+l"(counter));
+    register u32 frames asm("r0") = counter->frames_since_minute + 1;
+    asm("" : "+l"(frames));
+    u32 frames_per_minute = 25;
+    if (frames < frames_per_minute)
+    {
+        counter->frames_since_minute = frames;
+        return false;
+    }
+    counter->frames_since_minute = 0;
+    register u32 word asm("r1");
+    {
+        register ClockCalendarTime * time asm("r4") = counter->time;
+        word = *reinterpret_cast<u32 *>(time);
+        word = (word << 5 >> 26) + 1;
+        register u32 mask asm("r2") = 63;
+        register u32 bits asm("r2") = (mask & word) << 5;
+        register u32 previous asm("r3") = reinterpret_cast<u16 *>(time)[1];
+        register u32 preserve asm("r5") = ~0x7E0u;
+        asm("" : "+l"(preserve) : "l"(previous));
+        register u32 base asm("r0") = preserve;
+        reinterpret_cast<u16 *>(time)[1] = (base & previous) | bits;
+        register u32 low_mask asm("r0") = 63;
+        word &= low_mask;
+        if (word <= 59)
+            return true;
+        register ClockCalendarTime * reset asm("r1") = counter->time;
+        asm("" : "+l"(reset));
+        register u32 raw asm("r2") = reinterpret_cast<u16 *>(reset)[1];
+        asm("" : "+l"(raw));
+        register u32 minute_reset asm("r0") = preserve;
+        asm("" : "+l"(minute_reset));
+        reinterpret_cast<u16 *>(reset)[1] = minute_reset & raw;
+    }
+    {
+        register ClockCalendarTime * time asm("r3") = counter->time;
+        word = *reinterpret_cast<u32 *>(time);
+        word = (word << 11 >> 27) + 1;
+        register u32 hour_mask asm("r4") = 31;
+        asm("" : "+l"(hour_mask) : "l"(word));
+        register u32 field_mask asm("ip") = hour_mask;
+        register u32 mask asm("r5") = field_mask;
+        asm("" : "+l"(mask));
+        word &= mask;
+        register u32 previous asm("r2") = reinterpret_cast<u8 *>(time)[2];
+        asm("" : "+l"(previous));
+        register u32 preserve asm("r4") = ~31u;
+        register u32 base asm("r0") = preserve;
+        reinterpret_cast<u8 *>(time)[2] = (base & previous) | word;
+        if (word <= 23)
+            return true;
+        register ClockCalendarTime * reset asm("r1") = counter->time;
+        register u32 raw asm("r2") = reinterpret_cast<u8 *>(reset)[2];
+        asm("" : "+l"(raw));
+        register u32 hour_reset asm("r0") = preserve;
+        asm("" : "+l"(hour_reset));
+        reinterpret_cast<u8 *>(reset)[2] = hour_reset & raw;
+
+        register ClockCalendarTime * date asm("r3") = counter->time;
+        register u32 previous_date asm("r2") = reinterpret_cast<u8 *>(date)[1];
+        register u32 day asm("r0") = ((previous_date << 25) >> 27) + 1;
+        if (day == 30)
+        {
+            register u32 season asm("r0") = (previous_date << 30) >> 30;
+            register u32 low_mask asm("r1");
+            asm("mov %0, sl" : "=l"(low_mask));
+            season &= low_mask;
+            register u32 preserve asm("r1") = ~3u;
+            register u8 * season_ptr asm("r4");
+            asm("add %0, sp, #0x348" : "=l"(season_ptr));
+            register u32 scratch asm("r4") = *season_ptr;
+            preserve = (preserve & scratch) | season;
+            ++season;
+            register u32 low_mask_again asm("r5");
+            asm("mov %0, sl" : "=l"(low_mask_again));
+            season &= low_mask_again;
+            register u32 clear asm("r4") = ~3u;
+            preserve = (preserve & clear) | season;
+            register u8 * season_out asm("r5");
+            asm volatile("add %0, sp, #0x348" : "=l"(season_out) : "l"(preserve));
+            asm volatile("strb %1, [%0]" : : "l"(season_out), "l"(preserve) : "memory");
+            register u32 stored_season asm("r1") = (preserve << 30) >> 30;
+            register u32 low_mask_final asm("r0");
+            asm("mov %0, sl" : "=l"(low_mask_final));
+            stored_season &= low_mask_final;
+            register u32 update asm("r0");
+            asm("add %0, %1, #0" : "=l"(update) : "l"(clear), "l"(stored_season));
+
+            reinterpret_cast<u8 *>(date)[1] = (update & previous_date) | stored_season;
+            day = 0;
+        }
+        register u32 day_mask asm("r1") = field_mask;
+        register u32 day_bits asm("r2") = (day & day_mask) << 2;
+        register u32 raw_date asm("r1") = reinterpret_cast<u8 *>(date)[1];
+        asm("" : "+l"(raw_date));
+        register u32 update asm("r0") = ~0x7Cu;
+        reinterpret_cast<u8 *>(date)[1] = (update & raw_date) | day_bits;
+    }
+    {
+        register u8 * scratch asm("r3");
+        asm("add %0, sp, #0x34c" : "=l"(scratch));
+        register u32 date asm("r0") = *scratch;
+        register u32 season_clear asm("r3") = ~3u;
+        date &= season_clear;
+        register u32 day_clear asm("r4") = ~0x7Cu;
+        register u32 masked asm("r0") = date & day_clear;
+        register u8 * storage asm("r5");
+        asm("add %0, sp, #0x34c" : "=l"(storage) : "l"(masked));
+        *storage = masked;
+    }
+    register ClockCalendarTime * time asm("r2") = counter->time;
+    register u32 new_year asm("r3") = 0;
+    register u32 date asm("r1") = reinterpret_cast<u8 *>(time)[1];
+    register u32 mask asm("r0") = 127;
+    if ((mask & date) == 0)
+        new_year = 1;
+    if (new_year != 0)
+    {
+        register ClockCalendarTime * period asm("r4") = time;
+        register u32 year_byte asm("r3") = reinterpret_cast<u8 *>(period)[0];
+        register u32 low asm("r0") = (year_byte << 29) >> 29;
+        register u32 year asm("r2") = low + 1;
+        if (year > 6)
+        {
+            year = 0;
+            register u32 cycle asm("r1") = year_byte >> 3;
+            if (cycle <= 28)
+            {
+                cycle = (cycle + 1) << 3;
+                register u32 clear asm("r0") = 7;
+                reinterpret_cast<u8 *>(period)[0] = (clear & year_byte) | cycle;
+            }
+        }
+        register u32 year_mask asm("r0") = 7;
+        year &= year_mask;
+        register u32 byte asm("r0") = reinterpret_cast<u8 *>(period)[0];
+        register u32 preserve asm("r3") = ~7u;
+        register u32 copy asm("r1");
+        asm("add %0, %1, #0" : "=l"(copy) : "l"(preserve), "l"(byte));
+        reinterpret_cast<u8 *>(period)[0] = (byte & copy) | year;
+    }
+    return true;
+}
+
+EC SECTION(".text.game_state_c2.0801EAA0") void GameStateAdvanceClockToTime(GameStateMapOwner & owner, u16 const & target)
+{
+    ClockAdvanceWork work;
+    GameStateMapOwner & game = owner;
+    register u16 const * requested asm("r1") = &target;
+    asm("" : "+l"(requested) : "l"(&game));
+    asm volatile("str %0, [sp, #0x330]" : : "l"(requested) : "memory");
+    register u32 map_data_offset asm("r1") = offsetof(GameStateMapOwner, map_data);
+    asm("" : "+l"(map_data_offset));
+    register GameStateMapData ** map_data asm("r0") =
+        reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(&game) + map_data_offset);
+    asm("" : "+l"(map_data));
+    register u16 const * current_time asm("r0") = reinterpret_cast<u16 const *>(reinterpret_cast<u8 *>(*map_data) + 0x12);
+    asm("" : "+l"(current_time));
+    asm volatile("str %0, [sp, #0x334]" : : "l"(current_time) : "memory");
+    register u32 enabled_offset asm("r3") = offsetof(GameStateMapOwner, entities_enabled);
+    asm("" : "+l"(enabled_offset));
+    register bool * enabled_ptr asm("r0") = reinterpret_cast<bool *>(reinterpret_cast<u8 *>(&game) + enabled_offset);
+    asm("" : "+l"(enabled_ptr));
+    register u32 enabled asm("r0") = *enabled_ptr;
+    asm("" : "+l"(enabled));
+    asm volatile("str %0, [sp, #0x338]" : : "l"(enabled) : "memory");
+    if (enabled)
+    {
+        register ClockOwnerMethods const * methods asm("r0");
+        asm("ldr %0, [%1]" : "=l"(methods) : "l"(&game) : "memory");
+        asm("" : "+l"(methods));
+        register u32 offset asm("r4") = offsetof(ClockOwnerMethods, disable);
+        asm("" : "+l"(offset) : "l"(methods));
+        register void (**entry)(GameStateMapOwner &) asm("r0") =
+            reinterpret_cast<void (**)(GameStateMapOwner &)>(reinterpret_cast<u32>(methods) + offset);
+        asm("" : "+l"(entry));
+        (*entry)(game);
+    }
+
+    register AEntity ** begin asm("r5") = game.entities;
+    asm("" : "+l"(begin));
+    asm volatile("str %0, [sp, #0x33c]" : : "l"(begin) : "memory");
+    register u32 entity_end_offset asm("r0") = offsetof(GameStateMapOwner, entities) + sizeof(game.entities);
+    asm("" : "+l"(entity_end_offset));
+    register AEntity ** end asm("r0") = reinterpret_cast<AEntity **>(reinterpret_cast<u8 *>(&game) + entity_end_offset);
+    asm("" : "+l"(end));
+    asm volatile("str %0, [sp, #0x340]" : : "l"(end) : "memory");
+    register AEntity ** actor asm("r4") = begin;
+    asm("" : "+l"(actor));
+    register AEntity ** actors asm("r6") = actor;
+    asm("" : "+l"(actors));
+    register u32 tick_offset asm("r3") = offsetof(ClockAdvanceWork, tick);
+    asm("" : "+l"(tick_offset) : "l"(actors));
+    register ClockTickContext * tick_ptr asm("r3");
+    asm("add %0, sp" : "=l"(tick_ptr) : "0"(tick_offset));
+    register ClockTickContext * tick asm("r8") = tick_ptr;
+    asm("" : "+h"(tick));
+    if (actors != end)
+    {
+        do
+        {
+            register AEntity * entity asm("r2") = *actor;
+            asm("" : "+l"(entity));
+            if (entity)
+                entity->vfunc_14();
+            ++actor;
+            register AEntity ** last asm("r0");
+            asm volatile("ldr %0, [sp, #0x340]" : "=l"(last) : "l"(actor) : "memory");
+            if (actor == last)
+                break;
+        } while (true);
+    }
+    register u32 zero asm("r0") = 0;
+    asm("" : "+l"(zero) : "l"(actors));
+    work.fast.size = zero;
+    register u32 index asm("r3") = 0;
+    asm("" : "+l"(index) : "m"(work.fast.size));
+    register AEntity ** first_actors asm("r4") = actors;
+    asm("" : "+l"(first_actors) : "l"(index));
+    register u32 const * fast_slots asm("r2") = sClockFrameActorSlots;
+    asm("" : "+l"(fast_slots) : "l"(first_actors));
+    do
+    {
+        register u32 slot asm("r0") = *fast_slots;
+        asm("" : "+l"(slot));
+        register AEntity ** actor_ptr asm("r0");
+        asm("add %0, %1, %0" : "=l"(actor_ptr) : "l"(first_actors), "0"(slot * 4));
+        register AEntity * entity asm("r1") = *actor_ptr;
+        asm("" : "+l"(entity));
+        if (entity)
+        {
+            register u32 size asm("r0") = work.fast.size;
+            asm("" : "+l"(size));
+            if (size < 100)
+            {
+                register u32 offset asm("r0") = (size * sizeof(AEntity *)) + offsetof(ClockActorList, actors);
+                asm("" : "+l"(offset));
+                register AEntity ** dest asm("r0");
+                asm("add %0, sp" : "=l"(dest) : "0"(offset));
+                asm("" : "+l"(dest));
+                if (dest)
+                    *dest = entity;
+                asm volatile("" : "+m"(work.fast.size));
+                ++work.fast.size;
+            }
+        }
+        ++fast_slots;
+        asm("" : "+l"(fast_slots));
+        ++index;
+    } while (index <= 9);
+    register u32 size asm("r0") = work.fast.size;
+    asm("" : "+l"(size));
+    register u32 fast_offset asm("r0") = size * sizeof(AEntity *) + offsetof(ClockActorList, actors);
+    asm("" : "+l"(fast_offset));
+    register AEntity ** fast_ptr asm("r0");
+    asm("add %0, sp" : "=l"(fast_ptr) : "0"(fast_offset));
+    register AEntity ** fast_end asm("r9") = fast_ptr;
+    asm("" : "+h"(fast_end));
+    register u32 slow_offset asm("r2") = offsetof(ClockAdvanceWork, slow);
+    asm("" : "+l"(slow_offset));
+    register u8 * stack asm("r3");
+    asm("mov %0, sp" : "=l"(stack));
+    register ClockActorList * slow_list asm("r1") = reinterpret_cast<ClockActorList *>(stack + slow_offset);
+    asm("" : "+l"(slow_list));
+    register u32 clear asm("r0") = 0;
+    asm("" : "+l"(clear));
+    slow_list->size = clear;
+    register u32 slow_index asm("r5") = 0;
+    asm("" : "+l"(slow_index) : "m"(slow_list->size));
+    register u32 const * slow_slots asm("r4") = sClockMinuteActorSlots;
+    asm("" : "+l"(slow_slots) : "l"(slow_index));
+    do
+    {
+        register u32 slot asm("r0") = *slow_slots;
+        asm("" : "+l"(slot));
+        register AEntity ** actor_ptr asm("r0");
+        asm("add %0, %1, %0" : "=l"(actor_ptr) : "l"(actors), "0"(slot * 4));
+        register AEntity * entity asm("r3") = *actor_ptr;
+        asm("" : "+l"(entity));
+        if (entity)
+        {
+            register u8 * stack asm("r0");
+            asm("mov %0, sp" : "=l"(stack) : "l"(entity));
+            register ClockActorList * list asm("r1") = reinterpret_cast<ClockActorList *>(stack + slow_offset);
+            asm("" : "+l"(list));
+            register u32 size asm("r0") = list->size;
+            asm("" : "+l"(size));
+            if (size < 100)
+            {
+                register u32 offset asm("r0") = (size * sizeof(AEntity *)) + offsetof(ClockActorList, actors);
+                asm("" : "+l"(offset));
+                register AEntity ** dest asm("r0") = reinterpret_cast<AEntity **>(reinterpret_cast<u8 *>(list) + offset);
+                asm("" : "+l"(dest));
+                if (dest)
+                    *dest = entity;
+                asm volatile("" : "+m"(list->size));
+                ++list->size;
+            }
+        }
+        ++slow_slots;
+        asm("" : "+l"(slow_slots));
+        ++slow_index;
+    } while (slow_index <= 35);
+    register ClockActorList * slow asm("r1") = &work.slow;
+    asm("" : "+l"(slow));
+    register u32 used asm("r0") = slow->size;
+    asm("" : "+l"(used));
+    register u32 end_offset asm("r0") = used * sizeof(AEntity *) + offsetof(ClockActorList, actors);
+    asm("" : "+l"(end_offset));
+    register AEntity ** slow_end asm("r1") = reinterpret_cast<AEntity **>(reinterpret_cast<u8 *>(slow) + end_offset);
+    asm("" : "+l"(slow_end));
+    asm volatile("str %0, [sp, #0x344]" : : "l"(slow_end) : "memory");
+    register u32 flags asm("r1") = 0;
+    asm("" : "+l"(flags));
+    register ClockTickContext * context asm("r0");
+    asm("add %0, sp, #0x328" : "=l"(context) : "l"(flags));
+    context->value = flags;
+    register ClockTickContext * initial_tick asm("r3");
+    asm("mov %0, r8" : "=l"(initial_tick));
+    initial_tick->minute_changed = flags;
+    register u32 clock_offset asm("r4") = offsetof(GameStateMapOwner, clock);
+    asm("" : "+l"(clock_offset) : "m"(initial_tick->minute_changed));
+    register ClockCounters * clock_ptr asm("r6") = reinterpret_cast<ClockCounters *>(reinterpret_cast<u8 *>(&game) + clock_offset);
+    asm("" : "+l"(clock_ptr));
+    register u32 seasons asm("r5") = 3;
+    asm("" : "+l"(seasons) : "l"(clock_ptr));
+    register u32 season_mask asm("sl") = seasons;
+    asm volatile("" : "+h"(season_mask));
+    goto advance_frame;
+clear_minute_change:
+    {
+        register u32 state asm("r0") = 0;
+        asm("" : "+l"(state));
+        register ClockTickContext * context asm("r1");
+        asm("mov %0, r8" : "=l"(context) : "l"(state));
+        context->minute_changed = state;
+    }
+    goto advance_frame;
+tick_frame_actors:
+    {
+        register AEntity ** actor asm("r4") = work.fast.actors;
+        asm("" : "+l"(actor));
+        if (actor != fast_end)
+        {
+            do
+            {
+                AEntity * next = *actor++;
+                ClockMethods(next).tick(next, *tick);
+            } while (actor != fast_end);
+        }
+    }
+advance_frame:
+    if (!AdvanceClockFrame(*clock_ptr, work, season_mask))
+        goto tick_frame_actors;
+    {
+        register u32 state asm("r0") = 1;
+        asm("" : "+l"(state));
+        register ClockTickContext * context asm("r4");
+        asm("mov %0, r8" : "=l"(context) : "l"(state));
+        context->minute_changed = state;
+        register AEntity ** actor asm("r4") = work.slow.actors;
+        asm("" : "+l"(actor) : "m"(context->minute_changed));
+        register AEntity ** end asm("r5");
+        asm volatile("ldr %0, [sp, #0x344]" : "=l"(end) : "l"(actor) : "memory");
+        if (actor != end)
+        {
+            do
+            {
+                AEntity * next = *actor++;
+                ClockMethods(next).tick(next, *tick);
+                register AEntity ** end asm("r0");
+                asm volatile("ldr %0, [sp, #0x344]" : "=l"(end) : "l"(actor) : "memory");
+                if (actor == end)
+                    break;
+            } while (true);
+        }
+    }
+    {
+        register u16 const * target asm("r1");
+        asm volatile("ldr %0, [sp, #0x330]" : "=l"(target) : : "memory");
+        register u32 requested asm("r2") = *target;
+        asm("" : "+l"(requested));
+        register u32 mask asm("r0") = 0x7FF;
+        asm("" : "+l"(mask) : "l"(requested));
+        register u16 const * current asm("r4");
+        asm volatile("ldr %0, [sp, #0x334]" : "=l"(current) : "l"(mask) : "memory");
+        register u32 actual asm("r3") = *current;
+        asm("" : "+l"(actual));
+        register u32 mask_copy asm("r1") = mask;
+        asm("" : "+l"(mask_copy) : "l"(actual));
+        mask_copy &= requested;
+        asm("" : "+l"(mask_copy));
+        mask &= actual;
+        asm("" : "+l"(mask));
+        if (mask_copy != mask)
+            goto clear_minute_change;
+    }
+    register AEntity ** finish_actor asm("r4");
+    asm volatile("ldr %0, [sp, #0x33c]" : "=l"(finish_actor) : : "memory");
+    register AEntity ** last_actor asm("r5");
+    asm volatile("ldr %0, [sp, #0x340]" : "=l"(last_actor) : : "memory");
+    if (finish_actor != last_actor)
+    {
+        do
+        {
+            register AEntity * entity asm("r2") = *finish_actor;
+            asm("" : "+l"(entity));
+            if (entity)
+            {
+                register void (**vtable)(AEntity *) asm("r0") = *reinterpret_cast<void (***)(AEntity *)>(reinterpret_cast<u8 *>(entity) + 0x14);
+                asm("" : "+l"(vtable));
+                vtable[4](entity);
+            }
+            ++finish_actor;
+            register AEntity ** last asm("r0");
+            asm volatile("ldr %0, [sp, #0x340]" : "=l"(last) : "l"(finish_actor) : "memory");
+            if (finish_actor == last)
+                break;
+        } while (true);
+    }
+    register u32 enable asm("r1");
+    asm volatile("ldr %0, [sp, #0x338]" : "=l"(enable) : : "memory", "cc");
+    u32 entity_state = enable;
+    asm volatile("" : "+l"(entity_state));
+    if (entity_state)
+    {
+        register ClockOwnerMethods const * methods asm("r0");
+        asm("ldr %0, [%1]" : "=l"(methods) : "l"(&game) : "memory");
+        register u32 offset asm("r3") = offsetof(ClockOwnerMethods, enable);
+        asm("" : "+l"(offset) : "l"(methods));
+        register void (**entry)(GameStateMapOwner &) asm("r0") =
+            reinterpret_cast<void (**)(GameStateMapOwner &)>(reinterpret_cast<u32>(methods) + offset);
+        asm("" : "+l"(entry));
+        (*entry)(game);
+    }
+    register GameStateMapView * map_view asm("r0");
+    asm("ldr %0, [%1, #4]" : "=l"(map_view) : "l"(&game) : "memory");
+    if (!GetMapData(map_view->map)->is_interior)
+    {
+        register u32 offset asm("r4") = offsetof(GameStateMapOwner, clock);
+        asm("" : "+l"(offset));
+        register ClockCalendarTime ** time_ptr asm("r0") =
+            reinterpret_cast<ClockCalendarTime **>(reinterpret_cast<u8 *>(&game) + offset);
+        asm("" : "+l"(time_ptr));
+        register u32 time asm("r2") = *reinterpret_cast<u32 *>(*time_ptr);
+        asm("" : "+l"(time));
+        func_0801A13C(game, (time << 11) >> 27, (time << 5) >> 26, false);
+    }
+    register AEntity * player asm("r0");
+    asm("ldr %0, [%1, #8]" : "=l"(player) : "l"(&game) : "memory");
+    ClockMethods(player).finish(player);
+    register u32 script_offset asm("r5") = offsetof(GameStateMapOwner, script);
+    asm("" : "+l"(script_offset));
+    register GameStateScript ** script asm("r0") =
+        reinterpret_cast<GameStateScript **>(reinterpret_cast<u8 *>(&game) + script_offset);
+    asm("" : "+l"(script));
+    if (static_cast<u8>(GameScript_IsMusicActive(**script)))
+    {
+        register u32 map_offset asm("r1") = offsetof(GameStateMapOwner, map_data);
+        asm("" : "+l"(map_offset));
+        register GameStateMapData ** map asm("r0") = reinterpret_cast<GameStateMapData **>(reinterpret_cast<u8 *>(&game) + map_offset);
+        asm("" : "+l"(map));
+        register u8 * map_data asm("r0") = reinterpret_cast<u8 *>(*map);
+        asm("" : "+l"(map_data));
+        register u32 events_offset asm("r3") = 0x214C;
+        asm("" : "+l"(events_offset) : "l"(map_data));
+        if (!HasPendingScriptEvents(map_data + events_offset))
+            GameStateRefreshMapMusic(game);
     }
 }
 

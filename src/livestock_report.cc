@@ -1,5 +1,6 @@
 #include "prelude.h"
 
+#include "dma_queue.hh"
 #include "farm.hh"
 #include "utility/vec2.hh"
 
@@ -1159,3 +1160,1010 @@ EC SECTION(".text.farm_report_callbacks.080E1DC8") void DestroyFarmOverviewRepor
 {
     DestroyFarmReportPanel(self, flags);
 }
+
+struct HardwareContext;
+
+struct LivestockReportLabelDimensions
+{
+    i16 width;
+    i16 height;
+};
+
+struct LivestockReportInsertion
+{
+    u32 occupied;
+    u32 inserting;
+};
+
+struct LivestockReportInitFrame
+{
+    char const * outgoing_text;
+    DmaCommand copy;
+    LivestockReportLabelDimensions healthy_fill;
+    LivestockReportLabelDimensions healthy_dimensions;
+    STRUCT_PAD(0x1C, 0x24);
+    LivestockReportLabelDimensions unhappy_dimensions;
+    LivestockReportInsertion unhappy_upload;
+    LivestockReportLabelDimensions sick_fill;
+    LivestockReportLabelDimensions sick_dimensions;
+    LivestockReportInsertion sick_upload;
+    LivestockReportLabelDimensions spring_dimensions;
+    LivestockReportInsertion spring_upload;
+    LivestockReportLabelDimensions summer_dimensions;
+    LivestockReportInsertion summer_upload;
+    LivestockReportLabelDimensions autumn_dimensions;
+    LivestockReportInsertion autumn_upload;
+    LivestockReportLabelDimensions winter_dimensions;
+    LivestockReportInsertion winter_upload;
+    LivestockReportLabelDimensions year_suffix_dimensions;
+    LivestockReportInsertion year_suffix_upload;
+    LivestockReportLabelDimensions birthday_unit_dimensions;
+    LivestockReportInsertion birthday_unit_upload;
+    LivestockReportInsertion trophy_tiles_upload;
+    LivestockReportInsertion trophy_palette_upload;
+    LivestockReportInsertion heart_tiles_upload;
+    LivestockReportInsertion heart_palette_upload;
+    LivestockReport * report;
+    LivestockReportLabelDimensions * winter_bounds;
+    LivestockReportLabelDimensions * year_suffix_bounds;
+    LivestockReportLabelDimensions * birthday_unit_bounds;
+    u8 * year_suffix_pixels;
+    u8 * autumn_pixels;
+    u8 * birthday_unit_pixels;
+    u8 * spring_pixels;
+    u8 * sick_pixels;
+    u8 * winter_pixels;
+    u8 * summer_pixels;
+    LivestockReportLabelDimensions * unhappy_bounds;
+    LivestockReportLabelDimensions * sick_fill_bounds;
+    LivestockReportLabelDimensions * sick_bounds;
+    LivestockReportLabelDimensions * spring_bounds;
+    LivestockReportLabelDimensions * summer_bounds;
+    LivestockReportLabelDimensions * autumn_bounds;
+    DmaCommand * old_end;
+    DmaCommand * new_begin;
+};
+
+typedef char LivestockReportInitLayoutCheck[
+    offsetof(LivestockReport, vtable) == 0x5B4 &&
+    offsetof(LivestockReportInitFrame, copy) == 4 &&
+    offsetof(LivestockReportInitFrame, report) == 0xA8 &&
+    offsetof(LivestockReportInitFrame, new_begin) == 0xF0 &&
+    sizeof(LivestockReportInitFrame) == 0xF4 ? 1 : -1];
+
+EC DmaTransferQueue * HardwareContext_GetDmaQueue(HardwareContext *);
+EC void * RetryLivestockReportUploadAllocation(u32 bytes) asm("func_080D3BC0");
+
+#define INIT_CLOBBERS "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "lr", "cc", "memory"
+#define INIT_PIN(value) asm volatile ("" : "+l" (value))
+
+#define LIVESTOCK_INIT_PANEL() do { \
+    register LivestockReport * self asm("r0"); \
+    asm ("" : "=l" (self)); \
+    asm volatile ("str %0, [sp, %1]\n\tldr %0, [sp, %2]\n\tstr %0, [sp]\n\tldr %0, [sp, %1]" \
+        : "+l" (self) : "i" (offsetof(LivestockReportInitFrame, report)), \
+        "i" (sizeof(LivestockReportInitFrame) + 8 * sizeof(u32)) : "memory"); \
+    asm volatile ("bl func_08076BFC" : : : "r0", "r1", "r2", "r3", "lr", "cc", "memory"); \
+} while (0)
+
+#define LIVESTOCK_SET_VTABLE() do { \
+    register LivestockReport * self asm("r0"); \
+    register u32 vtable_offset asm("r2"); \
+    asm volatile ("ldr %0, [sp, %2]\n\tldr %1, .L08062FA4" \
+        : "=l" (self), "=l" (vtable_offset) : "i" (offsetof(LivestockReportInitFrame, report)) : "memory"); \
+    register void const ** slot asm("r1"); \
+    asm ("add %0, %1, %2" : "=l" (slot) : "l" (self), "l" (vtable_offset)); \
+    register void const * vtable asm("r0"); \
+    asm volatile ("ldr %0, .L08062FA8" : "=l" (vtable)); \
+    *slot = vtable; \
+} while (0)
+
+#define LIVESTOCK_GET_QUEUE() do { \
+    register HardwareContext * hardware asm("r0"); \
+    asm ("" : "=l" (hardware)); \
+    register DmaTransferQueue * queue asm("r0") = HardwareContext_GetDmaQueue(hardware); \
+    INIT_PIN(queue); \
+} while (0)
+
+#define LIVESTOCK_INIT_COPY() do { \
+    register DmaCommand * command asm("r0"); \
+    register void const * source asm("r1"); \
+    register void * dest asm("r2"); \
+    register u32 bytes asm("r3"); \
+    asm volatile ("" : "=l" (command), "=l" (source), "=l" (dest), "=l" (bytes)); \
+    DmaCommand_InitializeCopy(command, source, dest, bytes); \
+} while (0)
+
+#define LIVESTOCK_DRAW_TEXT() asm volatile ("bl DrawMessageTileString" : : : "r0", "r1", "r2", "r3", "lr", "cc", "memory")
+#define LIVESTOCK_FILL_TILES() asm volatile ("bl FillMessageTiles" : : : "r0", "r1", "r2", "r3", "lr", "cc", "memory")
+
+#define LIVESTOCK_REPORT_PIXELS(field, pixels) \
+    asm volatile ("ldr %0, [sp, %1]" : "=l" (pixels) \
+        : "I" (offsetof(LivestockReportInitFrame, field##_pixels)) : "memory")
+
+#define LIVESTOCK_REPORT_PIXELS_unhappy(pixels) asm volatile ("mov %0, sl" : "=l" (pixels))
+
+#define LIVESTOCK_RENDER_TEXT(field, width, text_reg, text, bounds_reg, load_pixels) do { \
+    register char const * label asm(text_reg); \
+    asm volatile ("ldr %0, " text : "=l" (label)); \
+    register u32 width_in_tiles asm("r1") = width; \
+    INIT_PIN(width_in_tiles); \
+    register u32 height_in_tiles asm("r2"); \
+    if ((width) != 2) { \
+        height_in_tiles = 2; \
+        INIT_PIN(height_in_tiles); \
+    } \
+    register LivestockReportLabelDimensions * dimensions asm("r0"); \
+    asm ("add %0, sp, %1" : "=l" (dimensions) : "I" (offsetof(LivestockReportInitFrame, field##_dimensions))); \
+    asm volatile ("strh %1, [%0]" : : "l" (dimensions), "l" (width_in_tiles) : "memory"); \
+    register LivestockReportLabelDimensions * bounds asm(bounds_reg); \
+    asm ("ldr %0, [sp, %1]" : "=l" (bounds) : "i" (offsetof(LivestockReportInitFrame, field##_bounds))); \
+    if ((width) == 2) { \
+        asm volatile ("strh %1, [%0, #2]" : : "l" (bounds), "l" (width_in_tiles) : "memory"); \
+    } else { \
+        asm volatile ("strh %1, [%0, #2]" : : "l" (bounds), "l" (height_in_tiles) : "memory"); \
+    } \
+    register u32 packed_dimensions asm("r0"); \
+    asm ("ldr %0, [sp, %1]" : "=l" (packed_dimensions) : "I" (offsetof(LivestockReportInitFrame, field##_dimensions)) : "memory"); \
+    INIT_PIN(packed_dimensions); \
+    asm volatile ("str %0, [sp]" : : "l" (label) : "memory"); \
+    register void * pixels asm("r1"); \
+    load_pixels(pixels); \
+    register u32 x asm("r2") = 0; \
+    INIT_PIN(x); \
+    register u32 y asm("r3") = 0; \
+    INIT_PIN(y); \
+    LIVESTOCK_DRAW_TEXT(); \
+} while (0)
+
+#define LIVESTOCK_APPEND_COPY(command_reg, copy_registers, grow, publish) do { \
+    register DmaCommand * local_copy asm(command_reg); \
+    asm volatile ("add %0, sp, %1\n\tmov sb, %0" : "=l" (local_copy) \
+        : "I" (offsetof(LivestockReportInitFrame, copy)) : "r9"); \
+    register DmaCommand * end asm("r1"); \
+    register DmaCommand * capacity asm("r0"); \
+    asm volatile ("ldr %0, [r7, %2]\n\tldr %1, [r7, %3]" \
+        : "=l" (end), "=l" (capacity) : "I" (offsetof(DmaTransferQueue, end)), \
+        "I" (offsetof(DmaTransferQueue, capacity_end)) : "memory"); \
+    asm volatile ("cmp %1, %0\n\tbeq " grow "\n\tcmp %1, #0\n\tbeq " publish "\n\t" \
+        ".syntax unified\n\tadds r0, r1, #0\n\tadd r1, sp, %2\n\t" \
+        "ldmia r1!, {" copy_registers "}\n\tstmia r0!, {" copy_registers "}\n\t" \
+        "ldr r1, [r1]\n\tstr r1, [r0]\n\t" publish ":\n\t.syntax divided" \
+        : "+l" (capacity), "+l" (end) : "I" (offsetof(LivestockReportInitFrame, copy)) \
+        : "r2", "r3", "r4", "r5", "r6", "cc", "memory"); \
+    register DmaCommand * next asm("r0"); \
+    asm ("ldr %0, [r7, %1]" : "=l" (next) : "I" (offsetof(DmaTransferQueue, end)) : "memory"); \
+    ++next; \
+    INIT_PIN(next); \
+    asm volatile ("str %0, [r7, %1]" : : "l" (next), "I" (offsetof(DmaTransferQueue, end)) : "memory"); \
+} while (0)
+
+#define LIVESTOCK_GROW_QUEUE(kind, site, args, reload_head) do { \
+    register u32 growth_slot asm("r0"); \
+    asm volatile (".syntax unified\n\tLivestockInit" #kind "Capacity " site ", " args "\n\t.syntax divided" \
+        : "=l" (growth_slot) : : "r1", "r2", "r3", "r4", "r5", "r6", "r10", "memory", "cc"); \
+    register u32 capacity asm("r0"); \
+    asm ("ldr %0, [%1]\n\tadd %0, r4, %0" : "=l" (capacity) : "l" (growth_slot) : "memory", "cc"); \
+    asm volatile ("cmp %0, #0\n\tbeq .Llivestock_init_grow_no_allocation" site : : "l" (capacity) : "cc"); \
+    register u32 bytes asm("r4") = capacity * sizeof(DmaCommand); \
+    INIT_PIN(bytes); \
+    register u32 allocation_bytes asm("r0") = bytes; \
+    INIT_PIN(allocation_bytes); \
+    register void * allocation asm("r0") = malloc(allocation_bytes); \
+    INIT_PIN(allocation); \
+    register u32 new_capacity_bytes asm("r8"); \
+    asm volatile ("mov %0, r4" : "=h" (new_capacity_bytes)); \
+    if (reload_head) { \
+        asm volatile ("cmp %0, #0\n\tbne .Llivestock_init_grow_reload_old_start" site : : "l" (allocation) : "cc"); \
+    } else { \
+        asm volatile ("cmp %0, #0\n\tbne .Llivestock_init_grow_prepare_copy" site : : "l" (allocation) : "cc"); \
+    } \
+    asm volatile ("mov %0, %1" : "=l" (allocation_bytes) : "h" (new_capacity_bytes)); \
+    allocation = RetryLivestockReportUploadAllocation(allocation_bytes); \
+    INIT_PIN(allocation); \
+    if (reload_head) { \
+        asm volatile (".Llivestock_init_grow_reload_old_start" site ":\n\tldr r1, [r7]" : : : "r1", "memory"); \
+    } \
+    asm volatile ("b .Llivestock_init_grow_prepare_copy" site); \
+    asm volatile (".Llivestock_init_grow_no_allocation" site ":\n\tmov r0, #0\n\tmov r8, r0" \
+        : : : "r0", "r8", "cc"); \
+    asm volatile (".syntax unified\n\tLivestockInit" #kind "Publish " site ", " args "\n\t.syntax divided" \
+        : : : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "lr", "memory", "cc"); \
+} while (0)
+
+enum { LIVESTOCK_REPORT_TILE_BYTES = 32 };
+
+#define LIVESTOCK_UPLOAD_LABEL(load_pixels, address, tile_count) do { \
+    register u32 bytes asm("r3"); \
+    if ((tile_count) > 4) { \
+        enum { SHIFT = (tile_count) == 12 ? 1 : 2 }; \
+        bytes = (tile_count) * LIVESTOCK_REPORT_TILE_BYTES >> SHIFT; \
+        INIT_PIN(bytes); \
+        bytes <<= SHIFT; \
+        INIT_PIN(bytes); \
+    } \
+    register DmaCommand * command asm("r0"); \
+    asm volatile ("add %0, sp, %1" : "=l" (command) : "I" (offsetof(LivestockReportInitFrame, copy))); \
+    register void const * pixels asm("r1"); \
+    load_pixels(pixels); \
+    register void * dest asm("r2"); \
+    asm volatile ("ldr %0, " address : "=l" (dest)); \
+    if ((tile_count) == 4) { \
+        bytes = (tile_count) * LIVESTOCK_REPORT_TILE_BYTES; \
+        INIT_PIN(bytes); \
+    } \
+    DmaCommand_InitializeCopy(command, pixels, dest, bytes); \
+} while (0)
+
+#define LIVESTOCK_LABEL(name, label, tile, width, text_reg, bounds_reg, copy_reg, copy_words, next, growth_regs, load_pixels) do { \
+    asm volatile (".Llivestock_init_render_" #name ":"); \
+    LIVESTOCK_RENDER_TEXT(name, width, text_reg, ".Llivestock_init_label_" #name, bounds_reg, load_pixels); \
+    LIVESTOCK_UPLOAD_LABEL(load_pixels, ".Llivestock_init_dest_" #name, (width) * 2); \
+    LIVESTOCK_APPEND_COPY(copy_reg, copy_words, ".Llivestock_init_grow_" #name, ".Llivestock_init_publish_" #name); \
+    asm volatile ("b " next "\n\t.align 2, 0\n\t.Llivestock_init_label_" #name ":\n\t.word " #label "\n\t" \
+        ".Llivestock_init_dest_" #name ":\n\t.word " tile "\n\t.Llivestock_init_grow_" #name ":"); \
+    LIVESTOCK_GROW_QUEUE(Label, "_" #name, #name "_insertion, " growth_regs, true); \
+} while (0)
+
+#define LIVESTOCK_UPLOAD_ICON(name, next, asset, address, tile_count, copy_reg, copy_words, growth_slot) do { \
+    asm volatile (".Llivestock_init_upload_" #name ":"); \
+    register void const * source asm("r1"); \
+    asm volatile ("ldr %0, .Llivestock_init_asset_" #name : "=l" (source)); \
+    register DmaCommand * command asm("r0"); \
+    asm volatile ("add %0, sp, %1" : "=l" (command) : "I" (offsetof(LivestockReportInitFrame, copy))); \
+    register void * dest asm("r2"); \
+    asm volatile ("ldr %0, .Llivestock_init_dest_" #name : "=l" (dest)); \
+    register u32 bytes asm("r3") = (tile_count) * LIVESTOCK_REPORT_TILE_BYTES; \
+    INIT_PIN(bytes); \
+    DmaCommand_InitializeCopy(command, source, dest, bytes); \
+    LIVESTOCK_APPEND_COPY(copy_reg, copy_words, ".Llivestock_init_grow_" #name, ".Llivestock_init_publish_" #name); \
+    asm volatile ("b " next "\n\t.align 2, 0\n\t.Llivestock_init_asset_" #name ":\n\t.word " #asset "\n\t" \
+        ".Llivestock_init_dest_" #name ":\n\t.word " address "\n\t.Llivestock_init_grow_" #name ":"); \
+    LIVESTOCK_GROW_QUEUE(Icon, "_" #name, #growth_slot, false); \
+} while (0)
+
+#define LOAD_unhappy(pixels) LIVESTOCK_REPORT_PIXELS_unhappy(pixels)
+#define LOAD_sick(pixels) LIVESTOCK_REPORT_PIXELS(sick, pixels)
+#define LOAD_spring(pixels) LIVESTOCK_REPORT_PIXELS(spring, pixels)
+#define LOAD_summer(pixels) LIVESTOCK_REPORT_PIXELS(summer, pixels)
+#define LOAD_autumn(pixels) LIVESTOCK_REPORT_PIXELS(autumn, pixels)
+#define LOAD_winter(pixels) LIVESTOCK_REPORT_PIXELS(winter, pixels)
+#define LOAD_year_suffix(pixels) LIVESTOCK_REPORT_PIXELS(year_suffix, pixels)
+#define LOAD_birthday_unit(pixels) LIVESTOCK_REPORT_PIXELS(birthday_unit, pixels)
+
+asm (
+        "\t.equ .Llivestock_trophy_tile, 0xA0\n"
+        "\t.equ .Llivestock_heart_tile, 0xA4\n"
+        "\t.equ .Llivestock_year_tile, 0x98\n"
+        "\t.equ .Llivestock_day_tile, 0x9C\n"
+        "\t.equ .Llivestock_first_season_tile, 0x68\n"
+        "\t.equ .Llivestock_init_stack_bytes, 0xf4\n"
+        "\t.equ .Llivestock_init_sp_title_arg, (.Llivestock_init_stack_bytes + 0x20)\n"
+        "\t.equ .Llivestock_init_sp_dma_command, 4\n"
+        "\t.equ .Llivestock_init_sp_report, 0xa8\n"
+        "\t.equ .Llivestock_init_sp_old_dma_end, 0xec\n"
+        "\t.equ .Llivestock_init_sp_dma_buffer, 0xf0\n"
+        "\t.equ .Llivestock_init_healthy_bitmap, 0x5BC\n"
+        "\t.equ .Llivestock_init_sick_bitmap, 0x9C4\n"
+        "\t.equ .Llivestock_init_spring_bitmap, 0xCD0\n"
+        "\t.equ .Llivestock_init_summer_bitmap, 0xE54\n"
+        "\t.equ .Llivestock_init_autumn_bitmap, 0xFD8\n"
+        "\t.equ .Llivestock_init_winter_bitmap, 0x115C\n"
+        "\t.equ .Llivestock_init_years_bitmap, 0xBC8\n"
+        "\t.equ .Llivestock_init_birthday_unit_bitmap, 0xC4C\n"
+        "\t.equ .Llivestock_init_unhappy_bitmap, 0x7C0\n"
+        "\t.equ .Llivestock_init_bg_char_base, 0x06000000\n"
+        "\t.equ .Llivestock_init_tile_size, 32\n"
+        "\n"
+        "\t@ Retire the old DMA commands and publish the new buffer.\n"
+        "\t.macro CommitLivestockInitDmaBuffer new_begin\n"
+        "\tldr r2, [r7, #4]\n"
+        "\tldr r1, [r7]\n"
+        "\tadds r0, r1, #0\n"
+        "\tcmp r1, r2\n"
+        "\tbeq .Llivestock_init_free_old_buffer\\@\n"
+        ".Llivestock_init_retire_old_buffer\\@:\n"
+        "\tadds r0, #0x10\n"
+        "\tcmp r0, r2\n"
+        "\tbne .Llivestock_init_retire_old_buffer\\@\n"
+        ".Llivestock_init_free_old_buffer\\@:\n"
+        "\tcmp r1, #0\n"
+        "\tbeq .Llivestock_init_publish_new_buffer\\@\n"
+        "\tadds r0, r1, #0\n"
+        "\tbl free\n"
+        ".Llivestock_init_publish_new_buffer\\@:\n"
+        "\tldr r0, [sp, #.Llivestock_init_sp_dma_buffer]\n"
+        "\tadd r0, r8\n"
+        "\tldr \\new_begin, [sp, #.Llivestock_init_sp_dma_buffer]\n"
+        "\tstr \\new_begin, [r7]\n"
+        "\tstr r5, [r7, #4]\n"
+        "\tstr r0, [r7, #0xc]\n"
+        "\t.endm\n"
+        "\n"
+        "\t@ Insert one label copy command, growing the queue by max(size, 1).\n"
+        "\t@ r7 = DMA queue, r1 = old end, sb = new command.\n"
+        "\t.macro LivestockInitLabelCapacity site, occupied_slot, end_tmp, copy_last, new_begin\n"
+        "\tmov sl, r1\n"
+        "\tmovs r0, #1\n"
+        "\tstr r0, [sp, #(\\occupied_slot + 4)]\n"
+        "\tldr r1, [r7]\n"
+        "\tmov \\end_tmp, sl\n"
+        "\tsubs r0, \\end_tmp, r1\n"
+        "\tasrs r4, r0, #4\n"
+        "\tstr r4, [sp, #\\occupied_slot]\n"
+        "\tadd r2, sp, #(\\occupied_slot + 4)\n"
+        "\tadd r0, sp, #\\occupied_slot\n"
+        "\tcmp r4, #1\n"
+        "\tbhs .Llivestock_init_grow_use_larger_count\\site\n"
+        "\tadds r0, r2, #0\n"
+        ".Llivestock_init_grow_use_larger_count\\site:\n"
+        "\t.endm\n"
+        "\t.macro LivestockInitLabelPublish site, occupied_slot, end_tmp, copy_last, new_begin\n"
+        ".Llivestock_init_grow_prepare_copy\\site:\n"
+        "\tadds r5, r0, #0\n"
+        "\tstr r5, [sp, #.Llivestock_init_sp_dma_buffer]\n"
+        "\tadds r2, r1, #0\n"
+        "\tadds r3, r5, #0\n"
+        "\tcmp r2, sl\n"
+        "\tbeq .Llivestock_init_grow_insert\\site\n"
+        ".Llivestock_init_grow_copy_existing\\site:\n"
+        "\tcmp r3, #0\n"
+        "\tbeq .Llivestock_init_grow_next_existing\\site\n"
+        "\tadds r0, r3, #0\n"
+        "\tadds r1, r2, #0\n"
+        "\tldm r1!, {r4, r5, r6}\n"
+        "\tstm r0!, {r4, r5, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".Llivestock_init_grow_next_existing\\site:\n"
+        "\tadds r2, #0x10\n"
+        "\tadds r3, #0x10\n"
+        "\tcmp r2, sl\n"
+        "\tbne .Llivestock_init_grow_copy_existing\\site\n"
+        ".Llivestock_init_grow_insert\\site:\n"
+        "\tadds r5, r3, #0\n"
+        "\tldr r0, [sp, #(\\occupied_slot + 4)]\n"
+        "\tcmp r0, #1\n"
+        "\tbne .Llivestock_init_grow_insert_many\\site\n"
+        "\tcmp r5, #0\n"
+        "\tbeq .Llivestock_init_grow_skip_single_copy\\site\n"
+        "\tadds r0, r5, #0\n"
+        "\tmov r1, sb\n"
+        "\tldm r1!, {r2, r3, \\copy_last}\n"
+        "\tstm r0!, {r2, r3, \\copy_last}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".Llivestock_init_grow_skip_single_copy\\site:\n"
+        "\tadds r5, #0x10\n"
+        "\tb .Llivestock_init_grow_publish\\site\n"
+        ".Llivestock_init_grow_insert_many\\site:\n"
+        "\tadds r3, r0, #0\n"
+        "\tadds r2, r5, #0\n"
+        "\tcmp r3, #0\n"
+        "\tbeq .Llivestock_init_grow_insert_complete\\site\n"
+        ".Llivestock_init_grow_copy_inserted\\site:\n"
+        "\tcmp r2, #0\n"
+        "\tbeq .Llivestock_init_grow_next_inserted\\site\n"
+        "\tadds r0, r2, #0\n"
+        "\tmov r1, sb\n"
+        "\tldm r1!, {r4, r5, r6}\n"
+        "\tstm r0!, {r4, r5, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".Llivestock_init_grow_next_inserted\\site:\n"
+        "\tsubs r3, #1\n"
+        "\tadds r2, #0x10\n"
+        "\tcmp r3, #0\n"
+        "\tbne .Llivestock_init_grow_copy_inserted\\site\n"
+        ".Llivestock_init_grow_insert_complete\\site:\n"
+        "\tadds r5, r2, #0\n"
+        ".Llivestock_init_grow_publish\\site:\n"
+        "\tCommitLivestockInitDmaBuffer \\new_begin\n"
+        "\t.endm\n"
+        "\n"
+        "\t@ Same growth for icon uploads; the old end and insert count use stack slots.\n"
+        "\t.macro LivestockInitIconCapacity site, occupied_slot\n"
+        "\tstr r1, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tmovs r0, #1\n"
+        "\tadd r1, sp, #(\\occupied_slot + 4)\n"
+        "\tstr r0, [r1]\n"
+        "\tldr r0, [r7]\n"
+        "\tldr r6, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tsubs r0, r6, r0\n"
+        "\tasrs r4, r0, #4\n"
+        "\tadd r0, sp, #\\occupied_slot\n"
+        "\tstr r4, [r0]\n"
+        "\tldr r2, [r1]\n"
+        "\tmov sl, r1\n"
+        "\tcmp r4, r2\n"
+        "\tbhs .Llivestock_init_grow_use_larger_count\\site\n"
+        "\tmov r0, sl\n"
+        ".Llivestock_init_grow_use_larger_count\\site:\n"
+        "\t.endm\n"
+        "\t.macro LivestockInitIconPublish site, occupied_slot\n"
+        ".Llivestock_init_grow_prepare_copy\\site:\n"
+        "\tadds r5, r0, #0\n"
+        "\tstr r5, [sp, #.Llivestock_init_sp_dma_buffer]\n"
+        "\tldr r2, [r7]\n"
+        "\tadds r3, r5, #0\n"
+        "\tb .Llivestock_init_grow_check_existing_end\\site\n"
+        ".Llivestock_init_grow_copy_existing\\site:\n"
+        "\tcmp r3, #0\n"
+        "\tbeq .Llivestock_init_grow_next_existing\\site\n"
+        "\tadds r0, r3, #0\n"
+        "\tadds r1, r2, #0\n"
+        "\tldm r1!, {r4, r5, r6}\n"
+        "\tstm r0!, {r4, r5, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".Llivestock_init_grow_next_existing\\site:\n"
+        "\tadds r2, #0x10\n"
+        "\tadds r3, #0x10\n"
+        ".Llivestock_init_grow_check_existing_end\\site:\n"
+        "\tldr r0, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tcmp r2, r0\n"
+        "\tbne .Llivestock_init_grow_copy_existing\\site\n"
+        "\tadds r5, r3, #0\n"
+        "\tmov r2, sl\n"
+        "\tldr r1, [r2]\n"
+        "\tcmp r1, #1\n"
+        "\tbne .Llivestock_init_grow_insert_many\\site\n"
+        "\tcmp r5, #0\n"
+        "\tbeq .Llivestock_init_grow_skip_single_copy\\site\n"
+        "\tadds r0, r5, #0\n"
+        "\tmov r1, sb\n"
+        "\tldm r1!, {r3, r4, r6}\n"
+        "\tstm r0!, {r3, r4, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".Llivestock_init_grow_skip_single_copy\\site:\n"
+        "\tadds r5, #0x10\n"
+        "\tb .Llivestock_init_grow_publish\\site\n"
+        ".Llivestock_init_grow_insert_many\\site:\n"
+        "\tadds r3, r1, #0\n"
+        "\tadds r2, r5, #0\n"
+        "\tcmp r3, #0\n"
+        "\tbeq .Llivestock_init_grow_insert_complete\\site\n"
+        ".Llivestock_init_grow_copy_inserted\\site:\n"
+        "\tcmp r2, #0\n"
+        "\tbeq .Llivestock_init_grow_next_inserted\\site\n"
+        "\tadds r0, r2, #0\n"
+        "\tmov r1, sb\n"
+        "\tldm r1!, {r4, r5, r6}\n"
+        "\tstm r0!, {r4, r5, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".Llivestock_init_grow_next_inserted\\site:\n"
+        "\tsubs r3, #1\n"
+        "\tadds r2, #0x10\n"
+        "\tcmp r3, #0\n"
+        "\tbne .Llivestock_init_grow_copy_inserted\\site\n"
+        ".Llivestock_init_grow_insert_complete\\site:\n"
+        "\tadds r5, r2, #0\n"
+        ".Llivestock_init_grow_publish\\site:\n"
+        "\tCommitLivestockInitDmaBuffer r1\n"
+        "\t.endm\n"
+        "\n"
+        "\t.equ unhappy_insertion, 0x28\n"
+        "\t.equ spring_insertion, 0x44\n"
+        "\t.equ summer_insertion, 0x50\n"
+        "\t.equ autumn_insertion, 0x5c\n"
+        "\t.equ winter_insertion, 0x68\n"
+        "\t.equ year_suffix_insertion, 0x74\n"
+);
+
+// Fixed Thumb registers keep the inline queue branches and their literal pools at the original offsets.
+EC SECTION(".text.f3.08062E9C") __attribute__((naked)) void InitLivestockReport(
+    LivestockReport *, void *, void *, u32, char const *)
+{
+    asm volatile (
+        ".syntax unified\n"
+        "\tpush {r4, r5, r6, r7, lr}\n"
+        "\tmov r7, sl\n"
+        "\tmov r6, sb\n"
+        "\tmov r5, r8\n"
+        "\tpush {r5, r6, r7}\n"
+        "\tsub sp, #.Llivestock_init_stack_bytes\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_INIT_PANEL();
+
+    LIVESTOCK_SET_VTABLE();
+
+    asm volatile (
+        ".syntax unified\n"
+        "\tmovs r0, #0xf\n"
+        "\tadd r4, sp, #0x14\n"
+        "\tadd r3, sp, #0x18\n"
+        "\tmov r8, r3\n"
+        "\tmov r5, sp\n"
+        "\tadds r5, #0x24\n"
+        "\tstr r5, [sp, #0xd4]\n"
+        "\tmov r6, sp\n"
+        "\tadds r6, #0x30\n"
+        "\tstr r6, [sp, #0xd8]\n"
+        "\tmov r1, sp\n"
+        "\tadds r1, #0x34\n"
+        "\tstr r1, [sp, #0xdc]\n"
+        "\tmov r2, sp\n"
+        "\tadds r2, #0x40\n"
+        "\tstr r2, [sp, #0xe0]\n"
+        "\tmov r3, sp\n"
+        "\tadds r3, #0x4c\n"
+        "\tstr r3, [sp, #0xe4]\n"
+        "\tadds r5, #0x34\n"
+        "\tstr r5, [sp, #0xe8]\n"
+        "\tadds r6, #0x34\n"
+        "\tstr r6, [sp, #0xac]\n"
+        "\tadds r1, #0x3c\n"
+        "\tstr r1, [sp, #0xb0]\n"
+        "\tadds r2, #0x3c\n"
+        "\tstr r2, [sp, #0xb4]\n"
+        "\tmovs r1, #1\n"
+        "\trsbs r1, r1, #0\n"
+        ".Llivestock_init_countdown:\n"
+        "\tsubs r0, #1\n"
+        "\tcmp r0, r1\n"
+        "\tbne .Llivestock_init_countdown\n"
+        "\tldr r3, [sp, #.Llivestock_init_sp_report]\n"
+        "\tldr r0, [r3]\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_GET_QUEUE();
+
+    asm volatile (
+        ".syntax unified\n"
+        "\tadds r7, r0, #0\n"
+        "\tmovs r5, #8\n"
+        "\tmovs r6, #2\n"
+        "\tadd r0, sp, #0x14\n"
+        "\tstrh r5, [r0]\n"
+        "\tstrh r6, [r4, #2]\n"
+        "\tldr r0, [sp, #0x14]\n"
+        "\tldr r1, [sp, #.Llivestock_init_sp_report]\n"
+        "\tldr r2, .L08062FAC\n"
+        "\tadds r4, r1, r2\n"
+        "\tadds r1, r4, #0\n"
+        "\tmovs r2, #0\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_FILL_TILES();
+
+    asm volatile (
+        ".syntax unified\n"
+        "\tldr r1, .L08062FB0\n"
+        "\tadd r0, sp, #0x18\n"
+        "\tstrh r5, [r0]\n"
+        "\tmov r3, r8\n"
+        "\tstrh r6, [r3, #2]\n"
+        "\tldr r0, [sp, #0x18]\n"
+        "\tstr r1, [sp]\n"
+        "\tadds r1, r4, #0\n"
+        "\tmovs r2, #0\n"
+        "\tmovs r3, #0\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_DRAW_TEXT();
+
+    asm volatile (
+        ".syntax unified\n"
+        "\tmovs r3, #0x80\n"
+        "\tlsls r3, r3, #2\n"
+        "\tadd r0, sp, #.Llivestock_init_sp_dma_command\n"
+        "\tadds r1, r4, #0\n"
+        "\tldr r2, .L08062FB4\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_INIT_COPY();
+
+    LIVESTOCK_APPEND_COPY("r4", "r2, r5, r6", ".Llivestock_init_grow_healthy_label", ".Llivestock_init_finish_healthy_fast_append");
+
+    asm volatile (
+        ".syntax unified\n"
+        "\tldr r3, [sp, #.Llivestock_init_sp_report]\n"
+        "\tmovs r4, #(.Llivestock_init_unhappy_bitmap >> 3)\n"
+        "\tlsls r4, r4, #3\n"
+        "\tadds r3, r3, r4\n"
+        "\tmov sl, r3\n"
+        "\tldr r6, .L08062FB8\n"
+        "\tldr r5, [sp, #.Llivestock_init_sp_report]\n"
+        "\tadds r6, r5, r6\n"
+        "\tstr r6, [sp, #0xc8]\n"
+        "\tmovs r0, #(.Llivestock_init_spring_bitmap >> 4)\n"
+        "\tlsls r0, r0, #4\n"
+        "\tadds r0, r5, r0\n"
+        "\tstr r0, [sp, #0xc4]\n"
+        "\tldr r1, .L08062FBC\n"
+        "\tadds r1, r5, r1\n"
+        "\tstr r1, [sp, #0xd0]\n"
+        "\tldr r2, .L08062FC0\n"
+        "\tadds r2, r5, r2\n"
+        "\tstr r2, [sp, #0xbc]\n"
+        "\tldr r3, .L08062FC4\n"
+        "\tadds r3, r5, r3\n"
+        "\tstr r3, [sp, #0xcc]\n"
+        "\tldr r4, .L08062FC8\n"
+        "\tadds r4, r5, r4\n"
+        "\tstr r4, [sp, #0xb8]\n"
+        "\tldr r6, .L08062FCC\n"
+        "\tadds r6, r5, r6\n"
+        "\tstr r6, [sp, #0xc0]\n"
+        "\tb .Llivestock_init_render_unhappy\n"
+        "\t.align 2, 0\n"
+        ".L08062FA4: .4byte 0x000005B4\n"
+        ".L08062FA8: .4byte gLivestockReportVTable\n"
+        ".L08062FAC: .4byte .Llivestock_init_healthy_bitmap\n"
+        ".L08062FB0: .4byte gLivestockReportHealthyLabel\n"
+        ".L08062FB4: .4byte (.Llivestock_init_bg_char_base + 0x38 * .Llivestock_init_tile_size)\n"
+        ".L08062FB8: .4byte .Llivestock_init_sick_bitmap\n"
+        ".L08062FBC: .4byte .Llivestock_init_summer_bitmap\n"
+        ".L08062FC0: .4byte .Llivestock_init_autumn_bitmap\n"
+        ".L08062FC4: .4byte .Llivestock_init_winter_bitmap\n"
+        ".L08062FC8: .4byte .Llivestock_init_years_bitmap\n"
+        ".L08062FCC: .4byte .Llivestock_init_birthday_unit_bitmap\n"
+        ".Llivestock_init_grow_healthy_label:\n"
+        "\tstr r1, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tmovs r0, #1\n"
+        "\tstr r0, [sp, #0x20]\n"
+        "\tldr r1, [r7]\n"
+        "\tldr r2, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tsubs r0, r2, r1\n"
+        "\tasrs r4, r0, #4\n"
+        "\tstr r4, [sp, #0x1c]\n"
+        "\tadd r2, sp, #0x20\n"
+        "\tadd r0, sp, #0x1c\n"
+        "\tcmp r4, #1\n"
+        "\tbhs .L08062FEA\n"
+        "\tadds r0, r2, #0\n"
+        ".L08062FEA:\n"
+        "\tldr r0, [r0]\n"
+        "\tadds r0, r4, r0\n"
+        "\tcmp r0, #0\n"
+        "\tbeq .L0806300A\n"
+        "\tlsls r4, r0, #4\n"
+        "\tadds r0, r4, #0\n"
+        "\tbl malloc\n"
+        "\tmov r8, r4\n"
+        "\tcmp r0, #0\n"
+        "\tbne .L08063006\n"
+        "\tmov r0, r8\n"
+        "\tbl func_080D3BC0\n"
+        ".L08063006:\n"
+        "\tldr r1, [r7]\n"
+        "\tb .L0806300E\n"
+        ".L0806300A:\n"
+        "\tmovs r0, #0\n"
+        "\tmov r8, r0\n"
+        ".L0806300E:\n"
+        "\tadds r5, r0, #0\n"
+        "\tstr r5, [sp, #.Llivestock_init_sp_dma_buffer]\n"
+        "\tadds r2, r1, #0\n"
+        "\tadds r3, r5, #0\n"
+        "\tldr r4, [sp, #.Llivestock_init_sp_report]\n"
+        "\tmovs r5, #(.Llivestock_init_unhappy_bitmap >> 3)\n"
+        "\tlsls r5, r5, #3\n"
+        "\tadds r4, r4, r5\n"
+        "\tmov sl, r4\n"
+        "\tldr r0, .L0806308C\n"
+        "\tldr r6, [sp, #.Llivestock_init_sp_report]\n"
+        "\tadds r0, r6, r0\n"
+        "\tstr r0, [sp, #0xc8]\n"
+        "\tmovs r1, #(.Llivestock_init_spring_bitmap >> 4)\n"
+        "\tlsls r1, r1, #4\n"
+        "\tadds r1, r6, r1\n"
+        "\tstr r1, [sp, #0xc4]\n"
+        "\tldr r4, .L08063090\n"
+        "\tadds r4, r6, r4\n"
+        "\tstr r4, [sp, #0xd0]\n"
+        "\tldr r5, .L08063094\n"
+        "\tadds r5, r6, r5\n"
+        "\tstr r5, [sp, #0xbc]\n"
+        "\tldr r0, .L08063098\n"
+        "\tadds r0, r6, r0\n"
+        "\tstr r0, [sp, #0xcc]\n"
+        "\tldr r1, .L0806309C\n"
+        "\tadds r1, r6, r1\n"
+        "\tstr r1, [sp, #0xb8]\n"
+        "\tldr r4, .L080630A0\n"
+        "\tadds r4, r6, r4\n"
+        "\tstr r4, [sp, #0xc0]\n"
+        "\tldr r5, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tcmp r2, r5\n"
+        "\tbeq .L0806306E\n"
+        ".L08063054:\n"
+        "\tcmp r3, #0\n"
+        "\tbeq .L08063064\n"
+        "\tadds r0, r3, #0\n"
+        "\tadds r1, r2, #0\n"
+        "\tldm r1!, {r4, r5, r6}\n"
+        "\tstm r0!, {r4, r5, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".L08063064:\n"
+        "\tadds r2, #0x10\n"
+        "\tadds r3, #0x10\n"
+        "\tldr r6, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tcmp r2, r6\n"
+        "\tbne .L08063054\n"
+        ".L0806306E:\n"
+        "\tadds r5, r3, #0\n"
+        "\tldr r0, [sp, #0x20]\n"
+        "\tcmp r0, #1\n"
+        "\tbne .L080630A4\n"
+        "\tcmp r5, #0\n"
+        "\tbeq .L08063086\n"
+        "\tadds r0, r5, #0\n"
+        "\tmov r1, sb\n"
+        "\tldm r1!, {r2, r3, r4}\n"
+        "\tstm r0!, {r2, r3, r4}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".L08063086:\n"
+        "\tadds r5, #0x10\n"
+        "\tb .L080630C6\n"
+        "\t.align 2, 0\n"
+        ".L0806308C: .4byte .Llivestock_init_sick_bitmap\n"
+        ".L08063090: .4byte .Llivestock_init_summer_bitmap\n"
+        ".L08063094: .4byte .Llivestock_init_autumn_bitmap\n"
+        ".L08063098: .4byte .Llivestock_init_winter_bitmap\n"
+        ".L0806309C: .4byte .Llivestock_init_years_bitmap\n"
+        ".L080630A0: .4byte .Llivestock_init_birthday_unit_bitmap\n"
+        ".L080630A4:\n"
+        "\tadds r3, r0, #0\n"
+        "\tadds r2, r5, #0\n"
+        "\tcmp r3, #0\n"
+        "\tbeq .L080630C4\n"
+        ".L080630AC:\n"
+        "\tcmp r2, #0\n"
+        "\tbeq .L080630BC\n"
+        "\tadds r0, r2, #0\n"
+        "\tmov r1, sb\n"
+        "\tldm r1!, {r4, r5, r6}\n"
+        "\tstm r0!, {r4, r5, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".L080630BC:\n"
+        "\tsubs r3, #1\n"
+        "\tadds r2, #0x10\n"
+        "\tcmp r3, #0\n"
+        "\tbne .L080630AC\n"
+        ".L080630C4:\n"
+        "\tadds r5, r2, #0\n"
+        ".L080630C6:\n"
+        "\tCommitLivestockInitDmaBuffer r6\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_LABEL(unhappy, gLivestockReportUnhappyLabel, "(.Llivestock_init_bg_char_base + 0x48 * .Llivestock_init_tile_size)", 8,
+        "r3", "r0", "r1", "r2, r3, r4", ".Llivestock_init_render_sick_label", "r5, r6, r1", LOAD_unhappy);
+
+    asm volatile (
+        ".syntax unified\n"
+        ".Llivestock_init_render_sick_label:\n"
+        "\tmovs r4, #8\n"
+        "\tmovs r5, #2\n"
+        "\tadd r0, sp, #0x30\n"
+        "\tstrh r4, [r0]\n"
+        "\tldr r2, [sp, #0xd8]\n"
+        "\tstrh r5, [r2, #2]\n"
+        "\tldr r0, [sp, #0x30]\n"
+        "\tldr r1, [sp, #0xc8]\n"
+        "\tmovs r2, #0\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_FILL_TILES();
+
+    asm volatile (
+        ".syntax unified\n"
+        "\tldr r1, .L0806326C\n"
+        "\tadd r0, sp, #0x34\n"
+        "\tstrh r4, [r0]\n"
+        "\tldr r3, [sp, #0xdc]\n"
+        "\tstrh r5, [r3, #2]\n"
+        "\tldr r0, [sp, #0x34]\n"
+        "\tstr r1, [sp]\n"
+        "\tldr r1, [sp, #0xc8]\n"
+        "\tmovs r2, #0\n"
+        "\tmovs r3, #0\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_DRAW_TEXT();
+
+    LIVESTOCK_UPLOAD_LABEL(LOAD_sick, ".L08063270", 16);
+
+    LIVESTOCK_APPEND_COPY("r4", "r2, r5, r6", ".Llivestock_init_grow_sick_label", ".L08063262");
+
+    asm volatile (
+        ".syntax unified\n"
+        "\tb .Llivestock_init_render_spring\n"
+        "\t.align 2, 0\n"
+        ".L0806326C: .4byte gLivestockReportSickLabel\n"
+        ".L08063270: .4byte (.Llivestock_init_bg_char_base + 0x58 * .Llivestock_init_tile_size)\n"
+        ".Llivestock_init_grow_sick_label:\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_GROW_QUEUE(Label, "_site2", "0x38, r3, r4, r6", true);
+
+    LIVESTOCK_LABEL(spring, gLivestockReportSpringLabel, "(.Llivestock_init_bg_char_base + .Llivestock_first_season_tile * .Llivestock_init_tile_size)", 6,
+        "r3", "r0", "r1", "r2, r3, r4", ".Llivestock_init_render_summer", "r5, r6, r1", LOAD_spring);
+
+    LIVESTOCK_LABEL(summer, gLivestockReportSummerLabel, "(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 12) * .Llivestock_init_tile_size)", 6,
+        "r3", "r4", "r5", "r2, r3, r6", ".Llivestock_init_render_autumn", "r4, r6, r1", LOAD_summer);
+
+    LIVESTOCK_LABEL(autumn, gLivestockReportFallLabel, "(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 24) * .Llivestock_init_tile_size)", 6,
+        "r3", "r4", "r5", "r2, r3, r6", ".Llivestock_init_render_winter", "r4, r6, r1", LOAD_autumn);
+
+    LIVESTOCK_LABEL(winter, gLivestockReportWinterLabel, "(.Llivestock_init_bg_char_base + (.Llivestock_first_season_tile + 36) * .Llivestock_init_tile_size)", 6,
+        "r3", "r4", "r5", "r2, r3, r6", ".Llivestock_init_render_year_suffix", "r4, r6, r1", LOAD_winter);
+
+    LIVESTOCK_LABEL(year_suffix, gLivestockReportYearAgeSuffix, "(.Llivestock_init_bg_char_base + .Llivestock_year_tile * .Llivestock_init_tile_size)", 2,
+        "r2", "r3", "r4", "r2, r5, r6", ".Llivestock_init_render_birthday_unit", "r3, r4, r6", LOAD_year_suffix);
+
+    asm volatile (
+        ".syntax unified\n"
+        ".Llivestock_init_render_birthday_unit:\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_RENDER_TEXT(birthday_unit, 2, "r2", ".L0806390C", "r0", LOAD_birthday_unit);
+
+    LIVESTOCK_UPLOAD_LABEL(LOAD_birthday_unit, ".L08063910", 4);
+
+    LIVESTOCK_APPEND_COPY("r1", "r2, r3, r4", ".Llivestock_init_grow_birthday_unit", ".L08063904");
+
+    asm volatile (
+        ".syntax unified\n"
+        "\tb .Llivestock_init_upload_trophy_tiles\n"
+        "\t.align 2, 0\n"
+        ".L0806390C: .4byte gFarmReportBlankLabel\n"
+        ".L08063910: .4byte (.Llivestock_init_bg_char_base + .Llivestock_day_tile * .Llivestock_init_tile_size)\n"
+        ".Llivestock_init_grow_birthday_unit:\n"
+        "\tstr r1, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tmovs r0, #1\n"
+        "\tadd r1, sp, #0x84\n"
+        "\tstr r0, [r1]\n"
+        "\tldr r0, [r7]\n"
+        "\tldr r5, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tsubs r0, r5, r0\n"
+        "\tasrs r4, r0, #4\n"
+        "\tstr r4, [sp, #0x80]\n"
+        "\tldr r0, [r1]\n"
+        "\tadd r2, sp, #0x80\n"
+        "\tmov sl, r1\n"
+        "\tcmp r4, r0\n"
+        "\tbhs .L08063932\n"
+        "\tmov r2, sl\n"
+        ".L08063932:\n"
+        "\tldr r0, [r2]\n"
+        "\tadds r0, r4, r0\n"
+        "\tcmp r0, #0\n"
+        "\tbeq .L08063950\n"
+        "\tlsls r4, r0, #4\n"
+        "\tadds r0, r4, #0\n"
+        "\tbl malloc\n"
+        "\tmov r8, r4\n"
+        "\tcmp r0, #0\n"
+        "\tbne .L08063954\n"
+        "\tmov r0, r8\n"
+        "\tbl func_080D3BC0\n"
+        "\tb .L08063954\n"
+        ".L08063950:\n"
+        "\tmovs r0, #0\n"
+        "\tmov r8, r0\n"
+        ".L08063954:\n"
+        "\tadds r5, r0, #0\n"
+        "\tstr r5, [sp, #.Llivestock_init_sp_dma_buffer]\n"
+        "\tldr r2, [r7]\n"
+        "\tadds r3, r5, #0\n"
+        "\tldr r6, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tcmp r2, r6\n"
+        "\tbeq .L0806397C\n"
+        ".L08063962:\n"
+        "\tcmp r3, #0\n"
+        "\tbeq .L08063972\n"
+        "\tadds r0, r3, #0\n"
+        "\tadds r1, r2, #0\n"
+        "\tldm r1!, {r4, r5, r6}\n"
+        "\tstm r0!, {r4, r5, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".L08063972:\n"
+        "\tadds r2, #0x10\n"
+        "\tadds r3, #0x10\n"
+        "\tldr r0, [sp, #.Llivestock_init_sp_old_dma_end]\n"
+        "\tcmp r2, r0\n"
+        "\tbne .L08063962\n"
+        ".L0806397C:\n"
+        "\tadds r5, r3, #0\n"
+        "\tmov r2, sl\n"
+        "\tldr r1, [r2]\n"
+        "\tcmp r1, #1\n"
+        "\tbne .L0806399A\n"
+        "\tcmp r5, #0\n"
+        "\tbeq .L08063996\n"
+        "\tadds r0, r5, #0\n"
+        "\tmov r1, sb\n"
+        "\tldm r1!, {r3, r4, r6}\n"
+        "\tstm r0!, {r3, r4, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".L08063996:\n"
+        "\tadds r5, #0x10\n"
+        "\tb .L080639BC\n"
+        ".L0806399A:\n"
+        "\tadds r3, r1, #0\n"
+        "\tadds r2, r5, #0\n"
+        "\tcmp r3, #0\n"
+        "\tbeq .L080639BA\n"
+        ".L080639A2:\n"
+        "\tcmp r2, #0\n"
+        "\tbeq .L080639B2\n"
+        "\tadds r0, r2, #0\n"
+        "\tmov r1, sb\n"
+        "\tldm r1!, {r4, r5, r6}\n"
+        "\tstm r0!, {r4, r5, r6}\n"
+        "\tldr r1, [r1]\n"
+        "\tstr r1, [r0]\n"
+        ".L080639B2:\n"
+        "\tsubs r3, #1\n"
+        "\tadds r2, #0x10\n"
+        "\tcmp r3, #0\n"
+        "\tbne .L080639A2\n"
+        ".L080639BA:\n"
+        "\tadds r5, r2, #0\n"
+        ".L080639BC:\n"
+        "\tCommitLivestockInitDmaBuffer r1\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+
+    LIVESTOCK_UPLOAD_ICON(trophy_tiles, ".Llivestock_init_upload_trophy_palette", gUnk_0875196C,
+        "(.Llivestock_init_bg_char_base + .Llivestock_trophy_tile * .Llivestock_init_tile_size)", 4, "r2", "r3, r4, r5", 0x88);
+
+    LIVESTOCK_UPLOAD_ICON(trophy_palette, ".Llivestock_init_upload_heart_tiles", gUnk_087519EC,
+        "0x05000020", 1, "r2", "r3, r4, r5", 0x90);
+
+    LIVESTOCK_UPLOAD_ICON(heart_tiles, ".Llivestock_init_upload_heart_palette", gUnk_0875254C,
+        "(.Llivestock_init_bg_char_base + .Llivestock_heart_tile * .Llivestock_init_tile_size)", 1, "r2", "r3, r4, r5", 0x98);
+
+    LIVESTOCK_UPLOAD_ICON(heart_palette, ".Llivestock_init_return_report", gUnk_087525CC,
+        "0x05000040", 1, "r2", "r3, r4, r5", 0xa0);
+
+    asm volatile (
+        ".syntax unified\n"
+        ".Llivestock_init_return_report:\n"
+        "\tldr r0, [sp, #.Llivestock_init_sp_report]\n"
+        "\tadd sp, #.Llivestock_init_stack_bytes\n"
+        "\tpop {r3, r4, r5}\n"
+        "\tmov r8, r3\n"
+        "\tmov sb, r4\n"
+        "\tmov sl, r5\n"
+        "\tpop {r4, r5, r6, r7}\n"
+        "\tpop {r1}\n"
+        "\tbx r1\n"
+        "\n"
+        "\t.purgem CommitLivestockInitDmaBuffer\n"
+        ".syntax divided\n" : : : INIT_CLOBBERS);
+}
+
+#undef LOAD_unhappy
+#undef LOAD_sick
+#undef LOAD_spring
+#undef LOAD_summer
+#undef LOAD_autumn
+#undef LOAD_winter
+#undef LOAD_year_suffix
+#undef LOAD_birthday_unit
+
+#undef LIVESTOCK_GROW_QUEUE
+#undef LIVESTOCK_UPLOAD_ICON
+#undef LIVESTOCK_LABEL
+#undef LIVESTOCK_UPLOAD_LABEL
+#undef LIVESTOCK_APPEND_COPY
+#undef LIVESTOCK_RENDER_TEXT
+#undef LIVESTOCK_REPORT_PIXELS_unhappy
+#undef LIVESTOCK_REPORT_PIXELS
+#undef LIVESTOCK_FILL_TILES
+#undef LIVESTOCK_DRAW_TEXT
+#undef LIVESTOCK_INIT_COPY
+#undef LIVESTOCK_GET_QUEUE
+#undef LIVESTOCK_SET_VTABLE
+#undef LIVESTOCK_INIT_PANEL
+#undef INIT_PIN
+#undef INIT_CLOBBERS
