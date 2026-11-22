@@ -105,7 +105,7 @@ struct ChildhoodMemoryScreenLayout
     FarmerNameSubstitution farmer_name;
 };
 
-EC void InitScreenHardware(ChildhoodMemoryScreenLayout *, Vec2 const *) asm("func_080084DC");
+EC void InitScreenHardware(ChildhoodMemoryScreenLayout *, Vec2 const *) asm("HardwareContext_InitializeWithKeyRepeat");
 EC void InitTileResources(TileResources *) asm("TilePool_Initialize");
 EC void DestroyTileResources(TileResources *, int) asm("TilePool_Destroy");
 EC ResourcePool * ResourcePool_Initialize(ResourcePool *);

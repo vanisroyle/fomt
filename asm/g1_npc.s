@@ -3529,7 +3529,7 @@ func_080A220C: @ 0x080A220C
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	adds r0, r7, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L080A245C @ =vtable_unk_080E825C
 	str r0, [r7, #4]
 	str r4, [r7, #8]

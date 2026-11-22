@@ -31286,7 +31286,7 @@ InitializeFestivalResultsScreen: @ 0x0805143C
 	strh r2, [r3, #2]
 	adds r0, r7, #0
 	mov r1, sp
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L080514F8 @ =vtable_unk_080E7928
 	str r0, [r7, #4]
 	str r4, [r7, #8]
@@ -32914,7 +32914,7 @@ InitializeFrisbeeScreen: @ 0x080522F8
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	adds r0, r7, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L08052710 @ =vtable_unk_080E7944
 	str r0, [r7, #4]
 	str r6, [r7, #8]
@@ -44342,7 +44342,7 @@ InitializeHorseRaceScreen: @ 0x0805806C
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	mov r0, sl
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L08058480 @ =vtable_unk_080E7970
 	mov r1, sl
 	str r0, [r1, #4]
@@ -76588,7 +76588,7 @@ func_0806D990: @ 0x0806D990
 	strh r0, [r1]
 	strh r2, [r1, #2]
 	adds r0, r7, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L0806DAB0 @ =vtable_unk_080E7AC4
 	str r0, [r7, #4]
 	mov r0, r8
@@ -96516,7 +96516,7 @@ func_080773E8: @ 0x080773E8
 	strh r2, [r3, #2]
 	adds r0, r4, #0
 	mov r1, sp
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L0807747C @ =vtable_unk_080E7B98
 	str r0, [r4, #4]
 	adds r0, r4, #0
@@ -99412,7 +99412,7 @@ func_08078E40: @ 0x08078E40
 	mov sl, r0
 	strh r2, [r1, #2]
 	adds r0, r6, #0
-	bl func_080084DC
+	bl HardwareContext_InitializeWithKeyRepeat
 	ldr r0, .L0807900C @ =vtable_unk_080E7BD0
 	str r0, [r6, #4]
 	str r4, [r6, #8]

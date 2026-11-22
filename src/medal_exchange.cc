@@ -115,7 +115,7 @@ struct TileResources { void * handles; };
 struct ResourcePool { void * storage; };
 
 EC void * __builtin_new(size_t);
-EC void InitMedalExchangeHardware(MedalExchange *, Vec2 const *) asm("func_080084DC");
+EC void InitMedalExchangeHardware(MedalExchange *, Vec2 const *) asm("HardwareContext_InitializeWithKeyRepeat");
 EC void InitTileResources(TileResources *) asm("TilePool_Initialize");
 EC void DestroyTileResources(TileResources *, int) asm("TilePool_Destroy");
 EC ResourcePool * ResourcePool_Initialize(ResourcePool *);
