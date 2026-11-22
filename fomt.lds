@@ -1632,6 +1632,8 @@ SECTIONS
         asm/code_linkonce.o(.text.code_080E18A4);
         *(.text.childhood_memory.080E19A4);
         asm/code_linkonce.o(.text.code_080E19F8);
+        *(SORT_BY_NAME(.text.farm_report_callbacks.*));
+        asm/code_linkonce.o(.text.code_080E1DD4);
 
         *(.gnu.linkonce.d.__vt_6AScene);
         *(.gnu.linkonce.d.__vt_13AUnk_0800080C);
