@@ -972,7 +972,7 @@ SECTIONS
         src/code_0803A8A4.o(.text.0803C518);
         src/clock_display.o(.text.0803C5B0);
         src/clock_display.o(.text.0803C7A0);
-        asm/code_0803A8A4.o(.text.0803C7C8);
+        src/clock_display_draw.o(.text.0803C7C8);
         src/code_0803A8A4.o(.text.0803CD4C);
         src/code_0803A8A4.o(.text.0803D080);
         src/code_0803A8A4.o(.text.0803D0F0);
@@ -1209,6 +1209,8 @@ SECTIONS
         asm/g1_npc.o(.text.g1_after_b4_080A3744);
         src/g1_scene_wrapper.o(.text.g1_080A3774);
         asm/g1_npc.o(.text.g1_after_b4_080A3774);
+        src/g1_chicken_festival.o(.text.g1_080A37A8);
+        asm/g1_npc.o(.text.g1_after_b16_080A37A8);
         src/g1_minigame_run.o(.text.g1_080A3900);
         asm/g1_npc.o(.text.g1_after_b13_080A3900);
         src/g1_minigame_run.o(.text.g1_080A39FC);
