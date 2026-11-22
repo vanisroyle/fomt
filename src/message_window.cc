@@ -589,6 +589,57 @@ EC SECTION(".text.message_window.08050478") void SetMessageWindowStateChoices(Me
     func_0805E850((u8 *) window + 0x1c0, (u8 *) window + 0x160, 0);
 }
 
+EC SECTION(".text.message_window.08050664") void SetMessageWindowStatePromptChoices(MessageWindowState * window, const char * prompt, const char * first, const char * inputSecond, const char * inputThird, const char * inputFourth, const void * substitutions)
+{
+    register const char * second = inputSecond;
+    register const char * third = inputThird;
+    register const char * fourth asm("r6") = inputFourth;
+    if (prompt == nullptr || strlen(prompt) > 28) prompt = (const char *) gUnk_080F9F3C;
+    register i32 layout = 7;
+    register u32 lineWidth = 12;
+    if (fourth == nullptr)
+    {
+        layout = 6;
+        if (third == nullptr)
+        {
+            lineWidth = 26;
+            layout = 5;
+        }
+    }
+    switch (layout)
+    {
+    default: layout = 5;
+    case 7: if (fourth == nullptr || strlen(fourth) > lineWidth) fourth = (const char *) gUnk_080F9F3C;
+    case 6: if (third == nullptr || strlen(third) > lineWidth) third = (const char *) gUnk_080F9F3C;
+    case 5:
+        if (second == nullptr || strlen(second) > lineWidth) second = (const char *) gUnk_080F9F3C;
+        if (first == nullptr || strlen(first) > lineWidth) first = (const char *) gUnk_080F9F3C;
+    }
+    ClearMessageTextCursor(&window->textCursor);
+    u8 promptPosition = 0;
+    DrawMessageChoiceText(window, promptPosition, prompt, substitutions);
+    switch (layout)
+    {
+    case 7:
+    { u8 fourthPosition = GetMessageChoicePosition(layout, 4);
+        DrawMessageChoiceText(window, fourthPosition, fourth, substitutions); }
+    case 6:
+    { u8 thirdPosition = GetMessageChoicePosition(layout, 3);
+        DrawMessageChoiceText(window, thirdPosition, third, substitutions); }
+    case 5:
+    { u8 secondPosition = GetMessageChoicePosition(layout, 2);
+        DrawMessageChoiceText(window, secondPosition, second, substitutions);
+        u8 firstPosition = GetMessageChoicePosition(layout, 1);
+        DrawMessageChoiceText(window, firstPosition, first, substitutions);
+        break; }
+    default: layout = 5;
+    }
+    window->choiceLayout = layout;
+    window->selection = 1;
+    window->phase = 6;
+    func_0805E850((u8 *) window + 0x1c0, (u8 *) window + 0x160, 0);
+}
+
 EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(MessageWindowState * window, u32 flags) // 0x0804F69C
 {
     register void * resource asm("r4") = (u8 *) window + 0x548;
