@@ -25,6 +25,14 @@ struct UiEntry
     u32 palette_data;
 };
 
+// Slot panels embed this fixed-capacity list at +0x214, before their owner
+// pointer (+0x278), special-slot flag (+0x27c) and special entry (+0x280).
+struct InventorySlotPanelEntries
+{
+    u32 count;
+    UiEntry entries[8];
+};
+
 EC G5Position const gInventorySpecialSlotPosition; // 0x08117838
 EC G5Position const gInventorySlotPositions[]; // 0x0811783C
 EC DrawingPosition const gInventorySpecialSlotCountPosition; // 0x0811785C
