@@ -6,13 +6,16 @@
 
 struct OverlaySpriteResources;
 struct FixedOverlayAnimation;
+struct DmaTransferQueue;
 
 struct OverlaySpriteResourceVtable
 {
     STRUCT_PAD(0x00, 0x48);
     unsigned (*reservePalette)(OverlaySpriteResources *, unsigned);
     void (*releasePalette)(OverlaySpriteResources *, unsigned);
-    STRUCT_PAD(0x50, 0x68);
+    STRUCT_PAD(0x50, 0x54);
+    void (*setObjectPalette)(OverlaySpriteResources *, u16 const * colors, int slot, u8 overrideParameter);
+    STRUCT_PAD(0x58, 0x68);
     FixedOverlayAnimation * (*getAnimationSlot0)(OverlaySpriteResources *);
 };
 
@@ -66,6 +69,7 @@ struct FixedSpriteOverlay
 
 EC FixedSpriteOverlay * InitializeFixedSpriteOverlay(void *, OverlaySpriteResources *);
 EC void DestroyFixedSpriteOverlay(FixedSpriteOverlay *, unsigned);
+EC void QueueFixedSpriteOverlayGraphics(FixedSpriteOverlay &, DmaTransferQueue &);
 
 typedef char FixedOverlayFrameSizeCheck[sizeof(FixedSpriteOverlay::Frame) == 0x2C ? 1 : -1];
 typedef char FixedOverlaySizeCheck[sizeof(FixedSpriteOverlay) == 0xA0 ? 1 : -1];

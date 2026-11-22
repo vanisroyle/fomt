@@ -7,6 +7,7 @@
 #include "farmer.hh"
 #include "rucksack_item.hh"
 #include "utility/vec2.hh"
+#include "map_overlay.hh"
 
 #include <string.h>
 
@@ -92,11 +93,6 @@ struct GameStateMapOwner;
 struct GameStateVaseDisplay;
 struct GameStatePackedSpriteArchive;
 struct MapTileEffectQueue;
-
-struct GameStateMapOverlay
-{
-    STRUCT_PAD(0x0, 0x46C);
-};
 
 struct GameStateMapInteractionBase
 {
@@ -272,9 +268,6 @@ struct GameStateMapOwner
     bool skip_day_update_events;
 };
 
-EC void DestroyGameStateMapOverlay(GameStateMapOverlay * overlay, u32 destructor_flags);
-EC GameStateMapOverlay * func_0803AEA0(GameStateMapOverlay * overlay, GameStateMapOwner & game,
-    GameStatePackedSpriteArchive const & archive, u32 kind, int capacity);
 EC SECTION(".text.080AC96C") i32 AssignMapSceneSpriteCacheSlot(GameStateSpriteCache & inputCache, u32 slot)
 {
     register GameStateSpriteCache * receivedCache asm("r0") = &inputCache;
@@ -771,7 +764,7 @@ EC AEntity * InitializeScheduledNpc34(void * storage, GameStateMapOwner & game, 
 EC AEntity * InitializeScheduledNpc25(void * storage, GameStateMapOwner & game, void * npc, u32 schedule_context);
 
 EC AEntity * SpawnFarmer(GameStateMapOwner &, GameStateMapData *) asm("NewFarmerMapEntity");
-EC AEntity * SpawnSoldier(void *, GameStateMapOwner &, u32, void *, Farm &) asm("func_08033928");
+EC AEntity * SpawnSoldier(void *, GameStateMapOwner &, u32, void *, Farm &) asm("InitializeSpriteWorkerEntity");
 EC bool ShouldSpawnDog(void const *) asm("func_0800F190");
 EC u32 DogPlacementState(void const *) asm("func_0800F204");
 EC AEntity * InitDog(void *, GameStateMapOwner &, void *, void *) asm("DogEntity_Init");
@@ -784,7 +777,7 @@ EC AEntity * MakeSheep(void *, GameStateMapOwner &, Sheep *) asm("SheepEntity_In
 EC AEntity * MakeEgg(void *, GameStateMapOwner &, Location const &) asm("InitializeReactionEntity");
 EC AEntity * MakeTimedReaction(void *, GameStateMapOwner &, void *) asm("InitializeTimedReactionEntity");
 EC AEntity * MakePickupSprite(void *, GameStateMapOwner &, void *) asm("InitializeLaunchedSideSprite");
-EC AEntity * MakeSpecialFieldActor(void *, GameStateMapOwner &, void *) asm("func_080398A4");
+EC AEntity * MakeSpecialFieldActor(void *, GameStateMapOwner &, void *) asm("InitializeActivityNpcEntity");
 EC AEntity * MakeActiveSceneEffect(GameStateMapOwner &, void *) asm("CreateActiveSideEffectEntity");
 EC AEntity * MakeUpdateEffect(void *, GameStateMapOwner &, void *) asm("InitializeSideEffectEntity");
 EC AEntity * MakeRecordedActor(void *, GameStateMapOwner &, void *) asm("InitializeRecordedSideActor");
@@ -793,8 +786,8 @@ EC void * FindDayNpc(void *, u32) asm("GetNpcScheduleDaySlot");
 EC void * FindNightNpc(void *, u32) asm("GetNpcScheduleNightSlot");
 EC void * FindCurrentNpc(void *) asm("GetNpcScheduleCurrentSlot");
 EC void * FindPreviousNpc(void *) asm("GetNpcSchedulePreviousSlot");
-EC AEntity * MakeDayNpc(GameStateMapOwner &, void *, u32) asm("func_08037A5C");
-EC AEntity * MakeNightNpc(GameStateMapOwner &, void *, u32) asm("func_08037AD0");
+EC AEntity * MakeDayNpc(GameStateMapOwner &, void *, u32) asm("CreateDirectedMovingNpcTwo");
+EC AEntity * MakeNightNpc(GameStateMapOwner &, void *, u32) asm("CreateDirectedMovingNpcOne");
 EC AEntity * MakeCurrentNpc(GameStateMapOwner &, void *) asm("CreateMovingNpcVariantSeven");
 EC AEntity * MakePreviousNpc(GameStateMapOwner &, void *) asm("CreateMovingNpcVariantSix");
 EC u32 ChickenPlacementIndex(void const *) asm("func_0800F344");
@@ -2817,7 +2810,8 @@ selected:
             }
         }
         GameStateMapOverlay * storage = static_cast<GameStateMapOverlay *>(::operator new(sizeof(GameStateMapOverlay)));
-        InstallMapOverlay(game.map_overlay, func_0803AEA0(storage, game, *archive, kind, capacity));
+        InstallMapOverlay(game.map_overlay, InitializeGameStateMapOverlay(storage,
+            reinterpret_cast<MapOverlayScene *>(&game), reinterpret_cast<SpriteAnimationSource const *>(archive), kind, capacity));
     }
 }
 
@@ -2991,7 +2985,7 @@ struct GameStateTransitionWork
 
 EC void LoadMapAtLocation(GameStateMapView &, Location const &, u32, u32, u32);
 EC void Dma3_Copy(void const *, void *, u32);
-EC void DestroyFixedSpriteOverlay(GameStateMapEffect *, u32);
+EC void DestroyTransitionOverlay(GameStateMapEffect *, u32) asm("DestroyFixedSpriteOverlay");
 EC GameStateMapEffect * CreateFixedSpriteOverlay(void *, GameStateMapOwner &) asm("InitializeFixedSpriteOverlay");
 EC void DestroyMapTileEffectQueue(MapTileEffectQueue *, u32);
 EC MapTileEffectQueue * CreateMapTileEffectQueue(void *, GameStateMapOwner &, u32) asm("func_080AAFC8");
@@ -3062,7 +3056,7 @@ EC SECTION(".text.game_state_c2.08019BEC") void GameStateTransitionMap(GameState
         register GameStateMapEffect * empty asm("r5") = nullptr;
         register GameStateMapEffect * previous asm("r0") = *slot;
         if (empty != previous && previous)
-            DestroyFixedSpriteOverlay(previous, 3);
+            DestroyTransitionOverlay(previous, 3);
         *slot = empty;
     }
     {
@@ -3165,7 +3159,7 @@ EC SECTION(".text.game_state_c2.08019BEC") void GameStateTransitionMap(GameState
         register GameStateMapEffect * camera asm("r4") = result;
         register GameStateMapEffect * previous asm("r0") = *slot;
         if (camera != previous && previous)
-            DestroyFixedSpriteOverlay(previous, 3);
+            DestroyTransitionOverlay(previous, 3);
         *slot = camera;
     }
     if (!GetMapData(game.map_view->map)->is_interior)

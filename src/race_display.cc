@@ -1,3 +1,4 @@
+#include "dma_queue.hh"
 #include "pet.hh"
 #include "sprite_animation.hh"
 #include "sprite_rendering.hh"
@@ -606,7 +607,7 @@ struct RaceFrameSource
     RaceFrameSourceVTable const * vtable;
 };
 
-EC u32 ResolveRaceObjPalette(RaceObjAllocation *, u32) asm("func_080074C0");
+EC u32 ResolveRaceObjPalette(RaceObjAllocation *, u32) asm("ResourceHandle_GetIndex");
 EC u32 ResolveRaceObjTile(RaceObjAllocation *, u32) asm("func_08007D4C");
 EC void * CopyRaceFrame(void *, void const *, u32) asm("memcpy");
 EC void DrawMessageFrame(u16 *, u32, u32, u32, u32, u32, u32);
@@ -2628,4 +2629,639 @@ next_entrant:
 #undef PIN_ANIMATOR
 
     return stopped;
+}
+
+EC DmaTransferQueue * HardwareContext_GetDmaQueue(HorseRaceState *);
+EC void * RetryDmaAllocation(u32) asm("func_080D3BC0");
+
+struct CourseQueueGrowth
+{
+    volatile unsigned size;
+    volatile unsigned append_count;
+};
+
+struct CourseColumnTransfer
+{
+    volatile unsigned column_bytes;
+    volatile unsigned screen_block_offset;
+    DmaCommand * volatile copy;
+};
+
+struct CourseScrollWork
+{
+    union
+    {
+        DmaCommand standard_copy;
+        struct
+        {
+            volatile u16 scroll;
+            STRUCT_PAD(2, 4);
+            DmaCommand near_layer_copy;
+        } near;
+    };
+    CourseQueueGrowth growth[4];
+    CourseColumnTransfer near_column;
+    struct
+    {
+        volatile unsigned column_bytes;
+        DmaCommand * volatile copy;
+    } middle_column[2];
+    CourseColumnTransfer far_column;
+    volatile unsigned middle_screen_index;
+    DmaCommand * volatile old_tail;
+    volatile int next_row;
+};
+
+enum CourseTileStrip
+{
+    NEAR_STRIP,
+    MIDDLE_ALTERNATE_STRIP,
+    MIDDLE_DEFAULT_STRIP,
+    FAR_STRIP
+};
+
+enum
+{
+    COURSE_TILE_STEP = 16,
+    COURSE_SCROLL_STEP_MASK = 0xFFF0,
+    COURSE_WRAP_MASK = 0x1F0,
+    COURSE_PATTERN_LAST_PHASE = 2,
+    MIDDLE_ALTERNATE_START = 144,
+    MIDDLE_ALTERNATE_LENGTH = 48,
+    MIDDLE_DEFAULT_PATTERN_OFFSET = 0x100,
+    FAR_PATTERN_OFFSET = 0x200,
+    MIDDLE_ALTERNATE_PATTERN_OFFSET = 0x300,
+    TILE_STRIP_BYTES = 2 * sizeof(u16)
+};
+
+typedef char CourseScrollLayoutCheck[
+    sizeof(CourseScrollWork) == 0x68 &&
+    offsetof(CourseScrollWork, near.near_layer_copy) == 4 &&
+    offsetof(CourseScrollWork, growth) == 0x14 &&
+    offsetof(CourseScrollWork, old_tail) == 0x60 &&
+    offsetof(HorseRaceState, tilemap_work) == 0xBEA ? 1 : -1];
+
+// A single inlined loop retains each original strip's stack slots and Thumb register choices.
+static inline void QueueCourseRows(HorseRaceState * owner, int first_row, int last_row,
+    unsigned phase_offset, unsigned pattern_offset, unsigned screen_block,
+    unsigned column, unsigned shifted_column, CourseTileStrip strip)
+{
+    register HorseRaceState * self asm("sl") = owner;
+    asm ("" : "+h" (self));
+    int row;
+#define SCROLL_LOW(...) asm ("" : "+l" (__VA_ARGS__))
+#define SCROLL_HIGH(...) asm ("" : "+h" (__VA_ARGS__))
+#define RACE_COPY(source, target, a, b, c) \
+    asm volatile (".syntax unified\n\tldmia %1!, {" #a ", " #b ", " #c "}\n\tstmia %0!, {" #a ", " #b ", " #c "}\n\tldr %1, [%1]\n\tstr %1, [%0]\n\t.syntax divided" \
+        : "+l" (target), "+l" (source) : : #a, #b, #c, "memory")
+#define READ_COURSE_STACK(result, member) \
+    asm ("ldr %0, [sp, %1]" : "=l" (result) : "I" (offsetof(CourseScrollWork, member)) : "memory")
+#define WRITE_COURSE_STACK(value, member) \
+    asm volatile ("str %0, [sp, %1]" : : "l" (value), "I" (offsetof(CourseScrollWork, member)) : "memory")
+    if (strip == NEAR_STRIP || strip == FAR_STRIP)
+    {
+        register int column_offset asm("r0") = column;
+        asm ("" : "+l" (column_offset));
+        register int tile_column asm("r2") = column_offset >> 3;
+        asm ("" : "+l" (tile_column));
+        row = first_row;
+        asm ("" : "+l" (row));
+        register int block_offset asm("r0") = (column_offset >> 8) << 11;
+        asm ("" : "+l" (block_offset));
+        if (strip == NEAR_STRIP)
+            WRITE_COURSE_STACK(block_offset, near_column.screen_block_offset);
+        else
+            WRITE_COURSE_STACK(block_offset, far_column.screen_block_offset);
+        register DmaCommand * initialized_copy asm("r0");
+        asm ("mov %0, sp" : "=l" (initialized_copy));
+        if (strip == NEAR_STRIP)
+            initialized_copy = reinterpret_cast<DmaCommand *>(reinterpret_cast<u8 *>(initialized_copy) + sizeof(u32));
+        asm ("" : "+l" (initialized_copy));
+        if (strip == NEAR_STRIP)
+            WRITE_COURSE_STACK(initialized_copy, near_column.copy);
+        else
+        {
+            register DmaCommand * far_copy asm("r3");
+            asm ("mov %0, sp" : "=l" (far_copy));
+            WRITE_COURSE_STACK(far_copy, far_column.copy);
+        }
+        register unsigned column_mask asm("r0") = TILEMAP_COLUMNS - 1;
+        asm ("" : "+l" (column_mask));
+        tile_column &= column_mask;
+        asm ("" : "+l" (tile_column));
+        register u32 byte_column asm("r2") = tile_column << 1;
+        asm ("" : "+l" (byte_column));
+        if (strip == NEAR_STRIP)
+            WRITE_COURSE_STACK(byte_column, near_column.column_bytes);
+        else
+            WRITE_COURSE_STACK(byte_column, far_column.column_bytes);
+    }
+    else
+    {
+        row = first_row;
+        asm ("" : "+l" (row));
+        register int column_offset asm("r3") = column;
+        asm ("" : "+l" (column_offset));
+        register int screen_index asm("r3") = column_offset >> 8;
+        WRITE_COURSE_STACK(screen_index, middle_screen_index);
+        register u32 column_mask asm("r0") = TILEMAP_COLUMNS - 1;
+        asm ("" : "+l" (column_mask));
+        register unsigned row_column asm("r2") = shifted_column;
+        asm ("" : "+l" (row_column));
+        row_column = (row_column & column_mask) << 1;
+        register DmaCommand * stored_copy asm("r2");
+        if (strip == MIDDLE_ALTERNATE_STRIP)
+        {
+            WRITE_COURSE_STACK(row_column, middle_column[0].column_bytes);
+            asm ("mov %0, sp" : "=l" (stored_copy));
+            WRITE_COURSE_STACK(stored_copy, middle_column[0].copy);
+        }
+        else
+        {
+            WRITE_COURSE_STACK(row_column, middle_column[1].column_bytes);
+            asm ("mov %0, sp" : "=l" (stored_copy));
+            WRITE_COURSE_STACK(stored_copy, middle_column[1].copy);
+        }
+    }
+    do
+    {
+        register DmaTransferQueue * dma_queue asm("r0") = HardwareContext_GetDmaQueue(self);
+        register unsigned phase_field asm("r1") = phase_offset;
+        asm ("" : "+l" (phase_field));
+        register i16 const * phase_ptr asm("r1") = reinterpret_cast<i16 const *>(
+            reinterpret_cast<u8 *>(self) + phase_field);
+        asm ("" : "+l" (phase_ptr));
+        register int phase asm("r2");
+        if (strip == FAR_STRIP)
+        {
+            register int zero asm("r4") = 0;
+            SCROLL_LOW(zero);
+            asm ("ldrsh %0, [%1, %2]" : "=l" (phase) : "l" (phase_ptr), "l" (zero) : "memory");
+        }
+        else
+        {
+            register int zero asm("r3") = 0;
+            SCROLL_LOW(zero);
+            asm ("ldrsh %0, [%1, %2]" : "=l" (phase) : "l" (phase_ptr), "l" (zero) : "memory");
+        }
+        register unsigned source asm("r1");
+        asm ("lsl %0, %1, #1\n\tadd %0, %0, %1" : "=&l" (source) : "l" (row) : "cc");
+        source += phase;
+        asm ("" : "+l" (source));
+        register DmaTransferQueue * queue asm("r5") = dma_queue;
+        asm ("" : "+l" (queue));
+        source *= TILE_STRIP_BYTES;
+        asm ("" : "+l" (source));
+        source += reinterpret_cast<uintptr_t>(self);
+        asm ("" : "+l" (source));
+        register void const * tiles asm("r1");
+        if (strip == FAR_STRIP)
+        {
+            register uintptr_t pattern asm("r6") = pattern_offset;
+            SCROLL_LOW(pattern);
+            asm ("add %0, %1, %2" : "=l" (tiles) : "l" (source), "l" (pattern) : "cc");
+        }
+        else
+        {
+            register uintptr_t pattern asm("r4") = pattern_offset;
+            SCROLL_LOW(pattern);
+            asm ("add %0, %1, %2" : "=l" (tiles) : "l" (source), "l" (pattern) : "cc");
+        }
+        register uintptr_t destination_offset asm("r2");
+        if (strip == FAR_STRIP)
+        {
+            asm ("lsl %0, %1, %2" : "=l" (destination_offset) : "l" (row), "I" (6) : "cc");
+            register unsigned layer_offset asm("r0");
+            READ_COURSE_STACK(layer_offset, far_column.screen_block_offset);
+            asm ("add %0, %1, %0" : "+l" (destination_offset) : "l" (layer_offset) : "cc");
+            register unsigned column_bytes asm("r3");
+            READ_COURSE_STACK(column_bytes, far_column.column_bytes);
+            asm ("add %0, %1, %0" : "+l" (destination_offset) : "l" (column_bytes) : "cc");
+            register uintptr_t screen_base asm("r4") = VRAM + screen_block * BG_SCREEN_BLOCK_BYTES;
+            SCROLL_LOW(screen_base);
+            asm ("add %0, %0, %1" : "+l" (destination_offset) : "l" (screen_base) : "cc");
+        }
+        else
+        {
+            register unsigned layer_offset asm("r6");
+            register unsigned column_bytes asm("r0");
+            if (strip == NEAR_STRIP)
+            {
+                asm ("lsl %0, %1, %2" : "=l" (destination_offset) : "l" (row), "I" (6) : "cc");
+                READ_COURSE_STACK(layer_offset, near_column.screen_block_offset);
+                asm ("add %0, %1, %0" : "+l" (destination_offset) : "l" (layer_offset) : "cc");
+                READ_COURSE_STACK(column_bytes, near_column.column_bytes);
+            }
+            else
+            {
+                READ_COURSE_STACK(layer_offset, middle_screen_index);
+                register unsigned row_offset asm("r0");
+                asm ("lsl %0, %2, %4\n\tlsl %1, %3, %5\n\tadd %0, %0, %1"
+                    : "=&l" (destination_offset), "=&l" (row_offset) : "l" (layer_offset), "l" (row),
+                      "I" (11), "I" (6) : "cc");
+                if (strip == MIDDLE_ALTERNATE_STRIP)
+                    READ_COURSE_STACK(column_bytes, middle_column[0].column_bytes);
+                else
+                    READ_COURSE_STACK(column_bytes, middle_column[1].column_bytes);
+            }
+            asm ("add %0, %1, %0" : "+l" (destination_offset) : "l" (column_bytes) : "cc");
+            register uintptr_t screen_base asm("r3") = VRAM + screen_block * BG_SCREEN_BLOCK_BYTES;
+            SCROLL_LOW(screen_base);
+            asm ("add %0, %0, %1" : "+l" (destination_offset) : "l" (screen_base) : "cc");
+        }
+        void * destination = reinterpret_cast<void *>(destination_offset);
+        register DmaCommand * copy asm("r0");
+        if (strip == NEAR_STRIP)
+            asm ("add %0, sp, %1" : "=l" (copy) : "I" (offsetof(CourseScrollWork, near.near_layer_copy)));
+        else
+            asm ("mov %0, sp" : "=l" (copy));
+        DmaCommand_InitializeCopy(copy, tiles, destination, TILE_STRIP_BYTES);
+        register DmaCommand * tail asm("r1") = queue->end;
+        asm ("" : "+l" (tail));
+        register DmaCommand * capacity asm("r0") = queue->capacity_end;
+        asm ("" : "+l" (capacity));
+        if (tail != capacity)
+        {
+            register DmaCommand * out asm("r0");
+            register DmaCommand * in asm("r1") = tail;
+#define COPY_COURSE_IF_SPACE(a, b, c, load) \
+            asm volatile (".syntax unified\n\tcmp %1, #0\n\tbeq 1f\n\tadds %0, %1, #0\n\t" load "\n\t" \
+                "ldmia %1!, {" #a ", " #b ", " #c "}\n\tstmia %0!, {" #a ", " #b ", " #c "}\n\t" \
+                "ldr %1, [%1]\n\tstr %1, [%0]\n1:\n\t.syntax divided" \
+                : "=&l" (out), "+l" (in) : "I" (offsetof(CourseScrollWork, near_column.copy)) : #a, #b, #c, "memory", "cc")
+            if (strip == NEAR_STRIP)
+                COPY_COURSE_IF_SPACE(r2, r4, r6, "ldr %1, [sp, %2]");
+            else if (strip == FAR_STRIP)
+                COPY_COURSE_IF_SPACE(r2, r3, r6, "mov %1, sp");
+            else
+                COPY_COURSE_IF_SPACE(r2, r4, r6, "mov %1, sp");
+#undef COPY_COURSE_IF_SPACE
+            register DmaCommand * end asm("r0") = queue->end;
+            asm ("" : "+l" (end));
+            ++end;
+            asm ("" : "+l" (end));
+            queue->end = end;
+            if (strip == FAR_STRIP)
+            {
+                register int next asm("r4") = row + 1;
+                WRITE_COURSE_STACK(next, next_row);
+            }
+            else
+            {
+                register int next asm("r3") = row + 1;
+                WRITE_COURSE_STACK(next, next_row);
+            }
+        }
+        else
+        {
+            // Grow by max(queue size, new command count), then copy and publish the replacement.
+            WRITE_COURSE_STACK(tail, old_tail);
+            register u32 one asm("r0") = 1;
+#define SELECT_GROWTH_SLOT(operation, value, field) \
+            if (strip == NEAR_STRIP) operation(value, growth[0].field); \
+            else if (strip == MIDDLE_ALTERNATE_STRIP) operation(value, growth[1].field); \
+            else if (strip == MIDDLE_DEFAULT_STRIP) operation(value, growth[2].field); \
+            else operation(value, growth[3].field)
+#define ADDRESS_COURSE_STACK(result, member) \
+            asm ("add %0, sp, %1" : "=l" (result) : "I" (offsetof(CourseScrollWork, member)))
+            SELECT_GROWTH_SLOT(WRITE_COURSE_STACK, one, append_count);
+            register DmaCommand * old_begin asm("r0") = queue->begin;
+            SCROLL_LOW(old_begin);
+            register intptr_t difference asm("r0");
+            if (strip == FAR_STRIP)
+            {
+                register DmaCommand * tail_copy asm("r6") = tail;
+                SCROLL_LOW(tail_copy);
+                asm ("sub %0, %1, %0" : "+l" (old_begin) : "l" (tail_copy) : "cc");
+                difference = reinterpret_cast<intptr_t>(old_begin);
+            }
+            else
+            {
+                register DmaCommand * tail_copy asm("r4") = tail;
+                SCROLL_LOW(tail_copy);
+                asm ("sub %0, %1, %0" : "+l" (old_begin) : "l" (tail_copy) : "cc");
+                difference = reinterpret_cast<intptr_t>(old_begin);
+            }
+            register u32 size asm("r4") = difference >> 4;
+            SELECT_GROWTH_SLOT(WRITE_COURSE_STACK, size, size);
+            register u32 * inserted asm("r1");
+            SELECT_GROWTH_SLOT(ADDRESS_COURSE_STACK, inserted, append_count);
+            register u32 * growth asm("r0");
+            SELECT_GROWTH_SLOT(ADDRESS_COURSE_STACK, growth, size);
+            asm ("cmp %1, #1\n\tbhs 1f\n\tadd %0, %2, #0\n1:" : "+l" (growth) : "l" (size), "l" (inserted) : "cc");
+            register u32 added asm("r0") = *growth;
+            SCROLL_LOW(added);
+            register u32 capacity asm("r0");
+            asm ("add %0, %1, %2" : "=l" (capacity) : "l" (size), "l" (added) : "cc");
+            register u32 replacement_bytes asm("r9");
+            register DmaCommand * allocation asm("r0");
+            if (capacity)
+            {
+                register u32 size_bytes asm("r4") = capacity * sizeof(DmaCommand);
+                SCROLL_LOW(size_bytes);
+                register DmaCommand * buffer asm("r0") = static_cast<DmaCommand *>(malloc(size_bytes));
+                replacement_bytes = size_bytes;
+                asm ("" : "+h" (replacement_bytes) : "l" (buffer));
+                if (buffer)
+                {
+                    allocation = buffer;
+                    goto queue_storage_ready;
+                }
+                allocation = static_cast<DmaCommand *>(RetryDmaAllocation(replacement_bytes));
+                SCROLL_LOW(allocation);
+            }
+            else
+            {
+                allocation = nullptr;
+                SCROLL_LOW(allocation);
+                replacement_bytes = reinterpret_cast<u32>(allocation);
+                SCROLL_HIGH(replacement_bytes);
+            }
+        queue_storage_ready:
+            register DmaCommand * base asm("r4") = allocation;
+            SCROLL_LOW(base);
+            register DmaCommand * replacement asm("r8") = base;
+            SCROLL_HIGH(replacement);
+            register DmaCommand * begin asm("r2") = queue->begin;
+            SCROLL_LOW(begin);
+            register DmaCommand * output asm("r3") = replacement;
+            SCROLL_LOW(output);
+            if (strip == FAR_STRIP)
+            {
+                register int next asm("r0") = row + 1;
+                WRITE_COURSE_STACK(next, next_row);
+                register DmaCommand * bound asm("r1");
+                READ_COURSE_STACK(bound, old_tail);
+                if (begin == bound)
+                    goto append_new;
+            }
+            else
+            {
+                register int next asm("r6") = row + 1;
+                WRITE_COURSE_STACK(next, next_row);
+                register DmaCommand * bound asm("r7");
+                READ_COURSE_STACK(bound, old_tail);
+                if (begin == bound)
+                    goto append_new;
+            }
+            do
+            {
+                register DmaCommand * slot asm("r3") = output;
+                SCROLL_LOW(slot);
+                if (slot)
+                {
+                    register DmaCommand * target asm("r0") = output;
+                    register DmaCommand * source asm("r1") = begin;
+                    RACE_COPY(source, target, r4, r6, r7);
+                }
+                ++begin;
+                ++output;
+                asm ("" : "+l" (begin), "+l" (output));
+                register DmaCommand * bound asm("r0");
+                READ_COURSE_STACK(bound, old_tail);
+                if (begin == bound)
+                    break;
+            } while (true);
+        append_new:
+            register DmaCommand * new_end asm("r4") = output;
+            SCROLL_LOW(new_end);
+            register u32 count_value asm("r0");
+            SELECT_GROWTH_SLOT(READ_COURSE_STACK, count_value, append_count);
+#undef SELECT_GROWTH_SLOT
+#undef ADDRESS_COURSE_STACK
+            u32 count = count_value;
+            if (count == 1)
+            {
+                if (new_end)
+                {
+                    register DmaCommand * target asm("r0") = new_end;
+                    SCROLL_LOW(target);
+                    register DmaCommand * source asm("r1");
+                    if (strip == NEAR_STRIP)
+                        READ_COURSE_STACK(source, near_column.copy);
+                    else if (strip == FAR_STRIP)
+                        READ_COURSE_STACK(source, far_column.copy);
+                    else if (strip == MIDDLE_ALTERNATE_STRIP)
+                        READ_COURSE_STACK(source, middle_column[0].copy);
+                    else
+                        READ_COURSE_STACK(source, middle_column[1].copy);
+                    RACE_COPY(source, target, r2, r3, r6);
+                }
+                ++new_end;
+                SCROLL_LOW(new_end);
+            }
+            else
+            {
+                register u32 remaining asm("ip") = count;
+                SCROLL_HIGH(remaining);
+                register DmaCommand * next asm("r2") = new_end;
+                SCROLL_LOW(next);
+                if (count)
+                {
+                    do
+                    {
+                        register DmaCommand * target asm("r0");
+                        register DmaCommand * source asm("r1");
+#define COPY_COURSE_GROWN(member) \
+                        asm volatile (".syntax unified\n\tcmp %2, #0\n\tbeq 1f\n\tadds %0, %2, #0\n\tldr %1, [sp, %3]\n\t" \
+                            "ldmia %1!, {r3, r4, r7}\n\tstmia %0!, {r3, r4, r7}\n\t" \
+                            "ldr %1, [%1]\n\tstr %1, [%0]\n1:\n\t.syntax divided" \
+                            : "=&l" (target), "=&l" (source) : "l" (next), "I" (offsetof(CourseScrollWork, member)) \
+                            : "r3", "r4", "r7", "memory", "cc")
+                        if (strip == NEAR_STRIP)
+                            COPY_COURSE_GROWN(near_column.copy);
+                        else if (strip == MIDDLE_ALTERNATE_STRIP)
+                            COPY_COURSE_GROWN(middle_column[0].copy);
+                        else if (strip == MIDDLE_DEFAULT_STRIP)
+                            COPY_COURSE_GROWN(middle_column[1].copy);
+                        else
+                            COPY_COURSE_GROWN(far_column.copy);
+#undef COPY_COURSE_GROWN
+                        register int decrease asm("r6") = -1;
+                        SCROLL_LOW(decrease);
+                        remaining += decrease;
+                        SCROLL_HIGH(remaining);
+                        ++next;
+                        SCROLL_LOW(next);
+                        register u32 left asm("r7") = remaining;
+                        SCROLL_LOW(left);
+                        if (!left)
+                            break;
+                    } while (true);
+                }
+                new_end = next;
+                SCROLL_LOW(new_end);
+            }
+            register DmaCommand * old_end asm("r2") = queue->end;
+            SCROLL_LOW(old_end);
+            register DmaCommand * old_storage asm("r0") = queue->begin;
+            SCROLL_LOW(old_storage);
+            register DmaCommand * cursor asm("r1") = old_storage;
+            SCROLL_LOW(cursor);
+            if (old_storage != old_end)
+            {
+                do
+                {
+                    ++cursor;
+                    SCROLL_LOW(cursor);
+                } while (cursor != old_end);
+            }
+            if (old_storage)
+                free(old_storage);
+            register u32 ending asm("r0") = replacement_bytes;
+            SCROLL_LOW(ending);
+            ending += reinterpret_cast<u32>(replacement);
+            SCROLL_LOW(ending);
+            register DmaCommand * new_begin asm("r1") = replacement;
+            SCROLL_LOW(new_begin);
+            queue->begin = new_begin;
+            queue->end = new_end;
+            queue->capacity_end = reinterpret_cast<DmaCommand *>(ending);
+        }
+        READ_COURSE_STACK(row, next_row);
+    } while (row <= last_row);
+#undef RACE_COPY
+#undef SCROLL_LOW
+#undef SCROLL_HIGH
+#undef WRITE_COURSE_STACK
+#undef READ_COURSE_STACK
+}
+
+EC SECTION(".text.f3.0805AD14") void UpdateHorseRaceCourseScroll(HorseRaceState * owner)
+{
+    register HorseRaceState * self asm("sl") = owner;
+    register HorseRaceState * incoming asm("r0") = owner;
+    asm ("" : "+h" (self) : "l" (incoming) : "r7");
+    CourseScrollWork work;
+
+    // The display shadow expects the fine scroll every frame; VRAM strips change only at tile steps.
+    CourseDisplayShadow * display = HardwareContext_GetDisplayRegisters(incoming);
+    register volatile u16 * scratch asm("r2") = nullptr;
+    asm ("mov %0, sp" : "=l" (scratch));
+    register uintptr_t scroll_offset asm("r1") = offsetof(HorseRaceState, bg1_scroll_x);
+    asm ("" : "+l" (scroll_offset));
+    register u16 value asm("r1") = *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + scroll_offset);
+    asm ("" : "=m" (work.next_row));
+    *scratch = value;
+    display->scroll[1][0] = value;
+
+    display = HardwareContext_GetDisplayRegisters(self);
+    scratch = nullptr;
+    asm ("mov %0, sp" : "=l" (scratch));
+    scroll_offset = offsetof(HorseRaceState, bg2_scroll_x);
+    asm ("" : "+l" (scroll_offset));
+    value = *reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + scroll_offset);
+    *scratch = value;
+    display->scroll[2][0] = value;
+
+    display = HardwareContext_GetDisplayRegisters(self);
+    scratch = nullptr;
+    asm ("mov %0, sp" : "=l" (scratch));
+    register uintptr_t near_offset asm("r3") = offsetof(HorseRaceState, bg3_scroll_x);
+    asm ("" : "+l" (near_offset));
+    register u16 * near_scroll asm("r3") = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + near_offset);
+    asm ("" : "+l" (near_scroll));
+    value = *near_scroll;
+    *scratch = value;
+    display->scroll[3][0] = value;
+
+    {
+        register uintptr_t last_offset asm("r2") = offsetof(HorseRaceState, bg3_last_tile_scroll);
+        asm ("" : "+l" (last_offset));
+        register u16 * last_scroll asm("r2") = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + last_offset);
+        asm ("" : "+l" (last_scroll));
+        register u16 current_scroll asm("r0") = *near_scroll;
+        asm ("" : "+l" (current_scroll));
+        register int mask asm("r1") = COURSE_SCROLL_STEP_MASK;
+        asm ("and %0, %1" : "+l" (mask) : "l" (current_scroll) : "cc");
+        if (*last_scroll == mask)
+            goto update_middle_strip;
+        *last_scroll = mask;
+        register uintptr_t phase_offset asm("r1") = offsetof(HorseRaceState, bg3_pattern_phase);
+        asm ("" : "+l" (phase_offset));
+        register i16 * phase asm("r1") = reinterpret_cast<i16 *>(reinterpret_cast<u8 *>(self) + phase_offset);
+        asm ("" : "+l" (phase));
+        if (--*phase < 0)
+            *phase = COURSE_PATTERN_LAST_PHASE;
+        register int column asm("r0") = *last_scroll - COURSE_TILE_STEP;
+        asm ("" : "+l" (column));
+        register unsigned column_mask asm("r1") = COURSE_WRAP_MASK;
+        asm ("" : "+l" (column_mask));
+        column &= column_mask;
+        asm ("" : "+l" (column));
+        QueueCourseRows(self, 0, 19, offsetof(HorseRaceState, bg3_pattern_phase),
+            offsetof(HorseRaceState, tilemap_work), BG3_COURSE_SCREEN_BLOCK, column, 0, NEAR_STRIP);
+    }
+
+update_middle_strip:
+    {
+        register uintptr_t last_offset asm("r2") = offsetof(HorseRaceState, bg2_last_tile_scroll);
+        asm ("" : "+l" (last_offset));
+        register u16 * last_scroll asm("r2") = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + last_offset);
+        asm ("" : "+l" (last_scroll));
+        register u16 current_scroll asm("r0") = self->bg2_scroll_x;
+        asm ("" : "+l" (current_scroll));
+        register int mask asm("r1") = COURSE_SCROLL_STEP_MASK;
+        asm ("and %0, %1" : "+l" (mask) : "l" (current_scroll) : "cc");
+        if (*last_scroll == mask)
+            goto update_far_strip;
+        *last_scroll = mask;
+        register uintptr_t phase_offset asm("r1") = offsetof(HorseRaceState, bg2_pattern_phase);
+        asm ("" : "+l" (phase_offset));
+        register i16 * phase asm("r1") = reinterpret_cast<i16 *>(reinterpret_cast<u8 *>(self) + phase_offset);
+        asm ("" : "+l" (phase));
+        if (--*phase < 0)
+            *phase = COURSE_PATTERN_LAST_PHASE;
+        register unsigned stage asm("r0") = *last_scroll;
+        asm ("" : "+l" (stage));
+        register int column asm("r3") = stage - COURSE_TILE_STEP;
+        asm ("" : "+l" (column));
+        register unsigned column_mask asm("r1") = COURSE_WRAP_MASK;
+        asm ("" : "+l" (column_mask));
+        column &= column_mask;
+        asm ("" : "+l" (column));
+        register int shifted_column asm("r2");
+        asm ("asr %0, %1, #3" : "=l" (shifted_column) : "l" (column) : "cc");
+        stage -= MIDDLE_ALTERNATE_START;
+        asm ("" : "+l" (stage), "+l" (shifted_column), "+l" (column));
+        asm ("lsl %0, %0, #16\n\tlsr %0, %0, #16" : "+l" (stage) : : "cc");
+        // The middle strip uses a different pattern through this section of the track.
+        if (stage < MIDDLE_ALTERNATE_LENGTH)
+            QueueCourseRows(self, 3, 17, offsetof(HorseRaceState, bg2_pattern_phase),
+                offsetof(HorseRaceState, tilemap_work) + MIDDLE_ALTERNATE_PATTERN_OFFSET, BG2_COURSE_SCREEN_BLOCK, column, shifted_column, MIDDLE_ALTERNATE_STRIP);
+        else
+            QueueCourseRows(self, 3, 17, offsetof(HorseRaceState, bg2_pattern_phase),
+                offsetof(HorseRaceState, tilemap_work) + MIDDLE_DEFAULT_PATTERN_OFFSET, BG2_COURSE_SCREEN_BLOCK, column, shifted_column, MIDDLE_DEFAULT_STRIP);
+    }
+
+update_far_strip:
+    {
+        register uintptr_t last_offset asm("r2") = offsetof(HorseRaceState, bg1_last_tile_scroll);
+        asm ("" : "+l" (last_offset));
+        register u16 * last_scroll asm("r2") = reinterpret_cast<u16 *>(reinterpret_cast<u8 *>(self) + last_offset);
+        asm ("" : "+l" (last_scroll));
+        register u16 current_scroll asm("r0") = self->bg1_scroll_x;
+        asm ("" : "+l" (current_scroll));
+        register int mask asm("r1") = COURSE_SCROLL_STEP_MASK;
+        asm ("and %0, %1" : "+l" (mask) : "l" (current_scroll) : "cc");
+        if (*last_scroll == mask)
+            goto scroll_updated;
+        *last_scroll = mask;
+        register uintptr_t phase_offset asm("r1") = offsetof(HorseRaceState, bg1_pattern_phase);
+        asm ("" : "+l" (phase_offset));
+        register i16 * phase asm("r1") = reinterpret_cast<i16 *>(reinterpret_cast<u8 *>(self) + phase_offset);
+        asm ("" : "+l" (phase));
+        if (--*phase < 0)
+            *phase = COURSE_PATTERN_LAST_PHASE;
+        register int column asm("r0") = *last_scroll - COURSE_TILE_STEP;
+        asm ("" : "+l" (column));
+        register unsigned column_mask asm("r1") = COURSE_WRAP_MASK;
+        asm ("" : "+l" (column_mask));
+        column &= column_mask;
+        asm ("" : "+l" (column));
+        QueueCourseRows(self, 17, 19, offsetof(HorseRaceState, bg1_pattern_phase),
+            offsetof(HorseRaceState, tilemap_work) + FAR_PATTERN_OFFSET, BG1_COURSE_SCREEN_BLOCK, column, 0, FAR_STRIP);
+    }
+scroll_updated:
+    ;
 }
