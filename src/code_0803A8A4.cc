@@ -1623,12 +1623,59 @@ enum DialogWindowState
     DIALOG_WINDOW_OPEN,
 };
 
-struct BackgroundVideoState;
-struct DialogLayerRenderer;
-struct TileTransferQueue;
+struct BackgroundVideoState
+{
+    u16 displayControl;
+    STRUCT_PAD(2, 8);
+    u16 backgroundControl[4];
+    struct
+    {
+        u16 horizontal;
+        u16 vertical;
+    } backgroundOffset[4];
+    STRUCT_PAD(0x20, 0x40);
+    u16 windowHorizontal[2];
+    u16 windowVertical[2];
+    u16 windowInside;
+    u16 windowOutside;
+    STRUCT_PAD(0x4C, 0x50);
+    u32 blendControlAndAlpha;
+};
+
+typedef char DialogVideoRegisterLayoutCheck[
+    offsetof(BackgroundVideoState, backgroundControl) == 0x08 &&
+    offsetof(BackgroundVideoState, backgroundOffset) == 0x10 &&
+    offsetof(BackgroundVideoState, windowHorizontal) == 0x40 &&
+    offsetof(BackgroundVideoState, windowVertical) == 0x44 &&
+    offsetof(BackgroundVideoState, windowInside) == 0x48 &&
+    offsetof(BackgroundVideoState, windowOutside) == 0x4A &&
+    offsetof(BackgroundVideoState, blendControlAndAlpha) == 0x50 ? 1 : -1];
+
+struct DialogLayerRenderer
+{
+    void * previous;
+    void * next;
+    struct Vtable
+    {
+        STRUCT_PAD(0, 0x1C);
+        void (*runTaskList)(DialogLayerRenderer *, DialogLayerList *);
+    } const * vtable;
+};
+
+struct TileTransferQueue
+{
+    void * previous;
+    void * next;
+    struct Vtable
+    {
+        STRUCT_PAD(0, 0x10);
+        void (*append)(TileTransferQueue *, DialogFrameGraphicsTask *);
+        void (*remove)(TileTransferQueue *, DialogFrameGraphicsTask *);
+    } const * vtable;
+};
+
 struct OamBuffer;
 
-EC int UpdateDialogWindowLayers(DialogWindowLayers &, BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *);
 EC void TaskList_Append(void *, void *);
 
 EC char const gTaskListVtable[];
@@ -1897,6 +1944,320 @@ ROM_TEXT(0803B8CC) DialogWindowLayers * InitializeDialogWindowLayers(DialogWindo
     asm("" : "+l"(oldTilemapWord));
     asm volatile("str %0, [%1, #28]" : : "l"(oldTilemapWord), "l"(tilemap) : "memory");
     return self;
+}
+
+ROM_TEXT(0803BAAC) int UpdateDialogWindowLayers(DialogWindowLayers & layers, BackgroundVideoState * video,
+    DialogLayerRenderer * layerRenderer, TileTransferQueue * tileTransfers)
+{
+    enum
+    {
+        TransitionFrames = 9,
+        Background0Enabled = 1 << 8,
+        BackgroundMosaic = 1 << 6,
+        AllWindowLayers = 0x3F,
+        WindowColorEffects = 1 << 5,
+        AllSecondTargets = 0x3F00,
+        AlphaBlend = 1 << 6,
+        AlphaCoefficients = 0x0808,
+        QueueFrameGraphics = 1,
+        BlendDialogBackground = 2,
+    };
+    // The original Thumb code stages register halfwords at sp and the packed BG byte at sp + 4.
+    u32 registerScratch[2];
+    asm("" : "=m"(registerScratch));
+    register BackgroundVideoState * videoBase asm("r9") = video;
+    asm("" : "+r"(videoBase) : "l"(&layers));
+    register DialogLayerRenderer * renderer asm("r4") = layerRenderer;
+    asm("" : "+l"(renderer) : "r"(videoBase));
+    register TileTransferQueue * transfers asm("r10") = tileTransfers;
+    asm("" : "+r"(transfers) : "l"(renderer));
+    int state = layers.state;
+    switch (state)
+    {
+        case DIALOG_WINDOW_OPENING:
+            if (layers.animationFrames >= TransitionFrames)
+                layers.state = DIALOG_WINDOW_OPEN;
+            else
+                ++layers.animationFrames;
+            break;
+        case DIALOG_WINDOW_CLOSING:
+            if (layers.animationFrames == 0)
+                layers.state = DIALOG_WINDOW_CLOSED;
+            else
+                --layers.animationFrames;
+            break;
+        case DIALOG_WINDOW_CLOSED:
+        default:
+            break;
+    }
+    register DialogLayerList * list asm("r3") = &layers.layerList;
+    register unsigned isEmpty asm("r2");
+    asm("" : "+l"(list));
+    isEmpty = list->first == &list->sentinel;
+    asm("" : "+l"(isEmpty) : "l"(list));
+    if (!isEmpty)
+        renderer->vtable->runTaskList(renderer, list);
+
+    if (layers.state != DIALOG_WINDOW_CLOSED)
+    {
+        register DialogWindowLayers * self asm("r7") = &layers;
+        register unsigned frames asm("r6");
+        register unsigned fullTop asm("r5");
+
+        // Enable the dialog BG and window 0, set the tilemap, and scroll the BG to the dialog origin.
+        asm volatile(
+            ".syntax unified\n\t"
+            "movs r0, #0\n\t"
+            "mov r8, r0\n\t"
+            "ldrb r4, [%3, #8]\n\t"
+            "lsls r2, r4, #30\n\t"
+            "lsrs r2, r2, #30\n\t"
+            "movs r0, %5\n\t"
+            "lsls r0, r0, #1\n\t"
+            "lsls r0, r2\n\t"
+            "movs r3, %5\n\t"
+            "lsls r3, r3, #6\n\t"
+            "adds r1, r3, #0\n\t"
+            "orrs r0, r1\n\t"
+            "mov r5, %4\n\t"
+            "ldrh r1, [r5]\n\t"
+            "orrs r0, r1\n\t"
+            "strh r0, [r5]\n\t"
+            "lsls r3, r2, #1\n\t"
+            "lsls r2, r2, #2\n\t"
+            "mov r5, sp\n\t"
+            "ldrh r1, [%3, #8]\n\t"
+            "lsls r1, r1, #23\n\t"
+            "lsrs r1, r1, #30\n\t"
+            "lsls r1, r1, #2\n\t"
+            "lsls r0, r4, #25\n\t"
+            "lsrs r0, r0, #27\n\t"
+            "lsls r0, r0, #8\n\t"
+            "orrs r1, r0\n\t"
+            "movs r0, %6\n\t"
+            "orrs r1, r0\n\t"
+            "strh r1, [r5]\n\t"
+            "adds r3, %7\n\t"
+            "add r3, %4\n\t"
+            "strh r1, [r3]\n\t"
+            "mov r0, sp\n\t"
+            "mov r1, r8\n\t"
+            "strh r1, [r0]\n\t"
+            "adds r0, r2, #0\n\t"
+            "adds r0, %8\n\t"
+            "add r0, %4\n\t"
+            "strh r1, [r0]\n\t"
+            "mov r1, sp\n\t"
+            "ldrh %1, [%3, #2]\n\t"
+            "negs r0, %1\n\t"
+            "strh r0, [r1]\n\t"
+            "adds r2, %9\n\t"
+            "add r2, %4\n\t"
+            "strh r0, [r2]\n\t"
+            "ldrb %0, [%3, #13]\n\t"
+            "strb r4, [r1, #4]\n\t"
+            ".syntax divided"
+            : "=l"(frames), "=l"(fullTop), "=m"(registerScratch)
+            : "l"(self), "r"(videoBase),
+              "I"(Background0Enabled >> 1), "I"(BackgroundMosaic),
+              "I"(offsetof(BackgroundVideoState, backgroundControl)),
+              "I"(offsetof(BackgroundVideoState, backgroundOffset)),
+              "I"(offsetof(BackgroundVideoState, backgroundOffset) + sizeof(u16))
+            : "r0", "r1", "r2", "r3", "r4", "r8", "cc", "memory");
+
+        if (frames >= TransitionFrames)
+        {
+            // A window bound packs its start in the high byte and its end in the low byte.
+            asm volatile(
+                ".syntax unified\n\t"
+                "mov r3, sp\n\t"
+                "ldrh r0, [%0]\n\t"
+                "lsls r2, r0, #8\n\t"
+                "ldrh r1, [%0, #4]\n\t"
+                "adds r0, r0, r1\n\t"
+                "orrs r2, r0\n\t"
+                "strh r2, [r3]\n\t"
+                "mov r0, %1\n\t"
+                "adds r0, %3\n\t"
+                "strh r2, [r0]\n\t"
+                "mov r2, sp\n\t"
+                "lsls r1, %2, #8\n\t"
+                "ldrh r0, [%0, #6]\n\t"
+                "adds r0, %2, r0\n\t"
+                "orrs r1, r0\n\t"
+                "strh r1, [r2]\n\t"
+                "mov r0, %1\n\t"
+                "adds r0, %4\n\t"
+                "strh r1, [r0]\n\t"
+                ".syntax divided"
+                : : "l"(self), "r"(videoBase), "l"(fullTop),
+                    "I"(offsetof(BackgroundVideoState, windowHorizontal)),
+                    "I"(offsetof(BackgroundVideoState, windowVertical))
+                : "r0", "r1", "r2", "r3", "cc", "memory");
+        }
+        else
+        {
+            // Reveal a centered rectangle that grows and shrinks with the transition.
+            register unsigned height asm("r4") = layers.height;
+            asm("" : "+l"(height));
+            register int animatedHeight asm("r8") = height * frames / TransitionFrames;
+            asm("" : "+r"(animatedHeight));
+            register int originY asm("r5");
+            asm(
+                ".syntax unified\n\t"
+                "movs r2, %2\n\t"
+                "ldrsh %0, [%1, r2]\n\t"
+                ".syntax divided"
+                : "=l"(originY)
+                : "l"(self), "I"(offsetof(DialogWindowLayers, y)) : "r2", "cc", "memory");
+            register int centerY asm("r5") = (originY + (originY + static_cast<int>(height))) / 2;
+            register int halfAnimatedHeight asm("r0");
+            asm(
+                ".syntax unified\n\t"
+                "mov r3, %1\n\t"
+                "lsrs %0, r3, #31\n\t"
+                "add %0, %1\n\t"
+                "asrs %0, %0, #1\n\t"
+                ".syntax divided"
+                : "=l"(halfAnimatedHeight) : "r"(animatedHeight), "l"(centerY) : "r3", "cc");
+            register int top asm("r5") = centerY - halfAnimatedHeight;
+            register int animatedWidth asm("r0") = layers.width * frames / TransitionFrames;
+            register int left asm("r2") = (layers.x + (layers.x + layers.width)) / 2 - animatedWidth / 2;
+            asm volatile(
+                ".syntax unified\n\t"
+                "mov r3, sp\n\t"
+                "lsls r1, %0, #8\n\t"
+                "adds %0, %0, %1\n\t"
+                "orrs r1, %0\n\t"
+                "strh r1, [r3]\n\t"
+                "mov %1, %4\n\t"
+                "adds %1, %5\n\t"
+                "strh r1, [%1]\n\t"
+                "mov r1, sp\n\t"
+                "lsls %1, %2, #8\n\t"
+                "add %2, %3\n\t"
+                "orrs %1, %2\n\t"
+                "strh %1, [r1]\n\t"
+                "mov r1, %4\n\t"
+                "adds r1, %6\n\t"
+                "strh %1, [r1]\n\t"
+                ".syntax divided"
+                : "+l"(left), "+l"(animatedWidth), "+l"(top)
+                : "r"(animatedHeight), "r"(videoBase),
+                  "I"(offsetof(BackgroundVideoState, windowHorizontal)),
+                  "I"(offsetof(BackgroundVideoState, windowVertical))
+                : "r1", "r3", "cc", "memory");
+        }
+
+        // Allow all layers inside window 0, but hide the dialog BG outside it.
+        register u16 * windowInside asm("r3");
+        register unsigned backgroundMask asm("r4");
+        asm volatile(
+            ".syntax unified\n\t"
+            "mov r0, sp\n\t"
+            "movs r1, %3\n\t"
+            "strh r1, [r0]\n\t"
+            "mov %0, %2\n\t"
+            "adds %0, %4\n\t"
+            "strh r1, [%0]\n\t"
+            "mov r2, sp\n\t"
+            "ldrb %1, [r2, #4]\n\t"
+            "lsls r0, %1, #30\n\t"
+            "lsrs r0, r0, #30\n\t"
+            "movs %1, #1\n\t"
+            "lsls %1, r0\n\t"
+            "bics r1, %1\n\t"
+            "strh r1, [r2]\n\t"
+            "mov r0, %2\n\t"
+            "adds r0, %5\n\t"
+            "strh r1, [r0]\n\t"
+            ".syntax divided"
+            : "=l"(windowInside), "=l"(backgroundMask)
+            : "r"(videoBase), "I"(AllWindowLayers),
+              "I"(offsetof(BackgroundVideoState, windowInside)),
+              "I"(offsetof(BackgroundVideoState, windowOutside))
+            : "r0", "r1", "r2", "cc", "memory");
+
+        register int mode asm("r2");
+        asm(
+            ".syntax unified\n\t"
+            "ldrh r0, [%1, #10]\n\t"
+            "lsls r0, r0, #17\n\t"
+            "lsrs %0, r0, #24\n\t"
+            ".syntax divided"
+            : "=l"(mode) : "l"(self), "l"(windowInside), "l"(backgroundMask) : "r0", "cc", "memory");
+        if (mode == BlendDialogBackground)
+        {
+            *windowInside |= WindowColorEffects;
+            register unsigned packedBlend asm("r0") = AllSecondTargets | AlphaBlend | (AlphaCoefficients << 16);
+            asm("" : "+l"(packedBlend) : "l"(windowInside));
+            backgroundMask |= packedBlend;
+            register BackgroundVideoState * registers asm("r5") = videoBase;
+            asm("" : "+l"(registers) : "l"(backgroundMask));
+            registers->blendControlAndAlpha = backgroundMask;
+        }
+        if (mode == QueueFrameGraphics)
+        {
+            register DialogFrameGraphicsTask * frameTask asm("r3") = &layers.backgroundLayer;
+            asm("" : "+l"(frameTask));
+            int link = reinterpret_cast<int>(layers.backgroundLayer.node.previousLink);
+            // Thumb tests the sign of (link | -link) to detect a non-null backlink.
+            int queued = static_cast<int>(0u - static_cast<unsigned>(link)) | link;
+            asm("" : "+l"(queued));
+            if (queued >= 0)
+            {
+                register TileTransferQueue * queue asm("r1") = transfers;
+                asm("" : "+l"(queue) : "l"(frameTask));
+                register TileTransferQueue::Vtable const * vtable asm("r0") = queue->vtable;
+                asm("" : "+l"(vtable));
+                register void (*append)(TileTransferQueue *, DialogFrameGraphicsTask *) asm("r2") = vtable->append;
+                asm("" : "+l"(append));
+                append(transfers, frameTask);
+            }
+        }
+    }
+    else
+    {
+        register DialogWindowLayers * self asm("r7") = &layers;
+        register unsigned enabledBackground asm("r1");
+        asm(
+            ".syntax unified\n\t"
+            "ldrb r0, [%1, #8]\n\t"
+            "lsls r0, r0, #30\n\t"
+            "lsrs r0, r0, #30\n\t"
+            "movs %0, %2\n\t"
+            "lsls %0, %0, #1\n\t"
+            "lsls %0, r0\n\t"
+            ".syntax divided"
+            : "=l"(enabledBackground)
+            : "l"(self), "I"(Background0Enabled >> 1) : "r0", "cc", "memory");
+        register BackgroundVideoState * registers asm("r2") = videoBase;
+        asm("" : "+l"(registers) : "l"(enabledBackground));
+        registers->displayControl &= ~enabledBackground;
+        register DialogFrameGraphicsTask * frameTask asm("r3");
+        register int link asm("r1");
+        asm volatile(
+            ".syntax unified\n\t"
+            "adds %0, %2, #0\n\t"
+            "adds %0, %3\n\t"
+            "ldr %1, [%2, %3]\n\t"
+            ".syntax divided"
+            : "=l"(frameTask), "=l"(link)
+            : "l"(self), "I"(offsetof(DialogWindowLayers, backgroundLayer)) : "cc", "memory");
+        int queued = static_cast<int>(0u - static_cast<unsigned>(link)) | link;
+        asm("" : "+l"(queued));
+        if (queued < 0)
+        {
+            register TileTransferQueue * queue asm("r4") = transfers;
+            asm("" : "+l"(queue) : "l"(frameTask));
+            register TileTransferQueue::Vtable const * vtable asm("r0") = queue->vtable;
+            asm("" : "+l"(vtable));
+            register void (*remove)(TileTransferQueue *, DialogFrameGraphicsTask *) asm("r2") = vtable->remove;
+            asm("" : "+l"(remove));
+            remove(transfers, frameTask);
+        }
+    }
+    return layers.state;
 }
 
 ROM_TEXT(0803BCF8) void OpenDialogWindowLayers(DialogWindowLayers & self)
