@@ -1344,6 +1344,20 @@ EC void FarmerEntity_LiftRucksackItem(FarmerEntity * self, RucksackItem const * 
     AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 106);
 }
 
+// 0x080290D4
+EC bool FarmerEntity_TryLiftRucksackItem(FarmerEntity * self, RucksackItem const * item, bool wrapped) ENTITY_CODE(080290D4);
+EC bool FarmerEntity_TryLiftRucksackItem(FarmerEntity * self, RucksackItem const * item, bool wrapped)
+{
+    self->item_animation_override = true;
+    HeldItem * held_item = reinterpret_cast<HeldItem *>(reinterpret_cast<u8 *>(self->game_state) + 0x1C2C);
+    if (!func_0800F190(held_item))
+        return false;
+    self->consume_animation_active = true;
+    FarmerEntity_LiftRucksackItem(self, item, wrapped);
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    return true;
+}
+
 // 0x080262C4
 EC Product FarmerEntity_GetHeldProduct(FarmerEntity const * self) ENTITY_CODE(080262C4);
 EC Product FarmerEntity_GetHeldProduct(FarmerEntity const * self)

@@ -27868,155 +27868,6 @@ DrawMessageGlyphWithColors: @ 0x0804E5AC
 	bx r1
 	.align 2, 0
 
-	.section .text.message_rendering.0804E7DC
-	thumb_func_start FillMessagePixelRect
-FillMessagePixelRect: @ 0x0804E7DC
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #4
-	mov r8, r1
-	adds r5, r2, #0
-	ldr r1, [sp, #0x20]
-	mov ip, r1
-	ldr r6, [sp, #0x24]
-	ldr r1, [sp, #0x28]
-	movs r2, #0xf
-	ands r1, r2
-	lsls r2, r1, #4
-	orrs r1, r2
-	lsls r2, r1, #8
-	orrs r1, r2
-	lsls r2, r1, #0x10
-	orrs r2, r1
-	mov sb, r2
-	lsls r1, r0, #0x10
-	lsrs r2, r1, #0x10
-	lsrs r0, r0, #0x10
-	lsls r1, r2, #3
-	lsls r4, r0, #3
-	cmp r5, #0
-	bne .L0804E840
-	cmp r3, #0
-	bne .L0804E840
-	cmp ip, r1
-	blo .L0804E840
-	cmp r6, r4
-	blo .L0804E840
-	lsls r0, r0, #5
-	muls r2, r0, r2
-	mov r7, sb
-	str r7, [sp]
-	lsrs r2, r2, #2
-	ldr r0, .L0804E83C @ =0x001FFFFF
-	ands r2, r0
-	movs r0, #0x80
-	lsls r0, r0, #0x11
-	orrs r2, r0
-	mov r0, sp
-	mov r1, r8
-	bl CpuFastSet
-	b .L0804E8D8
-	.align 2, 0
-.L0804E83C: .4byte 0x001FFFFF
-.L0804E840:
-	cmp r5, r2
-	bhs .L0804E8D8
-	cmp r3, r0
-	bhs .L0804E8D8
-	mov r7, ip
-	adds r0, r5, r7
-	cmp r0, r1
-	blo .L0804E854
-	subs r1, r1, r5
-	mov ip, r1
-.L0804E854:
-	adds r0, r3, r6
-	cmp r0, r4
-	blo .L0804E85C
-	subs r6, r4, r3
-.L0804E85C:
-	movs r1, #0
-	movs r4, #7
-	adds r0, r5, #0
-	ands r0, r4
-	cmp r0, #0
-	bne .L0804E86A
-	movs r1, #1
-.L0804E86A:
-	cmp r1, #0
-	beq .L0804E8D8
-	movs r1, #0
-	adds r0, r3, #0
-	ands r0, r4
-	cmp r0, #0
-	bne .L0804E87A
-	movs r1, #1
-.L0804E87A:
-	cmp r1, #0
-	beq .L0804E8D8
-	movs r1, #0
-	mov r0, ip
-	ands r0, r4
-	cmp r0, #0
-	bne .L0804E88A
-	movs r1, #1
-.L0804E88A:
-	cmp r1, #0
-	beq .L0804E8D8
-	movs r1, #0
-	adds r0, r6, #0
-	ands r0, r4
-	cmp r0, #0
-	bne .L0804E89A
-	movs r1, #1
-.L0804E89A:
-	cmp r1, #0
-	beq .L0804E8D8
-	lsrs r6, r6, #3
-	lsrs r0, r3, #3
-	muls r0, r2, r0
-	lsrs r1, r5, #3
-	adds r0, r0, r1
-	lsls r0, r0, #5
-	mov r1, r8
-	adds r5, r1, r0
-	lsls r7, r2, #5
-	ldr r4, .L0804E8E8 @ =0x3FFFFFF8
-	mov r2, ip
-	ands r4, r2
-	ldr r0, .L0804E8EC @ =0x001FFFFF
-	ands r4, r0
-	movs r0, #0x80
-	lsls r0, r0, #0x11
-	mov r8, r0
-.L0804E8C0:
-	mov r1, sb
-	str r1, [sp]
-	mov r0, sp
-	adds r1, r5, #0
-	mov r2, r8
-	orrs r2, r4
-	bl CpuFastSet
-	adds r5, r5, r7
-	subs r6, #1
-	cmp r6, #0
-	bne .L0804E8C0
-.L0804E8D8:
-	add sp, #4
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-	.align 2, 0
-.L0804E8E8: .4byte 0x3FFFFFF8
-.L0804E8EC: .4byte 0x001FFFFF
-
-
-
 	.section .text.message_rendering.0804EA94
 	thumb_func_start InitializeMessageSpriteAttributes
 InitializeMessageSpriteAttributes: @ 0x0804EA94
@@ -28333,78 +28184,6 @@ PrintMessageCursorGlyph: @ 0x0804EFAC
 
 
 
-
-	.section .text.message_rendering.0804F060
-	thumb_func_start AdvanceMessageTextLine
-AdvanceMessageTextLine: @ 0x0804F060
-	push {r4, r5, r6, r7, lr}
-	mov r7, sb
-	mov r6, r8
-	push {r6, r7}
-	sub sp, #4
-	adds r5, r0, #0
-	ldrh r0, [r5, #0x16]
-	cmp r0, #1
-	bhi .L0804F078
-	adds r0, #1
-	strh r0, [r5, #0x16]
-	b .L0804F0D2
-.L0804F078:
-	ldrb r0, [r5, #0x18]
-	adds r0, #1
-	strb r0, [r5, #0x18]
-	lsls r0, r0, #0x18
-	lsrs r0, r0, #0x18
-	cmp r0, #2
-	bls .L0804F08A
-	movs r0, #0
-	strb r0, [r5, #0x18]
-.L0804F08A:
-	ldrb r1, [r5, #0x18]
-	adds r0, r1, #2
-	cmp r0, #2
-	ble .L0804F094
-	subs r0, r1, #1
-.L0804F094:
-	lsls r0, r0, #2
-	adds r0, r0, r5
-	mov r6, sp
-	movs r1, #4
-	mov sb, r1
-	movs r1, #2
-	mov r8, r1
-	ldr r4, [r0, #8]
-	movs r7, #6
-.L0804F0A6:
-	ldr r1, [r4]
-	mov r0, sb
-	strh r0, [r6]
-	mov r0, r8
-	strh r0, [r6, #2]
-	ldr r0, [sp]
-	adds r1, #4
-	movs r2, #0
-	bl FillMessageTiles
-	ldr r1, [r4, #8]
-	rsbs r0, r1, #0
-	orrs r0, r1
-	lsrs r0, r0, #0x1f
-	strb r0, [r4, #0xc]
-	adds r4, #0x10
-	subs r7, #1
-	cmp r7, #0
-	bge .L0804F0A6
-	movs r0, #1
-	strb r0, [r5, #0x19]
-	strb r0, [r5, #0x1a]
-.L0804F0D2:
-	add sp, #4
-	pop {r3, r4}
-	mov r8, r3
-	mov sb, r4
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
 
 	.section .text.message_rendering.0804F0E0
 	thumb_func_start ClearMessageTextCursor
@@ -53142,8 +52921,8 @@ RunChildhoodMemoryScreen: @ 0x0805EE44
 	.purgem AppendChildhoodFadeTask
 
 	.section .text.f3.0805FF14, "ax", %progbits
-	thumb_func_start func_0805FF14
-func_0805FF14: @ 0x0805FF14
+	thumb_func_start InitFarmOverviewReport
+InitFarmOverviewReport: @ 0x0805FF14
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
@@ -56280,7 +56059,7 @@ func_0805FF14: @ 0x0805FF14
 	lsls r0, r0, #0x18
 	cmp r0, #0
 	bne .L08061628
-	bl sub_08061E00
+	bl .Lfarm_overview_dog_row
 .L08061628:
 	ldr r0, [r4]
 	adds r1, r7, #0
@@ -57297,8 +57076,8 @@ func_0805FF14: @ 0x0805FF14
 	ldr r2, [sp, #0x218]
 	str r2, [sp, #0x1d0]
 
-	thumb_func_start sub_08061E00
-sub_08061E00: @ 0x08061E00
+	.align 2, 0
+.Lfarm_overview_dog_row: @ 0x08061E00; Shares InitFarmOverviewReport's stack frame.
 	ldr r3, [sp, #0x1d0]
 	lsls r1, r3, #3
 	movs r0, #0
@@ -57701,7 +57480,7 @@ sub_08061E00: @ 0x08061E00
 	ldr r6, [r2]
 	movs r4, #0
 	cmp r4, r6
-	bhs .L08062132
+	bhs .Lfarm_overview_horse_row
 	ldr r0, [sp, #0x1d0]
 	adds r0, #2
 	lsls r0, r0, #6
@@ -57726,7 +57505,7 @@ sub_08061E00: @ 0x08061E00
 	adds r4, #1
 	cmp r4, r6
 	blo .L08062110
-.L08062132:
+.Lfarm_overview_horse_row:
 	ldr r4, [sp, #0x1c4]
 	ldr r5, .L080621A8 @ =0x0000058C
 	adds r0, r4, r5
@@ -62243,21 +62022,44 @@ AddLivestockReportRow: @ 0x08063EB8
 	.purgem GrowLivestockReportUploadQueue
 
 	.section .text.f3.080645F0, "ax", %progbits
-	thumb_func_start func_080645F0
-func_080645F0: @ 0x080645F0
+	.equ .Lhs_report_sp_report, 0xf0
+	.equ .Lhs_report_sp_panel, 0xf4
+	.equ .Lhs_report_sp_roster_index, 0xf8
+	.equ .Lhs_report_sp_sprite, 0xfc
+	.equ .Lhs_report_sp_npc_id, 0x100
+	.equ .Lhs_report_sp_friendship_row, 0x134
+	.equ .Lhs_report_sp_next_roster_index, 0x138
+	.equ .Lhs_report_sp_watering_row, 0x13c
+	.equ .Lhs_report_sp_harvesting_row, 0x140
+	.equ .Lhs_report_sp_animal_care_row, 0x144
+	.equ .Lhs_report_sp_next_tile_row, 0x148
+	.equ .Lhs_report_sp_name_tilemap_offset, 0x154
+	.equ .Lhs_report_game_data, 0x58c
+	.equ .Lhs_report_portrait_queue, 0x594
+	.equ .Lhs_report_roster, 0x1cd4
+	.equ .Lhs_report_panel_tilemap, 0x18
+	.equ .Lhs_report_skill_uploads, 0x2164
+	.equ .Lhs_report_last_roster_index, 6
+	.equ .Lhs_report_task_harvest, 0
+	.equ .Lhs_report_task_water, 1
+	.equ .Lhs_report_task_animals, 2
+	.equ .Lhs_report_task_none, 3
+
+	thumb_func_start InitHarvestSpriteReport
+InitHarvestSpriteReport: @ 0x080645F0
 	push {r4, r5, r6, r7, lr}
 	mov r7, sl
 	mov r6, sb
 	mov r5, r8
 	push {r5, r6, r7}
 	sub sp, #0x168
-	str r0, [sp, #0xf0]
+	str r0, [sp, #.Lhs_report_sp_report]
 	ldr r0, .L080646BC @ =gUnk_080FB8B4
 	str r0, [sp]
-	ldr r0, [sp, #0xf0]
+	ldr r0, [sp, #.Lhs_report_sp_report]
 	movs r3, #0x35
 	bl func_08076BFC
-	ldr r0, [sp, #0xf0]
+	ldr r0, [sp, #.Lhs_report_sp_report]
 	ldr r2, .L080646C0 @ =0x000005B4
 	adds r1, r0, r2
 	ldr r0, .L080646C4 @ =vtable_unk_080E7A28
@@ -62279,21 +62081,21 @@ func_080645F0: @ 0x080645F0
 	subs r0, #1
 	cmp r0, r1
 	bne .L0806462E
-	ldr r0, [sp, #0xf0]
+	ldr r0, [sp, #.Lhs_report_sp_report]
 	ldr r2, .L080646C8 @ =0x00002164
 	adds r1, r0, r2
 	movs r0, #0
 	str r0, [r1]
-	ldr r4, [sp, #0xf0]
+	ldr r4, [sp, #.Lhs_report_sp_report]
 	ldr r4, [r4, #4]
-	str r4, [sp, #0xf4]
+	str r4, [sp, #.Lhs_report_sp_panel]
 	ldr r2, .L080646CC @ =gUnk_080FB8C8
 	movs r1, #2
 	add r0, sp, #0x28
 	strh r1, [r0]
 	strh r1, [r3, #2]
 	ldr r0, [sp, #0x28]
-	ldr r5, [sp, #0xf0]
+	ldr r5, [sp, #.Lhs_report_sp_report]
 	ldr r7, .L080646D0 @ =0x000005BC
 	adds r4, r5, r7
 	str r2, [sp]
@@ -62331,13 +62133,13 @@ func_080645F0: @ 0x080645F0
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	ldr r5, [sp, #0xf0]
+	ldr r5, [sp, #.Lhs_report_sp_report]
 	movs r7, #0xc8
 	lsls r7, r7, #3
 	adds r5, r5, r7
 	mov sl, r5
 	ldr r1, .L080646D4 @ =0x00000744
-	ldr r0, [sp, #0xf0]
+	ldr r0, [sp, #.Lhs_report_sp_report]
 	adds r1, r0, r1
 	str r1, [sp, #0x10c]
 	ldr r2, .L080646D8 @ =0x00000948
@@ -62389,13 +62191,13 @@ func_080645F0: @ 0x080645F0
 	str r5, [sp, #0x164]
 	ldr r2, [r6]
 	adds r3, r5, #0
-	ldr r4, [sp, #0xf0]
+	ldr r4, [sp, #.Lhs_report_sp_report]
 	movs r5, #0xc8
 	lsls r5, r5, #3
 	adds r4, r4, r5
 	mov sl, r4
 	ldr r0, .L08064774 @ =0x00000744
-	ldr r7, [sp, #0xf0]
+	ldr r7, [sp, #.Lhs_report_sp_report]
 	adds r0, r7, r0
 	str r0, [sp, #0x10c]
 	ldr r1, .L08064778 @ =0x00000948
@@ -62494,7 +62296,7 @@ func_080645F0: @ 0x080645F0
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r5, [sp, #0xf0]
+	ldr r5, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
@@ -62652,7 +62454,7 @@ func_080645F0: @ 0x080645F0
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r5, [sp, #0xf0]
+	ldr r5, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0x80
@@ -62810,7 +62612,7 @@ func_080645F0: @ 0x080645F0
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r5, [sp, #0xf0]
+	ldr r5, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r5]
 	bl HardwareContext_GetDmaQueue
 	movs r3, #0xc0
@@ -62955,7 +62757,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08064B30:
-	ldr r2, [sp, #0xf0]
+	ldr r2, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -63103,7 +62905,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08064C3E:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -63248,7 +63050,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08064D46:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -63396,7 +63198,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08064E52:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -63544,7 +63346,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08064F5E:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -63692,7 +63494,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L0806506A:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -63840,7 +63642,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08065176:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -63990,7 +63792,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08065288:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -64140,7 +63942,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L0806539C:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -64285,7 +64087,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080654A8:
-	ldr r2, [sp, #0xf0]
+	ldr r2, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -64435,7 +64237,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080655BC:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -64585,7 +64387,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080656D0:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -64735,7 +64537,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080657E4:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -64880,7 +64682,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L080658F0:
-	ldr r2, [sp, #0xf0]
+	ldr r2, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r2]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -65027,7 +64829,7 @@ func_080645F0: @ 0x080645F0
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
 .L08065A00:
-	ldr r1, [sp, #0xf0]
+	ldr r1, [sp, #.Lhs_report_sp_report]
 	ldr r0, [r1]
 	bl HardwareContext_GetDmaQueue
 	adds r6, r0, #0
@@ -65054,7 +64856,7 @@ func_080645F0: @ 0x080645F0
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	b .L08065B0C
+	b .Lharvest_sprite_report_start_rows
 	.align 2, 0
 .L08065A3C: .4byte gUnk_08750C6C
 .L08065A40: .4byte 0x05000220
@@ -65171,32 +64973,32 @@ func_080645F0: @ 0x080645F0
 	str r1, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L08065B0C:
+.Lharvest_sprite_report_start_rows:
 	movs r2, #4
 	mov r8, r2
 	movs r3, #0
-	str r3, [sp, #0xf8]
+	str r3, [sp, #.Lhs_report_sp_roster_index]
 
 	.section .text.after_f3, "ax", %progbits
-	thumb_func_start sub_08065B14
-sub_08065B14: @ 0x08065B14
-	ldr r4, [sp, #0xf0]
-	ldr r5, .L08065B58 @ =0x0000058C
+	.align 2, 0
+.Lharvest_sprite_report_row: @ 0x08065B14; Shares InitHarvestSpriteReport's stack frame.
+	ldr r4, [sp, #.Lhs_report_sp_report]
+	ldr r5, .L08065B58 @ =.Lhs_report_game_data
 	adds r0, r4, r5
 	ldr r0, [r0]
-	ldr r7, .L08065B5C @ =0x00001CD4
+	ldr r7, .L08065B5C @ =.Lhs_report_roster
 	adds r0, r0, r7
-	ldr r1, [sp, #0xf8]
+	ldr r1, [sp, #.Lhs_report_sp_roster_index]
 	bl GetRosterHarvestSpriteByIndex
-	str r0, [sp, #0xfc]
-	ldr r0, [sp, #0xf8]
+	str r0, [sp, #.Lhs_report_sp_sprite]
+	ldr r0, [sp, #.Lhs_report_sp_roster_index]
 	adds r0, #1
-	str r0, [sp, #0x138]
-	ldr r1, [sp, #0xfc]
+	str r0, [sp, #.Lhs_report_sp_next_roster_index]
+	ldr r1, [sp, #.Lhs_report_sp_sprite]
 	cmp r1, #0
-	bne .L08065B38
-	bl sub_0806641E
-.L08065B38:
+	bne .Lharvest_sprite_report_select_portrait
+	bl .Lharvest_sprite_report_next_row
+.Lharvest_sprite_report_select_portrait:
 	movs r0, #8
 	str r0, [sp, #0xc]
 	add r1, sp, #8
@@ -65204,19 +65006,19 @@ sub_08065B14: @ 0x08065B14
 	lsls r0, r2, #3
 	strh r0, [r1]
 	str r0, [sp, #0x150]
-	ldr r3, [sp, #0xf8]
-	cmp r3, #6
+	ldr r3, [sp, #.Lhs_report_sp_roster_index]
+	cmp r3, #.Lhs_report_last_roster_index
 	bhi .L08065B80
 	lsls r0, r3, #2
-	ldr r1, .L08065B60 @ =.L08065B64
+	ldr r1, .L08065B60 @ =.Lharvest_sprite_report_portrait_by_index
 	adds r0, r0, r1
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-.L08065B58: .4byte 0x0000058C
-.L08065B5C: .4byte 0x00001CD4
-.L08065B60: .4byte .L08065B64
-.L08065B64: @ jump table
+.L08065B58: .4byte .Lhs_report_game_data
+.L08065B5C: .4byte .Lhs_report_roster
+.L08065B60: .4byte .Lharvest_sprite_report_portrait_by_index
+.Lharvest_sprite_report_portrait_by_index: @ jump table
 	.4byte .L08065BE0 @ case 0
 	.4byte .L08065B98 @ case 1
 	.4byte .L08065BF8 @ case 2
@@ -65230,8 +65032,8 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, .L08065B94 @ =gUnk_0875220C
 	str r0, [sp, #0x14]
 	movs r4, #0x27
-	str r4, [sp, #0x100]
-	b .L08065C1C
+	str r4, [sp, #.Lhs_report_sp_npc_id]
+	b .Lharvest_sprite_report_queue_portrait
 	.align 2, 0
 .L08065B90: .4byte gUnk_0875218C
 .L08065B94: .4byte gUnk_0875220C
@@ -65241,8 +65043,8 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, .L08065BAC @ =gUnk_087520CC
 	str r0, [sp, #0x14]
 	movs r5, #0x25
-	str r5, [sp, #0x100]
-	b .L08065C1C
+	str r5, [sp, #.Lhs_report_sp_npc_id]
+	b .Lharvest_sprite_report_queue_portrait
 	.align 2, 0
 .L08065BA8: .4byte gUnk_0875204C
 .L08065BAC: .4byte gUnk_087520CC
@@ -65252,8 +65054,8 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, .L08065BC4 @ =gUnk_0875202C
 	str r0, [sp, #0x14]
 	movs r7, #0x2a
-	str r7, [sp, #0x100]
-	b .L08065C1C
+	str r7, [sp, #.Lhs_report_sp_npc_id]
+	b .Lharvest_sprite_report_queue_portrait
 	.align 2, 0
 .L08065BC0: .4byte gUnk_08751FAC
 .L08065BC4: .4byte gUnk_0875202C
@@ -65263,8 +65065,8 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, .L08065BDC @ =gUnk_0875234C
 	str r0, [sp, #0x14]
 	movs r0, #0x29
-	str r0, [sp, #0x100]
-	b .L08065C1C
+	str r0, [sp, #.Lhs_report_sp_npc_id]
+	b .Lharvest_sprite_report_queue_portrait
 	.align 2, 0
 .L08065BD8: .4byte gUnk_087522CC
 .L08065BDC: .4byte gUnk_0875234C
@@ -65274,8 +65076,8 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, .L08065BF4 @ =gUnk_08751F8C
 	str r0, [sp, #0x14]
 	movs r1, #0x24
-	str r1, [sp, #0x100]
-	b .L08065C1C
+	str r1, [sp, #.Lhs_report_sp_npc_id]
+	b .Lharvest_sprite_report_queue_portrait
 	.align 2, 0
 .L08065BF0: .4byte gUnk_08751F0C
 .L08065BF4: .4byte gUnk_08751F8C
@@ -65285,8 +65087,8 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, .L08065C0C @ =gUnk_0875216C
 	str r0, [sp, #0x14]
 	movs r2, #0x26
-	str r2, [sp, #0x100]
-	b .L08065C1C
+	str r2, [sp, #.Lhs_report_sp_npc_id]
+	b .Lharvest_sprite_report_queue_portrait
 	.align 2, 0
 .L08065C08: .4byte gUnk_087520EC
 .L08065C0C: .4byte gUnk_0875216C
@@ -65296,10 +65098,10 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, .L08065CB0 @ =gUnk_087522AC
 	str r0, [sp, #0x14]
 	movs r3, #0x28
-	str r3, [sp, #0x100]
-.L08065C1C:
-	ldr r4, [sp, #0xf0]
-	ldr r5, .L08065CB4 @ =0x00000594
+	str r3, [sp, #.Lhs_report_sp_npc_id]
+.Lharvest_sprite_report_queue_portrait:
+	ldr r4, [sp, #.Lhs_report_sp_report]
+	ldr r5, .L08065CB4 @ =.Lhs_report_portrait_queue
 	adds r6, r4, r5
 	mov r7, sp
 	adds r7, #8
@@ -65322,7 +65124,7 @@ sub_08065B14: @ 0x08065B14
 	str r0, [r6, #4]
 	add r5, sp, #0x18
 	mov sb, r5
-	ldr r7, [sp, #0xf8]
+	ldr r7, [sp, #.Lhs_report_sp_roster_index]
 	lsls r7, r7, #1
 	str r7, [sp, #0x14c]
 	mov r0, sp
@@ -65333,7 +65135,7 @@ sub_08065B14: @ 0x08065B14
 	str r1, [sp, #0x120]
 	mov r2, r8
 	lsls r2, r2, #6
-	str r2, [sp, #0x154]
+	str r2, [sp, #.Lhs_report_sp_name_tilemap_offset]
 	mov r3, sp
 	adds r3, #0xe8
 	str r3, [sp, #0x124]
@@ -65342,22 +65144,22 @@ sub_08065B14: @ 0x08065B14
 	str r4, [sp, #0x128]
 	mov r5, r8
 	adds r5, #2
-	str r5, [sp, #0x134]
+	str r5, [sp, #.Lhs_report_sp_friendship_row]
 	mov r7, r8
 	adds r7, #3
-	str r7, [sp, #0x13c]
+	str r7, [sp, #.Lhs_report_sp_watering_row]
 	movs r0, #0x70
 	lsls r0, r0, #0x10
 	str r0, [sp, #0x158]
 	mov r1, r8
 	adds r1, #4
-	str r1, [sp, #0x140]
+	str r1, [sp, #.Lhs_report_sp_harvesting_row]
 	movs r2, #0x71
 	lsls r2, r2, #0x10
 	str r2, [sp, #0x15c]
 	mov r3, r8
 	adds r3, #5
-	str r3, [sp, #0x144]
+	str r3, [sp, #.Lhs_report_sp_animal_care_row]
 	movs r4, #0x72
 	lsls r4, r4, #0x10
 	str r4, [sp, #0x108]
@@ -65365,15 +65167,15 @@ sub_08065B14: @ 0x08065B14
 	lsls r5, r5, #0x10
 	str r5, [sp, #0x12c]
 	adds r7, #3
-	str r7, [sp, #0x148]
-	ldr r0, [sp, #0xf8]
+	str r7, [sp, #.Lhs_report_sp_next_tile_row]
+	ldr r0, [sp, #.Lhs_report_sp_roster_index]
 	adds r0, #1
-	str r0, [sp, #0x138]
-	b .L08065DE6
+	str r0, [sp, #.Lhs_report_sp_next_roster_index]
+	b .Lharvest_sprite_report_draw_name
 	.align 2, 0
 .L08065CAC: .4byte gUnk_0875222C
 .L08065CB0: .4byte gUnk_087522AC
-.L08065CB4: .4byte 0x00000594
+.L08065CB4: .4byte .Lhs_report_portrait_queue
 .L08065CB8:
 	str r1, [sp, #0x160]
 	movs r0, #1
@@ -65416,7 +65218,7 @@ sub_08065B14: @ 0x08065B14
 	adds r2, r5, #0
 	add r4, sp, #0x18
 	mov sb, r4
-	ldr r5, [sp, #0xf8]
+	ldr r5, [sp, #.Lhs_report_sp_roster_index]
 	lsls r5, r5, #1
 	str r5, [sp, #0x14c]
 	mov r7, sp
@@ -65427,7 +65229,7 @@ sub_08065B14: @ 0x08065B14
 	str r0, [sp, #0x120]
 	mov r1, r8
 	lsls r1, r1, #6
-	str r1, [sp, #0x154]
+	str r1, [sp, #.Lhs_report_sp_name_tilemap_offset]
 	mov r4, sp
 	adds r4, #0xe8
 	str r4, [sp, #0x124]
@@ -65436,21 +65238,21 @@ sub_08065B14: @ 0x08065B14
 	str r5, [sp, #0x128]
 	mov r7, r8
 	adds r7, #2
-	str r7, [sp, #0x134]
+	str r7, [sp, #.Lhs_report_sp_friendship_row]
 	mov r0, r8
 	adds r0, #3
-	str r0, [sp, #0x13c]
+	str r0, [sp, #.Lhs_report_sp_watering_row]
 	movs r1, #0x70
 	lsls r1, r1, #0x10
 	str r1, [sp, #0x158]
 	mov r4, r8
 	adds r4, #4
-	str r4, [sp, #0x140]
+	str r4, [sp, #.Lhs_report_sp_harvesting_row]
 	movs r5, #0x71
 	lsls r5, r5, #0x10
 	str r5, [sp, #0x15c]
 	adds r7, #3
-	str r7, [sp, #0x144]
+	str r7, [sp, #.Lhs_report_sp_animal_care_row]
 	movs r0, #0x72
 	lsls r0, r0, #0x10
 	str r0, [sp, #0x108]
@@ -65458,10 +65260,10 @@ sub_08065B14: @ 0x08065B14
 	lsls r1, r1, #0x10
 	str r1, [sp, #0x12c]
 	adds r4, #2
-	str r4, [sp, #0x148]
-	ldr r5, [sp, #0xf8]
+	str r4, [sp, #.Lhs_report_sp_next_tile_row]
+	ldr r5, [sp, #.Lhs_report_sp_roster_index]
 	adds r5, #1
-	str r5, [sp, #0x138]
+	str r5, [sp, #.Lhs_report_sp_next_roster_index]
 	ldr r7, [sp, #0x160]
 	cmp r3, r7
 	beq .L08065D82
@@ -65539,7 +65341,7 @@ sub_08065B14: @ 0x08065B14
 	str r7, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L08065DE6:
+.Lharvest_sprite_report_draw_name:
 	movs r0, #0
 	mov r8, r0
 	add r1, sp, #0x150
@@ -65547,12 +65349,12 @@ sub_08065B14: @ 0x08065B14
 	mov r1, sb
 	strh r2, [r1]
 	ldr r2, [sp, #0x14c]
-	ldr r3, [sp, #0xf8]
+	ldr r3, [sp, #.Lhs_report_sp_roster_index]
 	adds r4, r2, r3
 	lsls r4, r4, #6
 	adds r4, r4, r3
 	lsls r4, r4, #2
-	ldr r5, [sp, #0xf0]
+	ldr r5, [sp, #.Lhs_report_sp_report]
 	adds r1, r4, r5
 	movs r5, #0xc
 	movs r6, #2
@@ -65565,16 +65367,16 @@ sub_08065B14: @ 0x08065B14
 	adds r1, r1, r2
 	movs r2, #0
 	bl FillMessageTiles
-	ldr r3, [sp, #0xf0]
-	ldr r7, .L08065EC0 @ =0x0000058C
+	ldr r3, [sp, #.Lhs_report_sp_report]
+	ldr r7, .L08065EC0 @ =.Lhs_report_game_data
 	adds r0, r3, r7
 	ldr r0, [r0]
-	ldr r1, .L08065EC4 @ =0x00001CD4
+	ldr r1, .L08065EC4 @ =.Lhs_report_roster
 	adds r0, r0, r1
-	ldr r1, [sp, #0x100]
+	ldr r1, [sp, #.Lhs_report_sp_npc_id]
 	bl GetRosterNpcName
 	adds r2, r0, #0
-	ldr r3, [sp, #0xf0]
+	ldr r3, [sp, #.Lhs_report_sp_report]
 	adds r1, r4, r3
 	add r0, sp, #0xdc
 	strh r5, [r0]
@@ -65587,14 +65389,14 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #0
 	movs r3, #0
 	bl DrawMessageTileString
-	ldr r0, [sp, #0xf0]
+	ldr r0, [sp, #.Lhs_report_sp_report]
 	adds r4, r4, r0
 	adds r1, r7, #0
 	adds r4, r4, r1
 	mov r2, sb
 	str r4, [r2, #4]
 	movs r0, #3
-	ldr r3, [sp, #0xf8]
+	ldr r3, [sp, #.Lhs_report_sp_roster_index]
 	ands r0, r3
 	lsls r4, r0, #1
 	adds r4, r4, r0
@@ -65602,9 +65404,9 @@ sub_08065B14: @ 0x08065B14
 	movs r0, #0xc0
 	lsls r0, r0, #1
 	adds r4, r4, r0
-	ldr r5, [sp, #0xf4]
-	ldr r0, [r5, #0x18]
-	ldr r7, [sp, #0x154]
+	ldr r5, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r5, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_name_tilemap_offset]
 	adds r0, r0, r7
 	adds r0, #6
 	mov r1, r8
@@ -65624,7 +65426,7 @@ sub_08065B14: @ 0x08065B14
 	movs r0, #0xc0
 	lsls r0, r0, #2
 	str r0, [r2, #0xc]
-	ldr r3, [sp, #0xf0]
+	ldr r3, [sp, #.Lhs_report_sp_report]
 	ldr r4, .L08065EC8 @ =0x000005A4
 	adds r6, r3, r4
 	ldr r1, [r6, #4]
@@ -65643,11 +65445,11 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, [r6, #4]
 	adds r0, #0x10
 	str r0, [r6, #4]
-	b .L08065F9E
+	b .Lharvest_sprite_report_draw_friendship
 	.align 2, 0
 .L08065EBC: .4byte 0x00000C4C
-.L08065EC0: .4byte 0x0000058C
-.L08065EC4: .4byte 0x00001CD4
+.L08065EC0: .4byte .Lhs_report_game_data
+.L08065EC4: .4byte .Lhs_report_roster
 .L08065EC8: .4byte 0x000005A4
 .L08065ECC:
 	str r1, [sp, #0x160]
@@ -65768,11 +65570,11 @@ sub_08065B14: @ 0x08065B14
 	str r7, [r6]
 	str r5, [r6, #4]
 	str r0, [r6, #0xc]
-.L08065F9E:
+.Lharvest_sprite_report_draw_friendship:
 	movs r0, #0xa
 	ldr r1, [sp, #0x124]
 	str r0, [r1]
-	ldr r0, [sp, #0xfc]
+	ldr r0, [sp, #.Lhs_report_sp_sprite]
 	bl GetFriendship__C3Npc
 	movs r1, #0x19
 	bl __udivsi3
@@ -65789,14 +65591,14 @@ sub_08065B14: @ 0x08065B14
 	ldr r6, [r1]
 	movs r4, #0
 	cmp r4, r6
-	bhs .L08065FF6
+	bhs .Lharvest_sprite_report_draw_watering_skill
 	movs r5, #0xa
 	movs r3, #0x6c
 	lsls r7, r3, #0x10
 .L08065FD0:
-	ldr r1, [sp, #0xf4]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x134]
+	ldr r1, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r1, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_friendship_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, r0, r5
@@ -65812,7 +65614,7 @@ sub_08065B14: @ 0x08065B14
 	adds r4, #1
 	cmp r4, r6
 	blo .L08065FD0
-.L08065FF6:
+.Lharvest_sprite_report_draw_watering_skill:
 	movs r0, #0x78
 	str r0, [sp, #0xc]
 	ldr r0, .L08066048 @ =gUnk_08750C4C
@@ -65820,9 +65622,9 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, .L0806604C @ =gUnk_08750C6C
 	str r0, [sp, #0x14]
 	movs r5, #0
-	ldr r3, [sp, #0xf4]
-	ldr r0, [r3, #0x18]
-	ldr r4, [sp, #0x13c]
+	ldr r3, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r3, #.Lhs_report_panel_tilemap]
+	ldr r4, [sp, #.Lhs_report_sp_watering_row]
 	lsls r1, r4, #6
 	adds r0, r0, r1
 	adds r0, #8
@@ -65835,8 +65637,8 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #1
 	movs r3, #1
 	bl FillMessageTilemapRect
-	ldr r0, [sp, #0xfc]
-	movs r1, #1
+	ldr r0, [sp, #.Lhs_report_sp_sprite]
+	movs r1, #.Lhs_report_task_water
 	bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
 	adds r1, r0, #0
 	lsls r0, r1, #2
@@ -65854,9 +65656,9 @@ sub_08065B14: @ 0x08065B14
 .L08066048: .4byte gUnk_08750C4C
 .L0806604C: .4byte gUnk_08750C6C
 .L08066050:
-	ldr r1, [sp, #0xf4]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x13c]
+	ldr r1, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r1, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_watering_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, r0, r6
@@ -65881,9 +65683,9 @@ sub_08065B14: @ 0x08065B14
 	blt .L08066050
 	cmp r5, #9
 	bgt .L080660E6
-	ldr r3, [sp, #0xf4]
-	ldr r1, [r3, #0x18]
-	ldr r7, [sp, #0x13c]
+	ldr r3, [sp, #.Lhs_report_sp_panel]
+	ldr r1, [r3, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_watering_row]
 	lsls r0, r7, #6
 	adds r1, r1, r0
 	adds r0, r5, #5
@@ -65911,9 +65713,9 @@ sub_08065B14: @ 0x08065B14
 	movs r0, #0x9c
 	lsls r6, r0, #0x10
 .L080660C0:
-	ldr r1, [sp, #0xf4]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x13c]
+	ldr r1, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r1, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_watering_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, r0, r4
@@ -65931,16 +65733,16 @@ sub_08065B14: @ 0x08065B14
 	ble .L080660C0
 .L080660E6:
 	add r1, sp, #8
-	ldr r3, [sp, #0x13c]
+	ldr r3, [sp, #.Lhs_report_sp_watering_row]
 	lsls r0, r3, #3
 	adds r0, #1
 	strh r0, [r1]
-	ldr r4, [sp, #0xf0]
-	ldr r5, .L08066158 @ =0x00002164
+	ldr r4, [sp, #.Lhs_report_sp_report]
+	ldr r5, .L08066158 @ =.Lhs_report_skill_uploads
 	adds r2, r4, r5
 	ldr r0, [r2]
 	cmp r0, #0x14
-	bhi .L08066114
+	bhi .Lharvest_sprite_report_draw_harvesting_skill
 	lsls r0, r0, #4
 	adds r0, #4
 	adds r0, r2, r0
@@ -65954,11 +65756,11 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, [r2]
 	adds r0, #1
 	str r0, [r2]
-.L08066114:
+.Lharvest_sprite_report_draw_harvesting_skill:
 	movs r5, #0
-	ldr r7, [sp, #0xf4]
-	ldr r0, [r7, #0x18]
-	ldr r2, [sp, #0x140]
+	ldr r7, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r7, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, #8
@@ -65971,8 +65773,8 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #1
 	movs r3, #1
 	bl FillMessageTilemapRect
-	ldr r0, [sp, #0xfc]
-	movs r1, #0
+	ldr r0, [sp, #.Lhs_report_sp_sprite]
+	movs r1, #.Lhs_report_task_harvest
 	bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
 	adds r1, r0, #0
 	lsls r0, r1, #2
@@ -65987,11 +65789,11 @@ sub_08065B14: @ 0x08065B14
 	movs r6, #0xa
 	b .L0806617E
 	.align 2, 0
-.L08066158: .4byte 0x00002164
+.L08066158: .4byte .Lhs_report_skill_uploads
 .L0806615C:
-	ldr r1, [sp, #0xf4]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x140]
+	ldr r1, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r1, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, r0, r6
@@ -66015,10 +65817,10 @@ sub_08065B14: @ 0x08065B14
 	cmp r5, r2
 	blt .L0806615C
 	cmp r5, #9
-	bgt .L080661F2
-	ldr r3, [sp, #0xf4]
-	ldr r1, [r3, #0x18]
-	ldr r7, [sp, #0x140]
+	bgt .Lharvest_sprite_report_queue_harvesting_skill_tiles
+	ldr r3, [sp, #.Lhs_report_sp_panel]
+	ldr r1, [r3, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r0, r7, #6
 	adds r1, r1, r0
 	adds r0, r5, #5
@@ -66039,16 +65841,16 @@ sub_08065B14: @ 0x08065B14
 	bl FillMessageTilemapRect
 	adds r5, #1
 	cmp r5, #9
-	bgt .L080661F2
+	bgt .Lharvest_sprite_report_queue_harvesting_skill_tiles
 	lsls r0, r5, #1
 	adds r4, r0, #0
 	adds r4, #0xa
 	movs r0, #0xa5
 	lsls r6, r0, #0x10
 .L080661CC:
-	ldr r1, [sp, #0xf4]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x140]
+	ldr r1, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r1, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, r0, r4
@@ -66064,18 +65866,18 @@ sub_08065B14: @ 0x08065B14
 	adds r5, #1
 	cmp r5, #9
 	ble .L080661CC
-.L080661F2:
+.Lharvest_sprite_report_queue_harvesting_skill_tiles:
 	add r1, sp, #8
-	ldr r3, [sp, #0x140]
+	ldr r3, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r0, r3, #3
 	adds r0, #1
 	strh r0, [r1]
-	ldr r4, [sp, #0xf0]
-	ldr r5, .L08066264 @ =0x00002164
+	ldr r4, [sp, #.Lhs_report_sp_report]
+	ldr r5, .L08066264 @ =.Lhs_report_skill_uploads
 	adds r2, r4, r5
 	ldr r0, [r2]
 	cmp r0, #0x14
-	bhi .L08066220
+	bhi .Lharvest_sprite_report_draw_animal_care_skill
 	lsls r0, r0, #4
 	adds r0, #4
 	adds r0, r2, r0
@@ -66089,11 +65891,11 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, [r2]
 	adds r0, #1
 	str r0, [r2]
-.L08066220:
+.Lharvest_sprite_report_draw_animal_care_skill:
 	movs r5, #0
-	ldr r7, [sp, #0xf4]
-	ldr r0, [r7, #0x18]
-	ldr r2, [sp, #0x144]
+	ldr r7, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r7, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_animal_care_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, #8
@@ -66106,8 +65908,8 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #1
 	movs r3, #1
 	bl FillMessageTilemapRect
-	ldr r0, [sp, #0xfc]
-	movs r1, #2
+	ldr r0, [sp, #.Lhs_report_sp_sprite]
+	movs r1, #.Lhs_report_task_animals
 	bl GetTaskExp__C13HarvestSpriteQ213HarvestSprite4Task
 	adds r1, r0, #0
 	lsls r0, r1, #2
@@ -66122,11 +65924,11 @@ sub_08065B14: @ 0x08065B14
 	movs r6, #0xa
 	b .L0806628A
 	.align 2, 0
-.L08066264: .4byte 0x00002164
+.L08066264: .4byte .Lhs_report_skill_uploads
 .L08066268:
-	ldr r1, [sp, #0xf4]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x144]
+	ldr r1, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r1, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_animal_care_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, r0, r6
@@ -66151,9 +65953,9 @@ sub_08065B14: @ 0x08065B14
 	blt .L08066268
 	cmp r5, #9
 	bgt .L080662FE
-	ldr r3, [sp, #0xf4]
-	ldr r1, [r3, #0x18]
-	ldr r7, [sp, #0x144]
+	ldr r3, [sp, #.Lhs_report_sp_panel]
+	ldr r1, [r3, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_animal_care_row]
 	lsls r0, r7, #6
 	adds r1, r1, r0
 	adds r0, r5, #5
@@ -66181,9 +65983,9 @@ sub_08065B14: @ 0x08065B14
 	movs r0, #0xae
 	lsls r6, r0, #0x10
 .L080662D8:
-	ldr r1, [sp, #0xf4]
-	ldr r0, [r1, #0x18]
-	ldr r2, [sp, #0x144]
+	ldr r1, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r1, #.Lhs_report_panel_tilemap]
+	ldr r2, [sp, #.Lhs_report_sp_animal_care_row]
 	lsls r1, r2, #6
 	adds r0, r0, r1
 	adds r0, r0, r4
@@ -66201,16 +66003,16 @@ sub_08065B14: @ 0x08065B14
 	ble .L080662D8
 .L080662FE:
 	add r1, sp, #8
-	ldr r3, [sp, #0x144]
+	ldr r3, [sp, #.Lhs_report_sp_animal_care_row]
 	lsls r0, r3, #3
 	adds r0, #1
 	strh r0, [r1]
-	ldr r4, [sp, #0xf0]
-	ldr r5, .L08066364 @ =0x00002164
+	ldr r4, [sp, #.Lhs_report_sp_report]
+	ldr r5, .L08066364 @ =.Lhs_report_skill_uploads
 	adds r2, r4, r5
 	ldr r0, [r2]
 	cmp r0, #0x14
-	bhi .L0806632C
+	bhi .Lharvest_sprite_report_draw_current_task
 	lsls r0, r0, #4
 	adds r0, #4
 	adds r0, r2, r0
@@ -66224,10 +66026,10 @@ sub_08065B14: @ 0x08065B14
 	ldr r0, [r2]
 	adds r0, #1
 	str r0, [r2]
-.L0806632C:
-	ldr r5, [sp, #0xf4]
-	ldr r0, [r5, #0x18]
-	ldr r7, [sp, #0x134]
+.Lharvest_sprite_report_draw_current_task:
+	ldr r5, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r5, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_friendship_row]
 	lsls r1, r7, #6
 	adds r0, r0, r1
 	adds r0, #0x22
@@ -66240,28 +66042,28 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #8
 	movs r3, #2
 	bl FillMessageTilemapRect
-	ldr r0, [sp, #0xfc]
+	ldr r0, [sp, #.Lhs_report_sp_sprite]
 	bl GetCurrentTask__C13HarvestSprite
 	adds r2, r0, #0
-	cmp r2, #1
-	beq .L08066372
-	cmp r2, #1
+	cmp r2, #.Lhs_report_task_water
+	beq .Lharvest_sprite_report_label_watering
+	cmp r2, #.Lhs_report_task_water
 	bgt .L08066368
-	cmp r2, #0
-	beq .L08066388
-	b .L0806641A
+	cmp r2, #.Lhs_report_task_harvest
+	beq .Lharvest_sprite_report_label_harvesting
+	b .Lharvest_sprite_report_finish_row
 	.align 2, 0
-.L08066364: .4byte 0x00002164
+.L08066364: .4byte .Lhs_report_skill_uploads
 .L08066368:
-	cmp r2, #2
-	beq .L0806639E
-	cmp r2, #3
-	beq .L08066400
-	b .L0806641A
-.L08066372:
-	ldr r3, [sp, #0xf4]
-	ldr r0, [r3, #0x18]
-	ldr r7, [sp, #0x140]
+	cmp r2, #.Lhs_report_task_animals
+	beq .Lharvest_sprite_report_label_animal_care
+	cmp r2, #.Lhs_report_task_none
+	beq .Lharvest_sprite_report_label_no_task
+	b .Lharvest_sprite_report_finish_row
+.Lharvest_sprite_report_label_watering:
+	ldr r3, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r3, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r4, r7, #6
 	adds r0, r0, r4
 	adds r0, #0x22
@@ -66269,11 +66071,11 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #2
 	str r2, [sp]
 	str r5, [sp, #4]
-	b .L080663B2
-.L08066388:
-	ldr r4, [sp, #0xf4]
-	ldr r0, [r4, #0x18]
-	ldr r7, [sp, #0x140]
+	b .Lharvest_sprite_report_draw_work_days_left
+.Lharvest_sprite_report_label_harvesting:
+	ldr r4, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r4, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r4, r7, #6
 	adds r0, r0, r4
 	adds r0, #0x22
@@ -66281,11 +66083,11 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #2
 	str r2, [sp]
 	str r5, [sp, #4]
-	b .L080663B2
-.L0806639E:
-	ldr r4, [sp, #0xf4]
-	ldr r0, [r4, #0x18]
-	ldr r7, [sp, #0x140]
+	b .Lharvest_sprite_report_draw_work_days_left
+.Lharvest_sprite_report_label_animal_care:
+	ldr r4, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r4, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r4, r7, #6
 	adds r0, r0, r4
 	adds r0, #0x22
@@ -66293,11 +66095,11 @@ sub_08065B14: @ 0x08065B14
 	str r2, [sp]
 	str r5, [sp, #4]
 	movs r2, #2
-.L080663B2:
+.Lharvest_sprite_report_draw_work_days_left:
 	movs r3, #2
 	bl FillMessageTilemapRect
-	ldr r1, [sp, #0xf4]
-	ldr r0, [r1, #0x18]
+	ldr r1, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r1, #.Lhs_report_panel_tilemap]
 	adds r0, r0, r4
 	adds r0, #0x30
 	movs r1, #0x3c
@@ -66306,10 +66108,10 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #4
 	movs r3, #2
 	bl FillMessageTilemapRect
-	ldr r0, [sp, #0xfc]
+	ldr r0, [sp, #.Lhs_report_sp_sprite]
 	bl GetWorkDaysLeft__C13HarvestSprite
-	ldr r2, [sp, #0xf4]
-	ldr r1, [r2, #0x18]
+	ldr r2, [sp, #.Lhs_report_sp_panel]
+	ldr r1, [r2, #.Lhs_report_panel_tilemap]
 	adds r1, r1, r4
 	adds r1, #0x26
 	movs r2, #0x90
@@ -66317,8 +66119,8 @@ sub_08065B14: @ 0x08065B14
 	str r5, [sp]
 	movs r3, #0
 	bl DrawTallMessageNumber
-	ldr r3, [sp, #0xf4]
-	ldr r0, [r3, #0x18]
+	ldr r3, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r3, #.Lhs_report_panel_tilemap]
 	adds r0, r0, r4
 	adds r0, #0x2a
 	movs r1, #0x38
@@ -66327,11 +66129,11 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #2
 	movs r3, #2
 	bl FillMessageTilemapRect
-	b .L0806641A
-.L08066400:
-	ldr r4, [sp, #0xf4]
-	ldr r0, [r4, #0x18]
-	ldr r7, [sp, #0x140]
+	b .Lharvest_sprite_report_finish_row
+.Lharvest_sprite_report_label_no_task:
+	ldr r4, [sp, #.Lhs_report_sp_panel]
+	ldr r0, [r4, #.Lhs_report_panel_tilemap]
+	ldr r7, [sp, #.Lhs_report_sp_harvesting_row]
 	lsls r1, r7, #6
 	adds r0, r0, r1
 	adds r0, #0x22
@@ -66341,25 +66143,24 @@ sub_08065B14: @ 0x08065B14
 	movs r2, #0xc
 	movs r3, #2
 	bl FillMessageTilemapRect
-.L0806641A:
-	ldr r0, [sp, #0x148]
+.Lharvest_sprite_report_finish_row:
+	ldr r0, [sp, #.Lhs_report_sp_next_tile_row]
 	mov r8, r0
 
-	non_word_aligned_thumb_func_start sub_0806641E
-sub_0806641E: @ 0x0806641E
-	ldr r1, [sp, #0x138]
-	str r1, [sp, #0xf8]
-	cmp r1, #6
-	bhi .L0806642A
-	bl sub_08065B14
-.L0806642A:
+.Lharvest_sprite_report_next_row: @ 0x0806641E; Advance the roster index even when no row was drawn.
+	ldr r1, [sp, #.Lhs_report_sp_next_roster_index]
+	str r1, [sp, #.Lhs_report_sp_roster_index]
+	cmp r1, #.Lhs_report_last_roster_index
+	bhi .Lharvest_sprite_report_finish_page
+	bl .Lharvest_sprite_report_row
+.Lharvest_sprite_report_finish_page:
 	mov r1, r8
 	adds r1, #1
 	lsls r1, r1, #0x13
 	asrs r1, r1, #0x10
-	ldr r0, [sp, #0xf4]
+	ldr r0, [sp, #.Lhs_report_sp_panel]
 	bl func_08075E24
-	ldr r0, [sp, #0xf0]
+	ldr r0, [sp, #.Lhs_report_sp_report]
 	add sp, #0x168
 	pop {r3, r4, r5}
 	mov r8, r3
@@ -73902,7 +73703,7 @@ func_08069C34: @ 0x08069C34
 	adds r1, r4, r2
 	ldr r2, [r1]
 	adds r1, r4, #0
-	bl func_0805FF14
+	bl InitFarmOverviewReport
 	b .L08069D2C
 	.align 2, 0
 .L08069C88: .4byte 0x00001B6C
@@ -73950,7 +73751,7 @@ func_08069C34: @ 0x08069C34
 	adds r1, r4, r2
 	ldr r2, [r1]
 	adds r1, r4, #0
-	bl func_080645F0
+	bl InitHarvestSpriteReport
 	b .L08069D2C
 	.align 2, 0
 .L08069CF8: .4byte 0x000022B8
