@@ -420,7 +420,7 @@ func_080C85A0: @ 0x080C85A0
 	lsls r1, r1, #2
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	str r4, [sp, #0x138]
 	ldr r1, .L080C8958 @ =gUnk_08752F8C
@@ -2308,7 +2308,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r4, r0, #0
 	movs r0, #0xd7
 	lsls r0, r0, #2
@@ -2591,7 +2591,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r1, r1, #2
 	adds r0, r0, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	str r0, [sp, #0xc8]
 	mov r0, sl
 	bl HardwareContext_GetDmaQueue
@@ -2753,7 +2753,7 @@ func_080C96C4: @ 0x080C96C4
 	lsls r1, r1, #2
 	adds r0, r0, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	str r0, [sp, #0xc8]
 .L080C9A44:
 	ldr r2, [sp, #0xc4]
@@ -3282,7 +3282,7 @@ func_080C96C4: @ 0x080C96C4
 	add r5, sl
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #6]
 	adds r0, r1, #0
@@ -3303,7 +3303,7 @@ func_080C96C4: @ 0x080C96C4
 	ldr r7, [sp, #0x34]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x34
 	ldr r0, [sp, #0x34]
@@ -3523,7 +3523,7 @@ func_080C96C4: @ 0x080C96C4
 	add r5, sl
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #6]
 	adds r0, r1, #0
@@ -3544,7 +3544,7 @@ func_080C96C4: @ 0x080C96C4
 	ldr r7, [sp, #0x34]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x34
 	ldr r0, [sp, #0x34]
@@ -3765,7 +3765,7 @@ func_080C96C4: @ 0x080C96C4
 	add r5, sl
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #6]
 	adds r0, r1, #0
@@ -3786,7 +3786,7 @@ func_080C96C4: @ 0x080C96C4
 	ldr r7, [sp, #0x34]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x34
 	ldr r0, [sp, #0x34]
@@ -3998,7 +3998,7 @@ func_080C96C4: @ 0x080C96C4
 	add r4, sl
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #6]
 	adds r0, r1, #0
@@ -4025,7 +4025,7 @@ func_080C96C4: @ 0x080C96C4
 	ldr r7, [sp, #0x34]
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x34
 	ldr r0, [sp, #0x34]
@@ -4239,7 +4239,7 @@ func_080C96C4: @ 0x080C96C4
 	add r4, sl
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #0x10
 	strh r0, [r1, #6]
 	adds r0, r1, #0
@@ -4266,7 +4266,7 @@ func_080C96C4: @ 0x080C96C4
 	ldr r7, [sp, #0x34]
 	ldr r1, [r4, #4]
 	adds r0, r4, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x34
 	ldr r0, [sp, #0x34]
@@ -7422,7 +7422,7 @@ func_080CC58C: @ 0x080CC58C
 	adds r0, r0, r2
 	mov r2, sb
 	ldr r1, [r2]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r8, r0
 	add r4, sl
 	movs r0, #0xbb
@@ -7501,7 +7501,7 @@ func_080CC58C: @ 0x080CC58C
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r6, r0, #0
 	movs r0, #0xa9
 	lsls r0, r0, #2
@@ -7587,7 +7587,7 @@ func_080CC728: @ 0x080CC728
 	lsls r3, r3, #2
 	adds r0, r0, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r6, r0, #0
 	add r4, sl
 	movs r7, #0xbb
@@ -7999,7 +7999,7 @@ func_080CCA40: @ 0x080CCA40
 	lsls r3, r3, #2
 	adds r0, r0, r3
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r6, r0, #0
 	add r4, sl
 	movs r7, #0xbb
@@ -8404,7 +8404,7 @@ func_080CCE58: @ 0x080CCE58
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r4, r0, #0
 	movs r0, #0xa9
 	lsls r0, r0, #2
@@ -8804,7 +8804,7 @@ func_080CD14C: @ 0x080CD14C
 	lsls r0, r0, #2
 	add r0, sl
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r4, r0, #0
 	movs r0, #0xa9
 	lsls r0, r0, #2
@@ -9843,7 +9843,7 @@ func_080CDDD4: @ 0x080CDDD4
 	adds r6, #0x14
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	mov r0, sp
@@ -9866,7 +9866,7 @@ func_080CDDD4: @ 0x080CDDD4
 	ldr r5, [sp, #0x24]
 	ldr r1, [r6, #4]
 	adds r0, r6, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x24
 	ldr r0, [sp, #0x24]
@@ -10655,7 +10655,7 @@ func_080CE790: @ 0x080CE790
 	adds r5, r6, #4
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	mov r0, sp
@@ -10676,7 +10676,7 @@ func_080CE790: @ 0x080CE790
 	ldr r7, [sp, #0x24]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x24
 	ldr r0, [sp, #0x24]
@@ -10898,7 +10898,7 @@ func_080CE790: @ 0x080CE790
 	adds r5, #0xc
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	mov r1, sp
 	strh r0, [r1, #6]
 	mov r0, sp
@@ -10919,7 +10919,7 @@ func_080CE790: @ 0x080CE790
 	ldr r6, [sp, #0x24]
 	ldr r1, [r5, #4]
 	adds r0, r5, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	add r1, sp, #0x24
 	ldr r0, [sp, #0x24]
@@ -11203,7 +11203,7 @@ func_080CECE8: @ 0x080CECE8
 	adds r7, #0x6c
 	ldr r1, [r7, #4]
 	adds r0, r7, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	strh r0, [r6, #6]
 	strb r5, [r6, #0x18]
 	mov r5, r8
@@ -11228,7 +11228,7 @@ func_080CECE8: @ 0x080CECE8
 	mov sb, r2
 	ldr r1, [r7, #4]
 	adds r0, r7, #0
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	ldr r0, [sp, #8]
 	movs r3, #0

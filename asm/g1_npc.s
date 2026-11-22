@@ -4853,7 +4853,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r5, r5, #1
 	adds r0, r7, r5
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	lsls r0, r0, #5
 	ldr r6, .L080A2FF4 @ =0x06010000
 	adds r1, r0, r6
@@ -5053,7 +5053,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r0, r0, r5
 	lsls r0, r0, #5
 	ldr r2, .L080A2FF4 @ =0x06010000
@@ -5172,7 +5172,7 @@ func_080A2BA4: @ 0x080A2BA4
 	lsls r1, r1, #1
 	adds r0, r7, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	b .L080A2FF8
 	.align 2, 0
 .L080A2FC0: .4byte 0x06007FE0
@@ -5639,7 +5639,7 @@ func_080A32A4: @ 0x080A32A4
 	lsls r2, r2, #1
 	adds r0, r6, r2
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	add r1, sp, #8
 	strh r0, [r1, #6]
 	movs r3, #0xd6
@@ -5743,7 +5743,7 @@ func_080A32A4: @ 0x080A32A4
 	lsls r1, r1, #1
 	adds r0, r6, r1
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	ldrb r2, [r4, #2]
 	lsls r2, r2, #0x1c
 	lsrs r2, r2, #0x1b
@@ -6872,7 +6872,7 @@ func_080A480C: @ 0x080A480C
 .L080A482A:
 	adds r0, #4
 	ldr r1, [r0, #4]
-	bl func_08007D4C
+	bl TileHandle_GetTileIndex
 	adds r2, r0, #0
 	lsls r2, r2, #5
 	ldr r0, .L080A4868 @ =0x06010000
