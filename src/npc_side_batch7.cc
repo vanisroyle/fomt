@@ -62,8 +62,8 @@ struct SideEntityEffects
 EC u32 RollEntityMovementRandom(u32 limit);
 EC bool RollSpriteWorkChance(u32 friendship);
 EC u32 GetSpriteWorkerFriendship(Npc const * self) asm("GetFriendship__C3Npc");
-EC bool func_08034260(SpriteWorkerEntity * self);
-EC void func_08034180(AActorEntity * self, u32 animation, u32 facing, u32 speed);
+EC bool TryAssignSpriteWorkerTask(SpriteWorkerEntity * self);
+EC void SetSpriteWorkerMovementState(AActorEntity * self, u32 animation, u32 facing, u32 speed);
 EC void SetNpcWalkingAnimation(AActorEntity * self, u32 animation);
 EC void SetNpcIdleAnimation(AActorEntity * self, u32 animation);
 EC u8 * GetActiveRosterNpc(u8 * roster);
@@ -71,7 +71,7 @@ EC u32 GetNamedNpcAgeDays(u8 * npc);
 EC bool IsNpcAtNorthernExit(AEntity * self);
 EC bool HasNamedNpcFlag(G1NamedNpcState * npc);
 EC u32 GetRosterMarriageCandidate(void const * roster);
-EC bool func_08034C64(NpcSideWorld * world, GameTime const & time);
+EC bool IsFamilyScheduleAwayFromHome(NpcSideWorld * world, GameTime const & time);
 
 EC u32 ComputeSpriteWorkSpeed(u32 task_experience) NPC_SIDE_CODE(08033914);
 EC u32 ComputeSpriteWorkSpeed(u32 task_experience)
@@ -87,7 +87,7 @@ EC u32 ComputeSpriteWorkSpeed(u32 task_experience)
 EC void ChooseSpriteWorkerNextTask(SpriteWorkerEntity * self) NPC_SIDE_CODE(080342D8);
 EC void ChooseSpriteWorkerNextTask(SpriteWorkerEntity * self)
 {
-    if (!RollSpriteWorkChance(GetSpriteWorkerFriendship(self->record)) || !func_08034260(self))
+    if (!RollSpriteWorkChance(GetSpriteWorkerFriendship(self->record)) || !TryAssignSpriteWorkerTask(self))
     {
         struct Timer { u32 duration : 16; u32 animation : 8; u32 facing : 8; } timer;
         timer.duration = RollEntityMovementRandom(180);
@@ -97,7 +97,7 @@ EC void ChooseSpriteWorkerNextTask(SpriteWorkerEntity * self)
         u32 experience = record->GetTaskExp(task);
         timer.facing = (RollEntityMovementRandom(256 - experience) >> 6) + 2;
         self->record->method_0809E7D8(reinterpret_cast<UnkBarnAnimal2C const *>(&timer));
-        func_08034180(self, 0, self->facing, 0);
+        SetSpriteWorkerMovementState(self, 0, self->facing, 0);
     }
 }
 
@@ -155,7 +155,7 @@ EC void RefreshScheduledNpcOneAnimations(WorldScheduledNpc * self)
             {
                 NpcSideServices * game = reinterpret_cast<NpcSideServices *>(self->game_object);
                 NpcClock * clock = game->vtable->get_clock(game);
-                if (func_08034C64(world, clock->time))
+                if (IsFamilyScheduleAwayFromHome(world, clock->time))
                 {
                     walking_animation = 583;
                     idle_animation = 587;
@@ -185,7 +185,7 @@ EC void RefreshScheduledNpcTwoAnimations(WorldScheduledNpc * self)
             {
                 NpcSideServices * game = reinterpret_cast<NpcSideServices *>(self->game_object);
                 NpcClock * clock = game->vtable->get_clock(game);
-                if (func_08034C64(world, clock->time))
+                if (IsFamilyScheduleAwayFromHome(world, clock->time))
                 {
                     walking_animation = 2095;
                     idle_animation = 2099;
@@ -215,7 +215,7 @@ EC void RefreshScheduledNpcThreeAnimations(WorldScheduledNpc * self)
             {
                 NpcSideServices * game = reinterpret_cast<NpcSideServices *>(self->game_object);
                 NpcClock * clock = game->vtable->get_clock(game);
-                if (func_08034C64(world, clock->time))
+                if (IsFamilyScheduleAwayFromHome(world, clock->time))
                 {
                     walking_animation = 1709;
                     idle_animation = 1713;
@@ -245,7 +245,7 @@ EC void RefreshScheduledNpcFourAnimations(WorldScheduledNpc * self)
             {
                 NpcSideServices * game = reinterpret_cast<NpcSideServices *>(self->game_object);
                 NpcClock * clock = game->vtable->get_clock(game);
-                if (func_08034C64(world, clock->time))
+                if (IsFamilyScheduleAwayFromHome(world, clock->time))
                 {
                     walking_animation = 2196;
                     idle_animation = 2200;

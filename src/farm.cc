@@ -17,7 +17,10 @@ Vec2 Farm::smethod_08009AE8()
     return Vec2(0x8F, 0x20C);
 }
 
-void Farm::method_08009AF4() const {}
+char const * Farm::GetName() const
+{
+    return name;
+}
 
 u32 Farm::GetUnk10() const
 {
@@ -34,7 +37,7 @@ bool Farm::GetUnkFlag11() const
     return unk_0010_11;
 }
 
-bool Farm::method_08009B20() const
+bool Farm::HasGoldenLumberOnField() const
 {
     u32 row = 0, col = 0;
 

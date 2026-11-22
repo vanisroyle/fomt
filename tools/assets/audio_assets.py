@@ -274,7 +274,7 @@ def expression(source, names):
 def assemble(source, base, external=None, filename="<assembly>", measure=False):
     """A bounded GAS data-directive subset; never executes extracted source."""
     names = dict(CONSTANTS, **(external or {}))
-    labels, rows, pos = {}, [], 0
+    labels, rows, pos, sets = {}, [], 0, {}
     for line_number, line in enumerate(source.splitlines(), 1):
         text = line.split("@", 1)[0].strip()
         try:
@@ -296,7 +296,7 @@ def assemble(source, base, external=None, filename="<assembly>", measure=False):
             if directive in (".equ", ".equiv", ".set"):
                 if len(args) != 2 or not re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]*", args[0]):
                     raise ValueError("invalid constant definition")
-                names[args[0]] = expression(args[1], names)
+                names[args[0]] = sets[args[0]] = expression(args[1], names)
                 continue
             if directive in (".balign", ".align"):
                 alignment = expression(args[0], names)
@@ -306,13 +306,13 @@ def assemble(source, base, external=None, filename="<assembly>", measure=False):
                     raise ValueError("audio alignment must be a power of two, at most 4")
                 fill = args[1] if len(args) == 2 else "0"
                 padding = (-(base + pos)) % alignment
-                rows.append((pos, 1, [fill] * padding, line_number))
+                rows.append((pos, 1, [fill] * padding, line_number, dict(sets)))
                 pos += padding
                 continue
             width = {".byte": 1, ".hword": 2, ".2byte": 2, ".word": 4, ".4byte": 4}.get(directive)
             if not width or not values:
                 raise ValueError(f"unsupported directive: {directive}")
-            rows.append((pos, width, args, line_number))
+            rows.append((pos, width, args, line_number, dict(sets)))
             pos += width * len(args)
             if pos > 0x200000:
                 raise ValueError("audio source exceeds 2 MiB limit")
@@ -324,17 +324,18 @@ def assemble(source, base, external=None, filename="<assembly>", measure=False):
     runtime_names = (set(labels) | set(external or {})) - set(CONSTANTS)
     runtime_names = {name for name in runtime_names if not name.startswith("gAudioInstrument_")}
     data, relocations = bytearray(pos), {}
-    for pos, width, args, line_number in rows:
+    for pos, width, args, line_number, row_sets in rows:
+        scope = dict(names, **row_sets)
         for arg in args:
             try:
-                value = expression(arg, names)
+                value = expression(arg, scope)
                 if not -(1 << (width * 8 - 1)) <= value < 1 << (width * 8):
                     raise ValueError(f"value does not fit {width}-byte field: {arg}")
                 data[pos:pos + width] = (value & ((1 << (width * 8)) - 1)).to_bytes(width, "little")
                 identifiers = {node.id for node in ast.walk(ast.parse(arg, mode="eval")) if isinstance(node, ast.Name)}
                 if width == 4 and identifiers & runtime_names:
                     relocations[pos] = re.sub(r"\b[A-Za-z_][A-Za-z_0-9]*\b",
-                                             lambda match: match[0] if match[0] in runtime_names else str(names[match[0]]), arg)
+                                             lambda match: match[0] if match[0] in runtime_names else str(scope[match[0]]), arg)
                 pos += width
             except ValueError as error:
                 raise ValueError(f"{filename}:{line_number}: {error}") from error

@@ -308,7 +308,7 @@ vtable_unk_080E5EB4:
 	.global vtable_unk_080E5EC4
 vtable_unk_080E5EC4: @ game object
 	.word 0, 0
-	.word func_080179CC @ 08
+	.word GameStateMapScene_Destroy @ 08
 	.word func_08017C30 @ 0C
 	.word func_080182C8 @ 10
 	.word GameStateGetMapViewId
@@ -320,7 +320,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateGetMapWidthPixels
 	.word GameStateGetMapHeightPixels
 	.word GameStateGetMapTerrain @ 34
-	.word func_0801A8E0
+	.word GameStateRespawnActor
 	.word GameStateRemoveEntitySlot
 	.word GameStateGetEntitySlot
 	.word GameStateGetConstEntitySlot
@@ -354,7 +354,7 @@ vtable_unk_080E5EC4: @ game object
 	.word func_08019BEC
 	.word GameStateRefreshMapDaylight
 	.word func_0801EAA0
-	.word func_0801C29C
+	.word GameStateHoeFarmPlot
 	.word 0x0801CA1D
 	.word 0x0801C49D
 	.word 0x0801CAD9
@@ -451,7 +451,8 @@ vtable_unk_080E65F4:
 
 	.global vtable_unk_080E6644
 vtable_unk_080E6644:
-	.incbin "baserom.gba", 0xE6644, 0x14
+	.incbin "baserom.gba", 0xE6644, 0x10
+	.4byte DrawItemDisplayGraphics
 
 	.global vtable_unk_080E6658
 vtable_unk_080E6658:
@@ -779,9 +780,11 @@ vtable_unk_080E76BC:
 vtable_unk_080E76D4:
 	.incbin "baserom.gba", 0xE76D4, 0x14
 
-	.global vtable_unk_080E76E8
-vtable_unk_080E76E8:
-	.incbin "baserom.gba", 0xE76E8, 0x10
+	.global gGameScriptTextVariablesVTable
+gGameScriptTextVariablesVTable:
+	.4byte 0, 0
+	.4byte DestroyGameScriptTextVariables
+	.4byte ResolveGameScriptTextVariable
 
 	.global vtable_unk_080E76F8
 vtable_unk_080E76F8:
@@ -803,9 +806,11 @@ vtable_unk_080E7728:
 vtable_unk_080E7738:
 	.incbin "baserom.gba", 0xE7738, 0x10
 
-	.global vtable_unk_080E7748
-vtable_unk_080E7748:
-	.incbin "baserom.gba", 0xE7748, 0x10
+	.global gScriptSceneFactoryVTable
+gScriptSceneFactoryVTable:
+	.4byte 0, 0
+	.4byte func_080E09BC
+	.4byte CreateScriptScene
 
 	.global gDialogWindowTilemapTaskVtable
 gDialogWindowTilemapTaskVtable:
@@ -838,8 +843,8 @@ gPauseMenuWindowVtable:
 vtable_unk_080E77D0:
 	.incbin "baserom.gba", 0xE77D0, 0x10
 
-	.global vtable_unk_080E77E0
-vtable_unk_080E77E0:
+	.global gClockHudVTable
+gClockHudVTable:
 	.incbin "baserom.gba", 0xE77E0, 0x30
 
 	.section .rodata.080E7824
@@ -937,9 +942,11 @@ gHorseRaceSceneVTable:
 vtable_unk_080E799C:
 	.incbin "baserom.gba", 0xE799C, 0xC
 
-	.global vtable_unk_080E79A8
-vtable_unk_080E79A8:
-	.incbin "baserom.gba", 0xE79A8, 0x10
+	.global gMedalExchangeTextSubstitutionsVTable
+gMedalExchangeTextSubstitutionsVTable:
+	.4byte 0, 0
+	.4byte func_080E1964
+	.4byte ResolveMedalExchangePrizeName
 
 	.global gMedalExchangeSceneVTable
 gMedalExchangeSceneVTable:
@@ -956,9 +963,11 @@ gSpriteAnimationDataVTable:
 vtable_unk_080E79DC:
 	.incbin "baserom.gba", 0xE79DC, 0xC
 
-	.global vtable_unk_080E79E8
-vtable_unk_080E79E8:
-	.incbin "baserom.gba", 0xE79E8, 0x10
+	.global gChildhoodMemoryFarmerNameVTable
+gChildhoodMemoryFarmerNameVTable:
+	.4byte 0, 0
+	.4byte func_080E1A28
+	.4byte ResolveChildhoodMemoryFarmerName
 
 	.global gChildhoodMemorySceneVTable
 gChildhoodMemorySceneVTable:
@@ -972,36 +981,42 @@ vtable_unk_080E7A08:
 vtable_unk_080E7A18:
 	.incbin "baserom.gba", 0xE7A18, 0x10
 
-	.global vtable_unk_080E7A28
-vtable_unk_080E7A28:
+	.global gHarvestSpriteReportVTable
+gHarvestSpriteReportVTable:
 	.incbin "baserom.gba", 0xE7A28, 0x10
 
-	.global vtable_unk_080E7A38
-vtable_unk_080E7A38:
-	.incbin "baserom.gba", 0xE7A38, 0xC
+	.global gSheepReportVTable
+gSheepReportVTable:
+	.4byte 0, 0
+	.4byte DestroySheepReport
 	.4byte DrawLivestockReport
 
-	.global vtable_unk_080E7A48
-vtable_unk_080E7A48:
-	.incbin "baserom.gba", 0xE7A48, 0xC
+	.global gCowReportVTable
+gCowReportVTable:
+	.4byte 0, 0
+	.4byte DestroyCowReport
 	.4byte DrawLivestockReport
 
-	.global vtable_unk_080E7A58
-vtable_unk_080E7A58:
-	.incbin "baserom.gba", 0xE7A58, 0xC
+	.global gChickenReportVTable
+gChickenReportVTable:
+	.4byte 0, 0
+	.4byte DestroyChickenReport
 	.4byte DrawLivestockReport
 
-	.global vtable_unk_080E7A68
-vtable_unk_080E7A68:
-	.incbin "baserom.gba", 0xE7A68, 0xC
+	.global gLivestockReportVTable
+gLivestockReportVTable:
+	.4byte 0, 0
+	.4byte DestroyLivestockReport
 	.4byte DrawLivestockReport
 
-	.global vtable_unk_080E7A78
-vtable_unk_080E7A78:
-	.incbin "baserom.gba", 0xE7A78, 0x10
+	.global gFarmOverviewReportVTable
+gFarmOverviewReportVTable:
+	.4byte 0, 0
+	.4byte DestroyFarmOverviewReport
+	.4byte DrawFarmOverviewReport
 
-	.global vtable_unk_080E7A88
-vtable_unk_080E7A88:
+	.global gFarmReportMenuVTable
+gFarmReportMenuVTable:
 	.incbin "baserom.gba", 0xE7A88, 0x10
 
 	.global vtable_unk_080E7A98
@@ -1345,6 +1360,8 @@ vtable_unk_080E850C:
 	.incbin "baserom.gba", 0xE850C, 0x10
 
 	.global vtable_unk_080E851C
+	.global __vt_20ChickenFestivalScene
+__vt_20ChickenFestivalScene:
 vtable_unk_080E851C:
 	.incbin "baserom.gba", 0xE851C, 0xC
 
@@ -1353,6 +1370,8 @@ vtable_unk_080E8528:
 	.incbin "baserom.gba", 0xE8528, 0x10
 
 	.global vtable_unk_080E8538
+	.global __vt_21SpriteHarvestingScene
+__vt_21SpriteHarvestingScene:
 vtable_unk_080E8538:
 	.incbin "baserom.gba", 0xE8538, 0xC
 

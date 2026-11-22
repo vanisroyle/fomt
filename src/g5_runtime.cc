@@ -1,7 +1,6 @@
 #include "g5_link.hh"
 
 EC u32 func_080D078C(u32 * packet);
-EC u32 func_080D091C();
 
 EC SECTION(".text.g5_080D0644") void Joybus_QueueWordExchange(u32 send_word, u32 require_handshake) // 0x080D0644
 {
@@ -260,7 +259,7 @@ EC SECTION(".text.g5_080D0704") void Joybus_HandleSerialInterrupt() // 0x080D070
             status = func_080D078C(&packet);
         }
         if (status == 0 && (control & 4) != 0)
-            status = func_080D091C();
+            status = Joybus_HandleTransmitReady();
         if ((control & 1) != 0)
             RetryJoybusHandshake();
     }

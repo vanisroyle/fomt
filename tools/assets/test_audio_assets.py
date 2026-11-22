@@ -22,6 +22,10 @@ class AudioTests(unittest.TestCase):
         raw, _, refs = audio.assemble(".word gAudioSample_00000000\n", 0, {"gAudioSample_00000000": 0x08000000})
         self.assertEqual(refs, {0: "gAudioSample_00000000"})
 
+    def test_reassigned_constant_applies_only_to_later_operands(self):
+        raw, _, _ = audio.assemble(".set vel, 100\n.byte vel\n.set vel, 40\n.byte vel\n", 0)
+        self.assertEqual(raw, bytes((100, 40)))
+
     def test_assembly_errors_and_empty(self):
         self.assertEqual(audio.assemble("@ empty", 0), (b"", {}, {}))
         for text in (".byte 256", ".byte missing", ".incbin \"secret\"", ".include \"other.inc\"", "x:\nx:\n", ".balign 3", ".byte __import__('os')"):

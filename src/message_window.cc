@@ -124,9 +124,9 @@ EC void DrawMessageTileString(MessageTileSize, void *, u32, u32, const char *);
 EC void DrawMessageChoiceText(MessageWindowState *, const u8 &, const char *, const void *);
 EC u32 GetMessageChoicePosition(u32, u32);
 EC void func_0805E850(void *, void *, u32);
-EC void func_080073E0(void *, u32);
+EC void ResourceHandle_Release(void *, u32);
 EC void ResourceHandles_Destroy(void *, u32);
-EC void func_08007C28(void *, u32);
+EC void TileHandle_Release(void *, u32);
 EC void TileHeapOwner_Destroy(void *, u32);
 EC void TaskNode_Destroy(void *, u32);
 EC void func_080E105C(void *, u32);
@@ -592,15 +592,15 @@ EC SECTION(".text.message_window.08050478") void SetMessageWindowStateChoices(Me
 EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(MessageWindowState * window, u32 flags) // 0x0804F69C
 {
     register void * resource asm("r4") = (u8 *) window + 0x548;
-    func_080073E0(resource, *((u32 *) resource + 1));
+    ResourceHandle_Release(resource, *((u32 *) resource + 1));
     ResourceHandles_Destroy(resource, 2);
     *(void **) ((u8 *) window + 0x504) = vtable_unk_080E5A28;
     resource = (u8 *) window + 0x1e8;
-    func_080073E0(resource, *((u32 *) resource + 1));
+    ResourceHandle_Release(resource, *((u32 *) resource + 1));
     ResourceHandles_Destroy(resource, 2);
     DestroyMessagePortraitClips(reinterpret_cast<MessagePortraitClips *>((u8 *) window + 0x1e4), 2);
     resource = (u8 *) window + 0x1d4;
-    func_08007C28(resource, *((u32 *) resource + 1));
+    TileHandle_Release(resource, *((u32 *) resource + 1));
     TileHeapOwner_Destroy(resource, 2);
     *(void **) ((u8 *) window + 0x190) = vtable_unk_080E5A28;
     *(void **) ((u8 *) window + 0x160) = vtable_unk_080E5A28;
@@ -614,10 +614,10 @@ EC SECTION(".text.message_window.0804F69C") void DestroyMessageWindowState(Messa
     for (u8 * transfer = (u8 *) window + 0x40; transfer != end; transfer += 16) {}
     TaskList_Destroy((u8 *) window + 0x20, 2);
     resource = (u8 *) window + 0x18;
-    func_08007C28(resource, *((u32 *) resource + 1));
+    TileHandle_Release(resource, *((u32 *) resource + 1));
     TileHeapOwner_Destroy(resource, 2);
     resource = (u8 *) window + 0x10;
-    func_080073E0(resource, *((u32 *) resource + 1));
+    ResourceHandle_Release(resource, *((u32 *) resource + 1));
     ResourceHandles_Destroy(resource, 2);
     if (flags & 1) operator delete(window);
 }
@@ -951,4 +951,85 @@ EC SECTION(".text.message_window.08050E98") u32 ClearMessageWindowButtonMask(Mes
     u32 previous = state->inputFlags.buttons;
     state->inputFlags.buttons = previous & ~mask;
     return previous;
+}
+
+inline void ClearMessageGlyphTile(MessageGlyphTile * tile)
+{
+    void * buffer = tile->tileBuffer;
+    FillMessageTiles(MessageTileSize(4, 2), (u8 *) buffer + 4, 0);
+    tile->dirty = tile->allocation[1] != 0;
+}
+
+inline void ClearMessageGlyphRow(MessageGlyphTile * tiles)
+{
+    for (i32 column = 0; column <= 6; ++column)
+        ClearMessageGlyphTile(tiles + column);
+}
+
+EC SECTION(".text.message_rendering.0804F060") void AdvanceMessageTextLine(MessageTextCursor * cursor)
+{
+    if (cursor->row <= 1)
+    {
+        ++cursor->row;
+        return;
+    }
+    ++cursor->firstRow;
+    if (cursor->firstRow > 2) cursor->firstRow = 0;
+    i32 physicalRow = cursor->firstRow + 2;
+    if (physicalRow > 2) physicalRow = cursor->firstRow - 1;
+    ClearMessageGlyphRow(*((MessageGlyphTile **) ((u8 *) cursor + physicalRow * 4) + 2));
+    cursor->needsClear = 1;
+    cursor->changed = 1;
+}
+
+inline bool IsMessagePixelAligned(u32 value) { return (value & 7) == 0; }
+
+inline u32 ExpandMessagePixelColor(u32 color)
+{
+    color &= 15;
+    color |= color << 4;
+    color |= color << 8;
+    color |= color << 16;
+    return color;
+}
+
+EC SECTION(".text.message_rendering.0804E7DC") void FillMessagePixelRect(MessageTileSize size, void * pixels, u32 x, u32 y, u32 width, u32 height, u32 color)
+{
+    register u32 pattern = ExpandMessagePixelColor(color);
+    u32 fill;
+    u32 columns = size.width;
+    u32 rows = size.height;
+    u32 pixelWidth = columns * 8;
+    u32 pixelHeight = rows * 8;
+    i32 columnBytes;
+    if (x == 0 && y == 0 && width >= pixelWidth && height >= pixelHeight)
+    {
+        columnBytes = rows * 32;
+        u32 bufferBytes = columns * columnBytes;
+        fill = pattern;
+        CpuFastSet(&fill, pixels, ((bufferBytes >> 2) & 0x1fffff) | 0x1000000);
+        return;
+    }
+    if (x < columns && y < rows)
+    {
+        if (x + width >= pixelWidth)
+        {
+            // matches original codegen
+            do { width = pixelWidth - x; } while (0);
+        }
+        if (y + height >= pixelHeight) height = pixelHeight - y;
+        if (IsMessagePixelAligned(x) && IsMessagePixelAligned(y) && IsMessagePixelAligned(width) && IsMessagePixelAligned(height))
+        {
+            u32 count = height >> 3;
+            u8 * destination = (u8 *) pixels + (((y >> 3) * columns + (x >> 3)) * 32);
+            u32 stride = columns * 32;
+            u32 words = (((width >> 3) * 32) >> 2) & 0x1fffff;
+            do
+            {
+                fill = pattern;
+                CpuFastSet(&fill, destination, words | 0x1000000);
+                destination += stride;
+            } while (--count);
+        }
+    }
 }
