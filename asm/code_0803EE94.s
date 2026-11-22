@@ -119780,7 +119780,7 @@ func_0808A55C: @ 0x0808A55C
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -122972,7 +122972,7 @@ func_0808C0BC: @ 0x0808C0BC
 	adds r0, r5, #0
 	adds r1, r4, #0
 	mov r3, r8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -127365,7 +127365,7 @@ func_0808E6FC: @ 0x0808E6FC
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -131275,7 +131275,7 @@ func_08090960: @ 0x08090960
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -132706,7 +132706,7 @@ func_0809152C: @ 0x0809152C
 	adds r0, r5, #0
 	adds r1, r4, #0
 	mov r3, r8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -135563,7 +135563,7 @@ func_08092D64: @ 0x08092D64
 	adds r0, r5, #0
 	adds r1, r4, #0
 	mov r3, r8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r7, #0
 	adds r5, #0x7c
 	adds r4, r0, #0
@@ -146814,7 +146814,7 @@ func_080989DC: @ 0x080989DC
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	mov r5, r8
 	adds r4, r0, #0
 	ldr r1, [r7, #0x7c]
@@ -148394,7 +148394,7 @@ func_0809964C: @ 0x0809964C
 	adds r0, r5, #0
 	adds r1, r4, #0
 	movs r3, #8
-	bl func_080CC15C
+	bl InventoryMenu_InitializeResourceSlotPanel
 	adds r5, r6, #0
 	adds r4, r0, #0
 	ldr r1, [r7, #0x7c]
