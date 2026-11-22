@@ -4223,6 +4223,368 @@ EC void TickFarmerToolCharge(FarmerEntity * farmer)
     }
 }
 
+EC u32 IsFarmerToolStackEmptyRaw(ToolStack const *) asm("IsEmpty__C9ToolStack");
+EC u32 GetFarmerToolIdRaw(Tool const *) asm("GetId__C4Tool");
+struct FarmerToolTerrainGameVTable
+{
+    STRUCT_PAD(0, 0x34);
+    void (*get_grid)(FarmerTerrainGrid *, GameObject *, u32);
+};
+struct FarmerToolSetupFrame
+{
+    FarmerTerrainGrid grid;
+    u8 tool_for_use;
+    u8 tool_for_charge_limit;
+};
+#define SET_FARMER_TOOL_VALUE(field, value, destination) \
+    output = &self->field; \
+    asm volatile("" : "+r"(output)); \
+    setting = value; \
+    asm volatile("" : : "r"(setting)); \
+    goto destination
+
+EC void PrepareFarmerToolUse(FarmerEntity *) ENTITY_CODE(0802C984);
+EC void PrepareFarmerToolUse(FarmerEntity * farmer)
+{
+    register FarmerEntity * self asm("r6") = farmer;
+    FarmerToolSetupFrame frame;
+    register u8 * charge_counter asm("r0") = &farmer->tool_level;
+    asm volatile("" : "+r"(charge_counter));
+    register u32 zero asm("r1") = 0;
+    asm volatile("" : : "r"(zero));
+    *charge_counter = zero;
+    charge_counter += 2;
+    asm volatile("" : "+r"(charge_counter));
+    *charge_counter = zero;
+    register u8 * output asm("r1");
+    register u32 setting asm("r0");
+    register void ** channel asm("r4");
+    register void * player asm("r0");
+    if (IsFarmerToolStackEmptyRaw(&self->farmer->unk_5C) << 24)
+    {
+        SET_FARMER_TOOL_VALUE(tool_state, 15, write_value);
+    }
+    {
+        Farmer const * model = self->farmer;
+        register u32 resolved asm("r1") = ReadResolvedToolIdRaw(*model, model->unk_5C.GetTool());
+        asm volatile("" : "+r"(resolved));
+        register u8 * id_address asm("r0") = &frame.tool_for_use;
+        asm volatile("" : "+r"(id_address));
+        *id_address = resolved;
+        register u32 id asm("r0") = GetFarmerToolIdRaw(reinterpret_cast<Tool const *>(id_address));
+        asm volatile("" : "+r"(id));
+        switch (id)
+        {
+        case TOOL_IRON_SICKLE:
+        case TOOL_COPPER_SICKLE:
+        case TOOL_SILVER_SICKLE:
+        case TOOL_GOLD_SICKLE:
+        case TOOL_MYSTRILE_SICKLE:
+        case TOOL_CURSED_SICKLE:
+        case TOOL_BLESSED_SICKLE:
+        case TOOL_MYTHIC_SICKLE:
+            SET_FARMER_TOOL_VALUE(tool_state, 0, set_tool_state);
+        case TOOL_IRON_HOE:
+        case TOOL_COPPER_HOE:
+        case TOOL_SILVER_HOE:
+        case TOOL_GOLD_HOE:
+        case TOOL_MYSTRILE_HOE:
+        case TOOL_CURSED_HOE:
+        case TOOL_BLESSED_HOE:
+        case TOOL_MYTHIC_HOE:
+            SET_FARMER_TOOL_VALUE(tool_state, 3, set_tool_state);
+        case TOOL_IRON_AXE:
+        case TOOL_COPPER_AXE:
+        case TOOL_SILVER_AXE:
+        case TOOL_GOLD_AXE:
+        case TOOL_MYSTRILE_AXE:
+        case TOOL_CURSED_AXE:
+        case TOOL_BLESSED_AXE:
+        case TOOL_MYTHIC_AXE:
+            SET_FARMER_TOOL_VALUE(tool_state, 1, set_tool_state);
+        case TOOL_IRON_HAMMER:
+        case TOOL_COPPER_HAMMER:
+        case TOOL_SILVER_HAMMER:
+        case TOOL_GOLD_HAMMER:
+        case TOOL_MYSTRILE_HAMMER:
+        case TOOL_CURSED_HAMMER:
+        case TOOL_BLESSED_HAMMER:
+        case TOOL_MYTHIC_HAMMER:
+            SET_FARMER_TOOL_VALUE(tool_state, 4, set_tool_state);
+        case TOOL_WATERING_CAN:
+        case TOOL_COPPER_WATERING_CAN:
+        case TOOL_SILVER_WATERING_CAN:
+        case TOOL_GOLD_WATERING_CAN:
+        case TOOL_MYSTRILE_WATERING_CAN:
+        case TOOL_CURSED_WATERING_CAN:
+        case TOOL_BLESSED_WATERING_CAN:
+        case TOOL_MYTHIC_WATERING_CAN:
+            {
+                register i32 x asm("r5") = reinterpret_cast<i16 const *>(&self->x_q16)[1];
+                asm volatile("" : "+r"(x));
+                register i32 y asm("r4") = reinterpret_cast<i16 const *>(&self->y_q16)[1];
+                asm volatile("" : "+r"(y));
+                u32 facing = self->facing;
+                asm volatile("" : "+r"(facing));
+                register u32 facing_copy asm("r1") = facing;
+                asm volatile("" : "+r"(facing));
+                if (facing == FACING_UP)
+                    goto face_up;
+                if (static_cast<i32>(facing) > FACING_UP)
+                    goto face_horizontal;
+                if (facing == FACING_DOWN)
+                    goto face_down;
+                goto tile_ahead;
+            face_horizontal:
+                if (facing_copy == FACING_LEFT)
+                    goto face_left;
+                if (facing_copy == FACING_RIGHT)
+                    goto face_right;
+                goto tile_ahead;
+            face_up:
+                y -= 16;
+                goto tile_ahead;
+            face_down:
+                y += 16;
+                goto tile_ahead;
+            face_left:
+                x -= 16;
+                goto tile_ahead;
+            face_right:
+                x += 16;
+            tile_ahead:
+                register u32 map asm("r2") = self->location_map;
+                asm volatile("" : "+r"(map));
+                GameObject * game = self->game_object;
+                asm volatile("" : "+r"(game));
+                register FarmerToolTerrainGameVTable const * vtable asm("r1") = *reinterpret_cast<FarmerToolTerrainGameVTable const **>(game);
+                asm volatile("" : "+r"(vtable));
+                register FarmerTerrainGrid * result asm("r0") = &frame.grid;
+                asm volatile("" : "+r"(result));
+                register void (*get_grid)(FarmerTerrainGrid *, GameObject *, u32) asm("r3") = vtable->get_grid;
+                asm volatile("" : : "r"(get_grid));
+                get_grid(result, game, map);
+                register FarmerTerrainGrid const * grid asm("r1") = &frame.grid;
+                asm volatile("" : "+r"(grid));
+                x >>= 3;
+                asm volatile("" : "+r"(x));
+                register i32 row asm("r3") = y >> 3;
+                asm volatile("" : "+r"(row));
+                register u32 const * properties asm("r2") = frame.grid.properties;
+                asm volatile("" : "+r"(properties));
+                register u32 width asm("r0") = grid->width;
+                asm volatile("" : "+r"(width));
+                u32 const * tile;
+                if (!properties || static_cast<u32>(x) > width || static_cast<u32>(row) > grid->height)
+                    goto no_tile;
+                {
+                    register u8 const * indices asm("r1") = frame.grid.indices;
+                    asm volatile("" : "+r"(indices));
+                    register u32 index asm("r0") = width * row + x;
+                    asm volatile("" : "+r"(index));
+                    if (indices)
+                        index = indices[index];
+                    tile = properties + index;
+                    goto check_tile;
+                }
+            unused_channel:
+                player = *channel;
+                goto play_sound;
+            no_tile:
+                tile = nullptr;
+            check_tile:
+                asm volatile("" : "+r"(tile));
+                if (tile && static_cast<i32>(*tile << 30) < 0)
+                {
+                    {
+                        register u8 * state asm("r1") = &self->state;
+                        asm volatile("" : "+r"(state));
+                        register u32 state_value asm("r0") = 27;
+                        asm volatile("" : : "r"(state_value));
+                        *state = state_value;
+                        state += 3;
+                        asm volatile("" : "+r"(state));
+                        register u32 none asm("r0") = 15;
+                        asm volatile("" : : "r"(none));
+                        *state = none;
+                        register FarmerActionVTable const * actions asm("r4") = reinterpret_cast<FarmerActionVTable const **>(self)[5];
+                        asm volatile("" : "+r"(actions));
+                        register i32 stamina asm("r5") = -2;
+                        asm volatile("" : "+r"(stamina));
+                        register u32 fatigue asm("r2") = FarmerEntity_GetToolFatiguePenalty(self);
+                        asm volatile("" : : "r"(fatigue));
+                        register bool (*adjust)(FarmerEntity *, i32, i32) asm("r3") = actions->change_stamina_and_fatigue;
+                        asm volatile("" : : "r"(adjust));
+                        adjust(self, stamina, fatigue);
+
+                        EntitySoundGameVTable const * sound_table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+                        register EntitySoundChannels const * (*get_channels)(GameObject *) asm("r1") = sound_table->get_channels;
+                        asm volatile("" : : "r"(get_channels));
+                        EntitySoundChannels const * channels = get_channels(game);
+                        channel = channels->begin;
+                        register void ** end asm("r5") = channels->end;
+                        asm volatile("" : : "r"(channel), "r"(end));
+                        if (channel != end)
+                        {
+                            do
+                            {
+                                u32 playing = AudioPlayerIsPlayingRaw(*channel) << 24;
+                                asm volatile("" : "+r"(playing));
+                                if (!playing)
+                                    goto unused_channel;
+                                ++channel;
+                            } while (channel != end);
+                        }
+                        {
+                            register void ** previous asm("r0") = end - 1;
+                            asm volatile("" : "+r"(previous));
+                            player = *previous;
+                        }
+                    }
+                play_sound:
+                    asm volatile("" : : "r"(player));
+                    AudioPlayer_StartSong(player, 0x92);
+                    return;
+                }
+                if (func_0800E94C(*self->farmer))
+                {
+                    SET_FARMER_TOOL_VALUE(tool_state, 2, set_tool_state);
+                }
+                SET_FARMER_TOOL_VALUE(tool_state, 15, write_value);
+            }
+        case TOOL_FISHING_ROD:
+        case TOOL_COPPER_FISHING_ROD:
+        case TOOL_SILVER_FISHING_ROD:
+        case TOOL_GOLD_FISHING_ROD:
+        case TOOL_MYSTRILE_FISHING_ROD:
+        case TOOL_CURSED_FISHING_ROD:
+        case TOOL_BLESSED_FISHING_ROD:
+        case TOOL_MYTHIC_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_state, 5, set_tool_state);
+        case TOOL_COW_MIRACLE_POTION:
+            SET_FARMER_TOOL_VALUE(tool_state, 6, set_tool_state);
+        case TOOL_SHEEP_MIRACLE_POTION:
+            SET_FARMER_TOOL_VALUE(tool_state, 7, set_tool_state);
+        case TOOL_TURNIP_SEEDS:
+        case TOOL_POTATO_SEEDS:
+        case TOOL_CUCUMBER_SEEDS:
+        case TOOL_STRAWBERRY_SEEDS:
+        case TOOL_CABBAGE_SEEDS:
+        case TOOL_TOMATO_SEEDS:
+        case TOOL_CORN_SEEDS:
+        case TOOL_ONION_SEEDS:
+        case TOOL_PUMPKIN_SEEDS:
+        case TOOL_PINEAPPLE_SEEDS:
+        case TOOL_EGGPLANT_SEEDS:
+        case TOOL_CARROT_SEEDS:
+        case TOOL_SWEET_POTATO_SEEDS:
+        case TOOL_SPINACH_SEEDS:
+        case TOOL_GREEN_PEPPER_SEEDS:
+        case TOOL_GRASS_SEEDS:
+        case TOOL_MOON_DROP_SEEDS:
+        case TOOL_PINK_CAT_SEEDS:
+        case TOOL_MAGIC_SEEDS:
+        case TOOL_TOY_FLOWER_SEEDS:
+            SET_FARMER_TOOL_VALUE(tool_state, 8, set_tool_state);
+        case TOOL_BRUSH:
+            SET_FARMER_TOOL_VALUE(tool_state, 9, set_tool_state);
+        case TOOL_MILKER:
+            SET_FARMER_TOOL_VALUE(tool_state, 10, set_tool_state);
+        case TOOL_CLIPPER:
+            SET_FARMER_TOOL_VALUE(tool_state, 11, set_tool_state);
+        case TOOL_BELL:
+            SET_FARMER_TOOL_VALUE(tool_state, 12, set_tool_state);
+        case TOOL_ANIMAL_MEDICINE:
+            SET_FARMER_TOOL_VALUE(tool_state, 13, set_tool_state);
+        case TOOL_BLUE_FEATHER:
+        case TOOL_PEDOMETER:
+        case TOOL_TELEPORT_STONE:
+        case TOOL_GEM_OF_THE_GODDESS:
+        case TOOL_GEM_OF_THE_KAPPA:
+        case TOOL_GEM_OF_TRUTH:
+            SET_FARMER_TOOL_VALUE(tool_state, 14, set_tool_state);
+        default:
+            SET_FARMER_TOOL_VALUE(tool_state, 15, set_tool_state);
+        }
+    }
+set_tool_state:
+    *output = setting;
+    {
+        Farmer const * model = self->farmer;
+        register u32 resolved asm("r1") = ReadResolvedToolIdRaw(*model, model->unk_5C.GetTool());
+        asm volatile("" : "+r"(resolved));
+        register u8 * id_address asm("r0") = &frame.tool_for_charge_limit;
+        asm volatile("" : "+r"(id_address));
+        *id_address = resolved;
+        register u32 id asm("r0") = GetFarmerToolIdRaw(reinterpret_cast<Tool const *>(id_address));
+        asm volatile("" : "+r"(id));
+        switch (id)
+        {
+        case TOOL_IRON_SICKLE:
+        case TOOL_IRON_HOE:
+        case TOOL_IRON_AXE:
+        case TOOL_IRON_HAMMER:
+        case TOOL_WATERING_CAN:
+        case TOOL_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 1, write_value);
+        case TOOL_COPPER_SICKLE:
+        case TOOL_COPPER_HOE:
+        case TOOL_COPPER_AXE:
+        case TOOL_COPPER_HAMMER:
+        case TOOL_COPPER_WATERING_CAN:
+        case TOOL_COPPER_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 2, write_value);
+        case TOOL_SILVER_SICKLE:
+        case TOOL_SILVER_HOE:
+        case TOOL_SILVER_AXE:
+        case TOOL_SILVER_HAMMER:
+        case TOOL_SILVER_WATERING_CAN:
+        case TOOL_SILVER_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 3, write_value);
+        case TOOL_GOLD_SICKLE:
+        case TOOL_GOLD_HOE:
+        case TOOL_GOLD_AXE:
+        case TOOL_GOLD_HAMMER:
+        case TOOL_GOLD_WATERING_CAN:
+        case TOOL_GOLD_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 4, write_value);
+        case TOOL_MYSTRILE_SICKLE:
+        case TOOL_MYSTRILE_HOE:
+        case TOOL_MYSTRILE_AXE:
+        case TOOL_MYSTRILE_HAMMER:
+        case TOOL_MYSTRILE_WATERING_CAN:
+        case TOOL_MYSTRILE_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 5, write_value);
+        case TOOL_CURSED_SICKLE:
+        case TOOL_BLESSED_SICKLE:
+        case TOOL_CURSED_HOE:
+        case TOOL_BLESSED_HOE:
+        case TOOL_CURSED_AXE:
+        case TOOL_BLESSED_AXE:
+        case TOOL_CURSED_HAMMER:
+        case TOOL_BLESSED_HAMMER:
+        case TOOL_CURSED_WATERING_CAN:
+        case TOOL_BLESSED_WATERING_CAN:
+        case TOOL_CURSED_FISHING_ROD:
+        case TOOL_BLESSED_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 6, write_value);
+        case TOOL_MYTHIC_SICKLE:
+        case TOOL_MYTHIC_HOE:
+        case TOOL_MYTHIC_AXE:
+        case TOOL_MYTHIC_HAMMER:
+        case TOOL_MYTHIC_WATERING_CAN:
+        case TOOL_MYTHIC_FISHING_ROD:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 7, write_value);
+        default:
+            SET_FARMER_TOOL_VALUE(tool_charge_limit, 0, write_value);
+        }
+    }
+write_value:
+    *output = setting;
+}
+
+#undef SET_FARMER_TOOL_VALUE
+
 struct FarmerInputState
 {
     u16 held;
