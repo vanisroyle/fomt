@@ -18332,7 +18332,7 @@ func_080DCFE0: @ 0x080DCFE0
 	adds r0, r5, #0
 	adds r1, r4, #0
 	adds r3, r6, #0
-	bl func_0803A394
+	bl CreateRandomActivitySprites
 	adds r7, r5, #0
 .L080DD36E:
 	adds r0, r7, #0
@@ -18368,7 +18368,7 @@ func_080DD3A8: @ 0x080DD3A8
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -18450,7 +18450,7 @@ func_080DD434: @ 0x080DD434
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -18576,7 +18576,7 @@ func_080DD514: @ 0x080DD514
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -18667,7 +18667,7 @@ func_080DD5B8: @ 0x080DD5B8
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -18932,7 +18932,7 @@ func_080DD7B8: @ 0x080DD7B8
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -19049,7 +19049,7 @@ func_080DD890: @ 0x080DD890
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -19194,7 +19194,7 @@ func_080DD994: @ 0x080DD994
 	movs r0, #1
 	str r0, [sp, #0xc]
 	mov r0, ip
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4}
 	pop {r0}
@@ -19558,7 +19558,7 @@ func_080DDC48: @ 0x080DDC48
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -19865,7 +19865,7 @@ func_080DDE98: @ 0x080DDE98
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -19956,7 +19956,7 @@ func_080DDF3C: @ 0x080DDF3C
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -20047,7 +20047,7 @@ func_080DDFE0: @ 0x080DDFE0
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}
@@ -20136,7 +20136,7 @@ func_080DE080: @ 0x080DE080
 	str r4, [sp, #8]
 	movs r4, #2
 	str r4, [sp, #0xc]
-	bl func_08039F90
+	bl DrawActivityNpcSprite
 	add sp, #0x10
 	pop {r4, r5}
 	pop {r0}

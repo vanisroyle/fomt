@@ -215,6 +215,8 @@ $(BUILD_DIR)/src/map_overlay_draw.o: CXXFLAGS += -mlong-calls
 $(BUILD_DIR)/src/npc_side_batch12.o: CXXFLAGS += -mlong-calls
 $(BUILD_DIR)/src/npc_side_batch13_effects.o: CXXFLAGS += -mlong-calls
 $(BUILD_DIR)/src/npc_side_batch14_draw.o: CXXFLAGS += -mlong-calls
+$(BUILD_DIR)/src/npc_side_batch15_draw.o: CXXFLAGS += -mlong-calls
+$(BUILD_DIR)/src/npc_side_batch15_transition_draw.o: CXXFLAGS += -mlong-calls
 
 clean:
 	@echo "RM $(ROM) $(ELF) $(MAP) $(BUILD_DIR)"
