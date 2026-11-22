@@ -1998,3 +1998,42 @@ EC void FarmerEntity_ClearAction(u8 * self)
 {
     self[0x3C] = 0;
 }
+
+
+// 0x080200C4
+EC void AEntity_PlayAnimationSound(AActorEntity * input, u32 input_sound) ENTITY_CODE(080200C4);
+EC void AEntity_PlayAnimationSound(AActorEntity * input, u32 input_sound)
+{
+    // Register constraints preserve agbcc's original Thumb code.
+    register AActorEntity * self asm("r4") = input;
+    asm("" : "+r"(self));
+    register u32 sound asm("r8") = input_sound;
+    asm("" : "+r"(sound) : "r"(self));
+    register u8 * played_flag asm("r6") = reinterpret_cast<u8 *>(self) + 0x30;
+    asm("" : "+r"(played_flag));
+    if (!*played_flag && AEntity_IsOnCurrentMap(self))
+    {
+        GameObject * game = self->game_object;
+        EntitySoundGameVTable const * table = *reinterpret_cast<EntitySoundGameVTable const **>(game);
+        EntitySoundChannels const * channels = table->get_channels(game);
+        void ** it = channels->begin;
+        void ** end = channels->end;
+        u8 * completed_flag = played_flag;
+        asm("" : "+r"(completed_flag) : "r"(it), "r"(end));
+        register u32 shifted_sound asm("r6") = sound << 16;
+        asm("" : "+r"(shifted_sound) : "r"(completed_flag));
+        void * channel;
+        for (; it != end; ++it)
+        {
+            if (!AudioPlayer_IsPlaying(*it))
+            {
+                channel = *it;
+                goto play;
+            }
+        }
+        channel = end[-1];
+    play:
+        AudioPlayer_StartSong(channel, shifted_sound >> 16);
+        *completed_flag = 1;
+    }
+}
