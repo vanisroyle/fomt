@@ -1,8 +1,10 @@
 #include "prelude.h"
 
 #include "actor.hh"
+#include "farm_house.hh"
 #include "farmer.hh"
 #include "furniture.hh"
+#include "g1_npc.hh"
 #include "item.hh"
 #include "rucksack.hh"
 
@@ -546,12 +548,18 @@ enum MineOutcome
 {
     MINE_OUTCOME_NONE,
     MINE_OUTCOME_STAIRS,
+    MINE_OUTCOME_POWER_BERRY = 3,
     MINE_OUTCOME_CURSED_SICKLE = 4,
     MINE_OUTCOME_CURSED_HOE,
     MINE_OUTCOME_CURSED_AXE,
     MINE_OUTCOME_CURSED_HAMMER,
     MINE_OUTCOME_CURSED_WATERING_CAN,
     MINE_OUTCOME_CURSED_FISHING_ROD,
+    MINE_OUTCOME_TELEPORT_STONE,
+    MINE_OUTCOME_MYTHIC_STONE = 23,
+    MINE_OUTCOME_GODDESS_JEWEL = 32,
+    MINE_OUTCOME_KAPPA_JEWEL,
+    MINE_OUTCOME_LITHOGRAPH,
 };
 
 struct MineFloor
@@ -1758,11 +1766,25 @@ ROM_TEXT(0809D7D8) unsigned GetMineTileState(MineFloor const & self, unsigned x,
 
 struct MineRewardContext
 {
-    STRUCT_PAD(0x0000, 0x0380);
-    ToolChest toolChest;
-    u8 padAfterToolChest[0x1C38 - 0x0380 - sizeof(ToolChest)];
-    Rucksack rucksack;
+    STRUCT_PAD(0x0000, 0x0010);
+    u8 yearInCycle : 3;
+    u8 yearCycle : 5;
+    STRUCT_PAD(0x0011, 0x01F4);
+    FarmHouse house;
+    u8 padAfterHouse[0x1BD8 - 0x01F4 - sizeof(FarmHouse)];
+    Farmer farmer;
+    u8 padAfterFarmer[0x1DAC - 0x1BD8 - sizeof(Farmer)];
+    G1NpcMilestoneState npcMilestone;
+    u8 padAfterNpcMilestone[0x3480 - 0x1DAC - sizeof(G1NpcMilestoneState)];
+    CursedToolProgress cursedTools;
 };
+
+typedef char MineRewardContextLayoutCheck[
+    offsetof(MineRewardContext, house) == 0x01F4 &&
+    offsetof(MineRewardContext, farmer) == 0x1BD8 &&
+    offsetof(MineRewardContext, farmer) + offsetof(Farmer, rucksack) == 0x1C38 &&
+    offsetof(MineRewardContext, npcMilestone) == 0x1DAC &&
+    offsetof(MineRewardContext, cursedTools) == 0x3480 ? 1 : -1];
 
 EC int ResolveMineOutcome(MineFloor &, unsigned, MineRewardContext *);
 
@@ -1816,6 +1838,302 @@ ROM_TEXT(0809D9B4) int BreakMineRock(MineFloor & mine, unsigned x, unsigned y, M
     return result;
 }
 
+EC bool HasCompletedAllNpcMilestones(G1NpcMilestoneState const *);
+EC bool HasCursedMineTool(MineFloor const &, unsigned, MineRewardContext const &);
+EC u8 CountHarvestGoddessJewels(MineFloor const &);
+EC u8 CountKappaJewels(MineFloor const &);
+
+static inline u32 GetFirstFreeMineToolSlot(MineRewardContext & context)
+{
+    register uintptr_t rucksackOffset asm("r2") = offsetof(MineRewardContext, farmer) + offsetof(Farmer, rucksack);
+    asm("" : "+l"(rucksackOffset));
+    return reinterpret_cast<Rucksack *>(reinterpret_cast<u8 *>(&context) + rucksackOffset)->GetFirstFreeToolSlot();
+}
+
+enum { SpringMineMapBase = 0x34, LakeMineMapBase = 0x134 };
+enum { MaxCalendarYear = 200, FullRucksack = -1 };
+
+// Preserve the original shared jewel-write paths and short/long Thumb branches.
+
+#define SET_JEWEL_OFFSET(field, scratchRegister) \
+    register uintptr_t offset asm("r" #scratchRegister); \
+    offset = offsetof(MineFloor, field); \
+    asm("" : "+l"(offset)); \
+    jewelFlags = reinterpret_cast<u8 *>(&mine) + offset
+
+#define LOAD_JEWEL_FLAGS() \
+    previousFlags = *jewelFlags; \
+    asm("" : "+l"(previousFlags), "+l"(jewelFlags))
+
+#define TEST_JEWEL_FLAG(flag, branch) \
+    asm volatile("mov %0, %2\n\tand %0, %1\n\tcmp %0, #0\n\t" branch \
+        : "=l"(jewelMask) : "l"(previousFlags), "I"(flag), "l"(jewelFlags) : "cc")
+
+#define CHECK_JEWEL(depth, field, flag, scratchRegister, branch) \
+    case depth: { \
+        SET_JEWEL_OFFSET(field, scratchRegister); \
+        LOAD_JEWEL_FLAGS(); \
+        TEST_JEWEL_FLAG(flag, branch); \
+        asm volatile("mov %0, %1" : "=l"(jewelMask) : "I"(flag)); \
+        goto recordJewel; \
+    }
+
+#define BRANCH_IF_COLLECTED "bne .LmineJewelUnavailable"
+#define LONG_BRANCH_IF_COLLECTED "beq 1f\n\tb .LmineJewelUnavailable\n1:"
+
+ROM_TEXT(0809DA00) int ResolveMineOutcome(MineFloor & mine, unsigned outcome, MineRewardContext * context)
+{
+    bool jewelBlocked;
+    register u8 * jewelFlags asm("r1");
+    register unsigned previousFlags asm("r2");
+    register unsigned jewelMask asm("r0");
+    switch (outcome)
+    {
+    case MINE_OUTCOME_POWER_BERRY:
+    {
+        enum { SpringPowerBerryFlag = 4, LakePowerBerryFlag = 1 };
+        register u8 * flags asm("r2");
+        register unsigned bits asm("r1");
+        register unsigned mask asm("r0");
+        if (static_cast<i32>(static_cast<u32>(func_0800E924(context->farmer).map) << 22) <= (LakeMineMapBase - 1) << 22)
+        {
+            flags = &mine.sharedJewelFlags;
+            bits = *flags;
+            mask = SpringPowerBerryFlag;
+            asm("" : "+l"(flags), "+l"(bits), "+l"(mask));
+            if (bits & mask)
+                goto rejectEarly;
+            mask = SpringPowerBerryFlag;
+            goto recordBerry;
+        }
+        flags = &mine.kappaJewelFlags;
+        bits = *flags;
+        mask = LakePowerBerryFlag;
+        asm("" : "+l"(flags), "+l"(bits), "+l"(mask));
+        if (bits & mask)
+            goto rejectBerry;
+        mask = LakePowerBerryFlag;
+    recordBerry:
+        asm("" : "+l"(flags), "+l"(bits), "+l"(mask));
+        *flags = mask | bits;
+        break;
+
+    rejectBerry:
+        outcome = MINE_OUTCOME_NONE;
+        break;
+    }
+    case MINE_OUTCOME_CURSED_SICKLE:
+    case MINE_OUTCOME_CURSED_HOE:
+    case MINE_OUTCOME_CURSED_AXE:
+    case MINE_OUTCOME_CURSED_HAMMER:
+    case MINE_OUTCOME_CURSED_WATERING_CAN:
+    case MINE_OUTCOME_CURSED_FISHING_ROD:
+    {
+        bool blocked;
+        blocked = false;
+        if (GetFirstFreeMineToolSlot(*context) == static_cast<u32>(FullRucksack))
+            blocked = true;
+        if (!HasCompletedAllNpcMilestones(&context->npcMilestone))
+            blocked = true;
+        if (HasCursedMineTool(mine, outcome, *context))
+            blocked = true;
+        asm volatile("cmp %0, #1\n\tbeq .LrejectMineReward" : : "l"(blocked) : "cc");
+
+        unsigned toolId = TOOL_NONE;
+        switch (outcome)
+        {
+        case MINE_OUTCOME_CURSED_SICKLE: toolId = TOOL_CURSED_SICKLE; break;
+        case MINE_OUTCOME_CURSED_HOE: toolId = TOOL_CURSED_HOE; break;
+        case MINE_OUTCOME_CURSED_AXE: toolId = TOOL_CURSED_AXE; break;
+        case MINE_OUTCOME_CURSED_HAMMER: toolId = TOOL_CURSED_HAMMER; break;
+        case MINE_OUTCOME_CURSED_WATERING_CAN: toolId = TOOL_CURSED_WATERING_CAN; break;
+        case MINE_OUTCOME_CURSED_FISHING_ROD: toolId = TOOL_CURSED_FISHING_ROD; break;
+        }
+        if (toolId != TOOL_NONE)
+        {
+            register uintptr_t toolsOffset asm("r2");
+            asm("mov %0, %1\n\tlsl %0, %0, #6"
+                : "=l"(toolsOffset) : "I"(offsetof(MineRewardContext, cursedTools) >> 6));
+            StartCursedToolProgress(*reinterpret_cast<CursedToolProgress *>(reinterpret_cast<u8 *>(context) + toolsOffset), toolId);
+        }
+        break;
+    }
+    case MINE_OUTCOME_TELEPORT_STONE:
+    {
+        enum { TeleportStoneFlag = 16 };
+        bool blocked = false;
+        register unsigned yearLimit asm("r3") = MaxCalendarYear;
+        unsigned maxYear;
+        asm("str %1, %0" : "=m"(maxYear) : "l"(yearLimit));
+        const unsigned currentYear = context->yearCycle * 7 + context->yearInCycle;
+        register const unsigned * year asm("r0");
+        register unsigned computedYear asm("r1") = currentYear;
+        // Select the capped year through the original pair of stack slots.
+        asm volatile("add r2, sp, #12\n\tadd %0, sp, #8\n\tcmp %1, %2\n\tbls 1f\n\tmov %0, r2\n1:"
+            : "=l"(year) : "l"(yearLimit), "l"(computedYear), "m"(maxYear), "m"(currentYear) : "r2", "cc");
+        if (*year < 3)
+            blocked = true;
+        register uintptr_t flagsOffset asm("r0") = offsetof(MineFloor, sharedJewelFlags);
+        asm("" : "+l"(flagsOffset));
+        u8 * flags = reinterpret_cast<u8 *>(&mine) + flagsOffset;
+        if (*flags & TeleportStoneFlag)
+            blocked = true;
+        if (context->farmer.rucksack.GetFirstFreeToolSlot() == static_cast<u32>(FullRucksack))
+            blocked = true;
+        if (blocked)
+            goto rejectEarly;
+        *flags |= TeleportStoneFlag;
+        break;
+    }
+    case MINE_OUTCOME_MYTHIC_STONE:
+    {
+        bool blocked;
+        blocked = false;
+        register uintptr_t toolsOffset asm("r1");
+        asm("mov %0, %1\n\tlsl %0, %0, #6"
+            : "=l"(toolsOffset) : "I"(offsetof(MineRewardContext, cursedTools) >> 6));
+        if (!HaveAllCursedToolsCompleted(*reinterpret_cast<CursedToolProgress const *>(reinterpret_cast<u8 *>(context) + toolsOffset)))
+            blocked = true;
+        for (int cursedOutcome = MINE_OUTCOME_CURSED_SICKLE; cursedOutcome <= MINE_OUTCOME_CURSED_FISHING_ROD; ++cursedOutcome)
+            if (HasCursedMineTool(mine, cursedOutcome, *context))
+                blocked = true;
+        if (blocked == true)
+        {
+        rejectEarly:
+            asm volatile(".LrejectMineReward:");
+            register unsigned noOutcome asm("r2") = MINE_OUTCOME_NONE;
+            asm("" : "+l"(noOutcome));
+            outcome = noOutcome;
+            break;
+        }
+        break;
+    }
+    case MINE_OUTCOME_GODDESS_JEWEL:
+    {
+        jewelBlocked = false;
+        if (context->house.GetShelf() == nullptr)
+            jewelBlocked = true;
+        if (CountHarvestGoddessJewels(mine) == 8 &&
+            GetFirstFreeMineToolSlot(*context) == static_cast<u32>(FullRucksack))
+            jewelBlocked = true;
+        if (!jewelBlocked)
+        {
+            register int depth asm("r0") = func_0800E924(context->farmer).GetMap() - SpringMineMapBase;
+            asm("" : "+l"(depth));
+            switch (depth)
+            {
+            case 60: {
+                SET_JEWEL_OFFSET(sharedJewelFlags, 2);
+                LOAD_JEWEL_FLAGS();
+                TEST_JEWEL_FLAG(32, "beq .LmineSetBitFive");
+                goto jewelUnavailable;
+            }
+            CHECK_JEWEL(102, sharedJewelFlags, 64, 0, BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(123, sharedJewelFlags, 128, 2, BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(152, goddessJewelFlags, 1, 0, BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(155, goddessJewelFlags, 2, 2, BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(171, goddessJewelFlags, 4, 0, BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(190, goddessJewelFlags, 8, 2, BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(202, goddessJewelFlags, 16, 0, BRANCH_IF_COLLECTED);
+            case 222: {
+                SET_JEWEL_OFFSET(goddessJewelFlags, 2);
+            testBitFive:
+                LOAD_JEWEL_FLAGS();
+                TEST_JEWEL_FLAG(32, BRANCH_IF_COLLECTED);
+                asm volatile(".LmineSetBitFive:\n\tmov %0, #32" : "=l"(jewelMask));
+            recordJewel:
+                asm volatile(".LrecordMineJewel:" : "+l"(jewelFlags), "+l"(previousFlags), "+l"(jewelMask));
+                *jewelFlags = jewelMask | previousFlags;
+                goto finishJewel;
+            }
+            default: goto jewelUnavailable;
+            }
+        }
+        goto finishJewel;
+
+    jewelUnavailable:
+        asm volatile(".LmineJewelUnavailable:");
+        jewelBlocked = true;
+    finishJewel:
+        asm volatile("cmp %0, #1\n\tbeq 1f\n\tb .LmineOutcomeComplete\n1:" : : "l"(jewelBlocked) : "cc");
+        goto rejectLate;
+    }
+    case MINE_OUTCOME_KAPPA_JEWEL:
+    {
+        jewelBlocked = false;
+        if (context->house.GetShelf() == nullptr)
+            jewelBlocked = true;
+        if (CountKappaJewels(mine) == 8 &&
+            GetFirstFreeMineToolSlot(*context) == static_cast<u32>(FullRucksack))
+            jewelBlocked = true;
+        if (!jewelBlocked)
+        {
+            register int depth asm("r0") = func_0800E924(context->farmer).GetMap() - LakeMineMapBase;
+            asm("" : "+l"(depth));
+            switch (depth)
+            {
+            case 0: {
+                SET_JEWEL_OFFSET(kappaJewelFlags, 2);
+                LOAD_JEWEL_FLAGS();
+                TEST_JEWEL_FLAG(2, "beq .LmineSetBitOne");
+                goto jewelUnavailable;
+            }
+            CHECK_JEWEL(40, kappaJewelFlags, 4, 0, BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(60, kappaJewelFlags, 8, 2, BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(80, kappaJewelFlags, 16, 0, BRANCH_IF_COLLECTED);
+            case 120: {
+                SET_JEWEL_OFFSET(kappaJewelFlags, 2);
+                goto testBitFive;
+            }
+            CHECK_JEWEL(140, kappaJewelFlags, 64, 0, LONG_BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(160, kappaJewelFlags, 128, 2, LONG_BRANCH_IF_COLLECTED);
+            CHECK_JEWEL(180, sharedJewelFlags, 1, 0, LONG_BRANCH_IF_COLLECTED);
+            case 255: {
+                SET_JEWEL_OFFSET(sharedJewelFlags, 2);
+                LOAD_JEWEL_FLAGS();
+                TEST_JEWEL_FLAG(2, LONG_BRANCH_IF_COLLECTED);
+                asm volatile(".LmineSetBitOne:\n\tmov %0, #2" : "=l"(jewelMask));
+                goto recordJewel;
+            }
+            default: goto jewelUnavailable;
+            }
+        }
+        goto finishJewel;
+    }
+    case MINE_OUTCOME_LITHOGRAPH:
+    {
+        enum { LithographFlag = 8 };
+        SET_JEWEL_OFFSET(sharedJewelFlags, 2);
+        LOAD_JEWEL_FLAGS();
+        if (previousFlags & LithographFlag)
+            goto rejectLate;
+        jewelMask = LithographFlag;
+        asm("" : "+l"(jewelMask), "+l"(previousFlags), "+l"(jewelFlags));
+        *jewelFlags = jewelMask | previousFlags;
+        break;
+    }
+    default:
+        break;
+    }
+    goto complete;
+rejectLate:
+    {
+        register unsigned emptyOutcome asm("r0") = MINE_OUTCOME_NONE;
+        asm("" : "+l"(emptyOutcome));
+        outcome = emptyOutcome;
+    }
+complete:
+    register unsigned result asm("r8") = outcome;
+    asm volatile(".LmineOutcomeComplete:" : "+h"(result));
+    return result;
+}
+#undef CHECK_JEWEL
+#undef TEST_JEWEL_FLAG
+#undef LONG_BRANCH_IF_COLLECTED
+#undef BRANCH_IF_COLLECTED
+#undef LOAD_JEWEL_FLAGS
+#undef SET_JEWEL_OFFSET
+
 ROM_TEXT(0809DF2C) bool HasCursedMineTool(MineFloor const &, unsigned outcome, MineRewardContext const & context)
 {
     bool found = false;
@@ -1831,9 +2149,9 @@ ROM_TEXT(0809DF2C) bool HasCursedMineTool(MineFloor const &, unsigned outcome, M
     }
     if (toolId < NUM_TOOLS)
     {
-        if (context.rucksack.GetFirstSlotWithTool(toolId) != static_cast<u32>(-1))
+        if (context.farmer.rucksack.GetFirstSlotWithTool(toolId) != static_cast<u32>(-1))
             found = true;
-        if (context.toolChest.GetFirstSlotWith(toolId) != static_cast<u32>(-1))
+        if (context.house.tool_chest.GetFirstSlotWith(toolId) != static_cast<u32>(-1))
             found = true;
     }
     return found;
