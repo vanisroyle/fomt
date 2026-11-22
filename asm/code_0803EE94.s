@@ -8615,7 +8615,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044030
 	bl .L08045572
 .L08044030:
-	bl func_080159B0
+	bl GameScript_GenerateMineFloor
 	bl .L08045572
 .L08044038:
 	movs r4, #0xd5
@@ -10287,7 +10287,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044D50
 	bl .L08045572
 .L08044D50:
-	bl func_08015E30
+	bl GameScript_DescendMineFloor
 	bl .L08045572
 .L08044D58:
 	movs r0, #0xda

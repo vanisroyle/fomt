@@ -1864,8 +1864,13 @@ struct GameStateMapCleanupOwners
 
 struct GameStateMapCleanupSlot
 {
-    u32 metadata[2];
-    SmartPtr<GameStateMapCleanupResource> resource;
+    u8 reserved;
+    u8 kind : 2;
+    u8 action : 2;
+    u16 reserved2;
+    u16 tileX;
+    u16 tileY;
+    SmartPtr<GameStateMapCleanupResource> interaction;
 };
 
 struct GameStateMapCleanupSlots
@@ -1884,25 +1889,27 @@ struct GameStateMapSceneCleanupView
     STRUCT_PAD(0x103C, 0x1050);
     u8 * tileWorkBuffer;
     STRUCT_PAD(0x1054, 0x1058);
-    SmartPtr<GameStateMapCleanupResource> resource1058;
-    SmartPtr<GameStateMapCleanupResource> resource105C;
+    SmartPtr<GameStateMapCleanupResource> interaction;
+    SmartPtr<GameStateMapCleanupResource> scenery;
     STRUCT_PAD(0x1060, 0x1064);
-    SmartPtr<GameStateMapCleanupResource> resource1064;
-    SmartPtr<GameStateMapCleanupResource> resource1068;
-    GameStateMapResourcePair resourcePair106C;
-    GameStateMapResourcePair resourcePair1074;
+    SmartPtr<GameStateMapCleanupResource> timedInteraction;
+    SmartPtr<GameStateMapCleanupResource> vaseDisplay;
+    GameStateMapResourcePair pairedScenery;
+    GameStateMapResourcePair seasonalScenery;
     GameStateMapOverlay * overlay;
-    GameStateMapCleanupSlots resourceSlots;
-    GameStateMapSpecialResources specialResources;
-    bool applyExitPenalty;
-    bool skipExitPenaltyEvent;
+    GameStateMapCleanupSlots fieldObjects;
+    GameStateMapSpecialResources transitionIcons;
+    bool dayUpdateRequested;
+    bool skipDayUpdateEvents;
 };
 
 typedef char GameStateMapSceneCleanupLayout[
     sizeof(GameStateMapCleanupResource) == 0x28 &&
+    sizeof(GameStateMapCleanupSlot) == 12 &&
+    offsetof(GameStateMapCleanupSlot, interaction) == 8 &&
     offsetof(GameStateMapSceneCleanupView, saveData) == 0x1038 &&
-    offsetof(GameStateMapSceneCleanupView, specialResources) == 0x10B0 &&
-    offsetof(GameStateMapSceneCleanupView, skipExitPenaltyEvent) == 0x10C9 ? 1 : -1];
+    offsetof(GameStateMapSceneCleanupView, transitionIcons) == 0x10B0 &&
+    offsetof(GameStateMapSceneCleanupView, skipDayUpdateEvents) == 0x10C9 ? 1 : -1];
 
 // 0x080179CC
 EC void GameStateMapScene_Destroy(GameStateMapSceneCleanupView * scene, u32 flags);

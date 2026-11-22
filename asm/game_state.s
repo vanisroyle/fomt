@@ -5377,8 +5377,8 @@ GameScript_RemoveLivestockInState1: @ 0x08015790
 
     .section .text.game_state_080159B0, "ax", %progbits
 
-    thumb_func_start func_080159B0
-func_080159B0: @ 0x080159B0
+    thumb_func_start GameScript_GenerateMineFloor
+GameScript_GenerateMineFloor: @ 0x080159B0
     push {r4, r5, r6, r7, lr}
     mov r7, r8
     push {r7}
@@ -6003,8 +6003,8 @@ func_080159B0: @ 0x080159B0
 .L08015E28: .4byte 0xFFFFFECC
 .L08015E2C: .4byte 0x00002E58
 
-    thumb_func_start func_08015E30
-func_08015E30: @ 0x08015E30
+    thumb_func_start GameScript_DescendMineFloor
+GameScript_DescendMineFloor: @ 0x08015E30
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
