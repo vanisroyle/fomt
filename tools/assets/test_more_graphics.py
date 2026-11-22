@@ -34,6 +34,61 @@ def fixture():
 
 
 class MoreGraphicsTests(unittest.TestCase):
+    def test_palette_read_past_preserves_slot_even_when_new_data_fits(self):
+        with fixture() as (rom, addresses, _, output):
+            address = addresses[0]
+            stream = m.catalogue(rom)[1][address]
+            with patch.object(m, "PALETTE_READ_PAST", ((address, address + 4),)):
+                m.emit_part(rom, address, stream, bytes(64), output, g)
+                self.assertEqual((output / f"graphics-more-{address:06X}-slot.bin").read_bytes(), rom[address:address + stream["size"]])
+                self.assertEqual(g.codec.decode((output / f"graphics-more-{address:06X}-overflow.bin").read_bytes())[0], bytes(64))
+                with patch.object(g, "growth_safe", return_value=False), self.assertRaisesRegex(ValueError, "original slot must remain unchanged"):
+                    m.emit_part(rom, address, stream, bytes(64), output, g)
+
+    def test_unknown_bank_zero_cells_are_frozen_not_assigned_a_palette(self):
+        with fixture() as (rom, addresses, assets, _):
+            scenes, streams = m.catalogue(rom)
+            scenes[0].update(id=11, unowned_tiles=[1])
+            stream = streams[addresses[2]]
+            stream["raw"] = struct.pack("<2H", 1, 1023)
+            with patch.object(m, "catalogue", return_value=(scenes, streams)):
+                m.extract(rom, assets, g)
+                m.edited(rom, assets, g)
+                png = assets / f"graphics/more/{addresses[0]:06X}.tiles.png"
+                saved = png.read_bytes()
+                rows, colors = indexed_png.read(saved)
+                rows[0][8] = 18
+                png.write_bytes(indexed_png.write(rows, colors))
+                with self.assertRaisesRegex(ValueError, "unowned palette bank zero"):
+                    m.edited(rom, assets, g)
+                png.write_bytes(saved)
+                tilemap = assets / f"graphics/more/{addresses[2]:06X}.map.bin"
+                tilemap.write_bytes(struct.pack("<2H", 1, 1))
+                with self.assertRaisesRegex(ValueError, "cannot be introduced"):
+                    m.edited(rom, assets, g)
+            owner = dict(scenes[0], id=13)
+            self.assertIs(m.owners([scenes[0], owner])[addresses[0]], owner)
+
+    def test_palette_overrides_are_context_specific(self):
+        streams = {1: {"raw": bytes(480)}}
+        ordinary = {"name": "ordinary", "reserved_bank": True}
+        overridden = dict(ordinary, palette_overrides=[(0x100, "e003")])
+        self.assertEqual(m.palette_for(ordinary, 1, streams), bytes(512))
+        self.assertEqual(m.palette_for(overridden, 1, streams)[0x120:0x122], b"\xe0\x03")
+        self.assertEqual(streams[1]["raw"], bytes(480))
+
+    def test_additional_palette_variants_share_tiles_and_keep_code_roots(self):
+        with fixture() as (rom, addresses, _, _):
+            address = len(rom)
+            rom += g.codec.encode(bytes(480))
+            struct.pack_into("<I", rom, 28, g.fa.BASE + address)
+            with patch.object(m, "PALETTE_VARIANTS", ((0, address, 28),)):
+                scenes, streams = m.catalogue(rom)
+            self.assertEqual(len(scenes), 2)
+            self.assertEqual(scenes[1]["tiles"], addresses[0])
+            self.assertEqual(scenes[1]["palettes"], [address])
+            self.assertEqual(streams[address]["references"], [28])
+
     def test_shared_catalogue_and_byte_identical_rebuild(self):
         with fixture() as (rom, addresses, assets, output):
             scenes, streams = m.extract(rom, assets, g)

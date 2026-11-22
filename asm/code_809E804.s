@@ -8558,7 +8558,7 @@ func_080AAFC8: @ 0x080AAFC8
 	adds r0, r4, #0
 	str r1, [sp, #0xa0]
 	str r3, [sp, #0xa4]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r1, [sp, #0xa0]
 	str r1, [r4, #4]
 	adds r4, #8
@@ -8757,7 +8757,7 @@ func_080AAFC8: @ 0x080AAFC8
 .L080AB1FA:
 	adds r0, r4, #0
 	str r1, [sp, #0xa0]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r1, [sp, #0xa0]
 	str r1, [r4, #4]
 	adds r4, #8
@@ -10759,46 +10759,46 @@ func_080ADF6C: @ 0x080ADF6C
 	ldr r0, .L080AE4D4 @ =0x00000888
 	adds r5, r6, r0
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r4, [r5, #4]
 	ldr r0, [sp, #0x18]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r1, [sp, #0x18]
 	str r4, [r1, #4]
 	ldr r0, [sp, #0x1c]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r2, [sp, #0x1c]
 	str r4, [r2, #4]
 	ldr r0, [sp, #0x20]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r0, [sp, #0x20]
 	str r4, [r0, #4]
 	ldr r0, [sp, #0x24]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r1, [sp, #0x24]
 	str r4, [r1, #4]
 	ldr r0, [sp, #0x28]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r2, [sp, #0x28]
 	str r4, [r2, #4]
 	ldr r0, [sp, #0x2c]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r0, [sp, #0x2c]
 	str r4, [r0, #4]
 	ldr r0, [sp, #0x30]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r1, [sp, #0x30]
 	str r4, [r1, #4]
 	ldr r0, [sp, #0x34]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r2, [sp, #0x34]
 	str r4, [r2, #4]
 	ldr r0, [sp, #0x38]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r0, [sp, #0x38]
 	str r4, [r0, #4]
 	ldr r0, [sp, #0x3c]
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	ldr r1, [sp, #0x3c]
 	str r4, [r1, #4]
 	movs r2, #0x91
@@ -20517,25 +20517,25 @@ func_080B469C: @ 0x080B469C
 	movs r1, #0
 	bl SetMessageWindowPortrait
 	add r0, sp, #0xc
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	movs r5, #0
 	str r5, [sp, #0x10]
 	add r6, sp, #0x14
 	adds r0, r6, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r6, #4]
 	add r4, sp, #0x1c
 	mov r8, r4
 	mov r0, r8
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	add r4, sp, #0x24
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	add r4, sp, #0x2c
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r5, [r4, #4]
 	ldr r1, [sp, #0x10]
 	add r0, sp, #0xc
@@ -22206,32 +22206,32 @@ func_080B5824: @ 0x080B5824
 	str r0, [sp, #0x138]
 	add r5, sp, #0x30
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	movs r4, #0
 	str r4, [r5, #4]
 	add r6, sp, #0x38
 	adds r0, r6, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r4, [r6, #4]
 	add r0, sp, #0x40
 	mov r8, r0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r1, r8
 	str r4, [r1, #4]
 	add r2, sp, #0x48
 	mov sb, r2
 	mov r0, sb
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r3, sb
 	str r4, [r3, #4]
 	add r7, sp, #0x50
 	mov sl, r7
 	mov r0, sl
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r4, [r7, #4]
 	add r7, sp, #0x58
 	adds r0, r7, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r4, [r7, #4]
 	ldr r1, [sp, #0x34]
 	adds r0, r5, #0
@@ -26018,35 +26018,35 @@ func_080B7648: @ 0x080B7648
 	sub sp, #0xc0
 	adds r7, r0, #0
 	mov r0, sp
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	movs r0, #0
 	mov sl, r0
 	str r0, [sp, #4]
 	add r4, sp, #8
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r1, sl
 	str r1, [r4, #4]
 	add r5, sp, #0x10
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r2, sl
 	str r2, [r5, #4]
 	add r6, sp, #0x18
 	adds r0, r6, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r3, sl
 	str r3, [r6, #4]
 	add r0, sp, #0x20
 	mov r8, r0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r1, sl
 	mov r2, r8
 	str r1, [r2, #4]
 	add r3, sp, #0x28
 	mov sb, r3
 	mov r0, sb
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r0, sl
 	mov r1, sb
 	str r0, [r1, #4]
@@ -28421,28 +28421,28 @@ func_080B888C: @ 0x080B888C
 	movs r1, #0
 	bl SetMessageWindowPortrait
 	add r0, sp, #0xc
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	movs r0, #0
 	mov sb, r0
 	str r0, [sp, #0x10]
 	add r5, sp, #0x14
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r1, sb
 	str r1, [r5, #4]
 	add r6, sp, #0x1c
 	adds r0, r6, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r2, sb
 	str r2, [r6, #4]
 	add r4, sp, #0x24
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r3, sb
 	str r3, [r4, #4]
 	add r4, sp, #0x2c
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r0, sb
 	str r0, [r4, #4]
 	ldr r1, [sp, #0x10]
@@ -33530,12 +33530,12 @@ func_080BC288: @ 0x080BC288
 	mov r8, r0
 	str r1, [sp, #0x88]
 	mov r0, sp
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	movs r4, #0
 	str r4, [sp, #4]
 	add r5, sp, #8
 	adds r0, r5, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	str r4, [r5, #4]
 	ldr r1, [sp, #4]
 	mov r0, sp
@@ -57018,7 +57018,7 @@ func_080C7F58: @ 0x080C7F58
 	lsls r0, r0, #2
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -57035,7 +57035,7 @@ func_080C7F58: @ 0x080C7F58
 	lsls r0, r0, #2
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #2
 	bl func_08007B54
@@ -57052,7 +57052,7 @@ func_080C7F58: @ 0x080C7F58
 	lsls r0, r0, #2
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #1
 	bl func_08007B54
@@ -57061,7 +57061,7 @@ func_080C7F58: @ 0x080C7F58
 	lsls r1, r1, #2
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #1
 	bl func_08007B54
@@ -57078,7 +57078,7 @@ func_080C7F58: @ 0x080C7F58
 	lsls r1, r1, #2
 	adds r4, r7, r1
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #1
 	bl func_08007B54
@@ -57087,7 +57087,7 @@ func_080C7F58: @ 0x080C7F58
 	lsls r0, r0, #2
 	adds r4, r7, r0
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	adds r0, r4, #0
 	movs r1, #1
 	bl func_08007B54
@@ -57111,7 +57111,7 @@ func_080C7F58: @ 0x080C7F58
 	mov r8, r0
 .L080C80B0:
 	adds r0, r4, #0
-	bl func_08007874
+	bl TileHeapOwner_Initialize
 	mov r1, r8
 	str r1, [r4, #4]
 	adds r4, #8

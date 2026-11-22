@@ -4,7 +4,7 @@
 #include "sprite_animation.hh"
 
 EC void * func_080D3BC0(u32);
-EC void func_08007874(void *);
+EC void TileHeapOwner_Initialize(void *);
 EC u32 func_08007B54(void *, u32);
 EC void ResourceHandles_Initialize(void *);
 EC u32 func_0800736C(void *);
@@ -18,10 +18,10 @@ EC SECTION(".text.g5_080CE2FC") u8 * InventoryMenu_InitializePagedDrawPanel(u8 *
     void ** members = (void **) panel;
     *members++ = owner;
     u32 * handles = (u32 *) members;
-    func_08007874(handles);
+    TileHeapOwner_Initialize(handles);
     handles[1] = func_08007B54(handles, 2);
     handles = (u32 *) (panel + 0xc);
-    func_08007874(handles);
+    TileHeapOwner_Initialize(handles);
     handles[1] = func_08007B54(handles, 2);
     handles += 2;
     ResourceHandles_Initialize(handles);
