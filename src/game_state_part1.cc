@@ -508,15 +508,28 @@ struct GameStateNestedSceneFactory
     GameStateSceneFactory * factory;
 };
 
+struct GameStateScript;
+
+struct GameStateRuntimeDmaQueue
+{
+    void * begin;
+    void * end;
+    u32 allocationState;
+    void * capacityEnd;
+};
+
 struct GameStateRuntime
 {
-    STRUCT_PAD(0x00, 0x10);
-    u16 flags;
-    STRUCT_PAD(0x12, 0x8C);
+    GameStateRuntimeDmaQueue dmaQueue;
+    u16 displayControl;
+    u16 displayRegisters[0x2A];
+    void * taskDispatcher;
+    STRUCT_PAD(0x6C, 0x88);
+    GameStateScript * script;
     u8 * saveData;
-    STRUCT_PAD(0x90, 0x9C);
+    GameScriptSceneSpec sceneSpec;
     u32 pendingCommand;
-    STRUCT_PAD(0xA0, 0xA4);
+    void * displayFade;
     SmartPtr<GameStateSceneFactory> pendingSceneFactory;
     GameStateObject * scene;
     GameStateDialogueOwner dialogue;
@@ -528,7 +541,11 @@ struct GameStateRuntime
     u16 pendingArgument;
     STRUCT_PAD(0xE2, 0xE4);
     GameStateActorEntity * waitActor;
-    STRUCT_PAD(0xE8, 0xF4);
+    bool fadeState;
+    u8 fadeTarget;
+    bool scriptBackgroundEnabled;
+    u16 scriptBackgroundColor;
+    char * temporaryText;
     virtual ~GameStateRuntime();
 
     void * GetTextVariables() const { return textVariables; }
@@ -792,7 +809,7 @@ EC void SECTION(".text.game_state_080125EC") GameScript_CloseDialoguePanels(Game
     runtime.textPanel = nullptr;
     runtime.secondaryTextPanel = nullptr;
     runtime.dialogue = nullptr;
-    runtime.flags &= ~0x100;
+    runtime.displayControl &= ~0x100;
 }
 
 
@@ -909,6 +926,12 @@ struct GameStateGlobal
 };
 
 extern GameStateGlobal * gActiveGameScene;
+
+// 0x08011DC4
+EC GameStateScript * GameScript_InitializeWithSceneSpec(GameStateScript * script, u8 * saveData, GameScriptSceneSpec const & sceneSpec);
+
+// 0x08011ED8
+EC GameStateScript * GameScript_InitializeDefaultScene(GameStateScript * script, u8 * saveData);
 
 // 0x08012B24
 EC void SECTION(".text.game_state_08012B24") GameScript_QueueSceneEvent(GameStateScript & script, GameStateScriptEvent const & event, i32 queue)

@@ -14476,7 +14476,7 @@ func_080DB238: @ 0x080DB238
 	bl __builtin_new
 	ldr r1, [r5, #0xc]
 	mov r2, sp
-	bl func_08011DC4
+	bl GameScript_InitializeWithSceneSpec
 	str r0, [sp, #0xc]
 	str r4, [sp, #0x18]
 	str r0, [sp, #0x1c]
@@ -16331,7 +16331,7 @@ func_080DC244: @ 0x080DC244
 	ldr r1, [r4, #4]
 	adds r4, #8
 	adds r2, r4, #0
-	bl func_08011DC4
+	bl GameScript_InitializeWithSceneSpec
 	str r0, [sp]
 	mov r1, sp
 	str r1, [sp, #4]
