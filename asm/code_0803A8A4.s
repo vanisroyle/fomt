@@ -36,7 +36,7 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	ldrb r0, [r7, #0xf]
 	cmp r0, #0
 	beq .L0803C0DC
-	ldrh r3, [r4, #8]
+	ldrh r3, [r4, #8] @ KeyRepeatState::repeated_keys
 	adds r2, r3, #0
 	lsls r1, r2, #0x1a
 	lsrs r1, r1, #0x1f
@@ -102,6 +102,7 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	movs r1, #0xc5
 	bl AudioPlayer_StartSong
 .L0803C0DC:
+	@ Refresh the shared sprite palette and recreate the selected tab label.
 	ldrb r0, [r7, #0xd]
 	cmp r0, #0
 	beq .L0803C142
@@ -152,6 +153,7 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	movs r0, #0
 	strb r0, [r7, #0xd]
 .L0803C142:
+	@ Draw the blinking selection cursor before the seven tab sprites.
 	ldrb r0, [r7, #0xe]
 	subs r0, #1
 	strb r0, [r7, #0xe]
@@ -432,6 +434,7 @@ UpdatePauseMenuWindow: @ 0x0803C028
 	bhi .L0803C378
 	b .L0803C26C
 .L0803C378:
+	@ The label is 12x2 tiles, drawn as three 32x16 sprites.
 	ldr r7, [r7, #8]
 	mov r8, r7
 	ldr r1, [sp, #0x4c]
