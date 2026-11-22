@@ -73,7 +73,9 @@ struct MedalExchange
     i16 glyph_count;
     u16 prize_name_tilemap[32][32];
     int medal_balance;
-    STRUCT_PAD(0xAD4, 0xADA);
+    i16 selected_row;
+    i16 first_visible_row;
+    i16 selected_prize_id;
     i16 exchange_phase;
     i16 dialogue_phase;
     i16 declined_choice;
@@ -82,6 +84,11 @@ struct MedalExchange
     MedalExchangeTextSubstitutions text_substitutions;
 };
 
+typedef char MedalExchangeSelectionOffsetsMatch[
+    offsetof(MedalExchange, selected_row) == 0xAD4 &&
+    offsetof(MedalExchange, first_visible_row) == 0xAD6 &&
+    offsetof(MedalExchange, selected_prize_id) == 0xAD8 &&
+    offsetof(MedalExchange, prize_indices) == 0xAE0 ? 1 : -1];
 
 
 struct TileResources { void * handles; };
