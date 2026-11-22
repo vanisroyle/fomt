@@ -9,6 +9,7 @@
 #include "farmer.hh"
 #include "fixed_sprite_overlay.hh"
 #include "gbasvc.h"
+#include "key_repeat.hh"
 #include "map_overlay.hh"
 #include "message_script.hh"
 #include "npc.hh"
@@ -2389,7 +2390,42 @@ ROM_TEXT(0803BD60) void func_0803BF08(DialogWindow & self, int x, int y)
     func_0803BDEC(*self.inner, x, y);
 }
 
-struct PauseMenuGraphics;
+enum PauseMenuTab
+{
+    PAUSE_MENU_DIARY,
+    PAUSE_MENU_RUCKSACK,
+    PAUSE_MENU_WORLD_MAP,
+    PAUSE_MENU_FARM_MAP,
+    PAUSE_MENU_EARNINGS,
+    PAUSE_MENU_MEMO,
+    PAUSE_MENU_TUTORIAL,
+    PAUSE_MENU_TAB_COUNT,
+};
+
+struct PauseMenuSprite;
+
+struct PauseMenuGraphics
+{
+    // The animation bank starts at offset zero, followed by the shared OBJ palette.
+    STRUCT_PAD(0x00, 0x30);
+    ClockPaletteAllocation spritePalette;
+    ClockUploadTask paletteUpload;
+    PauseMenuSprite * cursor;
+    PauseMenuSprite * tabs[PAUSE_MENU_TAB_COUNT];
+
+    STRUCT_PAD(0x70, 0x74);
+    ClockTile labelTiles[2][3][4];
+    ClockTileAllocation labelTileAllocations[3];
+    ClockUploadTask labelRowUploads[3][2];
+};
+
+typedef char PauseMenuGraphicsLayoutCheck[
+    sizeof(PauseMenuGraphics) == 0x41C &&
+    offsetof(PauseMenuGraphics, cursor) == 0x50 &&
+    offsetof(PauseMenuGraphics, tabs) == 0x54 &&
+    offsetof(PauseMenuGraphics, labelTiles) == 0x74 &&
+    offsetof(PauseMenuGraphics, labelTileAllocations) == 0x374 &&
+    offsetof(PauseMenuGraphics, labelRowUploads) == 0x38C ? 1 : -1];
 
 struct PauseMenuWindow : DialogWindow
 {
@@ -4623,13 +4659,12 @@ ROM_TEXT(0803EDCC) unsigned SelectNpcSchedule_080F8678(NpcScheduleContext const 
     return 1;
 }
 
-struct ControllerInput;
 struct AudioPlayer;
 
-EC int UpdatePauseMenuWindow(PauseMenuWindow &, ControllerInput const &, OamBuffer *,
+EC int UpdatePauseMenuWindow(PauseMenuWindow &, KeyRepeatState const &, OamBuffer *,
     BackgroundVideoState *, DialogLayerRenderer *, TileTransferQueue *, AudioPlayer *);
 EC void func_0803BE50(DialogWindow &, int);
-EC void func_080E0C38(PauseMenuGraphics *, int);
+EC void DestroyPauseMenuGraphics(PauseMenuGraphics *, int) asm("func_080E0C38");
 EC char const gPauseMenuWindowVtable[];
 EC char const gClockHudVTable[];
 
@@ -4656,14 +4691,14 @@ ROM_TEXT(0803D4D8) int UpdateClockHud(ClockHud & self, OamBuffer * oam,
 
 EC DialogWindow & func_0803BDFC(DialogWindow &, int, int, int, int, int, int, int, int);
 
-EC PauseMenuGraphics * func_080E0A94(void *);
+EC PauseMenuGraphics * InitializePauseMenuGraphics(void *) asm("func_080E0A94");
 
 ROM_TEXT(0803BF78) PauseMenuWindow & InitializePauseMenuWindow(PauseMenuWindow & self, int background,
     int screenBlock, int paletteBank, int layerMode, int selectedTab)
 {
     func_0803BDFC(self, 0, 136, 240, 24, background, screenBlock, paletteBank, layerMode);
     self.vtable = gPauseMenuWindowVtable;
-    self.graphics = func_080E0A94(::operator new(0x41C));
+    self.graphics = InitializePauseMenuGraphics(::operator new(sizeof(PauseMenuGraphics)));
     self.selectedTab = selectedTab;
     self.needsInitialRefresh = false;
     self.cursorBlinkFrames = 1;
@@ -4675,17 +4710,17 @@ ROM_TEXT(0803BF78) void DestroyPauseMenuWindow(PauseMenuWindow & self, int flags
 {
     self.vtable = gPauseMenuWindowVtable;
     if (self.graphics)
-        func_080E0C38(self.graphics, 3);
+        DestroyPauseMenuGraphics(self.graphics, 3);
     func_0803BE50(self, flags);
 }
 
-ROM_TEXT(0803BFF0) int UpdatePauseMenuWindowWithoutAudio(PauseMenuWindow & self, ControllerInput const & input,
+ROM_TEXT(0803BFF0) int UpdatePauseMenuWindowWithoutAudio(PauseMenuWindow & self, KeyRepeatState const & input,
     OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * renderer, TileTransferQueue * transfers)
 {
     return UpdatePauseMenuWindow(self, input, sprites, video, renderer, transfers, nullptr);
 }
 
-ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, ControllerInput const & input,
+ROM_TEXT(0803C00C) int UpdatePauseMenuWindowWithAudio(PauseMenuWindow & self, KeyRepeatState const & input,
     OamBuffer * sprites, BackgroundVideoState * video, DialogLayerRenderer * renderer, TileTransferQueue * transfers,
     AudioPlayer * audio)
 {
