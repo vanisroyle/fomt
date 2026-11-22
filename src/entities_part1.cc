@@ -516,6 +516,33 @@ EC void func_0805E850(SpriteAnimator * self, void * graphics, u32 animation);
 
 EC void func_0809ABD8(void * earnings, u32 amount);
 
+// 0x0802634C
+EC void func_0802634C(FarmerEntity * self) ENTITY_CODE(0802634C);
+EC void func_0802634C(FarmerEntity * self)
+{
+    func_0800EAF0(*self->farmer);
+    ThrownItemMotion * motion = &self->thrown_item;
+    motion->active = true;
+    motion->display_mode = 0;
+    motion->Launch(-0x80000, 0, 0x110000);
+    FarmerActionSpriteFields * sprite = reinterpret_cast<FarmerActionSpriteFields *>(self->unk_10.Get());
+    if (sprite != nullptr)
+    {
+        GameObject * game = sprite->entity->game_object;
+        FarmerActionSpriteGameVTable const * table = *reinterpret_cast<FarmerActionSpriteGameVTable const **>(game);
+        void * graphics = table->vfunc_64(game);
+        func_0805E850(&sprite->animator, graphics, 0x1DD);
+        sprite->unk_C8 = true;
+        sprite->unk_CA = false;
+        sprite->unk_CB = true;
+    }
+    self->state = 47;
+    self->unk_3D = 120;
+    self->SetAnim(FarmerEntity_ResolveActionAnimation(self));
+    AudioPlayer_StartSong(FindEntitySoundChannel(self->game_object), 182);
+    self->consume_animation_active = true;
+}
+
 // 0x0802771C
 EC void func_0802771C(FarmerEntity * self, u32 amount) ENTITY_CODE(0802771C);
 EC void func_0802771C(FarmerEntity * self, u32 amount)
