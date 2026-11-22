@@ -1246,6 +1246,19 @@ EC void SECTION(".text.game_state_08013F88") GameScript_QueueSceneVariant2C(Game
     runtime.pendingCommand = 0x18;
 }
 
+// 0x080138C0
+EC void SECTION(".text.game_state_080138C0") GameScript_QueueSceneVariant1F(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x1F;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneArgumentFactory<vtable_unk_080E5D44, u8>(factory,
+        ({ register u8 * saveData asm("r4") = runtime.GetSaveData(); asm("" : "+l"(saveData)); saveData; }),
+        ({ register u8 flag asm("r5") = 1; asm("" : "+l"(flag)); flag; })));
+    runtime.pendingCommand = 0x18;
+}
+
 // 0x08013E6C
 EC void SECTION(".text.game_state_08013E6C") GameScript_QueueSceneVariant2E(GameStateScript & script)
 {
