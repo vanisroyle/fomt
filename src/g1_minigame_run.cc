@@ -28,6 +28,32 @@ struct G1ChickenFeedingGame
     void * state;
 };
 
+struct G1SpriteHarvestParameters
+{
+    G1SpriteHarvestParameters() : sprite(4), experience(18) {}
+
+    u32 sprite;
+    u8 experience;
+};
+
+struct G1SpriteHarvestGame;
+
+EC G1SpriteHarvestGame * func_080C0D1C(G1SpriteHarvestGame *, G1SpriteHarvestParameters const *);
+EC void func_080C0D44(G1SpriteHarvestGame *, u32);
+EC G1SceneOwner func_080C0D90(G1SpriteHarvestGame *);
+EC bool func_080C0D74(G1SpriteHarvestGame *);
+EC u32 func_080C0D80(G1SpriteHarvestGame *);
+EC u32 SaveProgress_RaiseWordCounter(void *, u32);
+
+struct G1SpriteHarvestGame
+{
+    G1SpriteHarvestGame(G1SpriteHarvestParameters const & parameters) { func_080C0D1C(this, &parameters); }
+    ~G1SpriteHarvestGame() { func_080C0D44(this, 2); }
+
+    void const * vtable;
+    void * state;
+};
+
 EC SECTION(".text.g1_080A3900") G1SceneOwner RunSpriteFeedingMinigameScene(G1SpriteMinigameScene * self)
 {
     G1SpriteFeedingParameters parameters;
@@ -52,6 +78,35 @@ EC SECTION(".text.g1_080A3900") G1SceneOwner RunSpriteFeedingMinigameScene(G1Spr
     sprite->SetPlayedMinigame(HarvestSprite::TASK_ANIMALS, succeeded);
     static_cast<G1SpriteMinigameResult *>(self->next_scene)->succeeded = succeeded;
     GameProgress_RaiseHalfCounter(self->game_state, GetChickenFeedingScore(&game));
+    AUnk_0800080C * next = self->next_scene;
+    self->next_scene = nullptr;
+    return G1SceneOwner::Adopt(next);
+}
+
+EC SECTION(".text.g1_080A39FC") G1SceneOwner RunSpriteHarvestMinigameScene(G1SpriteMinigameScene * self)
+{
+    G1SpriteHarvestParameters parameters;
+    switch (self->npc_id)
+    {
+    case 36: parameters.sprite = 0; break;
+    case 37: parameters.sprite = 2; break;
+    case 38: parameters.sprite = 3; break;
+    case 39: parameters.sprite = 4; break;
+    case 40: parameters.sprite = 5; break;
+    case 41: parameters.sprite = 6; break;
+    case 42: parameters.sprite = 1; break;
+    }
+
+    G1NpcRoster * roster = reinterpret_cast<G1NpcRoster *>(static_cast<u8 *>(self->game_state) + 0x1CD4);
+    HarvestSprite * sprite = const_cast<HarvestSprite *>(GetRosterHarvestSpriteByIdConst(roster, self->npc_id));
+    parameters.experience = sprite->GetMinigameExp(HarvestSprite::TASK_HARVEST);
+
+    G1SpriteHarvestGame game(parameters);
+    func_080C0D90(&game);
+    bool succeeded = func_080C0D74(&game);
+    sprite->SetPlayedMinigame(HarvestSprite::TASK_HARVEST, succeeded);
+    static_cast<G1SpriteMinigameResult *>(self->next_scene)->succeeded = succeeded;
+    SaveProgress_RaiseWordCounter(self->game_state, func_080C0D80(&game));
     AUnk_0800080C * next = self->next_scene;
     self->next_scene = nullptr;
     return G1SceneOwner::Adopt(next);
