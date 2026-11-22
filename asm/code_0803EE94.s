@@ -9902,7 +9902,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044A44
 	bl .L0804168A
 .L08044A44:
-	bl func_08014D9C
+	bl GameScript_ShowLivestockLossReportState2
 	bl .L0804168A
 .L08044A4C:
 	movs r4, #0xd5
@@ -9924,7 +9924,7 @@ func_0803F8DC: @ 0x0803F8DC
 	bne .L08044A74
 	bl .L0804168A
 .L08044A74:
-	bl func_0801531C
+	bl GameScript_ShowLivestockLossReportState1
 	bl .L0804168A
 .L08044A7C:
 	movs r1, #0xd5

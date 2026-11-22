@@ -512,6 +512,38 @@ struct GameStateNestedSceneFactory
     GameStateSceneFactory * factory;
 };
 
+struct GameStateSavedSceneFactoryOwner
+{
+    GameStateSceneFactory * Move()
+    {
+        GameStateSceneFactory * result = factory;
+        factory = nullptr;
+        return result;
+    }
+
+    explicit GameStateSavedSceneFactoryOwner(GameStateSceneFactory * factory) : factory(factory) {}
+    GameStateSavedSceneFactoryOwner(GameStateSavedSceneFactoryOwner & other) : factory(other.Move())
+    {
+        asm ("" : : "m" (factory));
+    }
+    ~GameStateSavedSceneFactoryOwner() { delete factory; }
+
+    GameStateSceneFactory * factory;
+};
+
+extern u8 const vtable_unk_080E5E34[];
+
+template <u8 const * Methods>
+struct GameStateSavedSceneFactory
+{
+    GameStateSavedSceneFactory(GameStateSavedSceneFactoryOwner factory, u8 * saveData)
+        : vtable(Methods), factory(factory.Move()), saveData(saveData) {}
+
+    void const * vtable;
+    GameStateSceneFactory * factory;
+    u8 * saveData;
+};
+
 struct GameStateScript;
 
 struct GameStateRuntimeDmaQueue
@@ -773,6 +805,17 @@ EC void SECTION(".text.game_state_08011CD8") GameState_RunVBlankFrameTasks(GameS
     VBlankDispatcher_GetTasks(dispatcher).Append(&tasks);
     VBlankDispatcher_Wait(dispatcher);
     VBlankDispatcher_GetTasks(dispatcher).Remove(&tasks);
+}
+
+// 0x08012BBC
+EC void SECTION(".text.game_state_08012BBC") GameScript_QueueSceneVariant0A(GameStateScript & script)
+{
+    GameStateRuntime & runtime = *script.runtime;
+    GameScriptSceneSpec spec;
+    spec.variant = 0x0A;
+    GameStateSavedSceneFactoryOwner factory(reinterpret_cast<GameStateSceneFactory *>(new GameScriptSceneFactory(runtime.GetSaveData(), spec)));
+    runtime.pendingSceneFactory = reinterpret_cast<GameStateSceneFactory *>(new GameStateSavedSceneFactory<vtable_unk_080E5E34>(factory, runtime.GetSaveData()));
+    runtime.pendingCommand = 0x18;
 }
 
 // 0x08013E6C

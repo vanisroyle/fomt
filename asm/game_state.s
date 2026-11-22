@@ -3287,79 +3287,7 @@ GameScript_StartDisplayFade: @ 0x0801297C
 
     .section .text.game_state_08012BBC, "ax", %progbits
 
-    thumb_func_start GameScript_QueueSceneVariant0A
-GameScript_QueueSceneVariant0A: @ 0x08012BBC
-    push {r4, r5, r6, r7, lr}
-    sub sp, #0x1c
-    ldr r6, [r0, #4]
-    movs r0, #0xa
-    str r0, [sp]
-    movs r0, #0x14
-    bl __builtin_new
-    adds r5, r6, #0
-    adds r5, #0x8c
-    ldr r1, [r5]
-    mov ip, r1
-    add r2, sp, #0x10
-    mov r1, sp
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    ldr r1, .L08012C48 @ =vtable_unk_080E5E74
-    str r1, [r0]
-    mov r1, ip
-    str r1, [r0, #4]
-    adds r2, r0, #0
-    adds r2, #8
-    add r1, sp, #0x10
-    ldm r1!, {r3, r4, r7}
-    stm r2!, {r3, r4, r7}
-    str r0, [sp, #0xc]
-    movs r0, #0xc
-    bl __builtin_new
-    ldr r4, [sp, #0xc]
-    movs r2, #0
-    str r2, [sp, #0xc]
-    str r4, [sp, #0x10]
-    ldr r3, [r5]
-    ldr r1, .L08012C4C @ =vtable_unk_080E5E34
-    str r1, [r0]
-    str r2, [sp, #0x10]
-    str r4, [r0, #4]
-    str r3, [r0, #8]
-    adds r5, #0x18
-    adds r4, r0, #0
-    ldr r1, [r5]
-    cmp r4, r1
-    beq .L08012C24
-    cmp r1, #0
-    beq .L08012C24
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012C24:
-    str r4, [r5]
-    adds r1, r6, #0
-    adds r1, #0x9c
-    movs r0, #0x18
-    str r0, [r1]
-    ldr r1, [sp, #0xc]
-    cmp r1, #0
-    beq .L08012C40
-    ldr r0, [r1]
-    ldr r2, [r0, #8]
-    adds r0, r1, #0
-    movs r1, #3
-    bl _call_via_r2
-.L08012C40:
-    add sp, #0x1c
-    pop {r4, r5, r6, r7}
-    pop {r0}
-    bx r0
-    .align 2, 0
-.L08012C48: .4byte vtable_unk_080E5E74
-.L08012C4C: .4byte vtable_unk_080E5E34
+    .section .text.game_state_08012C50, "ax", %progbits
 
     thumb_func_start GameScript_QueueSceneVariant0B
 GameScript_QueueSceneVariant0B: @ 0x08012C50
@@ -6808,8 +6736,8 @@ GameScript_RebuildMapScene: @ 0x08014AF8
 
     .section .text.game_state_08014D9C, "ax", %progbits
 
-    thumb_func_start func_08014D9C
-func_08014D9C: @ 0x08014D9C
+    thumb_func_start GameScript_ShowLivestockLossReportState2
+GameScript_ShowLivestockLossReportState2: @ 0x08014D9C
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
@@ -7474,8 +7402,8 @@ GameScript_RemoveLivestockInState2: @ 0x08015210
     .align 2, 0
 .L08015318: .4byte 0x00001C2C
 
-    thumb_func_start func_0801531C
-func_0801531C: @ 0x0801531C
+    thumb_func_start GameScript_ShowLivestockLossReportState1
+GameScript_ShowLivestockLossReportState1: @ 0x0801531C
     push {r4, r5, r6, r7, lr}
     mov r7, sl
     mov r6, sb
