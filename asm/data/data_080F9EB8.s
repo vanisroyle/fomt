@@ -456,81 +456,39 @@ gChildhoodMemoryMadeAFriend:
 gChildhoodMemoryWaitingForLetter:
 	.incbin "baserom.gba", 0xFB7F0, 0x34
 
-	.global gUnk_080FB824
-gUnk_080FB824:
-	.incbin "baserom.gba", 0xFB824, 0xC
+	@ Keep the original byte slots; report tile widths are set by the callers.
+	.macro farm_report_text symbol, slot_bytes, value
+	.global \symbol
+\symbol:
+	.asciz "\value"
+	.if (. - \symbol) > \slot_bytes
+	.error "Farm report text exceeds its byte slot including the terminator"
+	.elseif (. - \symbol) < \slot_bytes
+	.space \slot_bytes - (. - \symbol)
+	.endif
+	.endm
 
-	.global gUnk_080FB830
-gUnk_080FB830:
-	.incbin "baserom.gba", 0xFB830, 0x4
+	farm_report_text gFarmReportPropertySuffix, 12, " Property "
+	farm_report_text gFarmReportBlankLabel, 4, "  "
+	farm_report_text gFarmReportGoldSuffix, 4, "G "
+	farm_report_text gLivestockReportHealthyLabel, 12, "Healthy "
+	farm_report_text gLivestockReportUnhappyLabel, 12, "Unhappy "
+	farm_report_text gLivestockReportSickLabel, 12, "Sick    "
+	farm_report_text gLivestockReportSpringLabel, 8, "Spring"
+	farm_report_text gLivestockReportSummerLabel, 8, "Summer"
+	farm_report_text gLivestockReportFallLabel, 8, "Fall  "
+	farm_report_text gLivestockReportWinterLabel, 8, "Winter"
+	farm_report_text gLivestockReportYearAgeSuffix, 4, "yr"
+	farm_report_text gChickenReportTitle, 20, "List of Chickens"
+	farm_report_text gCowReportTitle, 16, "List of Cattle"
+	farm_report_text gSheepReportTitle, 16, "List of Sheep "
+	farm_report_text gHarvestSpriteReportTitle, 20, "Harvest Sprites "
+	farm_report_text gFarmReportDaySuffix, 4, "D "
+	farm_report_text gHarvestSpriteReportDaysLeftLabel, 8, "left"
+	farm_report_text gHarvestSpriteReportWorkLabel, 12, "work    "
+	farm_report_text gHarvestSpriteReportNotAssignedLabel, 16, "N/A         "
 
-	.global gUnk_080FB834
-gUnk_080FB834:
-	.incbin "baserom.gba", 0xFB834, 0x4
-
-	.global gUnk_080FB838
-gUnk_080FB838:
-	.incbin "baserom.gba", 0xFB838, 0xC
-
-	.global gUnk_080FB844
-gUnk_080FB844:
-	.incbin "baserom.gba", 0xFB844, 0xC
-
-	.global gUnk_080FB850
-gUnk_080FB850:
-	.incbin "baserom.gba", 0xFB850, 0xC
-
-	.global gUnk_080FB85C
-gUnk_080FB85C:
-	.incbin "baserom.gba", 0xFB85C, 0x8
-
-	.global gUnk_080FB864
-gUnk_080FB864:
-	.incbin "baserom.gba", 0xFB864, 0x8
-
-	.global gUnk_080FB86C
-gUnk_080FB86C:
-	.incbin "baserom.gba", 0xFB86C, 0x8
-
-	.global gUnk_080FB874
-gUnk_080FB874:
-	.incbin "baserom.gba", 0xFB874, 0x8
-
-	.global gUnk_080FB87C
-gUnk_080FB87C:
-	.incbin "baserom.gba", 0xFB87C, 0x4
-
-	.global gUnk_080FB880
-gUnk_080FB880:
-	.incbin "baserom.gba", 0xFB880, 0x14
-
-	.global gUnk_080FB894
-gUnk_080FB894:
-	.incbin "baserom.gba", 0xFB894, 0x10
-
-	.global gUnk_080FB8A4
-gUnk_080FB8A4:
-	.incbin "baserom.gba", 0xFB8A4, 0x10
-
-	.global gUnk_080FB8B4
-gUnk_080FB8B4:
-	.incbin "baserom.gba", 0xFB8B4, 0x14
-
-	.global gUnk_080FB8C8
-gUnk_080FB8C8:
-	.incbin "baserom.gba", 0xFB8C8, 0x4
-
-	.global gUnk_080FB8CC
-gUnk_080FB8CC:
-	.incbin "baserom.gba", 0xFB8CC, 0x8
-
-	.global gUnk_080FB8D4
-gUnk_080FB8D4:
-	.incbin "baserom.gba", 0xFB8D4, 0xC
-
-	.global gUnk_080FB8E0
-gUnk_080FB8E0:
-	.incbin "baserom.gba", 0xFB8E0, 0x10
+	.purgem farm_report_text
 
 	.global gUnk_080FB8F0
 gUnk_080FB8F0:
