@@ -49972,6 +49972,227 @@ DrawHorseRaceSceneObjects: @ 0x0805BC34
 	bl DrawSpriteFrameObjects
 	.endm
 
+	.equ .Lmedal_obj_sp_upper_arrow_queue_size, 0x5c
+	.equ .Lmedal_obj_sp_lower_arrow_queue_size, 0x64
+
+	@ r6 = MedalExchange. Load the arrow frame and enqueue its OBJ tiles.
+	.macro PrepareMedalScrollArrow animator, options, arrow_y, tile_offset, tile_destination, grow_queue
+	ReadMedalExchangeObjectFrame \animator, r7
+	add r1, sp, #.Lmedal_obj_sp_frame_objects
+	adds r0, r7, #0
+	ldm r0!, {r2, r3, r4}
+	stm r1!, {r2, r3, r4}
+	ldm r0!, {r2, r3, r5}
+	stm r1!, {r2, r3, r5}
+	ldm r0!, {r4, r5}
+	stm r1!, {r4, r5}
+	mov r1, sp
+	adds r0, r6, #0
+	adds r0, #\options
+	ldm r0!, {r2, r3, r4}
+	stm r1!, {r2, r3, r4}
+	ldm r0!, {r2, r3, r5}
+	stm r1!, {r2, r3, r5}
+	ldr r0, [r0]
+	str r0, [r1]
+	mov r1, sp
+	movs r0, #.Lmedal_obj_arrow_x
+	strh r0, [r1]
+	movs r0, #\arrow_y
+	strh r0, [r1, #2]
+	movs r5, #(.Lmedal_obj_cursor_tiles >> 1)
+	lsls r5, r5, #1
+	adds r4, r6, r5
+	ldr r1, [r4, #4]
+	adds r0, r4, #0
+	bl func_08007D4C
+	mov r1, sp
+	adds r0, #\tile_offset
+	strh r0, [r1, #6]
+	movs r1, #(.Lmedal_obj_cursor_palette >> 1)
+	lsls r1, r1, #1
+	adds r0, r6, r1
+	ldr r1, [r0, #4]
+	bl ResourceHandle_GetIndex
+	mov r1, sp
+	strh r0, [r1, #4]
+	movs r0, #2
+	strh r0, [r1, #8]
+	mov r0, sp
+	movs r2, #1
+	mov sb, r2
+	mov r3, sb
+	strb r3, [r0, #0x18]
+	adds r0, r6, #0
+	bl HardwareContext_GetDmaQueue
+	adds r5, r0, #0
+	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
+	mov r8, r0
+	ldr r1, [r4, #4]
+	adds r0, r4, #0
+	bl func_08007D4C
+	adds r2, r0, #0
+	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
+	movs r3, #0
+	cmp r0, #0
+	beq .Lmedal_arrow_have_tile_bytes\@
+	mov r1, sp
+	ldrh r3, [r1, #.Lmedal_obj_sp_frame_tile_bytes]
+.Lmedal_arrow_have_tile_bytes\@:
+	str r5, [sp, #.Lmedal_obj_sp_dma_queue]
+	lsls r2, r2, #5
+	ldr r4, \tile_destination
+	adds r2, r2, r4
+	adds r0, r7, #0
+	mov r1, r8
+	bl DmaCommand_InitializeCopy
+	mov sl, r7
+	ldr r1, [r5, #4]
+	ldr r0, [r5, #0xc]
+	cmp r1, r0
+	beq \grow_queue
+	cmp r1, #0
+	beq .Lmedal_arrow_commit_tail\@
+	adds r0, r1, #0
+	mov r1, sl
+	ldm r1!, {r2, r5, r7}
+	stm r0!, {r2, r5, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmedal_arrow_commit_tail\@:
+	ldr r3, [sp, #.Lmedal_obj_sp_dma_queue]
+	ldr r0, [r3, #4]
+	adds r0, #0x10
+	str r0, [r3, #4]
+	.endm
+
+	@ r1 = old tail, sl = command to append. Grow by max(size, append count).
+	.macro GrowMedalScrollArrowDmaQueue arrow, occupied, old_end_first, old_end_loop, single_copy_temp, multi_copy_regs, decrement, remaining, old_queue, new_begin, new_queue
+	str r1, [sp, #.Lmedal_obj_sp_dma_old_end]
+	mov r4, sb
+	str r4, [sp, #(\occupied + 4)]
+	ldr r5, [sp, #.Lmedal_obj_sp_dma_queue]
+	ldr r0, [r5]
+	adds r7, r1, #0
+	subs r0, r7, r0
+	asrs r4, r0, #4
+	str r4, [sp, #\occupied]
+	add r1, sp, #(\occupied + 4)
+	add r0, sp, #\occupied
+	cmp r4, #1
+	bhs .Lmedal_arrow_have_growth\@
+	adds r0, r1, #0
+.Lmedal_arrow_have_growth\@:
+	ldr r0, [r0]
+	adds r0, r4, r0
+	cmp r0, #0
+	beq .Lmedal_arrow_zero_capacity\@
+	lsls r4, r0, #4
+	adds r0, r4, #0
+	bl malloc
+	mov sb, r4
+	cmp r0, #0
+	bne .Lmedal_arrow_copy_existing\@
+	mov r0, sb
+	bl func_080D3BC0
+	b .Lmedal_arrow_copy_existing\@
+.Lmedal_arrow_zero_capacity\@:
+	movs r0, #0
+	mov sb, r0
+.Lmedal_arrow_copy_existing\@:
+	adds r4, r0, #0
+	mov r8, r4
+	ldr r0, [sp, #.Lmedal_obj_sp_dma_queue]
+	ldr r2, [r0]
+	mov r3, r8
+	.ifc \arrow,upper
+	mov r1, sp
+	adds r1, #.Lmedal_obj_sp_object_attributes
+	str r1, [sp, #.Lmedal_obj_sp_object_attributes_ptr]
+	.endif
+	ldr \old_end_first, [sp, #.Lmedal_obj_sp_dma_old_end]
+	cmp r2, \old_end_first
+	beq .Lmedal_arrow_append\@
+.Lmedal_arrow_copy_next\@:
+	cmp r3, #0
+	beq .Lmedal_arrow_advance_copy\@
+	adds r0, r3, #0
+	adds r1, r2, #0
+	ldm r1!, {r4, r5, r7}
+	stm r0!, {r4, r5, r7}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmedal_arrow_advance_copy\@:
+	adds r2, #0x10
+	adds r3, #0x10
+	ldr \old_end_loop, [sp, #.Lmedal_obj_sp_dma_old_end]
+	cmp r2, \old_end_loop
+	bne .Lmedal_arrow_copy_next\@
+.Lmedal_arrow_append\@:
+	adds r4, r3, #0
+	ldr r0, [sp, #(\occupied + 4)]
+	cmp r0, #1
+	bne .Lmedal_arrow_append_many\@
+	cmp r4, #0
+	beq .Lmedal_arrow_advance_single\@
+	adds r0, r4, #0
+	mov r1, sl
+	ldm r1!, {r2, r3, \single_copy_temp}
+	stm r0!, {r2, r3, \single_copy_temp}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmedal_arrow_advance_single\@:
+	adds r4, #0x10
+	b .Lmedal_arrow_discard_old\@
+.Lmedal_arrow_append_many\@:
+	mov ip, r0
+	adds r2, r4, #0
+	cmp r0, #0
+	beq .Lmedal_arrow_finish_append_many\@
+.Lmedal_arrow_append_next\@:
+	cmp r2, #0
+	beq .Lmedal_arrow_advance_append\@
+	adds r0, r2, #0
+	mov r1, sl
+	ldm r1!, {\multi_copy_regs}
+	stm r0!, {\multi_copy_regs}
+	ldr r1, [r1]
+	str r1, [r0]
+.Lmedal_arrow_advance_append\@:
+	movs \decrement, #1
+	rsbs \decrement, \decrement, #0
+	add ip, \decrement
+	adds r2, #0x10
+	mov \remaining, ip
+	cmp \remaining, #0
+	bne .Lmedal_arrow_append_next\@
+.Lmedal_arrow_finish_append_many\@:
+	adds r4, r2, #0
+.Lmedal_arrow_discard_old\@:
+	ldr \old_queue, [sp, #.Lmedal_obj_sp_dma_queue]
+	ldr r2, [\old_queue, #4]
+	ldr r0, [\old_queue]
+	adds r1, r0, #0
+	cmp r0, r2
+	beq .Lmedal_arrow_free_old\@
+.Lmedal_arrow_walk_old\@:
+	adds r1, #0x10
+	cmp r1, r2
+	bne .Lmedal_arrow_walk_old\@
+.Lmedal_arrow_free_old\@:
+	cmp r0, #0
+	beq .Lmedal_arrow_publish\@
+	bl free
+.Lmedal_arrow_publish\@:
+	mov r0, sb
+	add r0, r8
+	mov \new_begin, r8
+	ldr \new_queue, [sp, #.Lmedal_obj_sp_dma_queue]
+	str \new_begin, [\new_queue]
+	str r4, [\new_queue, #4]
+	str r0, [\new_queue, #0xc]
+	.endm
+
 	.section .text.f3.0805DFC4, "ax", %progbits
 	thumb_func_start DrawMedalExchangeObjects
 DrawMedalExchangeObjects: @ 0x0805DFC4
@@ -50072,227 +50293,21 @@ DrawMedalExchangeObjects: @ 0x0805DFC4
 	adds r0, r6, r5
 	ldrh r0, [r0]
 	mov r7, sp
-	adds r7, #0x6c
+	adds r7, #.Lmedal_obj_sp_object_attributes
 	str r7, [sp, #.Lmedal_obj_sp_object_attributes_ptr]
 	cmp r0, #0
 	bne .Lmedal_obj_draw_upper_scroll_arrow
 	b .Lmedal_obj_check_lower_scroll_arrow
 .Lmedal_obj_draw_upper_scroll_arrow:
-	ReadMedalExchangeObjectFrame .Lmedal_obj_cursor_animator, r7
-	add r1, sp, #.Lmedal_obj_sp_frame_objects
-	adds r0, r7, #0
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r5}
-	stm r1!, {r2, r3, r5}
-	ldm r0!, {r4, r5}
-	stm r1!, {r4, r5}
-	mov r1, sp
-	adds r0, r6, #0
-	adds r0, #.Lmedal_obj_cursor_options
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r5}
-	stm r1!, {r2, r3, r5}
-	ldr r0, [r0]
-	str r0, [r1]
-	mov r1, sp
-	movs r0, #.Lmedal_obj_arrow_x
-	strh r0, [r1]
-	movs r0, #.Lmedal_obj_upper_arrow_y
-	strh r0, [r1, #2]
-	movs r5, #(.Lmedal_obj_cursor_tiles >> 1)
-	lsls r5, r5, #1
-	adds r4, r6, r5
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	mov r1, sp
-	adds r0, #.Lmedal_obj_arrow_tile_top
-	strh r0, [r1, #6]
-	movs r1, #(.Lmedal_obj_cursor_palette >> 1)
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	mov r1, sp
-	strh r0, [r1, #4]
-	movs r0, #2
-	strh r0, [r1, #8]
-	mov r0, sp
-	movs r2, #1
-	mov sb, r2
-	mov r3, sb
-	strb r3, [r0, #0x18]
-	adds r0, r6, #0
-	bl HardwareContext_GetDmaQueue
-	adds r5, r0, #0
-	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
-	mov r8, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	adds r2, r0, #0
-	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
-	movs r3, #0
-	cmp r0, #0
-	beq .L0805E18C
-	mov r1, sp
-	ldrh r3, [r1, #0x28]
-.L0805E18C:
-	str r5, [sp, #.Lmedal_obj_sp_dma_queue]
-	lsls r2, r2, #5
-	ldr r4, .L0805E1CC
-	adds r2, r2, r4
-	adds r0, r7, #0
-	mov r1, r8
-	bl DmaCommand_InitializeCopy
-	mov sl, r7
-	ldr r1, [r5, #4]
-	ldr r0, [r5, #0xc]
-	cmp r1, r0
-	beq .Lmedal_obj_grow_upper_arrow_dma_queue
-	cmp r1, #0
-	beq .L0805E1B6
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E1B6:
-	ldr r3, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r0, [r3, #4]
-	adds r0, #0x10
-	str r0, [r3, #4]
+	PrepareMedalScrollArrow .Lmedal_obj_cursor_animator, .Lmedal_obj_cursor_options, .Lmedal_obj_upper_arrow_y, .Lmedal_obj_arrow_tile_top, .Lmedal_obj_upper_arrow_tile_destination, .Lmedal_obj_grow_upper_arrow_dma_queue
 	b .Lmedal_obj_submit_upper_arrow_frame
 	.align 2, 0
 .L0805E1C0: .4byte .Lmedal_obj_exchange_phase
 .L0805E1C4: .4byte .Lmedal_obj_selected_prize_row
 .L0805E1C8: .4byte .Lmedal_obj_first_visible_prize_row
-.L0805E1CC: .4byte (.Lmedal_obj_tile_vram + .Lmedal_obj_arrow_tile_top * .Lmedal_obj_tile_bytes)
+.Lmedal_obj_upper_arrow_tile_destination: .4byte (.Lmedal_obj_tile_vram + .Lmedal_obj_arrow_tile_top * .Lmedal_obj_tile_bytes)
 .Lmedal_obj_grow_upper_arrow_dma_queue:
-	str r1, [sp, #.Lmedal_obj_sp_dma_old_end]
-	mov r4, sb
-	str r4, [sp, #0x60]
-	ldr r5, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r0, [r5]
-	adds r7, r1, #0
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x5c]
-	add r1, sp, #0x60
-	add r0, sp, #0x5c
-	cmp r4, #1
-	bhs .L0805E1EC
-	adds r0, r1, #0
-.L0805E1EC:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805E20A
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805E20E
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805E20E
-.L0805E20A:
-	movs r0, #0
-	mov sb, r0
-.L0805E20E:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r0, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r2, [r0]
-	mov r3, r8
-	mov r1, sp
-	adds r1, #0x6c
-	str r1, [sp, #.Lmedal_obj_sp_object_attributes_ptr]
-	ldr r4, [sp, #.Lmedal_obj_sp_dma_old_end]
-	cmp r2, r4
-	beq .L0805E23E
-.L0805E224:
-	cmp r3, #0
-	beq .L0805E234
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E234:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r5, [sp, #.Lmedal_obj_sp_dma_old_end]
-	cmp r2, r5
-	bne .L0805E224
-.L0805E23E:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x60]
-	cmp r0, #1
-	bne .L0805E25A
-	cmp r4, #0
-	beq .L0805E256
-	adds r0, r4, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r7}
-	stm r0!, {r2, r3, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E256:
-	adds r4, #0x10
-	b .L0805E282
-.L0805E25A:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805E280
-.L0805E262:
-	cmp r2, #0
-	beq .L0805E272
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E272:
-	movs r0, #1
-	rsbs r0, r0, #0
-	add ip, r0
-	adds r2, #0x10
-	mov r1, ip
-	cmp r1, #0
-	bne .L0805E262
-.L0805E280:
-	adds r4, r2, #0
-.L0805E282:
-	ldr r3, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r2, [r3, #4]
-	ldr r0, [r3]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805E294
-.L0805E28E:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805E28E
-.L0805E294:
-	cmp r0, #0
-	beq .L0805E29C
-	bl free
-.L0805E29C:
-	mov r0, sb
-	add r0, r8
-	mov r5, r8
-	ldr r7, [sp, #.Lmedal_obj_sp_dma_queue]
-	str r5, [r7]
-	str r4, [r7, #4]
-	str r0, [r7, #0xc]
+	GrowMedalScrollArrowDmaQueue upper, .Lmedal_obj_sp_upper_arrow_queue_size, r4, r5, r7, "r4,r5,r7", r0, r1, r3, r5, r7
 .Lmedal_obj_submit_upper_arrow_frame:
 	DrawMedalExchangeObjectFrame r0
 .Lmedal_obj_check_lower_scroll_arrow:
@@ -50304,215 +50319,12 @@ DrawMedalExchangeObjects: @ 0x0805DFC4
 	bls .Lmedal_obj_draw_lower_scroll_arrow
 	b .Lmedal_obj_draw_glyphs
 .Lmedal_obj_draw_lower_scroll_arrow:
-	ReadMedalExchangeObjectFrame .Lmedal_obj_menu_icon_animator, r7
-	add r1, sp, #.Lmedal_obj_sp_frame_objects
-	adds r0, r7, #0
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r5}
-	stm r1!, {r2, r3, r5}
-	ldm r0!, {r4, r5}
-	stm r1!, {r4, r5}
-	mov r1, sp
-	adds r0, r6, #0
-	adds r0, #.Lmedal_obj_menu_icon_options
-	ldm r0!, {r2, r3, r4}
-	stm r1!, {r2, r3, r4}
-	ldm r0!, {r2, r3, r5}
-	stm r1!, {r2, r3, r5}
-	ldr r0, [r0]
-	str r0, [r1]
-	mov r1, sp
-	movs r0, #.Lmedal_obj_arrow_x
-	strh r0, [r1]
-	movs r0, #.Lmedal_obj_lower_arrow_y
-	strh r0, [r1, #2]
-	movs r5, #(.Lmedal_obj_cursor_tiles >> 1)
-	lsls r5, r5, #1
-	adds r4, r6, r5
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	mov r1, sp
-	adds r0, #.Lmedal_obj_arrow_tile_bottom
-	strh r0, [r1, #6]
-	movs r1, #(.Lmedal_obj_cursor_palette >> 1)
-	lsls r1, r1, #1
-	adds r0, r6, r1
-	ldr r1, [r0, #4]
-	bl ResourceHandle_GetIndex
-	mov r1, sp
-	strh r0, [r1, #4]
-	movs r0, #2
-	strh r0, [r1, #8]
-	mov r0, sp
-	movs r2, #1
-	mov sb, r2
-	mov r3, sb
-	strb r3, [r0, #0x18]
-	adds r0, r6, #0
-	bl HardwareContext_GetDmaQueue
-	adds r5, r0, #0
-	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
-	mov r8, r0
-	ldr r1, [r4, #4]
-	adds r0, r4, #0
-	bl func_08007D4C
-	adds r2, r0, #0
-	ldr r0, [sp, #.Lmedal_obj_sp_frame_tiles]
-	movs r3, #0
-	cmp r0, #0
-	beq .L0805E386
-	mov r1, sp
-	ldrh r3, [r1, #0x28]
-.L0805E386:
-	str r5, [sp, #.Lmedal_obj_sp_dma_queue]
-	lsls r2, r2, #5
-	ldr r4, .L0805E3BC
-	adds r2, r2, r4
-	adds r0, r7, #0
-	mov r1, r8
-	bl DmaCommand_InitializeCopy
-	mov sl, r7
-	ldr r1, [r5, #4]
-	ldr r0, [r5, #0xc]
-	cmp r1, r0
-	beq .Lmedal_obj_grow_lower_arrow_dma_queue
-	cmp r1, #0
-	beq .L0805E3B0
-	adds r0, r1, #0
-	mov r1, sl
-	ldm r1!, {r2, r5, r7}
-	stm r0!, {r2, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E3B0:
-	ldr r3, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r0, [r3, #4]
-	adds r0, #0x10
-	str r0, [r3, #4]
+	PrepareMedalScrollArrow .Lmedal_obj_menu_icon_animator, .Lmedal_obj_menu_icon_options, .Lmedal_obj_lower_arrow_y, .Lmedal_obj_arrow_tile_bottom, .Lmedal_obj_lower_arrow_tile_destination, .Lmedal_obj_grow_lower_arrow_dma_queue
 	b .Lmedal_obj_submit_lower_arrow_frame
 	.align 2, 0
-.L0805E3BC: .4byte (.Lmedal_obj_tile_vram + .Lmedal_obj_arrow_tile_bottom * .Lmedal_obj_tile_bytes)
+.Lmedal_obj_lower_arrow_tile_destination: .4byte (.Lmedal_obj_tile_vram + .Lmedal_obj_arrow_tile_bottom * .Lmedal_obj_tile_bytes)
 .Lmedal_obj_grow_lower_arrow_dma_queue:
-	str r1, [sp, #.Lmedal_obj_sp_dma_old_end]
-	mov r4, sb
-	str r4, [sp, #0x68]
-	ldr r5, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r0, [r5]
-	adds r7, r1, #0
-	subs r0, r7, r0
-	asrs r4, r0, #4
-	str r4, [sp, #0x64]
-	add r1, sp, #0x68
-	add r0, sp, #0x64
-	cmp r4, #1
-	bhs .L0805E3DC
-	adds r0, r1, #0
-.L0805E3DC:
-	ldr r0, [r0]
-	adds r0, r4, r0
-	cmp r0, #0
-	beq .L0805E3FA
-	lsls r4, r0, #4
-	adds r0, r4, #0
-	bl malloc
-	mov sb, r4
-	cmp r0, #0
-	bne .L0805E3FE
-	mov r0, sb
-	bl func_080D3BC0
-	b .L0805E3FE
-.L0805E3FA:
-	movs r0, #0
-	mov sb, r0
-.L0805E3FE:
-	adds r4, r0, #0
-	mov r8, r4
-	ldr r0, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r2, [r0]
-	mov r3, r8
-	ldr r1, [sp, #.Lmedal_obj_sp_dma_old_end]
-	cmp r2, r1
-	beq .L0805E428
-.L0805E40E:
-	cmp r3, #0
-	beq .L0805E41E
-	adds r0, r3, #0
-	adds r1, r2, #0
-	ldm r1!, {r4, r5, r7}
-	stm r0!, {r4, r5, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E41E:
-	adds r2, #0x10
-	adds r3, #0x10
-	ldr r0, [sp, #.Lmedal_obj_sp_dma_old_end]
-	cmp r2, r0
-	bne .L0805E40E
-.L0805E428:
-	adds r4, r3, #0
-	ldr r0, [sp, #0x68]
-	cmp r0, #1
-	bne .L0805E444
-	cmp r4, #0
-	beq .L0805E440
-	adds r0, r4, #0
-	mov r1, sl
-	ldm r1!, {r2, r3, r5}
-	stm r0!, {r2, r3, r5}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E440:
-	adds r4, #0x10
-	b .L0805E46C
-.L0805E444:
-	mov ip, r0
-	adds r2, r4, #0
-	cmp r0, #0
-	beq .L0805E46A
-.L0805E44C:
-	cmp r2, #0
-	beq .L0805E45C
-	adds r0, r2, #0
-	mov r1, sl
-	ldm r1!, {r3, r4, r7}
-	stm r0!, {r3, r4, r7}
-	ldr r1, [r1]
-	str r1, [r0]
-.L0805E45C:
-	movs r5, #1
-	rsbs r5, r5, #0
-	add ip, r5
-	adds r2, #0x10
-	mov r7, ip
-	cmp r7, #0
-	bne .L0805E44C
-.L0805E46A:
-	adds r4, r2, #0
-.L0805E46C:
-	ldr r0, [sp, #.Lmedal_obj_sp_dma_queue]
-	ldr r2, [r0, #4]
-	ldr r0, [r0]
-	adds r1, r0, #0
-	cmp r0, r2
-	beq .L0805E47E
-.L0805E478:
-	adds r1, #0x10
-	cmp r1, r2
-	bne .L0805E478
-.L0805E47E:
-	cmp r0, #0
-	beq .L0805E486
-	bl free
-.L0805E486:
-	mov r0, sb
-	add r0, r8
-	mov r1, r8
-	ldr r2, [sp, #.Lmedal_obj_sp_dma_queue]
-	str r1, [r2]
-	str r4, [r2, #4]
-	str r0, [r2, #0xc]
+	GrowMedalScrollArrowDmaQueue lower, .Lmedal_obj_sp_lower_arrow_queue_size, r1, r0, r5, "r3,r4,r7", r5, r7, r0, r1, r2
 .Lmedal_obj_submit_lower_arrow_frame:
 	DrawMedalExchangeObjectFrame r4
 .Lmedal_obj_draw_glyphs:
@@ -50689,6 +50501,8 @@ DrawMedalExchangeObjects: @ 0x0805DFC4
 .L0805E620: .4byte 0xFFFFFC00
 	.purgem ReadMedalExchangeObjectFrame
 	.purgem DrawMedalExchangeObjectFrame
+	.purgem PrepareMedalScrollArrow
+	.purgem GrowMedalScrollArrowDmaQueue
 
 	.equ .Lmemory_scene_cue, 0x6420
 	.equ .Lmemory_scene_phase, 0x6422
