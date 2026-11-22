@@ -7,6 +7,7 @@
 #include "g1_npc.hh"
 #include "item.hh"
 #include "rucksack.hh"
+#include "saved_script_events.hh"
 
 #include <new>
 #include <string.h>
@@ -372,31 +373,23 @@ ROM_TEXT(0809C5B4) void ClearAlternateMapPatch(u32 & flags, unsigned index)
         flags &= ~(1u << (index & 31));
 }
 
-struct ScriptEventSelection
-{
-    u32 pendingCount;
-    u16 pendingIds[3];
-    STRUCT_PAD(0x0A, 0x0C);
-    u16 selectedId;
-};
-
 EC u16 * func_080E3DB4(u16 *, u16 *, u16 const &);
 EC u16 * func_080E3E28(u16 *, u16 *, u16 const &);
 
-ROM_TEXT(0809C5B4) void ClearPendingScriptEvents(ScriptEventSelection & self)
+ROM_TEXT(0809C5B4) void ClearPendingScriptEvents(SavedScriptEvents & self)
 {
     self.pendingCount = 0;
 }
 
-ROM_TEXT(0809C5B4) bool HasPendingScriptEvents(ScriptEventSelection const & self)
+ROM_TEXT(0809C5B4) bool HasPendingScriptEvents(SavedScriptEvents const & self)
 {
     return self.pendingCount != 0;
 }
 
-ROM_TEXT(0809C5B4) void AddPendingScriptEvent(ScriptEventSelection & self, u16 eventId)
+ROM_TEXT(0809C5B4) void AddPendingScriptEvent(SavedScriptEvents & self, u16 eventId)
 {
     u16 * begin = self.pendingIds;
-    unsigned endOffset = offsetof(ScriptEventSelection, pendingIds) + self.pendingCount * sizeof(eventId);
+    unsigned endOffset = offsetof(SavedScriptEvents, pendingIds) + self.pendingCount * sizeof(eventId);
     u16 * end = reinterpret_cast<u16 *>(reinterpret_cast<uintptr_t>(&self) + endOffset);
     if (func_080E3DB4(begin, end, eventId) == end)
     {
@@ -404,17 +397,17 @@ ROM_TEXT(0809C5B4) void AddPendingScriptEvent(ScriptEventSelection & self, u16 e
         unsigned pendingCount = self.pendingCount;
         if (pendingCount < ARRAY_COUNT(self.pendingIds))
         {
-            unsigned offset = offsetof(ScriptEventSelection, pendingIds) + pendingCount * sizeof(eventId);
+            unsigned offset = offsetof(SavedScriptEvents, pendingIds) + pendingCount * sizeof(eventId);
             new (reinterpret_cast<char *>(&self) + offset) u16(sourceId);
             ++self.pendingCount;
         }
     }
 }
 
-ROM_TEXT(0809C5B4) void RemovePendingScriptEvent(ScriptEventSelection & self, u16 eventId)
+ROM_TEXT(0809C5B4) void RemovePendingScriptEvent(SavedScriptEvents & self, u16 eventId)
 {
     u16 * begin = self.pendingIds;
-    unsigned offset = offsetof(ScriptEventSelection, pendingIds) + self.pendingCount * sizeof(eventId);
+    unsigned offset = offsetof(SavedScriptEvents, pendingIds) + self.pendingCount * sizeof(eventId);
     u16 * end = reinterpret_cast<u16 *>(reinterpret_cast<uintptr_t>(&self) + offset);
     u16 * found = func_080E3E28(begin, end, eventId);
     if (found != end && self.pendingCount)
@@ -431,19 +424,19 @@ ROM_TEXT(0809C5B4) void RemovePendingScriptEvent(ScriptEventSelection & self, u1
     }
 }
 
-ROM_TEXT(0809C5B4) bool IsSelectedScriptEvent(ScriptEventSelection const & self, u16 eventId)
+ROM_TEXT(0809C5B4) bool IsSelectedScriptEvent(SavedScriptEvents const & self, u16 eventId)
 {
     return self.selectedId == eventId;
 }
 
-ROM_TEXT(0809C5B4) void SelectScriptEvent(ScriptEventSelection & self, u16 eventId)
+ROM_TEXT(0809C5B4) void SelectScriptEvent(SavedScriptEvents & self, u16 eventId)
 {
     self.selectedId = eventId;
 }
 
-ROM_TEXT(0809C5B4) void DeselectScriptEvent(ScriptEventSelection & self)
+ROM_TEXT(0809C5B4) void DeselectScriptEvent(SavedScriptEvents & self)
 {
-    self.selectedId = 0xFFFF;
+    self.selectedId = NO_SELECTED_SCRIPT_EVENT;
 }
 
 enum { FIRST_FISH_CATCH_ID = 8, MAX_CATCH_COUNT = 1000000000 };

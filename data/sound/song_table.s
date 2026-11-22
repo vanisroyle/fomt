@@ -3,6 +3,5 @@
     .include "asm/m4a.s"
 
     rodata gSongTable global
-    @ TODO
-    .incbin "baserom.gba", (0x13ABF0), (0x13B288 - 0x13ABF0)
+    .include "build/assets/audio-table.s"
     endr
