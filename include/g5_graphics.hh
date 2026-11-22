@@ -71,4 +71,8 @@ EC void QueuePagedPanelNumberDraw(u8 * panel, u32 value, void * destination, u16
 EC void MapGraphics_LoadPaletteBuffer(u8 * renderer, u32 unused, u32 buffer_index); // 0x080CFB5C
 EC void MapGraphics_DrawFieldPlot(u8 * renderer, int x, int y, FieldPlot * plot, Unk_Something const * variant); // 0x080CFEA8
 
+// Set the special-slot graphics and queue its tilemap and optional quantity draw.
+EC void InventoryMenu_SetSpecialSlotEntry(u8 *panel, u32 tile_data, u32 palette_data, u32 value); // 0x080CBDD4
+EC void InventoryMenu_SetAnimatedSpecialSlotEntry(u8 *panel, void const *data, u32 animation, u32 value); // 0x080CBAF0
+
 #endif
