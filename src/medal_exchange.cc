@@ -1,6 +1,9 @@
+#include "message_script.hh"
 #include "sprite_animation.hh"
 #include "sprite_rendering.hh"
 #include "utility/vec2.hh"
+
+#include <string.h>
 
 struct MedalExchangeGameState
 {
@@ -36,7 +39,7 @@ struct AudioPlayer { MusicPlayer * player; };
 struct MedalExchangeTextSubstitutions
 {
     void const * vtable;
-    char const * prize_name;
+    int prize_id;
 };
 
 struct MedalExchange
@@ -73,7 +76,9 @@ struct MedalExchange
     i16 glyph_count;
     u16 prize_name_tilemap[32][32];
     int medal_balance;
-    STRUCT_PAD(0xAD4, 0xADA);
+    i16 selected_row;
+    i16 first_visible_row;
+    i16 selected_prize_id;
     i16 exchange_phase;
     i16 dialogue_phase;
     i16 declined_choice;
@@ -82,6 +87,13 @@ struct MedalExchange
     MedalExchangeTextSubstitutions text_substitutions;
 };
 
+typedef char MedalExchangeSelectionOffsetsMatch[
+    offsetof(MedalExchange, selected_row) == 0xAD4 &&
+    offsetof(MedalExchange, first_visible_row) == 0xAD6 &&
+    offsetof(MedalExchange, selected_prize_id) == 0xAD8 &&
+    offsetof(MedalExchange, prize_indices) == 0xAE0 &&
+    offsetof(MedalExchange, text_substitutions) +
+        offsetof(MedalExchangeTextSubstitutions, prize_id) == 0xAF0 ? 1 : -1];
 
 
 struct TileResources { void * handles; };
@@ -101,7 +113,7 @@ EC u32 AllocateMedalExchangeTiles(MedalExchangeObjAllocation *, u32) asm("func_0
 EC void ResourceHandles_Initialize(MedalExchangeObjAllocation *);
 EC u32 AllocateMedalExchangePalette(MedalExchangeObjAllocation *) asm("func_0800736C");
 EC char const gMedalExchangeScreenVTable[] asm("vtable_unk_080E799C");
-EC char const gMedalExchangeTextSubstitutionsVTable[] asm("vtable_unk_080E79A8");
+EC char const gMedalExchangeTextSubstitutionsVTable[];
 EC u8 const gMedalExchangeMenuAnimation[] asm("gUnk_08527094");
 EC u8 const gMedalExchangeSelectionAnimation[] asm("gUnk_08728208");
 
@@ -228,7 +240,7 @@ EC SECTION(".text.f3.0805CF70") MedalExchange * InitMedalExchangeScreen(
     register MedalExchangeTextSubstitutions * substitutions asm("r1") = &self->text_substitutions;
     asm ("" : "+l" (substitutions));
     substitutions->vtable = gMedalExchangeTextSubstitutionsVTable;
-    substitutions->prize_name = reinterpret_cast<char const *>(zero);
+    substitutions->prize_id = zero;
     register int * balance asm("r2") = MEDAL_INIT_FIELD("r1", int, offsetof(MedalExchange, medal_balance), self);
     asm ("" : "+l" (balance));
     register MedalExchangeGameState * game asm("r0") = self->game_state;
@@ -250,6 +262,33 @@ EC SECTION(".text.f3.0805CF70") MedalExchange * InitMedalExchangeScreen(
 #undef MEDAL_INIT_FIELD
 
 EC MedalPrize const gMedalExchangePrizes[];
+
+EC SECTION(".text.medal_exchange.080E1844") MessageScriptReplacement * ResolveMedalExchangePrizeName(
+    MessageScriptReplacement * output, MedalExchangeTextSubstitutions const * substitutions, u32 placeholder)
+{
+    enum { PRIZE_NAME_PLACEHOLDER = 0xFF };
+    register MessageScriptReplacement * result asm("r6") = output;
+    asm ("" : "+l" (result));
+    char text[sizeof(output->text)];
+    if (placeholder == PRIZE_NAME_PLACEHOLDER)
+    {
+        char const * name = gMedalExchangePrizes[substitutions->prize_id].name;
+        size_t length = strlen(name);
+        if (length > sizeof(text) - 1)
+            length = sizeof(text) - 1;
+        memcpy(text, name, length);
+        text[length] = '\0';
+        result->found = true;
+        strcpy(result->text, text);
+    }
+    else
+    {
+        text[0] = '\0';
+        result->found = false;
+        strcpy(result->text, text);
+    }
+    return result;
+}
 
 EC SECTION(".text.f3.0805DF68") void AppendMedalExchangeGlyph(MedalExchange * self, int x, int y,
     int tile, int oam_priority)
@@ -351,7 +390,7 @@ EC void FillPrizeNameTiles(PrizeNameTileSize, void *, u32) asm("FillMessageTiles
 EC void DrawPrizeNameTiles(PrizeNameTileSize, void *, u32, u32, char const *, u32, u32) asm("DrawMessageTileStringWithColors");
 EC void Dma3_Copy(void const *, void *, u32);
 EC void Dma3_Fill(u32, void *, u32);
-EC u32 ResolveMedalObjPalette(MedalExchangeObjAllocation *, u32) asm("func_080074C0");
+EC u32 ResolveMedalObjPalette(MedalExchangeObjAllocation *, u32) asm("ResourceHandle_GetIndex");
 EC u32 ResolveMedalObjTile(MedalExchangeObjAllocation *, u32) asm("func_08007D4C");
 EC void ReadPrizeFrame(MedalExchangeFrameView *, SpriteAnimationData const *, u32) asm("GetSpriteAnimationDataFrame");
 EC void * CopyPrizeFrame(void *, void const *, size_t) asm("memcpy");

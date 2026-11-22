@@ -65,6 +65,8 @@ SECTIONS
         asm/main.o(.text.after_08000240);
         src/sram_header.o(.text);
         asm/sram_proxy_1.o(.text);
+        src/sram_proxy.o(.text.SaveSlot_GetSramOffset);
+        asm/sram_proxy_1.o(.text.after_080003DC);
         src/sram_header.o(.text.flags);
         asm/sram_proxy_1.o(.text.tail);
         src/sram_selection.o(.text);
@@ -148,8 +150,12 @@ SECTIONS
         src/new_game.o(.text.func_0800711C);
         src/hardware.o(.text);
         asm/hardware.o(.text.handle_alloc);
+        src/hardware.o(.text.ResourceHandle_Release);
+        asm/hardware.o(.text.after_080073E0);
         src/hardware.o(.text.handle_retain);
         asm/hardware.o(.text.handle_index);
+        src/hardware.o(.text.ResourceHandle_GetIndex);
+        asm/hardware.o(.text.after_080074C0);
         src/hardware.o(.text.handle_count);
         asm/hardware.o(.text);
         src/hardware.o(.text.ResourcePool_Initialize);
@@ -158,10 +164,14 @@ SECTIONS
         asm/hardware.o(.text.after_08007714);
         src/hardware.o(.text.ResourcePool_Acquire);
         asm/hardware.o(.text.after_08007770);
+        src/hardware.o(.text.AllocationBitset_AllocateBlock);
+        asm/hardware.o(.text.after_080077DC);
         src/hardware.o(.text.AllocationBitset_FreeBlock);
         asm/hardware.o(.text.after_08007844);
         src/hardware.o(.text.TileHeapOwner_Destroy);
         asm/hardware.o(.text.after_080079E8);
+        src/hardware.o(.text.TileHandle_Release);
+        asm/hardware.o(.text.after_08007C28);
         src/hardware.o(.text.AllocationTree_MarkFull);
         asm/hardware.o(.text.after_08007EA8);
         src/hardware.o(.text.AllocationTree_MarkEmpty);
@@ -304,6 +314,8 @@ SECTIONS
         asm/hardware.o(.text.after_080094AC);
         src/hardware.o(.text.DisplayFadeTask_Destroy);
         asm/hardware.o(.text.after_080094B8);
+        src/hardware.o(.text.DisplayFadeTask_SetSpeed);
+        asm/hardware.o(.text.after_08009508);
         src/hardware.o(.text.IrqTaskList_Clear);
         asm/hardware.o(.text.after_0800956C);
         src/hardware.o(.text.IrqTaskList_Destroy);
@@ -595,7 +607,7 @@ SECTIONS
         *(SORT_BY_NAME(.text.entities_part2.*));
         src/entity_actor.o(.text);
 
-        asm/code_entities_080320DC.o(.text.npc_side.0803242C);
+        src/npc_side_batch10.o(.text.npc_side.0803242C);
         src/npc_side_entities.o(.text.npc_side.080324B8);
         src/npc_side_batch6.o(.text.npc_side.080324BC);
         src/npc_side_batch6.o(.text.npc_side.08032560);
@@ -651,11 +663,13 @@ SECTIONS
         src/npc_side_entities.o(.text.npc_side.08033B7C);
         src/npc_side_batch2.o(.text.npc_side.08033B84);
         asm/code_entities_080320DC.o(.text.npc_side.08033B94);
-        asm/code_entities_080320DC.o(.text.npc_side.08034180);
+        src/npc_side_batch9.o(.text.npc_side.08034180);
         src/npc_side_entities.o(.text.npc_side.08034248);
         src/npc_side_batch8.o(.text.npc_side.08034260);
         src/npc_side_batch7.o(.text.npc_side.080342D8);
         asm/code_entities_080320DC.o(.text.npc_side.0803436C);
+        src/npc_side_batch10.o(.text.npc_side.08034940);
+        asm/code_entities_080320DC.o(.text.npc_side.08034A14);
         src/npc_side_batch5.o(.text.npc_side.08034AA0);
         asm/code_entities_080320DC.o(.text.npc_side.08034AE8);
         src/npc_side_batch2.o(.text.npc_side.08034BFC);
@@ -766,7 +780,7 @@ SECTIONS
         src/npc_side_batch6.o(.text.npc_extra.08037048);
         src/npc_side_batch3.o(.text.npc_extra.08037098);
         src/npc_side_batch6.o(.text.npc_extra.080370D8);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037118);
+        src/npc_side_batch10.o(.text.npc_extra.08037118);
         src/npc_side_batch2.o(.text.npc_extra.08037244);
         src/npc_side_batch5.o(.text.npc_extra.08037250);
         asm/code_entities_08034CEC.o(.text.npc_extra.0803726C);
@@ -776,17 +790,17 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.0803745C);
         asm/code_entities_08034CEC.o(.text.npc_extra.08037470);
         src/npc_side_batch2.o(.text.npc_extra.08037470);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037494);
+        src/npc_side_batch9.o(.text.npc_extra.08037494);
         src/npc_side_batch4.o(.text.npc_extra.0803753C);
         asm/code_entities_08034CEC.o(.text.npc_extra.08037568);
         src/npc_side_batch2.o(.text.npc_extra.08037618);
         src/npc_side_batch2.o(.text.npc_extra.08037628);
-        asm/code_entities_08034CEC.o(.text.npc_extra.0803763C);
+        src/npc_side_batch9.o(.text.npc_extra.0803763C);
         src/npc_side_batch4.o(.text.npc_extra.080376E4);
         asm/code_entities_08034CEC.o(.text.npc_extra.08037714);
         src/npc_side_batch2.o(.text.npc_extra.080377C4);
         src/npc_side_batch2.o(.text.npc_extra.080377D4);
-        asm/code_entities_08034CEC.o(.text.npc_extra.080377E8);
+        src/npc_side_batch9.o(.text.npc_extra.080377E8);
         src/npc_side_batch4.o(.text.npc_extra.0803788C);
         src/npc_side_batch3.o(.text.npc_extra.080378B8);
         src/npc_side_batch2.o(.text.npc_extra.080378EC);
@@ -796,8 +810,8 @@ SECTIONS
         src/npc_side_batch3.o(.text.npc_extra.08037A04);
         src/npc_side_batch2.o(.text.npc_extra.08037A38);
         src/npc_side_batch2.o(.text.npc_extra.08037A48);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037A5C);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08037AD0);
+        src/npc_side_batch10.o(.text.npc_extra.08037A5C);
+        src/npc_side_batch10.o(.text.npc_extra.08037AD0);
         src/npc_side_batch5.o(.text.npc_extra.08037B48);
         src/npc_side_batch5.o(.text.npc_extra.08037B80);
         src/npc_side_batch5.o(.text.npc_extra.08037BB8);
@@ -830,7 +844,7 @@ SECTIONS
         src/npc_side_batch2.o(.text.npc_extra.0803834C);
         src/npc_side_batch2.o(.text.npc_extra.0803836C);
         src/npc_side_batch2.o(.text.npc_extra.08038374);
-        asm/code_entities_08034CEC.o(.text.npc_extra.08038398);
+        src/npc_side_batch9.o(.text.npc_extra.08038398);
         src/npc_side_batch2.o(.text.npc_extra.080384FC);
         src/npc_side_batch6.o(.text.npc_extra.0803853C);
         src/npc_side_batch2.o(.text.npc_extra.08038580);
@@ -911,10 +925,11 @@ SECTIONS
         src/script_scene.o(.text.0803B6FC);
         src/script_scene.o(.text.0803B718);
         src/code_0803A8A4.o(.text.0803B840);
-        asm/code_0803A8A4.o(.text.0803B8CC);
+        src/code_0803A8A4.o(.text.0803B8CC);
+        src/code_0803A8A4.o(.text.0803BAAC);
         src/code_0803A8A4.o(.text.0803BCF8);
         src/code_0803A8A4.o(.text.0803BD60);
-        asm/code_0803A8A4.o(.text.0803BF14);
+        src/code_0803A8A4.o(.text.0803BF14);
         src/code_0803A8A4.o(.text.0803BF78);
         src/code_0803A8A4.o(.text.0803BFF0);
         src/code_0803A8A4.o(.text.0803C00C);
@@ -992,7 +1007,7 @@ SECTIONS
         src/code_actor_0809BFE8.o(.text.0809E0AC);
         src/code_actor_0809BFE8.o(.text.0809E118);
         src/code_actor_0809BFE8.o(.text.0809E174);
-        asm/code_actor_0809BFE8.o(.text.0809E1B4);
+        src/code_actor_0809BFE8.o(.text.0809E1B4);
         src/npc.o(.text);
         src/bachelorette.o(.text);
         src/harvest_sprite.o(.text);
@@ -1573,6 +1588,7 @@ SECTIONS
         asm/code_080D035C.o(.text.g5_06DC);
         src/g5_runtime.o(.text.g5_080D0704);
         asm/code_080D035C.o(.text.g5_after_080D0704);
+        src/g5_transmit.o(.text.g5_080D091C);
         src/g5_runtime.o(.text.g5_commands);
         src/g5_runtime.o(.text);
         asm/code_080D0C68.o(.text);
@@ -1610,6 +1626,8 @@ SECTIONS
         asm/code_linkonce.o(.text.code_080D7CFC);
         *(.gnu.linkonce.t.__lower_bound__H4ZPC12JumpTableEntZiZ28ScriptJumpTableSearchCompareZl_X01T0RCX11X21PX31_X01);
         asm/code_linkonce.o(.text.code_080E0EF0);
+        *(.text.medal_exchange.080E1844);
+        asm/code_linkonce.o(.text.code_080E18A4);
 
         *(.gnu.linkonce.d.__vt_6AScene);
         *(.gnu.linkonce.d.__vt_13AUnk_0800080C);
@@ -1646,6 +1664,10 @@ SECTIONS
     {
         LONG(0);
         *(.script_overflow);
+        . = ALIGN(4);
+        *(.vietnamese_font);
+        . = ALIGN(4);
+        *(.graphics_overflow);
         . = ALIGN(0x800000);
     } > ROM = 0xFF
 
