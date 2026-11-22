@@ -351,9 +351,9 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateSetRecordPlayerAlbum
 	.word GameStateApplyMapTilePatchWithAlternateRow
 	.word GameMap_IsInteriorOrForced
-	.word func_08019BEC
+	.word GameStateTransitionMap
 	.word GameStateRefreshMapDaylight
-	.word func_0801EAA0
+	.word GameStateAdvanceClockToTime
 	.word GameStateHoeFarmPlot
 	.word 0x0801CA1D
 	.word 0x0801C49D
@@ -372,7 +372,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateApplyMapTilePatchAtRow20
 	.word GameStateApplyMapTilePatchAtRow23
 	.word GameStateQueueMapEvent1D
-	.word func_0801DEB4
+	.word GameStateClearNearestEligibleFarmPlot
 	.word GameStateSetMapTileVariant
 	.word GameStateClearMapTileVariant
 	.word GameStateSettleShippingBin
@@ -392,7 +392,7 @@ vtable_unk_080E5EC4: @ game object
 	.word GameStateGetAudioList
 	.word 0x0801F519
 	.word GameStateSetVaseArticle
-	.word func_0801EE00
+	.word GameStateDisplayDroppedItem
 	.word GameStateShipProduct
 	.word 0x0801C551
 	.word 0x0801C69D

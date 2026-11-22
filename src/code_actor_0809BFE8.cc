@@ -439,6 +439,727 @@ ROM_TEXT(0809C5B4) void DeselectScriptEvent(SavedScriptEvents & self)
     self.selectedId = NO_SELECTED_SCRIPT_EVENT;
 }
 
+// Keep the original packed-field stores and the bits they leave untouched.
+// Offsets are relative to SavedScriptEvents. The wide access widths, register
+// constraints and literal pools preserve the original Thumb code.
+#define PIN(type, name, reg, value) register type name asm(reg) = (value); asm("" : "+l"(name))
+#define PIN_HI(type, name, reg, value) register type name asm(reg) = (value); asm("" : "+h"(name))
+#define ADD_BASE(type, name, reg, offset, base) register type name asm(reg); \
+    asm("add %0, %1, %2" : "=l"(name) : "l"(offset), "l"(base))
+#define SUFFIX_u16 "h"
+#define SUFFIX_u32 ""
+#define READ(type, name, reg, width, base, offset) READ_##width(type, name, reg, base, offset)
+#define READ_u8(type, name, reg, base, offset) PIN(type, name, reg, (base)[offset])
+#define READ_u16(type, name, reg, base, offset) READ_PACKED(type, name, reg, u16, base, offset)
+#define READ_u32(type, name, reg, base, offset) READ_PACKED(type, name, reg, u32, base, offset)
+#define READ_PACKED(type, name, reg, width, base, offset) register type name asm(reg); \
+    asm volatile("ldr" SUFFIX_##width " %0, [%1, %2]" : "=l"(name) : "l"(base), "i"(offset) : "memory")
+#define WRITE(width, base, offset, value) WRITE_##width(base, offset, value)
+#define WRITE_u8(base, offset, value) (base)[offset] = (value)
+#define WRITE_u16(base, offset, value) WRITE_PACKED(u16, base, offset, value)
+#define WRITE_u32(base, offset, value) WRITE_PACKED(u32, base, offset, value)
+#define WRITE_PACKED(width, base, offset, value) \
+    asm volatile("str" SUFFIX_##width " %0, [%1, %2]" : : "l"(value), "l"(base), "i"(offset) : "memory")
+#define LITERAL(type, name, reg, label) register type name asm(reg); \
+    asm volatile("ldr %0, .Lsaved_events_" #label : "=l"(name))
+#define FIRST_LITERAL_POOL asm volatile("b .Lsaved_events_after_pool\n" \
+    "\t.align 2, 0\n" \
+    ".Lsaved_events_no_selection: .4byte 0x0000ffff\n" \
+    ".Lsaved_events_clear_word_bits_15_16: .4byte 0xfffe7fff\n" \
+    ".Lsaved_events_clear_half_bits_7_8: .4byte 0xfffffe7f\n" \
+    ".Lsaved_events_clear_word_bits_14_17: .4byte 0xfffc3fff\n" \
+    ".Lsaved_events_clear_half_bits_7_9_first: .4byte 0xfffffc7f\n" \
+    ".Lsaved_events_clear_word_bits_13_16: .4byte 0xfffe1fff\n" \
+    ".Lsaved_events_after_pool:" : : : "memory")
+
+#define CLEAR_THREE_TWO_BIT_FIELDS(base, offset, bits1To2, bits3To4, bits5To6) \
+    { \
+        READ(u32, packed, "r1", u8, base, offset); \
+        PIN(u32, remainingBits, "r0", bits1To2); \
+        RETAIN_3_MASKS(remainingBits, packed, bits3To4, bits5To6); \
+        WRITE(u8, base, offset, remainingBits); \
+    }
+#define CLEAR_LOW_BIT_AND_THREE_FIELDS(base, offset, bits1To2, bits3To4, bits5To6) \
+    { \
+        READ(u32, packed, "r1", u8, base, offset); \
+        NEGATED_MASK(remainingBits, "r0", 2); \
+        RETAIN_4_MASKS(remainingBits, packed, bits1To2, bits3To4, bits5To6); \
+        WRITE(u8, base, offset, remainingBits); \
+    }
+#define CLEAR_THREE_FIELDS_AND_HIGH_BIT(base, offset, bits1To2, bits3To4, bits5To6) \
+    { \
+        READ(u32, packed, "r1", u8, base, offset); \
+        PIN(u32, remainingBits, "r0", bits1To2); \
+        RETAIN_3_MASKS(remainingBits, packed, bits3To4, bits5To6); \
+        PIN(u32, clearHighBit, "r1", 0x7F); \
+        RETAIN_BITS(remainingBits, clearHighBit); \
+        WRITE(u8, base, offset, remainingBits); \
+    }
+#define CLEAR_HALFWORD_AT(base, offset, mask) \
+    MASK_PACKED_FROM_MASK(u16, base, offset, mask, "r1", "r0")
+
+#define RETAIN_BITS(value, mask) value &= (mask); asm("" : "+l"(value))
+#define ADVANCE(value, distance) value += (distance); asm("" : "+l"(value))
+#define SUBTRACT(value, distance) value -= (distance); asm("" : "+l"(value))
+
+#define NEGATED_MASK(name, reg, positive) \
+    PIN(u32, name##Seed, reg, positive); \
+    PIN(u32, name, reg, 0 - name##Seed)
+#define PROGRESS_ADDRESS(name, reg, offset) \
+    PIN(u8 volatile *, name, reg, events); \
+    ADVANCE(name, offset)
+#define RETAIN_2_MASKS(value, a, b) \
+    RETAIN_BITS(value, a); RETAIN_BITS(value, b)
+#define RETAIN_3_MASKS(value, a, b, c) \
+    RETAIN_BITS(value, a); RETAIN_BITS(value, b); RETAIN_BITS(value, c)
+#define RETAIN_4_MASKS(value, a, b, c, d) \
+    RETAIN_BITS(value, a); RETAIN_BITS(value, b); RETAIN_BITS(value, c); RETAIN_BITS(value, d)
+#define RETAIN_6_MASKS(value, a, b, c, d, e, f) \
+    RETAIN_BITS(value, a); RETAIN_BITS(value, b); RETAIN_BITS(value, c); RETAIN_BITS(value, d); RETAIN_BITS(value, e); RETAIN_BITS(value, f)
+
+#define ZERO_BYTE_RUN(ptr, zero, count) WRITE(u8, ptr, 0, zero); ZERO_NEXT_##count(ptr, zero)
+#define ZERO_NEXT(ptr, zero) ADVANCE(ptr, 1); WRITE(u8, ptr, 0, zero)
+#define ZERO_NEXT_2(ptr, zero) ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_3(ptr, zero) ZERO_NEXT_2(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_4(ptr, zero) ZERO_NEXT_3(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_5(ptr, zero) ZERO_NEXT_4(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_6(ptr, zero) ZERO_NEXT_5(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_7(ptr, zero) ZERO_NEXT_6(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_8(ptr, zero) ZERO_NEXT_7(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_9(ptr, zero) ZERO_NEXT_8(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_10(ptr, zero) ZERO_NEXT_9(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_11(ptr, zero) ZERO_NEXT_10(ptr, zero); ZERO_NEXT(ptr, zero)
+#define ZERO_NEXT_12(ptr, zero) ZERO_NEXT_11(ptr, zero); ZERO_NEXT(ptr, zero)
+
+#define MASK_PACKED_FROM_MASK(width, base, offset, mask, packedReg, maskReg) \
+    { \
+        READ(u32, packed, packedReg, width, base, offset); \
+        PIN(u32, remainingBits, maskReg, mask); \
+        RETAIN_BITS(remainingBits, packed); \
+        WRITE(width, base, offset, remainingBits); \
+    }
+#define MASK_PACKED_FROM_VALUE(width, base, offset, mask, packedReg) \
+    { \
+        READ(u32, remainingBits, packedReg, width, base, offset); \
+        RETAIN_BITS(remainingBits, mask); \
+        WRITE(width, base, offset, remainingBits); \
+    }
+#define MASK_PACKED_FROM_LITERAL(width, base, offset, mask, packedReg, maskReg) \
+    { \
+        READ(u32, packed, packedReg, width, base, offset); \
+        LITERAL(u32, remainingBits, maskReg, mask); \
+        RETAIN_BITS(remainingBits, packed); \
+        WRITE(width, base, offset, remainingBits); \
+    }
+
+
+ROM_TEXT(0809C6BC) SavedScriptEvents & InitializeSavedScriptEvents(SavedScriptEvents & self)
+{
+    u8 volatile * events = reinterpret_cast<u8 *>(&self);
+    asm("" : "+l"(events));
+    // The original compiler reserves one stack word.
+    u32 frameSlot;
+    asm("" : "=m"(frameSlot));
+    SavedScriptEvents * savedEvents = reinterpret_cast<SavedScriptEvents *>(const_cast<u8 *>(events));
+    PIN(u32, zero, "r0", 0);
+    savedEvents->pendingCount = zero;
+    LITERAL(u32, noSelectedId, "r0", no_selection);
+    savedEvents->selectedId = noSelectedId;
+    NEGATED_MASK(clearBits1To2, "r5", 7);
+
+    // Pending IDs and padding are left untouched.
+    PIN(u32, zeroAt2, "r0", 0);
+    WRITE(u8, events, offsetof(SavedScriptEvents, packedProgress), zeroAt2);
+    SUBTRACT(zeroAt2, 3);
+    PIN_HI(u32, savedClearBit1, "r9", zeroAt2);
+    NEGATED_MASK(clearBits3To4, "r4", 25);
+    PIN(u32, zeroAt3, "r0", 0);
+    WRITE(u8, events, 0xF, zeroAt3);
+    WRITE(u8, events, 0x10, zeroAt3);
+
+    READ(u32, packedByte, "r1", u8, events, 0x11);
+    SUBTRACT(zeroAt3, 2);
+    RETAIN_BITS(zeroAt3, packedByte);
+    PIN(u32, maskAt2, "r1", savedClearBit1);
+    RETAIN_BITS(zeroAt3, maskAt2);
+    NEGATED_MASK(keepBitsFB, "r2", 5);
+    RETAIN_BITS(zeroAt3, keepBitsFB);
+    NEGATED_MASK(keepBitsF7, "r1", 9);
+    RETAIN_BITS(zeroAt3, keepBitsF7);
+    SUBTRACT(keepBitsFB, 12);
+    RETAIN_BITS(zeroAt3, keepBitsFB);
+    NEGATED_MASK(clearBits5To6, "r3", 97);
+    RETAIN_BITS(zeroAt3, clearBits5To6);
+    WRITE(u8, events, 0x11, zeroAt3);
+
+    READ(u32, packedWord, "r0", u32, events, 0x10);
+    LITERAL(u32, clearWordBits15To16, "r1", clear_word_bits_15_16);
+    PIN_HI(u32, savedClearWordBits15To16, "r8", clearWordBits15To16);
+    RETAIN_BITS(packedWord, clearWordBits15To16);
+    WRITE(u32, events, 0x10, packedWord);
+
+    CLEAR_THREE_TWO_BIT_FIELDS(events, 0x12, clearBits1To2, clearBits3To4, clearBits5To6);
+    READ(u32, packedHalfword, "r1", u16, events, 0x12);
+    LITERAL(u32, clearHalfBits7To8, "r6", clear_half_bits_7_8);
+    PIN(u32, maskAt4, "r0", clearHalfBits7To8);
+    RETAIN_BITS(maskAt4, packedHalfword);
+    WRITE(u16, events, 0x12, maskAt4);
+
+    READ(u32, packedByteAt2, "r1", u8, events, 0x13);
+    PIN(u32, maskAt5, "r0", clearBits1To2);
+    RETAIN_3_MASKS(maskAt5, packedByteAt2, clearBits3To4, clearBits5To6);
+    PIN(u32, maskSeedAt6, "r2", 127);
+    RETAIN_BITS(maskAt5, maskSeedAt6);
+    WRITE(u8, events, 0x13, maskAt5);
+
+    CLEAR_LOW_BIT_AND_THREE_FIELDS(events, 0x14, clearBits1To2, clearBits3To4, clearBits5To6);
+    CLEAR_HALFWORD_AT(events, 0x14, clearHalfBits7To8);
+    CLEAR_THREE_TWO_BIT_FIELDS(events, 0x15, clearBits1To2, clearBits3To4, clearBits5To6);
+    READ(u32, packedWordAt2, "r0", u32, events, 0x14);
+    PIN(u32, maskAt6, "r1", savedClearWordBits15To16);
+    RETAIN_BITS(packedWordAt2, maskAt6);
+    WRITE(u32, events, 0x14, packedWordAt2);
+
+    CLEAR_THREE_TWO_BIT_FIELDS(events, 0x16, clearBits1To2, clearBits3To4, clearBits5To6);
+    CLEAR_HALFWORD_AT(events, 0x16, clearHalfBits7To8);
+    READ(u32, packedByteAt3, "r1", u8, events, 0x17);
+    PIN(u32, maskAt7, "r0", clearBits1To2);
+    RETAIN_4_MASKS(maskAt7, packedByteAt3, clearBits3To4, clearBits5To6, maskSeedAt6);
+    WRITE(u8, events, 0x17, maskAt7);
+
+    CLEAR_LOW_BIT_AND_THREE_FIELDS(events, 0x18, clearBits1To2, clearBits3To4, clearBits5To6);
+    CLEAR_HALFWORD_AT(events, 0x18, clearHalfBits7To8);
+    CLEAR_THREE_TWO_BIT_FIELDS(events, 0x19, clearBits1To2, clearBits3To4, clearBits5To6);
+    READ(u32, packedWordAt3, "r0", u32, events, 0x18);
+    PIN(u32, clearWordBits15To16Copy, "r2", savedClearWordBits15To16);
+    RETAIN_BITS(packedWordAt3, clearWordBits15To16Copy);
+    WRITE(u32, events, 0x18, packedWordAt3);
+
+    CLEAR_THREE_TWO_BIT_FIELDS(events, 0x1A, clearBits1To2, clearBits3To4, clearBits5To6);
+    CLEAR_HALFWORD_AT(events, 0x1A, clearHalfBits7To8);
+    READ(u32, packedByteAt4, "r1", u8, events, 0x1B);
+    PIN(u32, maskAt9, "r0", clearBits1To2);
+    RETAIN_3_MASKS(maskAt9, packedByteAt4, clearBits3To4, clearBits5To6);
+    PIN(u32, maskSeedAt7, "r1", 127);
+    RETAIN_BITS(maskAt9, maskSeedAt7);
+    WRITE(u8, events, 0x1B, maskAt9);
+
+    CLEAR_LOW_BIT_AND_THREE_FIELDS(events, 0x1C, clearBits1To2, clearBits3To4, clearBits5To6);
+    CLEAR_HALFWORD_AT(events, 0x1C, clearHalfBits7To8);
+    CLEAR_THREE_TWO_BIT_FIELDS(events, 0x1D, clearBits1To2, clearBits3To4, clearBits5To6);
+    MASK_PACKED_FROM_VALUE(u32, events, 0x1C, clearWordBits15To16Copy, "r0");
+
+    CLEAR_THREE_TWO_BIT_FIELDS(events, 0x1E, clearBits1To2, clearBits3To4, clearBits5To6);
+    CLEAR_HALFWORD_AT(events, 0x1E, clearHalfBits7To8);
+    READ(u32, packedByteAt5, "r1", u8, events, 0x1F);
+    PIN(u32, maskAt10, "r0", clearBits1To2);
+    RETAIN_3_MASKS(maskAt10, packedByteAt5, clearBits3To4, clearBits5To6);
+    PIN(u32, maskSeedAt8, "r2", 127);
+    RETAIN_BITS(maskAt10, maskSeedAt8);
+    WRITE(u8, events, 0x1F, maskAt10);
+
+    PROGRESS_ADDRESS(progressFrom20, "r2", 0x20);
+    READ(u32, packedByteAt6, "r1", u8, progressFrom20, 0);
+    NEGATED_MASK(keepBitsFE, "r0", 2);
+    RETAIN_4_MASKS(keepBitsFE, packedByteAt6, clearBits1To2, clearBits3To4, clearBits5To6);
+    WRITE(u8, progressFrom20, 0, keepBitsFE);
+
+    CLEAR_HALFWORD_AT(events, 0x20, clearHalfBits7To8);
+    ADVANCE(progressFrom20, 1);
+    READ(u32, packedByteAt7, "r1", u8, progressFrom20, 0);
+    PIN(u32, maskAt11, "r0", clearBits1To2);
+    RETAIN_3_MASKS(maskAt11, packedByteAt7, clearBits3To4, clearBits5To6);
+    WRITE(u8, progressFrom20, 0, maskAt11);
+
+    READ(u32, packedWordAt5, "r0", u32, events, 0x20);
+    PIN(u32, maskAt12, "r1", savedClearWordBits15To16);
+    RETAIN_BITS(packedWordAt5, maskAt12);
+    WRITE(u32, events, 0x20, packedWordAt5);
+    ADVANCE(progressFrom20, 1);
+    READ(u32, packedByteAt8, "r1", u8, progressFrom20, 0);
+    PIN(u32, maskAt13, "r0", clearBits1To2);
+    RETAIN_2_MASKS(maskAt13, packedByteAt8, clearBits3To4);
+    NEGATED_MASK(keepBitsDF, "r1", 33);
+    RETAIN_BITS(maskAt13, keepBitsDF);
+    SUBTRACT(keepBitsDF, 32);
+    RETAIN_BITS(maskAt13, keepBitsDF);
+    WRITE(u8, progressFrom20, 0, maskAt13);
+    ADVANCE(progressFrom20, 1);
+    MASK_PACKED_FROM_MASK(u8, progressFrom20, 0, 15, "r1", "r0");
+    ADVANCE(progressFrom20, 1);
+    READ(u32, packedByteAt10, "r1", u8, progressFrom20, 0);
+    NEGATED_MASK(keepBitsF8, "r0", 8);
+    RETAIN_3_MASKS(keepBitsF8, packedByteAt10, clearBits3To4, clearBits5To6);
+    WRITE(u8, progressFrom20, 0, keepBitsF8);
+
+    CLEAR_HALFWORD_AT(events, 0x24, clearHalfBits7To8);
+    ADVANCE(progressFrom20, 1);
+    // The second two-bit field here is farmerSpritePriorityStage.
+    CLEAR_THREE_FIELDS_AND_HIGH_BIT(progressFrom20, 0, clearBits1To2, clearBits3To4, clearBits5To6);
+    PROGRESS_ADDRESS(progressFrom26, "r1", 0x26);
+    NEGATED_MASK(keepBitsFC, "r2", 4);
+    PIN_HI(u32, savedClearBits0To1, "r10", keepBitsFC);
+    PIN(u32, zeroAt4, "r0", 0);
+    ZERO_BYTE_RUN(progressFrom26, zeroAt4, 4);
+
+    PROGRESS_ADDRESS(progressFrom2A, "r2", 0x2A);
+    READ(u32, packedByteAt11, "r1", u8, progressFrom2A, 0);
+    PIN(u32, maskAt15, "r0", clearBits1To2);
+    RETAIN_3_MASKS(maskAt15, packedByteAt11, clearBits3To4, clearBits5To6);
+    WRITE(u8, progressFrom2A, 0, maskAt15);
+
+    CLEAR_HALFWORD_AT(events, 0x2A, clearHalfBits7To8);
+    ADVANCE(progressFrom2A, 1);
+    READ(u32, packedByteAt12, "r1", u8, progressFrom2A, 0);
+    PIN(u32, maskAt16, "r0", clearBits1To2);
+    RETAIN_BITS(maskAt16, packedByteAt12);
+    NEGATED_MASK(keepBitsF7At2, "r1", 9);
+    RETAIN_BITS(maskAt16, keepBitsF7At2);
+    SUBTRACT(keepBitsF7At2, 40);
+    RETAIN_BITS(maskAt16, keepBitsF7At2);
+    PIN(u32, maskSeedAt15, "r1", 63);
+    RETAIN_BITS(maskAt16, maskSeedAt15);
+    WRITE(u8, progressFrom2A, 0, maskAt16);
+
+    PROGRESS_ADDRESS(progressFrom2C, "r1", 0x2C);
+    PIN(u32, zeroAt5, "r0", 0);
+    WRITE(u8, progressFrom2C, 0, zeroAt5);
+    ADVANCE(progressFrom2A, 2);
+    READ(u32, packedByteAt13, "r1", u8, progressFrom2A, 0);
+    PIN(u32, maskAt17, "r0", savedClearBits0To1);
+    RETAIN_BITS(maskAt17, packedByteAt13);
+    NEGATED_MASK(keepBitsF3, "r1", 13);
+    RETAIN_BITS(maskAt17, keepBitsF3);
+    SUBTRACT(keepBitsF3, 36);
+    RETAIN_BITS(maskAt17, keepBitsF3);
+    WRITE(u8, progressFrom2A, 0, maskAt17);
+
+    READ(u32, packedWordAt6, "r0", u32, events, 0x2C);
+    LITERAL(u32, clearWordBits14To17, "r2", clear_word_bits_14_17);
+    PIN_HI(u32, savedClearWordBits14To17, "r12", clearWordBits14To17);
+    RETAIN_BITS(packedWordAt6, clearWordBits14To17);
+    WRITE(u32, events, 0x2C, packedWordAt6);
+
+    PROGRESS_ADDRESS(progressFrom2E, "r2", 0x2E);
+    READ(u32, packedByteAt14, "r1", u8, progressFrom2E, 0);
+    NEGATED_MASK(keepBitsFBAt2, "r0", 5);
+    RETAIN_3_MASKS(keepBitsFBAt2, packedByteAt14, clearBits3To4, clearBits5To6);
+    PIN(u32, maskSeedAt18, "r1", 127);
+    RETAIN_BITS(keepBitsFBAt2, maskSeedAt18);
+    WRITE(u8, progressFrom2E, 0, keepBitsFBAt2);
+
+    PROGRESS_ADDRESS(progressFrom2F, "r1", 0x2F);
+    PIN(u32, zeroAt6, "r0", 0);
+    ZERO_BYTE_RUN(progressFrom2F, zeroAt6, 7);
+    ADVANCE(progressFrom2E, 8);
+    READ(u32, packedByteAt15, "r1", u8, progressFrom2E, 0);
+    PIN(u32, maskAt19, "r0", savedClearBits0To1);
+    RETAIN_BITS(maskAt19, packedByteAt15);
+    NEGATED_MASK(keepBitsFBAt3, "r1", 5);
+    RETAIN_3_MASKS(maskAt19, keepBitsFBAt3, clearBits3To4, clearBits5To6);
+    WRITE(u8, progressFrom2E, 0, maskAt19);
+
+    CLEAR_HALFWORD_AT(events, 0x36, clearHalfBits7To8);
+    ADVANCE(progressFrom2E, 1);
+    CLEAR_THREE_FIELDS_AND_HIGH_BIT(progressFrom2E, 0, clearBits1To2, clearBits3To4, clearBits5To6);
+    PROGRESS_ADDRESS(progressFrom38, "r1", 0x38);
+    PIN(u32, zeroAt7, "r0", 0);
+    WRITE(u8, progressFrom38, 0, zeroAt7);
+    ADVANCE(progressFrom38, 1);
+    WRITE(u8, progressFrom38, 0, zeroAt7);
+    ADVANCE(progressFrom2E, 3);
+    READ(u32, packedByteAt16, "r1", u8, progressFrom2E, 0);
+    PIN(u32, maskAt20, "r0", savedClearBits0To1);
+    RETAIN_BITS(maskAt20, packedByteAt16);
+    NEGATED_MASK(keepBitsE3, "r1", 29);
+    // Bits 5–6 hold npc33StoryStage.
+    RETAIN_2_MASKS(maskAt20, keepBitsE3, clearBits5To6);
+    WRITE(u8, progressFrom2E, 0, maskAt20);
+
+    CLEAR_HALFWORD_AT(events, 0x3A, clearHalfBits7To8);
+    ADVANCE(progressFrom2E, 1);
+    // The second two-bit field here is npc34StoryStage.
+    CLEAR_THREE_FIELDS_AND_HIGH_BIT(progressFrom2E, 0, clearBits1To2, clearBits3To4, clearBits5To6);
+    ADVANCE(progressFrom2E, 1);
+    READ(u32, packedByteAt17, "r1", u8, progressFrom2E, 0);
+    NEGATED_MASK(keepBitsFEAt2, "r0", 2);
+    RETAIN_4_MASKS(keepBitsFEAt2, packedByteAt17, clearBits1To2, clearBits3To4, clearBits5To6);
+    WRITE(u8, progressFrom2E, 0, keepBitsFEAt2);
+
+    MASK_PACKED_FROM_LITERAL(u16, events, 0x3C, clear_half_bits_7_9_first, "r1", "r0");
+    ADVANCE(progressFrom2E, 1);
+    READ(u32, packedByteAt18, "r1", u8, progressFrom2E, 0);
+    NEGATED_MASK(keepBitsF3At2, "r0", 13);
+    RETAIN_BITS(keepBitsF3At2, packedByteAt18);
+    NEGATED_MASK(keepBitsCF, "r1", 49);
+    RETAIN_BITS(keepBitsF3At2, keepBitsCF);
+    WRITE(u8, progressFrom2E, 0, keepBitsF3At2);
+
+    READ(u32, packedWordAt7, "r0", u32, events, 0x3C);
+    PIN(u32, maskAt21, "r2", savedClearWordBits14To17);
+    RETAIN_BITS(packedWordAt7, maskAt21);
+    WRITE(u32, events, 0x3C, packedWordAt7);
+
+    PROGRESS_ADDRESS(progressFrom3E, "r2", 0x3E);
+    READ(u32, packedByteAt19, "r1", u8, progressFrom3E, 0);
+    NEGATED_MASK(keepBitsF3At3, "r0", 13);
+    RETAIN_BITS(keepBitsF3At3, packedByteAt19);
+    NEGATED_MASK(keepBitsCFAt2, "r1", 49);
+    RETAIN_BITS(keepBitsF3At3, keepBitsCFAt2);
+    PIN(u32, maskSeedAt26, "r1", 63);
+    RETAIN_BITS(keepBitsF3At3, maskSeedAt26);
+    WRITE(u8, progressFrom3E, 0, keepBitsF3At3);
+
+    PROGRESS_ADDRESS(progressFrom3F, "r1", 0x3F);
+    PIN(u32, zeroAt8, "r0", 0);
+    WRITE(u8, progressFrom3F, 0, zeroAt8);
+    ADVANCE(progressFrom3E, 2);
+    READ(u32, packedByteAt20, "r1", u8, progressFrom3E, 0);
+    SUBTRACT(zeroAt8, 2);
+    RETAIN_4_MASKS(zeroAt8, packedByteAt20, clearBits1To2, clearBits3To4, clearBits5To6);
+    WRITE(u8, progressFrom3E, 0, zeroAt8);
+
+    CLEAR_HALFWORD_AT(progressFrom3E, 0, clearHalfBits7To8);
+    ADVANCE(progressFrom3E, 1);
+    READ(u32, packedByteAt21, "r1", u8, progressFrom3E, 0);
+    PIN(u32, maskAt22, "r0", clearBits1To2);
+    RETAIN_2_MASKS(maskAt22, packedByteAt21, clearBits3To4);
+    WRITE(u8, progressFrom3E, 0, maskAt22);
+
+    READ(u32, packedWordAt8, "r0", u32, events, 0x40);
+    LITERAL(u32, clearWordBits13To16, "r1", clear_word_bits_13_16);
+    RETAIN_BITS(packedWordAt8, clearWordBits13To16);
+    WRITE(u32, events, 0x40, packedWordAt8);
+    ADVANCE(progressFrom3E, 1);
+    READ(u32, packedByteAt22, "r1", u8, progressFrom3E, 0);
+    PIN(u32, maskAt23, "r0", clearBits1To2);
+    RETAIN_2_MASKS(maskAt23, packedByteAt22, clearBits3To4);
+    NEGATED_MASK(keepBitsDFAt2, "r1", 33);
+    RETAIN_BITS(maskAt23, keepBitsDFAt2);
+    PIN(u32, maskSeedAt28, "r1", 63);
+    RETAIN_BITS(maskAt23, maskSeedAt28);
+    WRITE(u8, progressFrom3E, 0, maskAt23);
+
+    PROGRESS_ADDRESS(progressFrom43, "r1", 0x43);
+    PIN(u32, zeroAt9, "r0", 0);
+    ZERO_BYTE_RUN(progressFrom43, zeroAt9, 10);
+    ADVANCE(progressFrom3E, 11);
+    READ(u32, packedByteAt23, "r1", u8, progressFrom3E, 0);
+    PIN(u32, maskAt24, "r0", savedClearBits0To1);
+    RETAIN_BITS(maskAt24, packedByteAt23);
+    NEGATED_MASK(keepBitsFBAt4, "r1", 5);
+    RETAIN_BITS(maskAt24, keepBitsFBAt4);
+    SUBTRACT(keepBitsFBAt4, 4);
+    RETAIN_BITS(maskAt24, keepBitsFBAt4);
+    SUBTRACT(keepBitsFBAt4, 8);
+    RETAIN_BITS(maskAt24, keepBitsFBAt4);
+    SUBTRACT(keepBitsFBAt4, 16);
+    RETAIN_BITS(maskAt24, keepBitsFBAt4);
+    SUBTRACT(keepBitsFBAt4, 32);
+    RETAIN_BITS(maskAt24, keepBitsFBAt4);
+    WRITE(u8, progressFrom3E, 0, maskAt24);
+
+    READ(u32, packedWordAt9, "r0", u32, events, 0x4C);
+    PIN(u32, maskAt25, "r2", savedClearWordBits15To16);
+    RETAIN_BITS(packedWordAt9, maskAt25);
+    WRITE(u32, events, 0x4C, packedWordAt9);
+
+    PROGRESS_ADDRESS(progressFrom4E, "r2", 0x4E);
+    READ(u32, packedByteAt24, "r1", u8, progressFrom4E, 0);
+    PIN(u32, maskAt26, "r0", savedClearBit1);
+    RETAIN_BITS(maskAt26, packedByteAt24);
+    NEGATED_MASK(keepBitsF3At4, "r1", 13);
+    RETAIN_BITS(maskAt26, keepBitsF3At4);
+    SUBTRACT(keepBitsF3At4, 4);
+    RETAIN_2_MASKS(maskAt26, keepBitsF3At4, clearBits5To6);
+    WRITE(u8, progressFrom4E, 0, maskAt26);
+
+    READ(u32, packedHalfwordAt3, "r1", u16, progressFrom4E, 0);
+    PIN(u32, maskAt27, "r0", clearHalfBits7To8);
+    RETAIN_BITS(maskAt27, packedHalfwordAt3);
+    FIRST_LITERAL_POOL;
+    WRITE(u16, progressFrom4E, 0, maskAt27);
+    ADVANCE(progressFrom4E, 1);
+    READ(u32, packedByteAt25, "r1", u8, progressFrom4E, 0);
+    NEGATED_MASK(keepBitsF1, "r0", 15);
+    RETAIN_BITS(keepBitsF1, packedByteAt25);
+    NEGATED_MASK(keepBitsCFAt3, "r1", 49);
+    RETAIN_BITS(keepBitsF1, keepBitsCFAt3);
+    SUBTRACT(keepBitsCFAt3, 16);
+    RETAIN_BITS(keepBitsF1, keepBitsCFAt3);
+    PIN(u32, maskSeedAt33, "r1", 127);
+    RETAIN_BITS(keepBitsF1, maskSeedAt33);
+    WRITE(u8, progressFrom4E, 0, keepBitsF1);
+
+    PROGRESS_ADDRESS(progressFrom50, "r1", 0x50);
+    PIN(u32, zeroAt10, "r0", 0);
+    WRITE(u8, progressFrom50, 0, zeroAt10);
+    ADVANCE(progressFrom50, 1);
+    WRITE(u8, progressFrom50, 0, zeroAt10);
+    ADVANCE(progressFrom4E, 3);
+    READ(u32, packedByteAt26, "r1", u8, progressFrom4E, 0);
+    SUBTRACT(zeroAt10, 2);
+    RETAIN_2_MASKS(zeroAt10, packedByteAt26, clearBits1To2);
+    NEGATED_MASK(keepBitsF7At3, "r1", 9);
+    RETAIN_BITS(zeroAt10, keepBitsF7At3);
+    SUBTRACT(keepBitsF7At3, 40);
+    RETAIN_BITS(zeroAt10, keepBitsF7At3);
+    WRITE(u8, progressFrom4E, 0, zeroAt10);
+
+    MASK_PACKED_FROM_LITERAL(u16, progressFrom4E, 0, clear_half_bits_6_8, "r1", "r0");
+    ADVANCE(progressFrom4E, 1);
+    READ(u32, packedByteAt27, "r1", u8, progressFrom4E, 0);
+    PIN(u32, maskAt28, "r0", clearBits1To2);
+    RETAIN_BITS(maskAt28, packedByteAt27);
+    NEGATED_MASK(keepBitsF7At4, "r1", 9);
+    RETAIN_BITS(maskAt28, keepBitsF7At4);
+    SUBTRACT(keepBitsF7At4, 40);
+    RETAIN_BITS(maskAt28, keepBitsF7At4);
+    PIN(u32, maskSeedAt36, "r1", 63);
+    RETAIN_BITS(maskAt28, maskSeedAt36);
+    WRITE(u8, progressFrom4E, 0, maskAt28);
+
+    PROGRESS_ADDRESS(progressFrom54, "r1", 0x54);
+    PIN(u32, zeroAt11, "r0", 0);
+    WRITE(u8, progressFrom54, 0, zeroAt11);
+    ADVANCE(progressFrom54, 1);
+    PIN(u32, maskSeedAt37, "r2", 63);
+    PIN_HI(u32, savedClearBits6To7, "r8", maskSeedAt37);
+    ZERO_BYTE_RUN(progressFrom54, zeroAt11, 4);
+
+    PROGRESS_ADDRESS(progressFrom59, "r2", 0x59);
+    READ(u32, packedByteAt28, "r1", u8, progressFrom59, 0);
+    PIN(u32, maskAt30, "r0", savedClearBits0To1);
+    RETAIN_BITS(maskAt30, packedByteAt28);
+    NEGATED_MASK(keepBitsFBAt5, "r1", 5);
+    RETAIN_3_MASKS(maskAt30, keepBitsFBAt5, clearBits3To4, clearBits5To6);
+    WRITE(u8, progressFrom59, 0, maskAt30);
+
+    READ(u32, packedWordAt10, "r0", u32, events, 0x58);
+    LITERAL(u32, clearWordBits15To17, "r1", clear_word_bits_15_17);
+    RETAIN_BITS(packedWordAt10, clearWordBits15To17);
+    WRITE(u32, events, 0x58, packedWordAt10);
+
+    PROGRESS_ADDRESS(progressFrom5A, "r1", 0x5A);
+    READ(u32, packedHalfwordAt5, "r0", u16, progressFrom5A, 0);
+    RETAIN_BITS(clearHalfBits7To8, packedHalfwordAt5);
+    WRITE(u16, progressFrom5A, 0, clearHalfBits7To8);
+    ADVANCE(progressFrom59, 2);
+    CLEAR_THREE_FIELDS_AND_HIGH_BIT(progressFrom59, 0, clearBits1To2, clearBits3To4, clearBits5To6);
+    PROGRESS_ADDRESS(progressFrom5C, "r1", 0x5C);
+    PIN(u32, zeroAt12, "r0", 0);
+    ZERO_BYTE_RUN(progressFrom5C, zeroAt12, 12);
+    ADVANCE(progressFrom5C, 1);
+    READ(u32, packedByteAt29, "r0", u8, progressFrom5C, 0);
+    PIN(u32, maskAt31, "r2", savedClearBits0To1);
+    RETAIN_BITS(maskAt31, packedByteAt29);
+    NEGATED_MASK(keepBitsF3At5, "r0", 13);
+    RETAIN_BITS(maskAt31, keepBitsF3At5);
+    SUBTRACT(keepBitsF3At5, 36);
+    RETAIN_BITS(maskAt31, keepBitsF3At5);
+    WRITE(u8, progressFrom5C, 0, maskAt31);
+
+    READ(u32, packedHalfwordAt6, "r2", u16, progressFrom5C, 0);
+    LITERAL(u32, clearHalfBits6To13, "r3", clear_half_bits_6_13);
+    PIN(u32, maskAt32, "r0", clearHalfBits6To13);
+    RETAIN_BITS(maskAt32, packedHalfwordAt6);
+    WRITE(u16, progressFrom5C, 0, maskAt32);
+
+    READ(u32, packedWordAt11, "r0", u32, events, 0x68);
+    LITERAL(u32, clearWordBits14To21, "r6", clear_word_bits_14_21);
+    RETAIN_BITS(packedWordAt11, clearWordBits14To21);
+    WRITE(u32, events, 0x68, packedWordAt11);
+
+    PROGRESS_ADDRESS(progressFrom6A, "r2", 0x6A);
+    CLEAR_HALFWORD_AT(progressFrom6A, 0, clearHalfBits6To13);
+    ADVANCE(progressFrom6A, 1);
+    MASK_PACKED_FROM_MASK(u8, progressFrom6A, 0, savedClearBits6To7, "r1", "r0");
+
+    PROGRESS_ADDRESS(progressFrom6C, "r1", 0x6C);
+    READ(u32, packedByteAt31, "r2", u8, progressFrom6C, 0);
+    SUBTRACT(clearBits3To4, 39);
+    PIN(u32, maskAt34, "r0", clearBits3To4);
+    RETAIN_BITS(maskAt34, packedByteAt31);
+    WRITE(u8, progressFrom6C, 0, maskAt34);
+
+    MASK_PACKED_FROM_MASK(u16, progressFrom6C, 0, clearHalfBits6To13, "r2", "r0");
+
+    MASK_PACKED_FROM_VALUE(u32, events, 0x6C, clearWordBits14To21, "r0");
+
+    PROGRESS_ADDRESS(progressFrom6E, "r2", 0x6E);
+    CLEAR_HALFWORD_AT(progressFrom6E, 0, clearHalfBits6To13);
+    ADVANCE(progressFrom6E, 1);
+    MASK_PACKED_FROM_MASK(u8, progressFrom6E, 0, savedClearBits6To7, "r1", "r0");
+
+    PROGRESS_ADDRESS(progressFrom70, "r1", 0x70);
+    MASK_PACKED_FROM_MASK(u8, progressFrom70, 0, clearBits3To4, "r2", "r0");
+
+    MASK_PACKED_FROM_MASK(u16, progressFrom70, 0, clearHalfBits6To13, "r2", "r0");
+
+    MASK_PACKED_FROM_VALUE(u32, events, 0x70, clearWordBits14To21, "r0");
+    ADVANCE(progressFrom70, 2);
+    READ(u32, packedHalfwordAt9, "r0", u16, progressFrom70, 0);
+    RETAIN_BITS(clearHalfBits6To13, packedHalfwordAt9);
+    WRITE(u16, progressFrom70, 0, clearHalfBits6To13);
+    ADVANCE(progressFrom70, 1);
+    MASK_PACKED_FROM_MASK(u8, progressFrom70, 0, savedClearBits6To7, "r0", "r2");
+    ADVANCE(progressFrom70, 1);
+    READ(u32, packedByteAt35, "r0", u8, progressFrom70, 0);
+    RETAIN_BITS(clearBits3To4, packedByteAt35);
+    WRITE(u8, progressFrom70, 0, clearBits3To4);
+
+    MASK_PACKED_FROM_LITERAL(u16, progressFrom70, 0, clear_half_bits_6_8, "r2", "r0");
+    ADVANCE(progressFrom70, 1);
+    READ(u32, packedByteAt36, "r0", u8, progressFrom70, 0);
+    RETAIN_BITS(clearBits1To2, packedByteAt36);
+    NEGATED_MASK(keepBitsF7At5, "r0", 9);
+    RETAIN_BITS(clearBits1To2, keepBitsF7At5);
+    NEGATED_MASK(keepBitsEF, "r2", 17);
+    RETAIN_BITS(clearBits1To2, keepBitsEF);
+    SUBTRACT(keepBitsF7At5, 24);
+    RETAIN_BITS(clearBits1To2, keepBitsF7At5);
+    SUBTRACT(keepBitsEF, 48);
+    RETAIN_BITS(clearBits1To2, keepBitsEF);
+    PIN(u32, maskSeedAt42, "r0", 127);
+    RETAIN_BITS(clearBits1To2, maskSeedAt42);
+    WRITE(u8, progressFrom70, 0, clearBits1To2);
+
+    PROGRESS_ADDRESS(progressFrom76, "r2", 0x76);
+    READ(u32, packedByteAt37, "r1", u8, progressFrom76, 0);
+    SUBTRACT(maskSeedAt42, 129);
+    RETAIN_BITS(maskSeedAt42, packedByteAt37);
+    PIN(u32, maskAt40, "r1", savedClearBit1);
+    RETAIN_BITS(maskSeedAt42, maskAt40);
+    NEGATED_MASK(keepBitsFBAt6, "r1", 5);
+    RETAIN_BITS(maskSeedAt42, keepBitsFBAt6);
+    SUBTRACT(keepBitsFBAt6, 4);
+    RETAIN_BITS(maskSeedAt42, keepBitsFBAt6);
+    SUBTRACT(keepBitsFBAt6, 8);
+    RETAIN_BITS(maskSeedAt42, keepBitsFBAt6);
+    SUBTRACT(keepBitsFBAt6, 16);
+    RETAIN_BITS(maskSeedAt42, keepBitsFBAt6);
+    SUBTRACT(keepBitsFBAt6, 32);
+    RETAIN_BITS(maskSeedAt42, keepBitsFBAt6);
+    WRITE(u8, progressFrom76, 0, maskSeedAt42);
+
+    MASK_PACKED_FROM_LITERAL(u16, progressFrom76, 0, clear_half_bits_7_10, "r1", "r0");
+    ADVANCE(progressFrom76, 1);
+    READ(u32, packedByteAt38, "r1", u8, progressFrom76, 0);
+    NEGATED_MASK(keepBits87, "r0", 121);
+    RETAIN_BITS(keepBits87, packedByteAt38);
+    PIN(u32, maskSeedAt45, "r1", 127);
+    RETAIN_BITS(keepBits87, maskSeedAt45);
+    WRITE(u8, progressFrom76, 0, keepBits87);
+
+    PROGRESS_ADDRESS(progressFrom78, "r1", 0x78);
+    PIN(u32, zeroAt13, "r0", 0);
+    WRITE(u8, progressFrom78, 0, zeroAt13);
+    ADVANCE(progressFrom78, 1);
+    WRITE(u8, progressFrom78, 0, zeroAt13);
+    ADVANCE(progressFrom76, 3);
+    READ(u32, packedByteAt39, "r0", u8, progressFrom76, 0);
+    NEGATED_MASK(keepBitsFEAt3, "r1", 2);
+    RETAIN_BITS(keepBitsFEAt3, packedByteAt39);
+    WRITE(u8, progressFrom76, 0, keepBitsFEAt3);
+
+    MASK_PACKED_FROM_LITERAL(u16, progressFrom76, 0, clear_half_bits_1_8, "r1", "r0");
+
+    PROGRESS_ADDRESS(progressFrom7B, "r1", 0x7B);
+    READ(u32, packedByteAt40, "r0", u8, progressFrom7B, 0);
+    PIN(u32, maskAt41, "r2", savedClearBit1);
+    RETAIN_BITS(maskAt41, packedByteAt40);
+    NEGATED_MASK(keepBitsFBAt7, "r0", 5);
+    RETAIN_BITS(maskAt41, keepBitsFBAt7);
+    NEGATED_MASK(keepBitsF7At6, "r6", 9);
+    RETAIN_BITS(maskAt41, keepBitsF7At6);
+    NEGATED_MASK(keepBitsEFAt2, "r5", 17);
+    RETAIN_BITS(maskAt41, keepBitsEFAt2);
+    NEGATED_MASK(keepBitsDFAt3, "r4", 33);
+    RETAIN_BITS(maskAt41, keepBitsDFAt3);
+    NEGATED_MASK(keepBitsBF, "r3", 65);
+    RETAIN_BITS(maskAt41, keepBitsBF);
+    PIN(u32, maskSeedAt52, "r0", 127);
+    RETAIN_BITS(maskAt41, maskSeedAt52);
+    WRITE(u8, progressFrom7B, 0, maskAt41);
+    ADVANCE(progressFrom7B, 1);
+    NEGATED_MASK(keepBitsFBAt8, "r2", 5);
+    PIN(u32, zeroAt14, "r0", 0);
+    WRITE(u8, progressFrom7B, 0, zeroAt14);
+    ADVANCE(progressFrom7B, 1);
+    WRITE(u8, progressFrom7B, 0, zeroAt14);
+    PIN(u32, maskSeedAt54, "r1", 126);
+    ADD_BASE(u8 volatile *, finalProgressByte, "r1", maskSeedAt54, events);
+    PIN_HI(u8 volatile *, progress7E, "r8", finalProgressByte);
+    READ(u32, packedByteAt41, "r1", u8, finalProgressByte, 0);
+    SUBTRACT(zeroAt14, 4);
+    RETAIN_6_MASKS(zeroAt14, packedByteAt41, keepBitsFBAt8, keepBitsF7At6, keepBitsEFAt2, keepBitsDFAt3, keepBitsBF);
+    PIN(u8 volatile *, progress7EAt2, "r2", progress7E);
+    WRITE(u8, progress7EAt2, 0, zeroAt14);
+
+    MASK_PACKED_FROM_LITERAL(u16, progress7EAt2, 0, clear_half_bits_7_9_last, "r1", "r0");
+
+    PROGRESS_ADDRESS(progressFrom7F, "r2", 0x7F);
+    MASK_PACKED_FROM_MASK(u8, progressFrom7F, 0, 3, "r1", "r0");
+    return *savedEvents;
+}
+
+asm(".pushsection .text.0809C6BC, \"ax\"\n"
+    ".align 2, 0\n"
+    ".Lsaved_events_clear_half_bits_6_8: .4byte 0xFFFFFE3F\n"
+    ".Lsaved_events_clear_word_bits_15_17: .4byte 0xFFFC7FFF\n"
+    ".Lsaved_events_clear_half_bits_6_13: .4byte 0xFFFFC03F\n"
+    ".Lsaved_events_clear_word_bits_14_21: .4byte 0xFFC03FFF\n"
+    ".Lsaved_events_clear_half_bits_7_10: .4byte 0xFFFFF87F\n"
+    ".Lsaved_events_clear_half_bits_1_8: .4byte 0xFFFFFE01\n"
+    ".Lsaved_events_clear_half_bits_7_9_last: .4byte 0xFFFFFC7F\n"
+    ".popsection");
+#undef PIN
+#undef PIN_HI
+#undef ADD_BASE
+#undef SUFFIX_u16
+#undef SUFFIX_u32
+#undef READ
+#undef READ_u8
+#undef READ_u16
+#undef READ_u32
+#undef READ_PACKED
+#undef WRITE
+#undef WRITE_u8
+#undef WRITE_u16
+#undef WRITE_u32
+#undef WRITE_PACKED
+#undef LITERAL
+#undef FIRST_LITERAL_POOL
+#undef CLEAR_THREE_TWO_BIT_FIELDS
+#undef CLEAR_LOW_BIT_AND_THREE_FIELDS
+#undef CLEAR_THREE_FIELDS_AND_HIGH_BIT
+#undef CLEAR_HALFWORD_AT
+#undef RETAIN_BITS
+#undef ADVANCE
+#undef SUBTRACT
+#undef NEGATED_MASK
+#undef PROGRESS_ADDRESS
+#undef RETAIN_2_MASKS
+#undef RETAIN_3_MASKS
+#undef RETAIN_4_MASKS
+#undef RETAIN_6_MASKS
+#undef ZERO_BYTE_RUN
+#undef ZERO_NEXT
+#undef ZERO_NEXT_2
+#undef ZERO_NEXT_3
+#undef ZERO_NEXT_4
+#undef ZERO_NEXT_5
+#undef ZERO_NEXT_6
+#undef ZERO_NEXT_7
+#undef ZERO_NEXT_8
+#undef ZERO_NEXT_9
+#undef ZERO_NEXT_10
+#undef ZERO_NEXT_11
+#undef ZERO_NEXT_12
+#undef MASK_PACKED_FROM_MASK
+#undef MASK_PACKED_FROM_VALUE
+#undef MASK_PACKED_FROM_LITERAL
+
 enum { FIRST_FISH_CATCH_ID = 8, MAX_CATCH_COUNT = 1000000000 };
 
 struct FishingRecord

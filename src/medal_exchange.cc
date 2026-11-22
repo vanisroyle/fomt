@@ -1,9 +1,11 @@
+#include "dma_queue.hh"
 #include "farmer.hh"
 #include "message_script.hh"
 #include "sprite_animation.hh"
 #include "sprite_rendering.hh"
 #include "utility/vec2.hh"
 
+#include <stdlib.h>
 #include <string.h>
 
 struct MedalExchangeGameState
@@ -2053,7 +2055,6 @@ EC SECTION(".text.f3.0805D170") void ** RunMedalExchangeScreen(void ** output, M
 #undef RUN_FIELD_OFFSET
 
 #undef MEDAL_SCREEN_WORD
-#undef STRINGIFY_MEDAL_VALUE
 #undef MEDAL_SAVE_NON_JEWEL_COUNT_MASK
 #undef MEDAL_SAVE_OTHER_BITS_MASK
 #undef MEDAL_SAVE_BALANCE_MASK
@@ -2069,7 +2070,741 @@ EC SECTION(".text.f3.0805D170") void ** RunMedalExchangeScreen(void ** output, M
 #undef MEDAL_SECOND_PRIZE_OFFSET
 #undef MEDAL_DECLINED_CHOICE_OFFSET
 #undef MEDAL_DIALOGUE_PHASE_OFFSET
-#undef MEDAL_PHASE_OFFSET
 #undef MEDAL_SELECTED_PRIZE_OFFSET
+
+EC SpriteOamBuffer * GetMedalObjectBuffer(MedalExchange *) asm("HardwareContext_GetOamBuffer");
+EC DmaTransferQueue * GetMedalObjectDmaQueue(MedalExchange *) asm("HardwareContext_GetDmaQueue");
+EC void * RetryMedalObjectQueueAllocation(u32) asm("func_080D3BC0");
+
+// Grow by max(occupied, inserted), then preserve the order of the pending uploads.
+#define MEDAL_GROW_ARROW_QUEUE(growth, restore_attributes, initial_end_reg, loop_end_reg, single_copy_temp, multi_copy_set, subtract_reg, remaining_reg, free_queue_reg, base_reg, publish_queue_reg) do { \
+    MEDAL_WORK_WRITE(tail, old_end); \
+    register u32 inserted_count asm("r4") = requested; \
+    MEDAL_LOW(inserted_count); \
+    MEDAL_WORK_WRITE(inserted_count, growth.inserted); \
+    register DmaTransferQueue * old_queue asm("r5"); \
+    MEDAL_WORK_READ(old_queue, queue); \
+    register DmaCommand * old_begin asm("r0") = old_queue->begin; \
+    MEDAL_LOW(old_begin); \
+    register DmaCommand * old_tail asm("r7") = tail; \
+    MEDAL_LOW(old_tail); \
+    register u32 occupied asm("r4"); \
+    asm ("sub %1, %2, %1\n\tasr %0, %1, #4" : "=l" (occupied), "+l" (old_begin) \
+        : "l" (old_tail) : "cc"); \
+    MEDAL_WORK_WRITE(occupied, growth.occupied); \
+    register u32 * inserted_ptr asm("r1"); \
+    MEDAL_IN_STACK(inserted_ptr, growth.inserted); \
+    register u32 * growth_count asm("r0"); \
+    MEDAL_IN_STACK(growth_count, growth.occupied); \
+    asm ("cmp %1, #1\n\tbhs 1f\n\tadd %0, %2, #0\n1:" : "+l" (growth_count) \
+        : "l" (occupied), "l" (inserted_ptr) : "cc"); \
+    register u32 increase asm("r0") = *growth_count; \
+    MEDAL_LOW(increase); \
+    register u32 new_capacity asm("r0") = occupied + increase; \
+    MEDAL_LOW(new_capacity); \
+    register DmaCommand * allocation asm("r0"); \
+    register u32 capacity_bytes asm("r9"); \
+    if (new_capacity) { \
+        register u32 bytes asm("r4") = new_capacity * sizeof(DmaCommand); \
+        MEDAL_LOW(bytes); \
+        allocation = static_cast<DmaCommand *>(malloc(bytes)); \
+        capacity_bytes = bytes; \
+        asm ("" : "+h" (capacity_bytes) : "l" (allocation)); \
+        if (!allocation) { \
+            allocation = static_cast<DmaCommand *>(RetryMedalObjectQueueAllocation(capacity_bytes)); \
+            MEDAL_LOW(allocation); \
+        } \
+    } else { \
+        allocation = nullptr; \
+        MEDAL_LOW(allocation); \
+        capacity_bytes = reinterpret_cast<uintptr_t>(allocation); \
+        MEDAL_HIGH(capacity_bytes); \
+    } \
+    register DmaCommand * buffer asm("r4") = allocation; \
+    MEDAL_LOW(buffer); \
+    register DmaCommand * begin asm("r8") = buffer; \
+    MEDAL_HIGH(begin); \
+    register DmaTransferQueue * queue_to_copy asm("r0"); \
+    MEDAL_WORK_READ(queue_to_copy, queue); \
+    register DmaCommand * input asm("r2") = queue_to_copy->begin; \
+    MEDAL_LOW(input); \
+    register DmaCommand * output asm("r3") = begin; \
+    MEDAL_LOW(output); \
+    if (restore_attributes) { \
+        register SpriteAttributes * attributes asm("r1"); \
+        asm ("mov %0, sp\n\tadd %0, %1" : "=l" (attributes) \
+            : "I" (offsetof(Stack, object.attributes)) : "cc"); \
+        MEDAL_WORK_WRITE(attributes, attributes_ptr); \
+    } \
+    register DmaCommand * first_end asm(initial_end_reg); \
+    MEDAL_WORK_READ(first_end, old_end); \
+    if (input != first_end) { \
+        register DmaCommand * old_end asm(loop_end_reg); \
+        do { \
+            asm volatile ("cmp %0, #0\n\tbeq 1f\n\tadd r0, %0, #0\n\tadd r1, %1, #0\n\t" \
+                "ldmia r1!, {r4,r5,r7}\n\tstmia r0!, {r4,r5,r7}\n\tldr r1, [r1]\n\tstr r1, [r0]\n1:" \
+                : : "l" (output), "l" (input) : "r0", "r1", "r4", "r5", "r7", "cc", "memory"); \
+            ++input; \
+            MEDAL_LOW(input); \
+            ++output; \
+            MEDAL_LOW(output); \
+            MEDAL_WORK_READ(old_end, old_end); \
+        } while (input != old_end); \
+    } \
+    register DmaCommand * new_end asm("r4") = output; \
+    MEDAL_LOW(new_end); \
+    register u32 append_count asm("r0"); \
+    MEDAL_WORK_READ(append_count, growth.inserted); \
+    if (append_count == 1) { \
+        asm volatile ("cmp %0, #0\n\tbeq 1f\n\tadd r0, %0, #0\n\tmov r1, %1\n\t" \
+            "ldmia r1!, {r2,r3," single_copy_temp "}\n\tstmia r0!, {r2,r3," single_copy_temp "}\n\t" \
+            "ldr r1, [r1]\n\tstr r1, [r0]\n1:" : : "l" (new_end), "h" (command) \
+            : "r0", "r1", "r2", "r3", single_copy_temp, "cc", "memory"); \
+        ++new_end; \
+        MEDAL_LOW(new_end); \
+    } else { \
+        register u32 pending asm("r12") = append_count; \
+        MEDAL_HIGH(pending); \
+        register DmaCommand * output asm("r2") = new_end; \
+        MEDAL_LOW(output); \
+        if (append_count) { \
+            register u32 remaining asm(remaining_reg); \
+            do { \
+                asm volatile ("cmp %0, #0\n\tbeq 1f\n\tadd r0, %0, #0\n\tmov r1, %1\n\t" \
+                    "ldmia r1!, {" multi_copy_set "}\n\tstmia r0!, {" multi_copy_set "}\n\tldr r1, [r1]\n\tstr r1, [r0]\n1:" \
+                    : : "l" (output), "h" (command) : "r0", "r1", "r3", "r4", "r5", "r7", "cc", "memory"); \
+                register u32 decrement asm(subtract_reg) = MEDAL_CONST(subtract_reg, 1); \
+                asm ("neg %1, %1\n\tadd %0, %1" : "+h" (pending), "+l" (decrement) : : "cc"); \
+                ++output; \
+                MEDAL_LOW(output); \
+                remaining = pending; \
+                MEDAL_LOW(remaining); \
+            } while (remaining != 0); \
+        } \
+        new_end = output; \
+        MEDAL_LOW(new_end); \
+    } \
+    register DmaTransferQueue * discard asm(free_queue_reg); \
+    MEDAL_WORK_READ(discard, queue); \
+    register DmaCommand * discard_end asm("r2") = discard->end; \
+    MEDAL_LOW(discard_end); \
+    register DmaCommand * discard_begin asm("r0") = discard->begin; \
+    MEDAL_LOW(discard_begin); \
+    register DmaCommand * cursor asm("r1") = discard_begin; \
+    MEDAL_LOW(cursor); \
+    if (discard_begin != discard_end) { \
+        do { \
+            ++cursor; \
+            MEDAL_LOW(cursor); \
+        } while (cursor != discard_end); \
+    } \
+    if (discard_begin) free(discard_begin); \
+    register uintptr_t limit asm("r0") = capacity_bytes; \
+    MEDAL_LOW(limit); \
+    asm ("add %0, %1" : "+l" (limit) : "h" (begin)); \
+    register DmaCommand * new_begin asm(base_reg) = begin; \
+    MEDAL_LOW(new_begin); \
+    register DmaTransferQueue * publish asm(publish_queue_reg); \
+    MEDAL_WORK_READ(publish, queue); \
+    asm volatile ("str %1, [%0, %4]\n\tstr %2, [%0, %5]\n\tstr %3, [%0, %6]" \
+        : : "l" (publish), "l" (new_begin), "l" (new_end), "l" (limit), \
+          "I" (offsetof(DmaTransferQueue, begin)), "I" (offsetof(DmaTransferQueue, end)), \
+          "I" (offsetof(DmaTransferQueue, capacity_end)) : "memory"); \
+} while (0)
+
+// The legacy DMA append path uses a separate growth record for each arrow.
+struct MedalObjectQueueGrowth
+{
+    unsigned occupied;
+    unsigned inserted;
+};
+
+// Inline Thumb fragments address this scratch layout directly.
+struct MedalObjectDrawWork
+{
+    SpriteFrameDrawOptions options;
+    MedalExchangeFrameView frame;
+    union
+    {
+        MedalExchangeFrameView result;
+        DmaCommand arrow_upload;
+    };
+    MedalObjectQueueGrowth upper_growth;
+    MedalObjectQueueGrowth lower_growth;
+    union
+    {
+        u32 words[2];
+        SpriteAttributes attributes;
+    } object;
+    SpriteAttributes * attributes_ptr;
+    DmaTransferQueue * queue;
+    DmaCommand * old_end;
+};
+
+#define MEDAL_LOW(value) asm ("" : "+l" (value))
+#define MEDAL_HIGH(value) asm ("" : "+h" (value))
+#define MEDAL_WORK_READ(value, field) \
+    asm volatile ("ldr %0, [sp, %1]" : "=l" (value) : "I" (offsetof(MedalObjectDrawWork, field)) : "memory")
+#define MEDAL_WORK_WRITE(value, field) \
+    asm volatile ("str %0, [sp, %1]" : : "l" (value), "I" (offsetof(MedalObjectDrawWork, field)) : "memory")
+#define MEDAL_SET_OPTION(store, options, field, value) \
+    asm volatile (store " %0, [%1, %2]" : : "l" (value), "l" (options), "I" (offsetof(SpriteFrameDrawOptions, field)) : "memory")
+#define MEDAL_IN_STACK(value, field) \
+    asm ("add %0, sp, %1" : "=l" (value) : "I" (offsetof(MedalObjectDrawWork, field)))
+#define MEDAL_CONST(reg, value) ({ \
+    register u32 constant asm(reg) = (value); MEDAL_LOW(constant); constant; \
+})
+#define MEDAL_FIELD(type, reg, member) ({ \
+    register uintptr_t address asm(reg) = reinterpret_cast<uintptr_t>(self); \
+    MEDAL_LOW(address); \
+    address += offsetof(MedalExchange, member); \
+    MEDAL_LOW(address); \
+    reinterpret_cast<type *>(address); \
+})
+#define MEDAL_LOAD_LITERAL(reg, name) ({ \
+    register u32 constant asm(reg); \
+    asm ("ldr %0, .Lmedal_cpp_" #name : "=l" (constant)); \
+    constant; \
+})
+#define MEDAL_DRAW_WORD(name, value) ".Lmedal_cpp_" #name ": .word " STRINGIFY_MEDAL_VALUE(value) "\n"
+#define MEDAL_UPPER_ARROW_VRAM 0x06010080
+#define MEDAL_LOWER_ARROW_VRAM 0x06010100
+#define MEDAL_LOAD_FIELD(type, reg, field_offset) ({ \
+    register type * p asm(reg) = reinterpret_cast<type *>(reinterpret_cast<uintptr_t>(self) + field_offset); \
+    MEDAL_LOW(p); \
+    p; \
+})
+
+// The frame source's virtual call returns a descriptor through a scratch buffer.
+#define READ_MEDAL_FRAME(animator_member, result_reg) \
+    register SpriteAnimator * animator asm("r4") = MEDAL_FIELD(SpriteAnimator, "r4", animator_member); \
+    AdvanceSpriteAnimator(animator); \
+    register MedalExchangeFrameSource const * animation_data asm("r1") = \
+        reinterpret_cast<MedalExchangeFrameSource const *>(animator->source); \
+    MEDAL_LOW(animation_data); \
+    register MedalExchangeFrameSourceVTable const * frame_vtable asm("r3") = animation_data->vtable; \
+    MEDAL_LOW(frame_vtable); \
+    register unsigned keyframe asm("r2") = animator->keyframe; \
+    MEDAL_LOW(keyframe); \
+    register SpriteKeyframe const * const * keyframes asm("r0") = \
+        MEDAL_FIELD(SpriteKeyframe const * const, "r0", animator_member.clip.keyframes); \
+    keyframe *= sizeof(SpriteKeyframe); \
+    MEDAL_LOW(keyframe); \
+    register SpriteKeyframe const * keys asm("r0") = *keyframes; \
+    MEDAL_LOW(keys); \
+    register SpriteKeyframe const * current asm("r0"); \
+    asm ("add %0, %1, %2" : "=l" (current) : "l" (keys), "l" (keyframe) : "cc"); \
+    register unsigned frame_index asm("r2") = current->frame; \
+    MEDAL_LOW(frame_index); \
+    register MedalExchangeFrameView * result asm("r0"); \
+    MEDAL_IN_STACK(result, result); \
+    register void (*read_frame)(MedalExchangeFrameView *, MedalExchangeFrameSource const *, u32) asm("r3") = frame_vtable->get_frame; \
+    MEDAL_LOW(read_frame); \
+    read_frame(result, animation_data, frame_index); \
+    register MedalExchangeFrameView * fetched asm(result_reg); \
+    MEDAL_IN_STACK(fetched, result); \
+    CopyPrizeFrame(fetched, fetched, sizeof(*fetched))
+
+#define MEDAL_COPY_OPTIONS(member, copy_set, extra_reg) \
+    register SpriteFrameDrawOptions * preset_target asm("r1"); \
+    asm ("mov %0, sp" : "=l" (preset_target)); \
+    register SpriteFrameDrawOptions const * preset asm("r0") = MEDAL_FIELD(SpriteFrameDrawOptions, "r0", member); \
+    asm volatile ("ldmia %1!, {r2,r3,r4}\n\tstmia %0!, {r2,r3,r4}\n\t" \
+        "ldmia %1!, {" copy_set "}\n\tstmia %0!, {" copy_set "}\n\t" \
+        "ldr %1, [%1]\n\tstr %1, [%0]" \
+        : "+l" (preset_target), "+l" (preset) : : "r2", "r3", "r4", "r5", extra_reg, "memory")
+
+#define MEDAL_DRAW_FRAME(count_reg) do { \
+    register SpriteOamBuffer * oam asm("r0") = GetMedalObjectBuffer(self); \
+    MEDAL_LOW(oam); \
+    register SpriteOamBuffer * sprites asm("r3") = oam; \
+    MEDAL_LOW(sprites); \
+    register SpriteAttributes const * objects asm("r0"); \
+    asm ("ldr %0, [sp, %1]" : "=l" (objects) : "I" (offsetof(MedalObjectDrawWork, frame.objects.data)) : "memory"); \
+    register SpriteAttributes const * list asm("r1") = objects; \
+    MEDAL_LOW(list); \
+    register u32 count asm("r2") = 0; \
+    MEDAL_LOW(count); \
+    if (list != nullptr) { \
+        register SpriteFrameDrawOptions * stack asm(count_reg); \
+        asm ("mov %0, sp" : "=l" (stack)); \
+        asm ("ldrh %0, [%1, %2]" : "=l" (count) : "l" (stack), \
+            "I" (offsetof(MedalObjectDrawWork, frame.objects.length)) : "memory"); \
+    } \
+    register SpriteOamBuffer * target asm("r0") = sprites; \
+    MEDAL_LOW(target); \
+    register SpriteFrameDrawOptions * draw_options asm("r3"); \
+    asm ("mov %0, sp" : "=l" (draw_options)); \
+    DrawSpriteFrameObjects(target, list, count, draw_options); \
+} while (0)
+
+#define MEDAL_ALLOC_FIELD(member, address_reg) ({ \
+    register uintptr_t offset asm(address_reg) = offsetof(MedalExchange, member); \
+    MEDAL_LOW(offset); \
+    MEDAL_LOAD_FIELD(MedalExchangeObjAllocation, "r0", offset); \
+})
+
+EC SECTION(".text.f3.0805DFC4") void DrawMedalExchangeObjects(MedalExchange * input)
+{
+    typedef MedalObjectDrawWork Stack;
+    Stack scratch;
+    register MedalExchange * self asm("r6") = input;
+    MEDAL_LOW(self);
+    typedef char DrawWorkHasOriginalSize[sizeof(Stack) == 0x80 ? 1 : -1];
+    // Reserve stack storage for accesses addressed relative to sp in the matching Thumb blocks.
+    register u32 stack_barrier asm("r0");
+    asm ("" : "=l" (stack_barrier) : "m" (scratch));
+    register SpriteFrameDrawOptions * initial_options asm("r1");
+    asm ("mov %0, sp" : "=l" (initial_options));
+    register u32 byte_zero asm("r2") = 0;
+    MEDAL_LOW(byte_zero);
+    register u32 zero asm("r0") = 0;
+    MEDAL_LOW(zero);
+    asm volatile (
+        "strh %0, [%2]\n\tstrh %0, [%2, #2]\n\tstrh %0, [%2, #4]\n\tstrh %0, [%2, #6]\n\tstrh %0, [%2, #8]\n\t"
+        "str %0, [sp, #12]\n\tstrb %1, [%2, #16]\n\tstrb %1, [%2, #17]\n\tstr %0, [sp, #20]\n\tstrb %1, [%2, #24]"
+        : : "l" (zero), "l" (byte_zero), "l" (initial_options) : "memory");
+#define RESET_MEDAL_FRAME_SPAN(field, base) do { \
+    register uintptr_t span asm(base); \
+    MEDAL_IN_STACK(span, frame.field); \
+    asm volatile ("str %1, [sp, %2]\n\tstrh %1, [%0, #4]" : : "l" (span), "l" (zero), \
+        "I" (offsetof(Stack, frame.field)) : "memory"); \
+} while (0)
+    RESET_MEDAL_FRAME_SPAN(objects, "r3");
+    RESET_MEDAL_FRAME_SPAN(tiles, "r2");
+    RESET_MEDAL_FRAME_SPAN(palette, "r1");
+    RESET_MEDAL_FRAME_SPAN(extras, "r1");
+#undef RESET_MEDAL_FRAME_SPAN
+    register unsigned phase_offset asm("r1") = MEDAL_LOAD_LITERAL("r1", phase);
+    register i16 * phase_ptr asm("r0") = MEDAL_LOAD_FIELD(i16, "r0", phase_offset);
+    register u32 phase_zero asm("r4") = 0;
+    MEDAL_LOW(phase_zero);
+    register int phase asm("r0");
+    asm ("ldrsh %0, [%1, %2]" : "=l" (phase) : "l" (phase_ptr), "l" (phase_zero) : "memory");
+    // The prize marker follows the selected row relative to the top visible row.
+    if (phase > 0)
+    {
+        READ_MEDAL_FRAME(prize_indicator, "r4");
+        register MedalExchangeFrameView * frame_storage asm("r0");
+        MEDAL_IN_STACK(frame_storage, frame);
+        asm volatile ("ldmia %1!, {r1,r5,r7}\n\tstmia %0!, {r1,r5,r7}\n\t"
+            "ldmia %1!, {r2,r3,r5}\n\tstmia %0!, {r2,r3,r5}\n\t"
+            "ldmia %1!, {r1,r7}\n\tstmia %0!, {r1,r7}"
+            : "+l" (frame_storage), "+l" (fetched) : : "r1", "r2", "r3", "r5", "r7", "memory");
+        MEDAL_COPY_OPTIONS(prize_indicator_draw, "r2,r5,r7", "r7");
+        register SpriteFrameDrawOptions * options_x asm("r1");
+        asm ("mov %0, sp" : "=l" (options_x));
+        register u32 x asm("r0") = MEDAL_CONST("r0", 12);
+        MEDAL_SET_OPTION("strh", options_x, offset_x, x);
+        register SpriteFrameDrawOptions * options_y asm("r2");
+        asm ("mov %0, sp" : "=l" (options_y));
+        register uintptr_t row_offset asm("r3") = MEDAL_LOAD_LITERAL("r3", selected_row);
+        register i16 * row asm("r0") = MEDAL_LOAD_FIELD(i16, "r0", row_offset);
+        register u32 zero_row asm("r4") = MEDAL_CONST("r4", 0);
+        register i32 selected_y asm("r1");
+        asm ("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #4" : "=l" (selected_y)
+            : "l" (row), "l" (zero_row) : "cc", "memory");
+        register uintptr_t first_row_offset asm("r5") = MEDAL_LOAD_LITERAL("r5", first_visible_row);
+        register i16 * first_row asm("r0") = MEDAL_LOAD_FIELD(i16, "r0", first_row_offset);
+        register u32 zero_first_row asm("r7") = MEDAL_CONST("r7", 0);
+        register i32 first_row_y asm("r0");
+        asm ("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #4\n\tsub %0, #40" : "=l" (first_row_y)
+            : "l" (first_row), "l" (zero_first_row) : "cc", "memory");
+        asm ("sub %0, %0, %1" : "+l" (selected_y) : "l" (first_row_y) : "cc");
+        MEDAL_SET_OPTION("strh", options_y, offset_y, selected_y);
+
+        register MedalExchangeObjAllocation * tiles asm("r0") = MEDAL_ALLOC_FIELD(prize_tiles, "r1");
+        register u32 handle asm("r1") = tiles->handle;
+        MEDAL_LOW(handle);
+        register u32 tile_index asm("r0") = ResolveMedalObjTile(tiles, handle);
+        register SpriteFrameDrawOptions * options_tile asm("r1");
+        asm ("mov %0, sp" : "=l" (options_tile));
+        MEDAL_SET_OPTION("strh", options_tile, tile_base, tile_index);
+
+        register MedalExchangeObjAllocation * palette asm("r0") = MEDAL_ALLOC_FIELD(prize_palette, "r2");
+        handle = palette->handle;
+        MEDAL_LOW(handle);
+        register u32 palette_index asm("r0") = ResolveMedalObjPalette(palette, handle);
+        register SpriteFrameDrawOptions * options_palette asm("r1");
+        asm ("mov %0, sp" : "=l" (options_palette));
+        MEDAL_SET_OPTION("strh", options_palette, palette_base, palette_index);
+        register u32 priority asm("r0") = MEDAL_CONST("r0", 2);
+        MEDAL_SET_OPTION("strh", options_palette, priority, priority);
+        register u32 mosaic asm("r0") = MEDAL_CONST("r0", 1);
+        MEDAL_SET_OPTION("strb", options_palette, mosaic, mosaic);
+        MEDAL_DRAW_FRAME("r4");
+    }
+
+
+
+    enum { ARROW_X = 232, TOP_ARROW_Y = 26, BOTTOM_ARROW_Y = 152,
+        MAX_SCROLL_Y = 32, UPPER_ARROW_TILE = 4, LOWER_ARROW_TILE = 8,
+        OBJ_TILE_VRAM = 0x06010000, OBJ_TILE_BYTES = 32 };
+
+#define MEDAL_SCROLL_POS(offset_reg) ({ \
+    register uintptr_t offset asm(offset_reg) = offsetof(MedalExchange, scroll_y); \
+    MEDAL_LOW(offset); \
+    register u16 * scroll asm("r0") = MEDAL_LOAD_FIELD(u16, "r0", offset); \
+    register u32 position asm("r0") = *scroll; \
+    MEDAL_LOW(position); \
+    position; \
+})
+#define MEDAL_PREPARE_ARROW(animation, preset, arrow_y, arrow_tile, tile_address) \
+    READ_MEDAL_FRAME(animation, "r7"); \
+    { \
+        register MedalExchangeFrameView * frame_storage asm("r1"); \
+        MEDAL_IN_STACK(frame_storage, frame); \
+        register MedalExchangeFrameView * result_copy asm("r0") = fetched; \
+        MEDAL_LOW(result_copy); \
+        asm volatile ("ldmia %1!, {r2,r3,r4}\n\tstmia %0!, {r2,r3,r4}\n\t" \
+            "ldmia %1!, {r2,r3,r5}\n\tstmia %0!, {r2,r3,r5}\n\t" \
+            "ldmia %1!, {r4,r5}\n\tstmia %0!, {r4,r5}" \
+            : "+l" (frame_storage), "+l" (result_copy) : : "r2", "r3", "r4", "r5", "memory"); \
+    } \
+    MEDAL_COPY_OPTIONS(preset, "r2,r3,r5", "r5"); \
+    register SpriteFrameDrawOptions * position_options asm("r1"); \
+    asm ("mov %0, sp" : "=l" (position_options)); \
+    register u32 x asm("r0") = MEDAL_CONST("r0", ARROW_X); \
+    MEDAL_SET_OPTION("strh", position_options, offset_x, x); \
+    register u32 y asm("r0") = MEDAL_CONST("r0", arrow_y); \
+    MEDAL_SET_OPTION("strh", position_options, offset_y, y); \
+    register uintptr_t tile_field asm("r5") = offsetof(MedalExchange, cursor_tiles); \
+    MEDAL_LOW(tile_field); \
+    register MedalExchangeObjAllocation * tiles asm("r4") = MEDAL_LOAD_FIELD(MedalExchangeObjAllocation, "r4", tile_field); \
+    register u32 handle asm("r1") = tiles->handle; \
+    MEDAL_LOW(handle); \
+    register u32 tile_index asm("r0") = ResolveMedalObjTile(tiles, handle); \
+    register SpriteFrameDrawOptions * tile_options asm("r1"); \
+    asm ("mov %0, sp" : "=l" (tile_options)); \
+    asm volatile ("add %0, %2\n\tstrh %0, [%1, %3]" : "+l" (tile_index) \
+        : "l" (tile_options), "I" (arrow_tile), "I" (offsetof(SpriteFrameDrawOptions, tile_base)) : "cc", "memory"); \
+    register MedalExchangeObjAllocation * palette asm("r0") = MEDAL_ALLOC_FIELD(cursor_palette, "r1"); \
+    handle = palette->handle; \
+    MEDAL_LOW(handle); \
+    register u32 palette_index asm("r0") = ResolveMedalObjPalette(palette, handle); \
+    register SpriteFrameDrawOptions * palette_options asm("r1"); \
+    asm ("mov %0, sp" : "=l" (palette_options)); \
+    MEDAL_SET_OPTION("strh", palette_options, palette_base, palette_index); \
+    register u32 priority asm("r0") = MEDAL_CONST("r0", 2); \
+    MEDAL_SET_OPTION("strh", palette_options, priority, priority); \
+    register SpriteFrameDrawOptions * mosaic_options asm("r0"); \
+    asm volatile ("mov %0, sp" : "=l" (mosaic_options)); \
+    register u32 one asm("r2") = MEDAL_CONST("r2", 1); \
+    register u32 requested asm("r9") = one; \
+    MEDAL_HIGH(requested); \
+    register u32 mosaic asm("r3") = requested; \
+    MEDAL_LOW(mosaic); \
+    MEDAL_SET_OPTION("strb", mosaic_options, mosaic, mosaic); \
+    register DmaTransferQueue * queue asm("r5") = GetMedalObjectDmaQueue(self); \
+    MEDAL_LOW(queue); \
+    register u8 const * tile_data asm("r0"); \
+    MEDAL_WORK_READ(tile_data, frame.tiles.data); \
+    register u8 const * tile_source asm("r8") = tile_data; \
+    MEDAL_HIGH(tile_source); \
+    handle = tiles->handle; \
+    MEDAL_LOW(handle); \
+    register u32 upload_tile_index asm("r0") = ResolveMedalObjTile(tiles, handle); \
+    MEDAL_LOW(upload_tile_index); \
+    register u32 tile_offset asm("r2") = upload_tile_index; \
+    MEDAL_LOW(tile_offset); \
+    register u8 const * tiles_present asm("r0"); \
+    MEDAL_WORK_READ(tiles_present, frame.tiles.data); \
+    register u32 tile_bytes asm("r3") = MEDAL_CONST("r3", 0); \
+    if (tiles_present) { \
+        register void * stack asm("r1"); \
+        asm ("mov %0, sp" : "=l" (stack)); \
+        asm ("ldrh %0, [%1, %2]" : "=l" (tile_bytes) : "l" (stack), \
+            "I" (offsetof(Stack, frame.tiles.length)) : "memory"); \
+    } \
+    MEDAL_WORK_WRITE(queue, queue); \
+    tile_offset *= OBJ_TILE_BYTES; \
+    MEDAL_LOW(tile_offset); \
+    register u32 destination_base asm("r4") = MEDAL_LOAD_LITERAL("r4", tile_address); \
+    register void * destination asm("r2") = reinterpret_cast<void *>(tile_offset + destination_base); \
+    MEDAL_LOW(destination); \
+    register DmaCommand * command_ptr asm("r0") = reinterpret_cast<DmaCommand *>(fetched); \
+    MEDAL_LOW(command_ptr); \
+    register u8 const * data asm("r1") = tile_source; \
+    MEDAL_LOW(data); \
+    DmaCommand_InitializeCopy(command_ptr, data, destination, tile_bytes); \
+    register DmaCommand * command asm("r10") = reinterpret_cast<DmaCommand *>(fetched); \
+    MEDAL_HIGH(command); \
+    register DmaCommand * tail asm("r1") = queue->end; \
+    MEDAL_LOW(tail); \
+    register DmaCommand * capacity asm("r0") = queue->capacity_end; \
+    MEDAL_LOW(capacity);
+
+#define MEDAL_APPEND_ARROW() do { \
+    register DmaCommand * copy_source asm("r1") = tail; \
+    register DmaCommand * copy_destination asm("r0"); \
+    asm volatile ("cmp %0, #0\n\tbeq 1f\n\tadd %1, %0, #0\n\tmov %0, %2\n\t" \
+        "ldmia %0!, {r2,r5,r7}\n\tstmia %1!, {r2,r5,r7}\n\t" \
+        "ldr %0, [%0]\n\tstr %0, [%1]\n1:" \
+        : "+l" (copy_source), "=&l" (copy_destination) : "h" (command) : "r2", "r5", "r7", "cc", "memory"); \
+    register DmaTransferQueue * stored_queue asm("r3"); \
+    MEDAL_WORK_READ(stored_queue, queue); \
+    register DmaCommand * end asm("r0") = stored_queue->end; \
+    MEDAL_LOW(end); \
+    ++end; \
+    MEDAL_LOW(end); \
+    stored_queue->end = end; \
+} while (0)
+
+    register u32 top_scroll asm("r0") = MEDAL_SCROLL_POS("r5");
+    // Make agbcp allocate r7 and save it in the prologue.
+    register SpriteAttributes * attributes;
+    register unsigned r1 asm("r1"), r2 asm("r2"), r3 asm("r3"), r4 asm("r4"), r5 asm("r5");
+    asm ("" : "=l" (r1), "=l" (r2), "=l" (r3), "=l" (r4), "=l" (r5));
+    asm volatile ("mov %0, sp\n\tadd %0, %1\n\tstr %0, [sp, %2]" : "=&l" (attributes)
+        : "I" (offsetof(Stack, object.attributes)), "I" (offsetof(Stack, attributes_ptr)),
+          "l" (top_scroll), "l" (r1), "l" (r2), "l" (r3), "l" (r4), "l" (r5), "l" (self) : "cc", "memory");
+    if (top_scroll != 0)
+    {
+        MEDAL_PREPARE_ARROW(cursor, cursor_draw, TOP_ARROW_Y, UPPER_ARROW_TILE, upper_tile_destination);
+        // Keep the literal pool between the fast append and the full-queue path.
+        // The full-queue branch carries the original tail in r1 across the pool.
+        asm volatile ("cmp %0, %1\n\tbeq .Lmedal_cpp_grow_upper_arrow"
+            : : "l" (tail), "l" (capacity) : "cc");
+        MEDAL_APPEND_ARROW();
+        typedef char UpperArrowLiteralPoolMatches[
+            offsetof(MedalExchange, exchange_phase) == MEDAL_PHASE_OFFSET &&
+            offsetof(MedalExchange, selected_row) == MEDAL_SELECTED_ROW_OFFSET &&
+            offsetof(MedalExchange, first_visible_row) == MEDAL_FIRST_VISIBLE_ROW_OFFSET &&
+            OBJ_TILE_VRAM + UPPER_ARROW_TILE * OBJ_TILE_BYTES == MEDAL_UPPER_ARROW_VRAM ? 1 : -1];
+        asm volatile ("b .Lmedal_cpp_draw_upper_arrow\n\t.balign 4, 0\n"
+            MEDAL_DRAW_WORD(phase, MEDAL_PHASE_OFFSET)
+            MEDAL_DRAW_WORD(selected_row, MEDAL_SELECTED_ROW_OFFSET)
+            MEDAL_DRAW_WORD(first_visible_row, MEDAL_FIRST_VISIBLE_ROW_OFFSET)
+            MEDAL_DRAW_WORD(upper_tile_destination, MEDAL_UPPER_ARROW_VRAM)
+            ".Lmedal_cpp_grow_upper_arrow:" : "=l" (tail) : : "memory");
+        MEDAL_GROW_ARROW_QUEUE(upper_growth, true, "r4", "r5", "r7", "r4,r5,r7", "r0", "r1", "r3", "r5", "r7");
+        asm volatile (".Lmedal_cpp_draw_upper_arrow:" : : : "memory");
+        MEDAL_DRAW_FRAME("r0");
+    }
+
+    register u32 bottom_scroll asm("r0") = MEDAL_SCROLL_POS("r1");
+    if (bottom_scroll < MAX_SCROLL_Y)
+    {
+        MEDAL_PREPARE_ARROW(menu_icon, menu_icon_draw, BOTTOM_ARROW_Y, LOWER_ARROW_TILE, lower_tile_destination);
+        asm volatile ("cmp %0, %1\n\tbeq .Lmedal_cpp_grow_lower_arrow"
+            : : "l" (tail), "l" (capacity) : "cc");
+        MEDAL_APPEND_ARROW();
+        typedef char LowerArrowLiteralPoolMatches[
+            OBJ_TILE_VRAM + LOWER_ARROW_TILE * OBJ_TILE_BYTES == MEDAL_LOWER_ARROW_VRAM ? 1 : -1];
+        asm volatile ("b .Lmedal_cpp_draw_lower_arrow\n\t.balign 4, 0\n"
+            MEDAL_DRAW_WORD(lower_tile_destination, MEDAL_LOWER_ARROW_VRAM)
+            ".Lmedal_cpp_grow_lower_arrow:" : "=l" (tail) : : "memory");
+        MEDAL_GROW_ARROW_QUEUE(lower_growth, false, "r1", "r0", "r5", "r3,r4,r7", "r5", "r7", "r0", "r1", "r2");
+        asm volatile (".Lmedal_cpp_draw_lower_arrow:" : : : "memory");
+        MEDAL_DRAW_FRAME("r4");
+    }
+#undef MEDAL_SCROLL_POS
+#undef MEDAL_PREPARE_ARROW
+#undef MEDAL_APPEND_ARROW
+
+    // Reuse the OAM entry for each glyph, consuming the glyph list back to front.
+    enum
+    {
+        AFFINE_MASK = 3u << 8,
+        OBJECT_MODE_MASK = 3u << 10,
+        MOSAIC = 1u << 12,
+        COLOR_MODE_MASK = 1u << 13,
+        SHAPE_MASK = 3u << 14,
+        TALL_SHAPE = 2u << 14,
+        AFFINE_INDEX_MASK = 7u << 25,
+        HFLIP_MASK = 1u << 28,
+        VFLIP_MASK = 1u << 29,
+        SIZE_MASK = 3u << 30,
+        PALETTE_MASK = 0xF,
+        X_MASK = 0x1FF,
+        Y_MASK = 0xFF,
+        TILE_MASK = 0x3FF,
+        PRIORITY_MASK = 3u << 10,
+    };
+
+#define MEDAL_PIN(value) asm ("" : "+l" (value))
+#define MEDAL_MASK(name, reg, value) register u32 name asm(reg) = (value); MEDAL_PIN(name)
+#define MEDAL_CLEAR(field) do { \
+    MEDAL_MASK(mask, "r1", ~(field)); \
+    asm ("and %0, %1" : "+l" (flags) : "l" (mask) : "cc"); \
+} while (0)
+#define MEDAL_LOOKUP(result, field, offset_reg) \
+    register uintptr_t offset asm(offset_reg) = offsetof(MedalExchange, field); \
+    MEDAL_PIN(offset); \
+    register MedalExchangeObjAllocation * allocation asm("r0") = \
+        reinterpret_cast<MedalExchangeObjAllocation *>(reinterpret_cast<uintptr_t>(self) + offset); \
+    MEDAL_PIN(allocation); \
+    register u32 handle asm("r1") = allocation->handle; \
+    MEDAL_PIN(handle); \
+    register u32 index asm("r0") = (result)(allocation, handle)
+
+    register u32 flags asm("r0");
+    {
+        MEDAL_MASK(mask, "r1", ~AFFINE_MASK);
+        asm volatile ("ldr %0, [sp, %2]\n\tand %0, %1" : "=l" (flags)
+            : "l" (mask), "I" (offsetof(Stack, object.words[0])) : "cc", "memory");
+    }
+    MEDAL_CLEAR(OBJECT_MODE_MASK);
+    MEDAL_MASK(mosaic, "r4", MOSAIC);
+    asm ("orr %0, %1" : "+l" (flags) : "l" (mosaic) : "cc");
+    MEDAL_CLEAR(COLOR_MODE_MASK);
+    MEDAL_CLEAR(SHAPE_MASK);
+    {
+        MEDAL_MASK(shape, "r1", TALL_SHAPE);
+        asm ("orr %0, %1" : "+l" (flags) : "l" (shape) : "cc");
+    }
+    MEDAL_CLEAR(AFFINE_INDEX_MASK);
+    MEDAL_CLEAR(HFLIP_MASK);
+    MEDAL_CLEAR(VFLIP_MASK);
+    MEDAL_CLEAR(SIZE_MASK);
+    MEDAL_WORK_WRITE(flags, object.words[0]);
+#undef MEDAL_CLEAR
+    {
+        MEDAL_LOOKUP(ResolveMedalObjPalette, glyph_palette, "r5");
+        asm ("lsl %0, %0, #16\n\tlsr %0, %0, #16" : "+l" (index) : : "cc");
+        MEDAL_MASK(mask, "r1", PALETTE_MASK);
+        asm ("and %0, %1\n\tlsl %0, %0, #12" : "+l" (index) : "l" (mask) : "cc");
+        MEDAL_MASK(clear_palette, "r2", ~(PALETTE_MASK << 12));
+        register SpriteAttributes * attributes asm("r7");
+        MEDAL_WORK_READ(attributes, attributes_ptr);
+        register u32 palette_word asm("r1");
+        asm ("ldr %0, [%1, #4]\n\tand %0, %2\n\torr %0, %3" : "=&l" (palette_word)
+            : "l" (attributes), "l" (clear_palette), "l" (index) : "cc", "memory");
+        MEDAL_MASK(low_halfword, "r0", 0xFFFF);
+        asm volatile ("and %0, %2\n\tstr %0, [%1, #4]" : "+l" (palette_word)
+            : "l" (attributes), "l" (low_halfword) : "cc", "memory");
+    }
+    MEDAL_WORK_READ(flags, object.words[0]);
+    asm ("orr %0, %1" : "+l" (flags) : "l" (mosaic) : "cc");
+    MEDAL_WORK_WRITE(flags, object.words[0]);
+
+#define MEDAL_POP_GLYPH(count_ptr) ({ \
+    register i32 remaining asm("r0"); \
+    asm volatile ("ldrh %0, [%1]\n\tsub %0, #1\n\tstrh %0, [%1]\n\tlsl %0, %0, #16" \
+        : "=l" (remaining) : "l" (count_ptr) : "cc", "memory"); \
+    remaining; \
+})
+#define MEDAL_GLYPH_FIELD(address, address_reg, field, index_reg, field_reg, zero_reg) \
+    MEDAL_MASK(zero_index, zero_reg, 0); \
+    register int glyph_offset asm(index_reg); \
+    asm ("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #3" : "=l" (glyph_offset) \
+        : "l" (glyph_count), "l" (zero_index) : "cc", "memory"); \
+    MEDAL_MASK(field_offset, field_reg, offsetof(MedalExchange, glyphs) + offsetof(MedalExchangeGlyph, field)); \
+    register uintptr_t field_base asm(address_reg) = reinterpret_cast<uintptr_t>(self) + field_offset; \
+    MEDAL_PIN(field_base); \
+    register __typeof__(&self->glyphs[0].field) address asm(address_reg) = \
+        reinterpret_cast<__typeof__(address)>(field_base + glyph_offset); \
+    MEDAL_PIN(address)
+
+    MEDAL_MASK(glyph_count_offset, "r0", offsetof(MedalExchange, glyph_count));
+    register i16 * count_ptr asm("r1") =
+        reinterpret_cast<i16 *>(reinterpret_cast<uintptr_t>(self) + glyph_count_offset);
+    MEDAL_PIN(count_ptr);
+    register i32 first_glyph asm("r0") = MEDAL_POP_GLYPH(count_ptr);
+    asm volatile ("cmp %0, #0\n\tblt .Lmedal_exchange_glyphs_done" : : "l" (first_glyph) : "cc");
+    register i16 * glyph_count asm("r4") = count_ptr;
+    MEDAL_PIN(glyph_count);
+    register SpriteAttributes * glyph asm("r5");
+    MEDAL_WORK_READ(glyph, attributes_ptr);
+    do
+    {
+        {
+            MEDAL_GLYPH_FIELD(priority, "r0", oam_priority, "r1", "r3", "r2");
+            register u32 value asm("r1") = *priority;
+            MEDAL_PIN(value);
+            MEDAL_MASK(mask, "r0", 3);
+            asm ("and %0, %1\n\tlsl %0, %0, #10" : "+l" (value) : "l" (mask) : "cc");
+            MEDAL_MASK(clear_priority, "r2", ~PRIORITY_MASK);
+            asm volatile ("ldr r0, [%0, #4]\n\tand r0, %2\n\torr r0, %1\n\tstr r0, [%0, #4]"
+                : : "l" (glyph), "l" (value), "l" (clear_priority) : "r0", "cc", "memory");
+        }
+        register u32 position asm("r2");
+        {
+            MEDAL_GLYPH_FIELD(x, "r0", x, "r1", "r2", "r7");
+            MEDAL_MASK(x_zero, "r3", 0);
+            register u32 value asm("r1");
+            asm ("ldrsh %0, [%1, %2]" : "=l" (value) : "l" (x), "l" (x_zero) : "memory");
+            MEDAL_MASK(mask, "r0", X_MASK);
+            asm ("and %0, %1\n\tlsl %0, %0, #16" : "+l" (value) : "l" (mask) : "cc");
+            MEDAL_MASK(clear_x, "r0", ~(X_MASK << 16));
+            asm volatile ("ldr %0, [sp, %3]\n\tand %0, %2\n\torr %0, %1" : "=l" (position)
+                : "l" (value), "l" (clear_x), "I" (offsetof(Stack, object.words[0])) : "cc", "memory");
+        }
+        {
+            MEDAL_GLYPH_FIELD(y, "r0", y, "r1", "r3", "r7");
+            register u32 value asm("r1") = *reinterpret_cast<u8 const *>(y);
+            MEDAL_PIN(value);
+            MEDAL_MASK(clear_y, "r0", ~Y_MASK);
+            asm ("and %0, %2\n\torr %0, %1" : "+l" (position)
+                : "l" (value), "l" (clear_y) : "cc");
+            MEDAL_WORK_WRITE(position, object.words[0]);
+        }
+        {
+            MEDAL_LOOKUP(ResolveMedalObjTile, glyph_tiles, "r7");
+            MEDAL_GLYPH_FIELD(tile, "r1", tile, "r2", "r3", "r1");
+            MEDAL_MASK(tile_zero, "r7", 0);
+            asm ("ldrsh %1, [%1, %2]\n\tlsl %1, %1, #1\n\tadd %0, %0, %1\n\t"
+                "lsl %0, %0, #22\n\tlsr %0, %0, #22"
+                : "+l" (index), "+l" (tile) : "l" (tile_zero) : "cc", "memory");
+            MEDAL_MASK(clear_tile, "r2", ~TILE_MASK);
+            asm volatile ("ldr r1, [%0, #4]\n\tand r1, %1\n\torr r1, %2\n\tstr r1, [%0, #4]"
+                : : "l" (glyph), "l" (clear_tile), "l" (index) : "r1", "cc", "memory");
+        }
+        register SpriteOamBuffer * oam asm("r3") = GetMedalObjectBuffer(self);
+        MEDAL_PIN(oam);
+        register unsigned count asm("r2") = oam->sprite_count;
+        MEDAL_PIN(count);
+        if (count < sizeof(oam->sprites) / sizeof(oam->sprites[0]))
+        {
+            register uintptr_t offset asm("r1") = count * sizeof(SpriteAttributes);
+            MEDAL_PIN(offset);
+            offset += offsetof(SpriteOamBuffer, sprites);
+            MEDAL_PIN(offset);
+            register SpriteAttributes * out asm("r1") =
+                reinterpret_cast<SpriteAttributes *>(reinterpret_cast<uintptr_t>(oam) + offset);
+            MEDAL_PIN(out);
+            register u32 pos asm("r0");
+            MEDAL_WORK_READ(pos, object.words[0]);
+            out->words[0] = pos;
+            register SpriteAttributes const * attrs asm("r7");
+            MEDAL_WORK_READ(attrs, attributes_ptr);
+            register u32 tile_palette asm("r0");
+            asm ("ldrh %0, [%1, #4]" : "=l" (tile_palette) : "l" (attrs) : "memory");
+            reinterpret_cast<u16 *>(out)[2] = tile_palette;
+            register u32 next asm("r0") = count + 1;
+            MEDAL_PIN(next);
+            oam->sprite_count = next;
+        }
+    } while (MEDAL_POP_GLYPH(glyph_count) >= 0);
+    asm volatile (".Lmedal_exchange_glyphs_done:");
+
+#undef MEDAL_GLYPH_FIELD
+#undef MEDAL_POP_GLYPH
+#undef MEDAL_LOOKUP
+#undef MEDAL_MASK
+#undef MEDAL_PIN
+
+}
+
+#undef MEDAL_GROW_ARROW_QUEUE
+#undef MEDAL_ALLOC_FIELD
+#undef MEDAL_DRAW_FRAME
+#undef MEDAL_COPY_OPTIONS
+#undef READ_MEDAL_FRAME
+#undef MEDAL_LOAD_FIELD
+#undef MEDAL_LOAD_LITERAL
+#undef MEDAL_LOWER_ARROW_VRAM
+#undef MEDAL_UPPER_ARROW_VRAM
+#undef MEDAL_DRAW_WORD
+#undef MEDAL_FIELD
+#undef MEDAL_CONST
+#undef MEDAL_SET_OPTION
+#undef MEDAL_WORK_WRITE
+#undef MEDAL_WORK_READ
+#undef MEDAL_IN_STACK
+#undef MEDAL_HIGH
+#undef MEDAL_LOW
+#undef MEDAL_PHASE_OFFSET
 #undef MEDAL_FIRST_VISIBLE_ROW_OFFSET
 #undef MEDAL_SELECTED_ROW_OFFSET
+#undef STRINGIFY_MEDAL_VALUE

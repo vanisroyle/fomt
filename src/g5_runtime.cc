@@ -47,7 +47,7 @@ EC SECTION(".text.g5_init") void StartJoybus() // 0x080D02F0
         state->unknown_00[5] = 0;
         state->unknown_00[6] = 0;
         state->unknown_00[7] = 0;
-        state->unknown_00[8] = 1;
+        state->unknown_00[JOYBUS_TRANSFER_TOTAL] = 1;
         state->status = 0;
         state->transferred_halfwords = 0;
         state->busy = 0;
@@ -245,6 +245,19 @@ EC SECTION(".text.g5_queries") bool func_080D06B4()
 EC SECTION(".text.g5_queries") u32 func_080D06D0()
 {
     return gJoybusState->unknown_00[6];
+}
+
+static inline u32 GetScaledJoybusProgress(JoybusState * state)
+{
+    register u32 completed asm("r1") = state->unknown_00[JOYBUS_TRANSFER_PROGRESS];
+    asm ("" : "+l" (completed));
+    return 100 * completed;
+}
+
+EC SECTION(".text.g5_080D06DC") u32 Joybus_GetTransferProgressPercent() // 0x080D06DC
+{
+    u32 total = gJoybusState->unknown_00[JOYBUS_TRANSFER_TOTAL];
+    return total != 0 ? GetScaledJoybusProgress(gJoybusState) / total : 0;
 }
 
 EC SECTION(".text.g5_080D0704") void Joybus_HandleSerialInterrupt() // 0x080D0704
