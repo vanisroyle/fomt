@@ -1643,6 +1643,7 @@ SECTIONS
         src/g5_helpers.o(.text.g5_080CE1C4);
         src/g5_panels.o(.text.g5_080CE294);
         asm/code_080C8360.o(.text.g5_after_080CE294);
+        src/g5_paged_initialization.o(.text.g5_080CE2FC);
         src/g5_commands.o(.text.g5_080CE3DC);
         asm/code_080C8360.o(.text.g5_after_080CE3DC);
         src/g5_commands.o(.text.g5_080CE480);
@@ -1661,6 +1662,8 @@ SECTIONS
         asm/code_080C8360.o(.text.g5_after_080CFB28);
         src/g5_map_graphics.o(.text.g5_080CFB5C);
         asm/code_080C8360.o(.text.g5_after_080CFB5C);
+        src/g5_field_tiles.o(.text.g5_080CFEA8);
+        asm/code_080C8360.o(.text.g5_after_080CFEA8);
         src/g5_memory.o(.text);
         src/g5_runtime.o(.text.g5_init);
         src/g5_runtime.o(.text.g5_080D035C);

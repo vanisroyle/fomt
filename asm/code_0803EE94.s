@@ -27463,140 +27463,6 @@ func_08048FFC: @ 0x08048FFC
 
 
 
-	.section .text.message_rendering.0804E4AC
-	thumb_func_start DrawMessageGlyph
-DrawMessageGlyph: @ 0x0804E4AC
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0x8c
-	adds r5, r0, #0
-	mov sb, r1
-	adds r6, r2, #0
-	adds r7, r3, #0
-	ldr r1, [sp, #0xac]
-	add r0, sp, #4
-	bl Font_DecodeGlyph
-	mov sl, r0
-	subs r0, #1
-	cmp r0, #1
-	bhi .L0804E598
-	lsrs r4, r6, #3
-	str r4, [sp, #0x84]
-	lsrs r2, r7, #3
-	lsls r0, r5, #0x10
-	lsrs r0, r0, #0x10
-	mov r8, r0
-	lsrs r0, r5, #0x10
-	mov ip, r0
-	cmp r4, r8
-	bhs .L0804E594
-	cmp r2, r0
-	bhs .L0804E594
-	movs r1, #0
-	movs r3, #7
-	adds r0, r6, #0
-	ands r0, r3
-	cmp r0, #0
-	bne .L0804E4F6
-	movs r1, #1
-.L0804E4F6:
-	cmp r1, #0
-	beq .L0804E584
-	movs r1, #0
-	adds r0, r7, #0
-	ands r0, r3
-	cmp r0, #0
-	bne .L0804E506
-	movs r1, #1
-.L0804E506:
-	cmp r1, #0
-	beq .L0804E584
-	movs r0, #0
-	str r0, [sp, #0x88]
-	adds r0, r4, #1
-	cmp r0, r8
-	bhs .L0804E518
-	movs r1, #1
-	str r1, [sp, #0x88]
-.L0804E518:
-	movs r7, #0
-	adds r5, r2, #1
-	cmp r5, ip
-	bhs .L0804E522
-	movs r7, #1
-.L0804E522:
-	mov r0, r8
-	muls r0, r2, r0
-	adds r0, r0, r4
-	lsls r0, r0, #5
-	mov r2, sb
-	adds r6, r0, r2
-	add r0, sp, #4
-	adds r1, r6, #0
-	movs r2, #8
-	bl CpuFastSet
-	cmp r7, #0
-	beq .L0804E54E
-	mov r1, r8
-	muls r1, r5, r1
-	adds r1, r1, r4
-	lsls r1, r1, #5
-	add r1, sb
-	add r0, sp, #0x44
-	movs r2, #8
-	bl CpuFastSet
-.L0804E54E:
-	ldr r0, [sp, #0x88]
-	cmp r0, #0
-	beq .L0804E594
-	mov r1, sl
-	cmp r1, #1
-	bls .L0804E594
-	adds r1, r6, #0
-	adds r1, #0x20
-	add r0, sp, #0x24
-	movs r2, #8
-	bl CpuFastSet
-	cmp r7, #0
-	beq .L0804E594
-	mov r0, r8
-	muls r0, r5, r0
-	ldr r2, [sp, #0x84]
-	adds r1, r2, r0
-	lsls r0, r1, #5
-	mov r2, sb
-	adds r1, r0, r2
-	adds r1, #0x20
-	add r0, sp, #0x64
-	movs r2, #8
-	bl CpuFastSet
-	b .L0804E594
-.L0804E584:
-	add r0, sp, #4
-	str r0, [sp]
-	adds r0, r5, #0
-	mov r1, sb
-	adds r2, r6, #0
-	adds r3, r7, #0
-	bl DrawUnalignedMessageGlyph
-.L0804E594:
-	mov r0, sl
-	b .L0804E59A
-.L0804E598:
-	movs r0, #0
-.L0804E59A:
-	add sp, #0x8c
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r1}
-	bx r1
-	.align 2, 0
 	.section .text.message_rendering.0804E5AC
 	thumb_func_start DrawMessageGlyphWithColors
 DrawMessageGlyphWithColors: @ 0x0804E5AC
@@ -30178,196 +30044,6 @@ sub_08050342: @ 0x08050342
 	bx r1
 	.align 2, 0
 .L08050398: .4byte vtable_unk_080E78F0
-
-	.section .text.message_window.08050664
-	thumb_func_start SetMessageWindowStatePromptChoices
-SetMessageWindowStatePromptChoices: @ 0x08050664
-	push {r4, r5, r6, r7, lr}
-	mov r7, sl
-	mov r6, sb
-	mov r5, r8
-	push {r5, r6, r7}
-	sub sp, #0xc
-	adds r5, r0, #0
-	adds r7, r1, #0
-	str r2, [sp, #8]
-	mov sl, r3
-	ldr r0, [sp, #0x2c]
-	mov sb, r0
-	ldr r6, [sp, #0x30]
-	cmp r7, #0
-	beq .L0805068C
-	adds r0, r7, #0
-	bl strlen
-	cmp r0, #0x1c
-	bls .L0805068E
-.L0805068C:
-	ldr r7, .L080506B4 @ =gUnk_080F9F3C
-.L0805068E:
-	movs r4, #7
-	movs r1, #0xc
-	mov r8, r1
-	cmp r6, #0
-	bne .L080506A6
-	movs r4, #6
-	mov r2, sb
-	cmp r2, #0
-	bne .L080506A6
-	movs r0, #0x1a
-	mov r8, r0
-	movs r4, #5
-.L080506A6:
-	cmp r4, #6
-	beq .L080506CE
-	cmp r4, #6
-	bgt .L080506B8
-	cmp r4, #5
-	beq .L080506E2
-	b .L080506BC
-	.align 2, 0
-.L080506B4: .4byte gUnk_080F9F3C
-.L080506B8:
-	cmp r4, #7
-	beq .L080506BE
-.L080506BC:
-	movs r4, #5
-.L080506BE:
-	cmp r6, #0
-	beq .L080506CC
-	adds r0, r6, #0
-	bl strlen
-	cmp r0, r8
-	bls .L080506CE
-.L080506CC:
-	ldr r6, .L08050730 @ =gUnk_080F9F3C
-.L080506CE:
-	mov r1, sb
-	cmp r1, #0
-	beq .L080506DE
-	mov r0, sb
-	bl strlen
-	cmp r0, r8
-	bls .L080506E2
-.L080506DE:
-	ldr r2, .L08050730 @ =gUnk_080F9F3C
-	mov sb, r2
-.L080506E2:
-	mov r0, sl
-	cmp r0, #0
-	beq .L080506F0
-	bl strlen
-	cmp r0, r8
-	bls .L080506F4
-.L080506F0:
-	ldr r1, .L08050730 @ =gUnk_080F9F3C
-	mov sl, r1
-.L080506F4:
-	ldr r2, [sp, #8]
-	cmp r2, #0
-	beq .L08050704
-	adds r0, r2, #0
-	bl strlen
-	cmp r0, r8
-	bls .L08050708
-.L08050704:
-	ldr r0, .L08050730 @ =gUnk_080F9F3C
-	str r0, [sp, #8]
-.L08050708:
-	adds r0, r5, #0
-	adds r0, #0xd0
-	bl ClearMessageTextCursor
-	movs r1, #0
-	mov r0, sp
-	strb r1, [r0]
-	adds r0, r5, #0
-	mov r1, sp
-	adds r2, r7, #0
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-	cmp r4, #6
-	beq .L08050750
-	cmp r4, #6
-	bgt .L08050734
-	cmp r4, #5
-	beq .L08050768
-	b .L08050798
-	.align 2, 0
-.L08050730: .4byte gUnk_080F9F3C
-.L08050734:
-	cmp r4, #7
-	bne .L08050798
-	movs r0, #7
-	movs r1, #4
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #1
-	strb r0, [r1]
-	adds r0, r5, #0
-	adds r2, r6, #0
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-.L08050750:
-	adds r0, r4, #0
-	movs r1, #3
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #2
-	strb r0, [r1]
-	adds r0, r5, #0
-	mov r2, sb
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-.L08050768:
-	adds r0, r4, #0
-	movs r1, #2
-	bl GetMessageChoicePosition
-	mov r1, sp
-	adds r1, #3
-	strb r0, [r1]
-	adds r0, r5, #0
-	mov r2, sl
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-	adds r0, r4, #0
-	movs r1, #1
-	bl GetMessageChoicePosition
-	add r1, sp, #4
-	strb r0, [r1]
-	adds r0, r5, #0
-	ldr r2, [sp, #8]
-	ldr r3, [sp, #0x34]
-	bl DrawMessageChoiceText
-	b .L0805079A
-.L08050798:
-	movs r4, #5
-.L0805079A:
-	movs r1, #0xae
-	lsls r1, r1, #1
-	adds r0, r5, r1
-	str r4, [r0]
-	movs r2, #0xac
-	lsls r2, r2, #1
-	adds r1, r5, r2
-	movs r0, #1
-	str r0, [r1]
-	movs r0, #6
-	str r0, [r5, #8]
-	movs r1, #0xe0
-	lsls r1, r1, #1
-	adds r0, r5, r1
-	adds r2, #8
-	adds r1, r5, r2
-	movs r2, #0
-	bl func_0805E850
-	add sp, #0xc
-	pop {r3, r4, r5}
-	mov r8, r3
-	mov sb, r4
-	mov sl, r5
-	pop {r4, r5, r6, r7}
-	pop {r0}
-	bx r0
-
 
 	.section .text.message_window.080507F8
 	thumb_func_start DrawMessageChoiceText
@@ -120128,7 +119804,7 @@ func_0808A55C: @ 0x0808A55C
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
@@ -127713,7 +127389,7 @@ func_0808E6FC: @ 0x0808E6FC
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
@@ -131623,7 +131299,7 @@ func_08090960: @ 0x08090960
 	movs r0, #0xc8
 	bl __builtin_new
 	adds r1, r7, #0
-	bl func_080CE2FC
+	bl InventoryMenu_InitializePagedDrawPanel
 	adds r4, r7, #0
 	adds r4, #0x94
 	adds r5, r0, #0
