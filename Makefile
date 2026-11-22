@@ -112,6 +112,17 @@ $(FONT_BINS): $(BUILD_DIR)/assets/fonts.stamp
 
 $(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/fonts.stamp $(FONT_BINS)
 
+$(BUILD_DIR)/assets/graphics.stamp: FORCE
+	@$(PYTHON) tools/assets/graphics_assets.py build
+
+GRAPHICS_PRODUCTS := $(BUILD_DIR)/assets/graphics.s $(foreach part,tiles palette map,$(BUILD_DIR)/assets/graphics-$(part)-slot.bin $(BUILD_DIR)/assets/graphics-$(part)-overflow.bin)
+GRAPHICS_PRODUCTS += $(foreach part,title-resource title-background title-palette title-map-0 title-map-1 title-map-2 title-map-3,$(BUILD_DIR)/assets/graphics-$(part).s $(BUILD_DIR)/assets/graphics-$(part)-slot.bin $(BUILD_DIR)/assets/graphics-$(part)-overflow.bin)
+
+$(GRAPHICS_PRODUCTS): $(BUILD_DIR)/assets/graphics.stamp
+	@test -f $@
+
+$(BUILD_DIR)/asm/data/data_0813B288.o: $(BUILD_DIR)/assets/graphics.stamp $(GRAPHICS_PRODUCTS)
+
 ifneq (,$(and $(filter extract,$(MAKECMDGOALS)),$(filter-out extract clean assets-test,$(MAKECMDGOALS))))
 $(error run `make extract` on its own, then build in a separate make invocation)
 endif
@@ -119,6 +130,7 @@ endif
 extract:
 	@$(PYTHON) tools/assets/fomt_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
 	@$(PYTHON) tools/assets/font_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
+	@$(PYTHON) tools/assets/graphics_assets.py extract $(if $(filter 1,$(FORCE)),--force,)
 
 assets-test:
 	@$(PYTHON) -m unittest discover -s tools/assets -p 'test_*.py'

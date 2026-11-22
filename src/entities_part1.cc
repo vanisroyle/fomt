@@ -198,7 +198,7 @@ EC void FarmerEntityInitNoOp(FarmerEntity * self);
 EC char const vtable_unk_080E6658[];
 EC void func_0802F0EC(FarmerEntity * self, u32 first, u32 second);
 EC u32 SelectFarmerAnimation(FarmerEntity * self);
-EC void func_0803242C(AActorEntity * self, u32 argument);
+EC void AdvanceSideEntitySlide(AActorEntity * self, u32 argument);
 
 inline i32 GetFarmerAnimationState(FarmerEntity const * self)
 {
@@ -1515,7 +1515,7 @@ EC void func_08025018(FarmerEntity * self, u32 argument)
             if (self->anim_id != anim)
                 self->SetAnim(anim);
         }
-        func_0803242C(self, argument);
+        AdvanceSideEntitySlide(self, argument);
     }
 }
 

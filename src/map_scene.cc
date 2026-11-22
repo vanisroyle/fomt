@@ -294,10 +294,10 @@ struct MapSceneContents
 
 EC ResourceHandleOwner * ResourceHandles_Initialize(ResourceHandleOwner *);
 EC void ResourceHandles_Destroy(ResourceHandleOwner *, u32);
-EC void func_080073E0(ResourceHandleOwner *, u32);
+EC void ResourceHandle_Release(ResourceHandleOwner *, u32);
 EC u8 vtable_unk_080E5A28[];
 EC u32 func_0800736C(ResourceHandleOwner *);
-EC u8 func_080074C0(ResourceHandleOwner *);
+EC u8 ResourceHandle_GetIndex(ResourceHandleOwner *);
 EC SpriteAnimationData * InitSpriteAnimationData(SpriteAnimationData *, void const *);
 EC u8 const gUnk_0858BA28[], gUnk_086678A0[], gUnk_0871EF00[], gUnk_086FAA80[], gUnk_0871D51C[];
 EC u8 const gUnk_0871EDD4[], gUnk_0871ECAC[], gUnk_08667060[], gUnk_08727A74[], gUnk_08726CCC[];
@@ -403,7 +403,7 @@ EC SECTION(".text.080AC674") MapSceneContents * InitializeMapSceneContents(MapSc
         register unsigned handle asm("r1") = func_0800736C(reinterpret_cast<ResourceHandleOwner *>(resource));
         asm ("" : "+l" (handle));
         resource->handle = handle;
-        resource->status = func_080074C0(reinterpret_cast<ResourceHandleOwner *>(resource));
+        resource->status = ResourceHandle_GetIndex(reinterpret_cast<ResourceHandleOwner *>(resource));
         resource->palette = 0xFF;
         register unsigned flags asm("r2") = resourceZero;
         asm ("" : "+l" (flags));
@@ -618,7 +618,7 @@ EC SECTION(".text.080AC85C") void DestroyMapSceneContents(MapSceneContents * inp
         {
             --resource;
             asm ("" : "+l" (resource));
-            func_080073E0(reinterpret_cast<ResourceHandleOwner *>(resource), resource->handle);
+            ResourceHandle_Release(reinterpret_cast<ResourceHandleOwner *>(resource), resource->handle);
             ResourceHandles_Destroy(reinterpret_cast<ResourceHandleOwner *>(resource), 2);
         }
     }
@@ -1172,7 +1172,7 @@ struct MapTileEffectQueue
     MapTileEffectState * state;
 };
 
-EC void func_08007C28(MapTileEffectResource &, u32);
+EC void TileHandle_Release(MapTileEffectResource &, u32);
 EC u32 func_08007B54(MapTileEffectResource *, u32);
 
 EC SECTION(".text.080AB68C") void ScheduleMapTileEffect(MapTileEffectQueue * queue, int x, int y, u32 type)
@@ -1255,7 +1255,7 @@ EC SECTION(".text.080AB68C") void ScheduleMapTileEffect(MapTileEffectQueue * que
                     register MapTileEffectResource * releaseResource asm("r0") = resource;
                     asm ("" : "+l" (releaseResource));
                     volatile u32 savedType = effectType;
-                    func_08007C28(*releaseResource, previousHandle);
+                    TileHandle_Release(*releaseResource, previousHandle);
                     register u32 handle asm("r0") = func_08007B54(resource, allocationCount);
                     resource->handle = handle;
                     register u32 negatedHandle asm("r1") = -handle;
@@ -1371,7 +1371,7 @@ EC SECTION(".text.080AB2E4") void DestroyMapTileEffectQueue(MapTileEffectQueue *
                                 asm ("" : "+l" (resource));
                                 register unsigned handle asm("r1") = resource->handle;
                                 asm ("" : "+l" (handle));
-                                func_08007C28(*resource, handle);
+                                TileHandle_Release(*resource, handle);
                                 TileHeapOwner_Destroy(resource, 2);
                             } while (firstResource != resource);
                         }
@@ -1453,7 +1453,7 @@ EC SECTION(".text.080AB380") void UpdateMapTileEffectQueue(MapTileEffectQueue & 
                     asm ("" : "+l" (resourceOffset));
                     register u8 * record asm("r0");
                     asm ("add %0, %1, %2" : "=l" (record) : "l" (resourceOffset), "l" (assets) : "cc");
-                    func_08007C28(*reinterpret_cast<MapTileEffectResource *>(record + offsetof(MapTileEffectAssets, resources)), *handle);
+                    TileHandle_Release(*reinterpret_cast<MapTileEffectResource *>(record + offsetof(MapTileEffectAssets, resources)), *handle);
                     *handle = zero;
                     handle += sizeof(MapTileEffectResource) / sizeof(u32);
                     ++resource;
